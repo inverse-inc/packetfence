@@ -76,6 +76,13 @@ Caracter that split the username and otp
 has split_char => (is => 'rw' );
 
 
+our %ACTIONS = (
+    "push" => \&push,
+    "sms"  => \&sms,
+    "totp"  => \&totp,
+    "phone" => \&phone
+);
+    
 =head2 check_user
 
 Get the devices of the user
@@ -91,47 +98,106 @@ sub check_user {
         $logger->error("Not able to fetch the devices");
         return;
     }
-
-    my @device = grep {exists $_->{'default'} } @{$devices->{'result'}->{'devices'}};
+ 
+    my @default_device = grep {exists $_->{'default'} } @{$devices->{'result'}->{'devices'}};
     if ($self->radius_mfa_method eq 'push') {
-        if ( grep $_ eq 'push', @{$device[0]->{'methods'}}) {
-            my $post_fields = encode_json({device => $device[0]->{'device'}, method => "push", username => $username});
-            my $chi = pf::CHI->new(namespace => 'mfa');
-            my ($auth, $error)= $chi->compute($device[0]->{'device'}, sub {
-                    return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
-                }
-            );
-            if ($error) {
-                return
-            }
-            my $i = 0;
-            while(1) {
-                my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
-                if ($answer->{'result'} eq 'allow') {
-                    return $TRUE;
-                }
-                sleep(5);
-                last if ($i++ == 6);
-            }
-            return $FALSE;
+        if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
+            $self->${$ACTIONS{'push'}}->($default_device[0]->{'device'},$username);
         }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp') {
-        if ( grep $_ eq 'totp', @{$device[0]->{'methods'}}) {
-            my $post_fields = encode_json({device => $device[0]->{'device'}, method => { "offline_otp" => {"code" => $otp} } , username => $username});
-            my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
-            if ($error) {
-                return $FALSE;
+        if ($otp =~ /^\d{6,6}$/) {
+            if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
+                return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
             }
-            if ($auth->{'result'}->{'status'} eq 'allow') {
-                $logger->warn("Authentication sucessfull on Akamai MFA");
-                return $TRUE;
+        } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
+            my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
+	    foreach my $device (@device) {
+                return $ACTIONS{$1}->($self,$device->{'device'},$username,$otp);
             }
-            $logger->warn("Authentication denied on Akamai MFA, reason: ". $auth->{'result'}->{'status'}->{'deny'}->{'reason'});
+        } else {
+            $logger->warn("Method not supported");
             return $FALSE;
         }
     }
 }
+
+=head2 select_phone
+
+Select the phone to trigger the MFA
+
+=cut
+
+sub select_phone {
+    my ($self, $devices, $phone_id) = @_;
+    my $logger = get_logger();
+    my @device;
+    if (defined($phone_id) && $phone_id ne "") {
+        if ($phone_id == 1 || $phone_id == 0) {
+            # Return the default phone
+            @device = grep { $_->{'default'} == 1} @{$devices};
+        }
+        # Return the n-1 phone
+        @device = @{$devices}[$phone_id-1];
+    } else {
+        # Return the default phone
+        @device = grep { $_->{'default'} == 1 } @{$devices};
+    }
+    return @device;
+}
+
+=head2 totp
+
+totp method
+
+=cut
+
+sub totp {
+    my ($self, $device, $username, $otp) = @_;
+    my $logger = get_logger();
+    my $post_fields = encode_json({device => $device, method => { "offline_otp" => {"code" => $otp} } , username => $username});
+    my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+    if ($error) {
+        return $FALSE;
+    }
+    if ($auth->{'result'}->{'status'} eq 'allow') {
+        $logger->warn("Authentication sucessfull on Akamai MFA");
+        return $TRUE;
+    }
+    $logger->warn("Authentication denied on Akamai MFA, reason: ". $auth->{'result'}->{'status'}->{'deny'}->{'reason'});
+    return $FALSE;
+}
+
+=head2 push
+
+push method
+
+=cut
+
+sub push {
+    my ($self, $device, $username) =@_;
+    my $logger = get_logger();
+    my $post_fields = encode_json({device => $device, method => "push", username => $username});
+    my $chi = pf::CHI->new(namespace => 'mfa');
+    my ($auth, $error)= $chi->compute($device, sub {
+            return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
+        }
+    );
+    if ($error) {
+        return
+    }
+    my $i = 0;
+    while(1) {
+        my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+        if ($answer->{'result'} eq 'allow') {
+            return $TRUE;
+        }
+        sleep(5);
+        last if ($i++ == 6);
+    }
+    return $FALSE;
+}
+
 
 =head2 devices_list
 
@@ -206,7 +272,7 @@ sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger();
 
-    $uri = $self->proto."://$self->host".$uri;
+    $uri = "https://mfa.akamai.com/".$uri;
 
     my $curl = WWW::Curl::Easy->new;
     my $request = $post_fields;
@@ -245,7 +311,7 @@ sub _get_curl {
     my ($self, $uri) = @_;
     my $logger = get_logger();
 
-    $uri = $self->proto."://$self->host/".$uri;
+    $uri = "https://mfa.akamai.com/".$uri;
 
     my $curl = WWW::Curl::Easy->new;
 
