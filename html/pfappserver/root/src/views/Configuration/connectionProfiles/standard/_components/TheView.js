@@ -12,7 +12,7 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import { renderHOCWithScopedSlots } from '@/components/new/'
-import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
+import { useViewCollectionItem, useViewCollectionItemProps } from '@/views/Configuration/_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
 
 const props = {

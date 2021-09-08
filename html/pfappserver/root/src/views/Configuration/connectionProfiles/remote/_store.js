@@ -2,7 +2,27 @@
 * "$_remote_connection_profiles" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import api from './_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_remote_connection_profiles/isLoading']),
+    getList: () => $store.dispatch('$_remote_connection_profiles/all'),
+    getListOptions: () => $store.dispatch('$_remote_connection_profiles/options'),
+    createItem: params => $store.dispatch('$_remote_connection_profiles/createRemoteConnectionProfile', params),
+    sortItems: params => $store.dispatch('$_remote_connection_profiles/sortRemoteConnectionProfiles', params.items),
+    getItem: params => $store.dispatch('$_remote_connection_profiles/getRemoteConnectionProfile', params.id).then(item => {
+      return (params.isClone)
+        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        : item
+    }),
+    getItemOptions: params => $store.dispatch('$_remote_connection_profiles/options', params.id),
+    updateItem: params => $store.dispatch('$_remote_connection_profiles/updateRemoteConnectionProfile', params),
+    deleteItem: params => $store.dispatch('$_remote_connection_profiles/deleteRemoteConnectionProfile', params.id),
+  }
+}
 
 const types = {
   LOADING: 'loading',
@@ -38,14 +58,14 @@ const actions = {
       sort: 'id',
       fields: ['id'].join(',')
     }
-    return api.remoteConnectionProfiles(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
   options: ({ commit }, id) => {
     commit('ITEM_REQUEST')
     if (id) {
-      return api.remoteConnectionProfileOptions(id).then(response => {
+      return api.itemOptions(id).then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -53,7 +73,7 @@ const actions = {
         throw err
       })
     } else {
-      return api.remoteConnectionProfilesOptions().then(response => {
+      return api.listOptions().then(response => {
         commit('ITEM_SUCCESS')
         return response
       }).catch((err) => {
@@ -67,7 +87,7 @@ const actions = {
       return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
     }
     commit('ITEM_REQUEST')
-    return api.remoteConnectionProfile(id).then(item => {
+    return api.item(id).then(item => {
       commit('ITEM_REPLACED', item)
       return state.cache[id]
     }).catch((err) => {
@@ -77,7 +97,7 @@ const actions = {
   },
   createRemoteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.createRemoteConnectionProfile(data).then(response => {
+    return api.create(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -87,7 +107,7 @@ const actions = {
   },
   updateRemoteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
-    return api.updateRemoteConnectionProfile(data).then(response => {
+    return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
       return response
     }).catch(err => {
@@ -97,7 +117,7 @@ const actions = {
   },
   deleteRemoteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST', types.DELETING)
-    return api.deleteRemoteConnectionProfile(data).then(response => {
+    return api.delete(data).then(response => {
       commit('ITEM_DESTROYED', data)
       return response
     }).catch(err => {
@@ -110,7 +130,7 @@ const actions = {
       items: data
     }
     commit('ITEM_REQUEST', types.LOADING)
-    return api.sortRemoteConnectionProfiles(params).then(response => {
+    return api.sort(params).then(response => {
       commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
@@ -121,7 +141,7 @@ const actions = {
   enableRemoteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'enabled' }
-    return api.updateRemoteConnectionProfile(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_ENABLED', data)
       return response
     }).catch(err => {
@@ -132,7 +152,7 @@ const actions = {
   disableRemoteConnectionProfile: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     const _data = { id: data.id, status: 'disabled' }
-    return api.updateRemoteConnectionProfile(_data).then(response => {
+    return api.update(_data).then(response => {
       commit('ITEM_DISABLED', data)
       return response
     }).catch(err => {

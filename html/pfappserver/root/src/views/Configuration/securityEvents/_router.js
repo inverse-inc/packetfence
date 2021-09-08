@@ -1,6 +1,6 @@
 import store from '@/store'
 import SecurityEventsStoreModule from './_store'
-import ConnectionProfilesStoreModule from '../connectionProfiles/_store'
+import ConnectionProfilesStandardStoreModule from '../connectionProfiles/standard/_store'
 import NetworkBehaviorPoliciesStoreModule from '../networkBehaviorPolicy/_store'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
@@ -21,7 +21,7 @@ export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_security_events)
     store.registerModule('$_security_events', SecurityEventsStoreModule)
   if (!store.state.$_connection_profiles)
-    store.registerModule('$_connection_profiles', ConnectionProfilesStoreModule)
+    store.registerModule('$_connection_profiles', ConnectionProfilesStandardStoreModule)
   if (!store.state.$_network_behavior_policies)
     store.registerModule('$_network_behavior_policies', NetworkBehaviorPoliciesStoreModule)
   next()

@@ -1,42 +1,47 @@
 import apiCall from '@/utils/api'
 
 export default {
-  remoteConnectionProfiles: params => {
+  list: params => {
     return apiCall.get(['config', 'remote_connection_profiles'], { params }).then(response => {
       return response.data
     })
   },
-  remoteConnectionProfilesOptions: () => {
+  listOptions: () => {
     return apiCall.options('config/remote_connection_profiles').then(response => {
       return response.data
     })
   },
-  remoteConnectionProfile: id => {
+  item: id => {
     return apiCall.get(['config', 'remote_connection_profile', id]).then(response => {
       return response.data.item
     })
   },
-  remoteConnectionProfileOptions: id => {
+  itemOptions: id => {
     return apiCall.options(['config', 'remote_connection_profile', id]).then(response => {
       return response.data
     })
   },
-  createRemoteConnectionProfile: data => {
+  create: data => {
     return apiCall.post('config/remote_connection_profiles', data).then(response => {
       return response.data
     })
   },
-  updateRemoteConnectionProfile: data => {
+  update: data => {
     return apiCall.patch(['config', 'remote_connection_profile', data.id], data).then(response => {
       return response.data
     })
   },
-  deleteRemoteConnectionProfile: id => {
+  delete: id => {
     return apiCall.delete(['config', 'remote_connection_profile', id])
   },
-  sortRemoteConnectionProfiles: data => {
+  sort: data => {
     return apiCall.patch('config/remote_connection_profiles/sort_items', data).then(response => {
       return response
+    })
+  },
+  search: data => {
+    return apiCall.post('config/remote_connection_profiles/search', data).then(response => {
+      return response.data
     })
   }
 }

@@ -2,13 +2,13 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="d-flex align-items-center">
-        {{ $t('Connection Profiles') }}
-        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_connection_profiles" />
+        {{ $t('Remote Connection Profiles') }}
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_remote_connection_profiles" />
       </h4>
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Connection Profile') }}</b-button>
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Remote Connection Profile') }}</b-button>
       </base-search>
       <base-table-sortable ref="tableRef"
         :busy="isLoading"
@@ -67,13 +67,9 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Connection Profile?')"
+              :confirm="$t('Delete Remote Connection Profile?')"
               @click="onRemove(item.id)"
             >{{ $t('Delete') }}</base-button-confirm>
-            <b-button
-              size="sm" variant="outline-secondary" class="mr-1"
-              @click.stop.prevent="goToPreview(item)"
-            >{{ $t('Preview') }} <icon class="ml-1" name="external-link-alt"></icon></b-button>
             <b-button
               size="sm" variant="outline-primary" class="mr-1"
               @click.stop.prevent="goToClone(item)"
@@ -134,9 +130,6 @@ const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
   const router = useRouter($router)
-  const {
-    goToPreview
-  } = router
 
   const tableRef = ref(null)
   const selected = useBootstrapTableSelected(tableRef, items)
@@ -174,7 +167,6 @@ const setup = (props, context) => {
     ...router,
     ...selected,
     ...toRefs(search),
-    goToPreview,
     onSorted
   }
 }

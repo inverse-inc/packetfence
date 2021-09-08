@@ -1,4 +1,4 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import { BaseViewCollectionItem } from '@/views/Configuration/_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
