@@ -22,8 +22,8 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More;
-use Test::NoWarnings;
+use Test2::Tools::Basic;
+use Test2::Plugin::NoWarnings echo => 1;
 use DBI;
 use pf::config qw(%Config);
 my $PF_DIR = '/usr/local/pf';
@@ -31,10 +31,10 @@ my $schema = "$PF_DIR/db/pf-schema-X.Y.sql";
 my $db_name = "pf_smoke_test__no_timestamp_$$";
 my ($dbuser, $dbpass) = @{$Config{database}}{qw(user pass)};
 my $dbh     = DBI->connect( "DBI:mysql:host=localhost", $dbuser, $dbpass, { RaiseError => 1 } );
-$dbh->do("DROP DATABASE IF EXISTS $db_name;") or die $dbh->errstr;
-$dbh->do("CREATE DATABASE $db_name;")         or die $dbh->errstr;
+$dbh->do("DROP DATABASE IF EXISTS $db_name;") or bail_out($dbh->errstr);
+$dbh->do("CREATE DATABASE $db_name;")         or bail_out($dbh->errstr);
 system("mysql -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
-$dbh->do("USE $db_name;") or $dbh->errstr;
+$dbh->do("USE $db_name;") or bail_out($dbh->errstr);
 use Data::Dumper;
 my $sql =
 "SELECT TABLE_NAME, COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '$db_name' and lower(COLUMN_TYPE) LIKE 'timestamp%' ORDER BY TABLE_NAME, ORDINAL_POSITION";
