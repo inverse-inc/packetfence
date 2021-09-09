@@ -147,7 +147,6 @@ export default {
         .reduce((l, n) => l.concat(n), [])
         .filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
       const { tabs: { [this.tabIndex]: { range = false } = {} } = [] } = report
-console.log({report})
       if (range) {
         const rpath = this.getApiEndpointRangePath(range)
         if (rpath)
