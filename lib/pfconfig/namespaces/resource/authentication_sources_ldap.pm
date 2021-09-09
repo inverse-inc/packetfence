@@ -27,7 +27,7 @@ sub build {
     my ($self) = @_;
     my %hash;
     while ( my ($id, $data) = each %{$self->{_authentication_config}->{authentication_config_hash}}) {
-        next unless $data->{'type'} eq "AD" or $data->{'type'} eq "LDAP" or $data->{'type'} eq "EDIR";
+        next unless $data->{'type'} eq "AD" or $data->{'type'} eq "LDAP" or $data->{'type'} eq "EDIR" or $data->{'type'} eq "GoogleWorkspaceLDAP";
         $hash{$id} = $data;
     }
     return \%hash;
