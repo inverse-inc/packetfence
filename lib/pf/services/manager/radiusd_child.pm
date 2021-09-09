@@ -731,7 +731,7 @@ sub generate_radiusd_ldap {
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $active = $FALSE;
         foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-            if (defined($pf::config::ConfigRealm{$realm}->{ldap_source}) && ($pf::config::ConfigRealm{$realm}->{ldap_source} eq $ldap) ) {
+            if (defined($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap}) && ($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
                 $active = $TRUE;
             }
         }
@@ -789,7 +789,7 @@ $edir_options
     }
     user {
         base_dn = "\${..base_dn}"
-        filter = "(&(|$searchattributes(sAMAccountName=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
+        filter = "(&(|$searchattributes($ConfigAuthenticationLdap{$ldap}->{usernameattribute}=%{%{Stripped-User-Name}:-%{User-Name}}))$append)"
     }
     options {
         chase_referrals = yes
@@ -799,11 +799,21 @@ $edir_options
         start = 0
     }
 EOT
+
+        my $client_auth = "";
+	if($ConfigAuthenticationLdap{$ldap}{client_cert_file} && $ConfigAuthenticationLdap{$ldap}{client_key_file}) {
+            $client_auth = <<"EOT";
+       certificate_file = $ConfigAuthenticationLdap{$ldap}{client_cert_file}
+       private_key_file = $ConfigAuthenticationLdap{$ldap}{client_key_file}
+EOT
+	}
+
         if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
             $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = no
        require_cert    = 'allow'
+       $client_auth
     }
 EOT
         } elsif ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "starttls") {
@@ -811,6 +821,7 @@ EOT
     tls {
         start_tls = yes
        require_cert    = 'allow'
+       $client_auth
     }
 EOT
         }
@@ -1400,9 +1411,20 @@ sub generate_ldap_choice {
     my ($authorize_ldap_choice, $authentication_ldap_auth_type, $edir_configuration) = @_;
     my $if = 'if';
     my $of = 'if';
+    my $oauth2_if = 'if';
     my $edir_config = "";
     foreach my $key ( @pf::config::ConfigOrderedRealm ) {
-        my $choice = $key;
+        my $choice = "^$key\$";
+        if (defined($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap})) {
+            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
+            $$authorize_ldap_choice .= <<"EOT";
+        $oauth2_if (Realm =~ /$choice/) {
+		oauth2
+        }
+EOT
+            $oauth2_if = 'elsif';
+        }
+
         if (defined($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap})) {
             $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
             $$authorize_ldap_choice .= <<"EOT";
