@@ -147,6 +147,7 @@ export default {
         .reduce((l, n) => l.concat(n), [])
         .filter(report => report.tabs.map(tab => tab.path).includes(this.path))[0]
       const { tabs: { [this.tabIndex]: { range = false } = {} } = [] } = report
+console.log({report})
       if (range) {
         const rpath = this.getApiEndpointRangePath(range)
         if (rpath)
@@ -229,7 +230,7 @@ export default {
     },
     getApiEndpointRangePath (range) {
       const { datetimeStart, datetimeEnd } = this
-      if (range && (datetimeStart || datetimeEnd))
+      if (range)
         return `/${datetimeStart || '1970-01-01 00:00:00'}/${datetimeEnd || '2038-01-01 00:00:00'}`
     },
     onSortingChanged () {
