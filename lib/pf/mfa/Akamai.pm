@@ -21,6 +21,7 @@ use WWW::Curl::Easy;
 use pf::constants qw($TRUE $FALSE);
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Crypt::PK::ECC;
+use Data::Dumper;
 
 extends 'pf::mfa';
 
@@ -118,24 +119,26 @@ sub check_user {
     my ($devices, $error) = $self->_get_curl("/api/v1/verify/check_user?username=$username");
 
     if ($error == 1) {
-        $logger->error("Not able to fetch the devices");
-        return $FALSE;
+       $logger->error("Not able to fetch the devices");
+       return $FALSE;
     }
     if (exists($devices->{'result'}->{'policy_decision'})) {
-        $logger->error($devices->{'result'}->{'policy_decision'});
-	return $FALSE;
+        if ($devices->{'result'}->{'policy_decision'} ne "authenticate_user") {
+            $logger->error($devices->{'result'}->{'policy_decision'});
+            return $FALSE;
+        }
     }
 
     my @default_device;
     if (defined($device)) {
-        @default_device = grep { $_->{'device'} eq $device } @{$devices->{'result'}->{'devices'}};
+       @default_device = grep { $_->{'device'} eq $device } @{$devices->{'result'}->{'devices'}};
     } else {
-        @default_device = grep { $_->{'default'} eq "true" } @{$devices->{'result'}->{'devices'}};
+       @default_device = grep { $_->{'default'} eq "true" } @{$devices->{'result'}->{'devices'}};
     }
     if ($self->radius_mfa_method eq 'push') {
-        if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
+       if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
             $self->${$ACTIONS{'push'}}->($default_device[0]->{'device'},$username);
-        }
+       }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp') {
         if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{8,8}$/) {
@@ -144,8 +147,14 @@ sub check_user {
             }
         } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
             my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
-	    foreach my $device (@device) {
-                return $ACTIONS{$1}->($self,$device->{'device'},$username,$1);
+            my $method = $1;
+            foreach my $device (@device) {
+                if ( grep $_ eq $ACTIONS{$method}, $default->{'methods'}) {
+                    return $ACTIONS{$method}->($self,$device->{'device'},$username,$1);
+                } else {
+                    $logger->warn("Unsuported method on device ".$device->{'name'});
+                    return $FALSE;
+                }
             }
         } else {
             $logger->warn("Method not supported");
@@ -220,7 +229,7 @@ sub generic_method {
     }
     # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
     if (!$chi->get($username)) {
-        $chi->set($username, $device,30);
+        $chi->set($username, $device,60);
     }
     return $FALSE;
 }
@@ -275,34 +284,11 @@ sub devices_list {
     return $devices->{result}->{devices};
 }
 
-=head2 push_method
+=head2 decode_response
 
-Push on the device
+Decode json response
 
 =cut
-
-sub push_method {
-    my ($self, $device, $username) = @_;
-    my $post_fields = encode_json({device => $device, method => "push", username => $username});
-
-    my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
-    if ($error) {
-        return
-    }
-
-    my $i = 0;
-    while(1) {
-        my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
-        if ($answer->{'result'} eq 'allow') {
-            return $TRUE;
-        }
-        sleep(5);
-        last if ($i++ == 6);
-    }
-    return $FALSE;
-}
-
-
 
 sub decode_response {
     my ($self, $code, $response_body) = @_;
@@ -327,8 +313,8 @@ Method used to build a basic curl object
 sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger();
-
-    $uri = "https://mfa.akamai.com/".$uri;
+    $logger->warn(Dumper $post_fields);
+    $uri = $self->proto."://".$self->host.$uri;
 
     my $curl = WWW::Curl::Easy->new;
     my $request = $post_fields;
@@ -367,7 +353,7 @@ sub _get_curl {
     my ($self, $uri) = @_;
     my $logger = get_logger();
 
-    $uri = "https://mfa.akamai.com/".$uri;
+    $uri = $self->proto."://".$self->host.$uri;
 
     my $curl = WWW::Curl::Easy->new;
 
@@ -390,6 +376,12 @@ sub _get_curl {
     return $self->decode_response($response_code, $response_body);
 }
 
+=head2 verify_response
+
+Verify the Akamai MFA response
+
+=cut
+
 sub verify_response {
     my ($self, $params, $username) = @_;
     my $token = decode_json(decode_base64($params->{token}));
@@ -400,6 +392,12 @@ sub verify_response {
     my $response = decode_json($token->{payload});
     return ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username);
 }
+
+=head2 redirect_info
+
+Generate redirection information
+
+=cut
 
 sub redirect_info {
     my ($self, $username) = @_;
