@@ -731,7 +731,10 @@ sub generate_radiusd_ldap {
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $active = $FALSE;
         foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-            if (defined($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap}) && ($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
+            if (defined($pf::config::ConfigRealm{$realm}->{ldap_source}) && ($pf::config::ConfigRealm{$realm}->{ldap_source} eq $ldap) ) {
+                $active = $TRUE;
+            }
+            elsif (defined($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap}) && ($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
                 $active = $TRUE;
             }
         }
