@@ -3,7 +3,7 @@
 --
 
 SET @MAJOR_VERSION = 11;
-SET @MINOR_VERSION = 0;
+SET @MINOR_VERSION = 1;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
