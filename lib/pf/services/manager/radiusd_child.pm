@@ -804,12 +804,12 @@ $edir_options
 EOT
 
         my $client_auth = "";
-	if($ConfigAuthenticationLdap{$ldap}{client_cert_file} && $ConfigAuthenticationLdap{$ldap}{client_key_file}) {
+        if($ConfigAuthenticationLdap{$ldap}{client_cert_file} && $ConfigAuthenticationLdap{$ldap}{client_key_file}) {
             $client_auth = <<"EOT";
-       certificate_file = $ConfigAuthenticationLdap{$ldap}{client_cert_file}
-       private_key_file = $ConfigAuthenticationLdap{$ldap}{client_key_file}
+        certificate_file = $ConfigAuthenticationLdap{$ldap}{client_cert_file}
+        private_key_file = $ConfigAuthenticationLdap{$ldap}{client_key_file}
 EOT
-	}
+        }
 
         if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
             $tags{'servers'} .= <<"EOT";
@@ -1422,7 +1422,7 @@ sub generate_ldap_choice {
             $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
             $$authorize_ldap_choice .= <<"EOT";
         $oauth2_if (Realm =~ /$choice/) {
-		oauth2
+            oauth2
         }
 EOT
             $oauth2_if = 'elsif';
