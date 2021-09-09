@@ -124,12 +124,12 @@ variables:
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches, except maintenance/X.Y and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on all branches (maintenance/X.Y branches included) and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # don't run on tag
-.test_devel_and_branches_rules:
+.test_devel_branches_and_maintenance_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run this job on all branches (schedule) with test variable defined or test=yes in commit message
 .test_nightly_rules:
@@ -457,7 +457,7 @@ publish_ppa_devel_release_branches_and_maintenance::
 ########################################
 # TEST JOBS
 ########################################
-test_devel_and_branches_el_8:
+test_devel_branches_and_maintenance_el_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
@@ -468,9 +468,9 @@ test_devel_and_branches_el_8:
     - .test_job
     - .test_el_8_vars
     - .test_script_job
-    - .test_devel_and_branches_rules
+    - .test_devel_branches_and_maintenance_rules
 
-test_devel_and_branches_debian_bullseye:
+test_devel_branches_and_maintenance_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
@@ -481,7 +481,7 @@ test_devel_and_branches_debian_bullseye:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script_job
-    - .test_devel_and_branches_rules
+    - .test_devel_branches_and_maintenance_rules
 
 test_release_el_8:
   variables:
