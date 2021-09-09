@@ -15,9 +15,24 @@
       :text="$i18n.t('Define the App ID provided by Akamai MFA.')"
     />
 
-    <form-group-app-secret namespace="app_secret"
-      :column-label="$i18n.t('The application secret of the Akamai MFA')"
-      :text="$i18n.t('Define the application secret provided by Akamai MFA.')"
+    <form-group-signing-key namespace="signing_key"
+      :column-label="$i18n.t('The signing key of the Akamai MFA')"
+      :text="$i18n.t('Define the signing key provided by Akamai MFA.')"
+    />
+
+    <form-group-verify-key namespace="verify_key"
+      :column-label="$i18n.t('The verify key of the Akamai MFA')"
+      :text="$i18n.t('Define the verify key provided by Akamai MFA.')"
+    />
+
+    <form-group-host namespace="host"
+      :column-label="$i18n.t('The host of the Akamai MFA')"
+      :text="$i18n.t('Define the host of the Akamai MFA.')"
+    />
+
+    <form-group-callback-url namespace="callback_url"
+      :column-label="$i18n.t('The callback url to redirect back the user to PacketFence')"
+      :text="$i18n.t('Define the callback URL to redirect the user to PacketFence.')"
     />
 
     <form-group-radius-mfa-method namespace="radius_mfa_method"
@@ -37,7 +52,10 @@ import { BaseForm } from '@/components/new/'
 import {
   FormGroupIdentifier,
   FormGroupAppId,
-  FormGroupAppSecret,
+  FormGroupSigningKey,
+  FormGroupVerifyKey,
+  FormGroupHost,
+  FormGroupCallbackUrl,
   FormGroupRadiusMfaMethod,
   FormGroupSplitChar,
 } from './'
@@ -47,7 +65,10 @@ const components = {
 
   FormGroupIdentifier,
   FormGroupAppId,
-  FormGroupAppSecret,
+  FormGroupSigningKey,
+  FormGroupVerifyKey,
+  FormGroupHost,
+  FormGroupCallbackUrl,
   FormGroupRadiusMfaMethod,
   FormGroupSplitChar,
 }

@@ -19,7 +19,8 @@ use Digest::SHA qw(hmac_sha256_hex);
 use JSON::MaybeXS qw(encode_json decode_json );
 use WWW::Curl::Easy;
 use pf::constants qw($TRUE $FALSE);
-
+use MIME::Base64 qw(encode_base64 decode_base64);
+use Crypt::PK::ECC;
 
 extends 'pf::mfa';
 
@@ -51,13 +52,29 @@ The application id of the Akamai MFA
 
 has app_id => ( is => 'rw' );
 
-=head2 app_secret
+=head2 signing_key
 
-The app_secret of the Akamai MFA
+The application signing key
 
 =cut
 
-has app_secret => ( is => 'rw' );
+has signing_key => ( is => 'rw' );
+
+=head2 verify_key
+
+The application verify_key
+
+=cut
+
+has verify_key => ( is => 'rw' );
+
+=head2 callback_url
+
+The application callback url
+
+=cut
+
+has callback_url => ( is => 'rw' );
 
 =head2 radius_mfa_method
 
@@ -102,8 +119,13 @@ sub check_user {
 
     if ($error == 1) {
         $logger->error("Not able to fetch the devices");
-        return;
+        return $FALSE;
     }
+    if (exists($devices->{'result'}->{'policy_decision'})) {
+        $logger->error($devices->{'result'}->{'policy_decision'});
+	return $FALSE;
+    }
+
     my @default_device;
     if (defined($device)) {
         @default_device = grep { $_->{'device'} eq $device } @{$devices->{'result'}->{'devices'}};
@@ -323,7 +345,7 @@ sub _post_curl {
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
 
     my $epoc = time();
-    my $signature = hmac_sha256_hex($epoc, $self->app_secret);
+    my $signature = hmac_sha256_hex($epoc, $self->signing_key);
 
     $curl->setopt(WWW::Curl::Easy::CURLOPT_HTTPHEADER(), ['Accept: application/json', "X-Pushzero-Signature-Time: ".$epoc, "X-Pushzero-Signature: ".$signature, "X-Pushzero-Id: ".$self->app_id]);
 
@@ -356,7 +378,7 @@ sub _get_curl {
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_WRITEDATA,$fileb);
     my $epoc = time();
-    my $signature = hmac_sha256_hex($epoc, $self->app_secret);
+    my $signature = hmac_sha256_hex($epoc, $self->signing_key);
 
     $curl->setopt(WWW::Curl::Easy::CURLOPT_HTTPHEADER(), ['Accept: application/json', "X-Pushzero-Signature-Time: ".$epoc, "X-Pushzero-Signature: ".$signature, "X-Pushzero-Id: ".$self->app_id]);
 
@@ -368,6 +390,47 @@ sub _get_curl {
     return $self->decode_response($response_code, $response_body);
 }
 
+sub verify_response {
+    my ($self, $params, $username) = @_;
+    my $token = decode_json(decode_base64($params->{token}));
+    my $ecc = Crypt::PK::ECC->new->import_key_raw(decode_base64($self->verify_key), 'secp256r1');
+    if(!$ecc->verify_message(pack("H*",$token->{signature}), $token->{payload}, "SHA256")) {
+        return 0;
+    }
+    my $response = decode_json($token->{payload});
+    return ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username);
+}
+
+sub redirect_info {
+    my ($self, $username) = @_;
+    my $logger = get_logger();
+    $logger->warn("MFA USERNAME: ".$username);
+    my $payload = {
+        version => "2.0.0",
+        timestamp => time(),
+        request => {
+            username => $username,
+            callback => $self->callback_url,
+        },
+    };
+    $payload = encode_json($payload);
+
+    my $sig = hmac_sha256_hex($payload, $self->signing_key);
+
+    my $body = {
+        app_id => $self->app_id,
+        payload => $payload,
+        signature => $sig,
+    };
+
+    return {
+        challenge_url => $self->proto."://" . $self->host . "/api/v1/bind/challenge/v2",
+        challenge_verb => "POST",
+        challenge_fields => {
+                        token => encode_base64(encode_json($body), ''),
+                },
+    };
+}
 
 =head1 AUTHOR
 

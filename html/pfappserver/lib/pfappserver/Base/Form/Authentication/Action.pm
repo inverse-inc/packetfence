@@ -305,7 +305,7 @@ retrieve mfa config
 sub options_trigger_portal_mfa {
     my ($self) = @_;
 
-    return map { $_ => $_} grep {$ConfigMfa{$_}->{"scope"} eq "Portal"} keys %ConfigMfa;
+    return map { $_ => $_} grep {$ConfigMfa{$_}->{"scope"} =~ /Portal/i } keys %ConfigMfa;
 
 }
 
@@ -318,7 +318,7 @@ retrieve mfa config
 sub options_trigger_radius_mfa {
     my ($self) = @_;
 
-    return map { $_ => $_} grep {$ConfigMfa{$_}->{"scope"} eq "Radius"} keys %ConfigMfa;
+    return map { $_ => $_} grep {$ConfigMfa{$_}->{"scope"} =~ /Radius/i } keys %ConfigMfa;
 
 }
 

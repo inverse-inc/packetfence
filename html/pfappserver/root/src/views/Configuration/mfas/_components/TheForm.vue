@@ -19,13 +19,11 @@
 <script>
 import { BaseContainerLoading } from '@/components/new/'
 import FormTypeAkamai from './FormTypeAkamai'
-import FormTypeAkamaiBindV2 from './FormTypeAkamaiBindV2'
 
 const components = {
   BaseContainerLoading,
 
   FormTypeAkamai,
-  FormTypeAkamaiBindV2
 }
 
 import { computed, toRefs, unref } from '@vue/composition-api'
@@ -48,8 +46,6 @@ export const setup = (props) => {
     switch(type) {
       case 'Akamai':
         return FormTypeAkamai // break
-      case "Akamai_bind_v2":
-        return FormTypeAkamaiBindV2 // break
       default:
         return undefined
     }

@@ -26,12 +26,38 @@ has_field 'app_id' =>
    messages => { required => 'Please specify the Application ID' },
   );
 
-has_field 'app_secret' =>
+has_field 'signing_key' =>
   (
    type => 'ObfuscatedText',
-   label => 'Application Secret',
+   label => 'Signing Key',
    required => 1,
-   messages => { required => 'Please specify the application secret' },
+   messages => { required => 'Please specify the signing key' },
+  );
+
+has_field 'verify_key' =>
+  (
+   type => 'ObfuscatedText',
+   label => 'Verify Key',
+   required => 1,
+   messages => { required => 'Please specify the verify key' },
+  );
+
+has_field 'host' =>
+  (
+   type => 'Text',
+   label => 'Host',
+   required => 1,
+   default => "mfa.akamai.com",
+   messages => { required => 'Please specify the host' },
+  );
+
+has_field 'callback_url' =>
+  (
+   type => 'Text',
+   label => 'Callback URL',
+   required => 1,
+   default => "http://packetfence_portal_url/mfa",
+   messages => { required => 'Please specify the Callback URL' },
   );
 
 has_field 'radius_mfa_method' =>
@@ -58,21 +84,21 @@ has_field 'split_char' =>
    messages => { required => 'Please specify the char to split password field to get the code' },
   );
 
+has_field 'scope' =>
+   (
+    type => 'Hidden',
+    default => 'Radius,Portal',
+   );
+
 has_field 'type' =>
   (
-   type => 'Hidden',
+   typ => 'Hidden',
    default => 'Akamai',
-  );
-
-has_field 'scope' =>
-  (
-   type => 'Hidden',
-   default => 'Radius',
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id app_id app_secret radius_mfa_method split_char) ],
+   render_list => [ qw(id app_id signing_key verify_key host callback_url radius_mfa_method split_char) ],
   );
 
 =over
