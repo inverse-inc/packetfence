@@ -141,7 +141,7 @@ sub check_user {
        }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp') {
-        if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{8,8}$/) {
+        if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{8,8}$/ || $otp =~ /^\d{16,16}$/) {
             if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
                 return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
             }
@@ -196,7 +196,11 @@ totp method
 sub totp {
     my ($self, $device, $username, $otp) = @_;
     my $logger = get_logger();
-    my $post_fields = encode_json({device => $device, method => { "offline_otp" => {"code" => $otp} } , username => $username});
+    my $method = "offline_otp";
+    if (length($otp) == 16) {
+        $method = "bypass_code";
+    }
+    my $post_fields = encode_json({device => $device, method => { $method => {"code" => $otp} } , username => $username});
     my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
     if ($error) {
         return $FALSE;
