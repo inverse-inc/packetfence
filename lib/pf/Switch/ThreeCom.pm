@@ -10,6 +10,10 @@ switches
 The pf::Switch::ThreeCom module implements an object oriented interface
 to access SNMP enabled 3COM switches.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

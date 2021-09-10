@@ -18,6 +18,10 @@ This module is currently only a placeholder, see pf::Switch::Dlink
 
 Tested by the community on the 5.01.B65 firmware.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

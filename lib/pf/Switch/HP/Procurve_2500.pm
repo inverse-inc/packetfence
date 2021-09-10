@@ -16,6 +16,10 @@ We've got reports that the HP ProCurve's 5412zl and 8212zl work correctly with t
 Some clients report that 802.1x and Mac Authentication should work, however we did not test it lab.
 We are also not sure about the VoIP using 802.1X/Mac Auth.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

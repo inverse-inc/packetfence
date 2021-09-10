@@ -10,6 +10,10 @@ The pf::Switch::ThreeCom::SS4200 module implements an object
 oriented interface to access SNMP enabled 
 3COM Huawei SuperStack 3 Switch - 4200 switches.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

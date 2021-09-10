@@ -23,6 +23,10 @@ Warning: If you configure a switch that is already in production be careful that
 
 =back
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

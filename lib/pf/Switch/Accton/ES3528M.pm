@@ -9,6 +9,10 @@ pf::Switch::Accton::ES3528M - Object oriented module to access SNMP enabled Acct
 The pf::Switch::Accton::ES3528M module implements an object oriented interface
 to access SNMP enabled Accton::ES3528M switches.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

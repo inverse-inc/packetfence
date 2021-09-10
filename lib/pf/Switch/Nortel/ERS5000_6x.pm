@@ -19,6 +19,10 @@ Aside from ifIndex handling this module is identical to pf::Switch::Nortel.
 There is a potential regresion when you use the ERS5500 switches with port-security on firmware 6.2.4.
 If the switch is stacked, the trap will come with the wrong ifIndex number.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

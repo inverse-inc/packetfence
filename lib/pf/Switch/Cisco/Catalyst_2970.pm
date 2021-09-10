@@ -13,6 +13,10 @@ This module is currently only a placeholder, see pf::Switch::Cisco::Catalyst_296
 Because a lot of code is shared with the 2960 make sure to check the BUGS AND LIMITATIONS section of 
 L<pf::Switch::Cisco::Catalyst_2960> also.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

@@ -9,6 +9,10 @@ pf::Switch::Enterasys::SecureStack_C2 - Object oriented module to access SNMP en
 The pf::Switch::Enterasys::SecureStack_C2 module implements an object 
 oriented interface to access SNMP enabled Enterasys SecureStack C2 switches.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

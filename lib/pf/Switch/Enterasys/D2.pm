@@ -11,6 +11,10 @@ Firmware version: 1.00.02.0002
 
 It should work on all D2 switches and maybe more.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

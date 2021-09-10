@@ -11,6 +11,10 @@ to access SNMP enabled Cisco::Catalyst_2900XL switches.
 
 This modules extends pf::Switch::Cisco::Catalyst_3500XL
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

@@ -13,6 +13,10 @@ oriented interface to access SNMP enabled Nortel::ERS4000 switches.
 
 This module is currently only a placeholder, see pf::Switch::Nortel.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

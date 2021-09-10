@@ -23,6 +23,10 @@ pf::Switch::Netgear::FSM7328S - Object oriented module to access and configure e
 The MAC address needs to be unauthorized from the port otherwise this MAC will stay authorized on the VLAN and no
 more traps will show up.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

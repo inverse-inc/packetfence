@@ -14,6 +14,10 @@ Refer to them for more information.
 This modules holds functions common to the SMC switches but details and documentation are in each sub-module.
 Refer to them for more information.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

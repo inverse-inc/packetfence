@@ -58,6 +58,10 @@ This is a Cisco bug, nothing much we can do. Don't use this IOS for VoIP.
 
 =back
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;
