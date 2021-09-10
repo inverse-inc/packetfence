@@ -14,6 +14,10 @@ Starting with firmware 6.x ifIndex handling changed and this module takes care o
 
 Aside from ifIndex handling this module is identical to pf::Switch::Nortel.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

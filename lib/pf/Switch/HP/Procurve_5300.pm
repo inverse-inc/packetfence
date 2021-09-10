@@ -10,6 +10,10 @@ This switch was reported to work by the community with the Procurve 5400 module 
 
 This module is currently only a placeholder, see L<pf::Switch::HP::Procurve_5400> for relevant support items.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

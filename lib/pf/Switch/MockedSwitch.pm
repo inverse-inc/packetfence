@@ -30,6 +30,10 @@ It's not complete yet
 
 F<conf/switches.conf>
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

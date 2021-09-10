@@ -15,6 +15,10 @@ BPS2000 switches don't support LLDP.
 
 Otherwise this module is identical to pf::Switch::Nortel.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

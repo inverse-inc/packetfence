@@ -11,6 +11,10 @@ Firmware version: 5.42.10
 
 It should work on all Matrix chassis.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

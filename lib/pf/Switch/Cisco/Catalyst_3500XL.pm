@@ -15,6 +15,10 @@ The minimum required firmware version is 12.0(5)WC15.
 
 F<conf/switches.conf>
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

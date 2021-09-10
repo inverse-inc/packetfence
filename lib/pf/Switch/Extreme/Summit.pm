@@ -9,6 +9,10 @@ manage Extreme Networks' Summit switches
 
 This module is currently only a placeholder, see pf::Switch::Extreme.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

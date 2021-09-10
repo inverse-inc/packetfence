@@ -12,6 +12,10 @@ Firmware version: 06.03.01.0008
 
 It should work on all C3 switches and maybe more.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

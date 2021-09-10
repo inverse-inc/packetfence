@@ -12,6 +12,10 @@ to access SNMP enabled Dlink DES 3526 switches.
 Tested on Firmware: Build 5.01.B65.
 No port security support, no RADIUS.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

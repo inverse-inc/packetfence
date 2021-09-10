@@ -9,6 +9,10 @@ pf::Switch::Linksys::SRW224G4 - Object oriented module to access SNMP enabled Li
 The pf::Switch::Linksys::SRW224G4 module implements an object 
 oriented interface to access SNMP enabled Linksys SRW224G4 switches.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;

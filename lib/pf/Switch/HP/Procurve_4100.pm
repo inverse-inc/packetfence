@@ -9,6 +9,10 @@ pf::Switch::HP::Procurve_4100 - Object oriented module to access SNMP enabled HP
 The pf::Switch::HP::Procurve_4100 module implements an object 
 oriented interface to access SNMP enabled HP Procurve 4100 switches.
 
+=head1 SNMP
+
+This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+
 =cut
 
 use strict;
