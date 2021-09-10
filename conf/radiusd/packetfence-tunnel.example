@@ -111,8 +111,6 @@ authorize {
 
 [% authorize_ldap_choice %]
 
-	oauth2
-
 	#
 	#  Read the 'users' file
 	#files
