@@ -22,7 +22,7 @@ Follow the instructions provided in the [Administration Guide](https://packetfen
 
 Noteworthy changes since the last release see the [NEWS file](https://github.com/inverse-inc/packetfence/blob/devel/NEWS.asciidoc).
 
-Upgrading? See the [Upgrade Guide](https://github.com/inverse-inc/packetfence/blob/devel/docs/PacketFence_Upgrade_Guide.asciidoc.asciidoc).
+Upgrading? See the [Upgrade Guide](https://github.com/inverse-inc/packetfence/blob/devel/docs/PacketFence_Upgrade_Guide.asciidoc).
 
 For more details and developer visible changes see the [project's page on Github](https://github.com/inverse-inc/packetfence).
 
@@ -62,7 +62,7 @@ You can provide:
 
 ### *You are a security researcher*
 
-Push PacketFence into new areas by leveraging the extensibility built into PacketFence. A lot of the low-level plumbing is done for you so you can focus on demoing your ideas. 
+Push PacketFence into new areas by leveraging the extensibility built into PacketFence. A lot of the low-level plumbing is done for you so you can focus on demoing your ideas.
 
 Get in touch with us on the developer [mailing list][mailing_lists] with your ideas!
 
