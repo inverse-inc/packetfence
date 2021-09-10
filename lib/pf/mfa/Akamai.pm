@@ -22,6 +22,7 @@ use pf::constants qw($TRUE $FALSE);
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Crypt::PK::ECC;
 use Data::Dumper;
+use pf::util qw(normalize_time);
 
 extends 'pf::mfa';
 
@@ -93,12 +94,17 @@ Caracter that split the username and otp
 
 has split_char => (is => 'rw' );
 
-
 our %ACTIONS = (
     "push" => \&push,
     "sms"  => \&generic_method,
     "totp"  => \&totp,
     "phone" => \&generic_method
+);
+
+our %METHOD_ALIAS =(
+    "push"  => "push",
+    "sms"   => '^(sms|text)_otp$',
+    "phone" => "call_otp"
 );
 
 our %METHOD_LOOKUP =(
@@ -149,7 +155,7 @@ sub check_user {
             my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
             my $method = $1;
             foreach my $device (@device) {
-                if ( grep $_ eq $ACTIONS{$method}, $default->{'methods'}) {
+                if ( grep $_ =~ $METHOD_ALIAS{$method}, @{$device->{'methods'}}) {
                     return $ACTIONS{$method}->($self,$device->{'device'},$username,$1);
                 } else {
                     $logger->warn("Unsuported method on device ".$device->{'name'});
@@ -224,16 +230,15 @@ sub generic_method {
     my $logger = get_logger();
     my $post_fields = encode_json({device => $device, method => $METHOD_LOOKUP{$method}, username => $username});
     my $chi = pf::CHI->new(namespace => 'mfa');
-    my ($auth, $error)= $chi->compute($device.$METHOD_LOOKUP{$method}, sub {
+    my ($auth, $error)= $chi->compute($device.$METHOD_LOOKUP{$method}, {expires_in => normalize_time($self->cache_duration)}, sub {
             return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
         }
     );
     if ($error) {
         return $FALSE;
     }
-    # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
     if (!$chi->get($username)) {
-        $chi->set($username, $device,60);
+        $chi->set($username, $device, normalize_time($self->cache_duration));
     }
     return $FALSE;
 }
@@ -249,7 +254,7 @@ sub push {
     my $logger = get_logger();
     my $post_fields = encode_json({device => $device, method => "push", username => $username});
     my $chi = pf::CHI->new(namespace => 'mfa');
-    my ($auth, $error)= $chi->compute($device."push", sub {
+    my ($auth, $error)= $chi->compute($device."push", {expires_in => normalize_time($self->cache_duration)}, sub {
             return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
         }
     );
@@ -317,8 +322,11 @@ Method used to build a basic curl object
 sub _post_curl {
     my ($self, $uri, $post_fields) = @_;
     my $logger = get_logger();
-    $logger->warn(Dumper $post_fields);
+
     $uri = $self->proto."://".$self->host.$uri;
+
+    $logger->debug($uri);
+    $logger->debug(Dumper $post_fields);
 
     my $curl = WWW::Curl::Easy->new;
     my $request = $post_fields;
@@ -358,6 +366,8 @@ sub _get_curl {
     my $logger = get_logger();
 
     $uri = $self->proto."://".$self->host.$uri;
+
+    $logger->debug($uri);
 
     my $curl = WWW::Curl::Easy->new;
 

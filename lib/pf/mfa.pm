@@ -21,6 +21,14 @@ has id => (is => 'rw', required => 1);
 
 has description => (is => 'rw', default => "MFA");
 
+=head2 chache_duration
+
+Number of time to keep information in the cache
+
+=cut
+
+has cache_duration => (is => 'rw' );
+
 =head2 template
 
 The template to use for provisioning

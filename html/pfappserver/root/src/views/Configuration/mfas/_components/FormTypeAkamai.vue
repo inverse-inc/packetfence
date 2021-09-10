@@ -40,9 +40,14 @@
       :text="$i18n.t('Define the method to be used in RADIUS to trigger OTP.')"
     />
 
-    <form-group-split-char namespace="split-char"
+    <form-group-split-char namespace="split_char"
       :column-label="$i18n.t('Character separator')"
       :text="$i18n.t('Please specify the char to split password field to get the code.')"
+    />
+
+    <form-group-cache-duration namespace="cache_duration"
+      :column-label="$i18n.t('Cache duration')"
+      :text="$i18n.t('The duration time that is use to cache the MFA information. This approximately represent the time for the user to complete the authentication.')"
     />
 
   </base-form>
@@ -58,6 +63,7 @@ import {
   FormGroupCallbackUrl,
   FormGroupRadiusMfaMethod,
   FormGroupSplitChar,
+  FormGroupCacheDuration,
 } from './'
 
 const components = {
@@ -71,6 +77,7 @@ const components = {
   FormGroupCallbackUrl,
   FormGroupRadiusMfaMethod,
   FormGroupSplitChar,
+  FormGroupCacheDuration
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

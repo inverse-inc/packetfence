@@ -6,6 +6,9 @@ import {
   BaseFormGroupInputPassword,
   BaseFormGroupChosenOne,
 } from '@/components/new/'
+import {
+  BaseFormGroupIntervalUnit,
+} from '@/views/Configuration/_components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -22,6 +25,7 @@ export {
   BaseFormGroupInput                  as FormGroupHost,
   BaseFormGroupInput                  as FormGroupCallbackUrl,
   BaseFormGroupInput                  as FormGroupSplitChar,
+  BaseFormGroupIntervalUnit           as FormGroupCacheDuration,
 
   TheForm,
   TheView
