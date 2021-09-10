@@ -146,7 +146,7 @@ sub check_user {
             $self->${$ACTIONS{'push'}}->($default_device[0]->{'device'},$username);
        }
     }
-    elsif ($self->radius_mfa_method eq 'strip-otp') {
+    elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
         if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{8,8}$/ || $otp =~ /^\d{16,16}$/) {
             if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
                 return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
@@ -206,6 +206,7 @@ sub totp {
     if (length($otp) == 16) {
         $method = "bypass_code";
     }
+    $logger->info("Trigger $method for user $username");
     my $post_fields = encode_json({device => $device, method => { $method => {"code" => $otp} } , username => $username});
     my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
     if ($error) {
@@ -228,6 +229,7 @@ generic method
 sub generic_method {
     my ($self, $device, $username, $method) =@_;
     my $logger = get_logger();
+    $logger->info("Trigger $method for user $username");
     my $post_fields = encode_json({device => $device, method => $METHOD_LOOKUP{$method}, username => $username});
     my $chi = pf::CHI->new(namespace => 'mfa');
     my ($auth, $error)= $chi->compute($device.$METHOD_LOOKUP{$method}, {expires_in => normalize_time($self->cache_duration)}, sub {
@@ -237,9 +239,12 @@ sub generic_method {
     if ($error) {
         return $FALSE;
     }
+    # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
     if (!$chi->get($username)) {
         $chi->set($username, $device, normalize_time($self->cache_duration));
     }
+    # Remove the authenticated status of the user since the next radius requests will use OTP
+    $chi->remove($username." authenticated");
     return $FALSE;
 }
 
@@ -252,6 +257,7 @@ push method
 sub push {
     my ($self, $device, $username) =@_;
     my $logger = get_logger();
+    $logger->info("Trigger push for user $username");
     my $post_fields = encode_json({device => $device, method => "push", username => $username});
     my $chi = pf::CHI->new(namespace => 'mfa');
     my ($auth, $error)= $chi->compute($device."push", {expires_in => normalize_time($self->cache_duration)}, sub {

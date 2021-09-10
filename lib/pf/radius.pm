@@ -858,20 +858,39 @@ sub switch_access {
         my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
         if ($value) {
             my $mfa = pf::factory::mfa->new($value);
+            my $chi = pf::CHI->new(namespace => 'mfa');
             if ($mfa->radius_mfa_method eq 'strip-otp') {
-                my $chi = pf::CHI->new(namespace => 'mfa');
                 # Previously did a authentication request ?
-		if (my $device = $chi->get($radius_request->{'User-Name'})) {
+                if (my $device = $chi->get($radius_request->{'User-Name'})) {
                     my $result = $mfa->check_user($radius_request->{'User-Name'}, $password, $device);
                     if ($result != $TRUE) {
-	               return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
+                        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                     } else {
                        return $switch->returnAuthorizeVPN($args);
-		    }
-		}
+                    }
+                }
                 my @otp = split($mfa->split_char,$password);
                 $password = $otp[0];
                 $otp = $otp[1];
+            } elsif ($mfa->radius_mfa_method eq 'second-password') {
+                if (my $authenticated = $chi->get($radius_request->{'User-Name'}." authenticated")) {
+                    if ($authenticated) {
+                        my $result = $mfa->check_user($radius_request->{'User-Name'}, $password);
+                        if ($result != $TRUE) {
+                            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied")];
+                        } else {
+                            return $switch->returnAuthorizeVPN($args);
+                        }
+                    } else {
+                        my $device = $chi->get($radius_request->{'User-Name'});
+                        my $result = $mfa->check_user($radius_request->{'User-Name'}, $password, $device);
+                        if ($result != $TRUE) {
+                            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
+                        } else {
+                            return $switch->returnAuthorizeVPN($args);
+                        }
+                    }
+                }
             }
         }
 
@@ -970,9 +989,17 @@ sub switch_access {
         my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
         if ($value) {
             my $mfa = pf::factory::mfa->new($value);
-            my $result = $mfa->check_user($radius_request->{'User-Name'}, $otp);
-            if ($result != $TRUE) {
-                return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
+            # If the mfa method is secondary password do nothing, the mfa will be triggered on a second request.
+            if ($mfa->radius_mfa_method eq 'second-password') {
+                my $chi = pf::CHI->new(namespace => 'mfa');
+                if (!$chi->get($radius_request->{'User-Name'}." authenticated")) {
+                    $chi->set($radius_request->{'User-Name'}." authenticated", $TRUE, normalize_time($mfa->cache_duration));
+                }
+            } else {
+                my $result = $mfa->check_user($radius_request->{'User-Name'}, $otp);
+                if ($result != $TRUE) {
+                    return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
+                }
             }
         }
         $switch->synchronize_locationlog($port, undef, $mac,

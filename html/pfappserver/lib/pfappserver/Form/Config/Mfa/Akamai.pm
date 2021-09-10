@@ -69,6 +69,7 @@ has_field 'radius_mfa_method' =>
    [
     { value => 'push', label => 'Push' },
     { value => 'strip-otp', label => 'Strip OTP' },
+    { value => 'second-password', label => 'Second Password Field' },
    ],
    default => 'push',
    tags => { after_element => \&help,
