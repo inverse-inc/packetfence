@@ -830,202 +830,249 @@ sub switch_access {
     $options->{'radius_request'}           = $args->{'radius_request'};
 
     my @sources = @{pf::authentication::getInternalAuthenticationSources()};
-    my ( $return, $message, $source_id, $extra );
+    my ( $return, $message, $extra );
 
     if ($connection->isVPN()) {
-        ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseVPNRequest($radius_request);
+        $return = $self->vpn($args, $options, \@sources, \$extra, \$otp, \$password);
+        return $return if (ref($return) eq 'ARRAY');
+    }
+    else {
+        $return = $self->cli($args, $options, \@sources, \$extra, \$otp, \$password);
+        return $return if (ref($return) eq 'ARRAY');
+    }
+}
 
-        $args->{'nas_port_type'} = $nas_port_type // '';
-        $args->{'eap_type'} = $eap_type // '';
-        $args->{'mac'} = $mac // '';
-        $args->{'ifIndex'} = $port // '';
-        $args->{'ifDesc'} = $ifDesc // '';
-        $args->{'nas_port_id'} = $nas_port_type // '';
-        $args->{'session_id'} = $session_id // '';
+sub authenticate {
+    my ($self, $args, $sources, $source_id, $extra, $otp, $password) = @_;
+    my $logger = $self->logger;
+    my ($return, $message);
+    ( $return, $message, $$source_id, $$extra ) = pf::authentication::authenticate( {
+            'username' =>  $args->{'radius_request'}->{'User-Name'},
+            'password' =>  $$password,
+            'rule_class' => $Rules::ADMIN,
+            'context' => $pf::constants::realm::RADIUS_CONTEXT,
+        }, @$sources );
 
-        # Special case where we need to check if there is a MFA config who exist and if we need to split the password field
-        $mac = $FAKE_MAC unless defined($mac);
-        my $profile = pf::Connection::ProfileFactory->instantiate($mac,$options);
+    if ( !( defined($return) && $return == $TRUE ) ) {
+        $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
+        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+    }
+}
+
+sub vpn {
+    my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
+    my $logger = $self->logger;
+    
+    my ($message);
+
+    my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $args->{'switch'}->parseVPNRequest($args->{'radius_request'});
+
+    $args->{'nas_port_type'} = $nas_port_type // '';
+    $args->{'eap_type'} = $eap_type // '';
+    $args->{'mac'} = $mac // '';
+    $args->{'ifIndex'} = $port // '';
+    $args->{'ifDesc'} = $ifDesc // '';
+    $args->{'nas_port_id'} = $nas_port_type // '';
+    $args->{'session_id'} = $session_id // '';
+    
+    my $return = $self->mfa_pre_auth($args, $options, $sources, $extra, $otp, $password);
+    return $return if (ref($return) eq 'ARRAY');
+
+    if (defined($mac)) {
+        my $role_obj = new pf::role::custom();
+
+        my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
+        if (is_error($status_code)) {
+            $node_obj = pf::dal::node->new({"mac" => $mac});
+        }
+        $node_obj->_load_locationlog;
+        # update last_seen of MAC address as some activity from it has been seen
+        $node_obj->update_last_seen();
+
+        if (defined($session_id)) {
+            $node_obj->sessionid($session_id);
+        }
+        $args->{'node_info'} = $node_obj;
+        $args->{'node_info'}->{'last_seen'} = pf::util::mysql_date();
+        $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
+        $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
+
+        my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
         $args->{'profile'} = $profile;
-        @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
-        my $merged = { %$options, %$args };
-        $merged->{'rule_class'} = $Rules::AUTH;
-        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
-        my $attributes;
-        my $matched = pf::authentication::match2([@sources], $merged, $extra, \$attributes);
+        @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 
-        # CHECK MFA
-        my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
-        if ($value) {
-            my $mfa = pf::factory::mfa->new($value);
+        $args->{'autoreg'} = 0;
+        # should we auto-register? let's ask the VLAN object
+        my ( %info, $status, $status_msg, $do_auto_reg);
+        $do_auto_reg = $role_obj->shouldAutoRegister($args);
+        if ($do_auto_reg) {
+            $args->{'autoreg'} = 1;
+            my ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
+            $args->{'action'} = $action;
+            $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
+            $node_obj->merge(\%autoreg_node_defaults);
+            $logger->debug("[$mac] auto-registering node");
+            # automatic registration
+            $info{autoreg} = 1;
+            ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
+            if (is_error($status)) {
+                $logger->error("auto-registration of node failed $status_msg");
+                $do_auto_reg = 0;
+                $node_obj->{status} = "unreg";
+                return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
+            }
+        }
+
+        my $role = $role_obj->fetchRoleForNode($args);
+        $args->{'user_role'} = $role->{role};
+        $status = $node_obj->save;
+        if (is_error($status)) {
+            $logger->error("Cannot save $mac error ($status)");
+        }
+        $args->{'switch'}->synchronize_locationlog($port, undef, $mac,
+            $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $args->{'stripped_user_name'}, $args->{'realm'}, $args->{'user_role'}, $ifDesc
+        );
+    }
+    my $source_id = \@$sources;
+    if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $EAP_TLS && $args->{'radius_request'}->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
+        my $return = $self->authenticate($args, $sources, \$source_id, $extra, $otp, $password);
+        return $return if (ref($return) eq 'ARRAY');
+    }
+    $return = $self->mfa_post_auth($args, $options, $sources, $source_id, $extra ,$otp, $password);
+    return $return if (ref($return) eq 'ARRAY');
+
+    return $args->{'switch'}->returnAuthorizeVPN($args);
+            
+}
+
+ sub cli {
+    my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
+    my $logger = $self->logger;
+
+    my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
+    $args->{'profile'} = $profile;
+    @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+
+    my $source_id = \@$sources;
+
+    my $return = $self->mfa_pre_auth($args, $options, $sources, $extra, $otp, $password);
+    return $return if (ref($return) eq 'ARRAY');
+
+    if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $EAP_TLS && $args->{'radius_request'}->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
+        my $return = $self->authenticate($args, $sources, \$source_id, $extra, $otp, $password);
+        return $return if (ref($return) eq 'ARRAY');
+    }
+    
+    $return = $self->mfa_post_auth($args, $options, $sources, $source_id, $extra ,$otp, $password);
+    return $return if (ref($return) eq 'ARRAY');
+
+    my $merged = { %$options, %$args };
+    $merged->{'rule_class'} = $Rules::AUTH;
+    $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+    my $attributes;
+    my $matched = pf::authentication::match2([@$sources], $merged, undef, \$attributes);
+
+    my $values = $matched->{values};
+    $args->{'user_role'} = $values->{$Actions::SET_ROLE};
+ 
+    $merged->{'rule_class'} = $Rules::ADMIN;
+    $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+    $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
+    my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
+    if ($value) {
+        my @values = split(',', $value);
+        foreach $value (@values) {
+            if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
+                return $$args->{'switch'}->returnAuthorizeWrite($$args);
+            }
+            if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
+                return $$args->{'switch'}->returnAuthorizeRead($$args);
+            }
+        }
+    } else {
+        $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
+    }
+}
+
+sub mfa_post_auth {
+    my ($self, $args, $options, $sources, $source_id, $extra ,$otp, $password) = @_;
+    my $logger = $self->logger;
+
+    my $merged = { %$options, %$args };
+    $merged->{'rule_class'} = $Rules::AUTH;
+    $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+    my $attributes;
+
+    my $matched = pf::authentication::match2($source_id, $merged, $$extra, \$attributes);
+
+    my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
+    if ($value) {
+        my $mfa = pf::factory::mfa->new($value);
+        # If the mfa method is secondary password do nothing, the mfa will be triggered on a second request.
+        if ($mfa->radius_mfa_method eq 'second-password') {
             my $chi = pf::CHI->new(namespace => 'mfa');
-            if ($mfa->radius_mfa_method eq 'strip-otp') {
-                # Previously did a authentication request ?
-                if (my $device = $chi->get($radius_request->{'User-Name'})) {
-                    my $result = $mfa->check_user($radius_request->{'User-Name'}, $password, $device);
+            if (!$chi->get($args->{'radius_request'}->{'User-Name'}." authenticated")) {
+                $chi->set($args->{'radius_request'}->{'User-Name'}." authenticated", $TRUE, normalize_time($mfa->cache_duration));
+            }
+        } else {
+            my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $otp);
+            if ($result != $TRUE) {
+                return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Multi-Factor Authentication Access Denied") ];
+            }
+        }
+    }
+}
+
+sub mfa_pre_auth {
+    my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
+    # Special case where we need to check if there is a MFA config who exist and if we need to split the password field
+    $args->{'mac'} = $FAKE_MAC unless defined($args->{'mac'});
+    my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
+    $args->{'profile'} = $profile;
+    @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
+    my $merged = { %$options, %$args };
+    $merged->{'rule_class'} = $Rules::AUTH;
+    $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+    my $attributes;
+    my $matched = pf::authentication::match2([@$sources], $merged, $$extra, \$attributes);
+
+    my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
+    if ($value) {
+        my $mfa = pf::factory::mfa->new($value);
+        my $chi = pf::CHI->new(namespace => 'mfa');
+        if ($mfa->radius_mfa_method eq 'strip-otp') {
+            # Previously did a authentication request ?
+            if (my $device = $chi->get($$args->{'radius_request'}->{'User-Name'})) {
+                my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $device);
+                if ($result != $TRUE) {
+                    return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
+                } else {
+                   return $args->{'switch'}->returnAuthorizeVPN($args);
+                }
+            }
+            my @otp = split($mfa->split_char,$password);
+            $$password = $otp[0];
+            $$otp = $otp[1];
+        } elsif ($mfa->radius_mfa_method eq 'second-password') {
+            if (my $authenticated = $chi->get($args->{'radius_request'}->{'User-Name'}." authenticated")) {
+                if ($authenticated) {
+                    my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password);
+                    if ($result != $TRUE) {
+                        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed")];
+                    } else {
+                        return $args->{'switch'}->returnAuthorizeVPN($args);
+                    }
+                } else {
+                    my $device = $chi->get($args->{'radius_request'}->{'User-Name'});
+                    my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $device);
                     if ($result != $TRUE) {
                         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                     } else {
-                       return $switch->returnAuthorizeVPN($args);
-                    }
-                }
-                my @otp = split($mfa->split_char,$password);
-                $password = $otp[0];
-                $otp = $otp[1];
-            } elsif ($mfa->radius_mfa_method eq 'second-password') {
-                if (my $authenticated = $chi->get($radius_request->{'User-Name'}." authenticated")) {
-                    if ($authenticated) {
-                        my $result = $mfa->check_user($radius_request->{'User-Name'}, $password);
-                        if ($result != $TRUE) {
-                            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied")];
-                        } else {
-                            return $switch->returnAuthorizeVPN($args);
-                        }
-                    } else {
-                        my $device = $chi->get($radius_request->{'User-Name'});
-                        my $result = $mfa->check_user($radius_request->{'User-Name'}, $password, $device);
-                        if ($result != $TRUE) {
-                            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
-                        } else {
-                            return $switch->returnAuthorizeVPN($args);
-                        }
+                        return $args->{'switch'}->returnAuthorizeVPN($args);
                     }
                 }
             }
-        }
-
-        if (defined($mac)) {
-            my $role_obj = new pf::role::custom();
-
-            my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
-            if (is_error($status_code)) {
-                $node_obj = pf::dal::node->new({"mac" => $mac});
-            }
-            $node_obj->_load_locationlog;
-            # update last_seen of MAC address as some activity from it has been seen
-            $node_obj->update_last_seen();
-
-            if (defined($session_id)) {
-                $node_obj->sessionid($session_id);
-            }
-            $args->{'node_info'} = $node_obj;
-            $args->{'node_info'}->{'last_seen'} = pf::util::mysql_date();
-            $args->{'fingerbank_info'} = pf::node::fingerbank_info($mac, $node_obj);
-            $options->{'fingerbank_info'} = $args->{'fingerbank_info'};
-
-            my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
-            $args->{'profile'} = $profile;
-            @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
-
-            $args->{'autoreg'} = 0;
-            # should we auto-register? let's ask the VLAN object
-            my ( %info, $status, $status_msg, $do_auto_reg);
-            $do_auto_reg = $role_obj->shouldAutoRegister($args);
-            if ($do_auto_reg) {
-                $args->{'autoreg'} = 1;
-                my ($attributes, $action , %autoreg_node_defaults) = $role_obj->getNodeInfoForAutoReg($args);
-                $args->{'action'} = $action;
-                $args = { %$args, %$attributes } if (ref($attributes) eq 'HASH');
-                $node_obj->merge(\%autoreg_node_defaults);
-                $logger->debug("[$mac] auto-registering node");
-                # automatic registration
-                $info{autoreg} = 1;
-                ($status, $status_msg) = pf::registration::setup_node_for_registration($node_obj, \%info, $action);
-                if (is_error($status)) {
-                    $logger->error("auto-registration of node failed $status_msg");
-                    $do_auto_reg = 0;
-                    $node_obj->{status} = "unreg";
-                    return [ $RADIUS::RLM_MODULE_USERLOCK, ('Reply-Message' => $status_msg) ];
-                }
-            }
-
-            my $role = $role_obj->fetchRoleForNode($args);
-            $args->{'user_role'} = $role->{role};
-            $status = $node_obj->save;
-            if (is_error($status)) {
-                $logger->error("Cannot save $mac error ($status)");
-            }
-            $switch->synchronize_locationlog($port, undef, $mac,
-                $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
-            );
-        }
-    }
-    else {
-        my $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC,$options);
-        $args->{'profile'} = $profile;
-        @sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
-        my $merged = { %$options, %$args };
-        $merged->{'rule_class'} = $Rules::AUTH;
-        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
-        my $attributes;
-        my $matched = pf::authentication::match2([@sources], $merged, undef, \$attributes);
-
-        my $values = $matched->{values};
-        $args->{'user_role'} = $values->{$Actions::SET_ROLE};
-    }
-    $source_id = \@sources;
-    if (!defined($args->{'radius_request'}{'MS-CHAP-Challenge'}) && ( !exists($radius_request->{"EAP-Type"}) || ( exists($radius_request->{"EAP-Type"}) && $radius_request->{"EAP-Type"} != $EAP_TLS && $radius_request->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
-        ( $return, $message, $source_id, $extra ) = pf::authentication::authenticate( {
-                'username' =>  $radius_request->{'User-Name'},
-                'password' =>  $password,
-                'rule_class' => $Rules::ADMIN,
-                'context' => $pf::constants::realm::RADIUS_CONTEXT,
-            }, @sources );
-
-        if ( !( defined($return) && $return == $TRUE ) ) {
-            $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-            return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
-        }
-    }
-    if ($connection->isVPN()) {
-        my $merged = { %$options, %$args };
-        $merged->{'rule_class'} = $Rules::AUTH;
-        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
-        my $attributes;
-
-        my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
-
-        # CHECK MFA
-        my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
-        if ($value) {
-            my $mfa = pf::factory::mfa->new($value);
-            # If the mfa method is secondary password do nothing, the mfa will be triggered on a second request.
-            if ($mfa->radius_mfa_method eq 'second-password') {
-                my $chi = pf::CHI->new(namespace => 'mfa');
-                if (!$chi->get($radius_request->{'User-Name'}." authenticated")) {
-                    $chi->set($radius_request->{'User-Name'}." authenticated", $TRUE, normalize_time($mfa->cache_duration));
-                }
-            } else {
-                my $result = $mfa->check_user($radius_request->{'User-Name'}, $otp);
-                if ($result != $TRUE) {
-                    return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "VPN Access Denied") ];
-                }
-            }
-        }
-        $switch->synchronize_locationlog($port, undef, $mac,
-                $args->{'isPhone'} ? $VOIP : $NO_VOIP, $VIRTUAL_VPN, undef, $user_name, undef, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc);
-
-        return $switch->returnAuthorizeVPN($args);
-    } else {
-        my $merged = { %$options, %$args };
-        $merged->{'rule_class'} = $Rules::ADMIN;
-        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
-        my $attributes;
-        my $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
-        my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
-        if ($value) {
-            my @values = split(',', $value);
-            foreach $value (@values) {
-                if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
-                    return $switch->returnAuthorizeWrite($args);
-                }
-                if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
-                    return $switch->returnAuthorizeRead($args);
-                }
-            }
-        } else {
-            $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
-            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
         }
     }
 }
