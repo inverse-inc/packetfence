@@ -24,10 +24,57 @@ BEGIN {
 
 use DateTime;
 use DateTime::Format::Strptime;
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Test::Mojo;
 use Test::NoWarnings;
+use pf::UnifiedApi::Controller::DynamicReports;
+my $true = do { bless \(my $d = 1), "JSON::PP::Boolean" };
+my $false = do { bless \(my $d = 0), "JSON::PP::Boolean" };
+
 my $t = Test::Mojo->new('pf::UnifiedApi');
+
+$t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
+  ->json_is(
+    {
+        report_meta => {
+            query_fields => [
+                {
+                    name => 'ip4log_archive.mac',
+                    text => 'MAC Address',
+                    type => 'string',
+                },
+                { name => 'ip4log_archive.ip', text => 'IP', type => 'string' },
+            ],
+            columns => [
+                {
+                    text      => 'MAC Address',
+                    is_person => $false,
+                    is_node   => $true
+                },
+                {
+                    text      => 'IP',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'Start time',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'End time',
+                    is_person => $false,
+                    is_node   => $false
+                },
+            ],
+            has_date_range => $true,
+            has_cursor     => $true,
+            description    => 'IPv4 Archive',
+            long_description => 'IP address archive of the devices on your network when enabled (see Maintenance section)',
+        },
+        status => 200,
+    }
+  );
 
 $t->get_ok('/api/v1/dynamic_reports' => json => { })
   ->status_is(200);
@@ -51,7 +98,6 @@ $t->post_ok(
   )
   ->status_is(200)
 ;
-
 
 =head1 AUTHOR
 

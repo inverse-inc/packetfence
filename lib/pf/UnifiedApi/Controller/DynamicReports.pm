@@ -134,9 +134,80 @@ options
 
 sub options {
     my ($self) = @_;
-    $self->render(json => {meta => {}}, status => 200);
+    $self->render(json => {report_meta => $self->build_report_meta}, status => 200);
 }
 
+=head2 build_report_meta
+
+build_report_meta
+
+=cut
+
+sub build_report_meta {
+    my ($self) = @_;
+    my $report = pf::factory::report->new($self->id);
+    return {
+        query_fields => $self->build_query_fields($report),
+        columns => $self->build_columns($report),
+        has_cursor   => $self->hasCursor($report),
+        has_date_range   => $self->hasDateRange($report),
+        (
+            map { ($_ => $report->{$_}) } qw(description long_description)
+        ),
+    };
+}
+
+sub hasCursor {
+    my ($self) = @_;
+    return $self->json_true;
+}
+
+sub hasDateRange {
+    my ($self, $item) = @_;
+    if (exists $item->{date_field} && length($item->{date_field}) > 0) {
+        return $self->json_true;
+    }
+
+    return $self->json_fasle;
+}
+
+=head2 build_query_fields
+
+build_query_fields
+
+=cut
+
+sub build_query_fields {
+    my ($self, $item) = @_;
+    return [
+        map_searches($item->{searches} // [])
+    ];
+}
+
+sub map_searches {
+    my ($searches) = @_;
+    return map { { type => $_->{type}, text => $_->{display}, name => $_->{field} }  } @$searches;
+}
+
+sub build_columns {
+    my ($self, $report) = @_;
+    return [ map { $self->format_column($report, $_) } @{ $report->{columns} } ];
+}
+
+sub format_column {
+    my ($self, $report, $c) = @_;
+    my $l = $c;
+    $l =~ s/^[\S]+\s+//;
+    $l =~ s/as\s+//i;
+    $l =~ s/\s*$//;
+    $l =~ s/\s*$//;
+    $l =~ s/^["']([^"']+)["']$/$1/;
+    return {
+        text => $l,
+        is_person => ( $report->is_person_field($l) ? $self->json_true : $self->json_false ),
+        is_node   => ( $report->is_node_field($l) ? $self->json_true : $self->json_false ),
+    };
+}
 
 =head1 AUTHOR
 
