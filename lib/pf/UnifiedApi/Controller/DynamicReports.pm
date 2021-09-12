@@ -126,6 +126,17 @@ sub get {
     $self->render(json => {item => $self->stash('report')}, status => 200);
 }
 
+=head2 options
+
+options
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    $self->render(json => {meta => {}}, status => 200);
+}
+
 
 =head1 AUTHOR
 

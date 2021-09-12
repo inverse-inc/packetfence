@@ -1914,6 +1914,7 @@ sub setup_api_v1_dynamic_reports_routes {
     my $resource_route = $root->under("/dynamic_report/#report_id")->to(controller => $controller, action => "resource")->name("${name}.resource");
     $resource_route->register_sub_action({path => '', action => 'get', method => 'GET'});
     $resource_route->register_sub_action({action => 'search', method => 'POST'});
+    $resource_route->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
     return ( $collection_route, $resource_route );
 }
 
