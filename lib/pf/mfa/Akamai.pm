@@ -244,8 +244,6 @@ sub generic_method {
         return $FALSE;
     }
     # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
-    use Data::Dumper;
-    $logger->warn(Dumper $auth);
     if (!$chi->get($username)) {
         my $infos = { username => $username,
                       device   => $device,

@@ -1025,7 +1025,7 @@ sub mfa_post_auth {
         } else {
             my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$otp);
             if ($result != $TRUE) {
-                return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Multi-Factor Authentication Access Denied") ];
+                return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Multi-Factor Authentication failed or triggered") ];
             }
         }
     }
