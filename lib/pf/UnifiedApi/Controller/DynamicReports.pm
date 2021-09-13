@@ -204,6 +204,7 @@ sub format_column {
     $l =~ s/^["']([^"']+)["']$/$1/;
     return {
         text => $l,
+        name => $l,
         is_person => ( $report->is_person_field($l) ? $self->json_true : $self->json_false ),
         is_node   => ( $report->is_node_field($l) ? $self->json_true : $self->json_false ),
     };

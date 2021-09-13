@@ -48,21 +48,25 @@ $t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
             columns => [
                 {
                     text      => 'MAC Address',
+                    name      => 'MAC Address',
                     is_person => $false,
                     is_node   => $true
                 },
                 {
                     text      => 'IP',
+                    name      => 'IP',
                     is_person => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'Start time',
+                    name      => 'Start time',
                     is_person => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'End time',
+                    name      => 'End time',
                     is_person => $false,
                     is_node   => $false
                 },
