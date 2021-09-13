@@ -22,21 +22,22 @@ testcases:
       unregdate:
         from: result.bodyjson.item.unregdate
 
+# temp, need a feature in Venom assertion available in 1.0.0 (ShouldHappenBetween)
 # convert 5m to 5minutes
 # In order to calculate unregdate based on regdate + 5minutes using date command (next testcase)
-- name: convert_access_duration
-  steps:
-  - type: exec
-    script: |
-      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config::util \
-      -e 'my @times = get_translatable_time("{{.dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
-    vars:
-      translatable_time:
-        from: result.systemout
+# - name: convert_access_duration
+#   steps:
+#   - type: exec
+#     script: |
+#       perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config::util \
+#       -e 'my @times = get_translatable_time("{{.dot1x_eap_peap.sources.ad_user.access_duration}}"); print("$times[2]$times[1]");'
+#     vars:
+#       translatable_time:
+#         from: result.systemout
 
-- name: check_unregdate_match_access_duration
-  steps:
-  - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}}'"
-    assertions:
-      - result.systemout ShouldEqual "{{.check_autoregister_node.unregdate}}"
+# - name: check_unregdate_match_access_duration
+#   steps:
+#   - type: exec
+#     script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.check_autoregister_node.regdate}} {{.convert_access_duration.translatable_time}}'"
+#     assertions:
+#       - result.systemout ShouldEqual "{{.check_autoregister_node.unregdate}}"
