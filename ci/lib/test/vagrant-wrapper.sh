@@ -36,7 +36,7 @@ configure_and_check() {
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
-    DESTROY_VMS=${DESTROY_VMS:-}
+
 
     # Tests
     PERL_UNIT_TESTS=${PERL_UNIT_TESTS:-}
@@ -80,7 +80,7 @@ delete_ansible_files() {
     delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
 }
 
-halt_and_teardown() {
+halt() {
     local pf_vm_name=$1
     local vm_names=${@:-}
     unregister_rhel $pf_vm_name
@@ -95,12 +95,6 @@ halt_and_teardown() {
     else
         ( cd $VAGRANT_DIR ; \
           vagrant halt -f ${vm_names} )
-    fi
-
-    if [ "$TEARDOWN" = "yes" ]; then
-        teardown
-    else
-        echo "Teardown disabled, VMs will be kept until an identical job is launched"
     fi
 }
 
@@ -163,7 +157,7 @@ configure_and_check
 
 case $1 in
     run) run ;;
-    halt_and_teardown) halt_and_teardown ${PF_VM_NAME} ${INT_TEST_VM_NAMES} ;;
+    halt) halt ${PF_VM_NAME} ${INT_TEST_VM_NAMES} ;;
     delete) delete_ansible_files ;;
     teardown) teardown ;;
     *)   die "Wrong argument"

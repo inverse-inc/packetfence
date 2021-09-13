@@ -21,9 +21,9 @@ all: test-pfel8dev-dev test-pfdeb11dev-dev test-pfel8dev-release test-pfdeb11dev
 test: clean
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./vagrant-wrapper.sh run
 
-.PHONY: halt_and_teardown
-halt_and_teardown:
-	./vagrant-wrapper.sh halt_and_teardown
+.PHONY: halt
+halt:
+	./vagrant-wrapper.sh halt
 
 .PHONY: clean
 clean:
