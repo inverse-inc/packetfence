@@ -13,7 +13,6 @@ Namespaces:
   accounting
   clustering
   configfiles
-  configfilesdata
   fingerbank
   firewall_sso
   httpd.portal
