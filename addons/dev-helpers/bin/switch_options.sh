@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# Usage
+# call it from packetfence directory
+# /bin/bash addons/dev-helpers/bin/switch_options.sh
+
+
 SwitchPath="./lib/pf/Switch"
 
 function extract_name() {
