@@ -1035,7 +1035,6 @@ sub mfa_pre_auth {
     my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
     my $logger = $self->logger;
     my $caller = (caller(1))[3];
-    $logger->warn($caller);
 
     $logger->info("Pre MFA Authentication");
     # Special case where we need to check if there is a MFA config who exist and if we need to split the password field
