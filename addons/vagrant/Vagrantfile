@@ -25,7 +25,7 @@ Vagrant.configure("2") do |config|
 
   # common Ansible provisionner for all hosts
   # filtering is done using 'hosts' directive in site.yml
-  config.vm.provision "ansible", type: 'ansible' do |ansible|
+  config.vm.provision "site_ansible", type: 'ansible' do |ansible|
     ansible.playbook = "site.yml"
     ansible.config_file = "ansible.cfg"
     ansible.inventory_path = "inventory"

@@ -31,6 +31,7 @@ configure_and_check() {
     VAGRANT_PF_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_COMMON_DOTFILE_PATH="${VAGRANT_COMMON_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
+    VAGRANT_UP_ANSIBLE_OPTS=${VAGRANT_UP_OPTS:-'--provision-with=ansible --no-destroy-on-error --no-parallel'}    
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
@@ -65,15 +66,33 @@ start_and_provision_pf_vm() {
     log_subsection "Start and provision $vm_names"
 
     ( cd ${VAGRANT_DIR} ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant up ${vm_names} ${VAGRANT_UP_OPTS} )
+      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} \
+                          vagrant up \
+                          ${vm_names} \
+                          ${VAGRANT_UP_OPTS} )
 }
 
 start_and_provision_other_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision $vm_names"
 
-    ( cd ${VAGRANT_DIR} ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant up ${vm_names} ${VAGRANT_UP_OPTS} )
+    for vm in $(vm_names); do
+        if [ -e "${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/id" ]; then
+            echo "Machine $vm already exists, start and provision only via Ansible"
+            ( cd ${VAGRANT_DIR} ; \
+              VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
+                          vagrant up \
+                          ${vm} \
+                          ${VAGRANT_UP_ANSIBLE_OPTS} )
+        else
+            echo "Machine $vm doesn't exist, start and provision"
+            ( cd ${VAGRANT_DIR} ; \
+              VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
+                          vagrant up \
+                          ${vm} \
+                          ${VAGRANT_UP_OPTS} )
+       fi
+    done
 }
 
 teardown() {
