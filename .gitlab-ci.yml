@@ -300,6 +300,7 @@ variables:
 .test_script_job:
   variables:
     INT_TEST_VM_NAMES: ad switch01 node01 wireless01
+    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
   script:
     - make -e -C ${TESTDIR} test
   after_script:
@@ -462,7 +463,7 @@ test_devel_branches_and_maintenance_el_8:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_el_8_vars
@@ -474,7 +475,7 @@ test_devel_branches_and_maintenance_debian_bullseye:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
@@ -488,7 +489,7 @@ test_release_el_8:
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
     - .test_job
     - .test_el_8_vars
@@ -502,7 +503,7 @@ test_release_debian_bullseye:
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
@@ -515,8 +516,7 @@ test_nightly_el_8:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
->>>>>>> parent of 8a198d7c19 (delete or keep VMs depending of jobs)
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_el_8_vars
@@ -529,7 +529,7 @@ test_nightly_debian_bullseye:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
