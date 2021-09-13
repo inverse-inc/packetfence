@@ -36,6 +36,7 @@ configure_and_check() {
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
+    DESTROY_ALL=${DESTROY_ALL:-no}
 
 
     # Tests
@@ -56,6 +57,7 @@ configure_and_check() {
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
+    declare -p DESTROY_ALL
 }
 
 start_and_provision_pf_vm() {
@@ -77,7 +79,7 @@ start_and_provision_other_vm() {
 teardown() {
     log_section "Teardown"
     delete_ansible_files
-    destroy ${PF_VM_NAME} ${INT_TEST_VM_NAMES}
+    destroy
 }
 
 delete_ansible_files() {
@@ -112,24 +114,29 @@ unregister_rhel() {
 
 destroy() {
     log_subsection "Destroy virtual machine(s)"
-    local vm_names=${@:-}
 
     # using "|| true" as a workaround to unusual behavior
     # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
-    if [ -z "${vm_names}" ]; then
+    if [ "$DESTROY_ALL" = "yes" ]; then
         echo "Destroy all VM"
-        ( cd $VAGRANT_DIR ; \
-          vagrant destroy -f || true )
+        destroy_pf_vm
+        destroy_other_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
         delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
     else
-        ( cd $VAGRANT_DIR ; \
-          vagrant destroy -f ${vm_names} || true )
-        for vm in ${vm_names}; do
-            delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}/machines/${vm}
-            delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}
-        done
+        destroy_pf_vm
+        delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
     fi
+}
+
+destroy_pf_vm() {
+    ( cd $VAGRANT_DIR ; \
+      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant destroy -f || true )
+}
+
+destroy_other_vm() {
+    ( cd $VAGRANT_DIR ; \
+      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f || true )
 }
 
 run() {
