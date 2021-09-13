@@ -31,7 +31,7 @@ configure_and_check() {
     VAGRANT_PF_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_COMMON_DOTFILE_PATH="${VAGRANT_COMMON_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
-    VAGRANT_UP_ANSIBLE_OPTS=${VAGRANT_UP_OPTS:-'--provision-with=ansible --no-destroy-on-error --no-parallel'}    
+    VAGRANT_UP_ANSIBLE_OPTS=${VAGRANT_UP_ANSIBLE_OPTS:-'--provision-with=ansible --no-destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
@@ -76,8 +76,8 @@ start_and_provision_other_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision $vm_names"
 
-    for vm in $(vm_names); do
-        if [ -e "${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/id" ]; then
+    for vm in ${vm_names}; do
+        if [ -e "${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id" ]; then
             echo "Machine $vm already exists, start and provision only via Ansible"
             ( cd ${VAGRANT_DIR} ; \
               VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
@@ -108,27 +108,20 @@ delete_ansible_files() {
 }
 
 halt() {
-    local pf_vm_name=$1
-    local vm_names=${@:-}
-    unregister_rhel $pf_vm_name
+    unregister_rhel
     log_subsection "Halt virtual machine(s)"
 
-    # using "|| true" as a workaround to unusual behavior
-    # see https://github.com/hashicorp/vagrant/issues/10024#issuecomment-404965057
-    if [ -z "${vm_names}" ]; then
-        echo "Shutdown all VM"
-        ( cd $VAGRANT_DIR ; \
-          vagrant halt -f )
-    else
-        ( cd $VAGRANT_DIR ; \
-          vagrant halt -f ${vm_names} )
-    fi
+    ( cd $VAGRANT_DIR ; \
+      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant halt -f ${PF_VM_NAME} )
+
+    ( cd $VAGRANT_DIR ; \
+      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f ${INT_TEST_VM_NAMES} )
 }
 
 unregister_rhel() {
     log_subsection "Unregister RHEL subscription"
     ( cd $VAGRANT_DIR ; \
-      ansible-playbook playbooks/unregister_rhel_subscription.yml -l $pf_vm_name )
+      ansible-playbook playbooks/unregister_rhel_subscription.yml -l $PF_VM_NAME )
 }
 
 destroy() {
@@ -182,14 +175,16 @@ run_shell_provisioner() {
     local provisioner_name=${2:-fooprov}
     log_subsection "Run shell provisionner ${provisioner_name}"
     ( cd $VAGRANT_DIR ; \
-      vagrant provision $vm_name --provision-with="${provisioner_name}" )
+      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant provision \
+                          $vm_name \
+                          --provision-with="${provisioner_name}" )
 }
 
 configure_and_check
 
 case $1 in
     run) run ;;
-    halt) halt ${PF_VM_NAME} ${INT_TEST_VM_NAMES} ;;
+    halt) halt ;;
     delete) delete_ansible_files ;;
     teardown) teardown ;;
     *)   die "Wrong argument"
