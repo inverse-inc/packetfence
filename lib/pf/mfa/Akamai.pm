@@ -143,7 +143,7 @@ sub check_user {
     }
     if ($self->radius_mfa_method eq 'push') {
        if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
-            $self->${$ACTIONS{'push'}}->($default_device[0]->{'device'},$username);
+            return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
        }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
