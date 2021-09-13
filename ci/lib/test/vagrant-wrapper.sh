@@ -58,14 +58,20 @@ configure_and_check() {
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
 }
 
-start_and_provision() {
+start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
     log_subsection "Start and provision $vm_names"
 
     ( cd ${VAGRANT_DIR} ; \
-      # always use latest boxes version
-      vagrant box update ${vm_names} ; \
-      vagrant up ${vm_names} ${VAGRANT_UP_OPTS} )
+      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant up ${vm_names} ${VAGRANT_UP_OPTS} )
+}
+
+start_and_provision_other_vm() {
+    local vm_names=${@:-vmname}
+    log_subsection "Start and provision $vm_names"
+
+    ( cd ${VAGRANT_DIR} ; \
+      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant up ${vm_names} ${VAGRANT_UP_OPTS} )
 }
 
 teardown() {
@@ -132,12 +138,12 @@ run() {
     declare -p PERL_UNIT_TESTS GOLANG_UNIT_TESTS
     declare -p INTEGRATION_TESTS    
     if [ "$RUN_TESTS" = "yes" ]; then
-        start_and_provision ${PF_VM_NAME}
+        start_and_provision_pf_vm ${PF_VM_NAME}
         if [ "$PERL_UNIT_TESTS" = "yes" ] || [ "$GOLANG_UNIT_TESTS" = "yes" ]; then
             run_shell_provisioner ${PF_VM_NAME} run-unit-tests
         fi
         if [ "$INTEGRATION_TESTS" = "yes" ]; then
-           start_and_provision ${INT_TEST_VM_NAMES}
+           start_and_provision_other_vm ${INT_TEST_VM_NAMES}
            run_shell_provisioner ${PF_VM_NAME} run-integration-tests
         fi
     else
