@@ -28,7 +28,8 @@ configure_and_check() {
     VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
     VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
     VAGRANT_DIR=${VAGRANT_DIR:-'../../../addons/vagrant'}
-    VAGRANT_DOTFILE_PATH="${VAGRANT_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
+    VAGRANT_PF_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
+    VAGRANT_COMMON_DOTFILE_PATH="${VAGRANT_COMMON_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
@@ -52,7 +53,7 @@ configure_and_check() {
         RUN_TESTS=${INTEGRATION_TESTS}
     fi
     
-    declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_DOTFILE_PATH
+    declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
 }
@@ -119,12 +120,14 @@ destroy() {
         echo "Destroy all VM"
         ( cd $VAGRANT_DIR ; \
           vagrant destroy -f || true )
-        delete_dir_if_exists ${VAGRANT_DOTFILE_PATH}
+        delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
+        delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
     else
         ( cd $VAGRANT_DIR ; \
           vagrant destroy -f ${vm_names} || true )
         for vm in ${vm_names}; do
-            delete_dir_if_exists ${VAGRANT_DOTFILE_PATH}/machines/${vm}
+            delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}/machines/${vm}
+            delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}
         done
     fi
 }

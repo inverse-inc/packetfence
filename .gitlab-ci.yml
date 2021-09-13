@@ -462,7 +462,7 @@ test_devel_branches_and_maintenance_el_8:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
     TEARDOWN: 'yes'
   extends:
     - .test_job
@@ -475,7 +475,7 @@ test_devel_branches_and_maintenance_debian_bullseye:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
     TEARDOWN: 'yes'
   extends:
     - .test_job
@@ -490,7 +490,7 @@ test_release_el_8:
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_TAG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
     TEARDOWN: 'no'
   extends:
     - .test_job
@@ -505,7 +505,7 @@ test_release_debian_bullseye:
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_TAG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
     TEARDOWN: 'no'
   extends:
     - .test_job
@@ -519,7 +519,7 @@ test_nightly_el_8:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
     TEARDOWN: 'yes'
   extends:
     - .test_job
@@ -533,7 +533,7 @@ test_nightly_debian_bullseye:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
+    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
     TEARDOWN: 'yes'
   extends:
     - .test_job
