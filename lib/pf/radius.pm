@@ -874,7 +874,7 @@ sub vpn {
     $args->{'ifDesc'} = $ifDesc // '';
     $args->{'nas_port_id'} = $nas_port_type // '';
     $args->{'session_id'} = $session_id // '';
-    
+
     my $return = $self->mfa_pre_auth($args, $options, $sources, $extra, $otp, $password);
     return $return if (ref($return) eq 'ARRAY');
 
@@ -954,9 +954,10 @@ sub vpn {
     @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 
     my $source_id = \@$sources;
-
     my $return = $self->mfa_pre_auth($args, $options, $sources, $extra, $otp, $password);
     return $return if (ref($return) eq 'ARRAY');
+
+    return $self->returnRadiusCli($args, $options, $sources, $source_id, $extra) if $return eq $TRUE;
 
     if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $EAP_TLS && $args->{'radius_request'}->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
         my $return = $self->authenticate($args, $sources, \$source_id, $extra, $otp, $password);
@@ -966,6 +967,12 @@ sub vpn {
     $return = $self->mfa_post_auth($args, $options, $sources, $source_id, $extra ,$otp, $password);
     return $return if (ref($return) eq 'ARRAY');
 
+    return $self->returnRadiusCli($args, $options, $sources, $source_id, $extra);
+}
+
+sub returnRadiusCli{
+    my ($self, $args, $options, $sources, $source_id, $extra) = @_;
+    my $logger = $self->logger;
     my $merged = { %$options, %$args };
     $merged->{'rule_class'} = $Rules::AUTH;
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
@@ -974,7 +981,7 @@ sub vpn {
 
     my $values = $matched->{values};
     $args->{'user_role'} = $values->{$Actions::SET_ROLE};
- 
+
     $merged->{'rule_class'} = $Rules::ADMIN;
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
     $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
@@ -998,7 +1005,7 @@ sub vpn {
 sub mfa_post_auth {
     my ($self, $args, $options, $sources, $source_id, $extra ,$otp, $password) = @_;
     my $logger = $self->logger;
-
+    $logger->info("Pre MFA Authentication");
     my $merged = { %$options, %$args };
     $merged->{'rule_class'} = $Rules::AUTH;
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
@@ -1016,7 +1023,7 @@ sub mfa_post_auth {
                 $chi->set($args->{'radius_request'}->{'User-Name'}." authenticated", $TRUE, normalize_time($mfa->cache_duration));
             }
         } else {
-            my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $otp);
+            my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$otp);
             if ($result != $TRUE) {
                 return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Multi-Factor Authentication Access Denied") ];
             }
@@ -1026,6 +1033,11 @@ sub mfa_post_auth {
 
 sub mfa_pre_auth {
     my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
+    my $logger = $self->logger;
+    my $caller = (caller(1))[3];
+    $logger->warn($caller);
+
+    $logger->info("Pre MFA Authentication");
     # Special case where we need to check if there is a MFA config who exist and if we need to split the password field
     $args->{'mac'} = $FAKE_MAC unless defined($args->{'mac'});
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
@@ -1043,15 +1055,19 @@ sub mfa_pre_auth {
         my $chi = pf::CHI->new(namespace => 'mfa');
         if ($mfa->radius_mfa_method eq 'strip-otp') {
             # Previously did a authentication request ?
-            if (my $device = $chi->get($$args->{'radius_request'}->{'User-Name'})) {
-                my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $device);
+            if (my $infos = $chi->get($args->{'radius_request'}->{'User-Name'})) {
+                my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $infos->{'device'});
                 if ($result != $TRUE) {
                     return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                 } else {
-                   return $args->{'switch'}->returnAuthorizeVPN($args);
+                    if ($caller eq "pf::radius::vpn") {
+                        return $args->{'switch'}->returnAuthorizeVPN($args);
+		} else {
+                        return $TRUE;
+                    }
                 }
             }
-            my @otp = split($mfa->split_char,$password);
+            my @otp = split($mfa->split_char,$$password);
             $$password = $otp[0];
             $$otp = $otp[1];
         } elsif ($mfa->radius_mfa_method eq 'second-password') {
@@ -1061,7 +1077,11 @@ sub mfa_pre_auth {
                     if ($result != $TRUE) {
                         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed")];
                     } else {
-                        return $args->{'switch'}->returnAuthorizeVPN($args);
+                        if ($caller eq "pf::radius::vpn") {
+                            return $args->{'switch'}->returnAuthorizeVPN($args);
+		    } else {
+                            return $TRUE;
+                        }
                     }
                 } else {
                     my $device = $chi->get($args->{'radius_request'}->{'User-Name'});
@@ -1069,7 +1089,11 @@ sub mfa_pre_auth {
                     if ($result != $TRUE) {
                         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                     } else {
-                        return $args->{'switch'}->returnAuthorizeVPN($args);
+                        if ($caller eq "pf::radius::vpn") {
+                            return $args->{'switch'}->returnAuthorizeVPN($args);
+		    } else {
+                            return $TRUE;
+                        }
                     }
                 }
             }

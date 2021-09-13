@@ -98,7 +98,8 @@ our %ACTIONS = (
     "push" => \&push,
     "sms"  => \&generic_method,
     "totp"  => \&totp,
-    "phone" => \&generic_method
+    "phone" => \&generic_method,
+    "check_auth" => \&check_auth,
 );
 
 our %METHOD_ALIAS =(
@@ -141,16 +142,19 @@ sub check_user {
     } else {
        @default_device = grep { $_->{'default'} eq "true" } @{$devices->{'result'}->{'devices'}};
     }
+
     if ($self->radius_mfa_method eq 'push') {
        if ( grep $_ eq 'push', @{$default_device[0]->{'methods'}}) {
             return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
        }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
-        if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{8,8}$/ || $otp =~ /^\d{16,16}$/) {
+        if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
             if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
                 return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
             }
+        } elsif ($otp =~ /^\d{8,8}$/) {
+                return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp);
         } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
             my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
             my $method = $1;
@@ -240,8 +244,14 @@ sub generic_method {
         return $FALSE;
     }
     # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
+    use Data::Dumper;
+    $logger->warn(Dumper $auth);
     if (!$chi->get($username)) {
-        $chi->set($username, $device, normalize_time($self->cache_duration));
+        my $infos = { username => $username,
+                      device   => $device,
+                      tx       => $auth->{'result'}->{'tx'},
+                    };
+        $chi->set($username, $infos, normalize_time($self->cache_duration));
     }
     # Remove the authenticated status of the user since the next radius requests will use OTP
     $chi->remove($username." authenticated");
@@ -277,6 +287,25 @@ sub push {
         last if ($i++ == 6);
     }
     return $FALSE;
+}
+
+=head2
+
+check_auth
+
+=cut
+
+sub check_auth {
+    my ($self, $device, $username, $otp) = @_;
+    my $logger = get_logger();
+    my $chi = pf::CHI->new(namespace => 'mfa');
+    if (my $infos = $chi->get($username)) {
+        my $post_fields = encode_json({tx => $infos->{'tx'}, user_input => $otp});
+        my ($return, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$infos->{'tx'}."&user_input=".$otp);
+        if ($return->{'result'} eq 'allow') {
+            return $TRUE;
+        }
+    }
 }
 
 =head2 devices_list
