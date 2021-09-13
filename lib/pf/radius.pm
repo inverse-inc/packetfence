@@ -983,10 +983,10 @@ sub vpn {
         my @values = split(',', $value);
         foreach $value (@values) {
             if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_WRITE'}) {
-                return $$args->{'switch'}->returnAuthorizeWrite($$args);
+                return $args->{'switch'}->returnAuthorizeWrite($args);
             }
             if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
-                return $$args->{'switch'}->returnAuthorizeRead($$args);
+                return $args->{'switch'}->returnAuthorizeRead($args);
             }
         }
     } else {

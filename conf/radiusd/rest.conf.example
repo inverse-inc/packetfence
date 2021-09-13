@@ -285,7 +285,7 @@ rest rest-cli {
                 method = 'post'
                 body = 'json'
                 tls = ${..tls}
-                timeout = 30.000000
+                timeout = 60.000000
 	}
 	authenticate {
 	}
