@@ -11,7 +11,7 @@ Developped and tested on a X440G2-12p-10G4.6 running ExtremeXOS version 30.6.1.1
 
 =head1 SNMP
 
-This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 
 =cut
 

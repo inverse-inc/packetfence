@@ -30,7 +30,7 @@ Firmware series 4.3 is apparently fine.
 
 =head1 SNMP
 
-This switch can parse SNMP trap and change a Vlan on a switch port with SNMP.
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 
 =cut
 
