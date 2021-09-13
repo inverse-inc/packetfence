@@ -81,6 +81,7 @@
 /usr/local/pf/conf/radiusd/mschap.conf
 /usr/local/pf/conf/radiusd/ocsp.conf
 /usr/local/pf/conf/radiusd/radiusd.conf
+/usr/local/pf/conf/radiusd/radiusd_cli.conf
 /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
 /usr/local/pf/conf/radiusd/rest.conf
 /usr/local/pf/conf/radiusd/sql.conf

@@ -979,6 +979,8 @@ fi
                         /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/radiusd.conf
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/radiusd_cli.conf
+                        /usr/local/pf/conf/radiusd/radiusd_cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence
