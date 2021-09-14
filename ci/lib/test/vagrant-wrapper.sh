@@ -78,12 +78,24 @@ start_and_provision_other_vm() {
 
     for vm in ${vm_names}; do
         if [ -e "${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id" ]; then
-            echo "Machine $vm already exists, start and provision only via Ansible"
-            ( cd ${VAGRANT_DIR} ; \
-              VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
-                          vagrant up \
-                          ${vm} \
-                          ${VAGRANT_UP_ANSIBLE_OPTS} )
+            echo "Machine $vm already exists"
+            # node01 is not reachable after a first provisioning
+            # Vagrant will just boot VM without trying to reach it
+            if [ "$vm" = "node01" ]; then
+                echo "Starting $vm without provisioning"
+                ( cd ${VAGRANT_DIR} ; \
+                  VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
+                                      vagrant up \
+                                      ${vm} \
+                                      ${VAGRANT_UP_OPTS} )
+            else
+                echo "Starting $vm with Ansible provisioning only"
+                ( cd ${VAGRANT_DIR} ; \
+                  VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
+                                      vagrant up \
+                                      ${vm} \
+                                      ${VAGRANT_UP_ANSIBLE_OPTS} )
+           fi
         else
             echo "Machine $vm doesn't exist, start and provision"
             ( cd ${VAGRANT_DIR} ; \
