@@ -23,8 +23,8 @@ use Data::Dumper;
 for my $g (@groups) {
     for my $switch_info (@{$g->{options}}) {
         my $name = $switch_info->{value};
-        print "$name\n";
         my $module = "pf::Switch::${name}";
+        $switch_info->{related} = getRelated($module);
         if ($switch_info->{is_template}) {
             print "is a template\n";
         } else {
@@ -39,6 +39,14 @@ for my $g (@groups) {
             close($fh);
         }
     }
+}
+
+sub getRelated {
+    my ($m) = @_;
+    no strict qw(refs);
+    my $p =return *{"${m}::ISA"}->[-1];
+    $p =~ s/pf::Switch:://;
+    return $p;
 }
 
 =head1 AUTHOR
