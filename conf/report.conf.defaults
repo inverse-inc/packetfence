@@ -1,8 +1,7 @@
 # Copyright (C) Inverse inc.
 [authentications]
 type=builtin
-description= All Authentications
-long_description=<<EOT
+description=<<EOT
 All the authentications (RADIUS, portal) that have occured on the server.
 EOT
 # The table to search from
@@ -18,7 +17,6 @@ order_fields=-auth_log.attempted_at
 
 [SMS-Registration]
 type=builtin
-description=SMS Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -38,7 +36,6 @@ order_fields=-activation.expiration
 
 [Email-Registration]
 type=builtin
-description=Email Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -53,7 +50,6 @@ node_fields=MAC Address
 
 [Sponsor-Registration]
 type=builtin
-description=Sponsor Registration
 # The table to search from
 base_table=activation
 # The columns to select
@@ -68,8 +64,7 @@ node_fields=MAC Address
 
 [ip4log-history]
 type=builtin
-description=IPv4 History
-long_description=<<EOT
+description=<<EOT
 IP address history of the devices on the network (1 week is kept by default)
 EOT
 # The table to search from
@@ -86,8 +81,7 @@ order_fields=-ip4log_history.start_time
 
 [ip4log-archive]
 type=builtin
-description=IPv4 Archive
-long_description=<<EOT
+description=<<EOT
 IP address archive of the devices on your network when enabled (see Maintenance section)
 EOT
 # The table to search from
@@ -103,8 +97,7 @@ node_fields=MAC Address
 
 [open-security-events]
 type=builtin
-description=Open Security Events
-long_description=<<EOT
+description=<<EOT
 List of open security events on the network
 EOT
 base_table=security_event
@@ -121,8 +114,7 @@ base_conditions=security_event.status:=:open
 
 [closed-security-events]
 type=builtin
-description=Closed Security Events
-long_description=<<EOT
+description=<<EOT
 List of closed security events on the network
 EOT
 base_table=security_event
