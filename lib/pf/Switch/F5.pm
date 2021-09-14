@@ -23,17 +23,10 @@ Not doing deauthentication in web auth
 use strict;
 use warnings;
 use pf::node;
-use pf::security_event;
-use pf::locationlog;
 use pf::util;
-use LWP::UserAgent;
-use HTTP::Request::Common;
-use URI;
 use pf::log;
 use pf::constants;
-use pf::accounting qw(node_accounting_dynauth_attr);
 use pf::config qw ($WEBAUTH_WIRELESS $VIRTUAL_VPN);
-use pf::constants::role qw($REJECT_ROLE);
 
 use base ('pf::Switch');
 
@@ -46,12 +39,7 @@ sub description { 'F5 VPN' }
 use pf::SwitchSupports qw(
     ExternalPortal
     WebFormRegistration
-    WirelessMacAuth
-    WiredMacAuth
-    WirelessDot1x
-    RoleBasedEnforcement
     VPN
-    ExternalPortal
 );
 
 =item getIfIndexByNasPortId
@@ -105,47 +93,6 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
-=head2 returnRadiusAccessAccept
-
-Prepares the RADIUS Access-Accept reponse for the network device.
-
-Overriding the default implementation for the external captive portal
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-
-
-    my $radius_reply_ref = {};
-    my $status;
-    # should this node be kicked out?
-    my $kick = $self->handleRadiusDeny($args);
-    return $kick if (defined($kick));
-
-    my $node = $args->{'node_info'};
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-
-    if ( $self->externalPortalEnforcement ) {
-        my $security_event = pf::security_event::security_event_view_top($args->{'mac'});
-        # if user is unregistered or is in security_event then we reject him to show him the captive portal
-        if ( $node->{status} eq $pf::node::STATUS_UNREGISTERED || defined($security_event) ){
-            $logger->info("[$args->{'mac'}] is unregistered. Refusing access to force the eCWP");
-            $args->{user_role} = $REJECT_ROLE;
-            $self->handleRadiusDeny();
-        }
-        else{
-            $logger->info("Returning ACCEPT");
-            ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-            return [$status, %$radius_reply_ref];
-        }
-    }
-
-    return $self->SUPER::returnRadiusAccessAccept($args);
-}
-
 =head2 getAcceptForm
 
 Return the accept form to the client
@@ -170,42 +117,6 @@ sub getAcceptForm {
 
     $logger->debug("Generated the following html form : ".$html_form);
     return $html_form;
-}
-
-=item returnRoleAttribute
-
-What RADIUS Attribute (usually VSA) should the role returned into.
-
-=cut
-
-sub returnRoleAttribute {
-    my ($self) = @_;
-
-    return 'Fortinet-Group-Name';
-}
-
-=item deauthenticateMacDefault
-
-Overrides base method to send Acct-Session-Id within the RADIUS disconnect request
-
-=cut
-
-sub deauthenticateMacDefault {
-    my ( $self, $mac, $is_dot1x ) = @_;
-    my $logger = $self->logger;
-
-    if ( !$self->isProductionMode() ) {
-        $logger->info("not in production mode... we won't perform deauthentication");
-        return 1;
-    }
-
-    #Fetching the acct-session-id
-    my $dynauth = node_accounting_dynauth_attr($mac);
-
-    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-    return $self->radiusDisconnect(
-        $mac, { 'Acct-Session-Id' => $dynauth->{'acctsessionid'}, 'User-Name' => $dynauth->{'username'} },
-    );
 }
 
 =head2 getVersion
@@ -282,8 +193,6 @@ Redefinition of pf::Switch::parseVPNRequest due to specific attribute being used
 sub parseVPNRequest {
     my ( $self, $radius_request ) = @_;
     my $logger = $self->logger;
-use Data::Dumper;
-$logger->warn(Dumper $radius_request);
 
     my $client_ip       = $radius_request->{'Tunnel-Client-Endpoint'};
     my $mac             = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Tunnel-Client-Endpoint'});
