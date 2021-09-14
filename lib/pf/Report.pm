@@ -14,8 +14,6 @@ has 'id', (is => 'rw', isa => 'Str');
 
 has 'description', (is => 'rw', isa => 'Str');
 
-has 'long_description', (is => 'rw', isa => 'Str');
-
 has 'group_field', (is => 'rw', isa => 'Str');
 
 has 'order_fields', (is => 'rw', isa => 'ArrayRef[Str]');
