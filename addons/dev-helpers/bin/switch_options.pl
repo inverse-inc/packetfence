@@ -23,11 +23,11 @@ use pf::SwitchFactory;
 # Extract and prepare the data
 #
 #
-
 pf::SwitchFactory->preloadAllModules();
 my @groups = pf::SwitchFactory::form_options();
 
 my %dict_name_infos=();
+my @list_name_infos=();
 for my $g (@groups) {
     for my $switch_info (@{$g->{options}}) {
         my $string="";
@@ -72,23 +72,44 @@ for my $g (@groups) {
         $switch_info->{"RoamingAccounting"}="true"           if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
         $switch_info->{"SaveConfig"}="true"                  if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
         $switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
-        $dict_name_infos{$name}=$switch_info
+        $dict_name_infos{$name}=$switch_info;
+        push(@list_name_infos,$name);
     }
 }
 
 #
 # Create the table
 #
+my @list_of_types=("WiredMacAuth", "WiredDot1x", "RadiusDynamicVlanAssignment", "ExternalPortal", "MABFloatingDevices", "WebFormRegistration", "AccessListBasedEnforcement", "RadiusVoip", "FloatingDevice", "Cdp", "Lldp", "RoamingAccounting", "SaveConfig", "SNMP");
+my $nl="\n";
 my $t2='  ';
 my $t4='    ';
-my $tab=$t4.$t2.'<tr id="';
-foreach my $key (keys %dict_name_infos) {
-  my $switch_info = $dict_name_infos{$key};
-  #print "  $key => $switch_info->{value}\n";
-  if ($switch_info->{"WiredMacAuth"}) {
-    print "  $key => $switch_info->{value}\n";
+my $tab=$t4.$t2.'<tbody>'.$nl;
+foreach my $name (@list_name_infos) {
+  my $tr=''.$t4.$t2.'<tr id="'.$name.'"  style="display: none;">'.$nl;
+  my $switch_info = $dict_name_infos{$name};
+  my $td=$t4.$t4.'<td class="name">'.$name.' ';
+  if ($switch_info->{"vpn"}) {
+    $td.='<i class="shield alternate icon"></i> '
   }
+  if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
+    $td.='<i class="wifi icon"></i> '
+  }
+  if ($switch_info->{"wired"} || $switch_info->{"wired_wireless"}) {
+    $td.='<i class="sitemap icon"></i> '
+  }
+  $td.="</td>".$nl;
+  for my $type (@list_of_types) {
+    if ($switch_info->{"${type}"}) {
+      $td.=$t4.$t4.'<td class="'.$type.'"><i class="check icon"></i><td>'.$nl
+    } else {
+      $td.=$t4.$t4.'<td class="'.$type.'"><td>'.$nl
+    }
+  }
+  $tr.=$td.$t4.$t2.'</tr>'.$nl;
+  $tab.=$tr
 }
+$tab.='</tbody>'.$nl;
 
 #
 # create the html page
@@ -105,22 +126,27 @@ my $html='
 <table id="switches">
   <thead>
     <th>
-      <td>Switch</td>
+      <td>WiredMacAuth</td>
+      <td>WiredDot1x</td>
+      <td>RadiusDynamicVlanAssignment</td>
+      <td>ExternalPortal</td>
+      <td>MABFloatingDevices</td>
+      <td>WebFormRegistration</td>
+      <td>AccessListBasedEnforcement</td>
+      <td>RadiusVoip</td>
+      <td>FloatingDevice</td>
+      <td>Cdp</td>
+      <td>Lldp</td>
+      <td>RoamingAccounting</td>
+      <td>SaveConfig</td>
       <td>SNMP</td>
-      <td>MAC Authentication</td>
-      <td>802.1X</td>
-      <td>Web Auth</td>
     </th>
   </thead>
 ';
 
-#$html+=$printVPN
-#$html+=$printWireWireless
-#$html+=$printWired
-#$html+=$printWireless
+$html.=$tab;
 
 $html.='
-  </tbody>
 </table>
 
 <script>
@@ -137,9 +163,9 @@ console.log( test.includes("str") ) // true
 console.log( test.includes("STR") ) // false
 
 test.toLowerCase().includes("STR".toLowerCase()) // true
-</script>';
+</script>'.$nl;
 
-
+print($html);
 
 sub getRelated {
     my ($m) = @_;
