@@ -1,52 +1,43 @@
-package pf::factory::report;
+package pf::Report::sql;
 
 =head1 NAME
 
-pf::factory::report
-
-=cut
+pf::Report::sql -
 
 =head1 DESCRIPTION
 
-The factory for reports
+pf::Report::sql
 
 =cut
 
 use strict;
 use warnings;
+use Moose;
+extends qw(pf::Report);
 
-use List::MoreUtils qw(any);
+has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
-use pf::Report;
-use pf::Report::sql;
-use pf::Report::abstract;
+has cursor_type => ( is => 'rw', isa => 'Str');
 
-use pf::config qw(%ConfigReport);
+has cursor_field => ( is => 'rw', isa => 'Str');
 
-sub factory_for { 'pf::Report' }
+has cursor_default => ( is => 'rw', isa => 'Str');
 
-our %FACTORIES = map { $_ => "pf::Report::$_"  } qw(abstract sql);
+has sql => ( is => 'rw', isa => 'Str');
 
-=head2 new
-
-Will create a new pf::report sub class  based off the name of the provider
-If no provider is found the return undef
-
-=cut
-
-sub new {
-    my ($class,$id) = @_;
-    my $report;
-    my $data = $ConfigReport{$id};
-    if ($data) {
-        my $type = $data->{type};
-        if (defined $type && exists $FACTORIES{$type}) {
-            $data->{id} = $id;
-            $report = $FACTORIES{$type}->new($data);
-        }
-    }
-    return $report;
+sub generate_sql_query {
+    my ($self, %info) = @_;
+    my $sql = $self->sql;
+    return ($sql, $self->create_bind_type_sql(%info));
 }
+sub create_bind {
+    my ($self, %infos) = @_;
+    my $tenant_id = 1;
+    my $cursor = $infos{cursor} // $self->cursor_default;
+    my $limit = $infos{limit} // $self->default_limit // 25;
+    return [$tenant_id, $cursor, $limit];
+}
+
 
 =head1 AUTHOR
 
@@ -76,5 +67,3 @@ USA.
 =cut
 
 1;
-
-

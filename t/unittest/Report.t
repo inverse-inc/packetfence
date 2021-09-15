@@ -1,51 +1,49 @@
-package pf::factory::report;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::factory::report
-
-=cut
+Report
 
 =head1 DESCRIPTION
 
-The factory for reports
+unit test for Report
 
 =cut
 
 use strict;
 use warnings;
 
-use List::MoreUtils qw(any);
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
+}
 
-use pf::Report;
-use pf::Report::sql;
-use pf::Report::abstract;
+use Test::More tests => 4;
+use pf::SQL::Abstract;
+use pf::factory::report;
 
-use pf::config qw(%ConfigReport);
+#This test will running last
+use Test::NoWarnings;
 
-sub factory_for { 'pf::Report' }
+{
+    my $report = pf::factory::report->new('Node::Active::All');
+    #This is the first test
+    ok ($report, "report created");
+    isa_ok($report, "pf::Report::sql");
 
-our %FACTORIES = map { $_ => "pf::Report::$_"  } qw(abstract sql);
+    is_deeply(
+        $report->create_bind(),
+        [1, '00:00:00:00:00:00', 100]
+    );
+}
 
-=head2 new
-
-Will create a new pf::report sub class  based off the name of the provider
-If no provider is found the return undef
-
-=cut
-
-sub new {
-    my ($class,$id) = @_;
-    my $report;
-    my $data = $ConfigReport{$id};
-    if ($data) {
-        my $type = $data->{type};
-        if (defined $type && exists $FACTORIES{$type}) {
-            $data->{id} = $id;
-            $report = $FACTORIES{$type}->new($data);
-        }
-    }
-    return $report;
+{
+    my $report = pf::factory::report->new('User::Registration::Sponsor');
+    #This is the first test
+    ok ($report, "report created");
+    isa_ok($report, "pf::Report::abstract", "");
 }
 
 =head1 AUTHOR
@@ -76,5 +74,4 @@ USA.
 =cut
 
 1;
-
 

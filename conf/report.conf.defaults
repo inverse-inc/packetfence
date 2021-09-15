@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [authentications]
-type=builtin
+type=abstract
 description=<<EOT
 All the authentications (RADIUS, portal) that have occured on the server.
 EOT
@@ -15,8 +15,8 @@ person_fields=Owner
 node_fields=MAC Address
 order_fields=-auth_log.attempted_at
 
-[SMS-Registration]
-type=builtin
+[User::Registration::SMS]
+type=abstract
 # The table to search from
 base_table=activation
 # The columns to select
@@ -34,8 +34,8 @@ person_fields=Owner
 node_fields=MAC Address
 order_fields=-activation.expiration
 
-[Email-Registration]
-type=builtin
+[User::Registration::Email]
+type=abstract
 # The table to search from
 base_table=activation
 # The columns to select
@@ -48,8 +48,8 @@ base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
 
-[Sponsor-Registration]
-type=builtin
+[User::Registration::Sponsor]
+type=abstract
 # The table to search from
 base_table=activation
 # The columns to select
@@ -63,7 +63,7 @@ person_fields=Owner
 node_fields=MAC Address
 
 [ip4log-history]
-type=builtin
+type=abstract
 description=<<EOT
 IP address history of the devices on the network (1 week is kept by default)
 EOT
@@ -80,7 +80,7 @@ node_fields=MAC Address
 order_fields=-ip4log_history.start_time
 
 [ip4log-archive]
-type=builtin
+type=abstract
 description=<<EOT
 IP address archive of the devices on your network when enabled (see Maintenance section)
 EOT
@@ -96,7 +96,7 @@ base_conditions_operator=all
 node_fields=MAC Address
 
 [open-security-events]
-type=builtin
+type=abstract
 description=<<EOT
 List of open security events on the network
 EOT
@@ -113,7 +113,7 @@ date_field=start_date
 base_conditions=security_event.status:=:open
 
 [closed-security-events]
-type=builtin
+type=abstract
 description=<<EOT
 List of closed security events on the network
 EOT
@@ -128,3 +128,41 @@ node_fields=MAC Address
 person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:closed
+
+[Node::Active::All]
+type=sql
+description=<<EOT
+All currently known active nodes
+EOT
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql=<<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    n.mac as mac,
+    ip,
+    start_time,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+  WHERE
+    n.tenant_id = @TENANT_ID AND
+  (i.end_time = 0 OR i.end_time > NOW()) AND
+    n.mac >= @CURSOR
+    ORDER BY n.mac
+    LIMIT ?;
+END;
+EOT
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
