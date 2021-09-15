@@ -59,6 +59,57 @@ function yum_upgrade_packetfence_package() {
   yum update packetfence --enablerepo=packetfence
 }
 
+function download_pristine_file() {
+  git_commit_id="$1"
+  file="$2"
+  into="$3"
+  url="https://raw.githubusercontent.com/inverse-inc/packetfence/$git_commit_id/$file"
+  echo "Downloading $url"
+  curl -f $url > $into 2>/dev/null
+}
+
+function handle_rpmnew_file() {
+  file="$1"
+  file=`echo $file | sed 's#^/usr/local/pf/##'`
+  rpmnew_file="$file"
+
+  previous_git_commit_id=`cat /usr/local/pf/conf/git_commit_id.preupgrade`
+  
+  echo "Handling rpmnew $file"
+  non_rpmnew_file=`echo $file | sed 's/.rpmnew//'`
+  if echo $file | grep '^conf/' > /dev/null; then
+    download_pristine_file $previous_git_commit_id $non_rpmnew_file.example $non_rpmnew_file.pristine 
+    check_code $?
+  else
+    download_pristine_file $previous_git_commit_id $non_rpmnew_file $non_rpmnew_file.pristine 
+    check_code $?
+  fi
+
+  # diff returns 1 when there is a difference in the file and errexit makes it stop here. The dummy if allows the command to return a non-zero value
+  if diff -Naur $non_rpmnew_file.pristine $non_rpmnew_file > $non_rpmnew_file.upgrade-patch; then echo 1 > /dev/null ; fi
+  sed -i 's#'$non_rpmnew_file'\.pristine#a/'$non_rpmnew_file'#' $non_rpmnew_file.upgrade-patch
+  sed -i 's# '$non_rpmnew_file'# b/'$non_rpmnew_file'#' $non_rpmnew_file.upgrade-patch
+
+  echo "Moving $rpmnew_file -> $non_rpmnew_file and creating backup file $non_rpmnew_file.upgrade-backup"
+  cp -a $non_rpmnew_file $non_rpmnew_file.upgrade-backup
+  check_code $?
+  cp -a $rpmnew_file $non_rpmnew_file
+  check_code $?
+  echo "Patching $non_rpmnew_file"
+  if ! patch -p1 < $non_rpmnew_file.upgrade-patch; then
+    # TODO: store these somewhere so that they can be displayed at the end of the upgrade
+    echo "Patching $non_rpmnew_file failed. Will put the rpmnew file in place. This should be addressed manually after the upgrade is completed."
+    cp -a $non_rpmnew_file.upgrade-backup $non_rpmnew_file
+  fi
+}
+
+function handle_rpmnew_files() {
+  files=`find /usr/local/pf/ -name '*.rpmnew'`
+  for f in $files; do
+    handle_rpmnew_file $f
+  done
+}
+
 main_splitter
 echo "Backing up git_commit_id"
 backup_git_commit_id
@@ -79,6 +130,10 @@ check_code $?
 
 main_splitter
 upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade`
+check_code $?
+
+main_splitter
+handle_rpmnew_files
 check_code $?
 
 main_splitter
