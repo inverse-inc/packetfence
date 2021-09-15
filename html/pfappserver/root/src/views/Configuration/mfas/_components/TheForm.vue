@@ -19,11 +19,13 @@
 <script>
 import { BaseContainerLoading } from '@/components/new/'
 import FormTypeAkamai from './FormTypeAkamai'
+import FormTypeOTP from './FormTypeOTP'
 
 const components = {
   BaseContainerLoading,
 
   FormTypeAkamai,
+  FormTypeOTP,
 }
 
 import { computed, toRefs, unref } from '@vue/composition-api'
@@ -46,6 +48,8 @@ export const setup = (props) => {
     switch(type) {
       case 'Akamai':
         return FormTypeAkamai // break
+      case 'OTP':
+        return FormTypeOTP // break
       default:
         return undefined
     }

@@ -1,0 +1,13 @@
+<!-- START OTP.html -->
+
+<p>Here your qrcode you have to scan with your authenticator application</p>
+
+<div id="output"></div>
+
+<script>
+jQuery(function(){
+        jQuery('#output').qrcode("otpauth://totp/[% username %].packetfence?secret=[% otp %]");
+})
+</script>
+
+<!-- END OTP.html -->

@@ -23,11 +23,13 @@ has 'primary_key' => 'mfa_id';
 
 use pf::ConfigStore::Mfa;
 use pfappserver::Form::Config::Mfa;
+use pfappserver::Form::Config::Mfa::OTP;
 use pfappserver::Form::Config::Mfa::Akamai;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Mfa::$_" } qw(
       Akamai
+      OTP
     )
 );
 
