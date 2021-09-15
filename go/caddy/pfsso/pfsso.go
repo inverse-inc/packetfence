@@ -104,7 +104,7 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, r *http.Request) (map
 	info["tenant_id"] = tenant_id
 	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
 	if err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))
 	}
 
 	if err := h.validateInfo(ctx, info); err != nil {
