@@ -1098,6 +1098,7 @@ sub mfa_pre_auth {
             }
         }
     }
+    return $FALSE;
 }
 
 our %ARGS_TO_RADIUS_ATTRIBUTES = (
