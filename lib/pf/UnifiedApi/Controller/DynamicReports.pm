@@ -41,39 +41,42 @@ Execute a search on a specific dynamic report
 sub search {
     my ($self) = @_;
     my ($status, $json) = $self->parse_json;
-
-    if(is_error($status)) {
+    if (is_error($status)) {
         return $self->render_error(400, "Unable to parse JSON query");
     }
 
-    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query});
-
-    my $limit = $json->{limit} // 25;
-    my $page = (($json->{cursor} // 0) / $limit);
-
+    my $prevCursor = $json->{cursor};
+    my $cursor = ($prevCursor // 0) + 0;
     my $report = pf::factory::report->new($self->id);
+    my $query  = $json->{query};
+    my $where = defined $query ? pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query}) : undef;
+    my $limit = $json->{limit} // 25;
+    my $page = $cursor / $limit ;
+
     my %info = (
         page => ($page + 1),
         sql_abstract_search => $where,
-        per_page => $limit,
+        per_page => $limit + 1,
         order => $json->{sort},
         start_date => $json->{start_date},
         end_date => $json->{end_date},
+        limit => $limit,
+        cursor => $cursor,
     );
 
     ($status, my $data) = $report->query(%info);
 
-    if(is_error($status)) {
+    if (is_error($status)) {
         return $self->render_error($status, "Failed executing search on report. Check server-side logs for details.");
     }
 
-    my $page_count = $report->page_count(%info);
+    my $nextCursor = $report->nextCursor($data, %info);
 
     return $self->render(
         json   => { 
             items => $data,
-            nextCursor => ($page < $page_count ? ($page+1)*$json->{limit} : undef),
-            prevCursor => ($page eq 0 ? 0 : ($page-1)*$json->{limit}),
+            nextCursor => $nextCursor,
+            prevCursor => $prevCursor,
         },
         status => 200,
     );
@@ -152,7 +155,7 @@ sub build_report_meta {
         has_cursor   => $self->hasCursor($report),
         has_date_range   => $self->hasDateRange($report),
         (
-            map { ($_ => $report->{$_}) } qw(description long_description)
+            map { ($_ => $report->{$_}) } qw(description)
         ),
     };
 }
@@ -168,7 +171,7 @@ sub hasDateRange {
         return $self->json_true;
     }
 
-    return $self->json_fasle;
+    return $self->json_false;
 }
 
 =head2 build_query_fields
