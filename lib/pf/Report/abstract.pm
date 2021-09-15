@@ -1,6 +1,7 @@
 package pf::Report::abstract;
 
 use Moose;
+extends qw(pf::Report);
 use pf::SQL::Abstract;
 use pf::dal;
 use pf::error qw(is_error is_success);
