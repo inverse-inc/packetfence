@@ -73,7 +73,7 @@ echo "Performing upgrade of the packages"
 upgrade_packetfence_package
 
 main_splitter
-db_name=`get_db_name usr/local/pf/conf/pf.conf`
+db_name=`get_db_name /usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
 check_code $?
 
