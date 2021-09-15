@@ -24,7 +24,7 @@ BEGIN {
 
 use DateTime;
 use DateTime::Format::Strptime;
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Test::Mojo;
 use Test::NoWarnings;
 use pf::UnifiedApi::Controller::DynamicReports;
@@ -73,8 +73,107 @@ $t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
             ],
             has_date_range => $true,
             has_cursor     => $true,
-            description    => 'IPv4 Archive',
-            long_description => 'IP address archive of the devices on your network when enabled (see Maintenance section)',
+            description => 'IP address archive of the devices on your network when enabled (see Maintenance section)',
+        },
+        status => 200,
+    }
+  );
+
+$t->options_ok('/api/v1/dynamic_report/Node::Active::All')
+  ->status_is(200)
+  ->json_is(
+    {
+        report_meta => {
+            query_fields => [ ],
+            columns => [
+                {
+                    text      => 'mac',
+                    name      => 'mac',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'ip',
+                    name      => 'ip',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'start_time',
+                    name      => 'start_time',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'pid',
+                    name      => 'pid',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'detect_date',
+                    name      => 'detect_date',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'regdate',
+                    name      => 'regdate',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'lastskip',
+                    name      => 'lastskip',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'status',
+                    name      => 'status',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'user_agent',
+                    name      => 'user_agent',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'computername',
+                    name      => 'computername',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'notes',
+                    name      => 'notes',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'last_arp',
+                    name      => 'last_arp',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'last_dhcp',
+                    name      => 'last_dhcp',
+                    is_person => $false,
+                    is_node   => $false
+                },
+                {
+                    text      => 'os',
+                    name      => 'os',
+                    is_person => $false,
+                    is_node   => $false
+                },
+              ],
+            has_date_range => $false,
+            has_cursor     => $true,
+            description    => 'All currently known active nodes',
         },
         status => 200,
     }
@@ -85,7 +184,7 @@ $t->get_ok('/api/v1/dynamic_reports' => json => { })
 
 $t->get_ok('/api/v1/dynamic_report/authentications' => json => { })
   ->json_is('/item/id',"authentications")
-  ->json_is('/item/type',"builtin")
+  ->json_is('/item/type',"abstract")
   ->status_is(200);
   
 $t->post_ok('/api/v1/dynamic_report/authentications/search', {'Content-Type' => 'application/json'} => '{')
