@@ -95,7 +95,7 @@ restore_profile_templates
 check_code $?
 
 main_splitter
-upgrade_configuration
+upgrade_imported_configuration
 check_code $?
 
 main_splitter
