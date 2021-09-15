@@ -169,13 +169,19 @@ This is fixed easily by using MariaDB-backup which can complete a full database 
 .RHEL-based systems
 [source,bash]
 ----
-  # yum install MariaDB-backup --enablerepo=packetfence
+yum install MariaDB-backup --enablerepo=packetfence
 ----
 
-.Debian-based systems
+.Debian-based systems (for PacketFence versions 11.0.0 and later
 [source,bash]
 ----
-  # apt install mariadb-backup-10.2
+apt install mariadb-backup
+----
+
+.Debian-based systems (for PacketFence versions prior to 11.0.0)
+[source,bash]
+----
+apt install mariadb-backup-10.2
 ----
 
 Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
