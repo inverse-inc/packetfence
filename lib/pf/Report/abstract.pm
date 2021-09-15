@@ -145,6 +145,21 @@ sub ensure_default_infos {
     $infos->{count_only} //= 0;
 }
 
+sub nextCursor {
+    my ($self, $result, %infos) = @_;
+    my $limit = $infos{limit} + 1;
+    my $last_item;
+    if (@$result == $limit) {
+        $last_item = pop @$result;
+    }
+
+    if ($last_item) {
+        return ($infos{cursor} // 0) + $limit - 1;
+    }
+
+    return undef;
+}
+
 sub _db_data {
     my ($self, $sql, @params) = @_;
 

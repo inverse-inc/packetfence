@@ -30,6 +30,13 @@ sub generate_sql_query {
     my $sql = $self->sql;
     return ($sql, $self->create_bind_type_sql(%info));
 }
+
+sub ensure_default_infos {
+    my ($self, $infos) = @_;
+    $infos->{limit} //= $self->default_limit // 25;
+    $infos->{per_page} //= 25;
+}
+
 sub create_bind {
     my ($self, %infos) = @_;
     my $tenant_id = 1;
@@ -38,6 +45,24 @@ sub create_bind {
     return [$tenant_id, $cursor, $limit];
 }
 
+sub nextCursor {
+    my ($self, $result, %infos) = @_;
+    my $limit = $infos{limit} + 1;
+    my $last_item;
+    if (@$result == $limit) {
+        $last_item = pop @$result;
+    }
+
+    if ($last_item) {
+        if ($self->cursor_type eq 'field') {
+            return $last_item->{$self->cursor_field};
+        }
+
+        return ($infos{cursor} // 0) + $limit - 1;
+    }
+
+    return undef;
+}
 
 =head1 AUTHOR
 

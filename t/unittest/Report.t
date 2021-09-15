@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 4;
+use Test::More tests => 14;
 use pf::SQL::Abstract;
 use pf::factory::report;
 
@@ -37,13 +37,27 @@ use Test::NoWarnings;
         $report->create_bind(),
         [1, '00:00:00:00:00:00', 100]
     );
+    my $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
+    is($report->nextCursor($results, limit => 2), "22:33:22:33:33:33", "pf::Report::sql->nextCursor");
+    is_deeply($results, [{}, {}]);
+
+    $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
+    is($report->nextCursor($results, limit => 3), undef, "pf::Report::sql->nextCursor");
+    is_deeply($results, [{}, {}, {mac => "22:33:22:33:33:33"}]);
 }
 
 {
     my $report = pf::factory::report->new('User::Registration::Sponsor');
     #This is the first test
     ok ($report, "report created");
-    isa_ok($report, "pf::Report::abstract", "");
+    isa_ok($report, "pf::Report::abstract");
+    my $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
+    is($report->nextCursor($results, limit => 2, cursor => 2), 4, "pf::Report::abstract->nextCursor");
+    is_deeply($results, [{}, {}]);
+
+    $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
+    is($report->nextCursor($results, limit => 3, cursor => 3), undef, "pf::Report::sql->nextCursor");
+    is_deeply($results, [{}, {}, {mac => "22:33:22:33:33:33"}]);
 }
 
 =head1 AUTHOR
