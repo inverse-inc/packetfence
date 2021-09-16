@@ -84,6 +84,10 @@
 /usr/local/pf/conf/radiusd/rest.conf
 /usr/local/pf/conf/radiusd/sql.conf
 /usr/local/pf/conf/radiusd/tls.conf
+/usr/local/pf/conf/radiusd/packetfence
+/usr/local/pf/conf/radiusd/packetfence-tunnel
+/usr/local/pf/conf/radiusd/packetfence-cli
+/usr/local/pf/conf/radiusd/packetfence-proxy
 /usr/local/pf/conf/monitoring/netdata.conf
 /usr/local/pf/conf/fingerbank-collector.env.defaults
 /usr/local/pf/html/captive-portal/captiveportal.conf
