@@ -27,6 +27,11 @@ my %ignored_params = (
     },
 );
 
+my @extra_files_to_export = (
+    $pf::file_paths::fingerbank_config_file
+);
+
+
 for my $file (@pf::file_paths::stored_config_files) {
     next if $ignored{$file};
     next unless -f $file;
@@ -53,3 +58,7 @@ for my $file (@pf::file_paths::stored_config_files) {
     }
 }
 
+for my $file (@extra_files_to_export) {
+    next unless -f $file;
+    print $file;
+}
