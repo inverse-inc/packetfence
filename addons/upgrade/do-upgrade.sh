@@ -68,41 +68,47 @@ function download_pristine_file() {
   curl -f $url > $into 2>/dev/null
 }
 
-function handle_rpmnew_file() {
+function handle_pkgnew_file() {
   file="$1"
+  suffix="$2"
+  escaped_suffix=`echo $suffix| perl -nle 'print quotemeta'`
   file=`echo $file | sed 's#^/usr/local/pf/##'`
-  rpmnew_file="$file"
+  pkgnew_file="$file"
 
   previous_git_commit_id=`cat /usr/local/pf/conf/git_commit_id.preupgrade`
   
-  echo "Handling rpmnew $file"
-  non_rpmnew_file=`echo $file | sed 's/.rpmnew//'`
+  non_pkgnew_file=`echo $file | sed 's/'$escaped_suffix'//'`
+  patch_file="$non_pkgnew_file.upgrade-patch"
+  backup_file="$non_pkgnew_file.upgrade-backup"
+  pristine_file="$non_pkgnew_file.pristine"
+
+  echo "Handling $suffix $file"
   if echo $file | grep '^conf/' > /dev/null; then
-    download_pristine_file $previous_git_commit_id $non_rpmnew_file.example $non_rpmnew_file.pristine 
+    download_pristine_file $previous_git_commit_id $non_pkgnew_file.example $pristine_file
     check_code $?
   else
-    download_pristine_file $previous_git_commit_id $non_rpmnew_file $non_rpmnew_file.pristine 
+    download_pristine_file $previous_git_commit_id $non_pkgnew_file $pristine_file
     check_code $?
   fi
 
   # diff returns 1 when there is a difference in the file and errexit makes it stop here. The dummy if allows the command to return a non-zero value
-  if diff -Naur $non_rpmnew_file.pristine $non_rpmnew_file > $non_rpmnew_file.upgrade-patch; then echo 1 > /dev/null ; fi
-  sed -i 's#'$non_rpmnew_file'\.pristine#a/'$non_rpmnew_file'#' $non_rpmnew_file.upgrade-patch
-  sed -i 's# '$non_rpmnew_file'# b/'$non_rpmnew_file'#' $non_rpmnew_file.upgrade-patch
+  if diff -Naur $pristine_file $non_pkgnew_file > $patch_file; then echo 1 > /dev/null ; fi
+  sed -i 's#'`echo $pristine_file| perl -nle 'print quotemeta'`'#a/'$non_pkgnew_file'#' $patch_file
+  sed -i 's# '`echo $non_pkgnew_file| perl -nle 'print quotemeta'`'# b/'$non_pkgnew_file'#' $patch_file
 
-  echo "Moving $rpmnew_file -> $non_rpmnew_file and creating backup file $non_rpmnew_file.upgrade-backup"
-  cp -a $non_rpmnew_file $non_rpmnew_file.upgrade-backup
+  echo "Moving $pkgnew_file -> $non_pkgnew_file and creating backup file $backup_file"
+  cp -a $non_pkgnew_file $backup_file
   check_code $?
-  cp -a $rpmnew_file $non_rpmnew_file
+  cp -a $pkgnew_file $non_pkgnew_file
   check_code $?
-  echo "Attempting a dry-run of the patch on $non_rpmnew_file"
-  if ! patch -p1 -f --dry-run < $non_rpmnew_file.upgrade-patch; then
+  echo "Attempting a dry-run of the patch on $non_pkgnew_file"
+  if ! patch -p1 -f --dry-run < $patch_file; then
     # TODO: store these somewhere so that they can be displayed at the end of the upgrade
-    echo "Patching $non_rpmnew_file failed. Will put the rpmnew file in place. This should be addressed manually after the upgrade is completed."
-    cp -a $non_rpmnew_file.upgrade-backup $non_rpmnew_file
+    echo "Patching $non_pkgnew_file failed. Will put the $suffix file in place. This should be addressed manually after the upgrade is completed."
+    cp -a $pkgnew_file $non_pkgnew_file
   else
     echo "Dry-run completed successfully, applying the patch"
-    patch -p1 -f < $non_rpmnew_file.upgrade-patch
+    patch -p1 -f < $patch_file
   fi
 }
 
@@ -110,7 +116,7 @@ function handle_rpmnew_files() {
   files=`find /usr/local/pf/ -name '*.rpmnew'`
   for f in $files; do
     sub_splitter
-    handle_rpmnew_file $f
+    handle_pkgnew_file $f .rpmnew
   done
 }
 
