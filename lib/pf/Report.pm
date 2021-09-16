@@ -39,6 +39,11 @@ sub ensure_default_infos {
     return;
 }
 
+
+sub build_query_options {
+    return (422, { message => "unimplemented" });
+}
+
 sub query {
     my ($self, %infos) = @_;
     $self->ensure_default_infos(\%infos);
