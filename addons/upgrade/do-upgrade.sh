@@ -26,10 +26,6 @@ function upgrade_packetfence_package() {
 }
 
 function find_latest_stable() {
-  # TODO: remove this hack
-  echo "11.1"
-  return
-
   OS=""
   if is_rpm_based; then
     OS="RHEL-8"
