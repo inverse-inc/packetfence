@@ -13,6 +13,7 @@ pf::Report::sql
 use strict;
 use warnings;
 use Moose;
+use pf::config::tenant;
 extends qw(pf::Report);
 
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
@@ -28,7 +29,7 @@ has sql => ( is => 'rw', isa => 'Str');
 sub generate_sql_query {
     my ($self, %info) = @_;
     my $sql = $self->sql;
-    return ($sql, $self->create_bind_type_sql(%info));
+    return ($sql, $self->create_bind_type_sql(\%info));
 }
 
 sub ensure_default_infos {
@@ -38,10 +39,10 @@ sub ensure_default_infos {
 }
 
 sub create_bind {
-    my ($self, %infos) = @_;
-    my $tenant_id = 1;
-    my $cursor = $infos{cursor} // $self->cursor_default;
-    my $limit = $infos{limit} // $self->default_limit // 25;
+    my ($self, $infos) = @_;
+    my $tenant_id = pf::config::tenant::get_tenant();
+    my $cursor = $infos->{cursor};
+    my $limit = $infos->{sql_limit};
     return [$tenant_id, $cursor, $limit];
 }
 
@@ -62,6 +63,15 @@ sub nextCursor {
     }
 
     return undef;
+}
+
+sub build_query_options {
+    my ($self, $data) = @_;
+    my %options;
+    $options{cursor} = $data->{cursor} // $self->cursor_default;
+    $options{limit} = $data->{limit} // $self->default_limit // 25;
+    $options{sql_limit} = $options{limit} + 1;
+    return (200, \%options);
 }
 
 =head1 AUTHOR
