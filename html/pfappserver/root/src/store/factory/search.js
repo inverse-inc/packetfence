@@ -37,8 +37,8 @@ const factory = (uuid, options = {}) => {
         uuid,
         // defaults
         api: {
-          list: (new Promise(r => r())),
-          search: (new Promise(r => r()))
+          list: () => (new Promise(r => r())),
+          search: () => (new Promise(r => r()))
         },
         columns: [],
         fields: [],

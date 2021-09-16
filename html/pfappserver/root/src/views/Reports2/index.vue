@@ -1,8 +1,9 @@
 <template>
   <b-row>
-    <pf-sidebar v-model="sections"></pf-sidebar>
+    <pf-sidebar v-model="sections" />
     <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
-      <router-view></router-view>
+      <!-- avoid component re-use, since useSearch is not reactive -->
+      <router-view :key="$route.fullPath" />
     </b-col>
   </b-row>
 </template>
@@ -47,7 +48,8 @@ const { root: { $store } = {} } = context
         case 0:
           return {
             name: i18n.t(key), // i18n defer
-            path: `/reports2/${id}`
+            path: `/reports2/${id}`,
+//            saveSearchNamespace: `reports::${id}`
           }
           // break
       }
