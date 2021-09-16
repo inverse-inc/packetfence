@@ -117,9 +117,10 @@ sub redirect_info {
     my ($self, $username) = @_;
     my $logger = get_logger();
     $logger->info("MFA USERNAME: ".$username);
-    my $otp = $self->generate_otp($username);
+    my ($exist, $otp) = $self->generate_otp($username);
 
     return {
+        exist => $exist,
         username => $username,
 	otp => $otp
     };
@@ -130,7 +131,7 @@ sub generate_otp {
     my $person = person_view($username);
     if (defined $person->{otp} && $person->{otp} ne '') {
         get_logger->debug("Returning otp key $person->{otp} for user $username");
-        return $person->{otp};
+        return ($TRUE, $person->{otp});
     }
     else {
         my @chars = ("A".."Z", "2".."7");
@@ -141,7 +142,7 @@ sub generate_otp {
         }
         person_modify($username,otp => $base32Secret);
         get_logger->info("OTP key has been generated for user ".$username);
-        return $base32Secret;
+        return ($FALSE, $base32Secret);
     }
 }
 

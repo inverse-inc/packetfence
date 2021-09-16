@@ -2,7 +2,7 @@
 
 <div class="c-card o-layout o-layout--center u-padding u-padding@tablet">
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-[% IF otp != "" %]
+[% IF exist %]
         <form action="/mfa" method="post">
             <div class="input-container">
                 <label for="otp">[% i18n("OTP") %]</label>
