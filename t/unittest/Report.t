@@ -34,8 +34,12 @@ use Test::NoWarnings;
     isa_ok($report, "pf::Report::sql");
 
     is_deeply(
-        $report->create_bind(),
-        [1, '00:00:00:00:00:00', 100]
+        $report->create_bind({
+            cursor => '00:00:00:00:00:00',
+            sql_limit => 101,
+            limit => 100,
+        }),
+        [1, '00:00:00:00:00:00', 101]
     );
     my $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
     is($report->nextCursor($results, limit => 2), "22:33:22:33:33:33", "pf::Report::sql->nextCursor");
@@ -44,6 +48,13 @@ use Test::NoWarnings;
     $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
     is($report->nextCursor($results, limit => 3), undef, "pf::Report::sql->nextCursor");
     is_deeply($results, [{}, {}, {mac => "22:33:22:33:33:33"}]);
+
+    is_deeply(
+        [$report->build_query_options({
+            cursor => "22:33:22:33:33:33",
+        })],
+        [200, { cursor => "22:33:22:33:33:33", limit => 100, sql_limit => 101}]
+    );
 }
 
 {
@@ -58,6 +69,11 @@ use Test::NoWarnings;
     $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
     is($report->nextCursor($results, limit => 3, cursor => 3), undef, "pf::Report::sql->nextCursor");
     is_deeply($results, [{}, {}, {mac => "22:33:22:33:33:33"}]);
+
+    is_deeply(
+        [$report->build_query_options({})],
+        [200, {}]
+    );
 }
 
 =head1 AUTHOR
