@@ -61,6 +61,7 @@ sub check_user {
 
 sub verify_otp {
     my ($self, $username, $otp) = @_;
+    my $logger = get_logger();
     my $person = person_view($username);
     if (defined $person->{otp} && $person->{otp} ne '') {
         my $local_otp = $self->generateCurrentNumber($person->{otp});
@@ -115,7 +116,7 @@ Generate redirection information
 sub redirect_info {
     my ($self, $username) = @_;
     my $logger = get_logger();
-    $logger->warn("MFA USERNAME: ".$username);
+    $logger->info("MFA USERNAME: ".$username);
     my $otp = $self->generate_otp($username);
 
     return {

@@ -1,13 +1,28 @@
 <!-- START OTP.html -->
 
-<p>Here your qrcode you have to scan with your authenticator application</p>
+<div class="c-card o-layout o-layout--center u-padding u-padding@tablet">
+    <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
+[% IF otp != "" %]
+        <form action="/mfa" method="post">
+            <div class="input-container">
+                <label for="otp">[% i18n("OTP") %]</label>
+                <input id="otp" name="otp" title="OTP" type="tel" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="6" required autocorrect="off" autocapitalize="off" class="text-center letter-expand" />
+            </div>
+            <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" disabled>
+                [% i18n("Continue") %]
+            </button>
+        </form>
+[% ELSE %]
+        <p>Here your qrcode you have to scan with your authenticator application</p>
+          <div id="output"></div>
 
-<div id="output"></div>
-
-<script>
-jQuery(function(){
-        jQuery('#output').qrcode("otpauth://totp/[% username %].packetfence?secret=[% otp %]");
-})
-</script>
+          <script>
+            jQuery(function(){
+              jQuery('#output').qrcode("otpauth://totp/[% username %].packetfence?secret=[% otp %]");
+            })
+          </script>
+[% END %]
+  </div>
+</div>
 
 <!-- END OTP.html -->
