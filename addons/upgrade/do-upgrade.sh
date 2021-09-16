@@ -161,17 +161,14 @@ echo "Finalizing upgrade"
 sub_splitter
 echo "Applying fixpermissions"
 /usr/local/pf/bin/pfcmd fixpermissions
-check_code $?
 
 sub_splitter
 echo "Restarting packetfence-config"
 systemctl restart packetfence-config
-check_code $?
 
 sub_splitter
 echo "Reloading configuration"
 /usr/local/pf/bin/pfcmd configreload hard
-check_code $?
 
 main_splitter
 echo "Completed the upgrade. Perform any necessary adjustments and restart PacketFence."
