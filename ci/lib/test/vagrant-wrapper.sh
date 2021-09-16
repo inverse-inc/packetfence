@@ -31,8 +31,6 @@ configure_and_check() {
     VAGRANT_PF_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_COMMON_DOTFILE_PATH="${VAGRANT_COMMON_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
-    # only provision with a provisionner called site_ansible in Vagrantfile
-    VAGRANT_PROVISION_ANSIBLE_OPTS=${VAGRANT_PROVISION_ANSIBLE_OPTS:-'--provision-with=site_ansible'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
@@ -83,13 +81,12 @@ start_and_provision_other_vm() {
             machine_uuid=$(cat ${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id)
             # hack to overcome the fact that node01 doesn't have IP address after first provisioning
             # vagrant up will fail
-            echo "Starting $vm using libvirt, provisioning through Vagrant"
+            echo "Starting $vm using libvirt, provisioning using Ansible (without Vagrant)"
             virsh -c qemu:///system start --domain $machine_uuid
-            ( cd ${VAGRANT_DIR} ; \
-              VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
-                                  vagrant provision \
-                                  ${vm} \
-                                  ${VAGRANT_PROVISION_ANSIBLE_OPTS} )
+            # let time for the VM to boot before using ansible
+            sleep 60
+            ( cd ${VAGRANT_DIR}; \
+              ansible-playbook site.yml -l $vm )
         else
             echo "Machine $vm doesn't exist, start and provision with Vagrant"
             ( cd ${VAGRANT_DIR} ; \
