@@ -125,6 +125,8 @@ function handle_pkgnew_files() {
     exit 1
   fi
 
+  echo "Checking for any $suffix files to process"
+
   files=`find /usr/local/pf/ -name '*'$suffix`
   for f in $files; do
     sub_splitter
@@ -152,6 +154,24 @@ upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-
 
 main_splitter
 handle_pkgnew_files
+
+main_splitter
+echo "Finalizing upgrade"
+
+sub_splitter
+echo "Applying fixpermissions"
+/usr/local/pf/bin/pfcmd fixpermissions
+check_code $?
+
+sub_splitter
+echo "Restarting packetfence-config"
+systemctl restart packetfence-config
+check_code $?
+
+sub_splitter
+echo "Reloading configuration"
+/usr/local/pf/bin/pfcmd configreload hard
+check_code $?
 
 main_splitter
 echo "Completed the upgrade. Perform any necessary adjustments and restart PacketFence."
