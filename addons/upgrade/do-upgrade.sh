@@ -95,17 +95,21 @@ function handle_rpmnew_file() {
   check_code $?
   cp -a $rpmnew_file $non_rpmnew_file
   check_code $?
-  echo "Patching $non_rpmnew_file"
-  if ! patch -p1 < $non_rpmnew_file.upgrade-patch; then
+  echo "Attempting a dry-run of the patch on $non_rpmnew_file"
+  if ! patch -p1 -f --dry-run < $non_rpmnew_file.upgrade-patch; then
     # TODO: store these somewhere so that they can be displayed at the end of the upgrade
     echo "Patching $non_rpmnew_file failed. Will put the rpmnew file in place. This should be addressed manually after the upgrade is completed."
     cp -a $non_rpmnew_file.upgrade-backup $non_rpmnew_file
+  else
+    echo "Dry-run completed successfully, applying the patch"
+    patch -p1 -f < $non_rpmnew_file.upgrade-patch
   fi
 }
 
 function handle_rpmnew_files() {
   files=`find /usr/local/pf/ -name '*.rpmnew'`
   for f in $files; do
+    sub_splitter
     handle_rpmnew_file $f
   done
 }
