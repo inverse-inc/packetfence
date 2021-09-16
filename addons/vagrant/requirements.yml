@@ -1,7 +1,7 @@
 ---
 roles:
-  - src: geerlingguy.nodejs
   - src: inverse_inc.gitlab_buildpkg_tools
+    version: 1.3.1
 
 # For roles, to test locally with Vagrant (due to --force option)
 # Ansible will create an export, not a symlink to git repository
@@ -14,10 +14,15 @@ collections:
   - name: inverse_inc.packetfence
     version: 1.2.0
   - name: debops.debops
+    version: 2.3.2
   - name: inverse_inc.windows
+    version: 1.0.2
   - name: inverse_inc.cumulus
+    version: 1.1.1
   - name: inverse_inc.utils
+    version: 1.1.1
   - name: inverse_inc.wireless
+    version: 0.2.2
 
 # For collections, to test locally with Vagrant (due to --force option)
 # Ansible will create an export, not a symlink to git repository

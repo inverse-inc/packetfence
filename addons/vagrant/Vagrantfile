@@ -30,6 +30,9 @@ Vagrant.configure("2") do |config|
     ansible.config_file = "ansible.cfg"
     ansible.inventory_path = "inventory"
     ansible.galaxy_role_file = "requirements.yml"
+    # redefine to disable --force option
+    # will use ${VAGRANT_DIR}/ansible.cfg for paths
+    ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
     # only for debug
     ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
   end

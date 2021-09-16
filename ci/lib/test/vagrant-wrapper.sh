@@ -90,7 +90,6 @@ start_and_provision_other_vm() {
                                   vagrant provision \
                                   ${vm} \
                                   ${VAGRANT_PROVISION_ANSIBLE_OPTS} )
-           fi
         else
             echo "Machine $vm doesn't exist, start and provision with Vagrant"
             ( cd ${VAGRANT_DIR} ; \
