@@ -37,7 +37,6 @@ function find_latest_stable() {
     OS="Debian-11"
   fi
   curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
-  check_code $?
 }
 
 upgrade_to=""
@@ -51,12 +50,20 @@ function set_upgrade_to() {
   fi
 }
 
+function apt_upgrade_packetfence_package() {
+  set_upgrade_to
+  echo "deb http://inverse.ca/downloads/PacketFence/debian/$upgrade_to bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
+  # TODO: allow to update full OS or only PF
+  apt update
+  DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
+}
+
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/etc/yum.repos.d/packetfence.repo') ; \$c->setval('packetfence', 'baseurl', 'http://inverse.ca/downloads/PacketFence/RHEL\$releasever/"$upgrade_to"/\$basearch') ; \$c->RewriteConfig"
-  check_code $?
   # TODO: allow to update full OS or only PF
-  yum update packetfence --enablerepo=packetfence
+  yum clean all --enablerepo=packetfence
+  yum update packetfence -y --enablerepo=packetfence
 }
 
 function download_pristine_file() {
@@ -85,10 +92,8 @@ function handle_pkgnew_file() {
   echo "Handling $suffix $file"
   if echo $file | grep '^conf/' > /dev/null; then
     download_pristine_file $previous_git_commit_id $non_pkgnew_file.example $pristine_file
-    check_code $?
   else
     download_pristine_file $previous_git_commit_id $non_pkgnew_file $pristine_file
-    check_code $?
   fi
 
   # diff returns 1 when there is a difference in the file and errexit makes it stop here. The dummy if allows the command to return a non-zero value
@@ -98,9 +103,7 @@ function handle_pkgnew_file() {
 
   echo "Moving $pkgnew_file -> $non_pkgnew_file and creating backup file $backup_file"
   cp -a $non_pkgnew_file $backup_file
-  check_code $?
   cp -a $pkgnew_file $non_pkgnew_file
-  check_code $?
   echo "Attempting a dry-run of the patch on $non_pkgnew_file"
   if ! patch -p1 -f --dry-run < $patch_file; then
     # TODO: store these somewhere so that they can be displayed at the end of the upgrade
@@ -112,22 +115,29 @@ function handle_pkgnew_file() {
   fi
 }
 
-function handle_rpmnew_files() {
-  files=`find /usr/local/pf/ -name '*.rpmnew'`
+function handle_pkgnew_files() {
+  if is_rpm_based; then
+    suffix=".rpmnew"
+  elif is_deb_based; then
+    suffix=".dpkg-dist"
+  else
+    echo "Unable to detect package manager to upgrade PacketFence"
+    exit 1
+  fi
+
+  files=`find /usr/local/pf/ -name '*'$suffix`
   for f in $files; do
     sub_splitter
-    handle_pkgnew_file $f .rpmnew
+    handle_pkgnew_file $f $suffix
   done
 }
 
 main_splitter
 echo "Backing up git_commit_id"
 backup_git_commit_id
-check_code $?
 
 echo "Backing up pf-release"
 backup_pf_release
-check_code $?
 
 main_splitter
 echo "Performing upgrade of the packages"
@@ -136,15 +146,12 @@ upgrade_packetfence_package
 main_splitter
 db_name=`get_db_name /usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
-check_code $?
 
 main_splitter
 upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade`
-check_code $?
 
 main_splitter
-handle_rpmnew_files
-check_code $?
+handle_pkgnew_files
 
 main_splitter
 echo "Completed the upgrade. Perform any necessary adjustments and restart PacketFence."
