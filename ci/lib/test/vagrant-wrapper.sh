@@ -31,7 +31,8 @@ configure_and_check() {
     VAGRANT_PF_DOTFILE_PATH="${VAGRANT_PF_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_COMMON_DOTFILE_PATH="${VAGRANT_COMMON_DOTFILE_PATH:-${VAGRANT_DIR}/.vagrant}"
     VAGRANT_UP_OPTS=${VAGRANT_UP_OPTS:-'--no-destroy-on-error --no-parallel'}
-    VAGRANT_UP_ANSIBLE_OPTS=${VAGRANT_UP_ANSIBLE_OPTS:-'--provision-with=ansible --no-destroy-on-error --no-parallel'}
+    # only provision with a provisionner called site_ansible in Vagrantfile
+    VAGRANT_PROVISION_ANSIBLE_OPTS=${VAGRANT_PROVISION_ANSIBLE_OPTS:-'--provision-with=site_ansible'}
     CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
@@ -79,25 +80,19 @@ start_and_provision_other_vm() {
     for vm in ${vm_names}; do
         if [ -e "${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id" ]; then
             echo "Machine $vm already exists"
-            # node01 is not reachable after a first provisioning
-            # Vagrant will just boot VM without trying to reach it
-            if [ "$vm" = "node01" ]; then
-                echo "Starting $vm without provisioning"
-                ( cd ${VAGRANT_DIR} ; \
-                  VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
-                                      vagrant up \
-                                      ${vm} \
-                                      ${VAGRANT_UP_OPTS} )
-            else
-                echo "Starting $vm with Ansible provisioning only"
-                ( cd ${VAGRANT_DIR} ; \
-                  VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
-                                      vagrant up \
-                                      ${vm} \
-                                      ${VAGRANT_UP_ANSIBLE_OPTS} )
+            machine_uuid=$(cat ${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id)
+            # hack to overcome the fact that node01 doesn't have IP address after first provisioning
+            # vagrant up will fail
+            echo "Starting $vm using libvirt, provisioning through Vagrant"
+            virsh -c qemu:///system start --domain $machine_uuid
+            ( cd ${VAGRANT_DIR} ; \
+              VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
+                                  vagrant provision \
+                                  ${vm} \
+                                  ${VAGRANT_PROVISION_ANSIBLE_OPTS} )
            fi
         else
-            echo "Machine $vm doesn't exist, start and provision"
+            echo "Machine $vm doesn't exist, start and provision with Vagrant"
             ( cd ${VAGRANT_DIR} ; \
               VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
                           vagrant up \
