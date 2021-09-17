@@ -14,15 +14,11 @@
         </form>
 [% ELSE %]
         <p>Here your qrcode you have to scan with your authenticator application</p>
-          <div id="output"></div>
-
-          <script>
-            jQuery(function(){
-              jQuery('#output').qrcode("otpauth://totp/[% username %].packetfence?secret=[% otp %]");
-            })
-          </script>
+          <div id="qrcode"></div>
 [% END %]
   </div>
 </div>
+
+<script src="/common/qrcode.js"></script>
 
 <!-- END TOTP.html -->
