@@ -205,7 +205,7 @@ BEGIN {
             in => {
                 op => 'and',
             },
-            out => [ 200, {} ],
+            out => [],
         },
         {
             id => 'User::Registration::Sponsor',
@@ -215,15 +215,9 @@ BEGIN {
                 value => '',
             },
             out => [
-                422,
                 {
-                    message => 'invalid query',
-                    errors  => [
-                        {
-                            field   => 'garbage',
-                            message => 'garbage is an invalid field'
-                        }
-                    ]
+                    field   => 'garbage',
+                    message => 'invalid field',
                 }
             ],
         },
@@ -234,9 +228,84 @@ BEGIN {
                 op    => 'equals',
                 value => 'bob',
             },
+            out => [],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => undef,
+            out => [],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => {
+                op => 'and',
+                values => [
+                    {
+                        field => 'garbage',
+                        op    => 'equals',
+                        value => '',
+                    }
+                ],
+            },
             out => [
-                200,
-                { }
+                {
+                    field   => 'garbage',
+                    message => 'invalid field',
+                }
+            ],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => {
+                op => 'and',
+                values => [
+                    {
+                        field => 'garbage',
+                        op    => undef,
+                        value => '',
+                    }
+                ],
+            },
+            out => [
+                { message => 'op (null) is invalid'}
+            ],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => {
+                op => 'garbage',
+            },
+            out => [
+                { message => 'op (garbage) is invalid'}
+            ],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => {
+                op => 'garbage',
+            },
+            out => [
+                { message => 'op (garbage) is invalid'}
+            ],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => {
+                op => 'equals',
+                field => undef,
+            },
+            out => [
+                { message => 'field must be set'}
+            ],
+        },
+        {
+            id  => 'User::Registration::Sponsor',
+            in  => {
+                op => 'contains',
+                field => 'activation.pid',
+            },
+            out => [
+                { message => 'op (contains) is not allowed to have a null value'}
             ],
         },
     );
@@ -264,8 +333,10 @@ use Test::NoWarnings;
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
         my $in = $t->{in};
+        my @errors;
+        $report->validate_query($in, \@errors),
         is_deeply(
-            [$report->validate_query($in)],
+            \@errors,
             $t->{out},
             "$id: pf::Report->validate_query"
         );

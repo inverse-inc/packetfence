@@ -192,6 +192,61 @@ sub _db_data {
     return (200, \@array);
 }
 
+sub validate_query {
+    my ($self, $query, $errors) = @_;
+    if (!defined $query) {
+        return
+    }
+
+    if (!exists $query->{op}) {
+        return
+    }
+
+    return $self->_validate_query($query, $errors);
+}
+
+sub _validate_query {
+    my ($self, $query, $errors) = @_;
+    my $op = $query->{op};
+    if (!defined $op) {
+        push @$errors, { message => 'op (null) is invalid'};
+        return;
+    }
+
+    if (!pf::UnifiedApi::Search::valid_op($op)) {
+        push @$errors, { message => "op ($op) is invalid"};
+        return;
+    }
+
+    if (pf::UnifiedApi::Search::is_sub_query($op)) {
+        for my $q (@{$query->{values} // []}) {
+            $self->_validate_query($q, $errors);
+        }
+
+        return;
+    }
+
+    my $field = $query->{field};
+    if (!defined $field) {
+        push @$errors, { message => 'field must be set' };
+    }
+
+    if (defined $field && !$self->_is_valid_search_field($field)) {
+            push @$errors, { field => $field, message => 'invalid field' };
+    }
+
+    my $value = $query->{value};
+    if (!defined $value && !pf::UnifiedApi::Search::is_nullable($op)) {
+        push @$errors, { message => "op ($op) is not allowed to have a null value"};
+    }
+}
+
+sub _is_valid_search_field {
+    my ($self, $field) = @_;
+    return any { $_->{field} eq $field} @{$self->searches};
+}
+
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
