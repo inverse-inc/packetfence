@@ -13,14 +13,225 @@ unit test for Report
 use strict;
 use warnings;
 
+our @BuildQueryOptionsTests;
+our @NextCursorTests;
+our @CreateBindTests;
+our @IsaTests;
+our @ValidateQueryTests;
+
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
+
     #Module for overriding configuration paths
     use setup_test_config;
+    @BuildQueryOptionsTests = (
+        {
+            id  => "User::Registration::Sponsor",
+            in  => {},
+            out => [
+                200,
+                {
+                    offset     => 0,
+                    limit      => 25,
+                    sql_limit  => 26,
+                    start_date => undef,
+                    end_date   => undef,
+                }
+            ]
+        },
+        {
+            id => "User::Registration::Sponsor",
+            in => {
+                limit  => 100,
+                cursor => 100,
+            },
+            out => [
+                200,
+                {
+                    offset     => 100,
+                    limit      => 100,
+                    sql_limit  => 101,
+                    start_date => undef,
+                    end_date   => undef,
+                }
+            ]
+        },
+        {
+            id => "User::Registration::Sponsor",
+            in => {
+                limit      => 100,
+                cursor     => 200,
+                start_date => '2012-12-25'
+            },
+            out => [
+                200,
+                {
+                    offset     => 200,
+                    limit      => 100,
+                    sql_limit  => 101,
+                    start_date => '2012-12-25',
+                    end_date   => undef,
+                }
+            ]
+        },
+        {
+            id => "User::Registration::SMS",
+            in => {
+                limit      => 100,
+                cursor     => 200,
+                start_date => '2012-12-25',
+                end_date   => '2013-12-25',
+                'sort'     => 'pid',
+                query      => {
+                    op     => 'and',
+                    values => [
+                        {
+                            op    => 'equals',
+                            field => "activation.pid",
+                            value => 'bob'
+                        },
+                    ],
+                },
+            },
+            out => [
+                200,
+                {
+                    offset     => 200,
+                    limit      => 100,
+                    sql_limit  => 101,
+                    order      => 'pid',
+                    start_date => '2012-12-25',
+                    end_date   => '2013-12-25',
+                    where      => {
+                        'activation.pid' => { '=' => 'bob' }
+                    },
+                }
+            ]
+        },
+        {
+            id  => "Node::Active::All",
+            in  => { cursor => "22:33:22:33:33:33" },
+            out => [
+                200,
+                {
+                    cursor    => "22:33:22:33:33:33",
+                    limit     => 100,
+                    sql_limit => 101
+                }
+            ]
+        },
+        {
+            id  => "Node::Active::All",
+            in  => {},
+            out => [
+                200,
+                {
+                    cursor    => "00:00:00:00:00:00",
+                    limit     => 100,
+                    sql_limit => 101
+                }
+            ]
+        }
+    );
+
+    @NextCursorTests = (
+        {
+            id => "Node::Active::All",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ], limit => 2,
+            ],
+            out     => "22:33:22:33:33:33",
+            results => [ {}, {} ],
+        },
+        {
+            id => "Node::Active::All",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ], limit => 3,
+            ],
+            out     => undef,
+            results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+        },
+        {
+            id => "User::Registration::Sponsor",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+                limit  => 2,
+                cursor => 2,
+            ],
+            out     => 4,
+            results => [ {}, {}, ],
+        },
+        {
+            id => "User::Registration::Sponsor",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+                limit  => 3,
+                cursor => 3,
+            ],
+            out     => undef,
+            results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+        },
+    );
+
+    @CreateBindTests = (
+        {
+            id => 'Node::Active::All',
+            in => [
+                {
+                    cursor    => '00:00:00:00:00:00',
+                    sql_limit => 101,
+                    limit     => 100,
+                }
+            ],
+            out => [ 1, '00:00:00:00:00:00', 101 ],
+        }
+    );
+
+    @IsaTests = (
+        {
+            id  => 'User::Registration::Sponsor',
+            isa => 'pf::Report::abstract',
+        },
+        {
+            id  => 'Node::Active::All',
+            isa => 'pf::Report::sql',
+        }
+    );
+
+    @ValidateQueryTests = (
+        {
+            id => 'User::Registration::Sponsor',
+            in => {
+                op => 'and',
+            },
+            out => [ 200, {} ],
+        },
+        {
+            id => 'User::Registration::Sponsor',
+            in => {
+                field => 'garbage',
+                op    => 'equals',
+                value => '',
+            },
+            out => [
+                422,
+                {
+                    message => 'invalid query',
+                    errors  => [
+                        {
+                            field   => 'garbage',
+                            message => 'garbage is an invalid field'
+                        }
+                    ]
+                }
+            ],
+        }
+    );
 }
 
-use Test::More tests => 14;
+use Test::More tests => 1 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests;
+
 use pf::SQL::Abstract;
 use pf::factory::report;
 
@@ -28,52 +239,56 @@ use pf::factory::report;
 use Test::NoWarnings;
 
 {
-    my $report = pf::factory::report->new('Node::Active::All');
-    #This is the first test
-    ok ($report, "report created");
-    isa_ok($report, "pf::Report::sql");
-
-    is_deeply(
-        $report->create_bind({
-            cursor => '00:00:00:00:00:00',
-            sql_limit => 101,
-            limit => 100,
-        }),
-        [1, '00:00:00:00:00:00', 101]
-    );
-    my $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
-    is($report->nextCursor($results, limit => 2), "22:33:22:33:33:33", "pf::Report::sql->nextCursor");
-    is_deeply($results, [{}, {}]);
-
-    $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
-    is($report->nextCursor($results, limit => 3), undef, "pf::Report::sql->nextCursor");
-    is_deeply($results, [{}, {}, {mac => "22:33:22:33:33:33"}]);
-
-    is_deeply(
-        [$report->build_query_options({
-            cursor => "22:33:22:33:33:33",
-        })],
-        [200, { cursor => "22:33:22:33:33:33", limit => 100, sql_limit => 101}]
-    );
+    for my $t (@IsaTests) {
+        my $id = $t->{id};
+        my $report = pf::factory::report->new($id);
+        ok ($report, "report '$id' created");
+        isa_ok ($report, $t->{isa}, );
+    }
 }
 
 {
-    my $report = pf::factory::report->new('User::Registration::Sponsor');
-    #This is the first test
-    ok ($report, "report created");
-    isa_ok($report, "pf::Report::abstract");
-    my $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
-    is($report->nextCursor($results, limit => 2, cursor => 2), 4, "pf::Report::abstract->nextCursor");
-    is_deeply($results, [{}, {}]);
+    for my $t (@ValidateQueryTests) {
+        my $id = $t->{id};
+        my $report = pf::factory::report->new($id);
+        my $in = $t->{in};
+        is_deeply(
+            [$report->validate_query($in)],
+            $t->{out},
+            "$id: pf::Report->validate_query"
+        );
+    }
+}
 
-    $results = [{}, {}, {mac => "22:33:22:33:33:33"}];
-    is($report->nextCursor($results, limit => 3, cursor => 3), undef, "pf::Report::sql->nextCursor");
-    is_deeply($results, [{}, {}, {mac => "22:33:22:33:33:33"}]);
+{
+    for my $t (@CreateBindTests) {
+        my $id = $t->{id};
+        my $report = pf::factory::report->new($id);
+        my $in = $t->{in};
+        is_deeply($report->create_bind(@$in), $t->{out}, "$id: pf::Report::sql->create_bind");
+    }
+}
 
-    is_deeply(
-        [$report->build_query_options({})],
-        [200, {}]
-    );
+{
+    for my $t (@BuildQueryOptionsTests) {
+        my $id = $t->{id};
+        my $report = pf::factory::report->new($id);
+        is_deeply(
+            [$report->build_query_options($t->{in})],
+            $t->{out},
+            "build_query_options $id",
+        );
+    }
+}
+
+{
+    for my $t (@NextCursorTests) {
+        my $id = $t->{id};
+        my $report = pf::factory::report->new($id);
+        my $in = $t->{in};
+        is($report->nextCursor(@$in), $t->{out}, "$id: pf::Report->nextCursor");
+        is_deeply($in->[0], $t->{results}, "$id: pf::Report::sql->nextCursor results");
+    }
 }
 
 =head1 AUTHOR
