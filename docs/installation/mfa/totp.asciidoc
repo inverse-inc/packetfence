@@ -29,7 +29,7 @@ You have a phone where you have an MFA application compatible with TOTP (Google 
 
 In this section we will configure the OTP MFA from the administration GUI.
 
-Go in "Configuration->Integration->Multi-Factor Authentication" then click on new MFA and select OTP.
+Go in "Configuration->Integration->Multi-Factor Authentication" then click on new MFA and select TOTP.
 
 In the form you have the following information to fill:
 

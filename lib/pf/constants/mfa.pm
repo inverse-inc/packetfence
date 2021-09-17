@@ -19,7 +19,7 @@ use Readonly;
 
 Readonly::Scalar our $MFA_TYPES => [
     "Akamai",
-    "OTP",
+    "TOTP",
 ];
 
 =head1 AUTHOR

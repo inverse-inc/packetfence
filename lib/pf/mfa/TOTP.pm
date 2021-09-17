@@ -1,14 +1,14 @@
-package pf::mfa::OTP;
+package pf::mfa::TOTP;
 
 =head1 NAME
 
-pf::mfa::OTP
+pf::mfa::TOTP
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::mfa::OTP
+pf::mfa::TOTP
 
 =cut
 
@@ -38,7 +38,7 @@ Caracter that split the username and otp
 
 has split_char => (is => 'rw' );
 
-sub module_description { 'Generic OTP MFA' }
+sub module_description { 'Generic TOTP MFA' }
 
 =head2 check_user
 

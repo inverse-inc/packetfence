@@ -49,7 +49,7 @@ import { useForm as setup, useFormProps as props } from '../_composables/useForm
 
 // @vue/component
 export default {
-  name: 'form-type-otp',
+  name: 'form-type-totp',
   inheritAttrs: false,
   components,
   props,

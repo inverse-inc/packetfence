@@ -1,12 +1,12 @@
-package pfappserver::Form::Config::Mfa::OTP;
+package pfappserver::Form::Config::Mfa::TOTP;
 
 =head1 NAME
 
-pfappserver::Form::Config::Mfa::OTP - Web form to add a OTP MFA
+pfappserver::Form::Config::Mfa::TOTP - Web form to add a TOTP MFA
 
 =head1 DESCRIPTION
 
-Form definition to create or update a OTP MFA.
+Form definition to create or update a TOTP MFA.
 
 =cut
 
@@ -27,7 +27,7 @@ has_field 'scope' =>
 has_field 'type' =>
   (
    typ => 'Hidden',
-   default => 'OTP',
+   default => 'TOTP',
   );
 
 has_field 'radius_mfa_method' =>

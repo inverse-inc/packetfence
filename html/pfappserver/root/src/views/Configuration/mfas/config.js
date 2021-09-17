@@ -2,7 +2,7 @@ import i18n from '@/utils/locale'
 
 export const types = {
   Akamai:     i18n.t('Akamai'),
-  OTP:        i18n.t('OTP')
+  TOTP:        i18n.t('TOTP')
 }
 
 export const typeOptions = Object.keys(types)
