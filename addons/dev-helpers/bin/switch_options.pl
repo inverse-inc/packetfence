@@ -108,7 +108,7 @@ foreach my $name (@list_name_infos) {
   my $switch_info = $dict_name_infos{$name};
   my $td=$t4.$t4.$t4.'<a class="'.$name.'">'.$name.'</a><br> ';
   if ($switch_info->{"vpn"}) {
-    $td.='<i class="shield alternate icon"></i> '
+    $td.='<i class="th icon"></i> '
   }
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
     $td.='<i class="wifi icon"></i> '
@@ -137,8 +137,7 @@ $tab.=''.$nl;
 # create the html page
 #
 
-my $html='
-<div class="ui bottom attached tab segment" data-tab="material">
+my $html='<div class="ui bottom attached tab segment" data-tab="material">
 
   <div class="ui stackable centered padded grid">
 
@@ -148,35 +147,132 @@ my $html='
         <p>The following tables detail the wired and wireless equipment supported by PacketFence. This list is the most up-to-date one. Note that generally all wired switches supporting MAC authentication and/or 802.1X with RADIUS can be supported by PacketFence.</p>
         <p>Bugs and limitations of the various modules can be found in the <a href="support.html#/documentation">Network Devices documentation</a>.</p>
         <p>
-          <i class="copy icon"></i> means a template.<br>
           <i class="wifi icon"></i> means wireless device.<br>
-          <i class="sitemap icon"></i> means wired device.
+          <i class="sitemap icon"></i> means wired device.<br>
+          <i class="th icon"></i> means VPN device.<br>
+          <i class="copy icon"></i> means a template.
         </p>
-        <p style="margin-bottom:20px;">
-          <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names..">
-        </p>
+        <h2 class="ui red header">Wired Support</h2>
+        
+        <p>PacketFence supports a huge number of wired switches.</p>
+
+        <h2 class="ui red header">VPN Support</h2>
+        
+        <p>PacketFence supports some VPN.</p>
+
+        <h2 class="ui red header">Wireless Support</h2>
+
+        <p>There are two approaches to wireless networks. One where a controller handles the Access Points (AP) and one where AP act individually. PacketFence supports both approaches.</p>
+
+        <h3 class="ui header">Wireless Controllers</h3>
+
+        <p>When using a controller, it does not matter to PacketFence what individual AP are supported or not. As long as the AP itself is supported by your controller and that your controller is supported by PacketFence it will work fine.</p>
+
+        <h3 class="ui header">Access Points</h3>
+
+        <p>Some Access Points behave the same if they are attached to a controller or not. Because of that you might want to try a controller module if a controller from the same vendor is supported in the list above.</p>
+        
+        <p style="margin-bottom:20px;"></p>
       </div>
 
       <div class="twelve wide column" style="margin-bottom:20px;">
         <h4 class="ui horizontal header red divider">Devices</h4>
+        <p style="margin-bottom:20px;">
+          <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names..">
+          <input type="button" value="Clear Search" id="clearButton">
+          <input type="button" value="Show Wired" id="wiredButton">
+          <input type="button" value="Show Access point" id="apButton">
+          <input type="button" value="Show Controllers" id="controllersButton">
+          <input type="button" value="Show VPN" id="vpnButton">
+          <input type="button" value="Show Templates" id="templateButton">
+        </p>
+        
         <div class="ui grid">
 ';
 
 $html.=$tab;
 
-$html.='
-      </div>
+$html.='      </div>
     </div>
     <script>
-    // Script to search names.
+    // Script to search names with filters or not
     window.onload = () => {
-      const filter = $("#switches-filter-input")
-      filter.on("input", function(){
-        var txt = this.value;
+      function getCurrentFilter() {
+        if ($("#clearButton").val().includes("Template")){
+          return "copy";
+        } else if ($("#clearButton").val().includes("Wired")){
+          return "sitemap";
+        } else if ($("#clearButton").val().includes("Controllers")){
+          return "wifi";
+        } else if ($("#clearButton").val().includes("AP")){
+          return "wifi";
+        } else if ($("#clearButton").val().includes("VPN")){
+          return "th";
+        } else {
+          return "";
+        }
+      };
+      function deviceType(device,type) {
+        var name = device.find("i");
+        var boo =  false;
+        $(name).each(function() {
+          if ($(this).attr("class").toLowerCase().includes(type)) {
+            boo = true;
+          }
+        });
+        return boo;
+      };
+      function hideOrShow(type) {
         $(".device").each(function() {
-          var name = $(this).find("a").attr("class");
-          if (name.toLowerCase().includes(txt.toLowerCase())) {
+          if ( deviceType($(this),type) ){
             $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+      };
+      function hideOrShowFromSearch(device,txt) {
+        var name = $(device).find("a").attr("class");
+        if (name.toLowerCase().includes(txt.toLowerCase())) {
+          $(device).show();
+        } else {
+          $(device).hide();
+        }
+      };
+      $("#vpnButton").click(function () {
+        hideOrShow("th");
+        $("#clearButton").val("Clear search for ONLY VPN");
+      });
+      $("#templateButton").click(function () {
+        hideOrShow("copy");
+        $("#clearButton").val("Clear search for ONLY Template");
+      });
+      $("#wiredButton").click(function () {
+        hideOrShow("sitemap");
+        $("#clearButton").val("Clear search for ONLY Wired");
+      });
+      $("#controllersButton").click(function () {
+        hideOrShow("wifi");
+        $("#clearButton").val("Clear search for ONLY Controllers");
+      });
+      $("#apButton").click(function () {
+        hideOrShow("wifi");
+        $("#clearButton").val("Clear search for ONLY AP");
+      });
+      $("#clearButton").click(function () {
+        $(".device").each(function() {
+          $(this).show();
+        });
+        $("#clearButton").val("Clear search");
+      });
+      
+      $("#switches-filter-input").on("input", function(){
+        var txt = this.value;
+        var type = getCurrentFilter();
+        $(".device").each(function() {
+          var boo = false;
+          if ( $(type) === "" || deviceType($(this),type) ) {
+            hideOrShowFromSearch($(this),txt);
           } else {
             $(this).hide();
           }
@@ -196,8 +292,7 @@ $html.='
     </div>
   </div>
 
-</div><!-- material tab -->
-'.$nl;
+</div><!-- material tab -->'.$nl;
 
 print($html);
 
