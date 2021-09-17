@@ -93,6 +93,11 @@ sub is_node_field {
     return any { $_ eq $field } @{$self->node_fields};
 }
 
+sub validate_query {
+    my ($self, $query) = @_;
+    return (422, {message => "unimplemented"});
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
