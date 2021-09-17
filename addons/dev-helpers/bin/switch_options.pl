@@ -60,6 +60,8 @@ for my $g (@groups) {
         }
         $switch_info->{"WiredMacAuth"}="true"                if ($supports =~ /WiredMacAuth/ && $supports !~ /-WiredMacAuth/) ;
         $switch_info->{"WiredDot1x"}="true"                  if ($supports =~ /WiredDot1x/ && $supports !~ /-WiredDot1x/) ;
+        $switch_info->{"WirelessMacAuth"}="true"             if ($supports =~ /WirelessMacAuth/ && $supports !~ /-WirelessMacAuth/) ;
+        $switch_info->{"WirelessDot1x"}="true"               if ($supports =~ /WirelessDot1x/ && $supports !~ /-WirelessDot1x/) ;
         $switch_info->{"RadiusDynamicVlanAssignment"}="true" if ($supports =~ /RadiusDynamicVlanAssignment/ && $supports !~ /-RadiusDynamicVlanAssignment/) ;
         $switch_info->{"ExternalPortal"}="true"              if ($supports =~ /ExternalPortal/ && $supports !~ /-ExternalPortal/) ;
         $switch_info->{"MABFloatingDevices"}="true"          if ($supports =~ /MABFloatingDevices/ && $supports !~ /-MABFloatingDevices/) ;
@@ -80,15 +82,31 @@ for my $g (@groups) {
 #
 # Create the table
 #
-my @list_of_types=("WiredMacAuth", "WiredDot1x", "RadiusDynamicVlanAssignment", "ExternalPortal", "MABFloatingDevices", "WebFormRegistration", "AccessListBasedEnforcement", "RadiusVoip", "FloatingDevice", "Cdp", "Lldp", "RoamingAccounting", "SaveConfig", "SNMP");
+my @list_of_types=("WiredMacAuth", "WiredDot1x","WirelessMacAuth", "WirelessDot1x", "RadiusDynamicVlanAssignment", "ExternalPortal", "MABFloatingDevices", "WebFormRegistration", "AccessListBasedEnforcement", "RadiusVoip", "FloatingDevice", "Cdp", "Lldp", "RoamingAccounting", "SaveConfig", "SNMP");
+my %list_of_types_trans=("WiredMacAuth"=>"Wired MAC Authentication",
+                         "WiredDot1x"=>"Wired 802.1x",
+                         "WirelessMacAuth"=>"Wireless MAC Authentication",
+                         "WirelessDot1x"=>"Wireless 802.1x",
+                         "RadiusDynamicVlanAssignment"=>"Radius Dynamic VLAN Assignment",
+                         "ExternalPortal"=>"Web Authentication",
+                         "MABFloatingDevices"=>"MAB Floating Device",
+                         "WebFormRegistration"=>"Web Form Registration",
+                         "AccessListBasedEnforcement"=>"Access List Based Enforcement",
+                         "RadiusVoip"=>"Radius VOIP",
+                         "FloatingDevice"=>"Floating Device",
+                         "Cdp"=>"CDP",
+                         "Lldp"=>"LLDP",
+                         "RoamingAccounting"=>"Roaming Accounting",
+                         "SaveConfig"=>"Save Config",
+                         "SNMP"=>"SNMP");
 my $nl="\n";
 my $t2='  ';
 my $t4='    ';
-my $tab=$t4.$t2.'<tbody>'.$nl;
+my $tab=$t4.$t2.''.$nl;
 foreach my $name (@list_name_infos) {
-  my $tr=''.$t4.$t2.'<tr id="'.$name.'"  style="display: none;">'.$nl;
+  my $tr=''.$t4.$t4.$t2.'<div id="'.$name.'"  class="device  height wide column">'.$nl;
   my $switch_info = $dict_name_infos{$name};
-  my $td=$t4.$t4.'<td class="name">'.$name.' ';
+  my $td=$t4.$t4.$t4.'<a class="'.$name.'">'.$name.'</a><br> ';
   if ($switch_info->{"vpn"}) {
     $td.='<i class="shield alternate icon"></i> '
   }
@@ -98,72 +116,88 @@ foreach my $name (@list_name_infos) {
   if ($switch_info->{"wired"} || $switch_info->{"wired_wireless"}) {
     $td.='<i class="sitemap icon"></i> '
   }
-  $td.="</td>".$nl;
+  if ($switch_info->{is_template}) {
+    $td.='<i class="copy icon"></i>'
+  }
+  $td.="".$nl.$t4.$t4.$t4."<ul>".$nl;
   for my $type (@list_of_types) {
     if ($switch_info->{"${type}"}) {
-      $td.=$t4.$t4.'<td class="'.$type.'"><i class="check icon"></i><td>'.$nl
-    } else {
-      $td.=$t4.$t4.'<td class="'.$type.'"><td>'.$nl
+      $td.=$t4.$t4.$t4.$t2.'<li class="'.$type.'">'.$list_of_types_trans{$type}.'</li>'.$nl
     }
+    #} else {
+    #  $td.=$t4.$t4.'<td class="'.$type.'"><td>'.$nl
+    #}
   }
-  $tr.=$td.$t4.$t2.'</tr>'.$nl;
+  $tr.=$td.$t4.$t4.$t4.'</ul>'.$nl.$t4.$t4.$t2.'</div>'.$nl;
   $tab.=$tr
 }
-$tab.='</tbody>'.$nl;
+$tab.=''.$nl;
 
 #
 # create the html page
 #
 
 my $html='
-<div>
-  <strong>Filter:</strong>
-  <input type="text" style="width:100%" id="filter"/>
-  <input type="reset"/>
-</div>
+<div class="ui bottom attached tab segment" data-tab="material">
 
+  <div class="ui stackable centered padded grid">
 
-<table id="switches">
-  <thead>
-    <th>
-      <td>WiredMacAuth</td>
-      <td>WiredDot1x</td>
-      <td>RadiusDynamicVlanAssignment</td>
-      <td>ExternalPortal</td>
-      <td>MABFloatingDevices</td>
-      <td>WebFormRegistration</td>
-      <td>AccessListBasedEnforcement</td>
-      <td>RadiusVoip</td>
-      <td>FloatingDevice</td>
-      <td>Cdp</td>
-      <td>Lldp</td>
-      <td>RoamingAccounting</td>
-      <td>SaveConfig</td>
-      <td>SNMP</td>
-    </th>
-  </thead>
+    <div class="row">
+      <div class="ten wide column">
+        <h1 class="ui huge header">Supported network devices</h1>
+        <p>The following tables detail the wired and wireless equipment supported by PacketFence. This list is the most up-to-date one. Note that generally all wired switches supporting MAC authentication and/or 802.1X with RADIUS can be supported by PacketFence.</p>
+        <p>Bugs and limitations of the various modules can be found in the <a href="support.html#/documentation">Network Devices documentation</a>.</p>
+        <p>
+          <i class="copy icon"></i> means a template.<br>
+          <i class="wifi icon"></i> means wireless device.<br>
+          <i class="sitemap icon"></i> means wired device.
+        </p>
+        <p style="margin-bottom:20px;">
+          <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names..">
+        </p>
+      </div>
+
+      <div class="twelve wide column" style="margin-bottom:20px;">
+        <h4 class="ui horizontal header red divider">Devices</h4>
+        <div class="ui grid">
 ';
 
 $html.=$tab;
 
 $html.='
-</table>
+      </div>
+    </div>
+    <script>
+    // Script to search names.
+    window.onload = () => {
+      const filter = $("#switches-filter-input")
+      filter.on("input", function(){
+        var txt = this.value;
+        $(".device").each(function() {
+          var name = $(this).find("a").attr("class");
+          if (name.toLowerCase().includes(txt.toLowerCase())) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+      });
+    }
+    </script>
 
-<script>
-window.on("load", () => {
-  $("#filter").on("change", () => { // change or input
-    $("#switches").tbody.find(row where id like "filter").style({ display: "block" | "none" })
-  })
-})
 
-// search test
-var test = "teststring"
-console.log( test.includes("foo") ) // false
-console.log( test.includes("str") ) // true
-console.log( test.includes("STR") ) // false
+    <div class="eight wide column">
+      <div class="ui orange segment">
+        <h3 class="ui orange header"><i class="warning sign icon"></i> Not on this list?</h3>
+        <p>Your network hardware is not on this list? Chances are that it works with a similar module already. Try this first and if it does work, let us know what module you used on what hardware and your firmware version. You can communicate that information to us by <a href="https://github.com/inverse-inc/packetfence/issues" target="_blank">filing a ticket</a>.
+        </p>
+        <p>Otherwise, we are always interested in adding new hardware support into PacketFence. Please <a href="/support.html#/commercial" target="_blank">contact us</a>.</p>
+      </div>
+    </div>
+  </div>
 
-test.toLowerCase().includes("STR".toLowerCase()) // true
-</script>'.$nl;
+</div><!-- material tab -->
+'.$nl;
 
 print($html);
 
