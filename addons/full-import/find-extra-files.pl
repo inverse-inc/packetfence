@@ -60,5 +60,5 @@ for my $file (@pf::file_paths::stored_config_files) {
 
 for my $file (@extra_files_to_export) {
     next unless -f $file;
-    print $file;
+    print $file . '\n';
 }
