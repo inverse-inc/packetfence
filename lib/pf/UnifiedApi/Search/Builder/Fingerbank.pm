@@ -15,7 +15,7 @@ pf::UnifiedApi::Search::Builder
 use strict;
 use warnings;
 use Moo;
-use SQL::Abstract;
+use pf::SQL::Abstract;
 use pf::UnifiedApi::Search;
 use fingerbank::DB_Factory;
 use pf::error qw(is_error);
