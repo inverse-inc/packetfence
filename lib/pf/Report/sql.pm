@@ -29,7 +29,7 @@ has sql => ( is => 'rw', isa => 'Str');
 sub generate_sql_query {
     my ($self, %info) = @_;
     my $sql = $self->sql;
-    return ($sql, $self->create_bind_type_sql(\%info));
+    return ($sql, $self->create_bind(\%info));
 }
 
 sub ensure_default_infos {
