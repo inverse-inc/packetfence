@@ -1,0 +1,65 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Akamai MFA
+
+This section has been created to give a quick overview to configure Akamai MFA in PacketFence.
+
+==== Assumptions
+
+You have all the MFA informations provided by Akamai to configure in PacketFence.
+
+===== Create the Multi-Factor configuration
+
+In this section we will configure the Akamai MFA from the administration GUI.
+
+Go in "Configuration->Integration->Multi-Factor Authentication" then click on new MFA and select Akamai.
+
+In the form you have the following information to fill:
+
+Name:
+Define a name
+
+The App ID of the Akamai MFA:
+This is the App ID provided by Akamai
+
+The signing key of the Akamai MFA:
+This is the signing key provided by Akamai
+
+The verify key of the Akamai MFA:
+This is the verify key provided by Akamai
+
+The host of the Akamai MFA:
+By default it´s mfa.akamai.com
+
+The callback url to redirect back the user to PacketFence:
+This parameter is used when you trigger the MFA on the portal, once authenticate on Akamai Bind v2, it redirect to this specific url to reach back the PacketFence´s portal.
+This value should be the fqdn of the portal with /mfa at the end (https://portal.acme.com/mfa)
+
+RADIUS OTP Method:
+It´s where you define which method you want to use in RADIUS (Explaination are cover in the next section)
+
+Character separator:
+The character used to split the password and otp when "Strip OTP" RADIUS method is selected.
+
+Cache duration:
+The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiples RADIUS reuqest)
+
+image::akamai_mfa_config.png[scaledwidth="100%",alt="Create Akamai MFA Configuration"]
+

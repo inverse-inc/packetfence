@@ -1,0 +1,49 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== TOTP MFA
+
+This section has been created to give a quick overview to configure TOTP MFA in PacketFence.
+
+==== Assumptions
+
+You have a phone where you have an MFA application compatible with TOTP (Google Authenticator, Microsoft Authenticator).
+
+===== Create the Multi-Factor configuration
+
+In this section we will configure the OTP MFA from the administration GUI.
+
+Go in "Configuration->Integration->Multi-Factor Authentication" then click on new MFA and select OTP.
+
+In the form you have the following information to fill:
+
+Name:
+Define a name
+
+RADIUS OTP Method:
+It´s where you define which method you want to use in RADIUS (Explaination are cover in the next section)
+
+Character separator:
+The character used to split the password and otp when "Strip OTP" RADIUS method is selected.
+
+Cache duration:
+The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiples RADIUS reuqest)
+
+image::TOTP_mfa_config[scaledwidth="100%",alt="Create OTP MFA Configuration"]
+

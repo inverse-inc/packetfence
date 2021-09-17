@@ -1,0 +1,42 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//===== TOTP
+
+This section has been created to give a quick overview to configure TOTP in PacketFence.
+
+====== Assumptions
+
+You have all the TOTP MFA configuration made in PacketFence.
+
+====== Connection Profile
+
+First you need to have a connection profile that use the Internal Source where you defined a authentication rule that "Trigger Portal MFA" and also
+use the "Default portal policy" Root Portal Module (There is already the MFA policy defined in it).
+
+====== PacketFence Portal
+
+Once you are able to hit the portal and register with your credentials, the portal will show you a QRcode you will need to scan with your device (Goggle Authenticator/ Microsoft AUthenticator per example).
+This will configure an account where you will be able to see "username.packetfence" and the OTP pin code.
+
+With that, you will be able to use this OTP on the portal to register your device.
+
+Note:
+Before using OTP MFA in the RADIUS flow, you need to onboard your device on the portal.
+

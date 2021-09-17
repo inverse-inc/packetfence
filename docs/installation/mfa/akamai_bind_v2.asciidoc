@@ -1,0 +1,42 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//===== Akamai Bind V2
+
+This section has been created to give a quick overview to configure Akamai Bind V2 in PacketFence.
+
+====== Assumptions
+
+You have all the Akamai MFA configuration made in PacketFence.
+
+====== Connection Profile
+
+First you need to have a connection profile that use the Internal Source where you defined a authentication rule that "Trigger Portal MFA" and also
+use the "Default portal policy" Root Portal Module (There is already the MFA policy defined in it).
+
+====== Akamai Bind V2 portal
+
+Once you are able to hit the portal and register with your credentials, the portal will forward you to the Akamai Bind V2 web interface.
+On this page you will be able to onboard your device and also trigger any type of MFA.
+Once done and authenticated, Akamai Bind V2 portal will forward you back to PacketFence´s portal and will grant you the access.
+
+Note:
+Before using Akamai MFA in the RADIUS flow, you need to onboard your device and it´s a way to do it in PacketFence.
+
+
