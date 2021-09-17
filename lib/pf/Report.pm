@@ -93,7 +93,7 @@ sub is_node_field {
     return any { $_ eq $field } @{$self->node_fields};
 }
 
-sub validate_query {
+sub validate_options {
     my ($self, $query) = @_;
     return (422, {message => "unimplemented"});
 }
