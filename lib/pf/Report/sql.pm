@@ -48,9 +48,9 @@ sub create_bind {
 
 sub nextCursor {
     my ($self, $result, %infos) = @_;
-    my $limit = $infos{limit} + 1;
+    my $sql_limit = $infos{sql_limit};
     my $last_item;
-    if (@$result == $limit) {
+    if (@$result == $sql_limit) {
         $last_item = pop @$result;
     }
 
@@ -59,7 +59,7 @@ sub nextCursor {
             return $last_item->{$self->cursor_field};
         }
 
-        return ($infos{cursor} // 0) + $limit - 1;
+        return $infos{cursor} + $infos{limit};
     }
 
     return undef;
