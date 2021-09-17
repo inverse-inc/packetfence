@@ -139,7 +139,7 @@ BEGIN {
         {
             id => "Node::Active::All",
             in => [
-                [ {}, {}, { mac => "22:33:22:33:33:33" } ], limit => 2,
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ], sql_limit => 3,
             ],
             out     => "22:33:22:33:33:33",
             results => [ {}, {} ],
@@ -147,7 +147,7 @@ BEGIN {
         {
             id => "Node::Active::All",
             in => [
-                [ {}, {}, { mac => "22:33:22:33:33:33" } ], limit => 3,
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ], sql_limit => 4,
             ],
             out     => undef,
             results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
@@ -226,7 +226,19 @@ BEGIN {
                     ]
                 }
             ],
-        }
+        },
+        {
+            id => 'User::Registration::Sponsor',
+            in => {
+                field => 'activation.pid',
+                op    => 'equals',
+                value => 'bob',
+            },
+            out => [
+                200,
+                { }
+            ],
+        },
     );
 }
 
