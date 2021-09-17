@@ -3,6 +3,7 @@ package pf::Report::abstract;
 use Moose;
 extends qw(pf::Report);
 use pf::SQL::Abstract;
+use pf::UnifiedApi::Search;
 use pf::dal;
 use pf::error qw(is_error is_success);
 use pf::log;
@@ -49,25 +50,24 @@ sub generate_sql_query {
     #
     #   }
     # ]
-    if($infos{search}) {
+    if ($infos{search}) {
         my $all = $infos{search}{type} eq "all" ? 1 : 0;
         my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$infos{search}{conditions}};
-        if($all) {
+        if ($all) {
             $logger->debug("Matching for all conditions for the provided search");
             push @$and, [ -and => \@conditions ];
-        }
-        else {
+        } else {
             $logger->debug("Matching for any conditions for the provided search");
             push @$and, \@conditions;
         }
     }
 
-    if(my $search = $infos{sql_abstract_search}) {
+    if (my $search = $infos{sql_abstract_search}) {
         $logger->debug("Adding provided SQL abstract search");
         push @$and, $search;
     }
 
-    if(@{$self->base_conditions} > 0) {
+    if (@{$self->base_conditions} > 0) {
         my $all = $self->base_conditions_operator eq "all" ? 1 : 0;
         my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$self->base_conditions};
         if($all) {
@@ -80,26 +80,20 @@ sub generate_sql_query {
         }
     }
 
-    my %limit_offset;
-    unless($infos{count_only}) {
-        %limit_offset = (
-            -limit => $infos{per_page},
-            -offset => ($infos{page}-1) * $infos{per_page},
-        );
-    }
-
+    my %limit_offset = (
+            -limit => $infos{sql_limit},
+            -offset => $infos{offset},
+    );
     my %ordering;
-    if($infos{order}) {
+    if ($infos{order}) {
         %ordering = (
             -order_by => [$infos{order}, @{$self->order_fields}],
         );
-    }
-    elsif(@{$self->order_fields} > 0) {
+    } elsif (@{$self->order_fields} > 0) {
         %ordering = (
             -order_by => $self->order_fields,
         );
-    }
-    elsif(defined($self->date_field)) {
+    } elsif (defined($self->date_field)) {
         %ordering = (
             -order_by => ['-'.$self->date_field],
         );
@@ -108,20 +102,13 @@ sub generate_sql_query {
 
     # NOTE: when counting, we shouldn't group but instead count distinct so it is ignored in that case even when specified
     my %group_by;
-    if($self->group_field && !$infos{count_only}) {
+    if ($self->group_field) {
         %group_by = (
             -group_by => [$self->group_field],
         );
     }
 
-    my $columns;
-    if($infos{count_only}) {
-        $columns = $self->group_field ? 'count(distinct('.$self->group_field.')) as count' : 'count(*) as count';
-    }
-    else {
-        $columns = $self->columns;
-    }
-
+    my $columns = $self->columns;
     my ($sql, @params) = $sqla->select(
         -columns => $columns,
         -from => [
@@ -137,6 +124,31 @@ sub generate_sql_query {
         %group_by,
     );
     return ($sql, \@params);
+}
+
+sub build_query_options {
+    my ($self, $infos) = @_;
+    my %options;
+    my $limit = ($infos->{limit} // 25) + 0;
+    $options{limit} = $limit;
+    $options{sql_limit} = $limit + 1;
+    $options{offset} = $infos->{cursor} // 0;
+    if (defined $self->date_field) {
+        for my $f (qw(start_date end_date)) {
+            $options{$f} = $infos->{$f};
+        }
+    }
+
+    if (defined $infos->{sort}) {
+        $options{order} = $infos->{sort};
+    }
+
+    if (defined $infos->{query}) {
+        $options{where} = pf::UnifiedApi::Search::searchQueryToSqlAbstract($infos->{query});
+    }
+
+
+    return (200, \%options);
 }
 
 sub ensure_default_infos {
