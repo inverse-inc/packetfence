@@ -32,7 +32,7 @@ has radius_mfa_method => ( is => 'rw' );
 
 =head2 split_char
 
-Caracter that split the username and otp
+Character that split the username and otp
 
 =cut
 
