@@ -265,7 +265,9 @@ func bootAndRejoinCluster(ctx context.Context, node *Node) {
 }
 
 func bootNewCluster(ctx context.Context) {
-	if mariadb.IsActive(ctx) {
+	if mariadb.IsLocalDBAvailable(ctx) {
+		log.LoggerWContext(ctx).Warn("The DB is now available, not booting a new cluster from this node")
+	} else if mariadb.IsActive(ctx) {
 		mariadb.ForceStop(ctx)
 		mariadb.StartNewCluster(ctx)
 	} else {
