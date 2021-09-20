@@ -14,7 +14,7 @@
         </form>
 [% ELSE %]
         <p>Here your qrcode you have to scan with your authenticator application</p>
-          <div id="qrcode"></div>
+        <div id="qrcode" data-username="[% username %]" data-otp="[% otp %]"></div>
 [% END %]
   </div>
 </div>
