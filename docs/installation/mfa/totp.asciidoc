@@ -23,7 +23,7 @@ This section has been created to give a quick overview to configure TOTP MFA in 
 
 ==== Assumptions
 
-You have a phone where you have an MFA application compatible with TOTP (Google Authenticator, Microsoft Authenticator).
+You have a phone where you have an MFA application compatible with TOTP (Akamai MFA, Google Authenticator, Microsoft Authenticator, DUO).
 
 ===== Create the Multi-Factor configuration
 

@@ -32,7 +32,7 @@ use the "Default portal policy" Root Portal Module (There is already the MFA pol
 
 ====== PacketFence Portal
 
-Once you are able to hit the portal and register with your credentials, the portal will show you a QRcode you will need to scan with your device (Goggle Authenticator/ Microsoft AUthenticator per example).
+Once you are able to hit the portal and register with your credentials, the portal will show you a QRcode you will need to scan with your device (Akamai / Goggle / Microsoft / DUO Authenticator per example).
 This will configure an account where you will be able to see "username.packetfence" and the OTP pin code.
 
 With that, you will be able to use this OTP on the portal to register your device.
