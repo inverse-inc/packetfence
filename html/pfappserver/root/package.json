@@ -10,7 +10,7 @@
     "build-report": "vue-cli-service build --report"
   },
   "dependencies": {
-    "@vue/composition-api": "^1.1.0",
+    "@vue/composition-api": "^1.1.5",
     "axios": "0.21.3",
     "bootstrap": "4.6.0",
     "bootstrap-vue": "2.21.2",
@@ -20,16 +20,16 @@
     "messageformat": "^2.3.0",
     "mime-types": "^2.1.32",
     "papaparse": "5.3.1",
-    "pinia": "^2.0.0-rc.4",
+    "pinia": "^2.0.0-rc.9",
     "plotly.js-basic-dist-min": "^1.58.5",
     "promised-debounce": "^0.4.2",
     "typeface-b612-mono": "1.1.13",
     "uuid": "^8.3.0",
     "vue": "2.6.14",
     "vue-awesome": "^4.3.1",
-    "vue-browser-acl": "^0.15.2",
+    "vue-browser-acl": "^0.15.3",
     "vue-flatpickr-component": "8.1.7",
-    "vue-i18n": "^8.25.0",
+    "vue-i18n": "^8.25.1",
     "vue-multiselect": "2.1.6",
     "vue-router": "3.5.2",
     "vue-scrollto": "2.20.0",
@@ -42,7 +42,7 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.6",
+    "@babel/core": "^7.15.5",
     "@babel/polyfill": "^7.11.5",
     "@vue/cli-plugin-babel": "^4.5.13",
     "@vue/cli-plugin-eslint": "^4.5.13",
