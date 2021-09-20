@@ -19,7 +19,7 @@ endif::[]
 
 //===== Akamai Bind V2
 
-This section has been created to give a quick overview to configure Akamai Bind V2 in PacketFence.
+This section has been created to give a quick overview on how to configure Akamai Bind V2 in PacketFence.
 
 ====== Assumptions
 
@@ -33,10 +33,10 @@ use the "Default portal policy" Root Portal Module (There is already the MFA pol
 ====== Akamai Bind V2 portal
 
 Once you are able to hit the portal and register with your credentials, the portal will forward you to the Akamai Bind V2 web interface.
-On this page you will be able to onboard your device and also trigger any type of MFA.
-Once done and authenticated, Akamai Bind V2 portal will forward you back to PacketFence´s portal and will grant you the access.
+From this page you will be able to onboard your device and also trigger any type of MFA.
+Once done and authenticated, Akamai Bind V2 portal will forward you back to PacketFence's portal and will grant you the access.
 
 Note:
-Before using Akamai MFA in the RADIUS flow, you need to onboard your device and it´s a way to do it in PacketFence.
+Before using Akamai MFA in the RADIUS flow, you need to onboard your device and it is a way to do it in PacketFence.
 
 

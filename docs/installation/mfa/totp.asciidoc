@@ -19,7 +19,7 @@ endif::[]
 
 //=== TOTP MFA
 
-This section has been created to give a quick overview to configure TOTP MFA in PacketFence.
+This section has been created to give a quick overview on how to configure TOTP MFA in PacketFence.
 
 ==== Assumptions
 
@@ -37,10 +37,10 @@ Name:
 Define a name
 
 RADIUS OTP Method:
-It´s where you define which method you want to use in RADIUS (Explaination are cover in the next section)
+It is where you define which method you want to use in RADIUS (Explaination are covered in the next section)
 
 Character separator:
-The character used to split the password and otp when "Strip OTP" RADIUS method is selected.
+The character used to split the password and OTP when "Strip OTP" RADIUS method is selected.
 
 Cache duration:
 The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiples RADIUS reuqest)

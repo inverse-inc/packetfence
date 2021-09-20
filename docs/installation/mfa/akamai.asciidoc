@@ -23,7 +23,7 @@ This section has been created to give a quick overview to configure Akamai MFA i
 
 ==== Assumptions
 
-You have all the MFA informations provided by Akamai to configure in PacketFence.
+You have all the MFA information provided by Akamai to configure in PacketFence.
 
 ===== Create the Multi-Factor configuration
 
@@ -46,20 +46,20 @@ The verify key of the Akamai MFA:
 This is the verify key provided by Akamai
 
 The host of the Akamai MFA:
-By default it´s mfa.akamai.com
+By default it is mfa.akamai.com
 
-The callback url to redirect back the user to PacketFence:
-This parameter is used when you trigger the MFA on the portal, once authenticate on Akamai Bind v2, it redirect to this specific url to reach back the PacketFence´s portal.
-This value should be the fqdn of the portal with /mfa at the end (https://portal.acme.com/mfa)
+The callback URL to redirect back the user to PacketFence:
+This parameter is used when you trigger the MFA on the portal, once authenticate on Akamai Bind v2, it redirects to this specific URL to reach back the PacketFence's portal.
+This value should be the FQDN of the portal with /mfa at the end (https://portal.acme.com/mfa)
 
 RADIUS OTP Method:
-It´s where you define which method you want to use in RADIUS (Explaination are cover in the next section)
+It is where you define which method you want to use in RADIUS (Explaination are covered in the next section)
 
 Character separator:
-The character used to split the password and otp when "Strip OTP" RADIUS method is selected.
+The character used to split the password and OTP when "Strip OTP" RADIUS method is selected.
 
 Cache duration:
-The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiples RADIUS reuqest)
+The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiple RADIUS requests)
 
 image::akamai_mfa_config.png[scaledwidth="100%",alt="Create Akamai MFA Configuration"]
 
