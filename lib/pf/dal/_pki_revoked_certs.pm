@@ -43,6 +43,7 @@ BEGIN {
         ca_name
         street_address
         organisation
+        organisational_unit
         country
         state
         locality
@@ -54,6 +55,8 @@ BEGIN {
         valid_until
         date
         serial_number
+        dns_names
+        ip_addresses
         revoked
         crl_reason
     );
@@ -68,6 +71,7 @@ BEGIN {
         ca_name => undef,
         street_address => undef,
         organisation => undef,
+        organisational_unit => undef,
         country => undef,
         state => undef,
         locality => undef,
@@ -79,6 +83,8 @@ BEGIN {
         valid_until => undef,
         date => 'current_timestamp()',
         serial_number => undef,
+        dns_names => undef,
+        ip_addresses => undef,
         revoked => undef,
         crl_reason => undef,
     );
@@ -93,6 +99,7 @@ BEGIN {
         ca_name
         street_address
         organisation
+        organisational_unit
         country
         state
         locality
@@ -104,6 +111,8 @@ BEGIN {
         valid_until
         date
         serial_number
+        dns_names
+        ip_addresses
         revoked
         crl_reason
     );
@@ -164,6 +173,12 @@ BEGIN {
             is_nullable => 1,
         },
         organisation => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        organisational_unit => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -235,6 +250,18 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        dns_names => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ip_addresses => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         revoked => {
             type => 'TIMESTAMP',
             is_auto_increment => 0,
@@ -264,6 +291,7 @@ BEGIN {
         pki_revoked_certs.ca_name
         pki_revoked_certs.street_address
         pki_revoked_certs.organisation
+        pki_revoked_certs.organisational_unit
         pki_revoked_certs.country
         pki_revoked_certs.state
         pki_revoked_certs.locality
@@ -275,6 +303,8 @@ BEGIN {
         pki_revoked_certs.valid_until
         pki_revoked_certs.date
         pki_revoked_certs.serial_number
+        pki_revoked_certs.dns_names
+        pki_revoked_certs.ip_addresses
         pki_revoked_certs.revoked
         pki_revoked_certs.crl_reason
     );

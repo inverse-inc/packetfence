@@ -43,6 +43,7 @@ BEGIN {
         ca_name
         street_address
         organisation
+        organisational_unit
         country
         state
         locality
@@ -54,6 +55,8 @@ BEGIN {
         valid_until
         date
         serial_number
+        dns_names
+        ip_addresses
     );
 
     %DEFAULTS = (
@@ -66,6 +69,7 @@ BEGIN {
         ca_name => undef,
         street_address => undef,
         organisation => undef,
+        organisational_unit => undef,
         country => undef,
         state => undef,
         locality => undef,
@@ -77,6 +81,8 @@ BEGIN {
         valid_until => undef,
         date => 'current_timestamp()',
         serial_number => undef,
+        dns_names => undef,
+        ip_addresses => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -89,6 +95,7 @@ BEGIN {
         ca_name
         street_address
         organisation
+        organisational_unit
         country
         state
         locality
@@ -100,6 +107,8 @@ BEGIN {
         valid_until
         date
         serial_number
+        dns_names
+        ip_addresses
     );
 
     %FIELDS_META = (
@@ -158,6 +167,12 @@ BEGIN {
             is_nullable => 1,
         },
         organisation => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        organisational_unit => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -229,6 +244,18 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        dns_names => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        ip_addresses => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -246,6 +273,7 @@ BEGIN {
         pki_certs.ca_name
         pki_certs.street_address
         pki_certs.organisation
+        pki_certs.organisational_unit
         pki_certs.country
         pki_certs.state
         pki_certs.locality
@@ -257,6 +285,8 @@ BEGIN {
         pki_certs.valid_until
         pki_certs.date
         pki_certs.serial_number
+        pki_certs.dns_names
+        pki_certs.ip_addresses
     );
 
 }
