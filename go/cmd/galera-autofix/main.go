@@ -74,24 +74,19 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 	}
 }
 
-func getRecordLiveSeqno(ctx context.Context) int {
-	seqno := mariadb.GetLocalLiveSeqno(ctx)
-	if seqno != mariadb.DefaultSeqno {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Found the following live sequence number: %d", seqno))
-		err := ioutil.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
-		sharedutils.CheckError(err)
-	} else {
-		log.LoggerWContext(ctx).Debug("Failed to obtain the live sequence number")
-	}
-	return seqno
+func recordLiveSeqno(ctx context.Context, seqno int) {
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Found the following live sequence number: %d", seqno))
+	err := ioutil.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
+	sharedutils.CheckError(err)
 }
 
 func seqnoReporting(ctx context.Context) {
 	servers := pfconfigdriver.AllClusterServers{}
 	for {
 		seqno := mariadb.DefaultSeqno
-		if liveSeqNo := mariadb.GetLocalLiveSeqno(ctx); liveSeqNo != mariadb.DefaultSeqno {
-			seqno = liveSeqNo
+		if liveSeqno := mariadb.GetLocalLiveSeqno(ctx); liveSeqno != mariadb.DefaultSeqno {
+			recordLiveSeqno(ctx, liveSeqno)
+			seqno = liveSeqno
 		} else {
 			var err error
 			seqno, err = mariadb.GetColdSeqno(ctx)
