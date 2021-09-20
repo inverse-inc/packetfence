@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Allow to use the sAMAccountName from the searchattributes in MSCHAP machine authentication (#6586)
+
 === Bug Fixes
 
 * Match the realm more strictly when its not a regex in EAP-TTLS PAP
