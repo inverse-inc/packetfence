@@ -87,14 +87,11 @@ func seqnoReporting(ctx context.Context) {
 		if liveSeqno := mariadb.GetLocalLiveSeqno(ctx); liveSeqno != mariadb.DefaultSeqno {
 			recordLiveSeqno(ctx, liveSeqno)
 			seqno = liveSeqno
+		} else if coldSeqno, err := mariadb.GetColdSeqno(ctx); err == nil {
+			seqno = coldSeqno
 		} else {
-			var err error
-			seqno, err = mariadb.GetColdSeqno(ctx)
-			if err != nil {
-				log.LoggerWContext(ctx).Error("Unable to obtain sequence number")
-				time.Sleep(seqnoReportingInterval)
-				continue
-			}
+			log.LoggerWContext(ctx).Warn("This server doesn't have a seqno. Will report the inexistant seqno. This node will have no chance to be the one running the latest data.")
+			seqno = mariadb.InexistantSeqno
 		}
 
 		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
