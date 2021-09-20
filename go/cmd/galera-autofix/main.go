@@ -90,7 +90,7 @@ func seqnoReporting(ctx context.Context) {
 	servers := pfconfigdriver.AllClusterServers{}
 	for {
 		seqno := mariadb.DefaultSeqno
-		if liveSeqNo := mariadb.GetLiveSeqNo(ctx); liveSeqNo != DefaultSeqno {
+		if liveSeqNo := mariadb.GetLocalLiveSeqno(ctx); liveSeqNo != mariadb.DefaultSeqno {
 			seqno = liveSeqNo
 		} else {
 			var err error
