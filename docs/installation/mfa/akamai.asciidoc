@@ -19,7 +19,7 @@ endif::[]
 
 //=== Akamai MFA
 
-This section has been created to give a quick overview to configure Akamai MFA in PacketFence.
+This section has been created to give a quick overview on how to configure Akamai MFA in PacketFence.
 
 ==== Assumptions
 
