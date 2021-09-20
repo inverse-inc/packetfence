@@ -57,7 +57,6 @@ BEGIN {
         out_bytes => '',
         mac => '',
         tenant_id => '',
-        last_updated => 'current_timestamp()',
         total_bytes => undef,
     );
 
@@ -70,7 +69,6 @@ BEGIN {
         out_bytes
         mac
         tenant_id
-        last_updated
     );
 
     %FIELDS_META = (
