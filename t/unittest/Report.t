@@ -13,11 +13,11 @@ unit test for Report
 use strict;
 use warnings;
 
-our @BuildQueryOptionsTests;
-our @NextCursorTests;
-our @CreateBindTests;
-our @IsaTests;
-our @ValidateQueryTests;
+our (@BuildQueryOptionsTests, @NextCursorTests);
+our (@CreateBindTests, @IsaTests);
+our (@ValidateQueryTests, @ValidateFieldsTests);
+our (@ValidateInputTests);
+our %defaultAbstractOptions;
 
 BEGIN {
     #include test libs
@@ -25,6 +25,14 @@ BEGIN {
 
     #Module for overriding configuration paths
     use setup_test_config;
+    %defaultAbstractOptions = (
+        offset     => 0,
+        limit      => 25,
+        sql_limit  => 26,
+        start_date => undef,
+        end_date   => undef,
+#        where      => undef,
+    );
     @BuildQueryOptionsTests = (
         {
             id  => "User::Registration::Sponsor",
@@ -32,13 +40,10 @@ BEGIN {
             out => [
                 200,
                 {
-                    offset     => 0,
-                    limit      => 25,
-                    sql_limit  => 26,
-                    start_date => undef,
-                    end_date   => undef,
+                    %defaultAbstractOptions,
                 }
-            ]
+            ],
+            msg => 'Default options',
         },
         {
             id => "User::Registration::Sponsor",
@@ -49,13 +54,13 @@ BEGIN {
             out => [
                 200,
                 {
+                    %defaultAbstractOptions,
                     offset     => 100,
                     limit      => 100,
                     sql_limit  => 101,
-                    start_date => undef,
-                    end_date   => undef,
                 }
-            ]
+            ],
+            msg => 'just limit, cursor',
         },
         {
             id => "User::Registration::Sponsor",
@@ -67,13 +72,14 @@ BEGIN {
             out => [
                 200,
                 {
+                    %defaultAbstractOptions,
                     offset     => 200,
                     limit      => 100,
                     sql_limit  => 101,
                     start_date => '2012-12-25',
-                    end_date   => undef,
                 }
-            ]
+            ],
+            msg => 'just start_date limit, cursor',
         },
         {
             id => "User::Registration::SMS",
@@ -97,6 +103,7 @@ BEGIN {
             out => [
                 200,
                 {
+                    %defaultAbstractOptions,
                     offset     => 200,
                     limit      => 100,
                     sql_limit  => 101,
@@ -107,7 +114,8 @@ BEGIN {
                         'activation.pid' => { '=' => 'bob' }
                     },
                 }
-            ]
+            ],
+            msg => 'limit, cursor, start_date, end_date, sort, query',
         },
         {
             id  => "Node::Active::All",
@@ -119,7 +127,8 @@ BEGIN {
                     limit     => 100,
                     sql_limit => 101
                 }
-            ]
+            ],
+            msg => 'cursor',
         },
         {
             id  => "Node::Active::All",
@@ -131,7 +140,8 @@ BEGIN {
                     limit     => 100,
                     sql_limit => 101
                 }
-            ]
+            ],
+            msg => 'empty',
         }
     );
 
@@ -309,15 +319,66 @@ BEGIN {
             ],
         },
     );
+
+#     @ValidateFieldsTests = (
+#        {
+#            id  => 'User::Registration::Sponsor',
+#            in  => ["Garbage"],
+#            out => [
+#                { message => 'field (Garbage) is invalid' },
+#            ],
+#            msg => 'Non existing field'
+#        },
+#        {
+#            id  => 'User::Registration::Sponsor',
+#            in  => ["MAC Address"],
+#            out => [ ],
+#            msg => 'Field is valid'
+#        },
+#    );
+
+    @ValidateInputTests = (
+        {
+            id => 'User::Registration::Sponsor',
+            in  => {
+                query => {
+                    op => 'equals',
+                    field => undef,
+                },
+            },
+            out => [
+                422,
+                {
+                    message => 'invalid request',
+                    errors => [
+                        {
+                            message => "field must be set",
+                        }
+                    ],
+                }
+            ],
+        },
+    );
+
 }
 
-use Test::More tests => 1 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests;
+use Test::More tests => 1 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests;
 
-use pf::SQL::Abstract;
 use pf::factory::report;
 
 #This test will running last
 use Test::NoWarnings;
+
+{
+    for my $t (@ValidateInputTests) {
+        my $id     = $t->{id};
+        my $report = pf::factory::report->new($id);
+        is_deeply(
+            [ $report->validate_input($t->{in}) ],
+            $t->{out},
+        );
+    }
+}
 
 {
     for my $t (@IsaTests) {
@@ -343,6 +404,21 @@ use Test::NoWarnings;
     }
 }
 
+#{
+#    for my $t (@ValidateFieldsTests) {
+#        my $id = $t->{id};
+#        my $report = pf::factory::report->new($id);
+#        my $in = $t->{in};
+#        my @errors;
+#        $report->validate_fields($in, \@errors),
+#        is_deeply(
+#            \@errors,
+#            $t->{out},
+#            "$id: pf::Report::sql->validate_fields $t->{msg}"
+#        );
+#    }
+#}
+
 {
     for my $t (@CreateBindTests) {
         my $id = $t->{id};
@@ -356,10 +432,11 @@ use Test::NoWarnings;
     for my $t (@BuildQueryOptionsTests) {
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
+        #use Data::Dumper;print Dumper($t->{out});
         is_deeply(
             [$report->build_query_options($t->{in})],
             $t->{out},
-            "build_query_options $id",
+            "build_query_options $id with ($t->{msg})",
         );
     }
 }
