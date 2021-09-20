@@ -126,8 +126,40 @@ sub generate_sql_query {
     return ($sql, \@params);
 }
 
+#sub validate_fields {
+#    my ($self, $fields, $errors) = @_;
+#    for my $f (@$fields) {
+#        $self->validate_field($f, $errors);
+#    }
+#
+#    return;
+#}
+#
+#sub validate_field {
+#    my ($self, $fields, $errors) = @_;
+#    return;
+#}
+#
+sub validate_input {
+    my ($self, $input) = @_;
+    my $query = $input->{query};
+    my @errors;
+    $self->validate_query($query, \@errors);
+
+    if (@errors) {
+        return (422, { message => 'invalid request', errors => \@errors });
+    }
+
+    return (200, undef)
+}
+
 sub build_query_options {
     my ($self, $infos) = @_;
+    my ($status, $error) = $self->validate_input($infos);
+    if (is_error($status)) {
+        return (422, $error);
+    }
+
     my %options;
     my $limit = ($infos->{limit} // 25) + 0;
     $options{limit} = $limit;
@@ -143,10 +175,10 @@ sub build_query_options {
         $options{order} = $infos->{sort};
     }
 
-    if (defined $infos->{query}) {
-        $options{where} = pf::UnifiedApi::Search::searchQueryToSqlAbstract($infos->{query});
+    my $query = $infos->{query};
+    if (defined $query && defined $query->{op}) {
+        $options{where} = pf::UnifiedApi::Search::searchQueryToSqlAbstract($query);
     }
-
 
     return (200, \%options);
 }
