@@ -5,47 +5,29 @@
       <p v-if="description"
         v-html="description" class="mt-3 mb-0" />
     </b-card-header>
-    <div class="card-body" v-if="search">
-      <base-search
-        :use-search="useSearch" />
-      <b-table ref="tableRef" :key="uuid"
-        :busy="isLoading"
-        :hover="items.length > 0"
-        :items="search.items"
-        :fields="visibleColumns"
-        class="mb-0"
-        show-empty
-        no-local-sorting
-        fixed
-        striped
-        selectable
-      >
-
-      </b-table>
-<!--
-        @row-clicked="goToItem"
-        @row-selected="onRowSelected"
-
--->
-
+    <div class="card-body">
+      <the-search v-if="isLoaded"
+        :meta="meta"
+        :report="report"
+      />
+      <base-container-loading v-else
+        :title="$i18n.t('Building Report')"
+        :text="$i18n.t('Hold on a moment while we render it...')"
+        spin
+      />
     </div>
-
-    <pre>{{ search }}</pre>
-    <pre>{{ {report, meta, id, hasCursor, hasDateRange } }}</pre>
-
+<pre>{{ {report, meta } }}</pre>
   </b-card>
 </template>
 
 <script>
 import {
-  BaseSearch,
-  BaseSearchInputColumns,
-  BaseTableEmpty
+  BaseContainerLoading
 } from '@/components/new/'
+import TheSearch from './TheSearch'
 const components = {
-  BaseSearch,
-  BaseSearchInputColumns,
-  BaseTableEmpty
+  BaseContainerLoading,
+  TheSearch
 }
 
 const props = {
@@ -55,9 +37,6 @@ const props = {
 }
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import i18n from '@/utils/locale'
-import { useSearch } from '../_search'
 import { useStore } from '../_store'
 
 const setup = (props, context) => {
@@ -73,14 +52,14 @@ const setup = (props, context) => {
     getItemOptions
   } = useStore($store)
 
-  const report = ref()
-  const meta = ref()
-
-  const search = useSearch()
+  const report = ref({})
+  const meta = ref({})
+  const isLoaded = ref(false)
 
   watch(id, () => {
     report.value = {}
     meta.value = {}
+    isLoaded.value = false
     let promises = []
     promises[promises.length] = getItem({ id: id.value }).then(item => {
       report.value = item
@@ -90,69 +69,11 @@ const setup = (props, context) => {
       meta.value = report_meta
     })
     Promise.all(promises).finally(() => {
-      const { columns = [], query_fields = [] } = meta.value
-      search.requestInterceptor = request => {
-        // reduce query by slicing empty objects (placeholders)
-        //  walk backwards to prevent Array slice from changing future indexes
-        for (let o = request.query.values.length - 1; o >= 0; o--) {
-          for (let i = request.query.values[o].values.length - 1; i >= 0; i--) {
-            if (Object.keys(request.query.values[o].values[i]).length === 0)
-              request.query.values[o].values = [ ...request.query.values[o].values.slice(0, i), ...request.query.values[o].values.slice(i + 1, request.query.values[o].values.length) ]
-          }
-          if (request.query.values[o].values.length === 0)
-            request.query.values = [ ...request.query.values.slice(0, o), ...request.query.values.slice(o + 1, request.query.values[o].values.length) ]
-        }
-        // append report id to api request(s)
-        return { ...request, id: id.value }
-      }
-      // build search string from query_fields
-      search.useString = searchString => {
-        return {
-          op: 'and',
-          values: [{
-            op: 'or',
-            values: query_fields.map(field => ({
-              field: field.name,
-              op: 'contains',
-              value: searchString.trim()
-            }))
-          }]
-        }
-      }
-      search.columns = [
-        {
-          key: 'selected',
-          thStyle: 'text-align: center; width: 40px;', tdClass: 'text-center',
-          locked: true
-        },
-        ...columns.map(column => {
-          const { /*is_node, is_person,*/ name: key, text: label } = column
-          return {
-            key,
-            label,
-            searchable: true,
-            visible: true
-          }
-        })
-      ]
-      search.fields = query_fields.map(field => {
-        const { name: value, text, type } = field
-        switch (type) {
-          case 'string':
-          default:
-            return {
-              value,
-              text: i18n.t(text),
-              types: [conditionType.SUBSTRING]
-            }
-            // break
-        }
-      })
-      search.reSearch()
+      isLoaded.value = true
     })
   }, { immediate: true })
 
-   const description = computed(() => {
+  const description = computed(() => {
     const { description } = report.value
     return description
   })
@@ -168,22 +89,18 @@ const setup = (props, context) => {
   })
 
   return {
+    isLoaded,
     report,
     meta,
     description,
     hasCursor,
-    hasDateRange,
-
-    // search
-    useSearch,
-    search,
-    ...toRefs(search),
+    hasDateRange
   }
 }
 
 // @vue/component
 export default {
-  name: 'TheReport',
+  name: 'the-report',
   components,
   props,
   setup

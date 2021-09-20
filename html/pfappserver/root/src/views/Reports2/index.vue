@@ -49,7 +49,7 @@ const { root: { $store } = {} } = context
           return {
             name: i18n.t(key), // i18n defer
             path: `/reports2/${id}`,
-//            saveSearchNamespace: `reports::${id}`
+            saveSearchNamespace: `reports::${id}`
           }
           // break
       }
