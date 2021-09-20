@@ -1,46 +1,37 @@
-package pf::condition::not_equals;
+#!/usr/bin/perl
+
 =head1 NAME
 
-pf::condition::not_equals
+Tests for pf::condition::not_equals
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::condition::not_equals
+Tests for pf::condition::not_equals
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
-extends qw(pf::condition);
-use pf::constants;
 
-=head2 value
-
-The value to compare against
-
-=cut
-
-has value => (
-    is => 'ro',
-    required => 1,
-    isa  => 'Str',
-);
-
-=head2 match
-
-Match if the argument if not equal to the value
-
-=cut
-
-sub match {
-    my ($self,$arg,$args) = @_;
-    return $TRUE if(!defined($arg));
-    my $value = $self->evalParam($self->value, $args);
-    return $arg ne $value;
+BEGIN {
+    use lib qw(/usr/local/pf/t);
+    use setup_test_config;
 }
+
+use Test::More tests => 4;                      # last test to print
+
+use Test::NoWarnings;
+use pf::condition::not_equals;
+
+my $filter = pf::condition::not_equals->new(value => "test");
+
+ok(!$filter->match('test'), "test does not match");
+
+ok($filter->match('wrong_test'),"wrong_test matches");
+
+ok($filter->match(undef), "undef matches");
 
 =head1 AUTHOR
 
@@ -70,4 +61,5 @@ USA.
 =cut
 
 1;
+
 
