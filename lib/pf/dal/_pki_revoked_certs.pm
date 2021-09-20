@@ -81,7 +81,6 @@ BEGIN {
         profile_id => undef,
         profile_name => undef,
         valid_until => undef,
-        date => 'current_timestamp()',
         serial_number => undef,
         dns_names => undef,
         ip_addresses => undef,
@@ -109,7 +108,6 @@ BEGIN {
         profile_id
         profile_name
         valid_until
-        date
         serial_number
         dns_names
         ip_addresses
