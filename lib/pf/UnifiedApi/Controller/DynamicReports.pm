@@ -44,34 +44,29 @@ sub search {
     if (is_error($status)) {
         return $self->render_error(400, "Unable to parse JSON query");
     }
+    
+    my $id = $self->id;
+    my $report = pf::factory::report->new($id);
+    if (!defined $report) {
+        return $self->render_error(
+            500, "Failed executing search on report ($id). Check server-side logs for details."
+        );
+    }
 
-    my $prevCursor = $json->{cursor};
-    my $cursor = ($prevCursor // 0) + 0;
-    my $report = pf::factory::report->new($self->id);
-    my $query  = $json->{query};
-    my $where = defined $query ? pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query}) : undef;
-    my $limit = $json->{limit} // 25;
-    my $page = $cursor / $limit ;
-
-    my %info = (
-        page => ($page + 1),
-        sql_abstract_search => $where,
-        per_page => $limit + 1,
-        order => $json->{sort},
-        start_date => $json->{start_date},
-        end_date => $json->{end_date},
-        limit => $limit,
-        cursor => $cursor,
-    );
-
-    ($status, my $data) = $report->query(%info);
+    ($status, my $error_or_options) = $report->build_query_options($json);
 
     if (is_error($status)) {
-        return $self->render_error($status, "Failed executing search on report. Check server-side logs for details.");
+        return $self->render( json => $error_or_options, status => $status );
+    }
+
+    my %info = %$error_or_options;
+    my $prevCursor = $info{cursor};
+    ($status, my $data) = $report->query(%info);
+    if (is_error($status)) {
+        return $self->render_error($status, "Failed executing search on report ($id). Check server-side logs for details.");
     }
 
     my $nextCursor = $report->nextCursor($data, %info);
-
     return $self->render(
         json   => { 
             items => $data,
