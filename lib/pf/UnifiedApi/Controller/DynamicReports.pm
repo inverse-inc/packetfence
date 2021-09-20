@@ -150,7 +150,7 @@ sub build_report_meta {
         has_cursor   => $self->hasCursor($report),
         has_date_range   => $self->hasDateRange($report),
         (
-            map { ($_ => $report->{$_}) } qw(description)
+            map { ($_ => $report->{$_}) } qw(description charts)
         ),
     };
 }

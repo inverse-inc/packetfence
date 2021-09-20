@@ -18,6 +18,8 @@ has 'date_field' => (is => 'rw', isa => 'Str');
 
 has 'order_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
+has 'charts' => (is => 'rw', isa => 'ArrayRef[Str]');
+
 has 'base_conditions' => (is => 'rw', isa => 'ArrayRef[HashRef]');
 
 has 'base_conditions_operator' => (is => 'rw', isa => 'Str', default => 'all');
