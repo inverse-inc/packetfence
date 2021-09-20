@@ -62,7 +62,7 @@ sub generate_sql_query {
         }
     }
 
-    if (my $search = $infos{sql_abstract_search}) {
+    if (my $search = $infos{where}) {
         $logger->debug("Adding provided SQL abstract search");
         push @$and, $search;
     }
