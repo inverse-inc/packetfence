@@ -37,6 +37,8 @@ my $schema = $OPTIONS{schema};
 system("mysql -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
 $dbh->do("USE $db_name;") or $dbh->errstr;
 my $tables = table_data($dbh, $db_name, @ARGV);
+#print Dumper($tables);
+#exit;
 my $output_path = "$PF_DIR/lib/pf/dal";
 my $tt = Template->new({
     OUTPUT_PATH  => "$PF_DIR/lib/pf/dal/",
@@ -78,7 +80,7 @@ sub table_data {
         $table_name_clause = " AND TABLE_NAME in (" . join(',', ("?") x scalar @names ) .  ")";
     }
     my $sql =
-"SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_DEFAULT as COLUMN_DEF, IF(IS_NULLABLE = 'YES', 1, 0) AS NULLABLE, UPPER(DATA_TYPE) as TYPE_NAME, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION as NUM_PREC_RADIX, NUMERIC_SCALE, DATETIME_PRECISION, COLUMN_TYPE, COLUMN_KEY, EXTRA, COLUMN_COMMENT, COLUMN_KEY LIKE '%PRI%' as mysql_is_pri_key, EXTRA LIKE '%auto_increment%' as mysql_is_auto_increment, EXTRA LIKE '%PERSISTENT%' AS is_persistent, (EXTRA LIKE '%VIRTUAL%' OR EXTRA LIKE '%PERSISTENT%') AS is_virtual, IF(COLUMN_NAME = 'tenant_id', 1, NULL) as HAS_TENANT_ID FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '$db_name' $table_name_clause ORDER BY TABLE_NAME, ORDINAL_POSITION";
+"SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION, COLUMN_DEFAULT as COLUMN_DEF, IF(IS_NULLABLE = 'YES', 1, 0) AS NULLABLE, UPPER(DATA_TYPE) as TYPE_NAME, CHARACTER_MAXIMUM_LENGTH, CHARACTER_OCTET_LENGTH, NUMERIC_PRECISION as NUM_PREC_RADIX, NUMERIC_SCALE, DATETIME_PRECISION, COLUMN_TYPE, COLUMN_KEY, EXTRA, COLUMN_COMMENT, COLUMN_KEY LIKE '%PRI%' as mysql_is_pri_key, EXTRA LIKE '%auto_increment%' as mysql_is_auto_increment, (EXTRA LIKE '%PERSISTENT%' or EXTRA LIKE '%STORED GENERATED%') AS is_persistent, (EXTRA LIKE '%VIRTUAL%' OR EXTRA LIKE '%PERSISTENT%' or EXTRA LIKE '%STORED GENERATED%') AS is_virtual, IF(COLUMN_NAME = 'tenant_id', 1, NULL) as HAS_TENANT_ID FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '$db_name' $table_name_clause ORDER BY TABLE_NAME, ORDINAL_POSITION";
     my %tables;
     for my $row (@{ $dbh->selectall_arrayref($sql, { Slice => {} }, @names) }) {
         my $name = delete $row->{TABLE_NAME};
