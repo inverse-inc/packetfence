@@ -10,21 +10,31 @@ export const useSearchFactory = (report, meta) => {
 
   return makeSearch(`reports::${id}`, {
     api: { ...rest },
-    defaultCondition: () => ({ op: 'and', values: [
-      { op: 'or', values: [
-        {/* BaseSearchInputAdvancedRule Array placeholder, stripped in requestInterceptor */ }
-      ] }
-    ] }),
-    requestInterceptor: request => {
-      // reduce query by slicing empty objects (strip placeholders from defaultCondition)
-      //  walk backwards to prevent Array slice from changing future indexes
-      for (let o = request.query.values.length - 1; o >= 0; o--) {
-        for (let i = request.query.values[o].values.length - 1; i >= 0; i--) {
-          if (Object.keys(request.query.values[o].values[i]).length === 0)
-            request.query.values[o].values = [ ...request.query.values[o].values.slice(0, i), ...request.query.values[o].values.slice(i + 1, request.query.values[o].values.length) ]
+    defaultCondition: () => ({
+      op: 'and', values: [
+        {
+          op: 'or', values: [
+            {/* BaseSearchInputAdvancedRule Array placeholder, stripped in requestInterceptor */ }
+          ]
         }
-        if (request.query.values[o].values.length === 0)
-          request.query.values = [ ...request.query.values.slice(0, o), ...request.query.values.slice(o + 1, request.query.values[o].values.length) ]
+      ]
+    }),
+    requestInterceptor: request => {
+      if (request.query) {
+        // reduce query by slicing empty objects (strip placeholders from defaultCondition)
+        //  walk backwards to prevent Array slice from changing future indexes
+        for (let o = request.query.values.length - 1; o >= 0; o--) {
+          for (let i = request.query.values[o].values.length - 1; i >= 0; i--) {
+            if (Object.keys(request.query.values[o].values[i]).length === 0)
+              request.query.values[o].values = [...request.query.values[o].values.slice(0, i), ...request.query.values[o].values.slice(i + 1, request.query.values[o].values.length)]
+          }
+          if (request.query.values[o].values.length === 0)
+            request.query.values = [...request.query.values.slice(0, o), ...request.query.values.slice(o + 1, request.query.values[o].values.length)]
+        }
+      }
+      else {
+        // no query, use default limit
+        request.limit = undefined
       }
       // append id to api request(s)
       return { ...request, id }

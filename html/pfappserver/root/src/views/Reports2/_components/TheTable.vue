@@ -1,5 +1,5 @@
 <template>
-  <b-container class="mx-0" fluid>
+  <b-container class="px-0" fluid>
     <b-table ref="tableRef"
       :busy="isLoading"
       :hover="items.length > 0"
@@ -93,6 +93,15 @@ const setup = (props, context) => {
 
   const useSearch = useSearchFactory(report, meta)
   const search = useSearch()
+
+  const { query_fields = [] } = meta.value
+  if (query_fields.length === 0) {
+    // no search available
+    //  use empty search for default criteria
+    search.defaultCondition = () => undefined
+    // trigger search
+    search.reSearch()
+  }
 
   const {
     items,
