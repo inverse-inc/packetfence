@@ -133,18 +133,15 @@ sub generate_specific_configurations {
     print "Generating the following configuration files:\n";
 
     my $fingerbank_enabled = (`systemctl is-enabled packetfence-fingerbank-collector` eq "enabled\n");
+        
+    for my $template (values (%CONFIGURATION_TO_TEMPLATE)) {
+        unlink catfile($MONIT_PATH,$template . $CONF_FILE_EXTENSION);
+    }
 
     foreach my $configuration ( @configurations ) {
         my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
         my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
         print " - $destination_file\n";
-
-        # Backing up existing configuration file (just in case)
-        if ( -e $destination_file ) {
-            my $backup_file = catfile($MONIT_EXTRA_PATH, $CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
-            move($destination_file, $backup_file);
-            print " - $backup_file (BACKED UP FILE)\n";
-        }
 
         # Handling domains (winbind configuration)
         my $domains = handle_domains();
