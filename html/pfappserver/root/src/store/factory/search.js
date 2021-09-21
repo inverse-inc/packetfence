@@ -76,8 +76,6 @@ const factory = (uuid, options = {}) => {
         isLoading: false,
         lastQuery: null,
         items: [],
-        nextCursor: null,
-        prevCursor: null,
         totalRows: 0,
 
         // api debouncer
