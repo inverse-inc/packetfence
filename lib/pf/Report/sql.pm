@@ -36,18 +36,19 @@ sub generate_sql_query {
     return ($sql, $self->create_bind(\%info));
 }
 
-sub ensure_default_infos {
-    my ($self, $infos) = @_;
-    $infos->{limit} //= $self->default_limit // 25;
-    $infos->{per_page} //= 25;
-}
-
 sub create_bind {
     my ($self, $infos) = @_;
-    my $tenant_id = pf::config::tenant::get_tenant();
-    my $cursor = $infos->{cursor};
-    my $limit = $infos->{sql_limit};
-    return [$tenant_id, $cursor, $limit];
+    my @bind;
+    push @bind, pf::config::tenant::get_tenant();
+    if ($self->cursor_type ne 'none') {
+        push @bind, $infos->{cursor};
+    }
+
+    if (isenabled($self->has_limit)) {
+        push @bind, $infos->{sql_limit};
+    }
+
+    return \@bind;
 }
 
 sub nextCursor {

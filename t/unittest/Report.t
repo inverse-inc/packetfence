@@ -197,6 +197,14 @@ BEGIN {
                 }
             ],
             out => [ 1, '00:00:00:00:00:00', 101 ],
+        },
+        {
+            id => 'Node::Report::Test',
+            in => [
+                {
+                }
+            ],
+            out => [ 1 ],
         }
     );
 
@@ -454,7 +462,7 @@ BEGIN {
                 has_date_range => $false,
                 has_cursor     => $false,
                 has_limit      => $false,
-                description => 'All currently known active nodes',
+                description => 'First node',
                 charts => [],
             },
         }
@@ -480,6 +488,7 @@ use Test::NoWarnings;
         );
     }
 }
+
 {
     for my $t (@ValidateInputTests) {
         my $id     = $t->{id};
@@ -487,6 +496,7 @@ use Test::NoWarnings;
         is_deeply(
             [ $report->validate_input($t->{in}) ],
             $t->{out},
+            "validate input for $id"
         );
     }
 }
