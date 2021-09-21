@@ -74,6 +74,7 @@ $t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
             has_date_range => $true,
             has_cursor     => $true,
             description => 'IP address archive of the devices on your network when enabled (see Maintenance section)',
+            charts => [],
         },
         status => 200,
     }
@@ -84,6 +85,7 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active::All')
   ->json_is(
     {
         report_meta => {
+            charts => [],
             query_fields => [ ],
             columns => [
                 {

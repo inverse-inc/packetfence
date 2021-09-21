@@ -5,6 +5,10 @@ use pf::error qw(is_error is_success);
 use pf::log;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
+use JSON::MaybeXS qw();
+
+our $JSON_TRUE = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+our $JSON_FALSE = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
 
 has 'id' => (is => 'rw', isa => 'Str');
 
@@ -98,6 +102,58 @@ sub is_node_field {
 sub validate_options {
     my ($self, $query) = @_;
     return (422, {message => "unimplemented"});
+}
+
+sub meta_for_options {
+    my ($self) = @_;
+    return {
+        query_fields => $self->options_query_fields(),
+        columns => $self->options_columns(),
+        has_cursor   => $self->options_has_cursor(),
+        has_date_range   => $self->options_has_date_range(),
+        (
+            map { ($_ => $self->{$_}) } qw(description charts)
+        ),
+    }
+}
+
+sub options_query_fields {
+    my ($self) = @_;
+    return [];
+}
+
+sub options_columns {
+    my ($self) = @_;
+    return [ map { $self->format_options_column($_) } @{ $self->{columns} } ];
+}
+
+sub format_options_column {
+    my ($self, $c) = @_;
+    my $l = $c;
+    $l =~ s/^[\S]+\s+//;
+    $l =~ s/as\s+//i;
+    $l =~ s/\s*$//;
+    $l =~ s/\s*$//;
+    $l =~ s/^["']([^"']+)["']$/$1/;
+    return {
+        text => $l,
+        name => $l,
+        is_person => ( $self->is_person_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_node   => ( $self->is_node_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+    };
+}
+
+sub options_has_cursor {
+    return $JSON_TRUE;
+}
+
+sub options_has_date_range {
+    my ($self) = @_;
+    if (exists $self->{date_field} && length($self->{date_field}) > 0) {
+        return $JSON_TRUE;
+    }
+
+    return $JSON_FALSE;
 }
 
 =head1 AUTHOR

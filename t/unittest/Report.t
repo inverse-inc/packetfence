@@ -16,12 +16,14 @@ use warnings;
 our (@BuildQueryOptionsTests, @NextCursorTests);
 our (@CreateBindTests, @IsaTests);
 our (@ValidateQueryTests, @ValidateFieldsTests);
-our (@ValidateInputTests);
+our (@ValidateInputTests, @MetaForOptions);
 our %defaultAbstractOptions;
 
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
+    my $true = do { bless \(my $d = 1), "JSON::PP::Boolean" };
+    my $false = do { bless \(my $d = 0), "JSON::PP::Boolean" };
 
     #Module for overriding configuration paths
     use setup_test_config;
@@ -360,15 +362,77 @@ BEGIN {
         },
     );
 
+    @MetaForOptions = (
+        {
+            id  => 'ip4log-archive',
+            out => {
+                query_fields => [
+                    {
+                        name => 'ip4log_archive.mac',
+                        text => 'MAC Address',
+                        type => 'string',
+                    },
+                    {
+                        name => 'ip4log_archive.ip',
+                        text => 'IP',
+                        type => 'string'
+                    },
+                ],
+                columns => [
+                    {
+                        text      => 'MAC Address',
+                        name      => 'MAC Address',
+                        is_person => $false,
+                        is_node   => $true
+                    },
+                    {
+                        text      => 'IP',
+                        name      => 'IP',
+                        is_person => $false,
+                        is_node   => $false
+                    },
+                    {
+                        text      => 'Start time',
+                        name      => 'Start time',
+                        is_person => $false,
+                        is_node   => $false
+                    },
+                    {
+                        text      => 'End time',
+                        name      => 'End time',
+                        is_person => $false,
+                        is_node   => $false
+                    },
+                ],
+                has_date_range => $true,
+                has_cursor     => $true,
+                description =>
+'IP address archive of the devices on your network when enabled (see Maintenance section)',
+                charts => [],
+            },
+        }
+    );
+
 }
 
-use Test::More tests => 1 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests;
+use Test::More tests => 1 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions;
 
 use pf::factory::report;
 
 #This test will running last
 use Test::NoWarnings;
 
+{
+    for my $t (@MetaForOptions) {
+        my $id     = $t->{id};
+        my $report = pf::factory::report->new($id);
+        is_deeply(
+            $report->meta_for_options(),
+            $t->{out},
+            "Meta for $id"
+        );
+    }
+}
 {
     for my $t (@ValidateInputTests) {
         my $id     = $t->{id};

@@ -278,6 +278,16 @@ sub _is_valid_search_field {
     return any { $_->{field} eq $field} @{$self->searches};
 }
 
+sub options_query_fields {
+    my ($self) = @_;
+    return [map { $self->options_query_field($_)} @{ $self->{searches} // [] } ];
+}
+
+sub options_query_field {
+    my ($self, $s) = @_;
+    return  { type => $s->{type}, text => $s->{display}, name => $s->{field} };
+}
+
 
 =head1 AUTHOR
 
