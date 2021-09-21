@@ -182,6 +182,29 @@ BEGIN {
 
         },
         {
+            id => "Node::Report::TestOffset",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+                sql_limit => 3,
+                cursor => 2,
+                limit => 2,
+            ],
+            out     => 4,
+            results => [ {}, {} ],
+        },
+        {
+            id => "Node::Report::TestOffset",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+                sql_limit => 4,
+                cursor => 3,
+                limit => 3,
+            ],
+            out => undef,
+            results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+
+        },
+        {
             id => "User::Registration::Sponsor",
             in => [
                 [ {}, {}, { mac => "22:33:22:33:33:33" } ],
