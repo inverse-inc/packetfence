@@ -163,13 +163,14 @@ CHECK PROCESS packetfence-httpd.admin_dispatcher MATCHING "httpd.admin_dispatche
     stop program  = "/usr/local/pf/bin/pfcmd service httpd.admin_dispatcher stop"
     if 3 restarts within 10 cycles then alert
 
+[% IF FINGERBANK_ENABLED %]
 CHECK PROCESS packetfence-fingerbank-collector MATCHING "fingerbank-collector"
     group PacketFence
     start program = "/usr/local/pf/bin/pfcmd service fingerbank-collector restart" with timeout 60 seconds
     stop program = "/usr/local/pf/bin/pfcmd service fingerbank-collector stop"
     if failed host 127.0.0.1 port 6380 protocol redis for 5 cycles then alert
     if 3 restarts within 10 cycles then alert
-
+[% END %]
 
 CHECK PROCESS packetfence-pfsso MATCHING "pfsso"
     group PacketFence

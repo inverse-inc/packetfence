@@ -1355,3 +1355,26 @@ live=enabled
 # lets_encrypt.test_uri
 # The URI to use to test that the portal is available publicly
 test_uri=https://ssl-test.inverse.ca/
+
+[monit]
+#
+# monit.status
+# Whether or not monit should be enabled on this system
+status=disabled
+#
+# monit.alert_email_to
+# Comma-delimited email addresses to send monit alerts to
+alert_email_to=
+#
+# monit.subject_prefix
+# Identifier for email alerts that gets added to the subject line of every alert
+subject_prefix=
+#
+# monit.configurations
+# Which configurations to generate for monit, active-active will be implicitely added if a cluster configuration is detected
+configurations=packetfence,os-checks
+#
+# monit.mailserver
+# Which mailserver to use for monit. When using localhost, make sure that postfix is properly setup to send or relay emails to the addresses defined in monit.alert_email_to
+mailserver=localhost
+

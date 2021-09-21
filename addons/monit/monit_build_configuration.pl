@@ -132,6 +132,8 @@ Will also take care of backing up existing file (XX_name.conf.bak) before overwr
 sub generate_specific_configurations {
     print "Generating the following configuration files:\n";
 
+    my $fingerbank_enabled = (`systemctl is-enabled packetfence-fingerbank-collector` eq "enabled\n");
+
     foreach my $configuration ( @configurations ) {
         my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
         my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
@@ -162,6 +164,7 @@ sub generate_specific_configurations {
             SERVICE_BIN         => $service_bin,
             WINBINDD_PID        => $winbindd_pid,
             ACTIVE_ACTIVE       => (any { $_ eq 'active-active' } @configurations),
+            FINGERBANK_ENABLED  => $fingerbank_enabled,
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }
