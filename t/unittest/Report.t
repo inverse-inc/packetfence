@@ -406,8 +406,55 @@ BEGIN {
                 ],
                 has_date_range => $true,
                 has_cursor     => $true,
+                has_limit      => $true,
                 description =>
 'IP address archive of the devices on your network when enabled (see Maintenance section)',
+                charts => [],
+            },
+        },
+        {
+            id  => 'Node::Active::All',
+            out => {
+                query_fields => [],
+                columns      => [
+                    (
+                        map {
+                            {
+                                text      => $_,
+                                name      => $_,
+                                is_person => $false,
+                                is_node   => $false
+                            }
+                        } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
+                    )
+                ],
+                has_date_range => $false,
+                has_cursor     => $true,
+                has_limit      => $true,
+                description => 'All currently known active nodes',
+                charts => [],
+            },
+        },
+        {
+            id  => 'Node::Report::Test',
+            out => {
+                query_fields => [],
+                columns      => [
+                    (
+                        map {
+                            {
+                                text      => $_,
+                                name      => $_,
+                                is_person => $false,
+                                is_node   => $false
+                            }
+                        } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
+                    )
+                ],
+                has_date_range => $false,
+                has_cursor     => $false,
+                has_limit      => $false,
+                description => 'All currently known active nodes',
                 charts => [],
             },
         }

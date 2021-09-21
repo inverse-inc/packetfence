@@ -14,6 +14,8 @@ use strict;
 use warnings;
 use Moose;
 use pf::config::tenant;
+use pf::Report;
+use pf::util;
 extends qw(pf::Report);
 
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
@@ -23,6 +25,8 @@ has cursor_type => ( is => 'rw', isa => 'Str');
 has cursor_field => ( is => 'rw', isa => 'Str');
 
 has cursor_default => ( is => 'rw', isa => 'Str');
+
+has has_limit => ( is => 'rw', isa => 'Str', default => 'enabled');
 
 has sql => ( is => 'rw', isa => 'Str');
 
@@ -72,6 +76,16 @@ sub build_query_options {
     $options{limit} = $data->{limit} // $self->default_limit // 25;
     $options{sql_limit} = $options{limit} + 1;
     return (200, \%options);
+}
+
+sub options_has_cursor {
+    my ($self) = @_;
+    return $self->cursor_type eq 'none' ? $pf::Report::JSON_FALSE : $pf::Report::JSON_TRUE;
+}
+
+sub options_has_limit {
+    my ($self) = @_;
+    return isenabled($self->has_limit) ? $pf::Report::JSON_TRUE : $pf::Report::JSON_FALSE;
 }
 
 =head1 AUTHOR

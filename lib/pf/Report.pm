@@ -110,6 +110,7 @@ sub meta_for_options {
         query_fields => $self->options_query_fields(),
         columns => $self->options_columns(),
         has_cursor   => $self->options_has_cursor(),
+        has_limit   => $self->options_has_limit(),
         has_date_range   => $self->options_has_date_range(),
         (
             map { ($_ => $self->{$_}) } qw(description charts)
@@ -144,6 +145,10 @@ sub format_options_column {
 }
 
 sub options_has_cursor {
+    return $JSON_TRUE;
+}
+
+sub options_has_limit {
     return $JSON_TRUE;
 }
 
