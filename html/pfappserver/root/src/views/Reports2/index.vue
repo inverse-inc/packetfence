@@ -28,10 +28,19 @@ const { root: { $store } = {} } = context
     })
   )
 
+  const _depth = (item, depth = 0) => {
+    let d = depth
+      const { children = {} } = item
+      Object.keys(children).forEach(key => {
+          depth = Math.max(depth, _depth(children[key], d + 1))
+      })
+    return depth
+  }
+
   const _struct = associated => {
     return Object.keys(associated).map(key => {
-      const { depth = 0, children = {}, id } = associated[key]
-      switch (depth) {
+      const { children = {}, id } = associated[key]
+      switch (_depth(associated[key])) {
         case 2:
           return {
             name: i18n.t(key), // i18n defer
@@ -67,11 +76,7 @@ const { root: { $store } = {} } = context
       let pointer = associated
       for (let n = 0; n < namespace.length; n++) {
         if (!(namespace[n] in pointer))
-          pointer[namespace[n]] = {
-            depth: namespace.length - n - 1,
-            children: {},
-            id
-          }
+          pointer[namespace[n]] = { children: {}, id }
         pointer = pointer[namespace[n]].children
       }
       return associated
