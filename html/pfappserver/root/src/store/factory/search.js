@@ -52,13 +52,14 @@ const factory = (uuid, options = {}) => {
             { field: 'id', op: 'not_equals', value: null }
           ] }
         ] }),
-        requestInterceptor: (request) => request,
-        responseInterceptor: (response) => response,
-        errorInterceptor: (error) => { throw (error) },
+        requestInterceptor: request => request,
+        responseInterceptor: response => response,
+        errorInterceptor: error => { throw (error) },
         useColumns,
         useFields,
         useString,
         useCondition: condition => condition,
+        useCursor: ({ page, limit }) => ((page * limit) - limit) || null,
 
         // overload defaults
         ...options,
@@ -67,6 +68,8 @@ const factory = (uuid, options = {}) => {
         isLoading: false,
         lastQuery: null,
         items: [],
+        nextCursor: null,
+        prevCursor: null,
         totalRows: 0,
 
         // api debouncer
@@ -137,7 +140,7 @@ const factory = (uuid, options = {}) => {
             : null // use natural sort
           ),
           limit: this.limit,
-          cursor: ((this.page * this.limit) - this.limit)
+          cursor: this.useCursor(this)
         }
         if ('list' in this.api) { // has api.list
           this.$debouncer({
@@ -145,8 +148,10 @@ const factory = (uuid, options = {}) => {
               return this.api.list(params)
                 .then(_response => {
                   const response = this.responseInterceptor(_response)
-                  const { items = [], total_count } = response
+                  const { items = [], nextCursor, prevCursor, total_count } = response
                   this.items = items || []
+                  this.nextCursor = nextCursor // custom cursor
+                  this.prevCursor = prevCursor // custom cursor
                   if (total_count) // endpoint returned a total count
                     this.totalRows = total_count
                   else if (items.length === this.limit) // +1 to guarantee next
@@ -194,7 +199,7 @@ const factory = (uuid, options = {}) => {
             : null // use natural sort
           ),
           limit: this.limit,
-          cursor: ((this.page * this.limit) - this.limit)
+          cursor: this.useCursor(this)
         }
         const body = this.requestInterceptor(_body)
         this.$debouncer({
@@ -202,8 +207,10 @@ const factory = (uuid, options = {}) => {
             return this.api.search(body)
               .then(_response => {
                 const response = this.responseInterceptor(_response)
-                const { items, total_count } = response
+                const { items, nextCursor, prevCursor, total_count } = response
                 this.items = items || []
+                this.nextCursor = nextCursor // custom cursor
+                this.prevCursor = prevCursor // custom cursor
                 if (total_count) // endpoint returned a total count
                   this.totalRows = total_count
                 else if (items.length === this.limit) // +1 to guarantee next
