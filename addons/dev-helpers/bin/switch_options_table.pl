@@ -104,10 +104,10 @@ my $nl="\n";
 my $t2='  ';
 my $t4='    ';
 my $tab=$t4.$t2.''.$nl;
-$tab .= $t4.$t2.'<table id="switches">'.$nl;
+$tab .= $t4.$t2.'<table id="switches" class="ui single line table">'.$nl;
 $tab .= $t4.$t4.'<thead>'.$nl;
 $tab .= $t4.$t4.$t2.'<th>'.$nl;
-$tab .= $t4.$t4.$t4.'<td>Name</td>'.$nl;
+#$tab .= $t4.$t4.$t4.'<td>Name</td>'.$nl;
 for my $type (@list_of_types) {
   $tab .= $t4.$t4.$t4.'<td>'.$type.'</td>'.$nl;
 }
