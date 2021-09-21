@@ -4,12 +4,13 @@ import i18n from '@/utils/locale'
 import api from './_api'
 
 export const useSearchFactory = (report, meta) => {
-  const { id } = report.value
+  const { id, cursor_field, default_limit } = report.value
   const { columns = [], query_fields = [] } = meta.value
   const { list, ...rest } = api // omit list
 
   return makeSearch(`reports::${id}`, {
     api: { ...rest },
+    limit: +default_limit,
     defaultCondition: () => ({
       op: 'and', values: [
         {
@@ -31,10 +32,6 @@ export const useSearchFactory = (report, meta) => {
           if (request.query.values[o].values.length === 0)
             request.query.values = [...request.query.values.slice(0, o), ...request.query.values.slice(o + 1, request.query.values[o].values.length)]
         }
-      }
-      else {
-        // no query, use default limit
-        request.limit = undefined
       }
       // append id to api request(s)
       return { ...request, id }
@@ -64,6 +61,7 @@ export const useSearchFactory = (report, meta) => {
         return {
           key,
           label,
+          required: (key === cursor_field),
           searchable: true,
           visible: true
         }
