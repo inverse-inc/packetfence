@@ -154,10 +154,6 @@ sub options_has_limit {
 
 sub options_has_date_range {
     my ($self) = @_;
-    if (exists $self->{date_field} && length($self->{date_field}) > 0) {
-        return $JSON_TRUE;
-    }
-
     return $JSON_FALSE;
 }
 

@@ -183,6 +183,15 @@ sub build_query_options {
     return (200, \%options);
 }
 
+sub options_has_date_range {
+    my ($self) = @_;
+    if (exists $self->{date_field} && length($self->{date_field}) > 0) {
+        return $pf::Report::JSON_TRUE;
+    }
+
+    return $pf::Report::JSON_FALSE;
+}
+
 sub ensure_default_infos {
     my ($self, $infos) = @_;
     $infos->{page} //= 1;

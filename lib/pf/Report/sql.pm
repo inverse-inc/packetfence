@@ -28,12 +28,23 @@ has cursor_default => ( is => 'rw', isa => 'Str');
 
 has has_limit => ( is => 'rw', isa => 'Str', default => 'enabled');
 
+has has_date_range => ( is => 'rw', isa => 'Str', default => 'disabled');
+
 has sql => ( is => 'rw', isa => 'Str');
 
 sub generate_sql_query {
     my ($self, %info) = @_;
     my $sql = $self->sql;
     return ($sql, $self->create_bind(\%info));
+}
+
+sub options_has_date_range {
+    my ($self) = @_;
+    if (isenabled($self->has_date_range)) {
+        return $pf::Report::JSON_TRUE;
+    }
+
+    return $pf::Report::JSON_FALSE;
 }
 
 sub create_bind {

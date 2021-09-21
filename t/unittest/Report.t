@@ -516,6 +516,29 @@ BEGIN {
                 description => 'First node',
                 charts => [],
             },
+        },
+        {
+            id  => 'Node::Report::TestDateRange',
+            out => {
+                query_fields => [],
+                columns      => [
+                    (
+                        map {
+                            {
+                                text      => $_,
+                                name      => $_,
+                                is_person => $false,
+                                is_node   => $false
+                            }
+                        } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
+                    )
+                ],
+                has_date_range => $true,
+                has_cursor     => $false,
+                has_limit      => $false,
+                description => 'First node',
+                charts => [],
+            },
         }
     );
 
