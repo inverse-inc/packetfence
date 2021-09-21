@@ -3,7 +3,7 @@ import store from '@/store'
 import TheIndex from '../'
 import StoreModule from '../_store'
 
-const TheReport = () => import(/* webpackChunkName: "Reports" */ '../_components/TheReport')
+const TheView = () => import(/* webpackChunkName: "Reports" */ '../_components/TheView')
 
 const route = {
   path: '/reports2',
@@ -26,7 +26,7 @@ const route = {
     {
       path: ':id([a-zA-Z0-9]+[a-zA-Z0-9-_/:]+[a-zA-Z0-9]+)/',
       name: 'report',
-      component: TheReport,
+      component: TheView,
       props: route => ({ id: route.params.id }),
       meta: {
         can: 'read reports'

@@ -6,10 +6,16 @@
         v-html="description" class="mt-3 mb-0" />
     </b-card-header>
     <div class="card-body">
-      <the-search v-if="isLoaded"
-        :meta="meta"
-        :report="report"
-      />
+      <template v-if="isLoaded">
+        <the-search v-if="hasQuery"
+          :meta="meta"
+          :report="report"
+        />
+        <the-table
+          :meta="meta"
+          :report="report"
+        />
+      </template>
       <base-container-loading v-else
         :title="$i18n.t('Building Report')"
         :text="$i18n.t('Hold on a moment while we render it...')"
@@ -25,9 +31,11 @@ import {
   BaseContainerLoading
 } from '@/components/new/'
 import TheSearch from './TheSearch'
+import TheTable from './TheTable'
 const components = {
   BaseContainerLoading,
-  TheSearch
+  TheSearch,
+  TheTable
 }
 
 const props = {
@@ -88,19 +96,25 @@ const setup = (props, context) => {
     return has_date_range
   })
 
+  const hasQuery = computed(() => {
+    const { query_fields = [] } = meta.value
+    return !!query_fields.length
+  })
+
   return {
     isLoaded,
     report,
     meta,
     description,
     hasCursor,
-    hasDateRange
+    hasDateRange,
+    hasQuery
   }
 }
 
 // @vue/component
 export default {
-  name: 'the-report',
+  name: 'the-view',
   components,
   props,
   setup
