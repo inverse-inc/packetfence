@@ -120,7 +120,7 @@ BEGIN {
             msg => 'limit, cursor, start_date, end_date, sort, query',
         },
         {
-            id  => "Node::Active::All",
+            id  => "Node::Active",
             in  => { cursor => "22:33:22:33:33:33" },
             out => [
                 200,
@@ -133,7 +133,7 @@ BEGIN {
             msg => 'cursor',
         },
         {
-            id  => "Node::Active::All",
+            id  => "Node::Active",
             in  => {},
             out => [
                 200,
@@ -144,12 +144,28 @@ BEGIN {
                 }
             ],
             msg => 'empty',
-        }
+        },
+        {
+            id => "Node::Report::TestOffset",
+            in => {
+                limit      => 100,
+                cursor     => 200,
+            },
+            out => [
+                200,
+                {
+                    offset     => 200,
+                    limit      => 100,
+                    sql_limit  => 101,
+                }
+            ],
+            msg => 'limit, cursor pf::Report::sql cursor_type=offset',
+        },
     );
 
     @NextCursorTests = (
         {
-            id => "Node::Active::All",
+            id => "Node::Active",
             in => [
                 [ {}, {}, { mac => "22:33:22:33:33:33" } ], sql_limit => 3,
             ],
@@ -157,12 +173,13 @@ BEGIN {
             results => [ {}, {} ],
         },
         {
-            id => "Node::Active::All",
+            id => "Node::Active",
             in => [
                 [ {}, {}, { mac => "22:33:22:33:33:33" } ], sql_limit => 4,
             ],
-            out     => undef,
+            out => undef,
             results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
+
         },
         {
             id => "User::Registration::Sponsor",
@@ -188,7 +205,7 @@ BEGIN {
 
     @CreateBindTests = (
         {
-            id => 'Node::Active::All',
+            id => 'Node::Active',
             in => [
                 {
                     cursor    => '00:00:00:00:00:00',
@@ -214,7 +231,7 @@ BEGIN {
             isa => 'pf::Report::abstract',
         },
         {
-            id  => 'Node::Active::All',
+            id  => 'Node::Active',
             isa => 'pf::Report::sql',
         }
     );
@@ -421,7 +438,7 @@ BEGIN {
             },
         },
         {
-            id  => 'Node::Active::All',
+            id  => 'Node::Active',
             out => {
                 query_fields => [],
                 columns      => [
@@ -439,7 +456,7 @@ BEGIN {
                 has_date_range => $false,
                 has_cursor     => $true,
                 has_limit      => $true,
-                description => 'All currently known active nodes',
+                description => 'All active nodes',
                 charts => [],
             },
         },
@@ -481,6 +498,11 @@ use Test::NoWarnings;
     for my $t (@MetaForOptions) {
         my $id     = $t->{id};
         my $report = pf::factory::report->new($id);
+        if (!$report) {
+            BAIL_OUT("Cannot get report $id");
+            next;
+        }
+
         is_deeply(
             $report->meta_for_options(),
             $t->{out},
@@ -493,6 +515,11 @@ use Test::NoWarnings;
     for my $t (@ValidateInputTests) {
         my $id     = $t->{id};
         my $report = pf::factory::report->new($id);
+        if (!$report) {
+            fail("Cannot get report $id");
+            next;
+        }
+
         is_deeply(
             [ $report->validate_input($t->{in}) ],
             $t->{out},
@@ -505,6 +532,11 @@ use Test::NoWarnings;
     for my $t (@IsaTests) {
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
+        if (!$report) {
+            fail("Cannot get report $id");
+            next;
+        }
+
         ok ($report, "report '$id' created");
         isa_ok ($report, $t->{isa}, );
     }
@@ -514,6 +546,11 @@ use Test::NoWarnings;
     for my $t (@ValidateQueryTests) {
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
+        if (!$report) {
+            fail("Cannot get report $id");
+            next;
+        }
+
         my $in = $t->{in};
         my @errors;
         $report->validate_query($in, \@errors),
@@ -544,6 +581,11 @@ use Test::NoWarnings;
     for my $t (@CreateBindTests) {
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
+        if (!$report) {
+            fail("Cannot get report $id");
+            next;
+        }
+
         my $in = $t->{in};
         is_deeply($report->create_bind(@$in), $t->{out}, "$id: pf::Report::sql->create_bind");
     }
@@ -553,6 +595,11 @@ use Test::NoWarnings;
     for my $t (@BuildQueryOptionsTests) {
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
+        if (!$report) {
+            fail("Cannot get report $id");
+            next;
+        }
+
         #use Data::Dumper;print Dumper($t->{out});
         is_deeply(
             [$report->build_query_options($t->{in})],
@@ -567,6 +614,12 @@ use Test::NoWarnings;
         my $id = $t->{id};
         my $report = pf::factory::report->new($id);
         my $in = $t->{in};
+        if (!$report) {
+            fail("Cannot get report $id");
+            fail();
+            next;
+        }
+
         is($report->nextCursor(@$in), $t->{out}, "$id: pf::Report->nextCursor");
         is_deeply($in->[0], $t->{results}, "$id: pf::Report::sql->nextCursor results");
     }
