@@ -48,15 +48,11 @@ const factory = (uuid, options = {}) => {
         limit: 25,
         limits: [10, 25, 50, 100, 200, 500, 1000],
         cursors: [],
-        defaultCondition: () => ({
-          op: 'and', values: [
-            {
-              op: 'or', values: [
-                { field: 'id', op: 'not_equals', value: null }
-              ]
-            }
-          ]
-        }),
+        defaultCondition: () => ({ op: 'and', values: [
+          { op: 'or', values: [
+            { field: 'id', op: 'not_equals', value: null }
+          ] }
+        ] }),
         requestInterceptor: request => request,
         responseInterceptor: response => response,
         errorInterceptor: error => { throw (error) },
@@ -73,7 +69,6 @@ const factory = (uuid, options = {}) => {
           return ((page * limit) - limit) || undefined
         },
 
-
         // overload defaults
         ...options,
 
@@ -81,6 +76,8 @@ const factory = (uuid, options = {}) => {
         isLoading: false,
         lastQuery: null,
         items: [],
+        nextCursor: null,
+        prevCursor: null,
         totalRows: 0,
 
         // api debouncer
