@@ -129,10 +129,10 @@ person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:closed
 
-[Node::Active::All]
+[Node::Active]
 type=sql
 description=<<EOT
-All currently known active nodes
+All active nodes
 EOT
 columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
 sql=<<EOT
@@ -153,13 +153,126 @@ BEGIN NOT ATOMIC
     last_arp,
     last_dhcp,
     device_type AS os
-  FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+  FROM node n
+  LEFT JOIN ip4log i USING (tenant_id, mac)
   WHERE
     n.tenant_id = @TENANT_ID AND
-  (i.end_time = 0 OR i.end_time > NOW()) AND
+   (i.end_time = 0 OR i.end_time > NOW()) AND
     n.mac >= @CURSOR
-    ORDER BY n.mac
-    LIMIT ?;
+  ORDER BY n.mac
+  LIMIT ?;
+END;
+EOT
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+
+[Node::Inactive]
+type=sql
+description=<<EOT
+All inactive nodes
+EOT
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql=<<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node n
+  LEFT JOIN ip4log i USING (tenant_id, mac)
+  WHERE
+    n.tenant_id = @TENANT_ID AND
+      (
+        (end_time != 0 AND end_time <= NOW()) OR
+        i.ip IS NULL
+      ) AND
+      n.mac >= @CURSOR
+  ORDER BY n.mac
+  LIMIT ?;
+END;
+EOT
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+
+[Node::Unregistered::All]
+type=sql
+description=<<EOT
+All unregistered nodes
+EOT
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql=<<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node
+  WHERE tenant_id = @TENANT_ID
+    AND status = 'unreg'
+    AND mac >= @CURSOR
+  ORDER BY mac
+  LIMIT ?;
+END;
+EOT
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+
+[Node::Unregistered::Active]
+type=sql
+description=<<EOT
+All unregistered nodes
+EOT
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql=<<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    n.mac,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node n
+  LEFT JOIN ip4log i USING(tenant_id, mac)
+  WHERE n.tenant_id = @TENANT_ID
+    AND n.status = 'unreg'
+    AND (i.end_time = 0 OR i.end_time > NOW())
+    AND mac >= @CURSOR
+  ORDER BY mac
+  LIMIT ?
 END;
 EOT
 cursor_type=field
