@@ -43,7 +43,7 @@ const factory = (uuid, options = {}) => {
         columns: [],
         fields: [],
         page: 1,
-        sortBy: null, // use natural order
+        sortBy: undefined, // use natural order
         sortDesc: false,
         limit: 25,
         limits: [10, 25, 50, 100, 200, 500, 1000],
@@ -59,7 +59,7 @@ const factory = (uuid, options = {}) => {
         useFields,
         useString,
         useCondition: condition => condition,
-        useCursor: ({ page, limit }) => ((page * limit) - limit) || null,
+        useCursor: ({ page, limit }) => ((page * limit) - limit) || undefined,
 
         // overload defaults
         ...options,
@@ -137,7 +137,7 @@ const factory = (uuid, options = {}) => {
               ? `${this.sortBy} DESC`
               : `${this.sortBy}`
             )
-            : null // use natural sort
+            : undefined // use natural sort
           ),
           limit: this.limit,
           cursor: this.useCursor(this)
@@ -196,7 +196,7 @@ const factory = (uuid, options = {}) => {
               ? [`${this.sortBy} DESC`]
               : [`${this.sortBy}`]
             )
-            : null // use natural sort
+            : undefined // use natural sort
           ),
           limit: this.limit,
           cursor: this.useCursor(this)
