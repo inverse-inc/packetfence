@@ -177,14 +177,24 @@ my $html='<div class="ui bottom attached tab segment" data-tab="material">
 
       <div class="twelve wide column" style="margin-bottom:20px;">
         <h4 class="ui horizontal header red divider">Devices</h4>
+        <div class="ui checked checkbox">
+          <input type="checkbox" name="public" id="wiredButton" checked> <label>Show Wired</label> 
+        </div>
+        <div class="ui checked checkbox">
+          <input type="checkbox" name="public" id="apButton" checked> <label>Show Access point</label> 
+        </div>
+        <div class="ui checked checkbox">
+          <input type="checkbox" name="public" id="controllersButton" checked> <label>Show Controllers</label> 
+        </div>
+        <div class="ui checked checkbox">
+          <input type="checkbox" name="public" id="vpnButton" checked> <label>Show VPN</label> 
+        </div>
+        <div class="ui checked checkbox">
+          <input type="checkbox" name="public" id="templateButton" checked> <label>Show Templates</label>           
+        </div>
         <p style="margin-bottom:20px;">
           <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names..">
           <input type="button" value="Clear Search" id="clearButton">
-          <input type="button" value="Show Wired" id="wiredButton">
-          <input type="button" value="Show Access point" id="apButton">
-          <input type="button" value="Show Controllers" id="controllersButton">
-          <input type="button" value="Show VPN" id="vpnButton">
-          <input type="button" value="Show Templates" id="templateButton">
         </p>
         
         <div class="ui grid">
@@ -197,90 +207,78 @@ $html.='      </div>
     <script>
     // Script to search names with filters or not
     window.onload = () => {
-      function getCurrentFilter() {
-        if ($("#clearButton").val().includes("Template")){
-          return "copy";
-        } else if ($("#clearButton").val().includes("Wired")){
-          return "sitemap";
-        } else if ($("#clearButton").val().includes("Controllers")){
-          return "wifi";
-        } else if ($("#clearButton").val().includes("AP")){
-          return "wifi";
-        } else if ($("#clearButton").val().includes("VPN")){
-          return "th";
+      var ids= {
+        "vpnButton": "th",
+        "templateButton": "copy",
+        "wiredButton": "sitemap",
+        "controllersButton": "wifi",
+        "apButton": "wifi"
+      };
+      
+      function getCurrentFilters(){
+        var filters = "";
+        $.each(ids, function(k, v) {
+          if ($(`#${k}:checked`).length>0) {
+            filters += v+",";
+          }
+        });
+        return filters;
+      }
+      
+      function inSearch(device,txt) {
+        var name = $(device).find("a").attr("class");
+        if (txt === "" || name.toLowerCase().includes(txt.toLowerCase())) {
+          return true;
         } else {
-          return "";
+         return false;
         }
       };
+
       function deviceType(device,type) {
         var name = device.find("i");
         var boo =  false;
         $(name).each(function() {
-          if ($(this).attr("class").toLowerCase().includes(type)) {
-            boo = true;
+          var classes = $(this).attr("class").toLowerCase().split(" ");
+          for (var i = 0; i < classes.length; i++) {
+            if (type.toLowerCase().includes(classes[i])) {
+              boo = true;
+            }
           }
         });
         return boo;
       };
-      function hideOrShow(type) {
+      
+      function setShowHide(){
+        var filters = getCurrentFilters();
+        var txt = $("#switches-filter-input").val();
+        console.log(txt);
         $(".device").each(function() {
-          if ( deviceType($(this),type) ){
+          if ( deviceType($(this),filters) && inSearch($(this),txt)){
             $(this).show();
           } else {
             $(this).hide();
           }
         });
-      };
-      function hideOrShowFromSearch(device,txt) {
-        var name = $(device).find("a").attr("class");
-        if (name.toLowerCase().includes(txt.toLowerCase())) {
-          $(device).show();
-        } else {
-          $(device).hide();
-        }
-      };
-      $("#vpnButton").click(function () {
-        hideOrShow("th");
-        $("#clearButton").val("Clear search for ONLY VPN");
+      }
+      $("#switches-filter-input").on("input", function(){
+        setShowHide();
       });
-      $("#templateButton").click(function () {
-        hideOrShow("copy");
-        $("#clearButton").val("Clear search for ONLY Template");
-      });
-      $("#wiredButton").click(function () {
-        hideOrShow("sitemap");
-        $("#clearButton").val("Clear search for ONLY Wired");
-      });
-      $("#controllersButton").click(function () {
-        hideOrShow("wifi");
-        $("#clearButton").val("Clear search for ONLY Controllers");
-      });
-      $("#apButton").click(function () {
-        hideOrShow("wifi");
-        $("#clearButton").val("Clear search for ONLY AP");
-      });
+
+      $(":checkbox").on("click", function(){
+        setShowHide();
+      } );
+      
       $("#clearButton").click(function () {
-        $(".device").each(function() {
-          $(this).show();
+        $.each(ids, function(k, v) {
+          $(`#${k}`).prop("checked", true);
         });
-        $("#clearButton").val("Clear search");
+        $("#switches-filter-input").val("");
+        setShowHide();
       });
       
-      $("#switches-filter-input").on("input", function(){
-        var txt = this.value;
-        var type = getCurrentFilter();
-        $(".device").each(function() {
-          var boo = false;
-          if ( $(type) === "" || deviceType($(this),type) ) {
-            hideOrShowFromSearch($(this),txt);
-          } else {
-            $(this).hide();
-          }
-        });
-      });
+      setShowHide();
     }
     </script>
-
 
     <div class="eight wide column">
       <div class="ui orange segment">
