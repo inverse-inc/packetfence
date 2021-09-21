@@ -99,6 +99,7 @@ my %list_of_types_trans=("WiredMacAuth"=>"Wired MAC Authentication",
                          "RoamingAccounting"=>"Roaming Accounting",
                          "SaveConfig"=>"Save Config",
                          "SNMP"=>"SNMP");
+my @list_of_wlc=("Bluesocket", "Cambium","Cisco::WLC", "Cisco::WiSM", "Aruba::Controller_200", "Aruba::Instant_Access", "Aruba::WirelessController", "Meru", "Huawei", "Ubiquiti::Unifi", "HP::Controller_MSM710");
 my $nl="\n";
 my $t2='  ';
 my $t4='    ';
@@ -107,17 +108,22 @@ foreach my $name (@list_name_infos) {
   my $tr=''.$t4.$t4.$t2.'<div id="'.$name.'"  class="device  height wide column">'.$nl;
   my $switch_info = $dict_name_infos{$name};
   my $td=$t4.$t4.$t4.'<a class="'.$name.'">'.$switch_info->{"label"}.'</a><br> ';
-  if ($switch_info->{"vpn"}) {
-    $td.='<i class="th icon"></i> '
-  }
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
-    $td.='<i class="wifi icon"></i> '
+    $td.='<i class="wifi icon"></i> ';
+  }
+  for my $tname (@list_of_wlc) {
+    if ($name =~ /$tname/ ) {
+      $td.='<i class="arrows alternate icon"></i> ';
+    }
   }
   if ($switch_info->{"wired"} || $switch_info->{"wired_wireless"}) {
-    $td.='<i class="sitemap icon"></i> '
+    $td.='<i class="sitemap icon"></i> ';
+  }
+  if ($switch_info->{"vpn"}) {
+    $td.='<i class="th icon"></i> ';
   }
   if ($switch_info->{is_template}) {
-    $td.='<i class="copy icon"></i>'
+    $td.='<i class="copy icon"></i> ';
   }
   $td.="".$nl.$t4.$t4.$t4."<ul>".$nl;
   for my $type (@list_of_types) {
@@ -148,6 +154,7 @@ my $html='<div class="ui bottom attached tab segment" data-tab="material">
         <p>Bugs and limitations of the various modules can be found in the <a href="support.html#/documentation">Network Devices documentation</a>.</p>
         <p>
           <i class="wifi icon"></i> means wireless device.<br>
+          <i class="arrows alternate icon"></i> means wireless controller.<br>
           <i class="sitemap icon"></i> means wired device.<br>
           <i class="th icon"></i> means VPN device.<br>
           <i class="copy icon"></i> means a template.
@@ -190,10 +197,10 @@ my $html='<div class="ui bottom attached tab segment" data-tab="material">
           <input type="checkbox" name="public" id="vpnButton" checked> <label>Show VPN</label> 
         </div>
         <div class="ui checked checkbox">
-          <input type="checkbox" name="public" id="templateButton" checked> <label>Show Templates</label>           
+          <input type="checkbox" name="public" id="templateButton" checked> <label>Show Templates</label>
         </div>
         <p style="margin-bottom:20px;">
-          <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names..">
+          <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names...">
           <input type="button" value="Clear Search" id="clearButton">
         </p>
         
@@ -211,7 +218,7 @@ $html.='      </div>
         "vpnButton": "th",
         "templateButton": "copy",
         "wiredButton": "sitemap",
-        "controllersButton": "wifi",
+        "controllersButton": "arrows",
         "apButton": "wifi"
       };
       
