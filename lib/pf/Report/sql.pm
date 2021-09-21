@@ -40,12 +40,17 @@ sub create_bind {
     my ($self, $infos) = @_;
     my @bind;
     push @bind, pf::config::tenant::get_tenant();
-    if ($self->cursor_type ne 'none') {
+    if ($self->cursor_type eq 'field' ) {
         push @bind, $infos->{cursor};
+
+        if (isenabled($self->has_limit)) {
+            push @bind, $infos->{sql_limit};
+        }
     }
 
-    if (isenabled($self->has_limit)) {
+    if ($self->cursor_type eq 'offset' ) {
         push @bind, $infos->{sql_limit};
+        push @bind, $infos->{cursor};
     }
 
     return \@bind;

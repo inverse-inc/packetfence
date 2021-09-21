@@ -245,6 +245,17 @@ BEGIN {
                 }
             ],
             out => [ 1 ],
+        },
+        {
+            id => 'Node::Report::TestOffset',
+            in => [
+                {
+                    cursor    => 200,
+                    sql_limit => 101,
+                    limit     => 100,
+                }
+            ],
+            out => [ 1, 101, 200 ],
         }
     );
 
