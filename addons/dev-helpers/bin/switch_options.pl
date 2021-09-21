@@ -106,7 +106,7 @@ my $tab=$t4.$t2.''.$nl;
 foreach my $name (@list_name_infos) {
   my $tr=''.$t4.$t4.$t2.'<div id="'.$name.'"  class="device  height wide column">'.$nl;
   my $switch_info = $dict_name_infos{$name};
-  my $td=$t4.$t4.$t4.'<a class="'.$name.'">'.$name.'</a><br> ';
+  my $td=$t4.$t4.$t4.'<a class="'.$name.'">'.$switch_info->{"label"}.'</a><br> ';
   if ($switch_info->{"vpn"}) {
     $td.='<i class="th icon"></i> '
   }
