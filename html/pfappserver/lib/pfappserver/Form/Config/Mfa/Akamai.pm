@@ -14,7 +14,7 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Mfa';
 with 'pfappserver::Base::Form::Role::Help';
 
-use pf::Mfa::Akamai;
+use pf::mfa::Akamai;
 
 use pf::config;
 use pf::util;
@@ -45,7 +45,7 @@ has_field 'host' =>
   (
    type => 'Text',
    required => 1,
-   default => pf::Mfa::Akamai->meta->get_attribute('host')->default,
+   default => pf::mfa::Akamai->meta->get_attribute('host')->default,
    messages => { required => 'Please specify the host' },
   );
 
