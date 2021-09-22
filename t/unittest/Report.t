@@ -601,7 +601,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 2 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions;
+use Test::More tests => 3 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions;
 
 use pf::factory::report;
 
@@ -740,12 +740,24 @@ use Test::NoWarnings;
 }
 
 {
-        my $report = pf::factory::report->new("Node::Report::TestDateRange");
-        if (!$report) {
-            fail("Cannot get report Node::Report::TestDateRange");
-        }
+    my $id     = 'Node::Report::TestFormatting';
+    my $report = pf::factory::report->new($id);
+    if ( !$report ) {
+        fail("Cannot get report $id");
+    } else {
+        is_deeply(
+            $report->{formatting},
+            [ { field => 'vendor', format => 'oui_to_vendor' } ],
+            "Test formatting with ($id)"
+        );
 
-        is_deeply($report->{formatting}, [{field => 'mac', format => 'echo'}], "Test formatting");
+        is_deeply(
+            $report->format_items(
+                [ { mac => "00:11:22:33:44:55", vendor => "00:11:22:33:44:55" } ]
+            ),
+            [ { mac => "00:11:22:33:44:55", vendor => "CIMSYS Inc" } ]
+        );
+    }
 }
 
 =head1 AUTHOR

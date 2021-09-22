@@ -6,6 +6,11 @@ use pf::log;
 use Tie::IxHash;
 use List::MoreUtils qw(any);
 use JSON::MaybeXS qw();
+use pf::util;
+
+our %FORMATTING = (
+    oui_to_vendor => \&pf::util::oui_to_vendor
+);
 
 our $JSON_TRUE = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
 our $JSON_FALSE = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
@@ -157,6 +162,30 @@ sub options_has_limit {
 sub options_has_date_range {
     my ($self) = @_;
     return $JSON_FALSE;
+}
+
+sub format_items {
+    my ($self, $items) = @_;
+    my $formatting = $self->formatting;
+    if (@$formatting == 0) {
+        return $items;
+    }
+
+    return [ map { $self->format_item($formatting, $_) } @$items  ];
+}
+
+sub format_item {
+    my ($self, $formatting, $item) = @_;
+    my %new = %$item;
+    for my $f (@$formatting) {
+        my $format = $f->{format};
+        if (exists $FORMATTING{$format}) {
+            my $k = $f->{field};
+            $new{$k} = $FORMATTING{$format}->($item->{$k});
+        }
+    }
+
+    return \%new;
 }
 
 =head1 AUTHOR
