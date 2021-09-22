@@ -67,6 +67,7 @@ sub search {
     }
 
     my $nextCursor = $report->nextCursor($data, %info);
+    $data = $report->format_items($data);
     return $self->render(
         json   => { 
             items => $data,
