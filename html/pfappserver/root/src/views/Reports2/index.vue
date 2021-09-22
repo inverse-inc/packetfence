@@ -38,10 +38,14 @@ const { root: { $store } = {} } = context
 
   const _struct = (associated, parents = 0) => {
     return Object.keys(associated).map(key => {
-      const { children = {}, id, charts = '' } = associated[key]
-      const icon = (charts.split(',').includes('pie'))
-        ? 'chart-pie'
-        : null
+      const { children = {}, id, charts = '', has_date_range, searches } = associated[key]
+      const icons = []
+      if (searches)
+        icons.push('search')
+      if (has_date_range)
+        icons.push('calendar-alt')
+      if (charts)
+        icons.push('chart-pie')
       const depth = _depth(associated[key])
       switch (true) {
         case depth === 2 && parents === 0:
@@ -63,7 +67,7 @@ const { root: { $store } = {} } = context
             name: i18n.t(key), // i18n defer
             path: `/reports2/${id}`,
             saveSearchNamespace: `reports::${id}`,
-            icon
+            icons
           }
           // break
       }
@@ -75,12 +79,12 @@ const { root: { $store } = {} } = context
     const sorted = reports.value.sort((a, b) => a.id.localeCompare(b.id))
     // flatten reports into associated tree using delimiter
     const associated = sorted.reduce((associated, report) => {
-      const { id, charts } = report
+      const { id, ...rest } = report
       const namespace = id.split(delimiter)
       let pointer = associated
       for (let n = 0; n < namespace.length; n++) {
         if (!(namespace[n] in pointer))
-          pointer[namespace[n]] = { children: {}, id, charts }
+          pointer[namespace[n]] = { children: {}, id, ...rest }
         pointer = pointer[namespace[n]].children
       }
       return associated
