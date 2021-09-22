@@ -274,15 +274,26 @@ sub push {
         return
     }
     my $i = 0;
-    while(1) {
-        my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
-        if ($answer->{'result'} eq 'allow') {
-            return $TRUE;
-        }
-        sleep(5);
-        last if ($i++ == 6);
-    }
-    return $FALSE;
+    my $res;
+    eval {
+        local $SIG{ALRM} = sub { die "Timeout reached" };
+        alarm 30;
+        eval {
+            while($TRUE) {
+                my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+                if ($answer->{'result'} eq 'allow') {
+                    $res = $TRUE;
+                }
+                sleep(5);
+                last if ($i++ == 6);
+            }
+            $res = $FALSE;
+        };
+        alarm 0;
+    };
+    alarm 0;
+    die $@ if($@);
+    return $res;
 }
 
 =head2
