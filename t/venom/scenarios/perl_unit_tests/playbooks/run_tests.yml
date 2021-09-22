@@ -1,0 +1,16 @@
+---
+- hosts: pfel8dev
+  name: Run Venom tests
+  become: True
+  gather_facts: True
+
+  vars:
+    test_suites:
+      - configurator
+      - unit_tests/configure_smoke_db.yml
+      - unit_tests/perl_tests.yml
+
+  tasks:
+    - name: Run Venom tests suite
+      command: '/usr/local/pf/t/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      loop: '{{ test_suites }}'

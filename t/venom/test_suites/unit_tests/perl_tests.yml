@@ -1,0 +1,7 @@
+name: Perl tests
+version: 2
+testcases:
+- name: run_perl_tests
+  steps:
+  - type: exec
+    script: make -C < /usr/local/pf test
