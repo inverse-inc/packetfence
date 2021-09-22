@@ -21,9 +21,9 @@ has id => (is => 'rw', required => 1);
 
 has description => (is => 'rw', default => "MFA");
 
-=head2 chache_duration
+=head2 cache_duration
 
-Number of time to keep information in the cache
+Amount of time to keep information in the cache
 
 =cut
 
@@ -52,6 +52,8 @@ sub _build_template {
     $type =~ s/::/\//g;
     return "${type}.html";
 }
+
+sub cache { return pf::CHI->new(namespace => 'mfa'); }
 
 =head2 module_description
 

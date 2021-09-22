@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::PortalModule::Mfa;
+package pfappserver::Form::Config::PortalModule::MFA;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule:Mfa
+pfappserver::Form::Config::PortalModule:MFA
 
 =head1 DESCRIPTION
 
@@ -14,8 +14,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule';
 with 'pfappserver::Base::Form::Role::Help';
 
-use captiveportal::DynamicRouting::Module::Mfa;
-sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::Mfa'}
+use captiveportal::DynamicRouting::Module::MFA;
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::MFA'}
 ## Definition
 
 =over

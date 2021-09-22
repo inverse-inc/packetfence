@@ -69,10 +69,10 @@ sub verify_otp {
             $logger->info("OTP token match");
             return $TRUE;
         }
-        $logger->info("OTP token match doesnt match");
+        $logger->info("OTP token doesnt match");
         return $FALSE;
     }
-    $logger->info("The user who try to authenticate didnt enrolled");
+    $logger->info("The user who try to authenticate hasn't enrolled");
     return $FALSE;
 }
 
@@ -122,7 +122,7 @@ sub redirect_info {
     return {
         exist => $exist,
         username => $username,
-	otp => $otp
+        otp => $otp
     };
 }
 
@@ -130,7 +130,7 @@ sub generate_otp {
     my ($self ,$username) = @_;
     my $person = person_view($username);
     if (defined $person->{otp} && $person->{otp} ne '') {
-        get_logger->debug("Returning otp key $person->{otp} for user $username");
+        get_logger->debug("Returning OTP key $person->{otp} for user $username");
         return ($TRUE, $person->{otp});
     }
     else {

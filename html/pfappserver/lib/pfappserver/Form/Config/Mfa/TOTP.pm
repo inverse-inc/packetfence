@@ -26,14 +26,13 @@ has_field 'scope' =>
 
 has_field 'type' =>
   (
-   typ => 'Hidden',
+   type => 'Hidden',
    default => 'TOTP',
   );
 
 has_field 'radius_mfa_method' =>
   (
    type => 'Select',
-   label => 'type',
    required => 1,
    options =>
    [
@@ -41,22 +40,11 @@ has_field 'radius_mfa_method' =>
     { value => 'second-password', label => 'Second Password Field' },
    ],
    default => 'strip-otp',
-   tags => { after_element => \&help,
-             help => 'RADIUS MFA method' },
-  );
-
-has_field 'split_char' =>
-  (
-   type => 'Text',
-   label => 'Character separator',
-   required => 1,
-   default => ',',
-   messages => { required => 'Please specify the char to split password field to get the code' },
   );
 
 has_block definition =>
   (
-   render_list => [ qw(id, radius_mfa_method, split_char) ],
+   render_list => [ qw(id, radius_mfa_method) ],
   );
 
 =over

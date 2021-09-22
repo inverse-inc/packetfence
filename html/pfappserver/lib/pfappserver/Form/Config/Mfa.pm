@@ -25,7 +25,6 @@ use pf::constants::mfa;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the MFA Service' },
   );
@@ -33,25 +32,29 @@ has_field 'id' =>
 has_field 'type' =>
   (
    type => 'Select',
-   label => 'MFA Type',
    options_method => \&options_type,
   );
 
 has_field 'cache_duration' =>
   (
    type => 'Duration',
-   label => 'Cache Duration',
    default => {
     interval => 60,
     unit => 's',
    },
-   tags => { after_element => \&help,
-             help => 'The duration time that is use to cache the MFA information. This approximately represent the time for the user to complete the authentication.' },
+  );
+
+has_field 'split_char' =>
+  (
+   type => 'Text',
+   required => 1,
+   default => ',',
+   messages => { required => 'Please specify the char to split password field to get the code' },
   );
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id cache_duration) ],
+   render_list => [ qw(id cache_duration split_char) ],
   );
 
 =head2 options_type

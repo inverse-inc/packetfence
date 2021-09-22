@@ -2,23 +2,35 @@
 
 <div class="c-card o-layout o-layout--center u-padding u-padding@tablet">
     <div class="o-layout__item u-1/1 u-2/3@tablet u-3/5@desktop">
-[% IF exist %]
+        [% IF exist %]
         <form action="/mfa" method="post">
             <div class="input-container">
-                <label for="otp">[% i18n("OTP") %]</label>
+                <label for="otp">[% i18n("Authentication code") %]</label>
                 <input id="otp" name="otp" title="OTP" type="tel" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="6" required autocorrect="off" autocapitalize="off" class="text-center letter-expand" />
             </div>
             <button type="submit" name="submit" class="c-btn c-btn--primary u-1/1 u-margin-top" disabled>
                 [% i18n("Continue") %]
             </button>
         </form>
-[% ELSE %]
-        <p>Here your qrcode you have to scan with your authenticator application</p>
+        [% ELSE %]
+        <p>[% i18n("Please scan the code below in your favorite authenticator app") %]</p>
         <div id="qrcode" data-username="[% username %]" data-otp="[% otp %]"></div>
-[% END %]
+        [% END %]
   </div>
 </div>
-
+[% IF exist %]
+<footer>
+  <div class="o-layout o-layout--center u-padding-horizontal-small u-padding-horizontal@tablet">
+    <div class="o-layout__item o-layout--center [ u-1/1 u-2/3@tablet ]">
+      <div class="o-pack o-pack--middle">
+        <div class="o-pack__item o-layout--center">
+          <p class="text-p3">[% i18n("Open the two-factor authentication app on your device to view your authentication code and vefify your identity.") %]</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+[% END %]
 <script src="/common/qrcode.js"></script>
 
 <!-- END TOTP.html -->

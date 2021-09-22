@@ -56,5 +56,5 @@ description=Show local account
 
 [default_mfa_policy]
 description=MFA policy
-type=Mfa
+type=MFA
 

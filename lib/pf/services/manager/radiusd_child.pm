@@ -644,7 +644,7 @@ listen {
         limit {
               max_connections = 16
               lifetime = 0
-              idle_timeout = 30
+              idle_timeout = 60
         }
 }
 

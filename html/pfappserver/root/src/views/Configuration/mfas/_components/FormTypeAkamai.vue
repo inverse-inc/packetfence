@@ -11,28 +11,23 @@
     />
 
     <form-group-app-id namespace="app_id"
-      :column-label="$i18n.t('The App ID of the Akamai MFA')"
-      :text="$i18n.t('Define the App ID provided by Akamai MFA.')"
+      :column-label="$i18n.t('App ID of the Akamai MFA')"
     />
 
     <form-group-signing-key namespace="signing_key"
-      :column-label="$i18n.t('The signing key of the Akamai MFA')"
-      :text="$i18n.t('Define the signing key provided by Akamai MFA.')"
+      :column-label="$i18n.t('Signing key of the Akamai MFA')"
     />
 
     <form-group-verify-key namespace="verify_key"
-      :column-label="$i18n.t('The verify key of the Akamai MFA')"
-      :text="$i18n.t('Define the verify key provided by Akamai MFA.')"
+      :column-label="$i18n.t('Verify key of the Akamai MFA')"
     />
 
     <form-group-host namespace="host"
-      :column-label="$i18n.t('The host of the Akamai MFA')"
-      :text="$i18n.t('Define the host of the Akamai MFA.')"
+      :column-label="$i18n.t('Host of the Akamai MFA')"
     />
 
     <form-group-callback-url namespace="callback_url"
-      :column-label="$i18n.t('The callback url to redirect back the user to PacketFence')"
-      :text="$i18n.t('Define the callback URL to redirect the user to PacketFence.')"
+      :column-label="$i18n.t('Callback url to redirect back the user to PacketFence')"
     />
 
     <form-group-radius-mfa-method namespace="radius_mfa_method"
@@ -42,12 +37,12 @@
 
     <form-group-split-char namespace="split_char"
       :column-label="$i18n.t('Character separator')"
-      :text="$i18n.t('Please specify the char to split password field to get the code.')"
+      :text="$i18n.t('The char with which the password and the code are split during RADIUS authentication.')"
     />
 
     <form-group-cache-duration namespace="cache_duration"
       :column-label="$i18n.t('Cache duration')"
-      :text="$i18n.t('The duration time that is use to cache the MFA information. This approximately represent the time for the user to complete the authentication.')"
+      :text="$i18n.t('The duration that is used to cache the MFA information. This should approximately represent the time for the user to complete the authentication.')"
     />
 
   </base-form>

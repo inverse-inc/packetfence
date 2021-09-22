@@ -17,12 +17,12 @@
 
     <form-group-split-char namespace="split_char"
       :column-label="$i18n.t('Character separator')"
-      :text="$i18n.t('Please specify the char to split password field to get the code.')"
+      :text="$i18n.t(''The char with which the password and the code are split during RADIUS authentication.')"
     />
 
     <form-group-cache-duration namespace="cache_duration"
       :column-label="$i18n.t('Cache duration')"
-      :text="$i18n.t('The duration time that is use to cache the MFA information. This approximately represent the time for the user to complete the authentication.')"
+      :text="$i18n.t('The duration that is used to cache the MFA information. This should approximately represent the time for the user to complete the authentication.')"
     />
 
   </base-form>

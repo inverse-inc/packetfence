@@ -1,12 +1,12 @@
-package captiveportal::PacketFence::DynamicRouting::Module::Mfa;
+package captiveportal::PacketFence::DynamicRouting::Module::MFA;
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Mfa
+captiveportal::DynamicRouting::Module::MFA
 
 =head1 DESCRIPTION
 
-Mfa module
+MFA module
 
 =cut
 

@@ -1,11 +1,11 @@
-package captiveportal::DynamicRouting::Module::Mfa;
+package captiveportal::DynamicRouting::Module::MFA;
 use Moose;
 
-BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::Mfa'; }
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::MFA'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::Mfa - MFA Controller for captiveportal
+captiveportal::DynamicRouting::Module::MFA - MFA Controller for captiveportal
 
 =head1 DESCRIPTION
 

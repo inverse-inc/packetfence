@@ -14,6 +14,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Mfa';
 with 'pfappserver::Base::Form::Role::Help';
 
+use pf::Mfa::Akamai;
+
 use pf::config;
 use pf::util;
 use File::Find qw(find);
@@ -21,7 +23,6 @@ use File::Find qw(find);
 has_field 'app_id' =>
   (
    type => 'Text',
-   label => 'Application ID',
    required => 1,
    messages => { required => 'Please specify the Application ID' },
   );
@@ -29,7 +30,6 @@ has_field 'app_id' =>
 has_field 'signing_key' =>
   (
    type => 'ObfuscatedText',
-   label => 'Signing Key',
    required => 1,
    messages => { required => 'Please specify the signing key' },
   );
@@ -37,7 +37,6 @@ has_field 'signing_key' =>
 has_field 'verify_key' =>
   (
    type => 'ObfuscatedText',
-   label => 'Verify Key',
    required => 1,
    messages => { required => 'Please specify the verify key' },
   );
@@ -45,16 +44,14 @@ has_field 'verify_key' =>
 has_field 'host' =>
   (
    type => 'Text',
-   label => 'Host',
    required => 1,
-   default => "mfa.akamai.com",
+   default => pf::Mfa::Akamai->meta->get_attribute('host')->default,
    messages => { required => 'Please specify the host' },
   );
 
 has_field 'callback_url' =>
   (
    type => 'Text',
-   label => 'Callback URL',
    required => 1,
    default => "http://packetfence_portal_url/mfa",
    messages => { required => 'Please specify the Callback URL' },
@@ -63,7 +60,6 @@ has_field 'callback_url' =>
 has_field 'radius_mfa_method' =>
   (
    type => 'Select',
-   label => 'type',
    required => 1,
    options =>
    [
@@ -72,17 +68,6 @@ has_field 'radius_mfa_method' =>
     { value => 'second-password', label => 'Second Password Field' },
    ],
    default => 'push',
-   tags => { after_element => \&help,
-             help => 'RADIUS MFA method' },
-  );
-
-has_field 'split_char' =>
-  (
-   type => 'Text',
-   label => 'Character separator',
-   required => 1,
-   default => ',',
-   messages => { required => 'Please specify the char to split password field to get the code' },
   );
 
 has_field 'scope' =>
@@ -93,7 +78,7 @@ has_field 'scope' =>
 
 has_field 'type' =>
   (
-   typ => 'Hidden',
+   type => 'Hidden',
    default => 'Akamai',
   );
 

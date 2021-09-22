@@ -264,7 +264,7 @@ sub authorize {
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
     $args->{'profile'} = $profile;
     $args->{'portal'} = $profile->getName;
-    
+
     (my $dpsk_accept, $connection, $connection_type, $connection_sub_type, $args) = $self->handleUnboundDPSK($radius_request, $switch, $profile, $connection, $args);
     if(!$dpsk_accept) {
         $logger->error("Unable to find a valid PSK for this request. Rejecting user.");
@@ -862,7 +862,7 @@ sub authenticate {
 sub vpn {
     my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
     my $logger = $self->logger;
-    
+
     my ($message);
 
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $args->{'switch'}->parseVPNRequest($args->{'radius_request'});
@@ -902,7 +902,7 @@ sub vpn {
         @$sources = $profile->getFilteredAuthenticationSources($args->{'stripped_user_name'}, $args->{'realm'});
 
         $args->{'autoreg'} = 0;
-        # should we auto-register? let's ask the VLAN object
+        # should we auto-register? let's ask the role object
         my ( %info, $status, $status_msg, $do_auto_reg);
         $do_auto_reg = $role_obj->shouldAutoRegister($args);
         if ($do_auto_reg) {
@@ -942,7 +942,7 @@ sub vpn {
     return $return if (ref($return) eq 'ARRAY');
 
     return $args->{'switch'}->returnAuthorizeVPN($args);
-            
+
 }
 
  sub cli {
@@ -963,7 +963,7 @@ sub vpn {
         my $return = $self->authenticate($args, $sources, \$source_id, $extra, $otp, $password);
         return $return if (ref($return) eq 'ARRAY');
     }
-    
+
     $return = $self->mfa_post_auth($args, $options, $sources, $source_id, $extra ,$otp, $password);
     return $return if (ref($return) eq 'ARRAY');
 
@@ -1005,7 +1005,7 @@ sub returnRadiusCli{
 sub mfa_post_auth {
     my ($self, $args, $options, $sources, $source_id, $extra ,$otp, $password) = @_;
     my $logger = $self->logger;
-    $logger->info("Pre MFA Authentication");
+    $logger->debug("Pre MFA Authentication");
     my $merged = { %$options, %$args };
     $merged->{'rule_class'} = $Rules::AUTH;
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
@@ -1018,9 +1018,9 @@ sub mfa_post_auth {
         my $mfa = pf::factory::mfa->new($value);
         # If the mfa method is secondary password do nothing, the mfa will be triggered on a second request.
         if ($mfa->radius_mfa_method eq 'second-password') {
-            my $chi = pf::CHI->new(namespace => 'mfa');
-            if (!$chi->get($args->{'radius_request'}->{'User-Name'}." authenticated")) {
-                $chi->set($args->{'radius_request'}->{'User-Name'}." authenticated", $TRUE, normalize_time($mfa->cache_duration));
+            my $cache = pf::mfa->cache;
+            if (!$cache->get($args->{'radius_request'}->{'User-Name'}." authenticated")) {
+                $cache->set($args->{'radius_request'}->{'User-Name'}." authenticated", $TRUE, normalize_time($mfa->cache_duration));
             }
         } else {
             my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$otp);
@@ -1051,17 +1051,17 @@ sub mfa_pre_auth {
     my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
     if ($value) {
         my $mfa = pf::factory::mfa->new($value);
-        my $chi = pf::CHI->new(namespace => 'mfa');
-        if ($mfa->radius_mfa_method eq 'strip-otp') {
+        my $cache = pf::mfa->cache;
+        if ($ache->radius_mfa_method eq 'strip-otp') {
             # Previously did a authentication request ?
-            if (my $infos = $chi->get($args->{'radius_request'}->{'User-Name'})) {
+            if (my $infos = $cache->get($args->{'radius_request'}->{'User-Name'})) {
                 my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $infos->{'device'});
                 if ($result != $TRUE) {
                     return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                 } else {
                     if ($caller eq "pf::radius::vpn") {
                         return $args->{'switch'}->returnAuthorizeVPN($args);
-		} else {
+             else {
                         return $TRUE;
                     }
                 }
@@ -1070,7 +1070,7 @@ sub mfa_pre_auth {
             $$password = $otp[0];
             $$otp = $otp[1];
         } elsif ($mfa->radius_mfa_method eq 'second-password') {
-            if (my $authenticated = $chi->get($args->{'radius_request'}->{'User-Name'}." authenticated")) {
+            if (my $authenticated = $cache->get($args->{'radius_request'}->{'User-Name'}." authenticated")) {
                 if ($authenticated) {
                     my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password);
                     if ($result != $TRUE) {
@@ -1078,19 +1078,19 @@ sub mfa_pre_auth {
                     } else {
                         if ($caller eq "pf::radius::vpn") {
                             return $args->{'switch'}->returnAuthorizeVPN($args);
-		    } else {
+                        } else {
                             return $TRUE;
                         }
                     }
                 } else {
-                    my $device = $chi->get($args->{'radius_request'}->{'User-Name'});
+                    my $device = $cache->get($args->{'radius_request'}->{'User-Name'});
                     my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $device);
                     if ($result != $TRUE) {
                         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                     } else {
                         if ($caller eq "pf::radius::vpn") {
                             return $args->{'switch'}->returnAuthorizeVPN($args);
-		    } else {
+                        } else {
                             return $TRUE;
                         }
                     }
@@ -1290,7 +1290,7 @@ sub check_lost_stolen {
 sub handleUnboundDPSK {
     my ($self, $radius_request, $switch, $profile, $connection, $args) = @_;
     my $logger = get_logger;
-    
+
     if($profile->unboundDpskEnabled()) {
         my $accept = $FALSE;
         if(my $pid = $switch->find_user_by_psk($radius_request)) {

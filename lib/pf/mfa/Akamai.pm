@@ -235,8 +235,7 @@ sub generic_method {
     my $logger = get_logger();
     $logger->info("Trigger $method for user $username");
     my $post_fields = encode_json({device => $device, method => $METHOD_LOOKUP{$method}, username => $username});
-    my $chi = pf::CHI->new(namespace => 'mfa');
-    my ($auth, $error)= $chi->compute($device.$METHOD_LOOKUP{$method}, {expires_in => normalize_time($self->cache_duration)}, sub {
+    my ($auth, $error)= $cache->compute($device.$METHOD_LOOKUP{$method}, {expires_in => normalize_time($self->cache_duration)}, sub {
             return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
         }
     );
@@ -244,15 +243,15 @@ sub generic_method {
         return $FALSE;
     }
     # Cache the method to fetch it on the 2nd radius request (TODO: cache expiration should be in config).
-    if (!$chi->get($username)) {
+    if (!$cache->get($username)) {
         my $infos = { username => $username,
                       device   => $device,
                       tx       => $auth->{'result'}->{'tx'},
                     };
-        $chi->set($username, $infos, normalize_time($self->cache_duration));
+        $cache->set($username, $infos, normalize_time($self->cache_duration));
     }
     # Remove the authenticated status of the user since the next radius requests will use OTP
-    $chi->remove($username." authenticated");
+    $cache->remove($username." authenticated");
     return $FALSE;
 }
 
@@ -267,8 +266,7 @@ sub push {
     my $logger = get_logger();
     $logger->info("Trigger push for user $username");
     my $post_fields = encode_json({device => $device, method => "push", username => $username});
-    my $chi = pf::CHI->new(namespace => 'mfa');
-    my ($auth, $error)= $chi->compute($device."push", {expires_in => normalize_time($self->cache_duration)}, sub {
+    my ($auth, $error)= $cache->compute($device."push", {expires_in => normalize_time($self->cache_duration)}, sub {
             return $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
         }
     );
@@ -296,8 +294,7 @@ check_auth
 sub check_auth {
     my ($self, $device, $username, $otp) = @_;
     my $logger = get_logger();
-    my $chi = pf::CHI->new(namespace => 'mfa');
-    if (my $infos = $chi->get($username)) {
+    if (my $infos = $cache->get($username)) {
         my $post_fields = encode_json({tx => $infos->{'tx'}, user_input => $otp});
         my ($return, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$infos->{'tx'}."&user_input=".$otp);
         if ($return->{'result'} eq 'allow') {
