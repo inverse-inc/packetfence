@@ -352,120 +352,50 @@ Logs will be kept on PacketFence **and** sent to your remote Syslog server.
 
 For further reference the monit documentation is available at: https://mmonit.com/monit/documentation/monit.html
 
-Monit configuration path is different between EL and Debian systems:
+The monit configuration path is different between EL and Debian systems:
 
 * [filename]`MONIT_PATH=/etc/monit.d` for EL-based systems
 * [filename]`MONIT_PATH=/etc/monit/conf.d` for Debian-based systems
 
 To simplify further documentation, we will use `$MONIT_PATH` variable as a reference to these paths.
 
-==== Install Monit
+Starting from PacketFence 11.1, the Monit configuration is directly managed by PacketFence. 
 
-The following must be done on each server of a cluster
-
-.RHEL-based systems
-[source,bash]
-----
-yum install monit uuid --enablerepo=packetfence -y
-----
-
-.Debian-based systems
-[source,bash]
-----
-apt-get update
-apt-get install monit uuid-runtime
-----
-
-===== Enable httpd interface (Debian-based systems only)
-
-In order to use `monit summary` command, you need to enable `httpd` interface. Simply uncomment following section in [filename]`/etc/monit/monitrc`:
-
-----
-set httpd port 2812 and
-    use address localhost  # only accept connection from localhost (drop if you use M/Monit)
-    allow localhost        # allow localhost to connect to the server and
-    allow admin:monit
-----
-
-==== Fetch the script signing key
-
-[source,bash]
-----
-gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
-----
-
-==== Generate/Regenerate the monit configuration
-
-----
-/usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
-----
-
-Where :
+In order to enable Monit on your system, go in 'System Configuration->Main Configuration->Monit'. From there, you should configure the following settings:
 [options="compact"]
-* `email(s)`: CSV (no spaces) of recipient email addresses to send alerts.
-* `subject`: Email subject line prefix (example: 'Server 1'). Using a host identifier is useful when running multiple instances (cluster).
-* `configuration(s)`: CSV (no spaces) of configurations (example: 'packetfence,active-active,os-checks').
-** `packetfence`: Everything related to basic PacketFence
-** `portsec`: Will add some checks for port-security related services
-** `drbd`: Will add some checks for DRBD
-** `active-active`: Will add some checks for active-active clustering related services
-** `os-winbind`: Will add a check for the operating system winbindd process. Use it when the winbind/samba configuration is made outside PacketFence
-** `os-checks`: Will add some OS best-practices checks
-* `mailserver`: SMTP server, use _localhost_ if a SMTP relay is not required.
+* Set the 'Status' to 'enabled'
+* Set the email addresses you wish to send the alerts to in 'Alert Email To'. If left empty, it will default to the email addresses defined in the 'Alerting' section
+* Select the configurations you want monit to use. The defaults should be fine unless your deployment uses port-security enforcement or is an active/passive cluster
+* You will also want to make sure that the SMTP server settings in the 'Alerting' section are set properly as they will be used to generate the SMTP configuration of monit.
 
-CAUTION: A MTA is needed to correctly relay emails from monit. If _localhost_ is used as `mailserver`, make sure that a MTA is installed and configured on the server. 
+Once done, restart the monit service using:
 
-NOTE: This command will create configuration scripts in [filename]`$MONIT_PATH` and will move old(er) configuration into `$MONIT_PATH/packetfence`. During an upgrade any unused `$MONIT_PATH/*.conf` files will be renamed to [filename]`$MONIT_PATH/packetfence/*.conf.bak`.
+  systemctl restart monit
 
-If you don't use Fingerbank, you will need to remove `packetfence-fingerbank-collector` check. 
+==== Monitoring scripts
 
-==== Run the monitoring script update to fetch the scripts and config
+Included with the monit configuration is a set of digitally signed scripts that are fetched from http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and runned on a regular interval in order to make sure that your environment follows the best practices defined by Inverse and to alert you of any important change you may need to perform.
 
-This script will download **latest** shell scripts run by monit checks.
+You can run them manually for troubleshooting purposes using:
 
-[source,bash]
-----
-/usr/local/pf/addons/monit/monitoring-scripts/update.sh
-----
+  /usr/local/pf/addons/monit/monitoring-scripts/update.sh
+  /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
 
-Ensure the script outputs: `Update completed successfully`
+===== Ignoring some checks
 
+Should you want to ignore one of the check that is being performed, add its script name in `$MONIT_PATH/packetfence/local-ignores`.
 
-==== Ensure the pf group can write the logs
+For example, if you would want to ignore the script that generated the following output
 
-[source,bash]
-----
-chmod g+w /usr/local/pf/logs/*
-----
+  ------------------------------------------
+  /usr/local/pf/var/monitoring-scripts/.check-epel.sh failed
+  Result of /usr/local/pf/var/monitoring-scripts/.check-epel.sh
+  The EPEL repository is enabled. This can cause disastrous issues by having the wrong versions of certain packages installed. It is recommended to disable it using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g' /etc/yum.repos.d/epel.repo
+  ------------------------------------------
 
-==== Run the monitoring scripts
+You would add `/usr/local/pf/var/monitoring-scripts/.check-epel.sh` to the local-ignores file
 
-[source,bash]
-----
-/usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
-----
-
-Ensure this script outputs `No error to report`
-
-==== Error: Syslog is not in asynchronous mode
-
-This step is only required if a `Syslog is not in asynchronous mode` error is received above.
-
-In `/etc/rsyslog.conf`, replace:
-----
-*.info;mail.none;authpriv.none;cron.none                /var/log/messages
-----
-
-with (a hyphen):
-----
-*.info;mail.none;authpriv.none;cron.none                -/var/log/messages
-----
-
-==== Ignore some checks
-
-Put full paths of checks in `$MONIT_PATH/packetfence/local-ignores`
-
-==== Run some checks as root
+===== Run some checks as root
 
 Some scripts need to run as root but are disabled by default. If you want to
 run these checks, you need to add following content in
@@ -474,46 +404,6 @@ run these checks, you need to add following content in
 ----
 export RUN_ROOT_SCRIPTS=1
 ----
-
-==== Enable and start monit
-
-Enable monit on startup
-
-[source,bash]
-----
-systemctl enable monit
-----
-
-Start monit
-
-[source,bash]
-----
-systemctl restart monit
-----
-
-==== Installing a MTA
-
-A MTA is needed to correctly relay emails from monit. If _localhost_ is used as smtpserver, make sure that a MTA is installed and configured on the server. 
-
-.RHEL / CentOS
-[source,bash]
-----
-yum install mailx -y
-----
-
-.Debian
-[source,bash]
-----
-apt-get install heirloom-mailx
-----
-
-==== Test the MTA
-
-[source,bash]
-----
-echo `hostname` | mail -s "Monit test" user@example.com
-----
-
 
 ==== Monit Summary
 
