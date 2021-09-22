@@ -1,5 +1,27 @@
 <template>
   <b-container class="px-0" fluid>
+
+    <b-row align-h="end" v-if="!hasQuery">
+      <b-col cols="auto" class="mr-auto mb-3">
+        <slot />
+      </b-col>
+      <b-col cols="auto" class="mb-3 align-self-end d-flex">
+        <base-search-input-limit v-if="hasLimit"
+          :value="limit" @input="setLimit"
+          size="md"
+          :limits="limits"
+          :disabled="isLoading"
+        />
+        <base-search-input-page v-if="hasCursor"
+          :value="page" @input="setPage"
+          class="ml-3"
+          :limit="limit"
+          :total-rows="totalRows"
+          :disabled="isLoading"
+        />
+      </b-col>
+    </b-row>
+
     <b-table ref="tableRef"
       :busy="isLoading"
       :hover="items.length > 0"
@@ -35,6 +57,13 @@
           @input="setColumns"
         />
       </template>
+      <template #cell()="{ field, value }">
+        <router-link v-if="field.key in columnsIs && columnsIs[field.key].is_node"
+          :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
+        <router-link v-else-if="field.key in columnsIs && columnsIs[field.key].is_person"
+          :to="{ path: `/user/${value}` }">{{ value }}</router-link>
+        <template v-else>{{ value }}</template>
+      </template>
       <template #cell(selected)="{ index, rowSelected }">
         <span @click.stop="onItemSelected(index)">
           <template v-if="rowSelected">
@@ -60,10 +89,14 @@
 <script>
 import {
   BaseSearchInputColumns,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
   BaseTableEmpty
 } from '@/components/new/'
 const components = {
   BaseSearchInputColumns,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
   BaseTableEmpty
 }
 
@@ -76,7 +109,7 @@ const props = {
   }
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -94,7 +127,23 @@ const setup = (props, context) => {
   const useSearch = useSearchFactory(report, meta)
   const search = useSearch()
 
-  const { query_fields = [] } = meta.value
+  const { columns = [], query_fields = [] } = meta.value
+
+  const hasCursor = computed(() => {
+    const { has_cursor } = meta.value
+    return has_cursor
+  })
+
+  const hasQuery = computed(() => {
+    const { query_fields = [] } = meta.value
+    return !!query_fields.length
+  })
+
+  const hasLimit = computed(() => {
+    const { has_limit } = meta.value
+    return has_limit
+  })
+
   if (query_fields.length === 0) {
     // no search available
     //  use empty search for default criteria
@@ -102,6 +151,13 @@ const setup = (props, context) => {
     // trigger search
     search.reSearch()
   }
+
+  const columnsIs = computed(() => {
+    return columns.reduce((assoc, column) => {
+      const { name, is_node, is_person } = column
+      return { ...assoc, [name]: { is_node, is_person }}
+    }, {})
+  })
 
   const {
     items,
@@ -121,7 +177,11 @@ const setup = (props, context) => {
   }
 
   return {
+    hasCursor,
+    hasQuery,
+    hasLimit,
     tableRef,
+    columnsIs,
     ...selected,
     ...toRefs(search),
     onBulkExport

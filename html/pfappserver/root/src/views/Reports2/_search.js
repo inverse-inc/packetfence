@@ -4,7 +4,7 @@ import i18n from '@/utils/locale'
 import api from './_api'
 
 export const useSearchFactory = (report, meta) => {
-  const { id, cursor_field, default_limit } = report.value
+  const { id, cursor_field, default_limit = 100 } = report.value
   const { columns = [], query_fields = [] } = meta.value
   const { list, ...rest } = api // omit list
 
