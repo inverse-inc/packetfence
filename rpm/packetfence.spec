@@ -638,6 +638,9 @@ fi
 echo "Downloading the monitoring scripts signing key"
 gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 
+# Allow the pf group to write the logs for the monitoring scripts
+chmod g+w /usr/local/pf/logs/*
+
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log redis_cache.log security_event.log httpd.admin.audit.log
 do
