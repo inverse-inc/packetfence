@@ -148,6 +148,8 @@ conf/snort/reference.config
 conf/switches.conf
 conf/httpd.conf.d/ssl-certificates.conf
 conf/iptables.conf
+conf/iptables-input.conf.inc
+conf/iptables-input-management.conf.inc
 conf/listener.msg
 conf/provisioning.conf
 conf/portal_modules.conf

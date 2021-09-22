@@ -3,6 +3,8 @@
 # This file is manipulated on PacketFence's startup before being given to iptables
 *filter
 
+%%input_include%%
+
 ### INPUT ###
 :INPUT DROP [0:0]
 # accept loopback stuff
@@ -13,6 +15,9 @@
 -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT
 
 :input-management-if - [0:0]
+
+%%input_management_include%%
+
 # SSH
 -A input-management-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
 # HTTP and HTTPS for the portal

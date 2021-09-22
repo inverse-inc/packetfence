@@ -1081,6 +1081,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
+%config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/cluster.conf
