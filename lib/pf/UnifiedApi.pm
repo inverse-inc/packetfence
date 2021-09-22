@@ -1064,13 +1064,22 @@ sub setup_api_v1_config_domains_routes {
 
 sub setup_api_v1_config_floating_devices_routes {
     my ( $self, $root ) = @_;
+#   my ( $collection_route, $resource_route ) =
+#     $self->setup_api_v1_std_config_routes(
+#       $root,
+#       "Config::FloatingDevices",
+#       "/floating_devices",
+#       "/floating_device/#floating_device_id",
+#       "api.v1.Config.FloatingDevices"
+#     );
+
     my ( $collection_route, $resource_route ) =
       $self->setup_api_v1_std_config_routes(
         $root,
-        "Config::FloatingDevices",
+        "ConfigStore::FloatingDevices",
         "/floating_devices",
         "/floating_device/#floating_device_id",
-        "api.v1.Config.FloatingDevices"
+        "api.v1.ConfigStore.FloatingDevices"
       );
 
     return ($collection_route, $resource_route);
