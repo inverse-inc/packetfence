@@ -153,6 +153,8 @@ Depends: ${misc:Depends}, vlan,
  libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python3-twisted-bin,python3-twisted,libconfig-inifiles-perl,
 # fuse
  fuse,
+# Monit and monitoring scripts
+ monit, uuid-runtime,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system

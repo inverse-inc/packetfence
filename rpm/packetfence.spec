@@ -283,6 +283,9 @@ Requires: perl(Crypt::SMIME)
 # Language packs
 Requires: langpacks-fr, langpacks-es, langpacks-de, langpacks-he, langpacks-it, langpacks-nb, langpacks-nl, langpacks-pl, langpacks-pt
 
+# Monit and monitoring scripts
+Requires: monit, uuid
+
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
@@ -630,6 +633,10 @@ else
     echo "Setting packetfence.target as the default systemd target."
     /bin/systemctl set-default packetfence.target
 fi
+
+# Download the monitoring scripts signing key
+echo "Downloading the monitoring scripts signing key"
+gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log redis_cache.log security_event.log httpd.admin.audit.log
