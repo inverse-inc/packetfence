@@ -30,6 +30,9 @@ use pf::log;
 
 sub module_description { 'Akamai MFA' }
 
+sub cache { return pf::CHI->new(namespace => 'mfa'); }
+
+
 =head2 host
 
 The host of the Akamai MFA
@@ -274,26 +277,15 @@ sub push {
         return
     }
     my $i = 0;
-    my $res;
-    eval {
-        local $SIG{ALRM} = sub { die "Timeout reached" };
-        alarm 30;
-        eval {
-            while($TRUE) {
-                my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
-                if ($answer->{'result'} eq 'allow') {
-                    $res = $TRUE;
-                }
-                sleep(5);
-                last if ($i++ == 6);
-            }
-            $res = $FALSE;
-        };
-        alarm 0;
-    };
-    alarm 0;
-    die $@ if($@);
-    return $res;
+    while($TRUE) {
+        my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+        if ($answer->{'result'} eq 'allow') {
+            return $TRUE;
+        }
+        sleep(5);
+        last if ($i++ == 6);
+    }
+    return $FALSE;
 }
 
 =head2
