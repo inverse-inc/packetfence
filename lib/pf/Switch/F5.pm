@@ -27,8 +27,11 @@ use pf::util;
 use pf::log;
 use pf::constants;
 use pf::config qw ($WEBAUTH_WIRELESS $VIRTUAL_VPN);
+use Readonly;
 
 use base ('pf::Switch');
+
+Readonly::Scalar our $AUTHENTICATE_ONLY => 8;
 
 =head1 METHODS
 
@@ -147,7 +150,7 @@ sub identifyConnectionType {
 
 
     if (@require == @found) {
-        if ($radius_request->{"Service-Type"} == 8) {
+        if ($radius_request->{"Service-Type"} == $AUTHENTICATE_ONLY) {
             $connection->isVPN($TRUE);
             $connection->isCLI($FALSE);
         } else {
@@ -195,7 +198,7 @@ sub parseVPNRequest {
     my $logger = $self->logger;
 
     my $client_ip       = $radius_request->{'Tunnel-Client-Endpoint'};
-    my $mac             = '00:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Tunnel-Client-Endpoint'});
+    my $mac             = '02:00:' . join(':', map { sprintf("%02x", $_) } split /\./, $radius_request->{'Tunnel-Client-Endpoint'});
     my $user_name       = $self->parseRequestUsername($radius_request);
     my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
     my $port            = $radius_request->{'NAS-Port'};
