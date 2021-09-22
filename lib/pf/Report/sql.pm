@@ -30,6 +30,8 @@ has has_limit => ( is => 'rw', isa => 'Str', default => 'enabled');
 
 has has_date_range => ( is => 'rw', isa => 'Str', default => 'disabled');
 
+has bindings => (is => 'rw', isa => 'ArrayRef[Str]');
+
 has sql => ( is => 'rw', isa => 'Str');
 
 sub generate_sql_query {
