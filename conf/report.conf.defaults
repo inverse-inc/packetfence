@@ -149,6 +149,7 @@ BEGIN NOT ATOMIC
   LIMIT ?;
 END;
 EOT
+bindings=tenant_id,cursor,limit
 cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
@@ -187,6 +188,7 @@ BEGIN NOT ATOMIC
   LIMIT ?;
 END;
 EOT
+bindings=tenant_id,cursor,limit
 cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
@@ -220,6 +222,7 @@ BEGIN NOT ATOMIC
   LIMIT ?;
 END;
 EOT
+bindings=tenant_id,cursor,limit
 cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
@@ -255,6 +258,7 @@ BEGIN NOT ATOMIC
   LIMIT ?
 END;
 EOT
+bindings=tenant_id,cursor,limit
 cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
@@ -288,6 +292,7 @@ SELECT
         ORDER BY n.mac
         LIMIT ?
 EOT
+bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
 cursor_mac=mac
@@ -322,6 +327,7 @@ SELECT
           AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
         GROUP BY connection_type
 EOT
+bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -346,6 +352,7 @@ SELECT
         WHERE locationlog.tenant_id = ?
         GROUP BY connection_type
 EOT
+bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -370,6 +377,8 @@ SELECT
           AND start_time BETWEEN ? AND ?
         GROUP BY connection_type
 EOT
+bindings=tenant_id,tenant_id,start_date,end_date
+has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
@@ -403,6 +412,8 @@ SELECT
           AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
         GROUP BY connection_type
 EOT
+bindings=tenant_id,tenant_id
+has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
@@ -430,6 +441,7 @@ SELECT
           AND node.status = "reg"
         GROUP BY connection_type
 EOT
+bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -462,6 +474,7 @@ SELECT
         ORDER BY n.mac
         LIMIT ?;
 EOT
+bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
 cursor_mac=mac
@@ -563,6 +576,7 @@ SELECT
         AND (i.end_time = 0 or i.end_time > NOW())
       ORDER BY n.pid
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -586,6 +600,7 @@ SELECT
         AND v.status = "open"
       ORDER BY n.pid
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -607,6 +622,7 @@ SELECT
         GROUP BY device_type
         ORDER BY percent desc
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -625,6 +641,7 @@ SELECT
         GROUP BY device_type
         ORDER BY percent desc
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -642,6 +659,8 @@ SELECT device_type AS description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS 
         GROUP BY device_type
         ORDER BY percent desc
 EOT
+bindings=tenant_id,start_date,end_date
+has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
@@ -670,6 +689,7 @@ SELECT
       GROUP BY device_class
       ORDER BY percent DESC
 EOT
+bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -687,6 +707,7 @@ SELECT
       GROUP BY device_class
       ORDER BY percent DESC
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -794,6 +815,7 @@ SELECT
       ORDER BY mac
       LIMIT ?
 EOT
+bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
 cursor_mac=mac
@@ -825,6 +847,7 @@ SELECT
       ORDER BY mac
       LIMIT ?
 EOT
+bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
 cursor_mac=mac
@@ -862,6 +885,7 @@ SELECT
       GROUP BY ssid
       ORDER BY nodes
 EOT
+bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -889,6 +913,7 @@ SELECT
         GROUP BY ssid
         ORDER BY nodes
 EOT
+bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -923,6 +948,7 @@ SELECT
        GROUP BY ssid
        ORDER BY nodes
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
 
@@ -940,6 +966,7 @@ SELECT
         AND (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
         AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -954,6 +981,7 @@ SELECT
       WHERE tenant_id = ?
         AND (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -970,6 +998,7 @@ SELECT *
           AND ip4log.tenant_id = ?
           AND ip4log.end_time BETWEEN ? AND ?
 EOT
+bindings=tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
 
@@ -999,6 +1028,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,tenant_id
 has_limit=enabled
 cursor_type=none
 
@@ -1028,6 +1058,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
@@ -1057,6 +1088,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
@@ -1086,6 +1118,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
@@ -1115,6 +1148,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
@@ -1144,6 +1178,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
@@ -1173,6 +1208,7 @@ SELECT
         ORDER BY `percent` DESC
         LIMIT 25;
 EOT
+bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
@@ -1182,8 +1218,9 @@ description=topsponsor
 columns=contact_info,sponsor
 sql= <<EOT
 SELECT contact_info, COUNT(contact_info) AS sponsor
-        FROM activation WHERE type = 'sponsor' group by contact_info limit 25;
+        FROM activation WHERE tenant_id = ?, type = 'sponsor' group by contact_info limit 25;
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -1206,6 +1243,7 @@ SELECT
         AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       ORDER BY dhcp_fingerprint, mac
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -1225,6 +1263,7 @@ SELECT
         AND dhcp_fingerprint != 0
       ORDER BY dhcp_fingerprint, mac
 EOT
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
@@ -1254,6 +1293,7 @@ SELECT
       ORDER BY mac
       LIMIT ?
 EOT
+bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
 cursor_mac=mac
@@ -1285,6 +1325,7 @@ SELECT
       ORDER BY mac
       LIMIT ?
 EOT
+bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
 cursor_mac=mac
