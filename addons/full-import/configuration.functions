@@ -168,3 +168,7 @@ function adjust_configuration() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->setval('mysql', 'host', 'localhost') ; \$c->RewriteConfig"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('database', 'host', 'localhost') ; \$c->RewriteConfig"
 }
+
+function is_cluster() {
+  [ `perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::config::cluster -e 'print $cluster_enabled'` -eq 1 ]
+}

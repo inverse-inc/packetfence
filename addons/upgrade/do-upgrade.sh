@@ -130,6 +130,14 @@ function handle_pkgnew_files() {
   done
 }
 
+ALLOW_CLUSTER_UPGRADE="${ALLOW_CLUSTER_UPGRADE:-no}"
+if [ "$ALLOW_CLUSTER_UPGRADE" != "yes" ] && is_cluster; then
+  echo "Upgrading a cluster is not supported by this tool at the moment."
+  echo "You can use it **at your own risk** by setting the following environment variable:"
+  echo "  export ALLOW_CLUSTER_UPGRADE=yes"
+  exit 1
+fi
+
 main_splitter
 echo "Backing up git_commit_id"
 backup_git_commit_id
