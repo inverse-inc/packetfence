@@ -101,17 +101,7 @@ To enable this feature, go in 'Configuration->System Configuration->RADIUS->Gene
 
 The goal here is to use the local user to authenticate 802.1X device.
 
-Edit [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`
-
-[source,radius,numbered]
-----
-# Uncomment the following line to enable local PEAP authentication
-packetfence-local-auth
-----
-
-Restart the radiusd service in order to apply the change.
-
-  /usr/local/pf/bin/pfcmd service radiusd restart
+To enable this feature, go in 'Configuration->System Configuration->RADIUS->General' and enable 'Authenticate against local users database'. Once saved, restart the radiusd service.
 
 CAUTION: Take care of the "Database passwords hashing method" that has been configured in _Configuration -> System Configuration -> Main Configuration -> Advanced_ or in the authentication source configuration (when you enabled "create local account") , the hash method must be `plaintext` or `ntlm` to be able to work.
 
