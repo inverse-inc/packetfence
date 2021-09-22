@@ -301,147 +301,161 @@ default_limit=100
 
 [Connection Types::Active]
 type=sql
-description=connectiontype_active
+description=All active connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-SELECT
-          connection_type,
-          COUNT(1) AS connections,
-          ROUND(COUNT(1)/(
-            SELECT
-              COUNT(1)
-            FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            INNER JOIN ip4log
-              ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-          ) * 100, 1) AS percent
-        FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        INNER JOIN ip4log
-          ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-        GROUP BY connection_type
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND(COUNT(1)/(
+      SELECT
+        COUNT(1)
+      FROM locationlog
+      INNER JOIN node
+        ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+      INNER JOIN ip4log
+        ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+      WHERE locationlog.tenant_id = @TENANT_ID
+        AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    ) * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  GROUP BY connection_type;
+END;
 EOT
-bindings=tenant_id,tenant_id
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
 [Connection Types::All]
 type=sql
-description=connectiontype_all
+description=All connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-SELECT
-          connection_type,
-          COUNT(1) AS connections,
-          ROUND(COUNT(1)/(
-            SELECT
-              COUNT(1) FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            WHERE locationlog.tenant_id = ?
-          ) * 100, 1) AS percent
-        FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        WHERE locationlog.tenant_id = ?
-        GROUP BY connection_type
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND(COUNT(1)/(
+      SELECT
+        COUNT(1) FROM locationlog
+      INNER JOIN node
+        ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+      WHERE locationlog.tenant_id = @TENANT_ID
+    ) * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+  GROUP BY connection_type;
+END;
 EOT
-bindings=tenant_id,tenant_id
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
 [Connection Types::Date Range]
 type=sql
-description=connectiontype
+description=Connection types by date range
 columns=connection_type,connection_type_orig,connections,percent
 sql= <<EOT
-SELECT
-          connection_type,
-          connection_type AS connection_type_orig,
-          COUNT(DISTINCT mac) AS connections,
-          ROUND(COUNT(DISTINCT mac)/(
-            SELECT
-              COUNT(DISTINCT mac)
-            FROM locationlog
-            WHERE tenant_id = ?
-              AND start_time BETWEEN ? AND ?
-          ) * 100, 1) AS percent
-        FROM locationlog
-        WHERE tenant_id = ?
-          AND start_time BETWEEN ? AND ?
-        GROUP BY connection_type
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    connection_type,
+    connection_type AS connection_type_orig,
+    COUNT(DISTINCT mac) AS connections,
+    ROUND(COUNT(DISTINCT mac)/(
+      SELECT
+        COUNT(DISTINCT mac)
+      FROM locationlog
+      WHERE tenant_id = @TENANT_ID
+        AND start_time BETWEEN @START_DATE AND @END_DATE
+    ) * 100, 1) AS percent
+  FROM locationlog
+  WHERE tenant_id = @TENANT_ID
+    AND start_time BETWEEN @START_DATE AND @END_DATE
+  GROUP BY connection_type;
+END;
 EOT
-bindings=tenant_id,tenant_id,start_date,end_date
+bindings=tenant_id,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
 [Connection Types::Registered Active]
 type=sql
-description=connectiontypereg_active
+description=All active registered connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-SELECT
-          connection_type,
-          COUNT(1) AS connections,
-          ROUND( COUNT(1) / (
-            SELECT
-              COUNT(1)
-            FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            INNER JOIN ip4log
-              ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND node.status = "reg"
-              AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-          ) * 100, 1) AS percent
-        FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        INNER JOIN ip4log
-          ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND node.status = "reg"
-          AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-        GROUP BY connection_type
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND( COUNT(1) / (
+      SELECT
+        COUNT(1)
+      FROM locationlog
+      INNER JOIN node
+        ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+      INNER JOIN ip4log
+        ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+      WHERE locationlog.tenant_id = @TENANT_ID
+        AND node.status = "reg"
+        AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    ) * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND node.status = "reg"
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  GROUP BY connection_type;
+END;
 EOT
-bindings=tenant_id,tenant_id
-has_date_range=enabled
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
 [Connection Types::Registered All]
 type=sql
-description=connectiontypereg_all
+description=All registered connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-SELECT
-          connection_type,
-          COUNT(1) AS connections,
-          ROUND( COUNT(1) / (
-            SELECT
-              COUNT(1)
-            FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND node.status = "reg"
-          ) * 100, 1) AS percent
-        FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND node.status = "reg"
-        GROUP BY connection_type
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND( COUNT(1) / (
+      SELECT
+        COUNT(1)
+      FROM locationlog
+      INNER JOIN node
+        ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+      WHERE locationlog.tenant_id = @TENANT_ID
+        AND node.status = "reg"
+    ) * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND node.status = "reg"
+  GROUP BY connection_type;
+END;
 EOT
-bindings=tenant_id,tenant_id
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
