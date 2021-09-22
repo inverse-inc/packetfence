@@ -18,6 +18,12 @@ use pf::Report;
 use pf::util;
 extends qw(pf::Report);
 
+our %mapping = (
+    cursor => 1,
+    start_date => 1,
+    end_date => 1,
+);
+
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
 has cursor_type => ( is => 'rw', isa => 'Str');
@@ -52,18 +58,23 @@ sub options_has_date_range {
 sub create_bind {
     my ($self, $infos) = @_;
     my @bind;
-    push @bind, pf::config::tenant::get_tenant();
-    if ($self->cursor_type eq 'field' ) {
-        push @bind, $infos->{cursor};
-
-        if (isenabled($self->has_limit)) {
-            push @bind, $infos->{sql_limit};
+    my $tenant_id = pf::config::tenant::get_tenant();
+    for my $b (@{$self->bindings}) {
+        if ($b eq 'tenant_id') {
+            push @bind, $tenant_id;
+            next;
         }
-    }
 
-    if ($self->cursor_type eq 'offset' ) {
-        push @bind, $infos->{sql_limit};
-        push @bind, $infos->{cursor};
+        if ($b eq 'limit') {
+            push @bind, $infos->{sql_limit};
+            next;
+        }
+
+        if (exists $mapping{$b}) {
+            push @bind, $infos->{$b};
+            next;
+        }
+
     }
 
     return \@bind;
