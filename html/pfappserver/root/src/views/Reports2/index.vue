@@ -36,28 +36,34 @@ const { root: { $store } = {} } = context
     return depth
   }
 
-  const _struct = associated => {
+  const _struct = (associated, parents = 0) => {
     return Object.keys(associated).map(key => {
-      const { children = {}, id } = associated[key]
-      switch (_depth(associated[key])) {
-        case 2:
+      const { children = {}, id, charts = '' } = associated[key]
+      const icon = (charts.split(',').includes('pie'))
+        ? 'chart-pie'
+        : null
+      const depth = _depth(associated[key])
+      switch (true) {
+        case depth === 2 && parents === 0:
+        case depth === 1 && parents === 0:
           return {
             name: i18n.t(key), // i18n defer
             collapsable: true,
-            items: _struct(children) // recursive
+            items: _struct(children, parents + 1) // recursive
           }
           // break
-        case 1:
+        case depth === 1 && parents === 1:
           return {
             name: i18n.t(key), // i18n defer
-            items: _struct(children) // recursive
+            items: _struct(children, parents + 1) // recursive
           }
           // break
-        case 0:
+        case depth === 0:
           return {
             name: i18n.t(key), // i18n defer
             path: `/reports2/${id}`,
-            saveSearchNamespace: `reports::${id}`
+            saveSearchNamespace: `reports::${id}`,
+            icon
           }
           // break
       }
@@ -65,17 +71,16 @@ const { root: { $store } = {} } = context
   }
 
   const sections = computed(() => {
-    // just the id's ma'am
-    const flat = reports.value.map(report => report.id)
-    // sort by locale
-    const sorted = flat.sort((a, b) => a.localeCompare(b))
-    // flatten ids into associated tree using delimiter
-    const associated = sorted.reduce((associated, id) => {
+    // sort by id
+    const sorted = reports.value.sort((a, b) => a.id.localeCompare(b.id))
+    // flatten reports into associated tree using delimiter
+    const associated = sorted.reduce((associated, report) => {
+      const { id, charts } = report
       const namespace = id.split(delimiter)
       let pointer = associated
       for (let n = 0; n < namespace.length; n++) {
         if (!(namespace[n] in pointer))
-          pointer[namespace[n]] = { children: {}, id }
+          pointer[namespace[n]] = { children: {}, id, charts }
         pointer = pointer[namespace[n]].children
       }
       return associated
