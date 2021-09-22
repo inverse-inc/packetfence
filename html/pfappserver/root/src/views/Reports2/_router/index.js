@@ -24,7 +24,7 @@ const route = {
   },
   children: [
     {
-      path: ':id([a-zA-Z0-9]+[a-zA-Z0-9-_/: ]+[a-zA-Z0-9]+)/',
+      path: ':id([a-zA-Z0-9]+.+[a-zA-Z0-9]+)/',
       name: 'report',
       component: TheView,
       props: route => ({ id: route.params.id }),
