@@ -4,6 +4,7 @@ import i18n from '@/utils/locale'
 import api from './_api'
 
 export const useSearchFactory = (report, meta) => {
+
   const { id, cursor_field, default_limit = 100 } = report.value
   const { columns = [], query_fields = [] } = meta.value
   const { list, ...rest } = api // omit list
@@ -21,6 +22,7 @@ export const useSearchFactory = (report, meta) => {
       ]
     }),
     requestInterceptor: request => {
+      const { start_date, end_date } = meta.value
       if (request.query) {
         // reduce query by slicing empty objects (strip placeholders from defaultCondition)
         //  walk backwards to prevent Array slice from changing future indexes
@@ -33,8 +35,8 @@ export const useSearchFactory = (report, meta) => {
             request.query.values = [...request.query.values.slice(0, o), ...request.query.values.slice(o + 1, request.query.values[o].values.length)]
         }
       }
-      // append id to api request(s)
-      return { ...request, id }
+      // append id, start_date and end_date to api request(s)
+      return { ...request, id, start_date, end_date }
     },
     // build search string from query_fields
     useString: searchString => {

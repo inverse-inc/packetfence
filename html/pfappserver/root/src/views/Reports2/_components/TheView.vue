@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body>
+  <b-card no-body id="card">
     <b-card-header>
       <h4 class="mb-0" v-html="id" />
       <p v-if="description"
@@ -10,11 +10,19 @@
         <the-search v-if="hasQuery"
           :meta="meta"
           :report="report"
-        />
+        >
+          <base-input-date-range v-if="hasDateRange"
+            v-model="dateRange"
+            :disabled="isLoading" />
+        </the-search>
         <the-table
           :meta="meta"
           :report="report"
-        />
+        >
+          <base-input-date-range v-if="hasDateRange"
+            v-model="dateRange"
+            :disabled="isLoading" />
+        </the-table>
       </template>
       <base-container-loading v-else
         :title="$i18n.t('Building Report')"
@@ -30,10 +38,12 @@
 import {
   BaseContainerLoading
 } from '@/components/new/'
+import BaseInputDateRange from './BaseInputDateRange'
 import TheSearch from './TheSearch'
 import TheTable from './TheTable'
 const components = {
   BaseContainerLoading,
+  BaseInputDateRange,
   TheSearch,
   TheTable
 }
@@ -44,7 +54,8 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
+import { useSearchFactory } from '../_search'
 import { useStore } from '../_store'
 
 const setup = (props, context) => {
@@ -57,12 +68,27 @@ const setup = (props, context) => {
 
   const {
     getItem,
-    getItemOptions
+    getItemOptions,
+    isLoading
   } = useStore($store)
 
   const report = ref({})
   const meta = ref({})
   const isLoaded = ref(false)
+
+  const dateRange = ref({})
+  watch(dateRange, () => {
+    const { start_date, end_date } = dateRange.value
+    // append dates to meta, consumed by search::requestInterceptor
+    meta.value = { ...meta.value, start_date, end_date }
+    // wait for meta prop to propagate
+    nextTick(() => {
+      // trigger reSearch
+      const useSearch = useSearchFactory(report, meta)
+      const search = useSearch()
+      search.reSearch()
+    })
+  })
 
   watch(id, () => {
     report.value = {}
@@ -74,7 +100,9 @@ const setup = (props, context) => {
     })
     promises[promises.length] = getItemOptions({ id: id.value }).then(options => {
       const { report_meta = {} } = options
-      meta.value = report_meta
+      const { start_date, end_date } = dateRange.value
+      // append dates to meta, consumed by search::requestInterceptor
+      meta.value = { ...report_meta, start_date, end_date }
     })
     Promise.all(promises).finally(() => {
       isLoaded.value = true
@@ -102,13 +130,17 @@ const setup = (props, context) => {
   })
 
   return {
+    isLoading,
     isLoaded,
     report,
     meta,
     description,
     hasCursor,
     hasDateRange,
-    hasQuery
+    hasQuery,
+
+    dateRange
+
   }
 }
 
@@ -120,3 +152,4 @@ export default {
   setup
 }
 </script>
+

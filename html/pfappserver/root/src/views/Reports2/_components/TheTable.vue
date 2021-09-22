@@ -2,10 +2,10 @@
   <b-container class="px-0" fluid>
 
     <b-row align-h="end" v-if="!hasQuery">
-      <b-col cols="auto" class="mr-auto mb-3">
+      <b-col cols="auto" class="mr-auto my-3">
         <slot />
       </b-col>
-      <b-col cols="auto" class="mb-3 align-self-end d-flex">
+      <b-col cols="auto" class="my-3 align-self-end d-flex">
         <base-search-input-limit v-if="hasLimit"
           :value="limit" @input="setLimit"
           size="md"

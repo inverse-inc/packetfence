@@ -2,8 +2,7 @@
   <b-row>
     <pf-sidebar v-model="sections" />
     <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
-      <!-- avoid component re-use, since useSearch is not reactive -->
-      <router-view :key="$route.fullPath" />
+      <router-view />
     </b-col>
   </b-row>
 </template>
