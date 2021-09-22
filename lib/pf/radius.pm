@@ -1052,7 +1052,7 @@ sub mfa_pre_auth {
     if ($value) {
         my $mfa = pf::factory::mfa->new($value);
         my $cache = pf::mfa->cache;
-        if ($ache->radius_mfa_method eq 'strip-otp') {
+        if ($cache->radius_mfa_method eq 'strip-otp') {
             # Previously did a authentication request ?
             if (my $infos = $cache->get($args->{'radius_request'}->{'User-Name'})) {
                 my $result = $mfa->check_user($args->{'radius_request'}->{'User-Name'}, $$password, $infos->{'device'});
@@ -1061,7 +1061,7 @@ sub mfa_pre_auth {
                 } else {
                     if ($caller eq "pf::radius::vpn") {
                         return $args->{'switch'}->returnAuthorizeVPN($args);
-             else {
+		} else {
                         return $TRUE;
                     }
                 }

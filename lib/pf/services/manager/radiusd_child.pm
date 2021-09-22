@@ -344,6 +344,7 @@ sub generate_radiusd_mainconf {
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
     parse_template( \%tags, "$conf_dir/radiusd/radiusd_loadbalancer.conf", "$install_dir/raddb/radiusd_loadbalancer.conf" );
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd_cli.conf", "$install_dir/raddb/radiusd_cli.conf" );
 }
 
 sub generate_radiusd_restconf {
