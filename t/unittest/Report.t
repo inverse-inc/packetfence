@@ -480,7 +480,7 @@ BEGIN {
 
     @MetaForOptions = (
         {
-            id  => 'ip4log-archive',
+            id  => 'Ip4Log::Archive',
             out => {
                 query_fields => [
                     {
@@ -601,7 +601,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 1 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions;
+use Test::More tests => 2 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions;
 
 use pf::factory::report;
 
@@ -737,6 +737,15 @@ use Test::NoWarnings;
         is($report->nextCursor(@$in), $t->{out}, "$id: pf::Report->nextCursor");
         is_deeply($in->[0], $t->{results}, "$id: pf::Report::sql->nextCursor results");
     }
+}
+
+{
+        my $report = pf::factory::report->new("Node::Report::TestDateRange");
+        if (!$report) {
+            fail("Cannot get report Node::Report::TestDateRange");
+        }
+
+        is_deeply($report->{formatting}, [{field => 'mac', format => 'echo'}], "Test formatting");
 }
 
 =head1 AUTHOR

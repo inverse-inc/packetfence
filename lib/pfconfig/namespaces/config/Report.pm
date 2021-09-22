@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
-    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions person_fields node_fields charts bindings) ];
+    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions person_fields node_fields charts bindings formatting) ];
     
     my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
@@ -54,6 +54,13 @@ sub build_child {
             push @formatted_base_conditions, {field => $pieces[0], operator => $pieces[1], value => $pieces[2]};
         }
 
+        my @formatting;
+        foreach my $format (@{$tmp_cfg{$key}{formatting}}) {
+            my @pieces = split(/\s*\:\s*/, $format, 2);
+            push @formatting, {field => $pieces[0], format => $pieces[1]};
+        }
+
+        $tmp_cfg{$key}{formatting} = \@formatting;
         $tmp_cfg{$key}{base_conditions} = \@formatted_base_conditions;
         $tmp_cfg{$key}{searches} = \@formatted_searches;
         $tmp_cfg{$key}{joins} //= "";

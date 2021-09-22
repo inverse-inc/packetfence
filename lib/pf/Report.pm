@@ -36,6 +36,8 @@ has 'base_table' => (is => 'rw', isa => 'Str');
 
 has 'columns' => (is => 'rw', isa => 'ArrayRef[Str]');
 
+has 'formatting' => (is => 'rw', isa => 'ArrayRef[HashRef]');
+
 has 'person_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'node_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
