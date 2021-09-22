@@ -1280,6 +1280,10 @@ username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Na
 #
 # Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server
 forward_key_balanced=disabled
+# radius_configuration.local_auth
+#
+# Use the local accounts in the password table to authenticate 802.1x users. Requires to have the passwords in clear text.
+local_auth=disabled
 
 [dns_configuration]
 #
