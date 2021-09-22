@@ -29,8 +29,12 @@ use Test::NoWarnings;
     use pf::validator::Moose;
     extends qw(pf::validator);
     has_field id => (
+        required => 1,
     );
 }
+
+my $validator = validator1->new;
+isa_ok($validator, 'pf::validator');
 
 =head1 AUTHOR
 

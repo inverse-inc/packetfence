@@ -12,6 +12,7 @@ pf::validator
 
 use strict;
 use warnings;
+use Moose;
 
 =head1 AUTHOR
 
