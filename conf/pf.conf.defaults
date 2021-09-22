@@ -1380,5 +1380,5 @@ configurations=packetfence,os-checks
 #
 # monit.mailserver
 # Which mailserver to use for monit. When using localhost, make sure that postfix is properly setup to send or relay emails to the addresses defined in monit.alert_email_to
-mailserver=localhost
+mailserver=
 

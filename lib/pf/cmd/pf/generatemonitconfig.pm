@@ -25,7 +25,8 @@ sub _run {
     if($cluster_enabled) {
         $configurations .= ",active-active";
     }
-    return system("/usr/local/pf/addons/monit/monit_build_configuration.pl", $Config{monit}{alert_email_to}, $Config{monit}{subject_prefix}, $configurations, $Config{monit}{mailserver});
+    my $emails = $Config{monit}{alert_email_to} ? $Config{monit}{alert_email_to} : $Config{alerting}{emailaddr};
+    return system("/usr/local/pf/addons/monit/monit_build_configuration.pl", $emails, $Config{monit}{subject_prefix}, $configurations, $Config{monit}{mailserver});
 }
 
 =head1 AUTHOR

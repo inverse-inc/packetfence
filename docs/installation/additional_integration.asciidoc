@@ -366,7 +366,11 @@ In order to enable Monit on your system, go in 'System Configuration->Main Confi
 * Set the 'Status' to 'enabled'
 * Set the email addresses you wish to send the alerts to in 'Alert Email To'. If left empty, it will default to the email addresses defined in the 'Alerting' section
 * Select the configurations you want monit to use. The defaults should be fine unless your deployment uses port-security enforcement or is an active/passive cluster
-* You will also want to make sure that the SMTP server settings in the 'Alerting' section are set properly as they will be used to generate the SMTP configuration of monit.
+
+For the mailserver:
+[options="compact"]
+* You can specify a mailserver to use in the Monit configuration section. This can only be used for unauthenticated relaying. If using localhost, make sure you have postfix installed and properly configured on your server.
+* If you do not specify a mailserver in the Monit section, you will want to make sure that the SMTP server settings in the 'Alerting' section are set properly as they will be used to generate the SMTP configuration of monit. Note that monit doesn't support STARTTLS so make sure you use 'none' or 'ssl' as your SMTP encryption in the 'Alerting' section. If you must use STARTLS, configure postfix on your local server for relaying and use 'localhost' in the mailserver configuration in the Monit section. 
 
 Once done, restart the monit service using:
 

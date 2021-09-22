@@ -11,7 +11,7 @@ use File::Copy;
 use File::Spec::Functions;
 use Template;
 use List::MoreUtils qw(any);
-
+use pf::config qw(%Config);
 
 my $PF_PATH                                 = $pf::file_paths::install_dir;
 my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configurations");
@@ -86,6 +86,7 @@ sub generate_monit_configurations {
         EMAILS              => \@emails,
         SUBJECT_IDENTIFIER  => $subject_identifier,
         MAILSERVER          => $mailserver,
+        ALERTING_CONF       => $Config{alerting},
     };
     my $tt = Template->new(ABSOLUTE => 1);
     my $template_file;
@@ -95,11 +96,6 @@ sub generate_monit_configurations {
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION);
     $destination_file = catfile($MONIT_PATH, "monit_general" . $CONF_FILE_EXTENSION);
     print "Generating '$destination_file'\n";
-    if ( -e $destination_file ) {
-        my $backup_file = catfile($MONIT_EXTRA_PATH, "monit_general" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
-        move($destination_file, $backup_file);
-        print "Generating '$backup_file' (BACKED UP FILE)\n";
-    }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     print "\n/!\\ -> Applied 'Monit' configuration. You might want to restart it for the change to take place\n\n";
 
@@ -107,11 +103,6 @@ sub generate_monit_configurations {
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION);
     $destination_file = "/etc/rsyslog.d/monit.conf";
     print "Generating '$destination_file'\n";
-    if ( -e $destination_file ) {
-        my $backup_file = catfile($MONIT_EXTRA_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
-        move($destination_file, $backup_file);
-        print "Generating '$backup_file' (BACKED UP FILE)\n";
-    }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
     system("/bin/systemctl restart rsyslog");

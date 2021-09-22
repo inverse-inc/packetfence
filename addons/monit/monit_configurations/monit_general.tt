@@ -5,7 +5,16 @@ set httpd port 2812 and
 set daemon 2    # Monitor resources every 2 seconds (1 cycle is 2 seconds)
 set logfile syslog facility log_daemon
 
+[% IF MAILSERVER %]
 set mailserver [% MAILSERVER %]
+[% ELSE %]
+set mailserver [% ALERTING_CONF.smtpserver %]
+  [% IF ALERTING_CONF.smtp_port %] PORT [% ALERTING_CONF.smtp_port %] [% END %]
+  [% IF ALERTING_CONF.smtp_username %] USERNAME [% ALERTING_CONF.smtp_username %] [% END %]
+  [% IF ALERTING_CONF.smtp_password %] PASSWORD '[% ALERTING_CONF.smtp_password %]' [% END %]
+  [% IF ALERTING_CONF.smtp_encryption != "none" %] USING SSL [% END %]
+[% END %]
+
 set mail-format {
     from: monit@$HOST
     subject: [% SUBJECT_IDENTIFIER %] | Monit Alert -- $EVENT on resource '$SERVICE'
