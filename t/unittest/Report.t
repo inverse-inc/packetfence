@@ -432,7 +432,51 @@ BEGIN {
                 }
             ],
         },
-    );
+        {
+            id  => 'Node::Report::TestDateRange',
+            in  => {
+            },
+            out => [
+                422,
+                {
+                    message => 'invalid request',
+                    errors => [
+                        {
+                            field => 'start_date',
+                            message => "must have a value",
+                        },
+                        {
+                            field => 'end_date',
+                            message => "must have a value",
+                        }
+                    ],
+                }
+            ],
+        },
+        {
+            id  => 'Node::Report::TestDateRange',
+            in  => {
+                start_date => '',
+                end_date => '',
+            },
+            out => [
+                422,
+                {
+                    message => 'invalid request',
+                    errors => [
+                        {
+                            field => 'start_date',
+                            message => "must have a value",
+                        },
+                        {
+                            field => 'end_date',
+                            message => "must have a value",
+                        }
+                    ],
+                }
+            ],
+        },
+   );
 
     @MetaForOptions = (
         {
