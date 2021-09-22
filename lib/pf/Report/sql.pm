@@ -88,6 +88,34 @@ sub nextCursor {
     return undef;
 }
 
+sub validate_input {
+    my ($self, $data) = @_;
+    my @errors;
+    $self->validate_required_field($data, \@errors);
+    if (@errors) {
+        return (422, { message => 'invalid request', errors => \@errors });
+    }
+
+    return (200, undef);
+}
+
+sub validate_required_field {
+    my ($self, $data, $errors) = @_;
+    if (isenabled($self->has_date_range)) {
+        my $start_date = $data->{start_date};
+        my $end_date = $data->{end_date};
+        if (!$start_date) {
+            push @$errors, { field => 'start_date', message => "must have a value" },
+        }
+
+        if (!$end_date) {
+            push @$errors, { field => 'end_date', message => "must have a value" },
+        }
+    }
+
+    return;
+}
+
 sub build_query_options {
     my ($self, $data) = @_;
     my %options;
