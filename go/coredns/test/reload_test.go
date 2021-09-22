@@ -135,8 +135,6 @@ func TestReloadMetricsHealth(t *testing.T) {
 }
 
 func collectMetricsInfo(addr string, procs ...string) error {
-	// temp to skip test
-        t.Skip("skip")
 	cl := &http.Client{}
 	resp, err := cl.Get(fmt.Sprintf("http://%s/metrics", addr))
 	if err != nil {
