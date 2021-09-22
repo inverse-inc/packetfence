@@ -1002,7 +1002,7 @@ bindings=tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
 
-[Top Authentication Failures::By MAC]
+[Authentication::Top Failures::By MAC]
 type=sql
 description=topauthenticationfailures_by_mac
 columns=mac,count,percent
@@ -1032,7 +1032,7 @@ bindings=tenant_id,tenant_id
 has_limit=enabled
 cursor_type=none
 
-[Top Authentication Failures::By SSID]
+[Authentication::Top Failures::By SSID]
 type=sql
 description=topauthenticationfailures_by_ssid
 columns=ssid,count,percent
@@ -1062,7 +1062,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[Top Authentication Failures::By Username]
+[Authentication::Top Failures::By Username]
 type=sql
 description=topauthenticationfailures_by_username
 columns=user_name,count,percent
@@ -1092,7 +1092,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[Top Authentication Successes::By Computername]
+[Authentication::Top Successes::By Computername]
 type=sql
 description=topauthenticationsuccesses_by_computername
 columns=computer_name,count,percent
@@ -1122,7 +1122,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[Top Authentication Successes::By MAC]
+[Authentication::Top Successes::By MAC]
 type=sql
 description=topauthenticationsuccesses_by_mac
 columns=mac,count,percent
@@ -1152,7 +1152,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[Top Authentication Successes::By SSID]
+[Authentication::Top Successes::By SSID]
 type=sql
 description=topauthenticationsuccesses_by_ssid
 columns=ssid,count,percent
@@ -1182,7 +1182,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[Top Authentication Successes::By Username]
+[Authentication::Top Successes::By Username]
 type=sql
 description=topauthenticationsuccesses_by_username
 columns=user_name,count,percent
@@ -1267,7 +1267,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[User::Bandwidth::1]
+[User::Bandwidth::All]
 type=sql
 description=userbandwidth
 columns=pid,bytes_in,bytes_out,bytes
@@ -1306,7 +1306,7 @@ EOT
 has_limit=enabled
 cursor_type=none
 
-[User::Bandwidth::1]
+[User::Bandwidth::Date Range]
 type=sql
 description=userbandwidth_with_range
 columns=pid,bytes_in,bytes_out,bytes
