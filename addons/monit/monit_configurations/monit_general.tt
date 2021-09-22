@@ -1,3 +1,7 @@
+set httpd port 2812 and
+    use address localhost  # only accept connection from localhost (drop if you use M/Monit)
+    allow localhost        # allow localhost to connect to the server and
+
 set daemon 2    # Monitor resources every 2 seconds (1 cycle is 2 seconds)
 set logfile syslog facility log_daemon
 
