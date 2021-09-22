@@ -2,7 +2,7 @@
 - hosts: pfdeb9stable
   name: Run Venom tests on pfdeb9stable
   become: True
-  gather_facts: True
+  gather_facts: False
 
   vars:
     test_suites:
@@ -19,7 +19,7 @@
 - hosts: pfel8dev
   name: Run Venom tests on pfel8dev
   become: True
-  gather_facts: True
+  gather_facts: False
 
   vars:
     test_suites:

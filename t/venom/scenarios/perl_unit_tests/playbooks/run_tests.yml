@@ -2,7 +2,7 @@
 - hosts: pfel8dev
   name: Run Venom tests
   become: True
-  gather_facts: True
+  gather_facts: False
 
   vars:
     test_suites:
