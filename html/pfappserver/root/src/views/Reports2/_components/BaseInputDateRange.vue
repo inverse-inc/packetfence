@@ -52,7 +52,7 @@ const props = {
   }
 }
 
-import { customRef, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs } from '@vue/composition-api'
 import { format, subSeconds } from 'date-fns'
 
 const setup = (props, context) => {
@@ -73,7 +73,11 @@ const setup = (props, context) => {
       trigger()
     }
   }))
-  const maxStartDate = ref('9999-12-12 23:59:59')
+  const maxStartDate = computed(() => {
+    if (!endDate.value || endDate.value.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+      return endDate.value
+    return '9999-12-12 23:59:59'
+  })
 
   const endDate = customRef((track, trigger) => ({
     get() {
@@ -85,7 +89,11 @@ const setup = (props, context) => {
       trigger()
     }
   }))
-  const minEndDate = ref('0000-00-00 00:00:00')
+  const minEndDate = computed(() => {
+    if (!startDate.value || startDate.value.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+      return startDate.value
+    return '0000-00-00 00:00:00'
+  })
 
   const showPeriod = ref(false)
 
