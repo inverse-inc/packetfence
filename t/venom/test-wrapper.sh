@@ -29,7 +29,7 @@ configure_and_check() {
     # Tests
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     SCENARIOS_BASE_DIR=${VENOM_ROOT_DIR}/scenarios
-    SCENARIO_TO_RUN=${SCENARIOS_BASE_DIR}/${SCENARIO_TO_RUN:-foo}
+    SCENARIOS_TO_RUN=${SCENARIOS_TO_RUN:-foo bar}
     PF_VM_NAME=${PF_VM_NAME:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
     DESTROY_ALL=${DESTROY_ALL:-no}
@@ -54,7 +54,7 @@ configure_and_check() {
     declare -p ANSIBLE_INVENTORY
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAME INT_TEST_VM_NAMES
-    declare -p SCENARIO_TO_RUN DESTROY_ALL
+    declare -p SCENARIOS_TO_RUN DESTROY_ALL
 
     export ANSIBLE_INVENTORY
 }
@@ -109,18 +109,21 @@ start_and_provision_other_vm() {
 }
 
 run_tests() {
-    log_subsection "Configure VM for tests and run integration tests"
-    # install roles and collections in VENOM_ROOT_DIR
-    if [ -e "${SCENARIO_TO_RUN}/requirements.yml" ]; then
-        ansible-galaxy install -r ${SCENARIO_TO_RUN}/requirements.yml
-    fi
-    if [ -e "${SCENARIO_TO_RUN}/ansible_inventory.yml" ]; then
-        echo "Additional Ansible inventory detected, will use it"
-        # will find roles and collections in VENOM_ROOT_DIR
-        ansible-playbook ${SCENARIO_TO_RUN}/site.yml -e "@${SCENARIO_TO_RUN}/ansible_inventory.yml"
-    else
-        ansible-playbook ${SCENARIO_TO_RUN}/site.yml
-    fi
+    log_subsection "Configure VM for tests and run tests"
+    for scenario_name in ${SCENARIOS_TO_RUN}; do
+        scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
+        # install roles and collections in VENOM_ROOT_DIR
+        if [ -e "${scenario_path}/requirements.yml" ]; then
+            ansible-galaxy install -r ${scenario_path}/requirements.yml
+        fi
+        if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
+            echo "Additional Ansible inventory detected, will use it"
+            # will find roles and collections in VENOM_ROOT_DIR
+            ansible-playbook ${scenario_path}/site.yml -e "@${scenario_path}/ansible_inventory.yml"
+        else
+            ansible-playbook ${scenario_path}/site.yml
+        fi
+    done
 }
 
 halt() {
