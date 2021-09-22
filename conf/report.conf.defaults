@@ -295,7 +295,7 @@ EOT
 bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
-cursor_mac=mac
+cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
@@ -491,7 +491,7 @@ EOT
 bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
-cursor_mac=mac
+cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
@@ -832,7 +832,7 @@ EOT
 bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
-cursor_mac=mac
+cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
@@ -864,7 +864,7 @@ EOT
 bindings=tenant_id,cursor,limit
 has_limit=enabled
 cursor_type=field
-cursor_mac=mac
+cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
@@ -1268,46 +1268,61 @@ cursor_type=none
 
 [Fingerbank::Unknown Prints::Active]
 type=sql
-description=unknownprints_active
+description=All active unknown Fingerbank fingerprints
 columns=mac,dhcp_fingerprint,computername,user_agent
 sql= <<EOT
-SELECT
-        node.mac,
-        dhcp_fingerprint,
-        computername,
-        user_agent
-      FROM node, ip4log
-      WHERE node.tenant_id = ?
-        AND device_type IS NULL
-        AND dhcp_fingerprint != 0
-        AND ip4log.mac = node.mac
-        AND ip4log.tenant_id = node.tenant_id
-        AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-      ORDER BY dhcp_fingerprint, mac
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    node.mac,
+    dhcp_fingerprint,
+    computername,
+    user_agent
+  FROM node, ip4log
+  WHERE node.tenant_id = @TENANT_ID
+    AND device_type IS NULL
+    AND dhcp_fingerprint != 0
+    AND dhcp_fingerprint >= @CURSOR
+    AND ip4log.mac = node.mac
+    AND ip4log.tenant_id = node.tenant_id
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  ORDER BY mac
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id
-has_limit=disabled
-cursor_type=none
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=dhcp_fingerprint
+cursor_default=0
 
 [Fingerbank::Unknown Prints::All]
 type=sql
-description=unknownprints_all
+description=All unknown Fingerbank fingerprints
 columns=mac,dhcp_fingerprint,computername,user_agent
 sql= <<EOT
-SELECT
-        mac,
-        dhcp_fingerprint,
-        computername,
-        user_agent
-      FROM node
-      WHERE tenant_id = ?
-        AND device_type IS NULL
-        AND dhcp_fingerprint != 0
-      ORDER BY dhcp_fingerprint, mac
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    dhcp_fingerprint,
+    computername,
+    user_agent
+  FROM node
+  WHERE tenant_id = @TENANT_ID
+    AND device_type IS NULL
+    AND dhcp_fingerprint != 0
+    AND dhcp_fingerprint >= @CURSOR
+  ORDER BY dhcp_fingerprint
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id
-has_limit=disabled
-cursor_type=none
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=dhcp_fingerprint
+cursor_default=0
+node_fields=mac
 
 [User::Bandwidth::All]
 type=sql
