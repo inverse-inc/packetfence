@@ -81,7 +81,7 @@ $t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
     }
   );
 
-$t->options_ok('/api/v1/dynamic_report/Node::Active::All')
+$t->options_ok('/api/v1/dynamic_report/Node::Active')
   ->status_is(200)
   ->json_is(
     {
@@ -177,7 +177,7 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active::All')
             has_date_range => $false,
             has_cursor     => $true,
             has_limit      => $true,
-            description    => 'All currently known active nodes',
+            description    => 'All active nodes',
         },
         status => 200,
     }
