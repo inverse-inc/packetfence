@@ -1004,91 +1004,103 @@ cursor_type=none
 
 [Authentication::Top Failures::By MAC]
 type=sql
-description=topauthenticationfailures_by_mac
+description=Top authentication failures by MAC
 columns=mac,count,percent
 sql= <<EOT
-SELECT
-          `mac`,
-          COUNT(1) AS `count`,
-          SUM(100) / `total` AS `percent`
-        FROM `radius_audit_log`
-        CROSS JOIN (
-          SELECT
-            COUNT(1) AS `total`
-          FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Reject'
-            AND `created_at` BETWEEN ? AND ?
-        ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Reject'
-          AND `created_at` BETWEEN ? AND ?
-          AND `mac` IS NOT NULL
-        GROUP BY 1
-        ORDER BY `percent` DESC
-        LIMIT 25;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    `mac`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Reject'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Reject'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `mac` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id,tenant_id
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
 has_limit=enabled
 cursor_type=none
 
 [Authentication::Top Failures::By SSID]
 type=sql
-description=topauthenticationfailures_by_ssid
+description=Top authentication failures by SSID
 columns=ssid,count,percent
 sql= <<EOT
-SELECT
-          `ssid`,
-          COUNT(1) AS `count`,
-          SUM(100) / `total` AS `percent`
-        FROM `radius_audit_log`
-        CROSS JOIN (
-          SELECT
-            COUNT(1) AS `total`
-          FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Reject'
-            AND `created_at` BETWEEN ? AND ?
-        ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Reject'
-          AND `created_at` BETWEEN ? AND ?
-          AND `ssid` IS NOT NULL
-        GROUP BY 1
-        ORDER BY `percent` DESC
-        LIMIT 25;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    `ssid`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Reject'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Reject'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `ssid` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
 has_limit=enabled
 cursor_type=none
 
 [Authentication::Top Failures::By Username]
 type=sql
-description=topauthenticationfailures_by_username
+description=Top authentication failures by username
 columns=user_name,count,percent
 sql= <<EOT
-SELECT
-          FREERADIUS_DECODE(`user_name`) AS `user_name`,
-          COUNT(1) AS `count`,
-          SUM(100) / `total` AS `percent`
-        FROM `radius_audit_log`
-        CROSS JOIN (
-          SELECT
-            COUNT(1) AS `total`
-          FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Reject'
-            AND `created_at` BETWEEN ? AND ?
-        ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Reject'
-          AND `created_at` BETWEEN ? AND ?
-          AND `user_name` IS NOT NULL
-        GROUP BY 1
-        ORDER BY `percent` DESC
-        LIMIT 25;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    FREERADIUS_DECODE(`user_name`) AS `user_name`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Reject'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Reject'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `user_name` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
 has_limit=enabled
 cursor_type=none
 
