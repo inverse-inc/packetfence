@@ -1,4 +1,27 @@
 ---
+- name: Install packetfence development packages
+  hosts: wireless
+  become: True
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03
+
+  pre_tasks:
+    # PPA repositories are removed each day and cause issues when refreshing cache
+    - name: Clean previous ppa source file if present
+      file:
+        path: '/etc/apt/sources.list.d/packetfence-ppa.list'
+        state: absent
+
+  roles:
+    - role: inverse_inc.gitlab_buildpkg_tools
+      tags: ci
+
+    - role: apt_preferences
+      when: ansible_os_family == 'Debian'
+
 - name: Configure Wireless Linux
   hosts: wireless
   become: true
