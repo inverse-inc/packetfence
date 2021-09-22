@@ -34,6 +34,11 @@ configure_and_check() {
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
     DESTROY_ALL=${DESTROY_ALL:-no}
 
+    if [ -n "${INT_TEST_VM_NAMES}" ]; then
+        VM_LIST="${PF_VM_NAME} ${INT_TEST_VM_NAMES}"
+    else
+        VM_LIST=${PF_VM_NAME}
+    fi
     # Vagrant
     VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
     VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
@@ -53,7 +58,7 @@ configure_and_check() {
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p ANSIBLE_INVENTORY
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
-    declare -p PF_VM_NAME INT_TEST_VM_NAMES
+    declare -p VM_LIST
     declare -p SCENARIOS_TO_RUN DESTROY_ALL
 
     export ANSIBLE_INVENTORY
@@ -119,9 +124,9 @@ run_tests() {
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
             # will find roles and collections in VENOM_ROOT_DIR
-            ansible-playbook ${scenario_path}/site.yml -e "@${scenario_path}/ansible_inventory.yml"
+            ansible-playbook ${scenario_path}/site.yml -l $VM_LIST -e "@${scenario_path}/ansible_inventory.yml"
         else
-            ansible-playbook ${scenario_path}/site.yml
+            ansible-playbook ${scenario_path}/site.yml -l $VM_LIST
         fi
     done
 }
