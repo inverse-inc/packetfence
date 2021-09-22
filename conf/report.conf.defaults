@@ -1,5 +1,5 @@
 # Copyright (C) Inverse inc.
-[authentications]
+[Authentications]
 type=abstract
 description=All the authentications (RADIUS, portal) that have occured on the server.
 # The table to search from
@@ -58,7 +58,7 @@ base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
 
-[ip4log-history]
+[Ip4Log::History]
 type=abstract
 description=IP address history of the devices on the network (1 week is kept by default)
 # The table to search from
@@ -73,7 +73,7 @@ base_conditions_operator=all
 node_fields=MAC Address
 order_fields=-ip4log_history.start_time
 
-[ip4log-archive]
+[Ip4Log::Archive]
 type=abstract
 description=IP address archive of the devices on your network when enabled (see Maintenance section)
 # The table to search from
@@ -87,7 +87,7 @@ date_field=start_time
 base_conditions_operator=all
 node_fields=MAC Address
 
-[open-security-events]
+[Security Events::Open]
 type=abstract
 description=List of open security events on the network
 base_table=security_event
@@ -102,7 +102,7 @@ person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:open
 
-[closed-security-events]
+[Security Events::Closed]
 type=abstract
 description=List of closed security events on the network
 base_table=security_event
@@ -264,7 +264,7 @@ cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
-[active_all]
+[Node::Active::All]
 type=sql
 description=active_all
 columns=mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
@@ -299,7 +299,7 @@ cursor_mac=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
-[connectiontype_active]
+[Connection Types::Active]
 type=sql
 description=connectiontype_active
 columns=connection_type,connections,percent
@@ -331,7 +331,7 @@ bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
-[connectiontype_all]
+[Connection Types::All]
 type=sql
 description=connectiontype_all
 columns=connection_type,connections,percent
@@ -356,7 +356,7 @@ bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
-[connectiontype]
+[Connection Types::Date Range]
 type=sql
 description=connectiontype
 columns=connection_type,connection_type_orig,connections,percent
@@ -382,7 +382,7 @@ has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
-[connectiontypereg_active]
+[Connection Types::Registered Active]
 type=sql
 description=connectiontypereg_active
 columns=connection_type,connections,percent
@@ -417,7 +417,7 @@ has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
-[connectiontypereg_all]
+[Connection Types::Registered All]
 type=sql
 description=connectiontypereg_all
 columns=connection_type,connections,percent
@@ -445,7 +445,7 @@ bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
-[inactive_all]
+[Node::Inactive::All]
 type=sql
 description=inactive_all
 columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
@@ -481,7 +481,7 @@ cursor_mac=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
-[nodebandwidth]
+[Node::Bandwidth]
 type=sql
 description=nodebandwidth
 columns=mac,bytes_in,bytes_out,bytes
@@ -517,7 +517,7 @@ EOT
 has_limit=enabled
 cursor_type=none
 
-[nodebandwidth_with_range]
+[Node::Bandwidth::Date Range]
 type=sql
 description=nodebandwidth_with_range
 columns=mac,bytes_in,bytes_out,bytes
@@ -553,7 +553,7 @@ EOT
 has_limit=enabled
 cursor_type=none
 
-[opensecurity_events_active]
+[Security Events::Open Active]
 type=sql
 description=opensecurity_events_active
 columns=owner,mac,status,start_date,security_event
@@ -580,7 +580,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[opensecurity_events_all]
+[Security Events::Open All]
 type=sql
 description=opensecurity_events_all
 columns=owner,mac,status,start_date,security_event
@@ -604,7 +604,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[os_active]
+[Operating Systems::Active]
 type=sql
 description=os_active
 columns=description,dhcp_fingerprint,count,percent
@@ -626,7 +626,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[os_all]
+[Operating Systems::All]
 type=sql
 description=os_all
 columns=description,dhcp_fingerprint,count,percent
@@ -645,7 +645,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[os]
+[Operating Systems::Date Range]
 type=sql
 description=os
 columns=description,dhcp_fingerprint,count,percent
@@ -664,7 +664,7 @@ has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 
-[osclass_active]
+[Operating System Class::Active]
 type=sql
 description=osclass_active
 columns=description,count,percent
@@ -693,7 +693,7 @@ bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
-[osclass_all]
+[Operating System Class::All]
 type=sql
 description=osclass_all
 columns=description,count,percent
@@ -711,7 +711,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[osclassbandwidth]
+[Operating System Class::Bandwidth]
 type=sql
 description=osclassbandwidth
 columns=dhcp_fingerprint,bytes_in,bytes_out,bytes
@@ -750,7 +750,7 @@ EOT
 has_limit=enabled
 cursor_type=none
 
-[osclassbandwidth_with_range]
+[Operating System Class::Bandwidth::Date Range]
 type=sql
 description=osclassbandwidth_with_range
 columns=dhcp_fingerprint,bytes_in,bytes_out,bytes
@@ -789,7 +789,7 @@ EOT
 has_limit=enabled
 cursor_type=none
 
-[registered_active]
+[Node::Registered::Active]
 type=sql
 description=registered_active
 columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
@@ -822,7 +822,7 @@ cursor_mac=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
-[registered_all]
+[Node::Registered::All]
 type=sql
 description=registered_all
 columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
@@ -854,7 +854,7 @@ cursor_mac=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
-[ssid_active]
+[SSID::Active]
 type=sql
 description=ssid_active
 columns=ssid,nodes,percent
@@ -889,7 +889,7 @@ bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
-[ssid_all]
+[SSID::All]
 type=sql
 description=ssid_all
 columns=ssid,nodes,percent
@@ -917,7 +917,7 @@ bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
 
-[ssid]
+[SSID::Date Range]
 type=sql
 description=ssid
 columns=ssid,nodes,percent
@@ -952,7 +952,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
 
-[statics_active]
+[Node::Static::Active]
 type=sql
 description=statics_active
 columns=tenant_id,mac,pid,category_id,detect_date,regdate,unregdate,lastskip,time_balance,bandwidth_balance,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,dhcp6_fingerprint,dhcp_vendor,dhcp6_enterprise,device_type,device_class,device_version,device_score,device_manufacturer,bypass_vlan,voip,autoreg,sessionid,machine_account,bypass_role_id,last_seen,tenant_id,mac,ip,start_time,end_time
@@ -970,7 +970,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[statics_all]
+[Node::Static::All]
 type=sql
 description=statics_all
 columns=tenant_id,mac,pid,category_id,detect_date,regdate,unregdate,lastskip,time_balance,bandwidth_balance,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,dhcp6_fingerprint,dhcp_vendor,dhcp6_enterprise,device_type,device_class,device_version,device_score,device_manufacturer,bypass_vlan,voip,autoreg,sessionid,machine_account,bypass_role_id,last_seen
@@ -985,7 +985,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[statics]
+[Node::Static::Date Range]
 type=sql
 description=statics
 columns=tenant_id,mac,pid,category_id,detect_date,regdate,unregdate,lastskip,time_balance,bandwidth_balance,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,dhcp6_fingerprint,dhcp_vendor,dhcp6_enterprise,device_type,device_class,device_version,device_score,device_manufacturer,bypass_vlan,voip,autoreg,sessionid,machine_account,bypass_role_id,last_seen,tenant_id,mac,ip,start_time,end_time
@@ -1002,7 +1002,7 @@ bindings=tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
 
-[topauthenticationfailures_by_mac]
+[Top Authentication Failures::By MAC]
 type=sql
 description=topauthenticationfailures_by_mac
 columns=mac,count,percent
@@ -1032,7 +1032,7 @@ bindings=tenant_id,tenant_id
 has_limit=enabled
 cursor_type=none
 
-[topauthenticationfailures_by_ssid]
+[Top Authentication Failures::By SSID]
 type=sql
 description=topauthenticationfailures_by_ssid
 columns=ssid,count,percent
@@ -1062,7 +1062,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[topauthenticationfailures_by_username]
+[Top Authentication Failures::By Username]
 type=sql
 description=topauthenticationfailures_by_username
 columns=user_name,count,percent
@@ -1092,7 +1092,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[topauthenticationsuccesses_by_computername]
+[Top Authentication Successes::By Computername]
 type=sql
 description=topauthenticationsuccesses_by_computername
 columns=computer_name,count,percent
@@ -1122,7 +1122,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[topauthenticationsuccesses_by_mac]
+[Top Authentication Successes::By MAC]
 type=sql
 description=topauthenticationsuccesses_by_mac
 columns=mac,count,percent
@@ -1152,7 +1152,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[topauthenticationsuccesses_by_ssid]
+[Top Authentication Successes::By SSID]
 type=sql
 description=topauthenticationsuccesses_by_ssid
 columns=ssid,count,percent
@@ -1182,7 +1182,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[topauthenticationsuccesses_by_username]
+[Top Authentication Successes::By Username]
 type=sql
 description=topauthenticationsuccesses_by_username
 columns=user_name,count,percent
@@ -1212,7 +1212,7 @@ bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=enabled
 cursor_type=none
 
-[topsponsor]
+[Top Sponsors]
 type=sql
 description=topsponsor
 columns=contact_info,sponsor
@@ -1224,7 +1224,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[unknownprints_active]
+[Fingerbank::Unknown Prints::Active]
 type=sql
 description=unknownprints_active
 columns=mac,dhcp_fingerprint,computername,user_agent
@@ -1247,7 +1247,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[unknownprints_all]
+[Fingerbank::Unknown Prints::All]
 type=sql
 description=unknownprints_all
 columns=mac,dhcp_fingerprint,computername,user_agent
@@ -1267,72 +1267,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 
-[unregistered_active]
-type=sql
-description=unregistered_active
-columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
-sql= <<EOT
-SELECT
-        n.mac,
-        pid,
-        detect_date,
-        regdate,
-        lastskip,
-        status,
-        user_agent,
-        computername,
-        notes,
-        last_arp,
-        last_dhcp,
-        device_type AS os
-      FROM node n LEFT JOIN ip4log i USING(tenant_id, mac)
-      WHERE n.tenant_id = ?
-        AND n.status = 'unreg'
-        AND (i.end_time = 0 OR i.end_time > NOW())
-        AND mac >= ?
-      ORDER BY mac
-      LIMIT ?
-EOT
-bindings=tenant_id,cursor,limit
-has_limit=enabled
-cursor_type=field
-cursor_mac=mac
-cursor_default=00:00:00:00:00:00
-default_limit=100
-
-[unregistered_all]
-type=sql
-description=unregistered_all
-columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
-sql= <<EOT
-SELECT
-        mac,
-        pid,
-        detect_date,
-        regdate,
-        lastskip,
-        status,
-        user_agent,
-        computername,
-        notes,
-        last_arp,
-        last_dhcp,
-        device_type AS os
-      FROM node
-      WHERE tenant_id = ?
-        AND status = 'unreg'
-        AND mac >= ?
-      ORDER BY mac
-      LIMIT ?
-EOT
-bindings=tenant_id,cursor,limit
-has_limit=enabled
-cursor_type=field
-cursor_mac=mac
-cursor_default=00:00:00:00:00:00
-default_limit=100
-
-[userbandwidth]
+[User::Bandwidth::1]
 type=sql
 description=userbandwidth
 columns=pid,bytes_in,bytes_out,bytes
@@ -1371,7 +1306,7 @@ EOT
 has_limit=enabled
 cursor_type=none
 
-[userbandwidth_with_range]
+[User::Bandwidth::1]
 type=sql
 description=userbandwidth_with_range
 columns=pid,bytes_in,bytes_out,bytes
