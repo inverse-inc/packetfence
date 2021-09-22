@@ -16,9 +16,9 @@ function backup_pf_release() {
 
 function upgrade_packetfence_package() {
   if is_rpm_based; then
-    yum_upgrade_packetfence_package
+    yum_upgrade_packetfence_package $1
   elif is_deb_based; then
-    apt_upgrade_packetfence_package
+    apt_upgrade_packetfence_package $1
   else
     echo "Unable to detect package manager to upgrade PacketFence"
     exit 1
@@ -51,15 +51,22 @@ function apt_upgrade_packetfence_package() {
   echo "deb http://inverse.ca/downloads/PacketFence/debian/$upgrade_to bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
   # TODO: allow to update full OS or only PF
   apt update
-  DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
+  if is_enabled $1; then
+    DEBIAN_FRONTEND=noninteractive apt upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y
+  else
+    DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
+  fi
 }
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/etc/yum.repos.d/packetfence.repo') ; \$c->setval('packetfence', 'baseurl', 'http://inverse.ca/downloads/PacketFence/RHEL\$releasever/"$upgrade_to"/\$basearch') ; \$c->RewriteConfig"
-  # TODO: allow to update full OS or only PF
   yum clean all --enablerepo=packetfence
-  yum update packetfence -y --enablerepo=packetfence
+  if is_enabled $1; then
+    yum update -y --enablerepo=packetfence
+  else
+    yum update packetfence -y --enablerepo=packetfence
+  fi
 }
 
 function download_pristine_file() {
@@ -131,11 +138,18 @@ function handle_pkgnew_files() {
 }
 
 ALLOW_CLUSTER_UPGRADE="${ALLOW_CLUSTER_UPGRADE:-no}"
-if [ "$ALLOW_CLUSTER_UPGRADE" != "yes" ] && is_cluster; then
+if is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
   echo "Upgrading a cluster is not supported by this tool at the moment."
   echo "You can use it **at your own risk** by setting the following environment variable:"
   echo "  export ALLOW_CLUSTER_UPGRADE=yes"
   exit 1
+fi
+
+main_splitter
+if prompt "Do you wish to perform the update of the operating system to the latest available patches during that process?"; then
+  include_os_update="yes"
+else
+  include_os_update="no"
 fi
 
 main_splitter
@@ -147,7 +161,7 @@ backup_pf_release
 
 main_splitter
 echo "Performing upgrade of the packages"
-upgrade_packetfence_package
+upgrade_packetfence_package $include_os_update
 
 main_splitter
 db_name=`get_db_name /usr/local/pf/conf/pf.conf`

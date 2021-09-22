@@ -50,3 +50,7 @@ function is_rpm_based() {
 function is_deb_based() {
   which apt > /dev/null 2>&1
 }
+
+function is_enabled() {
+  [ "$1" = "yes" ] || [ "$1" = "enabled" ]
+}
