@@ -1,5 +1,5 @@
 # Copyright (C) Inverse inc.
-[Authentications]
+[Authentication::All]
 type=abstract
 description=All the authentications (RADIUS, portal) that have occured on the server.
 # The table to search from
@@ -333,6 +333,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Connection Types::All]
 type=sql
@@ -361,6 +362,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Connection Types::Date Range]
 type=sql
@@ -390,6 +392,7 @@ bindings=tenant_id,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Connection Types::Registered Active]
 type=sql
@@ -427,6 +430,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Connection Types::Registered All]
 type=sql
@@ -458,6 +462,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Node::Inactive::All]
 type=sql
@@ -639,6 +644,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Operating Systems::All]
 type=sql
@@ -658,6 +664,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Operating Systems::Date Range]
 type=sql
@@ -677,6 +684,7 @@ bindings=tenant_id,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Operating System Class::Active]
 type=sql
@@ -706,6 +714,7 @@ EOT
 bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Operating System Class::All]
 type=sql
@@ -724,6 +733,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Operating System Class::Bandwidth]
 type=sql
@@ -902,6 +912,7 @@ EOT
 bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [SSID::All]
 type=sql
@@ -930,6 +941,7 @@ EOT
 bindings=tenant_id,tenant_id
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [SSID::Date Range]
 type=sql
@@ -965,6 +977,7 @@ EOT
 bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
+charts=pie
 
 [Node::Static::Active]
 type=sql
@@ -1049,6 +1062,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Authentication::Top Failures::By SSID]
 type=sql
@@ -1083,6 +1097,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Authentication::Top Failures::By Username]
 type=sql
@@ -1117,6 +1132,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Authentication::Top Successes::By Computername]
 type=sql
@@ -1151,6 +1167,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Authentication::Top Successes::By MAC]
 type=sql
@@ -1185,6 +1202,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Authentication::Top Successes::By SSID]
 type=sql
@@ -1219,6 +1237,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Authentication::Top Successes::By Username]
 type=sql
@@ -1253,6 +1272,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+charts=pie
 
 [Top Sponsors]
 type=sql
