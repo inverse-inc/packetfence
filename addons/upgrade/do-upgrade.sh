@@ -35,20 +35,22 @@ function find_latest_stable() {
   curl https://www.packetfence.org/downloads/PacketFence/latest-stable-$OS.txt
 }
 
-upgrade_to=""
+UPGRADE_TO="${UPGRADE_TO:-}"
 function set_upgrade_to() {
-  latest_stable=`find_latest_stable`
-  if prompt "The latest stable PacketFence version is $latest_stable, enter 'y' to upgrade to this version or 'n' to specify the version manually"; then
-    upgrade_to="$latest_stable"
-  else
-    echo -n "Please enter the PacketFence version to which you wish to upgrade: "
-    read upgrade_to
+  if [ -z "$UPGRADE_TO" ]; then
+    latest_stable=`find_latest_stable`
+    if prompt "The latest stable PacketFence version is $latest_stable, enter 'y' to upgrade to this version or 'n' to specify the version manually"; then
+      UPGRADE_TO="$latest_stable"
+    else
+      echo -n "Please enter the PacketFence version to which you wish to upgrade: "
+      read UPGRADE_TO
+    fi
   fi
 }
 
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
-  echo "deb http://inverse.ca/downloads/PacketFence/debian/$upgrade_to bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
+  echo "deb http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
   # TODO: allow to update full OS or only PF
   apt update
   if is_enabled $1; then
@@ -60,7 +62,7 @@ function apt_upgrade_packetfence_package() {
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/etc/yum.repos.d/packetfence.repo') ; \$c->setval('packetfence', 'baseurl', 'http://inverse.ca/downloads/PacketFence/RHEL\$releasever/"$upgrade_to"/\$basearch') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/etc/yum.repos.d/packetfence.repo') ; \$c->setval('packetfence', 'baseurl', 'http://inverse.ca/downloads/PacketFence/RHEL\$releasever/"$UPGRADE_TO"/\$basearch') ; \$c->RewriteConfig"
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
     yum update -y --enablerepo=packetfence
@@ -138,7 +140,7 @@ function handle_pkgnew_files() {
 }
 
 ALLOW_CLUSTER_UPGRADE="${ALLOW_CLUSTER_UPGRADE:-no}"
-if is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
+if ! is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
   echo "Upgrading a cluster is not supported by this tool at the moment."
   echo "You can use it **at your own risk** by setting the following environment variable:"
   echo "  export ALLOW_CLUSTER_UPGRADE=yes"
@@ -146,10 +148,13 @@ if is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
 fi
 
 main_splitter
-if prompt "Do you wish to perform the update of the operating system to the latest available patches during that process?"; then
-  include_os_update="yes"
-else
-  include_os_update="no"
+INCLUDE_OS_UPDATE="${INCLUDE_OS_UPDATE:-}"
+if [ -z "$INCLUDE_OS_UPDATE" ]; then
+  if prompt "Do you wish to perform the update of the operating system to the latest available patches during that process?"; then
+    INCLUDE_OS_UPDATE="yes"
+  else
+    INCLUDE_OS_UPDATE="no"
+  fi
 fi
 
 main_splitter
@@ -161,7 +166,7 @@ backup_pf_release
 
 main_splitter
 echo "Performing upgrade of the packages"
-upgrade_packetfence_package $include_os_update
+upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 main_splitter
 db_name=`get_db_name /usr/local/pf/conf/pf.conf`
