@@ -44,7 +44,7 @@ has_field 'radius_mfa_method' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id, radius_mfa_method) ],
+   render_list => [ qw(id radius_mfa_method) ],
   );
 
 =over

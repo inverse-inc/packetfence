@@ -17,7 +17,7 @@
 
     <form-group-split-char namespace="split_char"
       :column-label="$i18n.t('Character separator')"
-      :text="$i18n.t(''The char with which the password and the code are split during RADIUS authentication.')"
+      :text="$i18n.t('The char with which the password and the code are split during RADIUS authentication.')"
     />
 
     <form-group-cache-duration namespace="cache_duration"

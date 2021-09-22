@@ -84,7 +84,7 @@ has_field 'type' =>
 
 has_block definition =>
   (
-   render_list => [ qw(id app_id signing_key verify_key host callback_url radius_mfa_method split_char) ],
+   render_list => [ qw(id app_id signing_key verify_key host callback_url radius_mfa_method) ],
   );
 
 =over

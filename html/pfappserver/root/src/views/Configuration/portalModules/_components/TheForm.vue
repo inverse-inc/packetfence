@@ -155,7 +155,7 @@ export const setup = (props) => {
       case 'URL':
         return FormTypeUrl // break
 
-      case 'Mfa':
+      case 'MFA':
         return FormTypeMfa // break
 
       default:
