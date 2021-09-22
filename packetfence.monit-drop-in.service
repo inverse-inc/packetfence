@@ -1,3 +1,14 @@
-[Service]
-ExecStartPre=/usr/local/pf/bin/pfcmd generatemonitconfig
+[Unit]
+Description=Pro-active monitoring utility for unix systems
+After=network.target
 
+[Service]
+Type=simple
+ExecStartPre=/usr/local/pf/bin/pfcmd generatemonitconfig
+ExecStart=/usr/bin/monit -I
+ExecStop=/usr/bin/monit quit
+ExecReload=/usr/bin/monit reload
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

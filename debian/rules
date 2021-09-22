@@ -118,8 +118,7 @@ install: build
 	# copy the rsyslog systemd drop in and journald
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
 	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/packetfence.conf
-	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/monit.service.d/
-	install -m0600 $(CURDIR)/packetfence.monit-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/monit.service.d/packetfence.conf
+	install -m0600 $(CURDIR)/packetfence.monit-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/monit.service
 	install -d -m0755 $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/
 	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 	#Sudoer
