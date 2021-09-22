@@ -18,6 +18,7 @@ import (
 
 const RunningSeqno = -1
 const DefaultSeqno = -2
+const InexistantSeqno = -3
 
 const GaleraAutofixSeqnoFile = "/var/lib/mysql/galera-autofix-seqno.dat"
 
