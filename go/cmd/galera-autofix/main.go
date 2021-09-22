@@ -74,32 +74,24 @@ func getSeqnoReport(ctx context.Context, nodes *NodeList) bool {
 	}
 }
 
-func getRecordLiveSeqno(ctx context.Context) int {
-	seqno := mariadb.GetLocalLiveSeqno(ctx)
-	if seqno != mariadb.DefaultSeqno {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Found the following live sequence number: %d", seqno))
-		err := ioutil.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
-		sharedutils.CheckError(err)
-	} else {
-		log.LoggerWContext(ctx).Debug("Failed to obtain the live sequence number")
-	}
-	return seqno
+func recordLiveSeqno(ctx context.Context, seqno int) {
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Found the following live sequence number: %d", seqno))
+	err := ioutil.WriteFile(mariadb.GaleraAutofixSeqnoFile, []byte(fmt.Sprintf("%d", seqno)), 0644)
+	sharedutils.CheckError(err)
 }
 
 func seqnoReporting(ctx context.Context) {
 	servers := pfconfigdriver.AllClusterServers{}
 	for {
 		seqno := mariadb.DefaultSeqno
-		if mariadb.IsLocalDBAvailable(ctx) {
-			seqno = getRecordLiveSeqno(ctx)
+		if liveSeqno := mariadb.GetLocalLiveSeqno(ctx); liveSeqno != mariadb.DefaultSeqno {
+			recordLiveSeqno(ctx, liveSeqno)
+			seqno = liveSeqno
+		} else if coldSeqno, err := mariadb.GetColdSeqno(ctx); err == nil {
+			seqno = coldSeqno
 		} else {
-			var err error
-			seqno, err = mariadb.GetColdSeqno(ctx)
-			if err != nil {
-				log.LoggerWContext(ctx).Error("Unable to obtain sequence number")
-				time.Sleep(seqnoReportingInterval)
-				continue
-			}
+			log.LoggerWContext(ctx).Warn("This server doesn't have a seqno. Will report the inexistant seqno. This node will have no chance to be the one running the latest data.")
+			seqno = mariadb.InexistantSeqno
 		}
 
 		pfconfigdriver.FetchDecodeSocketCache(ctx, &servers)
@@ -273,7 +265,9 @@ func bootAndRejoinCluster(ctx context.Context, node *Node) {
 }
 
 func bootNewCluster(ctx context.Context) {
-	if mariadb.IsActive(ctx) {
+	if mariadb.IsLocalDBAvailable(ctx) {
+		log.LoggerWContext(ctx).Warn("The DB is now available, not booting a new cluster from this node")
+	} else if mariadb.IsActive(ctx) {
 		mariadb.ForceStop(ctx)
 		mariadb.StartNewCluster(ctx)
 	} else {
