@@ -12,5 +12,5 @@
 
   tasks:
     - name: Run Venom tests suite
-      command: '/usr/local/pf/t/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
       loop: '{{ test_suites }}'
