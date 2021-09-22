@@ -87,7 +87,7 @@ authorize {
 
 This section will allow local credentials created during guest registration to be used in 802.1X EAP-PEAP connections.
 
-Caution: Be sure to select `plaintext` or `ntlm` as the "Database passwords hashing method" to make it work.
+NOTE: Be sure to select `plaintext` or `ntlm` as the "Database passwords hashing method" to make it work.
 
 First create a guest SSID with the guest access you want to use (Email, Sponsor or SMS, ...) and activate 'Create local account' on that source.
 
@@ -95,41 +95,7 @@ At the end of the guest registration, PacketFence will send an email with the cr
 
 NOTE: This option doesn't currently work with the *Reuse dot1x credentials* option of the captive portal.
 
-In [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel` uncomment the line `# packetfence-local-auth` and restart radiusd service.
-
-This will activate the feature for any local account on the PacketFence server. You can restrict which accounts can be used by commenting the appropriate line in [filename]`/usr/local/pf/raddb/policy.d/packetfence`.
-For example, if you would want to deactivate this feature for accounts created via SMS, you would have the following :
-
-[source,radius,numbered]
-----
-packetfence-local-auth {
-    # Disable ntlm_auth
-    update control {
-        &MS-CHAP-Use-NTLM-Auth := No
-    }
-    # Check password table for local user
-    pflocal
-    if (fail || notfound) {
-        # Check password table with email and password for a sponsor registration
-        pfguest
-        if (fail || notfound) {
-            # Check password table with email and password for a guest registration
-            pfsponsor
-            if (fail || notfound) {
-                # *Don't* check activation table with phone number and PIN code
-                # pfsms <--- This line was commented out
-                if (fail || notfound) {
-                    update control {
-                       &MS-CHAP-Use-NTLM-Auth := Yes
-                    }
-                }
-            }
-        }
-    }
-}
-----
-
-NOTE: For this feature to work, the users' passwords must be stored in clear text in the database. This is configurable via `advanced.hash_passwords`.
+To enable this feature, go in 'Configuration->System Configuration->RADIUS->General' and enable 'Authenticate against local users database'. Once saved, restart the radiusd service.
 
 === EAP Local User Authentication
 
