@@ -264,41 +264,6 @@ cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
 
-[Node::Active::All]
-type=sql
-description=active_all
-columns=mac,ip,start_time,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
-sql= <<EOT
-SELECT
-        n.mac,
-        ip,
-        start_time,
-        pid,
-        detect_date,
-        regdate,
-        lastskip,
-        status,
-        user_agent,
-        computername,
-        notes,
-        last_arp,
-        last_dhcp,
-        device_type AS os
-      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
-      WHERE
-        n.tenant_id = ? AND
-      (i.end_time = 0 OR i.end_time > NOW()) AND
-        n.mac >= ?
-        ORDER BY n.mac
-        LIMIT ?
-EOT
-bindings=tenant_id,cursor,limit
-has_limit=enabled
-cursor_type=field
-cursor_field=mac
-cursor_default=00:00:00:00:00:00
-default_limit=100
-
 [Connection Types::Active]
 type=sql
 description=All active connection types
@@ -464,113 +429,51 @@ has_limit=disabled
 cursor_type=none
 charts=pie
 
-[Node::Inactive::All]
+[Accounting::Node]
 type=sql
-description=inactive_all
-columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
+description=Top node accounting bandwidth
+columns=mac,bytes_in,bytes_out,bytes
 sql= <<EOT
-SELECT
-        mac,
-        pid,
-        detect_date,
-        regdate,
-        lastskip,
-        status,
-        user_agent,
-        computername,
-        notes,
-        last_arp,
-        last_dhcp,
-        device_type AS os
-      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
-      WHERE
-        n.tenant_id = ? AND
-          (
-            (end_time != 0 AND end_time <= NOW()) OR
-            i.ip IS NULL
-          ) AND
-          n.mac >= ?
-        ORDER BY n.mac
-        LIMIT ?;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(in_bytes) + SUM(out_bytes) AS bytes
+  FROM (
+    SELECT
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND mac >= @CURSOR
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND mac >= @CURSOR
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  GROUP BY mac
+  ORDER BY bytes DESC
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id,cursor,limit
+bindings=tenant_id,start_date,end_date,cursor,limit
+has_date_range=enabled
 has_limit=enabled
 cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
-default_limit=100
-
-[Node::Bandwidth]
-type=sql
-description=nodebandwidth
-columns=mac,bytes_in,bytes_out,bytes
-sql= <<EOT
-SELECT
-        mac,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM (
-        SELECT
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
-        UNION ALL
-        SELECT
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-      ) `total`
-      GROUP BY mac
-      ORDER BY bytes DESC
-      LIMIT 25;
-EOT
-has_limit=enabled
-cursor_type=none
-
-[Node::Bandwidth::Date Range]
-type=sql
-description=nodebandwidth_with_range
-columns=mac,bytes_in,bytes_out,bytes
-sql= <<EOT
-SELECT
-        mac,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM (
-        SELECT
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-          AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
-        UNION ALL
-        SELECT
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-          AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
-      ) `total`
-      GROUP BY mac
-      ORDER BY bytes DESC
-      LIMIT 25;
-EOT
-has_limit=enabled
-cursor_type=none
+default_limit=25
 
 [Security Events::Open Active]
 type=sql
@@ -735,83 +638,52 @@ has_limit=disabled
 cursor_type=none
 charts=pie
 
-[Operating System Class::Bandwidth]
+[Accounting::Operating System Class]
 type=sql
-description=osclassbandwidth
+description=Top Fingerbank operating system class accounting bandwidth
 columns=dhcp_fingerprint,bytes_in,bytes_out,bytes
 sql= <<EOT
-SELECT
-        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM (
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
-        UNION ALL
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-      ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
-      GROUP BY device_class
-      ORDER BY bytes DESC
-      LIMIT 25;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR = ?;
+  SELECT
+    IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(in_bytes) + SUM(out_bytes) AS bytes
+  FROM (
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  LEFT JOIN node USING (tenant_id, mac)
+  WHERE device_class >= @CURSOR
+  GROUP BY device_class
+  ORDER BY bytes DESC
+  LIMIT ?;
+END;
 EOT
+bindings=tenant_id,start_date,end_date,cursor,limit
+has_date_range=enabled
 has_limit=enabled
-cursor_type=none
-
-[Operating System Class::Bandwidth::Date Range]
-type=sql
-description=osclassbandwidth_with_range
-columns=dhcp_fingerprint,bytes_in,bytes_out,bytes
-sql= <<EOT
-SELECT
-        IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM (
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
-        UNION ALL
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
-      ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
-      GROUP BY device_class
-      ORDER BY bytes DESC
-      LIMIT 25;
-EOT
-has_limit=enabled
-cursor_type=none
+cursor_type=field
+cursor_field=device_class
+default_limit=25
 
 [Node::Registered::Active]
 type=sql
@@ -1348,80 +1220,49 @@ cursor_default=0
 node_fields=mac
 formatting=vendor:oui_to_vendor
 
-[User::Bandwidth::All]
+[Accounting::User]
 type=sql
-description=userbandwidth
+description=Top user accounting bandwidth
 columns=pid,bytes_in,bytes_out,bytes
 sql= <<EOT
-SELECT
-        pid,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM (
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-          AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
-        UNION ALL
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-          AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
-      ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
-      GROUP BY pid
-      ORDER BY bytes DESC
-      LIMIT 25;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR = ?;
+  SELECT
+    pid,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(in_bytes) + SUM(out_bytes) AS bytes
+  FROM (
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  LEFT JOIN node USING (tenant_id, mac)
+  WHERE pid >= @CURSOR
+  GROUP BY pid
+  ORDER BY bytes DESC
+  LIMIT ?;
+END;
 EOT
+bindings=tenant_id,start_date,end_date,cursor,limit
+has_date_range=enabled
 has_limit=enabled
-cursor_type=none
-
-[User::Bandwidth::Date Range]
-type=sql
-description=userbandwidth_with_range
-columns=pid,bytes_in,bytes_out,bytes
-sql= <<EOT
-SELECT
-        pid,
-        SUM(in_bytes) AS bytes_in,
-        SUM(out_bytes) AS bytes_out,
-        SUM(in_bytes) + SUM(out_bytes) AS bytes
-      FROM (
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
-        UNION ALL
-        SELECT
-          tenant_id,
-          mac,
-          in_bytes,
-          out_bytes
-        FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
-          AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
-      ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
-      GROUP BY pid
-      ORDER BY bytes DESC
-      LIMIT 25;
-EOT
-has_limit=enabled
-cursor_type=none
+cursor_type=field
+cursor_field=pid
+default_limit=25
