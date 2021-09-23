@@ -8,14 +8,14 @@ use lib '/usr/local/pf/lib_perl/lib/perl5';
 use Config::IniFiles;
 use pf::file_paths qw($pf_config_file);
 
-unless (-f "/etc/monit.d/monit_general.conf") {
-  print "No monit configuration detected. Nothing to do. \n";
-  exit 0;
-}
-
 my $MONIT_DIR = "/etc/monit/conf.d";
 if (-f "/etc/redhat-release") {
   $MONIT_DIR="/etc/monit.d/";
+}
+
+unless (-f "$MONIT_DIR/monit_general.conf") {
+  print "No monit configuration detected. Nothing to do. \n";
+  exit 0;
 }
 
 my $emails = `grep 'set alert' /etc/monit.d/monit_general.conf | awk '{print \$3}' | sort | uniq | tr '\\n' ',' | sed 's/,\$/\\n/'`;
