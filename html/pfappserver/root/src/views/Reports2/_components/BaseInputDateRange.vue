@@ -24,9 +24,9 @@
         </b-form-row>
       </b-popover>
       <base-input-group-date-time v-model="startDate"
-        :placeholder="$i18n.t('Start')" :disabled="disabled" :max="maxStartDate" class="mr-1" />
+        :placeholder="$i18n.t('Start')" :disabled="disabled" :max="maxStartDate" class="mr-1" defer />
       <base-input-group-date-time v-model="endDate"
-        :placeholder="$i18n.t('End')" :disabled="disabled" :min="minEndDate" />
+        :placeholder="$i18n.t('End')" :disabled="disabled" :min="minEndDate" defer />
       <b-btn variant="link" :disabled="disabled || (!startDate && !endDate)" @click="clearRange">
         <icon name="trash-alt"></icon>
       </b-btn>
@@ -69,7 +69,9 @@ const setup = (props, context) => {
       return value.value.start_date
     },
     set(start_date) {
-      emit('input', { ...value.value, start_date })
+      // only emit valid format
+      if (start_date.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+        emit('input', { ...value.value, start_date })
       trigger()
     }
   }))
@@ -85,7 +87,9 @@ const setup = (props, context) => {
       return value.value.end_date
     },
     set(end_date) {
-      emit('input', { ...value.value, end_date })
+      // only emit valid format
+      if (end_date.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+        emit('input', { ...value.value, end_date })
       trigger()
     }
   }))
