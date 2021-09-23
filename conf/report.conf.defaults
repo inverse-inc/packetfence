@@ -44,6 +44,7 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=25
+node_fields=mac
 
 [Accounting::Operating System Class]
 type=sql
@@ -138,6 +139,7 @@ has_limit=enabled
 cursor_type=field
 cursor_field=pid
 default_limit=25
+person_fields=pid
 
 [Authentication::All]
 type=abstract
@@ -187,6 +189,7 @@ has_date_range=enabled
 has_limit=enabled
 cursor_type=none
 charts=pie
+node_fields=mac
 
 [Authentication::Top Failures::By SSID]
 type=sql
@@ -327,6 +330,7 @@ has_date_range=enabled
 has_limit=enabled
 cursor_type=none
 charts=pie
+node_fields=mac
 
 [Authentication::Top Successes::By SSID]
 type=sql
@@ -580,6 +584,8 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+node_fields=mac
+person_fields=pid
 
 [Fingerbank::Static IP::All]
 type=sql
@@ -595,6 +601,8 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+node_fields=mac
+person_fields=pid
 
 [Fingerbank::Unknown Fingerprints::Active]
 type=sql
@@ -627,6 +635,7 @@ cursor_type=field
 cursor_field=dhcp_fingerprint
 cursor_default=0
 formatting=vendor:oui_to_vendor
+node_fields=mac
 
 [Fingerbank::Unknown Fingerprints::All]
 type=sql
@@ -724,6 +733,8 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
+node_fields=mac
+person_fields=pid
 
 [Node::Inactive]
 type=sql
@@ -763,6 +774,8 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
+node_fields=mac
+person_fields=pid
 
 [Node::Registered::Active]
 type=sql
@@ -796,6 +809,8 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
+node_fields=mac
+person_fields=pid
 
 [Node::Registered::All]
 type=sql
@@ -828,6 +843,8 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
+node_fields=mac
+person_fields=pid
 
 [Node::Static]
 type=sql
@@ -849,6 +866,8 @@ bindings=tenant_id,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
+node_fields=mac
+person_fields=pid
 
 [Node::Unregistered::Active]
 type=sql
@@ -877,7 +896,7 @@ BEGIN NOT ATOMIC
     AND (i.end_time = 0 OR i.end_time > NOW())
     AND mac >= @CURSOR
   ORDER BY mac
-  LIMIT ?
+  LIMIT ?;
 END;
 EOT
 bindings=tenant_id,cursor,limit
@@ -885,6 +904,8 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
+node_fields=mac
+person_fields=pid
 
 [Node::Unregistered::All]
 type=sql
@@ -919,6 +940,8 @@ cursor_type=field
 cursor_field=mac
 cursor_default=00:00:00:00:00:00
 default_limit=100
+node_fields=mac
+person_fields=pid
 
 [Operating System Class::Active]
 type=sql
@@ -948,7 +971,7 @@ BEGIN NOT ATOMIC
   ORDER BY percent DESC;
 END;
 EOT
-bindings=tenant_id,tenant_id
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 charts=pie
@@ -1069,167 +1092,165 @@ base_conditions=security_event.status:=:open
 
 [Security Events::Open Active]
 type=sql
-description=opensecurity_events_active
+description=Active nodes with open security events
 columns=owner,mac,status,start_date,security_event
 sql= <<EOT
-SELECT
-        n.pid AS owner,
-        n.mac AS mac,
-        v.status AS status,
-        v.start_date AS start_date,
-        c.description AS security_event
-      FROM (security_event v, ip4log i)
-      LEFT JOIN node n
-        ON n.mac = v.mac AND n.tenant_id = v.tenant_id
-      LEFT JOIN class c
-        ON c.security_event_id = v.security_event_id
-      WHERE v.tenant_id = ?
-        AND v.status="open"
-        AND i.mac = n.mac
-        AND i.tenant_id = n.tenant_id
-        AND (i.end_time = 0 or i.end_time > NOW())
-      ORDER BY n.pid
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    n.pid AS owner,
+    n.mac AS mac,
+    v.status AS status,
+    v.start_date AS start_date,
+    c.description AS security_event
+  FROM (security_event v, ip4log i)
+  LEFT JOIN node n
+    ON n.mac = v.mac AND n.tenant_id = v.tenant_id
+  LEFT JOIN class c
+    ON c.security_event_id = v.security_event_id
+  WHERE v.tenant_id = @TENANT_ID
+    AND v.status="open"
+    AND i.mac = n.mac
+    AND i.tenant_id = n.tenant_id
+    AND (i.end_time = 0 or i.end_time > NOW())
+  ORDER BY n.pid;
+END;
 EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+node_fields=mac
+person_fields=owner
 
 [Security Events::Open All]
 type=sql
-description=opensecurity_events_all
+description=All nodes with open security events
 columns=owner,mac,status,start_date,security_event
 sql= <<EOT
-SELECT
-        n.pid AS owner,
-        n.mac AS mac,
-        v.status AS status,
-        v.start_date AS start_date,
-        c.description AS security_event
-      FROM security_event v
-      LEFT JOIN node n
-        ON n.mac = v.mac AND n.tenant_id = v.tenant_id
-      LEFT JOIN class c
-        ON c.security_event_id = v.security_event_id
-      WHERE v.tenant_id = ?
-        AND v.status = "open"
-      ORDER BY n.pid
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    n.pid AS owner,
+    n.mac AS mac,
+    v.status AS status,
+    v.start_date AS start_date,
+    c.description AS security_event
+  FROM security_event v
+  LEFT JOIN node n
+    ON n.mac = v.mac AND n.tenant_id = v.tenant_id
+  LEFT JOIN class c
+    ON c.security_event_id = v.security_event_id
+  WHERE v.tenant_id = @TENANT_ID
+    AND v.status = "open"
+  ORDER BY n.pid;
+END;
 EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
+node_fields=mac
+person_fields=owner
 
 [SSID::Active]
 type=sql
-description=ssid_active
+description=Active SSID's
 columns=ssid,nodes,percent
 sql= <<EOT
-SELECT
-        ssid,
-        COUNT(1) AS nodes,
-        ROUND( COUNT(1) / (
-          SELECT
-            COUNT(1)
-          FROM locationlog
-          INNER JOIN node
-            ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-          INNER JOIN ip4log
-            ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-          WHERE locationlog.tenant_id = ?
-            AND ssid != ""
-            AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-        ) * 100, 1) AS percent
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    ssid,
+    COUNT(1) AS nodes,
+    ROUND( COUNT(1) / (
+      SELECT
+        COUNT(1)
       FROM locationlog
       INNER JOIN node
         ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
       INNER JOIN ip4log
         ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-      WHERE locationlog.tenant_id = ?
+      WHERE locationlog.tenant_id = @TENANT_ID
         AND ssid != ""
         AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-      GROUP BY ssid
-      ORDER BY nodes
+    ) * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND ssid != ""
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  GROUP BY ssid
+  ORDER BY nodes;
+END;
 EOT
-bindings=tenant_id,tenant_id
+bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 charts=pie
 
 [SSID::All]
 type=sql
-description=ssid_all
+description=All SSID's
 columns=ssid,nodes,percent
 sql= <<EOT
-SELECT
-          ssid,
-          COUNT(1) AS nodes,
-          ROUND( COUNT(1) / (
-            SELECT
-              COUNT(1)
-            FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND ssid != ""
-          ) * 100, 1) AS percent
-        FROM locationlog
-           INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND ssid != ""
-        GROUP BY ssid
-        ORDER BY nodes
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(DISTINCT locationlog.mac)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND ssid != ""
+      AND ip4log.start_time BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    ssid,
+    COUNT(DISTINCT locationlog.mac) AS nodes,
+    ROUND( COUNT(DISTINCT locationlog.mac) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+  AND ssid != ""
+  AND ip4log.end_time BETWEEN @START_DATE AND @END_DATE
+  GROUP BY ssid
+  ORDER BY nodes;
+END;
 EOT
-bindings=tenant_id,tenant_id
-has_limit=disabled
-cursor_type=none
-charts=pie
-
-[SSID::Date Range]
-type=sql
-description=ssid
-columns=ssid,nodes,percent
-sql= <<EOT
-SELECT
-        ssid,
-        COUNT(DISTINCT locationlog.mac) AS nodes,
-        ROUND( COUNT(DISTINCT locationlog.mac) / (
-          SELECT
-            COUNT(DISTINCT locationlog.mac)
-          FROM locationlog
-          INNER JOIN node
-            ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-          INNER JOIN ip4log
-            ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-          WHERE locationlog.tenant_id = ?
-            AND ssid != ""
-            AND ip4log.start_time BETWEEN ? AND ?
-        ) * 100, 1) AS percent
-        FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        INNER JOIN ip4log
-          ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-       WHERE locationlog.tenant_id = ?
-        AND ssid != ""
-        AND ip4log.end_time BETWEEN ? AND ?
-       GROUP BY ssid
-       ORDER BY nodes
-EOT
-bindings=tenant_id,start_date,end_date,tenant_id,start_date,end_date
+bindings=tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
 charts=pie
 
 [Top Sponsors]
 type=sql
-description=topsponsor
+description=Top sponsors
 columns=contact_info,sponsor
 sql= <<EOT
-SELECT contact_info, COUNT(contact_info) AS sponsor
-        FROM activation WHERE tenant_id = ?, type = 'sponsor' group by contact_info limit 25;
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    contact_info,
+    COUNT(contact_info) AS sponsor
+  FROM activation
+  WHERE tenant_id = @TENANT_ID
+    AND type = 'sponsor'
+  GROUP BY contact_info
+  LIMIT ?;
+END;
 EOT
-bindings=tenant_id
-has_limit=disabled
+bindings=tenant_id,limit
+has_limit=enabled
 cursor_type=none
+default_limit=25
 
 [User::Registration::Email]
 type=abstract
