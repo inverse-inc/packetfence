@@ -544,8 +544,8 @@ BEGIN {
                             {
                                 text      => $_,
                                 name      => $_,
-                                is_person => $false,
-                                is_node   => $false
+                                is_person => ($_ eq 'pid' ? $true : $false),
+                                is_node   => ($_ eq 'mac' ? $true : $false),
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
