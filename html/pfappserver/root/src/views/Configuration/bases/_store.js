@@ -466,6 +466,40 @@ const actions = {
       throw err
     })
   },
+  getMonit: ({ state, commit }) => {
+    if (state.cache['monit']) {
+      return Promise.resolve(state.cache['monit']).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ITEM_REQUEST')
+    return api.base('monit').then(item => {
+      commit('ITEM_REPLACED', item)
+      return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsMonit: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.baseOptions('monit').then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateMonit: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'monit'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getMseTab: ({ state, commit }) => {
     if (state.cache['mse_tab']) {
       return Promise.resolve(state.cache['mse_tab']).then(cache => JSON.parse(JSON.stringify(cache)))

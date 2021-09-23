@@ -141,6 +141,7 @@ const setup = () => {
           items: [
             { name: i18n.t('General Configuration'), path: '/configuration/general' },
             { name: i18n.t('Alerting'), path: '/configuration/alerting' },
+            { name: this.$i18n.t('Monit'), path: '/configuration/monit' },
             { name: i18n.t('Advanced'), path: '/configuration/advanced' },
             { name: i18n.t('Maintenance'), path: '/configuration/maintenance_tasks' },
             { name: i18n.t('Services'), path: '/configuration/services' }
