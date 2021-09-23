@@ -1289,12 +1289,13 @@ cursor_type=none
 [Fingerbank::Unknown Prints::Active]
 type=sql
 description=All active unknown Fingerbank fingerprints
-columns=mac,dhcp_fingerprint,computername,user_agent
+columns=mac,vendor,dhcp_fingerprint,computername,user_agent
 sql= <<EOT
 BEGIN NOT ATOMIC
   SET @TENANT_ID = ?, @CURSOR = ?;
   SELECT
     node.mac,
+    node.mac as vendor,
     dhcp_fingerprint,
     computername,
     user_agent
@@ -1315,16 +1316,18 @@ has_limit=enabled
 cursor_type=field
 cursor_field=dhcp_fingerprint
 cursor_default=0
+formatting=vendor:oui_to_vendor
 
 [Fingerbank::Unknown Prints::All]
 type=sql
 description=All unknown Fingerbank fingerprints
-columns=mac,dhcp_fingerprint,computername,user_agent
+columns=mac,vendor,dhcp_fingerprint,computername,user_agent
 sql= <<EOT
 BEGIN NOT ATOMIC
   SET @TENANT_ID = ?, @CURSOR = ?;
   SELECT
     mac,
+    node.mac as vendor,
     dhcp_fingerprint,
     computername,
     user_agent
@@ -1343,6 +1346,7 @@ cursor_type=field
 cursor_field=dhcp_fingerprint
 cursor_default=0
 node_fields=mac
+formatting=vendor:oui_to_vendor
 
 [User::Bandwidth::All]
 type=sql
