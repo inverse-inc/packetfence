@@ -188,7 +188,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|mac:count
+charts=pie|mac:count,bar|mac:count
 node_fields=mac
 
 [Authentication::Top Failures::By SSID]
@@ -224,7 +224,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|ssid:count
+charts=pie|ssid:count,bar|ssid:count
 
 [Authentication::Top Failures::By Username]
 type=sql
@@ -259,7 +259,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|username:count
+charts=pie|username:count,bar|username:count
 
 [Authentication::Top Successes::By Computername]
 type=sql
@@ -294,7 +294,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|computer_name:count
+charts=pie|computer_name:count,bar|computer_name:count
 
 [Authentication::Top Successes::By MAC]
 type=sql
@@ -329,7 +329,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|mac:count
+charts=pie|mac:count,bar|mac:count
 node_fields=mac
 
 [Authentication::Top Successes::By SSID]
@@ -365,7 +365,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|ssid:count
+charts=pie|ssid:count,bar|ssid:count
 
 [Authentication::Top Successes::By Username]
 type=sql
@@ -400,7 +400,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
-charts=pie|user_name:count
+charts=pie|user_name:count,bar|username:count
 
 [Connection Types::Active]
 type=sql
@@ -437,7 +437,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|connection_type:connections
+charts=pie|connection_type:connections,bar|connection_type:connections
 
 [Connection Types::All]
 type=sql
@@ -467,7 +467,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|connection_type:connections
+charts=pie|connection_type:connections,bar|connection_type:connections
 
 [Connection Types::Date Range]
 type=sql
@@ -498,7 +498,7 @@ bindings=tenant_id,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
-charts=pie|connection_type:connections
+charts=pie|connection_type:connections,bar|connection_type:connections
 
 [Connection Types::Registered Active]
 type=sql
@@ -537,7 +537,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|connection_type:connections
+charts=pie|connection_type:connections,bar|connection_type:connections
 
 [Connection Types::Registered All]
 type=sql
@@ -570,7 +570,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|connection_type:connections
+charts=pie|connection_type:connections,bar|connection_type:connections
 
 [Fingerbank::Static IP::Active]
 type=sql
@@ -980,7 +980,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|description:count
+charts=pie|description:count,bar|description:count
 
 [Operating System Class::All]
 type=sql
@@ -1005,7 +1005,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|description:count
+charts=pie|description:count,bar|description:count
 
 [Operating Systems::Active]
 type=sql
@@ -1034,7 +1034,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|description:count
+charts=pie|description:count,bar|description:count
 
 [Operating Systems::All]
 type=sql
@@ -1070,7 +1070,7 @@ bindings=tenant_id,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
-charts=pie|description:count
+charts=pie|description:count,bar|description:count
 
 [Security Events::Closed]
 type=abstract
@@ -1201,7 +1201,7 @@ EOT
 bindings=tenant_id
 has_limit=disabled
 cursor_type=none
-charts=pie|ssid:nodes
+charts=pie|ssid:nodes,bar|ssid:nodes
 
 [SSID::All]
 type=sql
@@ -1241,7 +1241,7 @@ EOT
 bindings=tenant_id,start_date,end_date
 has_limit=disabled
 cursor_type=none
-charts=pie|ssid:nodes
+charts=pie|ssid:nodes,bar|ssid:nodes
 
 [Top Sponsors]
 type=sql

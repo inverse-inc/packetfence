@@ -23,9 +23,19 @@ export const layout = {
     margin: {
       l: 25,
       r: 25,
-      b: 50,
+      b: 150,
       t: 50,
       pad: 20,
+      autoexpand: true
+    }
+  },
+  bar: {
+    margin: {
+      l: 50,
+      r: 50,
+      b: 150,
+      t: 50,
+      pad: 25,
       autoexpand: true
     }
   }
@@ -52,6 +62,27 @@ export const options = {
     },
     pull: 0,
     sort: true,
+    textinfo: 'label',
+    textfont: {
+      family: '"Open Sans", verdana, arial, sans-serif',
+      size: 12,
+      color: '#444'
+    },
+    textposition: 'outside'
+  },
+  bar: {
+    type: 'bar',
+    hoverinfo: 'label+percent',
+    marker: {
+      line: {
+        width: 0.5
+      }
+    },
+    outsidetextfont: {
+      family: '"Open Sans", verdana, arial, sans-serif',
+      size: 12,
+      color: '#444'
+    },
     textinfo: 'label',
     textfont: {
       family: '"Open Sans", verdana, arial, sans-serif',

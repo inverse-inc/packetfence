@@ -15,10 +15,18 @@
             v-model="dateRange"
             :disabled="isLoading" />
         </the-search>
-        <component v-for="chart in charts" :key="chart"
-          :is="chartComponent(chart)"
-          v-bind="chartProps(chart)"
-        />
+        <b-tabs v-if="charts"
+          lazy>
+          <b-tab v-for="chart in charts" :key="chart">
+            <template #title>
+              <icon :name="chartIcon(chart)" scale="1.5" />
+            </template>
+            <component
+              :is="chartComponent(chart)"
+              v-bind="chartProps(chart)"
+            />
+          </b-tab>
+        </b-tabs>
         <the-table
           :meta="meta"
           :report="report"
@@ -51,9 +59,8 @@ const components = {
   TheTable
 }
 
+import BaseChartBar from './BaseChartBar'
 import BaseChartPie from './BaseChartPie'
-
-
 
 const props = {
   id: {
@@ -144,6 +151,8 @@ const setup = (props, context) => {
   const chartComponent = chart => {
     const [ type ] = chart.split('|')
     switch (type) {
+      case 'bar':
+        return BaseChartBar
       case 'pie':
         return BaseChartPie
     }
@@ -156,6 +165,15 @@ const setup = (props, context) => {
       count,
       meta,
       report
+    }
+  }
+  const chartIcon = chart => {
+    const [ type ] = chart.split('|')
+    switch (type) {
+      case 'bar':
+        return 'chart-bar'
+      case 'pie':
+        return 'chart-pie'
     }
   }
 
@@ -173,7 +191,8 @@ const setup = (props, context) => {
 
     charts,
     chartComponent,
-    chartProps
+    chartProps,
+    chartIcon
   }
 }
 
