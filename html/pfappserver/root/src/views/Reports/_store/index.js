@@ -2,19 +2,36 @@
 * "$_reports" store module
 */
 import Vue from 'vue'
+import { computed } from '@vue/composition-api'
 import api from '../_api'
+
+export const useStore = $store => {
+  return {
+    isLoading: computed(() => $store.getters['$_reports/isLoading']),
+    getList: () => $store.dispatch('$_reports/all'),
+    getListOptions: () => $store.dispatch('$_reports/options'),
+    getItem: params => $store.dispatch('$_reports/getReport', params.id),
+    getItemOptions: params => $store.dispatch('$_reports/options', params.id)
+  }
+}
+
+const types = {
+  LOADING: 'loading',
+  SUCCESS: 'success',
+  ERROR: 'error'
+}
 
 // Default values
 const state = () => {
   return {
-    reports: {}, // reports details
-    reportStatus: '',
+    cache: {}, // reports details
+    status: '',
     message: ''
   }
 }
 
 const getters = {
-  isLoading: state => state.reportStatus === 'loading'
+  isLoading: state => state.status === types.LOADING
 }
 
 const actions = {
@@ -23,33 +40,53 @@ const actions = {
       sort: ['id'],
       fields: ['id', 'description', 'long_description', 'type']
     }
-    return api.reports(params).then(response => {
+    return api.list(params).then(response => {
       return response.items
     })
   },
-  getReport: ({ state, commit }, id) => {
-    if (state.reports[id]) {
-      return Promise.resolve(state.reports[id])
+  options: ({ commit }, id) => {
+    commit('ITEM_REQUEST')
+    if (id) {
+      return api.itemOptions(id).then(response => {
+        commit('ITEM_SUCCESS')
+        return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
+      })
+    } else {
+      return api.listOptions().then(response => {
+        commit('ITEM_SUCCESS')
+        return response
+      }).catch((err) => {
+        commit('ITEM_ERROR', err.response)
+        throw err
+      })
     }
-    commit('REPORT_REQUEST')
+  },
+  getReport: ({ state, commit }, id) => {
+    if (state.cache[id]) {
+      return Promise.resolve(state.cache[id])
+    }
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
-      api.report(id).then(response => {
-        commit('REPORT_REPLACED', response)
+      api.item(id).then(response => {
+        commit('ITEM_REPLACED', response)
         resolve(response)
       }).catch(err => {
-        commit('REPORT_ERROR', err.response)
+        commit('ITEM_ERROR', err.response)
         reject(err)
       })
     })
   },
   searchReport: ({ commit }, data) => {
-    commit('REPORT_REQUEST')
+    commit('ITEM_REQUEST')
     return new Promise((resolve, reject) => {
-      api.searchReport(data).then(response => {
-        commit('REPORT_SUCCESS')
+      api.search(data).then(response => {
+        commit('ITEM_SUCCESS')
         resolve(response)
       }).catch(err => {
-        commit('REPORT_ERROR', err.response)
+        commit('ITEM_ERROR', err.response)
         reject(err)
       })
     })
@@ -57,19 +94,19 @@ const actions = {
 }
 
 const mutations = {
-  REPORT_REQUEST: (state) => {
-    state.reportStatus = 'loading'
+  ITEM_REQUEST: (state) => {
+    state.status = types.LOADING
     state.message = ''
   },
-  REPORT_REPLACED: (state, data) => {
-    state.reportStatus = 'success'
-    Vue.set(state.reports, data.id, data)
+  ITEM_REPLACED: (state, data) => {
+    state.status = types.SUCCESS
+    Vue.set(state.cache, data.id, data)
   },
-  REPORT_SUCCESS: (state) => {
-    state.reportStatus = 'success'
+  ITEM_SUCCESS: (state) => {
+    state.status = types.SUCCESS
   },
-  REPORT_ERROR: (state, response) => {
-    state.reportStatus = 'error'
+  ITEM_ERROR: (state, response) => {
+    state.status = types.ERROR
     if (response && response.data) {
       state.message = response.data.message
     }

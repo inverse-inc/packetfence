@@ -7,7 +7,6 @@ import axios from 'axios'
 import LoginRoute from '@/views/Login/_router'
 import StatusRoute from '@/views/Status/_router'
 import ReportsRoute from '@/views/Reports/_router'
-import Reports2Route from '@/views/Reports2/_router'
 import AuditingRoute from '@/views/Auditing/_router'
 import NodesRoute from '@/views/Nodes/_router'
 import UsersRoute from '@/views/Users/_router'
@@ -28,7 +27,6 @@ let router = new Router({
     LoginRoute,
     StatusRoute,
     ReportsRoute,
-    Reports2Route,
     AuditingRoute,
     NodesRoute,
     UsersRoute,

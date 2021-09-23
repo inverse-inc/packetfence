@@ -15,14 +15,10 @@
             v-model="dateRange"
             :disabled="isLoading" />
         </the-search>
-
-
-<component v-for="chart in charts" :key="chart"
-  :is="chartComponent(chart)"
-  v-bind="chartProps(chart)"
-/>
-
-
+        <component v-for="chart in charts" :key="chart"
+          :is="chartComponent(chart)"
+          v-bind="chartProps(chart)"
+        />
         <the-table
           :meta="meta"
           :report="report"
