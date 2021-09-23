@@ -162,6 +162,18 @@ if ! is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
   exit 1
 fi
 
+function hook_if_exists() {
+  hook=/usr/local/pf/addons/upgrade/hooks/hook-$1
+  if [ -f $hook ]; then
+    main_splitter
+    echo "Running upgrade hook $hook"
+    $hook
+    sub_splitter
+  fi
+}
+
+hook_if_exists do-upgrade-start.sh
+
 main_splitter
 INCLUDE_OS_UPDATE="${INCLUDE_OS_UPDATE:-}"
 if [ -z "$INCLUDE_OS_UPDATE" ]; then
@@ -172,14 +184,7 @@ if [ -z "$INCLUDE_OS_UPDATE" ]; then
   fi
 fi
 
-function hook_if_exists() {
-  hook=/usr/local/pf/addons/upgrade/hooks/hook-$1
-  if [ -f $hook ]; then
-    $hook
-  fi
-}
-
-hook_if_exists do-upgrade-start.sh
+hook_if_exists do-upgrade-post-os-update-prompt.sh
 
 main_splitter
 echo "Backing up git_commit_id"
