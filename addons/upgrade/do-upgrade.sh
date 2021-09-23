@@ -172,6 +172,15 @@ if [ -z "$INCLUDE_OS_UPDATE" ]; then
   fi
 fi
 
+function hook_if_exists() {
+  hook=/usr/local/pf/addons/upgrade/hooks/hook-$1
+  if [ -f $hook ]; then
+    $hook
+  fi
+}
+
+hook_if_exists do-upgrade-start.sh
+
 main_splitter
 echo "Backing up git_commit_id"
 backup_git_commit_id
@@ -179,19 +188,29 @@ backup_git_commit_id
 echo "Backing up pf-release"
 backup_pf_release
 
+hook_if_exists do-upgrade-pre-package-upgrade.sh
+
 main_splitter
 echo "Performing upgrade of the packages"
 upgrade_packetfence_package $INCLUDE_OS_UPDATE
+
+hook_if_exists do-upgrade-post-package-upgrade.sh
 
 main_splitter
 db_name=`get_db_name /usr/local/pf/conf/pf.conf`
 upgrade_database $db_name
 
+hook_if_exists do-upgrade-post-db-upgrade.sh
+
 main_splitter
 upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade`
 
+hook_if_exists do-upgrade-post-config-upgrade.sh
+
 main_splitter
 handle_pkgnew_files
+
+hook_if_exists do-upgrade-post-pkgnew-handling.sh
 
 main_splitter
 echo "Finalizing upgrade"
@@ -215,4 +234,6 @@ echo "Updating systemd services state"
 main_splitter
 echo "Completed the upgrade. Perform any necessary adjustments and restart PacketFence."
 echo "If the kernel package was upgraded during this process, you should reboot this server."
+
+hook_if_exists do-upgrade-upgrade-finalized.sh
 
