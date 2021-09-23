@@ -175,6 +175,12 @@ function hook_if_exists() {
 hook_if_exists do-upgrade-start.sh
 
 main_splitter
+echo "Attempting to disable the monit service so it doesn't interfere with the upgrade"
+systemctl disable monit || echo "Monit is not enabled or installed on this server"
+echo "Attempting to stop the monit service so it doesn't interfere with the upgrade"
+systemctl stop monit || echo "Monit is not enabled or installed on this server"
+
+main_splitter
 INCLUDE_OS_UPDATE="${INCLUDE_OS_UPDATE:-}"
 if [ -z "$INCLUDE_OS_UPDATE" ]; then
   if prompt "Do you wish to perform the update of the operating system to the latest available patches during that process?"; then
