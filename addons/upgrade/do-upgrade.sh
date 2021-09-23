@@ -7,11 +7,24 @@ source /usr/local/pf/addons/full-import/database.functions
 source /usr/local/pf/addons/full-import/configuration.functions
 
 function backup_git_commit_id() {
-  cp -a /usr/local/pf/conf/git_commit_id{,.preupgrade}
+  if [ `cat /usr/local/pf/conf/git_commit_id` = "%{git_commit}" ]; then
+    echo "Broken git_commit_id detected, will have to guess which commit ID this build is based on"
+    
+    if [ `grep oauth2 conf/radiusd/packetfence-tunnel.example | wc -l` -eq 4 ]; then
+      echo "Detected that this build was made before 6f33f85713ec329b73572a073ee6419bab7f8c5e."
+      echo "Using the commit ID of v11.0.0 in conf/git_commit_id"
+      echo -n a0c25391e58310b1b2be937013a9808bfd7c1071 > /usr/local/pf/conf/git_commit_id
+    else
+      echo "Detected that this build was made using 6f33f85713ec329b73572a073ee6419bab7f8c5e or a later commit."
+      echo "Using the commit ID 6f33f85713ec329b73572a073ee6419bab7f8c5e in conf/git_commit_id"
+      echo -n 6f33f85713ec329b73572a073ee6419bab7f8c5e > /usr/local/pf/conf/git_commit_id
+    fi
+  fi
+  yes | cp -a /usr/local/pf/conf/git_commit_id{,.preupgrade}
 }
 
 function backup_pf_release() {
-  cp -a /usr/local/pf/conf/pf-release{,.preupgrade}
+  yes | cp -a /usr/local/pf/conf/pf-release{,.preupgrade}
 }
 
 function upgrade_packetfence_package() {
@@ -192,6 +205,10 @@ systemctl restart packetfence-config
 sub_splitter
 echo "Reloading configuration"
 /usr/local/pf/bin/pfcmd configreload hard
+
+sub_splitter
+echo "Updating systemd services state"
+/usr/local/pf/bin/pfcmd service pf updatesystemd
 
 main_splitter
 echo "Completed the upgrade. Perform any necessary adjustments and restart PacketFence."
