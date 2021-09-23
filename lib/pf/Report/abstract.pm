@@ -192,13 +192,6 @@ sub options_has_date_range {
     return $pf::Report::JSON_FALSE;
 }
 
-sub ensure_default_infos {
-    my ($self, $infos) = @_;
-    $infos->{page} //= 1;
-    $infos->{per_page} //= 25;
-    $infos->{count_only} //= 0;
-}
-
 sub nextCursor {
     my ($self, $result, %infos) = @_;
     my $limit = $infos{limit} + 1;

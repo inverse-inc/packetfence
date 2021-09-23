@@ -47,12 +47,6 @@ has 'person_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'node_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
-sub ensure_default_infos {
-    my ($self, $infos) = @_;
-    return;
-}
-
-
 sub build_query_options {
     return (422, { message => "unimplemented" });
 }
