@@ -3,7 +3,6 @@ package pf::Report;
 use Moose;
 use pf::error qw(is_error is_success);
 use pf::log;
-use Tie::IxHash;
 use List::MoreUtils qw(any);
 use JSON::MaybeXS qw();
 use pf::util;
@@ -53,7 +52,6 @@ sub build_query_options {
 
 sub query {
     my ($self, %infos) = @_;
-    $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos);
     get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { "'$_'" } @$params) });
     return $self->_db_data($sql, @$params);
@@ -61,21 +59,14 @@ sub query {
 
 sub _db_data {
     my ($self, $sql, @params) = @_;
-
-    my ( $ref, @array );
     my ($status, $sth) = pf::dal->db_execute($sql, @params);
     if (is_error($status)) {
         return ($status);
     }
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
-    my $fields = $sth->{NAME};
-    while ( $ref = $sth->fetchrow_arrayref() ) {
-        tie my %record, 'Tie::IxHash';
-        @record{@$fields} = @$ref;
-        push( @array, \%record );
-    }
+    my $items = $sth->fetchall_arrayref( {} );
     $sth->finish();
-    return (200, \@array);
+    return (200, $items);
 }
 
 =head2 is_person_field
