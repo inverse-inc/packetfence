@@ -767,6 +767,13 @@ sub generate_provisioning_passthroughs {
         my @lines  = pf_run($cmd);
     }
 
+    foreach my $config (tied(%ConfigProvisioning)->search(type => 'kandji')) {
+        $logger->info("Adding passthrough for Kandji");
+        my $enroll_url = URI->new($config->enroll_url)
+        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough ".$enroll_url->host.",".$enroll_url->port." 2>&1");
+        my @lines  = pf_run($cmd);
+    }
+
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'mobileiron')) {
         $logger->info("Adding passthrough for MobileIron");
         # Allow the host for the onboarding of devices
