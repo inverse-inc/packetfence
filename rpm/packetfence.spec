@@ -346,8 +346,6 @@ done
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
 %{__make} src/mariadb_udf/pf_udf.so
-# Define git_commit_id
-echo %{git_commit} > conf/git_commit_id
 
 # build golang binaries
 %{__make} -C go all
