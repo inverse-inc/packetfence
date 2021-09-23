@@ -26,8 +26,6 @@ has 'searches' => (is => 'rw', isa => 'ArrayRef[HashRef]');
 
 has 'base_table' => (is => 'rw', isa => 'Str');
 
-has 'columns' => (is => 'rw', isa => 'ArrayRef[Str]');
-
 sub generate_sql_query {
     my ($self, %infos) = @_;
     my $logger = get_logger;
