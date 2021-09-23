@@ -15,6 +15,14 @@
             v-model="dateRange"
             :disabled="isLoading" />
         </the-search>
+
+
+<component v-for="chart in charts" :key="chart"
+  :is="chartComponent(chart)"
+  v-bind="chartProps(chart)"
+/>
+
+
         <the-table
           :meta="meta"
           :report="report"
@@ -30,7 +38,6 @@
         spin
       />
     </div>
-<pre>{{ {report, meta } }}</pre>
   </b-card>
 </template>
 
@@ -47,6 +54,10 @@ const components = {
   TheSearch,
   TheTable
 }
+
+import BaseChartPie from './BaseChartPie'
+
+
 
 const props = {
   id: {
@@ -129,6 +140,29 @@ const setup = (props, context) => {
     return !!query_fields.length
   })
 
+
+  const charts = computed(() => {
+    const { charts = [] } = meta.value
+    return charts
+  })
+  const chartComponent = chart => {
+    const [ type ] = chart.split('|')
+    switch (type) {
+      case 'pie':
+        return BaseChartPie
+    }
+  }
+  const chartProps = chart => {
+    const { 1: options = '' } = chart.split('|')
+    const [ field, count ] = options.split(':')
+    return {
+      field,
+      count,
+      meta,
+      report
+    }
+  }
+
   return {
     isLoading,
     isLoaded,
@@ -139,8 +173,11 @@ const setup = (props, context) => {
     hasDateRange,
     hasQuery,
 
-    dateRange
+    dateRange,
 
+    charts,
+    chartComponent,
+    chartProps
   }
 }
 
