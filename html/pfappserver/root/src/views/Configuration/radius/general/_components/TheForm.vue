@@ -86,6 +86,11 @@
       :column-label="$i18n.t('Username attributes')"
       :text="$i18n.t('Which attributes to use to get the username from a RADIUS request. The order of the attributes are listed in this configuration parameter is followed while performing the lookup.')"
     />
+    
+    <form-group-local-auth namespace="local_auth"
+      :column-label="$i18n.t('Authenticate against local users database')"
+      :text="$i18n.t('Use the local accounts in the password table to authenticate 802.1x users. Requires to have the passwords in clear text.')"
+    />
   </base-form>
 </template>
 <script>
@@ -105,6 +110,7 @@ import {
   FormGroupFilterInEduroamPreProxy,
   FormGroupFilterInEduroamPostProxy,
   FormGroupFilterInEduroamPreacct,
+  FormGroupLocalAuth,
   FormGroupNtlmRedisCache,
   FormGroupRadiusAttributes,
   FormGroupNormalizeRadiusMachineAuthUsername,
@@ -125,6 +131,7 @@ const components = {
   FormGroupFilterInEduroamPreProxy,
   FormGroupFilterInEduroamPostProxy,
   FormGroupFilterInEduroamPreacct,
+  FormGroupLocalAuth,
   FormGroupNtlmRedisCache,
   FormGroupRadiusAttributes,
   FormGroupNormalizeRadiusMachineAuthUsername,
