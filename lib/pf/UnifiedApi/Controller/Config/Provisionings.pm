@@ -33,6 +33,7 @@ use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
 use pfappserver::Form::Config::Provisioning::ibm;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
+use pfappserver::Form::Config::Provisioning::kandji;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
 use pfappserver::Form::Config::Provisioning::opswat;
@@ -53,6 +54,7 @@ our %TYPES_TO_FORMS = (
       ibm
       intune
       jamf
+      kandji
       mobileconfig
       mobileiron
       opswat

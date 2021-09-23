@@ -42,7 +42,7 @@ Port to connect to the web API
 
 =cut
 
-has port => (is => 'rw', default => sub { 443 });
+has port => (is => 'rw', default => 443);
 
 =head2 protocol
 
@@ -50,7 +50,7 @@ Protocol to connect to the web API
 
 =cut
 
-has protocol => (is => 'rw', default => sub { "https" } );
+has protocol => (is => 'rw', default => "https");
 
 =head2 enroll_url
 
