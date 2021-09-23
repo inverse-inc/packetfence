@@ -1662,6 +1662,14 @@ Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import
 
 The option `NTLM cache background job` and its associated parameters have been deprecated. If you previously used this option on one of your domains, it will now automatically use the `NTLM cache on connection` method.
 
+=== pf-maint.pl script deprecated
+
+The `pf-maint.pl` script used to get maintenance patches has been deprecated. You can now get maintenance patches using your package manager, see <<#_upgrade_to_a_patch_version_x_y_patch,Upgrade to a patch version (X.Y.PATCH) section>>.
+
+=== WMI scan engine deprecated
+
+The WMI scan engines have been deprecated. If you previously used these scan engines, you should migrate to other scan engines.
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]

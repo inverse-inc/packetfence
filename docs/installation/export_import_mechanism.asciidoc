@@ -35,6 +35,7 @@ It can be used to automate upgrades or to restore PacketFence installations.
 * The import process will not modify network cards configuration of your server: it will
    only update PacketFence IP configuration. We recommend you to define targeted IP
    addresses on network cards before running import process even if you can do it at end of import process.
+* The import process will not join automatically server to Active Directory domains. You need to rejoin server manually.
 * The import process will only restore the files that can be edited via the admin interface which include:
 ** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`
 ** Connection profiles HTML templates in [filename]`/usr/local/pf/html/captive-portal/profile-templates/`
