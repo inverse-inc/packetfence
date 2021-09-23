@@ -18,11 +18,11 @@ unless (-f "$MONIT_DIR/monit_general.conf") {
   exit 0;
 }
 
-my $emails = `grep 'set alert' /etc/monit.d/monit_general.conf | awk '{print \$3}' | sort | uniq | tr '\\n' ',' | sed 's/,\$/\\n/'`;
+my $emails = `grep 'set alert' $MONIT_DIR/monit_general.conf | awk '{print \$3}' | sort | uniq | tr '\\n' ',' | sed 's/,\$/\\n/'`;
 $emails =~ s/\n$//;
-my $subject_prefix = `grep subject: /etc/monit.d/monit_general.conf | sed 's/subject: \\(.*\\) | Monit.*/\\1/' | sed 's/^\\s*//g' `;
+my $subject_prefix = `grep subject: $MONIT_DIR/monit_general.conf | sed 's/subject: \\(.*\\) | Monit.*/\\1/' | sed 's/^\\s*//g' `;
 $subject_prefix =~ s/\n$//;
-my $mailserver=`grep 'set mailserver' /etc/monit.d/monit_general.conf | awk '{ print \$3 }'`;
+my $mailserver=`grep 'set mailserver' $MONIT_DIR/monit_general.conf | awk '{ print \$3 }'`;
 $mailserver =~ s/\n$//;
 
 my @configurations;
