@@ -20,11 +20,13 @@ function backup_git_commit_id() {
       echo -n 6f33f85713ec329b73572a073ee6419bab7f8c5e > /usr/local/pf/conf/git_commit_id
     fi
   fi
-  yes | cp -a /usr/local/pf/conf/git_commit_id{,.preupgrade}
+  rm -f /usr/local/pf/conf/git_commit_id.preupgrade
+  cp -a /usr/local/pf/conf/git_commit_id{,.preupgrade}
 }
 
 function backup_pf_release() {
-  yes | cp -a /usr/local/pf/conf/pf-release{,.preupgrade}
+  rm -f /usr/local/pf/conf/pf-release.preupgrade
+  cp -a /usr/local/pf/conf/pf-release{,.preupgrade}
 }
 
 function upgrade_packetfence_package() {
