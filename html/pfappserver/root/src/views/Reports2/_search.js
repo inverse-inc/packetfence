@@ -59,13 +59,14 @@ export const useSearchFactory = (report, meta) => {
         locked: true
       },
       ...columns.map(column => {
-        const { /*is_node, is_person,*/ name: key, text: label } = column
+        const { name: key, text: label } = column
         return {
           key,
           label,
           required: (key === cursor_field),
           searchable: true,
-          visible: true
+          visible: true,
+          thClass: 'text-nowrap'
         }
       }),
       {

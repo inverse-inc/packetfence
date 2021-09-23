@@ -28,11 +28,12 @@
       :items="items"
       :fields="visibleColumns"
       class="mb-0"
-      show-empty
       no-local-sorting
-      fixed
-      striped
+      no-provider-sorting
+      responsive
       selectable
+      show-empty
+      striped
       @row-selected="onRowSelected"
     >
       <template v-slot:empty>
@@ -43,10 +44,10 @@
       <template #head(selected)>
         <span @click.stop.prevent="onAllSelected">
           <template v-if="selected.length > 0">
-            <icon name="check-square" class="bg-white text-success" scale="1.125" />
+            <icon name="check-square" class="bg-white text-success" scale="1.125" style="max-width: 1.125em;" />
           </template>
           <template v-else>
-            <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
+            <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" style="max-width: 1.125em;" />
           </template>
         </span>
       </template>

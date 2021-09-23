@@ -38,11 +38,11 @@ const { root: { $store } = {} } = context
 
   const _struct = (associated, parents = 0) => {
     return Object.keys(associated).map(key => {
-      const { children = {}, id, charts = '', has_date_range, searches } = associated[key]
+      const { children = {}, id, charts = '', date_field, has_date_range, searches } = associated[key]
       const icons = []
       if (searches)
         icons.push('search')
-      if (has_date_range)
+      if (date_field || has_date_range)
         icons.push('calendar-alt')
       if (charts)
         icons.push('chart-pie')
