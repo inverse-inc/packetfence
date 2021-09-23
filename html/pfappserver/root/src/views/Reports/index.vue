@@ -65,7 +65,7 @@ const { root: { $store } = {} } = context
         case depth === 0:
           return {
             name: i18n.t(key), // i18n defer
-            path: `/reports/${id}`,
+            path: `/reports/${encodeURIComponent(id)}`,
             saveSearchNamespace: `reports::${id}`,
             icons
           }
