@@ -37,7 +37,7 @@ sub build_query_options {
 sub query {
     my ($self, %infos) = @_;
     my ($sql, $params) = $self->generate_sql_query(%infos);
-    get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { "'$_'" } @$params) });
+    get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { defined $_  ?  "'$_'" : "(null)" } @$params) });
     return $self->_db_data($sql, @$params);
 }
 

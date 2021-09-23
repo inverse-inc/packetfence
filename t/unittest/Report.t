@@ -17,7 +17,7 @@ our (@BuildQueryOptionsTests, @NextCursorTests);
 our (@CreateBindTests, @IsaTests);
 our (@ValidateQueryTests, @ValidateFieldsTests);
 our (@ValidateInputTests, @MetaForOptions);
-our %defaultAbstractOptions;
+our (%defaultAbstractOptions, @DefaultReports);
 
 BEGIN {
     #include test libs
@@ -27,6 +27,12 @@ BEGIN {
 
     #Module for overriding configuration paths
     use setup_test_config;
+    use pf::IniFiles;
+    use pf::file_paths qw(
+        $report_default_config_file
+    );
+    my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
+    @DefaultReports = $defaults->Sections();
     %defaultAbstractOptions = (
         offset     => 0,
         limit      => 25,
@@ -601,9 +607,10 @@ BEGIN {
 
 }
 
-use Test::More tests => 3 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions;
+use Test::More tests => 3 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions + ((scalar @DefaultReports) * 3);
 
 use pf::factory::report;
+use pf::error qw(is_success);
 
 #This test will running last
 use Test::NoWarnings;
@@ -757,6 +764,22 @@ use Test::NoWarnings;
             ),
             [ { mac => "00:11:22:33:44:55", vendor => "CIMSYS Inc" } ]
         );
+    }
+}
+
+{
+    my %defaultInput  = (
+        start_date => '2012-12-25',
+        end_date   => '2013-12-25',
+    );
+
+    for my $id (@DefaultReports) {
+        my $report = pf::factory::report->new($id);
+        ok(defined $report, "Getting report $id");
+        my ($status, $info) = $report->build_query_options({%defaultInput});
+        ok(is_success($status), "build_query_options works for $id" );
+        ($status, my $data) = $report->query(%$info);
+        ok(is_success($status), "query works for $id" );
     }
 }
 
