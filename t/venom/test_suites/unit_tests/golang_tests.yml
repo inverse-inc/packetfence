@@ -4,4 +4,4 @@ testcases:
 - name: run_golang_tests
   steps:
   - type: exec
-    script: make -C < /usr/local/pf/go test
+    script: make -C /usr/local/pf/go test
