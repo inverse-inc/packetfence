@@ -1,5 +1,4 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
-import BaseFormGroupChosenOneMfa from './BaseFormGroupChosenOneMfa'
 import {
   BaseFormButtonBar,
   BaseFormGroupInput,

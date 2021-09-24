@@ -1272,7 +1272,7 @@ const actions = {
     }
     if (!state.mfas) {
       commit('MFAS_REQUEST')
-      return api.mfas().then(response => {
+      return api.getMfas().then(response => {
         commit('MFAS_UPDATED', response.data.items)
         return state.mfas
       })
