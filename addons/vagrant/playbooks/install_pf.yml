@@ -24,3 +24,4 @@
 
     # packetfence-test need to be installed
     - import_tasks: tasks/install_venom_local_vars.yml
+      tags: venom_vars

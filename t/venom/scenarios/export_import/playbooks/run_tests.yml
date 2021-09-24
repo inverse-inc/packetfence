@@ -1,8 +1,11 @@
 ---
 - hosts: pfdeb9stable
-  name: Run Venom tests on pfdeb9stable
+  name: Run export tests
   become: True
-  gather_facts: False
+
+  # add inventory__group_environment to Ansible environment
+  # useful to make env vars available for Venom
+  environment: '{{ inventory__group_environment | d({}) }}'
 
   vars:
     test_suites:
@@ -11,21 +14,30 @@
       - export
 
   tasks:
-    - name: Run Venom tests suite
+    - name: Run Venom testsuites
       command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      args:
+        chdir: '/usr/local/pf/t/venom'
       loop: '{{ test_suites }}'
-        
+      # add inventory__group_environment to Anisble environment
+      # useful to make env vars available for Venom
+      environment: '{{ inventory__group_environment | d({}) }}'
 
 - hosts: pfel8dev
-  name: Run Venom tests on pfel8dev
+  name: Run import tests
   become: True
-  gather_facts: False
 
   vars:
     test_suites:
       - import
 
   tasks:
-    - name: Run Venom tests suite
+    - name: Run Venom testsuites
       command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      args:
+        chdir: '/usr/local/pf/t/venom'
       loop: '{{ test_suites }}'
+      # add inventory__group_environment to Anisble environment
+      # useful to make env vars available for Venom
+      environment: '{{ inventory__group_environment | d({}) }}'
+

@@ -1,16 +1,22 @@
 ---
-- hosts: pfel8dev
-  name: Run Venom tests
+- hosts: pfservers
+  name: Run Perl unit tests
   become: True
-  gather_facts: False
 
   vars:
     test_suites:
+      # configurator is necessary to have Fingerbank configured
       - configurator
       - unit_tests/configure_smoke_db.yml
       - unit_tests/perl_tests.yml
 
   tasks:
-    - name: Run Venom tests suite
+    - name: Run Venom testsuites
       command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      args:
+        chdir: '/usr/local/pf/t/venom'
       loop: '{{ test_suites }}'
+      # add inventory__group_environment to Ansible environment
+      # useful to make env vars available for Venom
+      environment: '{{ inventory__group_environment | d({}) }}'
+

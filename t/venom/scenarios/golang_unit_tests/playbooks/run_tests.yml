@@ -1,16 +1,25 @@
 ---
 - hosts: pfservers
-  name: Run Venom tests
+  name: Run Golang unit tests
   become: True
-  gather_facts: False
 
   vars:
+    # keep as a reference when https://github.com/ovh/venom/issues/430 is fixed
+    # test_suites: >-
+    #   /usr/local/pf/t/venom/test_suites/unit_tests/configure_smoke_db.yml
+    #   /usr/local/pf/t/venom/test_suites/unit_tests/golang_tests.yml
+    #   /usr/local/pf/t/venom/test_suites/common/login.yml
     test_suites:
-      - configurator
       - unit_tests/configure_smoke_db.yml
       - unit_tests/golang_tests.yml
 
   tasks:
-    - name: Run Venom tests suite
+    - name: Run Venom testsuites
       command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      args:
+        chdir: '/usr/local/pf/t/venom'
       loop: '{{ test_suites }}'
+      # add inventory__group_environment to Ansible environment
+      # useful to make env vars available for Venom
+      # facts need to have been collected first
+      environment: '{{ inventory__group_environment | d({}) }}'
