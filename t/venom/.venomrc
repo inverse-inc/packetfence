@@ -4,4 +4,5 @@ variables_files:
 stop_on_failure: true
 #format: tap
 output_dir: results
+lib_dir: lib
 verbosity: 1

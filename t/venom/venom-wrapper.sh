@@ -49,6 +49,5 @@ run_test_suites() {
 # Arguments are mandatory
 [[ $# -lt 1 ]] && usage && exit 1
 configure_and_check
-
 run_test_suites $@
 
