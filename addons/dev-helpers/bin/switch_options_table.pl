@@ -120,23 +120,23 @@ foreach my $name (@list_name_infos) {
 
   my $switch_info = $dict_name_infos{$name};
 
-  my $td=$t4.$t4.$t4.'<td class="single line"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br> ';
+  my $td=$t4.$t4.$t4.'<td class="single line"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br>';
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
-    $td.='<i class="wifi icon"></i> ';
+    $td.=' <i class="wifi icon"></i>';
   }
   for my $tname (@list_of_wlc) {
     if ($name =~ /$tname/ ) {
-      $td.='<i class="arrows alternate icon"></i> ';
+      $td.=' <i class="arrows alternate icon"></i>';
     }
   }
   if ($switch_info->{"wired"} || $switch_info->{"wired_wireless"}) {
-    $td.='<i class="sitemap icon"></i> ';
+    $td.=' <i class="sitemap icon"></i>';
   }
   if ($switch_info->{"vpn"}) {
-    $td.='<i class="th icon"></i> ';
+    $td.=' <i class="th icon"></i>';
   }
   if ($switch_info->{is_template}) {
-    $td.='<i class="copy icon"></i> ';
+    $td.=' <i class="copy icon"></i>';
   }
   $td.="".$nl.$t4.$t4.$t4."</td>".$nl;
   for my $type (@list_of_types) {
