@@ -42,5 +42,3 @@ environment__group_variables:
   - name: 'TIMEZONE'
     value: "{{ ansible_date_time['tz'] }}"
 
-  - name: 'PF_LOG_LEVEL'
-    value: 'TRACE'    
