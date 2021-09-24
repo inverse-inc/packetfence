@@ -16,7 +16,6 @@ const route = {
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
-console.log('before')
     if (!store.state.$_reports) {
       // Register store module only once
       store.registerModule('$_reports', StoreModule)
