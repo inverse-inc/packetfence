@@ -22,4 +22,5 @@
     - import_tasks: tasks/vagrant_iptables.yml
       tags: iptables
 
-      
+    # packetfence-test need to be installed
+    - import_tasks: tasks/install_venom_local_vars.yml

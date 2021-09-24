@@ -1,0 +1,8 @@
+---
+- name: Insert Venom local vars
+  template:
+    src: 'templates/local.yml.j2'
+    dest: '/usr/local/pf/t/venom/vars/local.yml'
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
