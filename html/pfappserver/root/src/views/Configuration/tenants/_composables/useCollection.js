@@ -67,6 +67,13 @@ export const useSearch = makeSearch('tenants', {
       searchable: true
     },
     {
+      key: 'radius_port',
+      label: 'RADIUS Port', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
@@ -92,7 +99,12 @@ export const useSearch = makeSearch('tenants', {
       value: 'portal_domain_name',
       text: i18n.t('Portal domain name'),
       types: [conditionType.SUBSTRING]
-    }
+    },
+    {
+      value: 'radius_port',
+      text: i18n.t('RADIUS port'),
+      types: [conditionType.SUBSTRING]
+    },
   ],
   sortBy: 'id'
 })

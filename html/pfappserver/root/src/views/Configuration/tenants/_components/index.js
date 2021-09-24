@@ -1,7 +1,8 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupInput
+  BaseFormGroupInput,
+  BaseFormGroupInputNumber
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -13,6 +14,7 @@ export {
   BaseFormGroupInput                  as FormGroupName,
   BaseFormGroupInput                  as FormGroupDomainName,
   BaseFormGroupInput                  as FormGroupPortalDomainName,
+  BaseFormGroupInputNumber            as FormGroupRadiusPort,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,

@@ -20,6 +20,7 @@ CREATE TABLE `tenant` (
   name VARCHAR(255) NOT NULL,
   portal_domain_name VARCHAR(255),
   domain_name VARCHAR(255),
+  radius_port INT(5),
   PRIMARY KEY (id),
   UNIQUE KEY tenant_name (`name`),
   UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`),
@@ -28,7 +29,7 @@ CREATE TABLE `tenant` (
 
 SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
     INSERT INTO `tenant` VALUES (0, 'global', NULL, NULL);
-INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
+INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL, '1812');
 
 --
 -- Table structure for table `class`
@@ -478,7 +479,7 @@ CREATE TABLE `password` (
   `login_remaining` int DEFAULT NULL,
   PRIMARY KEY (tenant_id, pid),
   KEY password_category (category),
-  UNIQUE KEY pid_password_unique (pid)
+  UNIQUE KEY pid_password_unique (tenant, pid)
 ) ENGINE=InnoDB;
 
 --

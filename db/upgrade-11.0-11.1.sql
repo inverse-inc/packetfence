@@ -61,6 +61,18 @@ ALTER TABLE `auth_log`
 ALTER TABLE person
     ADD COLUMN IF NOT EXISTS `otp` TEXT NULL DEFAULT NULL AFTER potd;
 
+\! echo "altering tenant"
+ALTER TABLE tenant
+    ADD COLUMN IF NOT EXISTS `radius_port` int(5) DEFAULT NULL AFTER domain_name;
+
+\! echo "altering password"
+ALTER TABLE password
+   DROP index pid_password_unique;
+
+ALTER TABLE password
+   ADD UNIQUE KEY pid_password_unique (tenant_id,pid);
+
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

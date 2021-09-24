@@ -24,6 +24,8 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
     tenant_add
     tenant_view_by_name
+    tenant_view_all
+    tenant_hash
 );
 
 
@@ -83,6 +85,31 @@ sub tenant_view_by_id {
     return $item;
 }
 
+=item tenant_view_all - view all tenant
+
+=cut
+
+sub tenant_view_all {
+    my ($status, $iter) = pf::dal::tenant->search(-with_class => undef, -order_by => 'name');
+    if (is_error($status)) {
+        return;
+    }
+
+    return map { $_  } @{$iter->all() // []};
+}
+
+
+=item tenant_hash - view all tenant by hash
+
+=cut
+
+sub tenant_hash {
+    my $tenants;
+    foreach my $tenant (tenant_view_all()){
+        $tenants->{$tenant->{id}} = $tenant;
+    }
+    return $tenants;
+}
 
 =head1 AUTHOR
 

@@ -22,6 +22,11 @@
     <form-group-portal-domain-name namespace="portal_domain_name"
       :column-label="$i18n.t('Portal domain name')"
     />
+
+    <form-group-radius-port namespace="radius_port"
+      :column-label="$i18n.t('RADIUS port')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -34,7 +39,8 @@ import {
   FormGroupIdentifier,
   FormGroupName,
   FormGroupDomainName,
-  FormGroupPortalDomainName
+  FormGroupPortalDomainName,
+  FormGroupRadiusPort
 } from './'
 
 const components = {
@@ -43,7 +49,8 @@ const components = {
   FormGroupIdentifier,
   FormGroupName,
   FormGroupDomainName,
-  FormGroupPortalDomainName
+  FormGroupPortalDomainName,
+  FormGroupRadiusPort
 }
 
 export const props = {

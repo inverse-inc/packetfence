@@ -1,0 +1,165 @@
+# -*- text -*-
+######################################################################
+#
+#	Sample configuration file for dynamically updating the list
+#	of RADIUS clients at run time.
+#
+#	Everything is keyed off of a client "network".  (e.g. 192.0.2/24)
+#	This configuration lets the server know that clients within
+#	that network are defined dynamically.
+#
+#	When the server receives a packet from an unknown IP address
+#	within that network, it tries to find a dynamic definition
+#	for that client.  If the definition is found, the IP address
+#	(and other configuration) is added to the server's internal
+#	cache of "known clients", with a configurable lifetime.
+#
+#	Further packets from that IP address result in the client
+#	definition being found in the cache.  Once the lifetime is
+#	reached, the client definition is deleted, and any new requests
+#	from that client are looked up as above.
+#
+#	If the dynamic definition is not found, then the request is
+#	treated as if it came from an unknown client.  i.e. It is
+#	silently discarded.
+#
+#	As part of protection from Denial of Service (DoS) attacks,
+#	the server will add only one new client per second.  This CANNOT
+#	be changed, and is NOT configurable.
+#
+#	$Id: 0459a7f4b1dc824b1684e9d220a0410c69b3248a $
+#
+######################################################################
+
+#
+#  Define a network where clients may be dynamically defined.
+client dynamic {
+	#
+	#  You MUST specify a netmask!
+	#  IPv4 /32 or IPv6 /128 are NOT allowed!
+	ipaddr = 0.0.0.0/0
+
+	#
+	#  Any other configuration normally found in a "client"
+	#  entry can be used here.
+
+	#
+	#  A shared secret does NOT have to be defined.  It can
+	#  be left out.
+
+	#
+	#  Define the virtual server used to discover dynamic clients.
+	dynamic_clients = dynamic_clients
+
+	#
+	#  The directory where client definitions are stored.  This
+	#  needs to be used ONLY if the client definitions are stored
+	#  in flat-text files.  Each file in that directory should be
+	#  ONE and only one client definition.  The name of the file
+	#  should be the IP address of the client.
+	#
+	#  If you are storing clients in SQL, this entry should not
+	#  be used.
+#	directory = ${confdir}/dynamic-clients/
+
+	#
+	#  Define the lifetime (in seconds) for dynamic clients.
+	#  They will be cached for this lifetime, and deleted afterwards.
+	#
+	#  If the lifetime is "0", then the dynamic client is never
+	#  deleted.  The only way to delete the client is to re-start
+	#  the server.
+	lifetime = "300"
+}
+
+#
+#  This is the virtual server referenced above by "dynamic_clients".
+server dynamic_clients {
+
+	#
+	#  The only contents of the virtual server is the "authorize" section.
+	authorize {
+
+		#
+		#  Put any modules you want here.  SQL, LDAP, "exec",
+		#  Perl, etc.  The only requirements is that the
+		#  attributes MUST go into the control item list.
+		#
+		#  The request that is processed through this section
+		#  is EMPTY.  There are NO attributes.  The request is fake,
+		#  and is NOT the packet that triggered the lookup of
+		#  the dynamic client.
+		#
+		#  The ONLY piece of useful information is either
+		#
+		#	Packet-Src-IP-Address (IPv4 clients)
+		#	Packet-Src-IPv6-Address (IPv6 clients)
+		#
+		#  The attributes used to define a dynamic client mirror
+		#  the configuration items in the "client" structure.
+		#
+
+		#
+		#  Example 3: Look the clients up in SQL.
+		#
+		#  This requires the SQL and RAW modules to be configured, of course.
+
+# Set PacketFence-Tenant-Id to the default value
+
+update control {
+    &PacketFence-Tenant-Id = '1'
+}
+
+[% tenant %]
+
+        update control {
+            &PacketFence-NasName := '0'
+            &FreeRADIUS-Client-IP-Address = "%{Packet-Src-IP-Address}"
+        }
+
+        # Try to find the MAC in the database
+        if("%{raw:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/i) {
+            update {
+                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}' AND tenant_id = '%{control:PacketFence-Tenant-Id}'), 0 ) }"
+            }
+        }
+
+        # If the MAC was not found, try finding the IP
+        if ( &control:PacketFence-NasName == '0' ) {
+            update {
+                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}' AND tenant_id = '%{control:PacketFence-Tenant-Id}'), 0)}"
+            }
+        }
+
+        # If the IP was not found, try finding a matching IP range
+        if ( &control:PacketFence-NasName == '0' ) {
+            update {
+                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname from radius_nas WHERE tenant_id = '%{control:PacketFence-Tenant-Id}' AND start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1 ), 0 )}"
+            }
+        }
+
+        # Assign the following attributes and return OK if we did find a PacketFence-NasName
+        if ( &control:PacketFence-NasName != "0" ) {
+            update control {
+                # Do multiple SELECT statements to grab
+                # the various definitions.
+                &FreeRADIUS-Client-Shortname = "%{Packet-Src-IP-Address}/32"
+
+                &FreeRADIUS-Client-Secret = "%{sql: SELECT secret FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}' AND tenant_id = '%{control:PacketFence-Tenant-Id}'}"
+
+                &FreeRADIUS-Client-NAS-Type = "%{sql: SELECT type FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}' AND tenant_id = '%{control:PacketFence-Tenant-Id}'}"
+
+                #&PacketFence-Tenant-Id = "%{sql: SELECT tenant_id FROM radius_nas WHERE nasname = '%{control:PacketFence-NasName}'}"
+
+            }
+        }
+
+    if ( &control:PacketFence-NasName != "" && &control:FreeRADIUS-Client-Shortname != "" && &control:FreeRADIUS-Client-Secret != "" && &control:FreeRADIUS-Client-NAS-Type != "" ) {
+        ok
+    } 
+    else { 
+        reject
+    }
+
+    } # end authorize
+} # end server
