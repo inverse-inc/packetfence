@@ -32,6 +32,8 @@ use pf::authentication;
 use pf::cluster;
 use pf::util;
 use Socket;
+use pf::tenant qw(tenant_hash);
+use pf::log;
 
 use pf::constants qw($TRUE $FALSE);
 use pf::error qw(is_error);
@@ -122,6 +124,7 @@ sub _generateConfig {
     $self->generate_radiusd_ldap($tt);
     $self->generate_radiusd_mschap($tt);
     $self->generate_multi_domain_constants();
+    $self->generate_dynamic_clients($tt);
 }
 
 
@@ -1522,6 +1525,32 @@ sub generate_multi_domain_constants {
     $content .= "our \$DATA = \$VAR1;\n";
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
+}
+
+=head2 generate_dynamic_clients
+
+Generates the dynamic-clients configuration
+
+=cut
+
+sub generate_dynamic_clients {
+    my ($self, $tt) = @_;
+    my %tags;
+
+    $tags{'tenant'} = '';
+    my $tenants = tenant_hash();
+    foreach my $tenant (keys %{$tenants}) {
+        next unless($tenants->{$tenant}->{'radius_port'});
+        $tags{'tenant'} .= <<"EOT";
+if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_port'}") {
+    update control {
+        &PacketFence-Tenant-Id = '$tenant'
+    }
+}
+EOT
+    }
+    $tt->process("$conf_dir/radiusd/dynamic-clients", \%tags, "$install_dir/raddb/sites-enabled/dynamic-clients") or die $tt->error();
+    $tt->process("$conf_dir/radiusd/packetfence.policy", \%tags, "$install_dir/raddb/policy.d/packetfence") or die $tt->error();
 }
 
 =head1 AUTHOR

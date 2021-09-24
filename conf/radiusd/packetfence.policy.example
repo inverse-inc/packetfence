@@ -1,0 +1,253 @@
+# normalize MAC addresses
+mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})'
+# packetfence-local-auth
+# Try to get the Cleartext-Password from any of the pfguest, pfsponsor or pfsms
+# databases.
+# If this fails, the mschap module will try to authenticate using ntlm_auth.
+
+packetfence-local-auth { 
+    packetfence-set-tenant-id
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    pflocal
+    if (fail || notfound || noop) {
+        # Check password table with email and password for a sponsor registration
+        pfguest
+        if (fail || notfound || noop) {
+            # Check password table with email and password for a guest registration
+            pfsponsor
+            if (fail || notfound || noop) {
+                # Check activation table with phone number and PIN code 
+                pfsms
+                if (fail || notfound || noop) {
+                    update control {
+                       &MS-CHAP-Use-NTLM-Auth := Yes
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+#Set the realm if it's machine authentication
+packetfence-set-realm-if-machine {
+    if (User-Name =~ /host\/([a-z0-9_-]*)[\.](.*)/i) {
+        update {
+            &request:Realm := "%{2}"
+        }
+    }
+}
+
+#Update the PacketFence-Tenant-Id defaulting to the default tenant_id
+packetfence-set-tenant-id {
+
+[% tenant %]
+
+    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+        update request {
+            NAS-IP-Address := "%{Packet-Src-IP-Address}"
+        }
+    }
+    if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
+        update control {
+            &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{NAS-IP-Address}'), 0)}"
+        }
+
+    }
+
+    if ( &control:PacketFence-Tenant-Id == 0 ) {
+        update control {
+            &PacketFence-Tenant-Id := "%{sql: SELECT IFNULL((SELECT tenant_id from radius_nas WHERE start_ip <= INET_ATON('%{NAS-IP-Address}') and INET_ATON('%{NAS-IP-Address}') <= end_ip order by range_length limit 1), 1)}"
+        }
+    }
+}
+### END Local SQL authentication
+packetfence-switch-access { 
+    if ( \
+        ( &Service-Type ==  "NAS-Prompt-User") && \
+        ( &NAS-Port-Type == "Virtual" || &NAS-Port-Type == "Async") ) {
+            rest-switch-access  
+    }
+    
+}
+
+request-timing {
+    if ("%{%{control:PacketFence-Request-Time}:-0}" != 0) {
+        update control {
+            &PacketFence-Request-Time := "%{expr: %{control:PacketFence-Request-Time} - %{control:Tmp-Integer-0}}"
+        }
+    }
+}
+
+packetfence-eap-mac-policy {
+    if ( &EAP-Type ) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-2 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+            if (&Calling-Station-Id && (&Calling-Station-Id =~ /^${policy.mac-addr-regexp}$/i)) {
+                update {
+                    &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+                }
+                if  ( &Tmp-String-1 == &Tmp-String-2 ) {
+                    update {
+                        &control:Cleartext-Password := &request:User-Name
+                    }
+                    updated
+                }
+            }
+        }
+
+    }
+    noop
+}
+
+
+packetfence-audit-log-accept {
+    if (&User-Name && (&User-Name == "dummy")) {
+        noop
+    }
+    else {
+        request-timing
+        -sql {
+            fail = 1
+        }
+    }
+}
+
+packetfence-audit-log-reject {
+    if (&User-Name && (&User-Name == "dummy")) {
+            noop
+    }
+    else {
+        request-timing
+        -sql_reject {
+            fail = 1
+        }
+    }
+}
+
+packetfence-mschap-authenticate {
+    if(PacketFence-Domain) {
+      if ( "%{User-Name}" =~ /^host\/.*/) {
+        chrooted_mschap_machine
+      }
+      else {
+        chrooted_mschap
+      }
+    }
+    else {
+      if ( "%{User-Name}" =~ /^host\/.*/) {
+        mschap_machine
+      }
+      else {
+        mschap
+      }
+    }
+}
+
+
+packetfence-allied-gs950-mab {
+    if ( &EAP-Type ) {
+        if (&User-Name && (&User-Name =~ /^${policy.mac-addr-regexp}$/i)) {
+            update {
+                &request:Tmp-String-1 := "%{tolower:%{1}%{2}%{3}%{4}%{5}%{6}}"
+            }
+            if  ( &Tmp-String-1 == "%{tolower:%{User-Name}}" ) {
+                update {
+                    &control:Cleartext-Password := &request:User-Name
+                    &request:Calling-Station-Id := &request:User-Name
+                    &request:NAS-Port-Type := "Ethernet"
+                }
+                updated
+            }
+        }
+    }
+    noop
+}
+
+packetfence-cache-ntlm-hit {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  cache_ntlm
+  if (ok) {
+    cache_ntlm
+    update {
+      &request:Tmp-Integer-9 := "%{expr: 1 + %{&request:Tmp-Integer-9}}"
+    }
+    update control {
+      Cache-TTL = 0
+    }
+    cache_ntlm
+    update control {
+      #Default TTL to 5 minutes
+      Cache-TTL = 300
+    }
+    cache_ntlm
+  }
+  else {
+    update {
+      &request:Tmp-Integer-9 := 0
+    }
+    cache_ntlm
+  }
+}
+
+packetfence-control-ntlm-failure {
+  update control {
+    Cache-Status-Only = 'yes'
+  }
+  cache_ntlm
+  if (ok) {
+    cache_ntlm
+    # raise the value if you want to permit more ntlm_auth failure before rejecting the request
+    if (&request:Tmp-Integer-9 > 1) {
+      reject
+    }
+  }
+}
+
+last-regexp = '(.*)(.)'
+
+packetfence-balanced-key-policy {
+    if (&PacketFence-KeyBalanced && (&PacketFence-KeyBalanced =~ /^${policy.last-regexp}$/i)) {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{2}%{1}}"
+            &control:Load-Balance-Key := "%{md5:%{2}%{1}}"
+        }
+    }
+    else {
+        update {
+            &request:PacketFence-KeyBalanced := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+            &control:Load-Balance-Key := "%{md5:%{Calling-Station-Id}%{User-Name}}"
+        }
+    }
+}
+
+packetfence-nas-ip-address {
+    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
+            update request {
+                    NAS-IP-Address := "%{Packet-Src-IP-Address}"
+            }
+    }
+}
+
+packetfence-degraded-auth {
+    packetfence-set-tenant-id
+    # Disable ntlm_auth
+    update control {
+        &MS-CHAP-Use-NTLM-Auth := No
+    }
+    # Check password table for local user
+    sql_degraded
+    if (fail || notfound || noop) {
+        update control {
+            &MS-CHAP-Use-NTLM-Auth := Yes
+        }
+    }
+}
