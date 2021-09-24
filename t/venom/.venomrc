@@ -1,0 +1,6 @@
+variables_files:
+  - vars/all.yml
+stop_on_failure: true
+#format: tap
+output_dir: results
+verbosity: 1
