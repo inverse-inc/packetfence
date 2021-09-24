@@ -38,6 +38,7 @@ BEGIN {
         portal_domain_name
         domain_name
         radius_port
+        radsec_port
     );
 
     %DEFAULTS = (
@@ -45,6 +46,7 @@ BEGIN {
         portal_domain_name => undef,
         domain_name => undef,
         radius_port => undef,
+        radsec_port => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -52,6 +54,7 @@ BEGIN {
         portal_domain_name
         domain_name
         radius_port
+        radsec_port
     );
 
     %FIELDS_META = (
@@ -85,6 +88,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        radsec_port => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -97,6 +106,7 @@ BEGIN {
         tenant.portal_domain_name
         tenant.domain_name
         tenant.radius_port
+        tenant.radsec_port
     );
 
 }

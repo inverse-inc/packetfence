@@ -27,6 +27,10 @@
       :column-label="$i18n.t('RADIUS port')"
     />
 
+    <form-group-radsec-port namespace="radsec_port"
+      :column-label="$i18n.t('RASEC port')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -40,7 +44,8 @@ import {
   FormGroupName,
   FormGroupDomainName,
   FormGroupPortalDomainName,
-  FormGroupRadiusPort
+  FormGroupRadiusPort,
+  FormGroupRadsecPort
 } from './'
 
 const components = {
@@ -50,7 +55,8 @@ const components = {
   FormGroupName,
   FormGroupDomainName,
   FormGroupPortalDomainName,
-  FormGroupRadiusPort
+  FormGroupRadiusPort,
+  FormGroupRadsecPort
 }
 
 export const props = {
