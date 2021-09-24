@@ -115,12 +115,10 @@ start_and_provision_other_vm() {
 
 run_tests() {
     log_subsection "Configure VM for tests and run tests"
+    # install roles and collections in VENOM_ROOT_DIR
+    ansible-galaxy install -r ${VENOM_ROOT_DIR}/requirements.yml    
     for scenario_name in ${SCENARIOS_TO_RUN}; do
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
-        # install roles and collections in VENOM_ROOT_DIR
-        if [ -e "${scenario_path}/requirements.yml" ]; then
-            ansible-galaxy install -r ${scenario_path}/requirements.yml
-        fi
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
             echo "Additional Ansible inventory detected, will use it"
             # will find roles and collections in VENOM_ROOT_DIR
