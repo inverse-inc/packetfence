@@ -408,6 +408,8 @@ sub match2 {
         $params->{'rule_class'} = pf::Authentication::Rule->meta->get_attribute('class')->default;
         $logger->warn("Calling match with empty/invalid rule class. Defaulting to '" . $params->{'rule_class'} . "'");
     }
+    
+    my $desired_action = delete $params->{action};
 
     #TODO: evaluate if we want to die or have another behavior
     my $context = $params->{'context'} // die "No authentication context provided";
@@ -425,7 +427,7 @@ sub match2 {
     $logger->info("Using sources ".join(', ', (map {$_->id} @sources))." for matching");
 
     foreach my $source (@sources) {
-        my ($rule, $ignored_action, $matched) = $source->match($params, undef, $extra);
+        my ($rule, $ignored_action, $matched) = $source->match($params, $desired_action, $extra);
         next unless defined $rule;
         my %values;
         $actions = $rule->{actions};

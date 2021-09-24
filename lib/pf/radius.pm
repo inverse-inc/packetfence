@@ -984,6 +984,7 @@ sub returnRadiusCli{
 
     $merged->{'rule_class'} = $Rules::ADMIN;
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+    $merged->{'action'} = $Actions::SET_ACCESS_LEVEL;
     $matched = pf::authentication::match2($source_id, $merged, $extra, \$attributes);
     my $value = $matched->{values}{$Actions::SET_ACCESS_LEVEL} if $matched;
     if ($value) {
