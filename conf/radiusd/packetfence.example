@@ -1,4 +1,5 @@
-server packetfence {
+[% FOREACH key IN virtual_servers.keys %]
+server packetfence-[% key -%] {
 	#
 	#  Authorization. First preprocess (hints and huntgroups files),
 	#  then realms, and finally look in the "users" file.
@@ -495,6 +496,8 @@ server packetfence {
 		[% post_proxy_filter %]
 	}
 }
+
+[% END %]
 
 [% IF remote == "YES" %]
 

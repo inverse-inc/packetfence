@@ -16,19 +16,25 @@ listen {
 
 
 [% FOREACH ip IN listen_ips %]
+[% FOREACH key IN tenant.keys %]
+[% NEXT IF key == '0' %]
 listen {
         ipaddr = [% ip %]
-        port = 0
+        port = [% tenant.$key.radius_port %]
         type = auth
+[% IF virtual_server == 'packetfence' %]
+        virtual_server = [% virtual_server %]-[% tenant.$key.name %]
+[% ELSE %]
         virtual_server = [% virtual_server %]
+[% END %]
 }
 
 listen {
         ipaddr = [% ip %]
-        port = 2083
+        port = [% tenant.$key.radsec_port %]
         type = auth+acct
         proto = tcp
-        virtual_server = packetfence
+        virtual_server = packetfence-[% tenant.$key.name %]
 
         limit {
               max_connections = 16
@@ -48,6 +54,7 @@ listen {
         }
 }
 
+[% END %]
 [% END %]
 
 listen {

@@ -387,6 +387,7 @@ sub generate_radiusd_authconf {
         $tags{'virtual_server'} = "pf-remote";
     }
 
+    $tags{'tenant'} = tenant_hash();
     $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
@@ -407,7 +408,7 @@ sub generate_radiusd_acctconf {
             push @listen_ips, $ip;
         }
     }
-
+    $tags{'tenant'} = tenant_hash();
     $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
