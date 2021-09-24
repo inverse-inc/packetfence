@@ -26,23 +26,16 @@ configure_and_check() {
     # paths
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${VENOM_ROOT_DIR}/results}"
-    VENOM_VARS_DIR=${VARS:-${VENOM_ROOT_DIR}/vars}
-    VENOM_VARS_FILE=${VENOM_VARS_FILE:-${VENOM_VARS_DIR}/all.yml}
 
     mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"
     declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
     VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
-    VENOM_FORMAT=${VENOM_FORMAT:-tap}
-    VENOM_PARALLEL_NBER=${VENOM_PARALLEL_NBER:-1}
-    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format ${VENOM_FORMAT} --output-dir ${VENOM_RESULT_DIR} --var-from-file ${VENOM_VARS_FILE} --parallel ${VENOM_PARALLEL_NBER}}"
-    VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:---strict --stop-on-failure}"
-
-    # dirty hack: --exclude is added at end of venom command even if no files are excluded
-    VENOM_EXCLUDE_FLAGS="${VENOM_EXCLUDE_FLAGS:---exclude ''}"
+    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:-}"
+    VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:-}"
 
     echo -e "Using venom using following variables:"
     echo -e "  VENOM_BINARY=${VENOM_BINARY}"
-    echo -e "  VENOM_ALL_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${VENOM_EXCLUDE_FLAGS}"
+    echo -e "  VENOM_ALL_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}"
     echo ""
 }
 
@@ -53,7 +46,7 @@ die_on_error() {
 run_test_suites() {
     local test_suites=$(readlink -e ${@:-.})
     log_section "Running ${test_suites} test suite(s)"
-    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites} ${VENOM_EXCLUDE_FLAGS}"
+    CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites}"
     ${CMD} || die_on_error
 }
 
