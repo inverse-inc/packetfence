@@ -155,6 +155,126 @@ person_fields=Owner
 node_fields=MAC Address
 order_fields=-auth_log.attempted_at
 
+[Authentication::Top Failures::By Connection Profile]
+type=sql
+description=All successful authentication connection profiles
+columns=profile,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='failed'
+      AND completed_at BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    profile,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='failed'
+    AND completed_at BETWEEN @START_DATE AND @END_DATE
+  GROUP BY profile;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|profile:count,bar|profile:count
+
+[Authentication::Top Failures::By Source]
+type=sql
+description=All successful authentication sources
+columns=source,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='failed'
+      AND completed_at BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    source,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='failed'
+    AND completed_at BETWEEN @START_DATE AND @END_DATE
+  GROUP BY source;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|source:count,bar|source:count
+
+[Authentication::Top Successes::By Connection Profile]
+type=sql
+description=All successful authentication connection profiles
+columns=profile,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  );
+  SELECT
+    profile,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  GROUP BY profile;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|profile:count,bar|profile:count
+
+[Authentication::Top Successes::By Source]
+type=sql
+description=All successful authentication sources
+columns=source,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  );
+  SELECT
+    source,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  GROUP BY source;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|source:count,bar|source:count
+
 [Connection Types::Active]
 type=sql
 description=All active connection types

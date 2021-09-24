@@ -1272,7 +1272,8 @@ CREATE TABLE auth_log (
   `source` varchar(255) NOT NULL,
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
-  KEY  attempted_at (attempted_at)
+  KEY attempted_at (attempted_at)
+  KEY completed_at (completed_at)
 ) ENGINE=InnoDB;
 
 --
@@ -1676,8 +1677,8 @@ BEGIN
     DEALLOCATE PREPARE insert_into_to_process;
     SELECT COUNT(*) INTO @count FROM to_process;
     IF @count > 0 THEN
-        UPDATE 
-            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process GROUP BY node_id) AS x 
+        UPDATE
+            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process GROUP BY node_id) AS x
             LEFT JOIN node USING(tenant_id, mac)
             SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
             WHERE node.bandwidth_balance IS NOT NULL;
