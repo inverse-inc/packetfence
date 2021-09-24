@@ -73,7 +73,7 @@ for my $g (@groups) {
         $switch_info->{"Lldp"}="true"                        if ($supports =~ /Lldp/ && $supports !~ /-Lldp/) ;
         $switch_info->{"RoamingAccounting"}="true"           if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
         $switch_info->{"SaveConfig"}="true"                  if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
-        $switch_info->{"RoleBasedEnforcement"}="true"                  if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
+        $switch_info->{"RoleBasedEnforcement"}="true"        if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
         #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
 
         $dict_name_infos{$name}=$switch_info;
