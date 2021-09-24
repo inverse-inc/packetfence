@@ -25,10 +25,6 @@ usage() {
 configure_and_check() {
     # paths
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
-    VENOM_RESULT_DIR="${VENOM_RESULT_DIR:-${VENOM_ROOT_DIR}/results}"
-
-    mkdir -vp ${VENOM_RESULT_DIR} || die "mkdir failed: ${VENOM_RESULT_DIR}"
-    declare -p VENOM_RESULT_DIR VENOM_VARS_FILE
     VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
     VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:-}"
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:-}"
@@ -54,10 +50,5 @@ run_test_suites() {
 [[ $# -lt 1 ]] && usage && exit 1
 configure_and_check
 
-# to get token written by setup test suite
-export VENOM_RESULT_DIR
-if [ -f "${VENOM_RESULT_DIR}/env" ]; then
-    source $VENOM_RESULT_DIR/env
-fi
 run_test_suites $@
 
