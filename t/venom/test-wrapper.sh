@@ -70,7 +70,7 @@ run() {
     if [ -n "${INT_TEST_VM_NAMES}" ]; then
         start_and_provision_other_vm ${INT_TEST_VM_NAMES}
     else
-        echo "No additional VM to start and provision"
+        log_subsection "No additional VM to start and provision"
     fi
     run_tests
 }
