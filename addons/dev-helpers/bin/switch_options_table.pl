@@ -41,7 +41,7 @@ for my $g (@groups) {
             open(my $fh, ">", \$snmp);
             podselect({-sections=>["SNMP"], -output => $fh}, $file);
             if ($snmp ne '') {
-                $switch_info->{snmptrap}="true";
+                $switch_info->{"SNMP"}="true";
             }
             close($fh);
         }
@@ -73,7 +73,9 @@ for my $g (@groups) {
         $switch_info->{"Lldp"}="true"                        if ($supports =~ /Lldp/ && $supports !~ /-Lldp/) ;
         $switch_info->{"RoamingAccounting"}="true"           if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
         $switch_info->{"SaveConfig"}="true"                  if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
-        $switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+        $switch_info->{"RoleBasedEnforcement"}="true"                  if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
+        #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+
         $dict_name_infos{$name}=$switch_info;
         push(@list_name_infos,$name);
     }
@@ -82,24 +84,28 @@ for my $g (@groups) {
 #
 # Create the table
 #
-my @list_of_types=("WiredMacAuth", "WiredDot1x","WirelessMacAuth", "WirelessDot1x", "RadiusDynamicVlanAssignment", "ExternalPortal", "MABFloatingDevices", "WebFormRegistration", "AccessListBasedEnforcement", "RadiusVoip", "FloatingDevice", "Cdp", "Lldp", "RoamingAccounting", "SaveConfig", "SNMP");
-my %list_of_types_trans=("WiredMacAuth"=>"Wired MAC Auth",
+my @list_of_types=("SNMP", "WiredMacAuth", "WiredDot1x","WirelessMacAuth", "WirelessDot1x", "ExternalPortal", "RadiusDynamicVlanAssignment", "AccessListBasedEnforcement", "RoleBasedEnforcement", "RadiusVoip", "MABFloatingDevices", "FloatingDevice" );
+
+my %list_of_types_trans=("SNMP"=>"SNMP",
+                         "WiredMacAuth"=>"Wired MAC Auth",
                          "WiredDot1x"=>"Wired 802.1x",
                          "WirelessMacAuth"=>"Wireless MAC Auth",
                          "WirelessDot1x"=>"Wireless 802.1x",
-                         "RadiusDynamicVlanAssignment"=>"RADIUS Dynamic VLAN",
                          "ExternalPortal"=>"Web Auth",
-                         "MABFloatingDevices"=>"MAB Floating Device",
-                         "WebFormRegistration"=>"Web Form",
-                         "AccessListBasedEnforcement"=>"Access List",
+                         "RadiusDynamicVlanAssignment"=>"RADIUS Dynamic VLAN",
+                         "AccessListBasedEnforcement"=>"RADIUS Dynamic ACL",
+                         "RoleBasedEnforcement"=>"RADIUS Dynamic Role",
                          "RadiusVoip"=>"RADIUS VOIP",
+                         "MABFloatingDevices"=>"MAB Floating Device",
                          "FloatingDevice"=>"Floating Device",
+                         "WebFormRegistration"=>"Web Form",
                          "Cdp"=>"CDP",
                          "Lldp"=>"LLDP",
                          "RoamingAccounting"=>"Roaming Accounting",
-                         "SaveConfig"=>"Save Config",
-                         "SNMP"=>"SNMP");
+                         "SaveConfig"=>"Save Config");
+
 my @list_of_wlc=("Bluesocket", "Cambium","Cisco::WLC", "Cisco::WiSM", "Aruba::Controller_200", "Aruba::Instant_Access", "Aruba::WirelessController", "Meru", "Huawei", "Ubiquiti::Unifi", "HP::Controller_MSM710");
+
 my $nl="\n";
 my $t2='  ';
 my $t4='    ';
