@@ -83,16 +83,16 @@ for my $g (@groups) {
 # Create the table
 #
 my @list_of_types=("WiredMacAuth", "WiredDot1x","WirelessMacAuth", "WirelessDot1x", "RadiusDynamicVlanAssignment", "ExternalPortal", "MABFloatingDevices", "WebFormRegistration", "AccessListBasedEnforcement", "RadiusVoip", "FloatingDevice", "Cdp", "Lldp", "RoamingAccounting", "SaveConfig", "SNMP");
-my %list_of_types_trans=("WiredMacAuth"=>"Wired MAC Authentication",
+my %list_of_types_trans=("WiredMacAuth"=>"Wired MAC Auth",
                          "WiredDot1x"=>"Wired 802.1x",
-                         "WirelessMacAuth"=>"Wireless MAC Authentication",
+                         "WirelessMacAuth"=>"Wireless MAC Auth",
                          "WirelessDot1x"=>"Wireless 802.1x",
-                         "RadiusDynamicVlanAssignment"=>"Radius Dynamic VLAN Assignment",
-                         "ExternalPortal"=>"Web Authentication",
+                         "RadiusDynamicVlanAssignment"=>"RADIUS Dynamic VLAN",
+                         "ExternalPortal"=>"Web Auth",
                          "MABFloatingDevices"=>"MAB Floating Device",
-                         "WebFormRegistration"=>"Web Form Registration",
-                         "AccessListBasedEnforcement"=>"Access List Based Enforcement",
-                         "RadiusVoip"=>"Radius VOIP",
+                         "WebFormRegistration"=>"Web Form",
+                         "AccessListBasedEnforcement"=>"Access List",
+                         "RadiusVoip"=>"RADIUS VOIP",
                          "FloatingDevice"=>"Floating Device",
                          "Cdp"=>"CDP",
                          "Lldp"=>"LLDP",
@@ -104,23 +104,23 @@ my $nl="\n";
 my $t2='  ';
 my $t4='    ';
 my $tab=$t4.$t2.''.$nl;
-$tab .= $t4.$t2.'<table id="switches" class="ui single line table">'.$nl;
+$tab .= $t4.$t2.'<table id="switches" class="ui very basic sticky-column celled table">'.$nl;
 $tab .= $t4.$t4.'<thead>'.$nl;
-$tab .= $t4.$t4.$t2.'<th>'.$nl;
-#$tab .= $t4.$t4.$t4.'<td>Name</td>'.$nl;
+$tab .= $t4.$t4.$t2.'<tr>'.$nl;
+$tab .= $t4.$t4.$t4.'<th>Name</th>'.$nl;
 for my $type (@list_of_types) {
-  $tab .= $t4.$t4.$t4.'<td>'.$type.'</td>'.$nl;
+  $tab .= $t4.$t4.$t4.'<th class="rotate"><div><span>'.$list_of_types_trans{$type}.'</span></div></th>'.$nl;
 }
-$tab .= $t4.$t4.$t2.'</th>'.$nl;
+$tab .= $t4.$t4.$t2.'</tr>'.$nl;
 $tab .= $t4.$t4.'</thead>'.$nl;
 $tab .= $t4.$t4.'<tbody>'.$nl;
 
 foreach my $name (@list_name_infos) {
   my $tr=''.$t4.$t4.$t2.'<tr id="'.$name.'"  class="device">'.$nl;
-  
+
   my $switch_info = $dict_name_infos{$name};
-  
-  my $td=$t4.$t4.$t4.'<td><a class="'.$name.'">'.$switch_info->{"label"}.'</a><br> ';
+
+  my $td=$t4.$t4.$t4.'<td class="single line"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br> ';
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
     $td.='<i class="wifi icon"></i> ';
   }
@@ -141,7 +141,7 @@ foreach my $name (@list_name_infos) {
   $td.="".$nl.$t4.$t4.$t4."</td>".$nl;
   for my $type (@list_of_types) {
     if ($switch_info->{"${type}"}) {
-      $td.=$t4.$t4.$t4.'<td class="'.$type.'">./</td>'.$nl
+      $td.=$t4.$t4.$t4.'<td class="'.$type.'"><i class="check icon"></i></td>'.$nl
     } else {
       $td.=$t4.$t4.$t4.'<td class="'.$type.'"></td>'.$nl
     }
@@ -156,7 +156,8 @@ $tab.=$t4.$t2.'</table>'.$nl;
 # create the html page
 #
 
-my $html='<div class="ui bottom attached tab segment" data-tab="material">
+my $html = '
+<div class="ui bottom attached tab segment" data-tab="material">
 
   <div class="ui stackable centered padded grid">
 
@@ -173,11 +174,11 @@ my $html='<div class="ui bottom attached tab segment" data-tab="material">
           <i class="copy icon"></i> means a template.
         </p>
         <h2 class="ui red header">Wired Support</h2>
-        
+
         <p>PacketFence supports a huge number of wired switches.</p>
 
         <h2 class="ui red header">VPN Support</h2>
-        
+
         <p>PacketFence supports some VPN.</p>
 
         <h2 class="ui red header">Wireless Support</h2>
@@ -191,38 +192,65 @@ my $html='<div class="ui bottom attached tab segment" data-tab="material">
         <h3 class="ui header">Access Points</h3>
 
         <p>Some Access Points behave the same if they are attached to a controller or not. Because of that you might want to try a controller module if a controller from the same vendor is supported in the list above.</p>
-        
+
         <p style="margin-bottom:20px;"></p>
       </div>
-
-      <div class="twelve wide column" style="margin-bottom:20px;">
+      <div class="sixteen wide column" n0style="margin-bottom:20px;">
         <h4 class="ui horizontal header red divider">Devices</h4>
-        <div class="ui checked checkbox">
-          <input type="checkbox" name="public" id="wiredButton" checked> <label>Show Wired</label> 
-        </div>
-        <div class="ui checked checkbox">
-          <input type="checkbox" name="public" id="apButton" checked> <label>Show Access point</label> 
-        </div>
-        <div class="ui checked checkbox">
-          <input type="checkbox" name="public" id="controllersButton" checked> <label>Show Controllers</label> 
-        </div>
-        <div class="ui checked checkbox">
-          <input type="checkbox" name="public" id="vpnButton" checked> <label>Show VPN</label> 
-        </div>
-        <div class="ui checked checkbox">
-          <input type="checkbox" name="public" id="templateButton" checked> <label>Show Templates</label>
-        </div>
-        <p style="margin-bottom:20px;">
-          <input type="text" style="width:100%;" id="switches-filter-input" placeholder="Search for device names...">
-          <input type="button" value="Clear Search" id="clearButton">
-        </p>
-        
-        <div class="ui grid">
+        <form class="ui form">
+          <div class="field">
+            <div class="ui centered grid">
+              <div class="five column center aligned row">
+                <div class="column">
+                  <div class="ui checked checkbox">
+                    <input type="checkbox" name="public" id="wiredButton" checked> <label>Wired</label>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="ui checked checkbox">
+                    <input type="checkbox" name="public" id="apButton" checked> <label>Access point</label>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="ui checked checkbox">
+                    <input type="checkbox" name="public" id="controllersButton" checked> <label>Controllers</label>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="ui checked checkbox">
+                    <input type="checkbox" name="public" id="vpnButton" checked> <label>VPN</label>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="ui checked checkbox">
+                    <input type="checkbox" name="public" id="templateButton" checked> <label>Templates</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <input type="text" id="switches-filter-input" placeholder="Search for device model">
+          </div>
+          <button class="ui button" id="clearButton">
+            Reset
+          </button>
+        </form>
+
+        <div class="ui container h-scroll">
 ';
 
-$html.=$tab;
+$html .= $tab;
 
-$html.='      </div>
+$html .= '
+        </div>
+        <div id="noresult" class="ui segment">
+  <div class="ui center aligned">
+    <i class="frown icon"></i> No device match your filter.
+  </div>
+</div>
+      </div>
     </div>
     <script>
     // Script to search names with filters or not
@@ -234,7 +262,7 @@ $html.='      </div>
         "controllersButton": "arrows",
         "apButton": "wifi"
       };
-      
+
       function getCurrentFilters(){
         var filters = "";
         $.each(ids, function(k, v) {
@@ -244,9 +272,9 @@ $html.='      </div>
         });
         return filters;
       }
-      
+
       function inSearch(device,txt) {
-        var name = $(device).find("a").attr("class");
+        var name = $(device).find("a").attr("name");
         if (txt === "" || name.toLowerCase().includes(txt.toLowerCase())) {
           return true;
         } else {
@@ -267,35 +295,45 @@ $html.='      </div>
         });
         return boo;
       };
-      
+
       function setShowHide(){
         var filters = getCurrentFilters();
         var txt = $("#switches-filter-input").val();
-        console.log(txt);
+        var noresult = true;
         $(".device").each(function() {
           if ( deviceType($(this),filters) && inSearch($(this),txt)){
             $(this).show();
+            noresult = false;
           } else {
             $(this).hide();
           }
         });
+        if (noresult) {
+          $("#noresult").show();
+        } else {
+          $("#noresult").hide();
+        }
       }
+
       $("#switches-filter-input").on("input", function(){
         setShowHide();
       });
 
-      $(":checkbox").on("click", function(){
+      $(".ui.checkbox").checkbox();
+
+      $(".ui.checkbox").on("click", function(){
         setShowHide();
-      } );
-      
+      });
+
       $("#clearButton").click(function () {
         $.each(ids, function(k, v) {
           $(`#${k}`).prop("checked", true);
         });
         $("#switches-filter-input").val("");
         setShowHide();
+        return false;
       });
-      
+
       setShowHide();
     }
     </script>
