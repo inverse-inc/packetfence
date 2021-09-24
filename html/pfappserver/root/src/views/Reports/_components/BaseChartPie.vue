@@ -7,6 +7,54 @@
 // https://plot.ly/javascript/plotlyjs-function-reference/
 import Plotly from 'plotly.js-basic-dist-min'
 
+const layout = {
+  autosize: true,
+  hoverdistance: 100,
+  hovermode: 'closest',
+  spikedistance: 100,
+  legend: {
+    bgcolor: '#eee',
+    bordercolor: '#eee',
+    borderwidth: 10,
+    orientation: 'v',
+    xanchor: 'center',
+    x: 1,
+    y: 0.5
+  },
+  margin: {
+    l: 25,
+    r: 25,
+    b: 25,
+    t: 25,
+    pad: 25,
+    autoexpand: true
+  },
+  font: {
+    size: 10,
+    color: '#444'
+  }
+}
+
+const options = {
+  type: 'pie',
+  direction: 'clockwise',
+  domain: {
+    x: [0, 1],
+    y: [0, 1]
+  },
+  hoverinfo: 'label+percent',
+  hole: 0.25,
+  marker: {
+    line: {
+      width: 0.5
+    }
+  },
+  pull: 0,
+  rotation: -90,
+  textinfo: 'label',
+  textposition: 'outside'
+}
+
 const props = {
   field: {
     type: String
@@ -26,9 +74,7 @@ import { ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import {
   colorsFull,
-  colorsNull,
-  layout,
-  options
+  colorsNull
 } from '../config'
 import { useSearchFactory } from '../_search'
 
@@ -72,9 +118,9 @@ const setup = props => {
         return label
       })
     }
-    options.pie.marker = { ...options.pie.marker, colors }
-    const data = [{ values, labels, ...options.pie }]
-    Plotly.react(plotlyRef.value, data, layout.pie, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    options.marker = { ...options.marker, colors }
+    const data = [{ values, labels, ...options }]
+    Plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)
@@ -98,7 +144,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 /**
  * Disable selection when double-clicking legend
  */

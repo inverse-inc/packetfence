@@ -15,11 +15,11 @@
             v-model="dateRange"
             :disabled="isLoading" />
         </the-search>
-        <b-tabs v-if="charts"
-          lazy>
+        <b-tabs v-if="charts.length"
+          card lazy>
           <b-tab v-for="chart in charts" :key="chart">
             <template #title>
-              <icon :name="chartIcon(chart)" scale="1.5" />
+              <icon :name="chartIcon(chart)" scale="1.25" />
             </template>
             <component
               :is="chartComponent(chart)"

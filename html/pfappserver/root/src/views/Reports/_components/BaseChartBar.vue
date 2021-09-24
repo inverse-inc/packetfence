@@ -6,6 +6,32 @@
 // https://plot.ly/javascript/reference/
 // https://plot.ly/javascript/plotlyjs-function-reference/
 import Plotly from 'plotly.js-basic-dist-min'
+require('typeface-b612-mono') // custom pixel font
+
+const layout = {
+  margin: {
+    l: 25,
+    r: 25,
+    b: 100,
+    t: 50,
+    pad: 0
+  },
+  font: {
+    size: 10,
+    color: '#444'
+  }
+}
+
+const options = {
+  type: 'bar',
+  hoverinfo: 'label+percent',
+  marker: {
+    line: {
+      width: 0.5
+    }
+  },
+  textinfo: 'label'
+}
 
 const props = {
   field: {
@@ -26,9 +52,7 @@ import { ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import {
   colorsFull,
-  colorsNull,
-  layout,
-  options
+  colorsNull
 } from '../config'
 import { useSearchFactory } from '../_search'
 
@@ -72,9 +96,9 @@ const setup = props => {
         return value
       })
     }
-    options.bar.marker = { ...options.bar.marker, color }
-    const data = [{ x, y, ...options.bar }]
-    Plotly.react(plotlyRef.value, data, layout.bar, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    options.marker = { ...options.marker, color }
+    const data = [{ x, y, ...options }]
+    Plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)
@@ -98,7 +122,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 /**
  * Disable selection when double-clicking legend
  */
