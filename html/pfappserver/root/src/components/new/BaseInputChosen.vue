@@ -237,7 +237,7 @@ export const setup = (props, context) => {
   }))
 
   // used by CSS to show vue-multiselect placeholder
-  const isEmpty = computed(() => !value.value)
+  const isEmpty = computed(() => [null, undefined].includes(value.value))
 
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
