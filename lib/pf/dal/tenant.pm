@@ -20,6 +20,7 @@ use warnings;
 use base qw(pf::dal::_tenant);
 use pf::dal::person;
 use pf::error qw(is_error);
+use pf::ConfigStore::Radiusd::EAPProfile;
 
 sub after_create_hook {
     my ($self) = @_;
@@ -32,8 +33,13 @@ sub after_create_hook {
     if (is_error($status)) {
         $self->logger->error("Unable to create default user for the tenant");
     }
+
+    my $cs = pf::ConfigStore::Radiusd::EAPProfile->new();
+    my $default = pf::ConfigStore::Radiusd::EAPProfile->new->read("default");
+    $cs->update_or_create("default-".$self->{name}, $default);
+    $cs->commit();
 }
- 
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
