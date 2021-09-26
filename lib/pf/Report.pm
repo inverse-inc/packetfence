@@ -30,6 +30,8 @@ has 'person_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'node_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
+has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
+
 sub build_query_options {
     return (422, { message => "unimplemented" });
 }
@@ -75,6 +77,17 @@ sub is_node_field {
     return any { $_ eq $field } @{$self->node_fields};
 }
 
+=head2 is_role_field
+
+Check if a field is part of the role fields
+
+=cut
+
+sub is_role_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->role_fields};
+}
+
 sub validate_options {
     my ($self, $query) = @_;
     return (422, {message => "unimplemented"});
@@ -117,6 +130,7 @@ sub format_options_column {
         name => $l,
         is_person => ( $self->is_person_field($l) ? $JSON_TRUE : $JSON_FALSE ),
         is_node   => ( $self->is_node_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_role   => ( $self->is_role_field($l) ? $JSON_TRUE : $JSON_FALSE ),
     };
 }
 
