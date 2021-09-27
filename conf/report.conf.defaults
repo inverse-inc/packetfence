@@ -464,6 +464,7 @@ has_limit=disabled
 cursor_type=none
 node_fields=mac
 person_fields=pid
+role_fields=category_id
 
 [Fingerbank::Static IP::All]
 type=sql
@@ -481,6 +482,7 @@ has_limit=disabled
 cursor_type=none
 node_fields=mac
 person_fields=pid
+role_fields=category_id
 
 [Fingerbank::Unknown Fingerprints::Active]
 type=sql
@@ -820,6 +822,7 @@ has_limit=disabled
 cursor_type=none
 node_fields=mac
 person_fields=pid
+role_fields=category_id
 
 [Node::Unregistered::Active]
 type=sql
@@ -1295,6 +1298,7 @@ node_fields=MAC Address
 person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:open
+role_fields=category_id
 
 [Security Events::Open Active]
 type=sql
