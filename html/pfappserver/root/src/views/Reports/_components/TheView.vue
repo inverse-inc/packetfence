@@ -172,10 +172,11 @@ const setup = (props, context) => {
     const [ type ] = chart.split('|')
     switch (type) {
       case 'bar':
-      case 'parallel':
         return 'chart-bar'
       case 'pie':
         return 'chart-pie'
+      case 'parallel':
+        return 'chart-line'
     }
   }
 

@@ -5,8 +5,8 @@
 <script>
 const layout = {
   margin: {
-    l: 50,
-    r: 50,
+    l: 100,
+    r: 100,
     b: 25,
     t: 50,
     pad: 0
@@ -15,8 +15,7 @@ const layout = {
     size: 10,
     color: '#444'
   },
-  arrangement: 'freeform',
-  hoveron: 'color'
+  arrangement: 'freeform'
 }
 
 const options = {
@@ -81,8 +80,15 @@ const setup = props => {
       const { [lastField]: count } = item
       return count
     })
-
-    const data = [{ dimensions, counts, line: { color: colorsFull }, ...options }]
+    const map  = dimensions[dimensions.length - 1].values.reduce((map, value) => {
+      if (!map.includes(value))
+        return [ ...map, value ]
+      return map
+    }, [])
+    const color = dimensions[dimensions.length - 1].values.map(value => {
+      return colorsFull[map.indexOf(value)]
+    })
+    const data = [{ dimensions, counts, line: { color, shape: 'hspline', hoveron: 'color' }, ...options }]
     plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
