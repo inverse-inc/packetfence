@@ -63,6 +63,8 @@
           :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
         <router-link v-else-if="field.key in columnsIs && columnsIs[field.key].is_person"
           :to="{ path: `/user/${value}` }">{{ value }}</router-link>
+        <router-link v-else-if="field.key in columnsIs && columnsIs[field.key].is_role"
+          :to="{ path: `/configuration/role/${value}` }">{{ value }}</router-link>
         <template v-else>{{ value }}</template>
       </template>
       <template #cell(selected)="{ index, rowSelected }">
@@ -155,8 +157,8 @@ const setup = (props, context) => {
 
   const columnsIs = computed(() => {
     return columns.reduce((assoc, column) => {
-      const { name, is_node, is_person } = column
-      return { ...assoc, [name]: { is_node, is_person }}
+      const { name, is_node, is_person, is_role } = column
+      return { ...assoc, [name]: { is_node, is_person, is_role }}
     }, {})
   })
 
