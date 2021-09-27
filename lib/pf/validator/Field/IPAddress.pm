@@ -17,13 +17,13 @@ extends qw(pf::validator::Field);
 use pf::util qw(valid_ip);
 
 sub validate_field {
-    my ($self, $val, $errors) = @_;
-    if (@$errors) {
+    my ($self, $ctx, $val) = @_;
+    if ($ctx->has_errors) {
         return;
     }
 
     if (defined $val && !valid_ip($val)) {
-        push @$errors, { field => $self->name, message => 'must be an IP Address' };
+        $ctx->add_error({ field => $self->name, message => 'must be an IP Address' });
     }
 
     return;

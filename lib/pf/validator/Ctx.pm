@@ -1,33 +1,40 @@
-package pf::validator::Field::MACAddress;
+package pf::validator::Ctx;
 
 =head1 NAME
 
-pf::validator::Field::MACAddress -
+pf::validator::Ctx -
 
 =head1 DESCRIPTION
 
-pf::validator::Field::MACAddress
+pf::validator::Ctx
 
 =cut
 
 use strict;
 use warnings;
 use Moose;
-extends qw(pf::validator::Field);
-use pf::util qw(valid_mac);
 
-sub validate_field {
-    my ($self, $ctx, $val) = @_;
-    if ($ctx->has_errors()) {
-        return;
-    }
+has errors => (
+    traits    => ['Array'],
+    is        => 'rw',
+    isa       => 'ArrayRef',
+    handles   => {
+        add_error  => 'push',
+        has_errors => 'count',
+    },
+    default => sub { [] },
+);
 
-    if (!valid_mac($val)) {
-        $ctx->add_error({ field => $self->name, message => 'must be a MAC address' });
-    }
-
-    return;
-}
+has warnings => (
+    traits    => ['Array'],
+    is        => 'rw',
+    isa       => 'ArrayRef',
+    handles   => {
+        add_warning  => 'push',
+        has_warnings => 'count',
+    },
+    default => sub { [] },
+);
 
 =head1 AUTHOR
 
@@ -57,3 +64,4 @@ USA.
 =cut
 
 1;
+

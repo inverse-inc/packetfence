@@ -57,31 +57,43 @@ is(@$fields, 1, "returned the proper number of fields");
 is(scalar @validator1::_FIELDS, 1);
 
 {
-    my $errors = $validator->validate({});
+    my $ctx = pf::validator::Ctx->new;
+    $validator->validate($ctx, {});
+    my $errors = $ctx->errors;
     ok (scalar @$errors, "Validation failed");
     is_deeply ($errors, [{ field => 'id', message => 'is required' }], "Has errors");
 }
 
 {
-    my $errors = $validator->validate({ id => undef});
+    my $ctx = pf::validator::Ctx->new;
+    $validator->validate($ctx, { id => undef});
+    my $errors = $ctx->errors;
     ok (scalar @$errors, "Validation failed");
     is_deeply ($errors, [{ field => 'id', message => 'is required' }], "Has errors");
 }
 
 {
-    my $errors = $validator->validate({ id => 1 });
+    my $ctx = pf::validator::Ctx->new;
+    $validator->validate($ctx, { id => 1 });
+    my $errors = $ctx->errors;
     is_deeply ($errors, [], "Validation passed");
 }
 
 {
     my $v = validmac->new();
-    my $errors = $v->validate({ id => undef });
-    is_deeply ($errors, [{ field => 'id', message => 'Please specify the MAC address of the floating device.' }], "Has errors mac");
+    my $ctx = pf::validator::Ctx->new;
+    $v->validate($ctx, { id => undef });
+    my $errors = $ctx->errors;
+    is_deeply ($errors, [{ field => 'id', message => 'Please specify the MAC address of the floating device.' }], "Has undef mac");
 
-    $errors = $v->validate({ id => 1 });
-    is_deeply ($errors, [{ field => 'id', message => 'must be a MAC address' }], "Has errors mac");
+    $ctx = pf::validator::Ctx->new;
+    $v->validate($ctx, { id => 1 });
+    $errors = $ctx->errors;
+    is_deeply ($errors, [{ field => 'id', message => 'must be a MAC address' }], "Has 1 as a mac");
 
-    $errors = $v->validate({ id => "00:11:22:33:44:55" });
+    $ctx = pf::validator::Ctx->new;
+    $v->validate($ctx, { id => "00:11:22:33:44:55" });
+    $errors = $ctx->errors;
     is_deeply ($errors, [], "Valid MAC no errors");
 }
 

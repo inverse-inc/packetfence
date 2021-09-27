@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use Class::Load qw(load_optional_class);
 use Moose;
+use pf::validator::Ctx;
 
 has fields => (
     traits    => ['Array'],
@@ -27,9 +28,23 @@ has fields => (
     builder => '_build_fields',
 );
 
+has is_nullable => (
+    is  => 'ro',
+    isa => 'Bool',
+    default => 0,
+);
+
 sub validate {
-    my ($self, $value) = @_;
-    my @errors;
+    my ($self, $ctx, $value) = @_;
+
+    if (!defined $value) {
+        if (!$self->is_nullable) {
+            $ctx->add_error({ message => 'Cannot be Null' });
+        }
+
+        return;
+    }
+
     for my $field (@{$self->fields}) {
         my $name = $field->name;
         my $field_val;
@@ -37,10 +52,10 @@ sub validate {
             $field_val = $value->{$name};
         }
 
-        $field->validate($field_val, \@errors);
+        $field->validate($ctx, $field_val);
     }
 
-    return \@errors;
+    return;
 }
 
 sub _build_fields {

@@ -33,12 +33,12 @@ has messages => (
 );
 
 sub validate {
-    my ($self, $val, $errors) = @_;
+    my ($self, $ctx, $val) = @_;
     if ($self->required && !defined $val) {
-        push @$errors, { field => $self->name, message => $self->get_message('required') };
+        $ctx->add_error({ field => $self->name, message => $self->get_message('required') });
     }
 
-    $self->validate_field($val, $errors);
+    $self->validate_field($ctx, $val);
     return;
 }
 
