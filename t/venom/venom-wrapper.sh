@@ -41,7 +41,7 @@ die_on_error() {
 
 run_test_suites() {
     local test_suites=$(readlink -e ${@:-.})
-    log_section "Running ${test_suites} test suite(s)"
+    log_section "Running Venom test suite(s)"
     CMD="${VENOM_BINARY} run ${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS} ${test_suites}"
     ${CMD} || die_on_error
 }
