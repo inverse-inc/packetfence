@@ -15,6 +15,7 @@ use warnings;
 use Moose;
 use pf::config::tenant;
 use pf::Report;
+use pf::error qw(is_error);
 use pf::util;
 extends qw(pf::Report);
 
@@ -102,6 +103,7 @@ sub nextCursor {
 sub validate_input {
     my ($self, $data) = @_;
     my @errors;
+
     $self->validate_required_field($data, \@errors);
     if (@errors) {
         return (422, { message => 'invalid request', errors => \@errors });
@@ -129,6 +131,10 @@ sub validate_required_field {
 
 sub build_query_options {
     my ($self, $data) = @_;
+    my ($status, $error) = $self->validate_input($data);
+    if (is_error($status)) {
+        return (422, $error);
+    }
     my %options;
     $options{limit} = $data->{limit} // $self->default_limit // 25;
     $options{sql_limit} = $options{limit} + 1;
