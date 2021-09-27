@@ -22,6 +22,7 @@ use pf::Report::sql;
 use pf::Report::abstract;
 
 use pf::config qw(%ConfigReport);
+use pf::log;
 
 sub factory_for { 'pf::Report' }
 
@@ -43,9 +44,11 @@ sub new {
         if (defined $type && exists $FACTORIES{$type}) {
             $data->{id} = $id;
             $report = $FACTORIES{$type}->new($data);
+            return $report;
         }
     }
-    return $report;
+    get_logger()->error("Cannot find or create report '$id'");
+    return;
 }
 
 =head1 AUTHOR
