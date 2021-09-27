@@ -49,7 +49,7 @@ sub search {
     my $report = pf::factory::report->new($id);
     if (!defined $report) {
         return $self->render_error(
-            500, "Failed executing search on report ($id). Check server-side logs for details."
+            500, "Failed creating report ($id). Check server-side logs for details."
         );
     }
 
