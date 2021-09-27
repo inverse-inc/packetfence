@@ -33,7 +33,7 @@ my $false = do { bless \(my $d = 0), "JSON::PP::Boolean" };
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
-$t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
+$t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')->status_is(200)
   ->json_is(
     {
         report_meta => {
@@ -50,25 +50,29 @@ $t->options_ok('/api/v1/dynamic_report/ip4log-archive')->status_is(200)
                     text      => 'MAC Address',
                     name      => 'MAC Address',
                     is_person => $false,
-                    is_node   => $true
+                    is_node   => $true,
+                    is_role   => $false,
                 },
                 {
                     text      => 'IP',
                     name      => 'IP',
                     is_person => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_role   => $false,
                 },
                 {
                     text      => 'Start time',
                     name      => 'Start time',
                     is_person => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_role   => $false,
                 },
                 {
                     text      => 'End time',
                     name      => 'End time',
                     is_person => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_role   => $false,
                 },
             ],
             has_date_range => $true,
@@ -93,84 +97,98 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active')
                     text      => 'mac',
                     name      => 'mac',
                     is_person => $false,
-                    is_node   => $false
+                    is_role   => $false,
+                    is_node   => $true
                 },
                 {
                     text      => 'ip',
                     name      => 'ip',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'start_time',
                     name      => 'start_time',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'pid',
                     name      => 'pid',
-                    is_person => $false,
+                    is_role   => $false,
+                    is_person => $true,
                     is_node   => $false
                 },
                 {
                     text      => 'detect_date',
                     name      => 'detect_date',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'regdate',
                     name      => 'regdate',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'lastskip',
                     name      => 'lastskip',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'status',
                     name      => 'status',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'user_agent',
                     name      => 'user_agent',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'computername',
                     name      => 'computername',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'notes',
                     name      => 'notes',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'last_arp',
                     name      => 'last_arp',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'last_dhcp',
                     name      => 'last_dhcp',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
                 {
                     text      => 'os',
                     name      => 'os',
                     is_person => $false,
+                    is_role   => $false,
                     is_node   => $false
                 },
               ],
@@ -186,16 +204,16 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active')
 $t->get_ok('/api/v1/dynamic_reports' => json => { })
   ->status_is(200);
 
-$t->get_ok('/api/v1/dynamic_report/authentications' => json => { })
-  ->json_is('/item/id',"authentications")
+$t->get_ok('/api/v1/dynamic_report/Authentication::All' => json => { })
+  ->json_is('/item/id',"Authentication::All")
   ->json_is('/item/type',"abstract")
   ->status_is(200);
   
-$t->post_ok('/api/v1/dynamic_report/authentications/search', {'Content-Type' => 'application/json'} => '{')
+$t->post_ok('/api/v1/dynamic_report/Authentication::All/search', {'Content-Type' => 'application/json'} => '{')
   ->status_is(400);
 
 $t->post_ok(
-    '/api/v1/dynamic_report/authentications/search' => json => {
+    '/api/v1/dynamic_report/Authentication::All/search' => json => {
         query => {
             op    => 'equals',
             field => 'auth_log.process_name',
