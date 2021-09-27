@@ -26,14 +26,41 @@ has required => (
     default => 0,
 );
 
+has messages => (
+    isa => 'HashRef',
+    is  => 'ro',
+    builder => '_build_messages',
+);
+
 sub validate {
-    my ($self, $val, $error) = @_;
+    my ($self, $val, $errors) = @_;
     if ($self->required && !defined $val) {
-        push @$error, { field => $self->name, message => 'is required' };
+        push @$errors, { field => $self->name, message => $self->get_message('required') };
     }
 
-    return [];
+    $self->validate_field($val, $errors);
+    return;
 }
+
+sub get_message {
+    my ($self, $name) = @_;
+    my $messages = $self->messages;
+    if (exists $messages->{$name}) {
+        return $messages->{$name};
+    }
+
+    return undef;
+}
+
+our %DEFAULT_MESSAGES = (
+    required => 'is required',
+);
+
+sub _build_messages {
+    return \%DEFAULT_MESSAGES,
+}
+
+sub validate_field {}
 
 =head1 AUTHOR
 

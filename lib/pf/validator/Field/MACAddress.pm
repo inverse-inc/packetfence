@@ -1,12 +1,12 @@
-package pf::validator::Field::String;
+package pf::validator::Field::MACAddress;
 
 =head1 NAME
 
-pf::validator::Field::String -
+pf::validator::Field::MACAddress -
 
 =head1 DESCRIPTION
 
-pf::validator::Field::String
+pf::validator::Field::MACAddress
 
 =cut
 
@@ -14,6 +14,20 @@ use strict;
 use warnings;
 use Moose;
 extends qw(pf::validator::Field);
+use pf::util qw(valid_mac);
+
+sub validate_field {
+    my ($self, $val, $errors) = @_;
+    if (@$errors) {
+        return;
+    }
+
+    if (!valid_mac($val)) {
+        push @$errors, { field => $self->name, message => 'must be a MAC address' };
+    }
+
+    return;
+}
 
 =head1 AUTHOR
 

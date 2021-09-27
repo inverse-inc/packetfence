@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 12;
 
 #This test will running last
 use Test::NoWarnings;
@@ -33,6 +33,19 @@ use Test::NoWarnings;
     );
 
     __PACKAGE__->meta->make_immutable;
+}
+
+{
+    package validmac;
+    use pf::validator::Moose;
+    extends qw(pf::validator);
+    has_field id => (
+        type     => 'MACAddress',
+        required => 1,
+        messages => {
+            required => 'Please specify the MAC address of the floating device.'
+        },
+    );
 }
 
 #is(scalar @validator1::_FIELDS, 1);
@@ -58,6 +71,18 @@ is(scalar @validator1::_FIELDS, 1);
 {
     my $errors = $validator->validate({ id => 1 });
     is_deeply ($errors, [], "Validation passed");
+}
+
+{
+    my $v = validmac->new();
+    my $errors = $v->validate({ id => undef });
+    is_deeply ($errors, [{ field => 'id', message => 'Please specify the MAC address of the floating device.' }], "Has errors mac");
+
+    $errors = $v->validate({ id => 1 });
+    is_deeply ($errors, [{ field => 'id', message => 'must be a MAC address' }], "Has errors mac");
+
+    $errors = $v->validate({ id => "00:11:22:33:44:55" });
+    is_deeply ($errors, [], "Valid MAC no errors");
 }
 
 =head1 AUTHOR
