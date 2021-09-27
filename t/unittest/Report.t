@@ -505,23 +505,27 @@ BEGIN {
                         text      => 'MAC Address',
                         name      => 'MAC Address',
                         is_person => $false,
-                        is_node   => $true
+                        is_role   => $false,
+                        is_node   => $true,
                     },
                     {
                         text      => 'IP',
                         name      => 'IP',
                         is_person => $false,
+                        is_role   => $false,
                         is_node   => $false
                     },
                     {
                         text      => 'Start time',
                         name      => 'Start time',
                         is_person => $false,
+                        is_role   => $false,
                         is_node   => $false
                     },
                     {
                         text      => 'End time',
                         name      => 'End time',
+                        is_role   => $false,
                         is_person => $false,
                         is_node   => $false
                     },
@@ -546,6 +550,7 @@ BEGIN {
                                 name      => $_,
                                 is_person => ($_ eq 'pid' ? $true : $false),
                                 is_node   => ($_ eq 'mac' ? $true : $false),
+                                is_role   => $false,
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
@@ -568,7 +573,8 @@ BEGIN {
                                 text      => $_,
                                 name      => $_,
                                 is_person => $false,
-                                is_node   => $false
+                                is_node   => $false,
+                                is_role   => $false,
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
@@ -591,7 +597,8 @@ BEGIN {
                                 text      => $_,
                                 name      => $_,
                                 is_person => $false,
-                                is_node   => $false
+                                is_node   => $false,
+                                is_role   => $false,
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
