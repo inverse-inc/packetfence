@@ -831,6 +831,129 @@ has_limit=disabled
 cursor_type=none
 charts=pie|role:nodes,bar|role:nodes
 
+[Node::Roles::Active per device class]
+type=sql
+description=Active registered nodes of roles vs device class
+columns=role,device_class,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    device_class,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role, device_class
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=parallel|device_class:role:nodes
+
+[Node::Roles::Active per device manufacturer]
+type=sql
+description=Active registered nodes of roles vs device manufacturers
+columns=role,device_manufacturer,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    IFNULL(device_manufacturer, 'Unknown') as device_manufacturer,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role, device_manufacturer
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=parallel|device_manufacturer:role:nodes
+
+[Node::Roles::Active per device type]
+type=sql
+description=Active registered nodes of roles vs device types
+columns=role,device_type,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    device_type,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role, device_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=parallel|device_type:role:nodes
+
 [Node::Roles::All]
 type=sql
 description=Top roles of registered nodes
