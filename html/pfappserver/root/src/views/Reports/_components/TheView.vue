@@ -61,6 +61,7 @@ const components = {
 
 import BaseChartBar from './BaseChartBar'
 import BaseChartPie from './BaseChartPie'
+import BaseChartParallel from './BaseChartParallel'
 
 const props = {
   id: {
@@ -155,14 +156,14 @@ const setup = (props, context) => {
         return BaseChartBar
       case 'pie':
         return BaseChartPie
+      case 'parallel':
+        return BaseChartParallel
     }
   }
   const chartProps = chart => {
-    const { 1: options = '' } = chart.split('|')
-    const [ field, count ] = options.split(':')
+    const { 1: fields = '' } = chart.split('|')
     return {
-      field,
-      count,
+      fields,
       meta,
       report
     }
@@ -171,6 +172,7 @@ const setup = (props, context) => {
     const [ type ] = chart.split('|')
     switch (type) {
       case 'bar':
+      case 'parallel':
         return 'chart-bar'
       case 'pie':
         return 'chart-pie'
@@ -205,3 +207,11 @@ export default {
 }
 </script>
 
+<style lang="scss">
+/**
+ * Disable selection when double-clicking legend
+ */
+.plotly * {
+  user-select: none;
+}
+</style>

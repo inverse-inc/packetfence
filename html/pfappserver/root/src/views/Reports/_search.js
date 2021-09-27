@@ -22,7 +22,7 @@ export const useSearchFactory = (report, meta) => {
       ]
     }),
     requestInterceptor: request => {
-      const { start_date, end_date } = meta.value
+      const { has_date_range, start_date = '0000-00-00 00:00:00', end_date = '9999-12-31 23:59:59' } = meta.value
       if (request.query) {
         // reduce query by slicing empty objects (strip placeholders from defaultCondition)
         //  walk backwards to prevent Array slice from changing future indexes
@@ -35,8 +35,12 @@ export const useSearchFactory = (report, meta) => {
             request.query.values = [...request.query.values.slice(0, o), ...request.query.values.slice(o + 1, request.query.values[o].values.length)]
         }
       }
-      // append id, start_date and end_date to api request(s)
-      return { ...request, id, start_date, end_date }
+      if (has_date_range) {
+        // append id, start_date and end_date to api request(s)
+        return { ...request, id, start_date, end_date }
+      }
+      // append id to api request(s)
+      return { ...request, id }
     },
     // build search string from query_fields
     useString: searchString => {

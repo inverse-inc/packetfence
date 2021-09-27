@@ -3,10 +3,6 @@
 </template>
 
 <script>
-// https://plot.ly/javascript/reference/
-// https://plot.ly/javascript/plotlyjs-function-reference/
-import Plotly from 'plotly.js-basic-dist-min'
-
 const layout = {
   autosize: true,
   hoverdistance: 100,
@@ -56,10 +52,7 @@ const options = {
 }
 
 const props = {
-  field: {
-    type: String
-  },
-  count: {
+  fields: {
     type: String
   },
   meta: {
@@ -70,8 +63,9 @@ const props = {
   }
 }
 
-import { onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import plotly from '@/utils/plotly'
 import {
   colorsFull,
   colorsNull
@@ -81,11 +75,13 @@ import { useSearchFactory } from '../_search'
 const setup = props => {
 
   const {
-    field,
-    count,
+    fields,
     meta,
     report
   } = toRefs(props)
+
+  const field = computed(() => fields.value.split(':')[0])
+  const count = computed(() => fields.value.split(':')[1])
 
   const plotlyRef = ref(null)
 
@@ -120,7 +116,7 @@ const setup = props => {
     }
     options.marker = { ...options.marker, colors }
     const data = [{ values, labels, ...options }]
-    Plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)
@@ -146,12 +142,3 @@ export default {
   setup
 }
 </script>
-
-<style lang="scss">
-/**
- * Disable selection when double-clicking legend
- */
-.plotly * {
-  user-select: none;
-}
-</style>

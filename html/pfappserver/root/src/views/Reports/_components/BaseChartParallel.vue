@@ -1,35 +1,33 @@
 <template>
-  <div ref="plotlyRef" />
+  <div ref="plotlyRef" id="plotly" />
 </template>
 
 <script>
 const layout = {
   margin: {
-    l: 25,
-    r: 25,
-    b: 100,
+    l: 50,
+    r: 50,
+    b: 25,
     t: 50,
     pad: 0
   },
   font: {
     size: 10,
     color: '#444'
-  }
+  },
+  arrangement: 'freeform',
+  hoveron: 'color'
 }
 
 const options = {
-  type: 'bar',
-  hoverinfo: 'label+percent',
-  marker: {
-    line: {
-      width: 0.5
-    }
-  },
-  textinfo: 'label'
+  type: 'parcats'
 }
 
 const props = {
   fields: {
+    type: String
+  },
+  count: {
     type: String
   },
   meta: {
@@ -40,12 +38,10 @@ const props = {
   }
 }
 
-import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import i18n from '@/utils/locale'
+import { onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import plotly from '@/utils/plotly'
 import {
-  colorsFull,
-  colorsNull
+  colorsFull
 } from '../config'
 import { useSearchFactory } from '../_search'
 
@@ -56,9 +52,6 @@ const setup = props => {
     meta,
     report
   } = toRefs(props)
-
-  const field = computed(() => fields.value.split(':')[0])
-  const count = computed(() => fields.value.split(':')[1])
 
   const plotlyRef = ref(null)
 
@@ -73,26 +66,23 @@ const setup = props => {
   const _render = () => {
     if (!plotlyRef.value)
       return
-    let color = colorsFull
-    let x
-    let y
-    if (items.value.length === 0) {
-      // no data
-      color = colorsNull
-      x = [ i18n.t('No Data') ]
-      y = [ 0 ]
-    } else {
-      x = items.value.map(item => {
-        const { [field.value]: label } = item
-        return label
-      })
-      y = items.value.map(item => {
-        const { [count.value]: value } = item
-        return value
-      })
-    }
-    options.marker = { ...options.marker, color }
-    const data = [{ x, y, ...options }]
+    const sFields = fields.value.split(':')
+    const lastField = sFields[sFields.length - 1] // last field contains count
+    const dimensions = sFields.slice(0, -1).map(label => {
+      return {
+        label,
+        values: items.value.reduce((dimensions, item) => {
+          const { [label]: value } = item
+          return [ ...dimensions, value ]
+        }, [])
+      }
+    })
+    const counts = items.value.map(item => {
+      const { [lastField]: count } = item
+      return count
+    })
+
+    const data = [{ dimensions, counts, line: { color: colorsFull }, ...options }]
     plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
@@ -114,7 +104,7 @@ const setup = props => {
 
 // @vue/component
 export default {
-  name: 'base-chart-bar',
+  name: 'base-chart-parallel',
   props,
   setup
 }
