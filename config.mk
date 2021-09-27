@@ -22,6 +22,7 @@ SRC_TESTDIR= $(SRC_ROOT_DIR)/t
 SRC_RELATIVE_TESTDIR = t
 SRC_ADDONSDIR = $(SRC_ROOT_DIR)/addons
 SRC_FULL_IMPORTDIR = $(SRC_ADDONSDIR)/full-import
+SRC_UPGRADEDIR = $(SRC_ADDONSDIR)/upgrade
 
 #
 # Golang
@@ -107,7 +108,7 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 pf_test_files_to_include = $(shell find $(SRC_TESTDIR) \
 	-maxdepth 0)
 
-# all directories and files to include in packetfence-export package
+# all directories and files to include in packetfence-upgrade package
 # $(SRC_FULL_IMPORT_DIR)/* to exclude SRC_FULL_IMPORT_DIR himself
-pf_export_files_to_include = $(shell find $(SRC_FULL_IMPORTDIR)/* \
-	-maxdepth 0)
+pf_upgrade_files_to_include = $(shell find $(SRC_FULL_IMPORTDIR)/*  \
+	-maxdepth 0) $(SRC_UPGRADEDIR)/do-upgrade.sh

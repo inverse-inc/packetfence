@@ -60,8 +60,8 @@ install: build
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
 
-	# packetfence-export package
-	make -C addons/full-import DESTDIR=$(CURDIR)/debian/packetfence-export install
+	# packetfence-upgrade package
+	make -C addons/full-import DESTDIR=$(CURDIR)/debian/packetfence-upgrade install
 
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \
@@ -266,9 +266,10 @@ binary-arch: build install
 	# PERMISSIONS
 	chmod 0750 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/conf
 	### Executables
-	# packetfence-export pkg
-	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
-	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/find-extra-files.pl
+	# packetfence-upgrade pkg
+	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-import/export.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-import/find-extra-files.pl
+	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/upgrade/do-upgrade.sh
 	# packetfence-test pkg
 	# t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/*.pl
