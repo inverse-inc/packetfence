@@ -48,7 +48,7 @@ const props = {
   }
 }
 
-import { ref, toRefs, watch } from '@vue/composition-api'
+import { onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import {
   colorsFull,
@@ -108,6 +108,9 @@ const setup = props => {
   } = toRefs(search)
 
   watch(items, _queueRender, { immediate: true })
+
+  onMounted(() => window.addEventListener('resize', _queueRender))
+  onBeforeUnmount(() => window.removeEventListener('resize', _queueRender))
 
   return {
     plotlyRef
