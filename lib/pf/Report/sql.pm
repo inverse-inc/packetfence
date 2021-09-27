@@ -139,9 +139,18 @@ sub build_query_options {
     $options{limit} = $data->{limit} // $self->default_limit // 25;
     $options{sql_limit} = $options{limit} + 1;
     if ($self->cursor_type eq 'offset') {
-        $options{offset} = $data->{cursor} // 0;
+        $data->{cursor} = $options{offset} = $data->{cursor} // 0;
     } else {
         $options{cursor} = $data->{cursor} // $self->cursor_default;
+    }
+
+    for my $f (qw(start_date end_date)) {
+        if (exists $data->{$f}) {
+            my $v = $data->{$f};
+            if (defined $v) {
+                $options{$f} = $v;
+            }
+        }
     }
 
     return (200, \%options);

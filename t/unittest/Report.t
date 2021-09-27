@@ -167,6 +167,28 @@ BEGIN {
             ],
             msg => 'limit, cursor pf::Report::sql cursor_type=offset',
         },
+        {
+            id => "Authentication::Top Successes::By Connection Profile",
+            in => {
+                "fields" => [ "profile", "count", "percent" ],
+                "limit"  => 100,
+                "start_date" => "0000-00-00 00:00:00",
+                "end_date"   => "9999-12-31 23:59:59"
+            },
+            out => [
+                200,
+                {
+                    sql_limit  => 101,
+                    limit  => 100,
+                    cursor => undef,
+                    "start_date" => "0000-00-00 00:00:00",
+                    "end_date"   => "9999-12-31 23:59:59",
+                }
+            ],
+            msg => "end_date, end_date",
+        }
+
+
     );
 
     @NextCursorTests = (
