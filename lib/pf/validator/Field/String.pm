@@ -1,39 +1,19 @@
-package pf::validator::Meta::Role;
+package pf::validator::Field::String;
 
 =head1 NAME
 
-pf::validator::Meta::Role -
+pf::validator::Field::String -
 
 =head1 DESCRIPTION
 
-pf::validator::Meta::Role
-
+pf::validator::Field::String
 
 =cut
 
 use strict;
 use warnings;
-use Moose::Role;
-
-has 'field_list' => (
-    traits    => ['Array'],
-    is        => 'rw',
-    isa       => 'ArrayRef',
-    default   => sub { [] },
-    handles   => {
-        add_to_field_list => 'push',
-        has_field_list => 'count',
-    }
-);
-
-has found_pfv => ( is => 'rw', default => 0 );
-
-before make_immutable => sub {
-    my ($self) = @_;
-    $self->add_package_symbol('@_FIELDS', $self->field_list);
-    my $fields = $self->get_package_symbol('@_FIELDS');
-    $self->add_method('_FIELDS', sub { $fields  });
-};
+use Moose;
+extends qw(pf::validator::Field);
 
 =head1 AUTHOR
 
@@ -62,6 +42,5 @@ USA.
 
 =cut
 
-use namespace::autoclean;
-
 1;
+

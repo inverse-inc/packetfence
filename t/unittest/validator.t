@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 1;
+use Test::More tests => 7;
 
 #This test will running last
 use Test::NoWarnings;
@@ -31,10 +31,34 @@ use Test::NoWarnings;
     has_field id => (
         required => 1,
     );
+
+    __PACKAGE__->meta->make_immutable;
 }
 
+#is(scalar @validator1::_FIELDS, 1);
 my $validator = validator1->new;
 isa_ok($validator, 'pf::validator');
+
+my $fields = $validator->_FIELDS;
+is(@$fields, 1, "returned the proper number of fields");
+is(scalar @validator1::_FIELDS, 1);
+
+{
+    my $errors = $validator->validate({});
+    ok (scalar @$errors, "Validation failed");
+    is_deeply ($errors, [{ field => 'id', message => 'is required' }], "Has errors");
+}
+
+{
+    my $errors = $validator->validate({ id => undef});
+    ok (scalar @$errors, "Validation failed");
+    is_deeply ($errors, [{ field => 'id', message => 'is required' }], "Has errors");
+}
+
+{
+    my $errors = $validator->validate({ id => 1 });
+    is_deeply ($errors, [], "Validation passed");
+}
 
 =head1 AUTHOR
 
