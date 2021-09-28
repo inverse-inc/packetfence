@@ -37,7 +37,7 @@ const props = {
   }
 }
 
-import { onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import plotly from '@/utils/plotly'
 import {
   colorsFull
@@ -51,6 +51,17 @@ const setup = props => {
     meta,
     report
   } = toRefs(props)
+
+  const title = computed(() => {
+    let { description, has_date_range, start_date, end_date } = meta.value
+    if (has_date_range) {
+      if (start_date)
+        description += ` from ${start_date}`
+      if (end_date)
+        description += ` to ${end_date}`
+    }
+    return description
+  })
 
   const plotlyRef = ref(null)
 
@@ -89,7 +100,7 @@ const setup = props => {
       return colorsFull[map.indexOf(value)]
     })
     const data = [{ dimensions, counts, line: { color, shape: 'hspline', hoveron: 'color' }, ...options }]
-    plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    plotly.react(plotlyRef.value, data, { ...layout, title: title.value }, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)

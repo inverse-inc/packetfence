@@ -209,10 +209,19 @@ export default {
 </script>
 
 <style lang="scss">
-/**
- * Disable selection when double-clicking legend
- */
 .plotly * {
+  /**
+  * Disable selection when double-clicking legend
+  */
   user-select: none;
+
+  /**
+  * Hide redundant title, included for PNG output
+  */
+  svg {
+    .g-gtitle {
+      display: none;
+    }
+  }
 }
 </style>

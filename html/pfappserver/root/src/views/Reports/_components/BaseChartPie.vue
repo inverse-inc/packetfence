@@ -21,7 +21,7 @@ const layout = {
     l: 25,
     r: 25,
     b: 25,
-    t: 25,
+    t: 50,
     pad: 25,
     autoexpand: true
   },
@@ -60,6 +60,9 @@ const props = {
   },
   report: {
     type: Object
+  },
+  title: {
+    type: String
   }
 }
 
@@ -82,6 +85,16 @@ const setup = props => {
 
   const field = computed(() => fields.value.split(':')[0])
   const count = computed(() => fields.value.split(':')[1])
+  const title = computed(() => {
+    let { description, has_date_range, start_date, end_date } = meta.value
+    if (has_date_range) {
+      if (start_date)
+        description += ` from ${start_date}`
+      if (end_date)
+        description += ` to ${end_date}`
+    }
+    return description
+  })
 
   const plotlyRef = ref(null)
 
@@ -116,7 +129,7 @@ const setup = props => {
     }
     options.marker = { ...options.marker, colors }
     const data = [{ values, labels, ...options }]
-    plotly.react(plotlyRef.value, data, layout, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    plotly.react(plotlyRef.value, data, { ...layout, title: title.value }, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)
