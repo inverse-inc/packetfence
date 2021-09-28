@@ -109,21 +109,23 @@ const setup = props => {
   const plotlyRef = ref(null)
 
   const filteredItems = computed(() => {
+    const sFields = fields.value.split(':')
     return items.value
       .filter(item => {
-        const { [fields.value]: value } = item
+        const { [sFields[0]]: value } = item
         return (value && value[0] !== '0') // ignore zero dates
       })
       .sort((a, b) => {
-        const { [fields.value]: valueA } = a
-        const { [fields.value]: valueB } = b
+        const { [sFields[0]]: valueA } = a
+        const { [sFields[0]]: valueB } = b
         return valueA.localeCompare(valueB)
       })
   })
 
   const minDate = computed(() => {
+    const sFields = fields.value.split(':')
     return filteredItems.value.reduce((min, item) => {
-      const { [fields.value]: value } = item
+      const { [sFields[0]]: value } = item
       const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
       const date = format(parsed, 'YYYY-MM-DD HH:mm:ss')
       return (!min || date < min) ? date : min
@@ -131,8 +133,9 @@ const setup = props => {
   })
 
   const maxDate = computed(() => {
+    const sFields = fields.value.split(':')
     return filteredItems.value.reduce((max, item) => {
-      const { [fields.value]: value } = item
+      const { [sFields[0]]: value } = item
       const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
       const date = format(parsed, 'YYYY-MM-DD HH:mm:ss')
       return (!max || date > max) ? date : max
@@ -150,12 +153,25 @@ const setup = props => {
   const _render = () => {
     if (!plotlyRef.value)
       return
-
+    const sFields = fields.value.split(':')
+console.log({sFields})
     const data = dimensions.map((dimension, index) => {
       const { name, normalize } = dimension
       const color = colorsFull[index]
       const associated = filteredItems.value.reduce((associated, item) => {
-        const { [fields.value]: value } = item
+console.log({item})
+        const { [sFields[0]]: value } = item
+        let count
+        if (sFields.length > 1) {
+          const { [sFields[1]]: _count } = item
+          count = _count
+        }
+        else {
+          // no 2nd field defined, assume 1 (one)
+          count = 1
+        }
+console.log({sFields, item, count})
+
         if (value && value[0] !== '0') { // ignore zero dates
           const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
           let date = format(parsed, normalize)
@@ -164,9 +180,9 @@ const setup = props => {
             date = minDate.value
           }
           if (date in associated)
-            associated[date]++
+            associated[date] += parseInt(count) // increment
           else
-            associated[date] = 1
+            associated[date] = parseInt(count) // declare
         }
         return associated
       }, {})
@@ -201,7 +217,7 @@ const setup = props => {
     items
   } = toRefs(search)
 
-  watch(items, _queueRender, { immediate: true })
+  watch(filteredItems, _queueRender, { immediate: true })
 
   onMounted(() => window.addEventListener('resize', _queueRender))
   onBeforeUnmount(() => window.removeEventListener('resize', _queueRender))
