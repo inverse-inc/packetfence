@@ -154,12 +154,10 @@ const setup = props => {
     if (!plotlyRef.value)
       return
     const sFields = fields.value.split(':')
-console.log({sFields})
     const data = dimensions.map((dimension, index) => {
       const { name, normalize } = dimension
       const color = colorsFull[index]
       const associated = filteredItems.value.reduce((associated, item) => {
-console.log({item})
         const { [sFields[0]]: value } = item
         let count
         if (sFields.length > 1) {
@@ -170,8 +168,6 @@ console.log({item})
           // no 2nd field defined, assume 1 (one)
           count = 1
         }
-console.log({sFields, item, count})
-
         if (value && value[0] !== '0') { // ignore zero dates
           const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
           let date = format(parsed, normalize)
