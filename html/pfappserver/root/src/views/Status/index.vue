@@ -1,5 +1,5 @@
 <template>
-  <b-row>
+  <b-row align-v="start">
     <section-sidebar v-model="sections" />
     <b-col cols="12" md="9" xl="10" class="pt-3 pb-3">
       <transition name="slide-bottom">
