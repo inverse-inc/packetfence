@@ -67,6 +67,22 @@ for my $f (qw(tls_tlsprofile ttls_tlsprofile peap_tlsprofile)) {
     );
 }
 
+has_field 'peap_virtual_server' => (
+    type     => 'Text',
+    label    => 'PEAP Virtual Server',
+    required => 1,
+    messages => { required => 'Please specify the name of the virtual server.' },
+    default  => 'packetfence-default',
+);
+
+has_field 'ttls_virtual_server' => (
+    type     => 'Text',
+    label    => 'TTLS Virtual Server',
+    required => 1,
+    messages => { required => 'Please specify the name of the virtual server.' },
+    default  => 'packetfence-default',
+);
+
 has_field fast_config => (
     type => 'Select',
     options_method => \&options_fast,

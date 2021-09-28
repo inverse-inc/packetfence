@@ -71,6 +71,20 @@ export const useSearch = makeSearch('radiusEap', {
       visible: true
     },
     {
+      key: 'ttls_virtual_server',
+      label: 'TTLS Virtual Server', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
+      key: 'peap_virtual_server',
+      label: 'PEAP Virtual Server', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'fast_config',
       label: 'Fast Profile', // i18n defer
       searchable: true,

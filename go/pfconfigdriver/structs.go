@@ -731,6 +731,8 @@ type EAP struct {
 	TimerExpire                string         `json:"timer_expire"`
 	CiscoAccountingUsernameBug string         `json:"cisco_accounting_username_bug"`
 	PEAPProfile                string         `json:"peap_tlsprofile"`
+	PEAPVirtualServer          string         `json:"peap_virtual_server"`
+	TTLSVirtualServer          string         `json:"ttls_virtual_server"`
 	EAPAuthenticationTypes     []string       `json:"eap_authentication_types"`
 	MaxSessions                string         `json:"max_sessions"`
 	FastConfig                 Fast           `json:"fast_config"`

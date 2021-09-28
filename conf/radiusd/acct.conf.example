@@ -4,21 +4,6 @@ pidfile = [% pid_file %]
 
 $INCLUDE radiusd.conf
 
-[% FOREACH ip IN listen_ips %]
-listen {
-        ipaddr = [% ip %]
-        port = 0
-        type = acct
-        virtual_server = packetfence
-}
-[% END %]
-
-listen {
-    type = control
-    socket = [% socket_file %]
-    mode = rw
-}
-
 listen {
         #  ONLY Status-Server is allowed to this port.
         #  ALL other packets are ignored.
@@ -27,6 +12,28 @@ listen {
         ipaddr = 127.0.0.1
         port = 18122
         virtual_server = status
+}
+
+
+[% FOREACH ip IN listen_ips %]
+[% FOREACH key IN tenant.keys %]
+[% NEXT IF key == '0' %]
+[% NEXT IF tenant.$key.radius_port.empty or tenant.$key.radius_port == '0' %]
+[% SET port=tenant.$key.radius_port+1 %]
+listen {
+        ipaddr = [% ip %]
+        port = [% port %]
+        type = acct
+        virtual_server = packetfence-[% tenant.$key.name %]
+}
+
+[% END %]
+[% END %]
+
+listen {
+    type = control
+    socket = [% socket_file %]
+    mode = rw
 }
 
 log {

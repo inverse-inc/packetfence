@@ -64,7 +64,8 @@ ALTER TABLE person
 \! echo "altering tenant"
 ALTER TABLE tenant
     ADD COLUMN IF NOT EXISTS `radius_port` int(5) DEFAULT NULL AFTER domain_name,
-    ADD COLUMN IF NOT EXISTS `radsec_port` int(5) DEFAULT NULL AFTER radius_port;
+    ADD COLUMN IF NOT EXISTS `radsec_port` int(5) DEFAULT NULL AFTER radius_port,
+    ADD COLUMN IF NOT EXISTS `radius_cli_port` int(5) DEFAULT NULL AFTER radsec_port;
 
 \! echo "altering password"
 ALTER TABLE password

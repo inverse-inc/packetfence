@@ -23,12 +23,70 @@ use pf::file_paths qw(
   $realm_config_file
 );
 
-use base 'pfconfig::namespaces::config::OrderedRealm';
+use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->SUPER::init();
-    delete $self->{_scoped_by_tenant_id};
+    $self->{_scoped_by_tenant_id} = 0;
+    $self->{child_resources} = [ "resource::RealmReverseLookup" ];
+    $self->{ini} = pf::IniFiles->new(
+        -file       => $realm_config_file,
+        -import     => pf::IniFiles->new(-file => $realm_default_config_file),
+        -allowempty => 1,
+    );
+}
+
+sub build {
+    my ($self) = @_;
+    return {
+        map {
+            my $id = $_;
+            $id => [$self->build_tenant_sections($id)]
+        } $self->tenant_ids()
+    };
+}
+
+
+sub tenant_ids {
+    my ($self) = @_;
+    return $self->{ini}->Groups();
+}
+
+sub build_tenant_sections {
+    my ($self, $tenant_id) = @_;
+    my @result;
+    foreach my $key ($self->sections_for_tenant($tenant_id)) {
+        my $name = $key;
+        $name =~ s/^\Q$tenant_id \E//;
+        $name = lc($name);
+        push(@result, {$name => $self->get_params($key)});
+    }
+
+    return @result;
+}
+
+sub sections_for_tenant {
+    my ($self, $tenant_id) = @_;
+    return $self->{ini}->GroupMembers($tenant_id);
+}
+
+sub get_params {
+    my ($self, $section) = @_;
+    my $ini = $self->{ini};
+    my %data;
+    for my $param ($ini->Parameters($section)) {
+        $data{$param} = $ini->val($section, $param);
+    }
+
+    if (exists $data{domain}) {
+        my $domain = $data{domain};
+        if ($domain) {
+            push @{$self->{reverseLookup}{domain}{$domain}}, $section;
+        }
+    }
+
+    $self->expand_list(\%data, qw(categories));
+    return \%data;
 }
 
 =head1 AUTHOR

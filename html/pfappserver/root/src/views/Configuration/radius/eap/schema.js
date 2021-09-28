@@ -36,8 +36,10 @@ export default (props) => {
     ignore_unknown_eap_types: yup.string().nullable().label(i18n.t('Ignore Unknown')),
     max_sessions: yup.string().nullable().label(i18n.t('Max Sessions')),
     peap_tlsprofile: yup.string().nullable().label(i18n.t('PEAP Profile')),
+    peap_virtual_server: yup.string().nullable().label(i18n.t('PEAP Virtual Server')),
     timer_expire: yup.string().nullable().label(i18n.t('Expires')),
     tls_tlsprofile: yup.string().nullable().label(i18n.t('TLS Profile')),
-    ttls_tlsprofile: yup.string().nullable().label(i18n.t('TTLS Profile'))
+    ttls_tlsprofile: yup.string().nullable().label(i18n.t('TTLS Profile')),
+    ttls_virtual_server: yup.string().nullable().label(i18n.t('TTLS Virtual Server'))
   })
 }

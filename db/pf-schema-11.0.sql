@@ -22,6 +22,7 @@ CREATE TABLE `tenant` (
   domain_name VARCHAR(255),
   radius_port INT(5),
   radsec_port INT(5),
+  radius_cli_port INT(5),
   PRIMARY KEY (id),
   UNIQUE KEY tenant_name (`name`),
   UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`),
@@ -30,7 +31,7 @@ CREATE TABLE `tenant` (
 
 SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
     INSERT INTO `tenant` VALUES (0, 'global', NULL, NULL);
-INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL, '1812', '2083');
+INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL, '1812', '2083', '1815');
 
 --
 -- Table structure for table `class`

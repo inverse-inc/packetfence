@@ -16,6 +16,7 @@ export {
   BaseFormGroupInput                  as FormGroupPortalDomainName,
   BaseFormGroupInputNumber            as FormGroupRadiusPort,
   BaseFormGroupInputNumber            as FormGroupRadsecPort,
+  BaseFormGroupInputNumber            as FormGroupRadiusCliPort,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,

@@ -18,6 +18,7 @@ listen {
 [% FOREACH ip IN listen_ips %]
 [% FOREACH key IN tenant.keys %]
 [% NEXT IF key == '0' %]
+[% NEXT IF tenant.$key.radius_port.empty or tenant.$key.radius_port == '0' %]
 listen {
         ipaddr = [% ip %]
         port = [% tenant.$key.radius_port %]
@@ -28,6 +29,8 @@ listen {
         virtual_server = [% virtual_server %]
 [% END %]
 }
+
+[% NEXT IF tenant.$key.radsec_port.empty or tenant.$key.radsec_port == '0' %]
 
 listen {
         ipaddr = [% ip %]

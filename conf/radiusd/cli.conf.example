@@ -1,13 +1,33 @@
 # Copyright (C) Inverse inc.
-pidfile = %%pid_file%%
+
+pidfile = [% pid_file %]
 
 $INCLUDE radiusd_cli.conf
 
-%%listen%%
+listen {
+    type = control
+    socket = [% socket_file %]
+    mode = rw
+}
+
+
+[% FOREACH ip IN listen_ips %]
+[% FOREACH key IN tenant.keys %]
+[% NEXT IF key == '0' %]
+[% NEXT IF tenant.$key.radius_cli_port.empty or tenant.$key.radius_cli_port == '0' %]
+listen {
+        ipaddr = [% ip %]
+        port = [% tenant.$key.radius_cli_port %]
+        type = auth
+        virtual_server = packetfence-cli-[% tenant.$key.name %]
+}
+
+[% END %]
+[% END %]
 
 listen {
     type = control
-    socket = %%socket_file%%
+    socket = [% socket_file %]
     mode = rw
 }
 

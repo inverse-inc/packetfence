@@ -25,7 +25,9 @@ export {
   BaseFormGroupChosenMultiple     as FormGroupEapAuthenticationTypes,
   BaseFormGroupChosenOne          as FormGroupTlsTlsprofile,
   BaseFormGroupChosenOne          as FormGroupTtlsTlsprofile,
+  BaseFormGroupInput              as FormGroupTtlsVirtualServer,
   BaseFormGroupChosenOne          as FormGroupPeapTlsprofile,
+  BaseFormGroupInput              as FormGroupPeapVirtualServer,
   BaseFormGroupChosenOne          as FormGroupFastConfig,
 
   BaseViewCollectionItem          as BaseView,

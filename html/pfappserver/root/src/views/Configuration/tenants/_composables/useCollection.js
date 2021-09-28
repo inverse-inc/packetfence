@@ -74,8 +74,15 @@ export const useSearch = makeSearch('tenants', {
       searchable: true
     },
     {
+      key: 'radius_cli_port',
+      label: 'RADIUS CLI Port', // i18n defer
+      sortable: true,
+      visible: true,
+      searchable: true
+    },
+    {
       key: 'radsec_port',
-      label: 'RASEC Port', // i18n defer
+      label: 'RADSEC Port', // i18n defer
       sortable: true,
       visible: true,
       searchable: true
@@ -110,6 +117,11 @@ export const useSearch = makeSearch('tenants', {
     {
       value: 'radius_port',
       text: i18n.t('RADIUS port'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'radius_cli_port',
+      text: i18n.t('RADIUS CLI port'),
       types: [conditionType.SUBSTRING]
     },
     {

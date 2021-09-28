@@ -1,5 +1,5 @@
 [% FOREACH key IN virtual_servers.keys %]
-server packetfence-[% key -%] {
+server packetfence-[% virtual_servers.$key.name %] {
 	#
 	#  Authorization. First preprocess (hints and huntgroups files),
 	#  then realms, and finally look in the "users" file.
@@ -97,7 +97,7 @@ server packetfence-[% key -%] {
 		#  TTLS or PEAP.
 		#
 
-	[% authorize_eap_choice %]
+	[% virtual_servers.$key.authorize_eap_choice %]
 
 		#
 		#  Read the 'users' file.  In v3, this is located in
@@ -196,7 +196,7 @@ server packetfence-[% key -%] {
 			}
 		}
 
-	[% authentication_auth_type %]
+	[% virtual_servers.$key.authentication_auth_type %]
 
 		#  Uncomment it if you want to use ldap for authentication
 		#
@@ -376,7 +376,7 @@ server packetfence-[% key -%] {
 		#	&reply: += &session-state:
 		#}
 		if ("%{%{control:PacketFence-Proxied-From}:-False}" == "True") {
-	[% local_realm %]
+	[% virtual_servers.$key.local_realm %]
 			if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
 				packetfence-audit-log-reject
 				reject
@@ -497,40 +497,39 @@ server packetfence-[% key -%] {
 	}
 }
 
-[% END %]
 
 [% IF remote == "YES" %]
 
 [% members %]
 
-home_server degraded {
-	virtual_server = pf.degraded
+home_server degraded-[% virtual_servers.$key.name %] {
+	virtual_server = pf.degraded-[% virtual_servers.$key.name %]
 }
 
 #  Put all of the servers into a pool.
-home_server_pool pf_auth_pool {
+home_server_pool pf_auth_pool-[% virtual_servers.$key.name %] {
 	type = fail-over
 
 [% home_server %]
 
-	home_server = degraded
+	home_server = degraded-[% virtual_servers.$key.name %]
 }
 
-home_server_pool pf_acct_pool {
+home_server_pool pf_acct_pool-[% virtual_servers.$key.name %] {
 	type = fail-over
 
 [% home_server %]
 
 }
 
-realm remote {
-auth_pool = pf_auth_pool
-	acct_pool = pf_acct_pool
+realm remote-[% virtual_servers.$key.name %] {
+auth_pool = pf_auth_pool-[% virtual_servers.$key.name %]
+	acct_pool = pf_acct_pool-[% virtual_servers.$key.name %]
 }
 
 [% END %]
 
-server pf-remote {
+server pf-remote-[% virtual_servers.$key.name %] {
 	pre-proxy {
 		#  Insert pre-proxy rules here
 	}
@@ -584,7 +583,7 @@ server pf-remote {
 
 
 
-server pf.degraded {
+server pf.degraded-[% virtual_servers.$key.name %] {
 	authorize {
 		rewrite_calling_station_id
 		rewrite_called_station_id
@@ -599,7 +598,7 @@ server pf.degraded {
 
 		ntdomain
 
-[% authorize_eap_choice_degraded %]
+[% virtual_servers.$key.authorize_eap_choice_degraded %]
 
 		if ( !EAP-Message ) {
 			update {
@@ -632,7 +631,7 @@ server pf.degraded {
 		#
 		#  Allow EAP authentication.
 
-[% authentication_auth_type_degraded %]
+[% virtual_servers.$key.authentication_auth_type_degraded %]
 
 	}
 
@@ -688,7 +687,7 @@ server pf.degraded {
 	}
 }
 
-server packetfence-degraded-tunnel {
+server packetfence-degraded-tunnel-[% virtual_servers.$key.name %] {
 
 	authorize {
 		filter_username
@@ -712,7 +711,7 @@ server packetfence-degraded-tunnel {
 			&Proxy-To-Realm := LOCAL
 		}
 
-[% authorize_eap_choice_degraded %]
+[% virtual_servers.$key.authorize_eap_choice_degraded %]
 
 		rewrite_called_station_id
 
@@ -764,7 +763,7 @@ server packetfence-degraded-tunnel {
 			}
 		}
 
-[% authentication_auth_type_degraded %]
+[% virtual_servers.$key.authentication_auth_type_degraded %]
 
 	}
 
@@ -800,3 +799,5 @@ server packetfence-degraded-tunnel {
 	}
 
 }
+
+[% END %]

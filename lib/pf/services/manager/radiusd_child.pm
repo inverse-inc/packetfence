@@ -50,6 +50,7 @@ use pf::config qw(
     %ConfigDomain
     %ConfigRealm
     @ConfigOrderedRealm
+    %ConfigOrderedRealmAll
     $local_secret
     @radius_ints
     %ConfigAuthenticationLdap
@@ -57,6 +58,8 @@ use pf::config qw(
 );
 
 tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
+
+our $tenantConfig;
 
 extends 'pf::services::manager';
 
@@ -90,7 +93,23 @@ Executed once for ALL processes
 
 sub generateConfig {
     my ($self, $quick) = @_;
-
+    my $logger = get_logger();
+    use Data::Dumper;
+    my $tenant_hash = tenant_hash();
+    foreach my $tenant ( keys %{$tenant_hash} ) {
+        next if $tenant eq 0;
+        $tenantConfig->{$tenant} = $tenant_hash->{$tenant};
+        $tenantConfig->{$tenant}->{'OrderedRealm'} = $pf::config::ConfigOrderedRealmAll{$tenant};
+	#        foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) { 
+	#    $logger->warn(Dumper $key);
+	#}
+	generate_eap_choice(\$tenantConfig->{$tenant}->{'authorize_eap_choice'}, \$tenantConfig->{$tenant}->{'authentication_auth_type'}, undef, $tenant);
+        generate_eap_choice(\$tenantConfig->{$tenant}->{'authorize_eap_choice_degraded'}, \$tenantConfig->{$tenant}->{'authentication_auth_type_degraded'}, "eap-degraded", $tenant);
+        generate_local_realm(\$tenantConfig->{$tenant}->{'local_realm'}, $tenant);
+        generate_user_principal_name(\$tenantConfig->{$tenant}->{'user_principal_name'}, $tenant);
+        generate_ldap_choice(\$tenantConfig->{$tenant}->{'authorize_ldap_choice'}, \$tenantConfig->{$tenant}->{'authentication_ldap_auth_type'}, \$tenantConfig->{$tenant}->{'edir_configuration'}, $tenant);
+    }
+    $logger->warn(Dumper $tenantConfig);
     unless($CONFIG_GENERATED){
         $self->_generateConfig();
 
@@ -127,24 +146,59 @@ sub _generateConfig {
     $self->generate_dynamic_clients($tt);
 }
 
+=head2 generate_dynamic_clients
+
+Generates the dynamic-clients configuration
+
+=cut
+
+sub generate_dynamic_clients {
+    my ($self, $tt) = @_;
+    my %tags;
+
+    $tags{'tenant'} = '';
+    my $tenants = tenant_hash();
+    foreach my $tenant (keys %{$tenants}) {
+        next unless($tenants->{$tenant}->{'radius_port'});
+        $tags{'tenant'} .= <<"EOT";
+if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_port'}") {
+    update control {
+        &PacketFence-Tenant-Id = '$tenant'
+    }
+}
+EOT
+    }
+    $tt->process("$conf_dir/radiusd/dynamic-clients", \%tags, "$install_dir/raddb/sites-enabled/dynamic-clients") or die $tt->error();
+    $tt->process("$conf_dir/radiusd/packetfence.policy", \%tags, "$install_dir/raddb/policy.d/packetfence") or die $tt->error();
+}
+
 
 =head2 generate_radiusd_sitesconf
+
 Generates the packetfence and packetfence-tunnel configuration file
+
 =cut
 
 sub generate_radiusd_sitesconf {
     my ($self, $tt) = @_;
     my %tags;
 
+    #    my %virtual_server;
+    #my $tenants = tenant_hash();
+    #foreach my $tenant (keys %{$tenants}) {
+    #    next unless($tenants->{$tenant}->{'radius_port'});
+    #	$virtual_server{$tenants->{$tenant}->{'name'}} = $tenants->{$tenant};
+    #}
+    $tags{'virtual_servers'} = \%{$tenantConfig};
     $tags{'remote'} = "";
-    $tags{'authorize_eap_choice'} = "";
-    $tags{'authentication_auth_type'} = "";
-    $tags{'authorize_eap_choice_degraded'} = "";
-    $tags{'authentication_auth_type_degraded'} = "";
+    #$tags{'authorize_eap_choice'} = "";
+    #$tags{'authentication_auth_type'} = "";
+    #$tags{'authorize_eap_choice_degraded'} = "";
+    #$tags{'authentication_auth_type_degraded'} = "";
 
-    generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
+    #generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
-    generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "eap-degraded");
+    #generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "eap-degraded");
 
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
@@ -178,27 +232,6 @@ EOT
     }
     else {
         $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
-    }
-
-    $tags{'local_realm'} = '';
-    my @realms;
-    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-        if (isenabled($pf::config::ConfigRealm{$realm}->{'radius_auth_compute_in_pf'})) {
-            if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                push (@realms, "Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/");
-            } else {
-                push (@realms, "Realm == \"$realm\"");
-            }
-        }
-    }
-    if (@realms) {
-        $tags{'local_realm'} .= '        if ( ';
-        $tags{'local_realm'} .=  join(' || ', @realms);
-        $tags{'local_realm'} .= ' ) {'."\n";
-        $tags{'local_realm'} .= <<"EOT";
-            rest
-        }
-EOT
     }
 
     # Remote config
@@ -272,50 +305,17 @@ EOT
         $tags{'redis_ntlm_cache_fetch'} = "# redis-ntlm-cache disabled in configuration"
     }
 
-    $tags{'userPrincipalName'} = '';
-    my $flag = $TRUE;
-    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-        if (isenabled($pf::config::ConfigRealm{$realm}->{'permit_custom_attributes'}) && (scalar @{$ConfigAuthenticationLdap{$pf::config::ConfigRealm{$realm}->{ldap_source}}->{searchattributes}})) {
-            if ($flag) {
-                $tags{'userPrincipalName'} .= <<"EOT";
-        update control {
-            Cache-Status-Only = 'yes'
-        }
-        userprincipalname
-        if (notfound) {
-EOT
-            }
-            $flag = $FALSE;
-            if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-                $tags{'userPrincipalName'} .= "            if (Realm =~ /$pf::config::ConfigRealm{$realm}->{'regex'}/) {";
-            } else {
-                $tags{'userPrincipalName'} .= "            if (Realm == \"$realm\") {";
-            }
-            $tags{'userPrincipalName'} .= <<"EOT";
+    #$tags{'authorize_eap_choice'} = "";
+    #$tags{'authentication_auth_type'} = "";
 
-                $pf::config::ConfigRealm{$realm}->{ldap_source}
-            }
-EOT
-        }
-    }
-    if ($flag == $FALSE) {
-        $tags{'userPrincipalName'} .= <<"EOT";
-        }
-        userprincipalname
-EOT
-    }
+    #generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
 
-    $tags{'authorize_eap_choice'} = "";
-    $tags{'authentication_auth_type'} = "";
+    #$tags{'authorize_ldap_choice'} = "";
+    #$tags{'authentication_ldap_auth_type'} = "";
+    #$tags{'edir_configuration'} = "";
 
-    generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
-
-    $tags{'authorize_ldap_choice'} = "";
-    $tags{'authentication_ldap_auth_type'} = "";
-    $tags{'edir_configuration'} = "";
-
-    generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
-
+    #generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
+    #TODO
     $tags{'oauth2_if_enabled'} = (any { $_->{azuread_source_ttls_pap} } values(%ConfigRealm)) ? "oauth2" : "#oauth2 is not in use by any realm";
 
     $tags{'local_auth_if_enabled'} = isenabled($Config{radius_configuration}{local_auth}) ? "packetfence-local-auth" : "# packetfence-local-auth is not enabled in the configuration";
@@ -330,7 +330,9 @@ EOT
 
 
 =head2 generate_radiusd_mainconf
+
 Generates the radiusd.conf configuration file
+
 =cut
 
 sub generate_radiusd_mainconf {
@@ -386,7 +388,6 @@ sub generate_radiusd_authconf {
     if (pf::cluster::isSlaveMode()) {
         $tags{'virtual_server'} = "pf-remote";
     }
-
     $tags{'tenant'} = tenant_hash();
     $tags{'listen_ips'} = [uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
@@ -567,7 +568,7 @@ EOT
         $tags{'authentication_auth_type'} = "";
         $tags{'authorize_eap_choice'} = "";
 
-        generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
+        generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'}, undef, 1);
 
         if(isenabled($Config{radius_configuration}{filter_in_eduroam_authorize})){
         $tags{'authorize_filter'} .= <<"EOT";
@@ -634,45 +635,26 @@ EOT
     parse_template( \%tags, "$conf_dir/radiusd/clients.eduroam.conf.inc", "$install_dir/raddb/clients.eduroam.conf.inc" );
 }
 
+
 sub generate_radiusd_cliconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
+    my @listen_ips;
     if (@cli_switches > 0) {
-        $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
         if ($cluster_enabled) {
             my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
-
-$tags{'listen'} .= <<"EOT";
-listen {
-        ipaddr = $ip
-        port = 1815
-        type = auth
-        virtual_server = packetfence-cli
-        limit {
-              max_connections = 16
-              lifetime = 0
-              idle_timeout = 60
-        }
-}
-
-EOT
+            push @listen_ips, $ip;
         } else {
             foreach my $interface ( uniq(@radius_ints) ) {
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-                $tags{'listen'} .= <<"EOT";
-listen {
-        ipaddr = $ip
-        port = 1815
-        type = auth
-        virtual_server = packetfence-cli
-}
-
-EOT
+                push @listen_ips, $ip;
             }
         }
+        $tags{'tenant'} = tenant_hash();
+        $tags{'listen_ips'} = [uniq @listen_ips];
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
-        parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
+        $tt->process("$conf_dir/radiusd/cli.conf", \%tags, "$install_dir/raddb/cli.conf") or die $tt->error();
     } else {
         my $file = $install_dir."/raddb/cli.conf";
         unlink($file);
@@ -1143,6 +1125,7 @@ sub generate_radiusd_cluster {
     $tags{'config'} ='';
     $tags{'home_server'} ='';
 
+    my $tenants = tenant_hash();
     if ($cluster_enabled) {
         my $cluster_ip = pf::cluster::management_cluster_ip();
         my @radius_backend = values %{pf::cluster::members_ips($int)};
@@ -1154,12 +1137,14 @@ sub generate_radiusd_cluster {
         my $i = 0;
         foreach my $radius_back (@radius_backend) {
             next if($radius_back eq $management_network->{Tip} && isdisabled($Config{active_active}{auth_on_management}));
-$tags{'members'} .= <<"EOT";
-home_server pf$i.cluster {
+            foreach my $tenant (keys %{$tenants}) {
+                next unless($tenants->{$tenant}->{'radius_port'});
+	    $tags{'members'} .= <<"EOT";
+home_server pf$i-$tenants->{$tenant}->{'name'}.cluster {
         type = auth+acct
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
-        port = 1812
+        port = $tenants->{$tenant}->{'radius_port'}
         secret = $local_secret
         response_window = 6
         status_check = status-server
@@ -1168,6 +1153,14 @@ home_server pf$i.cluster {
         response_timeouts = 3
         zombie_period = 40
 }
+EOT
+
+            $tags{'home_server'} .= <<"EOT";
+        home_server =  pf$i-$tenants->{$tenant}->{'name'}.cluster
+EOT
+
+            }
+            $tags{'members'} .= <<"EOT";
 home_server pf$i.cli.cluster {
         type = auth
         ipaddr = $radius_back
@@ -1181,9 +1174,6 @@ home_server pf$i.cli.cluster {
         response_timeouts = 3
         zombie_period = 40
 }
-EOT
-            $tags{'home_server'} .= <<"EOT";
-        home_server =  pf$i.cluster
 EOT
             $tags{'home_server_cli'} .= <<"EOT";
         home_server =  pf$i.cli.cluster
@@ -1268,18 +1258,23 @@ EOT
         $tags{'template'} = "$conf_dir/radiusd/load_balancer.conf";
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
-
         foreach my $interface ( uniq(@radius_ints) ) {
 
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
-            $tags{'listen'} .= <<"EOT";
+            foreach my $tenant (keys %{$tenants}) {
+                next unless($tenants->{$tenant}->{'radius_port'});
+	        $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = $cluster_ip
-        port = 0
+        port = $tenants->{$tenant}->{'radius_port'}
         type = auth
         virtual_server = pf.cluster
 }
 
+EOT
+
+            }
+            $tags{'listen'} .= <<"EOT";
 
 listen {
         ipaddr = $cluster_ip
@@ -1374,6 +1369,84 @@ sub generate_radiusd_mschap {
 
 }
 
+=head2 generate_local_realm
+
+Generate the local_realm section
+
+=cut
+
+sub generate_local_realm {
+    my ($local_realm, $tenant) = @_;
+    my $logger = get_logger;
+
+    my @realms;
+    foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+        foreach my $realm (keys %{$key}) {
+            if (isenabled($key->{$realm}->{'radius_auth_compute_in_pf'})) {
+                if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
+                    push (@realms, "Realm =~ /$key->{$realm}->{'regex'}/");
+                } else {
+                    push (@realms, "Realm == \"$realm\"");
+                }
+            }
+        }
+    }
+    if (@realms) {
+        $$local_realm .= '        if ( ';
+        $$local_realm .=  join(' || ', @realms);
+        $$local_realm .= ' ) {'."\n";
+        $$local_realm .= <<"EOT";
+            rest
+        }
+EOT
+    }
+}
+
+=head2 generate_user_principal_name
+
+Generate the user_principal_name section
+
+=cut
+
+sub generate_user_principal_name {
+    my ($user_principal_name, $tenant) = @_;
+    my $logger = get_logger;
+
+    my $flag = $TRUE;
+    foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+        foreach my $realm (keys %{$key}) {
+            if (isenabled($key->{$realm}->{'permit_custom_attributes'}) && (scalar @{$ConfigAuthenticationLdap{$key->{$realm}->{ldap_source}}->{searchattributes}})) {
+                if ($flag) {
+                $$user_principal_name .= <<"EOT";
+        update control {
+            Cache-Status-Only = 'yes'
+        }
+        userprincipalname
+        if (notfound) {
+EOT
+                }
+                $flag = $FALSE;
+                if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
+                    $$user_principal_name .= "            if (Realm =~ /$key->{$realm}->{'regex'}/) {";
+                } else {
+                    $$user_principal_name .= "            if (Realm == \"$realm\") {";
+                }
+                $$user_principal_name .= <<"EOT";
+
+                $key->{$realm}->{ldap_source}
+            }
+EOT
+            }
+        }
+        if ($flag == $FALSE) {
+            $$user_principal_name .= <<"EOT";
+        }
+        userprincipalname
+EOT
+        }
+    }
+}
+
 =head2 generate_eap_choice
 
 Generate the configuration for eap choice
@@ -1381,18 +1454,21 @@ Generate the configuration for eap choice
 =cut
 
 sub generate_eap_choice {
-    my ($authorize_eap_choice, $authentication_auth_type, $suffix) = @_;
+    my ($authorize_eap_choice, $authentication_auth_type, $suffix, $tenant) = @_;
+    my $logger = get_logger;
+    use Data::Dumper;
     if (!(defined($suffix) && $suffix ne "" )) {
         $suffix = "";
     }
     my $if = 'if';
-    foreach my $key ( @pf::config::ConfigOrderedRealm ) {
-        next if $pf::config::ConfigRealm{$key}->{'eap'} eq 'default';
-        my $choice = $key;
-        $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-        my $eap = ( defined($pf::config::ConfigRealm{$key}->{'eap'}) && $pf::config::ConfigRealm{$key}->{'eap'} ne '') ? $pf::config::ConfigRealm{$key}->{'eap'} : 'eap';
-        $eap = $eap."-".$suffix if ($suffix ne "" && $suffix ne "eap-degraded");
-        $$authorize_eap_choice .= <<"EOT";
+    foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+        foreach my $realm (keys %{$key}) {
+            next if $key->{$realm}->{'eap'} eq 'default';
+            my $choice = $realm;
+            $choice = $key->{$realm}->{'regex'} if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{$realm}{'regex'} ne '');
+            my $eap = ( defined($key->{$realm}->{'eap'}) && $key->{$realm}->{'eap'} ne '') ? $key->{$realm}->{'eap'} : 'eap';
+            $eap = $eap."-".$suffix if ($suffix ne "" && $suffix ne "eap-degraded");
+            $$authorize_eap_choice .= <<"EOT";
             $if (Realm =~ /$choice/) {
                 $eap {
                     ok = return
@@ -1400,82 +1476,84 @@ sub generate_eap_choice {
             }
 EOT
             $if = 'elsif';
-    }
-    if ($if eq 'elsif') {
-        $$authorize_eap_choice .= <<"EOT";
+        }
+        if ($if eq 'elsif') {
+            $$authorize_eap_choice .= <<"EOT";
             else {
                 eap {
                     ok = return
                 }
             }
 EOT
-    } else {
-        my $eap = (defined($suffix) && $suffix ne "" ) ? $suffix : "eap";
-        $$authorize_eap_choice .= <<"EOT";
+        } else {
+            my $eap = (defined($suffix) && $suffix ne "" ) ? $suffix : "eap";
+            $$authorize_eap_choice .= <<"EOT";
             $eap {
                 ok = return
             }
 EOT
-    }
-    foreach my $key (keys %ConfigEAP) {
-        next if $key eq 'default';
-        $key = $key."-".$suffix if ($suffix ne "");
-        $$authentication_auth_type .= <<"EOT";
+        }
+        foreach my $key (keys %ConfigEAP) {
+            next if $key eq 'default';
+            $key = $key."-".$suffix if ($suffix ne "");
+            $$authentication_auth_type .= <<"EOT";
         Auth-Type $key {
             $key
         }
 EOT
-    }
-    if ($suffix ne "") {
-    $$authentication_auth_type .= <<"EOT";
+        }
+        if ($suffix ne "") {
+        $$authentication_auth_type .= <<"EOT";
         Auth-Type $suffix {
             $suffix
         }
 EOT
+        }
     }
 }
 
 sub generate_ldap_choice {
-    my ($authorize_ldap_choice, $authentication_ldap_auth_type, $edir_configuration) = @_;
+    my ($authorize_ldap_choice, $authentication_ldap_auth_type, $edir_configuration, $tenant) = @_;
     my $if = 'if';
     my $of = 'if';
     my $oauth2_if = 'if';
     my $edir_config = "";
-    foreach my $key ( @pf::config::ConfigOrderedRealm ) {
-        my $choice = "^$key\$";
-        if (defined($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{azuread_source_ttls_pap})) {
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            $$authorize_ldap_choice .= <<"EOT";
+    foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+        foreach my $realm (keys %{$key}) {
+            my $choice = "^$realm\$";
+            if (defined($key->{$realm}->{azuread_source_ttls_pap}) && exists($key->{$realm}->{azuread_source_ttls_pap})) {
+                $choice = $key->{$realm}->{'regex'} if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '');
+                $$authorize_ldap_choice .= <<"EOT";
         $oauth2_if (Realm =~ /$choice/) {
             oauth2
         }
 EOT
-            $oauth2_if = 'elsif';
-        }
+                $oauth2_if = 'elsif';
+            }
 
-        if (defined($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}) && exists($pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap})) {
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            $$authorize_ldap_choice .= <<"EOT";
+            if (defined($key->{$realm}->{ldap_source_ttls_pap}) && exists($key->{$realm}->{ldap_source_ttls_pap})) {
+                $choice = $key->{$realm}->{'regex'} if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '');
+                $$authorize_ldap_choice .= <<"EOT";
         $if (Realm =~ /$choice/) {
-            $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
+            $key->{$realm}->{'ldap_source_ttls_pap'}
             update control {
-                Auth-Type := $pf::config::ConfigRealm{$key}->{'ldap_source_ttls_pap'}
+                Auth-Type := $key->{$realm}->{'ldap_source_ttls_pap'}
             }
         }
 EOT
-            $if = 'elsif';
-            $$authentication_ldap_auth_type .= <<"EOT";
-        Auth-Type $pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap} {
-            $pf::config::ConfigRealm{$key}->{ldap_source_ttls_pap}
+                $if = 'elsif';
+                $$authentication_ldap_auth_type .= <<"EOT";
+        Auth-Type $key->{$realm}->{ldap_source_ttls_pap} {
+             $key->{$realm}->{ldap_source_ttls_pap}
         }
 EOT
 
-        }
-        if (defined($pf::config::ConfigRealm{$key}->{edir_source}) && exists($pf::config::ConfigRealm{$key}->{edir_source})) {
-            $choice = $pf::config::ConfigRealm{$key}->{'regex'} if (defined $pf::config::ConfigRealm{$key}->{'regex'} && $pf::config::ConfigRealm{$key}->{'regex'} ne '');
-            $edir_config .= <<"EOT";
+           }
+           if (defined($key->{$realm}->{edir_source}) && exists($key->{$realm}->{edir_source})) {
+               $choice = $key->{$realm}->{'regex'} if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '');
+               $edir_config .= <<"EOT";
             $of (Realm =~ /$choice/) {
-                -$pf::config::ConfigRealm{$key}->{edir_source}
+                -$key->{$realm}->{edir_source}
                 if (updated) {
                     update control {
                         &MS-CHAP-Use-NTLM-Auth := No
@@ -1483,11 +1561,11 @@ EOT
                 }
             }
 EOT
-            my $of = 'elsif';
+               my $of = 'elsif';
+           }
         }
-    }
-    if ($edir_config ne "") {
-        $$edir_configuration .= << "EOT"
+        if ($edir_config ne "") {
+            $$edir_configuration .= << "EOT"
         update control {
             Cache-Status-Only = 'yes'
         }
@@ -1502,6 +1580,7 @@ $edir_config
         }
         cache_password
 EOT
+        }
     }
 }
 
@@ -1526,32 +1605,6 @@ sub generate_multi_domain_constants {
     $content .= "our \$DATA = \$VAR1;\n";
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
-}
-
-=head2 generate_dynamic_clients
-
-Generates the dynamic-clients configuration
-
-=cut
-
-sub generate_dynamic_clients {
-    my ($self, $tt) = @_;
-    my %tags;
-
-    $tags{'tenant'} = '';
-    my $tenants = tenant_hash();
-    foreach my $tenant (keys %{$tenants}) {
-        next unless($tenants->{$tenant}->{'radius_port'});
-        $tags{'tenant'} .= <<"EOT";
-if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_port'}") {
-    update control {
-        &PacketFence-Tenant-Id = '$tenant'
-    }
-}
-EOT
-    }
-    $tt->process("$conf_dir/radiusd/dynamic-clients", \%tags, "$install_dir/raddb/sites-enabled/dynamic-clients") or die $tt->error();
-    $tt->process("$conf_dir/radiusd/packetfence.policy", \%tags, "$install_dir/raddb/policy.d/packetfence") or die $tt->error();
 }
 
 =head1 AUTHOR

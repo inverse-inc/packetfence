@@ -25,10 +25,15 @@
 
     <form-group-radius-port namespace="radius_port"
       :column-label="$i18n.t('RADIUS port')"
+      :text="$i18n.t('The RADIUS accounting port will be the RADIUS port + 1.')"
+    />
+
+    <form-group-radius-cli-port namespace="radius_cli_port"
+      :column-label="$i18n.t('RADIUS CLI port')"
     />
 
     <form-group-radsec-port namespace="radsec_port"
-      :column-label="$i18n.t('RASEC port')"
+      :column-label="$i18n.t('RADSEC port')"
     />
 
   </base-form>
@@ -45,6 +50,7 @@ import {
   FormGroupDomainName,
   FormGroupPortalDomainName,
   FormGroupRadiusPort,
+  FormGroupRadiusCliPort,
   FormGroupRadsecPort
 } from './'
 
@@ -56,6 +62,7 @@ const components = {
   FormGroupDomainName,
   FormGroupPortalDomainName,
   FormGroupRadiusPort,
+  FormGroupRadiusCliPort,
   FormGroupRadsecPort
 }
 

@@ -8,7 +8,8 @@
 #
 ######################################################################
 
-server packetfence-tunnel {
+[% FOREACH key IN virtual_servers.keys %]
+server packetfence-tunnel-[% virtual_servers.$key.name %] {
 
 
 #  Authorization. First preprocess (hints and huntgroups files),
@@ -76,7 +77,7 @@ authorize {
 
         [% authorize_filter %]
 
-[% userPrincipalName %]
+[% virtual_servers.$key.userPrincipalName %]
 
 	[% multi_domain %]
 
@@ -107,9 +108,9 @@ authorize {
 	#  or PEAP.  The load on those servers will therefore be reduced.
 	#
 
-[% authorize_eap_choice %]
+[% virtual_servers.$key.authorize_eap_choice %]
 
-[% authorize_ldap_choice %]
+[% virtual_servers.$key.authorize_ldap_choice %]
 
 	#
 	#  Read the 'users' file
@@ -123,7 +124,7 @@ authorize {
 
 	#
 
-[% edir_configuration %]
+[% virtual_servers.$key.edir_configuration %]
 
 	#
 	#  If no other module has claimed responsibility for
@@ -209,9 +210,9 @@ authenticate {
 		}
 	}
 
-[% authentication_auth_type %]
+[% virtual_servers.$key.authentication_auth_type %]
 
-[% authentication_ldap_auth_type %]
+[% virtual_servers.$key.authentication_ldap_auth_type %]
 
 	Auth-Type oauth2 {
 		oauth2
@@ -400,6 +401,8 @@ post-proxy {
 }
 
 } # inner-tunnel server block
+
+[% END %]
 
 server packetfence-tunnel-fast {
 

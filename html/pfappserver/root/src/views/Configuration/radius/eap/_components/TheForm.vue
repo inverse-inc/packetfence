@@ -43,8 +43,16 @@
       :column-label="$i18n.t('TTLS Profile')"
     />
 
+    <form-group-ttls-virtual-server namespace="ttls_virtual_server"
+      :column-label="$i18n.t('TTLS Virtual Server')"
+    />
+
     <form-group-peap-tlsprofile namespace="peap_tlsprofile"
       :column-label="$i18n.t('PEAP Profile')"
+    />
+
+    <form-group-peap-virtual-server namespace="peap_virtual_server"
+      :column-label="$i18n.t('PEAP Virtual Server')"
     />
 
     <form-group-fast-config namespace="fast_config"
@@ -68,7 +76,9 @@ import {
   FormGroupEapAuthenticationTypes,
   FormGroupTlsTlsprofile,
   FormGroupTtlsTlsprofile,
+  FormGroupTtlsVirtualServer,
   FormGroupPeapTlsprofile,
+  FormGroupPeapVirtualServer,
   FormGroupFastConfig
 } from './'
 
@@ -84,7 +94,9 @@ const components = {
   FormGroupEapAuthenticationTypes,
   FormGroupTlsTlsprofile,
   FormGroupTtlsTlsprofile,
+  FormGroupTtlsVirtualServer,
   FormGroupPeapTlsprofile,
+  FormGroupPeapVirtualServer,
   FormGroupFastConfig
 }
 

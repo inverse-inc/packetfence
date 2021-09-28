@@ -138,6 +138,7 @@ our (
 #realm.conf
     %ConfigRealm,
     @ConfigOrderedRealm,
+    %ConfigOrderedRealmAll,
 #provisioning.conf
     %ConfigProvisioning,
 #domain.conf
@@ -229,6 +230,7 @@ BEGIN {
         %Doc_Config
         %ConfigRealm
         @ConfigOrderedRealm
+        %ConfigOrderedRealmAll
         %ConfigProvisioning
         %ConfigDomain
         $default_pid
@@ -298,6 +300,8 @@ tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
 
 tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
+
+tie %ConfigOrderedRealmAll, 'pfconfig::cached_hash', 'config::OrderedRealmAll';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 
