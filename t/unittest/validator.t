@@ -86,12 +86,12 @@ is(scalar @validator1::_FIELDS, 1);
     my $errors = $ctx->errors;
     is_deeply ($errors, [{ field => 'id', message => 'Please specify the MAC address of the floating device.' }], "Has undef mac");
 
-    $ctx = pf::validator::Ctx->new;
+    $ctx->reset();
     $v->validate($ctx, { id => 1 });
     $errors = $ctx->errors;
     is_deeply ($errors, [{ field => 'id', message => 'must be a MAC address' }], "Has 1 as a mac");
 
-    $ctx = pf::validator::Ctx->new;
+    $ctx->reset();
     $v->validate($ctx, { id => "00:11:22:33:44:55" });
     $errors = $ctx->errors;
     is_deeply ($errors, [], "Valid MAC no errors");

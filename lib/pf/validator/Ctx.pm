@@ -21,6 +21,7 @@ has errors => (
     handles   => {
         add_error  => 'push',
         has_errors => 'count',
+        clear_errors => 'clear',
     },
     default => sub { [] },
 );
@@ -32,9 +33,19 @@ has warnings => (
     handles   => {
         add_warning  => 'push',
         has_warnings => 'count',
+        clear_warnings => 'clear',
     },
     default => sub { [] },
 );
+
+sub reset {
+    my ($self) = @_;
+    for my $m (qw(clear_errors clear_warnings)) {
+        $self->$m()
+    }
+
+    return;
+}
 
 =head1 AUTHOR
 
