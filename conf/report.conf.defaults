@@ -155,6 +155,36 @@ person_fields=Owner
 node_fields=MAC Address
 order_fields=-auth_log.attempted_at
 
+[Authentication::All Failures]
+type=abstract
+description=All failed authentications (RADIUS, portal) that have occured on the server.
+# The table to search from
+base_table=auth_log
+# The columns to select
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
+date_field=attempted_at
+base_conditions_operator=any
+person_fields=Owner
+node_fields=MAC Address
+order_fields=-auth_log.attempted_at
+base_conditions=auth_log.status:=:failed
+charts=scatter|Attempted at
+
+[Authentication::All Successes]
+type=abstract
+description=All successful authentications (RADIUS, portal) that have occured on the server.
+# The table to search from
+base_table=auth_log
+# The columns to select
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
+date_field=attempted_at
+base_conditions_operator=any
+person_fields=Owner
+node_fields=MAC Address
+order_fields=-auth_log.attempted_at
+base_conditions=auth_log.status:=:completed
+charts=scatter|Attempted at
+
 [Authentication::Top Failures::Connection Profile to Source]
 type=sql
 description=All failed authentications of sources vs profiles
@@ -187,7 +217,6 @@ has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 charts=parallel|profile:source:count
-
 
 [Authentication::Top Failures::By Connection Profile]
 type=sql
@@ -709,6 +738,7 @@ cursor_default=00:00:00:00:00:00
 default_limit=100
 node_fields=mac
 person_fields=pid
+charts=scatter|regdate
 
 [Node::Inactive]
 type=sql
@@ -1495,7 +1525,7 @@ charts=pie|user_name:count,bar|username:count
 type=abstract
 description=List of closed security events on the network
 base_table=security_event
-columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+columns=security_event.release_date "Release date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
 joins= <<EOT
 =>{class.security_event_id=security_event.security_event_id} class|class
 =>{security_event.mac=node.mac} node|node
@@ -1505,6 +1535,7 @@ node_fields=MAC Address
 person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:closed
+charts=scatter|Release date
 
 [Security Events::Open]
 type=abstract
@@ -1521,6 +1552,7 @@ person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:open
 role_fields=category_id
+charts=scatter|Event date
 
 [Security Events::Open Active]
 type=sql
@@ -1553,6 +1585,7 @@ has_limit=disabled
 cursor_type=none
 node_fields=mac
 person_fields=owner
+charts=scatter|start_date
 
 [Security Events::Open All]
 type=sql
@@ -1582,6 +1615,7 @@ has_limit=disabled
 cursor_type=none
 node_fields=mac
 person_fields=owner
+charts=scatter|start_date
 
 [SSID::Active]
 type=sql

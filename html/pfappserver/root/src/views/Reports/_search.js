@@ -76,6 +76,7 @@ export const useSearchFactory = (report, meta) => {
       {
         key: 'buttons',
         class: 'text-right p-0',
+        thStyle: 'width: 40px;',
         locked: true
       }
     ],

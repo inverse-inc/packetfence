@@ -62,6 +62,7 @@ const components = {
 import BaseChartBar from './BaseChartBar'
 import BaseChartPie from './BaseChartPie'
 import BaseChartParallel from './BaseChartParallel'
+import BaseChartScatter from './BaseChartScatter'
 
 const props = {
   id: {
@@ -158,6 +159,8 @@ const setup = (props, context) => {
         return BaseChartPie
       case 'parallel':
         return BaseChartParallel
+      case 'scatter':
+        return BaseChartScatter
     }
   }
   const chartProps = chart => {
@@ -176,6 +179,8 @@ const setup = (props, context) => {
       case 'pie':
         return 'chart-pie'
       case 'parallel':
+        return 'chart-line'
+      case 'scatter':
         return 'chart-line'
     }
   }
