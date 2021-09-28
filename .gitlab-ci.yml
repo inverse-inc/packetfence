@@ -259,7 +259,7 @@ variables:
     DEPLOY_HOST: web.inverse.ca
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-export
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-upgrade
   tags:
     - shell
 
@@ -616,8 +616,8 @@ deploy_devel_pkg_friendly_names:
     name: pf-devel
   variables:
     PKG_DEST_NAME: packetfence-release-devel.el8.noarch.rpm
-    PF_EXPORT_RPM_DEST_NAME: packetfence-export-devel.el8.noarch.rpm
-    PF_EXPORT_DEB_DEST_NAME: packetfence-export_devel.deb
+    PF_EXPORT_RPM_DEST_NAME: packetfence-upgrade-devel.el8.noarch.rpm
+    PF_EXPORT_DEB_DEST_NAME: packetfence-upgrade_devel.deb
 
 deploy_branches_pkg_friendly_names:
   extends:
@@ -627,8 +627,8 @@ deploy_branches_pkg_friendly_names:
     name: pf-branches
   variables:
     PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
-    PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
-    PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
+    PF_EXPORT_RPM_DEST_NAME: packetfence-upgrade-branches.el8.noarch.rpm
+    PF_EXPORT_DEB_DEST_NAME: packetfence-upgrade_branches.deb
 
 deploy_release_pkg_friendly_names:
   extends:
