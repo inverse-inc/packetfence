@@ -17,6 +17,7 @@ use pf::config::tenant;
 use pf::Report;
 use pf::error qw(is_error);
 use pf::util;
+use Clone qw(clone);
 extends qw(pf::Report);
 
 our %mapping = (
@@ -29,9 +30,9 @@ has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
 has cursor_type => ( is => 'rw', isa => 'Str');
 
-has cursor_field => ( is => 'rw', isa => 'Str');
+has cursor_field => ( is => 'rw', isa => 'Str|ArrayRef[Str]');
 
-has cursor_default => ( is => 'rw', isa => 'Str');
+has cursor_default => ( is => 'rw', isa => 'Str|ArrayRef[Str]');
 
 has has_limit => ( is => 'rw', isa => 'Str', default => 'enabled');
 
@@ -71,6 +72,11 @@ sub create_bind {
             next;
         }
 
+        if ($b =~ /^cursor\.(\d+)/) {
+            push @bind, $infos->{cursor}[$1];
+            next;
+        }
+
         if (exists $mapping{$b}) {
             push @bind, $infos->{$b};
             next;
@@ -92,6 +98,10 @@ sub nextCursor {
     if ($last_item) {
         if ($self->cursor_type eq 'field') {
             return $last_item->{$self->cursor_field};
+        }
+
+        if ($self->cursor_type eq 'multi_field') {
+            return [@{$last_item}{@{$self->cursor_field}}];
         }
 
         return $infos{cursor} + $infos{limit};
@@ -141,7 +151,7 @@ sub build_query_options {
     if ($self->cursor_type eq 'offset') {
         $data->{cursor} = $options{offset} = $data->{cursor} // 0;
     } else {
-        $options{cursor} = $data->{cursor} // $self->cursor_default;
+        $options{cursor} = $data->{cursor} // clone($self->cursor_default);
     }
 
     for my $f (qw(start_date end_date)) {

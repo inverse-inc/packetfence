@@ -252,6 +252,15 @@ BEGIN {
             out     => undef,
             results => [ {}, {}, { mac => "22:33:22:33:33:33" } ],
         },
+        {
+            id => "Node::Report::TestMultiValueCursor",
+            in => [
+                [ {}, {}, { mac => "22:33:22:33:33:33", detect_date => "1111-11-11 11:11:11" } ],
+                sql_limit  => 3,
+            ],
+            out     => ["1111-11-11 11:11:11", "22:33:22:33:33:33"],
+            results => [ {}, {} ],
+        },
     );
 
     @CreateBindTests = (
@@ -267,12 +276,9 @@ BEGIN {
             out => [ 1, '00:00:00:00:00:00', 101 ],
         },
         {
-            id => 'Node::Report::Test',
-            in => [
-                {
-                }
-            ],
-            out => [ 1 ],
+            id  => 'Node::Report::Test',
+            in  => [ {} ],
+            out => [1],
         },
         {
             id => 'Node::Report::TestOffset',
@@ -296,8 +302,21 @@ BEGIN {
                     end_date   => '9999-12-31 23:59:59',
                 }
             ],
-            out => [ 1, '0000-01-01 00:00:00', '9999-12-31 23:59:59'],
-         }
+            out => [ 1, '0000-01-01 00:00:00', '9999-12-31 23:59:59' ],
+        },
+        {
+            id => 'Node::Report::TestMultiValueCursor',
+            in => [
+                {
+                    cursor    => [ 3, '00:00:00:00:00:00' ],
+                    sql_limit => 101,
+                    limit     => 100,
+                    start_date => '0000-01-01 00:00:00',
+                    end_date   => '9999-12-31 23:59:59',
+                }
+            ],
+            out => [ 1, '0000-01-01 00:00:00', '9999-12-31 23:59:59', 3, '00:00:00:00:00:00', 101 ],
+        }
     );
 
     @IsaTests = (
@@ -636,7 +655,7 @@ BEGIN {
 
 }
 
-use Test::More tests => 3 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions + ((scalar @DefaultReports) * 3);
+use Test::More tests => 5 + (scalar @BuildQueryOptionsTests) + ( scalar @NextCursorTests ) * 2 + (scalar @CreateBindTests) + (scalar @IsaTests) * 2 + scalar @ValidateQueryTests + scalar @ValidateFieldsTests + scalar @ValidateInputTests + scalar @MetaForOptions + ((scalar @DefaultReports) * 3);
 
 use pf::factory::report;
 use pf::error qw(is_success);
@@ -770,7 +789,7 @@ use Test::NoWarnings;
             next;
         }
 
-        is($report->nextCursor(@$in), $t->{out}, "$id: pf::Report->nextCursor");
+        is_deeply($report->nextCursor(@$in), $t->{out}, "$id: pf::Report->nextCursor");
         is_deeply($in->[0], $t->{results}, "$id: pf::Report::sql->nextCursor results");
     }
 }
@@ -810,6 +829,22 @@ use Test::NoWarnings;
         ($status, my $data) = $report->query(%$info);
         ok(is_success($status), "query works for $id" );
     }
+}
+
+{
+    my $id = 'Node::Report::TestMultiValueCursor';
+    my $report = pf::factory::report->new($id);
+    is_deeply(
+        $report->cursor_field,
+        [qw(detect_date mac)],
+        "Cursor Field is an array"
+    );
+
+    is_deeply(
+        $report->cursor_default,
+        ["0000-01-01 00:00:00", "00:00:00:00:00:00"],
+        "Cursor default is an array"
+    );
 }
 
 =head1 AUTHOR
