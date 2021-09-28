@@ -18,9 +18,6 @@ use pf::util qw(valid_ip);
 
 sub validate_field {
     my ($self, $ctx, $val) = @_;
-    if ($ctx->has_errors) {
-        return;
-    }
 
     if (defined $val && !valid_ip($val)) {
         $ctx->add_error({ field => $self->name, message => 'must be an IP Address' });
