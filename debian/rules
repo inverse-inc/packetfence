@@ -61,7 +61,7 @@ install: build
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
 
 	# packetfence-upgrade package
-	make -C addons/full-import DESTDIR=$(CURDIR)/debian/packetfence-upgrade install
+	make -C addons/full-import DESTDIR=$(CURDIR)/debian/packetfence-upgrade install_deb
 
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \
