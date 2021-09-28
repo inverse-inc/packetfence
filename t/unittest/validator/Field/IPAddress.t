@@ -37,10 +37,14 @@ use Test::NoWarnings;
 
 {
     my $v = validIp->new();
-    my $errors = $v->validate({ ip => "1.2.3.4" });
+    my $ctx = pf::validator::Ctx->new;
+    $v->validate($ctx, { ip => "1.2.3.4" });
+    my $errors = $ctx->errors;
     is_deeply ($errors, [], "Valid IP address");
 
-    $errors = $v->validate({ ip => 1 });
+    $ctx = pf::validator::Ctx->new;
+    $v->validate($ctx, { ip => 1 });
+    $errors = $ctx->errors;
     is_deeply ($errors, [{ field => 'ip', message => 'must be an IP Address' }], "Has errors ip");
 }
 
