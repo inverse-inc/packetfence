@@ -58,14 +58,20 @@
           @input="setColumns"
         />
       </template>
-      <template #cell()="{ field, value }">
-        <router-link v-if="field.key in columnsIs && columnsIs[field.key].is_node"
+      <template v-for="nodeField in nodeFields"
+        v-slot:[`cell(${nodeField})`]="{ field, value }">
+        <router-link :key="nodeField"
           :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
-        <router-link v-else-if="field.key in columnsIs && columnsIs[field.key].is_person"
+      </template>
+      <template v-for="personField in personFields"
+        v-slot:[`cell(${personField})`]="{ field, value }">
+        <router-link :key="personField"
           :to="{ path: `/user/${value}` }">{{ value }}</router-link>
-        <router-link v-else-if="field.key in columnsIs && columnsIs[field.key].is_role"
+      </template>
+      <template v-for="roleField in roleFields"
+        v-slot:[`cell(${roleField})`]="{ field, value }">
+        <router-link :key="roleField"
           :to="{ path: `/configuration/role/${value}` }">{{ value }}</router-link>
-        <template v-else>{{ value }}</template>
       </template>
       <template #cell(selected)="{ index, rowSelected }">
         <span @click.stop="onItemSelected(index)">
@@ -116,6 +122,7 @@ import { computed, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
+import acl from '@/utils/acl'
 import { useSearchFactory } from '../_search'
 
 const setup = (props, context) => {
@@ -179,6 +186,29 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  // dynamic b-table slots
+  const nodeFields = computed(() => {
+    if (acl.$can('read', 'nodes')) {
+      const { node_fields = '' } = report.value
+      const fields = node_fields.split(',').filter(f => f)
+      return Array.isArray(fields) ? fields : [fields]
+    }
+    return []
+  })
+  const personFields = computed(() => {
+    if (acl.$can('read', 'users')) {
+      const { person_fields = '' } = report.value
+      const fields = person_fields.split(',').filter(f => f)
+      return Array.isArray(fields) ? fields : [fields]
+    }
+    return []
+  })
+  const roleFields = computed(() => {
+    const { role_fields = '' } = report.value
+    const fields = role_fields.split(',').filter(f => f)
+    return Array.isArray(fields) ? fields : [fields]
+  })
+
   return {
     hasCursor,
     hasQuery,
@@ -187,7 +217,11 @@ const setup = (props, context) => {
     columnsIs,
     ...selected,
     ...toRefs(search),
-    onBulkExport
+    onBulkExport,
+
+    nodeFields,
+    personFields,
+    roleFields
   }
 }
 // @vue/component
