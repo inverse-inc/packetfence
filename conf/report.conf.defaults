@@ -1,4 +1,49 @@
 # Copyright (C) Inverse inc.
+[Accounting::Bandwidth]
+type=sql
+description=Total accounting bandwidth
+columns=time_bucket,bytes_in,bytes_out,bytes_total
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    time_bucket,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(total_bytes) AS bytes_total
+  FROM (
+    SELECT
+      time_bucket,
+      in_bytes,
+      out_bytes,
+      total_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      time_bucket,
+      in_bytes,
+      out_bytes,
+      total_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  GROUP BY time_bucket
+  ORDER BY time_bucket DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+default_limit=100
+charts=scatter|time_bucket:bytes_in:bytes_out:bytes_total
+
 [Accounting::Node]
 type=sql
 description=Top node accounting bandwidth
