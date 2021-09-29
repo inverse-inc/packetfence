@@ -5,8 +5,8 @@
 <script>
 const layout = {
   margin: {
-    l: 25,
-    r: 25,
+    l: 50,
+    r: 50,
     b: 25,
     t: 50,
     pad: 0
@@ -36,33 +36,6 @@ const rangeselector = {
     { step: 'all' }
   ]
 }
-
-const dimensions = [
-  {
-    name: 'by year',
-    normalize: 'YYYY-01-01 00:00:00'
-  },
-  {
-    name: 'by month',
-    normalize: 'YYYY-MM-01 00:00:00'
-  },
-  {
-    name: 'by day',
-    normalize: 'YYYY-MM-DD 00:00:00'
-  },
-  {
-    name: 'by hour',
-    normalize: 'YYYY-MM-DD HH:00:00'
-  },
-  {
-    name: 'by minute',
-    normalize: 'YYYY-MM-DD HH:mm:00'
-  },
-  {
-    name: 'by second',
-    normalize: 'YYYY-MM-DD HH:mm:ss'
-  }
-]
 
 const props = {
   fields: {
@@ -150,11 +123,17 @@ const setup = props => {
     debouncer = setTimeout(_render, 100)
   }
 
-  const _render = () => {
-    if (!plotlyRef.value)
-      return
+  // standard dimensions (# of fields = 1,2)
+  const _standardDim = () => {
     const sFields = fields.value.split(':')
-    const data = dimensions.map((dimension, index) => {
+    return [
+      { name: 'by year', normalize: 'YYYY-01-01 00:00:00' },
+      { name: 'by month', normalize: 'YYYY-MM-01 00:00:00' },
+      { name: 'by day', normalize: 'YYYY-MM-DD 00:00:00' },
+      { name: 'by hour', normalize: 'YYYY-MM-DD HH:00:00' },
+      { name: 'by minute', normalize: 'YYYY-MM-DD HH:mm:00' },
+      { name: 'by second', normalize: 'YYYY-MM-DD HH:mm:ss' }
+    ].map((dimension, index) => {
       const { name, normalize } = dimension
       const color = colorsFull[index]
       const associated = filteredItems.value.reduce((associated, item) => {
@@ -193,6 +172,45 @@ const setup = props => {
         line: { color, shape: 'spline', smoothing: 0.5 }
       }
     })
+  }
+
+  // manual dimensions (# of fields = 3+)
+  const _userDim = () => {
+    const sFields = fields.value.split(':')
+    return sFields.slice(1).map((name, index) => {
+      const x = filteredItems.value.map(item => {
+        const { [sFields[0]]: date } = item
+        return date
+      })
+      const y = filteredItems.value.map(item => {
+        const { [name]: value } = item
+        return value
+      })
+      const color = colorsFull[index]
+      return {
+        type: 'scatter',
+        mode: 'lines+markers+text',
+        name,
+        x,
+        y,
+        line: { color, shape: 'spline', smoothing: 0.5 }
+      }
+    })
+  }
+
+  const _render = () => {
+    if (!plotlyRef.value)
+      return
+    const sFields = fields.value.split(':')
+    let data
+    if (sFields.length >= 3) {
+      // user defined dimensions
+      data = _userDim()
+    }
+    else {
+      // standard dimensions
+      data = _standardDim()
+    }
     const range = (minDate.value && maxDate.value)
       ? [minDate.value, maxDate.value]
       : []
