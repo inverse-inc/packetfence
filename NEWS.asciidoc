@@ -31,6 +31,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Allow to use the sAMAccountName from the searchattributes in MSCHAP machine authentication (#6586)
 * Improve the Data Access Layer to work in MariaDB's default sql_mode.
+* New command pfcmd mariadb [mariadb options]
 
 === Bug Fixes
 
