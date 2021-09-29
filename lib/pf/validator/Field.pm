@@ -32,6 +32,11 @@ has messages => (
     builder => '_build_messages',
 );
 
+has text => (
+    is  => 'ro',
+    isa => 'Str',
+);
+
 sub validate {
     my ($self, $ctx, $val) = @_;
     if ($self->required && !defined $val) {
