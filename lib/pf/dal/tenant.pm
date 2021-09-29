@@ -36,6 +36,8 @@ sub after_create_hook {
 
     my $cs = pf::ConfigStore::Radiusd::EAPProfile->new();
     my $default = pf::ConfigStore::Radiusd::EAPProfile->new->read("default");
+    $default->{peap_virtual_server} = "packetfence-".$self->{name};
+    $default->{ttls_virtual_server} = "packetfence-".$self->{name};
     $cs->update_or_create("default-".$self->{name}, $default);
     $cs->commit();
 }
