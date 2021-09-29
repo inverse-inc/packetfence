@@ -15,8 +15,8 @@ fi
 
 set -o nounset -o pipefail -o errexit
 
-source /usr/local/pf/addons/full-import/helpers.functions
-source /usr/local/pf/addons/full-import/database.functions
+source /usr/local/pf/addons/functions/helpers.functions
+source /usr/local/pf/addons/functions/database.functions
 
 output="$1"
 
