@@ -51,36 +51,38 @@ columns=mac,bytes_in,bytes_out,bytes
 sql= <<EOT
 BEGIN NOT ATOMIC
   SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR_0 = ?, @CURSOR_1 = ?;
-  SELECT
-    mac,
-    SUM(in_bytes) AS bytes_in,
-    SUM(out_bytes) AS bytes_out,
-    SUM(total_bytes) AS bytes
-  FROM (
-    SELECT
-      mac,
-      in_bytes,
-      out_bytes,
-      total_bytes
-    FROM bandwidth_accounting
-    WHERE tenant_id = @TENANT_ID
-      AND time_bucket >= @START_DATE
-      AND time_bucket <= @END_DATE
-      AND (total_bytes, mac) <= (@CURSOR_0, @CURSOR_1)
-    UNION ALL
-    SELECT
-      mac,
-      in_bytes,
-      out_bytes,
-      total_bytes
-    FROM bandwidth_accounting_history
-    WHERE tenant_id = @TENANT_ID
-      AND time_bucket >= @START_DATE
-      AND time_bucket <= @END_DATE
-      AND (total_bytes, mac) <= (@CURSOR_0, @CURSOR_1)
-  ) `total`
-  GROUP BY mac
-  ORDER BY bytes DESC, mac DESC
+  SELECT * FROM (
+      SELECT
+        mac,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(total_bytes) AS bytes
+      FROM (
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes,
+          total_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = @TENANT_ID
+          AND time_bucket >= @START_DATE
+          AND time_bucket <= @END_DATE
+        UNION ALL
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes,
+          total_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = @TENANT_ID
+          AND time_bucket >= @START_DATE
+          AND time_bucket <= @END_DATE
+      ) `total`
+      GROUP BY mac
+      ORDER BY bytes DESC, mac DESC
+ ) as x
+ WHERE
+     (bytes, mac) <= (@CURSOR_0, @CURSOR_1)
   LIMIT ?;
 END;
 EOT
@@ -89,7 +91,7 @@ has_date_range=enabled
 has_limit=enabled
 cursor_type=multi_field
 cursor_field=bytes,mac
-cursor_default=18446744073709551615,ff:ff:ff:ff:ff:ff # BIGINT
+cursor_default=18446744073709551615,ff:ff:ff:ff:ff:ff
 default_limit=25
 node_fields=mac
 
