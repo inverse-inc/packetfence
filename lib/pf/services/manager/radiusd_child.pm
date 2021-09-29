@@ -160,8 +160,28 @@ sub generate_dynamic_clients {
     my $tenants = tenant_hash();
     foreach my $tenant (keys %{$tenants}) {
         next unless($tenants->{$tenant}->{'radius_port'});
+        my $radius_acct = $tenants->{$tenant}->{'radius_port'} + 1;
         $tags{'tenant'} .= <<"EOT";
+# Auth port tenant $tenants->{$tenant}->{'name'}
 if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_port'}") {
+    update control {
+        &PacketFence-Tenant-Id = '$tenant'
+    }
+}
+# Acct port tenant $tenants->{$tenant}->{'name'}
+if("%{Packet-Dst-Port}" == "$radius_acct") {
+    update control {
+        &PacketFence-Tenant-Id = '$tenant'
+    }
+}
+# Auth cli port tenant $tenants->{$tenant}->{'name'}
+if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_cli_port'}") {
+    update control {
+        &PacketFence-Tenant-Id = '$tenant'
+    }
+}
+# Radsec port tenant $tenants->{$tenant}->{'name'}
+if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radsec_port'}") {
     update control {
         &PacketFence-Tenant-Id = '$tenant'
     }
@@ -171,7 +191,6 @@ EOT
     $tt->process("$conf_dir/radiusd/dynamic-clients", \%tags, "$install_dir/raddb/sites-enabled/dynamic-clients") or die $tt->error();
     $tt->process("$conf_dir/radiusd/packetfence.policy", \%tags, "$install_dir/raddb/policy.d/packetfence") or die $tt->error();
 }
-
 
 =head2 generate_radiusd_sitesconf
 
