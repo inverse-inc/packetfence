@@ -88,7 +88,7 @@ export default (props) => {
       .when('advanced_filter', () => {
         const { values = [] } = advanced_filter || {}
         return (values.length === 0)
-          ? yup.array().ensure().if(value => value && value.length > 0, i18n.t('Filter or Advanced Filter required.'))
+          ? schemaFilters.if(value => value && value.length > 0, i18n.t('Filter or Advanced Filter required.'))
           : schemaFilters
       }),
     filter_match_style: yup.string().nullable().label(i18n.t('Filters')),
