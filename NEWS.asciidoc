@@ -41,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Use source username in LDAP module for EAP-TTLS PAP instead of always using sAMAccoutName
 * Support LDAP certificate client auth for LDAP EAP-TTLS PAP authentication
 * Allow to use Google Workspace LDAP sources in EAP-TTLS PAP authentication
+* Add script for removing wmi scan (#6569)
 
 == Version 11.0.0 released on 2021-09-02
 
