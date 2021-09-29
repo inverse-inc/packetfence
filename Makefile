@@ -239,13 +239,14 @@ rpm/.rpmmacros:
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
-build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist
+build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
 	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
 	# no need to build other packages if packetfence build failed
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-release.spec
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-test.spec
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-export.spec
+	ci-build-pkg $(SRC_RPMDIR)/packetfence-upgrade.spec
 
 .PHONY: build_deb
 build_deb: conf/git_commit_id
@@ -328,3 +329,16 @@ dist-packetfence-export: distclean-packetfence-export
 	cp -pRH $(pf_export_files_to_include) packetfence-export-$(PF_PATCH_RELEASE)
 	tar c -f packetfence-export-$(PF_PATCH_RELEASE).tar packetfence-export-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-export-$(PF_PATCH_RELEASE)
+
+# packetfence-upgrade package
+.PHONY: distclean-packetfence-upgrade
+distclean-packetfence-upgrade:
+	rm -rf packetfence-upgrade-$(PF_PATCH_RELEASE).tar
+
+.PHONY: dist-packetfence-upgrade
+dist-packetfence-upgrade: distclean-packetfence-upgrade
+	mkdir -p packetfence-upgrade-$(PF_PATCH_RELEASE)
+	# preserve, recursive and symlinks
+	cp -pRH $(pf_upgrade_files_to_include) packetfence-upgrade-$(PF_PATCH_RELEASE)
+	tar c -f packetfence-upgrade-$(PF_PATCH_RELEASE).tar packetfence-upgrade-$(PF_PATCH_RELEASE)
+	rm -rf packetfence-upgrade-$(PF_PATCH_RELEASE)
