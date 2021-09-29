@@ -434,6 +434,7 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
         & > .multiselect__option--highlight::after {
           background-color: $chosen-option-hover-bg;
           color: $chosen-option-hover-color;
+          content: attr(data-select);
         }
         & > .multiselect__option--disabled {
           background-color: var(--white) !important;
