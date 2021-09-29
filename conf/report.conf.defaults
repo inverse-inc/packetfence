@@ -50,44 +50,46 @@ description=Top node accounting bandwidth
 columns=mac,bytes_in,bytes_out,bytes
 sql= <<EOT
 BEGIN NOT ATOMIC
-  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR = ?;
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR_0 = ?, @CURSOR_1 = ?;
   SELECT
     mac,
     SUM(in_bytes) AS bytes_in,
     SUM(out_bytes) AS bytes_out,
-    SUM(in_bytes) + SUM(out_bytes) AS bytes
+    SUM(total_bytes) AS bytes
   FROM (
     SELECT
       mac,
       in_bytes,
-      out_bytes
+      out_bytes,
+      total_bytes
     FROM bandwidth_accounting
     WHERE tenant_id = @TENANT_ID
-      AND mac >= @CURSOR
       AND time_bucket >= @START_DATE
       AND time_bucket <= @END_DATE
+      AND (total_bytes, mac) <= (@CURSOR_0, @CURSOR_1)
     UNION ALL
     SELECT
       mac,
       in_bytes,
-      out_bytes
+      out_bytes,
+      total_bytes
     FROM bandwidth_accounting_history
     WHERE tenant_id = @TENANT_ID
-      AND mac >= @CURSOR
       AND time_bucket >= @START_DATE
       AND time_bucket <= @END_DATE
+      AND (total_bytes, mac) <= (@CURSOR_0, @CURSOR_1)
   ) `total`
   GROUP BY mac
-  ORDER BY bytes DESC
+  ORDER BY bytes DESC, mac DESC
   LIMIT ?;
 END;
 EOT
-bindings=tenant_id,start_date,end_date,cursor,limit
+bindings=tenant_id,start_date,end_date,cursor.0,cursor.1,limit
 has_date_range=enabled
 has_limit=enabled
-cursor_type=field
-cursor_field=mac
-cursor_default=00:00:00:00:00:00
+cursor_type=multi_field
+cursor_field=bytes,mac
+cursor_default=18446744073709551615,ff:ff:ff:ff:ff:ff # BIGINT
 default_limit=25
 node_fields=mac
 
