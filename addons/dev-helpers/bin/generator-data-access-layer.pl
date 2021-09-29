@@ -37,8 +37,6 @@ my $schema = $OPTIONS{schema};
 system("mysql -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
 $dbh->do("USE $db_name;") or $dbh->errstr;
 my $tables = table_data($dbh, $db_name, @ARGV);
-#print Dumper($tables);
-#exit;
 my $output_path = "$PF_DIR/lib/pf/dal";
 my $tt = Template->new({
     OUTPUT_PATH  => "$PF_DIR/lib/pf/dal/",
