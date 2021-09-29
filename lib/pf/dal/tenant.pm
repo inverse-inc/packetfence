@@ -21,6 +21,8 @@ use base qw(pf::dal::_tenant);
 use pf::dal::person;
 use pf::error qw(is_error);
 use pf::ConfigStore::Radiusd::EAPProfile;
+use pf::ConfigStore::Realm;
+use pf::config::tenant;
 
 sub after_create_hook {
     my ($self) = @_;
@@ -33,13 +35,25 @@ sub after_create_hook {
     if (is_error($status)) {
         $self->logger->error("Unable to create default user for the tenant");
     }
-
+    # Create a eap profile
     my $cs = pf::ConfigStore::Radiusd::EAPProfile->new();
     my $default = pf::ConfigStore::Radiusd::EAPProfile->new->read("default");
     $default->{peap_virtual_server} = "packetfence-".$self->{name};
     $default->{ttls_virtual_server} = "packetfence-".$self->{name};
     $cs->update_or_create("default-".$self->{name}, $default);
     $cs->commit();
+
+    # Create each realm
+    $cs = pf::ConfigStore::Realm->new();
+    pf::config::tenant::set_tenant(1);
+    foreach my $realm (qw( DEFAULT LOCAL NULL)) {
+        $default = pf::ConfigStore::Realm->new->read($realm);
+        pf::config::tenant::set_tenant($self->{id});
+        $default->{eap} = "default-".$self->{name};
+        $cs->update_or_create($realm, $default);
+        $cs->commit();
+        pf::config::tenant::set_tenant(1);
+    }
 }
 
 =head1 AUTHOR
