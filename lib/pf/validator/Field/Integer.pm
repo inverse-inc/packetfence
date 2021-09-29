@@ -15,10 +15,54 @@ use warnings;
 use Moose;
 extends qw(pf::validator::Field);
 
+has 'range_start' => (
+    isa => 'Int|Undef',
+    is => 'ro',
+);
+
+has 'range_end'   => (
+    isa => 'Int|Undef',
+    is => 'ro',
+);
+
+sub test_ranges {
+    my ($self, $ctx, $val) = @_;
+    return if !defined $val;
+
+    my $low  = $self->range_start;
+    my $high = $self->range_end;
+
+    if ( defined $low && defined $high ) {
+        unless ($low <= $val && $val <= $high) {
+            $ctx->add_error({ field => $self->name, message => 'out of range' });
+        }
+
+        return;
+    }
+
+    if ( defined $low ) {
+        unless ($low <= $val) {
+            $ctx->add_error({ field => $self->name, message => 'value too low' });
+        }
+
+        return;
+    }
+
+    if ( defined $high ) {
+        unless ($val <= $high) {
+            $ctx->add_error({ field => $self->name, message => 'value too high' });
+        }
+
+        return;
+    }
+
+    return;
+}
+
 sub validate_field {
     my ($self, $ctx, $val) = @_;
 
-    if (defined $val && $val !~ /^-?[0-9]+$/) {
+    if (defined $val && $val !~ /^[-+]?[0-9]+$/) {
         $ctx->add_error({ field => $self->name, message => 'must be an Integer' });
     }
 

@@ -13,11 +13,50 @@ unit test for IPAddress
 use strict;
 use warnings;
 
+our @RangeTests;
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+    @RangeTests = (
+        {
+            new => [range_start => 3, range_end => 6, name => 'int'],
+            in => 1,
+            out => [{ field => 'int', message => 'out of range' }],
+            msg => 'out of range 1 not between 3, 6',
+        },
+        {
+            new => [range_start => 3, range_end => 6, name => 'int'],
+            in => 3,
+            out => [],
+            msg => 'in range 3 is between 3, 6',
+        },
+        {
+            new => [range_start => 3, range_end => 6, name => 'int'],
+            in => 4,
+            out => [],
+            msg => 'in range 4 is between 3, 6',
+        },
+        {
+            new => [range_start => 3, range_end => 6, name => 'int'],
+            in => 6,
+            out => [],
+            msg => 'in range 6 is between 3, 6',
+        },
+        {
+            new => [range_start => 3, name => 'int'],
+            in => 1,
+            out => [{ field => 'int', message => 'value too low' }],
+            msg => '1 is not lower than 3',
+        },
+        {
+            new => [range_end => 6, name => 'int'],
+            in => 7,
+            out => [{ field => 'int', message => 'value too high' }],
+            msg => '7 is not higher than 6',
+        },
+    );
 }
 
 {
@@ -29,7 +68,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 4;
+use Test::More tests => 6 + scalar @RangeTests;
 
 #This test will running last
 use Test::NoWarnings;
@@ -40,17 +79,34 @@ use Test::NoWarnings;
     my $ctx = pf::validator::Ctx->new;
     $v->validate($ctx, { int => "1" });
     my $errors = $ctx->errors;
-    is_deeply ($errors, [], "Valid Integer");
+    is_deeply ($ctx->errors, [], "Valid Integer");
 
     $ctx->reset();
     $v->validate($ctx, { int => "-1" });
-    $errors = $ctx->errors;
-    is_deeply ($errors, [], "Valid Integer");
+    is_deeply ($ctx->errors, [], "Valid Integer");
+
+    $ctx->reset();
+    $v->validate($ctx, { int => "-10" });
+    is_deeply ($ctx->errors, [], "Valid Integer");
+
+    $ctx->reset();
+    $v->validate($ctx, { int => "+10" });
+    is_deeply ($ctx->errors, [], "Valid Integer");
 
     $ctx->reset();
     $v->validate($ctx, { int => "asas" });
-    $errors = $ctx->errors;
-    is_deeply ($errors, [{ field => 'int', message => 'must be an Integer' }], "Has errors ip");
+    is_deeply ($ctx->errors, [{ field => 'int', message => 'must be an Integer' }], "Has errors int");
+}
+
+#Range test
+{
+    my $ctx = pf::validator::Ctx->new;
+    for my $t ( @RangeTests ) {
+        $ctx->reset;
+        my $f = pf::validator::Field::Integer->new(@{$t->{new}});
+        $f->test_ranges($ctx, $t->{in});
+        is_deeply ($ctx->errors, $t->{out}, $t->{msg});
+    }
 }
 
 =head1 AUTHOR
