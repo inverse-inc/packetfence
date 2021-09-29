@@ -52,10 +52,9 @@ The following provides a list of the minimum server hardware recommendations:
 PacketFence supports the following operating systems on the x86_64 architecture:
 
 [options="compact"]
-* Red Hat Enterprise Linux 7.x Server
-* Community ENTerprise Operating System (CentOS) 7.x
-* Debian 9.0 (Stretch)
+* Red Hat Enterprise Linux 8.x Server
+* Debian 11.x (Bullseye)
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
-Other distributions such as Fedora, Gentoo and Ubuntu are known to work but this document does not cover them.
+Other distributions such as RHEL derivatives are known to work but this document does not cover them.

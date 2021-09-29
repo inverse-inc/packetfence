@@ -3,17 +3,17 @@ import DomainsStoreModule from '../domains/_store'
 import RealmsStoreModule from './_store'
 import TenantsStoreModule from '../tenants/_store'
 
-export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
+export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsDomains')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
   return {
     goToCollection: params => $router.push({ name: 'realms', params }),
     goToItem: params => $router
-      .push({ name: 'realm', params })
+      .push({ name: 'realm', params: { ...params, tenantId: params.tenantId.toString() } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneRealm', params }),
-    goToNew: params => $router.push({ name: 'newRealm', params })
+    goToClone: params => $router.push({ name: 'cloneRealm', params: { ...params, tenantId: params.tenantId.toString() } }),
+    goToNew: params => $router.push({ name: 'newRealm', params: { ...params, tenantId: params.tenantId.toString() } })
   }
 }
 

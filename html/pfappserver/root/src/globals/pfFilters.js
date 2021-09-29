@@ -43,7 +43,9 @@ export const pfFilters = {
     types: [fieldType.SSID],
     props: {
       taggable: true,
-      tagPlaceholder: i18n.t('Click to add new SSID')
+      tagPlaceholder: i18n.t('Click to add new SSID'),
+      internalSearch: false,
+      caseSensitiveSearch: true
     }
   },
   switch: {
@@ -59,6 +61,11 @@ export const pfFilters = {
   switch_mac: {
     value: 'switch_mac',
     text: i18n.t('Switch MAC'),
+    types: [fieldType.SUBSTRING]
+  },
+  switch_port: {
+    value: 'switch_port',
+    text: i18n.t('Switch Port'),
     types: [fieldType.SUBSTRING]
   },
   tenant: {

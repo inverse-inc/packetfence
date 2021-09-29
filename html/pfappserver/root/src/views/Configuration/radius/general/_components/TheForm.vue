@@ -66,12 +66,12 @@
       :column-label="$i18n.t('RADIUS attributes')"
       :text="$i18n.t('List of RADIUS attributes that can be used in the sources configuration.')"
     />
-    <b-row>
+    <b-row v-if="impliedRadiusAtttributes.length">
       <b-col cols="3"></b-col>
       <b-col cols="9">
         <div class="alert alert-info mr-3">
           <p><strong>{{ $i18n.t('Built-in RADIUS Attributes:') }}</strong></p>
-          <span v-for="radiusAttribute in radiusAttributesBuiltIn" :key="radiusAttribute"
+          <span v-for="radiusAttribute in impliedRadiusAtttributes" :key="radiusAttribute"
             class="badge badge-info mr-1">{{ radiusAttribute }}</span>
         </div>
       </b-col>
@@ -89,7 +89,6 @@
   </base-form>
 </template>
 <script>
-import { computed, toRefs } from '@vue/composition-api'
 import {
   BaseForm
 } from '@/components/new/'
@@ -145,7 +144,8 @@ export const props = {
   }
 }
 
-import { useNamespaceMetaPlaceholder } from '@/composables/useMeta'
+import { computed, toRefs } from '@vue/composition-api'
+import { useNamespaceMetaImplied } from '@/composables/useMeta'
 
 export const setup = (props) => {
 
@@ -153,13 +153,16 @@ export const setup = (props) => {
     meta
   } = toRefs(props)
 
-  const radiusAttributesBuiltIn = computed(() => (useNamespaceMetaPlaceholder('radius_attributes', meta) || '').split(','))
+  const impliedRadiusAtttributes = computed(() => {
+    const csv = useNamespaceMetaImplied('radius_attributes', meta)
+    return (csv) ? csv.split(',') : []
+  })
 
   const schema = computed(() => schemaFn(props))
 
   return {
     schema,
-    radiusAttributesBuiltIn
+    impliedRadiusAtttributes
   }
 }
 

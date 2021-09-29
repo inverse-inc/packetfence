@@ -40,6 +40,7 @@ BEGIN {
         cn
         mail
         organisation
+        organisational_unit
         country
         state
         locality
@@ -55,6 +56,7 @@ BEGIN {
         cert
         issuer_key_hash
         issuer_name_hash
+        ocsp_url
     );
 
     %DEFAULTS = (
@@ -64,6 +66,7 @@ BEGIN {
         cn => undef,
         mail => undef,
         organisation => undef,
+        organisational_unit => undef,
         country => undef,
         state => undef,
         locality => undef,
@@ -79,6 +82,7 @@ BEGIN {
         cert => undef,
         issuer_key_hash => undef,
         issuer_name_hash => undef,
+        ocsp_url => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -88,6 +92,7 @@ BEGIN {
         cn
         mail
         organisation
+        organisational_unit
         country
         state
         locality
@@ -103,6 +108,7 @@ BEGIN {
         cert
         issuer_key_hash
         issuer_name_hash
+        ocsp_url
     );
 
     %FIELDS_META = (
@@ -143,6 +149,12 @@ BEGIN {
             is_nullable => 1,
         },
         organisation => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        organisational_unit => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -238,6 +250,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        ocsp_url => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -252,6 +270,7 @@ BEGIN {
         pki_cas.cn
         pki_cas.mail
         pki_cas.organisation
+        pki_cas.organisational_unit
         pki_cas.country
         pki_cas.state
         pki_cas.locality
@@ -267,6 +286,7 @@ BEGIN {
         pki_cas.cert
         pki_cas.issuer_key_hash
         pki_cas.issuer_name_hash
+        pki_cas.ocsp_url
     );
 
 }

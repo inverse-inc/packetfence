@@ -13,12 +13,6 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Service has been restarted"
 
-# workaround for #6443
-- name: sleep_some_time
-  steps:
-  - type: exec
-    script: sleep 5
-
 - name: update_systemd
   steps:
   - type: http

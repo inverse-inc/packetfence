@@ -62,7 +62,8 @@ sub validate_item {
             next;
         }
         my $doc = $Doc_Config{$doc_section};
-        if ($doc->{type} eq 'array') {
+        my $doc_type = $doc->{type};
+        if ($doc_type eq 'array' || $doc_type eq 'merged_list_array') {
             if (!ref $val) {
                 $item->{$key} = [$val];
             }
@@ -70,6 +71,19 @@ sub validate_item {
     }
 
     return $self->SUPER::validate_item($item);
+}
+
+sub field_placeholder {
+    my ($self, $field, $defaults) = @_;
+    my $section = $field->form->section;
+    my $name = $field->name;
+    my $doc_section = "$section.$name";
+    my $doc_type = $Doc_Config{$doc_section}{type} // 'text';
+    if ($doc_type eq 'merged_list' || $doc_type eq 'merged_list_array') {
+        return undef;
+    }
+
+    return $self->SUPER::field_placeholder($field, $defaults);
 }
 
 sub replace {

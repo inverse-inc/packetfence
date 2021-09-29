@@ -42,6 +42,17 @@ module.exports = {
         openAnalyzer: false
       }))
     }
+    return {
+      module: {
+        rules: [
+          {
+            test: /\.mjs$/,
+            include: /node_modules/,
+            type: "javascript/auto"
+          }
+        ]
+      }
+    }
   },
   runtimeCompiler: true
 }

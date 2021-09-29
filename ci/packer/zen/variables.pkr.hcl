@@ -12,18 +12,17 @@ variable vm_name {
   type = string
 }
 
-variable pf_repo {
-  type = string
-}
-
-variable pf_package {
-  type = string
-}
-
-variable pf_release_pkg {
-  type = string
-}
-
 variable pf_version {
   type = string
 }
+
+variable provisioner_dir {
+  type = string
+  default = "provisioners"
+}
+
+variable ansible_pfservers_group {
+  type = string
+  default = "pfservers"
+}
+

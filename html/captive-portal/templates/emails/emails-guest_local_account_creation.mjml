@@ -1,7 +1,7 @@
 <mjml>
   <mj-head>
     <mj-include path="_header.mjml" />
-    <mj-preview>[% i18n("Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).") %]</mj-preview>
+    <mj-preview>[% i18n("Your user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).") %]</mj-preview>
   </mj-head>
   <mj-body>
     <mj-section></mj-section>
@@ -20,8 +20,7 @@
         <mj-column>
           <mj-text>
             <p style="padding-bottom: 20px">[% i18n("Hello") %]</p>
-            <p>[% i18n( "Just to let you know that an user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).") %]</p>
-            <p>[% i18n("Here are the info.") %]</p>
+            <p>[% i18n( "Your user account has been created while registering your device. You may now want to use it for different features (devices registration, status page).") %]</p>
           </mj-text>
         </mj-column>
       </mj-section>

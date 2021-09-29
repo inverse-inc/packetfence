@@ -20,14 +20,14 @@ source /usr/local/pf/addons/full-import/database.functions
 
 output="$1"
 
-db_dump=`find /root/backup/ -name 'packetfence-db-dump-*' $mtime | tail -1`
+db_dump=`find /root/backup/ -name 'packetfence-db-dump-*' $mtime | sort -h | tail -1`
 
 if [ -z "$db_dump" ]; then
   echo "Unable to find a database dump that was done in the last 24 hours. Add --force to ignore this."
   exit 1
 fi
 
-files_dump=`find /root/backup/ -name 'packetfence-files-dump-*' $mtime | tail -1`
+files_dump=`find /root/backup/ -name 'packetfence-files-dump-*' $mtime | sort -h | tail -1`
 
 if [ -z "$files_dump" ]; then
   echo "Unable to find a files dump that was done in the last 24 hours. Add --force to ignore this."
@@ -64,7 +64,7 @@ fi
 
 main_splitter
 echo "Building list of configuration files for this current version"
-perl -I/usr/local/pf/lib_perl5/lib -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"' > stored_config_files.txt
+perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"' > stored_config_files.txt
 
 main_splitter
 echo "Computing additional files that are referenced in the configuration"

@@ -86,6 +86,7 @@ export const useSearch = makeSearch('pkiRevokedCerts', {
       sortable: true,
       visible: true,
       formatter: value => {
+        value = value || 0 // handle `unspecified` (null)
         const reason = revokeReasons.find(reason => reason.value === value.toString())
         return reason.text || ''
       }

@@ -20,7 +20,7 @@ endif::[]
 
 === NTLM Authentication Caching
 
-NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
+NOTE: This section assumes that you already have an Active Directory domain configuration both in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and _Configuration -> Policies and Access Control -> Authentication Sources_. If you don't, you need to first configure those. Refer to the appropriate sections of this guide for details on how to configure those two components.
 
 CAUTION: The cache requires minimally Windows Server 2008. Older versions will not work.
 
@@ -32,9 +32,12 @@ NOTE: The NTLM cache doesn't cache clear text passwords, it caches the NT hash o
 
 ==== PacketFence Configuration
 
-First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in _Configuration -> System Configuration -> Radius Configuration_. You then need to restart radiusd.
+First of all, you will need to enable the NTLM caching globally by enabling 'NTLM Redis cache' in _Configuration -> System Configuration -> Radius -> General_. You then need to restart `radiusd-auth` service.
 
-Once that is done, you need to configure PacketFence to start caching the credentials. In order to do so, go in _Configuration -> Policies and Access Control -> Domains -> Active Directory Domains_ and select the domain you want to cache the credentials for.
+Once that is done, you need to configure PacketFence to start caching the
+credentials. In order to do so, go in _Configuration -> Policies and Access
+Control -> Domains -> Active Directory Domains_ and select the domain you want
+to cache the credentials for.
 
 Next, go in the *NTLM cache* tab and:
 
@@ -163,18 +166,22 @@ When dealing with a large database, the database backup and maintenance script (
 
 This is fixed easily by using MariaDB-backup which can complete a full database backup without locking your tables.
 
-The installation instructions below are made for CentOS 7 but adjusting them to Debian should only be a matter of installing the proper packages for your MariaDB version.
-
-.RHEL / CentOS based systems
+.RHEL-based systems
 [source,bash]
 ----
-  # yum install MariaDB-backup --enablerepo=packetfence
+yum install MariaDB-backup --enablerepo=packetfence
 ----
 
-.Debian based systems
+.Debian-based systems (for PacketFence versions 11.0.0 and later
 [source,bash]
 ----
-  # apt install mariadb-backup-10.2
+apt install mariadb-backup
+----
+
+.Debian-based systems (for PacketFence versions prior to 11.0.0)
+[source,bash]
+----
+apt install mariadb-backup-10.2
 ----
 
 Once this is done, grant the proper rights to the `pf` user (or the one you configured in pf.conf):
@@ -222,38 +229,6 @@ The last block defines the relationship between the tests and the desired action
   redirect_url =
 
 This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
-
-=== Dashboard Optimizations (statistics collection)
-
-The collection and aggregation of statistics in the whisper database can be I/O intensive per moment. This means that it can be beneficial to separate them on another disk even if it is a virtual disk that will share the same underlying physical disk.
-
-First, add a disk in your virtual machine or bare metal server and reboot (this example will use /dev/sdb as the new device.
-
-Make sure packetfence is stopped:
-
-  # service packetfence stop
-
-Create an ext4 partition:
-
-  # mkfs.ext4 /dev/sdb
-
-Then move the old databases to a backup point:
-
-  # mv /usr/local/pf/var/graphite /usr/local/pf/var/graphite.bak
-
-Mount your new disk and check that it is mounted:
-
-  # echo "/dev/sdb /usr/local/pf/var/graphite             ext4    defaults        1 1" >> /etc/fstab
-  # mkdir /usr/local/pf/var/graphite
-  # mount -a
-  # dh -h
-
-Apply the proper user rights and restore your database from your backup
-
-  # chown pf.pf /usr/local/pf/var/graphite
-  # cp -frp /usr/local/pf/var/graphite.bak/* /usr/local/pf/var/graphite/
-
-Start packetfence and make sure your stats are still there and being collected properly. Then remove the backup you made `rm -fr /usr/local/pf/var/graphite.bak/`.
 
 === Troubleshooting
 

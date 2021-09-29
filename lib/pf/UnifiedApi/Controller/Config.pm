@@ -406,7 +406,7 @@ sub create {
         return $self->render(status => $status, json => $item);
     }
 
-    $id = delete $item->{id};
+    $id = delete $item->{id} // $id;
     if ($cs->hasId($id)) {
         return $self->render_error(409, "An attempt to add a duplicate entry was stopped. Entry already exists and should be modified instead of created");
     }
@@ -622,9 +622,9 @@ sub options_from_form {
     my %output = (
         meta => \%meta,
     );
-
+    my $placeholder = $self->standardPlaceholder;
     my $parent = {
-        placeholder => $self->standardPlaceholder
+        placeholder => $placeholder
     };
     for my $field ($form->fields) {
         next if $field->inactive;
@@ -635,8 +635,11 @@ sub options_from_form {
         }
     }
 
+    $self->cleanup_options(\%output, $placeholder);
     return \%output;
 }
+
+sub cleanup_options {}
 
 =head2 standardPlaceholder
 
@@ -709,7 +712,15 @@ sub field_meta {
 
     }
 
+    $meta->{implied} = $self->field_implied($field);
     return $meta;
+}
+
+sub field_implied {
+    my ($self, $field) = @_;
+    my $v = $field->get_tag("implied");
+    $v = undef if $v eq '';
+    return $v;
 }
 
 sub field_allow_custom {
@@ -872,9 +883,8 @@ sub resource_options {
         meta => \%meta,
     );
     my $inheritedValues = $self->resourceInheritedValues;
-    my $parent = {
-        placeholder => $self->_cleanup_placeholder($inheritedValues)
-    };
+    my $placeholder = $self->_cleanup_placeholder($inheritedValues);
+    my $parent = { placeholder => $placeholder };
     $form->process($self->form_process_parameters_for_cleanup($item));
     for my $field ($form->fields) {
         next if $field->inactive;
@@ -883,6 +893,7 @@ sub resource_options {
         $meta{$name} = $self->field_meta($field, $parent);
     }
 
+    $self->cleanup_options(\%output, $placeholder);
     return $self->render(json => \%output);
 }
 

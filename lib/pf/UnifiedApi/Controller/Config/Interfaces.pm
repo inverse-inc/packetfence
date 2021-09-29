@@ -36,6 +36,7 @@ my %FIELDS = (
     networks => [],
     reg_network => undef,
     split_network => undef,
+    tenant_id => 1,
     vip => undef,
     vlan => undef,
     coa => undef,
@@ -122,9 +123,12 @@ Normalize interface information for JSON rendering
 sub normalize_interface {
     my ($self, $interface) = @_;
     my @bools = qw(is_running network_iseditable);
+    $interface->{not_editable} = $interface->{is_running} ? $self->json_false  : $self->json_true;
+
     for my $bool (@bools) {
         $interface->{$bool} = $interface->{$bool} ? $self->json_true : $self->json_false;
     }
+
 
     ($interface->{type}, @{$interface->{additional_listening_daemons}}) = grep { !/high-availability/ } split(',', $interface->{type});
     

@@ -11,6 +11,7 @@
 
   vars:
     pipeline_id: '{{ lookup("env","CI_PIPELINE_ID") | default("123456789", true) }}'
+    pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
 
     # force value to simplify tests outside CI
     gitlab_buildpkg_tools__ppa_enabled: True
@@ -25,21 +26,14 @@
         baseurl: "{{ gitlab_buildpkg_tools__ppa_url_deb }} {{ ansible_distribution_release }} main"
         gpgkey: 'http://inverse.ca/downloads/GPG_PUBLIC_KEY'
 
+    gitlab_buildpkg_tools__deb_deps_repos:
+      - name: 'packetfence'
+        baseurl: 'http://inverse.ca/downloads/PacketFence/debian/{{ pf_minor_release }} {{ ansible_distribution_release }} {{ ansible_distribution_release }}'
+
     gitlab_buildpkg_tools__deb_pkgs:
       - packetfence-test
       - wpasupplicant
-
-  # workaround for https://github.com/ansible/ansible/issues/70304
-  # to have ansible_distribution correct for bullseye
-  pre_tasks:
-    - name: Force cache update to get correct Ansible distribution release
-      apt:
-        update_cache: yes
-      when: ansible_os_family == 'Debian'
-
-    - name: Refresh Ansible facts after cache update
-      setup:
-      when: ansible_os_family == 'Debian'
+      - sscep
 
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools

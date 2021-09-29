@@ -10,7 +10,7 @@ export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_provisionings/isLoading']),
     getList: () => $store.dispatch('$_provisionings/all'),
-    getListOptions: params => $store.dispatch('$_provisionings/optionsByProvisioningType', params.moduleType),
+    getListOptions: params => $store.dispatch('$_provisionings/optionsByProvisioningType', params.provisioningType),
     createItem: params => $store.dispatch('$_provisionings/createProvisioning', params),
     getItem: params => $store.dispatch('$_provisionings/getProvisioning', params.id).then(item => {
       return (params.isClone)

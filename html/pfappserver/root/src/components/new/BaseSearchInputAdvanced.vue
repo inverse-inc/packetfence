@@ -42,7 +42,7 @@
   </b-container>
 </template>
 <script>
-const draggable = () => import('vuedraggable')
+const draggable = () => import(/* webpackChunkName: "Libs" */ 'vuedraggable')
 import BaseSearchInputAdvancedRule from './BaseSearchInputAdvancedRule'
 
 const components = {
@@ -103,7 +103,7 @@ const setup = (props, context) => {
   }
 
   const onAddOuterRule = () => {
-    const rule = { values: [{ field: fields.value[0].value, op: null, value: null }] }
+    const rule = { op: 'or', values: [{ field: fields.value[0].value, op: null, value: null }] }
     if (value.value.values && value.value.values.constructor === Array)
       emit('input', { op: 'and', values: [...value.value.values, rule] })
     else

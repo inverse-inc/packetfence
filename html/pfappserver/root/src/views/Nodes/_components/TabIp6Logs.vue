@@ -6,16 +6,18 @@
     <b-table v-if="node && node.ip6"
       :items="node.ip6.history" :fields="ipLogFields" :sort-by="iplogSortBy" :sort-desc="iplogSortDesc" responsive show-empty sort-icon-left striped>
       <template v-slot:empty>
-        <pf-empty-table :is-loading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</pf-empty-table>
+        <base-table-empty :is-loading="isLoading" text="">{{ $t('No IPv6 addresses found') }}</base-table-empty>
       </template>
     </b-table>
   </b-tab>
 </template>
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 
 const components = {
-  pfEmptyTable
+  BaseTableEmpty
 }
 
 const props = {
@@ -37,7 +39,7 @@ const setup = (props, context) => {
   const node = computed(() => $store.state.$_nodes.nodes[id.value])
 
   const iplogSortBy = ref('end_time')
-  const iplogSortDesc =  ref(false)
+  const iplogSortDesc = ref(true)
 
   // merge props w/ params in useStore methods
   const _useStore = $store => usePropsWrapper(useStore($store), props)

@@ -16,6 +16,18 @@
         :to="{ name: 'switchTemplate', params: { id: switchTemplateId } }"
       >{{ $i18n.t('View Switch Template') }}</b-button>
 
+      <template v-slot:append v-if="isLocked">
+        <b-button
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+        >
+          <icon ref="icon-lock"
+            name="lock"
+          />
+        </b-button>
+      </template>
+
     </b-input-group>
     <template v-slot:description v-if="inputText">
       <div v-html="inputText"/>
@@ -31,10 +43,10 @@ const components = {
   BaseInputChosenOne
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, inject, ref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInputMetaProps, useInputMeta } from '@/composables/useMeta'
-import { useInputProps } from '@/composables/useInput'
+import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 
 const props = {
@@ -48,23 +60,27 @@ const setup = (props, context) => {
   const metaProps = useInputMeta(props, context)
 
   const {
+    isLocked
+  } = useInput(metaProps, context)
+
+  const {
     value,
     text
   } = useInputValue(metaProps, context)
 
-  const { root: { $store } = {} } = context
-
-  const switchTemplates = ref([])
-  $store.dispatch('$_switches/optionsBySwitchGroup').then(switchGroupOptions => {
-    const { meta: { type: { allowed: switchGroups = [] } = {} } = {} } = switchGroupOptions
+  const meta = inject('meta', ref({}))
+  const switchTemplates = computed(() => {
+    const { type: { allowed: switchGroups = [] } = {} } = meta.value
+    let _switchTemplates = []
     switchGroups.map(switchGroup => {
       const { options: switchGroupMembers } = switchGroup
-      switchGroupMembers.map(switchGroupMember => {
+      switchGroupMembers.forEach(switchGroupMember => {
         const { is_template, value } = switchGroupMember
         if (is_template)
-          switchTemplates.value.push(value)
+          _switchTemplates.push(value)
       })
     })
+    return _switchTemplates
   })
 
   const switchTemplateId = computed(() => {
@@ -75,7 +91,8 @@ const setup = (props, context) => {
 
   return {
     inputText: text,
-    switchTemplateId
+    switchTemplateId,
+    isLocked
   }
 }
 

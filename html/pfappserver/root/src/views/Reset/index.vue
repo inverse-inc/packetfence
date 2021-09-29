@@ -5,7 +5,7 @@
         <b-media no-body>
           <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
           <div class="mx-2">
-            <h4 v-t="'Resetting View...'"></h4>
+            <h4 v-t="'Resetting View...'" />
           </div>
         </b-media>
       </b-col>

@@ -26,6 +26,7 @@ has 'primary_key' => 'switch_id';
 use pf::ConfigStore::Switch;
 use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
+use List::Util qw(first);
 
 =head2 invalidate_cache
 
@@ -73,6 +74,39 @@ sub standardPlaceholder {
     }
 
     return $self->_cleanup_placeholder($self->cleanup_item($values));
+}
+
+sub cleanup_options {
+    my ($self, $options, $placeholder) = @_;
+    my $meta = $options->{meta};
+    my $allowed_roles = $meta->{AccessListMapping}{item}{properties}{role}{allowed};
+    my $vlanMapping = $placeholder->{VlanMapping};
+    my $accessListMapping = $placeholder->{AccessListMapping};
+    my $urlMapping = $placeholder->{UrlMapping};
+    my $roleMapping = $placeholder->{ControllerRoleMapping};
+    for my $a (@{$allowed_roles}) {
+        my $r = $a->{value};
+        $meta->{"${r}Vlan"} = mapping_meta($r, $vlanMapping, 'vlan', $self->json_false);
+        $meta->{"${r}AccessList"} = mapping_meta($r, $accessListMapping, 'accesslist', $self->json_false);
+        $meta->{"${r}Url"} = mapping_meta($r, $urlMapping, 'url', $self->json_false);
+        $meta->{"${r}Role"} = mapping_meta($r, $roleMapping, 'controller_role', $self->json_false);
+    }
+}
+
+sub mapping_meta {
+    my ($role, $mapping, $f, $required) = @_;
+    return {
+        default => undef,
+        type => "string",
+        placeholder => mapping_placeholder($role, $mapping, $f),
+        required => $required,
+    };
+}
+
+sub mapping_placeholder {
+    my ($role, $mapping, $f) = @_;
+    my $m = first { $_->{role} eq $role  } @$mapping;
+    return defined $m ? $m->{$f} : undef;
 }
 
 =head1 AUTHOR

@@ -175,10 +175,11 @@ export const setup = (props, context) => {
     groupSelect,
     options: optionsPromise,
     max,
-    multiple
+    multiple,
+    caseSensitiveSearch
   } = toRefs(metaProps)
 
-  const options = useOptionsPromise(optionsPromise)
+  const options = useOptionsPromise(optionsPromise, label)
 
    const {
     placeholder,
@@ -236,7 +237,7 @@ export const setup = (props, context) => {
   }))
 
   // used by CSS to show vue-multiselect placeholder
-  const isEmpty = computed(() => !value.value)
+  const isEmpty = computed(() => [null, undefined].includes(value.value))
 
   const doFocus = () => nextTick(() => context.refs.inputRef.$el.focus())
   const doBlur = () => nextTick(() => context.refs.inputRef.$el.blur())
@@ -246,7 +247,7 @@ export const setup = (props, context) => {
   const {
     options: searchOptions,
     onSearch
-  } = useOptionsSearch(options, label)
+  } = useOptionsSearch(options, label, inputGroupLabel, inputGroupValues, caseSensitiveSearch.value)
 
   return {
     inputRef,
@@ -433,6 +434,7 @@ $chosen-option-hover-bg: $dropdown-link-hover-bg;
         & > .multiselect__option--highlight::after {
           background-color: $chosen-option-hover-bg;
           color: $chosen-option-hover-color;
+          content: attr(data-select);
         }
         & > .multiselect__option--disabled {
           background-color: var(--white) !important;

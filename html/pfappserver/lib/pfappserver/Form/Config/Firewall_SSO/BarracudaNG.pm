@@ -45,24 +45,6 @@ has_block definition =>
    render_list => [ qw(id type username password port categories networks cache_updates cache_timeout username_format default_realm) ],
   );
 
-=head2 Methods
-
-=cut
-
-=head2 options_categories
-
-=cut
-
-sub options_categories {
-    my $self = shift;
-
-    my ($status, $result) = $self->form->ctx->model('Config::Roles')->listFromDB();
-    my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
-    return ('' => '', @roles);
-}
-
-
-
 =over
 
 =back

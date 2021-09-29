@@ -6,13 +6,14 @@ else
   monit_dir="/etc/monit/conf.d"
 fi
 
+export packetfence_monit_dir="$monit_dir/packetfence"
+
 export script_registry_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/monit-script-registry.txt"
-export script_registry_file="$monit_dir/checks-script-registry"
-export script_dir="/usr/local/pf/var/monitoring-scripts/"
+export script_registry_file="$packetfence_monit_dir/checks-script-registry"
+export script_dir="/usr/local/pf/var/monitoring-scripts"
 
 export functions_script="$script_dir/.functions.sh"
-
-export uuid_file="$monit_dir/srv-uuid"
+export uuid_file="$packetfence_monit_dir/srv-uuid"
 
 if ! [ -f "$uuid_file" ]; then
   echo "UUID not generated. Proceeding with UUID generation now."
@@ -21,22 +22,22 @@ fi
 
 export uuid=$(cat $uuid_file)
 export uuid_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars/$uuid.txt"
-export uuid_vars_file="$monit_dir/uuid-vars"
+export uuid_vars_file="$packetfence_monit_dir/uuid-vars"
 
 export global_vars_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/vars.txt"
-export global_vars_file="$monit_dir/global-vars"
+export global_vars_file="$packetfence_monit_dir/global-vars"
 
-export local_vars_file="$monit_dir/local-vars"
+export local_vars_file="$packetfence_monit_dir/local-vars"
 
 export uuid_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores/$uuid.txt"
-export uuid_ignores_file="$monit_dir/uuid-ignores"
+export uuid_ignores_file="$packetfence_monit_dir/uuid-ignores"
 
 export global_ignores_url="http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/ignores.txt"
-export global_ignores_file="$monit_dir/global-ignores"
+export global_ignores_file="$packetfence_monit_dir/global-ignores"
 
-export local_ignores_file="$monit_dir/local-ignores"
+export local_ignores_file="$packetfence_monit_dir/local-ignores"
 
-export combined_vars_file="$monit_dir/vars"
+export combined_vars_file="$packetfence_monit_dir/vars"
 
 function is_ignored {
   touch "$global_ignores_file"

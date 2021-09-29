@@ -38,6 +38,14 @@ BEGIN {
         updated_at
         deleted_at
         name
+        mail
+        organisation
+        organisational_unit
+        country
+        state
+        locality
+        street_address
+        postal_code
         ca_id
         ca_name
         validity
@@ -46,6 +54,7 @@ BEGIN {
         digest
         key_usage
         extended_key_usage
+        ocsp_url
         p12_mail_password
         p12_mail_subject
         p12_mail_from
@@ -54,6 +63,8 @@ BEGIN {
         scep_enabled
         scep_challenge_password
         scep_days_before_renewal
+        cloud_enabled
+        cloud_service
     );
 
     %DEFAULTS = (
@@ -61,6 +72,14 @@ BEGIN {
         updated_at => undef,
         deleted_at => undef,
         name => undef,
+        mail => undef,
+        organisation => undef,
+        organisational_unit => undef,
+        country => undef,
+        state => undef,
+        locality => undef,
+        street_address => undef,
+        postal_code => undef,
         ca_id => undef,
         ca_name => undef,
         validity => undef,
@@ -69,6 +88,7 @@ BEGIN {
         digest => undef,
         key_usage => undef,
         extended_key_usage => undef,
+        ocsp_url => undef,
         p12_mail_password => undef,
         p12_mail_subject => undef,
         p12_mail_from => undef,
@@ -77,6 +97,8 @@ BEGIN {
         scep_enabled => undef,
         scep_challenge_password => undef,
         scep_days_before_renewal => undef,
+        cloud_enabled => undef,
+        cloud_service => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -84,6 +106,14 @@ BEGIN {
         updated_at
         deleted_at
         name
+        mail
+        organisation
+        organisational_unit
+        country
+        state
+        locality
+        street_address
+        postal_code
         ca_id
         ca_name
         validity
@@ -92,6 +122,7 @@ BEGIN {
         digest
         key_usage
         extended_key_usage
+        ocsp_url
         p12_mail_password
         p12_mail_subject
         p12_mail_from
@@ -100,6 +131,8 @@ BEGIN {
         scep_enabled
         scep_challenge_password
         scep_days_before_renewal
+        cloud_enabled
+        cloud_service
     );
 
     %FIELDS_META = (
@@ -128,6 +161,54 @@ BEGIN {
             is_nullable => 1,
         },
         name => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        mail => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        organisation => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        organisational_unit => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        country => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        state => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        locality => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        street_address => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        postal_code => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -181,6 +262,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        ocsp_url => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         p12_mail_password => {
             type => 'INT',
             is_auto_increment => 0,
@@ -229,7 +316,18 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
-
+        cloud_enabled => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        cloud_service => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -242,6 +340,14 @@ BEGIN {
         pki_profiles.updated_at
         pki_profiles.deleted_at
         pki_profiles.name
+        pki_profiles.mail
+        pki_profiles.organisation
+        pki_profiles.organisational_unit
+        pki_profiles.country
+        pki_profiles.state
+        pki_profiles.locality
+        pki_profiles.street_address
+        pki_profiles.postal_code
         pki_profiles.ca_id
         pki_profiles.ca_name
         pki_profiles.validity
@@ -250,6 +356,7 @@ BEGIN {
         pki_profiles.digest
         pki_profiles.key_usage
         pki_profiles.extended_key_usage
+        pki_profiles.ocsp_url
         pki_profiles.p12_mail_password
         pki_profiles.p12_mail_subject
         pki_profiles.p12_mail_from
@@ -258,6 +365,8 @@ BEGIN {
         pki_profiles.scep_enabled
         pki_profiles.scep_challenge_password
         pki_profiles.scep_days_before_renewal
+        pki_profiles.cloud_enabled
+        pki_profiles.cloud_service
     );
 
 }

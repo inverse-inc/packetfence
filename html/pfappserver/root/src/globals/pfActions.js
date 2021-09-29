@@ -6,140 +6,140 @@ import yup from '@/utils/yup'
 export const pfActions = {
   bandwidth_balance_from_source: {
     value: 'bandwidth_balance_from_source',
-    text: i18n.t('Bandwidth balance from authentication source'),
+    text: 'Bandwidth balance from authentication source', // i18n defer
     types: [fieldType.NONE]
   },
   default_actions: {
     value: 'default_actions',
-    text: i18n.t('Execute module default actions'),
+    text: 'Execute module default actions', // i18n defer
     types: [fieldType.NONE]
   },
   destination_url: {
     value: 'destination_url',
-    text: i18n.t('Destination URL'),
+    text: 'Destination URL', // i18n defer
     types: [fieldType.URL]
   },
   mark_as_sponsor: {
     value: 'mark_as_sponsor',
-    text: i18n.t('Mark as sponsor'),
+    text: 'Mark as sponsor', // i18n defer
     types: [fieldType.HIDDEN],
     staticValue: '1',
     default: '1'
   },
   no_action: {
     value: 'no_action',
-    text: i18n.t('No action'),
+    text: 'No action', // i18n defer
     types: [fieldType.NONE]
   },
   on_failure: {
     value: 'on_failure',
-    text: i18n.t('On failure'),
+    text: 'On failure', // i18n defer
     types: [fieldType.ROOT_PORTAL_MODULE]
   },
   on_success: {
     value: 'on_success',
-    text: i18n.t('On success'),
+    text: 'On success', // i18n defer
     types: [fieldType.ROOT_PORTAL_MODULE]
   },
   role_from_source: {
     value: 'role_from_source',
-    text: i18n.t('Role from authentication source'),
+    text: 'Role from authentication source', // i18n defer
     types: [fieldType.NONE]
   },
   set_access_duration: {
     value: 'set_access_duration',
-    text: i18n.t('Access duration'),
+    text: 'Access duration', // i18n defer
     types: [fieldType.DURATION]
   },
   set_access_duration_by_acl_user: {
     value: 'set_access_duration',
-    text: i18n.t('Access duration'),
+    text: 'Access duration', // i18n defer
     types: [fieldType.DURATION_BY_ACL_USER]
   },
   set_access_durations: {
     value: 'set_access_durations',
-    text: i18n.t('Sponsor access durations'),
+    text: 'Sponsor access durations', // i18n defer
     types: [fieldType.DURATIONS]
   },
   set_access_level: {
     value: 'set_access_level',
-    text: i18n.t('Access level'),
+    text: 'Access level', // i18n defer
     types: [fieldType.ADMINROLE]
   },
   set_access_level_by_acl_user: {
     value: 'set_access_level',
-    text: i18n.t('Access level'),
+    text: 'Access level', // i18n defer
     types: [fieldType.ADMINROLE_BY_ACL_USER]
   },
   set_bandwidth_balance: {
     value: 'set_bandwidth_balance',
-    text: i18n.t('Bandwidth balance'),
+    text: 'Bandwidth balance', // i18n defer
     types: [fieldType.PREFIXMULTIPLIER]
   },
   set_role: {
     value: 'set_role',
-    text: i18n.t('Role'),
+    text: 'Role', // i18n defer
     types: [fieldType.ROLE]
   },
   set_role_by_name: {
     value: 'set_role',
-    text: i18n.t('Role'),
+    text: 'Role', // i18n defer
     types: [fieldType.ROLE_BY_NAME]
   },
   set_role_by_acl_user: {
     value: 'set_role',
-    text: i18n.t('Role'),
+    text: 'Role', // i18n defer
     types: [fieldType.ROLE_BY_ACL_USER]
   },
   set_role_on_not_found: {
     value: 'set_role_on_not_found',
-    text: i18n.t('Role On Not Found'),
+    text: 'Role On Not Found', // i18n defer
     types: [fieldType.ROLE_BY_NAME]
   },
   set_role_from_source: {
     value: 'set_role_from_source',
-    text: i18n.t('Role from source'),
+    text: 'Role from source', // i18n defer
     types: [fieldType.SELECTONE]
   },
   set_tenant_id: {
     value: 'set_tenant_id',
-    text: i18n.t('Tenant ID'),
+    text: 'Tenant ID', // i18n defer
     types: [fieldType.TENANT]
   },
   set_time_balance: {
     value: 'set_time_balance',
-    text: i18n.t('Time balance'),
+    text: 'Time balance', // i18n defer
     types: [fieldType.TIME_BALANCE]
   },
   set_unreg_date: {
     value: 'set_unreg_date',
-    text: i18n.t('Unregistration date'),
-    types: [fieldType.DATETIME],
+    text: 'Unregistration date', // i18n defer
+    types: [fieldType.DATE],
     props: {
-      placeholder: '0000-00-00 00:00:00'
+      placeholder: '0000-00-00'
     }
   },
   set_unreg_date_by_acl_user: {
     value: 'set_unreg_date',
-    text: i18n.t('Unregistration date'),
-    types: [fieldType.DATETIME],
+    text: 'Unregistration date', // i18n defer
+    types: [fieldType.DATE],
     props: {
-      placeholder: '0000-00-00 00:00:00',
+      placeholder: '0000-00-00',
     }
   },
   time_balance_from_source: {
     value: 'time_balance_from_source',
-    text: i18n.t('Time balance from authentication source'),
+    text: 'Time balance from authentication source', // i18n defer
     types: [fieldType.NONE]
   },
   unregdate_from_source: {
     value: 'unregdate_from_source',
-    text: i18n.t('Unregistration date from authentication source'),
+    text: 'Unregistration date from authentication source', // i18n defer
     types: [fieldType.NONE]
   },
   unregdate_from_sponsor_source: {
     value: 'unregdate_from_sponsor_source',
-    text: i18n.t('Unregistration date from sponsor source'),
+    text: 'Unregistration date from sponsor source', // i18n defer
     types: [fieldType.NONE]
   }
   /* keys are alphabetical, please insert new actions in order above */
@@ -175,12 +175,12 @@ const pfActionSchema = yup.object({
         case type === 'set_access_level_by_acl_user':
           return yup.array().nullable()
             .of(yup.string().nullable())
-            .required(i18n.t('Level(s) required.')) 
+            .required(i18n.t('Level(s) required.'))
           // break
         case type === 'set_access_durations':
           return yup.array().nullable()
             .of(yup.string().nullable())
-            .required(i18n.t('Duration(s) required.')) 
+            .required(i18n.t('Duration(s) required.'))
             // break
         default:
           return yup.string().nullable()

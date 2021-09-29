@@ -1209,7 +1209,7 @@ sub strip_username {
     my ($username) = @_;
     return $username unless(defined($username));
 
-    # user@domain
+    # user@domain (with domain=example or example.lan)
     if($username =~ /(.*)\@(.*)/){
         return ($1,$2);
     }

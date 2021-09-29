@@ -115,16 +115,17 @@ install: build
 	install -m0644 $(CURDIR)/debian/packetfence.modprobe $(CURDIR)/debian/packetfence/etc/modprobe.d/packetfence.conf
 	install -m0644 $(CURDIR)/debian/packetfence.modules-load $(CURDIR)/debian/packetfence/etc/modules-load.d/packetfence.conf
 
-	# copy the rsyslog systemd drop in
+	# copy the rsyslog systemd drop in and journald
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/
 	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/packetfence.conf
-	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/usr/lib/systemd/journald.conf.d/01-packetfence.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/
+	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/01-packetfence.conf
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
 	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence Mariadb plugin
-	make MARIADB_INCLUDE_DIR=/usr/include/mariadb src/mariadb_udf/pf_udf.so
+	make src/mariadb_udf/pf_udf.so
 	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(pkg-config mariadb --variable=plugindir)/pf_udf.so
 	#PacketFence pfcmd suid
 	install -d -m0755 $(CURDIR)/debian/packetfence-pfcmd-suid$(PREFIX)/$(NAME)/bin
@@ -332,7 +333,6 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/Authentication/Source/*.t
 	# Venom
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/venom/*.sh
-	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/venom/pfservers/common/utils/*.sh
 	# packetfence pkg
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh

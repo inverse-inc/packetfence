@@ -27,6 +27,7 @@ buildEntry
 sub buildEntry {
     my ($self, $buildData, $id, $entry) = @_;
     $entry->{rate_limit} = normalize_time($entry->{rate_limit} // $pf::constants::pfdetect::RATE_LIMIT_DEFAULT);
+    $entry->{tenant_id} = ($entry->{tenant_id}  // 1 ) + 0;
     if ($entry->{type} eq 'regex') {
         my @rules;
         my @rule_ids = grep { /^$id rule/ } @{$buildData->{ini_sections}};

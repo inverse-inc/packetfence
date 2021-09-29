@@ -119,6 +119,7 @@ sub field_list {
                 delete $field->{element_attr}->{placeholder};
                 $field->{tags}->{before_element} = \&defaults_list;
                 $field->{tags}->{defaults} = $defaults->{$name};
+                $field->{tags}->{implied} = $defaults->{$name};
                 $field->{type} = 'TextArea';
                 $field->{element_class} = ['input-xxlarge'];
                 last;
@@ -147,12 +148,23 @@ sub field_list {
                         }];
                 last;
             };
-            $type eq 'array' && do {
+            ($type eq 'array') && do {
                 $field->{type} = 'Repeatable';
                 $field->{contains} = {
                     type => 'Text',
                     id   => "$name.contains",
                 };
+                last;
+            };
+            ($type eq 'merged_list_array') && do {
+                $field->{type} = 'Repeatable';
+                $field->{contains} = {
+                    type => 'Text',
+                    id   => "$name.contains",
+                };
+                my $v = $defaults->{$name};
+                $v = [split(/\s*,\s*/, $v)];
+                $field->{tags}->{implied} = sub { $v };
                 last;
             };
             $type eq 'multi' && do {

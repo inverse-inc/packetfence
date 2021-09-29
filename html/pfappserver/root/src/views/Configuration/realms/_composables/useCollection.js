@@ -37,6 +37,7 @@ import makeSearch from '@/store/factory/search'
 import api from '../_api'
 export const useSearch = makeSearch('realms', {
   api,
+  sortBy: null, // use natural order (sortable)
   columns: [
     {
       key: 'selected',
@@ -122,6 +123,5 @@ export const useSearch = makeSearch('realms', {
       text: i18n.t('Name'),
       types: [conditionType.SUBSTRING]
     }
-  ],
-  sortBy: 'id'
+  ]
 })

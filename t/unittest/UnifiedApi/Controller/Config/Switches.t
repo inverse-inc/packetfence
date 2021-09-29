@@ -22,10 +22,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 57;
+use Test::More tests => 60;
+use List::Util qw(first);
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Switch;
+use JSON::PP::Boolean;
+use Test2::Tools::Compare qw(hash field etc);
 
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Switch");
 
@@ -36,6 +39,61 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/switches';
 
 my $base_url = '/api/v1/config/switch';
+
+my @roles = qw(registration isolation inline Machine REJECT User custom1 default gaming guest macDetection normal r1 r2 r3 voice);
+my $roles_allowed = [ map { {text => $_, value => $_} } @roles];
+my $false = bless( do{\(my $o = 0)}, 'JSON::PP::Boolean' );
+my $true = bless( do{\(my $o = 1)}, 'JSON::PP::Boolean' );
+my $cs  = pf::ConfigStore::Switch->new();
+my $defaults = $cs->read('defaults');
+$t->options_ok($collection_base_url)
+  ->status_is(200);
+
+my $json = $t->tx->res->json;
+
+Test2::Tools::Compare::is(
+    $json->{meta},
+    hash {
+        field normalVlan => {
+            default     => undef,
+            type        => 'string',
+            required    => $false,
+            placeholder => 1,
+        };
+        field isolationVlan => {
+            default     => undef,
+            type        => 'string',
+            required    => $false,
+            placeholder => 2
+        };
+        field registrationVlan => {
+            default     => undef,
+            type        => 'string',
+            required    => $false,
+            placeholder => 3
+        };
+        field guestVlan => {
+            default     => undef,
+            type        => 'string',
+            required    => $false,
+            placeholder => 5
+        };
+        field voiceVlan => {
+            default     => undef,
+            type        => 'string',
+            required    => $false,
+            placeholder => 10
+        };
+        field custom1Vlan => {
+            default     => undef,
+            type        => 'string',
+            required    => $false,
+            placeholder => 'patate'
+        };
+        etc();
+    },
+    "Placeholders for VlanMapping is correct"
+);
 
 $t->post_ok($collection_base_url => json => { id => "blahasas", description => "ss"})
   ->status_is(422);

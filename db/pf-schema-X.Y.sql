@@ -3,7 +3,7 @@
 --
 
 SET @MAJOR_VERSION = 11;
-SET @MINOR_VERSION = 0;
+SET @MINOR_VERSION = 1;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -487,7 +487,7 @@ CREATE TABLE `password` (
 
 INSERT INTO `person` (pid,notes) VALUES ("admin","Default Admin User - do not delete");
 INSERT INTO `person` (pid,notes) VALUES ("default","Default User - do not delete");
-INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', NOW(), '2038-01-01', NULL, 'ALL', NULL);
+INSERT INTO password (pid, password, valid_from, expiration, access_duration, access_level, category) VALUES ('admin', 'admin', '1970-01-01', '2038-01-01', NULL, 'ALL', NULL);
 
 --
 -- Trigger to delete the temp password from 'password' when deleting the pid associated with

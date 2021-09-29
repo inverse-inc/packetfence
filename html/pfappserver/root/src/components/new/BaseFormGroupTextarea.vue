@@ -48,8 +48,9 @@
         </b-button>
       </template>
     </b-input-group>
-    <template v-slot:description v-if="inputText">
-      <div v-html="inputText"/>
+    <template v-slot:description v-if="inputText || inputApiFeedback">
+      <div v-if="inputApiFeedback" v-html="inputApiFeedback" class="text-warning"/>
+      <div v-if="inputText" v-html="inputText"/>
     </template>
     <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
       <div v-html="inputInvalidFeedback"/>
@@ -116,7 +117,8 @@ export const setup = (props, context) => {
   const {
     state,
     invalidFeedback,
-    validFeedback
+    validFeedback,
+    apiFeedback
   } = useInputValidator(metaProps, value)
 
   const inputRows = computed(() => {
@@ -149,7 +151,8 @@ export const setup = (props, context) => {
     // useInputValidator
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
-    inputValidFeedback: validFeedback
+    inputValidFeedback: validFeedback,
+    inputApiFeedback: apiFeedback
   }
 }
 

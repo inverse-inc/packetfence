@@ -69,12 +69,12 @@
       :column-label="$i18n.t('Captive Portal detection mechanism URLs')"
       :text="$i18n.t('Comma-separated list of URLs known to be used by devices to detect the presence of a captive portal and trigger their captive portal mechanism.')"
     />
-    <b-row>
+    <b-row v-if="impliedDetectionMechanismUrls.length">
       <b-col cols="3"></b-col>
       <b-col cols="9">
         <div class="alert alert-info mr-3">
           <p><strong>{{ $i18n.t('Built-in Captive Portal detection mechanism URLs:') }}</strong></p>
-          <span v-for="url in urlsBuiltIn" :key="url"
+          <span v-for="url in impliedDetectionMechanismUrls" :key="url"
             class="badge badge-info mr-1">{{ url }}</span>
         </div>
       </b-col>
@@ -162,7 +162,7 @@ export const props = {
   }
 }
 
-import { useNamespaceMetaPlaceholder } from '@/composables/useMeta'
+import { useNamespaceMetaImplied } from '@/composables/useMeta'
 
 export const setup = (props) => {
 
@@ -170,13 +170,16 @@ export const setup = (props) => {
     meta
   } = toRefs(props)
 
-  const urlsBuiltIn = computed(() => (useNamespaceMetaPlaceholder('detection_mecanism_urls', meta) || '').split(','))
+  const impliedDetectionMechanismUrls = computed(() => {
+    const csv = useNamespaceMetaImplied('detection_mecanism_urls', meta)
+    return (csv) ? csv.split(',') : []
+  })
 
   const schema = computed(() => schemaFn(props))
 
   return {
     schema,
-    urlsBuiltIn
+    impliedDetectionMechanismUrls
   }
 }
 

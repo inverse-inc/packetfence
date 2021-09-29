@@ -52,13 +52,23 @@ function import_mysqldump() {
     sub_splitter
     echo "Replacing create statements from the dump and removing drop statements"
     # This is done so that tables aren't dropped 
-    sed -i "s/DROP TABLE IF EXISTS /DELETE IGNORE FROM /g" $dump_file
+    sed -i "s/^DROP TABLE IF EXISTS /---DROP TABLE IF EXISTS /g" $dump_file
     sed -i "s/CREATE TABLE /CREATE TABLE IF NOT EXISTS /g" $dump_file
   
     # Delete this statement if its there because this table isn't in our schema anymore but some old deployments have it
     sed -i 's/DELETE IGNORE FROM `dhcp_fingerprint`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `action`;//g' $dump_file
     sed -i 's/DELETE IGNORE FROM `activation`;//g' $dump_file
+
+    # We need to drop the data from all the tables that contain data in our bare schema
+    # This is because the mysqldump import already contains this data
+    mysql ${mariadb_args} $db_name -e 'delete ignore from node_category;'
+    mysql ${mariadb_args} $db_name -e 'delete ignore from password;'
+    mysql ${mariadb_args} $db_name -e 'delete ignore from person;'
+    mysql ${mariadb_args} $db_name -e 'delete ignore from pf_version;'
+    mysql ${mariadb_args} $db_name -e 'delete ignore from radreply;'
+    mysql ${mariadb_args} $db_name -e 'delete ignore from sms_carrier;'
+    mysql ${mariadb_args} $db_name -e 'delete ignore from tenant;'
   else
     echo "Dump file includes triggers and procedures"
   fi

@@ -12,11 +12,11 @@
         :column-label="$t('Username (PID) overwrite')"
         :text="$t('Overwrite the username (PID) if it already exists.')"
       />
-      
+
       <form-group-prefix namespace="prefix"
         :column-label="$t('Username Prefix')"
       />
-      
+
       <form-group-quantity namespace="quantity"
         :column-label="$t('Quantity')"
       />
@@ -31,7 +31,7 @@
         :column-label="$t('Login remaining')"
         :text="$t('Leave empty to allow unlimited logins.')"
       />
-      
+
       <form-group-firstname namespace="firstname"
         :column-label="$t('Firstname')"
       />
@@ -43,11 +43,11 @@
       <form-group-company namespace="company"
         :column-label="$t('Company')"
       />
-      
+
       <form-group-notes namespace="notes"
         :column-label="$t('Notes')"
       />
-      
+
       <base-form-group
         :column-label="$t('Registration Window')"
       >
@@ -77,7 +77,7 @@
         </div>
       </div>
     </base-form>
-    <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users"/>
+    <the-preview-modal v-model="showPreviewModal" />
   </b-form>
 </template>
 <script>
@@ -96,12 +96,12 @@ import {
   FormGroupCompany,
   FormGroupNotes,
   FormGroupPasswordOptions,
-  
+
   InputGroupValidFrom,
   InputGroupExpiration,
   FormGroupActions
 } from './'
-import UsersPreviewModal from './UsersPreviewModal'
+import ThePreviewModal from './ThePreviewModal'
 
 const components = {
   BaseForm,
@@ -121,7 +121,7 @@ const components = {
   InputGroupValidFrom,
   InputGroupExpiration,
   FormGroupActions,
-  UsersPreviewModal
+  ThePreviewModal
 }
 
 import { computed, ref } from '@vue/composition-api'
@@ -129,7 +129,7 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import { multiple as schemaFn } from '../schema'
 import i18n from '@/utils/locale'
 import password from '@/utils/password'
-import { 
+import {
   createMultipleForm as defaults,
   passwordOptions as _passwordOptions
 } from '../_config/'
@@ -152,7 +152,7 @@ const setup = (props, context) => {
         .length === 0
     )
   )
-  
+
   const domainName = computed(() => {
     const { domain_name = null } = $store.getters['session/tenantMask'] || {}
     return domain_name
@@ -162,16 +162,16 @@ const setup = (props, context) => {
     $router.push({ name: 'users' })
   }
 
-  const showUsersPreviewModal = ref(false)
+  const showPreviewModal = ref(false)
   const onCreate = () => {
     if (!isValid.value)
       return
-    showUsersPreviewModal.value = false
+    showPreviewModal.value = false
     const base = {
       ...form.value,
       quiet: true
     }
-    let createdUsers = []
+    let createdUsers = ref([])
     let promises = []
     for (let i = 0; i < base.quantity; i++) {
       let _form = {
@@ -185,14 +185,14 @@ const setup = (props, context) => {
         // user exists
         $store.dispatch('$_users/updateUser', _form).then(() => {
           return $store.dispatch('$_users/updatePassword', _form).then(() => {
-            createdUsers.push(_form)
+            createdUsers.value.push(_form)
           })
         })
       }).catch(() => {
         // user not exist
         $store.dispatch('$_users/createUser', _form).then(() => {
           return $store.dispatch('$_users/createPassword', _form).then(() => {
-            createdUsers.push(_form)
+            createdUsers.value.push(_form)
           })
         })
       }))
@@ -204,15 +204,15 @@ const setup = (props, context) => {
         skipped: null,
         failed: null
       })
-      $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers)
-      showUsersPreviewModal.value = true
+      $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
+      showPreviewModal.value = true
     })
   }
 
   const onReset = () => {
     form.value = { ...defaults } // dereferenced
   }
-  
+
   const passwordOptions = ref(_passwordOptions)
 
   return {
@@ -225,7 +225,7 @@ const setup = (props, context) => {
     onClose,
     onCreate,
     onReset,
-    showUsersPreviewModal,
+    showPreviewModal,
     passwordOptions
   }
 }

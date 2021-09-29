@@ -23,7 +23,7 @@ sudo systemctl enable dhcrelay
 
 ## Scenario steps
 - Configure inline L2 network
-- Configure routed network as inline L3 with next_hop as switch01
+- Configure routed network as inline L3 with next_hop as switch01 (172.17.6.3)
 - Restart all services related
 - Register node02
 - Apply iptables rules on switch01 to NAT traffic from inline L3 to
@@ -40,3 +40,8 @@ sudo iptables -t nat -A POSTROUTING -o bridge.100 -s 172.17.18.0/24  -j MASQUERA
 - Check Internet access on node02
 - Unconfigure switch01
 - Remove inline networks
+
+## Notes
+
+Due to L3, once iptables rules is in place, node02 is able to reach public IP
+even if it's unregistered.

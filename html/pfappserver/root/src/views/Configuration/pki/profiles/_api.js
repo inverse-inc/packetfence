@@ -13,7 +13,8 @@ export default {
     })
   },
   create: data => {
-    return apiCall.post('pki/profiles', data).then(response => {
+    const { id, ...rest } = data // strip `id` from isClone
+    return apiCall.post('pki/profiles', rest).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
@@ -30,7 +31,8 @@ export default {
     })
   },
   update: data => {
-    return apiCall.patch(['pki', 'profile', data.id], data).then(response => {
+    const { id, ...rest } = data
+    return apiCall.patch(['pki', 'profile', id], rest).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error

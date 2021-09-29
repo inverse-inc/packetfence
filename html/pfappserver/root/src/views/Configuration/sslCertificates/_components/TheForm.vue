@@ -59,16 +59,19 @@
           </b-container>
         </template>
       </b-card>
-      <b-card no-body class="m-3" v-for="(intermediate_ca, index) in form.info.intermediate_cas" :key="intermediate_ca.serial">
-        <b-card-header>
-          <h4 class="mb-0 d-inline">{{ title.value }} {{ $t('Intermediate') }}</h4>
-          <b-badge variant="secondary" class="ml-1">{{ index + 1 }}</b-badge>
-        </b-card-header>
-        <b-row align-v="center" v-for="(value, key) in intermediate_ca" :key="key">
-          <b-col sm="3" class="col-form-label">{{ key }}</b-col>
-          <b-col sm="9">{{ value }}</b-col>
-        </b-row>
-      </b-card>
+      <template v-if="form.info">
+        <b-card v-for="(intermediate_ca, index) in form.info.intermediate_cas" :key="intermediate_ca.serial"
+          no-body class="m-3">
+          <b-card-header>
+            <h4 class="mb-0 d-inline">{{ title.value }} {{ $t('Intermediate') }}</h4>
+            <b-badge variant="secondary" class="ml-1">{{ index + 1 }}</b-badge>
+          </b-card-header>
+          <b-row align-v="center" v-for="(value, key) in intermediate_ca" :key="key">
+            <b-col sm="3" class="col-form-label">{{ key }}</b-col>
+            <b-col sm="9">{{ value }}</b-col>
+          </b-row>
+        </b-card>
+      </template>
       <b-card-footer>
         <b-button v-t="'Edit'" @click="doShowEdit"/>
       </b-card-footer>
@@ -91,9 +94,15 @@
           <!--
             With Let's Encrypt (lets_encrypt: true)
           -->
-          <template v-if="form.certificate.lets_encrypt">
+          <template v-if="form.certificate && form.certificate.lets_encrypt">
             <form-group-lets-encrypt-common-name namespace="common_name"
               :column-label="$i18n.t('Common Name')"
+            />
+
+            <form-group-ca v-if="id === 'radius'"
+              namespace="ca"
+              :column-label="$i18n.t('Certification Authority certificate(s)')"
+              rows="6" auto-fit
             />
           </template>
 

@@ -126,6 +126,7 @@ my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/addons/sourcefire/pfdetect.pl
    /usr/local/pf/sbin/galera-autofix
+   /usr/local/pf/addons/packetfence-perl/find_dependencies.pl
 );
 
 sub get_all_perl_binaries {

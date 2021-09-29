@@ -4,8 +4,7 @@ export const types = {
   nessus:   i18n.t('Nessus'),
   nessus6:  i18n.t('Nessus 6'),
   openvas:  i18n.t('OpenVAS'),
-  rapid7:   i18n.t('Rapid7'),
-  wmi:      i18n.t('WMI')
+  rapid7:   i18n.t('Rapid7')
 }
 
 export const typeOptions = Object.keys(types)

@@ -431,12 +431,18 @@ Then the following command to import the backup:
  gunzip packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream.gz
  mbstream -x < packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream
  mv packetfence-db-dump-innobackup-YYYY-MM-DD_HHhss.xbstream ../
- mariabackup --prepare --apply-log --target-dir=./
+ mariabackup --prepare --target-dir=./
  systemctl stop packetfence-mariadb
  rm -fr /var/lib/mysql/*
  mariabackup --innobackupex --defaults-file=/usr/local/pf/var/conf/mariadb.conf      --move-back --force-non-empty-directories ./
  chown -R mysql: /var/lib/mysql
  systemctl start packetfence-mariadb
+
+On the master node of the main cluster, grant replication for the replication user:
+
+ mysql -uroot -p
+ MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO  'pfcluster'@'%';
+ MariaDB [(none)]> FLUSH PRIVILEGES;
 
 Lastly, run the following script on the remote server to start the slave replication.
 

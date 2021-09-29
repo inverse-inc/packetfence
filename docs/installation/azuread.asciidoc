@@ -24,8 +24,8 @@ PacketFence supports integrating with the Azure Active Directory for authenticat
     .... Select 'Microsoft Graph'
     .... Select 'Application permissions'
     .... Add the permission `Directory.Read.All`
+    .... Click on 'Grant admin consent'  
   ... Make sure `User.Read` is already there as a delegated permission
-  ... Click on 'Grant admin consent'
 
 ==== Disabling MFA
 

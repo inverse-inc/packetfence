@@ -1,4 +1,4 @@
-- hosts: [ 'dev', 'wireless']
+- hosts: dev
   name: Install packetfence development packages
   become: True
   collections:
@@ -7,17 +7,19 @@
     - debops.roles02
     - debops.roles03
 
-  # workaround for https://github.com/ansible/ansible/issues/70304
-  # to have ansible_distribution correct for bullseye
   pre_tasks:
-    - name: Force cache update to get correct Ansible distribution release
-      apt:
-        update_cache: yes
+    # PPA repositories are removed each day and cause issues when refreshing cache
+    - name: Clean previous ppa source file if present (Debian)
+      file:
+        path: '/etc/apt/sources.list.d/packetfence-ppa.list'
+        state: absent
       when: ansible_os_family == 'Debian'
 
-    - name: Refresh Ansible facts after cache update
-      setup:
-      when: ansible_os_family == 'Debian'
+    - name: Clean previous ppa source file if present (EL)
+      file:
+        path: '/etc/yum.repos.d/packetfence-ppa.repo'
+        state: absent
+      when: ansible_os_family == 'RedHat'
 
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools

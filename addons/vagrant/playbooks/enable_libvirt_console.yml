@@ -1,0 +1,10 @@
+- hosts: pfservers
+  name: Enable console using virsh
+  become: True
+
+  tasks:
+    - name: Start and enable serial-getty service
+      service:
+        name: 'serial-getty@ttyS0.service'
+        state: 'started'
+        enabled: True

@@ -4,9 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/inverse-inc/scep/csrverifier"
-	scepdepot "github.com/inverse-inc/scep/depot"
-	scepserver "github.com/inverse-inc/scep/server"
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
@@ -14,6 +11,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/inverse-inc/scep/csrverifier"
+	scepdepot "github.com/inverse-inc/scep/depot"
+	scepserver "github.com/inverse-inc/scep/server"
 )
 
 func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	var err error
 
-	log.LoggerWContext(*pfpki.Ctx).Info("SCEP GET From " + r.Method + " To: " + r.URL.String())
+	log.LoggerWContext(*pfpki.Ctx).Info("SCEP " + r.Method + " To: " + r.URL.String())
 
 	o := models.NewCAModel(pfpki)
 	profileName := vars["id"]
@@ -44,14 +44,14 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	var svc scepserver.Service // scep service
 	{
-		crts, key, err := o.CA(nil)
+		crts, key, err := o.CA(nil, profileName)
 		if err != nil {
 			lginfo.Log("err", err)
-			os.Exit(1)
+			return
 		}
 		if len(crts) < 1 {
 			lginfo.Log("err", "missing CA certificate")
-			os.Exit(1)
+			return
 		}
 
 		prof, _ := o.FindSCEPProfile([]string{vars["id"]})
@@ -60,8 +60,9 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", prof[0].CloudService)
 			o.Cloud = vcloud
 			if err != nil {
-				lginfo.Log("err", "Enable to create CLoud service")
-				os.Exit(1)
+				lginfo.Log("err", "Enable to create Cloud service")
+				lginfo.Log("err", err.Error())
+				return
 			}
 		}
 		var signer scepserver.CSRSigner = scepdepot.NewSigner(
@@ -82,7 +83,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 		svc, err = scepserver.NewService(crts[0], key, signer, scepserver.WithLogger(logger))
 		if err != nil {
 			lginfo.Log("err", err)
-			os.Exit(1)
+			return
 		}
 		svc = scepserver.NewLoggingService(kitlog.With(lginfo, "component", "scep_service"), svc)
 	}

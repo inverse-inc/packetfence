@@ -41,7 +41,10 @@ export const useItemTitleBadge = (props, context, form) => {
   const {
     providerType
   } = toRefs(props)
-  return computed(() => pkiProvidersTypes[providerType.value || form.value.type])
+  return computed(() => {
+    const type = providerType.value || form.value.type
+    return pkiProvidersTypes[type]
+  })
 }
 
 export { useRouter } from '../_router'
@@ -70,6 +73,7 @@ export const useSearch = makeSearch('pkiProviders', {
     {
       key: 'type',
       label: 'Type', // i18n defer
+      required: true,
       searchable: true,
       sortable: true,
       visible: true,

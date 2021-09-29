@@ -11,14 +11,13 @@
           <base-input-toggle-advanced-mode v-model="advancedMode" label-left />
         </div>
       </template>
-
       <base-form-tab :title="$i18n.t('Definition')" active>
 
         <form-group-identifier namespace="id"
           :column-label="$i18n.t('IP Address/MAC Address/Range (CIDR)')"
         />
 
-        <form-group-identifier namespace="description"
+        <form-group-description namespace="description"
           :column-label="$i18n.t('Description')"
         />
 
@@ -109,7 +108,6 @@
           :column-label="$i18n.t('CoA Port')"
           :text="$i18n.t('For CoA request, if we have to send to another port.')"
         />
-
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Roles')">
 

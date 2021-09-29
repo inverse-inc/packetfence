@@ -47,7 +47,7 @@ export const pfFormatters = {
     if (acl.$can('read', 'nodes')) {
       store.dispatch('config/getRoles')
       if (store.state.config.roles) {
-        return store.state.config.roles.filter(role => role.category_id === item.bypass_role_id).map(role => role.name)[0]
+        return store.state.config.roles.filter(role => role.category_id.toString() === item.bypass_role_id.toString()).map(role => role.name)[0]
       }
     } else {
       return item.bypass_role_id
@@ -105,5 +105,9 @@ export const pfFormatters = {
   },
   shortDateTime: (value) => {
     return filters.shortDateTime(parseInt(value) * 1000)
+  },
+  tenantId: (value) => {
+    const { name } = store.state.session.tenants.find(tenant => tenant.id === +value)
+    return name
   }
 }

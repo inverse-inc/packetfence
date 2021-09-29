@@ -10,7 +10,7 @@ export const useRouter = $router => {
     goToItem: params => $router
       .push({ name: 'source', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneAuthenticationSource', params }),
+    goToClone: params => $router.push({ name: 'cloneAuthenticationSource', params: { ...params, sourceType: params.type } }),
     goToNew: params => $router.push({ name: 'newAuthenticationSource', params }),
   }
 }
@@ -48,10 +48,10 @@ export default [
     }
   },
   {
-    path: 'source/:id/clone',
+    path: 'source/:id/clone/:sourceType',
     name: 'cloneAuthenticationSource',
     component: TheView,
-    props: (route) => ({ id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, sourceType: route.params.sourceType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_sources/getAuthenticationSource', to.params.id).then(() => {

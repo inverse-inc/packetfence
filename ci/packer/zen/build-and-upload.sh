@@ -9,6 +9,7 @@ VBOX_OVF_NAME=${VM_NAME}.ovf
 
 VMWARE_RESULT_DIR=${VMWARE_RESULT_DIR:-results/vmware}
 VMX_OVA_NAME=${VM_NAME}-${PF_VERSION}.ova
+VMX_OVA_NAME=`echo -n $VMX_OVA_NAME | tr '/' '-'`
 
 # upload
 SF_RESULT_DIR=results/sf/${PF_VERSION}

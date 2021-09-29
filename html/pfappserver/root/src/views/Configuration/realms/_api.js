@@ -3,9 +3,9 @@ import apiCall from '@/utils/api'
 
 const api = {
   search: data => {
-    const singleTenant = store.state.session.tenant
+    const singleTenant = store.state.session.tenant.id !== 0
     const tenants = (singleTenant)
-      ? store.state.session.tenants.filter(tenant => +tenant.id === +singleTenant.id) // single-tenant mode
+      ? [store.state.session.tenant] // single-tenant mode
       : store.state.session.tenants // multi-tenant mode
     const promises = []
     tenants.forEach(tenant => {
@@ -78,7 +78,7 @@ export const apiFactory = tenantId => {
       })
     },
     delete: id => {
-      return apiCall.delete(['config', 'realm', id], { headers })
+      return apiCall.delete(['config', 'realm', id], {}, { headers })
     }
   }
 }

@@ -569,7 +569,7 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 
 	if Error.Status != 0 {
 		res.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		res.WriteHeader(http.StatusOK)
+		res.WriteHeader(Error.Status)
 		log.LoggerWContext(*pfpki.Ctx).Error(Information.Error)
 		if err := json.NewEncoder(res).Encode(&Error); err != nil {
 			fmt.Println(err)

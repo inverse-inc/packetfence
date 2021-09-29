@@ -161,9 +161,11 @@ const mutations = {
     if (message)
       state.message = message
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
-    state = initialState()
+    const _state = initialState()
+    Object.keys(_state).forEach(key => {
+      Vue.set(state, key, _state[key]) // maintain existing reactivity
+    })
   }
 }
 

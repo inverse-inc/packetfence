@@ -139,8 +139,9 @@
         </b-button>
       </template>
     </b-input-group>
-    <template v-slot:description v-if="inputText">
-      <div v-html="inputText"/>
+    <template v-slot:description v-if="inputText || inputApiFeedback">
+      <div v-if="inputApiFeedback" v-html="inputApiFeedback" class="text-warning"/>
+      <div v-if="inputText" v-html="inputText"/>
     </template>
     <template v-slot:invalid-feedback v-if="inputInvalidFeedback">
       <div v-html="inputInvalidFeedback"/>
@@ -164,7 +165,7 @@ import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useOptionsPromise, useOptionsValue } from '@/composables/useInputMultiselect'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
-import { useInputMultiselectProps } from '@/composables/useInputMultiselect'
+import { useInputMultiselectProps, useOptionsSearch } from '@/composables/useInputMultiselect'
 
 export const props = {
   ...useFormGroupProps,
@@ -211,10 +212,11 @@ export const setup = (props, context) => {
     groupValues,
     options: optionsPromise,
     max,
-    multiple
+    multiple,
+    caseSensitiveSearch
   } = toRefs(metaProps)
 
-  const options = useOptionsPromise(optionsPromise)
+  const options = useOptionsPromise(optionsPromise, label)
 
   const {
     placeholder,
@@ -236,7 +238,8 @@ export const setup = (props, context) => {
   const {
     state,
     invalidFeedback,
-    validFeedback
+    validFeedback,
+    apiFeedback
   } = useInputValidator(metaProps, value)
 
   const inputGroupLabel = computed(() => {
@@ -281,7 +284,7 @@ export const setup = (props, context) => {
   })
 
   // used by CSS to show vue-multiselect placeholder
-  const isEmpty = computed(() => !value.value)
+  const isEmpty = computed(() => [null, undefined].includes(value.value))
 
   // clear single value
   const onRemove = () => onInput(null)
@@ -306,12 +309,16 @@ export const setup = (props, context) => {
   const canSelectNone = computed(() => !!value.value)
   const onSelectNone = () => onRemove()
 
+  const {
+    options: searchOptions,
+    onSearch
+  } = useOptionsSearch(options, label, inputGroupLabel, inputGroupValues, caseSensitiveSearch.value)
 
   return {
     inputRef,
 
     // useInputMeta
-    inputOptions: options,
+    inputOptions: searchOptions,
 
     // useInput
     inputPlaceholder: placeholder,
@@ -336,6 +343,7 @@ export const setup = (props, context) => {
     inputState: state,
     inputInvalidFeedback: invalidFeedback,
     inputValidFeedback: validFeedback,
+    inputApiFeedback: apiFeedback,
 
     bind,
     inputGroupLabel,
@@ -347,7 +355,7 @@ export const setup = (props, context) => {
 
     onRemove,
     onTag: () => {},
-    onSearch: () => {},
+    onSearch,
     isLoading: false,
     doFocus,
     doBlur,

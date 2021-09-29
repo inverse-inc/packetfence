@@ -167,7 +167,11 @@ sub parse_mc {
                 my $string = $2;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);
-            } elsif ($line =~ m/showError\((?:\$c,)?\s?['"]([^\$].+?[^'"\\])["']/) {
+            } elsif ($line =~ m/showError\((?:\$c,)?\s?'([^\$].+?[^'\\])'/) {
+                my $string = $1;
+                $string =~ s/\\'/'/g;
+                add_string($string, $module);
+            } elsif ($line =~ m/showError\((?:\$c,)?\s?"([^\$].+?[^"\\])"/) {
                 my $string = $1;
                 $string =~ s/\\'/'/g;
                 add_string($string, $module);

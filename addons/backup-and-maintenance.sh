@@ -138,11 +138,11 @@ backup_db(){
             INNO_TMP="/tmp/pf-innobackups"
             mkdir -p $INNO_TMP
             if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
-                mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$REP_USER --password=$REP_PWD  --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             elif [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
                 echo "mariabackup can't backup remote databases, uninstall Mariabackup and retry"
             else
-                mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$DB_USER --password=$DB_PWD  --no-timestamp --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
+                mariabackup --defaults-file=/usr/local/pf/var/conf/mariadb.conf --user=$DB_USER --password=$DB_PWD  --stream=xbstream --tmpdir=$INNO_TMP --backup 2>> /usr/local/pf/logs/innobackup.log | gzip - > $BACKUP_DIRECTORY/$BACKUP_DB_FILENAME-innobackup-`date +%F_%Hh%M`.xbstream.gz
             fi
             tail -1 /usr/local/pf/logs/innobackup.log | grep 'completed OK!'
             BACKUPRC=$?

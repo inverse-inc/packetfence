@@ -13,7 +13,6 @@ Catalyst Model.
 use Moose;
 use namespace::autoclean;
 use Net::Netmask;
-use pf::config qw($DISTRIB $DIST_VERSION);
 
 use pf::log;
 use pf::error qw(is_error is_success);
@@ -342,9 +341,17 @@ sub writeNetworkConfigs {
     my $logger = get_logger();
 
     my $status_msg;
-
+    my $interface_gateway;
+    my $interface_defroute ="no";
     while (my ($interface, $interface_values) = each %$interfaces_ref) {
         next if ( !$interface_values->{is_running} );
+        if ($gateway_interface eq $interface) {
+            $interface_defroute = "yes";
+            $interface_gateway = $gateway;
+        } else {
+            $interface_defroute = "no";
+            $interface_gateway = undef;
+        }
         my %vars = (
             logical_name => $interface,
             vlan_device  => $interface_values->{'vlan'},
@@ -353,8 +360,9 @@ sub writeNetworkConfigs {
             netmask      => $interface_values->{'netmask'},
             ipv6_address => $interface_values->{'ipv6_address'},
             ipv6_prefix  => $interface_values->{'ipv6_prefix'},
+            defroute     => $interface_defroute,
+            gateway      => $interface_gateway,
         );
-
 
         my $template = Template->new({
             INCLUDE_PATH    => "/usr/local/pf/html/pfappserver/root/interface",

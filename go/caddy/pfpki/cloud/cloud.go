@@ -7,7 +7,7 @@ import (
 )
 
 type Cloud interface {
-	NewCloud(ctx context.Context, name string)
+	NewCloud(ctx context.Context, name string) error
 	ValidateRequest(ctx context.Context, data []byte) error
 	SuccessReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error
 	FailureReply(ctx context.Context, cert *x509.Certificate, data []byte, message string) error

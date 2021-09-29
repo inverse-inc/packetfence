@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    11.0.0
+Version:    11.1.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -57,7 +57,9 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: MariaDB-server = 10.5.10, MariaDB-client = 10.5.10
+Requires: packetfence-perl = 1.1.2
+Requires: MariaDB-server >= 10.5.12, MariaDB-server < 10.6.0
+Requires: MariaDB-client >= 10.5.12, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
 
@@ -259,10 +261,7 @@ Requires: perl(Algorithm::Combinatorics)
 Requires: perl(Class::XSAccessor)
 Requires: iproute >= 3.0.0, krb5-workstation
 Requires: samba >= 4
-Requires: perl(Linux::Distribution)
 Requires: perl(Pod::Markdown)
-# configuration-wizard
-Requires: vconfig
 # SAML
 Requires: perl-lasso
 # Captive Portal Dynamic Routing
@@ -279,8 +278,10 @@ Requires: openvas-cli
 Requires: openvas-libraries
 
 # pki
-#Requires: perl(Crypt::SMIME)
+Requires: perl(Crypt::SMIME)
 
+# Language packs
+Requires: langpacks-fr, langpacks-es, langpacks-de, langpacks-he, langpacks-it, langpacks-nb, langpacks-nl, langpacks-pl, langpacks-pt
 
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
@@ -344,9 +345,7 @@ done
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
 %{__make} bin/ntlm_auth_wrapper
-%{__make} MARIADB_INCLUDE_DIR=/usr/include/mysql src/mariadb_udf/pf_udf.so
-# Define git_commit_id
-echo %{git_commit} > conf/git_commit_id
+%{__make} src/mariadb_udf/pf_udf.so
 
 # build golang binaries
 %{__make} -C go all
@@ -1274,6 +1273,15 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
+- New release 11.1.0
+
+* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
+- New release 11.1.0
+
+* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.0.0-1
+- New release 11.0.0
+
 * Mon Jun 28 2021 Inverse <info@inverse.ca> - 11.0.0-2
 - Build Source using Makefile in place of git archive
 

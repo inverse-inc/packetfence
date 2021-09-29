@@ -1,7 +1,7 @@
 /**
  * "session" store module
  */
-import { types } from '@/store'
+import store, { types } from '@/store'
 import acl, { setupAcl } from '@/utils/acl'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
@@ -17,10 +17,10 @@ const api = {
       return response
     })
   },
-  setToken: (token) => {
+  setToken: token => {
     apiCall.defaults.headers.common['Authorization'] = `Bearer ${token}`
   },
-  getTokenInfo: (readonly) => {
+  getTokenInfo: readonly => {
     let url = 'token_info'
     if (readonly) url += '?no-expiration-extension=1'
     return apiCall.getQuiet(url)
@@ -74,8 +74,8 @@ const initialState = () => {
     tenants: [],
     languages: [],
     api: undefined,
+    apiErrors: {},
     charts: undefined,
-    formErrors: {},
     isLoadingAllowedNodeRoles: false,
     isLoadingAllowedUserAccessDurations: false,
     isLoadingAllowedUserAccessLevels: false,
@@ -145,6 +145,11 @@ const getters = {
     }
     return state.tenant
   },
+  tenantsList: state => {
+    return state.tenants.map((item) => {
+      return { value: item.id, text: item.name }
+    })
+  },
   aclContext: state => {
     if (state.roles.includes('TENANT_MASTER')) { // is tenant master
       if (!state.tenant_id_mask) { // tenant is not masked
@@ -191,6 +196,7 @@ const actions = {
     localStorage.removeItem(STORAGE_TOKEN_KEY)
     localStorage.removeItem(STORAGE_TENANT_ID)
     acl.reset()
+    api.setToken(null)
     commit('TOKEN_DELETED')
     commit('EXPIRES_AT_DELETED')
     commit('TENANT_DELETED')
@@ -206,6 +212,7 @@ const actions = {
     commit('ALLOWED_USER_ROLES_DELETED')
     commit('ALLOWED_USER_UNREG_DATE_DELETED')
     commit('CONFIGURATOR_DISABLED')
+    store.commit('preferences/$RESET')
   },
   resolveLogin: ({ state }) => {
     if (state.loginPromise === null) {
@@ -456,9 +463,13 @@ const mutations = {
   },
   API_OK: (state) => {
     state.api = true
+    state.apiErrors = {}
   },
   API_ERROR: (state) => {
     state.api = false
+  },
+  API_ERRORS: (state, data) => {
+    state.apiErrors = data
   },
   CHARTS_OK: (state) => {
     state.charts = true
@@ -466,16 +477,10 @@ const mutations = {
   CHARTS_ERROR: (state) => {
     state.charts = false
   },
-  FORM_OK: (state) => {
-    state.formErrors = {}
-  },
-  FORM_ERROR: (state, data) => {
-    state.formErrors = data
-  },
   ADMIN_ROLES_UPDATED: (state, data) => {
     state.adminRoles = data
   },
-  ADMIN_ROLES_DELETED: (state, data) => {
+  ADMIN_ROLES_DELETED: (state) => {
     state.adminRoles = false
   },
   ALLOWED_NODE_ROLES_REQUEST: (state) => {

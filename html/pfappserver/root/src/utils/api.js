@@ -188,7 +188,6 @@ apiCall.interceptors.response.use((response) => {
     })
   }
   store.commit('session/API_OK')
-  store.commit('session/FORM_OK')
   return response
 }, (error) => {
   /* Intercept failed API call */
@@ -224,23 +223,23 @@ apiCall.interceptors.response.use((response) => {
         // eslint-disable-next-line
         console.warn(error.response.data)
         if (error.response.data.errors) {
-          error.response.data.errors.forEach((err) => {
-            let msg = `${err['field']}: ${err['message']}`
+          error.response.data.errors.forEach(error => {
+            let message = `${error['field']}: ${error['message']}`
             // eslint-disable-next-line
-            console.warn(msg)
-            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message: msg })
+            console.warn(message)
+            store.dispatch('notification/danger', { icon, url: decodeURIComponent(config.url), message })
           })
         }
         // eslint-disable-next-line
         console.groupEnd()
       }
       if (['patch', 'post', 'put', 'delete'].includes(config.method) && error.response.data.errors) {
-        let formErrors = {}
+        let apiErrors = {}
         error.response.data.errors.forEach((err) => {
-          formErrors[err['field']] = err['message']
+          apiErrors[err['field']] = err['message']
         })
-        if (Object.keys(formErrors).length > 0) {
-          store.commit('session/FORM_ERROR', formErrors)
+        if (Object.keys(apiErrors).length > 0) {
+          store.commit('session/API_ERRORS', apiErrors)
         }
       }
       if (typeof error.response.data === 'string') {

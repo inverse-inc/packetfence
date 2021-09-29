@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 32;
+use Test::More tests => 34;
 
 #This test will running last
 use Test::NoWarnings;
@@ -34,6 +34,50 @@ use pf::dal::node;
 my $dal = "pf::dal::node";
 
 my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
+
+{
+    my @f = qw(mac);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        "query" => {
+            "op"     => "and",
+            "values" => [
+                {
+                    "values" => [
+                        {
+                            "field" => "tenant_id",
+                            "op"    => "equals",
+                            "value" => "1"
+                        }
+                    ]
+                }
+            ]
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+            ],
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_where(\%search_info) ],
+        [
+            422,
+            {
+                message => "op '(null)' is not valid",
+            }
+        ],
+        'No op provided'
+    );
+}
 
 {
     my ($status, $col) = $sb->make_columns({ dal => $dal,  fields => [qw(mac $garbage ip4log.ip)] });

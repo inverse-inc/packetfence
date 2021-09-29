@@ -136,7 +136,7 @@ sub build_child {
     # the user defined value
     while( my( $key, $value ) = each %Doc_Config ){
         my $type = $value->{type} // "text";
-        if ($type eq "merged_list"){
+        if ($type eq "merged_list" || $type eq "merged_list_array" ) {
             my ($category, $attribute) = split /\./, $key;
             my $additionnal = $Config{$category}{$attribute} || '';
             $Config{$category}{$attribute} = [ split( /\s*,\s*/, $Default_Config{$category}{$attribute} // ''), split( /\s*,\s*/, $additionnal ) ];
@@ -215,19 +215,21 @@ sub isSelfSigned {
 
     my $pemcert = "";
 
+    my $has_self_signed = 0;
+    my $cert_count = 0;
     while (my $row = <$BUNDLE>) {
         $pemcert .= $row;
         if($row =~ /^\-+END(\s\w+)?\sCERTIFICATE\-+$/) {
             my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
             if ($cert->is_selfsigned) {
-                close $BUNDLE;
-                return $TRUE;
+                $has_self_signed = 1;
             }
             $pemcert = "";
+	    $cert_count ++;
         }
     }
     close $BUNDLE;
-    return $FALSE;
+    return $has_self_signed && $cert_count == 1;
 }
 
 =head1 AUTHOR

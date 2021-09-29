@@ -58,7 +58,7 @@
           </base-csv-import>
         </b-tab>
         <template v-slot:tabs-end>
-          <pf-form-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</pf-form-upload>
+          <base-upload @files="files = $event" @focus="tabIndex = $event" :multiple="true" :cumulative="true" accept="text/*, .csv">{{ $t('Open CSV File') }}</base-upload>
         </template>
         <template v-slot:empty>
           <div class="text-center text-muted">
@@ -77,7 +77,7 @@
         </template>
       </b-tabs>
     </div>
-    <users-preview-modal v-model="showUsersPreviewModal" store-name="$_users" />
+    <the-preview-modal v-model="showPreviewModal" />
   </b-card>
 </template>
 
@@ -85,7 +85,8 @@
 import {
   BaseCsvImport,
   BaseForm,
-  BaseFormGroup
+  BaseFormGroup,
+  BaseUpload
 } from '@/components/new/'
 import {
   InputGroupValidFrom,
@@ -93,20 +94,19 @@ import {
   FormGroupActions,
   FormGroupPasswordOptions
 } from './'
-import pfFormUpload from '@/components/pfFormUpload'
-import UsersPreviewModal from './UsersPreviewModal'
+import ThePreviewModal from './ThePreviewModal'
 
 const components = {
   BaseCsvImport,
   BaseForm,
   BaseFormGroup,
+  BaseUpload,
   InputGroupValidFrom,
   InputGroupExpiration,
   FormGroupActions,
   FormGroupPasswordOptions,
 
-  UsersPreviewModal,
-  pfFormUpload
+  ThePreviewModal
 }
 
 import { computed, provide, ref } from '@vue/composition-api'
@@ -121,9 +121,9 @@ import {
 import { csv as schemaFn } from '../schema'
 
 const setup = (props, context) => {
-  
+
   const { root: { $store } = {} } = context
-  
+
   const files = ref([])
   const onCloseFile = index => {
     files.value = [ ...files.value.slice(0, index), ...files.value.slice(index + 1, files.value.length) ]
@@ -133,15 +133,15 @@ const setup = (props, context) => {
   const schema = computed(() => schemaFn(props, form.value))
   const passwordOptions = ref(_passwordOptions)
   const tabIndex = ref(0)
-  
+
   const domainName = computed(() => {
     const { domain_name = null } = $store.getters['session/tenantMask'] || {}
     return domain_name
   })
-    
+
   const isLoading = ref(false)
   const createdUsers = ref({})
-  const showUsersPreviewModal = ref(false)
+  const showPreviewModal = ref(false)
   const importPromise = (payload, dryRun, done) => {
     isLoading.value = true
     return new Promise((resolve, reject) => {
@@ -178,7 +178,7 @@ const setup = (props, context) => {
           if (done) { // processing is done
             if (Object.values(createdUsers.value).length > 0) {
               $store.commit('$_users/CREATED_USERS_REPLACED', Object.values(createdUsers.value))
-              showUsersPreviewModal.value = true
+              showPreviewModal.value = true
             }
           }
         }
@@ -191,7 +191,7 @@ const setup = (props, context) => {
       })
     })
   }
-  
+
   // provide actions to child components
   const actions = ref([])
   provide('actions', actions) // for FormGroupActions
@@ -209,7 +209,7 @@ const setup = (props, context) => {
       }
     })
   })
-    
+
   return {
     importFields,
     MysqlDatabase,
@@ -220,13 +220,13 @@ const setup = (props, context) => {
     form,
     schema,
     passwordOptions,
-  
+
     domainName,
     isLoading,
     createdUsers,
-    showUsersPreviewModal,
+    showPreviewModal,
     importPromise
-  }  
+  }
 }
 
 // @vue/component

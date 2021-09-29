@@ -43,7 +43,7 @@ testcases:
       - result.bodyjson.item.last_dhcp ShouldNotEqual "{{.get_node10_attributes.last_dhcp}}"
       - result.bodyjson.item.last_seen ShouldNotEqual "{{.get_node10_attributes.last_seen}}"
 
-  - name: check_node10_new_locationlog
+  - name: check_node10_new_ip4log
     steps:
     - type: http
       method: GET

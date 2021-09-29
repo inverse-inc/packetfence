@@ -1,27 +1,21 @@
 build {
   sources = [
-    "source.virtualbox-iso.centos-7",
-    "source.vmware-iso.centos-7"
+    "source.virtualbox-iso.debian-11",
   ]
-
-  provisioner "file" {
-    source = "files/rc.local"
-    destination = "/tmp/rc.local"
-  }
-
-  provisioner "shell" {
-    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
-    inline = [ "cp /tmp/rc.local /etc/rc.d/rc.local" ]
-  }
-
-  provisioner "shell" {
-    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
-    script = "scripts/install-pf.sh"
-    environment_vars = [
-      "PFVERSION=${var.pf_version}",
-      "PFREPO=${var.pf_repo}",
-      "PFPACKAGE=${var.pf_package}",
-      "PFRELEASE_PKG=${var.pf_release_pkg}"
+  provisioner "ansible" {
+    playbook_file = "${var.provisioner_dir}/site.yml"
+    extra_arguments = ["--skip-tags", "rc-local-include-variables"]
+    host_alias = "${var.vm_name}"
+    groups = [
+      "${var.ansible_pfservers_group}",
     ]
+    ansible_env_vars = [
+      "PF_MINOR_RELEASE=${var.pf_version}"
+    ]
+    inventory_directory = "${var.provisioner_dir}/inventory"
+    galaxy_file = "${var.provisioner_dir}/requirements.yml"
+    galaxy_force_install = true
+    # temp
+    keep_inventory_file = true
   }
 }

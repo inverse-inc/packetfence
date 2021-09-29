@@ -4,7 +4,6 @@
     :meta="meta"
     :schema="schema"
     :isLoading="isLoading"
-    :isReadonly="id === 'default' && !isClone"
   >
     <form-group-identifier namespace="id"
       :column-label="$i18n.t('Identifier')"

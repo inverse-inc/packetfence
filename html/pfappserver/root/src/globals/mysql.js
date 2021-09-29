@@ -70,23 +70,23 @@ export const MysqlDatabase = {
     /* Do not validate backend variable, fixes #5509
     detect_date: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     */
     regdate: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     unregdate: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     lastskip: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     time_balance: Object.assign(
@@ -125,12 +125,12 @@ export const MysqlDatabase = {
     },
     last_arp: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     last_dhcp: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     dhcp_fingerprint: {
@@ -212,7 +212,7 @@ export const MysqlDatabase = {
     ),
     last_seen: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     }
   },
@@ -234,12 +234,12 @@ export const MysqlDatabase = {
     },
     valid_from: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     expiration: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: ''
     },
     access_duration: {
@@ -267,7 +267,7 @@ export const MysqlDatabase = {
     ),
     unregdate: {
       type: MysqlDatetime,
-      datetimeFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     login_remaining: Object.assign(
@@ -457,7 +457,7 @@ export const validatorFromColumnSchemas = (...columnSchemas) => {
   for (let columnSchema of columnSchemas) {
     validator = validator.concat( // extend
       yup.string().nullable().mysql(columnSchema)
-    )    
+    )
   }
   return validator
 }

@@ -94,7 +94,7 @@ backend 127.0.0.1-netdata
         http-request lua.admin
         http-request set-header Host 127.0.0.1
         http-request set-dst-port int(19999)
-        server service 0.0.0.0:0
+        server service 127.0.0.1:19999
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
 EOT
@@ -119,12 +119,16 @@ EOT
 
 backend $mgmt_back_ip-netdata
         option httpclose
-        option http_proxy
         option forwardfor
+        #errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
+        #errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         acl paramsquery query -m found
         http-request lua.admin
-        http-request set-uri http://$mgmt_back_ip:19999%[var(req.path)]?%[query] if paramsquery
-        http-request set-uri http://$mgmt_back_ip:19999%[var(req.path)] unless paramsquery
+        http-request set-header Host $mgmt_back_ip
+        http-request set-dst-port int(19999)
+        server service $mgmt_back_ip:19999
+        http-request set-uri %[var(req.path)]?%[query] if paramsquery
+        http-request set-uri %[var(req.path)] unless paramsquery
 EOT
             }
             $mgmt_api_backend .= <<"EOT";

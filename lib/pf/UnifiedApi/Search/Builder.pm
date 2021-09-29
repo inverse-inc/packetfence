@@ -394,7 +394,7 @@ sub verify_query {
     my ($self, $s, $query) = @_;
     my $op = $query->{op} // '(null)';
     if (!$self->is_valid_op($op)) {
-        return 422, {message => "$op is not valid"};
+        return 422, {message => "op '$op' is not valid"};
     }
 
     if (pf::UnifiedApi::Search::is_sub_query($op)) {

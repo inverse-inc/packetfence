@@ -18,40 +18,6 @@ endif::[]
 
 //== Best Practices
 
-=== RHEL7 systemd early swapoff bug mitigation
-
-A https://bugzilla.redhat.com/show_bug.cgi?id=1031158[known bug] is still present in systemd-219-30.el7_3.7.x86_64 shipped with CentOS. (Debian fixed it in 228-3).
-
-The bug arises because not all swap aliases are registered, which results in an incorrect dependence tree which results in swapoff being called way too early at shutdown.
-
-
-==== Workaround
-
- * Obtain the list of swap items that should be considered by systemd for it to enforce a correct ordering:
-
-----
-#grep swap /var/log/dmesg |grep "dead -> active"
-----
-
-In our example, that gave the following output:
-
-
- [    1.995413] systemd[1]: dev-dm\x2d1.swap changed dead -> active
- [    1.995495] systemd[1]: dev-cl-swap.swap changed dead -> active
- [    1.995550] systemd[1]: dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap changed dead -> active
- [    1.995616] systemd[1]: dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap changed dead -> active
- [    1.995678] systemd[1]: dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap changed dead -> active
-
-
- * Create /etc/systemd/system/swap.target and fill it with all swap aliases obtained from the previous command:
-
-
- [Unit]
- Description=Swap
- Documentation=man:systemd.special(7)
- After=dev-disk-by\x2duuid-6509e6e1\x2daf2d\x2d4d23\x2d9ebd\x2da9aa8801e658.swap dev-dm1.swap dev-disk-by\x2did-dm\x2duuid\x2dLVM\x2dXOAK7DHxMdmQCrNdwWE3Pt836Q9pHYSGyrO9ycCGeIYavzbamVWNKMaVUMLf1NWZ.swap dev-disk-by\x2did-dm\x2dname\x2dcl\x2dswap.swap dev-cl-swap.swap dev-dm\x2d1.swap
-
-
 === IPTables
 
 IPTables is now entirely managed by PacketFence. However, if you need to perform some custom rules, you can modify [filename]`/usr/local/pf/conf/iptables.conf` to your own needs. However, the default template should work for most users.

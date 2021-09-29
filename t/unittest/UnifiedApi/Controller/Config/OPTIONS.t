@@ -43,6 +43,7 @@ $t->options_ok("/api/v1/config/floating_devices")
                 placeholder => undef,
                 required => $true,
                 type     => "string",
+                implied  => undef,
                 pattern => {
                     message => "Mac Address",
                     regex => "[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}",
@@ -52,25 +53,29 @@ $t->options_ok("/api/v1/config/floating_devices")
                 default     => undef,
                 placeholder => undef,
                 required => $false,
-                type     => "string"
+                type     => "string",
+                implied  => undef,
             },
             pvid => {
                 default     => undef,
                 min_value   => 0,
                 placeholder => undef,
                 required => $true,
-                type     => "integer"
+                type     => "integer",
+                implied  => undef,
             },
             taggedVlan => {
                 default     => undef,
                 placeholder => undef,
                 required => $false,
+                implied  => undef,
                 type     => "string"
             },
             trunkPort => {
                 default     => undef,
                 placeholder => undef,
                 required => $false,
+                implied  => undef,
                 type     => "string"
             }
         },
@@ -137,6 +142,7 @@ $t->options_ok("/api/v1/config/provisionings?type=mobileconfig")
         required_when => {
             eap_type => 25,
         },
+        implied  => undef,
         type => "string"
     }
   );
@@ -153,6 +159,7 @@ meta => {
             regex => "^[a-zA-Z0-9][a-zA-Z0-9._-]*\$"
         },
         placeholder => undef,
+        implied  => undef,
         required    => $true,
         type        => "string"
     },
@@ -160,6 +167,7 @@ meta => {
         default     => undef,
         placeholder => undef,
         required    => $true,
+        implied  => undef,
         type        => "string"
     },
     rules => {
@@ -340,6 +348,7 @@ meta => {
                                         value => "update_role_configuration"
                                     }
                                 ],
+                                implied  => undef,
                                 default     => undef,
                                 placeholder => undef,
                                 required    => $true,
@@ -347,6 +356,7 @@ meta => {
                                 allow_custom => $false,
                             },
                             api_parameters => {
+                                implied  => undef,
                                 default     => undef,
                                 placeholder => undef,
                                 required    => $true,
@@ -354,16 +364,19 @@ meta => {
                             }
                         },
                         required => $false,
+                        implied  => undef,
                         type => "object"
                     },
                     placeholder => undef,
                     required => $false,
+                    implied  => undef,
                     type => "array"
                 },
                 ip_mac_translation => {
                     default     => "enabled",
                     placeholder => undef,
                     required => $false,
+                    implied  => undef,
                     type => "string",
                     allow_custom => $false,
                     allowed => [
@@ -375,6 +388,7 @@ meta => {
                     default     => undef,
                     placeholder => undef,
                     required => $false,
+                    implied  => undef,
                     type => "string",
                     allowed => [
                         {text => 'enabled', value => 'enabled'},
@@ -386,6 +400,7 @@ meta => {
                     default     => undef,
                     placeholder => undef,
                     required    => $true,
+                    implied  => undef,
                     type        => "string"
                 },
                 rate_limit => {
@@ -399,6 +414,7 @@ meta => {
                             default     => 0,
                             min_value   => 0,
                             placeholder => undef,
+                            implied  => undef,
                             required =>
                               $false,
                             type => "integer"
@@ -437,27 +453,31 @@ meta => {
                             default     => "s",
                             placeholder => undef,
                             required => $false,
+                            implied  => undef,
                             type => "string",
                             allow_custom => $false,
                         }
                     },
                     required => $false,
+                    implied  => undef,
                     type => "object"
                 },
                 regex => {
                     default     => undef,
                     placeholder => undef,
                     required    => $true,
+                    implied  => undef,
                     type        => "string"
                 }
             },
-            required =>
-              $false,
+            required => $false,
+            implied  => undef,
             type => "object"
         },
         placeholder => undef,
         required =>
           $false,
+        implied  => undef,
         type => "array"
     },
     status => {
@@ -466,6 +486,7 @@ meta => {
         placeholder => undef,
         required => $false,
         type => "string",
+        implied  => undef,
         allowed => [
             {text => 'enabled', value => 'enabled'},
             {text => 'disabled', value => 'disabled'},
@@ -475,6 +496,7 @@ meta => {
         default     => "regex",
         placeholder => undef,
         required    => $true,
+        implied  => undef,
         type        => "string"
     },
     tenant_id => {
@@ -483,6 +505,7 @@ meta => {
         required    => $false,
         type        => "string",
         allow_custom => $false,
+        implied  => undef,
         allowed => [
             map { $_->{id} != 0 ? ( { value => $_->{id}, text => $_->{name} }) : () } @{pf::dal::tenant->search->all}
         ],
@@ -501,18 +524,21 @@ $t->options_ok("/api/v1/config/base/general")
                 default     => undef,
                 placeholder => '127.0.0.1',
                 required    => $false,
+                implied  => undef,
                 type        => "string"
             },
             domain => {
                 default     => undef,
                 placeholder => 'packetfence.org',
                 required    => $false,
+                implied  => undef,
                 type        => "string"
             },
             hostname => {
                 default     => undef,
                 placeholder => 'packetfence',
                 required    => $false,
+                implied  => undef,
                 type        => "string"
             },
             timezone => {
@@ -529,6 +555,7 @@ $t->options_ok("/api/v1/config/base/general")
                 default     => undef,
                 placeholder => '',
                 required    => $false,
+                implied  => undef,
                 type        => "string"
             }
         },

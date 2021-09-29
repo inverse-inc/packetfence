@@ -18,6 +18,36 @@ use namespace::autoclean;
 use pf::file_paths qw($event_loggers_config_file);
 extends 'pf::ConfigStore';
 
+=head2 cleanupAfterRead
+
+Clean up data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    $self->expand_list($data, $self->_fields_expanded);
+}
+
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    $self->flatten_list($data, $self->_fields_expanded);
+}
+
+=head2 _fields_expanded
+
+=cut
+
+sub _fields_expanded {
+    return qw(namespaces);
+}
+
 sub configFile { $event_loggers_config_file }
 
 sub pfconfigNamespace {'config::EventLoggers'}

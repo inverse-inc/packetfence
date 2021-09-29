@@ -47,7 +47,10 @@ export default (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .adminRoleIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
-    description: yup.string().nullable().label(i18n.t('Description')),
+    description: yup.string()
+      .nullable()
+      .required(i18n.t('Description required.'))
+      .label(i18n.t('Description')),
     actions: schemaActions.required(i18n.t('Actions required.')),
     allowed_access_levels: schemaAllowedAccessLevels,
     allowed_roles: schemaAllowedRoles,

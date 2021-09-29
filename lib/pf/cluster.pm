@@ -412,7 +412,7 @@ sub sync_storages {
 sub is_vip_running {
     my ($int) = @_;
 
-    if ( defined($ConfigCluster{$CLUSTER}->{"interface $int"}) ) {
+    if ( defined($int) && defined($ConfigCluster{$CLUSTER}->{"interface $int"}) ) {
 
         my @all_ifs = Net::Interface->interfaces();
         foreach my $inf (@all_ifs) {

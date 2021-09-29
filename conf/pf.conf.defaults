@@ -980,7 +980,7 @@ accounting_timebucket_size = 5m
 # advanced.openid_attributes
 #
 # List of known OpenID Attributes
-openid_attributes=
+openid_attributes=email
 
 # advanced.zero_trust_network_starting_ip
 #

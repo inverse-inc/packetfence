@@ -41,7 +41,10 @@ export const useItemTitleBadge = (props, context, form) => {
   const {
     provisioningType
   } = toRefs(props)
-  return computed(() => provisioningTypes[provisioningType.value || form.value.type])
+  return computed(() => {
+    const type = provisioningType.value || form.value.type
+    return provisioningTypes[type]
+  })
 }
 
 export { useRouter } from '../_router'
@@ -68,19 +71,19 @@ export const useSearch = makeSearch('provisioners', {
       visible: true
     },
     {
-      key: 'description',
-      label: 'Description', // i18n defer
-      required: true,
-      searchable: true,
-      sortable: true,
-      visible: true
-    },
-    {
       key: 'type',
       label: 'Type', // i18n defer
+      required: true,
       sortable: true,
       visible: true,
       formatter: value => provisioningTypes[value]
+    },
+    {
+      key: 'description',
+      label: 'Description', // i18n defer
+      searchable: true,
+      sortable: true,
+      visible: true
     },
     {
       key: 'buttons',

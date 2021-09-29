@@ -35,6 +35,7 @@ It can be used to automate upgrades or to restore PacketFence installations.
 * The import process will not modify network cards configuration of your server: it will
    only update PacketFence IP configuration. We recommend you to define targeted IP
    addresses on network cards before running import process even if you can do it at end of import process.
+* The import process will not join automatically server to Active Directory domains. You need to rejoin server manually.
 * The import process will only restore the files that can be edited via the admin interface which include:
 ** Standard configuration files in [filename]`/usr/local/pf/conf/*.conf`
 ** Connection profiles HTML templates in [filename]`/usr/local/pf/html/captive-portal/profile-templates/`
@@ -107,7 +108,7 @@ the server.
 ==== Preliminary steps
 
 If your export archive used MariaDB-backup instead of `mysqldump` (your DB
-backup filename contains `xbstream`), then you need to install identical
+backup filename in /root/backup/ contains `xbstream`), then you need to install identical
 MariaDB-backup version on your **new** installation.
 
 ===== If you are restoring from PacketFence 10.3.0 only
@@ -173,8 +174,8 @@ to do.  Your export archive will contain your previous
 
 ==== Final steps
 
-If you restored from PacketFence 10.3.0 and you used MariaDB-backup for your
-restore, update it back to the right version:
+If you restored from PacketFence 10.3.0 and you installed MariaDB-backup for your
+restore during the 'Preliminary steps', you need to update it to the latest version:
 
 .RHEL / CentOS based systems
 [source,bash]
@@ -188,3 +189,4 @@ yum update MariaDB-backup --enablerepo=packetfence
 rm /usr/local/bin/mariabackup
 rm /usr/local/bin/mbstream
 ----
+

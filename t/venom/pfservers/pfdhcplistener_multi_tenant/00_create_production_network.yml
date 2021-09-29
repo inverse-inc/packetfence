@@ -17,6 +17,6 @@ testcases:
       headers:
         "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
-        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"        
+        "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
       assertions:
       - result.statuscode ShouldEqual 201

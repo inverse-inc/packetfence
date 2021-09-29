@@ -18,7 +18,7 @@
         sort-icon-left
       >
         <template v-slot:empty>
-          <pf-empty-table :is-loading="isLoading">{{ $t('No interfaces found') }}</pf-empty-table>
+          <base-table-empty :is-loading="isLoading">{{ $t('No interfaces found') }}</base-table-empty>
         </template>
         <template v-slot:cell(is_running)="{ item }">
           <toggle-status :value="item.is_running"
@@ -44,22 +44,24 @@
           <icon name="circle" :class="{ 'text-success': item.item.high_availability === 1, 'text-danger': item.item.high_availability === 0 }"></icon>
         </template> -->
         <template v-slot:cell(buttons)="{ item }">
-          <span v-if="item.vlan"
-            class="float-right text-nowrap"
-          >
-            <base-button-confirm
-              size="sm" variant="outline-danger" class="my-1 mr-1" reverse
-              :disabled="isLoading"
-              :confirm="$t('Delete VLAN?')"
-              @click="removeInterface(item)"
-            >{{ $t('Delete') }}</base-button-confirm>
-            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
-          </span>
-          <span v-else
-            class="float-right text-nowrap"
-          >
-            <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="addVlanInterface(item)">{{ $t('New VLAN') }}</b-button>
-          </span>
+          <template v-if="!item.not_editable">
+            <span v-if="item.vlan"
+              class="float-right text-nowrap"
+            >
+              <base-button-confirm
+                size="sm" variant="outline-danger" class="my-1 mr-1" reverse
+                :disabled="isLoading"
+                :confirm="$t('Delete VLAN?')"
+                @click="removeInterface(item)"
+              >{{ $t('Delete') }}</base-button-confirm>
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="cloneInterface(item)">{{ $t('Clone') }}</b-button>
+            </span>
+            <span v-else
+              class="float-right text-nowrap"
+            >
+              <b-button size="sm" variant="outline-primary" class="mr-1" :disabled="isLoading" @click.stop.prevent="addVlanInterface(item)">{{ $t('New VLAN') }}</b-button>
+            </span>
+          </template>
         </template>
       </b-table>
 
@@ -92,7 +94,7 @@
 
         <form-group-hostname namespace="hostname"
           :column-label="$i18n.t('Server Hostname')"
-          :text="rebootAlert"
+          :text="hostnameWarning"
         />
 
         <form-group-dns-servers namespace="dns_servers"
@@ -111,10 +113,9 @@ import {
   BaseButtonSave,
   BaseForm,
   BaseFormGroupChosenMultiple,
-  BaseFormGroupInput
+  BaseFormGroupInput,
+  BaseTableEmpty
 } from '@/components/new/'
-import pfButton from '@/components/pfButton'
-import pfEmptyTable from '@/components/pfEmptyTable'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 
 const components = {
@@ -125,8 +126,7 @@ const components = {
   FormGroupGateway:    BaseFormGroupInput,
   FormGroupHostname:   BaseFormGroupInput,
   FormGroupDnsServers: BaseFormGroupChosenMultiple,
-  pfButton,
-  pfEmptyTable,
+  BaseTableEmpty,
   ToggleStatus
 }
 
@@ -137,7 +137,7 @@ import yup from '@/utils/yup'
 import {
   typeFormatter,
   sortColumns
-} from '@/views/Configuration/_config/interface'
+} from '@/views/Configuration/networks/interfaces/config'
 
 const fieldsInterface = [
   {
@@ -206,6 +206,18 @@ const { root: { $router, $store } = {} } = context
   if (!form.value.dns_servers)
     $store.dispatch('system/getDnsServers').then(dns_servers => (form.value = { ...form.value, dns_servers }))
 
+  const hostnameWarning = computed(() => {
+    const warnings = []
+    const re = new RegExp(/.local$/i)
+    if (form.value.hostname && re.test(form.value.hostname))
+      warnings.push(i18n.t(`The domain name should not end with '.local' as this causes issues with Apple iOS devices.`))
+    if (!isLoading.value && form.value.hostname !== hostname.value)
+      warnings.push(i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.'))
+    return (warnings.length > 0)
+      ? `<span class="text-warning">${warnings.join(' ')}</span>`
+      : null
+  })
+
   const schema = computed(() => {
     return yup.object({
       gateway: yup.string().nullable().required(i18n.t('Gateway required.')),
@@ -222,16 +234,13 @@ const { root: { $router, $store } = {} } = context
   $store.dispatch(`$_interfaces/all`)
   const interfaces = computed(() => $store.getters['$_interfaces/cacheFlattened']
     .map(i => {
-      return (i.vlan)
-        ? { ...i, _rowVariant: 'secondary' } // set table row variant on vlans
-        : i
+      if (i.not_editable)
+        i._rowVariant = 'warning'
+      else if (i.vlan)
+        i._rowVariant = 'secondary'
+      return i
     })
   )
-
-  const rebootAlert = computed(() => ((isLoading.value || form.value.hostname === hostname.value)
-    ? null
-    : `<span class="text-warning">${i18n.t('Please reboot the server at the end of the configuration wizard to apply changes.')}</span>`
-  ))
 
   const managementTypeCount = computed(() => interfaces.value.filter(i => i.type === 'management').length)
 
@@ -280,8 +289,12 @@ const { root: { $router, $store } = {} } = context
     $router.push({ name: 'configurator-newInterface', params: { id: item.id } })
   }
   const onRowClickInterface = (item) => {
-    state.value.network = form.value // stash state
-    $router.push({ name: 'configurator-interface', params: { id: item.id } })
+    if (item.not_editable)
+      $store.dispatch('notification/danger', { message: i18n.t('Interface <code>{id}</code> must be up in order to be modified.', item) })
+    else {
+      state.value.network = form.value // stash state
+      $router.push({ name: 'configurator-interface', params: { id: item.id } })
+    }
   }
 
   const onSave = ()  => {
@@ -345,7 +358,7 @@ const { root: { $router, $store } = {} } = context
     isLoading,
     hostname,
     interfaces,
-    rebootAlert,
+    hostnameWarning,
     managementTypeCount,
     detectManagementInterface,
     cloneInterface,

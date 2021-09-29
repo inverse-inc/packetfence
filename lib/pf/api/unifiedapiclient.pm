@@ -177,6 +177,8 @@ sub call {
 
     my $response;
     my $curl = $self->connection();
+    # clear the existing headers when reusing connections
+    $curl->setopt(CURLOPT_HTTPHEADER, []);
     my $url = $self->url($path);
     $curl->setopt(CURLOPT_URL, $url);
 

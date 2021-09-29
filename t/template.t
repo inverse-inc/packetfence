@@ -33,7 +33,6 @@ use Test::NoWarnings;
 our @FILES;
 our $TESTS;
 our $PARSER;
-
 sub setup {
     @FILES = (
         file_templates(qr/^.*\.(tt|inc)\z/s, '/usr/local/pf/html/pfappserver/root'),
@@ -59,7 +58,7 @@ sub test_template {
     my ($file) = @_;
     my $text = slurp_file($file);
     my $template = $PARSER->parse($text);
-    ok($template, "Syntax check for template toolkit file '$file'");
+    ok($template, "Syntax check for template toolkit file '$file':" . $PARSER->error());
 }
 
 sub slurp_file {

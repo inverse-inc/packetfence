@@ -238,7 +238,7 @@ export const recomposeTriggers = (triggers = []) => {
 }
 
 export const fingerbankNetworkBehaviorPolicyTypes = [
-  'fingerbank_diff_score_too_low', 
-  'fingerbank_blacklisted_ips_threshold_too_high', 
+  'fingerbank_diff_score_too_low',
+  'fingerbank_blacklisted_ips_threshold_too_high',
   'fingerbank_blacklisted_ports'
 ]

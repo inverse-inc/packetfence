@@ -2,7 +2,8 @@
   <div>
     <div v-if="labelLeft !== false" v-t="label" @click.stop.prevent="onDecrement"
       class="base-input-range-label col-form-label text-nowrap mr-2" :class="{
-        'is-disabled': isLocked
+        'is-disabled': isLocked,
+        'text-black-50': isLocked
       }" />
     <div
       class="base-input-range"
@@ -44,7 +45,8 @@
     </div>
     <div v-if="labelRight !== false" v-t="label" @click.stop.prevent="onIncrement"
       class="base-input-range-label text-nowrap ml-2" :class="{
-        'is-disabled': isLocked
+        'is-disabled': isLocked,
+        'text-black-50': isLocked
       }"  />
   </div>
 </template>

@@ -27,8 +27,8 @@ export const useStore = $store => {
     }),
     getItemOptions: params => $store.dispatch('$_filter_engines/options', params),
     updateItem: params => {
-      const { collection, ...data } = params
-      return $store.dispatch('$_filter_engines/updateFilterEngine', { collection, data })
+      const { collection, id, ...data } = params
+      return $store.dispatch('$_filter_engines/updateFilterEngine', { collection, id, data })
     },
     deleteItem: params => $store.dispatch('$_filter_engines/deleteFilterEngine', params),
   }
@@ -112,7 +112,7 @@ const actions = {
   },
   getFilterEngine: ({ state, commit, dispatch }, { collection, id }) => {
     if (state.cache[collection] && state.cache[collection].items && state.cache[collection].items.filter(item => item.id === id).length > 0) {
-      return Promise.resolve(state.cache[collection].items.find(item => item.id === id)).then(filterEngine => filterEngine)
+      return Promise.resolve(state.cache[collection].items.find(item => item.id === id))
     }
     return dispatch('getCollection', collection).then(() => {
       commit('ITEM_REQUEST')
@@ -298,7 +298,7 @@ const mutations = {
     }
     Vue.set(state.cache[collection], 'items', state.cache[collection].items.map(_item => {
       return (_item.id === id)
-        ? item
+        ? { id, ...item }
         : _item
     }))
   },

@@ -179,7 +179,7 @@ sub cleanup_after_read {
         pf::Authentication::utils::inflatePersonMappings($data);
     }
 
-    $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources), (defined $type && ($type eq 'LDAP' || $type eq 'AD')) ? ('host') : () );
+    $self->expand_list( $data, qw(realms local_realm reject_realm searchattributes sources), (defined $type && ($type eq 'LDAP' || $type eq 'AD' || $type eq 'EDIR' || $type eq 'GoogleWorkspaceLDAP')) ? ('host') : () );
 }
 
 =head1 AUTHOR

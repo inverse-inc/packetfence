@@ -9,8 +9,8 @@
       :column-label="$i18n.t('Name')"
     />
 
-    <form-group-ip namespace="ip"
-      :column-label="$i18n.t('Hostname or IP Address')"
+    <form-group-host namespace="host"
+      :column-label="$i18n.t('Host')"
     />
 
     <form-group-username namespace="username"
@@ -84,8 +84,8 @@ import {
   FormGroupCategories,
   FormGroupDuration,
   FormGroupEngineIdentifier,
+  FormGroupHost,
   FormGroupIdentifier,
-  FormGroupIp,
   FormGroupOses,
   FormGroupPassword,
   FormGroupPreRegistration,
@@ -104,8 +104,8 @@ const components = {
   FormGroupCategories,
   FormGroupDuration,
   FormGroupEngineIdentifier,
+  FormGroupHost,
   FormGroupIdentifier,
-  FormGroupIp,
   FormGroupOses,
   FormGroupPassword,
   FormGroupPreRegistration,

@@ -41,7 +41,7 @@ use pf::constants::exit_code qw($EXIT_SUCCESS);
 use pfconfig::cached_hash;
 use pf::config qw(
     $management_network
-    $DISTRIB
+    $OS
     %Config
 );
 use pf::constants::eventLogger;
@@ -51,8 +51,9 @@ use pf::dal::auth_log;
 use pf::dal::dhcp_option82;
 use pf::dal::dns_audit_log;
 use pf::dal::radius_audit_log;
+use pfconfig::namespaces::config::EventLoggers;
 
-tie our %EventLoggers, 'pfconfig::cached_hash', 'config::EventLoggers';
+my %EventLoggers = %{pfconfig::namespaces::config::EventLoggers->new->build()};
 
 use pf::util;
 
@@ -73,7 +74,7 @@ sub _pf_config_val {
 sub parseArgs {
     my ($self) = @_;
 
-    if([$self->args]->[0] eq "--force") {
+    if(scalar($self->args) > 0 && [$self->args]->[0] eq "--force") {
         $FORCE = $TRUE;
     }
     return 1;
@@ -97,11 +98,10 @@ sub _run {
         table_cache => _pf_config_val("database_advanced", "table_cache"),
         max_allowed_packet => _pf_config_val("database_advanced", "max_allowed_packet"),
         thread_cache_size => _pf_config_val("database_advanced", "thread_cache_size"),
-        server_ip => $management_network ? $management_network->{Tvip} // $management_network->{Tip} : "",
+        server_ip => $management_network ? ($management_network->{Tvip} // $management_network->{Tip}) : "",
         performance_schema => _pf_config_val("database_advanced", "performance_schema"),
         max_connect_errors => _pf_config_val("database_advanced", "max_connect_errors"),
         masterslave => _pf_config_val("database_advanced", "masterslave"),
-        readonly => _pf_config_val("database_advanced", "readonly"),
     );
 
     # Only generate cluster configuration if there is more than 1 enabled host in the cluster
@@ -148,7 +148,7 @@ sub _run {
         );
     }
 
-    if ($DISTRIB eq 'debian') {
+    if ($OS eq 'debian') {
         $vars{'libgalera'} = '/usr/lib/galera/libgalera_smm.so';
     } else {
         $vars{'libgalera'} = '/usr/lib64/galera-4/libgalera_smm.so';

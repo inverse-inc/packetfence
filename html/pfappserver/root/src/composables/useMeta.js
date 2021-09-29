@@ -126,6 +126,11 @@ export const useNamespaceMetaPlaceholder = (namespace, _meta) => {
   const { placeholder } = namespaceMeta.value || {}
   return placeholder
 }
+export const useNamespaceMetaImplied = (namespace, _meta) => {
+  const namespaceMeta = useNamespaceMeta(namespace, _meta)
+  const { implied } = namespaceMeta.value || {}
+  return implied
+}
 
 export const useFormMetaSchema = (meta, schema) => {
 

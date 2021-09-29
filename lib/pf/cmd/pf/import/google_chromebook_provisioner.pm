@@ -42,8 +42,8 @@ sub parseArgs {
         return $FALSE;
     }
 
-    if (!$p->isa("pf::provisioner::google_chromebook_provisioner")) {
-        print STDERR " provisioner ($id) is not a pf::provisioner::google_chromebook_provisioner\n";
+    if (!$p->isa("pf::provisioner::google_workspace_chromebook")) {
+        print STDERR " provisioner ($id) is not a pf::provisioner::google_workspace_chromebook\n";
         return $FALSE;
     }
 
@@ -58,7 +58,7 @@ sub parseArgs {
 sub _run {
     my ($self) = @_;
     $self->{provisioner}->importDevices();
-    print "Finished imported devices\n";
+    print "Import process complete.\n";
     return $EXIT_SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <router-view></router-view>
+  <router-view />
 </template>
 <script>
 import { onBeforeUnmount, provide, ref } from '@vue/composition-api'

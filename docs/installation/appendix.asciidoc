@@ -61,30 +61,13 @@ Once done, you should have a lot of files that were extracted in the restore dir
 
   # mv packetfence-db-dump-innobackup-2016-12-20_00h31.xbstream ../
 
-Next, install qpress (available from the percona repository) and process any qp file that were extracted:
-
-CentOS:
-
-  # yum install qpress --enablerepo=percona-release-`uname -m`
-  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
-
-
-Debian:
-
-  # apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
-  # echo 'deb http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
-  # echo 'deb-src http://repo.percona.com/apt VERSION main' >> /etc/apt/sources.list
-  # apt-get update
-  # apt-get install qpress
-  # for i in $(find -name "*.qp"); do qpress -vd $i $(dirname ${i}) && rm -f $i; done
-
 Next, apply the innodb log (for XtraBackup):
 
   # innobackupex --apply-log ./
 
 Next, apply the innodb log (for Mariabackup):
 
-  # mariabackup --prepare --apply-log --target-dir=./
+  # mariabackup --prepare --target-dir=./
 
 
 We will now stop MariaDB, move the existing data directory and replace it by the data that was extracted:

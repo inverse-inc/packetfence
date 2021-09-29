@@ -124,23 +124,25 @@ variables:
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches, except maintenance/X.Y and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on all branches (maintenance/X.Y branches included) and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # don't run on tag
-.test_devel_and_branches_rules:
+.test_devel_branches_and_maintenance_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run this job on all branches (schedule) with test variable defined or test=yes in commit message
 .test_nightly_rules:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
-# run this job on devel branch with build_pf_img_zen variable defined or build_pf_img_zen=yes in commit message
-# ZEN build is not configured to run on branches
+# run this job on:
+# - devel branch with BUILD_PF_IMG_ZEN variable defined or build_pf_img_zen=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_PF_IMG_ZEN sets to yes or if CI_COMMIT_MESSAGE contains "build_pf_img_zen=yes".
 .build_pf_img_zen_devel_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
 
 ########################################    
 # JOBS
@@ -298,6 +300,7 @@ variables:
 .test_script_job:
   variables:
     INT_TEST_VM_NAMES: ad switch01 node01 wireless01
+    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
   script:
     - make -e -C ${TESTDIR} test
   after_script:
@@ -455,29 +458,29 @@ publish_ppa_devel_release_branches_and_maintenance::
 ########################################
 # TEST JOBS
 ########################################
-test_devel_and_branches_el_8:
+test_devel_branches_and_maintenance_el_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_el_8_vars
     - .test_script_job
-    - .test_devel_and_branches_rules
+    - .test_devel_branches_and_maintenance_rules
 
-test_devel_and_branches_debian_bullseye:
+test_devel_branches_and_maintenance_debian_bullseye:
   variables:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'no'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
     - .test_script_job
-    - .test_devel_and_branches_rules
+    - .test_devel_branches_and_maintenance_rules
 
 test_release_el_8:
   variables:
@@ -486,7 +489,7 @@ test_release_el_8:
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
     - .test_job
     - .test_el_8_vars
@@ -500,7 +503,7 @@ test_release_debian_bullseye:
     INTEGRATION_TESTS: 'no'
     # provision VM and run configurator test
     RUN_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
@@ -513,7 +516,7 @@ test_nightly_el_8:
     PERL_UNIT_TESTS: 'yes'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-el-8-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_el_8_vars
@@ -526,7 +529,7 @@ test_nightly_debian_bullseye:
     PERL_UNIT_TESTS: 'no'
     GOLANG_UNIT_TESTS: 'yes'
     INTEGRATION_TESTS: 'yes'
-    VAGRANT_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-debian-bullseye-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
     - .test_debian_bullseye_vars
@@ -601,6 +604,8 @@ deploy_maintenance_deb:
     - .maintenance_only_rules
   environment:
     name: maintenance
+  variables:
+    DEB_DEPLOY_DIR: debian
 
 ### Common jobs (Deb and RPM)
 deploy_devel_pkg_friendly_names:
@@ -633,6 +638,17 @@ deploy_release_pkg_friendly_names:
     name: pf-stable
   variables:
     # Values are automatically generated by deploy-artifacts.sh script
+    #PKG_DEST_NAME
+    #PF_EXPORT_RPM_DEST_NAME
+    #PF_EXPORT_DEB_DEST_NAME
+
+deploy_maintenance_pkg_friendly_names:
+  extends:
+    - .deploy_pkg_friendly_names
+    - .maintenance_only_rules
+  variables:
+    # Values are automatically generated by deploy-artifacts.sh script
+    #PKG_DEST_NAME
     #PF_EXPORT_RPM_DEST_NAME
     #PF_EXPORT_DEB_DEST_NAME
 
@@ -645,13 +661,13 @@ build_pf_img_zen_devel:
     - .build_pf_img_zen_job
     - .build_pf_img_zen_devel_rules
   script:
-    - make -e -C ${ZENDIR} zen-devel
+    - make -e -C ${ZENDIR} zen-deb11
 
 build_pf_img_zen_release:
   extends:
     - .build_pf_img_zen_job
   script:
-    - make -e -C ${ZENDIR} zen-release
+    - make -e -C ${ZENDIR} zen-deb11
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'

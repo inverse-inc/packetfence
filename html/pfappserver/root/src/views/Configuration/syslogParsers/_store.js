@@ -10,7 +10,7 @@ export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_syslog_parsers/isLoading']),
     getList: () => $store.dispatch('$_syslog_parsers/all'),
-    getListOptions: params => $store.dispatch('$_syslog_parsers/optionsBySyslogParserType', params.SyslogParserType),
+    getListOptions: params => $store.dispatch('$_syslog_parsers/optionsBySyslogParserType', params.syslogParserType),
     createItem: params => $store.dispatch('$_syslog_parsers/createSyslogParser', params),
     getItem: params => $store.dispatch('$_syslog_parsers/getSyslogParser', params.id).then(item => {
       return (params.isClone)

@@ -395,6 +395,7 @@ $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_t
     $template_switches_config_file,
     $ssl_config_file,
     $cron_config_file,
+    $domain_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");

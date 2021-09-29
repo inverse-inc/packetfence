@@ -23,6 +23,7 @@ vlan=isolation
 # if you add a role/category here, nodes in these roles/categories will be immune to the security event
 whitelisted_roles=
 template=generic
+recipient_template_email=security_event-triggered
 
 [1100001]
 desc=Nessus Scan

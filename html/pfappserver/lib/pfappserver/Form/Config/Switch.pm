@@ -47,7 +47,7 @@ has_field 'id' =>
 has_field 'description' =>
   (
    type => 'Text',
-   required_when => { 'id' => sub { $_[0] ne 'default' } },
+   required => 0,
   );
 
 has_field 'TenantId' =>
