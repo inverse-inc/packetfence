@@ -1,5 +1,4 @@
 name: Check unregistered node
-version: 2
 testcases:
 - name: check_unregistered_node
   steps:

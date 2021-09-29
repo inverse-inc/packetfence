@@ -1,5 +1,4 @@
 name: Disable node_cleanup maintenance task and change the delete_window to 0 day
-version: 2
 testcases:
 - name: disable_node_cleanup_task
   steps:

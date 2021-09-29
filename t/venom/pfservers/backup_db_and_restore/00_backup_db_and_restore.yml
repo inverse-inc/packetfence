@@ -1,5 +1,4 @@
 name: Backup DB and restore
-version: 2
 testcases:
 - name: create_user
   steps:

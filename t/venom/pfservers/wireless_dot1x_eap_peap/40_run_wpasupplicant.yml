@@ -1,5 +1,4 @@
 name: Enable wpa_supplicant on wireless01
-version: 2
 testcases:
 - name: enable_dynamic_vlan_on_wireless01
   steps:

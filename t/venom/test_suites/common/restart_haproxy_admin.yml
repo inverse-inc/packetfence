@@ -1,5 +1,4 @@
 name: Restart haproxy-admin service
-version: 2
 testcases:
 # service restarted by hand because using API cause Venom failure (EOF)
 - name: restart_haproxy_admin_service

@@ -1,5 +1,4 @@
 name: Create node01 with the mac 00:03:00:11:11:01 and role headless_device
-version: 2
 testcases:
 - name: get_category_id_of_role
   steps:

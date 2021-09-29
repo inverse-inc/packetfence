@@ -1,5 +1,4 @@
 name: Unregister and reevaluate access of wireless01
-version: 2
 testcases:
 - name: unreg_wireless01
   steps:

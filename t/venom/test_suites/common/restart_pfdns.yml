@@ -1,5 +1,4 @@
 name: Restart pfdns service
-version: 2
 testcases:
 - name: restart_pfdns_service
   steps:

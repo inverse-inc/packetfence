@@ -1,5 +1,4 @@
 name: Create wired mac authentication connection profile
-version: 2
 testcases:
 - name: create_mac_authentication_connection_profile
   steps:

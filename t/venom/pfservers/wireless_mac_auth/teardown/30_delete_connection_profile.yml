@@ -1,5 +1,4 @@
 name: Delete wireless01 mac authentication connection profile
-version: 2
 testcases:
 - name: delete_wireless_mac_authentication_connection_profile
   steps:

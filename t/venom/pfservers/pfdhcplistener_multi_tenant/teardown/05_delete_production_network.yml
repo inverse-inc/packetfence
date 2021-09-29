@@ -1,5 +1,4 @@
 name: Delete production network
-version: 2
 testcases:
 - name: delete_production_network_in_tenant
   steps:

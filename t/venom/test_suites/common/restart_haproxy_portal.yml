@@ -1,5 +1,4 @@
 name: Restart haproxy-portal service
-version: 2
 testcases:
 - name: restart_haproxy-portal_service
   steps:

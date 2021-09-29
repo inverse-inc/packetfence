@@ -1,5 +1,4 @@
 name: Delete captive portal connection profile
-version: 2
 testcases:
 - name: delete_captive_portal_connection_profile
   steps:

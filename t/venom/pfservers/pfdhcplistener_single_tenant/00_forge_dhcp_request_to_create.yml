@@ -1,5 +1,4 @@
 name: Forge DHCP request to create node10 in DB
-version: 2
 testcases:
   - name: forge_dhcp_request_node10
     steps:

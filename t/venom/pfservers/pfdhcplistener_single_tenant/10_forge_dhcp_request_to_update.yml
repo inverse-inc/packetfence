@@ -1,5 +1,4 @@
 name: Forge DHCP request to update node10
-version: 2
 testcases:
   - name: get_node10_attributes
     steps:

@@ -1,5 +1,4 @@
 name: Create EAP-TLS source
-version: 2
 testcases:
 - name: create_eaptls_source
   steps:

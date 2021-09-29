@@ -1,5 +1,4 @@
 name: Configure smoke DB
-version: 2
 testcases:
 - name: configure_smoke_db
   steps:

@@ -1,5 +1,4 @@
 name: Check autoregister node
-version: 2
 testcases:
 - name: check_autoregister_node
   steps:

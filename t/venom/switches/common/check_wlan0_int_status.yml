@@ -1,5 +1,4 @@
 name: Check wlan0 interface status on wireless01
-version: 2
 testcases:
 - name: check_wlan0_int_status_on_wireless01
   steps:

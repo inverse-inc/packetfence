@@ -1,5 +1,4 @@
 name: Configure DHCP listener interface
-version: 2
 testcases:
 # get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
 - name: get_name_of_dhcp_listener_int

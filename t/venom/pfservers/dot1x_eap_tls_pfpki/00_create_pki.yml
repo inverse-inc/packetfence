@@ -1,5 +1,4 @@
 name: Create PKI
-version: 2
 testcases:
 - name: create_root_ca
   steps:

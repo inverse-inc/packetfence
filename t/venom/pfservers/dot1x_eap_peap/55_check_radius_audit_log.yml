@@ -1,5 +1,4 @@
 name: Check RADIUS audit log
-version: 2
 testcases:
 - name: get_time
   steps:

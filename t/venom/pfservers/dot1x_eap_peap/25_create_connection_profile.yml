@@ -1,5 +1,4 @@
 name: Create connection profile
-version: 2
 testcases:
 - name: create_dot1x_wired_eap_peap_mschapv2connection_profile
   steps:

@@ -1,5 +1,4 @@
 name: Create and test AD user source
-version: 2
 testcases:
 - name: create_ad_user_source
   steps:

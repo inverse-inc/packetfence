@@ -1,5 +1,4 @@
 name: Modify access durations
-version: 2
 testcases:
 - name: modify_access_durations
   steps:

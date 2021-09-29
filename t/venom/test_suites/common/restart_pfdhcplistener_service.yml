@@ -1,5 +1,4 @@
 name: Restart pfdhcplistener service
-version: 2
 testcases:
 - name: restart_pfdhcplistener_service
   steps:

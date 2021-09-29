@@ -1,5 +1,4 @@
 name: Sleep delete windows and 10 seconds
-version: 2
 testcases:
 - name: sleep_delete_windows
   steps:

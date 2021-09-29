@@ -1,5 +1,4 @@
 name: Create and test AD machine source
-version: 2
 testcases:
 - name: create_ad_machine_source
   steps:

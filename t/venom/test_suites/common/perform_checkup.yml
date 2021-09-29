@@ -1,5 +1,4 @@
 name: Perform checkup
-version: 2
 testcases:
 - name: perform_checkup
   steps:

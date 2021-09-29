@@ -1,5 +1,4 @@
 name: Delete wired mac authentication connection profile
-version: 2
 testcases:
 - name: delete_wired_mac_authentication_connection_profile
   steps:

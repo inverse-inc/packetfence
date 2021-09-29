@@ -1,5 +1,4 @@
 name: Create and configure REALMS
-version: 2
 testcases:
 - name: create_realms
   steps:

@@ -1,5 +1,4 @@
 name: Restart iptables service
-version: 2
 testcases:
 - name: restart_iptables_service
   steps:

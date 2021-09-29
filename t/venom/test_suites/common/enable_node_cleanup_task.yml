@@ -1,5 +1,4 @@
 name: Enable node_cleanup maintenance task and change the delete_window
-version: 2
 testcases:
 - name: enable_node_cleanup_task
   steps:

@@ -1,5 +1,4 @@
 name: Run configurator step 3
-version: 2
 testcases:
 - name: get_psono_secret
   steps:

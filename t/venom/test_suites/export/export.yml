@@ -1,5 +1,4 @@
 name: Export
-version: 2
 testcases:
 - name: export
   steps:

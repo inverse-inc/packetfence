@@ -1,5 +1,4 @@
 name: Create captive portal connection profile
-version: 2
 testcases:
 - name: create_captive_portal_connection_profile
   steps:

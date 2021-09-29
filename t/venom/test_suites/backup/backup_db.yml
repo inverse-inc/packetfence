@@ -1,5 +1,4 @@
 name: Backup DB
-version: 2
 testcases:
 - name: backup
   steps:

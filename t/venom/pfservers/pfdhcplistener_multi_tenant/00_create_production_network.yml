@@ -1,5 +1,4 @@
 name: Create production network
-version: 2
 testcases:  
 - name: create_production_network_in_tenant
   steps:

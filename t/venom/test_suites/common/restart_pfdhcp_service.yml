@@ -1,5 +1,4 @@
 name: Restart pfdhcp service
-version: 2
 testcases:
 - name: restart_pfdhcp_service
   steps:

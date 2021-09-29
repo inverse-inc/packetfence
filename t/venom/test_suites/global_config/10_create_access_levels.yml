@@ -1,5 +1,4 @@
 name: Create access levels
-version: 2
 testcases:
 - name: create_access_levels
   steps:

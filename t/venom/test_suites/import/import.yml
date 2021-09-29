@@ -1,5 +1,4 @@
 name: Import
-version: 2
 testcases:
 - name: download export.tgz on old PF installation
   steps:

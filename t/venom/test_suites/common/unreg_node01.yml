@@ -1,5 +1,4 @@
 name: Unregister and reevaluate access of node01
-version: 2
 testcases:
 - name: unreg_node01
   steps:

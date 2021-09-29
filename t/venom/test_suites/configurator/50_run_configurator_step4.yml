@@ -1,5 +1,4 @@
 name: Restart services
-version: 2
 testcases:
 - name: restart_packetfence_config_service
   steps:

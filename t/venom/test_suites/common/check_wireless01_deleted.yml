@@ -1,5 +1,4 @@
 name: Check if wireless01 wlan1 has been correctly deleted
-version: 2
 testcases:
 - name: check_wireless01_wlan1_deleted
   steps:

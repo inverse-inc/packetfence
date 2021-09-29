@@ -1,5 +1,4 @@
 name: Enable OCSP
-version: 2
 testcases:
 - name: create_ocsp_profile
   steps:

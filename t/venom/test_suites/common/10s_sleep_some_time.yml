@@ -1,5 +1,4 @@
 name: Sleep some time
-version: 2
 testcases:
 - name: sleep_some_time
   steps:

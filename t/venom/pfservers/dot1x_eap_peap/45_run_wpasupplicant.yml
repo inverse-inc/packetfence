@@ -1,5 +1,4 @@
 name: Run wpasupplicant on node01
-version: 2
 testcases:
   - name: run_wpasupplicant
     steps:

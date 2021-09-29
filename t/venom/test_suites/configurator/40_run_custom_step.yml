@@ -1,5 +1,4 @@
 name: Run custom step
-version: 2
 testcases:
 - name: config_custom_settings
   steps:

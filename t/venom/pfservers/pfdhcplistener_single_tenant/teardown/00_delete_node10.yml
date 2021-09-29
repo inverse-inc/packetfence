@@ -1,5 +1,4 @@
 name: Delete node10
-version: 2
 testcases:
 - name: delete_node10
   steps:

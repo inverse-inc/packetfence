@@ -1,5 +1,4 @@
 name: Check dynamic VLAN assignement for wlan0 on wireless01
-version: 2
 testcases:
 - name: check_dynamic_vlan_on_wlan0_for_wireless01_user
   steps:

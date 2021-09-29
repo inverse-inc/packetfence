@@ -1,5 +1,4 @@
 name: Check if wireless01 wlan1 is offline
-version: 2
 testcases:
 - name: check_offline_status
   steps:

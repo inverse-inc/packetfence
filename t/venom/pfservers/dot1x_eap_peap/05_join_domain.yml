@@ -1,5 +1,4 @@
 name: Join domain
-version: 2
 testcases:
 - name: create_domain
   steps:

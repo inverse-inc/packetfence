@@ -1,5 +1,4 @@
 name: Create roles
-version: 2
 testcases:
 - name: create_eap_peap_roles_user
   steps:

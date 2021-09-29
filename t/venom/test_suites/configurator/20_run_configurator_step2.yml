@@ -1,5 +1,4 @@
 name: Run configurator step 2
-version: 2
 testcases:
 - name: start_mariadb
   steps:

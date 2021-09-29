@@ -1,5 +1,4 @@
 name: Golang tests
-version: 2
 testcases:
 - name: run_golang_tests
   steps:

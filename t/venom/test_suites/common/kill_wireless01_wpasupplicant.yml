@@ -1,5 +1,4 @@
 name: Kill wpasupplicant on wireless01
-version: 2
 testcases:
   - name: kill_wpasupplicant_on_wireless01
     steps:

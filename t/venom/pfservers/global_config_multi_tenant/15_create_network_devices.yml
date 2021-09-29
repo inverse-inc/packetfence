@@ -1,5 +1,4 @@
 name: Create switches and switch groups
-version: 2
 testcases:
 - name: create_cumulus_switch_group
   steps:

@@ -1,5 +1,4 @@
 name: Check admin account
-version: 2
 testcases:
 - name: check_admin_account
   steps:
