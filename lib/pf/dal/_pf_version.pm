@@ -41,13 +41,11 @@ BEGIN {
     %DEFAULTS = (
         id => '',
         version => '',
-        created_at => 'current_timestamp()',
     );
 
     @INSERTABLE_FIELDS = qw(
         id
         version
-        created_at
     );
 
     %FIELDS_META = (
