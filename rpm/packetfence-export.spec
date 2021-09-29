@@ -1,8 +1,8 @@
-Name:       packetfence-upgrade
+Name:       packetfence-export
 Version:    11.1.0
 Release:    1%{?dist}
 BuildArch:  noarch
-Summary:    PacketFence upgrade files
+Summary:    PacketFence export files
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Base
 License:    GPL
@@ -13,9 +13,8 @@ Vendor:     PacketFence, http://www.packetfence.org
 
 %description
 
-PacketFence upgrade files. This package contains all files related to export
-and upgrade mechanism.  This package should only be installed on releases
-before v11.FIXME.
+PacketFence export files. This package contains all files related to export mechanism.
+This package should only be installed on releases before v11.
 
 #==============================================================================
 # Source preparation
