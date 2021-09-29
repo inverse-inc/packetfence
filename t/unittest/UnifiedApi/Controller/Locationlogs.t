@@ -52,10 +52,14 @@ my %values = (
     end_time            => '0000-00-00 00:00:02',
     voip                => 'no',
 );
+use Test::More tests => 91;
+
 my $status = pf::dal::locationlog->create(\%values);
+if ($status != 201) {
+    BAIL_OUT("cannot create location log entry");
+}
 
 #run tests
-use Test::More tests => 91;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');

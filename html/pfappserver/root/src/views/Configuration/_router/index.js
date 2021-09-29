@@ -2,7 +2,7 @@ import acl from '@/utils/acl'
 import ConfigurationView from '../'
 
 /* Policies Access Control */
-const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/PoliciesAccessControlSection')
+const PoliciesAccessControlSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheSectionPoliciesAccessControl')
 import RolesRoutes from '../roles/_router'
 import DomainsRoutes from '../domains/_router'
 import RealmsRoutes from '../realms/_router'
@@ -12,14 +12,14 @@ import SwitchGroupsRoutes from '../switchGroups/_router'
 import ConnectionProfilesRoutes from '../connectionProfiles/_router'
 
 /* Compliance */
-const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/ComplianceSection')
+const ComplianceSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheSectionCompliance')
 import FingerbankRoutes from '../fingerbank/_router'
 import NetworkBehaviorPoliciesRoutes from '../networkBehaviorPolicy/_router'
 import ScanEnginesRoutes from '../scanEngines/_router'
 import SecurityEventsRoutes from '../securityEvents/_router'
 
 /* Integration */
-const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/IntegrationSection')
+const IntegrationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheSectionIntegration')
 import CloudsRoutes from '../clouds/_router'
 import FirewallsRoutes from '../firewalls/_router'
 import WebServicesRoutes from '../webServices/_router'
@@ -31,7 +31,7 @@ import PkiRoutes from '../pki/_router'
 import MfasRoutes from '../mfas/_router'
 
 /* Advanced Access Configuration */
-const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/AdvancedAccessConfigurationSection')
+const AdvancedAccessConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheSectionAdvancedAccessConfiguration')
 import CaptivePortalRoutes from '../captivePortal/_router'
 import FilterEnginesRoutes from '../filterEngines/_router'
 import BillingTiersRoutes from '../billingTiers/_router'
@@ -43,14 +43,14 @@ import SelfServicesRoutes from '../selfServices/_router'
 import EventLoggersRoutes from '../eventLoggers/_router'
 
 /* Network Configuration */
-const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkConfigurationSection')
+const NetworkConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheSectionNetworkConfiguration')
 import NetworksRoutes from '../networks/_router'
 import SnmpTrapsRoutes from '../snmpTraps/_router'
 import FloatingDevicesRoutes from '../floatingDevices/_router'
 import SslCertificatesRoutes from '../sslCertificates/_router'
 
 /* System Configuration */
-const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/SystemConfigurationSection')
+const SystemConfigurationSection = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheSectionSystemConfiguration')
 import GeneralRoutes from '../general/_router'
 import AlertingRoutes from '../alerting/_router'
 import AdvancedRoutes from '../advanced/_router'

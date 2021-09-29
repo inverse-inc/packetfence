@@ -1,11 +1,11 @@
 import { reset as resetVuexStore } from '@/store'
-import LoginView from '../'
+import TheView from '../'
 
 const route = {
   path: '/login',
   alias: ['/logout', '/expire'],
   name: 'login',
-  component: LoginView,
+  component: TheView,
   beforeEnter: (to, from, next) => {
     resetVuexStore()
     next()

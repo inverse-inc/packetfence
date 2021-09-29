@@ -28,3 +28,18 @@ const i18n = new VueI18n({
 })
 
 export default i18n
+
+// available languages
+// first item is default
+// labels are in English
+// static definition is less resource-intensive than consuming /api/v1/translations
+export const languages = [
+  {
+    locale: 'en',
+    label: 'English' // i18n defer
+  },
+  {
+    locale: 'fr',
+    label: 'French' // i18n defer
+  },
+]

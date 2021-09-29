@@ -1,5 +1,5 @@
 <template>
-  <b-dropdown v-bind="$attrs">
+  <b-dropdown v-bind="$attrs" :disabled="join.status === null">
     <template #button-content>
       <template v-if="join.status === null">
         <icon name="circle-notch" class="mr-1" spin></icon> {{ $t('Joining...') }}
@@ -223,10 +223,13 @@ export const setup = (props, context) => {
       promise = $store.dispatch('$_domains/rejoinDomain', { id: id.value, username, password })
     else
       promise = $store.dispatch('$_domains/joinDomain', { id: id.value, username, password })
-    promise.finally(() => {
-      showWaitModal.value = false
-      showResultModal.value = true
-    })
+    promise
+      .then(response => join.value = response)
+      .catch(() => join.value = { message: i18n.t('Join failed with an unknown error.'), status: false })
+      .finally(() => {
+        showWaitModal.value = false
+        showResultModal.value = true
+      })
   }
 
   const canRejoin = computed(() => {

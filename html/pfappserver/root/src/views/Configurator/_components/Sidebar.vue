@@ -15,65 +15,71 @@
 </template>
 
 <script>
-import route from '../_router'
+const props = {
+  name: {
+    type: String
+  },
+  icon: {
+    type: String
+  },
+  step: {
+    type: Number,
+    default: 0
+  },
+  invalidStep: {
+    type: Boolean,
+    default: false
+  }
+}
 
+import { ref, toRefs } from '@vue/composition-api'
+import route from '../_router'
+const setup = props => {
+
+  const {
+    step,
+    invalidStep
+  } = toRefs(props)
+
+  const routes = ref(route.children)
+  const stepsCount = ref(routes.value.length)
+
+  const isCurrentStep = i => i === step.value
+  const isInvalidStep = i => invalidStep.value && i >= step.value
+  const classForStep = i => {
+    if (i === step.value) {
+      return invalidStep.value ? 'bg-warning' : 'btn-outline-primary'
+    } else if (i < step.value) {
+      return 'bg-primary text-white'
+    } else {
+      return 'btn-outline-faded'
+    }
+  }
+  const lineClassForStep = i => {
+    if (i > 0 && i < stepsCount.value) {
+      if (i > step.value) {
+        return 'wizard-line-inactive'
+      } else {
+        return 'wizard-line-active'
+      }
+    }
+  }
+
+  return {
+    routes,
+    stepsCount,
+    isCurrentStep,
+    isInvalidStep,
+    classForStep,
+    lineClassForStep
+  }
+}
+
+// @vue/component
 export default {
   name: 'sidebar',
-  data () {
-    return {
-      stepsCount: 0
-    }
-  },
-  props: {
-    name: {
-      type: String
-    },
-    icon: {
-      type: String
-    },
-    step: {
-      type: Number,
-      default: 0
-    },
-    invalidStep: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    routes () {
-      return route.children
-    }
-  },
-  methods: {
-    isCurrentStep (i) {
-      return i === this.step
-    },
-    isInvalidStep (i) {
-      return this.invalidStep && i >= this.step
-    },
-    classForStep (i) {
-      if (i === this.step) {
-        return this.invalidStep ? 'bg-warning' : 'btn-outline-primary'
-      } else if (i < this.step) {
-        return 'bg-primary text-white'
-      } else {
-        return 'btn-outline-faded'
-      }
-    },
-    lineClassForStep (i) {
-      if (i > 0 && i < this.stepsCount) {
-        if (i > this.step) {
-          return 'wizard-line-inactive'
-        } else {
-          return 'wizard-line-active'
-        }
-      }
-    }
-  },
-  created () {
-    this.stepsCount = this.routes.length
-  }
+  props,
+  setup
 }
 </script>
 

@@ -44,14 +44,12 @@ BEGIN {
         name => undef,
         email_pattern => '',
         created => '',
-        modified => 'current_timestamp()',
     );
 
     @INSERTABLE_FIELDS = qw(
         name
         email_pattern
         created
-        modified
     );
 
     %FIELDS_META = (

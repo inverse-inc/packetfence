@@ -53,7 +53,7 @@
           </span>
         </template>
         <template #cell(score)="item">
-          <pf-fingerbank-score :score="item.score"></pf-fingerbank-score>
+          <icon-score :score="item.score" />
         </template>
         <template #head(buttons)>
           <base-search-input-columns
@@ -96,14 +96,14 @@ import {
   BaseSearchInputColumns,
   BaseTableEmpty
 } from '@/components/new/'
-import pfFingerbankScore from '@/components/pfFingerbankScore'
+import IconScore from '@/components/IconScore'
 
 const components = {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty,
-  pfFingerbankScore
+  IconScore
 }
 
 import { ref, toRefs } from '@vue/composition-api'

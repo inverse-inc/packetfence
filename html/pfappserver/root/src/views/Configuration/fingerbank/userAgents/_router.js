@@ -19,13 +19,13 @@ export default [
     path: 'fingerbank/user_agents',
     name: 'fingerbankUserAgents',
     component: TheTabs,
-    props: () => ({ tab: 'user_agents', scope: 'all' })
+    props: () => ({ tab: 'fingerbankUserAgents', scope: 'all' })
   },
   {
     path: 'fingerbank/:scope/user_agents',
     name: 'fingerbankUserAgentsByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'user_agents', scope: route.params.scope })
+    props: (route) => ({ tab: 'fingerbankUserAgents', scope: route.params.scope })
   },
   {
     path: 'fingerbank/local/user_agents/new',

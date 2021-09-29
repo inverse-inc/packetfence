@@ -3,7 +3,7 @@ import DomainsStoreModule from '../domains/_store'
 import RealmsStoreModule from './_store'
 import TenantsStoreModule from '../tenants/_store'
 
-export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
+export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsDomains')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {

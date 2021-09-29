@@ -4,7 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import api from './_api'
-import { columns as columnsInterface } from '../../_config/interface'
+import { columns as columnsInterface } from './config'
 
 export const useStore = $store => {
   return {

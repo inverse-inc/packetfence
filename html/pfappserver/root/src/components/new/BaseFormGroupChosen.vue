@@ -284,7 +284,7 @@ export const setup = (props, context) => {
   })
 
   // used by CSS to show vue-multiselect placeholder
-  const isEmpty = computed(() => !value.value)
+  const isEmpty = computed(() => [null, undefined].includes(value.value))
 
   // clear single value
   const onRemove = () => onInput(null)

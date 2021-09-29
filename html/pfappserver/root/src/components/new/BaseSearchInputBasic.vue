@@ -15,6 +15,7 @@
           :save-search-namespace="saveSearchNamespace"
           :use-search="useSearch"
           @search="onSearch"
+          @load="onLoad"
         />
         <!-- normal button -->
         <b-button v-else
@@ -68,18 +69,30 @@ const setup = (props, context) => {
     value
   } = toRefs(props)
 
-  const { emit } = context
+  const { emit, root: { $router } = {} } = context
 
   const onInput = value => emit('input', value)
   const onReset = () => emit('reset', true)
   const onSearch = () => emit('search', value.value)
   const onMode = () => emit('mode', true)
+  const onLoad = search => {
+    const { currentRoute: { path } = {} } = $router
+    const { id, query: conditionBasic, ...rest } = search // strip id, rename query
+    const _query = { conditionBasic, ...rest }
+    const query = Object.keys(_query).reduce((query, param) => {
+      query[param] = JSON.stringify(_query[param])
+      return query
+    }, {})
+    $router.push({ path, query })
+      .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
+  }
 
   return {
     onInput,
     onReset,
     onSearch,
-    onMode
+    onMode,
+    onLoad
   }
 }
 

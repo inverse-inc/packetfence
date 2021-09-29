@@ -25,26 +25,31 @@ use pf::constants qw($ZERO_DATE);
 use pf::util;
 use base qw(pf::dal::_node);
 
-our @LOCATION_LOG_GETTERS = qw(
-  last_switch
-  last_port
-  last_ifDesc
-  last_vlan
-  last_connection_type
-  last_connection_sub_type
-  last_dot1x_username
-  last_ssid
-  stripped_user_name
-  realm
-  last_switch_mac
-  last_start_time
-  last_end_time
-  last_role
-  last_start_timestamp
-);
+our (@LOCATION_LOG_GETTERS, @CATEGORY_ACCESSORS);
+
+BEGIN {
+    @CATEGORY_ACCESSORS   = qw(category bypass_role);
+    @LOCATION_LOG_GETTERS = qw(
+      last_switch
+      last_port
+      last_ifDesc
+      last_vlan
+      last_connection_type
+      last_connection_sub_type
+      last_dot1x_username
+      last_ssid
+      stripped_user_name
+      realm
+      last_switch_mac
+      last_start_time
+      last_end_time
+      last_role
+      last_start_timestamp
+    );
+}
 
 use Class::XSAccessor {
-    accessors => [qw(category bypass_role)],
+    accessors => \@CATEGORY_ACCESSORS,
 # The getters for current location log entries
     getters   => \@LOCATION_LOG_GETTERS,
 };
@@ -97,6 +102,10 @@ sub pre_save {
 
 sub after_create_hook {
     my ($self) = @_;
+    for my $a (@CATEGORY_ACCESSORS) {
+        $self->$a(undef);    
+    }
+
     my $apiclient = pf::api::queue->new(queue => 'general');
     eval {
         $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_security_event", mac => $self->{mac}, type => "internal", tid => "node_discovered");

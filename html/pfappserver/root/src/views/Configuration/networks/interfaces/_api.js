@@ -28,12 +28,12 @@ export default {
     })
   },
   downInterface: id => {
-    return apiCall.post(['config', 'interface', id, 'down']).then(response => {
+    return apiCall.postQuiet(['config', 'interface', id, 'down']).then(response => {
       return response.data
     })
   },
   upInterface: id => {
-    return apiCall.post(['config', 'interface', id, 'up']).then(response => {
+    return apiCall.postQuiet(['config', 'interface', id, 'up']).then(response => {
       return response.data
     })
   },

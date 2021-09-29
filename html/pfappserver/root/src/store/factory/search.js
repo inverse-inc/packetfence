@@ -142,7 +142,7 @@ const factory = (uuid, options = {}) => {
         if ('list' in this.api) { // has api.list
           this.$debouncer({
             handler: () => {
-              this.api.list(params)
+              return this.api.list(params)
                 .then(_response => {
                   const response = this.responseInterceptor(_response)
                   const { items = [], total_count } = response
@@ -168,7 +168,7 @@ const factory = (uuid, options = {}) => {
           })
         }
         else // no api.list
-          this.doSearchCondition(this.defaultCondition())
+          return this.doSearchCondition(this.defaultCondition())
       },
       doSearchString(string) {
         const columns = this.useColumns(this.columns, this.fields)
@@ -199,7 +199,7 @@ const factory = (uuid, options = {}) => {
         const body = this.requestInterceptor(_body)
         this.$debouncer({
           handler: () => {
-            this.api.search(body)
+            return this.api.search(body)
               .then(_response => {
                 const response = this.responseInterceptor(_response)
                 const { items, total_count } = response
@@ -236,9 +236,9 @@ const factory = (uuid, options = {}) => {
           }
         }
         if (this.lastQuery) // last query good
-          this.doSearch(this.lastQuery) // re-perform search w/ last query
+          return this.doSearch(this.lastQuery) // re-perform search w/ last query
         else
-          this.doReset()
+          return this.doReset()
       }
     }
   })

@@ -370,6 +370,7 @@ sub create {
     my $code_length  = $args->{'code_length'};
     my $no_unique    = $args->{'no_unique'};
     my $source_id    = $args->{'source_id'};
+    my $contact_info = $args->{contact_info};
 
     my $logger = get_logger();
 
@@ -392,6 +393,7 @@ sub create {
         'no_unique' => $no_unique,
         'style'    => $args->{style},
         'source_id' => $source_id,
+        'contact_info' => $contact_info,
     );
 
     # caculate activation code expiration

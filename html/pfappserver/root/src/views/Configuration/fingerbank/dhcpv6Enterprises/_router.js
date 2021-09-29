@@ -18,13 +18,13 @@ export default [
     path: 'fingerbank/dhcpv6_enterprises',
     name: 'fingerbankDhcpv6Enterprises',
     component: TheTabs,
-    props: () => ({ tab: 'dhcpv6_enterprises', scope: 'all' })
+    props: () => ({ tab: 'fingerbankDhcpv6Enterprises', scope: 'all' })
   },
   {
     path: 'fingerbank/:scope/dhcpv6_enterprises',
     name: 'fingerbankDhcpv6EnterprisesByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcpv6_enterprises', scope: route.params.scope })
+    props: (route) => ({ tab: 'fingerbankDhcpv6Enterprises', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcpv6_enterprises/new',

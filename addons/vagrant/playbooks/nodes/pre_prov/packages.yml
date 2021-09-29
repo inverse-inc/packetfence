@@ -35,18 +35,6 @@
       - wpasupplicant
       - sscep
 
-  # workaround for https://github.com/ansible/ansible/issues/70304
-  # to have ansible_distribution correct for bullseye
-  pre_tasks:
-    - name: Force cache update to get correct Ansible distribution release
-      apt:
-        update_cache: yes
-      when: ansible_os_family == 'Debian'
-
-    - name: Refresh Ansible facts after cache update
-      setup:
-      when: ansible_os_family == 'Debian'
-
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
       tags: ci

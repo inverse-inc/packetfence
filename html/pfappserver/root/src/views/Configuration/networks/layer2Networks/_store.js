@@ -4,7 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import api from './_api'
-import { columns as columnsLayer2Network } from '../../_config/layer2Network'
+import { columns as columnsLayer2Network } from './config'
 
 export const useStore = $store => {
   return {
@@ -29,13 +29,15 @@ const state = () => {
   return {
     cache: {},
     message: '',
-    status: ''
+    status: '',
+    layer2Networks: []
   }
 }
 
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.status),
-  isLoading: state => state.status === types.LOADING
+  isLoading: state => state.status === types.LOADING,
+  layer2Networks: state => state.layer2Networks
 }
 
 const actions = {
@@ -48,6 +50,7 @@ const actions = {
     commit('LAYER2_NETWORK_REQUEST')
     return api.layer2Networks(params).then(response => {
       commit('LAYER2_NETWORK_SUCCESS')
+      commit('LAYER2_NETWORKS_REPLACED', response.items)
       return response.items
     }).catch((err) => {
       commit('LAYER2_NETWORK_ERROR', err.response)
@@ -76,12 +79,12 @@ const actions = {
   },
   getLayer2Network: ({ state, commit }, id) => {
     if (state.cache[id]) {
-      return Promise.resolve(state.cache[id]).then(cache => JSON.parse(JSON.stringify(cache)))
+      return Promise.resolve(state.cache[id])
     }
     commit('LAYER2_NETWORK_REQUEST')
     return api.layer2Network(id).then(item => {
       commit('LAYER2_NETWORK_REPLACED', { ...item, id })
-      return JSON.parse(JSON.stringify(item))
+      return state.cache[id]
     }).catch((err) => {
       commit('LAYER2_NETWORK_ERROR', err.response)
       throw err
@@ -100,13 +103,16 @@ const actions = {
 }
 
 const mutations = {
+  LAYER2_NETWORKS_REPLACED: (state, layer2Networks) => {
+    state.layer2Networks = layer2Networks
+  },
   LAYER2_NETWORK_REQUEST: (state, type) => {
     state.status = type || types.LOADING
     state.message = ''
   },
   LAYER2_NETWORK_REPLACED: (state, data) => {
     state.status = types.SUCCESS
-    Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+    Vue.set(state.cache, data.id, data)
   },
   LAYER2_NETWORK_DESTROYED: (state, id) => {
     state.status = types.SUCCESS

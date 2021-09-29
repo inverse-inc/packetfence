@@ -1,4 +1,2 @@
 ---
-- import_playbook: config_dev_repos.yml
-
 - import_playbook: wireless/wireless.yml

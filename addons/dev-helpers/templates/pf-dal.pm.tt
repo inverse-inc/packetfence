@@ -31,6 +31,7 @@ BEGIN {
 [% FOREACH col IN cols -%]
 [%- NEXT IF col.mysql_is_auto_increment -%]
 [%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
+[%- NEXT IF col.pf_default_value == "'current_timestamp()'" -%]
         [% col.COLUMN_NAME %] => [% col.pf_default_value %],
 [% END -%]
     );
@@ -39,6 +40,7 @@ BEGIN {
 [% FOREACH col IN cols -%]
 [%- NEXT IF col.mysql_is_auto_increment || col.is_virtual -%]
 [%- NEXT IF col.pf_default_value == "'CURRENT_TIMESTAMP'" -%]
+[%- NEXT IF col.pf_default_value == "'current_timestamp()'" -%]
         [% col.COLUMN_NAME %]
 [% END -%]
     );

@@ -18,7 +18,7 @@ export const useRouter = $router => {
   }
 }
 
-export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DomainsTabs')
+export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsDomains')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const beforeEnter = (to, from, next = () => {}) => {

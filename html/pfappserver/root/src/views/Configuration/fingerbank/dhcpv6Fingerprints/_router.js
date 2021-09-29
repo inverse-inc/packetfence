@@ -19,13 +19,13 @@ export default [
     path: 'fingerbank/dhcpv6_fingerprints',
     name: 'fingerbankDhcpv6Fingerprints',
     component: TheTabs,
-    props: () => ({ tab: 'dhcpv6_fingerprints', scope: 'all' })
+    props: () => ({ tab: 'fingerbankDhcpv6Fingerprints', scope: 'all' })
   },
   {
     path: 'fingerbank/:scope/dhcpv6_fingerprints',
     name: 'fingerbankDhcpv6FingerprintsByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcpv6_fingerprints', scope: route.params.scope })
+    props: (route) => ({ tab: 'fingerbankDhcpv6Fingerprints', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcpv6_fingerprints/new',

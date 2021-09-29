@@ -71,10 +71,10 @@
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-        <pf-notification-center :isAuthenticated="isAuthenticated || isConfiguratorActive" />
+        <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
     </b-navbar>
-    <pf-progress-api/>
+    <app-api-progress />
     <!-- Show alert if the database is in read-only mode and/or the configurator is enabled -->
     <b-container v-if="warnings.length > 0" class="bg-danger text-white text-center pt-6" fluid>
       <div class="py-2" v-for="(warning, index) in warnings" :key="index">
@@ -82,35 +82,35 @@
         <b-button v-if="warning.to" size="sm" variant="outline-light" class="ml-2" :to="warning.to">{{ warning.toLabel }}</b-button>
       </div>
     </b-container>
-    <b-container :class="[{ 'pt-6': warnings.length === 0, 'pf-documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
-      <pf-documentation v-show="isAuthenticated">
+    <b-container :class="[{ 'pt-6': warnings.length === 0, 'documentation-container': isAuthenticated }, documentationViewerClass]" fluid>
+      <app-documentation v-show="isAuthenticated">
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
         </div>
         <div class="py-1 pl-3" v-show="hostname">
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
-      </pf-documentation>
+      </app-documentation>
       <router-view/>
     </b-container>
-    <!-- Show login form if session expires -->
-    <pf-form-login modal></pf-form-login>
+    <!-- Show login if session expires -->
+    <app-login modal />
   </div>
 </template>
 
 <script>
+import AppApiProgress from '@/components/AppApiProgress'
+import AppDocumentation from '@/components/AppDocumentation'
+import AppLogin from '@/components/AppLogin'
+import AppNotifications from '@/components/AppNotifications'
 import IconCounter from '@/components/IconCounter'
-import pfDocumentation from '@/components/pfDocumentation'
-import pfFormLogin from '@/components/pfFormLogin'
-import pfNotificationCenter from '@/components/pfNotificationCenter'
-import pfProgressApi from '@/components/pfProgressApi'
 
 const components = {
-  IconCounter,
-  pfDocumentation,
-  pfFormLogin,
-  pfNotificationCenter,
-  pfProgressApi
+  AppApiProgress,
+  AppDocumentation,
+  AppLogin,
+  AppNotifications,
+  IconCounter
 }
 
 import { computed, ref, watch } from '@vue/composition-api'
@@ -127,9 +127,9 @@ const setup = (props, context) => {
   const showDocumentationViewer = computed(() => $store.getters['documentation/showViewer'])
   watch(showDocumentationViewer, (a) => {
     if (a) // shown
-      documentationViewerClass.value = 'pf-documentation-enter'
+      documentationViewerClass.value = 'documentation-enter'
     else {
-      documentationViewerClass.value = 'pf-documentation-leave'
+      documentationViewerClass.value = 'documentation-leave'
       setTimeout(() => {
         documentationViewerClass.value = null
       }, 300) // match the animation duration defined in pfDocumentation.vue
@@ -248,8 +248,11 @@ const setup = (props, context) => {
         settings.value = $store.state.preferences.cache['settings'] || { language: navigatorLanguage }
       })
       .finally(() => {
-        const { language = navigatorLanguage } = settings.value
-        setLanguage(language)
+        const { language } = settings.value
+        if (language)
+          setLanguage(language)
+        else
+          setLanguage(navigatorLanguage)
       })
   }, { immediate: true })
 
