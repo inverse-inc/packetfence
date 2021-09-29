@@ -8,7 +8,7 @@ $sidebar-item-padding-right: map-get($spacers, 1);
 // Left side navigation
 //
 
-.pf-sidebar {
+.section-sidebar {
   order: 0;
   padding-right: 0;
   padding-left: 0;
@@ -24,7 +24,7 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   }
 }
 
-.pf-sidebar-links {
+.section-sidebar-links {
   @include media-breakpoint-up(md) {
     @supports (position: sticky) {
       overflow-y: auto;
@@ -43,7 +43,7 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   }
 }
 
-.pf-sidebar-filter {
+.section-sidebar-filter {
   position: relative;
   display: flex;
   align-items: center;
@@ -68,20 +68,20 @@ $sidebar-item-padding-right: map-get($spacers, 1);
   }
 }
 
-.pf-sidebar-filter-toggle {
+.section-sidebar-filter-toggle {
   color: $gray-900;
   line-height: 1;
 }
 
-.pf-sidenav-group {
+.section-sidenav-group {
   display: block;
   padding: $sidebar-item-padding-y $sidebar-item-padding-right $sidebar-item-padding-y $sidebar-item-padding-left;
   color: $gray-500;
   font-weight: 400;
 }
 
-.pf-sidenav-group[role=button],
-a.pf-sidenav-group {
+.section-sidenav-group[role=button],
+a.section-sidenav-group {
   padding-left: 0;
   color: rgba(0,0,0,.65);
   font-weight: 700;
@@ -93,7 +93,7 @@ a.pf-sidenav-group {
 }
 
 // Link with optional icon
-.pf-sidebar-item {
+.section-sidebar-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -111,13 +111,13 @@ a.pf-sidenav-group {
     }
   }
 }
-.active .pf-sidebar-item [role=button],
-.active .pf-sidebar-item .nav-link {
+.active .section-sidebar-item [role=button],
+.active .section-sidebar-item .nav-link {
   color: $component-active-color;
 }
 
 // Don't resize icons
-.pf-sidenav svg {
+.section-sidenav svg {
   flex-grow: 0;
   flex-shrink: 0;
   min-width: 1rem;
@@ -125,7 +125,7 @@ a.pf-sidenav-group {
 }
 
 // All levels of nav
-.pf-sidebar .nav li > a {
+.section-sidebar .nav li > a {
   display: block;
   padding: $sidebar-item-padding-y $sidebar-item-padding-right $sidebar-item-padding-y $sidebar-item-padding-left;
   color: $gray-700;
@@ -149,8 +149,8 @@ a.pf-sidenav-group {
 }
 
 // Secondary active link
-// .pf-sidebar .active.secondary,
-// .pf-sidebar .active.secondary:hover {
+// .section-sidebar .active.secondary,
+// .section-sidebar .active.secondary:hover {
 //   padding-left: $sidebar-item-padding-left - .2rem;
 //   border-left: .2rem solid $component-active-bg;
 //   background-color: transparent;
@@ -159,16 +159,16 @@ a.pf-sidenav-group {
 // }
 
 // Collapsable sections
-.pf-sidenav .navbar-collapse {
+.section-sidenav .navbar-collapse {
   background-color: rgba(0, 0, 0, 0.021);
 }
 
-.pf-sidenav .collapsed svg:last-child {
+.section-sidenav .collapsed svg:last-child {
   transform: rotate(-90deg );
 }
 
-.pf-sidenav-group[role=button],
-a.pf-sidenav-group {
+.section-sidenav-group[role=button],
+a.section-sidenav-group {
   position: relative;
   display: flex;
   justify-content: space-between;

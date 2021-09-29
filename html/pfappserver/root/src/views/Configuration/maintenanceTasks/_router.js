@@ -1,7 +1,7 @@
 import store from '@/store'
 import StoreModule from './_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/MainTabs')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsMain')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {

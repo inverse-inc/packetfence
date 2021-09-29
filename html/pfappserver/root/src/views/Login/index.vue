@@ -1,38 +1,59 @@
 <template>
-    <b-row class="justify-content-md-center mt-3">
-        <b-col md="8" lg="6" xl="4">
-          <transition name="fade" mode="out-in">
-            <pf-form-login @login="login()" v-show="!loginSuccessful"></pf-form-login>
-          </transition>
-        </b-col>
-    </b-row>
+  <b-row class="justify-content-md-center mt-3">
+    <b-col md="8" lg="6" xl="4">
+      <transition name="fade" mode="out-in">
+        <app-login @login="onLogin" v-show="!loginSuccessful" />
+      </transition>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
-import pfFormLogin from '@/components/pfFormLogin'
+import AppLogin from '@/components/AppLogin'
+const components = {
+  AppLogin
+}
 
+import { ref } from '@vue/composition-api'
+const setup = (props, context) => {
+
+  const { root: { $router } = {} } = context
+
+  const loginSuccessful = ref(false)
+
+  // workaround: vue-router3 history not accessible w/ vue-composition-api
+  const previousRoute = ref(null)
+  const setPreviousRoute = route => {
+    previousRoute.value = route
+  }
+
+  const onLogin = () => {
+    loginSuccessful.value = true
+    // Don't redirect to /login nor /logout
+    if (previousRoute.value.path &&
+      previousRoute.value.path !== '/login' &&
+      previousRoute.value.path !== '/logout') {
+      $router.replace(previousRoute.value)
+    } else {
+      $router.replace('/') // Go to the default/catch-all route
+    }
+  }
+
+  return {
+    loginSuccessful,
+    onLogin,
+    setPreviousRoute
+  }
+}
+
+// @vue/component
 export default {
   name: 'Login',
-  components: {
-    pfFormLogin
-  },
-  data () {
-    return {
-      loginSuccessful: false
-    }
-  },
-  methods: {
-    login () {
-      this.loginSuccessful = true
-      // Don't redirect to /login nor /logout
-      if (this.$route.params.previousPath &&
-        this.$route.params.previousPath !== '/login' &&
-        this.$route.params.previousPath !== '/logout') {
-        this.$router.push(this.$route.params.previousPath)
-      } else {
-        this.$router.push('/') // Go to the default/catch-all route
-      }
-    }
+  components,
+  setup,
+  // workaround: vue-router3 history not accessible w/ vue-composition-api
+  beforeRouteEnter(to, from, next) {
+    next(vm => vm.setPreviousRoute(from))
   }
 }
 </script>

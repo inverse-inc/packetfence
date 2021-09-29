@@ -1,7 +1,16 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <div class="float-right" v-if="parsedSearches.length > 0"><pf-form-toggle v-model="advancedMode">{{ $t('Advanced') }}</pf-form-toggle></div>
+      <div class="float-right" v-if="parsedSearches.length > 0">
+        <base-input-toggle v-model="advancedMode"
+          :options="[
+            { value: false, label: 'Basic' },
+            { value: true, label: 'Advanced', color: 'var(--primary)' }
+          ]"
+          label-left
+          :disabled="isLoadingReport"
+        />
+      </div>
       <h4 class="mb-0">{{ $t(report.description) }}</h4>
       <p v-if="report.long_description" v-t="report.long_description" class="mt-3 mb-0"></p>
     </b-card-header>
@@ -91,7 +100,7 @@
         @sort-changed="onSortingChanged"
         show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
         <template v-slot:empty>
-          <pf-empty-table :is-loading="true"></pf-empty-table>
+          <base-table-empty :is-loading="true" />
         </template>
       </b-table>
       <b-table v-else
@@ -99,7 +108,7 @@
         @sort-changed="onSortingChanged"
         show-empty responsive hover no-local-sorting no-provider-sorting sort-icon-left striped>
         <template v-slot:empty>
-          <pf-empty-table :is-loading="isLoadingReport">{{ $t('No report data found') }}</pf-empty-table>
+          <base-table-empty :is-loading="isLoadingReport">{{ $t('No report data found') }}</base-table-empty>
         </template>
         <template v-for="nodeField in nodeFields" v-slot:[`cell(${nodeField})`]="{ value }">
           <router-link :key="nodeField" :to="{ name: 'node', params: { mac: value } }"><mac>{{ value }}</mac></router-link>
@@ -115,10 +124,10 @@
 import { format, subSeconds } from 'date-fns'
 import {
   BaseButtonExportCsv,
-  BaseInputGroupDateTime
+  BaseInputGroupDateTime,
+  BaseInputToggle,
+  BaseTableEmpty
 } from '@/components/new/'
-import pfEmptyTable from '@/components/pfEmptyTable'
-import pfFormToggle from '@/components/pfFormToggle'
 import pfMixinSearchable from '@/components/pfMixinSearchable'
 import pfSearch from '@/components/pfSearch'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
@@ -131,8 +140,8 @@ export default {
   components: {
     BaseButtonExportCsv,
     BaseInputGroupDateTime,
-    pfEmptyTable,
-    pfFormToggle,
+    BaseInputToggle,
+    BaseTableEmpty,
     pfSearch
   },
   props: {

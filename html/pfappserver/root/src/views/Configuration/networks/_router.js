@@ -11,7 +11,7 @@ import Layer2NetworksRoutes from './layer2Networks/_router'
 import RoutedNetworksRoutes from './routedNetworks/_router'
 import TrafficShapingPoliciesRoutes from './trafficShapingPolicies/_router'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworksTabs')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworks')
 
 const routes = [
   {

@@ -3,7 +3,7 @@ import RolesStoreModule from '../roles/_store'
 import SwitchesStoreModule from './_store'
 import SwitchGroupsStoreModule from '../switchGroups/_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/NetworkDevicesTabs')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworkDevices')
 const TheCsvImport = () => import(/* webpackChunkName: "Import" */ './_components/TheCsvImport')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 

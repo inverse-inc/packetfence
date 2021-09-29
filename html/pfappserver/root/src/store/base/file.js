@@ -1,7 +1,3 @@
-/**
-* Base file store module. Used by:
-*   pfFormUpload
-*/
 const types = {
   LOADING: 'loading',
   SUCCESS: 'success',

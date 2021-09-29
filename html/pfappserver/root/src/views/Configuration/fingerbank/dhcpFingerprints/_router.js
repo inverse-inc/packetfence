@@ -19,13 +19,13 @@ export default [
     path: 'fingerbank/dhcp_fingerprints',
     name: 'fingerbankDhcpFingerprints',
     component: TheTabs,
-    props: () => ({ tab: 'dhcp_fingerprints', scope: 'all' })
+    props: () => ({ tab: 'fingerbankDhcpFingerprints', scope: 'all' })
   },
   {
     path: 'fingerbank/:scope/dhcp_fingerprints',
     name: 'fingerbankDhcpFingerprintsByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcp_fingerprints', scope: route.params.scope })
+    props: (route) => ({ tab: 'fingerbankDhcpFingerprints', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcp_fingerprints/new',

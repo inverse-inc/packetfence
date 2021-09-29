@@ -19,13 +19,13 @@ export default [
     path: 'fingerbank/dhcp_vendors',
     name: 'fingerbankDhcpVendors',
     component: TheTabs,
-    props: () => ({ tab: 'dhcp_vendors', scope: 'all' })
+    props: () => ({ tab: 'fingerbankDhcpVendors', scope: 'all' })
   },
   {
     path: 'fingerbank/:scope/dhcp_vendors',
     name: 'fingerbankDhcpVendorsByScope',
     component: TheTabs,
-    props: (route) => ({ tab: 'dhcp_vendors', scope: route.params.scope })
+    props: (route) => ({ tab: 'fingerbankDhcpVendors', scope: route.params.scope })
   },
   {
     path: 'fingerbank/:scope/dhcp_vendors/new',

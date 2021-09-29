@@ -5,14 +5,14 @@
  * https://plot.ly/javascript/plotlyjs-function-reference/
  -->
 <template>
-  <b-container id="pfReportChart" fluid>
+  <b-container id="BaseReportChart" fluid>
     <b-row class="mb-3" align-h="between" align-v="center">
       <b-col cols="auto" class="text-left" v-if="range">
         <b-form inline>
           <b-btn variant="link" id="periods" :disabled="isLoading">
             <icon name="stopwatch"></icon>
           </b-btn>
-          <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="pfReportChart" :show.sync="showPeriod">
+          <b-popover class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="BaseReportChart" :show.sync="showPeriod">
             <b-form-row class="align-items-center">
               <div class="mx-1">{{ $t('Previous') }}</div>
                 <b-button-group vrel="periodButtonGroup">
@@ -231,7 +231,7 @@ export default {
 /**
  * Don't limit the size of the popover
  */
-#pfReportChart .popover {
+#BaseReportChart .popover {
   max-width: none;
 }
 </style>

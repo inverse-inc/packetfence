@@ -1,4 +1,4 @@
-const TheTabs = () => import(/* webpackChunkName: "Fingerbank" */ '../../_components/FingerbankTabs')
+const TheTabs = () => import(/* webpackChunkName: "Fingerbank" */ '../../_components/TheTabsFingerbank')
 
 export {
   TheTabs

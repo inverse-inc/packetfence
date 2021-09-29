@@ -1,7 +1,7 @@
 import store from '@/store'
 import BasesStoreModule from '../bases/_store'
 
-const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/DatabaseTabs')
+const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsDatabase')
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_bases) {

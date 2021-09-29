@@ -2,25 +2,25 @@
   <b-tab :title="$t('Fingerbank')">
     <b-row>
       <b-col v-if="node">
-        <pf-form-row class="text-nowrap" :column-label="$t('Device Class')">
+        <base-form-group class="text-nowrap" :column-label="$t('Device Class')">
           {{ node.device_class }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('Device Manufacturer')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Device Manufacturer')">
           {{ node.device_manufacturer }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('Device Type')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Device Type')">
           {{ node.device_type }}
-        </pf-form-row>
-        <pf-form-row :column-label="$t('Fully Qualified Device Name')">
+        </base-form-group>
+        <base-form-group :column-label="$t('Fully Qualified Device Name')">
           {{ node.fingerbank.device_fq }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('Version')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Version')">
           {{ node.fingerbank.version }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('Score')" v-if="node.fingerbank.score">
-          <pf-fingerbank-score class="col-12 col-md-6 col-lg-3" :score="node.fingerbank.score"></pf-fingerbank-score>
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('Mobile')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Score')" v-if="node.fingerbank.score">
+          <icon-score class="col-12 col-md-6 col-lg-3" :score="node.fingerbank.score" />
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('Mobile')">
           <div v-if="node.fingerbank.mobile === 1">
             <icon class="mr-1" name="check-square"></icon> {{ $t('Yes') }}
           </div>
@@ -30,19 +30,19 @@
           <div v-else class="text-muted">
             {{ $t('Unknown') }}
           </div>
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('DHCP Fingerprint')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('DHCP Fingerprint')">
           {{ node.dhcp_fingerprint }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('DHCP Vendor')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('DHCP Vendor')">
           {{ node.dhcp_vendor }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('DHCPv6 Fingerprint')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('DHCPv6 Fingerprint')">
           {{ node.dhcp6_fingerprint }}
-        </pf-form-row>
-        <pf-form-row class="text-nowrap" :column-label="$t('DHCPv6 Enterprise')">
+        </base-form-group>
+        <base-form-group class="text-nowrap" :column-label="$t('DHCPv6 Enterprise')">
           {{ node.dhcp6_enterprise }}
-        </pf-form-row>
+        </base-form-group>
       </b-col>
     </b-row>
     <div class="mt-3">
@@ -53,12 +53,14 @@
   </b-tab>
 </template>
 <script>
-import pfFingerbankScore from '@/components/pfFingerbankScore'
-import pfFormRow from '@/components/pfFormRow'
+import {
+  BaseFormGroup
+} from '@/components/new/'
+import IconScore from '@/components/IconScore'
 
 const components = {
-  pfFingerbankScore,
-  pfFormRow
+  BaseFormGroup,
+  IconScore
 }
 
 const props = {

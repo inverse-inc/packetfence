@@ -6,16 +6,18 @@
     <b-table v-if="node && node.dhcpoption82"
       :items="node.dhcpoption82" :fields="dhcpOption82Fields" :sort-by="dhcpOption82SortBy" :sort-desc="dhcpOption82SortDesc" responsive show-empty sort-icon-left striped>
       <template v-slot:empty>
-        <pf-empty-table :is-loading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</pf-empty-table>
+        <base-table-empty :is-loading="isLoading" text="">{{ $t('No DHCP option82 logs found') }}</base-table-empty>
       </template>
     </b-table>
   </b-tab>
 </template>
 <script>
-import pfEmptyTable from '@/components/pfEmptyTable'
+import {
+  BaseTableEmpty
+} from '@/components/new/'
 
 const components = {
-  pfEmptyTable
+  BaseTableEmpty
 }
 
 const props = {

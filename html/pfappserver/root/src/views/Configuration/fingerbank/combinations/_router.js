@@ -19,7 +19,7 @@ export default [
     path: 'fingerbank/combinations',
     name: 'fingerbankCombinations',
     component: TheTabs,
-    props: () => ({ tab: 'combinations' })
+    props: () => ({ tab: 'fingerbankCombinations' })
   },
   {
     path: 'fingerbank/local/combinations/new',
