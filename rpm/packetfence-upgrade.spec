@@ -2,7 +2,7 @@ Name:       packetfence-upgrade
 Version:    11.1.0
 Release:    1%{?dist}
 BuildArch:  noarch
-Summary:    PacketFence export and upgrade files
+Summary:    PacketFence upgrade files
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Base
 License:    GPL
@@ -13,9 +13,9 @@ Vendor:     PacketFence, http://www.packetfence.org
 
 %description
 
-PacketFence export and upgrade files. This package contains all files related
-to export and upgrade mechanism. It should only be used on PacketFence 10.3.0
-or PacketFence 11.0.0 installations.
+PacketFence upgrade files. This package contains all files related to export
+and upgrade mechanism.  This package should only be installed on releases
+before v11.FIXME.
 
 #==============================================================================
 # Source preparation
@@ -31,18 +31,18 @@ or PacketFence 11.0.0 installations.
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} DESTDIR=%{buildroot} install_rpm
+%{__make} DESTDIR=%{buildroot} install
 
 %clean
 %{__rm} -rf %{buildroot}
 
 %files
+%defattr(-, pf, pf)
 # add files in package **and** set permissions
 # we only add files install during install process
 %attr(0755, -, -)     /usr/local/pf/addons/full-import/export.sh
 %attr(0755, -, -)     /usr/local/pf/addons/full-import/find-extra-files.pl
 %attr(0644, -, -)     /usr/local/pf/addons/full-import/*.functions
-%attr(0755, -, -)     /usr/local/pf/addons/upgrade/do-upgrade.sh
 
 %changelog
 * Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
