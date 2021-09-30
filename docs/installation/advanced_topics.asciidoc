@@ -141,10 +141,10 @@ NOTE: SQL execution exits on the first error and returns the result set of the l
 The following attributes are available when using `type=sql`: [options="compact"]
 
 * `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit). There is no limit and a binding can be repeated more than once. The available bindings are:
-  * `tenant_id`: The scoped tenant identifier of the reports' session.
-  * `start_date`, `end_date`: The start and end datetime. Formatted using _'YYYY-MM-DD HH:mm:ss'_.
-  * `cursor`: On the first page this is value from `cursor_default`. On subsequent pages the value is from the `cursor_field` column of the last result row. Use `cursor.0`, `cursor.1`, etc... with `cursor_type=multi_field`.
-  * `limit`: Is `default_limit` (+1, see pagination) unless overridden by the user.
+ ** `tenant_id`: The scoped tenant identifier of the reports' session.
+ ** `start_date`, `end_date`: The start and end datetime. Formatted using _'YYYY-MM-DD HH:mm:ss'_.
+ ** `cursor`: On the first page this is value from `cursor_default`. On subsequent pages the value is from the `cursor_field` column of the last result row. Use `cursor.0`, `cursor.1`, etc... with `cursor_type=multi_field`.
+ ** `limit`: Is `default_limit` (+1, see pagination) unless overridden by the user.
 * `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but requires special attention in the sql script. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
   * `cursor_type=field`: Uses a single field (column) cursor.
   * `cursor_type=multi_field`: Uses multiple fields (columns) cursor.
