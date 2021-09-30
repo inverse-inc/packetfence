@@ -110,12 +110,13 @@ pf_test_files_to_include = $(shell find $(SRC_TESTDIR) \
 	-maxdepth 0)
 
 # all directories and files to include in packetfence-export package
-# $(SRC_FULL_IMPORT_DIR)/* to exclude SRC_FULL_IMPORT_DIR himself
-pf_export_files_to_include = $(shell find $(SRC_FULL_IMPORTDIR)/* \
+# reflect source tree layout
+pf_export_files_to_include = $(shell find $(SRC_FULL_IMPORTDIR)/ \
+	$(SRC_FUNCTIONSDIR)/ \
 	-maxdepth 0)
 
 # all directories and files to include in packetfence-upgrade package
-# reflect source tree layout
+ # reflect source tree layout
 pf_upgrade_files_to_include = $(shell find $(SRC_FULL_UPGRADEDIR)/ \
 	$(SRC_FUNCTIONSDIR)/ \
 	-maxdepth 0)
