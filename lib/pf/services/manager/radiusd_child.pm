@@ -1530,6 +1530,7 @@ sub generate_ldap_choice {
     my $of = 'if';
     my $oauth2_if = 'if';
     my $edir_config = "";
+    my $tenant_hash = tenant_hash();
     foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
         foreach my $realm (keys %{$key}) {
             my $choice = "^$realm\$";
@@ -1545,27 +1546,29 @@ EOT
 
             if (defined($key->{$realm}->{ldap_source_ttls_pap}) && exists($key->{$realm}->{ldap_source_ttls_pap})) {
                 $choice = $key->{$realm}->{'regex'} if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '');
+                my $ldap_name = $key->{$realm}->{ldap_source_ttls_pap}."-".%{$tenant_hash}{$tenant}->{name};
                 $$authorize_ldap_choice .= <<"EOT";
         $if (Realm =~ /$choice/) {
-            $key->{$realm}->{'ldap_source_ttls_pap'}
+            $ldap_name
             update control {
-                Auth-Type := $key->{$realm}->{'ldap_source_ttls_pap'}
+                Auth-Type := $ldap_name
             }
         }
 EOT
                 $if = 'elsif';
                 $$authentication_ldap_auth_type .= <<"EOT";
-        Auth-Type $key->{$realm}->{ldap_source_ttls_pap} {
-             $key->{$realm}->{ldap_source_ttls_pap}
+        Auth-Type $ldap_name {
+             $ldap_name
         }
 EOT
 
            }
            if (defined($key->{$realm}->{edir_source}) && exists($key->{$realm}->{edir_source})) {
                $choice = $key->{$realm}->{'regex'} if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '');
+               my $ldap_name = $key->{$realm}->{edir_source}."-".%{$tenant_hash}{$tenant}->{name};
                $edir_config .= <<"EOT";
             $of (Realm =~ /$choice/) {
-                -$key->{$realm}->{edir_source}
+                -$ldap_name
                 if (updated) {
                     update control {
                         &MS-CHAP-Use-NTLM-Auth := No
