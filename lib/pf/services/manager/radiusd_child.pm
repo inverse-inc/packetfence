@@ -853,14 +853,16 @@ sub generate_radiusd_proxy {
     my $tenant_hash = tenant_hash();
     foreach my $tenant ( keys %{$tenant_hash} ) {
         next if $tenant eq 0;
+        my $tenant_name = %{$tenant_hash}{$tenant}->{name};
         foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
             foreach my $realm (keys %{$key}) {
                 my $options = $key->{$realm}->{'options'} || '';
                 my $real_realm;
+                my $realm_tenant = $realm."-".%{$tenant_hash}{$tenant}->{name};
                 if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
                     $real_realm = "\"~".$key->{$realm}->{'regex'}."\"";
                 } else {
-                    $real_realm = $realm;
+                    $real_realm = $realm."-".%{$tenant_hash}{$tenant}->{name};
                 }
                 $tags{'config'} .= <<"EOT";
 realm $real_realm {
@@ -881,12 +883,12 @@ EOT
                 }
                 if ($key->{$realm}->{'radius_auth'} ) {
                     $tags{'config'} .= <<"EOT";
-auth_pool = auth_pool_$realm
+auth_pool = auth_pool_$realm_tenant
 EOT
                 }
                 if ($key->{$realm}->{'radius_acct'}) {
                     $tags{'config'} .= <<"EOT";
-acct_pool = acct_pool_$realm
+acct_pool = acct_pool_$realm_tenant
 EOT
                 }
                 if($key->{$realm}->{'radius_auth'} || $key->{$realm}->{'radius_acct'}) {
@@ -896,8 +898,8 @@ EOT
                 }
                 if ($key->{$realm}->{'radius_auth'} ) {
                     $tags{'config'} .= <<"EOT";
-home_server_pool auth_pool_$realm {
-type = $key->{$realm}->->{'radius_auth_proxy_type'}
+home_server_pool auth_pool_$realm_tenant {
+type = $key->{$realm}->{'radius_auth_proxy_type'}
 EOT
                     push(@radius_sources, split(',',$key->{$realm}->{'radius_auth'}));
                     foreach my $radius (split(',',$key->{$realm}->{'radius_auth'})) {
@@ -908,7 +910,7 @@ home_server = eduroam_server2
 EOT
                         } else {
                         $tags{'config'} .= <<"EOT";
-home_server = $radius
+home_server = $radius-$tenant_name
 EOT
                         }
                     }
@@ -919,14 +921,14 @@ EOT
                 if ($key->{$realm}->{'radius_acct'}) {
                     $tags{'config'} .= <<"EOT";
 
-home_server_pool acct_pool_$realm {
+home_server_pool acct_pool_$realm_tenant {
 type = $key->{$realm}->{'radius_acct_proxy_type'}
 EOT
                     push(@radius_sources,split(',',$key->{$realm}->{'radius_acct'}));
                     foreach my $radius (split(',',$key->{$realm}->{'radius_acct'})) {
 
                         $tags{'config'} .= <<"EOT";
-home_server = $radius
+home_server = $radius-$tenant_name
 EOT
                     }
                     $tags{'config'} .= <<"EOT";
@@ -941,17 +943,17 @@ EOT
                 # Generate Eduroam realms config
                 my $eduroam_options = $key->{$realm}->{'eduroam_options'} || '';
                 $tags{'eduroam_config'} .= <<"EOT";
-realm eduroam.$realm {
+realm eduroam.$realm_tenant {
 $eduroam_options
 EOT
                 if ($key->{$realm}->{'eduroam_radius_auth'} ) {
                     $tags{'eduroam_config'} .= <<"EOT";
-auth_pool = eduroam_auth_pool_$realm
+auth_pool = eduroam_auth_pool_$realm_tenant
 EOT
                 }
                 if ($key->{$realm}->{'eduroam_radius_acct'}) {
                     $tags{'eduroam_config'} .= <<"EOT";
-acct_pool = eduroam_acct_pool_$realm
+acct_pool = eduroam_acct_pool_$realm_tenant
 EOT
                 }
                 if($key->{$realm}->{'eduroam_radius_auth'} || $key->{$realm}->{'eduroam_radius_acct'}) {
@@ -962,14 +964,14 @@ EOT
                 }
                 if ($key->{$realm}->{'eduroam_radius_auth'} ) {
                     $tags{'eduroam_config'} .= <<"EOT";
-home_server_pool eduroam_auth_pool_$realm {
+home_server_pool eduroam_auth_pool_$realm_tenant {
 type = $key->{$realm}->{'eduroam_radius_auth_proxy_type'}
 EOT
                     push(@radius_sources, split(',',$key->{$realm}->{'eduroam_radius_auth'}));
                     foreach my $radius (split(',',$key->{$realm}->{'eduroam_radius_auth'})) {
 
                         $tags{'eduroam_config'} .= <<"EOT";
-home_server = $radius
+home_server = $radius-$tenant_name
 EOT
                     }
                     $tags{'eduroam_config'} .= <<"EOT";
@@ -979,14 +981,14 @@ EOT
                 }
                 if ($key->{$realm}->{'eduroam_radius_acct'}) {
                     $tags{'eduroam_config'} .= <<"EOT";
-home_server_pool eduroam_acct_pool_$realm {
+home_server_pool eduroam_acct_pool_$realm_tenant {
 type = $key->{$realm}->{'eduroam_radius_acct_proxy_type'}
 EOT
                     push(@radius_sources,split(',',$key->{$realm}->{'eduroam_radius_acct'}));
                     foreach my $radius (split(',',$key->{$realm}->{'eduroam_radius_acct'})) {
 
                         $tags{'eduroam_config'} .= <<"EOT";
-home_server = $radius
+home_server = $radius-$tenant_name
 EOT
                     }
                     $tags{'eduroam_config'} .= <<"EOT";
@@ -1003,16 +1005,19 @@ EOT
             }
         }
     }
-    foreach my $radius (uniq @radius_sources) {
-        my $source = pf::authentication::getAuthenticationSource($radius);
-        next if ($source->{'type'} eq "Eduroam");
-        my @addresses = gethostbyname($source->{'host'});
-        my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
-        my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
-        $source->{'options'} =~ s/\$src_ip/$src_ip/;
-        $tags{'radius_sources'} .= <<"EOT";
+    foreach my $tenant ( keys %{$tenant_hash} ) {
+        next if $tenant eq 0;
+        my $tenant_name = %{$tenant_hash}{$tenant}->{name};
+        foreach my $radius (uniq @radius_sources) {
+            my $source = pf::authentication::getAuthenticationSource($radius);
+            next if ($source->{'type'} eq "Eduroam");
+            my @addresses = gethostbyname($source->{'host'});
+            my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+            my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
+            $source->{'options'} =~ s/\$src_ip/$src_ip/;
+            $tags{'radius_sources'} .= <<"EOT";
 
-home_server $radius {
+home_server $radius-$tenant_name {
 ipaddr = $source->{'host'}
 port = $source->{'port'}
 secret = $source->{'secret'}
@@ -1020,7 +1025,9 @@ $source->{'options'}
 }
 
 EOT
+        }
     }
+
     # Eduroam configuration
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
@@ -1097,7 +1104,7 @@ EOT
                 if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
                     $real_realm = "\"".$key->{$realm}->{'regex'}."\"";
                 } else {
-                    $real_realm = $realm;
+                    $real_realm = $realm."-".%{$tenant_hash}{$tenant}->{name};
                 }
                 $tags{'config'} .= <<"EOT";
 realm $real_realm {
