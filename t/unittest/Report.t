@@ -600,7 +600,7 @@ BEGIN {
                 has_cursor     => $true,
                 has_limit      => $true,
                 description => 'All active nodes',
-                charts => [],
+                charts => ['scatter|regdate'],
             },
         },
         {
