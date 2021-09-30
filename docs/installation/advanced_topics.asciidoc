@@ -146,8 +146,10 @@ The following attributes are available when using `type=sql`: [options="compact"
  ** `cursor`: On the first page this is value from `cursor_default`. On subsequent pages the value is from the `cursor_field` column of the last result row. Use `cursor.0`, `cursor.1`, etc... with `cursor_type=multi_field`.
  ** `limit`: Is `default_limit` (+1, see pagination) unless overridden by the user.
 * `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but requires special attention in the sql script. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
-  * `cursor_type=field`: Uses a single field (column) cursor.
-  * `cursor_type=multi_field`: Uses multiple fields (columns) cursor.
+ ** `cursor_type=field`: Uses a single field (column) cursor.
+ ** `cursor_type=multi_field`: Uses multiple fields (columns) cursor.
+ ** `cursor_type=offset`: Use offset for the cursor.
+ ** `cursor_type=none`: No cursor is used for this query.
 * `cursor_default`: The default cursor used to conditionally query the results for the first page. On subsequent pages this is replaced with the results from N+1 row of the previous page, meaning the cursor for page 2 will contain the value from the column of the 26th row (with `default_limit=25`).
 * `cursor_field`: A comma delimited list of fields (columns) used to manage pagination.
 * `default_limit`: The default limit passed into the bindings of the SQL script. When `has_limit=enabled` the reports' user can override the default with a manual selection.
