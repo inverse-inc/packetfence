@@ -1474,8 +1474,8 @@ Generate the configuration for eap choice
 
 sub generate_eap_choice {
     my ($authorize_eap_choice, $authentication_auth_type, $suffix, $tenant) = @_;
-    my $logger = get_logger;
-    use Data::Dumper;
+    $$authorize_eap_choice = "";
+    $$authentication_auth_type = "";
     if (!(defined($suffix) && $suffix ne "" )) {
         $suffix = "";
     }
@@ -1496,38 +1496,38 @@ sub generate_eap_choice {
 EOT
             $if = 'elsif';
         }
-        if ($if eq 'elsif') {
-            $$authorize_eap_choice .= <<"EOT";
+    }
+    if ($if eq 'elsif') {
+        $$authorize_eap_choice .= <<"EOT";
             else {
                 eap {
                     ok = return
                 }
             }
 EOT
-        } else {
-            my $eap = (defined($suffix) && $suffix ne "" ) ? $suffix : "eap";
-            $$authorize_eap_choice .= <<"EOT";
+    } else {
+        my $eap = (defined($suffix) && $suffix ne "" ) ? $suffix : "eap";
+        $$authorize_eap_choice .= <<"EOT";
             $eap {
                 ok = return
             }
 EOT
-        }
-        foreach my $key (keys %ConfigEAP) {
-            next if $key eq 'default';
-            $key = $key."-".$suffix if ($suffix ne "");
-            $$authentication_auth_type .= <<"EOT";
+    }
+    foreach my $key (keys %ConfigEAP) {
+        next if $key eq 'default';
+        $key = $key."-".$suffix if ($suffix ne "");
+        $$authentication_auth_type .= <<"EOT";
         Auth-Type $key {
             $key
         }
 EOT
-        }
-        if ($suffix ne "") {
-        $$authentication_auth_type .= <<"EOT";
+    }
+    if ($suffix ne "") {
+    $$authentication_auth_type .= <<"EOT";
         Auth-Type $suffix {
             $suffix
         }
 EOT
-        }
     }
 }
 
@@ -1583,8 +1583,9 @@ EOT
                my $of = 'elsif';
            }
         }
-        if ($edir_config ne "") {
-            $$edir_configuration .= << "EOT"
+    }
+    if ($edir_config ne "") {
+        $$edir_configuration .= << "EOT"
         update control {
             Cache-Status-Only = 'yes'
         }
@@ -1599,7 +1600,6 @@ $edir_config
         }
         cache_password
 EOT
-        }
     }
 }
 
