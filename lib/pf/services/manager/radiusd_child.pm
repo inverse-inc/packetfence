@@ -273,6 +273,8 @@ EOT
 
     %tags = ();
 
+    $tags{'virtual_servers'} = \%{$tenantConfig};
+
     if(isenabled($Config{advanced}{disable_pf_domain_auth})){
         $tags{'multi_domain'} = '# packetfence-multi-domain not activated because explicitly disabled in pf.conf';
     }
@@ -715,10 +717,10 @@ sub generate_radiusd_ldap {
     $tags{'install_dir'} = $install_dir;
     my $ldap_config = $FALSE;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
-        my $active = $FALSE;
         my $tenant_hash = tenant_hash();
-	foreach my $tenant ( keys %{$tenant_hash} ) {
-	    next if $tenant eq 0;
+        foreach my $tenant ( keys %{$tenant_hash} ) {
+            my $active = $FALSE;
+            next if $tenant eq 0;
             foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
                 foreach my $realm (keys %{$key}) {
                     if (defined($key->{$realm}->{ldap_source}) && ($key->{$realm}->{ldap_source} eq $ldap) ) {
@@ -729,12 +731,11 @@ sub generate_radiusd_ldap {
                    }
                 }
             }
-        }
-        next unless $active;
-        my $searchattributes = '';
-        my $edir_options;
-        if ($ConfigAuthenticationLdap{$ldap}->{type} eq 'EDIR') {
-            $edir_options .= << "EOT";
+            next unless $active;
+            my $searchattributes = '';
+            my $edir_options;
+            if ($ConfigAuthenticationLdap{$ldap}->{type} eq 'EDIR') {
+                $edir_options .= << "EOT";
 
     # Enable Novell eDirectory support
     edir = yes
@@ -744,28 +745,29 @@ sub generate_radiusd_ldap {
     password_attribute = nspmPassword
 
 EOT
-        } else {
-            $edir_options = '';
-        }
-
-        if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
-            foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
-                $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
+            } else {
+                $edir_options = '';
             }
-        }
-        $ldap_config = $TRUE;
-        my $server_list;
-        my @ldap_server = @{$ConfigAuthenticationLdap{$ldap}->{host}};
-        foreach my $ldap_server (@ldap_server) {
-            $server_list .= "    server          = $ldap_server\n";
-        }
-        my $append = '';
-        if (defined($ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})) {
-            $append = $ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes};
-        }
-        $tags{'servers'} .= <<"EOT";
 
-ldap $ldap {
+            if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
+                foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
+                    $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
+                }
+            }
+            $ldap_config = $TRUE;
+            my $server_list;
+            my @ldap_server = @{$ConfigAuthenticationLdap{$ldap}->{host}};
+            foreach my $ldap_server (@ldap_server) {
+                $server_list .= "    server          = $ldap_server\n";
+            }
+            my $append = '';
+            if (defined($ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})) {
+                $append = $ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes};
+            }
+            my $ldap_name = $ldap."-".%{$tenant_hash}{$tenant}->{name};
+            $tags{'servers'} .= <<"EOT";
+
+ldap $ldap_name {
 $server_list
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
@@ -795,36 +797,36 @@ $edir_options
     }
 EOT
 
-        my $client_auth = "";
-        if($ConfigAuthenticationLdap{$ldap}{client_cert_file} && $ConfigAuthenticationLdap{$ldap}{client_key_file}) {
-            $client_auth = <<"EOT";
+            my $client_auth = "";
+            if($ConfigAuthenticationLdap{$ldap}{client_cert_file} && $ConfigAuthenticationLdap{$ldap}{client_key_file}) {
+                $client_auth = <<"EOT";
         certificate_file = $ConfigAuthenticationLdap{$ldap}{client_cert_file}
         private_key_file = $ConfigAuthenticationLdap{$ldap}{client_key_file}
 EOT
-        }
+            }
 
-        if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
-            $tags{'servers'} .= <<"EOT";
+            if ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "ssl") {
+                $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = no
        require_cert    = 'allow'
        $client_auth
     }
 EOT
-        } elsif ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "starttls") {
-            $tags{'servers'} .= <<"EOT";
+            } elsif ($ConfigAuthenticationLdap{$ldap}->{encryption} eq "starttls") {
+                $tags{'servers'} .= <<"EOT";
     tls {
         start_tls = yes
        require_cert    = 'allow'
        $client_auth
     }
 EOT
-        }
-            $tags{'servers'} .= <<"EOT";
+            }
+                $tags{'servers'} .= <<"EOT";
 }
 
 EOT
-
+        }
     }
     if ($ldap_config) {
         parse_template( \%tags, "$conf_dir/radiusd/ldap_packetfence.conf", "$install_dir/raddb/mods-enabled/ldap_packetfence" );
@@ -1421,11 +1423,12 @@ sub generate_user_principal_name {
     my $logger = get_logger;
 
     my $flag = $TRUE;
+    my $tenant_hash = tenant_hash();
     foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
         foreach my $realm (keys %{$key}) {
             if (isenabled($key->{$realm}->{'permit_custom_attributes'}) && (scalar @{$ConfigAuthenticationLdap{$key->{$realm}->{ldap_source}}->{searchattributes}})) {
                 if ($flag) {
-                $$user_principal_name .= <<"EOT";
+                    $$user_principal_name .= <<"EOT";
         update control {
             Cache-Status-Only = 'yes'
         }
@@ -1439,19 +1442,20 @@ EOT
                 } else {
                     $$user_principal_name .= "            if (Realm == \"$realm\") {";
                 }
+                my $ldap_name = $key->{$realm}->{ldap_source}."-".%{$tenant_hash}{$tenant}->{name};
                 $$user_principal_name .= <<"EOT";
 
-                $key->{$realm}->{ldap_source}
+                $ldap_name
             }
 EOT
-            }
-        }
-        if ($flag == $FALSE) {
-            $$user_principal_name .= <<"EOT";
+           }
+       }
+    }
+    if ($flag == $FALSE) {
+        $$user_principal_name .= <<"EOT";
         }
         userprincipalname
 EOT
-        }
     }
 }
 

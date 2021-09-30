@@ -28,12 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{_scoped_by_tenant_id} = 1;
-    $self->{child_resources} = [qw(
-        resource::RealmReverseLookup
-        config::OrderedRealm
-        config::OrderedRealmAll
-        config::RealmAll
-    )];
+    $self->{child_resources} = [ "resource::RealmReverseLookup" , "config::OrderedRealm", "config::OrderedRealmAll"];
     $self->{ini} = pf::IniFiles->new(
         -file       => $realm_config_file,
         -import     => pf::IniFiles->new(-file => $realm_default_config_file),
