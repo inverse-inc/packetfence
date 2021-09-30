@@ -184,6 +184,12 @@ Description: PacketFence export files
  PacketFence export files. This package contains all files related to export mechanism.
  This package should only be installed on releases before v11.
 
+Package: packetfence-upgrade
+Architecture: all
+Description: PacketFence upgrade files
+ PacketFence upgrade files. This package contains all files related to upgrade mechanism.
+ This package should only be installed on releases after v11.
+
 Package: packetfence-pfcmd-suid
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}

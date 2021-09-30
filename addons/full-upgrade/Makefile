@@ -5,7 +5,7 @@ FULL_UPGRADE_FILES_LIST = 'run-upgrade.sh'
 install:
 	@echo "install base directory and subdirectories"
 	# /* to exclude directory himself
-	for subdir in `find $(PWD)/* -type d -printf "%f\n"` ; do \
+	for subdir in `find $(CURDIR)/* -type d -printf "%f\n"` ; do \
 		install -d -m0755 $(DESTDIR)/usr/local/pf/addons/full-upgrade/$$subdir ; \
 		for file in `find $$subdir -type f`; do \
 			install -m0644 $$file $(DESTDIR)/usr/local/pf/addons/full-upgrade/$$subdir ; \
