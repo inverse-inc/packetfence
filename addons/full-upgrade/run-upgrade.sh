@@ -2,9 +2,11 @@
 
 set -o nounset -o pipefail -o errexit
 
-source /usr/local/pf/addons/functions/helpers.functions
-source /usr/local/pf/addons/functions/database.functions
-source /usr/local/pf/addons/functions/configuration.functions
+# functions come from addons/functions but are packaged
+# inside full-upgrade directory to make full-upgrade package self-contained
+source /usr/local/pf/addons/full-upgrade/helpers.functions
+source /usr/local/pf/addons/full-upgrade/database.functions
+source /usr/local/pf/addons/full-upgrade/configuration.functions
 
 function backup_git_commit_id() {
   if [ `cat /usr/local/pf/conf/git_commit_id` = "%{git_commit}" ]; then

@@ -30,7 +30,7 @@ This package should only be installed on releases after v11.
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} DESTDIR=%{buildroot} install
+%{__make} -C full-upgrade DESTDIR=%{buildroot} install
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -42,6 +42,7 @@ This package should only be installed on releases after v11.
 # add files in package **and** set permissions
 # we only add files install during install process
 %attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/run-upgrade.sh
+%attr(0644, -, -)     /usr/local/pf/addons/full-upgrade/*.functions
 /usr/local/pf/addons/full-upgrade/hooks
 
 %changelog
