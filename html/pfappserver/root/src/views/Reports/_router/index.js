@@ -8,7 +8,7 @@ const TheView = () => import(/* webpackChunkName: "Reports" */ '../_components/T
 const route = {
   path: '/reports',
   name: 'reports',
-  redirect: `/reports/${encodeURIComponent('Accounting::Node')}`,
+  redirect: `/reports/${encodeURIComponent('Accounting::Bandwidth')}`,
   component: TheIndex,
   meta: {
     can: () => acl.$some('read', ['reports']), // has ACL for 1+ children
