@@ -94,22 +94,18 @@ Executed once for ALL processes
 sub generateConfig {
     my ($self, $quick) = @_;
     my $logger = get_logger();
-    use Data::Dumper;
     my $tenant_hash = tenant_hash();
     foreach my $tenant ( keys %{$tenant_hash} ) {
         next if $tenant eq 0;
         $tenantConfig->{$tenant} = $tenant_hash->{$tenant};
         $tenantConfig->{$tenant}->{'OrderedRealm'} = $pf::config::ConfigOrderedRealmAll{$tenant};
-	#        foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) { 
-	#    $logger->warn(Dumper $key);
-	#}
-	generate_eap_choice(\$tenantConfig->{$tenant}->{'authorize_eap_choice'}, \$tenantConfig->{$tenant}->{'authentication_auth_type'}, undef, $tenant);
+        $tenantConfig->{$tenant}->{'ConfigDomain'} = { %ConfigDomain };
+        generate_eap_choice(\$tenantConfig->{$tenant}->{'authorize_eap_choice'}, \$tenantConfig->{$tenant}->{'authentication_auth_type'}, undef, $tenant);
         generate_eap_choice(\$tenantConfig->{$tenant}->{'authorize_eap_choice_degraded'}, \$tenantConfig->{$tenant}->{'authentication_auth_type_degraded'}, "eap-degraded", $tenant);
         generate_local_realm(\$tenantConfig->{$tenant}->{'local_realm'}, $tenant);
         generate_user_principal_name(\$tenantConfig->{$tenant}->{'user_principal_name'}, $tenant);
         generate_ldap_choice(\$tenantConfig->{$tenant}->{'authorize_ldap_choice'}, \$tenantConfig->{$tenant}->{'authentication_ldap_auth_type'}, \$tenantConfig->{$tenant}->{'edir_configuration'}, $tenant);
     }
-    $logger->warn(Dumper $tenantConfig);
     unless($CONFIG_GENERATED){
         $self->_generateConfig();
 
@@ -192,6 +188,7 @@ EOT
     $tt->process("$conf_dir/radiusd/packetfence.policy", \%tags, "$install_dir/raddb/policy.d/packetfence") or die $tt->error();
 }
 
+
 =head2 generate_radiusd_sitesconf
 
 Generates the packetfence and packetfence-tunnel configuration file
@@ -202,22 +199,8 @@ sub generate_radiusd_sitesconf {
     my ($self, $tt) = @_;
     my %tags;
 
-    #    my %virtual_server;
-    #my $tenants = tenant_hash();
-    #foreach my $tenant (keys %{$tenants}) {
-    #    next unless($tenants->{$tenant}->{'radius_port'});
-    #	$virtual_server{$tenants->{$tenant}->{'name'}} = $tenants->{$tenant};
-    #}
     $tags{'virtual_servers'} = \%{$tenantConfig};
     $tags{'remote'} = "";
-    #$tags{'authorize_eap_choice'} = "";
-    #$tags{'authentication_auth_type'} = "";
-    #$tags{'authorize_eap_choice_degraded'} = "";
-    #$tags{'authentication_auth_type_degraded'} = "";
-
-    #generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
-
-    #generate_eap_choice(\$tags{'authorize_eap_choice_degraded'}, \$tags{'authentication_auth_type_degraded'}, "eap-degraded");
 
     if(isenabled($Config{radius_configuration}{record_accounting_in_sql})){
         $tags{'accounting_sql'} = "sql";
@@ -324,16 +307,6 @@ EOT
         $tags{'redis_ntlm_cache_fetch'} = "# redis-ntlm-cache disabled in configuration"
     }
 
-    #$tags{'authorize_eap_choice'} = "";
-    #$tags{'authentication_auth_type'} = "";
-
-    #generate_eap_choice(\$tags{'authorize_eap_choice'}, \$tags{'authentication_auth_type'});
-
-    #$tags{'authorize_ldap_choice'} = "";
-    #$tags{'authentication_ldap_auth_type'} = "";
-    #$tags{'edir_configuration'} = "";
-
-    #generate_ldap_choice(\$tags{'authorize_ldap_choice'}, \$tags{'authentication_ldap_auth_type'}, \$tags{'edir_configuration'});
     #TODO
     $tags{'oauth2_if_enabled'} = (any { $_->{azuread_source_ttls_pap} } values(%ConfigRealm)) ? "oauth2" : "#oauth2 is not in use by any realm";
 
@@ -743,12 +716,14 @@ sub generate_radiusd_ldap {
     my $ldap_config = $FALSE;
     foreach my $ldap (keys %ConfigAuthenticationLdap) {
         my $active = $FALSE;
-        foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-            if (defined($pf::config::ConfigRealm{$realm}->{ldap_source}) && ($pf::config::ConfigRealm{$realm}->{ldap_source} eq $ldap) ) {
-                $active = $TRUE;
-            }
-            elsif (defined($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap}) && ($pf::config::ConfigRealm{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
-                $active = $TRUE;
+        foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+            foreach my $realm (keys %{$key}) {
+                if (defined($key->{$realm}->{ldap_source}) && ($key->{$realm}->{ldap_source} eq $ldap) ) {
+                    $active = $TRUE;
+                }
+                elsif (defined($key->{$realm}->{ldap_source_ttls_pap}) && ($key->{$realm}->{ldap_source_ttls_pap} eq $ldap) ) {
+                    $active = $TRUE;
+               }
             }
         }
         next unless $active;
@@ -869,23 +844,24 @@ sub generate_radiusd_proxy {
     $tags{'radius_sources'} = '';
     my @radius_sources;
 
-    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-        my $options = $pf::config::ConfigRealm{$realm}->{'options'} || '';
-        my $real_realm;
-        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-            $real_realm = "\"~".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
-        } else {
-            $real_realm = $realm;
-        }
-        $tags{'config'} .= <<"EOT";
+    foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+        foreach my $realm (keys %{$key}) {
+            my $options = $key->{$realm}->{'options'} || '';
+            my $real_realm;
+            if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
+                $real_realm = "\"~".$key->{$realm}->{'regex'}."\"";
+            } else {
+                $real_realm = $realm;
+            }
+            $tags{'config'} .= <<"EOT";
 realm $real_realm {
 $options
 EOT
-        if ($pf::config::ConfigRealm{$realm}->{azuread_source_ttls_pap}) {
-            my $source = getAuthenticationSource($pf::config::ConfigRealm{$realm}->{azuread_source_ttls_pap});
-            my $client_id = $source->client_id;
-            my $client_secret = $source->client_secret;
-            $tags{'config'} .= <<"EOT";
+            if ($key->{$realm}->{azuread_source_ttls_pap}) {
+                my $source = getAuthenticationSource($key->{$realm}->{azuread_source_ttls_pap});
+                my $client_id = $source->client_id;
+                my $client_secret = $source->client_secret;
+                $tags{'config'} .= <<"EOT";
 oauth2 {
     discovery = "https://login.microsoftonline.com/%{Realm}/v2.0"
     client_id = "$client_id"
@@ -893,127 +869,128 @@ oauth2 {
     cache_password = yes
 }
 EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
-            $tags{'config'} .= <<"EOT";
+            }
+            if ($key->{$realm}->{'radius_auth'} ) {
+                $tags{'config'} .= <<"EOT";
 auth_pool = auth_pool_$realm
 EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
-            $tags{'config'} .= <<"EOT";
+            }
+            if ($key->{$realm}->{'radius_acct'}) {
+                $tags{'config'} .= <<"EOT";
 acct_pool = acct_pool_$realm
 EOT
-        }
-        if($pf::config::ConfigRealm{$realm}->{'radius_auth'} || $pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
-            $tags{'config'} .= <<"EOT";
+            }
+            if($key->{$realm}->{'radius_auth'} || $key->{$realm}->{'radius_acct'}) {
+                $tags{'config'} .= <<"EOT";
 }
 EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'radius_auth'} ) {
-            $tags{'config'} .= <<"EOT";
+            }
+            if ($key->{$realm}->{'radius_auth'} ) {
+                $tags{'config'} .= <<"EOT";
 home_server_pool auth_pool_$realm {
-type = $pf::config::ConfigRealm{$realm}->{'radius_auth_proxy_type'}
+type = $key->{$realm}->->{'radius_auth_proxy_type'}
 EOT
-            push(@radius_sources, split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'}));
-            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_auth'})) {
-                if (pf::authentication::getAuthenticationSource($radius)->{'type'} eq "Eduroam") {
-                    $tags{'config'} .= <<"EOT";
+                push(@radius_sources, split(',',$key->{$realm}->->{'radius_auth'}));
+                foreach my $radius (split(',',$key->{$realm}->{'radius_auth'})) {
+                    if (pf::authentication::getAuthenticationSource($radius)->{'type'} eq "Eduroam") {
+                        $tags{'config'} .= <<"EOT";
 home_server = eduroam_server1
 home_server = eduroam_server2
 EOT
-                } else {
+                    } else {
+                    $tags{'config'} .= <<"EOT";
+home_server = $radius
+EOT
+                    }
+                }
                 $tags{'config'} .= <<"EOT";
+}
+EOT
+            }
+            if ($key->{$realm}->{'radius_acct'}) {
+                $tags{'config'} .= <<"EOT";
+
+home_server_pool acct_pool_$realm {
+type = $key->{$realm}->{'radius_acct_proxy_type'}
+EOT
+                push(@radius_sources,split(',',$key->{$realm}->{'radius_acct'}));
+                foreach my $radius (split(',',$key->{$realm}->{'radius_acct'})) {
+
+                    $tags{'config'} .= <<"EOT";
 home_server = $radius
 EOT
                 }
-            }
-            $tags{'config'} .= <<"EOT";
-}
-EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
-            $tags{'config'} .= <<"EOT";
-
-home_server_pool acct_pool_$realm {
-type = $pf::config::ConfigRealm{$realm}->{'radius_acct_proxy_type'}
-EOT
-            push(@radius_sources,split(',',$pf::config::ConfigRealm{$realm}->{'radius_acct'}));
-            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'radius_acct'})) {
-
                 $tags{'config'} .= <<"EOT";
-home_server = $radius
+}
 EOT
             }
-            $tags{'config'} .= <<"EOT";
+            if(!$key->{$realm}->{'radius_auth'} && !$key->{$realm}->{'radius_acct'}) {
+                $tags{'config'} .= <<"EOT";
 }
 EOT
-        }
-         if(!$pf::config::ConfigRealm{$realm}->{'radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'radius_acct'}) {
-            $tags{'config'} .= <<"EOT";
-}
-EOT
-        }
-        # Generate Eduroam realms config
-    my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
-        $tags{'eduroam_config'} .= <<"EOT";
+            }
+            # Generate Eduroam realms config
+            my $eduroam_options = $key->{$realm}->{'eduroam_options'} || '';
+            $tags{'eduroam_config'} .= <<"EOT";
 realm eduroam.$realm {
 $eduroam_options
 EOT
-        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
-            $tags{'eduroam_config'} .= <<"EOT";
+            if ($key->{$realm}->{'eduroam_radius_auth'} ) {
+                $tags{'eduroam_config'} .= <<"EOT";
 auth_pool = eduroam_auth_pool_$realm
 EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
-            $tags{'eduroam_config'} .= <<"EOT";
+            }
+            if ($key->{$realm}->{'eduroam_radius_acct'}) {
+                $tags{'eduroam_config'} .= <<"EOT";
 acct_pool = eduroam_acct_pool_$realm
 EOT
-        }
-        if($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} || $pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
-            $tags{'eduroam_config'} .= <<"EOT";
+            }
+            if($key->{$realm}->{'eduroam_radius_auth'} || $key->{$realm}->{'eduroam_radius_acct'}) {
+                $tags{'eduroam_config'} .= <<"EOT";
 }
 
 EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} ) {
-            $tags{'eduroam_config'} .= <<"EOT";
+            }
+            if ($key->{$realm}->{'eduroam_radius_auth'} ) {
+                $tags{'eduroam_config'} .= <<"EOT";
 home_server_pool eduroam_auth_pool_$realm {
-type = $pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth_proxy_type'}
+type = $key->{$realm}->{'eduroam_radius_auth_proxy_type'}
 EOT
-            push(@radius_sources, split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'}));
-            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'})) {
+                push(@radius_sources, split(',',$key->{$realm}->{'eduroam_radius_auth'}));
+                foreach my $radius (split(',',$key->{$realm}->{'eduroam_radius_auth'})) {
 
-                $tags{'eduroam_config'} .= <<"EOT";
+                    $tags{'eduroam_config'} .= <<"EOT";
 home_server = $radius
 EOT
-            }
-            $tags{'eduroam_config'} .= <<"EOT";
+                }
+                $tags{'eduroam_config'} .= <<"EOT";
 }
 
 EOT
-        }
-        if ($pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
-            $tags{'eduroam_config'} .= <<"EOT";
+            }
+            if ($key->{$realm}->{'eduroam_radius_acct'}) {
+                $tags{'eduroam_config'} .= <<"EOT";
 home_server_pool eduroam_acct_pool_$realm {
-type = $pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct_proxy_type'}
+type = $key->{$realm}->{'eduroam_radius_acct_proxy_type'}
 EOT
-            push(@radius_sources,split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}));
-            foreach my $radius (split(',',$pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'})) {
+                push(@radius_sources,split(',',$key->{$realm}->{'eduroam_radius_acct'}));
+                foreach my $radius (split(',',$key->{$realm}->{'eduroam_radius_acct'})) {
 
-                $tags{'eduroam_config'} .= <<"EOT";
+                    $tags{'eduroam_config'} .= <<"EOT";
 home_server = $radius
 EOT
+                }
+                $tags{'eduroam_config'} .= <<"EOT";
+}
+
+EOT
             }
-            $tags{'eduroam_config'} .= <<"EOT";
+            if(!$key->{$realm}->{'eduroam_radius_auth'} && !$key->{$realm}->{'eduroam_radius_acct'}) {
+                $tags{'eduroam_config'} .= <<"EOT";
 }
 
 EOT
-        }
-         if(!$pf::config::ConfigRealm{$realm}->{'eduroam_radius_auth'} && !$pf::config::ConfigRealm{$realm}->{'eduroam_radius_acct'}) {
-            $tags{'eduroam_config'} .= <<"EOT";
-}
-
-EOT
+            }
         }
     }
     foreach my $radius (uniq @radius_sources) {
@@ -1104,17 +1081,19 @@ EOT
     undef %tags;
     my $real_realm;
 
-    foreach my $realm ( @pf::config::ConfigOrderedRealm ) {
-        if (defined $pf::config::ConfigRealm{$realm}->{'regex'} && $pf::config::ConfigRealm{$realm}->{'regex'} ne '') {
-            $real_realm = "\"".$pf::config::ConfigRealm{$realm}->{'regex'}."\"";
-        } else {
-            $real_realm = $realm;
-        }
-        $tags{'config'} .= <<"EOT";
+    foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+        foreach my $realm (keys %{$key}) {
+            if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
+                $real_realm = "\"".$key->{$realm}->{'regex'}."\"";
+            } else {
+                $real_realm = $realm;
+            }
+            $tags{'config'} .= <<"EOT";
 realm $real_realm {
 nostrip
 }
 EOT
+        }
     }
     parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
 
@@ -1604,23 +1583,9 @@ EOT
 }
 
 sub generate_multi_domain_constants {
-    my $data = {};
-    my ($status, $iter) = pf::dal::tenant->search();
-    if (is_error($status)) {
-        die "Unable to fetch tenants to generate the multi-domain constants";
-    }
-    for my $tenant (@{$iter->all}) {
-        my $tenant_id = $tenant->id;
-        pf::config::tenant::set_tenant($tenant_id);
-        $data->{$tenant_id} = {
-            ConfigRealm => { %ConfigRealm }, 
-            ConfigOrderedRealm => [ @ConfigOrderedRealm ],
-            ConfigDomain => { %ConfigDomain }, 
-        };
-    }
     $Data::Dumper::Purity = 1;
     my $content = "package multi_domain_constants;\n\n";
-    $content .= "our " . Dumper($data);
+    $content .= "our " . Dumper($tenantConfig);
     $content .= "our \$DATA = \$VAR1;\n";
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
