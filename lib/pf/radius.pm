@@ -1048,7 +1048,19 @@ sub mfa_pre_auth {
     my $attributes;
     my $matched = pf::authentication::match2([@$sources], $merged, $$extra, \$attributes);
 
-    my $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
+    # Verify if the user succeed the MFA on the portal
+    my $value = $matched->{values}{$Actions::TRIGGER_PORTAL_MFA} if $matched;
+    if ($value) {
+        my $mfa = pf::factory::mfa->new($value);
+        my $cache = pf::mfa->cache;
+        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($username."mfapreauth") && $cache->get($username."mfapostauth")) {
+            $cache->remove($username."mfapostauth");
+            $cache->remove($username."mfapreauth");
+            return $args->{'switch'}->returnAuthorizeVPN($args);
+        }
+    }
+
+    $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
     if ($value) {
         my $mfa = pf::factory::mfa->new($value);
         my $cache = pf::mfa->cache;
