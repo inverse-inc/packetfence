@@ -1,10 +1,7 @@
 import { BaseViewResource } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenMultiple,
   BaseFormGroupInput,
-  BaseFormGroupInputNumber,
-  BaseFormGroupInputPassword,
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'

@@ -6,7 +6,7 @@
     :isLoading="isLoading"
   >
     <div
-      class="alert alert-warning"
+      class="alert alert-warning mx-3"
     >{{ $t(`Modifying this configuration requires to restart monit using the following command: systemctl restart monit`) }}</div>
 
     <form-group-status namespace="status"
