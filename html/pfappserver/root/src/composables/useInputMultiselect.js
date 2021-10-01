@@ -158,7 +158,7 @@ export const useOptionsPromise = (optionsPromise, label) => {
     }).catch(() => {
       options.value = []
     })
-  }, { immediate: true })
+  }, { immediate: true, deep: true })
   return options
 }
 

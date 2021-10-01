@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import store from '@/store'
 import i18n from '@/utils/locale'
 import { apiFactory } from './_api'
 
@@ -166,6 +167,7 @@ const mutations = {
     state.itemStatus = types.SUCCESS
     const sortedItems = items.map(id => state.tenants[tenantId].find(tenant => tenant.id === id))
     Vue.set(state.tenants, tenantId, sortedItems)
+    store.dispatch('config/resetRealms')
   },
 
   ITEM_REQUEST: (state, type) => {
@@ -182,6 +184,7 @@ const mutations = {
     if (tenantId in state.tenants) {
       Vue.set(state.tenants, tenantId, [ ...state.tenants[tenantId].filter(tenant => tenant.id !== id), item ])
     }
+    store.dispatch('config/resetRealms')
   },
   ITEM_DESTROYED: (state, { tenantId, id }) => {
     state.itemStatus = types.SUCCESS
@@ -191,6 +194,7 @@ const mutations = {
     if (tenantId in state.tenants) {
       Vue.set(state.tenants, tenantId, state.tenants[tenantId].filter(tenant => tenant.id !== id))
     }
+    store.dispatch('config/resetRealms')
   },
   ITEM_ERROR: (state, response) => {
     state.itemStatus = types.ERROR

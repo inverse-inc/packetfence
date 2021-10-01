@@ -1458,6 +1458,11 @@ const actions = {
       return Promise.resolve(state.realms[tenantId])
     }
   },
+  resetRealms: ({ state, commit }) => {
+    if (state.realms) {
+      commit('REALMS_RESET')
+    }
+  },
   getRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingRoles) {
       return Promise.resolve(state.roles)
@@ -2086,6 +2091,9 @@ const mutations = {
   REALMS_UPDATED: (state, { tenantId, items }) => {
     Vue.set(state.realms, tenantId, items)
     state.realmsStatus = types.SUCCESS
+  },
+  REALMS_RESET: (state) => {
+    state.realms = {}
   },
   ROLES_REQUEST: (state) => {
     state.rolesStatus = types.LOADING
