@@ -374,6 +374,7 @@ sub _post_curl {
     $curl->setopt(CURLOPT_URL, $uri);
     $curl->setopt(CURLOPT_SSL_VERIFYHOST, 0);
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
+    $curl->setopt(CURLOPT_TIMEOUT_MS, 300);
 
     my $epoc = time();
     my $signature = hmac_sha256_hex($epoc, $self->signing_key);
@@ -410,6 +411,7 @@ sub _get_curl {
     $curl->setopt(CURLOPT_SSL_VERIFYPEER, 0);
     $curl->setopt(CURLOPT_HEADER, 0);
     $curl->setopt(CURLOPT_WRITEDATA,$fileb);
+    $curl->setopt(CURLOPT_TIMEOUT_MS, 300)
     my $epoc = time();
     my $signature = hmac_sha256_hex($epoc, $self->signing_key);
 
