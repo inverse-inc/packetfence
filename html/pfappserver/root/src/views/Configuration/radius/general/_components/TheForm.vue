@@ -89,7 +89,7 @@
     
     <form-group-local-auth namespace="local_auth"
       :column-label="$i18n.t('Authenticate against local users database')"
-      :text="$i18n.t('Use the local accounts in the password table to authenticate 802.1x users. Requires to have the passwords in clear text.')"
+      :text="$i18n.t('Use the local accounts in the password table to authenticate 802.1x users. Requires to have the passwords in clear text or NTLM.')"
     />
   </base-form>
 </template>
