@@ -1,42 +1,49 @@
-package pf::validator::Field::MACAddress;
+package pf::validator::Config::FloatingDevice;
 
 =head1 NAME
 
-pf::validator::Field::MACAddress -
+pf::validator::Config::FloatingDevice -
 
 =head1 DESCRIPTION
 
-pf::validator::Field::MACAddress
+pf::validator::Config::FloatingDevice
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
-extends qw(pf::validator::Field);
-use pf::util qw(valid_mac);
+use pf::validator::Moose;
+extends qw(pf::validator);
 
-sub validate_field {
-    my ($self, $ctx, $val) = @_;
-    if ($ctx->has_errors()) {
-        return;
-    }
+has_field id => (
+    type => 'MACAddress',
+    text => 'MAC Address',
+    required => 1,
+);
 
-    if (!valid_mac($val)) {
-        $ctx->add_error({ field => $self->name, message => 'must be a MAC address' });
-    }
+has_field 'ip' => (
+   type => 'IPAddress',
+   text => 'IP Address',
+);
 
-    return;
-}
+has_field 'pvid' => (
+   type => 'PosInteger',
+   text => 'Native VLAN',
+   required => 1,
+);
 
-sub additionalOptionsMeta {
-    {
-        pattern => {
-            message => "Mac Address",
-            regex   => "[0-9A-Fa-f][0-9A-Fa-f](:[0-9A-Fa-f][0-9A-Fa-f]){5}",
-        },
-    }
-}
+has_field 'trunkPort' => (
+   type => 'Bool',
+   label => 'Trunk Port',
+   true_value => 'yes',
+   false_value => 'no',
+);
+
+has_field 'taggedVlan' => (
+   type => 'String',
+   text => 'Tagged VLANs',
+);
+
 
 =head1 AUTHOR
 
@@ -66,3 +73,4 @@ USA.
 =cut
 
 1;
+

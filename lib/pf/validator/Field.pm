@@ -20,6 +20,12 @@ has name => (
     required => 1,
 );
 
+has type => (
+    isa => 'Str',
+    is  => 'ro',
+    required => 1,
+);
+
 has required => (
     isa => 'Bool',
     is  => 'ro',
@@ -35,6 +41,23 @@ has messages => (
 has text => (
     is  => 'ro',
     isa => 'Str',
+);
+
+has optionsImplied => (
+    is  => 'ro',
+);
+
+has optionsPlaceholder => (
+    is  => 'ro',
+);
+
+has optionsDefault => (
+    is  => 'ro',
+);
+
+has optionsType => (
+    is  => 'ro',
+    default => 'string',
 );
 
 sub validate {
@@ -66,6 +89,29 @@ sub _build_messages {
 }
 
 sub validate_field {}
+
+sub standardOptionsMeta {
+    my ($self) = @_;
+    return {
+        required => $self->required,
+        default => $self->optionsDefault,
+        placeholder => $self->optionsPlaceholder,
+        implied => $self->optionsImplied,
+        type => $self->optionsType,
+    }
+}
+
+sub optionsMeta {
+    my ($self) = @_;
+    return {
+        %{$self->standardOptionsMeta},
+        %{$self->additionalOptionsMeta},
+    }
+}
+
+sub additionalOptionsMeta {
+    {}
+}
 
 =head1 AUTHOR
 

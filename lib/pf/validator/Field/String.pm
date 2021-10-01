@@ -15,6 +15,10 @@ use warnings;
 use Moose;
 extends qw(pf::validator::Field);
 
+has '+optionsType' => (
+    default => 'string',
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

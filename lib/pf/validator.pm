@@ -118,6 +118,17 @@ sub _build_meta_field_list {
     return $field_list if scalar @$field_list;
 }
 
+sub optionsMeta {
+    my ($self) = @_;
+    my %meta;
+    for my $field (@{$self->fields}) {
+        my $name = $field->name;
+        $meta{$name} = $field->optionsMeta;
+    }
+
+    return \%meta;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
