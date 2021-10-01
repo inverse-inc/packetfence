@@ -182,6 +182,16 @@ systemctl disable monit || echo "Monit is not enabled or installed on this serve
 echo "Attempting to stop the monit service so it doesn't interfere with the upgrade"
 systemctl stop monit || echo "Monit is not enabled or installed on this server"
 
+sub_splitter
+echo "Stopping the PacketFence services"
+/usr/local/pf/bin/pfcmd service pf stop
+
+main_splitter
+export_to="/root/packetfence-pre-upgrade-backup-`date '+%s'`.tgz"
+echo "Generating full pre-upgrade backup to $export_to"
+/usr/local/pf/addons/backup-and-maintenance.sh
+/usr/local/pf/addons/full-import/export.sh $export_to
+
 main_splitter
 INCLUDE_OS_UPDATE="${INCLUDE_OS_UPDATE:-}"
 if [ -z "$INCLUDE_OS_UPDATE" ]; then
