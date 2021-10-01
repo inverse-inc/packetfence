@@ -37,19 +37,23 @@ SQL queries to view tables in the PacketFence database. These reports will
 appear under the _Reports_ menu of the administration
 interface.
 
-NOTE: Improperly formed reports can consume significant resources on the server. All queries should be profiled and optimized to avoid service outages when executing queries. Using `type=sql` (script/batch mode) allows increased query and transaction control. Master/Slave replication can be used to offload query execution to a read-only database that is not an active member of the cluster.
+PacketFence comes preloaded with several reports that are optimized for most common production use-cases in `reports.conf.defaults`. This file should not be modified, but can be used to provide working examples.
+
+NOTE: Improperly formed reports can consume significant resources on the server. All queries should be profiled and optimized to avoid service outages when executed. Using `type=sql` (script/batch mode) allows increased query and transaction control.
+
+TIP: Master/Slave replication can be used to offload query execution to a read-only database that is not an active member of the cluster. This will ensure that reporting does not degrade the production environment and will provide increased resources to generate the reports from large production environments.
 
 ==== Configuration Attributes
 
-In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define your report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
+In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define the report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
 
-The section identifier accepts a double colon _"::"_ and the administration interface uses them to tree structure the sidebar menu. The menu is up to 3 levels deep, so only a maximum of 2 sets of double colons can be used.
+The adminstration interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
 
-  [Grand Parent::Parent::Child]
+  [Top Category::Sub Category::Report]
 
-The following attributes are available to define your report (* mandatory attributes are marked with an asterisk): [options="compact"]
+The following attributes are available to define a report (* mandatory attributes are marked with an asterisk): [options="compact"]
 
-* `type`*: The type of report. Use `type=abstract` to use SQL Abstract and `type=sql` to use mysql script/batch mode. Each of these types have their own additional attributes which are explained in more detail below.
+* `type`*: The type of report. Use `type=abstract` to use SQL Abstract and `type=sql` to use MySQL script/batch mode. Each of these types have their own additional attributes which are explained in more detail below.
 * `description`*: A user-friendly description that provides more details about the report. Used as a title for all charts.
 * `charts`: A comma delimited list of charts to display. Each chart is displayed in its own tab above the table data. There is no limit to the number of charts that can be defined. Charts are explained in more detail below.
 * `columns`*: A comma separated list of columns or aliases that are displayed in the table from the SQL query (ex: `node.mac`, `Node MAC`). The table columns are displayed in the respective order. Columns can be aliased to a more friendly name, but these aliases must be used throughout the other attributes.
@@ -65,7 +69,7 @@ NOTE: Configuration attributes can optionally use a `columnName` reference with 
 
 When `type=abstract` PacketFence uses Perl https://metacpan.org/pod/SQL::Abstract::More[SQL::Abstract::More] to automatically build the SQL query.
 
-The following attributes are available when using `type=abstract`: [options="compact"]
+The following attributes are available when using `type=abstract`(* mandatory attributes are marked with an asterisk): [options="compact"]
 
 * `base_conditions`: A comma delimited list of conditions that is applied to the SQL query. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
 * `base_conditions_operator`: _[all|any]_ The logical SQL operator (AND|OR respectively) used with the `base_conditons`.
@@ -82,7 +86,7 @@ The following attributes are available when using `type=abstract`: [options="com
 
 WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
 
-NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
+NOTE: Prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Wrap table names and column names with backticks "``" to avoid naming issues with current and future MySQL reserved words.
 
 ===== Examples
 
@@ -140,25 +144,85 @@ NOTE: SQL execution exits on the first error and returns the result set of the l
 
 The following attributes are available when using `type=sql`: [options="compact"]
 
-* `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit). There is no limit and a binding can be repeated more than once. The available bindings are:
- ** `tenant_id`: The scoped tenant identifier of the reports' session.
- ** `start_date`, `end_date`: The start and end datetime. Formatted using _'YYYY-MM-DD HH:mm:ss'_.
- ** `cursor`: On the first page this is value from `cursor_default`. On subsequent pages the value is from the `cursor_field` column of the last result row. Use `cursor.0`, `cursor.1`, etc... with `cursor_type=multi_field`.
- ** `limit`: Is `default_limit` (+1, see pagination) unless overridden by the user.
-* `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but requires special attention in the sql script. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
- ** `cursor_type=field`: Uses a single field (column) cursor.
- ** `cursor_type=multi_field`: Uses multiple fields (columns) cursor.
- ** `cursor_type=offset`: Use offset for the cursor.
- ** `cursor_type=none`: No cursor is used for this query.
-* `cursor_default`: The default cursor used to conditionally query the results for the first page. On subsequent pages this is replaced with the results from N+1 row of the previous page, meaning the cursor for page 2 will contain the value from the column of the 26th row (with `default_limit=25`).
-* `cursor_field`: A comma delimited list of fields (columns) used to manage pagination.
+* `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit`). See Bindings below.
+* `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but its use in the `sql` requires special attention. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
+ ** `cursor_type=field`: Use a single field (column or alias) for the cursor.
+ ** `cursor_type=multi_field`: Use multiple fields (columns or aliases) for the cursor.
+ ** `cursor_type=offset`: Use integer based offset for the cursor.
+ ** `cursor_type=none`: No cursor is used.
+* `cursor_default`: The default cursor used to conditionally query the results for the first page. On subsequent pages this is replaced with the results from N+1 row of the previous page, meaning the cursor for page 2 (with `default_limit=25`) will contain the value from the column of the 26th row from the previous page.
+* `cursor_field`: A comma delimited list of fields (columns) used for pagination.
 * `default_limit`: The default limit passed into the bindings of the SQL script. When `has_limit=enabled` the reports' user can override the default with a manual selection.
+* `sql`: Either a single MySQL query, or a multi line block of statements within a heredoc (see Heredoc below).
+
+==== Bindings
+
+The `bindings` attribute defines an ordered comma delimited list of columns (or aliases) that are made available to the `sql` script. There is no limit with the number of bindings that can used and a binding can be repeated more than once.
+
+The available bindings are: [options="compact"]
+
+ ** `tenant_id`: The scoped tenant identifier of the reports' session.
+ ** `start_date`, `end_date`: The start and end datetime. Formatted as _"YYYY-MM-DD HH:mm:ss"_. Use native MySQL date functions to reformat it.
+ ** `cursor`: On the first page this value is the `cursor_default`. On subsequent pages this value is taken from the `cursor_field` column of the last result row from the previous page. When using `cursor_type=multi_field` the cursor is split into the bindings as `cursor.0`, `cursor.1`, etc.
+ ** `limit`: Uses `default_limit` (+1, see pagination) unless overridden by the user.
+
+Bindings are consumed in the `sql` using "?" in same order that they are defined.
+
+  [single binding]
+  type=sql
+  bindings=limit
+  sql=SELECT * FROM table LIMIT ?;
+  default_limit=100
+  has_limit=enabled
+
+If a binding is needed more than once within the `sql`, it can either be defined multiple times, or defined once and consumed to SET a MySQL variable.
+
+  [many bindings]
+  type=sql
+  bindings=start_date,end_date,tenant_id,start_date,end_date,limit
+  sql= << EOT
+    SELECT
+      *
+    FROM tableA
+    JOIN tableB ON tableA.id = tableB.id
+      AND date BETWEEN ? AND ?
+    WHERE tenant_id = ?
+      AND date BETWEEN ? AND ?
+    LIMIT ?;
+  EOT
+  default_limit=100
+  has_date_range=enabled
+  has_limit=enabled
+
+This can be improved as:
+
+  [many bindings]
+  type=sql
+  bindings=tenant_id,start_date,end_date,limit
+  sql= << EOT
+  BEGIN NOT ATOMIC
+    SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+    SELECT
+      *
+    FROM tableA
+    JOIN tableB ON tableA.id = tableB.id
+      AND date BETWEEN @START_DATE AND @END_DATE
+    WHERE tenant_id = @TENANT_ID
+      AND date BETWEEN @START_DATE AND @END_DATE
+    LIMIT ?;
+  END;
+  EOT
+  default_limit=100
+  has_date_range=enabled
+  has_limit=enabled
+
+NOTE: MySQL LIMIT will not accept a variable (`LIMIT @LIMIT`). A best practive is to always pass limit as the last field in `bindings` and to simply consume it at the end of the script (`LIMIT ?`) as shown in the last example above.
 
 ==== Pagination
 
-Pagination is supported through the use of the `cursor_type`, `cursor_default`, `cursor_field`, `bindings` and `sql` attributes. Pagination supports the use of one to many columns. Special attention must be given to the order of the final result set in order to utilize the cursor properly. Symptoms of too few pages, or infinite loops through subsequent pages are signs of a mismatched cursor and result ordering.
+Pagination is supported through the use of the `cursor_type`, `cursor_default`, `cursor_field`, `bindings` and `sql` attributes. Pagination supports the use of one to many columns. Special attention must be given to the order of the final result set in order to utilize the cursor properly. Symptoms of too few pages, or infinite loops through subsequent pages are signs of a mismatched cursor and/or query results order.
 
-The `limit` binding always has +1 added to it, and PacketFence consumes the extra row to determine the cursor for the following page. Due to this all conditional statements must be inclusive (ex: Bad operators "<, >", Good operators: "<=, >="). If the column value is not unique then `cursor_type=multi_field` should be used instead to avoid infinite loops.
+The `limit` binding always has +1 added to it as PacketFence always consumes an extra row to determine the cursor for the following page. Due to this all conditional statements must be inclusive (ex: Bad operators "<, >", Good operators: "<=, >="). If the column value is not unique then `cursor_type=multi_field` should be used instead to avoid infinite loops.
 
 Examples of a single column cursor:
 
@@ -195,35 +259,38 @@ Example of a multi column cursor:
     FROM ip4log
     INNER JOIN node
       ON ip4log.mac = node.mac
-    WHERE ip4log.start_time > ?
-      AND node.mac > ?
+    WHERE ip4log.start_time >= ?
+      AND node.mac >= ?
     ORDER BY ip4log.start_time, node.mac
     LIMIT ?;
   EOT
   columns=mac
   bindings=cursor.0,cursor.1,limit
   cursor_type=multi_field
-  cursor_field=
+  cursor_field=start_time,mac
   default_cursor=0000-00-00 00:00:00:00,00:00:00:00:00:00
 
 ==== Charts
 
-Charts are defined as a comma delimited list using the `chart` attribute. A pipe (vertical-bar) `|` is used to delimit the chart type and the fields. A colon is used to delimit the fields. The general syntax is:
+Charts are defined as a comma delimited list using the `chart` attribute. A pipe (vertical-bar) `|` is used to delimit the chart type and the fields. A colon is used to delimit each of the fields (optional). The general syntax is:
 
-  `charts=[pie,bar,parallel,scatter] | [[field] : ...] , ...`
+  charts=[pie,bar,parallel,scatter] | field1[...:fieldN]
 
 There are 4 types of charts available: [options="compact"]
 
-* `pie`: A pie chart with 2 dimensions. Must contain 2 fields:
-  * `field0`: The dimensions label.
-  * `field1`: The dimensions value.
-* `bar`: A bar chart with 2 dimensions. Must contain 2 fields:
-  * `field0`: The dimensions label.
-  * `field1`: The dimensions value.
-* `parallel`: A parallel category (sankey) diagram with 2+ dimensions. Must contain 3+ fields:
-  * `fieldN`: The N dimensions label of 2+ fields. A category is created for each field and order is maintained. The palette is applied to the last field (right-most).
-  * `fieldLast`: The last field always contains the dimensions value.
-* `scatter`: A date/time based line graph with 1+ dimensions. The date/time column is always defined in the first field and the query should return this in _'YYYY-MM-DD HH:mm:ss'_ format. When only one field is defined then a value of 1 is implied for each row. If 2 fields are defined then the 2nd field is used as the dimensions value. The query results are automatically aggregated to produce dimensions for several terms (year/month/week/day/hour/minute). When 3 or more fields are defined the automatic aggregration is disabled and the fields are all used in their own dimension.
+* `pie`: A pie chart with 2 dimensions. Must contain 2 fields (`charts=pie|field1:field2`):
+  ** `field0`: The dimensions label.
+  ** `field1`: The dimensions value.
+* `bar`: A bar chart with 2 dimensions. Must contain 2 fields (`charts=bar|field1:field2`):
+  ** `field0`: The dimensions label.
+  ** `field1`: The dimensions value.
+* `parallel`: A parallel category (sankey) diagram with 2+ dimensions. Must contain 3+ fields (`charts=parallel|field1:field2:field3[...:fieldN]`):
+  ** `fieldN`: The N dimensions label of 2+ fields. A category is created for each field and order is maintained. The palette is applied to the last field (right-most).
+  ** `fieldLast`: The last field always contains the dimensions value.
+* `scatter`: A date/time based line graph with 1+ dimensions. The date/time column is always defined in the first field and the query should return this using the _"YYYY-MM-DD HH:mm:ss"_ format.
+  ** When only one field is defined (`charts=scatter|field1`) then a value of 1 is implied for each row.
+  ** When 2 fields are defined (`charts=scatter|field1:field2`) then the 2nd field is used as the dimensions value. The query results are automatically aggregated to produce dimensions for several terms (year/month/week/day/hour/minute).
+  ** When 3+ fields are defined (`charts=scatter|field1:field2:field3[...:fieldN]`) the automatic aggregration is disabled and a dimension is used for each field.
 
 NOTE: All charts use the same color palette to provide a visual continuity.
 
@@ -258,10 +325,9 @@ Heredoc supports multiple SQL statements. When running multiple statements they 
 
 ==== Troubleshooting
 
-* If the API request returns an error or an empty response  grep the `packetfence.log` to obtain the full error message.
-* SQL scripts are transactional. After the script is run any variables or stored procedures created, or temporary tables created are destroyed. Any locks obtained are released.
+* If the API request returns an error or an empty response refer to the `packetfence.log` to obtain the full MySQL error message.
+* SQL scripts are transactional. After the script is run any variables or stored procedures created or temporary tables created are destroyed. Any locks obtained are released.
 * Modification to the configuration file only requires a `/usr/local/pf/bin/pfcmd configreload hard` for the changes to take effect. The administration interface will begin using the new script on its next request.
-* Section identifiers categorize the sidebar menu in the administration interface in a tree-like structure. All reports must be named uniquely and any identifier reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a tree placeholder if [A::B::*] is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
 
 === Admin Access
 
