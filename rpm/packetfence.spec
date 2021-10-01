@@ -639,9 +639,6 @@ fi
 echo "Downloading the monitoring scripts signing key"
 gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
 
-# Allow the pf group to write the logs for the monitoring scripts
-chmod g+w /usr/local/pf/logs/*
-
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
