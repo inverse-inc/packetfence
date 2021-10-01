@@ -188,7 +188,7 @@ const api = {
     return apiCall({ url: 'config/sources', method: 'get', params: { limit: 1000 } })
   },
   getSsids () {
-    return apiCall({ url: 'reports/ssid', method: 'get' })
+    return apiCall({ url: 'locationlogs/ssids', method: 'get' })
   },
   getSwitches () {
     return apiCall({ url: 'config/switches', method: 'get', params: { limit: 1000, raw: 1 } })
@@ -663,9 +663,9 @@ const getters = {
       return { value: item.id, text: ((item.description) ? `${item.id} - ${item.description}` : `${item.id}`) }
     })
   },
-  ssidsList: state => { // TODO - replace once `config/ssid` endpoint is available
+  ssidsList: state => {
     if (!state.ssids) return []
-    return state.ssids.filter(item => item.ssid !== 'Total').map((item) => {
+    return state.ssids.map((item) => {
       return { value: item.ssid, text: item.ssid }
     })
   },
