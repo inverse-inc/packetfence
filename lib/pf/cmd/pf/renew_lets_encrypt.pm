@@ -157,7 +157,7 @@ sub renew_lets_encrypt {
         foreach my $service (@{$config->{restart_services}}) {
             my $class = $pf::services::ALL_MANAGERS{$service};
             # Skip services that aren't enabled
-            unless($class) {
+            unless($class->isEnabled()) {
                 $self->print_and_record("-- Not restarting $service because its not enabled\n");
                 next;
             }
