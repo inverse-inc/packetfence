@@ -20,12 +20,6 @@ has name => (
     required => 1,
 );
 
-has type => (
-    isa => 'Str',
-    is  => 'ro',
-    required => 1,
-);
-
 has required => (
     isa => 'Bool',
     is  => 'ro',
