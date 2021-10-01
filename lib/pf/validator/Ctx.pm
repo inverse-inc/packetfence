@@ -15,24 +15,26 @@ use warnings;
 use Moose;
 
 has errors => (
-    traits    => ['Array'],
-    is        => 'rw',
-    isa       => 'ArrayRef',
-    handles   => {
-        add_error  => 'push',
-        has_errors => 'count',
+    traits  => ['Array'],
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    handles => {
+        add_error    => 'push',
+        add_errors   => 'push',
+        has_errors   => 'count',
         clear_errors => 'clear',
     },
     default => sub { [] },
 );
 
 has warnings => (
-    traits    => ['Array'],
-    is        => 'rw',
-    isa       => 'ArrayRef',
-    handles   => {
-        add_warning  => 'push',
-        has_warnings => 'count',
+    traits  => ['Array'],
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    handles => {
+        add_warning    => 'push',
+        add_warnings   => 'push',
+        has_warnings   => 'count',
         clear_warnings => 'clear',
     },
     default => sub { [] },
@@ -45,6 +47,12 @@ sub reset {
     }
 
     return;
+}
+
+sub merge {
+    my ($self, $ctx) = @_;
+    $self->add_warnings(@{$ctx->warnings // []});
+    $self->add_errors(@{$ctx->errors // []});
 }
 
 =head1 AUTHOR
