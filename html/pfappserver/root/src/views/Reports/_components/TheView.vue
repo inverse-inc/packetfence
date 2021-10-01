@@ -19,7 +19,7 @@
           card lazy>
           <b-tab v-for="chart in charts" :key="chart">
             <template #title>
-              <icon :name="chartIcon(chart)" scale="1.25" />
+              {{ chartName(chart) }} <icon :name="chartIcon(chart)" scale="1.25" class="mx-1" />
             </template>
             <component
               :is="chartComponent(chart)"
@@ -151,36 +151,45 @@ const setup = (props, context) => {
     return charts
   })
   const chartComponent = chart => {
-    const [ type ] = chart.split('|')
-    switch (type) {
-      case 'bar':
+    const [ typeName ] = chart.split('|')
+    const [ type ] = typeName.split('@')
+    switch (true) {
+      case /^bar/.test(type):
         return BaseChartBar
-      case 'pie':
+      case /^pie/.test(type):
         return BaseChartPie
-      case 'parallel':
+      case /^parallel/.test(type):
         return BaseChartParallel
-      case 'scatter':
+      case /^scatter/.test(type):
         return BaseChartScatter
     }
   }
+  const chartName = chart => {
+    const [ typeName ] = chart.split('|')
+    const { length, [1]: name } = typeName.split('@')
+    if (length)
+      return name
+  }
   const chartProps = chart => {
     const { 1: fields = '' } = chart.split('|')
+    const title = chartName(chart) || description.value
     return {
       fields,
       meta,
-      report
+      report,
+      title
     }
   }
   const chartIcon = chart => {
     const [ type ] = chart.split('|')
-    switch (type) {
-      case 'bar':
+    switch (true) {
+      case /^bar/.test(type):
         return 'chart-bar'
-      case 'pie':
+      case /^pie/.test(type):
         return 'chart-pie'
-      case 'parallel':
+      case /^parallel/.test(type):
         return 'chart-line'
-      case 'scatter':
+      case /^scatter/.test(type):
         return 'chart-line'
     }
   }
@@ -199,6 +208,7 @@ const setup = (props, context) => {
 
     charts,
     chartComponent,
+    chartName,
     chartProps,
     chartIcon
   }

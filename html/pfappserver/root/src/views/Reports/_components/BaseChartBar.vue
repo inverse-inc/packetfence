@@ -37,6 +37,9 @@ const props = {
   },
   report: {
     type: Object
+  },
+  title: {
+    type: String
   }
 }
 
@@ -54,20 +57,22 @@ const setup = props => {
   const {
     fields,
     meta,
-    report
+    report,
+    title
   } = toRefs(props)
 
   const field = computed(() => fields.value.split(':')[0])
   const count = computed(() => fields.value.split(':')[1])
-  const title = computed(() => {
-    let { description, has_date_range, start_date, end_date } = meta.value
+  const titleWithDates = computed(() => {
+    let { has_date_range, start_date, end_date } = meta.value
+    let _title = title.value
     if (has_date_range) {
       if (start_date)
-        description += ` from ${start_date}`
+        _title += ` from ${start_date}`
       if (end_date)
-        description += ` to ${end_date}`
+        _title += ` to ${end_date}`
     }
-    return description
+    return _title
   })
 
   const plotlyRef = ref(null)
@@ -103,7 +108,7 @@ const setup = props => {
     }
     options.marker = { ...options.marker, color }
     const data = [{ x, y, ...options }]
-    plotly.react(plotlyRef.value, data, { ...layout, title: title.value }, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    plotly.react(plotlyRef.value, data, { ...layout, title: titleWithDates.value }, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)

@@ -732,6 +732,7 @@ date_field=start_time
 #base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
 node_fields=MAC Address
+charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
 
 [Ip4Log::History]
 type=abstract
@@ -747,6 +748,7 @@ date_field=start_time
 base_conditions_operator=all
 node_fields=MAC Address
 order_fields=-ip4log_history.start_time
+charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
 
 [Node::Active]
 type=sql
