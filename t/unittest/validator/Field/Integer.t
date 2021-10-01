@@ -14,6 +14,7 @@ use strict;
 use warnings;
 
 our @RangeTests;
+our @OptionsTest;
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
@@ -57,6 +58,44 @@ BEGIN {
             msg => '7 is not higher than 6',
         },
     );
+
+    @OptionsTest = (
+        {
+            new => [ name => 'int'],
+            out => {
+                    default     => undef,
+                    implied     => undef,
+                    placeholder => undef,
+                    required => 0,
+                    type => "integer",
+            },
+            msg => 'Message options',
+        },
+        {
+            new => [ name => 'int', range_start => 9],
+            out => {
+                    default     => undef,
+                    implied     => undef,
+                    placeholder => undef,
+                    min_value   => 9,
+                    required => 0,
+                    type => "integer",
+            },
+            msg => 'Message options min_value = 9',
+        },
+        {
+            new => [ name => 'int', range_end => 10],
+            out => {
+                    default     => undef,
+                    implied     => undef,
+                    placeholder => undef,
+                    max_value   => 10,
+                    required => 0,
+                    type => "integer",
+            },
+            msg => 'Message options max_value = 10',
+        },
+    );
 }
 
 {
@@ -68,7 +107,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 6 + scalar @RangeTests;
+use Test::More tests => 6 + scalar @RangeTests + scalar @OptionsTest;
 
 #This test will running last
 use Test::NoWarnings;
@@ -106,6 +145,17 @@ use Test::NoWarnings;
         my $f = pf::validator::Field::Integer->new(@{$t->{new}});
         $f->test_ranges($ctx, $t->{in});
         is_deeply ($ctx->errors, $t->{out}, $t->{msg});
+    }
+}
+#Options test
+{
+    for my $t ( @OptionsTest ) {
+        my $f = pf::validator::Field::Integer->new(@{$t->{new}});
+        is_deeply (
+            $f->optionsMeta(),
+            $t->{out},
+            $t->{msg}
+        );
     }
 }
 

@@ -15,6 +15,10 @@ use warnings;
 use Moose;
 extends qw(pf::validator::Field);
 
+has '+optionsType' => (
+    default => 'integer',
+);
+
 has 'range_start' => (
     isa => 'Int|Undef',
     is => 'ro',
@@ -67,6 +71,22 @@ sub validate_field {
     }
 
     return;
+}
+
+sub additionalOptionsMeta {
+    my ($self) = @_;
+    my $o      = $self->SUPER::additionalOptionsMeta();
+    my $low    = $self->range_start;
+    my $high   = $self->range_end;
+    if (defined $low) {
+        $o->{min_value} = $low;
+    }
+
+    if (defined $high) {
+        $o->{max_value} = $high;
+    }
+
+    return $o;
 }
 
 =head1 AUTHOR
