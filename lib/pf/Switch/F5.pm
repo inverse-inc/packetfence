@@ -79,7 +79,7 @@ sub parseExternalPortalRequest {
         $switch_id = $req->param('conf_id');
     } else {
         my $uri = URI->new($req->param('post_url'));
-        $switch_id = $uri->host();
+        $switch_id = $uri ? $uri->host() : undef;
     }
 
     %params = (
