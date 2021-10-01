@@ -3,9 +3,8 @@
 # This file is manipulated on PacketFence's startup before being given to iptables
 *filter
 
-%%input_include%%
-
 ### INPUT ###
+%%input_include%%
 :INPUT DROP [0:0]
 # accept loopback stuff
 -A INPUT --in-interface lo --jump ACCEPT
