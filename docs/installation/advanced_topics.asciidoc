@@ -41,13 +41,13 @@ PacketFence comes preloaded with several reports that are optimized for most com
 
 NOTE: Improperly formed reports can consume significant resources on the server. All queries should be profiled and optimized to avoid service outages when executed. Using `type=sql` (script/batch mode) allows increased query and transaction control.
 
-TIP: Master/Slave replication can be used to offload query execution to a read-only database that is not an active member of the cluster. This will ensure that reporting does not degrade the production environment and will provide increased resources to generate the reports from large production environments.
+TIP: Master/Slave replication can be used to offload query execution to a read-only database that is not an active member of the cluster. This will ensure that reporting does not degrade the production environment and will provide increased resources to generate the reports.
 
 ==== Configuration Attributes
 
 In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define the report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
 
-The adminstration interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
+The administration interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
 
   [Top Category::Sub Category::Report]
 
@@ -166,7 +166,7 @@ The available bindings are: [options="compact"]
  ** `cursor`: On the first page this value is the `cursor_default`. On subsequent pages this value is taken from the `cursor_field` column of the last result row from the previous page. When using `cursor_type=multi_field` the cursor is split into the bindings as `cursor.0`, `cursor.1`, etc.
  ** `limit`: Uses `default_limit` (+1, see pagination) unless overridden by the user.
 
-Bindings are consumed in the `sql` using "?" in same order that they are defined.
+Bindings are consumed in the `sql` using "?" in the same order that they are defined.
 
   [single binding]
   type=sql
@@ -216,7 +216,7 @@ This can be improved as:
   has_date_range=enabled
   has_limit=enabled
 
-NOTE: MySQL LIMIT will not accept a variable (`LIMIT @LIMIT`). A best practive is to always pass limit as the last field in `bindings` and to simply consume it at the end of the script (`LIMIT ?`) as shown in the last example above.
+NOTE: MySQL LIMIT will not accept a variable (`LIMIT @LIMIT`). A best practice is to always pass limit as the last field in `bindings` and to simply consume it at the end of the script (`LIMIT ?`) as shown in the last example above.
 
 ==== Pagination
 
@@ -290,7 +290,7 @@ There are 4 types of charts available: [options="compact"]
 * `scatter`: A date/time based line graph with 1+ dimensions. The date/time column is always defined in the first field and the query should return this using the _"YYYY-MM-DD HH:mm:ss"_ format.
   ** When only one field is defined (`charts=scatter|field1`) then a value of 1 is implied for each row.
   ** When 2 fields are defined (`charts=scatter|field1:field2`) then the 2nd field is used as the dimensions value. The query results are automatically aggregated to produce dimensions for several terms (year/month/week/day/hour/minute).
-  ** When 3+ fields are defined (`charts=scatter|field1:field2:field3[...:fieldN]`) the automatic aggregration is disabled and a dimension is used for each field.
+  ** When 3+ fields are defined (`charts=scatter|field1:field2:field3[...:fieldN]`) the automatic aggregation is disabled and a dimension is used for each field.
 
 NOTE: All charts use the same color palette to provide a visual continuity.
 
