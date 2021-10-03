@@ -31,8 +31,6 @@ has 'config_store_class';
 has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Config";
 
-our %FORMS;
-
 sub search {
     my ($self) = @_;
     my ($status, $search_info_or_error) = $self->build_search_info;
