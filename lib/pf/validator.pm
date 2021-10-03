@@ -45,14 +45,16 @@ sub validate {
         return;
     }
 
+    my $sub_ctx = pf::validator::Ctx->new();
     for my $field (@{$self->fields}) {
+        $sub_ctx->reset;
         my $name = $field->name;
         my $field_val;
         if (exists $value->{$name}) {
             $field_val = $value->{$name};
         }
-
-        $field->validate($ctx, $field_val);
+        $field->validate($sub_ctx, $field_val);
+        $ctx->merge($sub_ctx);
     }
 
     return;
