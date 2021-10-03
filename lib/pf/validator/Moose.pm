@@ -35,7 +35,7 @@ sub init_meta {
 }
 
 sub has_field {
-	my ($meta, $name, %options) = @_;
+    my ($meta, $name, %options) = @_;
     unless ($meta->found_pfv) {
         my @linearized_isa = $meta->linearized_isa;
         if (!grep { $_ eq 'pf::validator' } @linearized_isa) {
@@ -45,7 +45,7 @@ sub has_field {
         $meta->found_pfv(1);
     }
     my $names = ( ref($name) eq 'ARRAY' ) ? $name : [ ($name) ];
-	$meta->add_to_field_list( { name => $_, %options } ) for @$names;
+    $meta->add_to_field_list( { name => $_, %options } ) for @$names;
 }
 
 =head1 AUTHOR
