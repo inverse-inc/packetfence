@@ -98,6 +98,7 @@ BEGIN {
     );
 }
 
+
 {
     package validInt;
     use pf::validator::Moose;

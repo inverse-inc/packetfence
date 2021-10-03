@@ -70,6 +70,7 @@ sub validate_field {
         $ctx->add_error({ field => $self->name, message => 'must be an Integer' });
     }
 
+    $self->test_ranges($ctx, $val);
     return;
 }
 
@@ -117,4 +118,3 @@ USA.
 =cut
 
 1;
-

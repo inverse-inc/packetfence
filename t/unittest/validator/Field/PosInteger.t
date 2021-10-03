@@ -13,11 +13,40 @@ unit test for IPAddress
 use strict;
 use warnings;
 
+our @OptionsTests;
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+
+    @OptionsTests = (
+        {
+            new => [ name => 'int' ],
+            out => {
+                    default     => undef,
+                    implied     => undef,
+                    placeholder => undef,
+                    min_value   => 0,
+                    required => 0,
+                    type => "integer",
+            },
+            msg => 'Message options max_value = 10',
+        },
+        {
+            new => [ name => 'int', range_end => 10],
+            out => {
+                    default     => undef,
+                    implied     => undef,
+                    placeholder => undef,
+                    min_value   => 0,
+                    max_value   => 10,
+                    required => 0,
+                    type => "integer",
+            },
+            msg => 'Message options max_value = 10',
+        },
+    );
 }
 
 {
@@ -29,7 +58,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 6;
+use Test::More tests => 6 + scalar @OptionsTests;
 
 #This test will running last
 use Test::NoWarnings;
@@ -45,12 +74,12 @@ use Test::NoWarnings;
     $ctx->reset();
     $v->validate($ctx, { int => "-1" });
     $errors = $ctx->errors;
-    is_deeply ($errors, [{ field => 'int' }], "Valid Integer");
+    is_deeply ($errors, [{ field => 'int', message => 'must be a Postive Integer' }], "Valid Integer");
 
     $ctx->reset();
     $v->validate($ctx, { int => "-10" });
     $errors = $ctx->errors;
-    is_deeply ($errors, [{ field => 'int' }], "Valid Integer");
+    is_deeply ($errors, [{ field => 'int', message => 'must be a Postive Integer' }], "Valid Integer");
 
     $ctx->reset();
     $v->validate($ctx, { int => "+10" });
@@ -60,7 +89,18 @@ use Test::NoWarnings;
     $ctx->reset();
     $v->validate($ctx, { int => "asas" });
     $errors = $ctx->errors;
-    is_deeply ($errors, [{ field => 'int', message => 'must be an Integer' }], "Has errors int");
+    is_deeply ($errors, [{ field => 'int', message => 'must be a Postive Integer' }], "Has errors int");
+}
+#Options test
+{
+    for my $t ( @OptionsTests ) {
+        my $f = pf::validator::Field::PosInteger->new(@{$t->{new}});
+        is_deeply (
+            $f->optionsMeta(),
+            $t->{out},
+            $t->{msg}
+        );
+    }
 }
 
 =head1 AUTHOR
