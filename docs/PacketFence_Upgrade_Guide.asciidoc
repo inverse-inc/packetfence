@@ -1672,6 +1672,33 @@ The WMI scan engines have been deprecated. If you previously used these scan eng
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Support of custom rules in iptables.conf
+
+PacketFence now provides a way to add custom rules in [filename]`/usr/local/pf/conf/iptables.conf` using two files:
+
+* [filename]`/usr/local/pf/conf/iptables-input.conf.inc` for all input traffic
+* [filename]`/usr/local/pf/conf/iptables-input-management.conf.inc` for all input traffic related to management interface
+
+If you previously added custom rules in `iptables.conf`, we recommend you to move these rules into these files.
+
+=== Support of local authentication for 802.1X in web admin
+
+PacketFence now allow to enable or disable local authentication for 802.1X directly in web admmin.
+
+If you previously enabled `packetfence-local-auth` feature in
+[filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`, we recommend you to
+enable this feature in PacketFence web admin (see
+<<PacketFence_Installation_Guide.asciidoc#_eap_local_user_authentication,EAP
+local user authentication>>).
+
+
+=== Support of Monit configuration in pf.conf
+
+Monit configuration is now managed directly in
+[filename]`/usr/local/pf/conf/pf.conf`. An upgrade script will be used during
+upgrade process to automatically migrate existing Monit configuration into
+[filename]`/usr/local/pf/conf/pf.conf`.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
