@@ -68,6 +68,10 @@ install: build
 	# packetfence-upgrade package
 	make -C addons/full-upgrade DESTDIR=$(CURDIR)/debian/packetfence-upgrade install
 
+	# packetfence-archive-keyring package
+	install -d $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
+	cp debian/keyrings/monitoring-scripts-keyring.gpg $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
+
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \

@@ -190,6 +190,11 @@ Description: PacketFence upgrade files
  PacketFence upgrade files. This package contains all files related to upgrade mechanism.
  This package should only be installed on releases after v11.
 
+Package: packetfence-archive-keyring
+Architecture: all
+Description: GPG keys provided by PacketFence project
+ GPG keys provided by PacketFence project.
+
 Package: packetfence-pfcmd-suid
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
