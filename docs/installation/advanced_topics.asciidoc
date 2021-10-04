@@ -51,8 +51,9 @@ The administration interface builds the structured menu by splitting and separat
 
   [Top Category::Sub Category::Report]
 
-The following attributes are available to define a report (* mandatory attributes are marked with an asterisk): [options="compact"]
+The following attributes are available to define a report (* mandatory attributes are marked with an asterisk):
 
+[options="compact"]
 * `type`*: The type of report. Use `type=abstract` to use SQL Abstract and `type=sql` to use MySQL script/batch mode. Each of these types have their own additional attributes which are explained in more detail below.
 * `description`*: A user-friendly description that provides more details about the report. Used as a title for all charts.
 * `charts`: A comma delimited list of charts to display. Each chart is displayed in its own tab above the table data. There is no limit to the number of charts that can be defined. Charts are explained in more detail below.
@@ -71,8 +72,9 @@ NOTE: Configuration attributes can optionally use a `columnName` reference with 
 
 When `type=abstract` PacketFence uses Perl https://metacpan.org/pod/SQL::Abstract::More[SQL::Abstract::More] to automatically build the SQL query.
 
-The following attributes are available when using `type=abstract`(* mandatory attributes are marked with an asterisk): [options="compact"]
+The following attributes are available when using `type=abstract`(* mandatory attributes are marked with an asterisk):
 
+[options="compact"]
 * `base_conditions`: A comma delimited list of conditions that is applied to the SQL query. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
 * `base_conditions_operator`: _[all|any]_ The logical SQL operator (AND|OR respectively) used with the `base_conditons`.
 * `base_table`*: The base SQL table used in the SQL query.
@@ -81,7 +83,6 @@ The following attributes are available when using `type=abstract`(* mandatory at
 * `joins` : The table(s), columns and aliases used to join on the `base_table`. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation]. This attribute supports multi line blocks (heredoc), see below.
 * `order_fields`: A comma delimited list of fields (columns) used to order the SQL query. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
 * `searches`: A comma delimited list of searchable fields (columns) that are presented to the reports' user. This allows the user to optionally include additional criteria for the query. Each item is defined as "`type`:`Friendly Name`:`tableName`.`columnName`" (ex: `searches=string:Owner:person.pid,string:Node:node.mac`). Currently only the type _string_ is supported.
-[options="compact"]
 ** `type` defines the type of the search, the only one currently supported is `string`.
 ** `Display Name` is the user-friendly name of the field for display.
 ** `field` is the SQL name of the field to search
@@ -144,8 +145,9 @@ Multiline block (heredoc) is required when executing multiple statements. Each s
 
 NOTE: SQL execution exits on the first error and returns the result set of the last successful statement.
 
-The following attributes are available when using `type=sql`: [options="compact"]
+The following attributes are available when using `type=sql`:
 
+[options="compact"]
 * `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit`). See Bindings below.
 * `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but its use in the `sql` requires special attention. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
  ** `cursor_type=field`: Use a single field (column or alias) for the cursor.
@@ -161,8 +163,9 @@ The following attributes are available when using `type=sql`: [options="compact"
 
 The `bindings` attribute defines an ordered comma delimited list of columns (or aliases) that are made available to the `sql` script. There is no limit with the number of bindings that can used and a binding can be repeated more than once.
 
-The available bindings are: [options="compact"]
+The available bindings are:
 
+[options="compact"]
  ** `tenant_id`: The scoped tenant identifier of the reports' session.
  ** `start_date`, `end_date`: The start and end datetime. Formatted as _"YYYY-MM-DD HH:mm:ss"_. Use native MySQL date functions to reformat it.
  ** `cursor`: On the first page this value is the `cursor_default`. On subsequent pages this value is taken from the `cursor_field` column of the last result row from the previous page. When using `cursor_type=multi_field` the cursor is split into the bindings as `cursor.0`, `cursor.1`, etc.
@@ -278,8 +281,9 @@ Charts are defined as a comma delimited list using the `chart` attribute. An opt
 
   charts=[pie,bar,parallel,scatter] [@ Chart Name] | field1 [:fieldN:...]
 
-There are 4 types of charts available: [options="compact"]
+There are 4 types of charts available:
 
+[options="compact"]
 * `pie`: A pie chart with 2 dimensions. Must contain 2 fields (`charts=pie|field1:field2`):
   ** `field0`: The dimensions label.
   ** `field1`: The dimensions value.
