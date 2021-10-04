@@ -621,9 +621,9 @@ echo "Disabling emergency error logging to the console"
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-    /usr/local/pf/bin/pfcmd fixpermissions
 fi
 
+/usr/local/pf/bin/pfcmd fixpermissions
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
