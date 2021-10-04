@@ -44,6 +44,15 @@ has_field 'cache_duration' =>
    },
   );
 
+has_field 'post_mfa_validation_cache_duration' =>
+  (
+   type => 'Duration',
+   default => {
+    interval => 5,
+    unit => 's',
+   },
+  );
+
 has_field 'split_char' =>
   (
    type => 'Text',
@@ -54,7 +63,7 @@ has_field 'split_char' =>
 
 has_block 'definition' =>
   (
-   render_list => [ qw(id cache_duration split_char) ],
+   render_list => [ qw(id cache_duration post_mfa_validation_cache_duration split_char) ],
   );
 
 =head2 options_type

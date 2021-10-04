@@ -45,6 +45,11 @@
       :text="$i18n.t('The duration that is used to cache the MFA information. This should approximately represent the time for the user to complete the authentication.')"
     />
 
+    <form-group-post-mfa-validation-cache-duration namespace="post_mfa_validation_cache_duration"
+      :column-label="$i18n.t('Post MFA Validation Cache Duration')"
+      :text="$i18n.t('The duration time to keep the information the user did validate the MFA authentication (represent the time between the portal validation and the next RADIUS request).')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -59,6 +64,7 @@ import {
   FormGroupRadiusMfaMethod,
   FormGroupSplitChar,
   FormGroupCacheDuration,
+  FormGroupPostMfaValidationCacheDuration,
 } from './'
 
 const components = {
@@ -72,7 +78,8 @@ const components = {
   FormGroupCallbackUrl,
   FormGroupRadiusMfaMethod,
   FormGroupSplitChar,
-  FormGroupCacheDuration
+  FormGroupCacheDuration,
+  FormGroupPostMfaValidationCacheDuration
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

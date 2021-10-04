@@ -441,7 +441,7 @@ sub verify_response {
     my $response = decode_json($token->{payload});
     if ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username) {
         #MFA verification success
-        cache->set($username."mfapostauth", $TRUE, 5);
+        cache->set($username."mfapostauth", $TRUE, normalize_time($self->post_mfa_validation_cache_duration));
         return $TRUE;
     }
     return ($response->{response}->{result} eq "ALLOW" && $response->{response}->{username} eq $username);
@@ -476,6 +476,7 @@ sub redirect_info {
     };
     # Set in the cache that the user did the redirection on Akamai MFA
     cache->set($username."mfapreauth", $TRUE, normalize_time($self->cache_duration) * 2);
+    cache->set($username."mfapostauth", $FALSE, normalize_time($self->cache_duration) * 2);
     return {
         challenge_url => $self->proto."://" . $self->host . "/api/v1/bind/challenge/v2",
         challenge_verb => "POST",

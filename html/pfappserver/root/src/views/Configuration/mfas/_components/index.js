@@ -25,6 +25,7 @@ export {
   BaseFormGroupInput                  as FormGroupCallbackUrl,
   BaseFormGroupInput                  as FormGroupSplitChar,
   BaseFormGroupIntervalUnit           as FormGroupCacheDuration,
+  BaseFormGroupIntervalUnit           as FormGroupPostMfaValidationCacheDuration,
 
   TheForm,
   TheView

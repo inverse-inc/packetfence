@@ -1058,6 +1058,9 @@ sub mfa_pre_auth {
             $cache->remove($username."mfapreauth");
             return $args->{'switch'}->returnAuthorizeVPN($args);
         }
+        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($username."mfapreauth") && !$cache->get($username."mfapostauth")) {
+            return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA portal verification failed") ];
+        }
     }
 
     $value = $matched->{values}{$Actions::TRIGGER_RADIUS_MFA} if $matched;
