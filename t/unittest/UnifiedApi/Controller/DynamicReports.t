@@ -52,6 +52,7 @@ $t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')->status_is(200)
                     is_person => $false,
                     is_node   => $true,
                     is_role   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'IP',
@@ -59,6 +60,7 @@ $t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')->status_is(200)
                     is_person => $false,
                     is_node   => $false,
                     is_role   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'Start time',
@@ -66,6 +68,7 @@ $t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')->status_is(200)
                     is_person => $false,
                     is_node   => $false,
                     is_role   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'End time',
@@ -73,13 +76,17 @@ $t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')->status_is(200)
                     is_person => $false,
                     is_node   => $false,
                     is_role   => $false,
+                    is_cursor => $false,
                 },
             ],
             has_date_range => $true,
             has_cursor     => $true,
             has_limit      => $true,
             description => 'IP address archive of the devices on your network when enabled (see Maintenance section)',
-            charts => [],
+            charts => [
+                'scatter@Ip4Log Start Time|Start time',
+                'scatter@Ip4Log End Time|End time',
+            ],
         },
         status => 200,
     }
@@ -90,7 +97,7 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active')
   ->json_is(
     {
         report_meta => {
-            charts => [],
+            charts => ['scatter|regdate'],
             query_fields => [ ],
             columns => [
                 {
@@ -98,98 +105,112 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active')
                     name      => 'mac',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $true
+                    is_node   => $true,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'ip',
                     name      => 'ip',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'start_time',
                     name      => 'start_time',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'pid',
                     name      => 'pid',
                     is_role   => $false,
                     is_person => $true,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'detect_date',
                     name      => 'detect_date',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'regdate',
                     name      => 'regdate',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'lastskip',
                     name      => 'lastskip',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'status',
                     name      => 'status',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'user_agent',
                     name      => 'user_agent',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'computername',
                     name      => 'computername',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'notes',
                     name      => 'notes',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'last_arp',
                     name      => 'last_arp',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'last_dhcp',
                     name      => 'last_dhcp',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
                 {
                     text      => 'os',
                     name      => 'os',
                     is_person => $false,
                     is_role   => $false,
-                    is_node   => $false
+                    is_node   => $false,
+                    is_cursor => $false,
                 },
               ],
             has_date_range => $false,

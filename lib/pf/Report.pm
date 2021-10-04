@@ -96,6 +96,7 @@ sub validate_options {
 sub meta_for_options {
     my ($self) = @_;
     return {
+        id => $self->id,
         query_fields => $self->options_query_fields(),
         columns => $self->options_columns(),
         has_cursor   => $self->options_has_cursor(),
@@ -131,8 +132,11 @@ sub format_options_column {
         is_person => ( $self->is_person_field($l) ? $JSON_TRUE : $JSON_FALSE ),
         is_node   => ( $self->is_node_field($l) ? $JSON_TRUE : $JSON_FALSE ),
         is_role   => ( $self->is_role_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_cursor => ( $self->is_cursor_field($l) ? $JSON_TRUE : $JSON_FALSE ),
     };
 }
+
+sub is_cursor_field { 0 }
 
 sub options_has_cursor {
     return $JSON_TRUE;

@@ -18,6 +18,7 @@ use pf::Report;
 use pf::error qw(is_error);
 use pf::util;
 use Clone qw(clone);
+use List::MoreUtils qw(any);
 extends qw(pf::Report);
 
 our %mapping = (
@@ -46,6 +47,17 @@ sub generate_sql_query {
     my ($self, %info) = @_;
     my $sql = $self->sql;
     return ($sql, $self->create_bind(\%info));
+}
+
+sub is_cursor_field {
+    my ($self, $field) = @_;
+    my $f = $self->cursor_field;
+    return 0 if !defined $f;
+    if (!ref $f) {
+        $f = [$f];
+    }
+
+    return any { $_ eq $field } @{$f};
 }
 
 sub options_has_date_range {

@@ -529,6 +529,7 @@ BEGIN {
         {
             id  => 'Ip4Log::Archive',
             out => {
+                id  => 'Ip4Log::Archive',
                 query_fields => [
                     {
                         name => 'ip4log_archive.mac',
@@ -547,6 +548,7 @@ BEGIN {
                         name      => 'MAC Address',
                         is_person => $false,
                         is_role   => $false,
+                        is_cursor => $false,
                         is_node   => $true,
                     },
                     {
@@ -554,6 +556,7 @@ BEGIN {
                         name      => 'IP',
                         is_person => $false,
                         is_role   => $false,
+                        is_cursor => $false,
                         is_node   => $false
                     },
                     {
@@ -561,14 +564,16 @@ BEGIN {
                         name      => 'Start time',
                         is_person => $false,
                         is_role   => $false,
-                        is_node   => $false
+                        is_cursor => $false,
+                        is_node   => $false,
                     },
                     {
                         text      => 'End time',
                         name      => 'End time',
                         is_role   => $false,
                         is_person => $false,
-                        is_node   => $false
+                        is_node   => $false,
+                        is_cursor  => $false,
                     },
                 ],
                 has_date_range => $true,
@@ -576,12 +581,16 @@ BEGIN {
                 has_limit      => $true,
                 description =>
 'IP address archive of the devices on your network when enabled (see Maintenance section)',
-                charts => [],
+                charts => [
+                    'scatter@Ip4Log Start Time|Start time',
+                    'scatter@Ip4Log End Time|End time',
+                ],
             },
         },
         {
             id  => 'Node::Active',
             out => {
+                id  => 'Node::Active',
                 query_fields => [],
                 columns      => [
                     (
@@ -592,6 +601,7 @@ BEGIN {
                                 is_person => ($_ eq 'pid' ? $true : $false),
                                 is_node   => ($_ eq 'mac' ? $true : $false),
                                 is_role   => $false,
+                                is_cursor   => ($_ eq 'mac' ? $true : $false),
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
@@ -606,6 +616,7 @@ BEGIN {
         {
             id  => 'Node::Report::Test',
             out => {
+                id  => 'Node::Report::Test',
                 query_fields => [],
                 columns      => [
                     (
@@ -616,6 +627,7 @@ BEGIN {
                                 is_person => $false,
                                 is_node   => $false,
                                 is_role   => $false,
+                                is_cursor  => $false,
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
@@ -630,6 +642,7 @@ BEGIN {
         {
             id  => 'Node::Report::TestDateRange',
             out => {
+                id  => 'Node::Report::TestDateRange',
                 query_fields => [],
                 columns      => [
                     (
@@ -640,6 +653,7 @@ BEGIN {
                                 is_person => $false,
                                 is_node   => $false,
                                 is_role   => $false,
+                                is_cursor  => $false,
                             }
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
