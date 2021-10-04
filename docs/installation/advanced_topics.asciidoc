@@ -82,7 +82,7 @@ The following attributes are available when using `type=abstract`(* mandatory at
 * `group_field`: The field (column) to group the query results by. No grouping is performed if this field is empty or omitted.
 * `joins` : The table(s), columns and aliases used to join on the `base_table`. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation]. This attribute supports multi line blocks (heredoc), see below.
 * `order_fields`: A comma delimited list of fields (columns) used to order the SQL query. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
-* `searches`: A comma delimited list of searchable fields (columns) that are presented to the reports' user. This allows the user to optionally include additional criteria for the query. Each item is defined as "`type`:`Friendly Name`:`tableName`.`columnName`" (ex: `searches=string:Owner:person.pid,string:Node:node.mac`). Currently only the type _string_ is supported.
+* `searches`: A comma delimited list of searchable fields (columns) that are presented to the reports' user. This allows the user to optionally include additional criteria for the query. Each item is defined as `type:Friendly Name:tableName.columnName` (ex: `searches=string:Owner:person.pid,string:Node:node.mac`). Currently only the type _string_ is supported.
 ** `type` defines the type of the search, the only one currently supported is `string`.
 ** `Display Name` is the user-friendly name of the field for display.
 ** `field` is the SQL name of the field to search
