@@ -7,11 +7,11 @@
   >
     <div
       class="alert alert-warning mx-3"
-    >{{ $t(`Modifying this configuration requires to restart monit using the following command: systemctl restart monit`) }}</div>
+    >{{ $t('Modifying this configuration requires to restart monit using the following command: `systemctl restart monit`') }}</div>
 
     <form-group-status namespace="status"
       :column-label="$i18n.t('Status')"
-      :text="$i18n.t('Whether or not monit should be enabled on this system.')"
+      :text="$i18n.t('Whether or not monit should be enabled on this system. Enabling or disabling the service requires to run the following command: `/usr/local/pf/bin/pfcmd service pf updatesystemd`')"
     />
 
     <form-group-alert-email-to namespace="alert_email_to"
