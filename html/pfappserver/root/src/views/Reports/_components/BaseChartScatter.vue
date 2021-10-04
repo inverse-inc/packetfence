@@ -57,6 +57,7 @@ const props = {
 
 import { parse, format } from 'date-fns'
 import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import i18n from '@/utils/locale'
 import plotly from '@/utils/plotly'
 import {
   colorsFull
@@ -227,7 +228,8 @@ const setup = props => {
       rangeslider,
       type: 'date'
     }
-    plotly.react(plotlyRef.value, data, { ...layout, rangeslider: { range }, xaxis, yaxis: { autorange: true, type: 'log' }, title: titleWithDates.value }, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    const { locale } = i18n
+    plotly.react(plotlyRef.value, data, { ...layout, rangeslider: { range }, xaxis, yaxis: { autorange: true, type: 'log' }, title: titleWithDates.value }, { locale, displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)
@@ -236,7 +238,7 @@ const setup = props => {
     items
   } = toRefs(search)
 
-  watch(filteredItems, _queueRender, { immediate: true })
+  watch([filteredItems, () => i18n.locale], _queueRender, { immediate: true })
 
   onMounted(() => window.addEventListener('resize', _queueRender))
   onBeforeUnmount(() => window.removeEventListener('resize', _queueRender))

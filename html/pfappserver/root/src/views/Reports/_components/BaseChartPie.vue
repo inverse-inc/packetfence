@@ -1,7 +1,6 @@
 <template>
   <div ref="plotlyRef" />
 </template>
-
 <script>
 const layout = {
   autosize: true,
@@ -131,7 +130,8 @@ const setup = props => {
     }
     options.marker = { ...options.marker, colors }
     const data = [{ values, labels, ...options }]
-    plotly.react(plotlyRef.value, data, { ...layout, title: titleWithDates.value }, { displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    const { locale } = i18n
+    plotly.react(plotlyRef.value, data, { ...layout, title: titleWithDates.value }, { locale, displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
   }
 
   const useSearch = useSearchFactory(report, meta)
@@ -140,7 +140,7 @@ const setup = props => {
     items
   } = toRefs(search)
 
-  watch(items, _queueRender, { immediate: true })
+  watch([items, () => i18n.locale], _queueRender, { immediate: true })
 
   onMounted(() => window.addEventListener('resize', _queueRender))
   onBeforeUnmount(() => window.removeEventListener('resize', _queueRender))

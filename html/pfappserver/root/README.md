@@ -44,6 +44,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
  * [vis](http://visjs.org/) -- Vis
 * [vue-timeago](https://github.com/egoist/vue-timeago) -- show relative time
 * [plotly.js-dist-min](https://plot.ly/javascript/reference/) -- svg charts
+ * [plotly.js-locales](https://github.com/plotly/plotly.js/pull/3223) -- chart locales
 * [date-fns](https://date-fns.org/docs/Getting-Started) -- datetime utils
 * [vue-flatpickr-component](https://github.com/ankurk91/vue-flatpickr-component) -- datetime picker
 * [papaparse](https://www.papaparse.com/) -- parse CSV
