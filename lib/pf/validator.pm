@@ -61,6 +61,34 @@ sub validate {
     return;
 }
 
+sub clean {
+    my ($self, $ctx, $value) = @_;
+
+    if (!defined $value) {
+        if (!$self->is_nullable) {
+            $ctx->add_error({ message => 'Cannot be Null' });
+        }
+
+        return;
+    }
+
+    my $sub_ctx = pf::validator::Ctx->new();
+    my %cleanedValue;
+    for my $field (@{$self->fields}) {
+        my $name = $field->name;
+        my $field_val;
+        if (exists $value->{$name}) {
+            $field_val = $value->{$name};
+        }
+
+        $cleanedValue{$name} = $field->clean_field($sub_ctx, $field_val);
+        $ctx->merge($sub_ctx);
+        $sub_ctx->reset;
+    }
+
+    return \%cleanedValue;
+}
+
 sub _build_fields {
     my ($self) = @_;
     my @fields;

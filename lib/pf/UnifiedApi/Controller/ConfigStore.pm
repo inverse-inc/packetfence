@@ -26,10 +26,12 @@ use pf::error qw(is_error is_success);
 use pf::pfcmd::checkup ();
 use pf::UnifiedApi::Search::Builder::Config;
 use pf::condition_parser qw(parse_condition_string ast_to_object);
+use pf::validator::Ctx;
 
 has 'config_store_class';
 has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::Config';
 has 'search_builder_class' => "pf::UnifiedApi::Search::Builder::Config";
+has 'validator_class';
 
 sub search {
     my ($self) = @_;
@@ -117,6 +119,11 @@ sub search_builder {
     return $self->search_builder_class->new();
 }
 
+sub validator {
+    my ($self) = @_;
+    return $self->validator_class->new();
+}
+
 sub list {
     my ($self) = @_;
     my ($status, $search_info_or_error) = $self->build_list_search_info;
@@ -135,7 +142,14 @@ cleanup_items
 
 sub cleanup_items {
     my ($self, $items) = @_;
-    return $items;
+    my $v = $self->validator;
+    my $ctx = pf::validator::Ctx->new;
+    my @cleaned;
+    for my $i (@$items) {
+        push @cleaned, $v->clean($ctx, $i);
+        $ctx->reset;
+    }
+    return \@cleaned;
 }
 
 sub item_shown { 1 }

@@ -19,9 +19,11 @@ use Mojo::Base qw(pf::UnifiedApi::Controller::ConfigStore);
 
 has 'config_store_class' => 'pf::ConfigStore::FloatingDevice';
 has 'primary_key' => 'floating_device_id';
+has 'validator_class' => 'pf::validator::Config::FloatingDevice';
 
 use pf::ConfigStore::FloatingDevice;
 use pfappserver::Form::Config::FloatingDevice;
+use pf::validator::Config::FloatingDevice;
  
 =head1 AUTHOR
 

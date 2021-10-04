@@ -64,6 +64,10 @@ sub validate {
     return;
 }
 
+sub cleanup {
+    
+}
+
 sub get_message {
     my ($self, $name) = @_;
     my $messages = $self->messages;
@@ -105,6 +109,11 @@ sub optionsMeta {
 
 sub additionalOptionsMeta {
     {}
+}
+
+sub clean_field {
+    my ($self, $ctx, $value) = @_;
+    return $value;
 }
 
 =head1 AUTHOR

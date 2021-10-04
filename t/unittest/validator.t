@@ -46,6 +46,9 @@ use Test::NoWarnings;
             required => 'Please specify the MAC address of the floating device.'
         },
     );
+
+    has_field f1 => (
+    );
 }
 
 #is(scalar @validator1::_FIELDS, 1);
@@ -95,6 +98,18 @@ is(scalar @validator1::_FIELDS, 1);
     $v->validate($ctx, { id => "00:11:22:33:44:55" });
     $errors = $ctx->errors;
     is_deeply ($errors, [], "Valid MAC no errors");
+}
+
+{
+    my $v = validmac->new();
+    my $ctx = pf::validator::Ctx->new;
+    is_deeply (
+        $v->clean($ctx, { id => "00:11:22:33:44:55", f1 => 'here', f2 => "Also here" }) ,
+        {
+            id => "00:11:22:33:44:55", f1 => 'here',
+        },
+        "Cleaned "
+    );
 }
 
 =head1 AUTHOR
