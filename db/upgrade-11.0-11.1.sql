@@ -67,6 +67,10 @@ ALTER TABLE tenant
     ADD COLUMN IF NOT EXISTS `radsec_port` int(5) DEFAULT NULL AFTER radius_port,
     ADD COLUMN IF NOT EXISTS `radius_cli_port` int(5) DEFAULT NULL AFTER radsec_port;
 
+UPDATE tenant
+    SET `radius_port`="1812", `radsec_port`="2083", `radius_cli_port`="1815"
+    WHERE `id`="1";
+
 \! echo "altering password"
 ALTER TABLE password
    DROP index pid_password_unique;
