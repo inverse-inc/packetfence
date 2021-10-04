@@ -43,9 +43,7 @@ Next, go in the *NTLM cache* tab and:
 
  * Enable 'NTLM cache'
  * Select the Active Directory authentication source that is tied to this domain.
- * Adjust the 'LDAP filter' if necessary. Note that this is only used for the batch job.
  * Adjust the 'Expiration'
- * Enable 'NTLM cache background job' and/or 'NTLM cache on connection'. In the case of this example, both will be enabled.
 
 image::domain-ntlm-cache.png[scaledwidth="100%",alt="Domain NTLM cache"]
 
@@ -56,8 +54,6 @@ After that, you will need to enable the `redis_ntlm_cache` service which is used
 Next, start the service via pfcmd:
 
   /usr/local/pf/bin/pfcmd service redis_ntlm_cache start
-
-If you chose to enable *NTLM cache background job* in one of your domains, you will need to enable the `pfmon` (or `pfcron`, if Packetfence version is >= 10.2) job that will periodically cache the credentials. This can be configured in _Configuration -> System Configuration -> Main Configuration -> Maintenance -> populate_ntlm_redis_cache_. It is advised to set the interval of this task to half the expiration of the credentials you have set in the domain configuration. This will ensure you have an optimal cache hit. Once done, restart the `pfmon` (or `pfcron`, if Packetfence version is >= 10.2) service.
 
 ==== Active Directory configuration
 

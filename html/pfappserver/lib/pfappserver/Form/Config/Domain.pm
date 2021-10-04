@@ -175,15 +175,6 @@ has_field 'ntlm_cache_source' =>
    element_class => ['chzn-deselect'],
   );
 
-has_field 'ntlm_cache_filter' =>
-  (
-   type => 'TextArea',
-   label => 'LDAP filter',
-   tags => { after_element => \&help,
-             help => 'An LDAP query to filter out the users that should be cached.' },
-   default => "(&(samAccountName=*)(!(|(lockoutTime=>0)(userAccountControl:1.2.840.113556.1.4.803:=2))))",
-  );
-
 has_field 'ntlm_cache_expiry' =>
   (
    type => 'PosInteger',
@@ -193,39 +184,6 @@ has_field 'ntlm_cache_expiry' =>
              help => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.' },
   );
 
-has_field 'ntlm_cache_batch' =>
-  (
-   type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   label => 'NTLM cache background job',
-   default => "disabled",
-   tags => { after_element => \&help,
-             help => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).' },
-  );
-
-has_field 'ntlm_cache_batch_one_at_a_time' =>
-  (
-   type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   label => 'NTLM cache background job individual fetch',
-   default => "disabled",
-   tags => { after_element => \&help,
-             help => 'Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.' },
-  );
-
-has_field 'ntlm_cache_on_connection' =>
-  (
-   type => 'Toggle',
-   checkbox_value => "enabled",
-   unchecked_value => "disabled",
-   label => 'NTLM cache on connection',
-   default => "enabled",
-   tags => { after_element => \&help,
-             help => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.' },
-  );
-
 has_block definition =>
   (
    render_list => [ qw(workgroup dns_name server_name sticky_dc ad_server dns_servers bind_dn bind_pass ou registration) ],
@@ -233,7 +191,7 @@ has_block definition =>
 
 has_block ntlm_cache =>
   (
-   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_filter ntlm_cache_expiry ntlm_cache_batch ntlm_cache_batch_one_at_a_time ntlm_cache_on_connection) ],
+   render_list => [ qw(ntlm_cache ntlm_cache_source ntlm_cache_expiry) ],
   );
 
 =head2 options_ntlm_cache_sources
@@ -274,9 +232,6 @@ sub validate {
         get_logger->info("Validating NTLM cache fields because it is enabled.");
         unless($self->field('ntlm_cache_source')->value) {
             $self->field("ntlm_cache_source")->add_error("A valid source must be selected when NTLM cache is enabled."); 
-        }
-        unless($self->field('ntlm_cache_filter')->value) {
-            $self->field("ntlm_cache_filter")->add_error("An LDAP filter must be specified for caching when NTLM cache is enabled."); 
         }
         unless($self->field('ntlm_cache_expiry')->value) {
             $self->field("ntlm_cache_expiry")->add_error("An expiration must be specified for caching when NTLM cache is enabled."); 
