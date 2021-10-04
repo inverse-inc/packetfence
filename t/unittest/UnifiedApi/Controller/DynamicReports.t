@@ -37,6 +37,7 @@ $t->options_ok('/api/v1/dynamic_report/Ip4Log::Archive')->status_is(200)
   ->json_is(
     {
         report_meta => {
+            id => 'Ip4Log::Archive',
             query_fields => [
                 {
                     name => 'ip4log_archive.mac',
@@ -97,6 +98,7 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active')
   ->json_is(
     {
         report_meta => {
+            id => 'Node::Active',
             charts => ['scatter|regdate'],
             query_fields => [ ],
             columns => [
@@ -106,7 +108,7 @@ $t->options_ok('/api/v1/dynamic_report/Node::Active')
                     is_person => $false,
                     is_role   => $false,
                     is_node   => $true,
-                    is_cursor => $false,
+                    is_cursor => $true,
                 },
                 {
                     text      => 'ip',
