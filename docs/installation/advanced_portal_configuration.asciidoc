@@ -320,7 +320,7 @@ columns=firstname as "Firstname", lastname as "Lastname", prefered_sandwich as "
 
 NOTE: Make sure you reload the configuration after setting it up by doing `/usr/local/pf/bin/pfcmd configreload hard`
 
-Refer to the <<_dynamic_reports>> section of this document for advanced configuration.
+Refer to the <<_reports>> section of this document for advanced configuration.
 
 ==== Cleaning up
 
