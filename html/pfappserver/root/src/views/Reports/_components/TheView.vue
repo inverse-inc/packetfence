@@ -1,7 +1,7 @@
 <template>
   <b-card no-body id="card">
     <b-card-header>
-      <h4 class="mb-0" v-html="id" />
+      <h4 class="mb-0" v-html="id.split('::').join(' / ')" />
       <p v-if="description"
         v-html="description" class="mt-3 mb-0" />
     </b-card-header>
