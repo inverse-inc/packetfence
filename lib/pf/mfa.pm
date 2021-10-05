@@ -15,7 +15,8 @@ use strict;
 use warnings;
 use Moo;
 use pf::log;
-use pf::constants;
+use pf::constants qw($TRUE $FALSE);
+use pf::util qw(normalize_time);
 
 has id => (is => 'rw', required => 1);
 
@@ -77,6 +78,31 @@ sub module_description { '' }
 
 sub redirect_info { {} }
 sub verify_response { 0 }
+
+=head2 set_redirect
+
+Set in the cache that the user has been redirected on the MFA
+
+=cut
+
+sub set_redirect {
+    my ($self, $username) = @_;
+    # Set in the cache that the user did the redirection on MFA
+    cache->set($username."mfapreauth", $TRUE, normalize_time($self->cache_duration) * 2);
+    cache->set($username."mfapostauth", $FALSE, normalize_time($self->cache_duration) * 2);
+}
+
+=head2 set_mfa_success
+
+Set in the cache that the user has succeed the MFA
+
+=cut
+
+sub set_mfa_success {
+    my ($self, $username) = @_;
+    #MFA verification success
+    cache->set($username."mfapostauth", $TRUE, normalize_time($self->post_mfa_validation_cache_duration));
+}
 
 =head1 AUTHOR
 
