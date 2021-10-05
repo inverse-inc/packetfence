@@ -36,10 +36,6 @@ sub test_pid {
     return $pid;
 }
 
-sub random_mac {
-    return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
-}
-
 sub random_pid {
     return "test_pid_" . ($$ + int(rand(2147352576)));
 }
