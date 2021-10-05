@@ -3,10 +3,11 @@ import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import i18n from '@/utils/locale'
 import api from './_api'
 
-export const useSearchFactory = (report, meta) => {
-
-  const { id, cursor_field, default_limit = 100 } = report.value
-  const { columns = [], query_fields = [] } = meta.value
+export const useSearchFactory = (meta) => {
+  const { id, columns = [], default_limit = 100, query_fields = [] } = meta.value
+  const cursor_fields = columns
+    .filter(column => column.is_cursor)
+    .map(column => column.name)
   const { list, ...rest } = api // omit list
 
   return makeSearch(`reports::${id}`, {
@@ -67,7 +68,7 @@ export const useSearchFactory = (report, meta) => {
         return {
           key,
           label,
-          required: (key === cursor_field),
+          required: cursor_fields.includes(key),
           searchable: true,
           visible: true,
           thClass: 'text-nowrap'

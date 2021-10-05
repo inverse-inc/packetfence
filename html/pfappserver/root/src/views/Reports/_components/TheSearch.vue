@@ -12,9 +12,6 @@ const components = {
 }
 
 const props = {
-  report: {
-    type: Object
-  },
   meta: {
     type: Object
   }
@@ -26,11 +23,10 @@ import { useSearchFactory } from '../_search'
 const setup = props => {
 
   const {
-    report,
     meta
   } = toRefs(props)
 
-  const useSearch = useSearchFactory(report, meta)
+  const useSearch = useSearchFactory(meta)
 
   return {
     useSearch

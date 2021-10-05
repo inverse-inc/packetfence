@@ -6,3 +6,12 @@ import fr from 'plotly.js-locales/fr'
 Plotly.register(fr)
 
 export default Plotly
+
+export const config = {
+  displayModeBar: true,
+  scrollZoom: true,
+  displaylogo: false,
+  showLink: false,
+  showEditInChartStudio: true,
+  plotlyServerURL: "https://chart-studio.plotly.com"
+}

@@ -57,9 +57,6 @@ const props = {
   meta: {
     type: Object
   },
-  report: {
-    type: Object
-  },
   title: {
     type: String
   }
@@ -67,7 +64,7 @@ const props = {
 
 import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import plotly from '@/utils/plotly'
+import plotly, { config } from '@/utils/plotly'
 import {
   colorsFull,
   colorsNull
@@ -79,7 +76,6 @@ const setup = props => {
   const {
     fields,
     meta,
-    report,
     title
   } = toRefs(props)
 
@@ -131,10 +127,10 @@ const setup = props => {
     options.marker = { ...options.marker, colors }
     const data = [{ values, labels, ...options }]
     const { locale } = i18n
-    plotly.react(plotlyRef.value, data, { ...layout, title: titleWithDates.value }, { locale, displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    plotly.react(plotlyRef.value, data, { ...layout, title: titleWithDates.value }, { locale, ...config })
   }
 
-  const useSearch = useSearchFactory(report, meta)
+  const useSearch = useSearchFactory(meta)
   const search = useSearch()
   const {
     items

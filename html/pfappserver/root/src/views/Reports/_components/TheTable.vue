@@ -110,9 +110,6 @@ const components = {
 }
 
 const props = {
-  report: {
-    type: Object
-  },
   meta: {
     type: Object
   }
@@ -128,13 +125,12 @@ import { useSearchFactory } from '../_search'
 const setup = (props, context) => {
 
   const {
-    report,
     meta
   } = toRefs(props)
 
   const { root: { $router } = {} } = context
 
-  const useSearch = useSearchFactory(report, meta)
+  const useSearch = useSearchFactory(meta)
   const search = useSearch()
 
   const { columns = [], query_fields = [] } = meta.value
@@ -189,24 +185,27 @@ const setup = (props, context) => {
   // dynamic b-table slots
   const nodeFields = computed(() => {
     if (acl.$can('read', 'nodes')) {
-      const { node_fields = '' } = report.value
-      const fields = node_fields.split(',').filter(f => f)
-      return Array.isArray(fields) ? fields : [fields]
+      const { columns = [] } = meta.value
+      return columns
+        .filter(column => column.is_node)
+        .map(column => column.name)
     }
     return []
   })
   const personFields = computed(() => {
     if (acl.$can('read', 'users')) {
-      const { person_fields = '' } = report.value
-      const fields = person_fields.split(',').filter(f => f)
-      return Array.isArray(fields) ? fields : [fields]
+      const { columns = [] } = meta.value
+      return columns
+        .filter(column => column.is_person)
+        .map(column => column.name)
     }
     return []
   })
   const roleFields = computed(() => {
-    const { role_fields = '' } = report.value
-    const fields = role_fields.split(',').filter(f => f)
-    return Array.isArray(fields) ? fields : [fields]
+      const { columns = [] } = meta.value
+      return columns
+        .filter(column => column.is_role)
+        .map(column => column.name)
   })
 
   return {

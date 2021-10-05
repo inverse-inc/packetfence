@@ -41,13 +41,7 @@ const props = {
   fields: {
     type: String
   },
-  count: {
-    type: String
-  },
   meta: {
-    type: Object
-  },
-  report: {
     type: Object
   },
   title: {
@@ -58,7 +52,7 @@ const props = {
 import { parse, format } from 'date-fns'
 import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import plotly from '@/utils/plotly'
+import plotly, { config } from '@/utils/plotly'
 import {
   colorsFull
 } from '../config'
@@ -69,7 +63,6 @@ const setup = props => {
   const {
     fields,
     meta,
-    report,
     title
   } = toRefs(props)
 
@@ -229,10 +222,10 @@ const setup = props => {
       type: 'date'
     }
     const { locale } = i18n
-    plotly.react(plotlyRef.value, data, { ...layout, rangeslider: { range }, xaxis, yaxis: { autorange: true, type: 'log' }, title: titleWithDates.value }, { locale, displayModeBar: true, scrollZoom: true, displaylogo: false, showLink: false })
+    plotly.react(plotlyRef.value, data, { ...layout, rangeslider: { range }, xaxis, yaxis: { autorange: true, type: 'log' }, title: titleWithDates.value }, { locale, ...config })
   }
 
-  const useSearch = useSearchFactory(report, meta)
+  const useSearch = useSearchFactory(meta)
   const search = useSearch()
   const {
     items

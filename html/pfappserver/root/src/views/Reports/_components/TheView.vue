@@ -9,7 +9,6 @@
       <template v-if="isLoaded">
         <the-search v-if="hasQuery"
           :meta="meta"
-          :report="report"
         >
           <base-input-date-range v-if="hasDateRange"
             v-model="dateRange"
@@ -29,7 +28,6 @@
         </b-tabs>
         <the-table
           :meta="meta"
-          :report="report"
         >
           <base-input-date-range v-if="hasDateRange"
             v-model="dateRange"
@@ -88,7 +86,6 @@ const setup = (props, context) => {
     isLoading
   } = useStore($store)
 
-  const report = ref({})
   const meta = ref({})
   const isLoaded = ref(false)
 
@@ -100,33 +97,29 @@ const setup = (props, context) => {
     // wait for meta prop to propagate
     nextTick(() => {
       // trigger reSearch
-      const useSearch = useSearchFactory(report, meta)
+      const useSearch = useSearchFactory(meta)
       const search = useSearch()
       search.reSearch()
     })
   })
 
   watch(id, () => {
-    report.value = {}
     meta.value = {}
     isLoaded.value = false
-    let promises = []
-    promises[promises.length] = getItem({ id: id.value }).then(item => {
-      report.value = item
-    })
-    promises[promises.length] = getItemOptions({ id: id.value }).then(options => {
-      const { report_meta = {} } = options
-      const { start_date, end_date } = dateRange.value
-      // append dates to meta, consumed by search::requestInterceptor
-      meta.value = { ...report_meta, start_date, end_date }
-    })
-    Promise.all(promises).finally(() => {
-      isLoaded.value = true
-    })
+    getItemOptions({ id: id.value })
+      .then(options => {
+        const { report_meta = {} } = options
+        const { start_date, end_date } = dateRange.value
+        // append dates to meta, consumed by search::requestInterceptor
+        meta.value = { ...report_meta, start_date, end_date }
+      })
+      .finally(() => {
+        isLoaded.value = true
+      })
   }, { immediate: true })
 
   const description = computed(() => {
-    const { description } = report.value
+    const { description } = meta.value
     return description
   })
 
@@ -176,7 +169,6 @@ const setup = (props, context) => {
     return {
       fields,
       meta,
-      report,
       title
     }
   }
@@ -197,7 +189,6 @@ const setup = (props, context) => {
   return {
     isLoading,
     isLoaded,
-    report,
     meta,
     description,
     hasCursor,
