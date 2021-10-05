@@ -46,6 +46,9 @@ const props = {
   },
   title: {
     type: String
+  },
+  settings: {
+    type: Object
   }
 }
 
@@ -63,7 +66,8 @@ const setup = props => {
   const {
     fields,
     meta,
-    title
+    title,
+    settings
   } = toRefs(props)
 
   const titleWithDates = computed(() => {
@@ -222,7 +226,9 @@ const setup = props => {
       type: 'date'
     }
     const { locale } = i18n
-    plotly.react(plotlyRef.value, data, { ...layout, rangeslider: { range }, xaxis, yaxis: { autorange: true, type: 'log' }, title: titleWithDates.value }, { locale, ...config })
+    const { plotlyImageType: format = 'png' } = settings.value
+    const toImageButtonOptions = { filename: titleWithDates.value, format }
+    plotly.react(plotlyRef.value, data, { ...layout, rangeslider: { range }, xaxis, yaxis: { autorange: true, type: 'log' }, title: titleWithDates.value }, { locale, toImageButtonOptions, ...config })
   }
 
   const useSearch = useSearchFactory(meta)

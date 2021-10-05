@@ -80,6 +80,12 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
+  const settings = ref({})
+  $store.dispatch('preferences/get', 'settings')
+    .then(() => {
+      settings.value = $store.state.preferences.cache['settings'] || {}
+    })
+
   const {
     getItem,
     getItemOptions,
@@ -169,7 +175,8 @@ const setup = (props, context) => {
     return {
       fields,
       meta,
-      title
+      title,
+      settings: settings.value
     }
   }
   const chartIcon = chart => {
@@ -187,6 +194,7 @@ const setup = (props, context) => {
   }
 
   return {
+    settings,
     isLoading,
     isLoaded,
     meta,
