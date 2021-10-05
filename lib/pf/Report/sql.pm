@@ -27,8 +27,6 @@ our %mapping = (
     end_date => 1,
 );
 
-has default_limit => (is => 'rw', isa => 'Str', default => 25);
-
 has cursor_type => ( is => 'rw', isa => 'Str');
 
 has cursor_field => ( is => 'rw', isa => 'Str|ArrayRef[Str]');

@@ -32,6 +32,8 @@ has 'node_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
+has default_limit => (is => 'rw', isa => 'Str', default => 25);
+
 sub build_query_options {
     return (422, { message => "unimplemented" });
 }
@@ -102,9 +104,18 @@ sub meta_for_options {
         has_cursor   => $self->options_has_cursor(),
         has_limit   => $self->options_has_limit(),
         has_date_range   => $self->options_has_date_range(),
+        default_limit  => $self->default_limit(),
         (
             map { ($_ => $self->{$_}) } qw(description charts)
         ),
+        %{$self->default_date_ranges()},
+    }
+}
+
+sub default_date_ranges {
+    {
+        default_start_date => undef,
+        default_end_date => undef,
     }
 }
 
