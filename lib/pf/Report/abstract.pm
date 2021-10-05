@@ -124,20 +124,6 @@ sub generate_sql_query {
     return ($sql, \@params);
 }
 
-#sub validate_fields {
-#    my ($self, $fields, $errors) = @_;
-#    for my $f (@$fields) {
-#        $self->validate_field($f, $errors);
-#    }
-#
-#    return;
-#}
-#
-#sub validate_field {
-#    my ($self, $fields, $errors) = @_;
-#    return;
-#}
-#
 sub validate_input {
     my ($self, $input) = @_;
     my $query = $input->{query};
