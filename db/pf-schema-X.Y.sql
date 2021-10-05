@@ -245,6 +245,7 @@ CREATE TABLE ip4log (
   end_time datetime default "0000-00-00 00:00:00",
   PRIMARY KEY (`tenant_id`, `ip`),
   KEY ip4log_tenant_id_mac_end_time (tenant_id,mac,end_time),
+  KEY ip4log_mac_end_time (mac,end_time),
   KEY ip4log_end_time (end_time),
   CONSTRAINT `ip4log_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;
@@ -1271,7 +1272,7 @@ CREATE TABLE auth_log (
   `source` varchar(255) NOT NULL,
   `profile` VARCHAR(255) DEFAULT NULL,
   KEY pid (pid),
-  KEY attempted_at (attempted_at),
+  KEY attempted_at (attempted_at)
   KEY completed_at (completed_at)
 ) ENGINE=InnoDB;
 
