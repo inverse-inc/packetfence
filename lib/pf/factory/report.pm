@@ -26,7 +26,10 @@ use pf::log;
 
 sub factory_for { 'pf::Report' }
 
-our %FACTORIES = map { $_ => "pf::Report::$_"  } qw(abstract sql);
+our %FACTORIES = (
+    (map { $_ => "pf::Report::$_"  } qw(abstract sql)),
+    builtin => "pf::Report::abstract",
+);
 
 =head2 new
 
