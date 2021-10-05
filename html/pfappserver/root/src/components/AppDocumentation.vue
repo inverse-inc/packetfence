@@ -3,12 +3,21 @@
     <!-- document viewer -->
     <b-card no-body class="documentation-document" :class="{ 'fullscreen': fullscreen }">
       <b-card-header>
-        <template v-if="!fullscreen">
-          <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times"></icon></b-button-close>
-          <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand"></icon></b-button-close>
-        </template>
-        <b-button-close v-else @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress"></icon></b-button-close>
-        <h4 class="d-inline mb-0 mr-3"><icon class="mr-2" name="book"></icon>{{ title }}</h4>
+        <b-row align-v="center">
+          <b-col cols="auto" class="mr-auto">
+            <h4 class="d-inline mb-0 mr-3"><icon class="mr-2" name="book" />{{ title }}</h4>
+          </b-col>
+          <b-col cols="2" class="text-right">
+            <template v-if="!fullscreen">
+              <b-button-close @click="closeViewer" v-b-tooltip.hover.left.d300 :title="$t('Close')" class="ml-3"><icon name="times" /></b-button-close>
+              <b-button-close @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Show Fullscreen')" class="ml-3"><icon name="expand" /></b-button-close>
+            </template>
+            <b-button-close v-else
+              @click="toggleFullscreen" v-b-tooltip.hover.left.d300 :title="$t('Exit Fullscreen')" class="ml-3"><icon name="compress" /></b-button-close>
+            <b-button-close @click="openExternal" v-b-tooltip.hover.left.d300 :title="$t('Open in new window')" class="ml-3"><icon name="external-link-alt" /></b-button-close>
+
+          </b-col>
+        </b-row>
       </b-card-header>
       <b-row no-gutters>
         <b-col md="3" xl="2" class="section-sidebar d-print-none" ref="refDocumentList">
@@ -27,7 +36,7 @@
             <slot />
             <div class="m-3">
               <b-button href="https://packetfence.org/support.html#/commercial" target="_blank" size="sm" block>
-                {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt"> </icon>
+                {{ $t('Support Inquiry') }}<icon class="ml-1" name="external-link-alt" />
               </b-button>
             </div>
           </div>
@@ -37,12 +46,12 @@
           <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="documentation-frame"
             :src="`/static/doc/${path}`"
             @load="initDocument()"
-          ></iframe>
+          />
           <b-container class="documentation-frame my-5" v-if="isLoading">
             <b-row class="justify-content-md-center text-secondary h-100">
               <b-col cols="12" md="auto" class="align-self-center">
                 <b-media>
-                  <template v-slot:aside><icon name="circle-notch" scale="2" spin></icon></template>
+                  <template v-slot:aside><icon name="circle-notch" scale="2" spin /></template>
                   <h4>{{ $t('Loading Documentation') }}</h4>
                   <p class="font-weight-light">{{ title }}</p>
                 </b-media>
@@ -225,6 +234,7 @@ const setup = (props, context) => {
     if (_hash.value)
       nextTick(() => _scrollToSection(_hash.value))
   }
+  const openExternal = () => window.open(`/static/doc/${path.value}`, '_blank')
   const openViewer = () => $store.dispatch('documentation/openViewer')
   const closeViewer = () => $store.dispatch('documentation/closeViewer')
   const toggleFullscreen = () => $store.dispatch('documentation/toggleFullscreen')
@@ -263,6 +273,7 @@ const setup = (props, context) => {
     isLoading,
     loadDocument,
     initDocument,
+    openExternal,
     openViewer,
     closeViewer,
     toggleFullscreen
