@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Mikrotik DHCP MAC authentication support
+
 === Enhancements
 
 * Allow to use the sAMAccountName from the searchattributes in MSCHAP machine authentication (#6586)
