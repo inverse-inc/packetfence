@@ -14,7 +14,6 @@ const components = {
 }
 
 import { computed, onMounted, ref } from '@vue/composition-api'
-import i18n from '@/utils/locale'
 import { delimiter } from './config'
 const setup = (props, context) => {
 
@@ -51,20 +50,20 @@ const { root: { $store } = {} } = context
         case depth === 2 && parents === 0:
         case depth === 1 && parents === 0:
           return {
-            name: i18n.t(key), // i18n defer
+            name: key,
             collapsable: true,
             items: _struct(children, parents + 1) // recursive
           }
           // break
         case depth === 1 && parents === 1:
           return {
-            name: i18n.t(key), // i18n defer
+            name: key,
             items: _struct(children, parents + 1) // recursive
           }
           // break
         case depth === 0:
           return {
-            name: i18n.t(key), // i18n defer
+            name: key,
             path: `/reports/${encodeURIComponent(id)}`,
             saveSearchNamespace: `reports::${id}`,
             icons
