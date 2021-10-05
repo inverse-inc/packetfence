@@ -99,25 +99,9 @@ is_deeply(
                     type => 'string',
                     description => 'The source to use to connect to your Active Directory server for NTLM caching.',
                 },
-                ntlm_cache_filter => {
-                    type => 'string',
-                    description => 'An LDAP query to filter out the users that should be cached.',
-                },
                 ntlm_cache_expiry => {
                     type => 'integer',
                     description => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.',
-                },
-                ntlm_cache_batch => {
-                    type => 'string',
-                    description => 'When this is enabled, all users matching the LDAP filter will be inserted in the cache via a background job (maintenance.populate_ntlm_redis_cache_interval controls the interval).',
-                },
-                ntlm_cache_batch_one_at_a_time => {
-                    type => 'string',
-                    description => 'Whether or not to fetch users on your AD one by one instead of doing a single batch fetch. This is useful when your AD is loaded or experiencing issues during the sync. Note that this makes the batch job much longer and is about 4 times slower when enabled.',
-                },
-                ntlm_cache_on_connection => {
-                    type => 'string',
-                    description => 'When this is enabled, an async job will cache the NTLM credentials of the user every time he connects.',
                 },
                 status => {
                     type => 'string',
