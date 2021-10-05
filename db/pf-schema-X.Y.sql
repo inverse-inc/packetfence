@@ -95,6 +95,7 @@ CREATE TABLE person (
   `source` varchar(255) default NULL,
   `psk` varchar(255) NULL DEFAULT NULL,
   `potd` enum('no','yes') NOT NULL DEFAULT 'no',
+  `otp` TEXT NULL DEFAULT NULL,
   PRIMARY KEY (`tenant_id`, `pid`),
   CONSTRAINT `person_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
 ) ENGINE=InnoDB;

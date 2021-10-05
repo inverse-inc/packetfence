@@ -50,7 +50,7 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "altering person"
 ALTER TABLE person
-    ADD COLUMN IF NOT EXISTS `otp` varchar(255) NULL DEFAULT NULL AFTER potd;
+    ADD COLUMN IF NOT EXISTS `otp` TEXT NULL DEFAULT NULL AFTER potd;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

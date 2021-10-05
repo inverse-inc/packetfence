@@ -359,7 +359,7 @@ BEGIN {
             },
         },
         otp => {
-            type => 'VARCHAR',
+            type => 'TEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
