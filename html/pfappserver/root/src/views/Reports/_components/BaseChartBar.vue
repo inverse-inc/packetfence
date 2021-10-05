@@ -1,5 +1,5 @@
 <template>
-  <div ref="plotlyRef" />
+  <component :is="componentIs" v-bind="componentProps" ref="plotlyRef" id="plotly" />
 </template>
 
 <script>
@@ -26,6 +26,13 @@ const options = {
     }
   },
   textinfo: 'label'
+}
+
+import {
+    BaseTableEmpty
+} from '@/components/new/'
+const components = {
+  BaseTableEmpty
 }
 
 const props = {
@@ -117,7 +124,8 @@ const setup = props => {
   const useSearch = useSearchFactory(meta)
   const search = useSearch()
   const {
-    items
+    items,
+    isLoading
   } = toRefs(search)
 
   watch([items, () => i18n.locale], _queueRender, { immediate: true })
@@ -125,14 +133,28 @@ const setup = props => {
   onMounted(() => window.addEventListener('resize', _queueRender))
   onBeforeUnmount(() => window.removeEventListener('resize', _queueRender))
 
+  const componentIs = computed(() => {
+    return (!isLoading.value && items.value.length > 0)
+      ? 'div' // plotly
+      : BaseTableEmpty
+  })
+  const componentProps = computed(() => ({
+    isLoading: isLoading.value,
+    text: i18n.t('No results to display'),
+    icon: 'chart-bar'
+  }))
+
   return {
-    plotlyRef
+    plotlyRef,
+    componentIs,
+    componentProps
   }
 }
 
 // @vue/component
 export default {
   name: 'base-chart-bar',
+  components,
   props,
   setup
 }

@@ -1,5 +1,5 @@
 <template>
-  <div ref="plotlyRef" id="plotly" />
+  <component :is="componentIs" v-bind="componentProps" ref="plotlyRef" id="plotly" />
 </template>
 
 <script>
@@ -35,6 +35,13 @@ const rangeselector = {
     { count: 1, label: '1Y', step: 'year', stepmode },
     { step: 'all' }
   ]
+}
+
+import {
+    BaseTableEmpty
+} from '@/components/new/'
+const components = {
+  BaseTableEmpty
 }
 
 const props = {
@@ -234,7 +241,8 @@ const setup = props => {
   const useSearch = useSearchFactory(meta)
   const search = useSearch()
   const {
-    items
+    items,
+    isLoading
   } = toRefs(search)
 
   watch([filteredItems, () => i18n.locale], _queueRender, { immediate: true })
@@ -242,14 +250,28 @@ const setup = props => {
   onMounted(() => window.addEventListener('resize', _queueRender))
   onBeforeUnmount(() => window.removeEventListener('resize', _queueRender))
 
+  const componentIs = computed(() => {
+    return (!isLoading.value && items.value.length > 0)
+      ? 'div' // plotly
+      : BaseTableEmpty
+  })
+  const componentProps = computed(() => ({
+    isLoading: isLoading.value,
+    text: i18n.t('No results to display'),
+    icon: 'chart-line'
+  }))
+
   return {
-    plotlyRef
+    plotlyRef,
+    componentIs,
+    componentProps
   }
 }
 
 // @vue/component
 export default {
   name: 'base-chart-scatter',
+  components,
   props,
   setup
 }
