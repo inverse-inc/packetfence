@@ -160,6 +160,18 @@ ppa_deploy() {
         || die "rsync failed"
 }
 
+website_deploy() {
+    # warning: slashs at end of dirs are significant for rsync
+    src_dir="website/"
+    dst_repo="$PUBLIC_REPO_BASE_DIR/"
+    dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+    declare -p src_dir dst_dir
+    echo "rsync: $src_dir -> $dst_dir"
+    rsync -avz $src_dir $dst_dir \
+        || die "rsync failed"
+}
+
+
 log_section "Display artifacts"
 tree ${RESULT_DIR}
 
@@ -173,5 +185,6 @@ case $1 in
     packetfence-release) packetfence_release_deploy ;;
     packetfence-export) packetfence_export_deploy ;;
     ppa) ppa_deploy ;;
+    website) website_deploy ;;
     *)   die "Wrong argument"
 esac

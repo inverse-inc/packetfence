@@ -25,6 +25,9 @@ SRC_FULL_IMPORTDIR = $(SRC_ADDONSDIR)/full-import
 SRC_FULL_UPGRADEDIR = $(SRC_ADDONSDIR)/full-upgrade
 SRC_FUNCTIONSDIR = $(SRC_ADDONSDIR)/functions
 
+# specific directory to build website artifacts
+SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
+
 #
 # Golang
 #

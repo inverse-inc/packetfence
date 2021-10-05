@@ -342,3 +342,8 @@ dist-packetfence-upgrade: distclean-packetfence-upgrade
 	cp -pRH $(pf_upgrade_files_to_include) packetfence-upgrade-$(PF_PATCH_RELEASE)
 	tar c -f packetfence-upgrade-$(PF_PATCH_RELEASE).tar packetfence-upgrade-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-upgrade-$(PF_PATCH_RELEASE)
+
+.PHONY: website
+website:
+	$(SRC_CIDIR)/lib/release/publish-to-website.sh
+
