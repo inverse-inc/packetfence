@@ -161,8 +161,9 @@ ppa_deploy() {
 }
 
 website_deploy() {
-    # warning: slashs at end of dirs are significant for rsync
-    src_dir="website/"
+    # /* to exclude current directory from sync
+    # all subdirectories and files are synced
+    src_dir="website/*"
     dst_repo="$PUBLIC_REPO_BASE_DIR/"
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
