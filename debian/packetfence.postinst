@@ -170,9 +170,9 @@ case "$1" in
             set -e
         fi
 
-        # Download the monitoring scripts signing key
-        echo "Downloading the monitoring scripts signing key"
-        gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
+        # Install the monitoring scripts signing key
+        echo "Install the monitoring scripts signing key"
+        gpg --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
 
         # Remove the monit service from the multi-user target if its there
         rm -f /etc/systemd/system/multi-user.target.wants/monit.service

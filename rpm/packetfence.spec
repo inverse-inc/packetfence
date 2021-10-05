@@ -286,6 +286,10 @@ Requires: langpacks-fr, langpacks-es, langpacks-de, langpacks-he, langpacks-it, 
 # Monit and monitoring scripts
 Requires: monit, uuid
 
+# packetfence-release to have GPG key used to sign monitoring scripts
+Requires: packetfence-release >= 2.4.0
+Requires: gnupg2
+
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
@@ -635,9 +639,9 @@ else
     /bin/systemctl set-default packetfence.target
 fi
 
-# Download the monitoring scripts signing key
-echo "Downloading the monitoring scripts signing key"
-gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E3A28334
+# Install the monitoring scripts signing key
+echo "Install the monitoring scripts signing key"
+gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
@@ -1288,8 +1292,8 @@ fi
 # Changelog
 #==============================================================================
 %changelog
-* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
-- New release 11.1.0
+* Tue Oct 05 2021 Inverse <info@inverse.ca> - 11.1.0-2
+- Add dependency to packetfence-release and gnupg2
 
 * Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
 - New release 11.1.0
