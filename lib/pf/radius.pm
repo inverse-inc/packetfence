@@ -1053,12 +1053,12 @@ sub mfa_pre_auth {
     if ($value) {
         my $mfa = pf::factory::mfa->new($value);
         my $cache = pf::mfa->cache;
-        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($username."mfapreauth") && $cache->get($username."mfapostauth")) {
-            $cache->remove($username."mfapostauth");
-            $cache->remove($username."mfapreauth");
+        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && $cache->get($args->{'username'}."mfapostauth")) {
+            $cache->remove($args->{'username'}."mfapostauth");
+            $cache->remove($args->{'username'}."mfapreauth");
             return $args->{'switch'}->returnAuthorizeVPN($args);
         }
-        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($username."mfapreauth") && !$cache->get($username."mfapostauth")) {
+        if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && !$cache->get($args->{'username'}."mfapostauth")) {
             return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA portal verification failed") ];
         }
     }
