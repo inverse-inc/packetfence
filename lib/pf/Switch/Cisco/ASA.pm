@@ -140,6 +140,7 @@ sub returnAuthorizeVPN {
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+    my $role;
 
     my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
 
@@ -158,7 +159,6 @@ sub returnAuthorizeVPN {
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
         if ( !defined($self->getUrlByName($args->{'user_role'}) ) ) {
             $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-            my $role;
             if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
                 $role = $self->getRoleByName($args->{'user_role'});
             }
@@ -190,7 +190,6 @@ sub returnAuthorizeVPN {
         }
     }
 
-    my $role = $self->getRoleByName($args->{'user_role'});
     if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             $args->{'session_id'} = "sid".$self->setSession($args);
@@ -200,6 +199,7 @@ sub returnAuthorizeVPN {
             $redirect_url .= "?";
             #override role if a role in role map is define
             if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                $role = $self->getRoleByName($args->{'user_role'});
                 my $role_map = $self->getRoleByName($args->{'user_role'});
                 $role = $role_map if (defined($role_map));
                 # remove the role if any as we push the redirection ACL along with it's role

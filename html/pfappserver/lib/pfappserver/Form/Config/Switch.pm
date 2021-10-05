@@ -170,6 +170,13 @@ has_field 'VoIPDHCPDetect' =>
              help => 'Detect VoIP with the DHCP Fingerprint'},
   );
 
+has_field 'PostMfaValidation' =>
+  (
+   type => 'Toggle',
+   label => 'PostMfaValidation',
+   default => undef,
+  );
+
 has_field 'uplink_dynamic' =>
   (
    type => 'Checkbox',

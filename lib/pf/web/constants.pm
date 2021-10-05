@@ -88,6 +88,7 @@ Readonly::Scalar our $URL_SWITCH                => '/switchto/(.+)';
 Readonly::Scalar our $URL_RECORD_DESTINATION    => '/record_destination_url';
 Readonly::Scalar our $URL_CHALLENGE             => '/challenge';
 Readonly::Scalar our $URL_NETWORK_LOGOFF        => '/networklogoff';
+Readonly::Scalar our $URL_MFA                   => '/mfa';
 
 # guest related
 Readonly::Scalar our $URL_SIGNUP                => '/signup';
@@ -120,6 +121,7 @@ Readonly::Scalar our $EXT_URL_CAMBIUM               => '^/Cambium';
 Readonly::Scalar our $EXT_URL_MOJO                  => '^/Mojo';
 Readonly::Scalar our $EST_URL_DELL                  => '^/Dell:N1500';
 Readonly::Scalar our $EXT_URL_EXOS                  => '^/Extreme::EXOS';
+Readonly::Scalar our $EXT_URL_F5                    => '^/F5';
 
 # Ubiquiti doesn't support setting the URL so we much detect it using this URL which will then map to the Ubiquiti module in pf::web::externalportal
 Readonly::Scalar our $EXT_URL_UBIQUITI              => '^/guest/s/[a-zA-Z0-9]+/';

@@ -111,6 +111,16 @@ export const pfActions = {
     text: 'Time balance', // i18n defer
     types: [fieldType.TIME_BALANCE]
   },
+  trigger_radius_mfa: {
+    value: 'trigger_radius_mfa',
+    text: i18n.t('Trigger RADIUS MFA'),
+    types: [fieldType.SELECTONE]
+  },
+  trigger_portal_mfa: {
+    value: 'trigger_portal_mfa',
+    text: i18n.t('Trigger Portal MFA'),
+    types: [fieldType.SELECTONE]
+  },
   set_unreg_date: {
     value: 'set_unreg_date',
     text: 'Unregistration date', // i18n defer

@@ -92,7 +92,8 @@ const setup = () => {
             { name: i18n.t('Certificates'), path: '/configuration/pki/certs' },
             { name: i18n.t('Revoked Certificates'), path: '/configuration/pki/revokedcerts' }
           ]
-        }
+        },
+        { name: i18n.t('Multi-Factor Authentication'), path: '/configuration/mfas' }
       ]
     },
     {

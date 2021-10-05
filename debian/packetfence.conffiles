@@ -20,6 +20,7 @@
 /usr/local/pf/conf/iptables.conf
 /usr/local/pf/conf/keepalived.conf
 /usr/local/pf/conf/log.conf
+/usr/local/pf/conf/mfa.conf
 /usr/local/pf/conf/network_behavior_policies.conf
 /usr/local/pf/conf/networks.conf
 /usr/local/pf/conf/pfdetect.conf
@@ -80,6 +81,7 @@
 /usr/local/pf/conf/radiusd/mschap.conf
 /usr/local/pf/conf/radiusd/ocsp.conf
 /usr/local/pf/conf/radiusd/radiusd.conf
+/usr/local/pf/conf/radiusd/radiusd_cli.conf
 /usr/local/pf/conf/radiusd/radiusd_loadbalancer.conf
 /usr/local/pf/conf/radiusd/rest.conf
 /usr/local/pf/conf/radiusd/sql.conf

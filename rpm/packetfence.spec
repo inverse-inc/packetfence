@@ -939,6 +939,8 @@ fi
 %dir                    /usr/local/pf/conf/mariadb
 %config                 /usr/local/pf/conf/mariadb/*.tt
                         /usr/local/pf/conf/mariadb/*.tt.example
+%config(noreplace)      /usr/local/pf/conf/mfa.conf
+                        /usr/local/pf/conf/mfa.conf.example
 %dir                    /usr/local/pf/conf/nessus
 %config(noreplace)      /usr/local/pf/conf/nessus/remotescan.nessus
                         /usr/local/pf/conf/nessus/remotescan.nessus.example
@@ -975,6 +977,8 @@ fi
                         /usr/local/pf/conf/radiusd/eap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/radiusd.conf
                         /usr/local/pf/conf/radiusd/radiusd.conf.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/radiusd_cli.conf
+                        /usr/local/pf/conf/radiusd/radiusd_cli.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/sql.conf
                         /usr/local/pf/conf/radiusd/sql.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence

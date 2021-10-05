@@ -99,6 +99,7 @@ export const moduleTypes = () => {
       types: [
         { type: 'FixedRole', name: i18n.t('Fixed Role') },
         { type: 'Message', name: i18n.t('Message') },
+        { type: 'MFA', name: i18n.t('MFA') },
         { type: 'Provisioning', name: i18n.t('Provisioning') },
         { type: 'SelectRole', name: i18n.t('Select Role') },
         { type: 'SSL_Inspection', name: i18n.t('SSL Inspection') },

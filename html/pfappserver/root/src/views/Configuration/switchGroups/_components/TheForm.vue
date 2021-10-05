@@ -76,6 +76,11 @@
           :text="$i18n.t('Detect VoIP with the DHCP Fingerprint.')"
         />
 
+        <form-group-post-mfa-validation namespace="PostMfaValidation"
+          :column-label="$i18n.t('Post MFA Validation')"
+          :text="$i18n.t('Add an extra validation in the RADIUS flow to detect if the user successfully validate the MFA.')"
+        />
+
         <form-group-uplink-dynamic namespace="uplink_dynamic"
           v-show="supports(['WiredMacAuth', 'WiredDot1x'])"
           :column-label="$i18n.t('Dynamic Uplinks')"
@@ -469,6 +474,7 @@ import {
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,
@@ -537,6 +543,7 @@ const components = {
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
   FormGroupVoipDhcpDetect,
+  FormGroupPostMfaValidation,
   FormGroupWebServicesPwd,
   FormGroupWebServicesTransport,
   FormGroupWebServicesUser,

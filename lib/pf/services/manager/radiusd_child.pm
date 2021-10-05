@@ -344,6 +344,7 @@ sub generate_radiusd_mainconf {
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
     parse_template( \%tags, "$conf_dir/radiusd/radiusd_loadbalancer.conf", "$install_dir/raddb/radiusd_loadbalancer.conf" );
+    parse_template( \%tags, "$conf_dir/radiusd/radiusd_cli.conf", "$install_dir/raddb/radiusd_cli.conf" );
 }
 
 sub generate_radiusd_restconf {
@@ -641,6 +642,11 @@ listen {
         port = 1815
         type = auth
         virtual_server = packetfence-cli
+        limit {
+              max_connections = 16
+              lifetime = 0
+              idle_timeout = 60
+        }
 }
 
 EOT
@@ -1154,6 +1160,7 @@ home_server pf$i.cluster {
         revive_interval = 120
         check_interval = 30
         num_answers_to_alive = 3
+        response_timeouts = 30
 }
 home_server pf$i.cli.cluster {
         type = auth
@@ -1166,6 +1173,7 @@ home_server pf$i.cli.cluster {
         revive_interval = 120
         check_interval = 30
         num_answers_to_alive = 3
+        response_timeouts = 30
 }
 EOT
             $tags{'home_server'} .= <<"EOT";

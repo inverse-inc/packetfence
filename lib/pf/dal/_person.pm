@@ -70,6 +70,7 @@ BEGIN {
         source
         psk
         potd
+        otp
     );
 
     %DEFAULTS = (
@@ -107,6 +108,7 @@ BEGIN {
         source => undef,
         psk => undef,
         potd => 'no',
+        otp => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -144,6 +146,7 @@ BEGIN {
         source
         psk
         potd
+        otp
     );
 
     %FIELDS_META = (
@@ -355,6 +358,12 @@ BEGIN {
                 'yes' => 1,
             },
         },
+        otp => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -397,6 +406,7 @@ BEGIN {
         person.source
         person.psk
         person.potd
+        person.otp
     );
 
 }

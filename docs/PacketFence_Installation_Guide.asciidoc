@@ -125,6 +125,10 @@ include::installation/integrating_provisioning_agents.asciidoc[]
 
 include::installation/pki_integration.asciidoc[]
 
+== MFA Integration
+
+include::installation/mfa_integration.asciidoc[]
+
 == Best Practices
 
 include::installation/best_practices.asciidoc[]
