@@ -41,6 +41,7 @@ bindings=tenant_id,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+date_limit=24h
 default_limit=100
 charts=scatter|time_bucket:bytes_in:bytes_out:bytes_total
 
@@ -92,6 +93,7 @@ has_limit=enabled
 cursor_type=multi_field
 cursor_field=bytes,mac
 cursor_default=18446744073709551615,ff:ff:ff:ff:ff:ff
+date_limit=24h
 default_limit=25
 node_fields=mac
 
@@ -140,6 +142,7 @@ has_date_range=enabled
 has_limit=enabled
 cursor_type=field
 cursor_field=device_class
+date_limit=24h
 default_limit=25
 
 [Accounting::User]
@@ -187,6 +190,7 @@ has_date_range=enabled
 has_limit=enabled
 cursor_type=field
 cursor_field=pid
+date_limit=24h
 default_limit=25
 person_fields=pid
 
@@ -1707,6 +1711,7 @@ bindings=tenant_id
 has_limit=disabled
 cursor_type=none
 charts=pie|ssid:nodes,bar|ssid:nodes
+
 
 [SSID::All]
 type=sql
