@@ -35,7 +35,7 @@ has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
-has 'date_limit' => ( is => 'rw', isa => 'Str', default => '24h');
+has 'date_limit' => ( is => 'rw', isa => 'Str|Undef');
 
 sub default_start_date_offset {
     my ($self) = @_;
@@ -70,7 +70,7 @@ sub _db_data {
 }
 my $calculate_default_date_range_sql = <<SQL;
 SELECT
-    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_start_date,
+    IFNULL(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T"), '0000-00-00 00:00:00') as default_start_date,
     DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_end_date
 SQL
 sub calculate_default_date_range {

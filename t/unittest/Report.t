@@ -536,10 +536,10 @@ BEGIN {
             id  => 'Ip4Log::Archive',
             check => hash {
                 field id  => 'Ip4Log::Archive';
-                field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field default_start_date => '0000-00-00 00:00:00';
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;
-                field date_limit => '24h';
+                field date_limit => undef;
                 field has_date_range => $true;
                 field has_cursor     => $true;
                 field has_limit      => $true;
@@ -613,7 +613,7 @@ BEGIN {
                 id  => 'Node::Active',
                 default_start_date => undef,
                 default_end_date => undef,
-                date_limit => '24h',
+                date_limit => undef,
                 default_limit => 100,
                 query_fields => [],
                 columns      => [
@@ -645,7 +645,7 @@ BEGIN {
                 id  => 'Node::Report::Test',
                 default_start_date => undef,
                 default_end_date => undef,
-                date_limit => '24h',
+                date_limit => undef,
                 default_limit => 25,
                 query_fields => [],
                 columns      => [
@@ -673,6 +673,41 @@ BEGIN {
             id  => 'Node::Report::TestDateRange',
             check => hash {
                 field id  => 'Node::Report::TestDateRange';
+                field default_start_date => '0000-00-00 00:00:00';
+                field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field default_limit => 25;
+                field date_limit => undef;
+                field has_date_range => $true;
+                field has_cursor     => $false;
+                field has_limit      => $false;
+                field description => 'First node';
+                field charts => array {
+                    end();
+                };
+                field query_fields => array {
+                    end();
+                };
+                field columns => array {
+                    for my $c ( qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)) {
+                        item hash {
+                            field text      => $c;
+                            field name      => $c;
+                            field is_person => $false;
+                            field is_role   => $false;
+                            field is_cursor => $false;
+                            field is_node   => $false;
+                            end();
+                        };
+                    };
+                    end();
+                };
+                end();
+            },
+        },
+        {
+            id  => 'Node::Report::TestDateLimit',
+            check => hash {
+                field id  => 'Node::Report::TestDateLimit';
                 field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;
