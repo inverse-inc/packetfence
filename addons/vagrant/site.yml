@@ -31,4 +31,3 @@
 - import_playbook: playbooks/utils.yml
   tags: utils
 
-- import_playbook: playbooks/unregister_rhel_subscription.yml
