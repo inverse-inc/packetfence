@@ -115,7 +115,7 @@ const setup = props => {
   }
 
   const _render = () => {
-    if (!plotlyRef.value)
+    if (!plotlyRef.value || items.value.length === 0)
       return
     let colors = colorsFull
     let values

@@ -84,7 +84,7 @@ const setup = props => {
   }
 
   const _render = () => {
-    if (!plotlyRef.value)
+    if (!plotlyRef.value || items.value.length === 0)
       return
     const sFields = fields.value.split(':')
     const lastField = sFields[sFields.length - 1] // last field contains count

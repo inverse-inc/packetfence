@@ -209,7 +209,7 @@ const setup = props => {
   }
 
   const _render = () => {
-    if (!plotlyRef.value)
+    if (!plotlyRef.value || items.value.length === 0)
       return
     const sFields = fields.value.split(':')
     let data

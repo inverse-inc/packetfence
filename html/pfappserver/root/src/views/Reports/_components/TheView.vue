@@ -29,9 +29,18 @@
         <the-table
           :meta="meta"
         >
-          <base-input-date-range v-if="hasDateRange"
-            v-model="dateRange"
-            :disabled="isLoading" />
+          <b-row align-v="center">
+            <b-col cols="auto" class="pr-0">
+              <base-input-date-range v-if="hasDateRange"
+                v-model="dateRange"
+                :disabled="isLoading" />
+            </b-col>
+            <b-col cols="auto" class="pl-0 mr-auto" v-if="dateLimit">
+              <small class="text-danger">
+                {{ $t('This report enforces a limited date range of {dateLimit}.', { dateLimit } ) }}
+              </small>
+            </b-col>
+          </b-row>
         </the-table>
       </template>
       <base-container-loading v-else
@@ -109,13 +118,23 @@ const setup = (props, context) => {
     })
   })
 
+  const dateLimit = ref(false)
   watch(id, () => {
     meta.value = {}
     isLoaded.value = false
     getItemOptions({ id: id.value })
       .then(options => {
-        const { report_meta = {} } = options
-        const { start_date, end_date } = dateRange.value
+        const { report_meta = {}, report_meta: { default_end_date, default_start_date, date_limit } = {} } = options
+        let { start_date, end_date } = dateRange.value
+        if (default_end_date || default_start_date) {
+          dateLimit.value = date_limit
+          start_date = default_start_date.replace('.000000', '') || start_date
+          end_date = default_end_date.replace('.000000', '') || end_date
+          dateRange.value = { start_date, end_date, date_limit }
+        }
+        else {
+          dateLimit.value = false
+        }
         // append dates to meta, consumed by search::requestInterceptor
         meta.value = { ...report_meta, start_date, end_date }
       })
@@ -204,6 +223,7 @@ const setup = (props, context) => {
     hasQuery,
 
     dateRange,
+    dateLimit,
 
     charts,
     chartComponent,
