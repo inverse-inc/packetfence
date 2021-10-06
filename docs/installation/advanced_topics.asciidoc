@@ -58,7 +58,7 @@ The following attributes are available to define a report (* mandatory attribute
 * `description`*: A user-friendly description that provides more details about the report. Used as a title for all charts.
 * `charts`: A comma delimited list of charts to display. Each chart is displayed in its own tab above the table data. There is no limit to the number of charts that can be defined. Charts are explained in more detail below.
 * `columns`*: A comma separated list of columns or aliases that are displayed in the table from the SQL query (ex: `node.mac`, `Node MAC`). The table columns are displayed in the respective order. Columns can be aliased to a more friendly name, but these aliases must be used throughout the other attributes.
-* `date_limit`: An access duration that defines the maximum date range allowed between  `start_date` and `end_date`. The reports user is restricted from choosing a date range that exceeds this limit. This is used to prevent the MySQL query from consuming too much resources with large datasets. The duration is defined as `date_limit=[unit]:[interval]` (ex: date_limit=1D), where the unit is a positive integer and the interval is one of the following characters:
+* `date_limit`: An access duration that defines the maximum date range allowed between `start_date` and `end_date`. The reports user is restricted from choosing a date range that exceeds this limit. This is used to prevent the MySQL query from consuming too much resources with large datasets. The duration is defined as `date_limit=[unit]:[interval]` (ex: date_limit=1D), where the unit is a positive integer and the interval is one of the following characters:
   ** `s`: second(s)
   ** `m`: minute(s)
   ** `h`: hour(s)
@@ -68,7 +68,7 @@ The following attributes are available to define a report (* mandatory attribute
   ** `Y`: Year(s)
 * `formatting`: A comma separated list of column or alias formatters. Each column is defined folowed by a colon and the internal PacketFence function used to format the column value for every row (ex: `formatting=vendor:oui_to_vendor`). This is used to format the query result columns using a function to access internal PacketFence memory. The supported formatters:
   ** `oui_to_vendor`: format a MAC OUI to a vendor.
-* `has_date_range`: _[enabled|disabled]_ Display a datetime range and provide `start_date` and `end_date` bindings.
+* `has_date_range`: _[enabled|disabled]_ Display a datetime range and provide `start_date` and `end_date` bindings. See `date_limit` to restrict the maximum date range.
 * `has_limit`: _[enabled|disabled]_  Display a limit selection and provide a `limit` binding.
 * `node_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific Node - only clickable if the reports' user has the _"Node - View"_ admin role. All fields must be a valid PacketFence node identifier _(mac)_.
 * `person_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific User - only clickable if the reports' user has the _"User - View"_ admin role. All fields must be a valid PacketFence user identifier _(pid)_`.
