@@ -358,8 +358,10 @@ variables:
 .test_script_job:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
+  script:
+    - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
   after_script:
-    - make -e -C ${TESTDIR} halt
+    - MAKE_TARGET=halt make -e -C ${TESTDIR} ${CI_JOB_NAME}
 
 ################################################################################
 # JOBS
@@ -533,8 +535,6 @@ publish_ppa_devel_release_branches_and_maintenance::
 ########################################
 ### development
 unit_tests_el8:
-  script:
-    - make -e -C ${TESTDIR} unit_tests_el8
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
@@ -543,8 +543,6 @@ unit_tests_el8:
     - .test_devel_branches_and_maintenance_rules
 
 dot1x_eap_peap_el8:
-  script:
-    - make -e -C ${TESTDIR} dot1x_eap_peap_el8
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
@@ -553,8 +551,6 @@ dot1x_eap_peap_el8:
     - .test_devel_branches_and_maintenance_rules
 
 dot1x_eap_peap_deb11:
-  script:
-    - make -e -C ${TESTDIR} dot1x_eap_peap_deb11
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
@@ -563,8 +559,6 @@ dot1x_eap_peap_deb11:
     - .test_devel_branches_and_maintenance_rules
 
 mac_auth_el8:
-  script:
-    - make -e -C ${TESTDIR} mac_auth_el8
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
@@ -573,8 +567,6 @@ mac_auth_el8:
     - .test_devel_branches_and_maintenance_rules
 
 mac_auth_deb11:
-  script:
-    - make -e -C ${TESTDIR} mac_auth_deb11
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
@@ -584,8 +576,6 @@ mac_auth_deb11:
 
 ### release
 configurator_el8:
-  script:
-    - make -e -C ${TESTDIR} configurator_el8
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
@@ -594,8 +584,6 @@ configurator_el8:
     - .release_only_rules
 
 configurator_deb11:
-  script:
-    - make -e -C ${TESTDIR} configurator_deb11
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
