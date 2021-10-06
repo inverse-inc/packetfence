@@ -1321,11 +1321,10 @@ sub bulk_import {
         );
 
         return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    } else {
+        my $results = $self->do_bulk_import($data);
+        return $self->render(json => { items => $results });
     }
-
-    my $results = $self->do_bulk_import($data);
-    return $self->render(json => { items => $results });
-
 }
 
 sub task_id {
