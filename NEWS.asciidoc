@@ -53,7 +53,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Microsoft Azure AD authentication and authorization support (#6380)
 * Google Workspace integration for LDAP and Chromebooks
 * Automation of upgrades from 10.3 and above (#6438)
-* Forwarding support for audit logs stored in database (#6597)
+* Forwarding support for audit logs stored in database
 * New reports type for MySQL/MariaDB scripts allowing multi-statement session-based statements (#6597)
 * 3 new report charts including parallel categories (sankey diagram) and time-based scatter charts. 10 new reports for accounting, authentication, nodes and roles (#6597)
 
