@@ -122,11 +122,11 @@ $tab .= $t4.$t4.'</thead>'.$nl;
 $tab .= $t4.$t4.'<tbody>'.$nl;
 
 foreach my $name (@list_name_infos) {
-  my $tr=''.$t4.$t4.$t2.'<tr id="'.$name.'"  class="device">'.$nl;
+  my $tr=''.$t4.$t4.$t2.'<tr id="'.$name.'"  class="device ui center aligned">'.$nl;
 
   my $switch_info = $dict_name_infos{$name};
 
-  my $td=$t4.$t4.$t4.'<td class="single line"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br>';
+  my $td=$t4.$t4.$t4.'<td class="single line ui left aligned"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br>';
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
     $td.=' <i class="wifi icon"></i>';
   }
