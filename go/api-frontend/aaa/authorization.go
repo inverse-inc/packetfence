@@ -17,6 +17,7 @@ import (
 )
 
 var apiPrefix = "/api/v1"
+var apiPrefixV1_1 = "/api/v1.1"
 var configApiPrefix = apiPrefix + "/config"
 var configNamespaceRe = regexp.MustCompile("^" + regexp.QuoteMeta(configApiPrefix))
 
@@ -108,6 +109,10 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: apiPrefix + "/services", role: "SERVICES"},
 
 	adminRoleMapping{prefix: apiPrefix + "/reports/", role: "REPORTS"},
+
+	adminRoleMapping{prefix: apiPrefixV1_1 + "/reports", role: "REPORTS"},
+	adminRoleMapping{prefix: apiPrefixV1_1 + "/report/", role: "REPORTS"},
+
 	adminRoleMapping{prefix: apiPrefix + "/dynamic_reports", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefix + "/dynamic_report/", role: "REPORTS"},
 	adminRoleMapping{prefix: apiPrefix + "/radius_audit_log/", role: "RADIUS_LOG"},

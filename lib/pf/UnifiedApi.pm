@@ -80,6 +80,7 @@ sub startup {
 #   });
     my $routes = $self->routes;
     $self->setup_api_v1_routes($routes->any("/api/v1")->name("api.v1"));
+    $self->setup_api_v1_1_routes($routes->any("/api/v1.1")->name("api.v1.1"));
     $self->custom_startup_hook();
     $routes->any( '/*', sub {
         my ($c) = @_;
@@ -185,6 +186,25 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_system_services_routes($api_v1_route);
     $self->setup_api_v1_system_summary_route($api_v1_route);
     $self->setup_api_v1_emails_route($api_v1_route);
+}
+
+sub setup_api_v1_1_routes {
+    my ($self, $root) = @_;
+    $self->setup_api_v1_1_reports_routes($root);
+}
+
+sub setup_api_v1_1_reports_routes {
+    my ($self, $root) = @_;
+    my $root_name = $root->name;
+    my $controller = "DynamicReports";
+    my $name = "$root_name.DynamicReports";
+    my $collection_route = $root->any("/reports")->to(controller => $controller)->name($name);
+    $collection_route->register_sub_action({path => '', action => 'list', method => 'GET'});
+    my $resource_route = $root->under("/report/#report_id")->to(controller => $controller, action => "resource")->name("${name}.resource");
+    $resource_route->register_sub_action({path => '', action => 'get', method => 'GET'});
+    $resource_route->register_sub_action({action => 'search', method => 'POST'});
+    $resource_route->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
+    return ( $collection_route, $resource_route );
 }
 
 sub custom_startup_hook {
