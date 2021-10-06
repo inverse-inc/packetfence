@@ -61,11 +61,14 @@ sub _db_data {
     $sth->finish();
     return (200, $items);
 }
-
+my $calculate_default_date_range_sql = <<SQL;
+SELECT
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_start_date,
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_end_date
+SQL
 sub calculate_default_date_range {
     my ($self) = @_;
-    my @params = 24*60*60;
-    my ($status, $sth) = pf::dal->db_execute("SELECT DATE_SUB(NOW(), INTERVAL ? SECOND) as default_start_date, DATE_SUB(NOW(), INTERVAL ? SECOND) as default_end_date", $self->default_start_date_offset, $self->default_end_date_offset);
+    my ($status, $sth) = pf::dal->db_execute($calculate_default_date_range_sql, $self->default_start_date_offset, $self->default_end_date_offset);
     if (is_error($status)) {
         return ($status);
     }

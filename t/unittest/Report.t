@@ -536,8 +536,8 @@ BEGIN {
             id  => 'Ip4Log::Archive',
             check => hash {
                 field id  => 'Ip4Log::Archive';
-                field default_start_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-                field default_end_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;
                 field has_date_range => $true;
                 field has_cursor     => $true;
@@ -696,8 +696,8 @@ BEGIN {
             },
             check => hash {
                 field id  => 'Node::Report::TestDateRange';
-                field default_start_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-                field default_end_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+                field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;
                 field has_date_range => $true;
                 field has_cursor     => $false;
