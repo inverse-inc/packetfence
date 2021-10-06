@@ -30,9 +30,7 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
-  BUILDDIR: $CILIBDIR/build
-  RELEASEDIR: $CILIBDIR/release
-  TESTDIR: $CILIBDIR/test
+  TESTDIR: t/venom
   UPLOAD_DIR: $CILIBDIR/upload
   SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
@@ -359,23 +357,9 @@ variables:
 
 .test_script_job:
   variables:
-    INT_TEST_VM_NAMES: ad switch01 node01 wireless01
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
-  script:
-    - make -e -C ${TESTDIR} test
   after_script:
     - make -e -C ${TESTDIR} halt
-
-########################################
-# VARIABLES
-########################################
-.test_el_8_vars:
-  variables:
-    PF_VM_NAME: pfel8dev
-
-.test_debian_bullseye_vars:
-  variables:
-    PF_VM_NAME: pfdeb11dev
 
 ################################################################################
 # JOBS
@@ -547,6 +531,11 @@ publish_ppa_devel_release_branches_and_maintenance::
 ########################################
 # TEST JOBS
 ########################################
+### New
+test_devel_branches_and_maintenance_perl_unit_tests_el8:
+
+
+### Old
 test_devel_branches_and_maintenance_el_8:
   variables:
     PERL_UNIT_TESTS: 'yes'
