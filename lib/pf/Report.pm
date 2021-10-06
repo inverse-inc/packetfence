@@ -35,9 +35,16 @@ has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
-has 'default_start_date_offset' => ( is => 'rw', isa => 'PfInterval', coerce => 1, default => 24*60*60 );
+has 'date_limit' => ( is => 'rw', isa => 'Str', default => '24h');
 
-has 'default_end_date_offset' => ( is => 'rw', isa => 'PfInterval', coerce => 1, default => 0 );
+sub default_start_date_offset {
+    my ($self) = @_;
+    return normalize_time($self->date_limit);
+}
+
+sub default_end_date_offset {
+    0
+}
 
 sub build_query_options {
     return (422, { message => "unimplemented" });
@@ -126,6 +133,7 @@ sub meta_for_options {
         has_limit   => $self->options_has_limit(),
         has_date_range   => $self->options_has_date_range(),
         default_limit  => $self->default_limit(),
+        date_limit  => $self->date_limit(),
         (
             map { ($_ => $self->{$_}) } qw(description charts)
         ),

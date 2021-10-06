@@ -539,6 +539,7 @@ BEGIN {
                 field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;
+                field date_limit => '24h';
                 field has_date_range => $true;
                 field has_cursor     => $true;
                 field has_limit      => $true;
@@ -612,6 +613,7 @@ BEGIN {
                 id  => 'Node::Active',
                 default_start_date => undef,
                 default_end_date => undef,
+                date_limit => '24h',
                 default_limit => 100,
                 query_fields => [],
                 columns      => [
@@ -643,6 +645,7 @@ BEGIN {
                 id  => 'Node::Report::Test',
                 default_start_date => undef,
                 default_end_date => undef,
+                date_limit => '24h',
                 default_limit => 25,
                 query_fields => [],
                 columns      => [
@@ -668,37 +671,12 @@ BEGIN {
         },
         {
             id  => 'Node::Report::TestDateRange',
-            out => {
-                id  => 'Node::Report::TestDateRange',
-                default_start_date => undef,
-                default_end_date => undef,
-                default_limit => 25,
-                query_fields => [],
-                columns      => [
-                    (
-                        map {
-                            {
-                                text      => $_,
-                                name      => $_,
-                                is_person => $false,
-                                is_node   => $false,
-                                is_role   => $false,
-                                is_cursor  => $false,
-                            }
-                        } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
-                    )
-                ],
-                has_date_range => $true,
-                has_cursor     => $false,
-                has_limit      => $false,
-                description => 'First node',
-                charts => [],
-            },
             check => hash {
                 field id  => 'Node::Report::TestDateRange';
                 field default_start_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_end_date => match(qr/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
                 field default_limit => 25;
+                field date_limit => '24h';
                 field has_date_range => $true;
                 field has_cursor     => $false;
                 field has_limit      => $false;
