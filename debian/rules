@@ -51,8 +51,9 @@ install: build
 	done
 
 	# Install all except debian and t directory
+	# dir* to exclude directory itself
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' \
-	-not -path "addons/full-upgrade/*" -type d`; do \
+	-not -path "addons/full-upgrade*" -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' \
