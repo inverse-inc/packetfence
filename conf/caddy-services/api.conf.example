@@ -24,6 +24,11 @@
     methods GET,OPTIONS,POST,DELETE,PUT,PATCH
   }
 
+  cors /api/v1.1 {
+    allowed_headers Authorization,Content-Type,X-PacketFence-Tenant-Id
+    methods GET,OPTIONS,POST,DELETE,PUT,PATCH
+  }
+
   api-aaa
   
   api
