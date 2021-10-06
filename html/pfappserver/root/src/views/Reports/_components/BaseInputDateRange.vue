@@ -4,7 +4,7 @@
       <b-btn variant="link" id="periods" :disabled="disabled">
         <icon name="stopwatch" />
       </b-btn>
-      <b-btn v-if="hasDateLimit"
+      <b-btn v-if="hasDates"
         variant="link" @click="previousRange" v-b-tooltip.hover.bottom.d300 :title="$i18n.t('Previous date range')">
           <icon name="chevron-left" />
       </b-btn>
@@ -22,7 +22,7 @@
         :placeholder="$i18n.t('Start')" :disabled="disabled" :min="minStartDate" :max="maxStartDate" class="mr-1" defer />
       <base-input-group-date-time v-model="endDate"
         :placeholder="$i18n.t('End')" :disabled="disabled" :min="minEndDate" :max="maxEndDate" defer />
-      <b-btn v-if="hasDateLimit"
+      <b-btn v-if="hasDates"
         variant="link" @click="nextRange" v-b-tooltip.hover.bottom.d300 :title="$i18n.t('Next date range')">
           <icon name="chevron-right" />
       </b-btn>
