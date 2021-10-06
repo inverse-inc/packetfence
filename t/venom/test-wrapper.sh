@@ -134,16 +134,16 @@ halt() {
     log_subsection "Halt virtual machine(s)"
 
     ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant halt -f ${PF_VM_NAME} )
+      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant halt -f )
 
     ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f ${INT_TEST_VM_NAMES} )
+      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f )
 }
 
 unregister_rhel() {
     log_subsection "Unregister RHEL subscription"
     ( cd $VAGRANT_DIR ; \
-      ansible-playbook playbooks/unregister_rhel_subscription.yml -l $PF_VM_NAME )
+      ansible-playbook playbooks/unregister_rhel_subscription.yml -l $VM_LIST )
 }
 
 teardown() {
