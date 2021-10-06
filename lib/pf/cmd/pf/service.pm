@@ -215,6 +215,11 @@ sub updateSystemd {
     for my $manager (@managers) {
         _doUpdateSystemd($manager, $show);
     }
+    if(isenabled($Config{monit}{status})) {
+        system("sudo systemctl enable monit")
+    } else {
+        system("sudo systemctl disable monit")
+    }
     system("sudo systemctl daemon-reload");
     return $EXIT_SUCCESS;
 }

@@ -132,11 +132,16 @@ function get_configuration_upgrade_scripts() {
   echo $scripts
 }
 
-function upgrade_configuration() {
+function upgrade_imported_configuration() {
   dump_version=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' usr/local/pf/conf/pf-release`
   echo "Detected version $dump_version in the export's pf-release"
-  echo "Starting the upgrade of the configuration"
-  for script in `get_configuration_upgrade_scripts $dump_version`; do
+  upgrade_configuration $dump_version
+}
+
+function upgrade_configuration() {
+  previous_version="$1"
+  echo "Starting the upgrade of the configuration from $previous_version"
+  for script in `get_configuration_upgrade_scripts $previous_version`; do
     sub_splitter
     echo "Running $script"
     $script
@@ -162,4 +167,8 @@ function adjust_configuration() {
   echo "Setting localhost as the database host"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->setval('mysql', 'host', 'localhost') ; \$c->RewriteConfig"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('database', 'host', 'localhost') ; \$c->RewriteConfig"
+}
+
+function is_cluster() {
+  [ `perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::config::cluster -e 'print $cluster_enabled'` -eq 1 ]
 }

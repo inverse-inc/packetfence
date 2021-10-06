@@ -315,6 +315,8 @@ EOT
 
     $tags{'oauth2_if_enabled'} = (any { $_->{azuread_source_ttls_pap} } values(%ConfigRealm)) ? "oauth2" : "#oauth2 is not in use by any realm";
 
+    $tags{'local_auth_if_enabled'} = isenabled($Config{radius_configuration}{local_auth}) ? "packetfence-local-auth" : "# packetfence-local-auth is not enabled in the configuration";
+
     $tt->process("$conf_dir/radiusd/packetfence-tunnel", \%tags, "$install_dir/raddb/sites-enabled/packetfence-tunnel") or die $tt->error();
 
     %tags = ();

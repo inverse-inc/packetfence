@@ -55,6 +55,7 @@ import GeneralRoutes from '../general/_router'
 import AlertingRoutes from '../alerting/_router'
 import AdvancedRoutes from '../advanced/_router'
 import MaintenanceTasksRoutes from '../maintenanceTasks/_router'
+import MonitRoutes from '../monit/_router'
 import ServicesRoutes from '../services/_router'
 import DatabaseRoutes from '../database/_router'
 import ActiveActiveRoutes from '../activeActive/_router'
@@ -167,6 +168,7 @@ const route = {
     ...AlertingRoutes,
     ...AdvancedRoutes,
     ...MaintenanceTasksRoutes,
+    ...MonitRoutes,
     ...ServicesRoutes,
     ...DatabaseRoutes,
     ...ActiveActiveRoutes,

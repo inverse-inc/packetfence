@@ -1280,6 +1280,8 @@ username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Na
 #
 # Send in the proxy request the attribute PacketFence-KeyBalanced to randomize the load balance in the next PacketFence RADIUS server
 forward_key_balanced=disabled
+# radius_configuration.local_auth
+local_auth=disabled
 
 [dns_configuration]
 #
@@ -1355,3 +1357,11 @@ live=enabled
 # lets_encrypt.test_uri
 # The URI to use to test that the portal is available publicly
 test_uri=https://ssl-test.inverse.ca/
+
+[monit]
+status=disabled
+alert_email_to=
+subject_prefix=
+configurations=packetfence,os-checks
+mailserver=
+

@@ -283,6 +283,13 @@ Requires: perl(Crypt::SMIME)
 # Language packs
 Requires: langpacks-fr, langpacks-es, langpacks-de, langpacks-he, langpacks-it, langpacks-nb, langpacks-nl, langpacks-pl, langpacks-pt
 
+# Monit and monitoring scripts
+Requires: monit, uuid
+
+# packetfence-release to have GPG key used to sign monitoring scripts
+Requires: packetfence-release >= 2.4.0
+Requires: gnupg2
+
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
 # TESTING related
@@ -428,6 +435,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
 %{__install} -d %{buildroot}/usr/local/pf/addons/full-import
+%{__install} -d %{buildroot}/usr/local/pf/addons/functions
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/certmanager
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
@@ -467,11 +475,12 @@ cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
 cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
 cp addons/full-import/*.sh %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/full-import/*.pl %{buildroot}/usr/local/pf/addons/full-import/
-cp addons/full-import/*.functions %{buildroot}/usr/local/pf/addons/full-import/
+cp addons/functions/*.functions %{buildroot}/usr/local/pf/addons/functions/
 cp addons/*.pl %{buildroot}/usr/local/pf/addons/
 cp addons/*.sh %{buildroot}/usr/local/pf/addons/
 %{__install} -D packetfence.logrotate %{buildroot}/etc/logrotate.d/packetfence
 %{__install} -D packetfence.rsyslog-drop-in.service %{buildroot}/etc/systemd/system/rsyslog.service.d/packetfence.conf
+%{__install} -D packetfence.monit-drop-in.service %{buildroot}/etc/systemd/system/monit.service
 %{__install} -D packetfence.journald %{buildroot}%{systemddir}/journald.conf.d/01-packetfence.conf
 cp -r sbin %{buildroot}/usr/local/pf/
 cp -r conf %{buildroot}/usr/local/pf/
@@ -616,9 +625,9 @@ echo "Disabling emergency error logging to the console"
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-    /usr/local/pf/bin/pfcmd fixpermissions
 fi
 
+/usr/local/pf/bin/pfcmd fixpermissions
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
@@ -629,6 +638,13 @@ else
     echo "Setting packetfence.target as the default systemd target."
     /bin/systemctl set-default packetfence.target
 fi
+
+# Install the monitoring scripts signing key
+echo "Install the monitoring scripts signing key"
+gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
+
+# Remove the monit service from the multi-user target if its there
+rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
 #Check if log files exist and create them with the correct owner
 for fic_log in packetfence.log redis_cache.log security_event.log httpd.admin.audit.log
@@ -768,6 +784,7 @@ fi
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
+%attr(0644, root, root) /etc/systemd/system/monit.service
 
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
@@ -789,7 +806,7 @@ fi
 # only add files installed (above) to packetfence package
 %attr(0755, pf, pf)     /usr/local/pf/addons/full-import/*.sh
 %attr(0755, pf, pf)     /usr/local/pf/addons/full-import/*.pl
-%attr(0644, pf, pf)     /usr/local/pf/addons/full-import/*.functions
+%attr(0644, pf, pf)     /usr/local/pf/addons/functions/*.functions
 %dir                    /usr/local/pf/addons/high-availability/
                         /usr/local/pf/addons/high-availability/*
 %dir                    /usr/local/pf/addons/integration-testing/
@@ -1077,6 +1094,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
 %config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
+%config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example
 %config(noreplace)      /usr/local/pf/conf/cluster.conf
@@ -1277,8 +1296,8 @@ fi
 # Changelog
 #==============================================================================
 %changelog
-* Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
-- New release 11.1.0
+* Tue Oct 05 2021 Inverse <info@inverse.ca> - 11.1.0-2
+- Add dependency to packetfence-release and gnupg2
 
 * Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
 - New release 11.1.0

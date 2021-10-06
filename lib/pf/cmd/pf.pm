@@ -23,6 +23,7 @@ pfcmd <command> [options]
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
   generatedomainconfig        | generate the domain configuration
   generatemariadbconfig       | generate the MariaDB configuration
+  generatemonitconfig         | generate the monit configuration
   generatesyslogconfig        | generate the syslog configuration
   help                        | show help for pfcmd commands
   import                      | bulk import of information into the database

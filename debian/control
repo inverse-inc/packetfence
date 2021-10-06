@@ -29,6 +29,8 @@ Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
+ packetfence-archive-keyring (>= ${source:Version}),
+ gpg,
  mariadb-server (>= 10.5.10),
  mariadb-client (>= 10.5.10),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
@@ -153,6 +155,8 @@ Depends: ${misc:Depends}, vlan,
  libscalar-list-utils-perl (>= 1.41-1),libfile-fcntllock-perl,libjson-xs-perl,libmoo-perl,libnet-dns-perl,python3-twisted-bin,python3-twisted,libconfig-inifiles-perl,
 # fuse
  fuse,
+# Monit and monitoring scripts
+ monit, uuid-runtime,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
@@ -181,6 +185,17 @@ Architecture: all
 Description: PacketFence export files
  PacketFence export files. This package contains all files related to export mechanism.
  This package should only be installed on releases before v11.
+
+Package: packetfence-upgrade
+Architecture: all
+Description: PacketFence upgrade files
+ PacketFence upgrade files. This package contains all files related to upgrade mechanism.
+ This package should only be installed on releases after v11.
+
+Package: packetfence-archive-keyring
+Architecture: all
+Description: GPG keys provided by PacketFence project
+ GPG keys provided by PacketFence project.
 
 Package: packetfence-pfcmd-suid
 Architecture: any

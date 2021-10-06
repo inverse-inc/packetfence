@@ -1,5 +1,5 @@
 Name:       packetfence-release
-Version:    2.3.0
+Version:    2.4.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
@@ -78,6 +78,39 @@ yglRDT063w==
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
 
+%{__cat} <<EOF > %{_builddir}/RPM-GPG-KEY-PACKETFENCE-MONITORING
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQENBFgBPXMBCACwH15Boe8a8870M8NbM+oH4ZaotUbunjyY/En9Hx99srODbjy3
+0uR+yeSfrdDDqHr+raW8pbP5dtVyWrv8U28fdjglh+0CEfSmNo/2bYfKNop+wQBD
+h6rvosyBCSiqrqoyO+Q4DCB3et/rYaXhhx0zljv2AvAC0TFEAxf9f1RSj3e8K2RG
+xBsuzuF+zcyidOGE+EPKEm6Sog697kwV3BN5shsRl2N/rylDWg/4R9uOgb6flLXa
+kzKfiMFV6DoQKddGzkRZmDVUi6bW91XEWDuH0AqhGGjAqaKVUs8CAySooPxfxxSj
+cHkpsazQOu/S6CZmYMpnfF3qHA0c1W3WF8cxABEBAAG0M0ludmVyc2UgSW5jLiAo
+TW9uaXRvcmluZyBTY3JpcHRzKSA8aW5mb0BpbnZlcnNlLmNhPokBOAQTAQIAIgUC
+WAE9cwIbAwYLCQgHAwIGFQgCCQoLBBYCAwECHgECF4AACgkQl21ZKOOigzQ/mQf/
+cdMSWwWt7vuh/MO3sofW+4XAtjd3v4kZpfhhYlfwejb6FEGvlv4/eN9SAaqDDR8Y
+9ngt7ui2m02IFZbNqhaxJ3n8PLfrf6WMEOH3+cYUfyZJWUmnZiMeJ+nGPXd9WX1w
+V0mx3mZ5S7mlRNgejProP3Fze8+muMVbXCUjkjfggiIcdt9oZx2Tk5Rg7df9RV+8
+4p11DkBsVYRwu2gOI9Rp3OIRIERAA+9Z4sZQeP++wSQnk5baiYx/KjA1BWj1hWLf
+j5bmWp9U/hqZzrXwgF6yjVPuv/NaVw5q+gp5iRcBEfwKhioqf5GV+4GNdnJ36AUm
+TuuAzX9zHPIhO43rvhP1hbkBDQRYAT1zAQgA+Tdl6trMRRVee6IdJZSY8tSOd55P
+gm5dSJITk3dk+kPFck5MSb5OnlPD5BWTO5je+7f/zm0rlbRk5DMU3ehCa3kQKwZo
+UHehQHEn9xN6XNy48s5LGIKtRnjazcT2MkNwoghecXYVh8WntwU4sR0lIWP7/BXc
+hM1jrrmNH4LoL7owmO+msSHKo8JfAIfKISGSdIXS/7y977DL7H1HBFssc7r23uWN
+7K9P4QY1p0xF6Au7IBndsLvkmuJduNXjPpkioea0d8qHlUKTTHwVfq1tQULxodYF
+Hm5PAb3B2cNkUbRYqiXnB/4M14uDV4AsHoVK1eWTKIXrmnf4bEybEe601wARAQAB
+iQEfBBgBAgAJBQJYAT1zAhsMAAoJEJdtWSjjooM0nHYIAIwP6IRJICyAAGSiH5oi
+LMkOPmay+svlaVVC/WPKjH5ru+K1pdnar/53d7hxojOn+R3WT02Nd7iNs3ooYVC0
+DU0++TZE2UD+nIYqa/V0kINRBfoVY8qI9OTX9jypE5eMATInDpKb1uyTxKvizXcX
+M+6uMuFojWkYANHdMuc+btbkxGdvGNx7JpUjFFpKhVx9P4DR2I4TsUl1f5tDbjT/
+IAVJ1HxeEawk8PQww0hrdrD/kO+7MvzCUUR/FBZoO7IAQtE92AwRg14hjvD7sq87
+vO3AJx6mqQazcUowYI1ENzjByK52XE2NGsOWKfk7WpaNV+g9TO1oA3oVdNVMePk0
+1J0=
+=HRaj
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+
 
 %build
 
@@ -87,6 +120,7 @@ mkdir -p %{buildroot}/etc/yum.repos.d/
 mkdir -p %{buildroot}/etc/pki/rpm-gpg/
 cp %{_builddir}/packetfence.repo %{buildroot}/etc/yum.repos.d/packetfence.repo
 cp %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
+cp %{_builddir}/RPM-GPG-KEY-PACKETFENCE-MONITORING %{buildroot}%{_sysconfdir}/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -95,9 +129,13 @@ cp %{_builddir}/RPM-GPG-KEY-PACKETFENCE-CENTOS %{buildroot}%{_sysconfdir}/pki/rp
 %defattr(0644, root, root)
 %config /etc/yum.repos.d/packetfence.repo
 /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-CENTOS
+/etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 
 
 %changelog
+* Mon Oct 04 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.4.0-1
+- Add GPG key used to sign monitoring scripts
+
 * Mon Jul 19 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 2.3.0-1
 - Create files in BUILD directory in place of filesystem
 

@@ -11,7 +11,7 @@ use File::Copy;
 use File::Spec::Functions;
 use Template;
 use List::MoreUtils qw(any);
-
+use pf::config qw(%Config);
 
 my $PF_PATH                                 = $pf::file_paths::install_dir;
 my $MONIT_CHECKS_CONF_TEMPLATES_PATH        = catfile($PF_PATH,"addons/monit/monit_checks_configurations");
@@ -86,6 +86,7 @@ sub generate_monit_configurations {
         EMAILS              => \@emails,
         SUBJECT_IDENTIFIER  => $subject_identifier,
         MAILSERVER          => $mailserver,
+        ALERTING_CONF       => $Config{alerting},
     };
     my $tt = Template->new(ABSOLUTE => 1);
     my $template_file;
@@ -95,11 +96,6 @@ sub generate_monit_configurations {
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "monit_general" . $TEMPLATE_FILE_EXTENSION);
     $destination_file = catfile($MONIT_PATH, "monit_general" . $CONF_FILE_EXTENSION);
     print "Generating '$destination_file'\n";
-    if ( -e $destination_file ) {
-        my $backup_file = catfile($MONIT_EXTRA_PATH, "monit_general" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
-        move($destination_file, $backup_file);
-        print "Generating '$backup_file' (BACKED UP FILE)\n";
-    }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     print "\n/!\\ -> Applied 'Monit' configuration. You might want to restart it for the change to take place\n\n";
 
@@ -107,11 +103,6 @@ sub generate_monit_configurations {
     $template_file = catfile($MONIT_CONF_TEMPLATES_PATH, "syslog_monit" . $TEMPLATE_FILE_EXTENSION);
     $destination_file = "/etc/rsyslog.d/monit.conf";
     print "Generating '$destination_file'\n";
-    if ( -e $destination_file ) {
-        my $backup_file = catfile($MONIT_EXTRA_PATH, "syslog_monit" . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
-        move($destination_file, $backup_file);
-        print "Generating '$backup_file' (BACKED UP FILE)\n";
-    }
     $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     unlink "$MONIT_PATH/logging"; # Remove default Monit logging configuration file
     system("/bin/systemctl restart rsyslog");
@@ -132,17 +123,16 @@ Will also take care of backing up existing file (XX_name.conf.bak) before overwr
 sub generate_specific_configurations {
     print "Generating the following configuration files:\n";
 
+    my $fingerbank_enabled = (`systemctl is-enabled packetfence-fingerbank-collector` eq "enabled\n");
+        
+    for my $template (values (%CONFIGURATION_TO_TEMPLATE)) {
+        unlink catfile($MONIT_PATH,$template . $CONF_FILE_EXTENSION);
+    }
+
     foreach my $configuration ( @configurations ) {
         my $template_file = catfile($MONIT_CHECKS_CONF_TEMPLATES_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $TEMPLATE_FILE_EXTENSION);
         my $destination_file = catfile($MONIT_PATH,$CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION);
         print " - $destination_file\n";
-
-        # Backing up existing configuration file (just in case)
-        if ( -e $destination_file ) {
-            my $backup_file = catfile($MONIT_EXTRA_PATH, $CONFIGURATION_TO_TEMPLATE{$configuration} . $CONF_FILE_EXTENSION . $BACKUP_FILE_EXTENSION);
-            move($destination_file, $backup_file);
-            print " - $backup_file (BACKED UP FILE)\n";
-        }
 
         # Handling domains (winbind configuration)
         my $domains = handle_domains();
@@ -162,6 +152,7 @@ sub generate_specific_configurations {
             SERVICE_BIN         => $service_bin,
             WINBINDD_PID        => $winbindd_pid,
             ACTIVE_ACTIVE       => (any { $_ eq 'active-active' } @configurations),
+            FINGERBANK_ENABLED  => $fingerbank_enabled,
         };
         $tt->process($template_file, $vars, $destination_file) or die $tt->error();
     }

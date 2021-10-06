@@ -4,6 +4,7 @@
 *filter
 
 ### INPUT ###
+%%input_include%%
 :INPUT DROP [0:0]
 # accept loopback stuff
 -A INPUT --in-interface lo --jump ACCEPT
@@ -13,6 +14,9 @@
 -A INPUT --protocol icmp --icmp-type echo-request --jump ACCEPT
 
 :input-management-if - [0:0]
+
+%%input_management_include%%
+
 # SSH
 -A input-management-if --match state --state NEW --match tcp --protocol tcp --dport 22 --jump ACCEPT
 # HTTP and HTTPS for the portal

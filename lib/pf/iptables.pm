@@ -27,6 +27,7 @@ use NetAddr::IP;
 use List::MoreUtils qw(uniq);
 use pf::constants;
 use pf::config::cluster;
+use File::Slurp qw(read_file);
 
 BEGIN {
     use Exporter ();
@@ -202,6 +203,9 @@ sub iptables_generate {
 
     generate_domain_rules(\$tags{'filter_forward_domain'}, \$tags{'domain_postrouting'});
     generate_netflow_rules(\$tags{'forward_netflow'});
+
+    $tags{'input_include'} = "#BEGIN include iptables-input.conf.inc\n" . read_file("$conf_dir/iptables-input.conf.inc") . "#END include iptables-input.conf.inc\n";
+    $tags{'input_management_include'} = "#BEGIN include iptables-input-management.conf.inc\n" . read_file("$conf_dir/iptables-input-management.conf.inc") . "#END include iptables-input-management.conf.inc\n";
 
     parse_template( \%tags, "$conf_dir/iptables.conf", "$generated_conf_dir/iptables.conf" );
     $self->iptables_restore("$generated_conf_dir/iptables.conf");

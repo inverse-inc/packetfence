@@ -17,6 +17,7 @@ import GeneralView from '../general/_components/TheView'
 import AlertingView from '../alerting/_components/TheView'
 import AdvancedView from '../advanced/_components/TheView'
 import MaintenanceTasksSearch from '../maintenanceTasks/_components/TheSearch'
+import MonitView from '../monit/_components/TheView'
 import ServicesView from '../services/_components/TheView'
 
 const tabs = {
@@ -27,6 +28,10 @@ const tabs = {
   alerting: {
     title: 'Alerting', // i18n defer
     component: AlertingView
+  },
+  monit: {
+    title: 'Monit', // i18n defer
+    component: MonitView
   },
   advanced: {
     title: 'Advanced', // i18n defer
