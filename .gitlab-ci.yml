@@ -542,6 +542,46 @@ unit_tests_el8:
     - .test_script_job
     - .test_devel_branches_and_maintenance_rules
 
+dot1x_eap_peap_el8:
+  script:
+    - make -e -C ${TESTDIR} dot1x_eap_peap_el8
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
+dot1x_eap_peap_deb11:
+  script:
+    - make -e -C ${TESTDIR} dot1x_eap_peap_deb11
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
+mac_auth_el8:
+  script:
+    - make -e -C ${TESTDIR} mac_auth_el8
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
+mac_auth_deb11:
+  script:
+    - make -e -C ${TESTDIR} mac_auth_deb11
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
 ### release
 configurator_el8:
   script:
