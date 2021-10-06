@@ -1,5 +1,9 @@
 name: Create connection profile
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_dot1x_eap_tls_connection_profile
   steps:
   - type: http
@@ -57,7 +61,7 @@ testcases:
         "vlan_pool_technique": "username_hash"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

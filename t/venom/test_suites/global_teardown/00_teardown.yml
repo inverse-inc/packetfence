@@ -1,5 +1,9 @@
 name: Global teardown
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: delete_access_level
   steps:
   - type: http
@@ -7,7 +11,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/admin_role/{{.access_level_user_and_node.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -19,7 +23,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id2}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -31,7 +35,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.cumulus_switch_group.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -43,7 +47,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.wireless_switch.id2}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -55,7 +59,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.wireless_switch_group.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

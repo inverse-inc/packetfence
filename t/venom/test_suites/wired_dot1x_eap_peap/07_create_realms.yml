@@ -1,5 +1,9 @@
 name: Create and configure REALMS
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_realms
   steps:
   - type: http
@@ -29,7 +33,7 @@ testcases:
         "radius_strip_username": "enabled"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -61,7 +65,7 @@ testcases:
         "radius_strip_username": "enabled"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -77,7 +81,7 @@ testcases:
         "domain": "{{.ad_domain_id}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -91,7 +95,7 @@ testcases:
         "domain": "{{.ad_domain_id}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

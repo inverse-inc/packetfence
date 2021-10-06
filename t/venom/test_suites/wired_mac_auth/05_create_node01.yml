@@ -1,5 +1,9 @@
 name: Create node01 with the mac 00:03:00:11:11:01 and role headless_device
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: get_category_id_of_role
   steps:
   - type: http
@@ -30,7 +34,7 @@ testcases:
         }
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -55,7 +59,7 @@ testcases:
         "unregdate": null
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

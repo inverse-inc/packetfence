@@ -1,5 +1,9 @@
 name: Create production network
 testcases:  
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_production_network_in_tenant
   steps:
     - type: http
@@ -14,7 +18,7 @@ testcases:
           "id": "{{.pfdhcplistener_multi_tenant.production_network.subnet}}"
         }
       headers:
-        "Authorization": "{{.pfserver_token}}"
+        "Authorization": "{{.get_login_token.json.result.token}}"
         "Content-Type": "application/json"
         "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
       assertions:

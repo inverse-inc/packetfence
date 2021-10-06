@@ -1,5 +1,9 @@
 name: Enable OCSP
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_ocsp_profile
   steps:
   - type: http
@@ -17,7 +21,7 @@ testcases:
         "ocsp_use_nonce": "{{.dot1x_eap_tls_pfpki.ocsp.use_nonce}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -34,7 +38,7 @@ testcases:
         "ocsp": "{{.dot1x_eap_tls_pfpki.ocsp.id}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

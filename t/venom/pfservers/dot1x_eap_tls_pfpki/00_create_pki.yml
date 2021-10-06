@@ -1,5 +1,9 @@
 name: Create PKI
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_root_ca
   steps:
   - type: http
@@ -24,7 +28,7 @@ testcases:
         "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -57,7 +61,7 @@ testcases:
         "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -80,7 +84,7 @@ testcases:
         "ip_addresses": "{{.dot1x_eap_tls_pfpki.certs.radius.ip_addresses}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -164,7 +168,7 @@ testcases:
         "ocsp_url": "{{.dot1x_eap_tls_pfpki.certs.ocsp_url}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -187,7 +191,7 @@ testcases:
         "ip_addresses": "{{.dot1x_eap_tls_pfpki.certs.http.ip_addresses}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -277,7 +281,7 @@ testcases:
         "scep_days_before_renewal": "{{.dot1x_eap_tls_pfpki.certs.user.scep_days_before_renewal}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -298,7 +302,7 @@ testcases:
         "mail": "{{.dot1x_eap_tls_pfpki.certs.user.mail}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

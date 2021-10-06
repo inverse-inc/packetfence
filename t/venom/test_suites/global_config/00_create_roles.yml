@@ -1,5 +1,9 @@
 name: Create roles
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_eap_peap_roles_user
   steps:
   - type: http
@@ -13,7 +17,7 @@ testcases:
         "notes":"{{.eap_peap.roles.ad_user.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -31,7 +35,7 @@ testcases:
         "notes":"{{.eap_peap.roles.ad_machine.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -49,7 +53,7 @@ testcases:
         "notes":"{{.mac_auth.roles.headless_device.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -67,7 +71,7 @@ testcases:
         "notes":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

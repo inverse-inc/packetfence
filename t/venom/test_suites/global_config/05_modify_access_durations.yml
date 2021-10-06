@@ -1,5 +1,9 @@
 name: Modify access durations
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: modify_access_durations
   steps:
   - type: http
@@ -13,7 +17,7 @@ testcases:
         "default_access_duration": "{{.access_duration.default_choice}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

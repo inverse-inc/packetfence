@@ -1,5 +1,9 @@
 name: Create switches and switch groups
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_cumulus_switch_group
   steps:
   - type: http
@@ -115,7 +119,7 @@ testcases:
         "wsUser": null
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -136,7 +140,7 @@ testcases:
         "description": "{{.cumulus_switch.description}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -252,7 +256,7 @@ testcases:
         "wsUser": null
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -270,7 +274,7 @@ testcases:
         "description": "{{.wireless_switch.description}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

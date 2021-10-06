@@ -1,5 +1,9 @@
 name: Create EAP-TLS source
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_eaptls_source
   steps:
   - type: http
@@ -40,7 +44,7 @@ testcases:
         "type": "EAPTLS"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

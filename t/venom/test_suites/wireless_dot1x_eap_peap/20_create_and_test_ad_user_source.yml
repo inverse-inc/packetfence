@@ -1,5 +1,9 @@
 name: Create and test AD user source
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_ad_user_source
   steps:
   - type: http
@@ -56,7 +60,7 @@ testcases:
         "write_timeout": 5
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -91,7 +95,7 @@ testcases:
         "write_timeout": 5
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200      

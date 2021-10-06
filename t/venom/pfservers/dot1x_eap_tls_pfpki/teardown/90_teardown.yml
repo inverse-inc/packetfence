@@ -1,5 +1,9 @@
 name: Teardown
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: delete_connection_profile
   steps:
   - type: http
@@ -7,7 +11,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_eap_tls_pfpki.profiles.wired.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -19,7 +23,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_tls_pfpki.sources.eaptls.name}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -37,7 +41,7 @@ testcases:
         "ocsp": "default"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -49,7 +53,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/ocsp_profile/{{.dot1x_eap_tls_pfpki.ocsp.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
