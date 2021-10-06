@@ -1753,7 +1753,7 @@ has_limit=disabled
 cursor_type=none
 charts=pie|ssid:nodes,bar|ssid:nodes
 
-[Top Sponsors]
+[Top Sponsors::All]
 type=sql
 description=Top sponsors
 columns=contact_info,sponsor
