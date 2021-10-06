@@ -26,16 +26,24 @@ clean:
 	./test-wrapper.sh teardown
 
 
+unit_tests_el8: PF_VM_NAME=pfel8dev
+unit_tests_el8: SCENARIOS_TO_RUN=unit_tests
+unit_tests_el8:
+	make \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	run
+
 #==============================================================================
 # Targets for local tests
 #==============================================================================
 # No clean
 perl_unit_tests_el8: PF_VM_NAME=pfel8dev
-perl_unit_tests_el8: SCENARIOS_TO_RUN='perl_unit_tests'
+perl_unit_tests_el8: SCENARIOS_TO_RUN=perl_unit_tests
 perl_unit_tests_el8:
 	make \
 	PF_VM_NAME=$(PF_VM_NAME) \
-	SCENARIOS_TO_RUN=$(SCENARIOS_TO_RUN) \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	run_w_clean
 
 golang_unit_tests_deb11: PF_VM_NAME=pfdeb11dev

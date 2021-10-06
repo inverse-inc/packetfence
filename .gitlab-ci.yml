@@ -532,87 +532,15 @@ publish_ppa_devel_release_branches_and_maintenance::
 # TEST JOBS
 ########################################
 ### New
-test_devel_branches_and_maintenance_perl_unit_tests_el8:
-
-
-### Old
-test_devel_branches_and_maintenance_el_8:
+unit_tests_el8:
+  script:
+    - make -e -C ${TESTDIR} unit_tests_el8
   variables:
-    PERL_UNIT_TESTS: 'yes'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'no'
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
-    - .test_el_8_vars
     - .test_script_job
     - .test_devel_branches_and_maintenance_rules
-
-test_devel_branches_and_maintenance_debian_bullseye:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'no'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_debian_bullseye_vars
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-test_release_el_8:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'no'
-    INTEGRATION_TESTS: 'no'
-    # provision VM and run configurator test
-    RUN_TESTS: 'yes'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_el_8_vars
-    - .test_script_job
-    - .release_only_rules
-
-test_release_debian_bullseye:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'no'
-    INTEGRATION_TESTS: 'no'
-    # provision VM and run configurator test
-    RUN_TESTS: 'yes'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_debian_bullseye_vars
-    - .test_script_job
-    - .release_only_rules
-
-# used on devel and maintenance branches
-test_nightly_el_8:
-  variables:
-    PERL_UNIT_TESTS: 'yes'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_el_8_vars
-    - .test_script_job
-    - .test_nightly_rules
-
-# used on devel and maintenance branches
-test_nightly_debian_bullseye:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_debian_bullseye_vars
-    - .test_script_job
-    - .test_nightly_rules
 
 ########################################
 # DEPLOY JOBS

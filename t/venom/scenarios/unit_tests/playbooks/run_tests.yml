@@ -1,6 +1,6 @@
 ---
 - hosts: pfservers
-  name: Run Perl unit tests
+  name: Run unit tests
   become: True
 
   vars:
@@ -9,6 +9,7 @@
       - configurator
       - unit_tests/configure_smoke_db.yml
       - unit_tests/perl_tests.yml
+      - unit_tests/golang_tests.yml
 
   tasks:
     - name: Run Venom testsuites
