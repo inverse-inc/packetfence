@@ -531,7 +531,7 @@ publish_ppa_devel_release_branches_and_maintenance::
 ########################################
 # TEST JOBS
 ########################################
-### New
+### development
 unit_tests_el8:
   script:
     - make -e -C ${TESTDIR} unit_tests_el8
@@ -541,6 +541,27 @@ unit_tests_el8:
     - .test_job
     - .test_script_job
     - .test_devel_branches_and_maintenance_rules
+
+### release
+configurator_el8:
+  script:
+    - make -e -C ${TESTDIR} configurator_el8
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .release_only_rules
+
+configurator_deb11:
+  script:
+    - make -e -C ${TESTDIR} configurator_deb11
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .release_only_rules
 
 ########################################
 # DEPLOY JOBS

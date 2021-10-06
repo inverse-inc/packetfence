@@ -34,6 +34,22 @@ unit_tests_el8:
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	run
 
+configurator_el8: PF_VM_NAME=pfel8dev
+configurator_el8: SCENARIOS_TO_RUN=configurator
+configurator_el8:
+	make \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	run
+
+configurator_deb11: PF_VM_NAME=pfdeb11dev
+configurator_deb11: SCENARIOS_TO_RUN=configurator
+configurator_deb11:
+	make \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	run
+
 #==============================================================================
 # Targets for local tests
 #==============================================================================
