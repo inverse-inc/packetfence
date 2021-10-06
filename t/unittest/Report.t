@@ -18,6 +18,7 @@ our (@CreateBindTests, @IsaTests);
 our (@ValidateQueryTests, @ValidateFieldsTests);
 our (@ValidateInputTests, @MetaForOptions);
 our (%defaultAbstractOptions, @DefaultReports);
+use Test2::Tools::Compare qw(array hash item field end match);
 
 BEGIN {
     #include test libs
@@ -51,6 +52,11 @@ BEGIN {
                     %defaultAbstractOptions,
                 }
             ],
+            check => array {
+                item 200;
+                item hash {
+                };
+            },
             msg => 'Default options',
         },
         {
@@ -528,69 +534,85 @@ BEGIN {
     @MetaForOptions = (
         {
             id  => 'Ip4Log::Archive',
-            out => {
-                id  => 'Ip4Log::Archive',
-                query_fields => [
-                    {
-                        name => 'ip4log_archive.mac',
-                        text => 'MAC Address',
-                        type => 'string',
-                    },
-                    {
-                        name => 'ip4log_archive.ip',
-                        text => 'IP',
-                        type => 'string'
-                    },
-                ],
-                columns => [
-                    {
-                        text      => 'MAC Address',
-                        name      => 'MAC Address',
-                        is_person => $false,
-                        is_role   => $false,
-                        is_cursor => $false,
-                        is_node   => $true,
-                    },
-                    {
-                        text      => 'IP',
-                        name      => 'IP',
-                        is_person => $false,
-                        is_role   => $false,
-                        is_cursor => $false,
-                        is_node   => $false
-                    },
-                    {
-                        text      => 'Start time',
-                        name      => 'Start time',
-                        is_person => $false,
-                        is_role   => $false,
-                        is_cursor => $false,
-                        is_node   => $false,
-                    },
-                    {
-                        text      => 'End time',
-                        name      => 'End time',
-                        is_role   => $false,
-                        is_person => $false,
-                        is_node   => $false,
-                        is_cursor  => $false,
-                    },
-                ],
-                has_date_range => $true,
-                has_cursor     => $true,
-                has_limit      => $true,
-                description =>
-'IP address archive of the devices on your network when enabled (see Maintenance section)',
-                charts => [
-                    'scatter@Ip4Log Start Time|Start time',
-                    'scatter@Ip4Log End Time|End time',
-                ],
+            check => hash {
+                field id  => 'Ip4Log::Archive';
+                field default_start_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                field default_end_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                field default_limit => 25;
+                field has_date_range => $true;
+                field has_cursor     => $true;
+                field has_limit      => $true;
+                field description =>
+'IP address archive of the devices on your network when enabled (see Maintenance section)';
+                field charts => array {
+                    item 'scatter@Ip4Log Start Time|Start time';
+                    item 'scatter@Ip4Log End Time|End time';
+                    end();
+                };
+                field query_fields => array {
+                    item hash {
+                        field name => 'ip4log_archive.mac';
+                        field text => 'MAC Address';
+                        field type => 'string';
+                        end();
+                    };
+                    item hash {
+                        field name => 'ip4log_archive.ip';
+                        field text => 'IP';
+                        field type => 'string';
+                        end();
+                    };
+                    end();
+                };
+                field columns => array {
+                    item hash {
+                        field text      => 'MAC Address';
+                        field name      => 'MAC Address';
+                        field is_person => $false;
+                        field is_role   => $false;
+                        field is_cursor => $false;
+                        field is_node   => $true;
+                        end();
+                    };
+                    item hash {
+                        field text      => 'IP';
+                        field name      => 'IP';
+                        field is_person => $false;
+                        field is_role   => $false;
+                        field is_cursor => $false;
+                        field is_node   => $false;
+                        end();
+                    };
+                    item hash {
+                        field text      => 'Start time';
+                        field name      => 'Start time';
+                        field is_person => $false;
+                        field is_role   => $false;
+                        field is_cursor => $false;
+                        field is_node   => $false;
+                        end();
+                    };
+                    item hash {
+                        field text      => 'End time';
+                        field name      => 'End time';
+                        field is_role   => $false;
+                        field is_person => $false;
+                        field is_node   => $false;
+                        field is_cursor  => $false;
+                        end();
+                    };
+                    end();
+                };
+                end();
             },
         },
         {
             id  => 'Node::Active',
             out => {
                 id  => 'Node::Active',
+                default_start_date => undef,
+                default_end_date => undef,
+                default_limit => 100,
                 query_fields => [],
                 columns      => [
                     (
@@ -606,6 +628,8 @@ BEGIN {
                         } qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)
                     )
                 ],
+                default_start_date => undef,
+                default_end_date => undef,
                 has_date_range => $false,
                 has_cursor     => $true,
                 has_limit      => $true,
@@ -617,6 +641,9 @@ BEGIN {
             id  => 'Node::Report::Test',
             out => {
                 id  => 'Node::Report::Test',
+                default_start_date => undef,
+                default_end_date => undef,
+                default_limit => 25,
                 query_fields => [],
                 columns      => [
                     (
@@ -643,6 +670,9 @@ BEGIN {
             id  => 'Node::Report::TestDateRange',
             out => {
                 id  => 'Node::Report::TestDateRange',
+                default_start_date => undef,
+                default_end_date => undef,
+                default_limit => 25,
                 query_fields => [],
                 columns      => [
                     (
@@ -664,6 +694,37 @@ BEGIN {
                 description => 'First node',
                 charts => [],
             },
+            check => hash {
+                field id  => 'Node::Report::TestDateRange';
+                field default_start_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                field default_end_date => match(qr/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+                field default_limit => 25;
+                field has_date_range => $true;
+                field has_cursor     => $false;
+                field has_limit      => $false;
+                field description => 'First node';
+                field charts => array {
+                    end();
+                };
+                field query_fields => array {
+                    end();
+                };
+                field columns => array {
+                    for my $c ( qw(mac ip start_time pid detect_date regdate lastskip status user_agent computername notes last_arp last_dhcp os)) {
+                        item hash {
+                            field text      => $c;
+                            field name      => $c;
+                            field is_person => $false;
+                            field is_role   => $false;
+                            field is_cursor => $false;
+                            field is_node   => $false;
+                            end();
+                        };
+                    };
+                    end();
+                };
+                end();
+            },
         }
     );
 
@@ -683,6 +744,15 @@ use Test::NoWarnings;
         my $report = pf::factory::report->new($id);
         if (!$report) {
             BAIL_OUT("Cannot get report $id");
+            next;
+        }
+
+        if (defined (my $check = $t->{check})) {
+            Test2::Tools::Compare::is(
+                $report->meta_for_options(),
+                $check,
+                "Meta for $id"
+            );
             next;
         }
 

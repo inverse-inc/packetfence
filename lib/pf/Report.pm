@@ -1,6 +1,7 @@
 package pf::Report;
 
 use Moose;
+use pf::Moose::Types;
 use pf::error qw(is_error is_success);
 use pf::log;
 use List::MoreUtils qw(any);
@@ -34,6 +35,10 @@ has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
+has 'default_start_date_offset' => ( is => 'rw', isa => 'PfInterval', coerce => 1, default => 24*60*60 );
+
+has 'default_end_date_offset' => ( is => 'rw', isa => 'PfInterval', coerce => 1, default => 0 );
+
 sub build_query_options {
     return (422, { message => "unimplemented" });
 }
@@ -55,6 +60,19 @@ sub _db_data {
     my $items = $sth->fetchall_arrayref( {} );
     $sth->finish();
     return (200, $items);
+}
+
+sub calculate_default_date_range {
+    my ($self) = @_;
+    my @params = 24*60*60;
+    my ($status, $sth) = pf::dal->db_execute("SELECT DATE_SUB(NOW(), INTERVAL ? SECOND) as default_start_date, DATE_SUB(NOW(), INTERVAL ? SECOND) as default_end_date", $self->default_start_date_offset, $self->default_end_date_offset);
+    if (is_error($status)) {
+        return ($status);
+    }
+
+    my $row = $sth->fetchrow_hashref();
+    $sth->finish();
+    return (200, $row);
 }
 
 =head2 is_person_field
@@ -113,7 +131,20 @@ sub meta_for_options {
 }
 
 sub default_date_ranges {
-    {
+    my ($self) = @_;
+    if ($self->options_has_date_range) {
+        my ($status, $date_ranges) = $self->calculate_default_date_range;
+        if (is_error($status)) {
+            return {
+                default_start_date => '0000-00-00 00:00:00',
+                default_end_date => '9999-12-31 23:59:59',
+            };
+        }
+
+        return $date_ranges;
+    }
+
+    return {
         default_start_date => undef,
         default_end_date => undef,
     }
