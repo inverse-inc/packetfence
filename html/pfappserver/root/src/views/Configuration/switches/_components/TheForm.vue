@@ -47,6 +47,11 @@
           :text="$i18n.t('Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.')"
         />
 
+        <form-group-deauth-on-previous namespace="deauthOnPrevious"
+          :column-label="$i18n.t('Deauth on previous switch')"
+          :text="$i18n.t('This option parameter will allow you to do the deauthentication/CoA on the previous switch whre the device was connected.')"
+        />
+
         <form-group-cli-access namespace="cliAccess"
           :column-label="$i18n.t('CLI Access Enabled')"
           :text="$i18n.t('Allow this switch to use PacketFence as a RADIUS server for CLI access.')"
@@ -403,6 +408,7 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupDeauthOnPrevious,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,
@@ -470,6 +476,7 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupDeauthOnPrevious,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
   FormGroupVoipCdpDetect,

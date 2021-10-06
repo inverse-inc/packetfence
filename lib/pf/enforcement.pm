@@ -171,6 +171,11 @@ sub _vlan_reevaluation {
         return $FALSE;
     }
 
+    if (isenabled($switch->{_deauthOnPrevious})) {
+        $locationlog_entry = locationlog_last_entry_previous_switch($mac,$switch);
+        $switch = pf::SwitchFactory->instantiate( { switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
+    }
+
     my $sync = $opts{sync};
     my $conn_type = str_to_connection_type($locationlog_entry->{'connection_type'} );
 
