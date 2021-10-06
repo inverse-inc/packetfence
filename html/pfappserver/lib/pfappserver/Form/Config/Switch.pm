@@ -100,10 +100,7 @@ has_field 'useCoA' =>
 has_field 'deauthOnPrevious' =>
   (
    type => 'Toggle',
-   label => 'Deauth On previous switch',
    default => 'N',
-   tags => { after_element => \&help,
-             help => 'This option parameter will allow you to do the deauth/CoA on the previous switch the device connected.' },
   );
 
 has_field 'VlanMap' =>

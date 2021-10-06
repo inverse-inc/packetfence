@@ -49,7 +49,7 @@
 
         <form-group-deauth-on-previous namespace="deauthOnPrevious"
           :column-label="$i18n.t('Deauth on previous switch')"
-          :text="$i18n.t('This option parameter will allow you to do the deauthentication/CoA on the previous switch the device connected.')"
+          :text="$i18n.t('This option parameter will allow you to do the deauthentication/CoA on the previous switch whre the device was connected.')"
         />
 
         <form-group-cli-access namespace="cliAccess"
