@@ -27,9 +27,10 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
- * Mikrotik DHCP MAC authentication support
- * Support for Akamai MFA in VPN/CLI RADIUS authentication and on the captive portal
- * Support for TOTP MFA in VPN/CLI RADIUS authentication and on the captive portal
+* Mikrotik DHCP MAC authentication support
+* Support for Akamai MFA in VPN/CLI RADIUS authentication and on the captive portal
+* Support for TOTP MFA in VPN/CLI RADIUS authentication and on the captive portal
+* Automation of upgrades for standalone installations (#6583)
 
 
 === Enhancements
