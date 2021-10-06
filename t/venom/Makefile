@@ -9,15 +9,18 @@ CI_PIPELINE_ID=123456789
 #==============================================================================
 # Targets
 #==============================================================================
-.PHONY: install run clean
+.PHONY: install run run_w_clean halt clean
 install:
 	./install-venom.sh
 
-run: #clean
+run: clean
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./test-wrapper.sh run
 
 run_w_clean:
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./test-wrapper.sh run
+
+halt:
+	./test-wrapper.sh halt
 
 clean:
 	./test-wrapper.sh teardown
