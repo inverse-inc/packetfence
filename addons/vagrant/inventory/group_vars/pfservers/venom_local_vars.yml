@@ -9,7 +9,7 @@ venom_local_vars:
   - name: 'smtp_server'
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"
 
-  - name: 'smpt_port'
+  - name: 'smtp_port'
     value: '{{ mailhog__smtp_port }}'
 
   - name: 'smtp_api_port'
