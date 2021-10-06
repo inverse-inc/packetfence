@@ -96,7 +96,6 @@ const setup = (props, context) => {
     })
 
   const {
-    getItem,
     getItemOptions,
     isLoading
   } = useStore($store)
@@ -128,8 +127,8 @@ const setup = (props, context) => {
         let { start_date, end_date } = dateRange.value
         if (default_end_date || default_start_date) {
           dateLimit.value = date_limit
-          start_date = default_start_date.replace('.000000', '') || start_date
-          end_date = default_end_date.replace('.000000', '') || end_date
+          start_date = default_start_date || start_date
+          end_date = default_end_date || end_date
           dateRange.value = { start_date, end_date, date_limit }
         }
         else {

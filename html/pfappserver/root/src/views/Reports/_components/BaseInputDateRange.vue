@@ -2,11 +2,11 @@
   <b-container id="BaseInputDateRange" class="px-0" fluid>
     <b-form inline>
       <b-btn variant="link" id="periods" :disabled="disabled">
-        <icon name="stopwatch"></icon>
+        <icon name="stopwatch" />
       </b-btn>
       <b-btn v-if="hasDateLimit"
         variant="link" @click="previousRange" v-b-tooltip.hover.bottom.d300 :title="$i18n.t('Previous date range')">
-          <icon name="chevron-left"/>
+          <icon name="chevron-left" />
       </b-btn>
       <b-popover :show.sync="showPeriod"
         class="popover-full" target="periods" triggers="click focus blur" placement="bottomright" container="BaseInputDateRange">
@@ -24,11 +24,10 @@
         :placeholder="$i18n.t('End')" :disabled="disabled" :min="minEndDate" :max="maxEndDate" defer />
       <b-btn v-if="hasDateLimit"
         variant="link" @click="nextRange" v-b-tooltip.hover.bottom.d300 :title="$i18n.t('Next date range')">
-          <icon name="chevron-right"/>
+          <icon name="chevron-right" />
       </b-btn>
-      <b-btn v-if="!hasDateLimit"
-        variant="link" :disabled="disabled || (!startDate && !endDate)" @click="clearRange">
-        <icon name="trash-alt"></icon>
+      <b-btn variant="link" :disabled="disabled || !hasDates || hasDateLimit" @click="clearRange">
+        <icon name="trash-alt" />
       </b-btn>
     </b-form>
   </b-container>
@@ -156,6 +155,11 @@ const setup = (props, context) => {
     })
   }
 
+  const hasDates = computed(() => {
+    const { start_date, end_date } = value.value
+    return start_date && start_date !== '0000-00-00 00:00:00' && end_date
+  })
+
   const hasDateLimit = computed(() => {
     const { date_limit } = value.value
     return !!date_limit
@@ -192,6 +196,7 @@ const setup = (props, context) => {
     periods,
     setRangeByPeriod,
     clearRange,
+    hasDates,
     hasDateLimit,
     previousRange,
     nextRange

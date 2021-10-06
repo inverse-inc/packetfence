@@ -1,4 +1,5 @@
 import apiCall from '@/utils/api'
+const baseURL = '/api/v1.1'
 
 export default {
   list: params => {
@@ -8,28 +9,28 @@ export default {
       params.sort = 'id'
     if (params.fields && params.fields.constructor === Array)
       params.fields = params.fields.join(',')
-    return apiCall.get('dynamic_reports', { params }).then(response => {
+    return apiCall.get('reports', { baseURL, params }).then(response => {
       return response.data
     })
   },
   listOptions: () => {
-    return apiCall.options('dynamic_reports').then(response => {
+    return apiCall.options('reports', { baseURL }).then(response => {
       return response.data
     })
   },
   item: id => {
-    return apiCall.get(['dynamic_report', id]).then(response => {
+    return apiCall.get(['report', id], { baseURL }).then(response => {
       return response.data.item
     })
   },
   itemOptions: id => {
-    return apiCall.options(['dynamic_report', id]).then(response => {
+    return apiCall.options(['report', id], { baseURL }).then(response => {
       return response.data
     })
   },
   search: body => {
     if (body.id) {
-      return apiCall.post(['dynamic_report', body.id, 'search'], body).then(response => {
+      return apiCall.post(['report', body.id, 'search'], body, { baseURL }).then(response => {
         return response.data
       })
     }
