@@ -38,6 +38,7 @@ export const useViewCollectionItem = (collection, props, context) => {
   const useStore = $store => usePropsWrapper(_useStore($store), props)
 
   const {
+    id,
     isClone,
     isNew
   } = toRefs(props)
@@ -152,7 +153,7 @@ export const useViewCollectionItem = (collection, props, context) => {
 
   const onClose = () => goToCollection()
 
-  const onClone = () => goToClone(form.value)
+  const onClone = () => goToClone({ ...form.value, id: id.value })
 
   const onRemove = () => deleteItem().then(() => goToCollection())
 
