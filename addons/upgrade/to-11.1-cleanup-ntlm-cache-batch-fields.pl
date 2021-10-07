@@ -33,18 +33,24 @@ my @deprecated_fields = (
   "ntlm_cache_filter",  
 );
 
+my $changed = 0;
+
 for my $section (grep { !/\s/  } $ini->Sections()) {
     for my $field (@deprecated_fields) {
         if ($ini->exists($section, $field)) {
+            $changed |= 1;
             $ini->delval($section, $field);
             print "Deleted deprecated field '$field' from domain '$section'\n" 
         }
     }
 }
 
-$ini->RewriteConfig();
-
-print "All done\n";
+if ($changed) {
+    $ini->RewriteConfig();
+    print "All done\n";
+} else {
+    print "Nothing to be done\n";
+}
 
 =head1 AUTHOR
 
