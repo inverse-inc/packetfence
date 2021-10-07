@@ -58,28 +58,28 @@ configurator_deb11:
 dot1x_eap_peap_el8:
 	make \
 	PF_VM_NAME=pfel8dev \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
 dot1x_eap_peap_deb11:
 	make \
 	PF_VM_NAME=pfdeb11dev \
-	INT_TEST_VM_NAMES="ad switch01 node01" \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
 mac_auth_el8:
 	make \
 	PF_VM_NAME=pfel8dev \
-	INT_TEST_VM_NAMES="switch01 node01" \
+	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
 mac_auth_deb11:
 	make \
 	PF_VM_NAME=pfdeb11dev \
-	INT_TEST_VM_NAMES="switch01 node01" \
+	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
