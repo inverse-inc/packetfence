@@ -31,6 +31,12 @@ File::Find::find({
     }}, '/usr/local/pf/t'
 );
 
+File::Find::find({
+    wanted => sub {
+        push(@files, $File::Find::name);
+    }}, '/usr/local/pf/addons/upgrade/'
+);
+
 plan tests => scalar @files;
 
 for my $f (@files) {
