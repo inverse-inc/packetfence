@@ -12,6 +12,11 @@
       - unit_tests/golang_tests.yml
 
   tasks:
+    # only to debug what is injected in Ansible environment
+    # - name: Display ansible_env
+    #   command: printenv
+    #   environment: '{{ inventory__group_environment | d({}) }}'
+
     - name: Run Venom testsuites
       command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
       args:
@@ -19,5 +24,6 @@
       loop: '{{ test_suites }}'
       # add inventory__group_environment to Ansible environment
       # useful to make env vars available for Venom
+      # environment need to be define here because some inventory__group_environment rely on
+      # facts that need to be gather first
       environment: '{{ inventory__group_environment | d({}) }}'
-

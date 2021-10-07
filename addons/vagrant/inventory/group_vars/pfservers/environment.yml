@@ -1,4 +1,7 @@
 ---
+# all variables added to:
+# - /etc/environment
+# - Ansible environment when running Venom tests
 inventory__group_environment:
   PF_TEST_MGMT_INT: "{{ packetfence_install__mgmt_interface['id'] }}"
   PF_TEST_MGMT_IP: "{{ packetfence_install__mgmt_interface['ip'] }}"
@@ -8,5 +11,6 @@ inventory__group_environment:
   # defined in GitLab UI
   PSONO_CI_API_KEY_ID: '{{ lookup("env", "PSONO_CI_API_KEY_ID") }}'
   PSONO_CI_API_SECRET_KEY_HEX: '{{ lookup("env", "PSONO_CI_API_SECRET_KEY_HEX") }}'
+  PATH: '/usr/local/go/bin:{{ ansible_env.PATH }}'
 
 
