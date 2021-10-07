@@ -22,10 +22,8 @@ export default {
       return response.data
     })
   },
-  bulkImport: body => {
-    return apiCall.post('config/switches/bulk_import', body).then(response => {
-      return response.data.items
-    })
+  bulkImportAsync: body => {
+    return apiCall.postQuiet('config/switches/bulk_import', { ...body, async: true })
   },
   create: data => {
     const post = data.quiet ? 'postQuiet' : 'post'

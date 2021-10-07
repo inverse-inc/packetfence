@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base qw(pf::UnifiedApi::Controller::RestRoute);
 use pf::constants;
+use pf::util::pfqueue qw(consumer_redis_client);
 use List::MoreUtils qw(any);
 use pf::UnifiedApi::OpenAPI::Generator::Config;
 use pf::UnifiedApi::GenerateSpec;
@@ -24,6 +25,8 @@ use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
 use pf::error qw(is_error is_success);
 use pf::pfcmd::checkup ();
+use Data::UUID;
+use pf::pfqueue::status_updater::redis;
 use pf::UnifiedApi::Search::Builder::Config;
 use pf::condition_parser qw(parse_condition_string ast_to_object);
 
@@ -43,6 +46,8 @@ sub search {
 
     return $self->handle_search($search_info_or_error);
 }
+
+my $GENERATOR = Data::UUID->new;
 
 sub handle_search {
     my ($self, $search_info) = @_;
@@ -1300,10 +1305,38 @@ sub bulk_import {
         return $self->render(json => $data, status => $status);
     }
 
+    if ($data->{async}) {
+        my $task_id = $self->task_id;
+        my $subprocess = Mojo::IOLoop->subprocess;
+        $subprocess->run(
+            sub {
+                my ($subprocess) = @_;
+                my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+                $updater->start;
+                my $results = $self->do_bulk_import($data);
+                $updater->completed({items => $results});
+                return;
+            },
+            sub { } # Do nothing
+        );
+
+        return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    } else {
+        my $results = $self->do_bulk_import($data);
+        return $self->render(json => { items => $results });
+    }
+}
+
+sub task_id {
+    "ApiTask:" . $GENERATOR->create_str
+}
+
+sub do_bulk_import {
+    my ($self, $data) = @_;
     my $items = $data->{items} // [];
     my $count = @$items;
     if ($count == 0) {
-        return $self->render(json => { items => [] });
+        return [];
     }
     my $cs = $self->config_store;
 
@@ -1315,7 +1348,7 @@ sub bulk_import {
     for ($i=0;$i<$count;$i++) {
         my $result = $self->import_item($data, $items->[$i], $cs);
         $results[$i] = $result;
-        $status = $result->{status} // 200;
+        my $status = $result->{status} // 200;
         if ($stopOnError && $status == 422) {
             $i++;
             last;
@@ -1337,7 +1370,7 @@ sub bulk_import {
         $cs->commit;
     }
 
-    return $self->render(json => { items => \@results });
+    return \@results;
 }
 
 sub import_item {
