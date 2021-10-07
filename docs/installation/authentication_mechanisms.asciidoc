@@ -109,7 +109,7 @@ NOTE: OAuth2 authentication does not work with Webauth enforcement
 
 NOTE: OAuth2 authentication will fail by design when previewed through "Connection Profiles"
 
-The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, Twitter, Instagram, Pinterest, OpenID Connect or Github account.
+The captive portal of PacketFence allows a guest/user to register using his Google, Facebook, LinkedIn, Windows Live, OpenID Connect or Github account.
 
 For each providers, we maintain an allowed domain list to punch holes into the firewall so the user can hit the provider login page.
 This list is available in each OAuth2 authentication source.
@@ -164,18 +164,6 @@ Remember to add the Authentication Rules with at least two Actions (example: Rol
 
 Moreover, don't forget to add GitHub as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
 
-==== Instagram
-
-To use Instagram, you also need an API code and a secret key.  To get one, go here: https://www.instagram.com/developer/clients/manage/.  When you create your App, make sure you specify the following as the Website URL:
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Instagram OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
-
-Moreover, don't forget to add Instagram as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
-
 ==== Kickbox
 
 To use Kickbox, you need a API key. To get one, first create an account on <https://kickbox.io>, then navigate to <https://app.kickbox.com/settings/keys>. Click on 'API Keys -> Create Key'. Pick a name and choose 'Production' mode and 'Single' verification.
@@ -216,18 +204,6 @@ Remember to add the Authentication Rules with at least two Actions (example: Rol
 
 Moreover, don't forget to add OpenID as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
 
-==== Pinterest
-
-To use Pinterest, you also need an API code and a secret key.  To get one, go here: https://developers.pinterest.com/apps.  When you create your App, make sure you specify the following as the Redirect URL:
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Pinterest OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
-
-Moreover, don't forget to add Pinterest as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
-
 ==== Twilio
 
 To use Twilio, first create an account on <https://www.twilio.com>. From the console (dashboard) <https://www.twilio.com/console> create a *3rd Party Integration*. Note the *Account SID* and *Auth Token* for later use. From the Phone Manager <https://www.twilio.com/console/phone-numbers/incoming> click the "+" button to *Buy a number* with _SMS_ capability - no payment is needed to start using this phone number right away.
@@ -236,18 +212,6 @@ Once you have your information, you need to configure the OAuth2 provider. This 
 Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
 
 Moreover, don't forget to add Twilio as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
-
-==== Twitter
-
-To use Twitter, you also need an API code and a secret key which Twitter calls _consumer key_ and _consumer secret_. Obtain this information by creating an new application from your https://apps.twitter.com/[Twitter Apps Management page].  When you create your App, make sure you specify the following as the _Callback URL_
-https://YOUR_PORTAL_HOSTNAME/oauth2/callback
-
-Of course, replace the hostname with the values from `general.hostname` and `general.domain`.
-
-Once you have your information, you need to configure the OAuth2 provider. This can be done by adding a Twitter OAuth2 authentication source from _Configuration -> Policies and Access Control -> Authentication Sources_.
-Remember to add the Authentication Rules with at least two Actions (example: Role and Access duration).
-
-Moreover, don't forget to add Twitter as a *Source* from your connection profile definition, available from _Configuration -> Policies and Access Control -> Connection Profiles_.
 
 ==== Windows Live
 
@@ -382,7 +346,7 @@ Next, restart `iptables` and `pfdns` services to apply your new passthroughs.
 
 PacketFence integrates the ability to use a payment gateway to bill users to gain access to the network. When configured, the user who wants to access the network / Internet is prompted by a page asking for it's personal information as well as it's credit card information.
 
-PacketFence currently supports four payment gateways: Authorize.net, Mirapay, Paypal and Stripe.
+PacketFence currently supports two payment gateways: Authorize.net, Paypal and Stripe.
 
 In order to activate the billing, you will need to configure the following components :
 
@@ -511,44 +475,6 @@ Optionally, once this is configured, you need to make sure your captive portal i
 Next, in PacketFence, go in your Stripe source (_Configuration -> Policies and Access Control -> Authentication Sources_) and enable the option `Customer portal` in your Stripe source.
 
 Now when your users will visit the status page (https://PF_DOMAIN_NAME/status), they will have the option to manage their subscriptions and visit the Stripe customer portal.
-
-===== Authorize.net
-
-*Creating an account*
-
-First go on https://account.authorize.net to signup for a merchant account or http://developer.authorize.net/ for a sandbox account.
-
-After you created your account, you will be shown your `API login ID` and `Transaction key`. Note both of these information for usage in the PacketFence configuration.
-
-Then login into your new account.
-
-Then under _Account_ click `Settings`.
-
-On the settings page in the section _Security settings_, click `MD5-Hash`
-
-Now enter a secret that will be shared between authorize.net and PacketFence.
-
-image::billing/authorize-md5-hash.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
-
-*PacketFence configuration*
-
-Next in the PacketFence administration interface, go in _Configuration -> Policies and Access Control -> Sources_ and create a new source of type `Billing -> AuthorizeNet`.
-
-image::billing/authorize-packetfence-config.png[scaledwidth="100%",alt="Stripe PacketFence configuration"]
-
-Where :
-[options="compact"]
-* *API login ID* is the one you got earlier while creating your account.
-* *Transaction key* is the one you got earlier while creating your account.
-* *MD5 hash* the one you configured in your Authorize.net account.
-* *Currency* is the currency that will be used in the transactions.
-* *Test mode* should be activated if you are using a sandbox account.
-
-NOTE: If they aren't already enabled, you will need to enable passthroughs so that users can reach the domains of this provider. Refer to the `Passthroughs` section of this document for details.
-
-===== Mirapay
-
-  To be contributed...
 
 ==== Adding billing tiers
 

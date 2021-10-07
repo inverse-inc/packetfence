@@ -23,16 +23,13 @@ export const externalTypes = {
   Facebook:       'Facebook',
   Github:         'Github',
   Google:         'Google',
-  Instagram:      'Instagram',
   Kickbox:        'Kickbox',
   LinkedIn:       'LinkedIn',
   Null:           i18n.t('Null'),
   OpenID:         'OpenID',
-  Pinterest:      'Pinterest',
   SMS:            'SMS',
   SponsorEmail:   i18n.t('Sponsor'),
   Twilio:         'Twilio',
-  Twitter:        'Twitter',
   WindowsLive:    'WindowsLive',
 }
 
@@ -43,8 +40,6 @@ export const exclusiveTypes = {
 }
 
 export const billingTypes = {
-  AuthorizeNet:   'AuthorizeNet',
-  Mirapay:        'Mirapay',
   Paypal:         'Paypal',
   Stripe:         'Stripe',
 }

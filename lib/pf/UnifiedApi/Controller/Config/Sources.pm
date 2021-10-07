@@ -26,7 +26,6 @@ use pf::ConfigStore::Source;
 use pfappserver::Form::Config::Source;
 use pfappserver::Form::Config::Source::AdminProxy;
 use pfappserver::Form::Config::Source::AD;
-use pfappserver::Form::Config::Source::AuthorizeNet;
 use pfappserver::Form::Config::Source::AzureAD;
 use pfappserver::Form::Config::Source::Blackhole;
 use pfappserver::Form::Config::Source::Authorization;
@@ -41,16 +40,13 @@ use pfappserver::Form::Config::Source::Google;
 use pfappserver::Form::Config::Source::GoogleWorkspaceLDAP;
 use pfappserver::Form::Config::Source::Htpasswd;
 use pfappserver::Form::Config::Source::HTTP;
-use pfappserver::Form::Config::Source::Instagram;
 use pfappserver::Form::Config::Source::Kerberos;
 use pfappserver::Form::Config::Source::Kickbox;
 use pfappserver::Form::Config::Source::LDAP;
 use pfappserver::Form::Config::Source::LinkedIn;
-use pfappserver::Form::Config::Source::Mirapay;
 use pfappserver::Form::Config::Source::Null;
 use pfappserver::Form::Config::Source::OpenID;
 use pfappserver::Form::Config::Source::Paypal;
-use pfappserver::Form::Config::Source::Pinterest;
 use pfappserver::Form::Config::Source::RADIUS;
 use pfappserver::Form::Config::Source::SAML;
 use pfappserver::Form::Config::Source::SMS;
@@ -58,7 +54,6 @@ use pfappserver::Form::Config::Source::SQL;
 use pfappserver::Form::Config::Source::SponsorEmail;
 use pfappserver::Form::Config::Source::Stripe;
 use pfappserver::Form::Config::Source::Twilio;
-use pfappserver::Form::Config::Source::Twitter;
 use pfappserver::Form::Config::Source::WindowsLive;
 use pfappserver::Form::Config::Source::Potd;
 
@@ -67,7 +62,6 @@ our %TYPES_TO_FORMS = (
       AdminProxy
       AD
       Authorization
-      AuthorizeNet
       AzureAD
       Blackhole
       Clickatell
@@ -81,16 +75,13 @@ our %TYPES_TO_FORMS = (
       GoogleWorkspaceLDAP
       Htpasswd
       HTTP
-      Instagram
       Kerberos
       Kickbox
       LDAP
       LinkedIn
-      Mirapay
       Null
       OpenID
       Paypal
-      Pinterest
       Potd
       RADIUS
       SAML
@@ -99,7 +90,6 @@ our %TYPES_TO_FORMS = (
       SQL
       Stripe
       Twilio
-      Twitter
       WindowsLive
       )
 );
