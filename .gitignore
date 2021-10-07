@@ -36,8 +36,10 @@ conf/radiusd/eap_profiles.conf
 conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
+conf/radiusd/radiusd_cli.conf
 conf/pfcron.conf
 conf/certmanager
+conf/mfa.conf
 bin/pfcmd
 bin/ntlm_auth_wrapper
 src/mariadb_udf/*.o
