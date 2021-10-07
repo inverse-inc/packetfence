@@ -30,6 +30,7 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
+  BUILDDIR: $CILIBDIR/build
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
   SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
@@ -152,6 +153,14 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_WEBSITE == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_website=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_WEBSITE == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_website=yes/ )'
 
+# run this job on:
+# - devel branch with BUILD_ARTIFACTS_WEBSITE variable defined or build_artifacts_website=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_ARTIFACTS_WEBSITE sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_website=yes".
+.build_artifacts_material_devel_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
+
 ########################################    
 # JOBS
 ########################################
@@ -192,6 +201,18 @@ variables:
     expire_in: 1 day
     paths:
       - website/*
+  tags:
+    - docker-inverse
+
+.build_artifcats_material_job:
+  stage: build_artifacts
+  script:
+    - ${BUILDDIR}/start-pfconfig-in-container.sh
+    - make material
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - result/*
   tags:
     - docker-inverse
 
@@ -463,6 +484,13 @@ build_artifacts_website_release:
   extends:
     - .build_artifacts_website_job
     - .release_only_rules
+
+# build_artificats_material for development
+material_devel_and_branches:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  extends:
+    - .build_artifcats_material_job
+    - .build_artifacts_material_devel_and_branches_rules
 
 ########################################
 # SIGN JOBS
