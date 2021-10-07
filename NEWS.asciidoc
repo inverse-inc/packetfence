@@ -54,6 +54,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fix Let's encrypt renewal process restarting services even if they are disabled (#6606)
 * Removes the deprecated NTLM background job fields and components (#6552)
 * Ignore 'Mark as sponsor' administration rules when finding the access level of a VPN/CLI user (CLI authentication rules matching doesn't filter on the rules action #6349)
+* Reducing time balance only when registered.
 
 == Version 11.0.0 released on 2021-09-02
 
