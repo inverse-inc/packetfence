@@ -347,3 +347,8 @@ dist-packetfence-upgrade: distclean-packetfence-upgrade
 website:
 	$(SRC_CIDIR)/lib/release/publish-to-website.sh
 
+.PHONY: material
+material: DESTDIR=result
+material:
+	mkdir -p $(CURDIR)/$(DESTDIR)
+	perl $(SRC_ADDONSDIR)/dev-helpers/bin/switch_options_table.pl > $(CURDIR)/$(DESTDIR)/material.html
