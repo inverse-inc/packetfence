@@ -16,11 +16,20 @@ use strict;
 use warnings;
 
 use List::MoreUtils qw(any);
+
 use pf::Report;
+use pf::Report::sql;
+use pf::Report::abstract;
 
 use pf::config qw(%ConfigReport);
+use pf::log;
 
 sub factory_for { 'pf::Report' }
+
+our %FACTORIES = (
+    (map { $_ => "pf::Report::$_"  } qw(abstract sql)),
+    builtin => "pf::Report::abstract",
+);
 
 =head2 new
 
@@ -34,10 +43,15 @@ sub new {
     my $report;
     my $data = $ConfigReport{$id};
     if ($data) {
-        $data->{id} = $id;
-        $report = factory_for->new($data);
+        my $type = $data->{type};
+        if (defined $type && exists $FACTORIES{$type}) {
+            $data->{id} = $id;
+            $report = $FACTORIES{$type}->new($data);
+            return $report;
+        }
     }
-    return $report;
+    get_logger()->error("Cannot find or create report '$id'");
+    return;
 }
 
 =head1 AUTHOR

@@ -1,10 +1,202 @@
 # Copyright (C) Inverse inc.
-[authentications]
-type=builtin
-description= All Authentications
-long_description=<<EOT
-All the authentications (RADIUS, portal) that have occured on the server.
+[Accounting::Bandwidth]
+type=sql
+description=Total accounting bandwidth
+columns=time_bucket,bytes_in,bytes_out,bytes_total
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    time_bucket,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(total_bytes) AS bytes_total
+  FROM (
+    SELECT
+      time_bucket,
+      in_bytes,
+      out_bytes,
+      total_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      time_bucket,
+      in_bytes,
+      out_bytes,
+      total_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  GROUP BY time_bucket
+  ORDER BY time_bucket DESC
+  LIMIT ?;
+END;
 EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+date_limit=24h
+default_limit=100
+charts=scatter|time_bucket:bytes_in:bytes_out:bytes_total
+
+[Accounting::Node]
+type=sql
+description=Top node accounting bandwidth
+columns=mac,bytes_in,bytes_out,bytes
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR_0 = ?, @CURSOR_1 = ?;
+  SELECT * FROM (
+      SELECT
+        mac,
+        SUM(in_bytes) AS bytes_in,
+        SUM(out_bytes) AS bytes_out,
+        SUM(total_bytes) AS bytes
+      FROM (
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes,
+          total_bytes
+        FROM bandwidth_accounting
+        WHERE tenant_id = @TENANT_ID
+          AND time_bucket >= @START_DATE
+          AND time_bucket <= @END_DATE
+        UNION ALL
+        SELECT
+          mac,
+          in_bytes,
+          out_bytes,
+          total_bytes
+        FROM bandwidth_accounting_history
+        WHERE tenant_id = @TENANT_ID
+          AND time_bucket >= @START_DATE
+          AND time_bucket <= @END_DATE
+      ) `total`
+      GROUP BY mac
+      ORDER BY bytes DESC, mac DESC
+ ) as x
+ WHERE
+     (bytes, mac) <= (@CURSOR_0, @CURSOR_1)
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,cursor.0,cursor.1,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=multi_field
+cursor_field=bytes,mac
+cursor_default=18446744073709551615,ff:ff:ff:ff:ff:ff
+date_limit=24h
+default_limit=25
+node_fields=mac
+
+[Accounting::Operating System Class]
+type=sql
+description=Top Fingerbank operating system class accounting bandwidth
+columns=dhcp_fingerprint,bytes_in,bytes_out,bytes
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR = ?;
+  SELECT
+    IFNULL(device_class, 'Unknown Fingerprint') AS dhcp_fingerprint,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(in_bytes) + SUM(out_bytes) AS bytes
+  FROM (
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  LEFT JOIN node USING (tenant_id, mac)
+  WHERE device_class >= @CURSOR
+  GROUP BY device_class
+  ORDER BY bytes DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=device_class
+date_limit=24h
+default_limit=25
+
+[Accounting::User]
+type=sql
+description=Top user accounting bandwidth
+columns=pid,bytes_in,bytes_out,bytes
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?, @CURSOR = ?;
+  SELECT
+    pid,
+    SUM(in_bytes) AS bytes_in,
+    SUM(out_bytes) AS bytes_out,
+    SUM(in_bytes) + SUM(out_bytes) AS bytes
+  FROM (
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+    UNION ALL
+    SELECT
+      tenant_id,
+      mac,
+      in_bytes,
+      out_bytes
+    FROM bandwidth_accounting_history
+    WHERE tenant_id = @TENANT_ID
+      AND time_bucket >= @START_DATE
+      AND time_bucket <= @END_DATE
+  ) `total`
+  LEFT JOIN node USING (tenant_id, mac)
+  WHERE pid >= @CURSOR
+  GROUP BY pid
+  ORDER BY bytes DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,cursor,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=field
+cursor_field=pid
+date_limit=24h
+default_limit=25
+person_fields=pid
+
+[Authentication::All]
+type=abstract
+description=All the authentications (RADIUS, portal) that have occured on the server.
 # The table to search from
 base_table=auth_log
 # The columns to select
@@ -16,29 +208,1575 @@ person_fields=Owner
 node_fields=MAC Address
 order_fields=-auth_log.attempted_at
 
-[SMS-Registration]
-type=builtin
-description=SMS Registration
+[Authentication::All Failures]
+type=abstract
+description=All failed authentications (RADIUS, portal) that have occured on the server.
 # The table to search from
-base_table=activation
+base_table=auth_log
 # The columns to select
-columns=activation.pid as "Owner", activation.mac "MAC Address", sms_carrier.name as "Carrier", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.status as "Status", activation.portal as "Connection profile"
-searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
-# Left join sms_carrier
-joins=<<EOT
-=>{activation.carrier_id=sms_carrier.id} sms_carrier|sms_carrier
-EOT
-date_field=expiration
-# Display only the sms registration
-base_conditions=activation.type:=:sms
-base_conditions_operator=all
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
+date_field=attempted_at
+base_conditions_operator=any
 person_fields=Owner
 node_fields=MAC Address
-order_fields=-activation.expiration
+order_fields=-auth_log.attempted_at
+base_conditions=auth_log.status:=:failed
+charts=scatter|Attempted at
 
-[Email-Registration]
-type=builtin
-description=Email Registration
+[Authentication::All Successes]
+type=abstract
+description=All successful authentications (RADIUS, portal) that have occured on the server.
+# The table to search from
+base_table=auth_log
+# The columns to select
+columns=auth_log.process_name as "Process Name", auth_log.mac "MAC Address", auth_log.pid as "Owner", auth_log.attempted_at as "Attempted at", auth_log.completed_at as "Completed at", auth_log.source as "Source", auth_log.profile as "Connection Profile"
+date_field=attempted_at
+base_conditions_operator=any
+person_fields=Owner
+node_fields=MAC Address
+order_fields=-auth_log.attempted_at
+base_conditions=auth_log.status:=:completed
+charts=scatter|Attempted at
+
+[Authentication::Top Failures::Connection Profile to Source]
+type=sql
+description=All failed authentications of sources vs profiles
+columns=profile,source,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='failed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  );
+  SELECT
+    profile,
+    source,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='failed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  GROUP BY profile, source
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=parallel|profile:source:count
+
+[Authentication::Top Failures::By Connection Profile]
+type=sql
+description=All failed authentications by connection profile
+columns=profile,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='failed'
+      AND completed_at BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    profile,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='failed'
+    AND completed_at BETWEEN @START_DATE AND @END_DATE
+  GROUP BY profile
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|profile:count,bar|profile:count
+
+[Authentication::Top Failures::By Source]
+type=sql
+description=All failed authentications by source
+columns=source,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='failed'
+      AND completed_at BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    source,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='failed'
+    AND completed_at BETWEEN @START_DATE AND @END_DATE
+  GROUP BY source
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|source:count,bar|source:count
+
+[Authentication::Top Successes::By Connection Profile]
+type=sql
+description=All successful authentications by connection profile
+columns=profile,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  );
+  SELECT
+    profile,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  GROUP BY profile
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|profile:count,bar|profile:count
+
+[Authentication::Top Successes::By Source]
+type=sql
+description=All successful authentications by source
+columns=source,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  );
+  SELECT
+    source,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  GROUP BY source
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|source:count,bar|source:count
+
+[Authentication::Top Successes::Connection Profile to Source]
+type=sql
+description=All successful authentications of sources vs profiles
+columns=profile,source,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM auth_log
+     WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  );
+  SELECT
+    profile,
+    source,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM auth_log
+  WHERE status='completed'
+      AND completed_at >= @START_DATE
+      AND completed_at <= @END_DATE
+  GROUP BY profile, source
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=parallel|profile:source:count
+
+[Connection Types::Active]
+type=sql
+description=All active connection types
+columns=connection_type,connections,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  );
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  GROUP BY connection_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|connection_type:connections,bar|connection_type:connections
+
+[Connection Types::All]
+type=sql
+description=All connection types
+columns=connection_type,connections,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1) FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+  );
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+  GROUP BY connection_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|connection_type:connections,bar|connection_type:connections
+
+[Connection Types::Date Range]
+type=sql
+description=Connection types by date range
+columns=connection_type,connection_type_orig,connections,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(DISTINCT mac)
+    FROM locationlog
+    WHERE tenant_id = @TENANT_ID
+      AND start_time BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    connection_type,
+    connection_type AS connection_type_orig,
+    COUNT(DISTINCT mac) AS connections,
+    ROUND(COUNT(DISTINCT mac) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  WHERE tenant_id = @TENANT_ID
+    AND start_time BETWEEN @START_DATE AND @END_DATE
+  GROUP BY connection_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id,start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|connection_type:connections,bar|connection_type:connections
+
+[Connection Types::Registered Active]
+type=sql
+description=All active registered connection types
+columns=connection_type,connections,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND node.status = "reg"
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  );
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND node.status = "reg"
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  GROUP BY connection_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|connection_type:connections,bar|connection_type:connections
+
+[Connection Types::Registered All]
+type=sql
+description=All registered connection types
+columns=connection_type,connections,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND node.status = "reg"
+  );
+  SELECT
+    connection_type,
+    COUNT(1) AS connections,
+    ROUND( COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND node.status = "reg"
+  GROUP BY connection_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|connection_type:connections,bar|connection_type:connections
+
+[Fingerbank::Static IP::Active]
+type=sql
+description=All active nodes with static IP (no DHCP)
+columns=tenant_id,mac,pid,category_id,detect_date,regdate,unregdate,lastskip,time_balance,bandwidth_balance,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,dhcp6_fingerprint,dhcp_vendor,dhcp6_enterprise,device_type,device_class,device_version,device_score,device_manufacturer,bypass_vlan,voip,autoreg,sessionid,machine_account,bypass_role_id,last_seen,tenant_id,mac,ip,start_time,end_time
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    *
+  FROM node, ip4log
+  WHERE node.tenant_id = @TENANT_ID
+    AND node.mac >= @CURSOR
+    AND ip4log.mac = node.mac
+    AND ip4log.tenant_id = node.tenant_id
+    AND (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  ORDER BY node.mac
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+role_fields=category_id
+
+[Fingerbank::Static IP::All]
+type=sql
+description=All nodes with static IP (no DHCP)
+columns=tenant_id,mac,pid,category_id,detect_date,regdate,unregdate,lastskip,time_balance,bandwidth_balance,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,dhcp6_fingerprint,dhcp_vendor,dhcp6_enterprise,device_type,device_class,device_version,device_score,device_manufacturer,bypass_vlan,voip,autoreg,sessionid,machine_account,bypass_role_id,last_seen
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+      *
+    FROM node
+    WHERE tenant_id = @TENANT_ID
+      AND mac >= @CURSOR
+      AND (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
+    ORDER BY mac
+    LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+role_fields=category_id
+
+[Fingerbank::Unknown Fingerprints::Active]
+type=sql
+description=All active unknown Fingerbank fingerprints
+columns=mac,dhcp_fingerprint,computername,user_agent,vendor
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    node.mac,
+    node.mac as vendor,
+    dhcp_fingerprint,
+    computername,
+    user_agent
+  FROM node, ip4log
+  WHERE node.tenant_id = @TENANT_ID
+    AND device_type IS NULL
+    AND dhcp_fingerprint != 0
+    AND dhcp_fingerprint >= @CURSOR
+    AND ip4log.mac = node.mac
+    AND ip4log.tenant_id = node.tenant_id
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  ORDER BY mac
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=dhcp_fingerprint
+cursor_default=0
+formatting=vendor:oui_to_vendor
+node_fields=mac
+
+[Fingerbank::Unknown Fingerprints::All]
+type=sql
+description=All unknown Fingerbank fingerprints
+columns=mac,dhcp_fingerprint,computername,user_agent,vendor
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    node.mac as vendor,
+    dhcp_fingerprint,
+    computername,
+    user_agent
+  FROM node
+  WHERE tenant_id = @TENANT_ID
+    AND device_type IS NULL
+    AND dhcp_fingerprint != 0
+    AND dhcp_fingerprint >= @CURSOR
+  ORDER BY dhcp_fingerprint
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=dhcp_fingerprint
+cursor_default=0
+node_fields=mac
+formatting=vendor:oui_to_vendor
+
+[Ip4Log::Archive]
+type=abstract
+description=IP address archive of the devices on your network when enabled (see Maintenance section)
+# The table to search from
+base_table=ip4log_archive
+# The columns to select
+columns=ip4log_archive.mac "MAC Address", ip4log_archive.ip as "IP", ip4log_archive.start_time as "Start time", ip4log_archive.end_time as "End time"
+searches=string:MAC Address:ip4log_archive.mac,string:IP:ip4log_archive.ip
+date_field=start_time
+# Display only the sponsor registration
+#base_conditions=activation.type:=:sponsor
+base_conditions_operator=all
+node_fields=MAC Address
+charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
+
+[Ip4Log::History]
+type=abstract
+description=IP address history of the devices on the network (1 week is kept by default)
+# The table to search from
+base_table=ip4log_history
+# The columns to select
+columns=ip4log_history.mac "MAC Address", ip4log_history.ip as "IP", ip4log_history.start_time as "Start time", ip4log_history.end_time as "End time"
+searches=string:MAC Address:ip4log_history.mac,string:IP:ip4log_history.ip
+date_field=start_time
+# Display only the sponsor registration
+#base_conditions=activation.type:=:sponsor
+base_conditions_operator=all
+node_fields=MAC Address
+order_fields=-ip4log_history.start_time
+charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
+
+[Node::Active]
+type=sql
+description=All active nodes
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    n.mac as mac,
+    ip,
+    start_time,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node n
+  LEFT JOIN ip4log i USING (tenant_id, mac)
+  WHERE
+    n.tenant_id = @TENANT_ID AND
+   (i.end_time = 0 OR i.end_time > NOW()) AND
+    n.mac >= @CURSOR
+  ORDER BY n.mac
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+charts=scatter|regdate
+
+[Node::Inactive]
+type=sql
+description=All inactive nodes
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node n
+  LEFT JOIN ip4log i USING (tenant_id, mac)
+  WHERE
+    n.tenant_id = @TENANT_ID AND
+      (
+        (end_time != 0 AND end_time <= NOW()) OR
+        i.ip IS NULL
+      ) AND
+      n.mac >= @CURSOR
+  ORDER BY n.mac
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+
+[Node::Registered::Active]
+type=sql
+description=All registered active nodes
+columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
+sql= <<EOT
+SELECT
+        n.mac,
+        pid,
+        detect_date,
+        regdate,
+        lastskip,
+        status,
+        user_agent,
+        computername,
+        notes,
+        last_arp,
+        last_dhcp,
+        device_type AS os
+      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+      WHERE n.tenant_id = ?
+        AND n.status = 'reg'
+        AND (i.end_time = 0 or i.end_time > NOW())
+        AND mac >= ?
+      ORDER BY mac
+      LIMIT ?
+EOT
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+
+[Node::Registered::All]
+type=sql
+description=All registered nodes
+columns=mac,pid,detect_date,regdate,lastskip,status,user_agent,computername,notes,last_arp,last_dhcp,os
+sql= <<EOT
+SELECT
+        mac,
+        pid,
+        detect_date,
+        regdate,
+        lastskip,
+        status,
+        user_agent,
+        computername,
+        notes,
+        last_arp,
+        last_dhcp,
+        device_type AS os
+      FROM node
+      WHERE tenant_id = ?
+        AND status='reg'
+        AND mac >= ?
+      ORDER BY mac
+      LIMIT ?
+EOT
+bindings=tenant_id,cursor,limit
+has_limit=enabled
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+
+[Node::Static]
+type=sql
+description=All nodes with static IP (no DHCP)
+columns=tenant_id,mac,pid,category_id,detect_date,regdate,unregdate,lastskip,time_balance,bandwidth_balance,status,user_agent,computername,notes,last_arp,last_dhcp,dhcp_fingerprint,dhcp6_fingerprint,dhcp_vendor,dhcp6_enterprise,device_type,device_class,device_version,device_score,device_manufacturer,bypass_vlan,voip,autoreg,sessionid,machine_account,bypass_role_id,last_seen,tenant_id,mac,ip,start_time,end_time
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT *
+  FROM node, ip4log
+  WHERE (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
+    AND node.mac = ip4log.mac
+    AND node.tenant_id = ip4log.tenant_id
+    AND ip4log.tenant_id = @TENANT_ID
+    AND ip4log.end_time BETWEEN @START_DATE AND @END_DATE;
+END;
+EOT
+bindings=tenant_id,start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+node_fields=mac
+person_fields=pid
+role_fields=category_id
+
+[Node::Unregistered::Active]
+type=sql
+description=All active unregistered nodes
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    n.mac,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node n
+  LEFT JOIN ip4log i USING(tenant_id, mac)
+  WHERE n.tenant_id = @TENANT_ID
+    AND n.status = 'unreg'
+    AND (i.end_time = 0 OR i.end_time > NOW())
+    AND mac >= @CURSOR
+  ORDER BY mac
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+
+[Node::Unregistered::All]
+type=sql
+description=All unregistered nodes
+columns=mac, ip, start_time, pid, detect_date, regdate, lastskip, status, user_agent, computername, notes, last_arp, last_dhcp, os
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @CURSOR = ?;
+  SELECT
+    mac,
+    pid,
+    detect_date,
+    regdate,
+    lastskip,
+    status,
+    user_agent,
+    computername,
+    notes,
+    last_arp,
+    last_dhcp,
+    device_type AS os
+  FROM node
+  WHERE tenant_id = @TENANT_ID
+    AND status = 'unreg'
+    AND mac >= @CURSOR
+  ORDER BY mac
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,cursor,limit
+cursor_type=field
+cursor_field=mac
+cursor_default=00:00:00:00:00:00
+default_limit=100
+node_fields=mac
+person_fields=pid
+
+[Operating System Class::Active]
+type=sql
+description=Top active operating system classes
+columns=description,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM node, ip4log
+    WHERE node.tenant_id = @TENANT_ID
+      AND ip4log.mac = node.mac
+      AND ip4log.tenant_id = node.tenant_id
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  );
+  SELECT
+    IFNULL(device_class, 'Probable Static IP(s)') AS description,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM (node n, ip4log i)
+  WHERE n.tenant_id = @TENANT_ID
+    AND i.mac = n.mac
+    AND i.tenant_id = n.tenant_id
+    AND (i.end_time = 0 OR i.end_time > NOW())
+  GROUP BY description
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|description:count,bar|description:count
+
+[Operating System Class::All]
+type=sql
+description=Top operating system classes
+columns=description,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT COUNT(1) FROM node
+  );
+  SELECT
+    IFNULL(device_class, 'Probable Static IP(s)') AS description,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM node n
+  WHERE tenant_id = @TENANT_ID
+  GROUP BY description
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|description:count,bar|description:count
+
+[Operating Systems::Active]
+type=sql
+description=Top active operating systems
+columns=description,dhcp_fingerprint,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT COUNT(1) FROM node
+  );
+  SELECT
+    IFNULL(device_class, 'Probable Static IP(s)') AS description,
+    n.dhcp_fingerprint,
+    COUNT(1) AS count,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM (node n, ip4log i)
+  WHERE n.mac = i.mac
+    AND n.tenant_id = i.tenant_id
+    AND i.tenant_id = @TENANT_ID
+    AND (i.end_time = 0 OR i.end_time > NOW())
+  GROUP BY description
+  ORDER BY percent desc;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|description:count,bar|description:count
+
+[Operating Systems::All]
+type=sql
+description=Top operating systems
+columns=description,dhcp_fingerprint,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM (node n, ip4log i)
+  WHERE n.mac = i.mac
+    AND n.tenant_id = i.tenant_id
+    AND i.tenant_id = @TENANT_ID
+    AND i.start_time BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    IFNULL(device_class, 'Probable Static IP(s)') AS description,
+    n.dhcp_fingerprint,
+    COUNT(DISTINCT n.mac) AS count,
+    ROUND(COUNT(DISTINCT n.mac) / @TOTAL * 100, 1) AS percent
+  FROM (node n, ip4log i)
+  WHERE n.mac = i.mac
+    AND n.tenant_id = i.tenant_id
+    AND i.tenant_id = @TENANT_ID
+    AND i.start_time BETWEEN @START_DATE AND @END_DATE
+  GROUP BY description
+  ORDER BY percent desc;
+END;
+EOT
+bindings=tenant_id,start_date,end_date
+has_date_range=enabled
+has_limit=disabled
+cursor_type=none
+charts=pie|description:count,bar|description:count
+
+[RADIUS Authentication::Top Failures::By MAC]
+type=sql
+description=Top authentication failures by MAC
+columns=mac,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    `mac`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Reject'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Reject'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `mac` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|mac:count,bar|mac:count
+node_fields=mac
+
+[RADIUS Authentication::Top Failures::By SSID]
+type=sql
+description=Top authentication failures by SSID
+columns=ssid,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    `ssid`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Reject'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Reject'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `ssid` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|ssid:count,bar|ssid:count
+
+[RADIUS Authentication::Top Failures::By Username]
+type=sql
+description=Top authentication failures by username
+columns=user_name,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    FREERADIUS_DECODE(`user_name`) AS `user_name`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Reject'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Reject'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `user_name` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|username:count,bar|username:count
+
+[RADIUS Authentication::Top Successes::By Computername]
+type=sql
+description=Top authentication successes by computername
+columns=computer_name,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    FREERADIUS_DECODE(`computer_name`) AS `computer_name`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Accept'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Accept'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `computer_name` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|computer_name:count,bar|computer_name:count
+
+[RADIUS Authentication::Top Successes::By MAC]
+type=sql
+description=Top authentication successes by MAC
+columns=mac,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    `mac`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Accept'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Accept'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `mac` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|mac:count,bar|mac:count
+node_fields=mac
+
+[RADIUS Authentication::Top Successes::By SSID]
+type=sql
+description=Top authentication successes by SSID
+columns=ssid,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    `ssid`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Accept'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Accept'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `ssid` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|ssid:count,bar|ssid:count
+
+[RADIUS Authentication::Top Successes::By Username]
+type=sql
+description=Top authentication successes by username
+columns=user_name,count,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SELECT
+    FREERADIUS_DECODE(`user_name`) AS `user_name`,
+    COUNT(1) AS `count`,
+    SUM(100) / `total` AS `percent`
+  FROM `radius_audit_log`
+  CROSS JOIN (
+    SELECT
+      COUNT(1) AS `total`
+    FROM `radius_audit_log`
+    WHERE `tenant_id` = @TENANT_ID
+      AND `auth_status` = 'Accept'
+      AND `created_at` BETWEEN @START_DATE AND @END_DATE
+  ) `x`
+  WHERE `tenant_id` = @TENANT_ID
+    AND `auth_status` = 'Accept'
+    AND `created_at` BETWEEN @START_DATE AND @END_DATE
+    AND `user_name` IS NOT NULL
+  GROUP BY 1
+  ORDER BY `percent` DESC
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,start_date,end_date,limit
+has_date_range=enabled
+has_limit=enabled
+cursor_type=none
+charts=pie|user_name:count,bar|username:count
+
+[Roles::Active]
+type=sql
+description=Top roles of active registered nodes
+columns=role,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role
+  ORDER BY nodes DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|role:nodes,bar|role:nodes
+role_fields=role
+
+[Roles::Active per device class]
+type=sql
+description=Active registered nodes of roles vs device class
+columns=role,device_class,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    device_class,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role, device_class
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=parallel|device_class:role:nodes
+role_fields=role
+
+[Roles::Active per device manufacturer]
+type=sql
+description=Active registered nodes of roles vs device manufacturers
+columns=role,device_manufacturer,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    IFNULL(device_manufacturer, 'Unknown') as device_manufacturer,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role, device_manufacturer
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=parallel|device_manufacturer:role:nodes
+role_fields=role
+
+[Roles::Active per device type]
+type=sql
+description=Active registered nodes of roles vs device types
+columns=role,device_type,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    device_type,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+    AND node.status = 'reg'
+  GROUP BY role, device_type
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=parallel|device_type:role:nodes
+role_fields=role
+
+[Roles::All]
+type=sql
+description=Top roles of registered nodes
+columns=role,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND node.status = 'reg'
+  );
+  SELECT
+    IFNULL(role, 'Unknown') AS role,
+    COUNT(1) AS nodes,
+    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND node.status = 'reg'
+  GROUP BY role
+  ORDER BY nodes DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|role:nodes,bar|role:nodes
+role_fields=role
+
+[Security Events::Closed]
+type=abstract
+description=List of closed security events on the network
+base_table=security_event
+columns=security_event.release_date "Release date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins= <<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:closed
+charts=scatter|Release date
+
+[Security Events::Open]
+type=abstract
+description=List of open security events on the network
+base_table=security_event
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+joins= <<EOT
+=>{class.security_event_id=security_event.security_event_id} class|class
+=>{security_event.mac=node.mac} node|node
+=>{node_category.category_id=node.category_id} node_category|node_category
+EOT
+node_fields=MAC Address
+person_fields=Owner
+date_field=start_date
+base_conditions=security_event.status:=:open
+role_fields=category_id
+charts=scatter|Event date
+
+[Security Events::Open Active]
+type=sql
+description=Active nodes with open security events
+columns=owner,mac,status,start_date,security_event
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    n.pid AS owner,
+    n.mac AS mac,
+    v.status AS status,
+    v.start_date AS start_date,
+    c.description AS security_event
+  FROM (security_event v, ip4log i)
+  LEFT JOIN node n
+    ON n.mac = v.mac AND n.tenant_id = v.tenant_id
+  LEFT JOIN class c
+    ON c.security_event_id = v.security_event_id
+  WHERE v.tenant_id = @TENANT_ID
+    AND v.status="open"
+    AND i.mac = n.mac
+    AND i.tenant_id = n.tenant_id
+    AND (i.end_time = 0 or i.end_time > NOW())
+  ORDER BY n.pid;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+node_fields=mac
+person_fields=owner
+charts=scatter|start_date
+
+[Security Events::Open All]
+type=sql
+description=All nodes with open security events
+columns=owner,mac,status,start_date,security_event
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    n.pid AS owner,
+    n.mac AS mac,
+    v.status AS status,
+    v.start_date AS start_date,
+    c.description AS security_event
+  FROM security_event v
+  LEFT JOIN node n
+    ON n.mac = v.mac AND n.tenant_id = v.tenant_id
+  LEFT JOIN class c
+    ON c.security_event_id = v.security_event_id
+  WHERE v.tenant_id = @TENANT_ID
+    AND v.status = "open"
+  ORDER BY n.pid;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+node_fields=mac
+person_fields=owner
+charts=scatter|start_date
+
+[SSID::Active]
+type=sql
+description=Active SSID's
+columns=ssid,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(1)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND ssid != ""
+      AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  );
+  SELECT
+    ssid,
+    COUNT(1) AS nodes,
+    ROUND( COUNT(1) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+    AND ssid != ""
+    AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+  GROUP BY ssid
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id
+has_limit=disabled
+cursor_type=none
+charts=pie|ssid:nodes,bar|ssid:nodes
+
+
+[SSID::All]
+type=sql
+description=All SSID's
+columns=ssid,nodes,percent
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+  SET @TOTAL = (
+    SELECT
+      COUNT(DISTINCT locationlog.mac)
+    FROM locationlog
+    INNER JOIN node
+      ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+    INNER JOIN ip4log
+      ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+    WHERE locationlog.tenant_id = @TENANT_ID
+      AND ssid != ""
+      AND ip4log.start_time BETWEEN @START_DATE AND @END_DATE
+  );
+  SELECT
+    ssid,
+    COUNT(DISTINCT locationlog.mac) AS nodes,
+    ROUND( COUNT(DISTINCT locationlog.mac) / @TOTAL * 100, 1) AS percent
+  FROM locationlog
+  INNER JOIN node
+    ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
+  INNER JOIN ip4log
+    ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
+  WHERE locationlog.tenant_id = @TENANT_ID
+  AND ssid != ""
+  AND ip4log.end_time BETWEEN @START_DATE AND @END_DATE
+  GROUP BY ssid
+  ORDER BY percent DESC;
+END;
+EOT
+bindings=tenant_id,start_date,end_date
+has_limit=disabled
+cursor_type=none
+charts=pie|ssid:nodes,bar|ssid:nodes
+
+[Top Sponsors::All]
+type=sql
+description=Top sponsors
+columns=contact_info,sponsor
+sql= <<EOT
+BEGIN NOT ATOMIC
+  SET @TENANT_ID = ?;
+  SELECT
+    contact_info,
+    COUNT(contact_info) AS sponsor
+  FROM activation
+  WHERE tenant_id = @TENANT_ID
+    AND type = 'sponsor'
+  GROUP BY contact_info
+  LIMIT ?;
+END;
+EOT
+bindings=tenant_id,limit
+has_limit=enabled
+cursor_type=none
+default_limit=25
+
+[User::Registration::Email]
+type=abstract
 # The table to search from
 base_table=activation
 # The columns to select
@@ -51,9 +1789,25 @@ base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
 
-[Sponsor-Registration]
-type=builtin
-description=Sponsor Registration
+[User::Registration::SMS]
+type=abstract
+# The table to search from
+base_table=activation
+# The columns to select
+columns=activation.pid as "Owner", activation.mac "MAC Address", sms_carrier.name as "Carrier", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.status as "Status", activation.portal as "Connection profile"
+searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
+# Left join sms_carrier
+joins==>{activation.carrier_id=sms_carrier.id} sms_carrier|sms_carrier
+date_field=expiration
+# Display only the sms registration
+base_conditions=activation.type:=:sms
+base_conditions_operator=all
+person_fields=Owner
+node_fields=MAC Address
+order_fields=-activation.expiration
+
+[User::Registration::Sponsor]
+type=abstract
 # The table to search from
 base_table=activation
 # The columns to select
@@ -65,74 +1819,3 @@ base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
-
-[ip4log-history]
-type=builtin
-description=IPv4 History
-long_description=<<EOT
-IP address history of the devices on the network (1 week is kept by default)
-EOT
-# The table to search from
-base_table=ip4log_history
-# The columns to select
-columns= ip4log_history.mac "MAC Address", ip4log_history.ip as "IP", ip4log_history.start_time as "Start time", ip4log_history.end_time as "End time"
-searches=string:MAC Address:ip4log_history.mac,string:IP:ip4log_history.ip
-date_field=start_time
-# Display only the sponsor registration
-#base_conditions=activation.type:=:sponsor
-base_conditions_operator=all
-node_fields=MAC Address
-order_fields=-ip4log_history.start_time
-
-[ip4log-archive]
-type=builtin
-description=IPv4 Archive
-long_description=<<EOT
-IP address archive of the devices on your network when enabled (see Maintenance section)
-EOT
-# The table to search from
-base_table=ip4log_archive
-# The columns to select
-columns= ip4log_archive.mac "MAC Address", ip4log_archive.ip as "IP", ip4log_archive.start_time as "Start time", ip4log_archive.end_time as "End time"
-searches=string:MAC Address:ip4log_archive.mac,string:IP:ip4log_archive.ip
-date_field=start_time
-# Display only the sponsor registration
-#base_conditions=activation.type:=:sponsor
-base_conditions_operator=all
-node_fields=MAC Address
-
-[open-security-events]
-type=builtin
-description=Open Security Events
-long_description=<<EOT
-List of open security events on the network
-EOT
-base_table=security_event
-columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
-joins=<<EOT
-=>{class.security_event_id=security_event.security_event_id} class|class
-=>{security_event.mac=node.mac} node|node
-=>{node_category.category_id=node.category_id} node_category|node_category
-EOT
-node_fields=MAC Address
-person_fields=Owner
-date_field=start_date
-base_conditions=security_event.status:=:open
-
-[closed-security-events]
-type=builtin
-description=Closed Security Events
-long_description=<<EOT
-List of closed security events on the network
-EOT
-base_table=security_event
-columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
-joins=<<EOT
-=>{class.security_event_id=security_event.security_event_id} class|class
-=>{security_event.mac=node.mac} node|node
-=>{node_category.category_id=node.category_id} node_category|node_category
-EOT
-node_fields=MAC Address
-person_fields=Owner
-date_field=start_date
-base_conditions=security_event.status:=:closed

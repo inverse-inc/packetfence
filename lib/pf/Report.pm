@@ -1,198 +1,88 @@
 package pf::Report;
 
 use Moose;
-use SQL::Abstract::More;
-use pf::dal;
+use pf::Moose::Types;
 use pf::error qw(is_error is_success);
 use pf::log;
-use Tie::IxHash;
 use List::MoreUtils qw(any);
+use JSON::MaybeXS qw();
+use pf::util;
 
-use constant REPORT => 'Report';
+our %FORMATTING = (
+    oui_to_vendor => \&pf::util::oui_to_vendor
+);
 
-has 'id', (is => 'rw', isa => 'Str');
+our $JSON_TRUE = do { bless \(my $dummy = 1), "JSON::PP::Boolean" };
+our $JSON_FALSE = do { bless \(my $dummy = 0), "JSON::PP::Boolean" };
 
-has 'description', (is => 'rw', isa => 'Str');
+has 'id' => (is => 'rw', isa => 'Str');
 
-has 'long_description', (is => 'rw', isa => 'Str');
+has 'type' => (is => 'rw', isa => 'Str');
 
-has 'group_field', (is => 'rw', isa => 'Str');
+has 'description' => (is => 'rw', isa => 'Str');
 
-has 'order_fields', (is => 'rw', isa => 'ArrayRef[Str]');
+has 'charts' => (is => 'rw', isa => 'ArrayRef[Str]');
 
-has 'base_conditions', (is => 'rw', isa => 'ArrayRef[HashRef]');
+has 'columns' => (is => 'rw', isa => 'ArrayRef[Str]');
 
-has 'base_conditions_operator', (is => 'rw', isa => 'Str', default => 'all');
+has 'formatting' => (is => 'rw', isa => 'ArrayRef[HashRef]');
 
-has 'joins', (is => 'rw', isa => 'ArrayRef[Str]', );
+has 'person_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
-has 'searches', (is => 'rw', isa => 'ArrayRef[HashRef]');
+has 'node_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
-has 'base_table', (is => 'rw', isa => 'Str');
+has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
-has 'columns', (is => 'rw', isa => 'ArrayRef[Str]');
+has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
-has 'date_field', (is => 'rw', isa => 'Str');
+has 'date_limit' => ( is => 'rw', isa => 'Str|Undef');
 
-has 'person_fields', (is => 'rw', isa => 'ArrayRef[Str]');
-
-has 'node_fields', (is => 'rw', isa => 'ArrayRef[Str]');
-
-sub generate_sql_query {
-    my ($self, %infos) = @_;
-    my $logger = get_logger;
-
-    my $sqla = SQL::Abstract::More->new();
-    my $and = [];
-    $infos{search}{type} //= $self->base_conditions_operator;
-
-    # Date range handling
-    push @$and, $self->date_field => { ">=", $infos{start_date}} if($infos{start_date});
-    push @$and, $self->date_field => { "<=", $infos{end_date}} if($infos{end_date});
-
-    # Search handling
-    # conditions = [
-    #   {
-    #       field => "theField",
-    #       # Following the SQL standard
-    #       operator => "=",
-    #       value => "thatsTheValue",
-    #
-    #   }
-    # ]
-    if($infos{search}) {
-        my $all = $infos{search}{type} eq "all" ? 1 : 0;
-        my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$infos{search}{conditions}};
-        if($all) {
-            $logger->debug("Matching for all conditions for the provided search");
-            push @$and, [ -and => \@conditions ];
-        }
-        else {
-            $logger->debug("Matching for any conditions for the provided search");
-            push @$and, \@conditions;
-        }
-    }
-
-    if(my $search = $infos{sql_abstract_search}) {
-        $logger->debug("Adding provided SQL abstract search");
-        push @$and, $search;
-    }
-
-    if(@{$self->base_conditions} > 0) {
-        my $all = $self->base_conditions_operator eq "all" ? 1 : 0;
-        my @conditions = map { $_->{field} => {$_->{operator} => $_->{value}} } @{$self->base_conditions};
-        if($all) {
-            $logger->debug("Matching for all base conditions");
-            push @$and, [ -and => \@conditions ];
-        }
-        else {
-            $logger->debug("Matching for any base conditions");
-            push @$and, \@conditions;
-        }
-    }
-
-    my %limit_offset;
-    unless($infos{count_only}) {
-        %limit_offset = (
-            -limit => $infos{per_page},
-            -offset => ($infos{page}-1) * $infos{per_page},
-        );
-    }
-
-    my %ordering;
-    if($infos{order}) {
-        %ordering = (
-            -order_by => [$infos{order}, @{$self->order_fields}],
-        );
-    }
-    elsif(@{$self->order_fields} > 0) {
-        %ordering = (
-            -order_by => $self->order_fields,
-        );
-    }
-    elsif(defined($self->date_field)) {
-        %ordering = (
-            -order_by => ['-'.$self->date_field],
-        );
-    }
-
-
-    # NOTE: when counting, we shouldn't group but instead count distinct so it is ignored in that case even when specified
-    my %group_by;
-    if($self->group_field && !$infos{count_only}) {
-        %group_by = (
-            -group_by => [$self->group_field],
-        );
-    }
-
-    my $columns;
-    if($infos{count_only}) {
-        $columns = $self->group_field ? 'count(distinct('.$self->group_field.')) as count' : 'count(*) as count';
-    }
-    else {
-        $columns = $self->columns;
-    }
-
-    my ($sql, @params) = $sqla->select(
-        -columns => $columns,
-        -from => [
-            -join => ($self->base_table, split(" ", join(" ", @{$self->joins}))),
-        ],
-        -where => [ 
-            -and => [
-                @$and,
-            ]
-        ],
-        %limit_offset,
-        %ordering,
-        %group_by,
-    );
-    return ($sql, \@params);
+sub default_start_date_offset {
+    my ($self) = @_;
+    return normalize_time($self->date_limit);
 }
 
-sub ensure_default_infos {
-    my ($self, $infos) = @_;
-    $infos->{page} //= 1;
-    $infos->{per_page} //= 25;
-    $infos->{count_only} //= 0;
+sub default_end_date_offset {
+    0
+}
+
+sub build_query_options {
+    return (422, { message => "unimplemented" });
 }
 
 sub query {
     my ($self, %infos) = @_;
-    $self->ensure_default_infos(\%infos);
     my ($sql, $params) = $self->generate_sql_query(%infos);
-    get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { "'$_'" } @$params) });
+    get_logger->debug(sub { "Executing query : $sql, with the following params : " . join(", ", map { defined $_  ?  "'$_'" : "(null)" } @$params) });
     return $self->_db_data($sql, @$params);
-}
-
-sub page_count {
-    my ($self, %infos) = @_;
-    $self->ensure_default_infos(\%infos);
-    my ($sql, $params) = $self->generate_sql_query(%infos, count_only => 1);
-    my ($status, $results) = $self->_db_data($sql, @$params);
-    return undef if(is_error($status));
-
-    my $pages = $results->[0]->{count} / $infos{per_page};
-    return (($pages == int($pages)) ? $pages : int($pages + 1));
 }
 
 sub _db_data {
     my ($self, $sql, @params) = @_;
-
-    my ( $ref, @array );
     my ($status, $sth) = pf::dal->db_execute($sql, @params);
     if (is_error($status)) {
         return ($status);
     }
     # Going through data as array ref and putting it in ordered hash to respect the order of the select in the final report
-    my $fields = $sth->{NAME};
-    while ( $ref = $sth->fetchrow_arrayref() ) {
-        tie my %record, 'Tie::IxHash';
-        @record{@$fields} = @$ref;
-        push( @array, \%record );
-    }
+    my $items = $sth->fetchall_arrayref( {} );
     $sth->finish();
-    return (200, \@array);
+    return (200, $items);
+}
+my $calculate_default_date_range_sql = <<SQL;
+SELECT
+    IFNULL(DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T"), '0000-00-00 00:00:00') as default_start_date,
+    DATE_FORMAT(DATE_SUB(NOW(), INTERVAL ? SECOND), "%Y-%m-%d %T") as default_end_date
+SQL
+sub calculate_default_date_range {
+    my ($self) = @_;
+    my ($status, $sth) = pf::dal->db_execute($calculate_default_date_range_sql, $self->default_start_date_offset, $self->default_end_date_offset);
+    if (is_error($status)) {
+        return ($status);
+    }
+
+    my $row = $sth->fetchrow_hashref();
+    $sth->finish();
+    return (200, $row);
 }
 
 =head2 is_person_field
@@ -215,6 +105,127 @@ Check if a field is part of the node fields
 sub is_node_field {
     my ($self, $field) = @_;
     return any { $_ eq $field } @{$self->node_fields};
+}
+
+=head2 is_role_field
+
+Check if a field is part of the role fields
+
+=cut
+
+sub is_role_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->role_fields};
+}
+
+sub validate_options {
+    my ($self, $query) = @_;
+    return (422, {message => "unimplemented"});
+}
+
+sub meta_for_options {
+    my ($self) = @_;
+    return {
+        id => $self->id,
+        query_fields => $self->options_query_fields(),
+        columns => $self->options_columns(),
+        has_cursor   => $self->options_has_cursor(),
+        has_limit   => $self->options_has_limit(),
+        has_date_range   => $self->options_has_date_range(),
+        default_limit  => $self->default_limit(),
+        date_limit  => $self->date_limit(),
+        (
+            map { ($_ => $self->{$_}) } qw(description charts)
+        ),
+        %{$self->default_date_ranges()},
+    }
+}
+
+sub default_date_ranges {
+    my ($self) = @_;
+    if ($self->options_has_date_range) {
+        my ($status, $date_ranges) = $self->calculate_default_date_range;
+        if (is_error($status)) {
+            return {
+                default_start_date => '0000-00-00 00:00:00',
+                default_end_date => '9999-12-31 23:59:59',
+            };
+        }
+
+        return $date_ranges;
+    }
+
+    return {
+        default_start_date => undef,
+        default_end_date => undef,
+    }
+}
+
+sub options_query_fields {
+    my ($self) = @_;
+    return [];
+}
+
+sub options_columns {
+    my ($self) = @_;
+    return [ map { $self->format_options_column($_) } @{ $self->{columns} } ];
+}
+
+sub format_options_column {
+    my ($self, $c) = @_;
+    my $l = $c;
+    $l =~ s/^[\S]+\s+//;
+    $l =~ s/as\s+//i;
+    $l =~ s/\s*$//;
+    $l =~ s/\s*$//;
+    $l =~ s/^["']([^"']+)["']$/$1/;
+    return {
+        text => $l,
+        name => $l,
+        is_person => ( $self->is_person_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_node   => ( $self->is_node_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_role   => ( $self->is_role_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_cursor => ( $self->is_cursor_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+    };
+}
+
+sub is_cursor_field { 0 }
+
+sub options_has_cursor {
+    return $JSON_TRUE;
+}
+
+sub options_has_limit {
+    return $JSON_TRUE;
+}
+
+sub options_has_date_range {
+    my ($self) = @_;
+    return $JSON_FALSE;
+}
+
+sub format_items {
+    my ($self, $items) = @_;
+    my $formatting = $self->formatting;
+    if (@$formatting == 0) {
+        return $items;
+    }
+
+    return [ map { $self->format_item($formatting, $_) } @$items  ];
+}
+
+sub format_item {
+    my ($self, $formatting, $item) = @_;
+    my %new = %$item;
+    for my $f (@$formatting) {
+        my $format = $f->{format};
+        if (exists $FORMATTING{$format}) {
+            my $k = $f->{field};
+            $new{$k} = $FORMATTING{$format}->($item->{$k});
+        }
+    }
+
+    return \%new;
 }
 
 =head1 AUTHOR

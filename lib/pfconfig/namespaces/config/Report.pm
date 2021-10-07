@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file}              = $report_config_file;
-    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions person_fields node_fields) ];
+    $self->{expandable_params} = [ qw(searches columns order_fields base_conditions person_fields node_fields charts bindings formatting role_fields) ];
     
     my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
     $self->{added_params}->{'-import'} = $defaults;
@@ -54,6 +54,13 @@ sub build_child {
             push @formatted_base_conditions, {field => $pieces[0], operator => $pieces[1], value => $pieces[2]};
         }
 
+        my @formatting;
+        foreach my $format (@{$tmp_cfg{$key}{formatting}}) {
+            my @pieces = split(/\s*\:\s*/, $format, 2);
+            push @formatting, {field => $pieces[0], format => $pieces[1]};
+        }
+
+        $tmp_cfg{$key}{formatting} = \@formatting;
         $tmp_cfg{$key}{base_conditions} = \@formatted_base_conditions;
         $tmp_cfg{$key}{searches} = \@formatted_searches;
         $tmp_cfg{$key}{joins} //= "";
@@ -67,10 +74,18 @@ sub build_child {
 sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
     # By default expand_list doesn't expand undef values, in this case we want it so we define an empty value when undef
-    foreach my $param (@{$self->{expandable_params}}) {
+    my @expandable_params = @{$self->{expandable_params}};
+    if ($item->{type} eq 'sql' && exists $item->{cursor_type}) {
+        if ($item->{cursor_type} eq 'multi_field') {
+            push @expandable_params, qw(cursor_field cursor_default);
+        }
+    }
+
+    foreach my $param (@expandable_params) {
         $item->{$param} //= "";
     }
-    $self->expand_list( $item, @{$self->{expandable_params}} );
+
+    $self->expand_list( $item, @expandable_params );
 }
 
 

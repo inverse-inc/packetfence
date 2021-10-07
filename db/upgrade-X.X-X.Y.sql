@@ -47,6 +47,15 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Adding index to ip4log"
+ALTER TABLE `ip4log`
+  DROP INDEX IF EXISTS ip4log_mac_end_time,
+  ADD INDEX IF NOT EXISTS ip4log_tenant_id_mac_end_time (tenant_id,mac,end_time);
+
+\! echo "Adding index to auth_log"
+ALTER TABLE `auth_log`
+  DROP INDEX IF EXISTS completed_at,
+  ADD INDEX IF NOT EXISTS completed_at (completed_at);
 
 \! echo "altering person"
 ALTER TABLE person

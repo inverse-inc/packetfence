@@ -37,28 +37,37 @@ const factory = (uuid, options = {}) => {
         uuid,
         // defaults
         api: {
-          list: (new Promise(r => r())),
-          search: (new Promise(r => r()))
+          list: () => (new Promise(r => r())),
+          search: () => (new Promise(r => r()))
         },
         columns: [],
         fields: [],
         page: 1,
-        sortBy: null, // use natural order
+        sortBy: undefined, // use natural order
         sortDesc: false,
         limit: 25,
         limits: [10, 25, 50, 100, 200, 500, 1000],
+        cursors: [],
         defaultCondition: () => ({ op: 'and', values: [
           { op: 'or', values: [
             { field: 'id', op: 'not_equals', value: null }
           ] }
         ] }),
-        requestInterceptor: (request) => request,
-        responseInterceptor: (response) => response,
-        errorInterceptor: (error) => { throw (error) },
+        requestInterceptor: request => request,
+        responseInterceptor: response => response,
+        errorInterceptor: error => { throw (error) },
         useColumns,
         useFields,
         useString,
         useCondition: condition => condition,
+        useCursor: (cursors, page, limit) => {
+          if (page - 1 in cursors) {
+            // use string cursor
+            return cursors[page - 1]
+          }
+          // use integer cursor (default)
+          return ((page * limit) - limit) || undefined
+        },
 
         // overload defaults
         ...options,
@@ -93,36 +102,41 @@ const factory = (uuid, options = {}) => {
     actions: {
       setUp({ columns, limit, page, sortBy, sortDesc }) {
         if (columns)
-          this.columns = this.columns.map(c => ({ ...c, visible: columns.includes(c.key) }))
+          this.setColumns(this.columns.map(c => ({ ...c, visible: columns.includes(c.key) })), false)
         if (limit)
-          this.limit = limit
+          this.setLimit(limit, false)
         if (page)
-          this.page = page
+          this.setPage(page, false)
         if (sortBy || sortDesc) {
-          this.sortBy = sortBy
-          this.sortDesc = sortDesc
+          this.setSort({ sortBy, sortDesc }, false)
         }
       },
-      setColumns(columns) {
+      setColumns(columns, reSearch = true) {
         this.columns = columns
-        this.reSearch()
+        if (reSearch)
+          this.reSearch()
       },
-      setLimit(limit) {
+      setLimit(limit, reSearch = true) {
         if (+limit !== this.limit) {
+          this.cursors = []
           this.limit = +limit
           this.page = 1
-          this.reSearch()
+          this.totalRows = 0
+          if (reSearch)
+            this.reSearch()
         }
       },
-      setPage(page) {
+      setPage(page, reSearch = true) {
         this.page = +page
-        this.reSearch()
+        if (reSearch)
+          this.reSearch()
       },
-      setSort(sort) {
+      setSort(sort, reSearch = true) {
         const { sortBy, sortDesc } = sort
         this.sortBy = sortBy
         this.sortDesc = !!sortDesc
-        this.reSearch()
+        if (reSearch)
+          this.reSearch()
       },
       doReset() {
         this.isLoading = true
@@ -134,10 +148,10 @@ const factory = (uuid, options = {}) => {
               ? `${this.sortBy} DESC`
               : `${this.sortBy}`
             )
-            : null // use natural sort
+            : undefined // use natural sort
           ),
           limit: this.limit,
-          cursor: ((this.page * this.limit) - this.limit)
+          cursor: this.useCursor(this.cursors, this.page, this.limit)
         }
         if ('list' in this.api) { // has api.list
           this.$debouncer({
@@ -145,8 +159,10 @@ const factory = (uuid, options = {}) => {
               return this.api.list(params)
                 .then(_response => {
                   const response = this.responseInterceptor(_response)
-                  const { items = [], total_count } = response
+                  const { items = [], nextCursor, total_count } = response
                   this.items = items || []
+                  if (nextCursor)
+                    this.cursors[this.page] = nextCursor
                   if (total_count) // endpoint returned a total count
                     this.totalRows = total_count
                   else if (items.length === this.limit) // +1 to guarantee next
@@ -191,10 +207,10 @@ const factory = (uuid, options = {}) => {
               ? [`${this.sortBy} DESC`]
               : [`${this.sortBy}`]
             )
-            : null // use natural sort
+            : undefined // use natural sort
           ),
           limit: this.limit,
-          cursor: ((this.page * this.limit) - this.limit)
+          cursor: this.useCursor(this.cursors, this.page, this.limit)
         }
         const body = this.requestInterceptor(_body)
         this.$debouncer({
@@ -202,8 +218,10 @@ const factory = (uuid, options = {}) => {
             return this.api.search(body)
               .then(_response => {
                 const response = this.responseInterceptor(_response)
-                const { items, total_count } = response
+                const { items, nextCursor, total_count } = response
                 this.items = items || []
+                if (nextCursor)
+                  this.cursors[this.page] = nextCursor
                 if (total_count) // endpoint returned a total count
                   this.totalRows = total_count
                 else if (items.length === this.limit) // +1 to guarantee next

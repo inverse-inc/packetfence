@@ -12,12 +12,15 @@
       :to="item.path"
       :key="item.name"
       >
-      <div class="section-sidebar-item" :class="{ 'ml-3': indent }">
+      <div class="section-sidebar-item d-flex" :class="{ 'ml-3': indent }">
         <div>
           <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
           <text-highlight class="figure-caption text-nowrap" v-if="item.caption" :queries="[filter]">{{ item.caption }}</text-highlight>
         </div>
-        <icon class="mx-1" :name="item.icon" v-if="item.icon" />
+        <icon v-if="item.icon"
+          class="mx-1" :name="item.icon" />
+        <icon v-else-if="item.icons" v-for="(icon, i) in item.icons" :key="`icon-${icon}`"
+          class="mx-1" :class="{ 'ml-auto': i === 0 }" :name="icon" />
         <slot/>
       </div>
     </b-nav-item>

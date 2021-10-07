@@ -47,32 +47,92 @@ sub osclass_active {
 
 sub inactive_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_inactive_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_inactive_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub active_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_active_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_active_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub unregistered_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_unregistered_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_unregistered_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub unregistered_active {
     my ($self) = @_;
-    $self->render(json => { items => [report_unregistered_active()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_unregistered_active($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub registered_all {
     my ($self) = @_;
-    $self->render(json => { items => [report_registered_all()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_registered_all($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub registered_active {
     my ($self) = @_;
-    $self->render(json => { items => [report_registered_active()]});
+    my %defaults = ( limit => 100, cursor => "00:00:00:00:00:00" );
+    my $search_info = $self->search_info(\%defaults);
+    my $items = [report_registered_active($search_info)];
+    my $nextCursor = $self->nextCursorFromItems($search_info, $items, 'mac');
+    $self->render(
+        json => {
+            items      => $items,
+            nextCursor => $nextCursor,
+            prevCursor => $search_info->{cursor}
+        }
+    );
 }
 
 sub unknownprints_all {
@@ -299,6 +359,39 @@ sub _get_datetime {
     return $self->escape_url_param($datetime);
 }
 
+sub nextCursor {
+    my ($self, $search_info, $items) = @_;
+    my $nextCursor = undef;
+    my $limit = $search_info->{limit};
+    if ( @$items == $limit ) {
+        pop @$items;
+        $nextCursor = ($search_info->{cursor} // 0) + $limit - 1;
+    }
+
+    return $nextCursor;
+}
+
+sub nextCursorFromItems {
+    my ($self, $search_info, $items, $key) = @_;
+    my $nextCursor = undef;
+    my $limit = $search_info->{limit};
+    if ( @$items && @$items == $limit ) {
+        my $item = pop @$items;
+        $nextCursor = $item->{$key};
+    }
+
+    return $nextCursor;
+}
+
+sub search_info {
+    my ($self, $defaults) = @_;
+    my $params = $self->req->query_params->to_hash;
+    my %info = map { exists $params->{$_} ? ( $_ => $params->{$_} ) : () } qw(limit cursor);
+    $info{limit} ||= $defaults->{limit};
+    $info{cursor} //= $defaults->{cursor};
+    $info{limit}++;
+    return \%info;
+}
 
 =head1 AUTHOR
 

@@ -7,7 +7,7 @@
 
     This file is part of the PacketFence project.
 
-    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for 
+    See PacketFence_Network_Devices_Configuration_Guide-docinfo.xml for
     authors, copyright and license information.
 
 ////
@@ -64,6 +64,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Google Workspace integration for LDAP and Chromebooks
 * Automation of upgrades from 10.3 and above (#6438)
 * Forwarding support for audit logs stored in database
+* New reports type for MySQL/MariaDB scripts allowing multi-statement session-based statements (#6597)
+* 3 new report charts including parallel categories (sankey diagram) and time-based scatter charts. 10 new reports for accounting, authentication, nodes and roles (#6597)
 
 === Enhancements
 
@@ -87,6 +89,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Audit successful admin login in the admin audit log. (#6345)
 * Allow users to resend the SMS pin
 * Improve the speed of retrieving switches (#6321)
+* UI user saved searches in searchable Reports (#6597)
+* Unified Reports, combining Standard and Dynamic reports in a single configuration (#6597)
+* Recategorized Reports UI menu and improved search, date/time selection, and extended hotlinks in tabular report data. Added users' saved search in searchable Reports (#6597)
 
 === Bug Fixes
 
@@ -587,7 +592,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Custom message for SMS registration
 * Expire SMS pin code
 * Define the length of the pin code
-* Enable or disable sponsor authentication when he validates access (PR #2995) 
+* Enable or disable sponsor authentication when he validates access (PR #2995)
 * Rewrite of the pfdetect service in Golang (PR #3260)
 * Added support for OpenWRT/LEDE 17.01.4 (PR #3008)
 
@@ -704,7 +709,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Moved add and delete buttons to the left to avoid the being cutoff (#2678)
 * Fixed "Admin: Multiple 'Device Type' options in Nodes tab" (#2789) (PR #2793)
-* Configurator: when using a different database name, the fingerbank.conf MySQL section is not updated (#2665) (PR #2787) 
+* Configurator: when using a different database name, the fingerbank.conf MySQL section is not updated (#2665) (PR #2787)
 * rlm_perl modules are now using syslog instead writing directly to the file (PR #2609)
 * Prevent a valid PID from being overwritten at the end of the portal registration if the new PID is default (#2825)
 * Auth log is not set to completed after email registration (#2648) (PR #2649)
@@ -750,7 +755,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * pfsso now logs in packetfence.log (#2553) (PR #2557)
 * httpd.dispatcher now logs in httpd.dispatcher.log (PR #2557)
 * Fixed incorrect inline sub type detection
-* Fixed ipset update with the incorrect ip address 
+* Fixed ipset update with the incorrect ip address
 * Fixed missing confirm prompt when restarting all services via the admin interface (#2365) (PR #2571)
 * Fixed violation definition sync when removing a violation from the config
 * Fixed incorrect Connection-Type when using EAP-TTLS (#2582)
@@ -864,12 +869,12 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Fix innobackup tmp directory when used with Galera cluster
  * Fix width of auth sources conditions fields (#2312)
  * Fixed admin login when only allowed to see auditing section
- * Fixed locationlog entries for VOIP devices when no voice VLAN is defined (#2314) 
- * Fixed authentication sources cache in connection profile (#2309) 
- * Fixed loose matching of host in haproxy dispatcher (#2299) 
+ * Fixed locationlog entries for VOIP devices when no voice VLAN is defined (#2314)
+ * Fixed authentication sources cache in connection profile (#2309)
+ * Fixed loose matching of host in haproxy dispatcher (#2299)
  * Fixed lost MySQL handle errors in pfconfig
  * Handle sources activation host in haproxy dispatcher (#2266)
- * Fixed incorrect handling of unregistration year 
+ * Fixed incorrect handling of unregistration year
  * Fixed incorrect LDAP error when user not found
  * Fixed file cloning in connection profile
  * Fixed display of roles in admin GUI
@@ -1049,7 +1054,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Improved display of fingerprinting informations in the nodes search (PR#1709)
 * Allow captiveportal::Form::Authentication to be customize (PR#1666)
 * Default config overlay for switches.conf, profiles.conf, pfqueue.conf and violations.conf (PR#1647)
-* Optimized queries for finding open violations (PR#1718) 
+* Optimized queries for finding open violations (PR#1718)
 
 === Bug Fixes
 
@@ -1079,7 +1084,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
-* Added EAP-FAST support 
+* Added EAP-FAST support
 * MySQL is now supported as the Fingerbank database backend
 * Integration with Cisco MSE adds maps, location based portals and notifications
 * Added the ability to locate a device based on DHCP Option 82
@@ -1096,7 +1101,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fingerbank is now configurable from the initial PacketFence configurator
 * Added support for Xirrus switches CLI RADIUS authentication
 * Pinterest and Instagram are now supported as OAuth authentication sources
-* Support for Suricata md5 extraction over SMTP protocol 
+* Support for Suricata md5 extraction over SMTP protocol
 * Added sample monit helper scripts under pf/addons
 * Added support for custom AUP template per portal module
 * Several improvements to Fingerbank to make it more user-friendly
@@ -1199,7 +1204,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fixed pfdns to prevent pid file deletion when a child dies (#1444)
 * PacketFence will now handle the case where a source in the session is not available anymore
 * Fixed missing PID when using device registration (#1447)
-* Fingerbank update will no longer sync all servers anymore 
+* Fingerbank update will no longer sync all servers anymore
 * VoIP detection flags default will now be undef in admin interface
 * Suricata renamed to suricata_event in violations.conf.example
 * The captive portal will now handle User Agent strings properly
@@ -1218,11 +1223,11 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Added back the option to set the logo in a portal profile
 * Fixed Blackhole and Null authentication portal modules (#1439)
 * Added missing username field in Debian maintenance crontab
-* Fixed web authentication web form release in captive portal 
+* Fixed web authentication web form release in captive portal
 * Validate configuration identifiers so they don't contain invalid characters (#1417)
 * Fixed incorrect samba handling of "%h" in server name
 * Fixed registration ACL computing for Cisco WLC and 2960 in web authentication
-* Adjust pfdetect startup order to allow Snort / Suricata to start 
+* Adjust pfdetect startup order to allow Snort / Suricata to start
 * Fixed pfsetvlan compilation error
 * Fixed violations internationalization
 * Fix incorrect rogue dhcp detection
@@ -1261,14 +1266,14 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Performance improvement for VoIP detection
 * Added new RADIUS filter return option (random number in a range)
 * Reinstated iplog (iplog_history and iplog_archive) rotation/cleanup jobs performed by pfmon
- 
+
 === Bug Fixes (bug Id is denoted with #id)
 
 * Compute unregistration for secure connections
 * Fixed unescape value in LDAP search
 * Fixed Apache 2.4 core dump
 * Fixed update locationlog from accounting start with the wrong connection type
- 
+
 == Version 5.7.0 released on 2016-02-17
 
 === New Features
@@ -1296,7 +1301,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Present a login page without login form when a blackhole source is used on the portal profile (#1021)
 * Fixed incorrect provisioning templates that required entering a password twice (#1119)
 * Fixed ambiguous SQL accounting stored procedure that could return duplicate results
-* Fixes incorrect IPv6 DHCP processing in pfdhcplistener 
+* Fixes incorrect IPv6 DHCP processing in pfdhcplistener
 
 == Version 5.6.1 released on 2016-01-25
 
@@ -1309,7 +1314,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Fix duplicate open entries in locationlog for voip devices
 * Avoid circular dependency when loading pf::Authentication::Source::StripeSource (1160)
-* Fix incorrect Cisco switch ACL number 
+* Fix incorrect Cisco switch ACL number
 * Removed use of pf::class modules which caused compilation errors
 * Fixed an incorrect reload of the cached configuration (1157)
 
@@ -1319,9 +1324,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * New RADIUS auditing report allows troubleshooting from the GUI
 * The email authorization source now allows to set roles based on the email used to register
-* New switch groups now allows to assign settings to multiple switches at once 
+* New switch groups now allows to assign settings to multiple switches at once
 * DHCP filters now allow arbitrary rules to perform actions based on DHCP fingerprinting
-* Cisco switches login access can now be authenticated through PacketFence 
+* Cisco switches login access can now be authenticated through PacketFence
 * The filter engine configuration can now be edited through the admin GUI
 
 === Enhancements
@@ -1356,7 +1361,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
-* pf::CHI::compute_with_undef now supports cache options 
+* pf::CHI::compute_with_undef now supports cache options
 * Use the fingerbank cache instead of caching its result globally.
 * Update dependency to 2.1 for fingerbank.
 
@@ -1436,7 +1441,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * External HTTP authentication sources support which allows an HTTP-based external API to act as an authentication source to PacketFence
 * Introduced a 'packetfence_local' PKI provider to allow the use of locally generated TLS certificates to be used in a PKI provider / provisionner flow
 * New filtering engine for the portal profiles allowing complex rules to determine which portal will be displayed
-* Added the ability to define custom LDAP attributes in the configuration 
+* Added the ability to define custom LDAP attributes in the configuration
 * Add the ability to create "administrative" or "authentication" purposes rules in authentication sources
 * Added support for Cisco SG300 switches
 
@@ -1466,7 +1471,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Improved Ruckus ZoneDirector documentation regarding external captive portal
 * pfconfig daemon can now listen on an alternative unix socket
 * Improved handling of updating the /etc/sudoers file in packaging
-* Improved roles handling on AeroHive devices 
+* Improved roles handling on AeroHive devices
 
 === Bug Fixes (bug Id is denoted with #id)
 
@@ -1477,12 +1482,12 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Active/active load balancing will now be dispatched based on the Calling-Station-Id attribute.
 * Fix unaccessible portal preview when no internal network is defined (#790)
 * Fixed a case where the wrong portal profile can be instantiated on the first connection
-* Improved error message in the profile management page (#858) 
+* Improved error message in the profile management page (#858)
 * Do not use the PacketFence multi-domain FreeRADIUS module unless there are domains configured in PacketFence (#868)
 * We now handle gracefully switches sending double Calling-Station-Id attributes (#864)
 * Prevent OMAPI from being configured on the DHCP server without a key (#851)
 * Switched to the memcached binary protocol to avoid memcached injection exploit
-* Fixed ipset error if the device switches from one inline network to another 
+* Fixed ipset error if the device switches from one inline network to another
 * Fixed wrong configuration parameters for redirect url (now a per-profile parameter)
 * Fix bug with validation of mandatory fields causing exceptions in signup
 * Made DHCP point DNS only on cluster IP if passthroughs are enabled in active/active clusters (#820)
@@ -1520,7 +1525,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
-* Introducing support for the PacketFence PKI application to manage certificates and authenticate RADIUS using EAP-TLS. 
+* Introducing support for the PacketFence PKI application to manage certificates and authenticate RADIUS using EAP-TLS.
 * Twitter OAuth is now supported as an authentication source.
 * New 'portal' interface type to spawn a captive-portal instance on selected interface.
 * Traffic shaping support for Inline mode managed by an ipset session per devices role.
@@ -1612,7 +1617,7 @@ This release is a bug fix only. No new features were introduced.
 * Added missing CHI File driver.
 * Delete left over Config::Fingerprint module in Debian and Ubuntu.
 * Fixed pfmon not starting when running a standalone PF server.
-* Fixed broken OS reporting. 
+* Fixed broken OS reporting.
 * Added missing dependency on perl-SOAP-Lite for packetfence-remote-snort-sensor.
 * Updating iplog without a lease time now reset end_time to default (0000-00-00 00:00:00) to avoid "closing" a valid entry
 * fixed pfcmd watch emailing functionality.
@@ -1634,11 +1639,11 @@ This release is a bug fix only. No new features were introduced.
 
 * Completely rewritten pfcmd command. pfcmd is now much easier to extend and will allow us to integrate more features in the near future.
 * Rewritten IP/MAC mapping (iplog). Iplog should now never overflow.
-* New admin role action USERS_CREATE_MULTIPLE for finer grained control of the admin GUI. An administrative account can now be prevented from creating more than one other account. 
+* New admin role action USERS_CREATE_MULTIPLE for finer grained control of the admin GUI. An administrative account can now be prevented from creating more than one other account.
 * PacketFence will no longer start MySQL when starting.
 * PacketFence will accept to start even if there are no internal networks.
 * Added a new listening port to pfdhcplistener to listen for replicated traffic.
-* Added a 'default' default user in replacement of the admin one. 
+* Added a 'default' default user in replacement of the admin one.
 * Adds support for HP ProCurve 2920 switches.
 * Iptables will now allow access to the captive portal from the production network by default.
 * Major documentation rewrite and improvements.
@@ -1777,7 +1782,7 @@ This release is a bug fix only. No new features were introduced.
 * Barracuda Networks firewall integration for Single Sign-On
 * pfmon can now run tasks on different intervals
 * Added a way to reevaluate the access of a node from the admin interface
-* Added a "Blackhole" authentication source 
+* Added a "Blackhole" authentication source
 * Added a new violation to enforce provisioning of agents
 * Violation can now be delayed
 * Added portal profile filter based on switch-port couple
@@ -1808,8 +1813,8 @@ This release is a bug fix only. No new features were introduced.
 * Added support for unreg date with dynamic year
 * Added support for NetGear FSM7328S switches
 * Added new network profile filter
-* Added external captive portal support for AeroHIVE 
-* Added external captive portal support for Xirrus 
+* Added external captive portal support for AeroHIVE
+* Added external captive portal support for Xirrus
 * Added support for Dynamic Access lists on the Cisco Catalyst 2960
 * Added the ability to search switches
 * Added support for Dlink DES3028 switches

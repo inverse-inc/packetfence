@@ -44,6 +44,13 @@ const unit2seconds = (unit) => {
   return seconds
 }
 
+export const duration2seconds = (duration) => {
+  const matches = duration.match(/^(\d+)([smhDWMY])$/)
+  // eslint-disable-next-line no-unused-vars
+  const [ _, interval, unit ] = matches
+  return +interval * unit2seconds(unit)
+}
+
 export const composeDuration = (value) => {
   const matches = (value || '').match(/(\d+)([smhDWMY]){1}([FR])?(([+-]\d+)([smhDWMY]){1})?/)
   if (!matches)

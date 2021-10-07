@@ -52,6 +52,7 @@ BEGIN {
     $pf::file_paths::config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::pf_config_file = catfile($test_dir,'data/pf.conf');
     $pf::file_paths::realm_config_file = catfile($test_dir,'data/realm.conf');
+    $pf::file_paths::report_config_file = catfile($test_dir,'data/report.conf');
     $pf::file_paths::roles_config_file = catfile($test_dir,'data/roles.conf');
     $pf::file_paths::event_loggers_config_file = catfile($test_dir,'data/event_loggers.conf');
 

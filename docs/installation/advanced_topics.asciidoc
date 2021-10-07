@@ -30,40 +30,76 @@ In order to override a default parameter, define it and set it in [filename]`/us
 
 All these parameters are also accessible through the web-based administration interface under the Configuration tab. It is highly recommended that you use the web-based administration interface of PacketFence for any configuration changes.
 
-=== Dynamic Reports
+=== Reports
 
 Using the `report.conf` configuration file, you can define reports that create
 SQL queries to view tables in the PacketFence database. These reports will
-appear under the _Reports -> Dynamic Reports_ menu of the administration
+appear under the _Reports_ menu of the administration
 interface.
 
-In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define your report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
+PacketFence comes preloaded with several reports that are optimized for most common production use-cases in `reports.conf.defaults`. This file should not be modified, but can be used to provide working examples.
 
-The following attributes are available to define your report (the ones that have an asterisk are mandatory):
+NOTE: Improperly formed reports can consume significant resources on the server. All queries should be profiled and optimized to avoid service outages when executed. Using `type=sql` (script/batch mode) allows increased query and transaction control.
+
+TIP: Master/Slave replication can be used to offload query execution to a read-only database that is not an active member of the cluster. This will ensure that reporting does not degrade the production environment and will provide increased resources to generate the reports.
+
+==== Configuration Attributes
+
+In order to configure a report, you need to edit [filename]`/usr/local/pf/conf/report.conf` and add a section that will define the report. Then do a `/usr/local/pf/bin/pfcmd configreload hard`.
+
+The administration interface builds the structured menu by splitting and separating all the section identifier's by double colons _"::"_. Identifiers without this separator are shown at the top level. Up to a maximum of 2 sets of double colons can be used for a maximum menu depth of 3 levels. All identifiers must be unique and any identifier partially reused by another sibling will make it inaccessible. (ex: [A::B] will lose its place as a report and become a parent category for [A::B::*] if it is also defined. Either rename the former to include a 3rd part, or rename the latter to use a different 1st or 2nd part.
+
+  [Top Category::Sub Category::Report]
+
+The following attributes are available to define a report (* mandatory attributes are marked with an asterisk):
+
 [options="compact"]
-* `type`*: Determines what type of report this is. Setting `type=built-in` will make this report appear in _Other reports_, omitting it will display it in _Dynamic reports_ when viewing it in the administration interface. When in doubt, simply omit this parameter.
-* `description`*: The user friendly description that will display for this report
-* `base_table`*: The base SQL table that will be used to create the view
-* `columns`*: The columns to select from the table(s) (ex: `node.mac`).
-* `date_field`*: The field to use for date filtering. Will also be used as default sorting field unless `order_fields` is set in the report.
-* `joins` : The tables to join to the base table and how to join them. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation].
-* `group_field`: The field to group the entries by. No grouping is done if this field is omitted or empty.
-* `order_fields`: Comma delimited fields for the ordering of the report. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
-* `base_conditions`: Comma delimited conditions that should be applied to the report. This can be used to filter the report without using the search in the administration interface to provide the proper unsearched view. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
-* `base_conditions_operator`: Whether the base conditions should be matched using an all or any logic. Accepted values are `all` and `any`.
-* `person_fields`: The fields in your report that represent a user in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the user in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
-* `node_fields`: The fields in your report that represent a node in the PacketFence database. Field values in this field will be clickable and will allow to view/modify the values of the node in question. The fields must be listed with the name they have in the report header without any quotes and are comma delimited.
-* `searches`: Comma delimited searches that should be available on the report. Should match the following format `type:Display Name:field` (ex: `string:Username:auth_log.pid`).
+* `type`*: The type of report. Use `type=abstract` to use SQL Abstract and `type=sql` to use MySQL script/batch mode. Each of these types have their own additional attributes which are explained in more detail below.
+* `description`*: A user-friendly description that provides more details about the report. Used as a title for all charts.
+* `charts`: A comma delimited list of charts to display. Each chart is displayed in its own tab above the table data. There is no limit to the number of charts that can be defined. Charts are explained in more detail below.
+* `columns`*: A comma separated list of columns or aliases that are displayed in the table from the SQL query (ex: `node.mac`, `Node MAC`). The table columns are displayed in the respective order. Columns can be aliased to a more friendly name, but these aliases must be used throughout the other attributes.
+* `date_limit`: A PacketFence interval that defines the maximum date range allowed between `start_date` and `end_date`. The reports user is restricted from choosing a date range that exceeds this limit. This is used to prevent the MySQL query from consuming too much resources with large datasets. The duration is defined as `date_limit=[unit]:[interval]` (ex: date_limit=1D), where the unit is a positive integer and the interval is one of the following characters:
+  ** `s`: second(s)
+  ** `m`: minute(s)
+  ** `h`: hour(s)
+  ** `D`: Day(s)
+  ** `W`: Week(s)
+  ** `M`: Month(s)
+  ** `Y`: Year(s)
+* `formatting`: A comma separated list of column or alias formatters. Each column is defined folowed by a colon and the internal PacketFence function used to format the column value for every row (ex: `formatting=vendor:oui_to_vendor`). This is used to format the query result columns using a function to access internal PacketFence memory. The supported formatters:
+  ** `oui_to_vendor`: format a MAC OUI to a vendor.
+* `has_date_range`: _[enabled|disabled]_ Display a datetime range and provide `start_date` and `end_date` bindings. See `date_limit` to restrict the maximum date range.
+* `has_limit`: _[enabled|disabled]_  Display a limit selection and provide a `limit` binding.
+* `node_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific Node - only clickable if the reports' user has the _"Node - View"_ admin role. All fields must be a valid PacketFence node identifier _(mac)_.
+* `person_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific User - only clickable if the reports' user has the _"User - View"_ admin role. All fields must be a valid PacketFence user identifier _(pid)_`.
+* `role_fields`: A comma delimited list of fields (columns or aliases) that will be clickable from the table of the Report and linked to the specific Role. All fields must be a valid PacketFence role identifier _(category_id)_.
+
+NOTE: Configuration attributes can optionally use a `columnName` reference with simple queries that use a single table (ex: `attribute=columnA,columnB`). The attributes must use `tableName.columnName` reference when using `joins` with 2+ tables (ex: `attribute=tableA.columnA,tableB.columnB`). Aliased `columns` can be used with the table reference (ex: `attribute=tableA.Alias A,tableB.Alias B`).
+
+==== SQL Abstract
+
+When `type=abstract` PacketFence uses Perl https://metacpan.org/pod/SQL::Abstract::More[SQL::Abstract::More] to automatically build the SQL query.
+
+The following attributes are available when using `type=abstract`(* mandatory attributes are marked with an asterisk):
+
 [options="compact"]
+* `base_conditions`: A comma delimited list of conditions that is applied to the SQL query. Conditions should match the following format : `field:operator:value` (ex: `auth_log.source:=:sms,auth_log.status:!=:completed`).
+* `base_conditions_operator`: _[all|any]_ The logical SQL operator (AND|OR respectively) used with the `base_conditons`.
+* `base_table`*: The base SQL table used in the SQL query.
+* `date_field`*: The table field (column) used to filter by the date range. When used the column will also be used for the default sorting, unless `order_fields` is explicitly defined.
+* `group_field`: The field (column) to group the query results by. No grouping is performed if this field is empty or omitted.
+* `joins` : The table(s), columns and aliases used to join on the `base_table`. See example below and http://search.cpan.org/~dami/SQL-Abstract-More-1.28/lib/SQL/Abstract/More.pm#Join-specifications[the following documentation]. This attribute supports multi line blocks (heredoc), see below.
+* `order_fields`: A comma delimited list of fields (columns) used to order the SQL query. The field should be prefixed of `-` if the sort should be made in descending order for the field (ex: `-node.regdate,locationlog.start_time,+iplog.start_time`).
+* `searches`: A comma delimited list of searchable fields (columns) that are presented to the reports' user. This allows the user to optionally include additional criteria for the query. Each item is defined as `type:Friendly Name:tableName.columnName` (ex: `searches=string:Owner:person.pid,string:Node:node.mac`). Currently only the type _string_ is supported.
 ** `type` defines the type of the search, the only one currently supported is `string`.
-** `Display Name` is the user friendly name of the field for display.
+** `Display Name` is the user-friendly name of the field for display.
 ** `field` is the SQL name of the field to search
 
 WARNING: Replace operators `IS` and `<>` by `=` and `!=`, respectively.
 
-NOTE: You should always prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Although your query may work with a single table, it will not if you decide to add joins that contain column name(s) that are the same as the base table.
+NOTE: Prefix the fields with the table name and a dot (ex: `node.mac`, `locationlog.role`, ...) so that they are not ambiguous. Wrap table names and column names with backticks "``" to avoid naming issues with current and future MySQL reserved words.
 
-==== Examples
+===== Examples
 
 View of the auth_log table:
 
@@ -85,7 +121,7 @@ In this simple example, you will be able to select the whole content of the `aut
 View of the opened security events:
 
   [open_security_events]
-  description=Open security events 
+  description=Open security events
   # The table to search from
   base_table=security_event
   # The columns to select
@@ -106,6 +142,206 @@ View of the opened security events:
   person_fields=Username
 
 In the example above, you can see that the security_event table is _left joined_ to the class, node and locationlog tables. Using that strategy we make sure all the security events are listed even on deleted nodes. Then, base conditions are added to filter out outdated locationlog entries as well as include devices without locationlog entries. Removing those conditions would lead to duplicate entries being shown since the report would reflect all the historical locationlog entries.
+
+==== SQL
+
+When `type=sql` PacketFence uses MySQL script/batch mode to manually build the SQL query including the execution of multiple statements. This provides complete query control as well as the ability to manage the SQL session and the SQL transaction. This is the preferred mode where SQL optimization is needed to execute complex queries, or for those more comfortable with raw (non-abstract) SQL.
+
+  sql=SELECT * FROM sponsors;
+
+Multiline block (heredoc) is required when executing multiple statements. Each statement should be terminated with a semi-color ";".
+
+NOTE: SQL execution exits on the first error and returns the result set of the last successful statement.
+
+The following attributes are available when using `type=sql`:
+
+[options="compact"]
+* `bindings`: A comma delimited list of ordered bindings to send to the SQL script (ex: `bindings=tenant_id,start_date,end_date,cursor,limit`). See Bindings below.
+* `cursor_type`: _[node|field_multi_field]_ Adds a cursor binding to the sql script that implements pagination of the results. The cursor is automatically handled in the administration interface, but its use in the `sql` requires special attention. If omitted the default `none` is used. More information about cursors is provided below. There are 2 types of cursors:
+ ** `cursor_type=field`: Use a single field (column or alias) for the cursor.
+ ** `cursor_type=multi_field`: Use multiple fields (columns or aliases) for the cursor.
+ ** `cursor_type=offset`: Use integer based offset for the cursor.
+ ** `cursor_type=none`: No cursor is used.
+* `cursor_default`: The default cursor used to conditionally query the results for the first page. On subsequent pages this is replaced with the results from N+1 row of the previous page, meaning the cursor for page 2 (with `default_limit=25`) will contain the value from the column of the 26th row from the previous page.
+* `cursor_field`: A comma delimited list of fields (columns) used for pagination.
+* `default_limit`: The default limit passed into the bindings of the SQL script. When `has_limit=enabled` the reports' user can override the default with a manual selection.
+* `sql`: Either a single MySQL query, or a multi line block of statements within a heredoc (see Heredoc below).
+
+==== Bindings
+
+The `bindings` attribute defines an ordered comma delimited list of columns (or aliases) that are made available to the `sql` script. There is no limit with the number of bindings that can used and a binding can be repeated more than once.
+
+The available bindings are:
+
+[options="compact"]
+ ** `tenant_id`: The scoped tenant identifier of the reports' session.
+ ** `start_date`, `end_date`: The start and end datetime. Formatted as _"YYYY-MM-DD HH:mm:ss"_. Use native MySQL date functions to reformat it.
+ ** `cursor`: On the first page this value is the `cursor_default`. On subsequent pages this value is taken from the `cursor_field` column of the last result row from the previous page. When using `cursor_type=multi_field` the cursor is split into the bindings as `cursor.0`, `cursor.1`, etc.
+ ** `limit`: Uses `default_limit` (+1, see pagination) unless overridden by the user.
+
+Bindings are consumed in the `sql` using "?" in the same order that they are defined.
+
+  [single binding]
+  type=sql
+  bindings=limit
+  sql=SELECT * FROM table LIMIT ?;
+  default_limit=100
+  has_limit=enabled
+
+If a binding is needed more than once within the `sql`, it can either be defined multiple times, or defined once and consumed to SET a MySQL variable.
+
+  [many bindings]
+  type=sql
+  bindings=start_date,end_date,tenant_id,start_date,end_date,limit
+  sql= << EOT
+    SELECT
+      *
+    FROM tableA
+    JOIN tableB ON tableA.id = tableB.id
+      AND date BETWEEN ? AND ?
+    WHERE tenant_id = ?
+      AND date BETWEEN ? AND ?
+    LIMIT ?;
+  EOT
+  default_limit=100
+  has_date_range=enabled
+  has_limit=enabled
+
+This can be improved as:
+
+  [many bindings]
+  type=sql
+  bindings=tenant_id,start_date,end_date,limit
+  sql= << EOT
+  BEGIN NOT ATOMIC
+    SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+    SELECT
+      *
+    FROM tableA
+    JOIN tableB ON tableA.id = tableB.id
+      AND date BETWEEN @START_DATE AND @END_DATE
+    WHERE tenant_id = @TENANT_ID
+      AND date BETWEEN @START_DATE AND @END_DATE
+    LIMIT ?;
+  END;
+  EOT
+  default_limit=100
+  has_date_range=enabled
+  has_limit=enabled
+
+NOTE: MySQL LIMIT will not accept a variable (`LIMIT @LIMIT`). A best practice is to always pass limit as the last field in `bindings` and to simply consume it at the end of the script (`LIMIT ?`) as shown in the last example above.
+
+==== Pagination
+
+Pagination is supported through the use of the `cursor_type`, `cursor_default`, `cursor_field`, `bindings` and `sql` attributes. Pagination supports the use of one to many columns. Special attention must be given to the order of the final result set in order to utilize the cursor properly. Symptoms of too few pages, or infinite loops through subsequent pages are signs of a mismatched cursor and/or query results order.
+
+The `limit` binding always has +1 added to it as PacketFence always consumes an extra row to determine the cursor for the following page. Due to this all conditional statements must be inclusive (ex: Bad operators "<, >", Good operators: "<=, >="). If the column value is not unique then `cursor_type=multi_field` should be used instead to avoid infinite loops.
+
+Examples of a single column cursor:
+
+  [all nodes in ascending order]
+  type=sql
+  sql= <<EOT
+    SELECT mac FROM node WHERE mac >= ? ORDER BY mac LIMIT ?;
+  EOT
+  bindings=cursor,limit
+  cursor_type=field
+  cursor_field=mac
+  default_cursor=00:00:00:00:00:00
+
+  [all nodes in descending order]
+  type=sql
+  sql= <<EOT
+    SELECT mac FROM node WHERE mac <= ? ORDER BY mac DESC LIMIT ?;
+  EOT
+  columns=mac
+  bindings=cursor,limit
+  cursor_type=field
+  cursor_field=mac
+  default_cursor=ff:ff:ff:ff:ff:ff
+
+Example of a multi column cursor:
+
+  [all ip4log logs]
+  type=sql
+  sql= <<EOT
+    SELECT
+      ip4log.ip,
+      ip4log.start_time,
+      node.mac
+    FROM ip4log
+    INNER JOIN node
+      ON ip4log.mac = node.mac
+    WHERE ip4log.start_time >= ?
+      AND node.mac >= ?
+    ORDER BY ip4log.start_time, node.mac
+    LIMIT ?;
+  EOT
+  columns=mac
+  bindings=cursor.0,cursor.1,limit
+  cursor_type=multi_field
+  cursor_field=start_time,mac
+  default_cursor=0000-00-00 00:00:00:00,00:00:00:00:00:00
+
+==== Charts
+
+Charts are defined as a comma delimited list using the `chart` attribute. An optional "@" symbol can be used to delimit a chart name. A mandatory pipe (vertical-bar) `|` is used to delimit the chart type and the fields. Within the fields a colon ":" is used to delimit each of the fields (if more than one field is necessary). The general syntax is:
+
+  charts=[pie,bar,parallel,scatter] [@ Chart Name] | field1 [:fieldN:...]
+
+There are 4 types of charts available:
+
+[options="compact"]
+* `pie`: A pie chart with 2 dimensions. Must contain 2 fields (`charts=pie|field1:field2`):
+  ** `field0`: The dimensions label.
+  ** `field1`: The dimensions value.
+* `bar`: A bar chart with 2 dimensions. Must contain 2 fields (`charts=bar|field1:field2`):
+  ** `field0`: The dimensions label.
+  ** `field1`: The dimensions value.
+* `parallel`: A parallel category (sankey) diagram with 2+ dimensions. Must contain 3+ fields (`charts=parallel|field1:field2:field3[...:fieldN]`):
+  ** `fieldN`: The N dimensions label of 2+ fields. A category is created for each field and order is maintained. The palette is applied to the last field (right-most).
+  ** `fieldLast`: The last field always contains the dimensions value.
+* `scatter`: A date/time based line graph with 1+ dimensions. The date/time column is always defined in the first field and the query should return this using the _"YYYY-MM-DD HH:mm:ss"_ format.
+  ** When only one field is defined (`charts=scatter|field1`) then a value of 1 is implied for each row.
+  ** When 2 fields are defined (`charts=scatter|field1:field2`) then the 2nd field is used as the dimensions value. The query results are automatically aggregated to produce dimensions for several terms (year/month/week/day/hour/minute).
+  ** When 3+ fields are defined (`charts=scatter|field1:field2:field3[...:fieldN]`) the automatic aggregation is disabled and a dimension is used for each field.
+
+NOTE: All charts use the same color palette to provide a visual continuity.
+
+==== Heredoc
+
+The `joins` and `sql` attribute support multi line block statements. All whitespace characters are preserved. All multi line statements are pure SQL, thus the `--` prefix can be used as a remark.
+
+  attribute= <<EOT
+    -- multi-line
+    -- block
+    -- statement
+  EOT
+
+Heredoc supports multiple SQL statements. When running multiple statements they should be wrapped in `BEGIN NOT ATOMIC ... END;`, which is not required when using a single statement:
+
+  [multi statement example]
+  type=sql
+  sql= <<EOT
+  BEGIN NOT ATOMIC
+    -- consume bindings and SET friendly SQL variables (except LIMIT)
+    SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
+    SELECT
+      *
+    FROM tableA
+    WHERE tenant_id = @TENANT_ID
+      AND columnA BETWEEN @START_DATE AND @END_DATE
+    -- SQL LIMIT doesn't support SQL variables
+    LIMIT ?;
+  END;
+  EOT
+  bindings=tenant_id,start_date,end_date,limit
+
+==== Troubleshooting
+
+* If the API request returns an error or an empty response refer to the `packetfence.log` to obtain the full MySQL error message.
+* SQL scripts are transactional. After the script is run any variables or stored procedures created or temporary tables created are destroyed. Any locks obtained are released.
+* Modification to the configuration file only requires a `/usr/local/pf/bin/pfcmd configreload hard` for the changes to take effect. The administration interface will begin using the new script on its next request.
 
 === Admin Access
 

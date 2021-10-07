@@ -1,10 +1,8 @@
 <template>
-  <b-row align-v="start">
+  <b-row>
     <section-sidebar v-model="sections" />
     <b-col cols="12" md="9" xl="10" class="mt-3 mb-3">
-      <transition name="slide-bottom">
-        <router-view />
-      </transition>
+      <router-view />
     </b-col>
   </b-row>
 </template>
@@ -16,72 +14,83 @@ const components = {
 }
 
 import { computed, onMounted, ref } from '@vue/composition-api'
-import { pfReportCategories as reportCategories } from '@/globals/pfReports'
-import i18n from '@/utils/locale'
+import { delimiter } from './config'
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+const { root: { $store } = {} } = context
 
-  const standardReports = computed(() => reportCategories().map(reportCategory => {
-    return {
-      name: i18n.t(reportCategory.name),
-      items: reportCategory.reports.map(report => {
-        return {
-          name: i18n.t(report.name),
-          path: `/reports/standard/chart/${report.tabs[0].path}`,
-          icon: report.chart ? 'chart-pie' : null
-        }
+  const reports = ref([])
+  onMounted(() => $store.dispatch('$_reports/all')
+    .then(_reports => {
+      reports.value = _reports
+    })
+  )
+
+  const _depth = (item, depth = 0) => {
+    let d = depth
+      const { children = {} } = item
+      Object.keys(children).forEach(key => {
+          depth = Math.max(depth, _depth(children[key], d + 1))
       })
-    }
-  }))
+    return depth
+  }
 
-  const otherReports = ref([])
-  const dynamicReports = ref([])
-  onMounted(() => {
-    $store.dispatch('$_reports/all').then(reports => {
-      const sorted = [...(new Set(reports))] // dereferenced (prevents `sort` mutation)
-        .sort((a, b) => i18n.t(a.description).localeCompare(i18n.t(b.description)))
-
-      otherReports.value = sorted.filter(report => { return report.type === 'builtin' })
-        .map(report => {
+  const _struct = (associated, parents = 0) => {
+    return Object.keys(associated).map(key => {
+      const { children = {}, id, charts = '', date_field, has_date_range, searches } = associated[key]
+      const icons = []
+      if (searches)
+        icons.push('search')
+      if (date_field || has_date_range)
+        icons.push('calendar-alt')
+      if (charts)
+        icons.push('chart-pie')
+      const depth = _depth(associated[key])
+      switch (true) {
+        case depth === 2 && parents === 0:
+        case depth === 1 && parents === 0:
           return {
-            name: i18n.t(report.description),
-            path: `/reports/dynamic/chart/${report.id}`,
-            saveSearchNamespace: `dymamicReports::${report.id}`
+            name: key,
+            collapsable: true,
+            items: _struct(children, parents + 1) // recursive
           }
-        })
-
-      dynamicReports.value = sorted.filter(report => { return !report.type || report.type !== 'builtin' })
-        .map(report => {
+          // break
+        case depth === 1 && parents === 1:
           return {
-            name: i18n.t(report.description),
-            path: `/reports/dynamic/chart/${report.id}`,
-            saveSearchNamespace: `dymamicReports::${report.id}`
+            name: key,
+            items: _struct(children, parents + 1) // recursive
           }
-        })
-      })
+          // break
+        case depth === 0:
+          return {
+            name: key,
+            path: `/reports/${encodeURIComponent(id)}`,
+            saveSearchNamespace: `reports::${id}`,
+            icons
+          }
+          // break
+      }
+    })
+  }
+
+  const sections = computed(() => {
+    // sort by id
+    const sorted = reports.value.sort((a, b) => a.id.localeCompare(b.id))
+    // flatten reports into associated tree using delimiter
+    const associated = sorted.reduce((associated, report) => {
+      const { id, ...rest } = report
+      const namespace = id.split(delimiter)
+      let pointer = associated
+      for (let n = 0; n < namespace.length; n++) {
+        if (!(namespace[n] in pointer))
+          pointer[namespace[n]] = { children: {}, id, ...rest }
+        pointer = pointer[namespace[n]].children
+      }
+      return associated
+    }, {})
+    // return structured items
+    return _struct(associated)
   })
-
-  const sections = computed(() => ([
-    {
-      name: i18n.t('Standard Reports'),
-      icon: 'chart-pie',
-      collapsable: true,
-      items: standardReports.value
-    },
-    {
-      name: i18n.t('Other Reports'),
-      icon: 'chart-bar',
-      collapsable: true,
-      items: otherReports.value
-    },
-    {
-      name: i18n.t('Dynamic Reports'),
-      icon: 'chart-bar',
-      collapsable: true,
-      items: dynamicReports.value
-    }
-  ]))
 
   return {
     sections

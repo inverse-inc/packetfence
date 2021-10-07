@@ -41,39 +41,38 @@ Execute a search on a specific dynamic report
 sub search {
     my ($self) = @_;
     my ($status, $json) = $self->parse_json;
-
-    if(is_error($status)) {
+    if (is_error($status)) {
         return $self->render_error(400, "Unable to parse JSON query");
     }
-
-    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($json->{query});
-
-    my $limit = $json->{limit} // 25;
-    my $page = (($json->{cursor} // 0) / $limit);
-
-    my $report = pf::factory::report->new($self->id);
-    my %info = (
-        page => ($page + 1),
-        sql_abstract_search => $where,
-        per_page => $limit,
-        order => $json->{sort},
-        start_date => $json->{start_date},
-        end_date => $json->{end_date},
-    );
-
-    ($status, my $data) = $report->query(%info);
-
-    if(is_error($status)) {
-        return $self->render_error($status, "Failed executing search on report. Check server-side logs for details.");
+    
+    my $id = $self->id;
+    my $report = pf::factory::report->new($id);
+    if (!defined $report) {
+        return $self->render_error(
+            500, "Failed creating report ($id). Check server-side logs for details."
+        );
     }
 
-    my $page_count = $report->page_count(%info);
+    ($status, my $error_or_options) = $report->build_query_options($json);
 
+    if (is_error($status)) {
+        return $self->render( json => $error_or_options, status => $status );
+    }
+
+    my %info = %$error_or_options;
+    my $prevCursor = $info{cursor};
+    ($status, my $data) = $report->query(%info);
+    if (is_error($status)) {
+        return $self->render_error($status, "Failed executing search on report ($id). Check server-side logs for details.");
+    }
+
+    my $nextCursor = $report->nextCursor($data, %info);
+    $data = $report->format_items($data);
     return $self->render(
         json   => { 
             items => $data,
-            nextCursor => ($page < $page_count ? ($page+1)*$json->{limit} : undef),
-            prevCursor => ($page eq 0 ? 0 : ($page-1)*$json->{limit}),
+            nextCursor => $nextCursor,
+            prevCursor => $prevCursor,
         },
         status => 200,
     );
@@ -126,6 +125,24 @@ sub get {
     $self->render(json => {item => $self->stash('report')}, status => 200);
 }
 
+=head2 options
+
+options
+
+=cut
+
+sub options {
+    my ($self) = @_;
+    my $id = $self->id;
+    my $report = pf::factory::report->new($id);
+    if (!defined $report) {
+        return $self->render_error(
+            500, "Failed executing search on report ($id). Check server-side logs for details."
+        );
+    }
+
+    $self->render(json => {report_meta => $report->meta_for_options}, status => 200);
+}
 
 =head1 AUTHOR
 

@@ -16,6 +16,9 @@
             <b-form-radio v-model="settings.language" name="language" :value="null">{{ $t('Use web browser default') }}</b-form-radio>
           </div>
         </base-form-group>
+        <base-form-group-image-type v-model="settings.plotlyImageType"
+          :column-label="$t('Plotly Image Type')"
+          :text="$t('The image type to use when downloading a chart in Reports.')" />
       </b-card-body>
     </b-card>
 
@@ -160,6 +163,7 @@ import {
   BaseFormGroupInputPasswordGenerator,
   BaseInputGroupTextarea
 } from '@/components/new/'
+import BaseFormGroupImageType from './BaseFormGroupImageType'
 
 const components = {
   BaseButtonConfirm,
@@ -168,7 +172,9 @@ const components = {
   BaseFormGroup,
   BaseFormGroupInputPassword,
   BaseFormGroupInputPasswordGenerator,
-  BaseInputGroupTextarea
+  BaseInputGroupTextarea,
+
+  BaseFormGroupImageType
 }
 
 import { computed, nextTick, ref, watch } from '@vue/composition-api'
@@ -176,6 +182,7 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 import usersApi from '@/views/Users/_api'
+import defaultSettings from '../config'
 
 yup.addMethod(yup.string, 'passwordsMatch', function (match) {
   return this.test({
@@ -197,7 +204,7 @@ const setup = (props, context) => {
 
   const { refs, root: { $store } = {} } = context
 
-  const settings = ref({ language: null })
+  const settings = ref(defaultSettings)
   $store.dispatch('preferences/all')
     .then(() => {
       settings.value = { ...settings.value, ...$store.state.preferences.cache['settings'] || {} }

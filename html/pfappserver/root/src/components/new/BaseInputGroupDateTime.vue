@@ -107,6 +107,10 @@ export const props = {
   timeFormat: {
     type: String,
     default: 'HH:mm:ss'
+  },
+  // defer mutating value until popover is hidden
+  defer: {
+    type: Boolean
   }
 }
 
@@ -114,7 +118,8 @@ export const setup = (props, context) => {
 
   const {
     dateFormat,
-    timeFormat
+    timeFormat,
+    defer
   } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
@@ -165,6 +170,8 @@ export const setup = (props, context) => {
       isShown.value = false
   }
 
+  let deferredValue
+
   const isShown = ref(false)
   const onShown = () => {
     document.addEventListener('click', _onDocumentClickHandler)
@@ -175,6 +182,8 @@ export const setup = (props, context) => {
     document.removeEventListener('click', _onDocumentClickHandler)
     document.removeEventListener('focus', _onDocumentFocusHandler, true)
     isShown.value = false
+    if (deferredValue)
+      onInput(deferredValue)
   }
   onBeforeUnmount(() => {
     document.removeEventListener('click', _onDocumentClickHandler)
@@ -208,7 +217,11 @@ export const setup = (props, context) => {
     if (newDate && !isFocus.value) {
       const parsedDate = parse(newDate, 'YYYY-MM-DD')
       const parsedTime = parse(`1970-01-01 ${inputValueTime.value}`, 'YYYY-MM-DD HH:mm:ss')
-      onInput(`${format(parsedDate, dateFormat.value)} ${format(parsedTime, timeFormat.value)}`)
+      const newValue = `${format(parsedDate, dateFormat.value)} ${format(parsedTime, timeFormat.value)}`
+      if (defer.value) // defer until hidden
+        deferredValue = newValue
+      else
+        onInput(newValue)
     }
   }
 
@@ -216,7 +229,11 @@ export const setup = (props, context) => {
     if (newTime && !isFocus.value) {
       const parsedDate = parse(inputValueDate.value, 'YYYY-MM-DD')
       const parsedTime = parse(`1970-01-01 ${newTime}`, 'YYYY-MM-DD HH:mm:ss')
-      onInput(`${format(parsedDate, dateFormat.value)} ${format(parsedTime, timeFormat.value)}`)
+      const newValue = `${format(parsedDate, dateFormat.value)} ${format(parsedTime, timeFormat.value)}`
+      if (defer.value) // defer until hidden
+        deferredValue = newValue
+      else
+        onInput(newValue)
     }
   }
 
