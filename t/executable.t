@@ -2,50 +2,41 @@
 
 =head1 NAME
 
-AllowedOptions
-
-=cut
+executable
 
 =head1 DESCRIPTION
 
-unit test for AllowedOptions
+unit test for executable
 
 =cut
 
 use strict;
 use warnings;
-#
+
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
-
     #Module for overriding configuration paths
     use setup_test_config;
 }
 
-{
+use File::Find;
+use Test::More;
 
-    package test_form;
-    use HTML::FormHandler::Moose;
-    extends 'pfappserver::Base::Form';
-    with qw(pfappserver::Base::Form::Role::AllowedOptions);
+
+my @files;
+File::Find::find({
+    wanted => sub {
+        /^.*\.t\z/s && push(@files, $File::Find::name);
+    }}, '/usr/local/pf/t'
+);
+
+plan tests => scalar @files;
+
+for my $f (@files) {
+    ok (-X $f, "file $f is executable");
 }
 
-use Test::More tests => 3;
-
-
-#This test will running last
-use Test::NoWarnings;
-
-my $form = test_form->new( user_roles => ['User Manager'] );
-
-ok( $form, "Form created" );
-
-is_deeply( 
-    [ $form->_get_allowed_options('allowed_access_levels') ],
-    [ 'User Manager', 'Node Manager', 'NONE' ],
-    "Check if _get_allowed_options return expected results"
-);
 
 =head1 AUTHOR
 
