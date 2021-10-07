@@ -83,6 +83,20 @@ mac_auth_deb11:
 	SCENARIOS_TO_RUN=mac_auth \
 	$(MAKE_TARGET)
 
+dot1x_eap_tls_el8:
+	make \
+	PF_VM_NAME=pfel8dev \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=dot1x_eap_tls \
+	$(MAKE_TARGET)
+
+dot1x_eap_tls_deb11:
+	make \
+	PF_VM_NAME=pfdeb11dev \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=dot1x_eap_tls \
+	$(MAKE_TARGET)
+
 #==============================================================================
 # Targets for local tests
 #==============================================================================
