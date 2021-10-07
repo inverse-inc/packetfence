@@ -39,6 +39,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Improve the Data Access Layer to work in MariaDB's default sql_mode.
 * New command pfcmd mariadb [mariadb options]
 * Deauth request can be made on the previous equipment the device was connected.
+* Allow the bulk import of config items to be async.
 
 === Bug Fixes
 
