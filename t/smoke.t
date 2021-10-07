@@ -42,8 +42,15 @@ my $is_interactive = is_interactive();
 my $formatter   = $is_interactive ? TAP::Formatter::Console->new({jobs => $JOBS}) : TAP::Formatter::File->new();
 my $ser_harness = TAP::Harness->new( { formatter => $formatter, jobs => 1 } );
 my $par_harness = TAP::Harness->new(
-    {   formatter => $formatter,
+    {
+        formatter => $formatter,
         jobs      => $JOBS,
+        lib       => [
+            qw(
+              /usr/local/pf/t
+              /usr/local/pf/lib_perl/lib/perl5
+              )
+        ],
     }
 );
 
