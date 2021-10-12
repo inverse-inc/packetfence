@@ -88,6 +88,7 @@ my $json = $t->tx->res->json;
 my $task_id = $json->{task_id};
 ok($task_id, "Got the task ID");
 my $client = pf::api::unifiedapiclient->new();
+sleep(1);
 my $results = $client->call("GET", "/api/v1/pfqueue/task/$task_id/status/poll");
 
 is($results->{status}, 200);
