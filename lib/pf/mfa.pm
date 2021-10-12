@@ -31,13 +31,13 @@ Amount of time to keep information in the cache
 has cache_duration => (is => 'rw' );
 
 
-=head2 post_mfa_verification_cache_duration
+=head2 post_mfa_validation_cache_duration
 
 The duration time to keep the information the user did validate the MFA authentication (represent the time between the portal validation and the next RADIUS request)
 
 =cut
 
-has post_mfa_verification_cache_duration => (is => 'rw' );
+has post_mfa_validation_cache_duration => (is => 'rw' );
 
 
 =head2 template
