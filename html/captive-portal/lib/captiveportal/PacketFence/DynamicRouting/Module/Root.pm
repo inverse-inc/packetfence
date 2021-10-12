@@ -91,12 +91,12 @@ sub release {
 
     get_logger->info("Releasing device");
 
-    $self->app->reset_session;
-
     unless($self->handle_web_form_release){
+        $self->app->reset_session;
         reevaluate_access( $self->current_mac, 'manage_register', force => 1 );
         $self->render("release.html", $self->_release_args());
     }
+    $self->app->reset_session;
 }
 
 =head2 handle_web_form_release
@@ -120,7 +120,7 @@ sub handle_web_form_release {
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
         $self->render('webFormRelease.html', {
-            content => $switch->getAcceptForm($self->current_mac, $self->app->session->{destination_url}, $session),
+            content => $switch->getAcceptForm($self->current_mac, $self->app->session->{destination_url}, $session, $self->username),
             %{$self->_release_args()}
         });
         return $TRUE;
