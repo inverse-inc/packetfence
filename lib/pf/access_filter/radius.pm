@@ -69,6 +69,8 @@ sub handleAnswerInRule {
         $radius_reply = {'Reply-Message' => "Request processed by PacketFence"};
         $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
         my $answers = $rule->{answers} // [];
+        # the session_id must come from the setSession function
+        delete $args->{session_id};
         pf::mini_template::update_variables_for_set($answers, \%LOOKUP, $args, $self, $args);
         for my $a (@$answers) {
             $self->addAnswer($rule, $radius_reply, $a, $args);
