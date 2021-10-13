@@ -19,9 +19,7 @@ export const useStore = $store => {
     }),
     getItemOptions: params => $store.dispatch('$_tenants/options', params.id),
     updateItem: params => $store.dispatch('$_tenants/updateTenant', params),
-    /* workaround #6310
-    deleteItem: params => $store.dispatch('$_tenants/deleteTenant', params.id),
-    */
+    deleteItem: params => $store.dispatch('$_tenants/deleteTenant', params.id)
   }
 }
 

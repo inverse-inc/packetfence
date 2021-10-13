@@ -1,5 +1,6 @@
 import axios from 'axios'
 import store from '@/store'
+import i18n from '@/utils/locale'
 
 export const baseURL = (process.env.VUE_APP_API_BASEURL)
   ? process.env.VUE_APP_API_BASEURL
@@ -205,6 +206,9 @@ apiCall.interceptors.response.use((response) => {
           return apiCall.request({ method, baseURL: '', url, params, data, headers: { 'X-Replay': 'true' } })
         })
       }
+    } else if (config.method === 'delete' && error.response.status === 417) { // foreign-key constraint failure
+      const message = i18n.t('A database foreign key constraint prevented the deletion of this resource. See <code>packetfence.log</code> for more information about the specific constraint(s). Use the MySQL CLI to resolve these constraints manually before trying again.')
+      store.dispatch('notification/danger', { icon: 'lock', url: decodeURIComponent(config.url), message })
     } else if (error.response.data) {
       switch (error.response.status) {
         case 401:
