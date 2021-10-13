@@ -24,32 +24,48 @@ configure_and_check() {
     GIT_REPO_URL=${GIT_CLONE_METHOD}${GIT_USER_NAME}:${GIT_USER_PASSWORD}@${GIT_REPO}
     
     generate_git_config
-    #declare -p RESULT_DIR PF_MINOR_RELEASE BRANCH_TYPE
+    declare -p GIT_REPO
 }
 
 generate_git_config() {
     git config --global user.name "${GIT_USER_NAME}"
     git config --global user.email "${GIT_USER_MAIL}"
     # to store credentials in memory for a short period of time
-    git config credential.helper cache
+    git config --global credential.helper cache
 }
 
 clone_git_repository() {
+    log_subsection "Clone git repository"
     git clone ${GIT_REPO_URL} ${GIT_LOCAL_PATH}
 }
 
+compare_files() {
+    log_subsection "Compare files"
+    local local_file="${PF_SRC_DIR}/$1"
+    local upstream_file="${GIT_LOCAL_PATH}/$2"
+    declare -p local_file upstream_file
+    if cmp --silent -- "${local_file}" "${upstream_file}"; then
+        echo "files contents are identical, nothing to commit"
+        exit 0
+    else
+        echo "files differ, need to commit changes"
+        update_git_repository ${local_file} ${upstream_file}
+    fi
+}
+
 update_git_repository() {
-    local src_file="${PF_SRC_DIR}/$1"
-    local dst_file="${GIT_LOCAL_PATH}/$2"
-    declare -p ${src_file} ${dst_file}
-    
+    log_subsection "Commit and push changes"
+    local src_file=$1
+    local dst_file=$2
     cp -v ${src_file} ${dst_file}
     git -C ${GIT_LOCAL_PATH} commit -am "Automatic update by pipeline ${CI_PIPELINE_ID}"
-    #git -C ${GIT_LOCAL_PATH} push
+    # will use credential helper, no need to specify again credentials
+    git -C ${GIT_LOCAL_PATH} push
 }
 
 log_section "Configure and check"
 configure_and_check
 
+log_section "Publish to git repository"
 clone_git_repository
-update_git_repository $1 $2
+compare_files $1 $2
