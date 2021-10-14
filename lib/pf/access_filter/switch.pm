@@ -18,6 +18,7 @@ use Scalar::Util qw(reftype);
 use base qw(pf::access_filter);
 tie our %ConfigSwitchFilters, 'pfconfig::cached_hash', 'config::SwitchFilters';
 tie our %SwitchFilterEngineScopes, 'pfconfig::cached_hash', 'FilterEngine::SwitchScopes';
+use List::MoreUtils qw(any);
 
 =head2 filterRule
 
@@ -33,15 +34,17 @@ sub filterRule {
         if (defined($rule->{'switch'}) && $rule->{'switch'} ne '') {
             my $switch = $rule->{'switch'};
             return $switch;
-        } elsif ($rule->{'scope'} eq 'radius_authorize' || $rule->{'scope'} eq 'reevaluate') {
+        } elsif ( any { $_ eq 'radius_authorize' || $_ eq 'reevaluate' }  @{$rule->{'scopes'} // [] } ) {
             $logger->info(evalParam($rule->{'log'},$args)) if defined($rule->{'log'});
             for my $p (@{$rule->{params} // []}) {
                 my @answer = $p =~ /([a-zA-Z_-]*)\s*=\s*(.*)/;
                 evalAnswer(\@answer,$args,\$switch_params);
             }
             return ($switch_params);
+
         }
     }
+
     return undef;
 }
 
