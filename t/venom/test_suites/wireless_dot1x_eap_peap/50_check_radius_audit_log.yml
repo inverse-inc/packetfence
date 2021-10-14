@@ -7,12 +7,12 @@ testcases:
 - name: get_time
   steps:
   - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='last minute'"
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
     vars:
-      last_minute:
+      two_minutes_ago:
         from: result.systemout
 
-# only latest search entry since one minute that matches
+# only latest search entry since two minutes that matches
 # auth_status equals Accept (to avoid Disconnect)
 # mac equals {{.wireless01_wlan1_mac_address}}"
 # connection type of test suite connection profile
@@ -71,7 +71,7 @@ testcases:
                 {
                   "field": "created_at",
                   "op": "greater_than",
-                  "value": "{{.get_time.last_minute}}"
+                  "value": "{{.get_time.two_minutes_ago}}"
                 }
               ]
             }
