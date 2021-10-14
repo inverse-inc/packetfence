@@ -36,6 +36,7 @@ use pfappserver::Form::Config::Provisioning::jamf;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
 use pfappserver::Form::Config::Provisioning::opswat;
+use pfappserver::Form::Config::Provisioning::rest;
 use pfappserver::Form::Config::Provisioning::sentinelone;
 use pfappserver::Form::Config::Provisioning::sepm;
 use pfappserver::Form::Config::Provisioning::servicenow;
@@ -56,6 +57,7 @@ our %TYPES_TO_FORMS = (
       mobileconfig
       mobileiron
       opswat
+      rest
       sentinelone
       sepm
       servicenow
