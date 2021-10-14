@@ -29,6 +29,15 @@ run_w_clean:
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	./test-wrapper.sh run
 
+# to only run tests
+run_tests:
+	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
+	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	./test-wrapper.sh run_tests
+
 halt:
 	PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
