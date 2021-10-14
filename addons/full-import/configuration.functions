@@ -102,7 +102,7 @@ function handle_network_change() {
         echo -n "Please select a new interface to replace $interface from the list above or press enter to delete the interface from pf.conf: "
         read new_int_choice
         if [ -n "$new_int_choice" ]; then
-          new_int_name=`ip a show | egrep -o '^'$new_int_choice': .+?:' | sed -r 's/^[0-9]+: //g' | sed 's/:$//g'`
+          new_int_name=`ip a show | egrep -o '^'$new_int_choice': .+?:' | sed -r 's/^[0-9]+: //g' | sed 's/:$//g' | sed 's/@.*$//'`
           if [ -z "$new_int_name" ] || ! get_os_ip_address $new_int_name >/dev/null; then
             echo "ERROR: Invalid interface choice! Make sure the interface you select has a valid IP address."
           else
