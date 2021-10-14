@@ -103,7 +103,7 @@ all:
           hosts:
             pfel8dev:
               box: generic/rhel8
-              box_version: '3.2.24'
+              box_version: '3.4.2'
               mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -120,7 +120,7 @@ all:
               memory: 6144
             el8dev:
               box: generic/rhel8
-              box_version: '3.2.24'
+              box_version: '3.4.2'
               mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -140,7 +140,7 @@ all:
           hosts:
             pfel8stable:
               box: generic/rhel8
-              box_version: '3.2.24'
+              box_version: '3.4.2'
               mgmt_ip: 172.17.17.14
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
