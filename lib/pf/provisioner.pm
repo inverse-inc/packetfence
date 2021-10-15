@@ -274,14 +274,18 @@ sub authorize_apply_role {
     my $result = $self->cache->compute_with_undef("$type-authorize_apply_role($mac)",
         sub {
             if(isenabled($self->apply_role)) {
-                my $auth = $self->authorize($mac);
+                my ($auth, $role) = $self->authorize($mac);
                 if($auth eq $pf::provisioner::COMMUNICATION_FAILED) {
                     get_logger->error("Will not be able to apply the role to this device since the communication with the provisioner has failed");
                     return undef;
                 }
                 elsif($auth) {
-                    my $role = $self->role_to_apply;
-                    return $role;
+                    if (defined($role)) {
+                       return $role;
+                    } else {
+                        my $role = $self->role_to_apply;
+                        return $role;
+                    }
                 }
             }
             return undef;
@@ -299,7 +303,6 @@ sub authorize_apply_role {
 
     return $result;
 }
-
 
 =head1 AUTHOR
 
