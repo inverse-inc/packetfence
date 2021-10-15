@@ -94,7 +94,7 @@ cumulus_switch.description: switch01
 # Wireless Switch group
 wireless_switch_group.id: wireless_switch_group
 wireless_switch_group.description: Wireless switch group
-wireless_switch_group.radiusSecret: anHardSharedSecret
+wireless_switch_group.radiusSecret: testing123
 
 # Wireless Switch
 wireless_switch.id1: '{{.wireless01_mgmt_ip}}'
