@@ -41,7 +41,7 @@ iface lo inet loopback
 auto ens6
 iface ens6 inet static
     alias VLAN 17
-    address 172.17.17.251/24
+    address 172.17.37.251/24
 
 allow-hotplug ens7
 iface ens7 inet dhcp

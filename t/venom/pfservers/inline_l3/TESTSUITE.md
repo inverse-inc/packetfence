@@ -12,7 +12,7 @@ On switch01:
 ```
 net add dhcp relay interface swp6
 net add dhcp relay interface bridge.18
-net add dhcp relay server 172.17.6.2
+net add dhcp relay server 172.17.36.2
 net pending
 net commit
 sudo systemctl restart dhcrelay
@@ -23,13 +23,13 @@ sudo systemctl enable dhcrelay
 
 ## Scenario steps
 - Configure inline L2 network
-- Configure routed network as inline L3 with next_hop as switch01 (172.17.6.3)
+- Configure routed network as inline L3 with next_hop as switch01 (172.17.36.3)
 - Restart all services related
 - Register node02
 - Apply iptables rules on switch01 to NAT traffic from inline L3 to
   bridge.100:
 ```
-sudo iptables -t nat -A POSTROUTING -o bridge.100 -s 172.17.18.0/24  -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -o bridge.100 -s 172.17.38.0/24  -j MASQUERADE
 ```
 - Check Internet access on node02
 - Check ipset sessions
