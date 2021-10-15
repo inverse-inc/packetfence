@@ -116,7 +116,7 @@ sub build_child {
         }
     }
     elsif(defined($self->{host_id})){
-        $logger->warn("A host was defined (".$self->{host_id}.") for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
+        $logger->debug("A host was defined (".$self->{host_id}.") for the config::Pf namespace but no cluster configuration was found. This is not a big issue but it's worth noting.")
     }
 
     my @time_values = grep { my $t = $Doc_Config{$_}{type}; defined $t && $t eq 'time' } keys %Doc_Config;
