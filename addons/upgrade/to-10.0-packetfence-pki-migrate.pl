@@ -1,6 +1,5 @@
 #!/usr/bin/perl
 
-use DBI;
 use strict;
 
 BEGIN {
@@ -8,6 +7,7 @@ BEGIN {
     use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 }
 
+use DBI;
 use pf::db;
 use WWW::Curl::Easy;
 use pf::Curl;
