@@ -62,17 +62,17 @@ iface swp48
 auto bridge.6
 iface bridge.6
     alias Inline-L2
-    address 172.17.36.3/24
+    address 172.17.6.3/24
 
 auto bridge.17
 iface bridge.17
     alias Management
-    address 172.17.37.201/24
+    address 172.17.17.201/24
 
 auto bridge.18
 iface bridge.18
     alias Inline-L3
-    address 172.17.38.254/24
+    address 172.17.18.254/24
 
 auto bridge.100
 iface bridge.100 inet dhcp

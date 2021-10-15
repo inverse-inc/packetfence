@@ -9,7 +9,7 @@ all:
       hosts:
         switch01:
           # IP used by helper_scripts and Ansible, not Vagrant
-          mgmt_ip: 172.17.37.201
+          mgmt_ip: 172.17.17.201
           box: CumulusCommunity/cumulus-vx
           box_version: 3.7.12
           ansible_host: "{{ mgmt_ip }}"
@@ -20,7 +20,7 @@ all:
           box: debian/bullseye64
           box_version: 11.20210829.1
           # IP used by helper_scripts and Ansible, not Vagrant
-          mgmt_ip: 172.17.37.251
+          mgmt_ip: 172.17.17.251
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
@@ -28,7 +28,7 @@ all:
           box: debian/bullseye64
           box_version: 11.20210829.1
           # IP used by helper_scripts and Ansible, not Vagrant
-          mgmt_ip: 172.17.37.252
+          mgmt_ip: 172.17.17.252
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
@@ -38,7 +38,7 @@ all:
         ad:
           box: jborean93/WindowsServer2016
           box_version: 0.7.0
-          mgmt_ip: 172.17.37.100
+          mgmt_ip: 172.17.17.100
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 2
@@ -49,7 +49,7 @@ all:
         wireless01:
           box: debian/bullseye64
           box_version: 11.20210829.1
-          mgmt_ip: 172.17.37.210
+          mgmt_ip: 172.17.17.210
           mgmt_netmask: 255.255.255.0
           ansible_host: "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
@@ -65,7 +65,7 @@ all:
         linux01:
           box: debian/bullseye64
           box_version: 11.20210829.1
-          mgmt_ip: 172.17.37.101
+          mgmt_ip: 172.17.17.101
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
@@ -74,7 +74,7 @@ all:
         linux02:
           box: debian/bullseye64
           box_version: 11.20210829.1
-          mgmt_ip: 172.17.37.102
+          mgmt_ip: 172.17.17.102
           mgmt_netmask: 255.255.255.0
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
@@ -104,7 +104,7 @@ all:
             pfel8dev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: 172.17.37.10
+              mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
@@ -112,7 +112,7 @@ all:
             pfdeb11dev:
               box: debian/bullseye64
               box_version: 11.20210829.1
-              mgmt_ip: 172.17.37.12
+              mgmt_ip: 172.17.17.12
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
@@ -121,7 +121,7 @@ all:
             el8dev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: 172.17.37.11
+              mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
@@ -129,7 +129,7 @@ all:
             deb11dev:
               box: debian/bullseye64
               box_version: 11.20210829.1
-              mgmt_ip: 172.17.37.13
+              mgmt_ip: 172.17.17.13
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
@@ -141,7 +141,7 @@ all:
             pfel8stable:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: 172.17.37.14
+              mgmt_ip: 172.17.17.14
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
@@ -150,7 +150,7 @@ all:
             pfdeb9stable:
               box: inverse-inc/pfdeb9stable
               box_version: 10.3.20210414165339
-              mgmt_ip: 172.17.37.15
+              mgmt_ip: 172.17.17.15
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
@@ -158,7 +158,7 @@ all:
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20210829.1
-              mgmt_ip: 172.17.37.16
+              mgmt_ip: 172.17.17.16
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
@@ -169,27 +169,27 @@ all:
   vars:
     tz: UTC
     networks:
-      - name: 'mgmt-isolated'
-        subnet: '172.17.37.0/24'
-        forward_mode: 'none'
+      - name: 'mgmt'
+        subnet: '172.17.17.0/24'
+        forward_mode: 'route'
         netmask: 255.255.255.0
 
-      - name: 'registration-isolated'
-        subnet: '172.17.32.0/24'
-        forward_mode: 'none'
+      - name: 'registration'
+        subnet: '172.17.2.0/24'
+        forward_mode: 'route'
         netmask: 255.255.255.0
 
-      - name: 'isolation-isolated'
-        subnet: '172.17.33.0/24'
-        forward_mode: 'none'
+      - name: 'isolation'
+        subnet: '172.17.3.0/24'
+        forward_mode: 'route'
         netmask: 255.255.255.0
 
-      - name: 'inline-isolated'
-        subnet: '172.17.36.0/24'
-        forward_mode: 'none'
+      - name: 'inline'
+        subnet: '172.17.6.0/24'
+        forward_mode: 'route'
         netmask: 255.255.255.0
 
-      # not used like other networks declared above, no forward mode
-      - name: 'inline-l3-isolated'
-        subnet: '172.17.38.0/24'
+      - name: 'inline-l3'
+        subnet: '172.17.18.0/24'
+        forward_mode: 'route'
         netmask: 255.255.255.0
