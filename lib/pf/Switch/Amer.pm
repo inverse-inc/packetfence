@@ -15,6 +15,10 @@ Currently only supports linkUp / linkDown mode
 
 Developed and tested on SS2R24i running on firmware version 4.02-B15
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

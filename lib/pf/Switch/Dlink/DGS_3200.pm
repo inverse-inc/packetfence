@@ -31,6 +31,10 @@ The minimum required firmware version is 2.00.012 to properly support MAC Authen
 
 F<conf/switches.conf>
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

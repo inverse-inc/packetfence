@@ -9,6 +9,10 @@ pf::Switch::ThreeCom::SS4500
 The pf::Switch::ThreeCom::SS4500 module implements an object
 oriented interface to manage 3COM Huawei SuperStack 3 Switch - 4500 switches.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =head1 STATUS
 
 =over

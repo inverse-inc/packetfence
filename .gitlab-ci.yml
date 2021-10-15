@@ -30,6 +30,8 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
+  BUILDDIR: $CILIBDIR/build
+  RELEASEDIR: $CILIBDIR/release
   TESTDIR: $CILIBDIR/test
   UPLOAD_DIR: $CILIBDIR/upload
   SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
@@ -152,6 +154,14 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_WEBSITE == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_website=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_WEBSITE == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_website=yes/ )'
 
+# run this job on:
+# - devel branch with BUILD_ARTIFACTS_MATERIAL variable defined or build_artifacts_material=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_ARTIFACTS_MATERIAL sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_material=yes".
+.build_artifacts_material_devel_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
+
 ########################################    
 # JOBS
 ########################################
@@ -186,12 +196,30 @@ variables:
 
 .build_artifacts_website_job:
   stage: build_artifacts
+  dependencies: []
   script:
     - make -e website
   artifacts:
     expire_in: 1 day
     paths:
       - website/*
+  tags:
+    - docker-inverse
+
+.build_artifacts_material_job:
+  stage: build_artifacts
+  dependencies: []
+  variables:
+    GIT_USER_NAME: packetfence-bot
+    GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
+    #GIT_USER_PASSWORD: provided through environment
+    GIT_REPO: git.inverse.ca/inverse/website-packetfence.git
+    SRC_FILE: result/material.html
+    DST_FILE: layouts/partials/about/material.html
+  script:
+    - ${BUILDDIR}/start-pfconfig-in-container.sh
+    - make material
+    - ${RELEASEDIR}/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
   tags:
     - docker-inverse
 
@@ -462,6 +490,20 @@ build_artifacts_website_release:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_website_job
+    - .release_only_rules
+
+# build_artificats_material job for development
+material_devel_and_branches:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  extends:
+    - .build_artifacts_material_job
+    - .build_artifacts_material_devel_and_branches_rules
+
+# build_artificats_material job for release
+material_release:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+  extends:
+    - .build_artifacts_material_job
     - .release_only_rules
 
 ########################################

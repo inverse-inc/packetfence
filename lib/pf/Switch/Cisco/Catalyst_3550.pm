@@ -33,6 +33,10 @@ IfIndex on this platform is not the same as port # or dot1d port.
 
 =back
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

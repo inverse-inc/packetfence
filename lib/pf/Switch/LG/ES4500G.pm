@@ -8,6 +8,10 @@ pf::Switch::LG::ES4500G - Object oriented module to access and configure enabled
 
 This module is currently only a placeholder, see pf::Switch::LG.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

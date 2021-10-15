@@ -8,6 +8,10 @@ pf::Switch::HP::Procurve_3400cl - Object oriented module to parse SNMP traps and
 
 This switch was reported to work by the community with the Procurve 2600 module.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

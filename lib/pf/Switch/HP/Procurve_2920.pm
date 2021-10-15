@@ -13,6 +13,10 @@ oriented interface to access SNMP enabled HP Procurve 2920 switches.
 
 VoIP not tested using MAC Authentication/802.1X
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

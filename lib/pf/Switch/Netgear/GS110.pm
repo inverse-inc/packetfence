@@ -26,6 +26,10 @@ VLANs 1-3 should be avoided because they have hard-coded behavior (vlan 1 is
 always available via GVRP) or mean something else to NETGEAR (automatic guest
 and voice VLANs).
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

@@ -11,6 +11,10 @@ Supports
 
 This module was not developed by Inverse. Unknown firmware revision used for development.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;
