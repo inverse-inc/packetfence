@@ -6,6 +6,45 @@ import (
 	"time"
 )
 
+func runStatements(t *testing.T, statements []string) {
+	db, err := getDb()
+	if err != nil {
+		t.Fatal("Cannot connect to db error", err.Error())
+	}
+
+	for _, sql := range statements {
+		_, err = db.Exec(sql)
+		if err != nil {
+			t.Fatalf("Invalid SQL '%s': %s", sql, err.Error())
+		}
+	}
+
+}
+
+type sqlCountTest struct {
+	name          string
+	sql           string
+	expectedCount int
+}
+
+func testSqlCountTests(t *testing.T, tests []sqlCountTest) {
+	db, err := getDb()
+	if err != nil {
+		t.Fatal("Cannot connect to db error", err.Error())
+	}
+
+	for _, test := range tests {
+		count := 0
+		if err = db.QueryRow(test.sql).Scan(&count); err != nil {
+			t.Fatal(err.Error())
+		}
+
+		if count != test.expectedCount {
+			t.Fatalf("%s: found %d entries instead of %d", test.name, count, test.expectedCount)
+		}
+	}
+}
+
 func TestBatch(t *testing.T) {
 	sql := `DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT `
 	count, err := BatchSql(
