@@ -41,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Deauth request can be made on the previous equipment the device was connected.
 * Allow the bulk import of config items to be async.
 * Remove unused/deprecated sources (AuthorizeNet, Instagram, Twitter, Pinterest, and Mirapay) (#6560)
+* Automation of Material Page on Packetfence website (#6611)
 
 === Bug Fixes
 
