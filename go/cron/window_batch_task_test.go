@@ -258,3 +258,69 @@ func TestLocationlogCleanup(t *testing.T) {
 		},
 	)
 }
+
+func TestAcctCleanup(t *testing.T) {
+	testWindowSqlCleanup(
+		t,
+		"acct_cleanup",
+		map[string]interface{}{
+			"timeout": 10.0,
+			"batch":   100.0,
+			"window":  float64(12 * 60 * 60),
+		},
+		[]string{
+			"DELETE FROM radacct",
+			"DELETE FROM radacct_log",
+			`
+     INSERT INTO radacct (acctstarttime) VALUES
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() )
+            `,
+			`
+     INSERT INTO radacct_log (timestamp) VALUES
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() ),
+        ( NOW() )
+            `,
+		},
+		[]sqlCountTest{
+			sqlCountTest{
+				name:          "radacct entries left",
+				sql:           ` SELECT COUNT(*) FROM radacct `,
+				expectedCount: 8,
+			},
+			sqlCountTest{
+				name:          "radacct entries left",
+				sql:           ` SELECT COUNT(*) FROM radacct_log `,
+				expectedCount: 8,
+			},
+		},
+		[]string{
+			"DELETE FROM radacct",
+			"DELETE FROM radacct_log",
+		},
+	)
+}
