@@ -57,7 +57,7 @@ wireless01_wlan1_mac_address_url_encoded: 02%3A00%3A00%3A00%3A01%3A00
 wireless01.dot1x_interface.mac: 02:00:00:00:00:00
 
 # network detection
-network_detection_url: http://192.95.20.194/common/network-access-detection.gif
+network_detection_url: 'http://192.95.20.194/common/network-access-detection.gif'
 
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
