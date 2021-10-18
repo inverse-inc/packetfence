@@ -22,7 +22,7 @@ export const useSearch = makeSearch('dnsLogs', {
     {
       key: 'created_at',
       label: 'Created At', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true,
       formatter: formatter.datetimeIgnoreZero
@@ -44,26 +44,26 @@ export const useSearch = makeSearch('dnsLogs', {
     {
       key: 'qname',
       label: 'Qname', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: false,
       visible: true
     },
     {
       key: 'qtype',
-      searchable: true,
+      searchable: false,
       label: 'Qtype', // i18n defer
       sortable: false
     },
     {
       key: 'scope',
       label: 'Scope', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: false
     },
     {
       key: 'answer',
       label: 'Answer', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: false,
       visible: true
     },
