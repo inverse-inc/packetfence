@@ -1,119 +1,118 @@
+include ../../config.mk
 #==============================================================================
 # Specific variables
 #==============================================================================
 SHELL=/bin/bash
 PFSERVERS_DIR=pfservers
+CI_PIPELINE_ID=123456789
 
 #==============================================================================
 # Targets
 #==============================================================================
-.PHONY: install
+.PHONY: install run run_w_clean halt clean
 install:
 	./install-venom.sh
 
-# configurator is different: it runs **before** all test suites. It doesn't need
-# a token to perform actions so there is no dependency to setup test suite
-.PHONY: configurator
-configurator:
-	./venom-wrapper.sh $(PFSERVERS_DIR)/configurator
+run: clean
+	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
+	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	./test-wrapper.sh run
 
-# test is the entrypoint: all test suites should be referenced as target dependency
-# if setup is a dependency to test target, putting setup as a dependency to other
-# targets doesn't cause a recall
-.PHONY: test
-test: setup global_config dot1x_eap_peap wired_mac_auth wireless_dot1x_eap_peap wireless_mac_auth dot1x_eap_tls_pfpki backup_db_and_restore global_teardown
+run_w_clean:
+	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
+	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	./test-wrapper.sh run
 
-.PHONY: setup
-setup:
-	./venom-wrapper.sh setup/00_setup.yml
+# to only run tests
+run_tests:
+	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
+	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	PF_VM_NAME=$(PF_VM_NAME) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
+	./test-wrapper.sh run_tests
 
-.PHONY: setup_multi_tenant
-setup_multi_tenant:
-	./venom-wrapper.sh setup/00_setup_multi_tenant.yml
+halt:
+	PF_VM_NAME=$(PF_VM_NAME) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	./test-wrapper.sh halt
 
-# teardown is done at end of all test suites: all things configured here have no impact
-.PHONY: global_config
-global_config: setup
-	./venom-wrapper.sh $(PFSERVERS_DIR)/global_config
+clean:
+	./test-wrapper.sh teardown
 
-.PHONY: global_config_multi_tenant
-global_config_multi_tenant:
-	./venom-wrapper.sh $(PFSERVERS_DIR)/global_config_multi_tenant
+unit_tests_el8:
+	make \
+	PF_VM_NAME=pfel8dev \
+	SCENARIOS_TO_RUN=unit_tests \
+	$(MAKE_TARGET)
 
-.PHONY: dot1x_eap_peap
-dot1x_eap_peap: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap/teardown
+configurator_el8:
+	make \
+	PF_VM_NAME=pfel8dev \
+	SCENARIOS_TO_RUN=configurator \
+	$(MAKE_TARGET)
 
-.PHONY: wired_mac_auth
-wired_mac_auth: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wired_mac_auth
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wired_mac_auth/teardown
+configurator_deb11:
+	make \
+	PF_VM_NAME=pfdeb11dev \
+	SCENARIOS_TO_RUN=configurator \
+	$(MAKE_TARGET)
 
-.PHONY: wireless_dot1x_eap_peap
-wireless_dot1x_eap_peap: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_dot1x_eap_peap
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_dot1x_eap_peap/teardown
+dot1x_eap_peap_el8:
+	make \
+	PF_VM_NAME=pfel8dev \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=dot1x_eap_peap \
+	$(MAKE_TARGET)
 
-.PHONY: wireless_mac_auth
-wireless_mac_auth: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_mac_auth
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_mac_auth/teardown
+dot1x_eap_peap_deb11:
+	make \
+	PF_VM_NAME=pfdeb11dev \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=dot1x_eap_peap \
+	$(MAKE_TARGET)
 
-.PHONY: captive_portal
-captive_portal: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/captive_portal
-	./venom-wrapper.sh $(PFSERVERS_DIR)/captive_portal/teardown
+mac_auth_el8:
+	make \
+	PF_VM_NAME=pfel8dev \
+	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=mac_auth \
+	$(MAKE_TARGET)
 
-.PHONY: dot1x_eap_tls_pfpki
-dot1x_eap_tls_pfpki: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki/teardown
+mac_auth_deb11:
+	make \
+	PF_VM_NAME=pfdeb11dev \
+	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=mac_auth \
+	$(MAKE_TARGET)
 
-.PHONY: pfdhcplistener_single_tenant
-pfdhcplistener_single_tenant: setup
-	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_single_tenant
-	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_single_tenant/teardown
+dot1x_eap_tls_el8:
+	make \
+	PF_VM_NAME=pfel8dev \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=dot1x_eap_tls \
+	$(MAKE_TARGET)
 
-.PHONY: pfdhcplistener_multi_tenant
-pfdhcplistener_multi_tenant: global_config_multi_tenant setup_multi_tenant
-	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_multi_tenant
-	./venom-wrapper.sh $(PFSERVERS_DIR)/pfdhcplistener_multi_tenant/teardown
+dot1x_eap_tls_deb11:
+	make \
+	PF_VM_NAME=pfdeb11dev \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=dot1x_eap_tls \
+	$(MAKE_TARGET)
 
-.PHONY: backup_db_and_restore
-backup_db_and_restore: setup
-	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore
-	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore/teardown
-
-.PHONY: global_teardown
-global_teardown: setup
-	./venom-wrapper.sh $(PFSERVERS_DIR)/global_teardown
-
+#==============================================================================
 # Targets for local tests
-.PHONY: dot1x_eap_peap_no_teardown
-dot1x_eap_peap_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_peap
+#==============================================================================
+# No clean
+unit_tests_el8_w:
+	make \
+	PF_VM_NAME=pfel8dev \
+	SCENARIOS_TO_RUN=unit_tests \
+	$(MAKE_TARGET)
 
-.PHONY: wired_mac_auth_no_teardown
-wired_mac_auth_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wired_mac_auth
-
-.PHONY: wireless_dot1x_eap_peap_no_teardown
-wireless_dot1x_eap_peap_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_dot1x_eap_peap
-
-.PHONY: wireless_mac_auth_no_teardown
-wireless_mac_auth_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/wireless_mac_auth
-
-.PHONY: captive_portal_no_teardown
-captive_portal_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/captive_portal
-
-.PHONY: dot1x_eap_tls_pfpki_no_teardown
-dot1x_eap_tls_pfpki_no_teardown: setup global_config
-	./venom-wrapper.sh $(PFSERVERS_DIR)/dot1x_eap_tls_pfpki
-
-.PHONY: backup_db_and_restore_no_teardown
-backup_db_and_restore_no_teardown: setup
-	./venom-wrapper.sh $(PFSERVERS_DIR)/backup_db_and_restore

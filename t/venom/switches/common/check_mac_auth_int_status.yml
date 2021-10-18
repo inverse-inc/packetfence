@@ -1,5 +1,4 @@
 name: Check Mac auth interface status on switch01
-version: 2
 testcases:
 - name: check_mac_auth_int_status_on_switch01
   steps:

@@ -259,7 +259,7 @@ patch_release:
 	$(SRC_CIDIR)/lib/release/prep-release.sh
 
 .PHONY: distclean
-distclean: go_clean vagrant_clean npm_clean clean
+distclean: go_clean npm_clean clean
 	rm -rf packetfence-$(PF_PATCH_RELEASE).tar
 
 .PHONY: distclean-packetfence-test
@@ -269,11 +269,6 @@ distclean-packetfence-test:
 .PHONY: go_clean
 go_clean:
 	$(MAKE) -C $(SRC_GODIR) clean
-
-# to remove Ansible files from addons/vagrant/
-.PHONY: vagrant_clean
-vagrant_clean:
-	$(MAKE) -C $(SRC_CI_TESTDIR) delete
 
 .PHONY: npm_clean
 npm_clean:

@@ -1,0 +1,25 @@
+---
+venom_local_vars:
+  - name: 'pfserver_mgmt_ip'
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+
+  - name: 'pfserver_mgmt_netmask'
+    value: "{{ packetfence_install__mgmt_interface['mask'] }}"
+
+  - name: 'smtp_server'
+    value: "{{ packetfence_install__mgmt_interface['ip'] }}"
+
+  - name: 'smtp_port'
+    value: '{{ mailhog__smtp_port }}'
+
+  - name: 'smtp_api_port'
+    value: '{{ mailhog__api_port }}'
+
+  - name: 'internet_int_ip'
+    value: "{{ ansible_default_ipv4['address'] }}"
+
+  - name: 'internet_int_netmask'
+    value: "{{ ansible_default_ipv4['netmask'] }}"
+  
+  - name: 'timezone'
+    value: "{{ ansible_date_time['tz'] }}"

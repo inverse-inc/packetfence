@@ -30,9 +30,7 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
-  BUILDDIR: $CILIBDIR/build
-  RELEASEDIR: $CILIBDIR/release
-  TESTDIR: $CILIBDIR/test
+  TESTDIR: t/venom
   UPLOAD_DIR: $CILIBDIR/upload
   SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
@@ -127,16 +125,13 @@ variables:
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on all branches (maintenance/X.Y branches included) and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on all branches (maintenance/X.Y branches included) with a schedule, with test variable defined or test=yes in commit message
 # don't run on tag
 .test_devel_branches_and_maintenance_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-
-# run this job on all branches (schedule) with test variable defined or test=yes in commit message
-.test_nightly_rules:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run this job on:
 # - devel branch with BUILD_PF_IMG_ZEN variable defined or build_pf_img_zen=yes in commit message
@@ -359,23 +354,11 @@ variables:
 
 .test_script_job:
   variables:
-    INT_TEST_VM_NAMES: ad switch01 node01 wireless01
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
   script:
-    - make -e -C ${TESTDIR} test
+    - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
   after_script:
-    - make -e -C ${TESTDIR} halt
-
-########################################
-# VARIABLES
-########################################
-.test_el_8_vars:
-  variables:
-    PF_VM_NAME: pfel8dev
-
-.test_debian_bullseye_vars:
-  variables:
-    PF_VM_NAME: pfdeb11dev
+    - MAKE_TARGET=halt make -e -C ${TESTDIR} ${CI_JOB_NAME}
 
 ################################################################################
 # JOBS
@@ -547,83 +530,79 @@ publish_ppa_devel_release_branches_and_maintenance::
 ########################################
 # TEST JOBS
 ########################################
-test_devel_branches_and_maintenance_el_8:
+### development
+unit_tests_el8:
   variables:
-    PERL_UNIT_TESTS: 'yes'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'no'
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
-    - .test_el_8_vars
     - .test_script_job
     - .test_devel_branches_and_maintenance_rules
 
-test_devel_branches_and_maintenance_debian_bullseye:
+dot1x_eap_peap_el8:
   variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'no'
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
-    - .test_debian_bullseye_vars
     - .test_script_job
     - .test_devel_branches_and_maintenance_rules
 
-test_release_el_8:
+dot1x_eap_peap_deb11:
   variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'no'
-    INTEGRATION_TESTS: 'no'
-    # provision VM and run configurator test
-    RUN_TESTS: 'yes'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_el_8_vars
-    - .test_script_job
-    - .release_only_rules
-
-test_release_debian_bullseye:
-  variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'no'
-    INTEGRATION_TESTS: 'no'
-    # provision VM and run configurator test
-    RUN_TESTS: 'yes'
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_debian_bullseye_vars
-    - .test_script_job
-    - .release_only_rules
-
-# used on devel and maintenance branches
-test_nightly_el_8:
-  variables:
-    PERL_UNIT_TESTS: 'yes'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
-    - .test_el_8_vars
     - .test_script_job
-    - .test_nightly_rules
+    - .test_devel_branches_and_maintenance_rules
 
-# used on devel and maintenance branches
-test_nightly_debian_bullseye:
+mac_auth_el8:
   variables:
-    PERL_UNIT_TESTS: 'no'
-    GOLANG_UNIT_TESTS: 'yes'
-    INTEGRATION_TESTS: 'yes'
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:
     - .test_job
-    - .test_debian_bullseye_vars
     - .test_script_job
-    - .test_nightly_rules
+    - .test_devel_branches_and_maintenance_rules
+
+mac_auth_deb11:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
+dot1x_eap_tls_el8:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
+dot1x_eap_tls_deb11:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .test_devel_branches_and_maintenance_rules
+
+### release
+configurator_el8:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .release_only_rules
+
+configurator_deb11:
+  variables:
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+  extends:
+    - .test_job
+    - .test_script_job
+    - .release_only_rules
 
 ########################################
 # DEPLOY JOBS

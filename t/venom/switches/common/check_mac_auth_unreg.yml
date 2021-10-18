@@ -1,5 +1,4 @@
 name: Check Mac auth unregistered on switch01
-version: 2
 testcases:
 - name: check_mac_auth_unreg_on_switch01
   steps:

@@ -1,0 +1,40 @@
+name: Disable node_cleanup maintenance task and change the delete_window to 0 day
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: disable_node_cleanup_task
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/maintenance_task/node_cleanup'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "status": "disabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    
+- name: change_delete_window_to_0d
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/maintenance_task/node_cleanup'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "delete_window": {
+          "interval": "0",
+          "unit": "D"
+        }
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

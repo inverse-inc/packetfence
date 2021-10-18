@@ -1,0 +1,5 @@
+name: Get login token to run API calls
+testcases:
+- name: get_login_token
+  steps:
+    - type: get_login_token

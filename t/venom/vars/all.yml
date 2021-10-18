@@ -3,17 +3,6 @@
 # Global variables
 ################################################################################
 # Variables assigned based on environment variables
-venom_result_dir: '{{.VENOM_RESULT_DIR}}'
-internet_int_ip: '{{.INTERNET_INT_IP}}'
-internet_int_netmask: '{{.INTERNET_INT_MASK}}'
-pfserver_token: '{{.TOKEN}}'
-pfserver_mgmt_ip: '{{.PF_TEST_MGMT_IP}}'
-pfserver_mgmt_netmask: '{{.PF_TEST_MGMT_MASK}}'
-smtp_server: '{{.MAILHOG_SMTP_SERVER_IP}}'
-smtp_port: '{{.MAILHOG_SMTP_PORT}}'
-mariadb_socket: '{{.MARIADB_SOCKET}}'
-timezone: '{{.TIMEZONE}}'
-pf_log_level: '{{.PF_LOG_LEVEL}}'
 switch_test_suite_dir: /usr/local/pf/t/venom/switches
 nodes_test_suite_dir: /usr/local/pf/t/venom/nodes
 
@@ -68,7 +57,7 @@ wireless01_wlan1_mac_address_url_encoded: 02%3A00%3A00%3A00%3A01%3A00
 wireless01.dot1x_interface.mac: 02:00:00:00:00:00
 
 # network detection
-network_detection_url: http://192.95.20.194/common/network-access-detection.gif
+network_detection_url: 'http://192.95.20.194/common/network-access-detection.gif'
 
 # Access durations
 access_duration.choices: "1h,5m,10m,3h,12h,1D,2D,3D,5D"
@@ -105,7 +94,7 @@ cumulus_switch.description: switch01
 # Wireless Switch group
 wireless_switch_group.id: wireless_switch_group
 wireless_switch_group.description: Wireless switch group
-wireless_switch_group.radiusSecret: anHardSharedSecret
+wireless_switch_group.radiusSecret: testing123
 
 # Wireless Switch
 wireless_switch.id1: '{{.wireless01_mgmt_ip}}'
