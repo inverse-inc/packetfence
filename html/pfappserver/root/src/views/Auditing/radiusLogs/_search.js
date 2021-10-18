@@ -22,7 +22,7 @@ export const useSearch = makeSearch('radiusLogs', {
     {
       key: 'created_at',
       label: 'Created At', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true,
       formatter: formatter.datetimeIgnoreZero
@@ -37,7 +37,7 @@ export const useSearch = makeSearch('radiusLogs', {
     {
       key: 'radius_ip',
       label: 'Server IP', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
@@ -51,37 +51,37 @@ export const useSearch = makeSearch('radiusLogs', {
     {
       key: 'auth_type',
       label: 'Auth Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'auto_reg',
       label: 'Auto Reg', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'calling_station_id',
       label: 'Calling Station ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'computer_name',
       label: 'Computer Name', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'eap_type',
       label: 'EAP Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'event_type',
       label: 'Event Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
@@ -93,56 +93,56 @@ export const useSearch = makeSearch('radiusLogs', {
     {
       key: 'is_phone',
       label: 'Is a Phone', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'node_status',
       label: 'Node Status', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'pf_domain',
       label: 'Domain', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'profile',
       label: 'Profile', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'realm',
       label: 'Realm', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'reason',
       label: 'Reason', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'role',
       label: 'Role', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'source',
       label: 'Source', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'stripped_user_name',
       label: 'Stripped User Name', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
@@ -155,104 +155,104 @@ export const useSearch = makeSearch('radiusLogs', {
     {
       key: 'uuid',
       label: 'Unique ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'switch_id',
       label: 'Switch', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'switch_mac',
       label: 'Switch MAC', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'switch_ip_address',
       label: 'Switch IP Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'called_station_id',
       label: 'Called Station ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'connection_type',
       label: 'Connection Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'ifindex',
       label: 'IfIndex', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'nas_identifier',
       label: 'NAS ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'nas_ip_address',
       label: 'NAS IP Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'nas_port',
       label: 'NAS Port', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'nas_port_id',
       label: 'NAS Port ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'nas_port_type',
       label: 'NAS Port Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'radius_source_ip_address',
       label: 'RADIUS Source IP Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'ssid',
       label: 'SSID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'request_time',
       label: 'Request Time', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'radius_request',
       label: 'RADIUS Request', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'radius_reply',
       label: 'RADIUS Reply', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
