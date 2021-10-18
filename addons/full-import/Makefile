@@ -2,7 +2,7 @@
 FULL_IMPORT_DIR = /usr/local/pf/addons/full-import
 FUNCTIONS_DIR = /usr/local/pf/addons/functions
 SRC_ADDONS_DIR=$(shell dirname $(CURDIR))
-SRC_FULLIMPORT_DIR=$(SRC_ADDONS_DIR)/full-upgrade
+SRC_FULLIMPORT_DIR=$(SRC_ADDONS_DIR)/full-import
 SRC_FUNCTIONS_DIR=$(SRC_ADDONS_DIR)/functions
 EXPORT_FILES_LIST = 'export.sh find-extra-files.pl'
 
