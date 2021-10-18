@@ -78,6 +78,7 @@ func TestIp4logNoRotate(t *testing.T) {
 				expectedCount: 8,
 			},
 		},
+		[]string{"DELETE FROM ip4log_history"},
 	)
 
 }
@@ -151,12 +152,17 @@ func TestIp4logRotate(t *testing.T) {
 				expectedCount: 6,
 			},
 		},
+		[]string{
+			"DELETE FROM ip4log_history",
+			"DELETE FROM ip4log_archive",
+		},
 	)
 
 }
 
-func testCronTask(t *testing.T, job JobSetupConfig, setupSql []string, tests []sqlCountTest) {
+func testCronTask(t *testing.T, job JobSetupConfig, setupSql []string, tests []sqlCountTest, cleanupSql []string) {
 	runStatements(t, setupSql)
 	job.Run()
 	testSqlCountTests(t, tests)
+	runStatements(t, cleanupSql)
 }
