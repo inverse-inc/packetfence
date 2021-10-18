@@ -1,4 +1,5 @@
-server packetfence-cli {
+[% FOREACH key IN virtual_servers.keys %]
+server packetfence-cli-[% virtual_servers.$key.name %] {
 #
 #  Authorization. First preprocess (hints and huntgroups files),
 #  then realms, and finally look in the "users" file.
@@ -413,3 +414,5 @@ post-proxy {
 #	}
 }
 }
+
+[% END %]

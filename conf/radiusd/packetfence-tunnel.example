@@ -77,7 +77,7 @@ authorize {
 
         [% authorize_filter %]
 
-[% virtual_servers.$key.userPrincipalName %]
+[% virtual_servers.$key.user_principal_name %]
 
 	[% multi_domain %]
 

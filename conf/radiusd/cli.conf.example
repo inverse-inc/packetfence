@@ -25,12 +25,6 @@ listen {
 [% END %]
 [% END %]
 
-listen {
-    type = control
-    socket = [% socket_file %]
-    mode = rw
-}
-
 log {
 	#
 	#  Destination for log messages.  This can be one of:

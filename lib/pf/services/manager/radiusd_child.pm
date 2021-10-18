@@ -910,7 +910,7 @@ home_server = eduroam_server2
 EOT
                         } else {
                         $tags{'config'} .= <<"EOT";
-home_server = $radius-$tenant_name
+home_server = $radius
 EOT
                         }
                     }
@@ -928,7 +928,7 @@ EOT
                     foreach my $radius (split(',',$key->{$realm}->{'radius_acct'})) {
 
                         $tags{'config'} .= <<"EOT";
-home_server = $radius-$tenant_name
+home_server = $radius
 EOT
                     }
                     $tags{'config'} .= <<"EOT";
@@ -971,7 +971,7 @@ EOT
                     foreach my $radius (split(',',$key->{$realm}->{'eduroam_radius_auth'})) {
 
                         $tags{'eduroam_config'} .= <<"EOT";
-home_server = $radius-$tenant_name
+home_server = $radius
 EOT
                     }
                     $tags{'eduroam_config'} .= <<"EOT";
@@ -988,7 +988,7 @@ EOT
                     foreach my $radius (split(',',$key->{$realm}->{'eduroam_radius_acct'})) {
 
                         $tags{'eduroam_config'} .= <<"EOT";
-home_server = $radius-$tenant_name
+home_server = $radius
 EOT
                     }
                     $tags{'eduroam_config'} .= <<"EOT";
@@ -1005,19 +1005,16 @@ EOT
             }
         }
     }
-    foreach my $tenant ( keys %{$tenant_hash} ) {
-        next if $tenant eq 0;
-        my $tenant_name = %{$tenant_hash}{$tenant}->{name};
-        foreach my $radius (uniq @radius_sources) {
-            my $source = pf::authentication::getAuthenticationSource($radius);
-            next if ($source->{'type'} eq "Eduroam");
-            my @addresses = gethostbyname($source->{'host'});
-            my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
-            my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
-            $source->{'options'} =~ s/\$src_ip/$src_ip/;
-            $tags{'radius_sources'} .= <<"EOT";
+    foreach my $radius (uniq @radius_sources) {
+        my $source = pf::authentication::getAuthenticationSource($radius);
+        next if ($source->{'type'} eq "Eduroam");
+        my @addresses = gethostbyname($source->{'host'});
+        my @ips = map { inet_ntoa($_) } @addresses[4 .. $#addresses];
+        my $src_ip = pf::util::find_outgoing_srcip($ips[0]);
+        $source->{'options'} =~ s/\$src_ip/$src_ip/;
+        $tags{'radius_sources'} .= <<"EOT";
 
-home_server $radius-$tenant_name {
+home_server $radius {
 ipaddr = $source->{'host'}
 port = $source->{'port'}
 secret = $source->{'secret'}
@@ -1025,7 +1022,6 @@ $source->{'options'}
 }
 
 EOT
-        }
     }
 
     # Eduroam configuration

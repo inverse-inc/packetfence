@@ -97,7 +97,7 @@ server packetfence-[% virtual_servers.$key.name %] {
 		#  TTLS or PEAP.
 		#
 
-	[% virtual_servers.$key.authorize_eap_choice %]
+[% virtual_servers.$key.authorize_eap_choice %]
 
 		#
 		#  Read the 'users' file.  In v3, this is located in
@@ -196,7 +196,7 @@ server packetfence-[% virtual_servers.$key.name %] {
 			}
 		}
 
-	[% virtual_servers.$key.authentication_auth_type %]
+[% virtual_servers.$key.authentication_auth_type %]
 
 		#  Uncomment it if you want to use ldap for authentication
 		#
