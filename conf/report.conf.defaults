@@ -1712,7 +1712,6 @@ has_limit=disabled
 cursor_type=none
 charts=pie|ssid:nodes,bar|ssid:nodes
 
-
 [SSID::All]
 type=sql
 description=All SSID's
@@ -1749,6 +1748,7 @@ BEGIN NOT ATOMIC
 END;
 EOT
 bindings=tenant_id,start_date,end_date
+has_date_range=enabled
 has_limit=disabled
 cursor_type=none
 charts=pie|ssid:nodes,bar|ssid:nodes
