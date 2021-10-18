@@ -25,7 +25,7 @@ func TestIp4logNoRotate(t *testing.T) {
 		[]string{
 			"DELETE FROM ip4log_history",
 			`
-     INSERT INTO ip4log_history (tenant_id, mac, ip, start_time, end_time) VALUES      
+     INSERT INTO ip4log_history (tenant_id, mac, ip, start_time, end_time) VALUES
 (1, "88:15:44:04:bd:56", "172.20.20.150", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() ),
 (1, "56:72:a6:73:82:52", "172.20.20.196", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() ),
 (1, "3c:bd:3e:70:cb:8c", "172.20.20.241", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() ),
@@ -48,10 +48,10 @@ func TestIp4logNoRotate(t *testing.T) {
 				sql: `
                     SELECT
                         COUNT(*) FROM ip4log_history
-                    WHERE 
+                    WHERE
                         ip IN (
-                            "172.20.20.50", 
-                            "172.20.20.53", 
+                            "172.20.20.50",
+                            "172.20.20.53",
                             "172.20.21.119",
                             "172.20.21.154",
                             "172.20.21.170",
@@ -65,10 +65,10 @@ func TestIp4logNoRotate(t *testing.T) {
 				sql: `
                     SELECT
                         COUNT(*) FROM ip4log_history
-                    WHERE 
+                    WHERE
                         ip NOT IN (
-                            "172.20.20.50", 
-                            "172.20.20.53", 
+                            "172.20.20.50",
+                            "172.20.20.53",
                             "172.20.21.119",
                             "172.20.21.154",
                             "172.20.21.170",
@@ -106,7 +106,7 @@ func TestIp4logRotate(t *testing.T) {
 			"DELETE FROM ip4log_history",
 			"DELETE FROM ip4log_archive",
 			`
-     INSERT INTO ip4log_history (tenant_id, mac, ip, start_time, end_time) VALUES      
+     INSERT INTO ip4log_history (tenant_id, mac, ip, start_time, end_time) VALUES
 (1, "88:15:44:04:bd:56", "172.20.20.150", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() ),
 (1, "56:72:a6:73:82:52", "172.20.20.196", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() ),
 (1, "3c:bd:3e:70:cb:8c", "172.20.20.241", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() ),
@@ -129,10 +129,10 @@ func TestIp4logRotate(t *testing.T) {
 				sql: `
                     SELECT
                         COUNT(*) FROM ip4log_history
-                    WHERE 
+                    WHERE
                         ip IN (
-                            "172.20.20.50", 
-                            "172.20.20.53", 
+                            "172.20.20.50",
+                            "172.20.20.53",
                             "172.20.21.119",
                             "172.20.21.154",
                             "172.20.21.170",
