@@ -1,0 +1,23 @@
+name: Modify access durations
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: modify_access_durations
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/guests_admin_registration'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "guests_admin_registration",
+        "access_duration_choices": "{{.access_duration.choices}}",
+        "default_access_duration": "{{.access_duration.default_choice}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

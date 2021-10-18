@@ -14,3 +14,4 @@ gitlab_buildpkg_tools__deb_ppa:
 
 gitlab_buildpkg_tools__deb_pkgs:
   - packetfence-test
+

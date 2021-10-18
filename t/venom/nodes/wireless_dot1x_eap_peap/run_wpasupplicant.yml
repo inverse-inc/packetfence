@@ -1,5 +1,4 @@
 name: Run wpasupplicant for Wireless Secure
-version: 2
 testcases:
 - name: run_wpasupplicant_wireless_secure
   steps:
