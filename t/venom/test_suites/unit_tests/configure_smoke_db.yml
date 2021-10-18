@@ -1,9 +1,0 @@
-name: Configure smoke DB
-testcases:
-- name: configure_smoke_db
-  steps:
-  - type: exec
-    script: mysql -uroot < /usr/local/pf/t/db/smoke_test.sql
-
-  - type: exec
-    script: /usr/local/pf/t/db/setup_test_db.pl

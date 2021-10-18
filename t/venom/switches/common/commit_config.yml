@@ -1,4 +1,5 @@
 name: Commit changes in configuration
+version: 2
 testcases:
 - name: commit_configuration
   steps:

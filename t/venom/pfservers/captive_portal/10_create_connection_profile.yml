@@ -1,9 +1,6 @@
 name: Create captive portal connection profile
+version: 2
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: create_captive_portal_connection_profile
   steps:
   - type: http
@@ -60,7 +57,7 @@ testcases:
         "vlan_pool_technique": "username_hash"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

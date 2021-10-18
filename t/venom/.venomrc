@@ -1,8 +1,0 @@
-variables_files:
-  - vars/all.yml
-  - vars/local.yml
-stop_on_failure: true
-#format: tap
-output_dir: results
-lib_dir: lib
-verbosity: 1

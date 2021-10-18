@@ -1,0 +1,15 @@
+name: Delete node01
+version: 2
+testcases:
+- name: delete_node01
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.wireless01_wlan1_mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Deleted {{.wireless01_wlan1_mac_address}} successfully"

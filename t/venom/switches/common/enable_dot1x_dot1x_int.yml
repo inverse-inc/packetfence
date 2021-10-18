@@ -1,4 +1,5 @@
 name: Enable 802.1X only on dot1x interface on switch01
+version: 2
 testcases:
 - name: enable_dot1x_on_switch01
   steps:

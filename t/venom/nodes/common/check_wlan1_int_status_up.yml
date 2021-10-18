@@ -1,4 +1,5 @@
 name: Check Wlan1 interface status is UP on wireless01
+version: 2
 testcases:
 - name: check_wlan1_int_status_is_up_on_wireless01
   steps:

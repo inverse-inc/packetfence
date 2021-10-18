@@ -1,4 +1,5 @@
 name: Check wlan0.x interface status on wireless01
+version: 2
 testcases:
 - name: check_wlan0.x_int_status_on_wireless01_user
   steps:

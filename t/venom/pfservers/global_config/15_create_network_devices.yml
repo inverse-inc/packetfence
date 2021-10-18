@@ -1,0 +1,277 @@
+name: Create switches and switch groups
+version: 2
+testcases:
+- name: create_cumulus_switch_group
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_groups'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "AccessListMap": null,
+        "ExternalPortalEnforcement": null,
+        "REJECTAccessList": null,
+        "REJECTRole": null,
+        "REJECTUrl": null,
+        "REJECTVlan": null,
+        "RoleMap": null,
+        "SNMPAuthPasswordRead": null,
+        "SNMPAuthPasswordTrap": null,
+        "SNMPAuthPasswordWrite": null,
+        "SNMPAuthProtocolRead": null,
+        "SNMPAuthProtocolTrap": null,
+        "SNMPAuthProtocolWrite": null,
+        "SNMPCommunityRead": null,
+        "SNMPCommunityTrap": null,
+        "SNMPCommunityWrite": null,
+        "SNMPEngineID": null,
+        "SNMPPrivPasswordRead": null,
+        "SNMPPrivPasswordTrap": null,
+        "SNMPPrivPasswordWrite": null,
+        "SNMPPrivProtocolRead": null,
+        "SNMPPrivProtocolTrap": null,
+        "SNMPPrivProtocolWrite": null,
+        "SNMPUserNameRead": null,
+        "SNMPUserNameTrap": null,
+        "SNMPUserNameWrite": null,
+        "SNMPVersion": null,
+        "SNMPVersionTrap": null,
+        "UrlMap": null,
+        "VlanMap": null,
+        "VoIPCDPDetect": "N",
+        "VoIPDHCPDetect": null,
+        "VoIPEnabled": null,
+        "VoIPLLDPDetect": "N",
+        "always_trigger": 1,
+        "cliAccess": null,
+        "cliEnablePwd": null,
+        "cliPwd": null,
+        "cliTransport": null,
+        "cliUser": null,
+        "coaPort": null,
+        "controllerIp": "{{.switch01_mgmt_ip}}",
+        "deauthMethod": null,
+        "defaultAccessList": null,
+        "defaultRole": null,
+        "defaultUrl": null,
+        "defaultVlan": null,
+        "description": "{{.cumulus_switch_group.description}}",
+        "disconnectPort": null,
+        "gamingAccessList": null,
+        "gamingRole": null,
+        "gamingUrl": null,
+        "gamingVlan": null,
+        "guestAccessList": null,
+        "guestRole": null,
+        "guestUrl": null,
+        "guestVlan": null,
+        "id": "{{.cumulus_switch_group.id}}",
+        "inlineAccessList": null,
+        "inlineRole": null,
+        "inlineTrigger": null,
+        "inlineUrl": null,
+        "inlineVlan": null,
+        "isolationAccessList": null,
+        "isolationRole": null,
+        "isolationUrl": null,
+        "isolationVlan": null,
+        "macSearchesMaxNb": null,
+        "macSearchesSleepInterval": null,
+        "mac_trigger": null,
+        "{{.dot1x_eap_peap.roles.ad_user.id}}AccessList": null,
+        "{{.dot1x_eap_peap.roles.ad_user.id}}Role": null,
+        "{{.dot1x_eap_peap.roles.ad_user.id}}Url": null,
+        "{{.dot1x_eap_peap.roles.ad_user.id}}Vlan": "{{.dot1x_eap_peap.roles.ad_user.vlan_id}}",
+        "mode": "production",
+        "port_trigger": null,
+        "radiusSecret": "{{.cumulus_switch_group.radiusSecret}}",
+        "registrationAccessList": null,
+        "registrationRole": null,
+        "registrationUrl": null,
+        "registrationVlan": null,
+        "ssid_trigger": null,
+        "type": "Hostapd_template",
+        "uplink": null,
+        "uplink_dynamic": null,
+        "useCoA": "Y",
+        "{{.dot1x_eap_peap.roles.ad_machine.id}}AccessList": null,
+        "{{.dot1x_eap_peap.roles.ad_machine.id}}Role": null,
+        "{{.dot1x_eap_peap.roles.ad_machine.id}}Url": null,
+        "{{.dot1x_eap_peap.roles.ad_machine.id}}Vlan": "{{.dot1x_eap_peap.roles.ad_machine.vlan_id}}",
+        "{{.wired_mac_auth.roles.headless_device.id}}AccessList": null,
+        "{{.wired_mac_auth.roles.headless_device.id}}Role": null,
+        "{{.wired_mac_auth.roles.headless_device.id}}Url": null,
+        "{{.wired_mac_auth.roles.headless_device.id}}Vlan": "{{.wired_mac_auth.roles.headless_device.vlan_id}}",
+        "{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}AccessList": null,
+        "{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}Role": null,
+        "{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}Url": null,
+        "{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}Vlan": "{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.vlan_id}}",
+        "voiceAccessList": null,
+        "voiceRole": null,
+        "voiceUrl": null,
+        "voiceVlan": null,
+        "wsPwd": null,
+        "wsTransport": null,
+        "wsUser": null
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+# workaround to make accounting working:
+# NAS-IP-Address is not included in accounting packets before VX 4.0
+# with controllerIP set, no need to create switch by IP
+- name: create_switch_by_mac
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.cumulus_switch.id2}}",
+        "group": "{{.cumulus_switch_group.id}}",
+        "description": "{{.cumulus_switch.description}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_wireless_switch_group
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_groups'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "AccessListMap": null,
+        "ExternalPortalEnforcement": null,
+        "REJECTAccessList": null,
+        "REJECTRole": null,
+        "REJECTUrl": null,
+        "REJECTVlan": null,
+        "RoleMap": null,
+        "SNMPAuthPasswordRead": null,
+        "SNMPAuthPasswordTrap": null,
+        "SNMPAuthPasswordWrite": null,
+        "SNMPAuthProtocolRead": null,
+        "SNMPAuthProtocolTrap": null,
+        "SNMPAuthProtocolWrite": null,
+        "SNMPCommunityRead": null,
+        "SNMPCommunityTrap": null,
+        "SNMPCommunityWrite": null,
+        "SNMPEngineID": null,
+        "SNMPPrivPasswordRead": null,
+        "SNMPPrivPasswordTrap": null,
+        "SNMPPrivPasswordWrite": null,
+        "SNMPPrivProtocolRead": null,
+        "SNMPPrivProtocolTrap": null,
+        "SNMPPrivProtocolWrite": null,
+        "SNMPUserNameRead": null,
+        "SNMPUserNameTrap": null,
+        "SNMPUserNameWrite": null,
+        "SNMPVersion": null,
+        "SNMPVersionTrap": null,
+        "UrlMap": null,
+        "VlanMap": null,
+        "VoIPCDPDetect": "N",
+        "VoIPDHCPDetect": null,
+        "VoIPEnabled": null,
+        "VoIPLLDPDetect": "N",
+        "always_trigger": 1,
+        "cliAccess": null,
+        "cliEnablePwd": null,
+        "cliPwd": null,
+        "cliTransport": null,
+        "cliUser": null,
+        "coaPort": null,
+        "controllerIp": "{{.wireless01_mgmt_ip}}",
+        "deauthMethod": null,
+        "defaultAccessList": null,
+        "defaultRole": null,
+        "defaultUrl": null,
+        "defaultVlan": null,
+        "description": "{{.wireless_switch_group.description}}",
+        "disconnectPort": null,
+        "gamingAccessList": null,
+        "gamingRole": null,
+        "gamingUrl": null,
+        "gamingVlan": null,
+        "guestAccessList": null,
+        "guestRole": null,
+        "guestUrl": null,
+        "guestVlan": null,
+        "id": "{{.wireless_switch_group.id}}",
+        "inlineAccessList": null,
+        "inlineRole": null,
+        "inlineTrigger": null,
+        "inlineUrl": null,
+        "inlineVlan": null,
+        "isolationAccessList": null,
+        "isolationRole": null,
+        "isolationUrl": null,
+        "isolationVlan": null,
+        "macSearchesMaxNb": null,
+        "macSearchesSleepInterval": null,
+        "mac_trigger": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}AccessList": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}Role": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}Url": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}Vlan": "{{.wireless_dot1x_eap_peap.roles.ad_user.vlan_id}}",
+        "mode": "production",
+        "port_trigger": null,
+        "radiusSecret": "{{.wireless_switch_group.radiusSecret}}",
+        "registrationAccessList": null,
+        "registrationRole": null,
+        "registrationUrl": null,
+        "registrationVlan": null,
+        "ssid_trigger": null,
+        "type": "Hostapd_template",
+        "uplink": null,
+        "uplink_dynamic": null,
+        "useCoA": "Y",
+        "{{.wireless_dot1x_eap_peap.roles.ad_machine.id}}AccessList": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_machine.id}}Role": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_machine.id}}Url": null,
+        "{{.wireless_dot1x_eap_peap.roles.ad_machine.id}}Vlan": "{{.wireless_dot1x_eap_peap.roles.ad_machine.vlan_id}}",
+        "{{.wireless_mac_auth.roles.headless_device.id}}AccessList": null,
+        "{{.wireless_mac_auth.roles.headless_device.id}}Role": null,
+        "{{.wireless_mac_auth.roles.headless_device.id}}Url": null,
+        "{{.wireless_mac_auth.roles.headless_device.id}}Vlan": "{{.wireless_mac_auth.roles.headless_device.vlan_id}}",
+        "voiceAccessList": null,
+        "voiceRole": null,
+        "voiceUrl": null,
+        "voiceVlan": null,
+        "wsPwd": null,
+        "wsTransport": null,
+        "wsUser": null
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_switch_by_mac
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.wireless_switch.id2}}",
+        "group": "{{.wireless_switch_group.id}}",
+        "description": "{{.wireless_switch.description}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

@@ -1,9 +1,6 @@
 name: Configure SNAT interface
+version: 2
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 # get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
 - name: get_name_of_dhcp_listener_int
   steps:
@@ -24,7 +21,7 @@ testcases:
         "interfaceSNAT":"{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:

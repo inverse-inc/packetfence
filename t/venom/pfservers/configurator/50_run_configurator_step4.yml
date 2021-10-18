@@ -1,0 +1,72 @@
+name: Restart services
+version: 2
+testcases:
+- name: restart_packetfence_config_service
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-config/restart'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Service has been restarted"
+
+- name: update_systemd
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/service/pf/update_systemd'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Updated systemd for pf"
+
+# service restarted by hand because using API cause Venom failure (EOF)
+- name: restart_haproxy_admin_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-haproxy-admin
+
+# to apply changes made during custom step
+# no API call usable
+- name: restart_pfperl_api_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfperl-api
+
+# let haproxy-admin and pfperl-api to restart before going further
+- name: sleep_some_time
+  steps:
+  - type: exec
+    script: sleep 10
+
+- name: start_packetfence_and_fingerbank_service
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/service/pf/start'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: disable_configurator
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/advanced'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "configurator": "disabled"
+      }
+    headers:
+      "Content-Type": "application/json"      
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"

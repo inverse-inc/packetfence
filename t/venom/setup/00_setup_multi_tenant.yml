@@ -1,4 +1,5 @@
 name: Setup multi-tenant
+version: 2
 testcases:
 - name: get_unified_pass
   steps:

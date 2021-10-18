@@ -30,11 +30,7 @@ install() {
 
     log_subsection "Downloading Golang from upstream"
     curl -s https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
-    log_subsection "Install Golang"
     tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
-    # symlink to find go binaries when environment ignore .bashrc
-    ln -f -s /usr/local/go/bin/go /usr/local/bin/go
-    ln -f -s /usr/local/go/bin/gofmt /usr/local/bin/gofmt
     rm /tmp/$GOVERSION.linux-amd64.tar.gz
 }
 

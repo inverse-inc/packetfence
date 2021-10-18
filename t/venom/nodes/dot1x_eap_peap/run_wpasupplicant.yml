@@ -1,4 +1,5 @@
 name: Run wpasupplicant for EAP/PEAP
+version: 2
 testcases:
 - name: run_wpasupplicant_eap_peap
   steps:

@@ -2,7 +2,7 @@
 # versions in roles should be equals to tags
 roles:
   - src: inverse_inc.gitlab_buildpkg_tools
-    version: v1.3.2
+    version: v1.3.1
 
 # For roles, to test locally with Vagrant (due to --force option)
 # Ansible will create an export, not a symlink to git repository

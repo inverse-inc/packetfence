@@ -1,0 +1,14 @@
+name: Restart pfdns service
+version: 2
+testcases:
+- name: restart_pfdns_service
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/service/pfdns/restart'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

@@ -103,7 +103,7 @@ all:
           hosts:
             pfel8dev:
               box: generic/rhel8
-              box_version: '3.4.2'
+              box_version: '3.2.24'
               mgmt_ip: 172.17.17.10
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -120,7 +120,7 @@ all:
               memory: 6144
             el8dev:
               box: generic/rhel8
-              box_version: '3.4.2'
+              box_version: '3.2.24'
               mgmt_ip: 172.17.17.11
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
@@ -140,17 +140,8 @@ all:
           hosts:
             pfel8stable:
               box: generic/rhel8
-              box_version: '3.4.2'
+              box_version: '3.2.24'
               mgmt_ip: 172.17.17.14
-              mgmt_netmask: 255.255.255.0
-              ansible_host: "{{ mgmt_ip }}"
-              cpus: 2
-              memory: 8192
-            # to test upgrades
-            pfdeb9stable:
-              box: inverse-inc/pfdeb9stable
-              box_version: 10.3.20210414165339
-              mgmt_ip: 172.17.17.15
               mgmt_netmask: 255.255.255.0
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2

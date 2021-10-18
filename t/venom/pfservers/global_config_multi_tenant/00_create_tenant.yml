@@ -1,4 +1,5 @@
 name: Create tenant
+version: 2
 testcases:
 - name: create_tenant
   steps:

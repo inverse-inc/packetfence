@@ -1,6 +1,0 @@
-name: Sleep some time
-testcases:
-- name: sleep_some_time
-  steps:
-  - type: exec
-    script: sleep 20

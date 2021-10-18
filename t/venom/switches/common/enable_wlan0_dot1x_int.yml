@@ -1,4 +1,5 @@
 name: Enable 802.1X only on dot1x interface on wireless01
+version: 2
 testcases:
 - name: enable_dot1x_on_wireless01
   steps:

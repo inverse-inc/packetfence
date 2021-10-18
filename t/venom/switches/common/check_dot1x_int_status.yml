@@ -1,4 +1,5 @@
 name: Check dot1x interface status on switch01
+version: 2
 testcases:
 - name: check_dot1x_int_status_on_switch01
   steps:

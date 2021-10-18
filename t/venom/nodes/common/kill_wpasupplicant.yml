@@ -1,4 +1,5 @@
 name: Kill wpasupplicant on node
+version: 2
 testcases:
 - name: kill_wpasupplicant_on_node
   steps:

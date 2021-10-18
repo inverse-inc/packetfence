@@ -15,19 +15,6 @@
         path: '/etc/apt/sources.list.d/packetfence-ppa.list'
         state: absent
 
-    - name: Get packages installed
-      package_facts:
-        manager: 'apt'
-
-    # to ensure wireless nodes always run tests with packetfence-test
-    # installed from packetfence-ppa and not from a previous pipeline
-    # where wireless nodes were provisioned
-    - name: Uninstall packetfence-test if already installed
-      apt:
-        name: 'packetfence-test'
-        state: 'absent'
-      when: "'packetfence-test' in ansible_facts.packages"
-
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools
       tags: ci

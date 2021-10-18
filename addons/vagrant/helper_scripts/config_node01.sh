@@ -2,7 +2,7 @@
 set -o nounset -o pipefail -o errexit
 
 echo "#################################"
-echo "  Running config_node01.sh"
+echo "  Running config_node02.sh"
 echo "#################################"
 sudo su
 

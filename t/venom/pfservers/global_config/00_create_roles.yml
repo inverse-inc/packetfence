@@ -1,0 +1,74 @@
+name: Create roles
+version: 2
+testcases:
+- name: create_eap_peap_roles_user
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.eap_peap.roles.ad_user.id}}",
+        "max_nodes_per_pid":0,
+        "notes":"{{.eap_peap.roles.ad_user.notes}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_eap_peap_roles_machine
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.eap_peap.roles.ad_machine.id}}",
+        "max_nodes_per_pid":0,
+        "notes":"{{.eap_peap.roles.ad_machine.notes}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+    
+- name: create_headless_device_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.mac_auth.roles.headless_device.id}}",
+        "max_nodes_per_pid":0,
+        "notes":"{{.mac_auth.roles.headless_device.notes}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_dot1x_eap_tls_pfpki_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}",
+        "max_nodes_per_pid":0,
+        "notes":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes}}"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

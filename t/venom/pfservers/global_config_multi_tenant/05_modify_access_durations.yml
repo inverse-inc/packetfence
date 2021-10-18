@@ -1,9 +1,6 @@
 name: Modify access durations
+version: 2
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: modify_access_durations
   steps:
   - type: http
@@ -17,7 +14,7 @@ testcases:
         "default_access_duration": "{{.access_duration.default_choice}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:

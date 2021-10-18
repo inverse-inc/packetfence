@@ -1,4 +1,5 @@
 name: Run wpasupplicant for Wireless Open
+version: 2
 testcases:
 - name: run_wpasupplicant_wireless_open
   steps:

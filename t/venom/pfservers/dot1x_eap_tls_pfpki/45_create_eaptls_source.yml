@@ -1,0 +1,47 @@
+name: Create EAP-TLS source
+version: 2
+testcases:
+- name: create_eaptls_source
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "administration_rules": null,
+        "authentication_rules": [
+          {
+            "id": "check_issuer",
+            "description": null,
+            "match": "all",
+            "actions": [
+              {
+                "type": "set_role",
+                "value": "{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}"
+              },
+              {
+                "type": "set_access_duration",
+                "value": "{{.dot1x_eap_tls_pfpki.sources.eaptls.access_duration}}"
+              }
+            ],
+            "conditions": [
+              {
+                "attribute": "radius_request.TLS-Client-Cert-Issuer",
+                "operator": "equals",
+                "value": "{{.dot1x_eap_tls_pfpki.certs.ca.issuer}}"
+              }
+            ]
+          }
+        ],
+        "description": "{{.dot1x_eap_tls_pfpki.sources.eaptls.description}}",
+        "id": "{{.dot1x_eap_tls_pfpki.sources.eaptls.name}}",
+        "realms": "",
+        "set_access_durations_action": null,
+        "type": "EAPTLS"
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

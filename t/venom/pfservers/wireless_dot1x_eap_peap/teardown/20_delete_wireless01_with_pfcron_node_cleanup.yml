@@ -1,0 +1,6 @@
+name: Delete wireless01 by running pfcron node_cleanup task
+version: 2
+testcases:
+- name: delete_wireless01_with_pfcron_node_cleanup
+  steps:
+  - script: /usr/local/pf/bin/pfcmd pfcron node_cleanup

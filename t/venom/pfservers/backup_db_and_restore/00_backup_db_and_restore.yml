@@ -1,0 +1,102 @@
+name: Backup DB and restore
+version: 2
+testcases:
+- name: create_user
+  steps:
+    - type: http
+      method: POST
+      url: '{{.pfserver_webadmin_url}}/api/v1/users'
+      ignore_verify_ssl: true
+      body: >-
+        {
+          "pid": "{{.backup_db_and_restore.user}}"
+        }
+      headers:
+        "Authorization": "{{.pfserver_token}}"
+        "Content-Type": "application/json"
+      assertions:
+        - result.statuscode ShouldEqual 201
+
+- name: backup
+  steps:
+  - type: exec
+    script: /usr/local/pf/addons/backup-and-maintenance.sh
+
+- name: get_backup_name
+  steps:
+  - type: exec
+    script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-db-dump-*.sql.gz" -newermt "-1 minute"'
+    vars: 
+      backup_name:
+        from: result.systemout
+
+- name: unzip_db_backup
+  steps:
+  - type: exec
+    script: 'gunzip {{.get_backup_name.backup_name}}'
+
+# we only get filename without path
+- name: get_backup_name_uncompressed
+  steps:
+  - type: exec
+    script: 'basename {{.get_backup_name.backup_name}} .gz'
+    vars:
+      backup_name_uncompressed:
+        from: result.systemout
+
+- name: drop_pf_db
+  steps:
+  - type: exec
+    script: mysql -e "DROP DATABASE pf;"
+
+- name: create_pf_db
+  steps:
+  - type: exec
+    script: mysql -e "CREATE DATABASE pf;"
+
+- name: restore_schema
+  steps:
+  - type: exec
+    script: 'mysql pf < /usr/local/pf/db/pf-schema.sql'
+
+- name: restore_db
+  steps:
+  - type: exec
+    script: 'mysql pf < {{.backup_db_and_restore.backup_dir}}/{{.get_backup_name_uncompressed.backup_name_uncompressed}}'
+
+- name: search_user_in_db
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/users/search'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "pid"
+        ],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "pid",
+                  "op": "equals",
+                  "value": "{{.backup_db_and_restore.user}}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    headers:
+      "Authorization": "{{.pfserver_token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.items.items0.pid ShouldEqual "{{.backup_db_and_restore.user}}"
+

@@ -1,0 +1,44 @@
+name: Run configurator step 3
+version: 2
+testcases:
+- name: get_psono_secret
+  steps:
+  - type: exec
+    script: "psonoci secret get {{.configurator.fingerbank_api_key.secret_id}} password"
+    vars:
+      fingerbank_api_key:
+        from: result.systemout
+    
+- name: config_fingerbank_api_key
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/fingerbank_setting/upstream'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "api_key": "{{.get_psono_secret.fingerbank_api_key}}",
+        "db_path": "/api/v2/download/db",
+        "host": "api.fingerbank.org",
+        "id": "upstream",
+        "port": "443",
+        "sqlite_db_retention": "2",
+        "use_https": "enabled"
+      }
+    headers:
+      "Content-Type": "application/json"      
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+- name: check_api_key_configured
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/fingerbank/account_info'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"      
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.email ShouldEqual "{{.fingerbank_api_key.email}}"

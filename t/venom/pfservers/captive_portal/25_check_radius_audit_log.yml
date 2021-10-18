@@ -1,9 +1,6 @@
 name: Check RADIUS audit log
+version: 2
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: get_time
   steps:
   - type: exec
@@ -79,7 +76,7 @@ testcases:
         }
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -95,7 +92,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.get_id_of_radius_audit_log_entry.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.pfserver_token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

@@ -1,9 +1,6 @@
 name: Forge DHCP request to update node11
+version: 2
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
   - name: get_node11_attributes
     steps:
     - type: http
@@ -11,7 +8,7 @@ testcases:
       url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
         "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.tenant.id}}"        
       assertions:
@@ -40,7 +37,7 @@ testcases:
       url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
         "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.tenant.id}}"        
       assertions:
@@ -55,7 +52,7 @@ testcases:
       url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.pfserver_token}}"
         "Content-Type": "application/json"
         "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.tenant.id}}"        
       assertions:
