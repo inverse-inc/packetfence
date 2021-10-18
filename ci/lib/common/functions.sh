@@ -6,6 +6,8 @@ SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
 # full path to root of PF sources
 PF_SRC_DIR=$(echo ${SCRIPT_DIR} | grep -oP '.*?(?=\/ci\/)')
 
+OS_SUPPORTED='RHEL-8 Debian-11'
+
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1

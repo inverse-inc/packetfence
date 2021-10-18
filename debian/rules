@@ -51,10 +51,13 @@ install: build
 	done
 
 	# Install all except debian and t directory
-	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' -type d`; do \
+	# dir* to exclude directory itself
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' \
+	-not -path "addons/full-upgrade*" -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
-	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
+	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig' \
+	-not -path "addons/full-upgrade/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	# packetfence-test package
@@ -62,6 +65,9 @@ install: build
 
 	# packetfence-export package
 	make -C addons/full-import DESTDIR=$(CURDIR)/debian/packetfence-export install
+
+	# packetfence-upgrade package
+	make -C addons/full-upgrade DESTDIR=$(CURDIR)/debian/packetfence-upgrade install
 
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \

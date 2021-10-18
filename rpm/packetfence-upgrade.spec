@@ -1,8 +1,8 @@
-Name:       packetfence-export
+Name:       packetfence-upgrade
 Version:    11.0.0
-Release:    2%{?dist}
+Release:    1%{?dist}
 BuildArch:  noarch
-Summary:    PacketFence export files
+Summary:    PacketFence upgrade files
 Packager:   Inverse inc. <support@inverse.ca>
 Group:      System Environment/Base
 License:    GPL
@@ -13,8 +13,8 @@ Vendor:     PacketFence, http://www.packetfence.org
 
 %description
 
-PacketFence export files. This package contains all files related to export mechanism.
-This package should only be installed on releases before v11.
+PacketFence upgrade files. This package contains all files related to upgrade mechanism.
+This package should only be installed on releases after v11.
 
 #==============================================================================
 # Source preparation
@@ -30,7 +30,7 @@ This package should only be installed on releases before v11.
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} -C full-import DESTDIR=%{buildroot} install
+%{__make} -C full-upgrade DESTDIR=%{buildroot} install
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -38,17 +38,14 @@ This package should only be installed on releases before v11.
 %files
 %defattr(-, pf, pf)
 # base directory need to be added to package to be removed during uninstall
-%dir /usr/local/pf/addons/full-import
-%dir /usr/local/pf/addons/functions
+%dir /usr/local/pf/addons/full-upgrade
 # add files in package **and** set permissions
 # we only add files install during install process
-%attr(0755, -, -)     /usr/local/pf/addons/full-import/export.sh
-%attr(0755, -, -)     /usr/local/pf/addons/full-import/find-extra-files.pl
-%attr(0644, -, -)     /usr/local/pf/addons/functions/*.functions
+%attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/run-upgrade.sh
+%attr(0644, -, -)     /usr/local/pf/addons/full-upgrade/*.functions
+/usr/local/pf/addons/full-upgrade/hooks
 
 %changelog
-* Mon Oct 18 2021 Inverse <info@inverse.ca> - 11.0.0-2
-- Backport changes related to v11.1.0
+* Mon Oct 18 2021 Inverse <info@inverse.ca> - 11.0.0-1
+- Package creation for 11.0.0 release (backported from 11.1.0)
 
-* Wed Jul 21 2021 Nicolas Quiniou-Briand <nquiniou@akamai.com> - 11.0.0-1
-- Package creation for 11.0 release

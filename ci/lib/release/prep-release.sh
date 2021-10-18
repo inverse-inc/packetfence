@@ -15,6 +15,8 @@ get_pf_release
 
 RPM_PF_SPEC=${PF_SRC_DIR}/rpm/packetfence.spec
 RPM_PFTEST_SPEC=${PF_SRC_DIR}/rpm/packetfence-test.spec
+RPM_PFEXPORT_SPEC=${PF_SRC_DIR}/rpm/packetfence-export.spec
+RPM_PFUPGRADE_SPEC=${PF_SRC_DIR}/rpm/packetfence-upgrade.spec
 DEB_DIR=${PF_SRC_DIR}/debian
 DEB_CHLOG=${DEB_DIR}/changelog
 
@@ -40,6 +42,14 @@ update_pf_version() {
     log_subsection "${RPM_PFTEST_SPEC}"
     sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_PFTEST_SPEC}"
     grep "^Version:" ${RPM_PFTEST_SPEC}
+
+    log_subsection "${RPM_PFEXPORT_SPEC}"
+    sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_PFEXPORT_SPEC}"
+    grep "^Version:" ${RPM_PFEXPORT_SPEC}
+
+    log_subsection "${RPM_PFUPGRADE_SPEC}"
+    sed -i -e "s/^\(Version:[^0-9]*\).*/\1${new_release}/" "${RPM_PFUPGRADE_SPEC}"
+    grep "^Version:" ${RPM_PFUPGRADE_SPEC}
 }
 
 update_changelog() {
@@ -65,9 +75,18 @@ update_rpm_changelog() {
     sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
         ${RPM_PF_SPEC} || die "sed failed"
     grep -A2 "%changelog" ${RPM_PF_SPEC}
+    
     sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
         ${RPM_PFTEST_SPEC} || die "sed failed"
     grep -A2 "%changelog" ${RPM_PFTEST_SPEC}
+
+    sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
+        ${RPM_PFEXPORT_SPEC} || die "sed failed"
+    grep -A2 "%changelog" ${RPM_PFEXPORT_SPEC}
+
+    sed -i -e "/%changelog/a * $date $author - $pkg_release\n- New release ${PF_NEW_PATCH_RELEASE}\n" \
+        ${RPM_PFUPGRADE_SPEC} || die "sed failed"
+    grep -A2 "%changelog" ${RPM_PFUPGRADE_SPEC}
 }
 
 log_section "Configure and check"
