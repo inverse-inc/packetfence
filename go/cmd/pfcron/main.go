@@ -90,23 +90,16 @@ func wrapJob(logger log.PfLogger, j string) cron.Job {
 	})
 }
 
-func mergeArgs(config, args map[string]interface{}) map[string]interface{} {
-	newArgs := make(map[string]interface{})
-	for k, v := range config {
-		newArgs[k] = v
-	}
-
-	for k, v := range args {
-		newArgs[k] = v
-	}
-
-	return newArgs
-}
-
 func runJobNow(name string, additionalArgs map[string]interface{}) int {
 	jobsConfig := maint.GetMaintenanceConfig(context.Background())
 	if config, found := jobsConfig[name]; found {
-		job := maint.BuildJob(name, mergeArgs(config.(map[string]interface{}), additionalArgs))
+		job := maint.BuildJob(
+			name,
+			maint.MergeArgs(
+				config.(map[string]interface{}),
+				additionalArgs,
+			),
+		)
 		if job != nil {
 			job.Run()
 			return 0
@@ -146,16 +139,20 @@ func main() {
 	if len(os.Args) > 1 {
 		jobName := os.Args[1]
 		code := 0
-		if additionalArgs, err := makeArgs(os.Args[2:]); err != nil {
+		additionalArgs, err := makeArgs(os.Args[2:])
+		if err != nil {
 			fmt.Printf("%s\n", err.Error())
-			code = 1
-		} else {
-			code = runJobNow(jobName, additionalArgs)
-			if code == 0 {
-				fmt.Printf("task %s finished\n", jobName)
-			}
+			os.Exit(1)
+			return
 		}
+
+		code = runJobNow(jobName, additionalArgs)
+		if code == 0 {
+			fmt.Printf("task %s finished\n", jobName)
+		}
+
 		os.Exit(code)
+		return
 	}
 
 	ctx := context.Background()

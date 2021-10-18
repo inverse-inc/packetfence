@@ -52,6 +52,19 @@ func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
 	return nil
 }
 
+func MergeArgs(a, b map[string]interface{}) map[string]interface{} {
+	newArgs := make(map[string]interface{})
+	for k, v := range a {
+		newArgs[k] = v
+	}
+
+	for k, v := range b {
+		newArgs[k] = v
+	}
+
+	return newArgs
+}
+
 func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
 	jobs := []JobSetupConfig{}
 	for name, config := range maintConfig {
