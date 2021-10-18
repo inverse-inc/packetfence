@@ -1,6 +1,6 @@
 roles:
   - src: inverse_inc.gitlab_buildpkg_tools
-    version: v1.3.1
+    version: v1.3.2
 
 # For roles, to test locally
 # Ansible will create an export, not a symlink to git repository
