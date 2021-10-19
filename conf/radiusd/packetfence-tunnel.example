@@ -271,7 +271,7 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
-	oauth2
+	[% oauth2_if_enabled %]
 	packetfence-set-tenant-id
 	PacketFence-NTCacheHash
 	if (ok) {
