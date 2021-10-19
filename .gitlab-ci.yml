@@ -30,7 +30,7 @@ variables:
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
-  TESTDIR: $CILIBDIR/test
+  TESTDIR: t/venom
   UPLOAD_DIR: $CILIBDIR/upload
   SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   # env variables
