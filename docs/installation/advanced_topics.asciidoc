@@ -58,7 +58,7 @@ The following attributes are available to define a report (* mandatory attribute
 * `description`*: A user-friendly description that provides more details about the report. Used as a title for all charts.
 * `charts`: A comma delimited list of charts to display. Each chart is displayed in its own tab above the table data. There is no limit to the number of charts that can be defined. Charts are explained in more detail below.
 * `columns`*: A comma separated list of columns or aliases that are displayed in the table from the SQL query (ex: `node.mac`, `Node MAC`). The table columns are displayed in the respective order. Columns can be aliased to a more friendly name, but these aliases must be used throughout the other attributes.
-* `date_limit`: A PacketFence interval that defines the maximum date range allowed between `start_date` and `end_date`. The reports user is restricted from choosing a date range that exceeds this limit. This is used to prevent the MySQL query from consuming too much resources with large datasets. The duration is defined as `date_limit=[unit]:[interval]` (ex: date_limit=1D), where the unit is a positive integer and the interval is one of the following characters:
+* `date_limit`: A PacketFence interval that defines the maximum date range allowed between `start_date` and `end_date`. The reports user is restricted from choosing a date range that exceeds this limit. This is used to prevent the MySQL query from consuming too much resources with large datasets. The duration is defined as `date_limit=[unit][interval]` (ex: date_limit=1D), where the unit is a positive integer and the interval is one of the following characters:
   ** `s`: second(s)
   ** `m`: minute(s)
   ** `h`: hour(s)
