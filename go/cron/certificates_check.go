@@ -62,10 +62,10 @@ func (j *CertificatesCheck) VerifyFile(file string) error {
 		return err
 	}
 
-	return j.VerifyContents(file, contents)
+	return j.VerifyContents(file, contents, time.Now())
 }
 
-func (j *CertificatesCheck) VerifyContents(file string, contents []byte) error {
+func (j *CertificatesCheck) VerifyContents(file string, contents []byte, now time.Time) error {
 	var block *pem.Block
 	var rest []byte
 	for {
@@ -86,11 +86,10 @@ func (j *CertificatesCheck) VerifyContents(file string, contents []byte) error {
 		return err
 	}
 
-	return j.VerifyCert(file, cert)
+	return j.VerifyCert(file, cert, now)
 }
 
-func (j *CertificatesCheck) VerifyCert(file string, cert *x509.Certificate) error {
-	now := time.Now()
+func (j *CertificatesCheck) VerifyCert(file string, cert *x509.Certificate, now time.Time) error {
 	notAfter := cert.NotAfter
 	if now.After(notAfter) {
 		return fmt.Errorf("SSL certificate '%s' is expired. This should be addressed to avoid issues.", file)
