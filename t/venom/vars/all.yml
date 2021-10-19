@@ -149,7 +149,7 @@ dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.default_c
 dot1x_eap_peap.profiles.wired.id: catch_dot1x_wired_eap_peap_mschapv2
 dot1x_eap_peap.profiles.wired.description: 802.1X wired EAP-PEAP-MSCHAPv2
 dot1x_eap_peap.profiles.wired.filters.connection_type: Ethernet-EAP
-dot1x_eap_peap.profiles.wired.filters.connection_sub_type: MS-EAP-Authentication
+dot1x_eap_peap.profiles.wired.filters.connection_sub_type: Microsoft-MS-CHAPv2
 dot1x_eap_peap.profiles.wired.unreg_on_acct_stop: enabled
 
 ################################################################################
@@ -177,7 +177,7 @@ wireless_dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.
 wireless_dot1x_eap_peap.profiles.wireless.id: catch_dot1x_wireless_eap_peap_mschapv2
 wireless_dot1x_eap_peap.profiles.wireless.description: 802.1X wireless EAP-PEAP-MSCHAPv2
 wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Wireless-802.11-EAP 
-wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
+wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: Microsoft-MS-CHAPv2
 wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
 
 ################################################################################
