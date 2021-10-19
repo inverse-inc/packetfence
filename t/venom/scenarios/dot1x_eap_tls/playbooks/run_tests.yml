@@ -7,8 +7,10 @@
     test_suites:
       - configurator
       - global_config
-      - dot1x_eap_tls_pfpki
-      - dot1x_eap_tls_pfpki/teardown
+      - dot1x_eap_tls_pfpki_manual
+      - dot1x_eap_tls_pfpki_manual/teardown
+      - dot1x_eap_tls_pfpki_scep
+      - dot1x_eap_tls_pfpki_scep/teardown
       - global_teardown
 
   tasks:
