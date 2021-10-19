@@ -16,12 +16,10 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
-use pf::file_paths qw($pf_config_file $pf_default_file $profiles_config_file $profiles_default_config_file);
-use pf::util;
+use pf::file_paths qw($profiles_config_file);
 run_as_pf();
 
 my $profiles = pf::IniFiles->new(-file => $profiles_config_file, -allowempty => 1);
-my $profiles_default = pf::IniFiles->new(-file => $profiles_default_config_file, -allowempty => 1);
 
 our $sub_connection_type = qr/(Base|VALUE|EAP-3Com-Wireless|MS-EAP-Authentication|EAP-MSCHAP-V2|EAP-Actiontec-Wireless|EAP-HTTP-Digest|EAP-SPEKE|EAP-MOBAC|EAP-Link|EAP-PAX|EAP-PSK|EAP-SAKE|EAP-AKA2|EAP-GPSK|EAP-PWD|EAP-EVEv1|MS-CHAP-V2)/;
 
