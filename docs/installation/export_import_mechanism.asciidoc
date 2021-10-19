@@ -105,6 +105,9 @@ a standalone server following the instructions in our install guide. You don't
 need to go through the configurator unless you want to modify IP settings of
 the server.
 
+WARNING: If you want to use the first step of the configurator to configure your
+server, you need to do it **before** running your import.
+
 ==== Preliminary steps
 
 If your export archive used MariaDB-backup instead of `mysqldump` (your DB
