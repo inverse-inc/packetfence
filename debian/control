@@ -139,6 +139,8 @@ Depends: ${misc:Depends}, vlan,
  libauthen-radius-perl (>=0.24), libauthen-krb5-simple-perl,
 # used by bin/pftest
  libio-interactive-perl,
+# used by dev-helpers scripts
+ libtypes-serialiser-perl,
 # cluster
  haproxy (>= 2.2), keepalived (>= 2.0), arping,
 # monitoring
