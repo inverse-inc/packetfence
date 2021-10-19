@@ -3,6 +3,7 @@ package pf::Connection;
 use Moose;
 
 use pf::constants;
+use pf::constants::eap_type qw(%RADIUS_EAP_TYPE_2_VALUES);
 use pf::radius::constants;
 use pf::config qw(
     $WIRELESS_MAC_AUTH
@@ -213,7 +214,11 @@ sub identifyType {
 
     if(defined($eap_type) && ($eap_type ne 0)) {
         $self->isEAP($TRUE);
-        $self->subType($eap_type);
+        if (exists $RADIUS_EAP_TYPE_2_VALUES{$eap_type}) {
+            $self->subType($RADIUS_EAP_TYPE_2_VALUES{$eap_type});
+        } else {
+            $self->subType($eap_type);
+        }
     }
     else {
         $self->isEAP($FALSE);

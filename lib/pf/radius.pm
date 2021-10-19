@@ -72,7 +72,7 @@ use pf::dal;
 use pf::security_event;
 use pf::constants::security_event qw($LOST_OR_STOLEN);
 use pf::Redis;
-use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
+use pf::constants::eap_type qw($TLS $MSCHAPV2 $PSK);
 use pf::person;
 use pf::factory::mfa;
 
@@ -188,7 +188,8 @@ sub authorize {
     $self->_handleStaticPortSecurityMovement($args);
 
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
-        . "connection_type => " . connection_type_to_str($connection_type) . ","
+        . "connection_type => " . connection_type_to_str($connection_type) . ", "
+        . "connection_sub_type => " . $connection_sub_type . ", "
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
@@ -934,7 +935,7 @@ sub vpn {
         );
     }
     my $source_id = \@$sources;
-    if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $EAP_TLS && $args->{'radius_request'}->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
+    if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $TLS && $args->{'radius_request'}->{"EAP-Type"} != $MSCHAPV2 ) ) ) {
         my $return = $self->authenticate($args, $sources, \$source_id, $extra, $otp, $password);
         return $return if (ref($return) eq 'ARRAY');
     }
@@ -959,7 +960,7 @@ sub vpn {
 
     return $self->returnRadiusCli($args, $options, $sources, $source_id, $extra) if $return eq $TRUE;
 
-    if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $EAP_TLS && $args->{'radius_request'}->{"EAP-Type"} != $MS_EAP_AUTHENTICATION ) ) ) {
+    if (!defined($args->{'radius_request'}->{'MS-CHAP-Challenge'}) && ( !exists($args->{'radius_request'}->{"EAP-Type"}) || ( exists($args->{'radius_request'}->{"EAP-Type"}) && $args->{'radius_request'}->{"EAP-Type"} != $TLS && $args->{'radius_request'}->{"EAP-Type"} != $MSCHAPV2 ) ) ) {
         my $return = $self->authenticate($args, $sources, \$source_id, $extra, $otp, $password);
         return $return if (ref($return) eq 'ARRAY');
     }
@@ -1314,7 +1315,7 @@ sub handleUnboundDPSK {
             $connection->isMacAuth($FALSE);
             $connection->is8021X($TRUE);
             $connection->isEAP($TRUE);
-            $connection->subType($EAP_PSK);
+            $connection->subType($PSK);
             $connection->_attributesToString;
             $args->{connection_type} = $connection->attributesToBackwardCompatible;
             $args->{connection_sub_type} = $connection->subType;
