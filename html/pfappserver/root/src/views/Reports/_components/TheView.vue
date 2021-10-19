@@ -1,7 +1,10 @@
 <template>
   <b-card no-body id="card">
     <b-card-header>
-      <h4 class="mb-0" v-html="id.split('::').join(' / ')" />
+      <h4 class="mb-0">
+        {{ id.split('::').join(' / ') }}
+        <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_reports" />
+      </h4>
       <p v-if="description"
         v-html="description" class="mt-3 mb-0" />
     </b-card-header>
@@ -54,12 +57,14 @@
 
 <script>
 import {
+  BaseButtonHelp,
   BaseContainerLoading
 } from '@/components/new/'
 import BaseInputDateRange from './BaseInputDateRange'
 import TheSearch from './TheSearch'
 import TheTable from './TheTable'
 const components = {
+  BaseButtonHelp,
   BaseContainerLoading,
   BaseInputDateRange,
   TheSearch,
