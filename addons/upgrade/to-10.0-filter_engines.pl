@@ -157,13 +157,7 @@ sub populate {
         }
 
         if ($new_file->SectionExists($id)) {
-            my $suffix = 1;
-            my $new_id = "$id-$suffix";
-            while ($new_file->SectionExists($new_id)) {
-                $suffix++;
-                $new_id = "$id-$suffix";
-            }
-            $id = $new_id;
+            return;
         }
 
         $new_file->AddSection($id);
