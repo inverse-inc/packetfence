@@ -69,7 +69,7 @@ export const useSearchFactory = (meta) => {
           key,
           label,
           required: cursor_fields.includes(key),
-          searchable: true,
+          searchable: query_fields.filter(({ name, text }) => (name === key || text === label)).length > 0,
           visible: true,
           thClass: 'text-nowrap'
         }
