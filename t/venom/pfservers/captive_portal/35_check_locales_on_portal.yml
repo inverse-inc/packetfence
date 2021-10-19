@@ -1,5 +1,4 @@
 name: Check locales on portal from node01
-version: 2
 testcases:
   - name: check_locales_on_portal
     steps:
