@@ -1,4 +1,4 @@
-# wired_dot1x_eap_tls
+# wired_dot1x_eap_tls_manual
 
 ## Requirements
 N/A
@@ -27,8 +27,6 @@ N/A
 1. Perform Checkup (common test suite)
 1. Configure 802.1X only and dynamic VLAN on dot1x interface on
    switch01
-
-TODO:
 1. Install Root CA on node01 
 1. Install user certificates (public certificate and private key) on node01
    with following paths:
@@ -40,6 +38,8 @@ TODO:
 1. Check node status for node01 (common)
 1. Check VLAN assigned to node01 *on* switch01 (common)
 1. Check Internet access *on* node01 (common)
+
+TODO:
 1. Revoke certificate
 1. Kill wpasupplicant (common test suite)
 1. Rerun wpasupplicant to have a reject authentication due to revoke certificate
