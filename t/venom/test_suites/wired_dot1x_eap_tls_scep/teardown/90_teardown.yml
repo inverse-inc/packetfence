@@ -8,7 +8,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_eap_tls_pfpki.profiles.wired.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.wired_dot1x_eap_tls.profiles.wired.id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -20,7 +20,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_tls_pfpki.sources.eaptls.name}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.wired_dot1x_eap_tls.sources.eaptls.name}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -50,7 +50,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/ocsp_profile/{{.dot1x_eap_tls_pfpki.ocsp.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/ocsp_profile/{{.wired_dot1x_eap_tls.ocsp.id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

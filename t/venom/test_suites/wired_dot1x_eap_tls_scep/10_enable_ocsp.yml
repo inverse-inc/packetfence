@@ -12,13 +12,13 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id": "{{.dot1x_eap_tls_pfpki.ocsp.id}}",
-        "ocsp_enable": "{{.dot1x_eap_tls_pfpki.ocsp.enable}}",
-        "ocsp_url": "{{.dot1x_eap_tls_pfpki.ocsp.url}}",        
-        "ocsp_override_cert_url": "{{.dot1x_eap_tls_pfpki.ocsp.override_cert_url}}",
-        "ocsp_softfail": "{{.dot1x_eap_tls_pfpki.ocsp.softfail}}",
-        "ocsp_timeout": "{{.dot1x_eap_tls_pfpki.ocsp.timeout}}",
-        "ocsp_use_nonce": "{{.dot1x_eap_tls_pfpki.ocsp.use_nonce}}"
+        "id": "{{.wired_dot1x_eap_tls.ocsp.id}}",
+        "ocsp_enable": "{{.wired_dot1x_eap_tls.ocsp.enable}}",
+        "ocsp_url": "{{.wired_dot1x_eap_tls.ocsp.url}}",        
+        "ocsp_override_cert_url": "{{.wired_dot1x_eap_tls.ocsp.override_cert_url}}",
+        "ocsp_softfail": "{{.wired_dot1x_eap_tls.ocsp.softfail}}",
+        "ocsp_timeout": "{{.wired_dot1x_eap_tls.ocsp.timeout}}",
+        "ocsp_use_nonce": "{{.wired_dot1x_eap_tls.ocsp.use_nonce}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -35,7 +35,7 @@ testcases:
     body: >-
       {
         "id": "tls-common",
-        "ocsp": "{{.dot1x_eap_tls_pfpki.ocsp.id}}"
+        "ocsp": "{{.wired_dot1x_eap_tls.ocsp.id}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

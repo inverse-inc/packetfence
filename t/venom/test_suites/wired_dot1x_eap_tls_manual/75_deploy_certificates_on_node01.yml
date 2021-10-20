@@ -12,4 +12,4 @@ testcases:
         host: '{{.node01_mgmt_ip}}'
         user: '{{.ssh_user}}'
         command:  |
-          sudo cp -v /home/vagrant/{{.dot1x_eap_tls_pfpki.certs.user.cn}}/* /etc/wpa_supplicant/eap_tls/
+          sudo cp -v /home/vagrant/{{.wired_dot1x_eap_tls.certs.user.cn}}/* /etc/wpa_supplicant/eap_tls/

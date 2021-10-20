@@ -1,4 +1,4 @@
-# dot1x_eap_tls_pfpki
+# wired_dot1x_eap_tls
 
 ## Requirements
 N/A
