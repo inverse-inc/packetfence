@@ -1,0 +1,67 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//== Automation of upgrades
+
+This section covers automation of upgrades available since PacketFence 11.0.0.
+
+=== Assumptions and limitations
+
+* You can perform automated upgrades on **standalone** servers only. Cluster
+  upgrades must use the procedure described in the
+  <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Clustering
+  Guide>>
+* You can perform automated upgrades starting from PacketFence 11.0.0
+* A backup and an export of your configuration are performed before doing upgrade
+
+=== Full upgrade (for PacketFence version 11.0.0 only)
+
+==== Preliminary steps
+
+On PacketFence version 11.0.0, you need to install `packetfence-upgrade` package using following instructions:
+
+.RHEL / CentOS based systems **only**
+[source,bash]
+----
+yum install packetfence-upgrade --enablerepo=packetfence
+----
+
+.Debian systems **only**
+[source,bash]
+----
+apt update
+apt install packetfence-upgrade
+----
+
+Then you can perform a full upgrade using following command:
+
+[source,bash]
+----
+/usr/local/pf/addons/full-upgrade/run-upgrade.sh
+----
+
+=== Full upgrade (for PacketFence versions 11.1.0 and later)
+
+Run following script to perform a full upgrade:
+
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/do-upgrade.sh
+----
+
+

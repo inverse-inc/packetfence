@@ -153,6 +153,10 @@ include::installation/advanced_topics.asciidoc[]
 
 include::installation/export_import_mechanism.asciidoc[]
 
+== Automation of upgrades
+
+include::installation/automation_of_upgrades.asciidoc[]
+
 // INCLUDES
 
 include::includes/additional-info.asciidoc[]
