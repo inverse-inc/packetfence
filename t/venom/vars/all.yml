@@ -364,6 +364,9 @@ dot1x_eap_tls_pfpki.profiles.wired.filters.connection_type: Ethernet-EAP
 dot1x_eap_tls_pfpki.profiles.wired.filters.connection_sub_type: EAP-TLS
 dot1x_eap_tls_pfpki.profiles.wired.unreg_on_acct_stop: enabled
 
+wired_dot1x_eap_tls_manual.paths.clients_directory: /root/client_certificates
+wired_dot1x_eap_tls_manual.paths.per_client_directory: {{.wired_dot1x_eap_tls_manual.paths.clients_directory}}/{{.dot1x_eap_tls_pfpki.certs.user.cn}}
+
 ################################################################################
 # pfdhcplistener_single_tenant test suite specific variables
 ################################################################################
@@ -394,3 +397,4 @@ pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint: 1,2,3,4
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
 # need to be a network not already attached to PacketFence server
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_server: 10.10.10.1
+

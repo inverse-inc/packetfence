@@ -25,10 +25,10 @@ N/A
 1. Create connection profile with auto-registration, unreg_on_accounting_stop,
    EAPTLS source and specific filter
 1. Perform Checkup (common test suite)
-
-TODO:
 1. Configure 802.1X only and dynamic VLAN on dot1x interface on
    switch01
+
+TODO:
 1. Install Root CA on node01 
 1. Install user certificates (public certificate and private key) on node01
    with following paths:
