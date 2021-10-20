@@ -18,6 +18,7 @@ To avoid circular dependencies pf::api needs to be included before consuming thi
 use strict;
 use warnings;
 use Moo;
+use pf::log;
 
 
 =head2 call
@@ -42,6 +43,9 @@ sub notify {
     eval {
         pf::api->$method(@args);
     };
+    if ($@) {
+        get_logger->error($@);
+    }
     return;
 }
 
