@@ -84,7 +84,7 @@ function yum_upgrade_packetfence_package() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/etc/yum.repos.d/packetfence.repo') ; \$c->setval('packetfence', 'baseurl', 'http://inverse.ca/downloads/PacketFence/RHEL\$releasever/"$UPGRADE_TO"/\$basearch') ; \$c->RewriteConfig"
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
-    yum update -y --enablerepo=packetfence
+    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade
   else
     yum update packetfence -y --enablerepo=packetfence
   fi
