@@ -99,5 +99,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls.roles.ad_user.vlan_id}}"'
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls.roles.dot1x_eap_tls.vlan_id}}"'
       - result.bodyjson.item.profile ShouldEqual "{{.wired_dot1x_eap_tls.profiles.wired.id}}"
