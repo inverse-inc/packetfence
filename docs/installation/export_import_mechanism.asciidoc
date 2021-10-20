@@ -19,7 +19,7 @@ endif::[]
 //== Export/Import mechanism
 
 This section covers export/import mechanism available since PacketFence 11.0.0.
-It can be used to automate upgrades or to restore PacketFence installations.
+It can be used to automate parts of upgrades or to restore PacketFence installations.
 
 === Assumptions and limitations
 
