@@ -274,6 +274,8 @@ binary-arch: build install
 	# packetfence-export pkg
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/find-extra-files.pl
+	# packetfence-upgrade pkg
+	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-upgrade/*.sh
 	# packetfence-test pkg
 	# t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/*.pl
