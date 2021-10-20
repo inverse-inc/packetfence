@@ -145,12 +145,16 @@ rest {
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	authenticate {
 		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 
 	#  Accounting/Post-auth
@@ -165,30 +169,40 @@ rest {
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	accounting {
 		uri = "${..connect_uri}/radius/rest/accounting"
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	post-auth {
 		uri = "${..connect_uri}/radius/rest/authorize"
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	pre-proxy {
 		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	post-proxy {
 		uri = "${..connect_uri}/radius/rest/filter"
 		method = 'post'
 		body = 'json'
 		tls = ${..tls}
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	#
 	#  The connection pool is new for 3.0, and will be used in many
@@ -285,6 +299,9 @@ rest rest-cli {
                 method = 'post'
                 body = 'json'
                 tls = ${..tls}
+                timeout = 60.000000
+		attr_num = 'true'
+		raw_value ='true'
 	}
 	authenticate {
 	}
