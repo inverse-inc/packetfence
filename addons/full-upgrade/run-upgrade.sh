@@ -174,6 +174,8 @@ function hook_if_exists() {
   fi
 }
 
+cd /usr/local/pf/
+
 hook_if_exists do-upgrade-start.sh
 
 main_splitter
