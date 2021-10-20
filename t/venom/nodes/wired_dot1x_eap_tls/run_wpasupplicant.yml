@@ -1,0 +1,9 @@
+name: Run wpasupplicant for EAP-TLS
+testcases:
+- name: run_wpasupplicant_eap_peap
+  steps:
+  - type: exec
+    script: "sudo wpa_supplicant -c /etc/wpa_supplicant/eap_tls/eap_tls.conf -D wired -i ens7 -B"
+    timeout: 10
+    assertions:
+      - result.systemout ShouldContainSubstring "Successfully initialized wpa_supplicant"
