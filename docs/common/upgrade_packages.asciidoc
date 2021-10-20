@@ -10,7 +10,7 @@ yum update --enablerepo=packetfence
 [source,bash]
 ----
 apt update
-apt install packetfence
+apt upgrade
 ----
 
 
