@@ -16,7 +16,13 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
-use pf::file_paths qw($profiles_config_file);
+use pf::file_paths qw(
+    $profiles_config_file
+    $vlan_filters_config_file
+    $radius_filters_config_file
+    $switch_filters_config_file
+);
+
 run_as_pf();
 
 my $profiles = pf::IniFiles->new(-file => $profiles_config_file, -allowempty => 1);
@@ -56,6 +62,39 @@ for my $section ($profiles->Sections()) {
 }
 
 $profiles->RewriteConfig();
+
+my $vlan_filters = pf::IniFiles->new(-file => $vlan_filters_config_file, -allowempty => 1);
+
+for my $section ($vlan_filters->Sections()) {
+    if (my $filters = $vlan_filters->val($section, 'condition')) {
+        $filters =~ s/$sub_connection_type/$new_sub_connection_type{$1} \/\/ ''/ge;
+        $vlan_filters->newval($section, "condition", $filters);
+    }
+}
+
+$vlan_filters->RewriteConfig();
+
+my $switch_filters = pf::IniFiles->new(-file => $switch_filters_config_file, -allowempty => 1);
+
+for my $section ($switch_filters->Sections()) {
+    if (my $filters = $switch_filters->val($section, 'condition')) {
+        $filters =~ s/$sub_connection_type/$new_sub_connection_type{$1} \/\/ ''/ge;
+        $switch_filters->newval($section, "condition", $filters);
+    }
+}
+
+$switch_filters->RewriteConfig();
+
+my $radius_filters = pf::IniFiles->new(-file => $radius_filters_config_file, -allowempty => 1);
+
+for my $section ($radius_filters->Sections()) {
+    if (my $filters = $radius_filters->val($section, 'condition')) {
+        $filters =~ s/$sub_connection_type/$new_sub_connection_type{$1} \/\/ ''/ge;
+        $radius_filters->newval($section, "condition", $filters);
+    }
+}
+
+$radius_filters->RewriteConfig();
 
 =head1 AUTHOR
 
