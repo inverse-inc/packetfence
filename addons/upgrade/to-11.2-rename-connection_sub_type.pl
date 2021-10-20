@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-addons/upgrade/to-11.1-profile-rename-connection_sub_type.pl
+addons/upgrade/to-11.2-rename-connection_sub_type.pl
 
 =cut
 
 =head1 DESCRIPTION
 
-Rename connection_sub_type in profiles.conf
+Rename connection_sub_type in profiles.conf vlan_filters.conf switche_filters.conf and radius_filters.conf
 
 =cut
 
