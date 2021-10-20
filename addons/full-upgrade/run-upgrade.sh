@@ -71,7 +71,9 @@ function apt_upgrade_packetfence_package() {
   # TODO: allow to update full OS or only PF
   apt update
   if is_enabled $1; then
+    apt-mark hold packetfence-upgrade
     DEBIAN_FRONTEND=noninteractive apt upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y
+    apt-mark unhold packetfence-upgrade
   else
     DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
   fi
