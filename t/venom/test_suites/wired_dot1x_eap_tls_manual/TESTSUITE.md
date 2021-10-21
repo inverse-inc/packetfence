@@ -49,13 +49,26 @@ TODO:
 1. Check Internet access *on* node01 (common) = down
 
 ## Teardown steps
-TBD but identical to dot1x_eap_peap scenario (based on unreg_on_accounting_stop)
+1. Kill wpa_supplicant: an accounting stop will be generated if we wait
+   EAP-TIMEOUT on the switch (not the case here due to next task). Access is
+   still working until we run next task.
+1. Unconfigure switch port and dynamic VLAN on switch01
+   1. Generate a RADIUS Accounting stop message (sent by switch01) which update
+      `last_seen` attribute of node01 and unreg device based on
+      `unreg_on_accounting_stop`
+   1. Don't send a RADIUS Disconnect message
+1. Check online status of node01: should be offline due to accounting stop
+1. Check node status for node01
+1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
+1. Delete node by running `pfcron's node_cleanup` task
+1. Check node has been deleted
+1. Disable `node_cleanup` task
+1. Restart `pfcron` to take change into account
+1. Delete connection profile, EAPTLS source, OCSP profile and configuration
+1. Restart RADIUS services (common test suite)
 
-Revoke certificates to avoid issues when you try to create a certificate that
-already exists
+## Additional notes
 
-Name of CA, templates and certificates should be uniq. Not possible to revoke
-or remove CA or template.
-
-Currently, we replace built-in certificates by PKI certificates. The teardown
-doesn't put back built-in certificates.
+Reauthentication is done by switch based on `eap_reauth_period` setting to
+avoid node been unregistered when it reach unregdate and automatically deleted
+by `pfcron` without running teardown steps.
