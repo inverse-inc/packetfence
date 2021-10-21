@@ -34,19 +34,22 @@ BEGIN {
             type  => 'person_cleanup',
             setup => \&setup_person_cleanup,
             check => \&check_person_cleanup,
+            test_count => 5,
         },
     );
 }
+use List::Util qw(sum);
 
-use Test::More tests => 2 + scalar @TESTS * 2;;
+use Test::More tests => 2 + (sum map { $_->{test_count} // 2 } @TESTS );
 
-#This test will running last
+use DateTime;
 use Test::NoWarnings;
 use Net::SMTP::Server;
 use Net::SMTP::Server::Client;
 use Carp;
 use Utils;
 use pf::password;
+use pf::node qw(node_add);
 use IO::Handle;
 
 {
@@ -130,10 +133,55 @@ sub startSMTP {
 
 sub setup_person_cleanup {
     my ($ctx) = @_;
+    my $pid1  = Utils::test_pid();
+    my $pid2  = Utils::test_pid();
+    my $pid3  = Utils::test_pid();
+    my $pid4  = Utils::test_pid();
+    push @{ $ctx->{to_remove} }, $pid1, $pid3;
+    push @{ $ctx->{to_keep} }, $pid2, $pid4;
+    pf::person::person_add($pid1);
+    pf::person::person_add($pid2);
+    pf::person::person_add($pid3);
+    pf::person::person_add($pid4);
+    my $mac  = Utils::test_mac();
+    node_add($mac, pid => $pid4);
+    my $now = DateTime->now( time_zone => "local" );
+    pf::password::generate(
+        $pid2,
+        [
+            { type => 'valid_from', value => $now },
+            {
+                type  => 'expiration',
+                value => pf::config::access_duration("100s")
+            }
+        ],
+        undef, '0',
+        {}
+    );
+
+    pf::password::generate(
+        $pid3,
+        [
+            { type => 'valid_from', value => $now },
+            {
+                type  => 'expiration',
+                value => pf::config::access_duration("0s")
+            }
+        ],
+        undef, '0',
+        {}
+    );
 }
 
 sub check_person_cleanup {
     my ($ctx) = @_;
+    for my $pid (@{$ctx->{to_remove}}) {
+        ok(!pf::person::person_exist($pid), "person $pid does not exists");
+    }
+
+    for my $pid (@{$ctx->{to_keep}}) {
+        ok(pf::person::person_exist($pid), "person $pid exists");
+    }
 }
 
 =head1 AUTHOR
