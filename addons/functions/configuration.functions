@@ -44,7 +44,11 @@ function get_os_network() {
 }
 
 function get_ip_network() {
-  ipcalc $1 --class-prefix | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
+  if is_rpm_based; then
+    ipcalc $1 --class-prefix | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
+  else
+    ipcalc $1 | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
+  fi
 }
 
 function get_pf_ip_address() {
