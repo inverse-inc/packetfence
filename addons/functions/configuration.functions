@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function ipcalc_wrapper() {
+  if is_deb_based; then
+    ipcalc-ng $@
+  else
+    ipcalc $@
+  fi
+}
+
 function get_config_files() {
   files=`perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"'`
   files="$files /usr/local/pf/conf/pfconfig.conf"
@@ -35,18 +43,54 @@ function get_os_ip_address() {
 }
 
 function get_os_netmask() {
-  os_ip=`ip -br -o a show dev $1 | egrep -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+' | head -1`
-  ipcalc $os_ip | grep "^Netmask:" | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
+  os_ip=`get_os_ip_address $1`
+  ipcalc_wrapper $os_ip | grep "^Netmask:" | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
+}
+
+function get_os_network() {
+  ip_cidr=`ip -br -o a show dev $1 | egrep -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+' | head -1`
+  get_ip_network $ip_cidr
+}
+
+function get_ip_network() {
+  ipcalc_wrapper $1 --class-prefix | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
 }
 
 function get_pf_ip_address() {
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->val('interface $1', 'ip')" 
 }
 
+function pf_has_network() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/networks.conf') ; \$c->SectionExists('$1') ? exit(0) : exit(1)"
+}
+
 function rewrite_pf_ip_address() {
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'ip', '$2') ; \$c->RewriteConfig"
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $1', 'mask', '$3') ; \$c->RewriteConfig"
-  echo "Changed IP settings of $1 to $2/$3 in pf.conf"
+  int="$1"
+  old_ip=`get_pf_ip_address $int`
+  new_ip="$2"
+  new_mask="$3"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $int', 'ip', '$new_ip') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $int', 'mask', '$new_mask') ; \$c->RewriteConfig"
+  echo "Changed IP settings of $int to $new_ip/$new_mask in pf.conf"
+
+  
+  if [ "`get_ip_network $old_ip`" = "`get_ip_network $new_ip`" ]; then
+    # This will rewrite references to the old IP in layer 2 networks
+    network=`get_os_network $int`
+    if pf_has_network $network; then
+      echo "Rewriting gateway and DNS server of $network to point to $new_ip"
+      perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/networks.conf') ; \$c->setval('$network', 'gateway', '$new_ip') ; \$c->RewriteConfig"
+      perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/networks.conf') ; \$c->setval('$network', 'dns', '$new_ip') ; \$c->RewriteConfig"
+    fi
+
+    # This will rewrite references to the old IP in any routed networks
+    echo "Rewriting $old_ip to $new_ip in networks.conf"
+    old_ip_escaped=`echo "$old_ip" | sed 's/\./\\./g'`
+    sed -i 's/'$old_ip_escaped'/'$new_ip'/g' conf/networks.conf
+  else
+    echo "The new IP ($new_ip) is not in the same network as the previous IP address ($old_ip). This tool will not be able to migrate the configuration in networks.conf. Make sure you adjust it manually with the new IP settings after this script completes. Press enter to continue..."
+    read
+  fi
 }
 
 function rename_interface() {
