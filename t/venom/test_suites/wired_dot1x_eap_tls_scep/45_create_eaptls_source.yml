@@ -21,24 +21,24 @@ testcases:
             "actions": [
               {
                 "type": "set_role",
-                "value": "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}"
+                "value": "{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id}}"
               },
               {
                 "type": "set_access_duration",
-                "value": "{{.wired_dot1x_eap_tls_manual.sources.eaptls.access_duration}}"
+                "value": "{{.wired_dot1x_eap_tls_scep.sources.eaptls.access_duration}}"
               }
             ],
             "conditions": [
               {
                 "attribute": "radius_request.TLS-Client-Cert-Issuer",
                 "operator": "equals",
-                "value": "{{.wired_dot1x_eap_tls_manual.certs.ca.issuer}}"
+                "value": "{{.wired_dot1x_eap_tls_scep.certs.ca.issuer}}"
               }
             ]
           }
         ],
-        "description": "{{.wired_dot1x_eap_tls_manual.sources.eaptls.description}}",
-        "id": "{{.wired_dot1x_eap_tls_manual.sources.eaptls.name}}",
+        "description": "{{.wired_dot1x_eap_tls_scep.sources.eaptls.description}}",
+        "id": "{{.wired_dot1x_eap_tls_scep.sources.eaptls.name}}",
         "realms": "",
         "set_access_durations_action": null,
         "type": "EAPTLS"
