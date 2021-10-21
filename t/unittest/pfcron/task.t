@@ -38,7 +38,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 1 + scalar @TESTS * 2;;
+use Test::More tests => 2 + scalar @TESTS * 2;;
 
 #This test will running last
 use Test::NoWarnings;
@@ -84,15 +84,16 @@ END {
 is(SHM::getCount(), 0, "The SHM is set to zero");
 
 for my $test (@TESTS) {
+    my $ctx = {};
     my $task = pf::factory::pfcron::task->new(
         $test->{type},
         @{ $test->{args} // [] },
     );
     ok($task, "creating $test->{type}");
     my $setup = $test->{setup};
-    $setup->() if ($setup);
+    $setup->($ctx) if ($setup);
     $task->run();
-    $test->{check}->();
+    $test->{check}->($ctx);
 }
 
 sub startSMTP {
@@ -128,11 +129,11 @@ sub startSMTP {
 }
 
 sub setup_person_cleanup {
-
+    my ($ctx) = @_;
 }
 
 sub check_person_cleanup {
-
+    my ($ctx) = @_;
 }
 
 =head1 AUTHOR
