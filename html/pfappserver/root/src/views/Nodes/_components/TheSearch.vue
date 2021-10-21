@@ -98,7 +98,7 @@
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
               :confirm="$t('Delete Node?')"
-              @click="onRemove(item.id)"
+              @click="onRemove(item.mac)"
             >{{ $t('Delete') }}</base-button-confirm>
           </span>
         </template>
