@@ -40,7 +40,8 @@ function get_os_netmask() {
 }
 
 function get_os_network() {
-  get_ip_network `get_os_ip_address $1`
+  ip_cidr=`ip -br -o a show dev $1 | egrep -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+' | head -1`
+  get_ip_network $ip_cidr
 }
 
 function get_ip_network() {
