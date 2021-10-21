@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"golang.org/x/net/html"
 )
@@ -39,6 +40,7 @@ func NewProxy(ctx context.Context) *Proxy {
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	p.Ctx = ctx
+
 	// Needs to be splitted but dirty patch first
 	//host := r.Host
 	previewStatic := false
@@ -63,10 +65,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var portal pfconfigdriver.PfConfCaptivePortal
+	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
+
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
-		Host:   "127.0.0.1",
+		Host:   portal.IpAddress,
 	})
+
 	// It's not a file preview
 	if previewStatic {
 		rp.ModifyResponse = p.ServeStatic
