@@ -4,7 +4,8 @@ testcases:
     steps:
       - type: exec
         script: |
-          /usr/bin/rsync -avz {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}} {{.ssh_user}}@{{.node01_mgmt_ip}}:/home/vagrant/
+          /usr/bin/rsync -avz -e "ssh -o StrictHostKeyChecking=no" {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}} \
+          {{.ssh_user}}@{{.node01_mgmt_ip}}:/home/vagrant/
 
   - name: move_certificates
     steps:
