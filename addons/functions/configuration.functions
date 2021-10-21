@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function ipcalc_wrapper() {
+  if is_deb_based; then
+    ipcalc-ng $@
+  else
+    ipcalc $@
+  fi
+}
+
 function get_config_files() {
   files=`perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::file_paths -e 'print join("\n", @pf::file_paths::stored_config_files) . "\n"'`
   files="$files /usr/local/pf/conf/pfconfig.conf"
@@ -36,7 +44,7 @@ function get_os_ip_address() {
 
 function get_os_netmask() {
   os_ip=`get_os_ip_address $1`
-  ipcalc $os_ip | grep "^Netmask:" | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
+  ipcalc_wrapper $os_ip | grep "^Netmask:" | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
 }
 
 function get_os_network() {
@@ -45,11 +53,7 @@ function get_os_network() {
 }
 
 function get_ip_network() {
-  if is_rpm_based; then
-    ipcalc $1 --class-prefix | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
-  else
-    ipcalc $1 | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
-  fi
+  ipcalc_wrapper $1 --class-prefix | grep '^Network' | egrep -o '([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)'
 }
 
 function get_pf_ip_address() {
