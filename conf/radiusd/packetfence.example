@@ -134,6 +134,9 @@ server packetfence {
 		#
 		pap
 
+		Autz-Type Status-Server {
+			ok
+		}
 	}
 
 
