@@ -40,7 +40,7 @@ func testSqlCountTests(t *testing.T, tests []sqlCountTest) {
 		}
 
 		if count != test.expectedCount {
-			t.Fatalf("%s: found %d entries instead of %d", test.name, count, test.expectedCount)
+			t.Errorf("%s: found %d entries instead of %d", test.name, count, test.expectedCount)
 		}
 	}
 }
