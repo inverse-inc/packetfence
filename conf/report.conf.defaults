@@ -1782,12 +1782,12 @@ base_table=activation
 # The columns to select
 columns=activation.pid as "Owner", activation.mac "MAC Address", activation.activation_code as "Activation code", activation.expiration as "Code expiration", activation.unregdate as "Unreg date", activation.status as "Status", activation.portal as "Connection profile"
 searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
-date_field=expiration
 # Display only the email registration
 base_conditions=activation.type:=:guest
 base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
+order_fields=-activation.expiration
 
 [User::Registration::SMS]
 type=abstract
@@ -1798,7 +1798,6 @@ columns=activation.pid as "Owner", activation.mac "MAC Address", sms_carrier.nam
 searches=string:Owner:activation.pid,string:MAC Address:activation.mac,string:Activation Code:activation.activation_code,string:Status:activation.status,string:Connection Profile:activation.portal
 # Left join sms_carrier
 joins==>{activation.carrier_id=sms_carrier.id} sms_carrier|sms_carrier
-date_field=expiration
 # Display only the sms registration
 base_conditions=activation.type:=:sms
 base_conditions_operator=all
