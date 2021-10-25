@@ -44,6 +44,7 @@ Depends: ${misc:Depends}, vlan,
 # freeradius
  freeradius (>= 3.0.25), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
+ eapoltest,
 # systemd sd_notify support
  liblinux-systemd-daemon-perl,
 # binary
