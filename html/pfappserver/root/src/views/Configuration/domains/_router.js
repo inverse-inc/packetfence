@@ -4,9 +4,10 @@ import RealmsStoreModule from '../realms/_store'
 
 export const useRouter = $router => {
   return {
-    goToCollection: (params, autoJoinDomain) => {
-      if (autoJoinDomain)
-        $router.push({ name: 'domains', params: { autoJoinDomain: params } })
+    goToCollection: params => {
+      const { actionKey, id } = params
+      if (actionKey)
+        $router.push({ name: 'domains', params: { autoJoinDomain: id } })
       else
         $router.push({ name: 'domains' })
     },

@@ -61,7 +61,7 @@
           <base-button-join
             :id="item.id"
             size="sm" variant="outline-light" toggle-class="text-wrap text-dark"
-            :auto-join="autoJoinDomain && autoJoinDomain.id === item.id" />
+            :auto-join="autoJoinDomain && autoJoinDomain === item.id" />
         </template>
         <template #head(buttons)>
           <base-search-input-columns
@@ -118,7 +118,7 @@ const components = {
 
 const props = {
   autoJoinDomain: { // from DomainView, through router
-    type: Object,
+    type: String,
     default: null
   }
 }

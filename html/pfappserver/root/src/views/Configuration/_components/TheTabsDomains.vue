@@ -34,7 +34,7 @@ const props = {
     default: Object.keys(tabs)[0]
   },
   autoJoinDomain: {
-    type: Object
+    type: String
   }
 }
 
