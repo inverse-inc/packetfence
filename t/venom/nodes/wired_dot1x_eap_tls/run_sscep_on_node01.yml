@@ -29,7 +29,7 @@ testcases:
         attributes = req_attributes
         
         [ req_attributes ]
-        challengePassword = secret
+        challengePassword = {{.wired_dot1x_eap_tls_manual.certs.user.scep_challenge_password}}
         
         # only CN is kept by pfpki
         [ dn ]
