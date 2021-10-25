@@ -348,7 +348,7 @@ wired_dot1x_eap_tls_manual.ocsp.timeout: 0
 wired_dot1x_eap_tls_manual.ocsp.use_nonce: yes
 
 # Roles
-wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id: dot1x_eap_tls
+wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id: dot1x_eap_tls_manual
 wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
 wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id: 100
 
@@ -423,7 +423,7 @@ wired_dot1x_eap_tls_scep.ocsp.timeout: 0
 wired_dot1x_eap_tls_scep.ocsp.use_nonce: yes
 
 # Roles
-wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id: dot1x_eap_tls
+wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id: dot1x_eap_tls_scep
 wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
 wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.vlan_id: 100
 
