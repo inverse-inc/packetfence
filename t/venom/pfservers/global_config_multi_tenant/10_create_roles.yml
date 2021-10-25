@@ -61,7 +61,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: create_dot1x_eap_tls_pfpki_role
+- name: create_wired_dot1x_eap_tls_manual.role
   steps:
   - type: http
     method: POST
@@ -69,9 +69,9 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}",
+        "id":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}",
         "max_nodes_per_pid":0,
-        "notes":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes}}"
+        "notes":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.notes}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

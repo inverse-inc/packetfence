@@ -1,0 +1,50 @@
+name: Create EAP-TLS source
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_eaptls_source
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "administration_rules": null,
+        "authentication_rules": [
+          {
+            "id": "check_issuer",
+            "description": null,
+            "match": "all",
+            "actions": [
+              {
+                "type": "set_role",
+                "value": "{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id}}"
+              },
+              {
+                "type": "set_access_duration",
+                "value": "{{.wired_dot1x_eap_tls_scep.sources.eaptls.access_duration}}"
+              }
+            ],
+            "conditions": [
+              {
+                "attribute": "radius_request.TLS-Client-Cert-Issuer",
+                "operator": "equals",
+                "value": "{{.wired_dot1x_eap_tls_scep.certs.ca.issuer}}"
+              }
+            ]
+          }
+        ],
+        "description": "{{.wired_dot1x_eap_tls_scep.sources.eaptls.description}}",
+        "id": "{{.wired_dot1x_eap_tls_scep.sources.eaptls.name}}",
+        "realms": "",
+        "set_access_durations_action": null,
+        "type": "EAPTLS"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

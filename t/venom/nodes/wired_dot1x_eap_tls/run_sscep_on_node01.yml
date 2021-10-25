@@ -1,0 +1,69 @@
+name: Run SSCEP on node01
+testcases:
+- name: create_temp_directory
+  steps:
+    - type: exec
+      script: "mktemp -d"
+      info: '{{.result.systemout}}'
+      vars:
+        temp_dir:
+          from: result.systemout
+
+- name: generate_private_key_without_passphrase
+  steps:
+    - type: exec
+      script: |
+        ( _fd="{{.create_temp_directory.temp_dir}}/client.key" ; _len="2048" ; \
+        openssl genrsa -out ${_fd} ${_len} )
+
+- name: generate_csr_config
+  steps:
+    - type: exec
+      script: |
+        cat > {{.create_temp_directory.temp_dir}}/client.cnf << EOF
+        [req]
+        default_bits = 2048
+        prompt = no
+        default_md = sha256
+        distinguished_name = dn
+        attributes = req_attributes
+        
+        [ req_attributes ]
+        challengePassword = {{.wired_dot1x_eap_tls_manual.certs.user.scep_challenge_password}}
+        
+        # only CN is kept by pfpki
+        [ dn ]
+        C=FR
+        ST=Radius
+        L=Somewhere
+        O=Example Inc.
+        CN={{.wired_dot1x_eap_tls_scep.certs.user.cn}}
+        EOF
+        
+- name: generate_csr_with_challenge
+  steps:
+    - type: exec
+      script: |
+        ( _fd="{{.create_temp_directory.temp_dir}}/client.key" ; _fd_csr="{{.create_temp_directory.temp_dir}}/client.csr" ; \
+        openssl req -out ${_fd_csr} -new -key ${_fd} -config {{.create_temp_directory.temp_dir}}/client.cnf )
+
+- name: get_ca_cert_using_sscep
+  steps:
+    - type: exec
+      script: |
+        sscep getca -u http://{{.pfserver_mgmt_ip}}/scep/{{.wired_dot1x_eap_tls_scep.templates.user.name}} \
+        -c {{.create_temp_directory.temp_dir}}/ca.pem -i {{.wired_dot1x_eap_tls_scep.certs.ca.cn}} -v -d
+
+- name: get_client_cert_using_sscep
+  steps:
+    - type: exec
+      script: |
+        sscep enroll -c {{.create_temp_directory.temp_dir}}/ca.pem  -k {{.create_temp_directory.temp_dir}}/client.key \
+        -r {{.create_temp_directory.temp_dir}}/client.csr \
+        -u http://{{.pfserver_mgmt_ip}}/scep/{{.wired_dot1x_eap_tls_scep.templates.user.name}} -l {{.create_temp_directory.temp_dir}}/client.pem -v -d -S sha1 -E aes
+
+- name: move_certificates
+  steps:
+    - type: exec
+      script: |
+        sudo cp -v {{.create_temp_directory.temp_dir}}/* /etc/wpa_supplicant/eap_tls/
