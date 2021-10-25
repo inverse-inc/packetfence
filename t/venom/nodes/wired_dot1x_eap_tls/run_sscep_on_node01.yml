@@ -37,7 +37,7 @@ testcases:
         ST=Radius
         L=Somewhere
         O=Example Inc.
-        CN={{.wired_dot1x_eap_tls_manual.certs.user.cn}}
+        CN={{.wired_dot1x_eap_tls_scep.certs.user.cn}}
         EOF
         
 - name: generate_csr_with_challenge
