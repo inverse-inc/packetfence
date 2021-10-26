@@ -5,6 +5,18 @@
     outline: 0;
 }
 
+.table-no-overflow {
+  th > div:not(.dropdown), td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  td > a.btn-link {
+    padding: 0;
+    border: 0;
+  }
+}
+
 .table td,
 .table thead th {
     // Default of bootstrap is to vertically align to the top

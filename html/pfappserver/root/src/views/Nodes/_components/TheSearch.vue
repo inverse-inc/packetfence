@@ -16,7 +16,7 @@
         :sort-desc="sortDesc"
         @sort-changed="setSort"
         @row-clicked="goToItem"
-        class="mb-0"
+        class="mb-0 table-no-overflow"
         show-empty
         no-local-sorting
         sort-icon-left
