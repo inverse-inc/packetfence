@@ -216,6 +216,14 @@ CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/usr/sbin/winbindd -s /
     group PacketFence
     if changed ppid then alert
     depends on packetfence-winbind
+
+CHECK PROGRAM packetfence-ntlm-[% domain %] with path "/usr/bin/timeout 5 /usr/sbin/ip netns exec [% domain %] /usr/sbin/chroot /chroots/[% domain %]/ /usr/bin/wbinfo -P"
+    group PacketFence
+    # There is no need to start the program, the winbindd-wrapper takes care of it if this gets stopped
+    start program = "/bin/true" with timeout 60 seconds
+    stop program  = "/bin/bash -c 'export pid=`cat /usr/local/pf/var/run/[% domain %]/winbindd.pid` ; pkill -9 -P $pid ; kill -9 $pid'"
+    if status == 124 for 3 cycles then restart # (30 seconds being down)
+    every 5 cycles # every 10 seconds (if 1 cycle is 2 seconds)
 [% END %]
 
 [% END %]
