@@ -92,7 +92,7 @@ require (
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
-	golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44
+	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1
 	golang.org/x/text v0.3.6
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1
