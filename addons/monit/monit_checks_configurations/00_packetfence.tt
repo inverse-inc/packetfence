@@ -217,7 +217,7 @@ CHECK PROCESS packetfence-winbind-[% domain %] MATCHING "/usr/sbin/winbindd -s /
     if changed ppid then alert
     depends on packetfence-winbind
 
-CHECK PROGRAM packetfence-ntlm-[% domain %] with path "/usr/bin/timeout 5 /usr/sbin/chroot /chroots/[% domain %]/ /usr/bin/ntlm_auth --username=df3e129a722a865cc3539b4e69507bad --password="
+CHECK PROGRAM packetfence-ntlm-[% domain %] with path "/usr/bin/timeout 5 /usr/sbin/ip netns exec [% domain %] /usr/sbin/chroot /chroots/[% domain %]/ /usr/bin/wbinfo -t"
     group PacketFence
     # There is no need to start the program, the winbindd-wrapper takes care of it if this gets stopped
     start program = "/bin/true" with timeout 60 seconds
