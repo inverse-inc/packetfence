@@ -22,7 +22,6 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/dnstap"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/erratic"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/errors"
-	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/etcd"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/file"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/forward"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/grpc"

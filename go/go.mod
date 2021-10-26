@@ -17,7 +17,6 @@ require (
 	github.com/cenkalti/backoff/v4 v4.1.0
 	github.com/cheekybits/genny v1.0.0 // indirect
 	github.com/coredns/caddy v1.1.0
-	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dnstap/golang-dnstap v0.2.2
@@ -42,8 +41,6 @@ require (
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
 	github.com/gorilla/schema v1.1.0
 	github.com/gorilla/websocket v1.4.1
-	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.11.3 // indirect
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/hanwen/go-fuse/v2 v2.0.3
 	github.com/hashicorp/go-syslog v1.0.0
@@ -87,9 +84,6 @@ require (
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/ti-mo/netfilter v0.2.0
-	github.com/tmc/grpc-websocket-proxy v0.0.0-20200122045848-3419fae592fc // indirect
-	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
-	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1
