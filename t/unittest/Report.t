@@ -122,8 +122,6 @@ BEGIN {
                     limit      => 100,
                     sql_limit  => 101,
                     order      => 'pid',
-                    start_date => '2012-12-25',
-                    end_date   => '2013-12-25',
                     where      => {
                         'activation.pid' => { '=' => 'bob' }
                     },
