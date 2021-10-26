@@ -249,12 +249,20 @@ const setup = (props, context) => {
     isFindIntermediateCas
   } = useForm(form, props, context)
 
+  const { root: { $store } = {} } = context
+
   const onSaveWrapper = () => {
     const closeAfter = actionKey.value
     onSave()
       .then(() => {
-        if (closeAfter)
-          doHideEdit()
+          const { useStore } = collection
+          const { getItem } = useStore($store)
+          getItem(form.value.certificate)
+            .then(item => form.value = item)
+            .finally(() => {
+              if (closeAfter)
+                doHideEdit()
+            })
       })
   }
 

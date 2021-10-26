@@ -51,12 +51,6 @@ const useTab = (props, context) => {
 
   const doReset = doInit
 
-  const doSave = () => {
-    $store.dispatch('$_sources/updateAuthenticationSource', form.value).then(() => {
-      // noop
-    })
-  }
-
   watch(props, () => doInit(), { deep: true, immediate: true })
 
   return {
@@ -69,8 +63,7 @@ const useTab = (props, context) => {
     isChainValid,
 
     doInit,
-    doReset,
-    doSave
+    doReset
   }
 }
 
