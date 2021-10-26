@@ -90,7 +90,7 @@ function rewrite_pf_ip_address() {
     # This will rewrite references to the old IP in any routed networks
     echo "Rewriting $old_ip to $new_ip in networks.conf"
     old_ip_escaped=`echo "$old_ip" | sed 's/\./\\./g'`
-    sed -i 's/'$old_ip_escaped'/'$new_ip'/g' /usr/local/pf/conf/networks.conf
+    sed -i 's/=\s*'$old_ip_escaped'\s*$/='$new_ip'/g' /usr/local/pf/conf/networks.conf
   else
     echo "The new IP ($new_ip) is not in the same network as the previous IP address ($old_ip). This tool will not be able to migrate the configuration in networks.conf. Make sure you adjust it manually with the new IP settings after this script completes. Press enter to continue..."
     read
