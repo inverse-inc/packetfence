@@ -18,7 +18,6 @@ our (@CreateBindTests, @IsaTests);
 our (@ValidateQueryTests, @ValidateFieldsTests);
 our (@ValidateInputTests, @MetaForOptions);
 our (%defaultAbstractOptions, @DefaultReports);
-use Test2::Tools::Compare qw(array hash item field end match);
 
 BEGIN {
     #include test libs
@@ -32,14 +31,13 @@ BEGIN {
     use pf::file_paths qw(
         $report_default_config_file
     );
+    use Test2::Tools::Compare qw(array hash item field end match);
     my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
     @DefaultReports = $defaults->Sections();
     %defaultAbstractOptions = (
         offset     => 0,
         limit      => 25,
         sql_limit  => 26,
-        start_date => undef,
-        end_date   => undef,
 #        where      => undef,
     );
     @BuildQueryOptionsTests = (
@@ -50,6 +48,8 @@ BEGIN {
                 200,
                 {
                     %defaultAbstractOptions,
+                    start_date => undef,
+                    end_date => undef,
                 }
             ],
             check => array {
@@ -68,6 +68,8 @@ BEGIN {
             out => [
                 200,
                 {
+                    start_date => undef,
+                    end_date => undef,
                     %defaultAbstractOptions,
                     offset     => 100,
                     limit      => 100,
@@ -91,6 +93,7 @@ BEGIN {
                     limit      => 100,
                     sql_limit  => 101,
                     start_date => '2012-12-25',
+                    end_date => undef,
                 }
             ],
             msg => 'just start_date limit, cursor',
