@@ -21,7 +21,11 @@
                         <key>PayloadDisplayName</key>
                         <string>Wi-Fi ([% provisioner.ssid %])</string>
                         <key>PayloadIdentifier</key>
+                        [% IF is_ios %]
+                        <string>ssid.[% reverse_fqdn %]</string>
+                        [% ELSE %]
                         <string>[% reverse_fqdn %]</string>
+                        [% END %]
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
@@ -43,7 +47,11 @@
         <key>PayloadDisplayName</key>
         <string>[% provisioner.description %]</string>
         <key>PayloadIdentifier</key>
+        [% IF is_ios %]
+        <string>profile.[% reverse_fqdn %]</string>
+        [% ELSE %]
         <string>[% reverse_fqdn %]</string>
+        [% END %]
         <key>PayloadOrganization</key>
         <string>[% provisioner.company %]</string>
         <key>PayloadRemovalDisallowed</key>
