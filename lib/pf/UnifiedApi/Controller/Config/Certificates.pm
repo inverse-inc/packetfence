@@ -350,6 +350,21 @@ sub lets_encrypt_replace {
     # Explicitely enable Let's Encrypt if using this API call
     pf::ssl::lets_encrypt::resource_state($self->stash->{certificate_id}, "enabled");
 
+    my @cas;
+    if($data->{ca}) {
+        my @texts = split_pem($data->{ca});
+        my @x509s;
+        for my $t (@texts) {
+            my $x509 = pf::ssl::x509_from_string($t);
+	    if(!$x509) {
+                $self->render_error(422, "Failed to parse CA certificate");	    
+		return;
+	    }
+            push @x509s, $x509;
+        }
+        push @cas, @x509s;
+    }
+
     my ($result, $bundle) = pf::ssl::lets_encrypt::obtain_bundle($config->{key_file}, $data->{common_name});
 
     unless($result) {
@@ -363,6 +378,7 @@ sub lets_encrypt_replace {
     my %to_install = (
         cert_file => join("\n", map { $_->as_string() } ($cert, @$intermediate_cas)),
         key_file => $key_str,
+        ca_file => ($data->{ca} ? join("", map {$_->as_string()} @cas) : undef),
     );
     $to_install{bundle_file} = join("\n", $to_install{cert_file}, $to_install{key_file});
 
