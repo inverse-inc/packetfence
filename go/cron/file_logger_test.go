@@ -2,8 +2,8 @@ package maint
 
 import (
 	"io/ioutil"
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestFileLogger(t *testing.T) {
@@ -12,30 +12,30 @@ func TestFileLogger(t *testing.T) {
 		t.Fatalf("Cannot create tempfile: %s", err.Error())
 	}
 
-    content := "content\n"
+	content := "content\n"
 
 	name := tmpfile.Name()
 	tmpfile.Close()
-    defer os.Remove(name)
+	defer os.Remove(name)
 	logger := NewFileLogger(
 		map[string]interface{}{
-			"type":            "file_logger",
-			"status":          "enabled",
-			"description":     "Test",
-			"schedule": "@every 1m",
-			"outfile": name,
-			"content": "content\n",
+			"type":        "file_logger",
+			"status":      "enabled",
+			"description": "Test",
+			"schedule":    "@every 1m",
+			"outfile":     name,
+			"content":     "content\n",
 		},
 	)
 
 	logger.Run()
 
 	b, err := os.ReadFile(name)
-    if err != nil {
+	if err != nil {
 		t.Fatalf("Cannot read from tempfile %s: %s", name, err.Error())
 	}
 
-    if content != string(b) {
-        t.Fatalf("File is not append content to")
-    }
+	if content != string(b) {
+		t.Fatalf("File is not append content to")
+	}
 }
