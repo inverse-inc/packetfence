@@ -22,6 +22,7 @@ BEGIN {
     #Module for overriding configuration paths
     use setup_test_config;
     use File::Temp qw();
+    mkdir($pf::file_paths::captiveportal_profile_templates_path);
     $dir = File::Temp->newdir(
         DIR => $pf::file_paths::captiveportal_profile_templates_path,
         CLEANUP => 0,
