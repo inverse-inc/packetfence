@@ -785,6 +785,7 @@ fi
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
+%attr(0644, root, root) /etc/systemd/system/logrotate.service.d/override.conf
 %attr(0644, root, root) /etc/systemd/system/monit.service
 
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
