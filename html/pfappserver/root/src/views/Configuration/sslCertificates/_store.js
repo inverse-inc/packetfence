@@ -103,7 +103,8 @@ const actions = {
     const request = {
       id: data.id,
       lets_encrypt: data.lets_encrypt,
-      common_name: data.common_name
+      common_name: data.common_name,
+      ca: data.ca
     }
     commit('ITEM_REQUEST')
     return api.createLetsEncryptCertificate(request).then(response => {
