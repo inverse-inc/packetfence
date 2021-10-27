@@ -30,6 +30,8 @@
                         <key>PayloadIdentifier</key>
                         [% IF for_android %]
                         <string>wpa.[% reverse_fqdn %]</string>
+			[% ELSIF for_ios %]
+                        <string>ssid.[% reverse_fqdn %]</string>
                         [% ELSE %]
                         <string>[% reverse_fqdn %]</string>
                         [% END %]
@@ -60,7 +62,11 @@
                         <key>PayloadDisplayName</key>
                         <string>[% cert_cn %]</string>
                         <key>PayloadIdentifier</key>
+			[% IF for_ios %]
+                        <string>client_certificate.[% reverse_fqdn %]</string>
+			[% ELSE %]
                         <string>[% reverse_fqdn %]</string>
+			[% END %]
                         <key>PayloadOrganization</key>
                         <string>[% provisioner.company %]</string>
                         <key>PayloadType</key>
@@ -85,7 +91,9 @@
                         <key>PayloadDisplayName</key>
                         <string>[% server_cn %]</string>
                         <key>PayloadIdentifier</key>
-                        [% IF for_android %]
+                        [% IF for_ios %]
+                        <string>server_certificate.[% reverse_fqdn %]</string>
+                        [% ELSIF for_android %]
                         <string>wpa.[% reverse_fqdn %]</string>
                         [% ELSE %]
                         <string>[% reverse_fqdn %]</string>
@@ -114,7 +122,9 @@
                         <key>PayloadDisplayName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadIdentifier</key>
-                        [% IF for_android %]
+			[% IF is_ios %]
+                        <string>ca_certificate.[% reverse_fqdn %]</string>
+                        [% ELSIF for_android %]
                         <string>wpa.[% reverse_fqdn %]</string>
                         [% ELSE %]
                         <string>[% reverse_fqdn %]</string>
@@ -134,7 +144,9 @@
         <key>PayloadDisplayName</key>
         <string>[% provisioner.description %]</string>
         <key>PayloadIdentifier</key>
-	[% IF for_android %]
+	[% IF for_ios %]
+	<string>profile.[% reverse_fqdn %]</string>
+	[% ELSIF for_android %]
 	<string>wpa.[% reverse_fqdn %]</string>
 	[% ELSE %]
 	<string>[% reverse_fqdn %]</string>
