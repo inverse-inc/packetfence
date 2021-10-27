@@ -56,6 +56,7 @@ sub index : Path : Args(0) {
         cert_cn          => $pki_session->{certificate_cn},
         for_windows      => ($provisioner->{type} eq 'windows'),
         for_android      => ($provisioner->{type} eq 'android'),
+        for_ios          => ($provisioner->{type} eq 'mobileconfig'),
         ca_cn            => $pki_session->{ca_cn},
         server_cn        => $pki_session->{server_cn},
         server_content   => $pki_session->{server_content},
