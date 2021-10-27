@@ -67,25 +67,28 @@ func wrapJob(logger log.PfLogger, j string) cron.Job {
 	var ch = make(chan struct{}, 1)
 	ch <- struct{}{}
 	return cron.FuncJob(func() {
-		if atomic.LoadUint32(&processJobs) == 0 {
-			return
-		}
-
 		defer func() {
 			if r := recover(); r != nil {
 				logger.Error(fmt.Sprintf("Job %s panic: %s", j, r))
 			}
 		}()
 
+		if atomic.LoadUint32(&processJobs) == 0 {
+			logger.Info("Not processing " + j)
+			return
+		}
+
 		select {
 		case v := <-ch:
 			if job := maint.GetJob(j, maint.GetMaintenanceConfig(context.Background())); job != nil {
 				logger.Info("Running " + j)
 				job.Run()
+			} else {
+				logger.Error("Cannot create job " + j)
 			}
 			ch <- v
 		default:
-			logger.Info(j + " Skipped")
+			logger.Info(" Skipped " + j)
 		}
 	})
 }
