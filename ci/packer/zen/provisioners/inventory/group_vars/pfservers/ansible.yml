@@ -1,4 +1,0 @@
----
-# necessary to switch from pf-admin user to root when running Ansible
-# this password is defined during preseed
-ansible_become_password: p@ck3tf3nc3
