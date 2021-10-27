@@ -1,0 +1,51 @@
+name: Pfcron
+testcases:
+- name: Cron Job was ran successfully
+  steps:
+
+  - type: exec
+    script: 'systemctl stop packetfence-pfcron'
+
+  - type: exec
+    script: 'cp "{{.pfserver_root_dir}}/t/data/pfcron-test.conf.test" "{{.pfserver_conf_dir}}/pfcron.conf"'
+
+  - type: exec
+    script: '{{.pfserver_pfcmd}} configreload'
+
+  - type: exec
+    script: 'rm -f {{.venom.testsuite.workdir}}/pfcron-test.log'
+
+  - type: exec
+    script: 'systemctl start packetfence-pfcron'
+
+  - type: readfile
+    path: pfcron-test.log
+    assertions:
+      - result.err ShouldNotBeEmpty
+
+  - type: exec
+    script: 'sleep 6'
+
+  - type: readfile
+    path: pfcron-test.log
+    assertions:
+      - result.content ShouldContainSubstring bob
+
+  - type: exec
+    script: 'sleep 6'
+
+  - type: readfile
+    path: pfcron-test.log
+    assertions:
+      - result.content ShouldContainSubstring bobbob
+
+- name: Teardown
+  steps:
+  - type: exec
+    script: 'systemctl stop packetfence-pfcron'
+
+  - type: exec
+    script: 'cp "{{.pfserver_conf_dir}}/pfcron.conf.example" "{{.pfserver_conf_dir}}/pfcron.conf"'
+
+  - type: exec
+    script: '{{.pfserver_pfcmd}} configreload'

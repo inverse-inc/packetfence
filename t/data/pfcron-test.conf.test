@@ -1,0 +1,7 @@
+[file_logger]
+type=file_logger
+status=enabled
+description=Task to data to a file
+content=bob
+outfile=/usr/local/pf/t/venom/test_suites/pfcron/pfcron-test.log
+schedule=@every 5s
