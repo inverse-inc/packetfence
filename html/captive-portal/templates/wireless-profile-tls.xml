@@ -122,7 +122,7 @@
                         <key>PayloadDisplayName</key>
                         <string>[% ca_cn %]</string>
                         <key>PayloadIdentifier</key>
-			[% IF is_ios %]
+                        [% IF for_ios %]
                         <string>ca_certificate.[% reverse_fqdn %]</string>
                         [% ELSIF for_android %]
                         <string>wpa.[% reverse_fqdn %]</string>
