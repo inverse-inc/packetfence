@@ -879,6 +879,7 @@ sub vpn {
     return $return if (ref($return) eq 'ARRAY');
 
     if (defined($mac)) {
+        Log::Log4perl::MDC->put( 'mac', $mac );
         my $role_obj = new pf::role::custom();
 
         my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
