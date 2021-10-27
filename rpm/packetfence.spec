@@ -482,6 +482,7 @@ cp addons/*.sh %{buildroot}/usr/local/pf/addons/
 %{__install} -D packetfence.rsyslog-drop-in.service %{buildroot}/etc/systemd/system/rsyslog.service.d/packetfence.conf
 %{__install} -D packetfence.monit-drop-in.service %{buildroot}/etc/systemd/system/monit.service
 %{__install} -D packetfence.journald %{buildroot}%{systemddir}/journald.conf.d/01-packetfence.conf
+%{__install} -D packetfence.logrotate-drop-in.service %{buildroot}/etc/systemd/system/logrotate.service.d/override.conf
 cp -r sbin %{buildroot}/usr/local/pf/
 cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
