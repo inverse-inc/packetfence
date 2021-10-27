@@ -25,6 +25,7 @@ source "virtualbox-iso" "debian-11" {
     "<esc><wait>",
     "auto <wait>",
     "net.ifnames=0 <wait>",
+    "apparmor=0 <wait>",
     "install <wait>",
     "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
     "kbd-chooser/method=us <wait>",
