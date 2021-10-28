@@ -19,13 +19,6 @@ use warnings;
 
 use base ('pf::Switch::Cisco::WLC');
 
-use Net::SNMP;
-use Try::Tiny;
-use pf::constants;
-use pf::util;
-use pf::node;
-use pf::util::radius qw(perform_coa);
-
 sub description { 'Meraki cloud controller V2' }
 
 =head2 returnRoleAttribute
