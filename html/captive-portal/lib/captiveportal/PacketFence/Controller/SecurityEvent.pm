@@ -9,6 +9,7 @@ use pf::log;
 use pf::web;
 use pf::node;
 use pf::util;
+use pf::constants::node qw($STATUS_REGISTERED $STATUS_UNREGISTERED);
 
 BEGIN { extends 'captiveportal::Base::Controller'; }
 
@@ -34,6 +35,7 @@ sub index : Path('/security_event') : Args(0) {
     my $mac           = $portalSession->clientMac;
     my $logger        = $c->log;
     my $security_event = security_event_view_top($mac);
+    my $node_info = node_view($mac);
     if ($security_event) {
 
         $c->stash->{'user_agent'} = $c->request->user_agent;
@@ -70,7 +72,6 @@ sub index : Path('/security_event') : Args(0) {
         # Retrieve security_event template name
         my $subTemplate = $self->getSubTemplate( $c, $class->{'template'} );
         $logger->info("Showing the $subTemplate  remediation page.");
-        my $node_info = node_view($mac);
         $c->stash(
             'auto_enable'  => ($class->{'auto_enable'} eq 'Y'),
             'enable_text'  => $class->{button_text},
@@ -85,7 +86,12 @@ sub index : Path('/security_event') : Args(0) {
         $c->detach;
     }
     else {
-        $c->response->redirect("/access");
+        if($node_info->{status} eq $STATUS_REGISTERED) {
+            $c->response->redirect("/access");
+        }
+        else {
+            $c->response->redirect("/captive-portal");
+        }
     }
 }
 
@@ -111,6 +117,7 @@ sub release : Path('/security_event/release') :Local {
     get_logger->info("Will try to close security_event $security_event_id for $mac");
     my $grace = security_event_close($mac,$security_event_id);
     get_logger->info("Closing of security_event $security_event_id for $mac returned $grace");
+    my $node_info = node_view($mac);
 
     if ($grace != -1) {
         my $count = security_event_count($mac);
@@ -124,7 +131,12 @@ sub release : Path('/security_event/release') :Local {
             pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
         }
 
-        $c->response->redirect("/access");
+        if($node_info->{status} eq $STATUS_REGISTERED) {
+            $c->response->redirect("/access");
+        }
+        else {
+            $c->response->redirect("/captive-portal");
+        }
     } else {
         get_logger->info("$mac reached maximum security_events");
         $self->showError($c, "error: max re-enables reached");
