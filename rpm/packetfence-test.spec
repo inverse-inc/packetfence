@@ -107,7 +107,8 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/UnifiedApi/Search/Builder/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/cmd/pf/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/provisioner/*.t
-%attr(0755, -, -)    /usr/local/pf/t/unittest/pfmon/task/*.t
+%attr(0755, -, -)    /usr/local/pf/t/unittest/pfcron/*.t
+%attr(0755, -, -)    /usr/local/pf/t/unittest/pfcron/task/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/Authentication/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/Authentication/Source/*.t
 
