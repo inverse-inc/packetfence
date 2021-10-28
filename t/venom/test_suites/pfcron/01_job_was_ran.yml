@@ -19,9 +19,7 @@ testcases:
     script: 'systemctl start packetfence-pfcron'
 
   - type: readfile
-    path: {{.venom.testsuite.workdir}}/pfcron-test.log
-    assertions:
-      - result.err ShouldNotBeEmpty
+    path: pfcron-test.log
 
   - type: exec
     script: 'sleep 6'
