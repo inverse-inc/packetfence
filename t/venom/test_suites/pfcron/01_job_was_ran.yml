@@ -13,30 +13,26 @@ testcases:
     script: '{{.pfserver_pfcmd}} configreload'
 
   - type: exec
-    script: 'rm -f {{.venom.testsuite.workdir}}/pfcron-test.log'
+    script: 'rm -f /tmp/pfcron-test.log'
 
   - type: exec
     script: 'systemctl start packetfence-pfcron'
 
-  # use relative path due to https://github.com/ovh/venom/issues/435
-  - type: readfile
-    path: pfcron-test.log
+  - type: exec
+    script: 'sleep 6'
+
+  - type: exec
+    script: 'cat /tmp/pfcron-test.log'
+    assertions:
+      - result.systemout ShouldContainSubstring bob
 
   - type: exec
     script: 'sleep 6'
 
-  - type: readfile
-    path: pfcron-test.log
-    assertions:
-      - result.content ShouldContainSubstring bob
-
   - type: exec
-    script: 'sleep 6'
-
-  - type: readfile
-    path: pfcron-test.log
+    script: 'cat /tmp/pfcron-test.log'
     assertions:
-      - result.content ShouldContainSubstring bobbob
+      - result.systemout ShouldContainSubstring bobbob
 
 - name: Teardown
   steps:
