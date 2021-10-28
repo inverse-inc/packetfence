@@ -96,6 +96,7 @@
         <form-group-advanced-filter v-show="!isDefault"
           namespace="advanced_filter"
           :column-label="$i18n.t('Advanced filter')"
+          :text="$i18n.t('The advanced filter is combined with the filters above.')"
         />
 
         <form-group-sources namespace="sources"
