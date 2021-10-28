@@ -65,7 +65,7 @@ Note that after changing the settings above, you need to regenerate the domain c
   /usr/local/pf/bin/pfcmd generatedomainconfig
   /usr/local/pf/bin/pfcmd service winbindd restart
 
-====== Additional safety using monit
+===== Additional safety using monit
 
 Some versions of samba/winbindd may not failover correctly when one of the DC fails, even with the best practices above. For this reason, it is suggested to enable monit on your installation. This will automatically activate an additional check that will restart winbindd if authentication fails to the current DC. Upon restart, a new DC will be found and authentication will resume. To enable this mecanism, enable monit as described <<_monit,in this section of the document>> and it be added automatically.
 
