@@ -83,7 +83,7 @@ FROM macs JOIN dates;
 		[]string{
 			"DELETE FROM bandwidth_accounting",
 			"DELETE FROM bandwidth_accounting_history",
-        },
+		},
 	)
 }
 
@@ -163,7 +163,6 @@ FROM macs JOIN dates;
 				expectedCount: 20,
 			},
 		},
-		[]string{
-        },
+		[]string{},
 	)
 }
