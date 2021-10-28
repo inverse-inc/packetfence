@@ -18,6 +18,7 @@ testcases:
   - type: exec
     script: 'systemctl start packetfence-pfcron'
 
+  # use relative path due to https://github.com/ovh/venom/issues/435
   - type: readfile
     path: pfcron-test.log
 
