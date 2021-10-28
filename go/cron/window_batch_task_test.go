@@ -28,7 +28,7 @@ func testWindowSqlCleanup(t *testing.T, name string, additional_args map[string]
 	)
 }
 
-func TestAdminApiAuditLog(t *testing.T) {
+func TestAdminApiAuditLogCleanup(t *testing.T) {
 
 	testWindowSqlCleanup(
 		t,
