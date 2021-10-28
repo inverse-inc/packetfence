@@ -54,7 +54,7 @@ INSERT INTO ip6log_history (tenant_id, mac, ip, start_time, end_time) VALUES
 
 }
 
-func TestIp6logRotate(t *testing.T) {
+func TestIp6logCleanupRotate(t *testing.T) {
 
 	testCronTask(
 		t,
