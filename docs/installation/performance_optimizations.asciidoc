@@ -196,36 +196,6 @@ NOTE: In the event that you want to stop using MariaDB-backup for your MariaDB b
 
 === Captive Portal Optimizations
 
-==== Avoid captive portal overload due to non-browser HTTP requests
-
-By default we allow every query to be redirected and reach PacketFence for the captive portal operation. In a lot of cases, this means that a lot of non-user initiated queries reach PacketFence and waste its resources for nothing since they are not from browsers. (iTunes, Windows update, MSN Messenger, Google Desktop, ...).
-
-Since version 4.3 of PacketFence, you can define HTTP filters for Apache from the configuration of PacketFence.
-
-Some rules have been enabled by default, like one to reject requests with no defined user agent. All rules, including some examples, are defined in the configuration file [filename]`/usr/local/pf/conf/apache_filters.conf`.
-
-Filters are defined with at least two blocks. First are the tests. For example:
-
-  [get_ua_is_dalvik]
-  filter = user_agent
-  method = GET
-  operator = match
-  value = Dalvik
-
-  [get_uri_not_generate204]
-  filter = uri
-  method = GET
-  operator = match_not
-  value = /generate_204
-
-The last block defines the relationship between the tests and the desired action. For example:
-
-  [block_dalvik:get_ua_is_dalvik&get_uri_not_generate204]
-  action = 501
-  redirect_url =
-
-This filter will return an error code (501) if the user agent is Dalvik and the URI doesn't contain _/generate_204.
-
 === Troubleshooting
 
 This section will address specific problems and known solutions.

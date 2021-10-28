@@ -165,7 +165,6 @@ conf/suricata.yaml
 conf/suricata_categories.txt
 conf/ui-global.conf
 conf/allowed_device_oui.txt
-conf/apache_filters.conf
 conf/firewall_sso.conf
 conf/vlan_filters.conf
 conf/roles.conf
