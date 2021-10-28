@@ -46,6 +46,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * EAP-TLS integration tests using manual deployment and SCEP protocol (#6647)
 * Added a monit check to ensure winbindd is still connected (11.1 - AD failover doesn't work #6655)
 * Improve ZEN builds (#6663)
+* Improved tests for pfcron jobs (#6637)
 
 === Bug Fixes
 
