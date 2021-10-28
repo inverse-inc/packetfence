@@ -69,7 +69,7 @@ func TestAdminApiAuditLogCleanup(t *testing.T) {
 	)
 }
 
-func TestAuthLog(t *testing.T) {
+func TestAuthLogCleanup(t *testing.T) {
 
 	testWindowSqlCleanup(
 		t,
