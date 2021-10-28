@@ -360,7 +360,7 @@ INSERT INTO bandwidth_accounting (
             LPAD(HEX(seq & 255), 2, '0')
         )) AS mac FROM seq_1_to_20
 ), dates AS (
-    SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_1_to_360
+    SELECT seq as session_id, DATE_SUB(DATE_SUB(NOW(), INTERVAL 2 DAY), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_359
 )
 
 SELECT
@@ -379,8 +379,70 @@ FROM macs JOIN dates;
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "bandwidth_accounting marked done",
-				sql:           ` SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated = '0000-00-00 00:00:00'`,
-				expectedCount: 6260,
+				sql:           `SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated = '0000-00-00 00:00:00'`,
+				expectedCount: 7200,
+			},
+		},
+		[]string{
+			"DELETE FROM bandwidth_accounting",
+		},
+	)
+
+	testWindowSqlCleanup(
+		t,
+		"bandwidth_maintenance_session",
+		map[string]interface{}{
+			"timeout": 1000.0,
+			"batch":   100.0,
+			"window":  float64(25 * 60 * 60),
+		},
+		[]string{
+			"DELETE FROM bandwidth_accounting",
+			`
+INSERT INTO bandwidth_accounting (
+        tenant_id,
+        node_id,
+        unique_session_id,
+        mac,
+        time_bucket,
+        in_bytes,
+        out_bytes,
+        last_updated,
+        source_type
+) WITH macs AS (
+    SELECT
+        (1 << 48 | seq) as node_id,
+        LOWER(CONCAT_WS(
+            ':',
+            LPAD(HEX((seq >> 40) & 255), 2, '0'),
+            LPAD(HEX((seq >> 32) & 255), 2, '0'),
+            LPAD(HEX((seq >> 24) & 255), 2, '0'),
+            LPAD(HEX((seq >> 16) & 255), 2, '0'),
+            LPAD(HEX((seq >> 8) & 255), 2, '0'),
+            LPAD(HEX(seq & 255), 2, '0')
+        )) AS mac FROM seq_1_to_20
+), dates AS (
+    SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_95
+)
+
+SELECT
+    1 AS tenant_id,
+    node_id,
+    session_id,
+    mac,
+    time_bucket,
+    100 in_bytes,
+    100 out_bytes,
+    time_bucket as last_updated,
+    'radius' as source_type
+FROM macs JOIN dates;
+            `,
+		},
+		[]sqlCountTest{
+			sqlCountTest{
+				name:          "bandwidth_accounting marked done",
+				sql:           `SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated != '0000-00-00 00:00:00'`,
+				expectedCount: 1920,
 			},
 		},
 		[]string{
