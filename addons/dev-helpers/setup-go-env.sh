@@ -53,7 +53,8 @@ else
 
     # we are *NOT* in a packer build, need to setup env variables
     if [ -z "$PACKER_BUILD_NAME" ]; then
-        setup
+        mkdir -p $GO_REPO
+    	setup
         ( cd $GO_REPO ; go mod download )
     else
         # in a packer build, no need to pre-download
