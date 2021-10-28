@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestIp4logNoRotate(t *testing.T) {
+func TestIp4logCleanupNoRotate(t *testing.T) {
 
 	testCronTask(
 		t,
