@@ -25,7 +25,7 @@ testcases:
     script: 'sleep 6'
 
   - type: readfile
-    path: {{.venom.testsuite.workdir}}/pfcron-test.log
+    path: pfcron-test.log
     assertions:
       - result.content ShouldContainSubstring bob
 
@@ -33,7 +33,7 @@ testcases:
     script: 'sleep 6'
 
   - type: readfile
-    path: {{.venom.testsuite.workdir}}/pfcron-test.log
+    path: pfcron-test.log
     assertions:
       - result.content ShouldContainSubstring bobbob
 
