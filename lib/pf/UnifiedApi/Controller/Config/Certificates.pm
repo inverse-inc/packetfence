@@ -356,10 +356,10 @@ sub lets_encrypt_replace {
         my @x509s;
         for my $t (@texts) {
             my $x509 = pf::ssl::x509_from_string($t);
-	    if(!$x509) {
-                $self->render_error(422, "Failed to parse CA certificate");	    
-		return;
-	    }
+            if(!$x509) {
+                $self->render_error(422, "Failed to parse CA certificate");
+                return;
+            }
             push @x509s, $x509;
         }
         push @cas, @x509s;
