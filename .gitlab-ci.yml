@@ -27,6 +27,8 @@ variables:
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
+  BUILDDIR: ${CILIBDIR}/build
+  RELEASEDIR: ${CILIBDIR}/release
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
