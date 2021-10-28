@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 8;
 
 #This test will running last
 use Test::NoWarnings;
@@ -66,10 +66,10 @@ ok (1 != 2,"No 1 does not equals 2");
 
     nodes_maintenance();
     $node1 = node_view($mac1);
-    is($node1->{status}, "reg", "$mac1 was not set to unreg");
+    is($node1->{status}, "reg", "$mac1 still reg");
 
     $node2 = node_view($mac2);
-    is($node2->{status}, "unreg", "$mac2 was not set to unreg");
+    is($node2->{status}, "unreg", "$mac2 is set to unreg");
     my @events = security_event_view_open($mac2);
     ok(scalar @events, "security event opened");
 }
