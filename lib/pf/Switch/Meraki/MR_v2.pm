@@ -36,23 +36,6 @@ sub returnRoleAttribute {
     return 'Airespace-ACL-Name';
 }
 
-=head2 addDPSK
-
-Add the DPSK to a RADIUS reply
-
-=cut
-
-sub addDPSK {
-    my ($self, $args, $radius_reply_ref, $av_pairs) = @_;
-    if ($args->{profile}->dpskEnabled()) {
-        if (defined($args->{owner}->{psk})) {
-            $radius_reply_ref->{'Tunnel-Password'} = $args->{owner}->{psk};
-        } else {
-            $radius_reply_ref->{'Tunnel-Password'} = $args->{profile}->{_default_psk_key};
-        }
-    }
-}
-
 =item deauthenticateMacDefault
 
 Some of the attributes from Cisco::WLC aren't necessary
@@ -192,6 +175,23 @@ sub radiusDisconnect {
         . ( defined($response->{'Error-Cause'}) ? " with Error-Cause: $response->{'Error-Cause'}." : '' )
     );
     return;
+}
+
+=head2 addDPSK
+
+Add the DPSK to a RADIUS reply
+
+=cut
+
+sub addDPSK {
+    my ($self, $args, $radius_reply_ref, $av_pairs) = @_;
+    if ($args->{profile}->dpskEnabled()) {
+        if (defined($args->{owner}->{psk})) {
+            $radius_reply_ref->{'Tunnel-Password'} = $args->{owner}->{psk};
+        } else {
+            $radius_reply_ref->{'Tunnel-Password'} = $args->{profile}->{_default_psk_key};
+        }
+    }
 }
 
 =head1 AUTHOR
