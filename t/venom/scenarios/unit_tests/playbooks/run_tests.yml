@@ -10,6 +10,7 @@
       - unit_tests/configure_smoke_db.yml
       - unit_tests/perl_tests.yml
       - unit_tests/golang_tests.yml
+      - pfcron
       - backup_db_and_restore
       - backup_db_and_restore/teardown
 

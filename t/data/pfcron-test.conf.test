@@ -1,0 +1,7 @@
+[file_logger]
+type=file_logger
+status=enabled
+description=Task to data to a file
+content=bob
+outfile=/tmp/pfcron-test.log
+schedule=@every 5s

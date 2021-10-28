@@ -884,42 +884,44 @@ Cleanup nodes that should be deleted or unregistered based on the maintenance pa
 
 sub node_cleanup {
     my $timer = pf::StatsD::Timer->new;
-    my ($delete_time, $unreg_time,$voip) = @_;
+    my ($delete_time, $unreg_time, $include_voip) = @_;
     my $logger = get_logger();
     $logger->debug("calling node_cleanup with delete_time=$delete_time unreg_time=$unreg_time");
     
-    if($delete_time ne "0") {
+    if ($delete_time ne "0") {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
-            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
+            my $voip = $row->{'voip'};
+            if (isdisabled($include_voip) && defined $voip && $row->{'voip'} eq $VOIP) {
                 next;
             }
+
             $logger->info("mac $mac not seen for $delete_time seconds, deleting");
             require pf::locationlog;
             pf::locationlog::locationlog_update_end_mac($mac, $tenant_id);
             node_delete($mac, $tenant_id);
         }
-    }
-    else {
+    } else {
         $logger->debug("Not deleting because the window is 0");
     }
 
-    if($unreg_time ne "0") {
+    if ($unreg_time ne "0") {
         local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
             my $tenant_id = $row->{'tenant_id'};
-            if (isdisabled($voip) && $row->{'voip'} eq $VOIP) {
+            my $voip = $row->{'voip'};
+            if (isdisabled($include_voip) && defined $voip && $row->{'voip'} eq $VOIP) {
                 next;
             }
+
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
             pf::dal->set_tenant($tenant_id);
             node_deregister($mac);
             # not reevaluating access since the node is be inactive
         }
-    }
-    else {
+    } else {
         $logger->debug("Not unregistering because the window is 0");
     }
 

@@ -343,7 +343,8 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Search/Builder/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/cmd/pf/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/provisioner/*.t
-	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/pfmon/task/*.t
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/pfcron/*.t
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/pfcron/task/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/Authentication/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/Authentication/Source/*.t
 	# Venom
