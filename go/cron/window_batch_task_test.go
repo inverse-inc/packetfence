@@ -110,7 +110,7 @@ func TestAuthLogCleanup(t *testing.T) {
 	)
 }
 
-func TestDnsAuditLog(t *testing.T) {
+func TestDnsAuditLogCleanup(t *testing.T) {
 
 	testWindowSqlCleanup(
 		t,
