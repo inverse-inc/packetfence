@@ -83,7 +83,7 @@ func TestIp4logNoRotate(t *testing.T) {
 
 }
 
-func TestIp4logRotate(t *testing.T) {
+func TestIp4logCleanupRotate(t *testing.T) {
 
 	testCronTask(
 		t,
