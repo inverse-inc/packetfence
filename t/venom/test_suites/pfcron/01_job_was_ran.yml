@@ -19,7 +19,7 @@ testcases:
     script: 'systemctl start packetfence-pfcron'
 
   - type: readfile
-    path: pfcron-test.log
+    path: {{.venom.testsuite.workdir}}/pfcron-test.log
     assertions:
       - result.err ShouldNotBeEmpty
 
@@ -27,7 +27,7 @@ testcases:
     script: 'sleep 6'
 
   - type: readfile
-    path: pfcron-test.log
+    path: {{.venom.testsuite.workdir}}/pfcron-test.log
     assertions:
       - result.content ShouldContainSubstring bob
 
@@ -35,7 +35,7 @@ testcases:
     script: 'sleep 6'
 
   - type: readfile
-    path: pfcron-test.log
+    path: {{.venom.testsuite.workdir}}/pfcron-test.log
     assertions:
       - result.content ShouldContainSubstring bobbob
 
