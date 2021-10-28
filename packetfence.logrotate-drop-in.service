@@ -1,0 +1,5 @@
+[Service]
+ReadWritePaths=/usr/local/pf/logs/
+ReadWritePaths=/usr/local/pf/var/
+ReadWritePaths=/usr/local/fingerbank/logs/
+
