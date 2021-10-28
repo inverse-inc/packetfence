@@ -43,8 +43,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Automation of supported equipment page on PacketFence website (#6611)
 * Use Venom 1.0.0 through Ansible to run integration tests (#6573)
 * Import script will migrate the networks configuration if the new IP is in the same subnet (#6636)
-* EAP-TLS integration tests using manual deployment and SCEP protocol
+* EAP-TLS integration tests using manual deployment and SCEP protocol (#6647)
 * Added a monit check to ensure winbindd is still connected (11.1 - AD failover doesn't work #6655)
+* Improve ZEN builds (#6663)
 
 === Bug Fixes
 
