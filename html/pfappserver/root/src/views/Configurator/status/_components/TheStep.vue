@@ -55,7 +55,7 @@ const setup = (props, context) => {
               return $store.dispatch('$_bases/updateAdvanced', data).then(() => {
                 progressFeedback.value = i18n.t('Redirecting to login page')
                 setTimeout(() => {
-                  $router.push({ name: 'login' })
+                  window.location.href = '/'
                 }, 2000)
               })
             })
