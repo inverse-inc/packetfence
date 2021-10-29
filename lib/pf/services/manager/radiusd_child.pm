@@ -140,6 +140,7 @@ sub _generateConfig {
     $self->generate_radiusd_mschap($tt);
     $self->generate_multi_domain_constants();
     $self->generate_dynamic_clients($tt);
+    $self->generate_radiusd_realm_policy($tt);
 }
 
 =head2 generate_dynamic_clients
@@ -1608,6 +1609,105 @@ sub generate_multi_domain_constants {
     $content .= "our \$DATA = \$VAR1;\n";
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
+}
+
+sub generate_radiusd_realm_policy {
+    my ($self) = @_;
+    my %tags;
+
+    parse_template( \%tags, "$conf_dir/radiusd/realm_policy.conf", "$install_dir/raddb/policy.d/realm_policy" );
+}
+
+
+sub generate_radiusd_realm_policy {
+    my ($self, $tt) = @_;
+    my $logger = get_logger;
+
+    my %tags;
+
+    $tags{'config'} .= <<"EOT";
+packetfence-set-realm {
+
+    # Machine Realm
+    if (User-Name =~ /host\\/([a-z0-9_-]*)[\\.](.*)/i) {
+        update {
+            &control:Tmp-String-4 := "%{tolower:%{2}}"
+        }
+    # user\@domain
+    } elsif(User-Name =~ /^.*@(.*)\$/i) {
+        update {
+            &control:Tmp-String-4 := "%{tolower:%{1}}"
+        }
+    } elsif(User-Name =~ /^.*\\(.*)\$/i) {
+        update {
+            &control:Tmp-String-4 := "%{tolower:%{1}}"
+        }
+    }
+    
+    switch "%{control:PacketFence-Tenant-Id}" {
+
+EOT
+
+    my $tenant_hash = tenant_hash();
+    foreach my $tenant ( keys %{$tenant_hash} ) {
+        next if $tenant eq 0;
+
+$tags{'config'} .= <<"EOT";
+        case $tenant {
+
+            if ("%{%{control:Tmp-String-4}:-0}" == 0) {
+                update {
+                    &request:Realm = "null$tenant"
+                }
+            } else {
+EOT
+        my @realms;
+        my $if = "if";
+        my $i = 0;
+        foreach my $key ( @{$tenantConfig->{$tenant}->{'OrderedRealm'}} ) {
+            foreach my $realm (keys %{$key}) {
+                next if ($realm =~ /^(default|local|null)$/);
+                my $realRealm;
+                if (defined $key->{$realm}->{'regex'} && $key->{$realm}->{'regex'} ne '') {
+                    $realRealm = $key->{$realm}->{'regex'};
+                } else {
+                    $realRealm = $realm;
+                }
+                $i++;
+                $tags{'config'} .= <<"EOT";
+                $if (%{control:Tmp-String-4} =~ /$realRealm/i) {
+                    update {
+                        &request:Realm = "$realm$tenant"
+                    }
+EOT
+                $if = "} elsif";
+            }
+        }
+        if ($i) {
+$tags{'config'} .= <<"EOT";
+                } else {
+                    update {
+                        &request:Realm = "default$tenant"
+                    }
+                }
+EOT
+        } else {
+$tags{'config'} .= <<"EOT";
+                update {
+                    &request:Realm = "default$tenant"
+                }
+EOT
+        }
+$tags{'config'} .= <<"EOT";
+            }
+        }
+EOT
+    }
+$tags{'config'} .= <<"EOT";
+    }
+}
+EOT
+    $tt->process("$conf_dir/radiusd/realm_policy.conf", \%tags, "$install_dir/raddb/policy.d/realm_policy") or die $tt->error();
 }
 
 =head1 AUTHOR
