@@ -63,8 +63,9 @@ authorize {
 	#  Otherwise, when the first style of realm doesn't match,
 	#  the other styles won't be checked.
 	#
-	suffix
-	ntdomain
+	packetfence-set-realm
+	#suffix
+	#ntdomain
 
 	#
 	#  This module takes care of EAP-MD5, EAP-TLS, and EAP-LEAP
@@ -245,6 +246,7 @@ preacct {
 	#  Accounting requests are generally proxied to the same
 	#  home server as authentication requests.
 	#	IPASS
+	packetfence-set-realm
 	#suffix
 	#ntdomain
 

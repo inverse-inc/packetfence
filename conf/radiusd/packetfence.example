@@ -75,8 +75,9 @@ server packetfence-[% virtual_servers.$key.name %] {
 		#  Otherwise, when the first style of realm doesn't match,
 		#  the other styles won't be checked.
 		#
-		suffix
-		ntdomain
+		packetfence-set-realm
+		#suffix
+		#ntdomain
 
 	[% authorize_filter %]
 
@@ -270,9 +271,10 @@ server packetfence-[% virtual_servers.$key.name %] {
 		#  Accounting requests are generally proxied to the same
 		#  home server as authentication requests.
 		#	IPASS
-		suffix
+		packetfence-set-realm
+		#suffix
 		[% preacct_filter %]
-		ntdomain
+		#ntdomain
 
 		#
 		#  Read the 'acct_users' file
@@ -594,9 +596,11 @@ server pf.degraded-[% virtual_servers.$key.name %] {
 
 		preprocess
 
-		suffix
+		packetfence-set-realm
 
-		ntdomain
+		#suffix
+
+		#ntdomain
 
 [% virtual_servers.$key.authorize_eap_choice_degraded %]
 
@@ -692,8 +696,9 @@ server packetfence-degraded-tunnel-[% virtual_servers.$key.name %] {
 	authorize {
 		filter_username
 		mschap
-		suffix
-		ntdomain
+		packetfence-set-realm
+		#suffix
+		#ntdomain
 		packetfence-multi-domain
 
 		if(User-Name =~ /^host\//) {

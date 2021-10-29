@@ -72,8 +72,9 @@ authorize {
 	#  accounting logs *not* sent to the other server.  This makes
 	#  it difficult to bill people for their network activity.
 	#
-	suffix
-	ntdomain
+	packetfence-set-realm
+	#suffix
+	#ntdomain
 
         [% authorize_filter %]
 
@@ -450,8 +451,9 @@ authorize {
 	#  accounting logs *not* sent to the other server.  This makes
 	#  it difficult to bill people for their network activity.
 	#
-	suffix
-	ntdomain
+	packetfence-set-realm
+	#suffix
+	#ntdomain
 
 	[% multi_domain %]
 
