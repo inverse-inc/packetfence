@@ -9,5 +9,5 @@ tls_tlsprofile = tls-common
 ttls_tlsprofile = tls-common
 peap_tlsprofile = tls-common
 fast_config = default
-peap_virtual_server=packetfence-default
-ttls_virtual_server=packetfence-default
+peap_virtual_server=packetfence-tunnel-default
+ttls_virtual_server=packetfence-tunnel-default
