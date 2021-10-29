@@ -316,7 +316,6 @@ EOT
 
     $tt->process("$conf_dir/radiusd/packetfence-tunnel", \%tags, "$install_dir/raddb/sites-enabled/packetfence-tunnel") or die $tt->error();
 
-    %tags = ();
     $tags{'template'}    = "$conf_dir/raddb/sites-enabled/packetfence-cli";
     $tt->process("$conf_dir/radiusd/packetfence-cli", \%tags, "$install_dir/raddb/sites-enabled/packetfence-cli") or die $tt->error();
 
