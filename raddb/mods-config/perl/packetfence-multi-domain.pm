@@ -60,36 +60,55 @@ sub authorize {
     #&log_request_attributes;
     
     my $tenant_data = $multi_domain_constants::DATA->{$RAD_CONFIG{'PacketFence-Tenant-Id'}};
-    my %ConfigRealm = %{$tenant_data->{ConfigRealm}};
-    my @ConfigOrderedRealm = @{$tenant_data->{ConfigOrderedRealm}};
+    my @ConfigOrderedRealm = @{$tenant_data->{OrderedRealm}};
     my %ConfigDomain = %{$tenant_data->{ConfigDomain}};
 
     # We try to find the realm that's configured in PacketFence
     my $realm_config;
+    my $realm;
+    my $default_realm;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
     if ($user_name =~ /^host\/([0-9a-zA-Z-_]+)\.(.*)$/) {
-        if (exists $ConfigRealm{lc($2)}) {
-            $realm_config = $ConfigRealm{lc($2)};
+        foreach my $key ( @ConfigOrderedRealm ) {
+            foreach $realm (keys %{$key}) {
+                if ($realm eq lc($2)) {
+                    $realm_config = $key->{$realm};
+                }
+            }
         }
     } elsif (defined $RAD_REQUEST{"Realm"}) {
-        if (exists $ConfigRealm{$RAD_REQUEST{"Realm"}}) {
-            $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+	foreach my $key ( @ConfigOrderedRealm ) {
+            foreach $realm (keys %{$key}) {
+                if ($realm eq $RAD_REQUEST{"Realm"}) {
+                    $realm_config = $key->{$realm};
+                }
+            }
         }
     }
 
-    if ( !defined($realm_config) && defined($ConfigRealm{"default"}) ) {
+    foreach my $key ( @ConfigOrderedRealm ) {
+        foreach $realm (keys %{$key}) {
+            if ($realm eq "default") {
+                $default_realm = $key->{$realm};
+            }
+        }
+    }
+
+    if ( !defined($realm_config) && defined $default_realm ) {
         foreach my $key ( @ConfigOrderedRealm ) {
-            if (defined($ConfigRealm{$key}->{regex}) && $user_name =~ /$ConfigRealm{$key}->{regex}/) {
-                $realm_config = $ConfigRealm{$key};
+            foreach $realm (keys %{$key}) {
+                if (defined($key->{$realm}->{regex}) && $user_name =~ /$key->{$realm}->{regex}/) {
+                    $realm_config = $key->{$realm};
+                }
             }
         }
         unless (defined $realm_config) {
-            $realm_config = $ConfigRealm{"default"};
+            $realm_config = $default_realm;
         }
     }
 
     #use Data::Dumper;
-    #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm));
+    #&radiusd::radlog($RADIUS::L_INFO, Dumper($realm_config));
     $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = '';
 
     if( defined($realm_config) && defined($realm_config->{domain}) ) {

@@ -1619,15 +1619,18 @@ packetfence-set-realm {
     # Machine Realm
     if (User-Name =~ /host\\/([a-z0-9_-]*)[\\.](.*)/i) {
         update {
+            &request:Stripped-User-Name := "%{1}"
             &control:Tmp-String-4 := "%{tolower:%{2}}"
         }
     # user\@domain
-    } elsif(User-Name =~ /^.*@(.*)\$/i) {
+    } elsif(User-Name =~ /^(.*)@(.*)\$/i) {
         update {
-            &control:Tmp-String-4 := "%{tolower:%{1}}"
+            &request:Stripped-User-Name := "%{1}"
+            &control:Tmp-String-4 := "%{tolower:%{2}}"
         }
-    } elsif(User-Name =~ /^.*\\(.*)\$/i) {
+    } elsif(User-Name =~ /^(.*)\\(.*)\$/i) {
         update {
+            &request:Stripped-User-Name := "%{2}"
             &control:Tmp-String-4 := "%{tolower:%{1}}"
         }
     }
