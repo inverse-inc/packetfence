@@ -161,26 +161,30 @@ sub generate_dynamic_clients {
         $tags{'tenant'} .= <<"EOT";
 # Auth port tenant $tenants->{$tenant}->{'name'}
 if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_port'}") {
-    update control {
-        &PacketFence-Tenant-Id = '$tenant'
+    update {
+        &control:PacketFence-Tenant-Id := '$tenant'
+        &request:PacketFence-Tenant-Id := '$tenant'
     }
 }
 # Acct port tenant $tenants->{$tenant}->{'name'}
 if("%{Packet-Dst-Port}" == "$radius_acct") {
-    update control {
-        &PacketFence-Tenant-Id = '$tenant'
+    update {
+        &control:PacketFence-Tenant-Id := '$tenant'
+        &request:PacketFence-Tenant-Id := '$tenant'
     }
 }
 # Auth cli port tenant $tenants->{$tenant}->{'name'}
 if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radius_cli_port'}") {
-    update control {
-        &PacketFence-Tenant-Id = '$tenant'
+    update {
+        &control:PacketFence-Tenant-Id := '$tenant'
+        &request:PacketFence-Tenant-Id := '$tenant'
     }
 }
 # Radsec port tenant $tenants->{$tenant}->{'name'}
 if("%{Packet-Dst-Port}" == "$tenants->{$tenant}->{'radsec_port'}") {
-    update control {
-        &PacketFence-Tenant-Id = '$tenant'
+    update {
+        &control:PacketFence-Tenant-Id := '$tenant'
+        &request:PacketFence-Tenant-Id := '$tenant'
     }
 }
 EOT
