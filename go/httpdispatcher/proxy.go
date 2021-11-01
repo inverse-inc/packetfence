@@ -26,16 +26,18 @@ import (
 
 // Proxy structure
 type Proxy struct {
-	endpointWhiteList    []*regexp.Regexp
-	endpointBlackList    []*regexp.Regexp
-	mutex                sync.Mutex
-	ParkingSecurityEvent *sql.Stmt // prepared statement for security_event
-	IP4log               *sql.Stmt // prepared statement for ip4log queries
-	IP6log               *sql.Stmt // prepared statement for ip6log queries
-	Nodedb               *sql.Stmt // prepared statement for node queries
-	Db                   *sql.DB
-	apiClient            *unifiedapiclient.Client
-	ShowParkingPortal    bool
+	endpointWhiteList        []*regexp.Regexp
+	endpointBlackList        []*regexp.Regexp
+	mutex                    sync.Mutex
+	ParkingSecurityEvent     *sql.Stmt // prepared statement for security_event
+	IP4log                   *sql.Stmt // prepared statement for ip4log queries
+	IP6log                   *sql.Stmt // prepared statement for ip6log queries
+	Nodedb                   *sql.Stmt // prepared statement for node queries
+	Db                       *sql.DB
+	apiClient                *unifiedapiclient.Client
+	NetworkDetectionIP       string
+	ShowParkingPortal        bool
+	PortalCspSecurityHeaders bool
 }
 
 type passthrough struct {
@@ -137,6 +139,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	parking := p.handleParking(ctx, w, r)
 
 	if r.URL.Path == "/rfc7710" {
+		p.addHeaders(ctx, w)
 		_, PortalURL := p.detectPortalURL(r)
 
 		answer := RFC7710bis{}
@@ -156,6 +159,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Path == "/kindle-wifi/wifistub.html" {
+		p.addHeaders(ctx, w)
 		log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "KINDLE WIFI PROBE HANDLING"))
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -175,6 +179,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !(passThrough.checkProxyPassthrough(ctx, host) || ((passThrough.checkDetectionMechanisms(ctx, fqdn.String()) || passThrough.URIException.MatchString(r.RequestURI)) && passThrough.DetectionMecanismBypass)) {
+		p.addHeaders(ctx, w)
 		if r.Method != "GET" && r.Method != "HEAD" {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "FORBIDDEN"))
 			w.WriteHeader(http.StatusNotImplemented)
@@ -259,6 +264,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !p.checkEndpointList(ctx, host) {
+		p.addHeaders(ctx, w)
 		log.LoggerWContext(ctx).Info(fmt.Sprintln(host, "FORBIDDEN host in blacklist"))
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -266,6 +272,20 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.LoggerWContext(ctx).Debug(fmt.Sprintln(host, "REVERSE"))
 
 	p.reverse(ctx, w, r, host)
+}
+
+func captive_portal_network_detection_ip() string {
+	//my $captive_portal_network_detection_ip = $Config{'captive_portal'}{'network_detection_ip'};
+	return ""
+}
+
+func (p *Proxy) addHeaders(ctx context.Context, w http.ResponseWriter) {
+	header := w.Header()
+	header.Set("X-Frame-Options", "SAMEORIGIN")
+	if p.PortalCspSecurityHeaders {
+		csp := "default-src 'none'; frame-src https://js.stripe.com https://hooks.stripe.com; script-src 'self' https://js.stripe.com https://jstest.authorize.net https://js.authorize.net; connect-src 'self' https://api.stripe.com; img-src 'self' http://" + p.NetworkDetectionIP + "/; style-src 'self'; font-src 'self';"
+		header.Set("Content-Security-Policy", csp)
+	}
 }
 
 // Configure add default target in the deny list
@@ -330,14 +350,21 @@ func (p *Proxy) Configure(ctx context.Context) {
 	p.apiClient = unifiedapiclient.NewFromConfig(ctx)
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Parking)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 
 	parking := pfconfigdriver.Config.PfConf.Parking
+	portal := pfconfigdriver.Config.PfConf.CaptivePortal
+	advanced := pfconfigdriver.Config.PfConf.Advanced
 
 	if parking.ShowParkingPortal == "enabled" {
 		p.ShowParkingPortal = true
 	} else {
 		p.ShowParkingPortal = false
 	}
+
+	p.NetworkDetectionIP = portal.NetworkDetectionIP
+	p.PortalCspSecurityHeaders = advanced.PortalCspSecurityHeaders == "enabled"
 
 	go func() {
 		for {
