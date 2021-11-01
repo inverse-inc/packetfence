@@ -28,6 +28,7 @@ use List::MoreUtils qw(uniq);
 use pf::constants;
 use pf::config::cluster;
 use File::Slurp qw(read_file);
+use pf::tenant qw(tenant_hash);
 
 BEGIN {
     use Exporter ();
@@ -165,6 +166,28 @@ sub iptables_generate {
     else {
         $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured\n";
         $tags{'eduroam_radius_listening'} = "# eduroam integration is not configured\n";
+    }
+    # Multi-tenant RADIUS
+    $tags{'multitenant_radius_virtualserver'} = "";
+    $tags{'multitenant_radius'} = "";
+    my $tenants = tenant_hash();
+    foreach my $tenant ( keys %{$tenants} ) {
+        next if $tenant eq 0;
+        my $tenantName = $tenants->{$tenant}->{name};
+        my $auth_port = $tenants->{$tenant}->{'radius_port'};
+        my $acct_port = $auth_port + 1;
+        my $cli_port = $tenants->{$tenant}->{'radius_cli_port'};
+        my $radsec_port = $tenants->{$tenant}->{'radsec_port'};
+        $tags{'multitenant_radius_virtualserver'} .= "#Radius rules for tenant $tenantName\n";
+        $tags{'multitenant_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $auth_port --jump ACCEPT\n";
+        $tags{'multitenant_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $acct_port --jump ACCEPT\n";
+        $tags{'multitenant_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $cli_port --jump ACCEPT\n";
+        $tags{'multitenant_radius_virtualserver'} .= "-A input-management-if --protocol tcp --match tcp --dport $radsec_port --jump ACCEPT\n";
+        $tags{'multitenant_radius'} .= "#Radius rules for tenant $tenantName\n";
+        $tags{'multitenant_radius'} .= "-A input-radius-if --protocol udp --match udp --dport $auth_port --jump ACCEPT\n";
+        $tags{'multitenant_radius'} .= "-A input-radius-if --protocol udp --match udp --dport $acct_port --jump ACCEPT\n";
+        $tags{'multitenant_radius'} .= "-A input-radius-if --protocol udp --match udp --dport $cli_port --jump ACCEPT\n";
+        $tags{'multitenant_radius'} .= "-A input-radius-if --protocol tcp --match tcp --dport $radsec_port --jump ACCEPT\n";
     }
 
     if (is_inline_enforcement_enabled()) {
