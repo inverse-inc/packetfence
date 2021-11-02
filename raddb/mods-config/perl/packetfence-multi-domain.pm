@@ -59,7 +59,7 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
     
-    my $tenant_data = $multi_domain_constants::DATA->{$RAD_CONFIG{'PacketFence-Tenant-Id'}};
+    my $tenant_data = $multi_domain_constants::DATA->{$RAD_REQUEST{'PacketFence-Tenant-Id'}};
     my @ConfigOrderedRealm = @{$tenant_data->{OrderedRealm}};
     my %ConfigDomain = %{$tenant_data->{ConfigDomain}};
 
