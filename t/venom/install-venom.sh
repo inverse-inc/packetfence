@@ -9,7 +9,6 @@ VENOM_DEFAULT_VERSION="1.0.0-rc.7"
 VENOM_INSTALL_VERSION=${VENOM_VERSION:-${VENOM_DEFAULT_VERSION}}
 VENOM_LATEST_VERSION=""
 VENOM_INSTALLED_VERSION=""
-VENOM_DIFF_VERSION=""
 INSTALL_BOO=0
 # Usage: VENOM_VERSION=0.28.0 ./install-venom.sh
 # Check requirements
@@ -27,13 +26,13 @@ fi
 
 # Install Venom
 install_venom() {
-  echo "Installing Venom in ${VENOM_BIN_PATH}/${VENOM_BINARY}"
   curl -L -s https://github.com/ovh/venom/releases/download/v${VENOM_INSTALL_VERSION}/venom.linux-amd64 -o ${VENOM_BIN_PATH}/${VENOM_BINARY}
   if [ "$?" -ne 0 ]; then
     echo "Error installing Venom"
     exit 2
   else
     chmod +x ${VENOM_BIN_PATH}/${VENOM_BINARY}
+    echo "Venom v${VENOM_INSTALL_VERSION} has been installed in ${VENOM_BIN_PATH}/${VENOM_BINARY}"
   fi
 }
 
@@ -55,21 +54,17 @@ compare_version_numbers() {
   fi
 
   while [[ "${#v1_array[@]}" -gt "0" || "${#v2_array[@]}" -gt "0" ]] ; do
-    let v1_val=${v1_array:-0}
-    let v2_val=${v2_array:-0}
-    let result=$((v1_val-v2_val))
-
-    if (( result != 0 )); then
-      VENOM_DIFF_VERSION=$result
+    v1_val=`echo "${v1_array:-0}" | sed 's/./\L&/g'`
+    v2_val=`echo "${v2_array:-0}" | sed 's/./\L&/g'`
+    if [ "${v1_val}" != "${v2_val}" ]; then
+      echo 1
       return
     fi
 
     v1_array=("${v1_array[@]:1}")
     v2_array=("${v2_array[@]:1}")
   done
-
-  VENOM_DIFF_VERSION=0
-  return
+  echo 0
 }
 
 # Test if latest version
@@ -82,20 +77,23 @@ if [ -f ${VENOM_BIN_PATH}/${VENOM_BINARY} ]; then
   VENOM_INSTALLED_VERSION=$(venom version | grep -oP 'v\d.*' | grep -oP '\d.*' )
 
   if [ -n ${VENOM_INSTALLED_VERSION} ] && [ -n ${VENOM_INSTALL_VERSION} ]; then
-    compare_version_numbers
+    VENOM_DIFF_VERSION=$(compare_version_numbers)
   else
     echo "Error extracting Venom versions"
     exit 2
   fi
 
-  if [ "${VENOM_DIFF_VERSION}" -eq "0" ]; then
-    INSTALL_BOO=1
+  if (( ${VENOM_DIFF_VERSION} == 0 )); then
     echo "Venom already installed with the same version v${VENOM_INSTALLED_VERSION}, nothing to do."
+    INSTALL_BOO=1
+  else
+    echo "Venom already installed with another version v${VENOM_INSTALLED_VERSION}."
   fi
 fi
 
-if [ "${INSTALL_BOO}" -eq "0" ] ; then
-  echo "Venom (version v${VENOM_INSTALL_VERSION}) is going to be installed."
+if (( ${INSTALL_BOO} == 0 )); then
+  echo "Venom v${VENOM_INSTALL_VERSION} is going to be installed."
   install_venom
 fi
+
 exit 0
