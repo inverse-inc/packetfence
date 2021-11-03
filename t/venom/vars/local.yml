@@ -1,2 +1,4 @@
 ---
-# Empty file to avoid failure when running venom
+# Put your local variables here
+# Example:
+# pfserver_mgmt_ip: 172.17.17.12
