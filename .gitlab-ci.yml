@@ -10,6 +10,7 @@ before_script:
 # STAGES
 ################################################################################
 stages:
+  - check
   - build_img
   - build_artifacts
   - sign
@@ -27,6 +28,9 @@ variables:
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
+  CHECKDIR: ${CILIBDIR}/check
+  BUILDDIR: ${CILIBDIR}/build
+  RELEASEDIR: ${CILIBDIR}/release
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
@@ -124,13 +128,19 @@ variables:
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches (maintenance/X.Y branches included) and devel (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches (maintenance/X.Y branches included) with a schedule, with test variable defined or test=yes in commit message
+# - on all branches (maintenance/X.Y branches included) (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on all branches (maintenance/X.Y branches included) and devel with a schedule, with test variable defined or test=yes in commit message
 # don't run on tag
 .test_devel_branches_and_maintenance_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+
+# run jobs only when:
+# - on all branches (maintenance/X.Y branches included) and devel with a schedule, with test variable defined or test=yes in commit message
+.check_devel_branches_and_maintenance_rules:
+  rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run this job on:
@@ -152,6 +162,14 @@ variables:
 ########################################    
 # JOBS
 ########################################
+.check_job:
+  stage: check
+  dependencies: []
+  script:
+    - ${CHECKDIR}/run-pipeline-if-necessary.sh
+  tags:
+    - docker-inverse
+
 .build_img_docker_job:
   stage: build_img
   script:
@@ -337,6 +355,15 @@ variables:
 ################################################################################
 # JOBS
 ################################################################################
+
+########################################
+# CHECK JOBS
+########################################
+run_pipeline_if_necessary:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  extends:
+    - .check_job
+    - .check_devel_branches_and_maintenance_rules
 
 ########################################
 # BUILD_IMG JOBS

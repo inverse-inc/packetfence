@@ -131,8 +131,20 @@ run_tests() {
     done
 }
 
+unconfigure() {
+    log_subsection "Unconfigure virtual machines"
+    ( cd $VAGRANT_DIR ; \
+      ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
+}
+
 halt() {
-    unconfigure
+    # work as try/catch to continue even if an error has been detected
+    # We always want VM to be halted even if Ansible failed
+    if unconfigure; then
+        echo "Ansible teardown succeed"
+    else
+        echo "Ansible teardown failed"
+    fi
     log_subsection "Halt virtual machine(s)"
 
     ( cd $VAGRANT_DIR ; \
@@ -140,12 +152,6 @@ halt() {
 
     ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f )
-}
-
-unconfigure() {
-    log_subsection "Unconfigure virtual machines"
-    ( cd $VAGRANT_DIR ; \
-      ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
 }
 
 teardown() {
