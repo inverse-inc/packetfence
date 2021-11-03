@@ -30,7 +30,7 @@ import { ref } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $store } = {} } = context
 
   const rootRef = ref(null)
   const isLoading = ref(false)
