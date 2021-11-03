@@ -8,7 +8,7 @@
     <b-tabs>
       <base-form-tab :title="$i18n.t('Settings')" active>
         <form-group-identifier namespace="id"
-          :column-label="$i18n.t('PKI Provider Name')"
+          :column-label="$i18n.t('Provisioning ID')"
           :disabled="!isNew && !isClone"
         />
 

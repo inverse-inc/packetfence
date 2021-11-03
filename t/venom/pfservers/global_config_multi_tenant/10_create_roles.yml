@@ -1,6 +1,9 @@
 name: Create roles
-version: 2
 testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_eap_peap_roles_user
   steps:
   - type: http
@@ -14,7 +17,7 @@ testcases:
         "notes":"{{.eap_peap.roles.ad_user.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
@@ -33,7 +36,7 @@ testcases:
         "notes":"{{.eap_peap.roles.ad_machine.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
@@ -52,13 +55,13 @@ testcases:
         "notes":"{{.mac_auth.roles.headless_device.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
       - result.statuscode ShouldEqual 201
 
-- name: create_dot1x_eap_tls_pfpki_role
+- name: create_wired_dot1x_eap_tls_manual.role
   steps:
   - type: http
     method: POST
@@ -66,12 +69,12 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.id}}",
+        "id":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}",
         "max_nodes_per_pid":0,
-        "notes":"{{.dot1x_eap_tls_pfpki.roles.dot1x_eap_tls.notes}}"
+        "notes":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.notes}}"
       }
     headers:
-      "Authorization": "{{.pfserver_token}}"
+      "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:

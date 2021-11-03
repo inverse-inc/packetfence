@@ -21,30 +21,56 @@ BEGIN {
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
-    use File::Temp qw(tempdir);
-    $dir = tempdir( CLEANUP => 1 );
-    $pf::file_paths::captiveportal_profile_templates_path = $dir;
+    use File::Temp qw();
+    mkdir($pf::file_paths::captiveportal_profile_templates_path);
+    $dir = File::Temp->newdir(
+        DIR => $pf::file_paths::captiveportal_profile_templates_path,
+        CLEANUP => 0,
+    );
 }
 
 use pf::ConfigStore::Profile;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
-use Test::More tests => 36;
+use Test::More tests => 56;
 use Test::Mojo;
 #This test will running last
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
+my $test_profile_name = (split(/\//, $dir->dirname))[-1];
 
 my $collection_base_url = '/api/v1/config/connection_profiles';
 
 my $base_url = '/api/v1/config/connection_profile';
 
-$t->post_ok($collection_base_url => json => { id => 'test_audit', root_module => 'default_policy', advanced_filter => undef, filter => [ {type => 'ssid', match => 'bob'}], })
+sub test_file_patch {
+    my ($t, $profile, $file, $content) = @_;
+    $t->patch_ok("$base_url/$profile/files/$file" => {} => $content)
+      ->status_is(200);
+
+    $t->get_ok("$base_url/$profile/files/$file")
+      ->status_is(200)
+      ->content_is($content);
+
+}
+
+$t->post_ok($collection_base_url => json => { id => $test_profile_name, root_module => 'default_policy', advanced_filter => undef, filter => [ {type => 'ssid', match => 'bob'}], })
   ->status_is(201);
 
-$t->put_ok("$base_url/test_audit/files/bob.html" => {} => "bob")
+$t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => "bob")
   ->status_is(200);
+
+$t->get_ok("$base_url/$test_profile_name/files/bob.html")
+  ->status_is(200)
+  ->content_is('bob');
+
+$t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => "bob2")
+  ->status_is(412);
+
+test_file_patch($t, $test_profile_name, "bob.html", "bob2");
+test_file_patch($t, $test_profile_name, "aup_text.html", "aup_text.html");
+test_file_patch($t, $test_profile_name, "aup_text.html", "aup_text.html2");
 
 $t->get_ok($collection_base_url)
   ->status_is(200)
@@ -98,7 +124,7 @@ $items = $t->tx->res->json->{items};
 my @new_names = map { $_->{id} } @$items;
 
 is_deeply(\@new_names, ['default', @names], "Resorting");
-
+$dir->unlink_on_destroy(1);
 
 =head1 AUTHOR
 

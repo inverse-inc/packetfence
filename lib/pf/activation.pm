@@ -362,7 +362,7 @@ sub create {
     my ($args) = @_;
     my $mac          = $args->{'mac'};
     my $pid          = $args->{'pid'};
-    my $pending_addr = $args->{'pending'};
+    my $contact_info = $args->{'contact_info'} // $args->{'pending'};
     my $type         = $args->{'type'};
     my $portal       = $args->{'portal'};
     my $provider_id  = $args->{'provider_id'};
@@ -370,7 +370,6 @@ sub create {
     my $code_length  = $args->{'code_length'};
     my $no_unique    = $args->{'no_unique'};
     my $source_id    = $args->{'source_id'};
-    my $contact_info = $args->{contact_info};
 
     my $logger = get_logger();
 
@@ -379,12 +378,12 @@ sub create {
     }
 
     # invalidate older codes for the same MAC / contact_info
-    invalidate_codes($mac, $pid, $pending_addr);
+    invalidate_codes($mac, $pid, $contact_info);
 
     my %data = (
         'pid' => $pid,
         'mac' => $mac,
-        'contact_info' => $pending_addr,
+        'contact_info' => $contact_info,
         'status' => $UNVERIFIED,
         'type' => $type,
         'portal' => $portal,
@@ -393,7 +392,6 @@ sub create {
         'no_unique' => $no_unique,
         'style'    => $args->{style},
         'source_id' => $source_id,
-        'contact_info' => $contact_info,
     );
 
     # caculate activation code expiration

@@ -45,5 +45,5 @@ The character used to split the password and OTP when "Strip OTP" RADIUS method 
 Cache duration:
 The amount of time PacketFence will store the MFA information of the user (used for "Strip OTP" and "Second Password Field" since PacketFence deal with multiples RADIUS reuqest)
 
-image::TOTP_mfa_config[scaledwidth="100%",alt="Create OTP MFA Configuration"]
+image::TOTP_mfa_config.png[scaledwidth="100%",alt="Create OTP MFA Configuration"]
 

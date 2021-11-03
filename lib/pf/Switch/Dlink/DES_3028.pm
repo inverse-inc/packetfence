@@ -9,6 +9,10 @@ pf::Switch::Dlink::DES_3526 - Object oriented module to access SNMP enabled Dlin
 The pf::Switch::Dlink::DES_3526 module implements an object oriented interface
 to access SNMP enabled Dlink DES 3526 switches.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

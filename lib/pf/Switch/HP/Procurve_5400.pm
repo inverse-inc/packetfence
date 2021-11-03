@@ -36,6 +36,10 @@ The code is the same as the 2500 but the configuration should be like the 4100 s
 
 Recommanded Firmware is K.15.06.0008
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

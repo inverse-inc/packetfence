@@ -189,13 +189,15 @@ sub replace_file {
     if (!valid_file_path($file)) {
        return $self->render_error(412, "invalid characters in file '$file'");
     }
+    my $id = $self->id;
 
-    my $path = profileFilePath($self->id, $file);
-    if (!-e $path) {
-       return $self->render_error(412, "'$file' does not exists");
+    if (!defined findPath($id, $file)) {
+        return $self->render_error(404, "'$file' not found");
     }
 
+    my $path = profileFilePath($id, $file);
     my $content = $self->req->text;
+
     eval {
         pf::util::safe_file_update($path, $content, ":encoding(UTF-8)");
     };

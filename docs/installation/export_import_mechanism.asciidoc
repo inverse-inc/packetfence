@@ -19,7 +19,7 @@ endif::[]
 //== Export/Import mechanism
 
 This section covers export/import mechanism available since PacketFence 11.0.0.
-It can be used to automate upgrades or to restore PacketFence installations.
+It can be used to automate parts of upgrades or to restore PacketFence installations.
 
 === Assumptions and limitations
 
@@ -104,6 +104,9 @@ You first need to have a PacketFence installation with latest version done on
 a standalone server following the instructions in our install guide. You don't
 need to go through the configurator unless you want to modify IP settings of
 the server.
+
+WARNING: If you want to use the first step of the configurator to configure your
+server, you need to do it **before** running your import.
 
 ==== Preliminary steps
 

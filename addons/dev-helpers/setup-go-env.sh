@@ -30,7 +30,11 @@ install() {
 
     log_subsection "Downloading Golang from upstream"
     curl -s https://storage.googleapis.com/golang/$GOVERSION.linux-amd64.tar.gz -o /tmp/$GOVERSION.linux-amd64.tar.gz
+    log_subsection "Install Golang"
     tar -C /usr/local -xzf /tmp/$GOVERSION.linux-amd64.tar.gz
+    # symlink to find go binaries when environment ignore .bashrc
+    ln -f -s /usr/local/go/bin/go /usr/local/bin/go
+    ln -f -s /usr/local/go/bin/gofmt /usr/local/bin/gofmt
     rm /tmp/$GOVERSION.linux-amd64.tar.gz
 }
 
@@ -49,7 +53,8 @@ else
 
     # we are *NOT* in a packer build, need to setup env variables
     if [ -z "$PACKER_BUILD_NAME" ]; then
-        setup
+        mkdir -p $GO_REPO
+    	setup
         ( cd $GO_REPO ; go mod download )
     else
         # in a packer build, no need to pre-download

@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    11.1.0
+Version:    11.2.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -49,7 +49,7 @@ Requires: httpd, mod_ssl
 Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
 Requires: redis
-Requires: freeradius >= 3.0.23, freeradius-mysql >= 3.0.23, freeradius-perl >= 3.0.23, freeradius-ldap >= 3.0.23, freeradius-utils >= 3.0.23, freeradius-redis >= 3.0.23, freeradius-rest >= 3.0.23
+Requires: freeradius >= 3.0.25, freeradius-mysql >= 3.0.25, freeradius-perl >= 3.0.25, freeradius-ldap >= 3.0.25, freeradius-utils >= 3.0.25, freeradius-redis >= 3.0.25, freeradius-rest >= 3.0.25
 Requires: fuse
 Requires: make
 Requires: net-tools
@@ -482,6 +482,7 @@ cp addons/*.sh %{buildroot}/usr/local/pf/addons/
 %{__install} -D packetfence.rsyslog-drop-in.service %{buildroot}/etc/systemd/system/rsyslog.service.d/packetfence.conf
 %{__install} -D packetfence.monit-drop-in.service %{buildroot}/etc/systemd/system/monit.service
 %{__install} -D packetfence.journald %{buildroot}%{systemddir}/journald.conf.d/01-packetfence.conf
+%{__install} -D packetfence.logrotate-drop-in.service %{buildroot}/etc/systemd/system/logrotate.service.d/override.conf
 cp -r sbin %{buildroot}/usr/local/pf/
 cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
@@ -784,6 +785,7 @@ fi
 
 %dir %attr(0750, root,root) /etc/systemd/system/packetfence*target.wants
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
+%attr(0644, root, root) /etc/systemd/system/logrotate.service.d/override.conf
 %attr(0644, root, root) /etc/systemd/system/monit.service
 
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
@@ -1296,6 +1298,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Fri Oct 29 2021 Inverse <info@inverse.ca> - 11.2.0-1
+- New release 11.2.0
+
 * Tue Oct 05 2021 Inverse <info@inverse.ca> - 11.1.0-2
 - Add dependency to packetfence-release and gnupg2
 

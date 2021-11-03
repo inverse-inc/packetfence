@@ -32,7 +32,7 @@ use TestUtils;
 
 my $cpuinfo = TestUtils::cpuinfo();
 
-my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} || @$cpuinfo;
+my $JOBS = $ENV{'PF_SMOKE_TEST_JOBS'} || int((scalar @$cpuinfo) + 1);
 my $SLOW_TESTS = $ENV{'PF_SMOKE_SLOW_TESTS'};
 my $NO_SERIAL_TESTS = $ENV{'PF_SMOKE_NO_SERIAL_TESTS'};
 our $db_setup_script = "/usr/local/pf/t/db/setup_test_db.pl";

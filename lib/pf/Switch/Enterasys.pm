@@ -10,6 +10,10 @@ Enterasys switches
 The pf::Switch::Enterasys module implements an object oriented interface
 to access SNMP enabled Enterasys switches.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

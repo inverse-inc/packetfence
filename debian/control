@@ -35,15 +35,16 @@ Depends: ${misc:Depends}, vlan,
  mariadb-client (>= 10.5.10),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # for import/export scripts
- ipcalc,
+ ipcalc, ipcalc-ng,
 # apache related
  apache2, apache2-utils,
  libapache2-mod-apreq2, libapache2-mod-perl2,
  libapache2-request-perl, libtie-dxhash-perl, libapache-session-perl,
  libapache-ssllookup-perl, libapache2-mod-systemd,
 # freeradius
- freeradius (>= 3.0.23), freeradius-ldap,
+ freeradius (>= 3.0.25), freeradius-ldap,
  freeradius-mysql, freeradius-utils, freeradius-rest, freeradius-redis,
+ eapoltest,
 # systemd sd_notify support
  liblinux-systemd-daemon-perl,
 # binary
@@ -139,6 +140,8 @@ Depends: ${misc:Depends}, vlan,
  libauthen-radius-perl (>=0.24), libauthen-krb5-simple-perl,
 # used by bin/pftest
  libio-interactive-perl,
+# used by dev-helpers scripts
+ libtypes-serialiser-perl,
 # cluster
  haproxy (>= 2.2), keepalived (>= 2.0), arping,
 # monitoring

@@ -37,6 +37,11 @@ You need to have your MariaDB root password ready because several scripts will n
 
 === Database and configurations backup
 
+NOTE: Starting from PacketFence 11.0.0, this step is not necessary if you are
+doing an
+<<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automated
+upgrade>>.
+
 Taking a complete backup of your current installation is strongly recommended.
 You can take a backup using:
 
@@ -54,6 +59,10 @@ You can take a backup using:
 
 === Disable monit alerts (only if you have monit installed)
 
+NOTE: Starting from PacketFence 11.0.0, this step is not necessary if you are
+doing an
+<<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automated
+upgrade>>.
 
 If `monit` is installed and running, shut it down with:
 
@@ -91,27 +100,7 @@ include::common/restart.asciidoc[]
 
 IMPORTANT: This type of upgrade is only available starting from PacketFence 11.0.0
 
-=== Update repository definition
-
-include::common/update_repo_definition.asciidoc[]
-
-=== Upgrade packages
-
-include::common/upgrade_packages.asciidoc[]
-
-=== New versions of config files
-
-include::common/new_config_files.asciidoc[]
-
-=== Export/Import your configuration
-
-==== Export
-
-Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export_on_current_installation,export process>>.
-
-==== Import
-
-Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
+Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automation of upgrades>>.
 
 == Upgrade procedure
 
@@ -1670,7 +1659,15 @@ The `pf-maint.pl` script used to get maintenance patches has been deprecated. Yo
 
 The WMI scan engines have been deprecated. If you previously used these scan engines, you should migrate to other scan engines.
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 11.1.0
+
+
+=== Automation of upgrades for standalone servers
+
+Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
+Follow instructions related to
+<<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automation
+of upgrades>>.
 
 === Support of custom rules in iptables.conf
 
@@ -1698,6 +1695,38 @@ Monit configuration is now managed directly in
 [filename]`/usr/local/pf/conf/pf.conf`. An upgrade script will be used during
 upgrade process to automatically migrate existing Monit configuration into
 [filename]`/usr/local/pf/conf/pf.conf`.
+
+
+=== Note for cluster upgrades
+
+If you use a cluster, their upgrade isn't yet automated so you will need to follow the instructions in this section to upgrade the configuration and database schema.
+
+==== Configuration upgrade
+
+[source,bash]
+----
+# Only run this for cluster upgrades
+/usr/local/pf/addons/upgrade/to-11.1-cleanup-ntlm-cache-batch-fields.pl
+/usr/local/pf/addons/upgrade/to-11.1-migrate-monit-configuration-to-pf-conf.pl
+/usr/local/pf/addons/upgrade/to-11.1-remove-unused-sources.pl
+/usr/local/pf/addons/upgrade/to-11.1-remove-wmi-scan.pl
+/usr/local/pf/addons/upgrade/to-11.1-update-reports.pl
+----
+
+==== Database schema
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 11.0 schema to 11.1.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+# Only run this for cluster upgrades
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.0-11.1.sql
+----
+
+== Upgrading from a version prior to X.Y.Z
 
 === Database schema
 

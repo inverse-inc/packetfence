@@ -18,9 +18,6 @@
 
 - import_playbook: playbooks/install_pf.yml
   
-- import_playbook: playbooks/go_env.yml
-  when: lookup("env", "GOLANG_UNIT_TESTS") == 'yes'
-  
 - import_playbook: playbooks/winservers.yml
 
 - import_playbook: playbooks/linux_servers.yml
@@ -34,4 +31,3 @@
 - import_playbook: playbooks/utils.yml
   tags: utils
 
-- import_playbook: playbooks/unregister_rhel_subscription.yml

@@ -9,6 +9,10 @@ pf::Switch::Dlink - Object oriented module to access SNMP enabled Dlink switches
 The pf::Switch::Dlink module implements an object oriented interface
 to access SNMP enabled Dlink switches.
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

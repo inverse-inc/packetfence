@@ -30,7 +30,7 @@
           :column-label="$i18n.t('Track Configuration')"
           :text="$i18n.t('This service will track all changes to the configuration. Notice that the content of all files (except domain.conf) under /usr/local/pf/conf will be tracked, including passwords.')"
         >
-          <base-button-service service="tracking-config" start stop
+          <base-button-service service="tracking-config" start stop enable disable
             :disabled="isLoading" class="px-0 col-md-7 col-lg-5 col-xl-4" acl="" />
         </base-form-group>
       </base-form>

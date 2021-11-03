@@ -1,0 +1,2 @@
+---
+- import_playbook: playbooks/unregister_rhel_subscription.yml

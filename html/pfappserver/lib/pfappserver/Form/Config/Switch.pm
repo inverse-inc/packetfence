@@ -271,7 +271,7 @@ has_field macSearchesSleepInterval  =>
 
 has_block definition =>
   (
-   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+   render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
   );
 
   has_field 'SNMPVersion' =>

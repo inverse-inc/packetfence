@@ -14,7 +14,7 @@ export const useSearch = makeSearch('users', {
     {
       key: 'tenant_id',
       label: 'Tenant', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       formatter: formatter.tenantId
     },
@@ -29,141 +29,141 @@ export const useSearch = makeSearch('users', {
     {
       key: 'title',
       label: 'Title', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'firstname',
       label: 'Firstname', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'lastname',
       label: 'Lastname', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'nickname',
       label: 'Nickname', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'email',
       label: 'Email', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'sponsor',
       label: 'Sponsor', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'anniversary',
       label: 'Anniversary', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'birthday',
       label: 'Birthday', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'address',
       label: 'Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'apartment_number',
       label: 'Apartment Number', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       class: 'text-nowrap'
     },
     {
       key: 'building_number',
       label: 'Building Number', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       class: 'text-nowrap'
     },
     {
       key: 'room_number',
       label: 'Room Number', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       class: 'text-nowrap'
     },
     {
       key: 'company',
       label: 'Company', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'gender',
       label: 'Gender', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'lang',
       label: 'Language', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'notes',
       label: 'Notes', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'portal',
       label: 'Portal', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'psk',
       label: 'PSK', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'source',
       label: 'Source', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'cell_phone',
       label: 'Cellular Phone Number', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       class: 'text-nowrap'
     },
     {
       key: 'telephone',
       label: 'Home Telephone Number', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       class: 'text-nowrap'
     },
     {
       key: 'work_phone',
       label: 'Work Telephone Number', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       class: 'text-nowrap'
     },

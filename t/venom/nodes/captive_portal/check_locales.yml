@@ -1,5 +1,4 @@
 name: Check captive portal locales from node01
-version: 2
 testcases:
 
 - name: check_locale_from_browser

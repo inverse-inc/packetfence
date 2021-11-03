@@ -65,6 +65,10 @@ Note that after changing the settings above, you need to regenerate the domain c
   /usr/local/pf/bin/pfcmd generatedomainconfig
   /usr/local/pf/bin/pfcmd service winbindd restart
 
+===== Additional safety using monit
+
+Some versions of samba/winbindd may not failover correctly when one of the DC fails, even with the best practices above. For this reason, it is suggested to enable monit on your installation. This will automatically activate an additional check that will restart winbindd if authentication fails to the current DC. Upon restart, a new DC will be found and authentication will resume. To enable this mecanism, enable monit as described <<_monit,in this section of the document>> and it be added automatically.
+
 ==== Authorization layer
 
 The authorization layer of PacketFence uses the DNS servers setup on the operating system to resolve names. With that in mind, you will need to ensure that the servers in `/etc/resolv.conf` allow for proper fail-over should one of them fail. Similarly to the authentication layer, you will want to alternate the order of the servers based on the different availability zones you have. You will also want to have aggressive settings for fail-over to the next DNS server. For example, if you have the following DNS servers in the first availability zone: `10.0.1.100,10.0.1.101` and the following in the second availability zone: `10.0.2.100,10.0.2.101`, then the resulting `/etc/resolv.conf` should be:

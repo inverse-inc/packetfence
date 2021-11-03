@@ -16,7 +16,7 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'tenant_id',
       label: 'Tenant', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       formatter: formatter.tenantId
     },
@@ -43,7 +43,7 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'detect_date',
       label: 'Detected Date', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       formatter: formatter.datetimeIgnoreZero,
       class: 'text-nowrap'
@@ -58,7 +58,7 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'unregdate',
       label: 'Unregistration Date', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       formatter: formatter.datetimeIgnoreZero,
       class: 'text-nowrap'
@@ -66,7 +66,7 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'computername',
       label: 'Computer Name', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
@@ -87,62 +87,62 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'ip6log.ip',
       label: 'IPv6 Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'device_class',
       label: 'Device Class', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'device_manufacturer',
       label: 'Device Manufacturer', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'device_score',
       label: 'Device Score', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'device_type',
       label: 'Device Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'device_version',
       label: 'Device Version', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'dhcp6_enterprise',
       label: 'DHCPv6 Enterprise', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'dhcp6_fingerprint',
       label: 'DHCPv6 Fingerprint', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'dhcp_fingerprint',
       label: 'DHCP Fingerprint', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'category_id',
       label: 'Role', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true,
       formatter: formatter.categoryId
@@ -150,37 +150,37 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'locationlog.connection_type',
       label: 'Connection Type', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'locationlog.session_id',
       label: 'Session ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'locationlog.switch',
       label: 'Switch Identifier', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'locationlog.switch_ip',
       label: 'Switch IP Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'locationlog.switch_mac',
       label: 'Switch MAC Address', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'locationlog.port',
       label: 'Switch Port', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
@@ -191,32 +191,32 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'locationlog.ssid',
       label: 'SSID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'locationlog.vlan',
       label: 'VLAN', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'bypass_vlan',
       label: 'Bypass VLAN', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'bypass_role_id',
       label: 'Bypass Role', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       formatter: formatter.bypassRoleId
     },
     {
       key: 'notes',
       label: 'Notes', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
@@ -248,7 +248,7 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'machine_account',
       label: 'Machine Account', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
@@ -273,7 +273,7 @@ export const useSearch = makeSearch('nodes', {
     {
       key: 'user_agent',
       label: 'User Agent', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {

@@ -22,7 +22,7 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
     {
       key: 'created_at',
       label: 'Created At', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true,
       formatter: formatter.datetimeIgnoreZero
@@ -30,48 +30,48 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
     {
       key: 'circuit_id_string',
       label: 'Circuit ID String', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'host',
       label: 'Host', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'module',
       label: 'Module', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true
     },
     {
       key: 'option82_switch',
       label: 'Option82 Switch', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'port',
       label: 'Port', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'switch_id',
       label: 'Switch ID', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },
     {
       key: 'vlan',
       label: 'DHCP Option 82 VLAN', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true
     },

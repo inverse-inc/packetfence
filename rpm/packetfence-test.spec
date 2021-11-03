@@ -1,5 +1,5 @@
 Name:       packetfence-test
-Version:    11.1.0
+Version:    11.2.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence test files
@@ -107,7 +107,8 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/UnifiedApi/Search/Builder/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/cmd/pf/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/provisioner/*.t
-%attr(0755, -, -)    /usr/local/pf/t/unittest/pfmon/task/*.t
+%attr(0755, -, -)    /usr/local/pf/t/unittest/pfcron/*.t
+%attr(0755, -, -)    /usr/local/pf/t/unittest/pfcron/task/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/Authentication/*.t
 %attr(0755, -, -)    /usr/local/pf/t/unittest/Authentication/Source/*.t
 
@@ -115,6 +116,9 @@ PacketFence test files. This package contains all files related to PacketFence t
 %attr(0755, -, -)     /usr/local/pf/t/venom/*.sh
 
 %changelog
+* Fri Oct 29 2021 Inverse <info@inverse.ca> - 11.2.0-1
+- New release 11.2.0
+
 * Thu Sep 02 2021 Inverse <info@inverse.ca> - 11.1.0-1
 - New release 11.1.0
 

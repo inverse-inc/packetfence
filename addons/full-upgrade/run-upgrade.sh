@@ -68,10 +68,11 @@ function set_upgrade_to() {
 function apt_upgrade_packetfence_package() {
   set_upgrade_to
   echo "deb http://inverse.ca/downloads/PacketFence/debian/$UPGRADE_TO bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
-  # TODO: allow to update full OS or only PF
   apt update
   if is_enabled $1; then
+    apt-mark hold packetfence-upgrade
     DEBIAN_FRONTEND=noninteractive apt upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y
+    apt-mark unhold packetfence-upgrade
   else
     DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
   fi
@@ -79,10 +80,10 @@ function apt_upgrade_packetfence_package() {
 
 function yum_upgrade_packetfence_package() {
   set_upgrade_to
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/etc/yum.repos.d/packetfence.repo') ; \$c->setval('packetfence', 'baseurl', 'http://inverse.ca/downloads/PacketFence/RHEL\$releasever/"$UPGRADE_TO"/\$basearch') ; \$c->RewriteConfig"
+  yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
-    yum update -y --enablerepo=packetfence
+    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade
   else
     yum update packetfence -y --enablerepo=packetfence
   fi
@@ -128,8 +129,8 @@ function handle_pkgnew_file() {
   cp -a $pkgnew_file $non_pkgnew_file
   echo "Attempting a dry-run of the patch on $non_pkgnew_file"
   if ! patch -p1 -f --dry-run < $patch_file; then
-    # TODO: store these somewhere so that they can be displayed at the end of the upgrade
-    echo "Patching $non_pkgnew_file failed. Will put the $suffix file in place. This should be addressed manually after the upgrade is completed."
+    echo "Patching $non_pkgnew_file failed. Will put the $suffix file in place. This should be addressed manually after the upgrade is completed. Press enter to continue..."
+    read
     cp -a $pkgnew_file $non_pkgnew_file
   else
     echo "Dry-run completed successfully, applying the patch"
@@ -173,6 +174,8 @@ function hook_if_exists() {
     sub_splitter
   fi
 }
+
+cd /usr/local/pf/
 
 hook_if_exists do-upgrade-start.sh
 

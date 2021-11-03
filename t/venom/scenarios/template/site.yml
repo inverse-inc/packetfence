@@ -1,0 +1,6 @@
+---
+# - import_playbook: provision.yml
+
+- import_playbook: playbooks/configure.yml
+
+- import_playbook: playbooks/run_tests.yml

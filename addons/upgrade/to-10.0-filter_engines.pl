@@ -156,6 +156,10 @@ sub populate {
             next;
         }
 
+        if ($new_file->SectionExists($id)) {
+            return;
+        }
+
         $new_file->AddSection($id);
         while (my ($k, $v) = each %new_fields) {
             $new_file->newval($id, $k, $v);

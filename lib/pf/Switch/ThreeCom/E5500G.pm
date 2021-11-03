@@ -84,6 +84,10 @@ It's really a matter of choice.
 
 =back
 
+=head1 SNMP
+
+This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
+
 =cut
 
 use strict;

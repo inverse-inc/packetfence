@@ -34,6 +34,7 @@
       - packetfence-test
       - wpasupplicant
       - sscep
+      - rsync
 
   roles:
     - role: inverse_inc.gitlab_buildpkg_tools

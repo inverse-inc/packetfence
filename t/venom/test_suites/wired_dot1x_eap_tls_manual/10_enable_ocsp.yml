@@ -1,0 +1,44 @@
+name: Enable OCSP
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_ocsp_profile
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/ocsp_profiles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.wired_dot1x_eap_tls_manual.ocsp.id}}",
+        "ocsp_enable": "{{.wired_dot1x_eap_tls_manual.ocsp.enable}}",
+        "ocsp_url": "{{.wired_dot1x_eap_tls_manual.ocsp.url}}",        
+        "ocsp_override_cert_url": "{{.wired_dot1x_eap_tls_manual.ocsp.override_cert_url}}",
+        "ocsp_softfail": "{{.wired_dot1x_eap_tls_manual.ocsp.softfail}}",
+        "ocsp_timeout": "{{.wired_dot1x_eap_tls_manual.ocsp.timeout}}",
+        "ocsp_use_nonce": "{{.wired_dot1x_eap_tls_manual.ocsp.use_nonce}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: update_tls_common_profile
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/tls_profile/tls-common'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "tls-common",
+        "ocsp": "{{.wired_dot1x_eap_tls_manual.ocsp.id}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

@@ -75,7 +75,7 @@ sub cleanup_after_read {
     my ( $self, $id, $item ) = @_;
     # By default expand_list doesn't expand undef values, in this case we want it so we define an empty value when undef
     my @expandable_params = @{$self->{expandable_params}};
-    if ($item->{type} eq 'sql' && exists $item->{cursor_type}) {
+    if (defined($item->{type}) && $item->{type} eq 'sql' && exists $item->{cursor_type}) {
         if ($item->{cursor_type} eq 'multi_field') {
             push @expandable_params, qw(cursor_field cursor_default);
         }

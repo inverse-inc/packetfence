@@ -131,6 +131,8 @@ install: build
 	install -m0600 $(CURDIR)/packetfence.monit-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/monit.service
 	install -d -m0755 $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/
 	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/01-packetfence.conf
+	install -d -m0755 $(CURDIR)/debian/packetfence/etc/systemd/system/logrotate.service.d/
+	install -m0600 $(CURDIR)/packetfence.logrotate-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/logrotate.service.d/override.conf
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
@@ -279,6 +281,8 @@ binary-arch: build install
 	# packetfence-export pkg
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/export.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-export$(PREFIX)/$(NAME)/addons/full-import/find-extra-files.pl
+	# packetfence-upgrade pkg
+	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-upgrade/*.sh
 	# packetfence-test pkg
 	# t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/*.pl
@@ -339,7 +343,8 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/UnifiedApi/Search/Builder/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/cmd/pf/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/provisioner/*.t
-	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/pfmon/task/*.t
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/pfcron/*.t
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/pfcron/task/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/Authentication/*.t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/Authentication/Source/*.t
 	# Venom

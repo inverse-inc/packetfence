@@ -69,6 +69,16 @@ yum install ipset-devel pkgconfig
 apt install libipset-dev pkg-config
 ----
 
+==== Update dependencies
+
+After you add or remove Golang dependencies, you should run following command
+in [filename]`go` directory to update `go.mod` and `go.sum` files:
+
+[source,bash]
+----
+go mod tidy
+----
+
 ==== Building the code
 
 All code should be built into a Caddy middleware which we'll then use in a

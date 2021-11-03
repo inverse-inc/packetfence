@@ -28,7 +28,6 @@ export const useStore = $store => {
         creationPromise = $store.dispatch('$_certificates/createCertificate', certificate)
       return creationPromise.then(() => {
         $store.dispatch('notification/info', { message: i18n.t('{certificate} certificate saved', { certificate: params.id.toUpperCase() }) })
-        // getItem().then(item => form.value = item)
       }).finally(() =>
         window.scrollTo(0, 0)
       )
@@ -86,10 +85,14 @@ const actions = {
       throw err
     })
   },
-  createCertificate: ({ commit }, data) => {
+  createCertificate: ({ commit, state, dispatch }, data) => {
     commit('ITEM_REQUEST')
     return api.createCertificate(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const hasInfo = (data.id in state.cache.info)
+      commit('ITEM_REPLACED', data) // truncates info
+      if (hasInfo) {
+        dispatch('getCertificateInfo', data.id) // refetch info, fixes #6654
+      }
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -100,7 +103,8 @@ const actions = {
     const request = {
       id: data.id,
       lets_encrypt: data.lets_encrypt,
-      common_name: data.common_name
+      common_name: data.common_name,
+      ca: data.ca
     }
     commit('ITEM_REQUEST')
     return api.createLetsEncryptCertificate(request).then(response => {
@@ -146,7 +150,7 @@ const mutations = {
     state.itemStatus = types.SUCCESS
     if (data.private_key) {
       Vue.set(state.cache.certificate, data.id, JSON.parse(JSON.stringify(data)))
-      Vue.delete(state.cache.info, data.id)
+      Vue.set(state.cache.info, data.id, false)
     } else {
       Vue.set(state.cache.info, data.id, JSON.parse(JSON.stringify(data)))
     }

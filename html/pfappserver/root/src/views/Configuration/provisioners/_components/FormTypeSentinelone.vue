@@ -6,7 +6,7 @@
     :isLoading="isLoading"
   >
     <form-group-identifier namespace="id"
-      :column-label="$i18n.t('PKI Provider Name')"
+      :column-label="$i18n.t('Provisioning ID')"
       :disabled="!isNew && !isClone"
     />
 

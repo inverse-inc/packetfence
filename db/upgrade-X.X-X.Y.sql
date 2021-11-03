@@ -8,11 +8,11 @@
 --
 
 SET @MAJOR_VERSION = 11;
-SET @MINOR_VERSION = 1;
+SET @MINOR_VERSION = 2;
 
 
 SET @PREV_MAJOR_VERSION = 11;
-SET @PREV_MINOR_VERSION = 0;
+SET @PREV_MINOR_VERSION = 1;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
@@ -47,19 +47,6 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
-\! echo "Adding index to ip4log"
-ALTER TABLE `ip4log`
-  DROP INDEX IF EXISTS ip4log_mac_end_time,
-  ADD INDEX IF NOT EXISTS ip4log_tenant_id_mac_end_time (tenant_id,mac,end_time);
-
-\! echo "Adding index to auth_log"
-ALTER TABLE `auth_log`
-  DROP INDEX IF EXISTS completed_at,
-  ADD INDEX IF NOT EXISTS completed_at (completed_at);
-
-\! echo "altering person"
-ALTER TABLE person
-    ADD COLUMN IF NOT EXISTS `otp` TEXT NULL DEFAULT NULL AFTER potd;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

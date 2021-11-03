@@ -22,7 +22,7 @@ export const useSearch = makeSearch('adminApiLogs', {
     {
       key: 'created_at',
       label: 'Created At', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: true,
       visible: true,
       formatter: formatter.datetimeIgnoreZero
@@ -51,19 +51,19 @@ export const useSearch = makeSearch('adminApiLogs', {
     {
       key: 'url',
       label: 'URL', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: false
     },
     {
       key: 'method',
       label: 'Method', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: false
     },
     {
       key: 'status',
       label: 'Status', // i18n defer
-      searchable: true,
+      searchable: false,
       sortable: false,
       visible: true
     },

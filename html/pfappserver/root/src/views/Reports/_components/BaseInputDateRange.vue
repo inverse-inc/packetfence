@@ -73,6 +73,8 @@ const setup = (props, context) => {
       // only emit valid format
       if (start_date.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
         emit('input', { ...value.value, start_date })
+      else if (['', null].includes(start_date))
+        emit('input', { ...value.value, start_date: minStartDate.value })
       trigger()
     }
   }))
@@ -101,6 +103,8 @@ const setup = (props, context) => {
       // only emit valid format
       if (end_date.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
         emit('input', { ...value.value, end_date })
+      else if (['', null].includes(end_date))
+        emit('input', { ...value.value, end_date: maxEndDate.value })
       trigger()
     }
   }))

@@ -1150,7 +1150,7 @@ sub generate_radiusd_cluster {
         my $i = 0;
         foreach my $radius_back (@radius_backend) {
             next if($radius_back eq $management_network->{Tip} && isdisabled($Config{active_active}{auth_on_management}));
-            $tags{'members'} .= <<"EOT";
+$tags{'members'} .= <<"EOT";
 home_server pf$i.cluster {
         type = auth+acct
         ipaddr = $radius_back
@@ -1159,10 +1159,10 @@ home_server pf$i.cluster {
         secret = $local_secret
         response_window = 6
         status_check = status-server
-        revive_interval = 120
-        check_interval = 30
+        check_interval = 20
         num_answers_to_alive = 3
-        response_timeouts = 30
+        response_timeouts = 3
+        zombie_period = 40
 }
 home_server pf$i.cli.cluster {
         type = auth
@@ -1170,12 +1170,12 @@ home_server pf$i.cli.cluster {
         src_ipaddr = $cluster_ip
         port = 1815
         secret = $local_secret
-        response_window = 6
+        response_window = 60
         status_check = status-server
-        revive_interval = 120
-        check_interval = 30
+        check_interval = 20
         num_answers_to_alive = 3
-        response_timeouts = 30
+        response_timeouts = 3
+        zombie_period = 40
 }
 EOT
             $tags{'home_server'} .= <<"EOT";

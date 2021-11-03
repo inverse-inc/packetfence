@@ -290,16 +290,14 @@ Logon to your PacketFence server:
 * Go to the bottom of the configuration file and set the folllowing section.
 
 ----
-
- [SSID]
- filter = ssid
- operator = is
- value = YourOpenSSID
- 
- [1:SSID]
- scope = radius_authorize
- param1 = ExternalPortalEnforcement => Y
- param2 = VlanMap => N
+[enable_external_portal_on_guest_ssid]
+status=enabled
+description=enable_external_portal_on_guest_ssid
+scopes=radius_authorize
+param.0=ExternalPortalEnforcement=Y
+top_op=and
+param.1=VlanMap=N
+condition=ssid == "YourOpenSSID"
 
 ----
 
