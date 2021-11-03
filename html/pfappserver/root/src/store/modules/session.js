@@ -25,8 +25,8 @@ const api = {
     if (readonly) url += '?no-expiration-extension=1'
     return apiCall.getQuiet(url)
   },
-  getTenants: () => {
-    return apiCall.get('tenants')
+  getTenants: params => {
+    return apiCall.get('tenants', { params })
   },
   getLanguage: (locale) => {
     return apiCall.get(`translation/${locale}`)
@@ -265,7 +265,7 @@ const actions = {
   },
   getTenants: ({ commit }) => {
     if (acl.$can('read', 'system')) {
-      return api.getTenants().then(response => {
+      return api.getTenants({ limit: 1000 }).then(response => {
         commit('TENANTS_UPDATED', response.data)
       })
     } else {
