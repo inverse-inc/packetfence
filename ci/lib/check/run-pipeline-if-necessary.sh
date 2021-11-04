@@ -19,27 +19,20 @@ configure_and_check() {
     COMMIT_REF_NAME_ENCODED=$(urlencode "$CI_COMMIT_REF_NAME")
     COMMIT_SHA=$(git rev-parse HEAD~0)
     
-    # get infos on latest pipeline on that branch
-    STATUS_LATEST_PIPELINE=$(curl -s https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/repository/commits/${COMMIT_REF_NAME_ENCODED} | jq -r .last_pipeline.status)
-    SOURCE_LATEST_PIPELINE=$(curl -s https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/repository/commits/${COMMIT_REF_NAME_ENCODED} | jq -r .last_pipeline.source)
-    SHA_LATEST_PIPELINE=$(curl -s https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/repository/commits/${COMMIT_REF_NAME_ENCODED} | jq -r .last_pipeline.sha)
+    # get SHA of latest pipeline scheduled with status=succes for that branch
+    SHA_LATEST_PIPELINE=$(curl -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/pipelines?status=success&source=schedule&ref=${COMMIT_REF_NAME_ENCODED}" | jq -r '.[0].sha')
 
     RUN_PIPELINE=yes
 
     # We don't want to run a new pipeline if:
     # latest pipeline scheduled with identical SHA was a success
-    if [ "$STATUS_LATEST_PIPELINE" = "success"  ]; then
-        if [ "$SOURCE_LATEST_PIPELINE" = "schedule" ]; then
-            if [ "$SHA_LATEST_PIPELINE" = "$COMMIT_SHA" ]; then
-                echo "Latest pipeline scheduled on that branch for $COMMIT_SHA succeed"
-                echo "No need to re-run a pipeline unless FORCE_BUILD variable is defined"
-                RUN_PIPELINE=no
-            fi
-        fi
+    if [ "$SHA_LATEST_PIPELINE" = "$COMMIT_SHA" ]; then
+        echo "Latest pipeline scheduled on that branch for $COMMIT_SHA succeed"
+        echo "No need to re-run a pipeline"
+        RUN_PIPELINE=no
     fi
 
     declare -p COMMIT_SHA SHA_LATEST_PIPELINE
-    declare -p STATUS_LATEST_PIPELINE SOURCE_LATEST_PIPELINE
     declare -p RUN_PIPELINE
 }
 
