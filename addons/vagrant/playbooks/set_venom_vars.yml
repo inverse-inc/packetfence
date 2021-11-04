@@ -1,0 +1,8 @@
+- hosts: pfservers
+  name: Set venom vars
+  become: True
+  gather_facts: False
+
+  tasks:
+  # packetfence-test or /usr/local/pf/t/venom/vars/local.yml should exist
+  - import_tasks: tasks/install_venom_local_vars.yml
