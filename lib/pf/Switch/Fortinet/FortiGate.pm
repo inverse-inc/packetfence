@@ -248,6 +248,22 @@ sub returnAuthorizeVPN {
     return $kick if (defined($kick));
 
     my $node = $args->{'node_info'};
+    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+        $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
+            $role = $self->getRoleByName($args->{'user_role'});
+        }
+        if ( defined($role) && $role ne "" ) {
+            push(@av_pairs, $self->returnRoleAttribute."=".$self->returnRoleAttributes($role));
+            $logger->info(
+                "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
+            );
+            delete $radius_reply_ref->{$self->returnRoleAttribute};
+        }
+        else {
+            $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+        }
+    }
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     $logger->info("Returning ACCEPT");
