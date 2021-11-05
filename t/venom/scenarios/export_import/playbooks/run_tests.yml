@@ -15,9 +15,9 @@
 
   tasks:
     - name: Run Venom testsuites
-      command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
       args:
-        chdir: '/usr/local/pf/t/venom'
+        chdir: '{{ venom_dir }}'
       loop: '{{ test_suites }}'
       vars:
         venom_wrapper_args:
@@ -25,7 +25,7 @@
           # - tap: https://github.com/ovh/venom/issues/428
           # - when running test suite one by one, previous logs and results are overriden
           # Venom will create one directory per test suite to store results
-          VENOM_COMMON_FLAGS: '--format=tap --output-dir=/usr/local/pf/t/venom/results/{{ item }}'
+          VENOM_COMMON_FLAGS: '--format=tap --output-dir={{ venom_dir }}/results/{{ item }}'
 
       # add inventory__group_environment to Ansible environment
       # useful to make env vars available for Venom
@@ -43,9 +43,9 @@
 
   tasks:
     - name: Run Venom testsuites
-      command: '/usr/local/pf/t/venom/venom-wrapper.sh /usr/local/pf/t/venom/test_suites/{{ item }}'
+      command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
       args:
-        chdir: '/usr/local/pf/t/venom'
+        chdir: '{{ venom_dir }}'
       loop: '{{ test_suites }}'
       vars:
         venom_wrapper_args:
@@ -53,7 +53,7 @@
           # - tap: https://github.com/ovh/venom/issues/428
           # - when running test suite one by one, previous logs and results are overriden
           # Venom will create one directory per test suite to store results
-          VENOM_COMMON_FLAGS: '--format=tap --output-dir=/usr/local/pf/t/venom/results/{{ item }}'
+          VENOM_COMMON_FLAGS: '--format=tap --output-dir={{ venom_dir }}/results/{{ item }}'
 
       # add inventory__group_environment to Ansible environment
       # useful to make env vars available for Venom

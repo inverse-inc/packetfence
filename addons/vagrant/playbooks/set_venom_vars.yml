@@ -4,5 +4,5 @@
   gather_facts: True
 
   tasks:
-  # packetfence-test or /usr/local/pf/t/venom/vars/local.yml should exist
+  # packetfence-test or {{ venom_dir }}/vars/local.yml should exist
   - import_tasks: tasks/install_venom_local_vars.yml
