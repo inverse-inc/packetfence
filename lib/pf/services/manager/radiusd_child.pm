@@ -1335,6 +1335,17 @@ EOT
     } else {
         my $file = $install_dir."/raddb/sites-enabled/packetfence-cluster";
         unlink($file);
+        my $management_ip
+        = defined( $management_network->tag('vip') )
+        ? $management_network->tag('vip')
+        : $management_network->tag('ip');
+        $tags{'config'} .= <<"EOT";
+client $management_ip {
+        ipaddr = $management_ip
+        secret = $local_secret
+        shortname = pf
+}
+EOT
     }
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
