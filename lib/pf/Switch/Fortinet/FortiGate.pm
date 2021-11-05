@@ -221,7 +221,7 @@ sub identifyConnectionType {
     my @require = qw(Fortinet-Vdom-Name);
     my @found = grep {exists $radius_request->{$_}} @require;
 
-    if (@require == @found) {
+    if ( (@require == @found) || (exists $radius_request->{'Connect-Info'} && $radius_request->{'Connect-Info'} eq 'vpn-ssl') ) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
     } else {
