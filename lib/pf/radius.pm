@@ -942,11 +942,10 @@ sub vpn {
     $return = $self->mfa_post_auth($args, $options, $sources, $source_id, $extra ,$otp, $password);
     return $return if (ref($return) eq 'ARRAY');
 
-    return $args->{'switch'}->returnAuthorizeVPN($args);
-
+    return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
 }
 
- sub cli {
+sub cli {
     my ($self, $args, $options, $sources, $extra, $otp, $password) = @_;
     my $logger = $self->logger;
 
@@ -969,6 +968,22 @@ sub vpn {
     return $return if (ref($return) eq 'ARRAY');
 
     return $self->returnRadiusCli($args, $options, $sources, $source_id, $extra);
+}
+
+sub returnRadiusVpn{
+    my ($self, $args, $options, $sources, $source_id, $extra) = @_;
+    my $logger = $self->logger;
+    if (!( defined($args->{'user_role'}) && $args->{'user_role'} ne "" )) {
+        my $merged = { %$options, %$args };
+        $merged->{'rule_class'} = $Rules::AUTH;
+        $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
+        my $attributes;
+        my $matched = pf::authentication::match2([@$sources], $merged, undef, \$attributes);
+
+        my $values = $matched->{values};
+        $args->{'user_role'} = $values->{$Actions::SET_ROLE};
+    }
+    return $args->{'switch'}->returnAuthorizeVPN($args);
 }
 
 sub returnRadiusCli{

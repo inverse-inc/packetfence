@@ -246,16 +246,18 @@ sub returnAuthorizeVPN {
     # should this node be kicked out?
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
-    my $role;
 
-    my $node = $args->{'node_info'};
+    my $role;
     if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
         $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
         if ( defined($role) && $role ne "" ) {
-            $radius_reply_ref->{$self->returnRoleAttribute} = $self->returnRoleAttributes($role);
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                $self->returnRoleAttributes($role),
+            };
             $logger->info(
                 "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
             );
