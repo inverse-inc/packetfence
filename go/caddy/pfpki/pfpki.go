@@ -131,9 +131,13 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 
 	api.Handle("/scep/{id}", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
 
+	api.Handle("/scep/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
+
 	api.Handle("/pki/scep", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
 
 	api.Handle("/pki/scep/{id}", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
+
+	api.Handle("/pki/scep/{id}/pkiclient.exe", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
 
 	api.Handle("/pki/scep/{id}/", handlers.ManageSCEP(PFPki)).Methods("GET", "POST")
 
