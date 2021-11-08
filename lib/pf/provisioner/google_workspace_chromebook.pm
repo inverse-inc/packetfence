@@ -282,7 +282,7 @@ sub getList {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         $response = decode_json($response_body);
         if($response_code == 200) {
-            return undef, $response;
+            return undef, $response_body;
         }
 
         return $FALSE, $response;
