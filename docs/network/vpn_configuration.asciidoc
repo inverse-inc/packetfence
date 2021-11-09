@@ -100,3 +100,117 @@ Before trying to configure PacketFence with the Cisco ASA first be sure that whe
  tunnel-group VPN webvpn-attributes
   group-alias VPN enable
 
+
+
+=== OpenVPN
+
+PacketFence support OpenVPN with PAP authentication.
+
+==== OpenVPN server configuration
+
+In this section we will cover the OpenVPN installation on a Debian 11 machine and how to configure it.
+
+ apt install libgcrypt20-dev openvpn easy-rsa
+
+ mkdir -p /etc/openvpn/server/certs
+ cd /etc/openvpn/server/certs
+ openssl genrsa -out ca.key 2048
+ openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
+ openssl genrsa -out vpn.key 2048
+ openssl req -new -key vpn.key -out vpn.csr
+ openssl x509 -req -in vpn.csr -out vpn.crt -CA ca.crt -CAkey ca.key -CAcreateserial -days 365
+ openssl dhparam -out dh2048.pem 2048
+
+Edit the server.conf file and paste this following content:
+
+ vim /etc/openvpn/server.conf
+
+ port 443
+ proto tcp4
+ dev tun
+ server 10.11.0.0 255.255.255.0
+ ca /etc/openvpn/server/certs/ca.crt
+ cert /etc/openvpn/server/certs/vpn.crt
+ key /etc/openvpn/server/certs/vpn.key
+ dh /etc/openvpn/server/certs/dh2048.pem
+ plugin /etc/openvpn/radiusplugin.so /etc/openvpn/radiusplugin.cnf
+ persist-key
+ persist-tun
+ keepalive 10 60
+ reneg-sec 0
+ comp-lzo
+ tun-mtu 1468
+ tun-mtu-extra 32
+ mssfix 1400
+ push "persist-key"
+ push "persist-tun"
+ push "redirect-gateway def1"
+ push "dhcp-option DNS 8.8.8.8"
+ push "dhcp-option DNS 8.8.4.4"
+ status /etc/openvpn/443.log
+ verb 3
+ verify-client-cert none
+
+Next you need to compile the radius extention for openvpn:
+
+ wget https://github.com/ValdikSS/openvpn-radiusplugin/archive/refs/heads/master.zip
+ unzip master.zip
+ cd openvpn-radiusplugin-master
+
+ Then apply this patch:
+
+ diff -ruN openvpn-radiusplugin-master.orig/Config.cpp openvpn-radiusplugin-master/Config.cpp
+ --- openvpn-radiusplugin-master.orig/Config.cpp 2015-12-23 08:07:19.000000000 -0500
+ +++ openvpn-radiusplugin-master/Config.cpp      2021-11-09 11:17:21.759139003 -0500
+ @@ -240,6 +240,14 @@
+                                                           this->clientcertnotrequired=true;
+                                                   }
+                                           }
+ +                                         if (param == "verify-client-cert")
+ +                                         {
+ +                                                 this->deletechars(&line);
+ +                                                 if (line == "verify-client-certoptional" || line == "verify-client-certnone")
+ +                                                 {
+ +                                                         this->clientcertnotrequired=true;
+ +                                                 }
+ +                                         }
+                                           if (param == "username-as-common-name")
+                                           {
+                                                   this->deletechars(&line);
+
+
+Compile the plugin:
+
+ make
+ cp radiusplugin.so /etc/openvpn/
+
+Then edit the radiusplugin.cnf file:
+
+ vim /etc/openvpn/radiusplugin.cnf
+
+ NAS-Identifier=OpenVpn
+ Service-Type=5
+ Framed-Protocol=1
+ NAS-Port-Type=5
+ NAS-IP-Address=192.168.0.6
+ OpenVPNConfig=/etc/openvpn/server.conf
+ overwriteccfiles=true
+ useauthcontrolfile=true
+ useclientconnectdeferfile=true
+ nonfatalaccounting=false
+ defacctinteriminterval=0
+
+ server
+ {
+         acctport=1813
+         authport=1812
+         name=192.168.0.5
+         retry=1
+         wait=30
+         sharedsecret=secret
+ }
+
+==== PacketFence configuration
+
+On the PacketFence side the only thing you need to do is to create a new switch as type OpenVPN with the ip address 192.168.0.6 and with teh shared secret 'secret'
+
