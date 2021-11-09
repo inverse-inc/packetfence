@@ -283,10 +283,10 @@ sub getList {
         my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
         $response = decode_json($response_body);
         if($response_code == 200) {
-            return undef, $response_body;
+            return undef, $response;
         }
 
-        return $FALSE, $response;
+        return $FALSE, $response_body;
     }
 
     my $msg = "An error occured while sending a JSONRPC request: $curl_return_code ".$curl->strerror($curl_return_code)." ".$curl->errbuf;
