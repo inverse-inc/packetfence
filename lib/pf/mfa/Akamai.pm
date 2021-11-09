@@ -152,25 +152,30 @@ sub check_user {
        }
     }
     elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
-        if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
-            if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
-                return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
-            }
-        } elsif ($otp =~ /^\d{8,8}$/) {
-                return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp);
-        } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
-            my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
-            my $method = $1;
-            foreach my $device (@device) {
-                if ( grep $_ =~ $METHOD_ALIAS{$method}, @{$device->{'methods'}}) {
-                    return $ACTIONS{$method}->($self,$device->{'device'},$username,$1);
-                } else {
-                    $logger->warn("Unsuported method on device ".$device->{'name'});
-                    return $FALSE;
+        if (defined $otp) {
+            if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
+                if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
+                    return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
                 }
+            } elsif ($otp =~ /^\d{8,8}$/) {
+                    return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp);
+            } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
+                my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
+                my $method = $1;
+                foreach my $device (@device) {
+                    if ( grep $_ =~ $METHOD_ALIAS{$method}, @{$device->{'methods'}}) {
+                        return $ACTIONS{$method}->($self,$device->{'device'},$username,$1);
+                    } else {
+                        $logger->warn("Unsuported method on device ".$device->{'name'});
+                        return $FALSE;
+                    }
+                }
+            } else {
+                $logger->warn("Method not supported");
+                return $FALSE;
             }
         } else {
-            $logger->warn("Method not supported");
+            $logger->error("OTP is empty");
             return $FALSE;
         }
     }
