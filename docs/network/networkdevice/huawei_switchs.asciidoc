@@ -26,11 +26,6 @@ Global configuration for 802.1X, Mac authentication, accounting and CLI login:
 
 ----
 undo authentication unified-mode
-domain pf admin
-
-dot1x enable
-mac-authen
-dot1x dhcp-trigger
 
 radius-server template packetfence
  radius-server shared-key cipher <yourSecret>
@@ -44,18 +39,29 @@ radius-server authorization 192.168.1.5 shared-key cipher <yourSecret>
 # to accept RADIUS Disconnect messages with MAC in AA-BB-CC-DD-FF-EE format
 radius-server authorization calling-station-id decode-mac-format ascii hyphen-split common
 
-
 aaa
- authentication-scheme abc
+ authentication-scheme pf-auth
   authentication-mode radius
- accounting-scheme abc
+ accounting-scheme pf-acct
   accounting-mode radius
- service-scheme abc
+ # for CLI authentication
+ service-scheme pf-cli
  domain pf
-  authentication-scheme abc
-  accounting-scheme abc
-  service-scheme abc
+  authentication-scheme pf-auth
+  accounting-scheme pf-acct
+  service-scheme pf-cli
   radius-server packetfence
+
+# set default common domain used for authentication
+domain pf
+# if you want CLI login
+# domain pf admin
+
+dot1x enable
+mac-authen
+dot1x timer reauthenticate-period 10800
+mac-authen timer reauthenticate-period 10800
+dot1x dhcp-trigger
 
 snmp-agent
 snmp-agent local-engineid 800007DB0304F9389D2360
@@ -85,10 +91,11 @@ interface GigabitEthernet0/0/8
  dot1x authentication-method eap
 ----
 
-==== 802.1X
+==== 802.1X with MAC Auth bypass
 
 ----
 interface GigabitEthernet0/0/8
+ port link-type hybrid
  dot1x mac-bypass
  dot1x max-user 1
  dot1x reauthenticate
@@ -109,6 +116,7 @@ interface GigabitEthernet0/0/2
 ==== Troubleshooting commands
 
 ----
+display aaa configuration
 display dot1x
 display access-user
 display radius-server
