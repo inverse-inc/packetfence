@@ -50,10 +50,16 @@ packetfence-set-tenant-id {
         }
     }
     if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
-        update control {
-            &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{NAS-IP-Address}'), 0)}"
+        if("%{request:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/i) {
+            update control {
+                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'), 0)}"
+            }
         }
-
+        if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
+            update control {
+                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{NAS-IP-Address}'), 0)}"
+            }
+        }
     }
 
     if ( &control:PacketFence-Tenant-Id == 0 ) {
