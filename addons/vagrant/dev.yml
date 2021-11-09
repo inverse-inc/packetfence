@@ -1,0 +1,12 @@
+---
+- import_playbook: playbooks/env_vars.yml
+  tags: env
+
+- import_playbook: playbooks/utils.yml
+  tags: utils
+
+- import_playbook: playbooks/set_venom_vars.yml
+  tags: venom_vars
+
+- import_playbook: playbooks/configure_iptables.yml
+  tags: iptables

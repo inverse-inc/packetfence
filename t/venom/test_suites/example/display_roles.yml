@@ -1,0 +1,13 @@
+name: Display roles
+testcases:
+- name: display_roles
+  steps:
+  - type: sql
+    driver: mysql
+    # connexion through socket because MariaDB only
+    # listen on management but it requires to create
+    # an additional user "pf@'mgmt_ip'"
+    dsn: '{{.configurator.db.users.pf.id}}:{{.configurator.db.users.pf.password}}@unix({{.mariadb_socket}})/{{.configurator.db.name}}'
+    commands:
+      - "SELECT * from node_category;"
+    info: '{{.result.queries}}'

@@ -1,8 +1,18 @@
 ---
+- name: Set MariaDB socket for Debian
+  set_fact:
+    mariadb_socket: '/var/run/mysqld/mysqld.sock'
+  when: ansible_os_family == 'Debian'
+
+- name: Set MariaDB socket for EL
+  set_fact:
+    mariadb_socket: '/var/lib/mysql/mysql.sock'
+  when: ansible_os_family == 'RedHat'
+
 - name: Insert Venom local vars
   template:
     src: 'templates/local.yml.j2'
-    dest: '/usr/local/pf/t/venom/vars/local.yml'
+    dest: '{{ venom_dir }}/vars/local.yml'
     mode: '0644'
     owner: 'root'
     group: 'root'
