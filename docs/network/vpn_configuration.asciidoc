@@ -203,7 +203,7 @@ Then edit the radiusplugin.cnf file:
  server
  {
          acctport=1813
-         authport=1812
+         authport=1815
          name=192.168.0.5
          retry=1
          wait=30
@@ -212,5 +212,6 @@ Then edit the radiusplugin.cnf file:
 
 ==== PacketFence configuration
 
-On the PacketFence side the only thing you need to do is to create a new switch as type OpenVPN with the ip address 192.168.0.6 and with teh shared secret 'secret'
+On the PacketFence side the only thing you need to do is to create a new switch as type OpenVPN with the ip address 192.168.0.6 and with the shared secret 'secret'.
+And enable "CLI Access Enabled" in the switch too to enable the radius-cli to start.
 
