@@ -50,8 +50,8 @@
         />
 
         <form-group-cli-access namespace="cliAccess"
-          :column-label="$i18n.t('CLI Access Enabled')"
-          :text="$i18n.t('Allow this switch to use PacketFence as a RADIUS server for CLI access.')"
+          :column-label="$i18n.t('CLI/VPN Access Enabled')"
+          :text="$i18n.t('Allow this network equipment to use PacketFence as a RADIUS server for CLI or VPN access.')"
         />
 
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"
