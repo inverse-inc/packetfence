@@ -721,8 +721,8 @@ msgid "Allow on registration"
 msgstr "Autoriser sur le réseau d’enregistrement"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "Allow this switch to use PacketFence as a radius server for CLI access"
-msgstr "Permettre à ce commutateur d’utiliser PacketFence comme serveur RADIUS pour l’accès en console."
+msgid "Allow this network equipment to use PacketFence as a RADIUS server for CLI or VPN access"
+msgstr "Permettre à cet equipement d’utiliser PacketFence comme serveur RADIUS pour l’accès en console ou VPN."
 
 # html/pfappserver/lib/pfappserver/Form/Config/Realm.pm
 msgid ""
@@ -1166,8 +1166,8 @@ msgid "CLI"
 msgstr "CLI"
 
 # html/pfappserver/lib/pfappserver/Form/Config/Switch.pm
-msgid "CLI Access Enabled"
-msgstr "Accès console activé"
+msgid "CLI/VPN Access Enabled"
+msgstr "Accès console/vpn activé"
 
 # pf::admin_roles (Actions groups)
 msgid "CONFIGURATION_MAIN"
