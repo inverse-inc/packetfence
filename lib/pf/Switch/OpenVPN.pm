@@ -26,6 +26,7 @@ use Readonly;
 use base ('pf::Switch');
 
 Readonly::Scalar our $OUTBOUNDUSER => 5;
+Readonly::Scalar our $AUTHENTICATE_ONLY => 8;
 
 =head1 METHODS
 
@@ -70,7 +71,7 @@ sub identifyConnectionType {
 
 
     if (@require == @found) {
-        if ($radius_request->{"Service-Type"} == $OUTBOUNDUSER) {
+        if ($radius_request->{"Service-Type"} == $OUTBOUNDUSER || $radius_request->{"Service-Type"} == $AUTHENTICATE_ONLY) {
             $connection->isVPN($TRUE);
             $connection->isCLI($FALSE);
         } else {
