@@ -96,7 +96,7 @@ sub getIfIndexByNasPortId {
     my ($self, $ifDesc_param) = @_;
     my $logger = $self->logger;
 
-    if ( !$self->connectRead() || !defined($ifDesc_param)) {
+    if (!defined($ifDesc_param) || !$self->connectRead() ) {
         return 0;
     }
     if ($ifDesc_param =~ /(unit|slot)=(\d+);subslot=(\d+);port=(\d+)/) {
