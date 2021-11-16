@@ -710,7 +710,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 						GlobalOptions.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 					var cacheDuration time.Duration
 					if leaseDuration < time.Duration(60)*time.Second {
-						cacheDuration = time.Duration(61) * time.Second
+						cacheDuration = time.Duration(90) * time.Second
 					} else {
 						cacheDuration = leaseDuration + (time.Duration(60) * time.Second)
 					}
