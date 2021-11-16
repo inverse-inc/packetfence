@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import config from './modules/config'
 import documentation from './modules/documentation'
-import events from './modules/events'
 import lookup from './modules/lookup'
 import notification from './modules/notification'
 import performance from './modules/performance'
@@ -28,7 +27,6 @@ const store = new Vuex.Store({
   modules: {
     config,
     documentation,
-    events,
     lookup,
     notification,
     performance,

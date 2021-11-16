@@ -115,13 +115,11 @@ const setup = (props, context) => {
         document.body.classList.add('modal-open')
         document.body.classList.add('documentation-fullscreen')
       }
-      $store.dispatch('events/unbind')
     } else { // not fullscreen
       if (document.body.classList.contains('modal-open')) { // show body scrollbar
         document.body.classList.remove('modal-open')
         document.body.classList.remove('documentation-fullscreen')
       }
-      $store.dispatch('events/bind')
     }
   })
   const path = computed(() => $store.getters['documentation/path'])

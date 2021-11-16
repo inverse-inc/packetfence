@@ -184,10 +184,6 @@ const app = new Vue({
   store,
   i18n,
   pinia,
-
-  mounted () {
-    store.dispatch('events/bind')
-  }
 }).$mount('#app')
 
 if (process.env.VUE_APP_DEBUG === 'true') {
