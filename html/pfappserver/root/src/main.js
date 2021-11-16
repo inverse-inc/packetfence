@@ -141,7 +141,7 @@ import 'vue-awesome/icons/window-maximize'
 import pfIcons from '@/globals/pfIcons'
 Icon.register(pfIcons)
 
-import { createPinia, PiniaPlugin } from 'pinia'
+import { createPinia, PiniaVuePlugin } from 'pinia'
 import store from './store'
 import router from './router'
 import filters from './utils/filters'
@@ -170,7 +170,7 @@ Vue.component('icon', Icon)
 Vue.use(BootstrapVue)
 Vue.use(CompositionApi)
 Vue.use(pfTemplatePlugin)
-Vue.use(PiniaPlugin)
+Vue.use(PiniaVuePlugin)
 const pinia = createPinia()
 
 // Register global filters
