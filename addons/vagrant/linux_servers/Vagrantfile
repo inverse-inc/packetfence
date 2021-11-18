@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
       # only from our expected subnet. Allow traffic between guests. Deny
       # all other inbound. Deny all other outbound.
       srv.vm.network "private_network",
-                     :libvirt__network_name => networks[0]['name'],
+                     :libvirt__network_name => "mgmt_#{ENV['USER']}",
                      :ip => details['mgmt_ip'],
                      :netmask => details['mgmt_netmask'],
                      :libvirt__dhcp_enabled => false,
