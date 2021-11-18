@@ -28,6 +28,10 @@ use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
 use List::Util qw(first);
 
+BEGIN {
+    pfappserver::Form::Config::Switch->new;
+}
+
 =head2 invalidate_cache
 
 invalidate switch cache
