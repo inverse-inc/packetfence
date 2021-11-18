@@ -1,0 +1,11 @@
+# firewall sso https mock
+
+- request:
+    method: GET
+    path: /test
+  response:
+    status: 200
+    headers:
+      Content-Type: application/json
+    body: >
+      true

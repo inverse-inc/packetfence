@@ -180,7 +180,7 @@ wireless_dot1x_eap_peap.sources.ad_machine.access_duration: '{{.access_duration.
 # Connection profiles
 wireless_dot1x_eap_peap.profiles.wireless.id: catch_dot1x_wireless_eap_peap_mschapv2
 wireless_dot1x_eap_peap.profiles.wireless.description: 802.1X wireless EAP-PEAP-MSCHAPv2
-wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Wireless-802.11-EAP 
+wireless_dot1x_eap_peap.profiles.wireless.filters.connection_type: Wireless-802.11-EAP
 wireless_dot1x_eap_peap.profiles.wireless.filters.connection_sub_type: MS-EAP-Authentication
 wireless_dot1x_eap_peap.profiles.wireless.unreg_on_acct_stop: enabled
 
@@ -499,7 +499,7 @@ fingerbank_proxy_test_wan_ip: 1.1.1.1
 #Cli Radius test test suite specific variables
 #################################################################################
 cli_login_radius.sources.id: cli_login_radius_source
-cli_login_radius.sources.radius_machine.id: 
+cli_login_radius.sources.radius_machine.id:
 cli_login_radius.sources.access_duration: 5D
 cli_login_radius.sources.desc: "Test for radius cli"
 cli_login_radius.sources.host: "127.0.0.1"
@@ -562,4 +562,29 @@ inline_l2_and_radius.profiles.id: catch_wired_mac_authentication
 inline_l2_and_radius.profiles.description: Wired Mac authentication
 inline_l2_and_radius.profiles.filters.connection_type: Ethernet-NoEAP
 inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
+
+################################################################################
+## firewall_sso test suite specific variables
+#################################################################################
+# Roles
+firewall_sso.roles.headless_device.id: 'firewall_sso'
+firewall_sso.roles.headless_device.notes: '{{.mac_auth.roles.headless_device.notes}}'
+firewall_sso.roles.headless_device.vlan_id: '{{.mac_auth.roles.headless_device.vlan_id}}'
+
+# Connection profiles
+firewall_sso.profiles.wired.id: catch_firewall_sso_authentication
+firewall_sso.profiles.wired.description: Firewall SSO authentication
+firewall_sso.profiles.wired.filters.connection_type: Ethernet-NoEAP
+firewall_sso.profiles.wired.unreg_on_acct_stop: disabled
+
+# Firewall
+firewall_sso.firewall.host: '{{.pfserver_mgmt_ip}}'
+firewall_sso.firewall.port: 8080
+firewall_sso.firewall.port_config: 8081
+firewall_sso.firewall.transport: http
+firewall_sso.firewall.password: secret
+firewall_sso.firewall.type: PaloAlto
+
+# Smocker
+smocker_dir: /opt/smocker
 

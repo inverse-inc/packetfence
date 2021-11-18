@@ -1,0 +1,35 @@
+name: Create firewall sso
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_firewall_sso
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/firewalls'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.firewall_sso.firewall.host}}",
+        "cache_timeout": null,
+        "cache_updates": null,
+        "categories": ["{{.firewall_sso.roles.headless_device.id}}"],
+        "default_realm": null,
+        "networks": null,
+        "password": "{{.firewall_sso.firewall.password}}",
+        "port": {{.firewall_sso.firewall.port}},
+        "tenant_id": 1,
+        "transport": "{{.firewall_sso.firewall.transport}}",
+        "type": "PaloAlto",
+        "uid": null,
+        "username_format": "$pf_username",
+        "vsys": 1
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+      "X-PacketFence-Tenant-Id": "1"
+    assertions:
+      - result.statuscode ShouldEqual 201
