@@ -1,1 +1,10 @@
-../wired_dot1x_eap_peap/45_run_wpasupplicant.yml
+name: Run wpasupplicant on node01
+testcases:
+  - name: run_wpasupplicant
+    steps:
+      - type: ssh
+        host: '{{.node01_mgmt_ip}}'
+        user: '{{.ssh_user}}'
+        command:  |
+          cd /usr/local/pf/t/venom ; \
+          sudo /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/dot1x_eap_peap/{{.venom.testcase}}.yml
