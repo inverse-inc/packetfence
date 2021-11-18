@@ -3,9 +3,6 @@ testcases:
 - name: get_login_token
   steps:
   - type: get_login_token
-    # getting token after configurator could take time
-    retry: 3
-    delay: 5
 
 - name: create_eap_peap_roles_user
   steps:
