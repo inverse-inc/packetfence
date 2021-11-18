@@ -234,3 +234,19 @@ all:
         subnet: '172.17.18.0/24'
         forward_mode: 'route'
         netmask: 255.255.255.0
+    networks2:
+      _nqb:
+        networks:
+          - name: mgmt_nqb
+            subnet: '172.17.140.0/24'
+          - name: reg_nqb
+            subnet: '172.17.141.0/24'
+          - name: iso_nqb
+            subnet: '172.17.142.0/24'
+          - name: inline_nqb
+            subnet: '172.17.143.0/24'
+        vms:
+          pfel8dev:
+            ip: '172.17.140.10'
+            netmask: '255.255.255.0'
+          pfdeb11dev: '172.17.140.12'
