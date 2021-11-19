@@ -84,9 +84,10 @@ echo "### Rebooting Device to Apply Remap..."
 nohup bash -c 'shutdown now -r "Rebooting to Remap Interfaces"' &
 SCRIPT
 
-# Read YAML file with box details
+# Read YAML file with box and network details
 inventory = YAML.load_file('inventory/hosts')
-networks = inventory['all']['vars']['networks']
+current_user = ENV['USER']
+networks = inventory['all']['vars']['networks'][current_user]
 
 Vagrant.configure("2") do |config|
 
@@ -113,34 +114,34 @@ Vagrant.configure("2") do |config|
       # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:01",
-            :libvirt__network_name => "mgmt_#{ENV['USER']}",
-            :ip => networks[0]['subnet'],
+            :libvirt__network_name => networks['networks'][0]['name'],
+            :ip => networks['networks'][0]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[0]['forward_mode'],
+            :libvirt__forward_mode => networks['networks'][0]['forward_mode'],
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:02",
-            :libvirt__network_name => "reg_#{ENV['USER']}",
-            :ip => networks[1]['subnet'],
+            :libvirt__network_name => networks['networks'][1]['name'],
+            :ip => networks['networks'][1]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[1]['forward_mode'],
+            :libvirt__forward_mode => networks['networks'][1]['forward_mode'],
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:03",
-            :libvirt__network_name => "iso_#{ENV['USER']}",
-            :ip => networks[2]['subnet'],
+            :libvirt__network_name => networks['networks'][2]['name'],
+            :ip => networks['networks'][2]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[2]['forward_mode'],
+            :libvirt__forward_mode => networks['networks'][2]['forward_mode'],
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:06",
-            :libvirt__network_name => "inline_#{ENV['USER']}",
-            :ip => networks[3]['subnet'],
+            :libvirt__network_name => networks['networks'][3]['name'],
+            :ip => networks['networks'][3]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[3]['forward_mode'],
+            :libvirt__forward_mode => networks['networks'][3]['forward_mode'],
             auto_config: false
       # link for swp11 --> node01:ens6
       device.vm.network "private_network",

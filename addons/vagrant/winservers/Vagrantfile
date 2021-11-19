@@ -4,9 +4,10 @@
 # Require YAML module
 require 'yaml'
  
-# Read YAML file with box details
+# Read YAML file with box and network details
 inventory = YAML.load_file('inventory/hosts')
-networks = inventory['all']['vars']['networks']
+current_user = ENV['USER']
+networks = inventory['all']['vars']['networks'][current_user]
 
 Vagrant.configure("2") do |config|
   inventory['all']['children']['winservers']['hosts'].each do |server,details|
@@ -21,11 +22,11 @@ Vagrant.configure("2") do |config|
       # only from our expected subnet. Allow traffic between guests. Deny
       # all other inbound. Deny all other outbound.
       srv.vm.network "private_network",
-                     :libvirt__network_name => "mgmt_#{ENV['USER']}",
-                     :ip => details['mgmt_ip'],
-                     :netmask => details['mgmt_netmask'],
+                     :libvirt__network_name => networks['networks'][0]['name'],
+                     :ip => networks['vms'][server]['ip'],
+                     :netmask => networks['vms'][server]['netmask'],
                      :libvirt__dhcp_enabled => false,
-                     :libvirt__forward_mode => networks[0]['forward_mode']
+                     :libvirt__forward_mode => networks['networks'][0]['forward_mode']
 
       srv.vm.provider "libvirt" do |v|
         v.cpus = details['cpus']
