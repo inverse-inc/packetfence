@@ -42,7 +42,7 @@ sub build_child {
     }
     $ADMIN_ROLES{NONE}{ACTIONS} = {};
     $ADMIN_ROLES{ALL}{ACTIONS} = { map { $_ => undef } @pf::constants::admin_roles::ADMIN_ACTIONS };
-    $ADMIN_ROLES{ALL_PF_ONLY}{ACTIONS} = { map { $_ => undef } grep {$_ !~ /^SWITCH_LOGIN_/} @pf::constants::admin_roles::ADMIN_ACTIONS };
+    $ADMIN_ROLES{ALL_PF_ONLY}{ACTIONS} = { map { $_ => undef } grep {$_ !~ /^SWITCH_LOGIN_/ && $_ !~ /^SWITCH_PROBE/ } @pf::constants::admin_roles::ADMIN_ACTIONS };
 
     $self->roleReverseLookup(\%ADMIN_ROLES, 'admin_roles', qw(allowed_roles allowed_node_roles));
     return \%ADMIN_ROLES;

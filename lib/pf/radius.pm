@@ -798,6 +798,11 @@ sub switch_access {
         );
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
+
+    $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
+        . "connection_type => " . connection_type_to_str($connection_type) . ","
+        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"" );
+
     if ( !$switch->canDoCliAccess && !$switch->supportsVPN()) {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI or VPN Access is not allowed by PacketFence on this switch") ];
@@ -996,6 +1001,9 @@ sub returnRadiusCli{
             }
             if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_LOGIN_READ'}) {
                 return $args->{'switch'}->returnAuthorizeRead($args);
+            }
+            if (exists $pf::config::ConfigAdminRoles{$value}->{'ACTIONS'}->{'SWITCH_PROBE'}) {
+                return $args->{'switch'}->returnAuthorizeProbe($args);
             }
         }
     } else {
