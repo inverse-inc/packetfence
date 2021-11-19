@@ -30,6 +30,7 @@ use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
+use pf::error qw(is_success);
 use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
@@ -639,8 +640,11 @@ sub options_wsTransport {
 
 sub options_tenant {
     my $self = shift;
-
-    my @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{pf::dal::tenant->search->all};
+    my @tenants;
+    my ($status, $it) = pf::dal::tenant->search;
+    if (is_success($status)) {
+        @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{$it->all};
+    }
 
     return @tenants;
 }
