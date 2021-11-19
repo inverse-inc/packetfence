@@ -17,6 +17,7 @@ use Moo;
 use pf::log;
 use pf::constants qw($TRUE $FALSE);
 use pf::util qw(normalize_time);
+use pf::CHI;
 
 has id => (is => 'rw', required => 1);
 
