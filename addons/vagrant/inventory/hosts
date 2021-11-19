@@ -9,6 +9,7 @@ all:
       hosts:
         switch01:
           mgmt_ip: "{{ networks[current_user]['vms']['switch01']['ip'] }}"
+          mgmt_netmask: "{{ networks[current_user]['vms']['switch01']['netmask'] }}"
           box: CumulusCommunity/cumulus-vx
           box_version: 3.7.12
           ansible_host: "{{ mgmt_ip }}"
@@ -19,6 +20,7 @@ all:
           box: debian/bullseye64
           box_version: 11.20211018.1
           mgmt_ip: "{{ networks[current_user]['vms']['node01']['ip'] }}"
+          mgmt_netmask: "{{ networks[current_user]['vms']['node01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
@@ -26,6 +28,7 @@ all:
           box: debian/bullseye64
           box_version: 11.20211018.1
           mgmt_ip: "{{ networks[current_user]['vms']['node02']['ip'] }}"
+          mgmt_netmask: "{{ networks[current_user]['vms']['node02']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
@@ -191,6 +194,7 @@ all:
     tz: UTC
     current_user: "{{ lookup('env', 'USER') }}"
     networks:
+      # ci
       gitlab-runner:
         networks:
           - name: mgmt_ci
@@ -205,13 +209,22 @@ all:
           - name: inline_ci
             subnet: '172.17.203.0/24'
             forward_mode: 'route'
+          - name: inline_l3_ci
+            subnet: '172.17.204.0/24'
         vms:
           switch01:
             ip: '172.17.200.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.203.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.204.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.200.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.200.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.200.100'
             netmask: '255.255.255.0'
@@ -254,6 +267,7 @@ all:
           pfdeb11stable:
             ip: '172.17.200.18'
             netmask: '255.255.255.0'
+      # local dev
       _nqb:
         networks:
           - name: mgmt_nqb
@@ -268,13 +282,22 @@ all:
           - name: inline_nqb
             subnet: '172.17.143.0/24'
             forward_mode: 'route'
+          - name: inline_l3_nqb
+            subnet: '172.17.144.0/24'
         vms:
           switch01:
             ip: '172.17.140.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.143.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.144.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.140.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.140.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.140.100'
             netmask: '255.255.255.0'
@@ -331,13 +354,22 @@ all:
           - name: inline_jrouzier
             subnet: '172.17.118.0/24'
             forward_mode: 'route'
+          - name: inline_l3_jrouzier
+            subnet: '172.17.119.0/24'
         vms:
           switch01:
             ip: '172.17.115.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.118.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.119.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.115.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.115.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.115.100'
             netmask: '255.255.255.0'
@@ -394,13 +426,22 @@ all:
           - name: inline_lzammit
             subnet: '172.17.148.0/24'
             forward_mode: 'route'
+          - name: inline_l3_lzammit
+            subnet: '172.17.149.0/24'
         vms:
           switch01:
             ip: '172.17.145.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.148.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.149.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.145.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.145.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.145.100'
             netmask: '255.255.255.0'
@@ -443,27 +484,36 @@ all:
           pfdeb11stable:
             ip: '172.17.145.18'
             netmask: '255.255.255.0'
-      _jegoimard:
+      _jgoimard:
         networks:
-          - name: mgmt_jegoimard
+          - name: mgmt_jgoimard
             subnet: '172.17.120.0/24'
             forward_mode: 'route'
-          - name: reg_jegoimard
+          - name: reg_jgoimard
             subnet: '172.17.121.0/24'
             forward_mode: 'route'
-          - name: iso_jegoimard
+          - name: iso_jgoimard
             subnet: '172.17.122.0/24'
             forward_mode: 'route'
-          - name: inline_jegoimard
+          - name: inline_jgoimard
             subnet: '172.17.123.0/24'
             forward_mode: 'route'
+          - name: inline_l3_jgoimard
+            subnet: '172.17.124.0/24'
         vms:
           switch01:
             ip: '172.17.120.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.123.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.124.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.120.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.120.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.120.100'
             netmask: '255.255.255.0'
@@ -520,13 +570,22 @@ all:
           - name: inline_dsatkunas
             subnet: '172.17.128.0/24'
             forward_mode: 'route'
+          - name: inline_l3_dsatkunas
+            subnet: '172.17.119.0/24'
         vms:
           switch01:
             ip: '172.17.125.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.128.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.128.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.125.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.125.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.125.100'
             netmask: '255.255.255.0'
@@ -583,13 +642,22 @@ all:
           - name: inline_fdurand
             subnet: '172.17.138.0/24'
             forward_mode: 'route'
+          - name: inline_l3_fdurand
+            subnet: '172.17.139.0/24'
         vms:
           switch01:
             ip: '172.17.135.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.138.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.139.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.135.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.135.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.135.100'
             netmask: '255.255.255.0'
@@ -646,13 +714,22 @@ all:
           - name: inline_jsemaan
             subnet: '172.17.158.0/24'
             forward_mode: 'route'
+          - name: inline_l3_jsemaan
+            subnet: '172.17.159.0/24'
         vms:
           switch01:
             ip: '172.17.155.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.158.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.159.4'
+            inline_l3_netmask: '255.255.255.0'
           node01:
             ip: '172.17.155.251'
+            netmask: '255.255.255.0'
           node02:
             ip: '172.17.155.252'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.17.155.100'
             netmask: '255.255.255.0'

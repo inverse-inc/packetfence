@@ -88,6 +88,16 @@ SCRIPT
 inventory = YAML.load_file('inventory/hosts')
 current_user = ENV['USER']
 networks = inventory['all']['vars']['networks'][current_user]
+switch01_ip = networks['vms']['switch01']['ip']
+switch01_netmask = networks['vms']['switch01']['netmask']
+inline_ip = networks['vms']['switch01']['inline_ip']
+inline_netmask = networks['vms']['switch01']['inline_netmask']
+inline_l3_ip = networks['vms']['switch01']['inline_l3_ip']
+inline_l3_netmask = networks['vms']['switch01']['inline_l3_netmask']
+node01_ip = networks['vms']['node01']['ip']
+node01_netmask = networks['vms']['node01']['netmask']
+node02_ip = networks['vms']['node02']['ip']
+node02_netmask = networks['vms']['node02']['netmask']
 
 Vagrant.configure("2") do |config|
 
@@ -195,8 +205,11 @@ Vagrant.configure("2") do |config|
     
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_switch", type: "shell" , path: "./helper_scripts/config_switch.sh"
-
+    device.vm.provision "config_switch", type: "shell" , path: "./helper_scripts/config_switch.sh",
+                        args: [ "#{switch01_ip}", "#{switch01_netmask}",
+                                "#{inline_ip}", "#{inline_netmask}",
+                                "#{inline_l3_ip}", "#{inline_l3_netmask}"
+                              ]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
@@ -339,8 +352,8 @@ vagrant_interface_rule
 
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node01.sh"
-
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node01.sh",
+                        args: [ "#{node01_ip}", "#{node01_netmask}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
@@ -445,8 +458,8 @@ vagrant_interface_rule
 
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node02.sh"
-
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node02.sh",
+                        args: [ "#{node02_ip}", "#{node02_netmask}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
