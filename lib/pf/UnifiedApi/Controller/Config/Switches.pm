@@ -26,9 +26,11 @@ has 'primary_key' => 'switch_id';
 use pf::ConfigStore::Switch;
 use pf::ConfigStore::SwitchGroup;
 use pfappserver::Form::Config::Switch;
+use pf::db;
 use List::Util qw(first);
 
 BEGIN {
+    local $pf::db::NO_DIE_ON_DBH_ERROR = 1;
     pfappserver::Form::Config::Switch->new;
 }
 
