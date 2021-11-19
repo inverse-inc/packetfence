@@ -181,7 +181,12 @@ expires_in=10s
 # Amount of time from the current time to expire an entry
 expires_in=24h
 
-[storage mfa]
+[namespace mfa]
+#
+# namespace mfa.storage
+#
+# The storage to use for the namespace
+storage=distributed
 #
 # storage mfa.expires_in
 #
