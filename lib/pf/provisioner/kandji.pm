@@ -17,6 +17,7 @@ use Moo;
 extends 'pf::provisioner';
 
 use pf::constants;
+use LWP::UserAgent;
 
 =head1 Atrributes
 
@@ -66,9 +67,24 @@ sub _build_enroll_url {
     return $self->{enroll_url} || $self->protocol."://".$self->host.":".$self->port."/enroll"
 }
 
+sub api_url {
+    my ($self, $path) = @_;
+    return $self->protocol."://".$self->host.":".$self->port.$path;
+}
+
+sub get_lwp_client {
+    my ($self, %args) = @_;
+    my $ua = LWP::UserAgent->new(%args);
+
+    $ua->default_header('Authorization' => 'Bearer '.$self->api_token);
+    return $ua;
+}
+
 sub authorize {
     my ($self,$mac) = @_;
-    return $FALSE;
+    my $ua = $self->get_lwp_client();
+    my $res = $ua->get($self->api_url("/api/v1/devices/?mac_address=\"$mac\""));
+    use Data::Dumper ; print Dumper($res->decoded_content);
 }
 
 =head2 logger
