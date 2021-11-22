@@ -135,3 +135,10 @@ example_deb11:
 	#INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
+
+local_fingerbank_invalid_db_deb11:
+	make \
+	PF_VM_NAME=pfdeb11localdev \
+	SCENARIOS_TO_RUN=fingerbank_invalid_db \
+	run_w_clean
+

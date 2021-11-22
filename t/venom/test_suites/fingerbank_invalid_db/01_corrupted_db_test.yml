@@ -44,7 +44,7 @@ testcases:
 
   - type: exec
     # TODO: change 192.168.3.37 with a variable
-    script: 'cat /usr/local/pf/t/venom/test_suites/fingerbank_invalid_db/mab.txt | radclient 192.168.3.37 auth `cat /usr/local/pf/conf/local_secret`'
+    script: 'cat /usr/local/pf/t/venom/test_suites/fingerbank_invalid_db/mab.txt | radclient 172.17.155.15 auth `cat /usr/local/pf/conf/local_secret`'
 
 - name: Teardown
   steps:
