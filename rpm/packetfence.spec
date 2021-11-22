@@ -473,6 +473,7 @@ cp -r addons/upgrade/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/watchdog/ %{buildroot}/usr/local/pf/addons/
 cp -r addons/AD/* %{buildroot}/usr/local/pf/addons/AD/
 cp -r addons/monit/ %{buildroot}/usr/local/pf/addons/
+cp -r addons/stress-tester/ %{buildroot}/usr/local/pf/addons/
 cp addons/full-import/*.sh %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/full-import/*.pl %{buildroot}/usr/local/pf/addons/full-import/
 cp addons/functions/*.functions %{buildroot}/usr/local/pf/addons/functions/
@@ -822,6 +823,7 @@ fi
 %dir                    /usr/local/pf/addons/pfconfig/comparator
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
+%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/stress-tester/dhcp_test
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.sh
