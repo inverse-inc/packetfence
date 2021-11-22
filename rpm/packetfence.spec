@@ -823,7 +823,7 @@ fi
 %dir                    /usr/local/pf/addons/pfconfig/comparator
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/comparator/*.sh
-%attr(0755, pf, pf)     /usr/local/pf/addons/pfconfig/stress-tester/dhcp_test
+%attr(0755, pf, pf)     /usr/local/pf/addons/stress-tester/dhcp_test
 %dir                    /usr/local/pf/addons/upgrade
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.pl
 %attr(0755, pf, pf)     /usr/local/pf/addons/upgrade/*.sh
