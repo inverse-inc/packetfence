@@ -10,7 +10,6 @@ packetfence_install__mgmt_interface:
   id: "{{ mgmt_interface_id['key'] }}"
   ip: "{{ mgmt_ip }}"
   mask: "{{ mgmt_netmask }}"
-  type: management,portal
 
 # in CI environment: only for dependencies, packetfence package is installed using local repo
 # in local dev environment: to install packetfence packages

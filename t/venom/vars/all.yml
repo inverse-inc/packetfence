@@ -28,7 +28,6 @@ pfserver_pfqueue_workers: 2
 pfserver_haproxy_admin_server_timeout: 120s
 
 # ad variables
-ad_mgmt_ip: 172.17.17.100
 ad_domain_id: example
 ad_domain_upper: EXAMPLE
 ad_dns_domain: example.lan
@@ -38,7 +37,6 @@ ad_base_dn: dc=example,dc=lan
 ad_domain_user: packetfence
 
 # switchs variables
-switch01_mgmt_ip: 172.17.17.201
 switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
 switch01.api.user: cumulus
 switch01.api.password: CumulusLinux!
@@ -46,12 +44,10 @@ switch01.dot1x_interface.id: swp12
 switch01.dot1x_interface.mac: 44:38:39:00:00:12
 
 # nodes variables
-node01_mgmt_ip: 172.17.17.251
 node01_ens7_mac_address: 00:03:00:11:11:01
 node01_ens7_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
 
 # wireless01 variables
-wireless01_mgmt_ip: 172.17.17.210
 wireless01_wlan1_mac_address: 02:00:00:00:01:00
 wireless01_wlan1_mac_address_url_encoded: 02%3A00%3A00%3A00%3A01%3A00
 wireless01.dot1x_interface.mac: 02:00:00:00:00:00
@@ -238,14 +234,10 @@ configurator.interfaces.mgmt.netmask: '{{.pfserver_mgmt_netmask}}'
 
 # Interface registration
 configurator.interfaces.reg.index: 4
-configurator.interfaces.reg.ip: 172.17.2.2
-configurator.interfaces.reg.netmask: 255.255.255.0
 configurator.interfaces.reg.dhcpd_enabled: enabled
 
 # Interface isolation
 configurator.interfaces.iso.index: 5
-configurator.interfaces.iso.ip: 172.17.3.2
-configurator.interfaces.iso.netmask: 255.255.255.0
 configurator.interfaces.iso.dhcpd_enabled: enabled
 
 # DNS servers
