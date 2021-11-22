@@ -109,10 +109,16 @@ dot1x_eap_tls_deb11:
 #==============================================================================
 # Targets for local tests
 #==============================================================================
-# No clean
-unit_tests_el8_w:
+local_configurator_el8:
 	make \
-	PF_VM_NAME=pfel8dev \
-	SCENARIOS_TO_RUN=unit_tests \
-	$(MAKE_TARGET)
+	PF_VM_NAME=pfel8localdev \
+	SCENARIOS_TO_RUN=configurator \
+	run_w_clean
+
+local_configurator_deb11:
+	make \
+	PF_VM_NAME=pfdeb11localdev \
+	SCENARIOS_TO_RUN=configurator \
+	run_w_clean
+
 
