@@ -776,7 +776,7 @@ type=bandwidth_maintenance_session
 # status
 # 
 # If the task is enabled
-status=disabled
+status=enabled
 # 
 # description
 # 
@@ -786,7 +786,7 @@ description=Controls the cleanup of the bandwidth accounting sessions.
 # schedule
 # 
 # The schedule of task
-schedule=@every 1m
+schedule=@every 5m
 #
 # batch
 #
@@ -796,7 +796,7 @@ batch=100
 # timeout
 #
 # How long a session cleanup job can run
-timeout=10s
+timeout=5s
 #
 # window
 #
