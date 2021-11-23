@@ -68,6 +68,7 @@ raddb/acct.conf
 raddb/eduroam.conf
 raddb/cli.conf
 raddb/sql.conf
+raddb/radiusd_cli.conf
 raddb/proxy.conf.inc
 raddb/clients.eduroam.conf.inc
 raddb/load_balancer.conf
