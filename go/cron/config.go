@@ -40,18 +40,17 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	),
 	"bandwidth_maintenance_session": MakeWindowSqlJobSetupConfig(
 		`
-UPDATE bandwidth_accounting,
-    (
-        SELECT node_id, unique_session_id
-            FROM bandwidth_accounting
-            WHERE last_updated != '0000-00-00 00:00:00'
-            GROUP BY node_id, unique_session_id
-            HAVING MAX(last_updated) < DATE_SUB(?, INTERVAL ? SECOND)
-            ORDER BY last_updated LIMIT ?
-    ) as old_sessions
-SET last_updated = '0000-00-00 00:00:00'
-WHERE (bandwidth_accounting.node_id, bandwidth_accounting.unique_session_id) = (old_sessions.node_id, old_sessions.unique_session_id);
-        `,
+UPDATE
+bandwidth_accounting RIGHT JOIN (
+    SELECT node_id, unique_session_id
+    FROM bandwidth_accounting as ba
+    GROUP BY node_id, unique_session_id
+    HAVING MAX(ba.last_updated) BETWEEN '0001-01-01 00:00:00' AND DATE_SUB(?, INTERVAL ? SECOND)
+    LIMIT ?
+    ) as old_sessions USING (node_id, unique_session_id)
+
+    SET last_updated = '0000-00-00 00:00:00';
+`,
 	),
 }
 
