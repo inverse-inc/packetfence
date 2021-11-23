@@ -280,6 +280,9 @@ Requires: openvas-libraries
 # pki
 Requires: perl(Crypt::SMIME)
 
+# dhcp-stress-test
+Requires: perl(Net::DHCP)
+
 # Language packs
 Requires: langpacks-fr, langpacks-es, langpacks-de, langpacks-he, langpacks-it, langpacks-nb, langpacks-nl, langpacks-pl, langpacks-pt
 
