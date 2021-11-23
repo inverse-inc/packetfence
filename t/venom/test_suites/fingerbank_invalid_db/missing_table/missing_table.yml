@@ -6,9 +6,6 @@ testcases:
   - type: exec
     script: 'cp /usr/local/fingerbank/db/fingerbank_Upstream.db /usr/local/fingerbank/db/fingerbank_Upstream.db.fingerbank_corrupted_db_test_backup'
 
-  - type: exec
-    script: 'cp /usr/local/fingerbank/conf/fingerbank.conf /usr/local/fingerbank/conf/fingerbank.conf.fingerbank_corrupted_db_test_backup'
-
 - name: Deleting the device table from the Fingerbank DB
   steps:
 
@@ -17,18 +14,4 @@ testcases:
 
   - type: exec
     script: 'chown fingerbank: /usr/local/fingerbank/db/fingerbank_Upstream.db'
-
-- name: Teardown
-  steps:
-  - type: exec
-    script: 'mv /usr/local/fingerbank/db/fingerbank_Upstream.db.fingerbank_corrupted_db_test_backup /usr/local/fingerbank/db/fingerbank_Upstream.db'
-
-  - type: exec
-    script: 'mv /usr/local/fingerbank/conf/fingerbank.conf.fingerbank_corrupted_db_test_backup /usr/local/fingerbank/conf/fingerbank.conf'
-
-  - type: exec
-    script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
-
-  - type: exec
-    script: 'systemctl restart packetfence-fingerbank-collector'
 

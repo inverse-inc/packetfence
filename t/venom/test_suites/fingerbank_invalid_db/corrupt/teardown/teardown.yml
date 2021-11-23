@@ -6,9 +6,6 @@ testcases:
     script: 'mv /usr/local/fingerbank/db/fingerbank_Upstream.db.fingerbank_corrupted_db_test_backup /usr/local/fingerbank/db/fingerbank_Upstream.db'
 
   - type: exec
-    script: 'mv /usr/local/fingerbank/conf/fingerbank.conf.fingerbank_corrupted_db_test_backup /usr/local/fingerbank/conf/fingerbank.conf'
-
-  - type: exec
     script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
 
   - type: exec
