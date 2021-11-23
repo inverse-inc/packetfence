@@ -1,0 +1,20 @@
+name: FingerbankCorruptedDB
+testcases:
+- name: Backup the DB and configuration
+  steps:
+
+  - type: exec
+    script: 'cp /usr/local/fingerbank/db/fingerbank_Upstream.db /usr/local/fingerbank/db/fingerbank_Upstream.db.fingerbank_corrupted_db_test_backup'
+
+  - type: exec
+    script: 'cp /usr/local/fingerbank/conf/fingerbank.conf /usr/local/fingerbank/conf/fingerbank.conf.fingerbank_corrupted_db_test_backup'
+
+- name: Corrupting the DB
+  steps:
+
+  - type: exec
+    script: 'echo corrupted_by_01_corrupted_db_test > /usr/local/fingerbank/db/fingerbank_Upstream.db'
+
+  - type: exec
+    script: 'chown fingerbank: /usr/local/fingerbank/db/fingerbank_Upstream.db'
+

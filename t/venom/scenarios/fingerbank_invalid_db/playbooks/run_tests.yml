@@ -6,7 +6,26 @@
   vars:
     # put your test suites to try here
     test_suites:
-      - fingerbank_invalid_db
+      - configurator
+      - global_config
+
+      - fingerbank_invalid_db/corrupt
+      - fingerbank_invalid_db/clear_cache
+      - wired_mac_auth
+      - wired_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wireless_mac_auth
+      - wireless_mac_auth/teardown
+      - fingerbank_invalid_db/corrupt/teardown
+
+      - fingerbank_invalid_db/missing_table
+      - fingerbank_invalid_db/clear_cache
+      - wired_mac_auth
+      - wired_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wireless_mac_auth
+      - wireless_mac_auth/teardown
+      - fingerbank_invalid_db/missing_table/teardown
 
   tasks:
     - name: Run Venom testsuites

@@ -1,14 +1,5 @@
-name: FingerbankCorruptedDB
+name: FingerbankMissingTable
 testcases:
-- name: get_psono_secret
-  steps:
-  - type: exec
-    script: "echo -n 66a77c6b13f30f7324276ccc532679c6800a3a38"
-    #    script: "psonoci secret get {{.configurator.fingerbank_api_key.secret_id}} password"
-    vars:
-      fingerbank_api_key:
-        from: result.systemout
-    
 - name: Backup the DB and configuration
   steps:
 
@@ -26,25 +17,6 @@ testcases:
 
   - type: exec
     script: 'chown fingerbank: /usr/local/fingerbank/db/fingerbank_Upstream.db'
-
-- name: Configuring Fingerbank
-  steps:
-
-  - type: exec
-    script: 'printf "[upstream]\napi_key={{.get_psono_secret.fingerbank_api_key}}\n" > /usr/local/fingerbank/conf/fingerbank.conf'
-
-  - type: exec
-    script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
-
-  - type: exec
-    script: 'systemctl restart packetfence-fingerbank-collector'
-
-- name: Testing RADIUS MAB
-  steps:
-
-  - type: exec
-    # TODO: change 192.168.3.37 with a variable
-    script: 'cat /usr/local/pf/t/venom/test_suites/fingerbank_invalid_db/mab.txt | radclient 172.17.155.15 auth `cat /usr/local/pf/conf/local_secret`'
 
 - name: Teardown
   steps:

@@ -128,6 +128,13 @@ example_el8:
 	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
 
+fingerbank_invalid_db_deb11:
+	make \
+	PF_VM_NAME=pfdeb11dev \
+	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=fingerbank_invalid_db \
+	$(MAKE_TARGET)
+
 example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
@@ -140,5 +147,12 @@ local_fingerbank_invalid_db_deb11:
 	make \
 	PF_VM_NAME=pfdeb11localdev \
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
+	run_w_clean
+
+local_mac_auth_deb11:
+	make \
+	PF_VM_NAME=pfdeb11localdev \
+	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=mac_auth \
 	run_w_clean
 
