@@ -373,6 +373,7 @@ sub x509_info {
         not_before => $x509->notBefore(),
         not_after => $x509->notAfter(),
         serial => $x509->serial(),
+        subject_alt_name => [split(/\s*,\s*/, $x509->extensions_by_name()->{'subjectAltName'}->to_string)],
     };
 }
 

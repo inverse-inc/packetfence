@@ -26,7 +26,8 @@ export const schema = () => {
         then: yup.string().nullable().required(i18n.t('Private key required.')),
         otherwise: yup.string().nullable(),
       }),
-    intermediate_cas: schemaIntermediateCertificateAuthorities.meta({ invalidFeedback: i18n.t('Intermediate CA certificates contain one or more errors.') })
+    intermediate_cas: schemaIntermediateCertificateAuthorities.meta({ invalidFeedback: i18n.t('Intermediate CA certificates contain one or more errors.') }),
+    subject_alt_name: yup.array().of(yup.string())
   })
 }
 

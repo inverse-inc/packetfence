@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 20;
+use Test::More tests => 22;
 use Test::NoWarnings;
 
 use pf::constants qw($TRUE $FALSE);
@@ -287,6 +287,55 @@ is(ref($x509_ca), "Crypt::OpenSSL::X509", "x509_from_string returns a Crypt::Ope
     is($res, $FALSE, "Cert with custom chain shouldn't be valid unless all certs are passed");
 }
 
+my $multi_san_cert = <<EOF;
+-----BEGIN CERTIFICATE-----
+MIIHNDCCBhygAwIBAgIQAkqjsfPxRBK39S6WehRc/zANBgkqhkiG9w0BAQsFADBN
+MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMScwJQYDVQQDEx5E
+aWdpQ2VydCBTSEEyIFNlY3VyZSBTZXJ2ZXIgQ0EwHhcNMjExMTAxMDAwMDAwWhcN
+MjIxMDExMjM1OTU5WjBgMQswCQYDVQQGEwJDQTEPMA0GA1UECBMGUXVlYmVjMREw
+DwYDVQQHEwhNb250cmVhbDEUMBIGA1UEChMLSW52ZXJzZSBJbmMxFzAVBgNVBAMT
+Dnd3dy5pbnZlcnNlLmNhMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEuC5+eGO/
+HaKJD6IbGW4MOmrg/Q5Hck90UdQAJFH1OOH6l6NNKpcZMVBzKqefzEY1wSj/dQUx
+bnROtGyYggKhsaOCBMYwggTCMB8GA1UdIwQYMBaAFA+AYRyCMWHVLyjnjUY4tCzh
+xtniMB0GA1UdDgQWBBS4i+rx6FU3f3vLMHJ0Ttlg/WgDVjCCAY8GA1UdEQSCAYYw
+ggGCghJhcGkuZmluZ2VyYmFuay5vcmeCD2NoYXQuaW52ZXJzZS5jYYIMZGVtby5z
+b2dvLm51gg5maW5nZXJiYW5rLm9yZ4IOZ2l0LmludmVyc2UuY2GCD2hlbHAuaW52
+ZXJzZS5jYYIKaW52ZXJzZS5jYYIWam9sbHlqdW1wZXIuaW52ZXJzZS5jYYIQa2lt
+YWkuaW52ZXJzZS5jYYIQbGlzdHMuaW52ZXJzZS5jYYIVbW9uaXRvcmluZy5pbnZl
+cnNlLmNhghNwYWNrYWdlcy5pbnZlcnNlLmNhgg9wYWNrZXRmZW5jZS5vcmeCEHBz
+b25vLmludmVyc2UuY2GCFHNvZ28tZGVtby5pbnZlcnNlLmNhgg9zb2dvLmludmVy
+c2UuY2GCB3NvZ28ubnWCD3dpa2kuaW52ZXJzZS5jYYISd3d3LmZpbmdlcmJhbmsu
+b3Jngg53d3cuaW52ZXJzZS5jYYITd3d3LnBhY2tldGZlbmNlLm9yZ4ILd3d3LnNv
+Z28ubnUwDgYDVR0PAQH/BAQDAgeAMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEF
+BQcDAjBvBgNVHR8EaDBmMDGgL6AthitodHRwOi8vY3JsMy5kaWdpY2VydC5jb20v
+c3NjYS1zaGEyLWc2LTEuY3JsMDGgL6AthitodHRwOi8vY3JsNC5kaWdpY2VydC5j
+b20vc3NjYS1zaGEyLWc2LTEuY3JsMD4GA1UdIAQ3MDUwMwYGZ4EMAQICMCkwJwYI
+KwYBBQUHAgEWG2h0dHA6Ly93d3cuZGlnaWNlcnQuY29tL0NQUzB8BggrBgEFBQcB
+AQRwMG4wJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBGBggr
+BgEFBQcwAoY6aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0U0hB
+MlNlY3VyZVNlcnZlckNBLmNydDAMBgNVHRMBAf8EAjAAMIIBfwYKKwYBBAHWeQIE
+AgSCAW8EggFrAWkAdwBGpVXrdfqRIDC1oolp9PN9ESxBdL79SbiFq/L8cP5tRwAA
+AXzcs/6cAAAEAwBIMEYCIQCYTH948tekZNl/55gAVkK8zNdBO1XM93bLjxVt5mbJ
+RwIhAP4gOBrszJL4ZQEDU2psBoiMBoI4buiE0JwS8J51YxqaAHYAUaOw9f0BeZxW
+bbg3eI8MpHrMGyfL956IQpoN/tSLBeUAAAF83LP+3wAABAMARzBFAiAcJVlBBkn4
+59uGolzYKAxSjC64ljJ0LTt+PCtRoOp6IQIhAP5L7EhMKIP0pVo+RaE85RRm7CT8
+25YDGjGyXT648i+5AHYAQcjKsd8iRkoQxqE6CUKHXk4xixsD6+tLx2jwkGKWBvYA
+AAF83LP+ZwAABAMARzBFAiAnq52qCcCOxV62UuARPXdxLJBIWjQcGOc8Vw6rop1L
+RgIhAIkcYm7CRrdiSd/xEWkerxhsVYWHjQmQQeohuoMGlwVFMA0GCSqGSIb3DQEB
+CwUAA4IBAQBNhSbcp9YgU1xcz4wIY38l95jBChUveHZ/9xSDSw8iGcqE2f98x+Xq
+MkaPp1mpYKhKPzsbMeNGSn6veMKSPoIRh0OH0Oi55lxff1QnmDsWW2XmmgOOR8Is
+lMSEXh7L3m71/tp5qzqQPkOnOyNs3BSXsoLJOFoa0HJimJCIAxeIOZTjn4+XBEUY
+9fKl7PuL/G89yQ3l9wvvSvI53DulG2/RbJgnSmZUyhnw1SrjU1fRJ2zR9glH8A7M
+vApr8fkrLMKOqDEiMKs+1iZLm0KWcdzkyxTV+IiJMkS0HEvf64I9clss/A9OspSU
+nGmJe3LRdsNx7P7pu57GY8lEv1tWkAO9
+-----END CERTIFICATE-----
+EOF
+
+$x509= pf::ssl::x509_from_string($multi_san_cert);
+my $x509_info = pf::ssl::x509_info($x509);
+
+is($x509_info->{common_name}, "www.inverse.ca", "Common name is properly read in x509_info");
+is_deeply($x509_info->{subject_alt_name},['DNS:api.fingerbank.org','DNS:chat.inverse.ca','DNS:demo.sogo.nu','DNS:fingerbank.org','DNS:git.inverse.ca','DNS:help.inverse.ca','DNS:inverse.ca','DNS:jollyjumper.inverse.ca','DNS:kimai.inverse.ca','DNS:lists.inverse.ca','DNS:monitoring.inverse.ca','DNS:packages.inverse.ca','DNS:packetfence.org','DNS:psono.inverse.ca','DNS:sogo-demo.inverse.ca','DNS:sogo.inverse.ca','DNS:sogo.nu','DNS:wiki.inverse.ca','DNS:www.fingerbank.org','DNS:www.inverse.ca','DNS:www.packetfence.org','DNS:www.sogo.nu'],"Subject alternative name is properly read from the x509_info");
 
 =head1 AUTHOR
 
