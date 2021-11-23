@@ -131,7 +131,7 @@ example_el8:
 fingerbank_invalid_db_deb11:
 	make \
 	PF_VM_NAME=pfdeb11dev \
-	INT_TEST_VM_NAMES="switch01 node01 wireless01" \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 

@@ -16,6 +16,10 @@
       - fingerbank_invalid_db/clear_cache
       - wireless_mac_auth
       - wireless_mac_auth/teardown
+      - wired_dot1x_eap_peap
+      - wired_dot1x_eap_peap/teardown
+      - wireless_dot1x_eap_peap
+      - wireless_dot1x_eap_peap/teardown
       - fingerbank_invalid_db/corrupt/teardown
 
       - fingerbank_invalid_db/missing_table
@@ -25,6 +29,10 @@
       - fingerbank_invalid_db/clear_cache
       - wireless_mac_auth
       - wireless_mac_auth/teardown
+      - wired_dot1x_eap_peap
+      - wired_dot1x_eap_peap/teardown
+      - wireless_dot1x_eap_peap
+      - wireless_dot1x_eap_peap/teardown
       - fingerbank_invalid_db/missing_table/teardown
 
   tasks:
