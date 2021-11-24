@@ -76,10 +76,11 @@ sub identifyConnectionType {
             $connection->isVPN($TRUE);
             $connection->isCLI($FALSE);
         } else {
+            $connection->isCLI($TRUE);
             $connection->isVPN($FALSE);
         }
     } else {
-        $connection->isCLI($FALSE);
+        $connection->isCLI($TRUE);
     	$connection->isVPN($FALSE);
     }
 }
