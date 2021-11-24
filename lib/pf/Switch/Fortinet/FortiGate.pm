@@ -218,15 +218,19 @@ sub identifyConnectionType {
     my ( $self, $connection, $radius_request ) = @_;
     my $logger = $self->logger;
 
-    my @require = qw(Fortinet-Vdom-Name);
+    my @require = qw(Connect-Info);
     my @found = grep {exists $radius_request->{$_}} @require;
 
-    if ( (@require == @found) || (exists $radius_request->{'Connect-Info'} && $radius_request->{'Connect-Info'} =~ /^(vpn-ssl|vpn-ikev2)$/i) ) {
+    if ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(vpn-ssl|vpn-ikev2)$/i ) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
-    } else {
+    } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(admin-login)$/i ) {
         $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
     }
+    # Default to CLI
+    $connection->isVPN($FALSE);
+    $connection->isCLI($TRUE);
 }
 
 
