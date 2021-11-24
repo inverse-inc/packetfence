@@ -62,6 +62,7 @@ sub BUILD {
     my ($self) = @_;
     $self->field('template')->default($self->for_module->meta->find_attribute_by_name('template')->default->());
     $self->field('skipable')->default($self->for_module->meta->find_attribute_by_name('skipable')->default->());
+    $self->field('with_layout')->default($self->for_module->meta->find_attribute_by_name('with_layout')->default->());
 }
 
 =over
