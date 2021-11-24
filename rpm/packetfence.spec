@@ -865,9 +865,6 @@ fi
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
 %config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
-%config(noreplace)      /usr/local/pf/conf/apache_filters.conf
-                        /usr/local/pf/conf/apache_filters.conf.example
-%config                 /usr/local/pf/conf/apache_filters.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
 %dir %attr(0770, pf pf) /usr/local/pf/conf/certmanager
 %config                 /usr/local/pf/conf/caddy-services/*.conf
