@@ -6,8 +6,16 @@ require 'yaml'
  
 # Read YAML file with box and network details
 inventory = YAML.load_file('inventory/hosts')
-current_user = ENV['USER']
-networks = inventory['all']['vars']['networks'][current_user]
+user = ENV['USER']
+users_vars = inventory['all']['vars']['users_vars']
+if users_vars[user]
+  puts "#{user} present in inventory, apply user settings"
+  dict_name = user
+else
+  puts "#{user} absent inventory, fallback to gitlab-runner settings"
+  dict_name = 'gitlab-runner'
+end
+user_vars = inventory['all']['vars']['users_vars'][dict_name]
 
 Vagrant.configure("2") do |config|
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)
@@ -25,34 +33,34 @@ Vagrant.configure("2") do |config|
         # only from our expected subnet. Allow traffic between guests. Deny
         # all other inbound. Deny all other outbound.
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks['networks'][0]['name'],
-                       :ip => networks['vms'][server]['ip'],
-                       :netmask => networks['vms'][server]['netmask'],
+                       :libvirt__network_name => user_vars['networks'][0]['name'],
+                       :ip => user_vars['vms'][server]['ip'],
+                       :netmask => user_vars['vms'][server]['netmask'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks['networks'][0]['forward_mode']
+                       :libvirt__forward_mode => user_vars['networks'][0]['forward_mode']
 
         # registration
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks['networks'][1]['name'],
-                       :ip => networks['networks'][1]['subnet'],
+                       :libvirt__network_name => user_vars['networks'][1]['name'],
+                       :ip => user_vars['networks'][1]['subnet'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks['networks'][1]['forward_mode'],
+                       :libvirt__forward_mode => user_vars['networks'][1]['forward_mode'],
                        auto_config: false
 
         # isolation
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks['networks'][2]['name'],
-                       :ip => networks['networks'][2]['subnet'],
+                       :libvirt__network_name => user_vars['networks'][2]['name'],
+                       :ip => user_vars['networks'][2]['subnet'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks['networks'][2]['forward_mode'],
+                       :libvirt__forward_mode => user_vars['networks'][2]['forward_mode'],
                        auto_config: false
 
         # inline
         srv.vm.network "private_network",
-                       :libvirt__network_name => networks['networks'][3]['name'],
-                       :ip => networks['networks'][3]['subnet'],
+                       :libvirt__network_name => user_vars['networks'][3]['name'],
+                       :ip => user_vars['networks'][3]['subnet'],
                        :libvirt__dhcp_enabled => false,
-                       :libvirt__forward_mode => networks['networks'][3]['forward_mode'],
+                       :libvirt__forward_mode => user_vars['networks'][3]['forward_mode'],
                        auto_config: false
 
         srv.vm.provider "libvirt" do |v|

@@ -86,18 +86,24 @@ SCRIPT
 
 # Read YAML file with box and network details
 inventory = YAML.load_file('inventory/hosts')
-current_user = ENV['USER']
-networks = inventory['all']['vars']['networks'][current_user]
-switch01_ip = networks['vms']['switch01']['ip']
-switch01_netmask = networks['vms']['switch01']['netmask']
-inline_ip = networks['vms']['switch01']['inline_ip']
-inline_netmask = networks['vms']['switch01']['inline_netmask']
-inline_l3_ip = networks['vms']['switch01']['inline_l3_ip']
-inline_l3_netmask = networks['vms']['switch01']['inline_l3_netmask']
-node01_ip = networks['vms']['node01']['ip']
-node01_netmask = networks['vms']['node01']['netmask']
-node02_ip = networks['vms']['node02']['ip']
-node02_netmask = networks['vms']['node02']['netmask']
+user = ENV['USER']
+users_vars = inventory['all']['vars']['users_vars']
+if users_vars[user]
+  dict_name = user
+else
+  dict_name = 'gitlab-runner'
+end
+user_vars = inventory['all']['vars']['users_vars'][dict_name]
+switch01_ip = user_vars['vms']['switch01']['ip']
+switch01_netmask = user_vars['vms']['switch01']['netmask']
+inline_ip = user_vars['vms']['switch01']['inline_ip']
+inline_netmask = user_vars['vms']['switch01']['inline_netmask']
+inline_l3_ip = user_vars['vms']['switch01']['inline_l3_ip']
+inline_l3_netmask = user_vars['vms']['switch01']['inline_l3_netmask']
+node01_ip = user_vars['vms']['node01']['ip']
+node01_netmask = user_vars['vms']['node01']['netmask']
+node02_ip = user_vars['vms']['node02']['ip']
+node02_netmask = user_vars['vms']['node02']['netmask']
 
 Vagrant.configure("2") do |config|
 
@@ -124,34 +130,34 @@ Vagrant.configure("2") do |config|
       # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:01",
-            :libvirt__network_name => networks['networks'][0]['name'],
-            :ip => networks['networks'][0]['subnet'],
+            :libvirt__network_name => user_vars['networks'][0]['name'],
+            :ip => user_vars['networks'][0]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks['networks'][0]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][0]['forward_mode'],
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:02",
-            :libvirt__network_name => networks['networks'][1]['name'],
-            :ip => networks['networks'][1]['subnet'],
+            :libvirt__network_name => user_vars['networks'][1]['name'],
+            :ip => user_vars['networks'][1]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks['networks'][1]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][1]['forward_mode'],
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:03",
-            :libvirt__network_name => networks['networks'][2]['name'],
-            :ip => networks['networks'][2]['subnet'],
+            :libvirt__network_name => user_vars['networks'][2]['name'],
+            :ip => user_vars['networks'][2]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks['networks'][2]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][2]['forward_mode'],
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:06",
-            :libvirt__network_name => networks['networks'][3]['name'],
-            :ip => networks['networks'][3]['subnet'],
+            :libvirt__network_name => user_vars['networks'][3]['name'],
+            :ip => user_vars['networks'][3]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks['networks'][3]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][3]['forward_mode'],
             auto_config: false
       # link for swp11 --> node01:ens6
       device.vm.network "private_network",

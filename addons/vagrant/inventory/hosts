@@ -8,8 +8,8 @@ all:
     cumulus:
       hosts:
         switch01:
-          mgmt_ip: "{{ networks[current_user]['vms']['switch01']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['switch01']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['switch01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['switch01']['netmask'] }}"
           box: CumulusCommunity/cumulus-vx
           box_version: 3.7.12
           ansible_host: "{{ mgmt_ip }}"
@@ -19,16 +19,16 @@ all:
         node01:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: "{{ networks[current_user]['vms']['node01']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['node01']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['node01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['node01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: "{{ networks[current_user]['vms']['node02']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['node02']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['node02']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
@@ -38,8 +38,8 @@ all:
         ad:
           box: jborean93/WindowsServer2016
           box_version: 0.7.0
-          mgmt_ip: "{{ networks[current_user]['vms']['ad']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['ad']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 2
           memory: 2048
@@ -49,8 +49,8 @@ all:
         wireless01:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: "{{ networks[current_user]['vms']['wireless01']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['wireless01']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['wireless01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['wireless01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -65,8 +65,8 @@ all:
         linux01:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: "{{ networks[current_user]['vms']['linux01']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['linux01']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['linux01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux01']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -74,8 +74,8 @@ all:
         linux02:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: "{{ networks[current_user]['vms']['linux02']['ip'] }}"
-          mgmt_netmask: "{{ networks[current_user]['vms']['linux02']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['linux02']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux02']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -104,16 +104,16 @@ all:
             pfel8dev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: "{{ networks[current_user]['vms']['pfel8dev']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfel8dev']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
             pfdeb11dev:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: "{{ networks[current_user]['vms']['pfdeb11dev']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfdeb11dev']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -121,16 +121,16 @@ all:
             el8dev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: "{{ networks[current_user]['vms']['el8dev']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['el8dev']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
             deb11dev:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: "{{ networks[current_user]['vms']['deb11dev']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['deb11dev']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['deb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -139,22 +139,22 @@ all:
         localdev:
           hosts:
             localhost:
-              mgmt_ip: "{{ networks[current_user]['vms']['localhost']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['localhost']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['localhost']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['localhost']['netmask'] }}"
               ansible_connection: local
             pfel8localdev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: "{{ networks[current_user]['vms']['pfel8localdev']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfel8localdev']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
             pfdeb11localdev:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: "{{ networks[current_user]['vms']['pfdeb11localdev']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfdeb11localdev']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -165,8 +165,8 @@ all:
             pfel8stable:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: "{{ networks[current_user]['vms']['pfel8stable']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfel8stable']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8stable']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 8192
@@ -174,16 +174,16 @@ all:
             pfdeb9stable:
               box: inverse-inc/pfdeb9stable
               box_version: 10.3.20210414165339
-              mgmt_ip: "{{ networks[current_user]['vms']['pfdeb9stable']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfdeb9stable']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 8192
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: "{{ networks[current_user]['vms']['pfdeb11stable']['ip'] }}"
-              mgmt_netmask: "{{ networks[current_user]['vms']['pfdeb11stable']['netmask'] }}"
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -192,8 +192,10 @@ all:
 
   vars:
     tz: UTC
-    current_user: "{{ lookup('env', 'USER') }}"
-    networks:
+    user: "{{ lookup('env', 'USER') }}"
+    # if variable "user" doesn't exist in users_vars, we fallback to "gitlab-runner" has dict_name
+    dict_name: "{{ user if users_vars[user]|d() else 'gitlab-runner' }}"
+    users_vars:
       # ci
       gitlab-runner:
         vars:

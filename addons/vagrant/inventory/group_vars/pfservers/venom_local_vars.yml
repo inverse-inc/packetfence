@@ -9,19 +9,19 @@ venom_local_vars:
 
   # get second IP (.2) usable without /CIDR
   - name: 'configurator.interfaces.reg.ip'
-    value: "{{ networks[current_user]['networks'][1]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+    value: "{{ users_vars[dict_name]['networks'][1]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
 
   # get netmask based on CIDR
   - name: 'configurator.interfaces.reg.netmask'
-    value: "{{ networks[current_user]['networks'][1]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
+    value: "{{ users_vars[dict_name]['networks'][1]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
 
   # get second IP (.2) usable without /CIDR
   - name: 'configurator.interfaces.iso.ip'
-    value: "{{ networks[current_user]['networks'][2]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+    value: "{{ users_vars[dict_name]['networks'][2]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
 
   # get netmask based on CIDR
   - name: 'configurator.interfaces.iso.netmask'
-    value: "{{ networks[current_user]['networks'][2]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
+    value: "{{ users_vars[dict_name]['networks'][2]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
 
   - name: 'smtp_server'
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"
@@ -45,22 +45,22 @@ venom_local_vars:
     value: "{{ mariadb_socket }}"
 
   - name: 'ad_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['ad']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
 
   - name: 'switch01_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['switch01']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['switch01']['ip'] }}"
 
   - name: 'node01_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['node01']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['node01']['ip'] }}"
 
   - name: 'node02_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['node02']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
 
   - name: 'wireless01_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['wireless01']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['wireless01']['ip'] }}"
 
   - name: 'linux01_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['linux01']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['linux01']['ip'] }}"
 
   - name: 'linux02_mgmt_ip'
     value: "{{ users_vars[dict_name]['vms']['linux02']['ip'] }}"

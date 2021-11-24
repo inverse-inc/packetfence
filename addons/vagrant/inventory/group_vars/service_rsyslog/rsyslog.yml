@@ -1,4 +1,4 @@
 ---
 # allow all machines on management network to send logs to rsyslog
 rsyslog__group_allow:
-  - "{{ networks[current_user]['networks'][0]['subnet'] }}"
+  - "{{ users_vars[dict_name]['networks'][0]['subnet'] }}"
