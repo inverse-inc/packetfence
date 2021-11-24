@@ -9,3 +9,7 @@ packetfence_server_name: '{{ lookup("env","PF_VM_NAME") | default("pfel8dev", tr
 packetfence_server_mgmt_ip: '{{ hostvars[packetfence_server_name]["mgmt_ip"] }}'
 
 pipeline_id: '{{ lookup("env","CI_PIPELINE_ID") | default("123456789", true) }}'
+
+# get current PacketFence minor release (X.Y)
+pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
+
