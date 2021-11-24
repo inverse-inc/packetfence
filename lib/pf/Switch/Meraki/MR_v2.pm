@@ -16,28 +16,15 @@ Developed and tested on a MR12 access point
 
 use strict;
 use warnings;
-
-use base ('pf::Switch::Cisco::WLC');
-
-use Net::SNMP;
 use Try::Tiny;
 use pf::constants;
 use pf::util;
 use pf::node;
-use pf::util::radius qw(perform_coa);
+use pf::util::radius qw(perform_coa perform_disconnect);
+
+use base ('pf::Switch::Cisco::WLC');
 
 sub description { 'Meraki cloud controller V2' }
-
-=head2 getVersion - obtain image version information from switch
-
-=cut
-
-sub getVersion {
-    my ($self) = @_;
-    my $logger = $self->logger;
-    $logger->info("we don't know how to determine the version through SNMP !");
-    return '1';
-}
 
 =head2 returnRoleAttribute
 
@@ -49,9 +36,34 @@ sub returnRoleAttribute {
     return 'Airespace-ACL-Name';
 }
 
-=head2 radiusDisconnect
+=item deauthenticateMacDefault
 
-Tailored made disconnect message for Meraki APs
+Some of the attributes from Cisco::WLC aren't necessary
+
+=cut
+
+sub deauthenticateMacDefault {
+    my ( $self, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    # TODO push Login-User => 1 (RFC2865) in pf::radius::constants if someone ever reads this
+    # (not done because it doesn't exist in current branch)
+    return $self->radiusDisconnect( $mac, );
+}
+
+=item radiusDisconnect
+
+Sends a RADIUS Disconnect-Request to the NAS with the MAC as the Calling-Station-Id to disconnect.
+
+Optionally you can provide other attributes as an hashref.
+
+Uses L<pf::util::radius> for the low-level RADIUS stuff.
 
 =cut
 
@@ -81,6 +93,7 @@ sub radiusDisconnect {
     }
     # On which port we have to send the CoA-Request ?
     my $nas_port = $self->{'_disconnectPort'} || '3799';
+    my $coa_port = $self->{'_coaPort'} || '1700';
     # allowing client code to override where we connect with NAS-IP-Address
     $send_disconnect_to = $add_attributes_ref->{'NAS-IP-Address'}
         if (defined($add_attributes_ref->{'NAS-IP-Address'}));
@@ -91,8 +104,12 @@ sub radiusDisconnect {
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
-            nas_port => $nas_port,
+            nas_port => $coa_port,
         };
+
+        $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        my $roleResolver = pf::roles::custom->instance();
+        my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -102,35 +119,51 @@ sub radiusDisconnect {
 
         my $attributes_ref = {
             'Calling-Station-Id' => $mac,
+            'NAS-IP-Address' => $send_disconnect_to,
         };
 
         # merging additional attributes provided by caller to the standard attributes
         $attributes_ref = { %$attributes_ref, %$add_attributes_ref };
 
-        my $vsa = [
-            {
-            vendor => "Cisco",
-            attribute => "Cisco-AVPair",
-            value => "audit-session-id=$node_info->{'sessionid'}",
-            },
-            {
-            vendor => "Cisco",
-            attribute => "Cisco-AVPair",
-            value => "subscriber:command=reauthenticate",
-            },
-            {
-            vendor => "Cisco",
-            attribute => "Cisco-AVPair",
-            value => "subscriber:reauthenticate-type=last",
-            }
-        ];
-        # This attribute is unsupported on the Meraki so we make sure we don't send it
-        delete $attributes_ref->{'Service-Type'};
-        $response = perform_coa($connection_info, $attributes_ref, $vsa);
+        # Roles are configured and the user should have one.
+        # We send a regular disconnect if there is an open trapping security_event
+        # to ensure the VLAN is actually changed to the isolation VLAN.
+        if ( $self->shouldUseCoA({role => $role}) ) {
+            $logger->info("Returning ACCEPT with Role: $role");
+
+            my $vsa = [
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "audit-session-id=$node_info->{'sessionid'}",
+                },
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "subscriber:command=reauthenticate",
+                },
+                {
+                vendor => "Cisco",
+                attribute => "Cisco-AVPair",
+                value => "subscriber:reauthenticate-type=last",
+                }
+            ];
+            $response = perform_coa($connection_info, $attributes_ref, $vsa);
+
+        }
+        else {
+            $connection_info = {
+                nas_ip => $send_disconnect_to,
+                secret => $self->{'_radiusSecret'},
+                LocalAddr => $self->deauth_source_ip($send_disconnect_to),
+                nas_port => $nas_port,
+            };
+            $response = perform_disconnect($connection_info, $attributes_ref);
+        }
     } catch {
         chomp;
         $logger->warn("Unable to perform RADIUS CoA-Request on (".$self->{'_id'}."): $_");
-        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")...") if ($_ =~ /^Timeout/);
+        $logger->error("Wrong RADIUS secret or unreachable network device (".$self->{'_id'}.")... On some Cisco Wireless Controllers you might have to set disconnectPort=1700 as some versions ignore the CoA requests on port 3799") if ($_ =~ /^Timeout/);
     };
     return if (!defined($response));
 
@@ -144,26 +177,11 @@ sub radiusDisconnect {
     return;
 }
 
-=head2 parseRequest
+=head2 addDPSK
 
-Redefinition of pf::Switch::parseRequest due to specific attribute being used for webauth
+Add the DPSK to a RADIUS reply
 
 =cut
-
-sub parseRequest {
-    my ( $self, $radius_request ) = @_;
-    my $client_mac      = ref($radius_request->{'Calling-Station-Id'}) eq 'ARRAY'
-                           ? clean_mac($radius_request->{'Calling-Station-Id'}[0])
-                           : clean_mac($radius_request->{'Calling-Station-Id'});
-    my $user_name       = $self->parseRequestUsername($radius_request);
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
-    my $port            = $radius_request->{'NAS-Port'};
-    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
-    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-    my $session_id = $self->getCiscoAvPairAttribute($radius_request, "audit-session-id");
-
-    return ($nas_port_type, $eap_type, $client_mac, $port, $user_name, $nas_port_id, $session_id, $nas_port_id);
-}
 
 sub addDPSK {
     my ($self, $args, $radius_reply_ref, $av_pairs) = @_;
