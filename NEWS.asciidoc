@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+* Allow Meraki::MR_v2 module to be able to use a RADIUS Disconnect instead of only a RADIUS CoA
+
 === Bug Fixes
 
 * Reply to Windows devices configured through Intune even if they requested a non-existing URL (#6687)
