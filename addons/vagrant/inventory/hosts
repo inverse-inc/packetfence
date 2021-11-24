@@ -196,6 +196,11 @@ all:
     networks:
       # ci
       gitlab-runner:
+        vars:
+          rhel_sub_secret_id: 'e9d98894-bd22-4f32-8b59-653aceb72ec4'
+          fingerbank_api_key:
+            secret_id: 'd2c4d4f8-c5b1-4281-a724-e4ade5c31fe1'
+            email: 'support@inverse.ca'
         networks:
           - name: mgmt_ci
             subnet: '172.17.200.0/24'
@@ -269,6 +274,9 @@ all:
             netmask: '255.255.255.0'
       # local dev
       _nqb:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_nqb
             subnet: '172.17.140.0/24'
@@ -341,6 +349,9 @@ all:
             ip: '172.17.140.18'
             netmask: '255.255.255.0'
       _jrouzier:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_jrouzier
             subnet: '172.17.115.0/24'
@@ -413,6 +424,9 @@ all:
             ip: '172.17.115.18'
             netmask: '255.255.255.0'
       _lzammit:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_lzammit
             subnet: '172.17.145.0/24'
@@ -485,6 +499,9 @@ all:
             ip: '172.17.145.18'
             netmask: '255.255.255.0'
       _jgoimard:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_jgoimard
             subnet: '172.17.120.0/24'
@@ -557,6 +574,9 @@ all:
             ip: '172.17.120.18'
             netmask: '255.255.255.0'
       _dsatkunas:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_dsatkunas
             subnet: '172.17.125.0/24'
@@ -629,6 +649,9 @@ all:
             ip: '172.17.125.18'
             netmask: '255.255.255.0'
       _fdurand:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_fdurand
             subnet: '172.17.135.0/24'
@@ -701,6 +724,9 @@ all:
             ip: '172.17.135.18'
             netmask: '255.255.255.0'
       _jsemaan:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key_secret_id: ''
         networks:
           - name: mgmt_jsemaan
             subnet: '172.17.155.0/24'

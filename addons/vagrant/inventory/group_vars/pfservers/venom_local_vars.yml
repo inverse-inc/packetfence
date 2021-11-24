@@ -63,4 +63,10 @@ venom_local_vars:
     value: "{{ networks[current_user]['vms']['linux01']['ip'] }}"
 
   - name: 'linux02_mgmt_ip'
-    value: "{{ networks[current_user]['vms']['linux02']['ip'] }}"
+    value: "{{ users_vars[dict_name]['vms']['linux02']['ip'] }}"
+
+  - name: 'fingerbank_api_key.secret_id'
+    value: "{{ users_vars[dict_name]['vars']['fingerbank_api_key']['secret_id'] }}"
+
+  - name: 'fingerbank_api_key.email'
+    value: "{{ users_vars[dict_name]['vars']['fingerbank_api_key']['email'] }}"
