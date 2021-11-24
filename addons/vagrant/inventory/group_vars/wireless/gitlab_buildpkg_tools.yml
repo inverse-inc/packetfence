@@ -25,4 +25,4 @@ gitlab_buildpkg_tools__deb_keys:
 
 gitlab_buildpkg_tools__deb_pkgs:
   - packetfence-test
-
+  - rsync
