@@ -789,7 +789,7 @@ status=enabled
 # interval
 #
 # At which interval to run the bandwidth maintenance session cleanup pfmon task
-interval=0
+interval=5m
 #
 # batch
 #
