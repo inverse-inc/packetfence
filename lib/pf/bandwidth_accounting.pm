@@ -250,18 +250,24 @@ sub clean_old_sessions {
         $logger->debug("Not deleting because the window is 0");
         return;
     }
+    my $now = pf::dal->now();
     my $sql = <<SQL;
 UPDATE
-    bandwidth_accounting,
-    (SELECT node_id, unique_session_id, MAX(last_updated) FROM bandwidth_accounting GROUP BY node_id, unique_session_id HAVING MAX(last_updated) < DATE_SUB(NOW(), INTERVAL ? SECOND) AND MAX(last_updated) > '0000-00-00 00:00:00' LIMIT ?) as old_sessions
-    SET last_updated = '0000-00-00 00:00:00'
-    WHERE (bandwidth_accounting.node_id, bandwidth_accounting.unique_session_id) = (old_sessions.node_id, old_sessions.unique_session_id);
+bandwidth_accounting RIGHT JOIN (
+    SELECT node_id, unique_session_id
+    FROM bandwidth_accounting as ba
+    GROUP BY node_id, unique_session_id
+    HAVING MAX(ba.last_updated) BETWEEN '0001-01-01 00:00:00' AND DATE_SUB(?, INTERVAL ? SECOND)
+    LIMIT ?
+    ) as old_sessions USING (node_id, unique_session_id)
+
+    SET last_updated = '0000-00-00 00:00:00';
 SQL
     my $start_time = time;
     my $end_time;
     my $rows_updated = 0;
     while (1) {
-        my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $window, $batch);
+        my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $now, $window, $batch);
         my $rows = $sth->rows;
         $end_time = time;
         $rows_updated+=$rows if $rows > 0;
