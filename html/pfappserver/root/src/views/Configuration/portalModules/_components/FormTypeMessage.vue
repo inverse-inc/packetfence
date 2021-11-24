@@ -28,6 +28,11 @@
       :text="$i18n.t('Whether or not, this message can be skipped')"
     />
 
+    <form-group-with-layout namespace="with_layout"
+      :column-label="$i18n.t('Render portal layout')"
+      :text="$i18n.t('Enabled will render with the portal layout')"
+    />
+
     <form-group-actions namespace="actions"
       :column-label="$i18n.t('Actions')"
       :text="$i18n.t('If none are specified, the default ones of the module will be used.')"
@@ -42,7 +47,8 @@ import {
   FormGroupDescription,
   FormGroupMessage,
   FormGroupSkipable,
-  FormGroupTemplate
+  FormGroupTemplate,
+  FormGroupWithLayout
 } from './'
 
 const components = {
@@ -53,7 +59,8 @@ const components = {
   FormGroupDescription,
   FormGroupMessage,
   FormGroupSkipable,
-  FormGroupTemplate
+  FormGroupTemplate,
+  FormGroupWithLayout
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

@@ -46,6 +46,14 @@ has_field 'template' =>
              help => 'The template to use to display the message' },
   );
 
+has_field 'with_layout' =>
+  (
+   type => 'Checkbox',
+   label => 'Enable Layout',
+   checkbox_value => 1,
+   input_without_param => 0,
+  );
+
 sub child_definition {
     return qw(message template skipable);
 }
