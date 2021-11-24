@@ -9,10 +9,10 @@ inventory = YAML.load_file('inventory/hosts')
 user = ENV['USER']
 users_vars = inventory['all']['vars']['users_vars']
 if users_vars[user]
-  puts "#{user} present in inventory, apply user settings"
+  puts "#{user} user present in inventory, apply user settings"
   dict_name = user
 else
-  puts "#{user} absent inventory, fallback to gitlab-runner settings"
+  puts "#{user} user absent in inventory, fallback to gitlab-runner settings"
   dict_name = 'gitlab-runner'
 end
 user_vars = inventory['all']['vars']['users_vars'][dict_name]

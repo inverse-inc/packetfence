@@ -109,16 +109,20 @@ dot1x_eap_tls_deb11:
 #==============================================================================
 # Targets for local tests
 #==============================================================================
-local_configurator_el8:
+# Usage: SCENARIOS_TO_RUN=example make local_el8
+local_el8:
 	make \
 	PF_VM_NAME=pfel8localdev \
-	SCENARIOS_TO_RUN=configurator \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN=$(SCENARIOS_TO_RUN) \
 	run_w_clean
 
-local_configurator_deb11:
+# Usage: SCENARIOS_TO_RUN=example make local_deb11
+local_deb11:
 	make \
 	PF_VM_NAME=pfdeb11localdev \
-	SCENARIOS_TO_RUN=configurator \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN=$(SCENARIOS_TO_RUN) \
 	run_w_clean
 
 
