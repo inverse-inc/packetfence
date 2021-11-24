@@ -1,3 +1,4 @@
+[% IF layout %]
 <div class="o-layout--center u-padding">
   <p>[% i18n(message) | none %]</p>
 
@@ -11,3 +12,7 @@
   </div>
   [% END %]
 </div>
+
+[% ELSE %]
+[% i18n(message) | none %]
+[% END %]
