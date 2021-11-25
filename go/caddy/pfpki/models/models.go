@@ -29,6 +29,7 @@ import (
 	"io"
 	"io/ioutil"
 
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
@@ -598,6 +599,7 @@ func (c CA) Verify(m *scep.CSRReqMessage) (bool, error) {
 			return false, err
 		}
 		err = vcloud.ValidateRequest(c.Ctx, m.CSR.Raw)
+
 		if err != nil {
 			return false, err
 		}
@@ -759,6 +761,171 @@ func NewCertModel(pfpki *types.Handler) *Cert {
 	return Cert
 }
 
+func (c CA) Resign(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var cadb []CA
+	var err error
+	if val, ok := params["id"]; ok {
+		allFields := strings.Join(sql.SqlFields(c)[:], ",")
+		c.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
+	}
+
+	Information.Entries = cadb
+	for _, v := range cadb {
+		block, _ := pem.Decode([]byte(v.Key))
+		if block == nil {
+			log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
+		}
+		var keyRSA *rsa.PrivateKey
+		var KeyECDSA *ecdsa.PrivateKey
+		// var publicKeyDer []byte
+		var skid []byte
+		var keyOut *bytes.Buffer
+		keyOut = new(bytes.Buffer)
+
+		switch *c.KeyType {
+		case certutils.KEY_RSA:
+			keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+			// publicKeyDer, err = x509.MarshalPKIXPublicKey(&keyRSA.PublicKey)
+			// if err != nil {
+			// 	log.LoggerWContext(c.Ctx).Error(err.Error())
+			// }
+			skid, err = certutils.CalculateSKID(keyRSA.PublicKey)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+			pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(keyRSA)})
+		case certutils.KEY_ECDSA:
+			KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
+			// publicKeyDer, err = x509.MarshalPKIXPublicKey(&KeyECDSA.PublicKey)
+			// if err != nil {
+			// 	log.LoggerWContext(c.Ctx).Error(err.Error())
+			// }
+			skid, err = certutils.CalculateSKID(KeyECDSA.PublicKey)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+			bytes, _ := x509.MarshalECPrivateKey(KeyECDSA)
+			pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
+		}
+
+		// pubKeyBlock := pem.Block{
+		// 	Type:    "PUBLIC KEY",
+		// 	Headers: nil,
+		// 	Bytes:   publicKeyDer,
+		// }
+		// pubKeyPem := string(pem.EncodeToMemory(&pubKeyBlock))
+		// fmt.Println(pubKeyPem)
+
+		var cadb CA
+		var newcadb []CA
+
+		var SerialNumber *big.Int
+
+		if CaDB := c.DB.Last(&cadb); CaDB.Error != nil {
+			SerialNumber = big.NewInt(1)
+		} else {
+			SerialNumber = big.NewInt(int64(cadb.ID + 1))
+		}
+
+		var Subject pkix.Name
+		Subject.CommonName = c.Cn
+
+		if len(c.Organisation) > 0 {
+			Subject.Organization = []string{c.Organisation}
+		}
+
+		if len(c.OrganisationalUnit) > 0 {
+			Subject.OrganizationalUnit = []string{c.OrganisationalUnit}
+		}
+
+		if len(c.Country) > 0 {
+			Subject.Country = []string{c.Country}
+		}
+
+		if len(c.State) > 0 {
+			Subject.Province = []string{c.State}
+		}
+
+		if len(c.Locality) > 0 {
+			Subject.Locality = []string{c.Locality}
+		}
+
+		if len(c.StreetAddress) > 0 {
+			Subject.StreetAddress = []string{c.StreetAddress}
+		}
+
+		if len(c.PostalCode) > 0 {
+			Subject.PostalCode = []string{c.PostalCode}
+		}
+
+		ca := &x509.Certificate{
+			SerialNumber:          SerialNumber,
+			Subject:               Subject,
+			NotBefore:             time.Now(),
+			NotAfter:              time.Now().AddDate(0, 0, c.Days),
+			IsCA:                  true,
+			SignatureAlgorithm:    c.Digest,
+			ExtKeyUsage:           certutils.Extkeyusage(strings.Split(*c.ExtendedKeyUsage, "|")),
+			KeyUsage:              x509.KeyUsage(certutils.Keyusage(strings.Split(*c.KeyUsage, "|"))),
+			BasicConstraintsValid: true,
+			EmailAddresses:        []string{c.Mail},
+			SubjectKeyId:          skid,
+			AuthorityKeyId:        skid,
+		}
+
+		if len(c.OCSPUrl) > 0 {
+			ca.OCSPServer = []string{c.OCSPUrl}
+		}
+
+		var caBytes []byte
+
+		switch *c.KeyType {
+		case certutils.KEY_RSA:
+			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, keyRSA.PublicKey, keyRSA)
+		case certutils.KEY_ECDSA:
+			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, KeyECDSA.PublicKey, KeyECDSA)
+		}
+		if err != nil {
+			return Information, err
+		}
+
+		cert := new(bytes.Buffer)
+		// Public key
+		pem.Encode(cert, &pem.Block{Type: "CERTIFICATE", Bytes: caBytes})
+
+		// Calculate the IssuerNameHash
+		catls, err := tls.X509KeyPair([]byte(cert.String()), []byte(keyOut.String()))
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+		cacert, err := x509.ParseCertificate(catls.Certificate[0])
+		if err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+		h := sha1.New()
+
+		h.Write(cacert.RawIssuer)
+
+		if err := c.DB.Model(&CA{}).Where("cn = ?", c.Cn).Updates(map[string]interface{}{"Cn": c.Cn, "Mail": c.Mail, "Organisation": c.Organisation, "OrganisationalUnit": c.OrganisationalUnit, "Country": c.Country, "State": c.State, "Locality": c.Locality, "StreetAddress": c.StreetAddress, "PostalCode": c.PostalCode, "KeyType": c.KeyType, "KeySize": c.KeySize, "Digest": c.Digest, "KeyUsage": c.KeyUsage, "ExtendedKeyUsage": c.ExtendedKeyUsage, "Days": c.Days, "Key": keyOut.String(), "Cert": cert.String(), "IssuerKeyHash": hex.EncodeToString(skid), "IssuerNameHash": hex.EncodeToString(h.Sum(nil)), "OCSPUrl": c.OCSPUrl}).Error; err != nil {
+			// if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl}).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, errors.New("A database error occured. See log for details.")
+		}
+
+		c.DB.Select("id, cn, mail, organisation, organisational_unit, country, state, locality, street_address, postal_code, key_type, key_size, digest, key_usage, extended_key_usage, days, cert, ocsp_url").Where("cn = ?", c.Cn).First(&newcadb)
+		Information.Entries = newcadb
+
+		return Information, nil
+	}
+
+	return Information, err
+}
+
 func (c Cert) New() (types.Info, error) {
 	Information := types.Info{}
 
@@ -781,6 +948,7 @@ func (c Cert) New() (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
+
 	cacert, err := x509.ParseCertificate(catls.Certificate[0])
 	if err != nil {
 		Information.Error = err.Error()

@@ -97,6 +97,42 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 	})
 }
 
+func ResignCA(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		o := models.NewCAModel(pfpki)
+		var Information types.Info
+		var err error
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+
+		case "POST":
+			vars := mux.Vars(req)
+			body, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+			}
+			if Information, err = o.Resign(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusUnprocessableEntity
+			}
+			Information.Status = http.StatusCreated
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+		}
+		manageAnswer(Information, Error, pfpki, res, req)
+	})
+}
+
 func GetCAByID(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		o := models.NewCAModel(pfpki)
