@@ -122,13 +122,13 @@ dot1x_eap_tls_deb11:
 
 dhcp_tester_deb11:
 	make \
-	PF_VM_NAME=pfdeb11dev \
+	PF_VM_NAME=pfdeb11$(DEV_ENV) \
 	SCENARIOS_TO_RUN=dhcp_tester \
 	$(MAKE_TARGET)
 
 dhcp_tester_el8:
 	make \
-	PF_VM_NAME=pfel8dev \
+	PF_VM_NAME=pfel8$(DEV_ENV) \
 	SCENARIOS_TO_RUN=dhcp_tester \
 	$(MAKE_TARGET)
 
