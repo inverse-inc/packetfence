@@ -10,7 +10,7 @@ freeradius__configuration:
       - name: 'packetfence_servers'
         raw: |
           client pf {
-              ipaddr = {{ networks[0]['subnet'] }}
+              ipaddr = {{ users_vars[dict_name]['networks'][1]['subnet'] }}
               secret = testing123
           }
         state: 'present'

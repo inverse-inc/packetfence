@@ -1,5 +1,9 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
+mgmt_ip=$1
+mgmt_netmask=$2
+
+declare -p mgmt_ip mgmt_netmask
 
 echo "#################################"
 echo "  Running config_node01.sh"
@@ -41,7 +45,8 @@ iface lo inet loopback
 auto ens6
 iface ens6 inet static
     alias VLAN 17
-    address 172.17.17.251/24
+    address ${mgmt_ip}
+    netmask ${mgmt_netmask}
 
 allow-hotplug ens7
 iface ens7 inet dhcp

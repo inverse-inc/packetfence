@@ -1,5 +1,15 @@
 #!/bin/bash
 set -o nounset -o pipefail -o errexit
+mgmt_ip=$1
+mgmt_netmask=$2
+inline_ip=$3
+inline_netmask=$4
+inline_l3_ip=$5
+inline_l3_netmask=$6
+
+declare -p mgmt_ip mgmt_netmask
+declare -p inline_ip inline_netmask
+declare -p inline_l3_ip inline_l3_netmask
 
 echo "#################################"
 echo "  Running Switch Post Config (config_switch.sh)"
@@ -62,17 +72,20 @@ iface swp48
 auto bridge.6
 iface bridge.6
     alias Inline-L2
-    address 172.17.6.3/24
+    address ${inline_ip}
+    netmask ${inline_netmask}
 
 auto bridge.17
 iface bridge.17
     alias Management
-    address 172.17.17.201/24
+    address ${mgmt_ip}
+    netmask ${mgmt_netmask}
 
 auto bridge.18
 iface bridge.18
     alias Inline-L3
-    address 172.17.18.254/24
+    address ${inline_l3_ip}
+    netmask ${inline_l3_netmask}
 
 auto bridge.100
 iface bridge.100 inet dhcp
