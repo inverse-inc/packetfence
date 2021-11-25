@@ -79,7 +79,7 @@ all:
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
-          memory: 512          
+          memory: 512
 
     service_rsyslog:
       hosts:
@@ -589,10 +589,10 @@ all:
             netmask: '255.255.255.0'
       _dsatkunas:
         vars:
-          rhel_sub_secret_id: ''
+          rhel_sub_secret_id: '24fc6fc9-a93a-45a6-86af-09380cad1e1a'
           fingerbank_api_key:
-            secret_id: ''
-            email: ''
+            secret_id: '1ec6dc22-39c8-4ae8-99c8-01403c6cb247'
+            email: 'dsatkuna@akamai.com'
         networks:
           - name: mgmt_dsatkunas
             subnet: '172.17.125.0/24'
