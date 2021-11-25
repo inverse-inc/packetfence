@@ -3,3 +3,18 @@
 # from inverse.ca website (already installed based on pipeline
 # artifacts)
 packetfence_install__centos_release_rpm: 'packetfence-release'
+
+# in CI environment: only for dependencies, packetfence package is installed using local repo
+packetfence_install__centos:
+  repos:
+    - packetfence
+
+# override to installed test files
+packetfence_install__centos_packages:
+  - packetfence
+  - packetfence-test
+
+# override to installed test files
+packetfence_install__deb_packages:
+  - packetfence
+  - packetfence-test

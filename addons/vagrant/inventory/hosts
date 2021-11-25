@@ -8,8 +8,8 @@ all:
     cumulus:
       hosts:
         switch01:
-          # IP used by helper_scripts and Ansible, not Vagrant
-          mgmt_ip: 172.17.17.201
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['switch01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['switch01']['netmask'] }}"
           box: CumulusCommunity/cumulus-vx
           box_version: 3.7.12
           ansible_host: "{{ mgmt_ip }}"
@@ -19,16 +19,16 @@ all:
         node01:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          # IP used by helper_scripts and Ansible, not Vagrant
-          mgmt_ip: 172.17.17.251
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['node01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['node01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          # IP used by helper_scripts and Ansible, not Vagrant
-          mgmt_ip: 172.17.17.252
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['node02']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
@@ -38,8 +38,8 @@ all:
         ad:
           box: jborean93/WindowsServer2016
           box_version: 0.7.0
-          mgmt_ip: 172.17.17.100
-          mgmt_netmask: 255.255.255.0
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           cpus: 2
           memory: 2048
@@ -49,8 +49,8 @@ all:
         wireless01:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: 172.17.17.210
-          mgmt_netmask: 255.255.255.0
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['wireless01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['wireless01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -65,8 +65,8 @@ all:
         linux01:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: 172.17.17.101
-          mgmt_netmask: 255.255.255.0
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['linux01']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux01']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -74,8 +74,8 @@ all:
         linux02:
           box: debian/bullseye64
           box_version: 11.20211018.1
-          mgmt_ip: 172.17.17.102
-          mgmt_netmask: 255.255.255.0
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['linux02']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux02']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -101,23 +101,19 @@ all:
       children:
         dev:
           hosts:
-            localhost:
-              mgmt_ip: ''
-              mgmt_netmask: 255.255.255.0
-              ansible_connection: local
             pfel8dev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: 172.17.17.10
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
             pfdeb11dev:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: 172.17.17.12
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -125,16 +121,40 @@ all:
             el8dev:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: 172.17.17.11
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 6144
             deb11dev:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: 172.17.17.13
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['deb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb11dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+
+        localdev:
+          hosts:
+            localhost:
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['localhost']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['localhost']['netmask'] }}"
+              ansible_connection: local
+            pfel8localdev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              cpus: 2
+              memory: 6144
+            pfdeb11localdev:
+              box: debian/bullseye64
+              box_version: 11.20211018.1
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -145,8 +165,8 @@ all:
             pfel8stable:
               box: generic/rhel8
               box_version: '3.4.2'
-              mgmt_ip: 172.17.17.14
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8stable']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 8192
@@ -154,16 +174,16 @@ all:
             pfdeb9stable:
               box: inverse-inc/pfdeb9stable
               box_version: 10.3.20210414165339
-              mgmt_ip: 172.17.17.15
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 2
               memory: 8192
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20211018.1
-              mgmt_ip: 172.17.17.16
-              mgmt_netmask: 255.255.255.0
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
@@ -172,28 +192,625 @@ all:
 
   vars:
     tz: UTC
-    networks:
-      - name: 'mgmt'
-        subnet: '172.17.17.0/24'
-        forward_mode: 'route'
-        netmask: 255.255.255.0
-
-      - name: 'registration'
-        subnet: '172.17.2.0/24'
-        forward_mode: 'route'
-        netmask: 255.255.255.0
-
-      - name: 'isolation'
-        subnet: '172.17.3.0/24'
-        forward_mode: 'route'
-        netmask: 255.255.255.0
-
-      - name: 'inline'
-        subnet: '172.17.6.0/24'
-        forward_mode: 'route'
-        netmask: 255.255.255.0
-
-      - name: 'inline-l3'
-        subnet: '172.17.18.0/24'
-        forward_mode: 'route'
-        netmask: 255.255.255.0
+    user: "{{ lookup('env', 'USER') }}"
+    # if variable "user" doesn't exist in users_vars, we fallback to "gitlab-runner" has dict_name
+    dict_name: "{{ user if users_vars[user]|d() else 'gitlab-runner' }}"
+    users_vars:
+      # ci
+      gitlab-runner:
+        vars:
+          rhel_sub_secret_id: 'e9d98894-bd22-4f32-8b59-653aceb72ec4'
+          fingerbank_api_key:
+            secret_id: 'd2c4d4f8-c5b1-4281-a724-e4ade5c31fe1'
+            email: 'support@inverse.ca'
+        networks:
+          - name: mgmt_ci
+            subnet: '172.17.200.0/24'
+            forward_mode: 'route'
+          - name: reg_ci
+            subnet: '172.17.201.0/24'
+            forward_mode: 'route'
+          - name: iso_ci
+            subnet: '172.17.202.0/24'
+            forward_mode: 'route'
+          - name: inline_ci
+            subnet: '172.17.203.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_ci
+            subnet: '172.17.204.0/24'
+        vms:
+          switch01:
+            ip: '172.17.200.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.203.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.204.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.200.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.200.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.200.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.200.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.200.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.200.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.200.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.200.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.200.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.200.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.200.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.200.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.200.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.200.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.200.18'
+            netmask: '255.255.255.0'
+      # local dev
+      _nqb:
+        vars:
+          rhel_sub_secret_id: '7ecb993e-5179-4eb5-a686-7d7943bf65eb'
+          fingerbank_api_key:
+            secret_id: '98090324-0b00-4877-a0b2-e8a215350c72'
+            email: 'nqb+git@azyx.fr'
+        networks:
+          - name: mgmt_nqb
+            subnet: '172.17.140.0/24'
+            forward_mode: 'route'
+          - name: reg_nqb
+            subnet: '172.17.141.0/24'
+            forward_mode: 'route'
+          - name: iso_nqb
+            subnet: '172.17.142.0/24'
+            forward_mode: 'route'
+          - name: inline_nqb
+            subnet: '172.17.143.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_nqb
+            subnet: '172.17.144.0/24'
+        vms:
+          switch01:
+            ip: '172.17.140.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.143.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.144.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.140.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.140.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.140.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.140.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.140.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.140.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.140.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.140.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.140.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.140.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.140.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.140.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.140.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.140.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.140.18'
+            netmask: '255.255.255.0'
+      _jrouzier:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key:
+            secret_id: ''
+            email: ''
+        networks:
+          - name: mgmt_jrouzier
+            subnet: '172.17.115.0/24'
+            forward_mode: 'route'
+          - name: reg_jrouzier
+            subnet: '172.17.116.0/24'
+            forward_mode: 'route'
+          - name: iso_jrouzier
+            subnet: '172.17.117.0/24'
+            forward_mode: 'route'
+          - name: inline_jrouzier
+            subnet: '172.17.118.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_jrouzier
+            subnet: '172.17.119.0/24'
+        vms:
+          switch01:
+            ip: '172.17.115.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.118.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.119.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.115.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.115.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.115.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.115.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.115.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.115.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.115.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.115.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.115.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.115.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.115.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.115.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.115.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.115.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.115.18'
+            netmask: '255.255.255.0'
+      _lzammit:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key:
+            secret_id: ''
+            email: ''
+        networks:
+          - name: mgmt_lzammit
+            subnet: '172.17.145.0/24'
+            forward_mode: 'route'
+          - name: reg_lzammit
+            subnet: '172.17.146.0/24'
+            forward_mode: 'route'
+          - name: iso_lzammit
+            subnet: '172.17.147.0/24'
+            forward_mode: 'route'
+          - name: inline_lzammit
+            subnet: '172.17.148.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_lzammit
+            subnet: '172.17.149.0/24'
+        vms:
+          switch01:
+            ip: '172.17.145.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.148.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.149.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.145.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.145.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.145.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.145.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.145.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.145.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.145.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.145.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.145.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.145.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.145.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.145.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.145.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.145.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.145.18'
+            netmask: '255.255.255.0'
+      _jgoimard:
+        vars:
+          rhel_sub_secret_id: '14e54e10-247a-4a38-b19c-b1f8209daf70'
+          fingerbank_api_key:
+            secret_id: 'ba503744-9ea6-4be3-bd73-d3d5f75d7092'
+            email: 'jgoimard@inverse.ca'
+        networks:
+          - name: mgmt_jgoimard
+            subnet: '172.17.120.0/24'
+            forward_mode: 'route'
+          - name: reg_jgoimard
+            subnet: '172.17.121.0/24'
+            forward_mode: 'route'
+          - name: iso_jgoimard
+            subnet: '172.17.122.0/24'
+            forward_mode: 'route'
+          - name: inline_jgoimard
+            subnet: '172.17.123.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_jgoimard
+            subnet: '172.17.124.0/24'
+        vms:
+          switch01:
+            ip: '172.17.120.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.123.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.124.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.120.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.120.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.120.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.120.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.120.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.120.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.120.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.120.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.120.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.120.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.120.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.120.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.120.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.120.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.120.18'
+            netmask: '255.255.255.0'
+      _dsatkunas:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key:
+            secret_id: ''
+            email: ''
+        networks:
+          - name: mgmt_dsatkunas
+            subnet: '172.17.125.0/24'
+            forward_mode: 'route'
+          - name: reg_dsatkunas
+            subnet: '172.17.126.0/24'
+            forward_mode: 'route'
+          - name: iso_dsatkunas
+            subnet: '172.17.127.0/24'
+            forward_mode: 'route'
+          - name: inline_dsatkunas
+            subnet: '172.17.128.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_dsatkunas
+            subnet: '172.17.119.0/24'
+        vms:
+          switch01:
+            ip: '172.17.125.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.128.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.128.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.125.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.125.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.125.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.125.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.125.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.125.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.125.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.125.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.125.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.125.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.125.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.125.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.125.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.125.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.125.18'
+            netmask: '255.255.255.0'
+      _fdurand:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key:
+            secret_id: ''
+            email: ''
+        networks:
+          - name: mgmt_fdurand
+            subnet: '172.17.135.0/24'
+            forward_mode: 'route'
+          - name: reg_fdurand
+            subnet: '172.17.136.0/24'
+            forward_mode: 'route'
+          - name: iso_fdurand
+            subnet: '172.17.137.0/24'
+            forward_mode: 'route'
+          - name: inline_fdurand
+            subnet: '172.17.138.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_fdurand
+            subnet: '172.17.139.0/24'
+        vms:
+          switch01:
+            ip: '172.17.135.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.138.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.139.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.135.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.135.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.135.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.135.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.135.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.135.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.135.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.135.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.135.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.135.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.135.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.135.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.135.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.135.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.135.18'
+            netmask: '255.255.255.0'
+      _jsemaan:
+        vars:
+          rhel_sub_secret_id: ''
+          fingerbank_api_key:
+            secret_id: ''
+            email: ''
+        networks:
+          - name: mgmt_jsemaan
+            subnet: '172.17.155.0/24'
+            forward_mode: 'route'
+          - name: reg_jsemaan
+            subnet: '172.17.156.0/24'
+            forward_mode: 'route'
+          - name: iso_jsemaan
+            subnet: '172.17.157.0/24'
+            forward_mode: 'route'
+          - name: inline_jsemaan
+            subnet: '172.17.158.0/24'
+            forward_mode: 'route'
+          - name: inline_l3_jsemaan
+            subnet: '172.17.159.0/24'
+        vms:
+          switch01:
+            ip: '172.17.155.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.17.158.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.17.159.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.17.155.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.17.155.252'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.17.155.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.17.155.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.17.155.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.17.155.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.17.155.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.17.155.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.17.155.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.17.155.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.17.155.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.17.155.15'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.17.155.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.17.155.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.17.155.18'
+            netmask: '255.255.255.0'

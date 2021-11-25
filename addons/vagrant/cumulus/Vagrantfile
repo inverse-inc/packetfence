@@ -84,9 +84,26 @@ echo "### Rebooting Device to Apply Remap..."
 nohup bash -c 'shutdown now -r "Rebooting to Remap Interfaces"' &
 SCRIPT
 
-# Read YAML file with box details
+# Read YAML file with box and network details
 inventory = YAML.load_file('inventory/hosts')
-networks = inventory['all']['vars']['networks']
+user = ENV['USER']
+users_vars = inventory['all']['vars']['users_vars']
+if users_vars[user]
+  dict_name = user
+else
+  dict_name = 'gitlab-runner'
+end
+user_vars = inventory['all']['vars']['users_vars'][dict_name]
+switch01_ip = user_vars['vms']['switch01']['ip']
+switch01_netmask = user_vars['vms']['switch01']['netmask']
+inline_ip = user_vars['vms']['switch01']['inline_ip']
+inline_netmask = user_vars['vms']['switch01']['inline_netmask']
+inline_l3_ip = user_vars['vms']['switch01']['inline_l3_ip']
+inline_l3_netmask = user_vars['vms']['switch01']['inline_l3_netmask']
+node01_ip = user_vars['vms']['node01']['ip']
+node01_netmask = user_vars['vms']['node01']['netmask']
+node02_ip = user_vars['vms']['node02']['ip']
+node02_netmask = user_vars['vms']['node02']['netmask']
 
 Vagrant.configure("2") do |config|
 
@@ -113,34 +130,34 @@ Vagrant.configure("2") do |config|
       # link for swp1 --> mgmt_network (vlan 17)
       device.vm.network "private_network",
             :mac => "a0:00:00:00:00:01",
-            :libvirt__network_name => networks[0]['name'],
-            :ip => networks[0]['subnet'],
+            :libvirt__network_name => user_vars['networks'][0]['name'],
+            :ip => user_vars['networks'][0]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[0]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][0]['forward_mode'],
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:02",
-            :libvirt__network_name => networks[1]['name'],
-            :ip => networks[1]['subnet'],
+            :libvirt__network_name => user_vars['networks'][1]['name'],
+            :ip => user_vars['networks'][1]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[1]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][1]['forward_mode'],
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:03",
-            :libvirt__network_name => networks[2]['name'],
-            :ip => networks[2]['subnet'],
+            :libvirt__network_name => user_vars['networks'][2]['name'],
+            :ip => user_vars['networks'][2]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[2]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][2]['forward_mode'],
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
       device.vm.network "private_network",
             :mac => "44:38:39:00:00:06",
-            :libvirt__network_name => networks[3]['name'],
-            :ip => networks[3]['subnet'],
+            :libvirt__network_name => user_vars['networks'][3]['name'],
+            :ip => user_vars['networks'][3]['subnet'],
             :libvirt__dhcp_enabled => false,
-            :libvirt__forward_mode => networks[3]['forward_mode'],
+            :libvirt__forward_mode => user_vars['networks'][3]['forward_mode'],
             auto_config: false
       # link for swp11 --> node01:ens6
       device.vm.network "private_network",
@@ -194,8 +211,11 @@ Vagrant.configure("2") do |config|
     
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_switch", type: "shell" , path: "./helper_scripts/config_switch.sh"
-
+    device.vm.provision "config_switch", type: "shell" , path: "./helper_scripts/config_switch.sh",
+                        args: [ "#{switch01_ip}", "#{switch01_netmask}",
+                                "#{inline_ip}", "#{inline_netmask}",
+                                "#{inline_l3_ip}", "#{inline_l3_netmask}"
+                              ]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
@@ -338,8 +358,8 @@ vagrant_interface_rule
 
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node01.sh"
-
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node01.sh",
+                        args: [ "#{node01_ip}", "#{node01_netmask}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
@@ -444,8 +464,8 @@ vagrant_interface_rule
 
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
-    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node02.sh"
-
+    device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node02.sh",
+                        args: [ "#{node02_ip}", "#{node02_netmask}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
