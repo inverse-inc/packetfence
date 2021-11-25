@@ -20,7 +20,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldBeIn 201 409
 
 - name: create_eap_peap_roles_machine
   steps:
@@ -38,8 +38,8 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
-    
+      - result.statuscode ShouldBeIn 201 409
+
 - name: create_headless_device_role
   steps:
   - type: http
@@ -56,7 +56,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldBeIn 201 409
 
 - name: create_wired_dot1x_eap_tls_manual_role
   steps:
@@ -74,7 +74,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldBeIn 201 409
 
 - name: create_wired_dot1x_eap_tls_scep_role
   steps:
@@ -92,7 +92,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldBeIn 201 409
 
 - name: create_inline_l2_and_radius_first_role
   steps:
@@ -127,3 +127,22 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+
+- name: create_firewall_sso_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.firewall_sso.roles.headless_device.id}}",
+        "max_nodes_per_pid":0,
+        "notes":"{{.firewall_sso.roles.headless_device.notes}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldBeIn 201 409
+

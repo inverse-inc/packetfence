@@ -1,4 +1,12 @@
----
-# Put your local variables here
-# Example:
-# pfserver_mgmt_ip: 172.17.17.12
+#
+# Ansible managed
+#
+pfserver_mgmt_ip: 172.17.17.12
+pfserver_mgmt_netmask: 255.255.255.0
+smtp_server: 172.17.17.12
+smtp_port: 2525
+smtp_api_port: 8025
+internet_int_ip: 192.168.121.164
+internet_int_netmask: 255.255.255.0
+timezone: UTC
+mariadb_socket: /var/run/mysqld/mysqld.sock
