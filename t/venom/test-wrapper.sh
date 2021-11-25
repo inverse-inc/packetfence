@@ -78,15 +78,42 @@ run() {
     run_tests
 }
 
+# Start with or without VM
+start_vm() {
+    local vm=$1
+    local dotfile_path=$2
+    if [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ]; then
+        echo "Machine $vm already exists"
+        machine_uuid=$(cat ${dotfile_path}/machines/${vm}/libvirt/id)
+        machine_state=$(virsh -c qemu:///system domstate --domain $machine_uuid)
+        if [ "${machine_state}" = "shut off" ]; then
+            echo "Starting $vm using libvirt, provisioning using Ansible (without Vagrant)"
+            virsh -c qemu:///system start --domain $machine_uuid
+            # let time for the VM to boot before using ansible
+            echo "Let time to VM to start before provisioning using Ansible.."
+            sleep 60
+        else
+            echo "Machine already started, Ansible provisioning only"
+        fi
+        ( cd ${VAGRANT_DIR}; \
+          ansible-playbook site.yml -l $vm )
+    else
+        echo "Machine $vm doesn't exist, start and provision with Vagrant"
+        ( cd ${VAGRANT_DIR} ; \
+          VAGRANT_DOTFILE_PATH=${dotfile_path} \
+                  vagrant up \
+                  ${vm} \
+                  ${VAGRANT_UP_OPTS} )
+    fi
+}
+
 start_and_provision_pf_vm() {
     local vm_names=${@:-vmname}
-    log_subsection "Start and provision $vm_names"
+    log_subsection "Start and provision PacketFence $vm_names"
+    for vm in ${vm_names}; do
+        start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
+    done
 
-    ( cd ${VAGRANT_DIR} ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} \
-                          vagrant up \
-                          ${vm_names} \
-                          ${VAGRANT_UP_OPTS} )
 }
 
 start_and_provision_other_vm() {
@@ -94,25 +121,7 @@ start_and_provision_other_vm() {
     log_subsection "Start and provision $vm_names"
 
     for vm in ${vm_names}; do
-        if [ -e "${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id" ]; then
-            echo "Machine $vm already exists"
-            machine_uuid=$(cat ${VAGRANT_COMMON_DOTFILE_PATH}/machines/${vm}/libvirt/id)
-            # hack to overcome the fact that node01 doesn't have IP address after first provisioning
-            # vagrant up will fail
-            echo "Starting $vm using libvirt, provisioning using Ansible (without Vagrant)"
-            virsh -c qemu:///system start --domain $machine_uuid
-            # let time for the VM to boot before using ansible
-            sleep 60
-            ( cd ${VAGRANT_DIR}; \
-              ansible-playbook site.yml -l $vm )
-        else
-            echo "Machine $vm doesn't exist, start and provision with Vagrant"
-            ( cd ${VAGRANT_DIR} ; \
-              VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} \
-                          vagrant up \
-                          ${vm} \
-                          ${VAGRANT_UP_OPTS} )
-       fi
+        start_vm ${vm} ${VAGRANT_COMMON_DOTFILE_PATH}
     done
 }
 
@@ -134,8 +143,14 @@ run_tests() {
 
 unconfigure() {
     log_subsection "Unconfigure virtual machines"
-    ( cd $VAGRANT_DIR ; \
-      ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
+    # when we call "make halt" without options (localdev)
+    # no VM are provided
+    if [ -n "${ANSIBLE_VM_LIST}" ]; then
+        ( cd $VAGRANT_DIR ; \
+          ansible-playbook teardown.yml -l $ANSIBLE_VM_LIST )
+    else
+        echo "No VM detected, nothing to unconfigure"
+    fi
 }
 
 halt() {
