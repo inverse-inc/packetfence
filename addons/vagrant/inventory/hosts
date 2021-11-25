@@ -741,8 +741,8 @@ all:
         vars:
           rhel_sub_secret_id: ''
           fingerbank_api_key:
-            secret_id: ''
-            email: ''
+            secret_id: '22f6cf2d-3603-44aa-9789-7727e55df1ce'
+            email: 'jul.semaan@gmail.com'
         networks:
           - name: mgmt_jsemaan
             subnet: '172.17.155.0/24'
