@@ -1,15 +1,12 @@
 ---
 - hosts: pfservers
-  name: Run dot1x_eap_tls tests
+  name: Run example tests
   become: True
 
   vars:
+    # put your test suites to try here
     test_suites:
-      - configurator
-      - global_config
-      - dot1x_eap_tls_pfpki
-      - dot1x_eap_tls_pfpki/teardown
-      - global_teardown
+      - pfcron
 
   tasks:
     - name: Run Venom testsuites

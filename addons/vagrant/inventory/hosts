@@ -101,6 +101,10 @@ all:
       children:
         dev:
           hosts:
+            localhost:
+              mgmt_ip: ''
+              mgmt_netmask: 255.255.255.0
+              ansible_connection: local
             pfel8dev:
               box: generic/rhel8
               box_version: '3.4.2'

@@ -30,30 +30,40 @@ Install following softwares:
 * link:https://www.vagrantup.com/docs/installation/[Vagrant] (>= 2.2.10) provided by Hashicorp
 * libvirt, KVM/QEMU and vagrant-libvirt if you want to use libvirt as a provider for Vagrant
 * pywinrm > 0.3.0 if you want to use `ad` virtual machine
-* Ansible >= 2.10
+* Ansible = 2.10.X
 
 ==== Virtual environment: initial setup
 
-.Install Ansible and PacketFence's source code:
+===== Install Ansible and Ansible code
+
+.RHEL-based systems
 [source,bash]
 ----
-sudo yum install -y epel-release
-sudo yum install -y git python-pip
-pip install --user ansible
-git clone https://github.com/inverse-inc/packetfence.git
+yum install -y python3-pip
 ----
 
-.Install PacketFence's collection and Ansible roles:
+.Debian-based systems
+[source,bash]
+----
+apt update
+apt install -y python3-pip
+----
+
+Then install Ansible through `pip`:
+
+[source,bash]
+----
+pip3 install --user 'ansible<3'
+----
+
+After installing Ansible through `pip`, you need to add `$HOME/.local/bin/` to your PATH.
+
+Using `ansible-galaxy` command, you can then pull PacketFence's collection and Ansible roles:
+
 [source,bash]
 ----
 cd packetfence/addons/vagrant
 ansible-galaxy install -r requirements.yml
-----
-
-.Start a virtual machine
-[source,bash]
-----
-vagrant up VM_NAME
 ----
 
 === Running development version
