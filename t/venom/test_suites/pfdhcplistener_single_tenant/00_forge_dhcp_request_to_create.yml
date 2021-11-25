@@ -1,9 +1,9 @@
 # TODO: this file is copied from t/venom/pfservers/pfdhcplistener_single_tenant/00_forge_dhcp_request_to_create.yml because symlinking it wasn't working
 name: Forge DHCP request to create node10 in DB
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
+  - name: get_login_token
+    steps:
+    - type: get_login_token
 
   - name: forge_dhcp_request_node10
     steps:
