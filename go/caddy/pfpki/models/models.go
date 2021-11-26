@@ -1,6 +1,7 @@
 package models
 
 import (
+	"crypto"
 	"net"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -40,6 +42,7 @@ import (
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"golang.org/x/crypto/ocsp"
+	"golang.org/x/crypto/ssh"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"golang.org/x/text/message/catalog"
@@ -766,31 +769,35 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 	var cadb []CA
 	var err error
 	if val, ok := params["id"]; ok {
-		allFields := strings.Join(sql.SqlFields(c)[:], ",")
-		c.DB.Select(allFields).Where("`id` = ?", val).First(&cadb)
+		if err = c.DB.First(&cadb, val).Error; err != nil {
+			Information.Error = err.Error()
+			return Information, err
+		}
+
 	}
 
 	Information.Entries = cadb
 	for _, v := range cadb {
 		block, _ := pem.Decode([]byte(v.Key))
+
 		if block == nil {
 			log.LoggerWContext(c.Ctx).Error("failed to decode PEM block containing public key")
 		}
 		var keyRSA *rsa.PrivateKey
 		var KeyECDSA *ecdsa.PrivateKey
-		// var publicKeyDer []byte
+		var KeyDSA *dsa.PrivateKey
+
 		var skid []byte
 		var keyOut *bytes.Buffer
 		keyOut = new(bytes.Buffer)
-
+		var key crypto.PrivateKey
+		var pub crypto.PublicKey
 		switch *c.KeyType {
 		case certutils.KEY_RSA:
 			keyRSA, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-			// publicKeyDer, err = x509.MarshalPKIXPublicKey(&keyRSA.PublicKey)
-			// if err != nil {
-			// 	log.LoggerWContext(c.Ctx).Error(err.Error())
-			// }
-			skid, err = certutils.CalculateSKID(keyRSA.PublicKey)
+			key = keyRSA
+			pub = &key.(*rsa.PrivateKey).PublicKey
+			skid, err = certutils.CalculateSKID(pub)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
@@ -798,26 +805,31 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 			pem.Encode(keyOut, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(keyRSA)})
 		case certutils.KEY_ECDSA:
 			KeyECDSA, err = x509.ParseECPrivateKey(block.Bytes)
-			// publicKeyDer, err = x509.MarshalPKIXPublicKey(&KeyECDSA.PublicKey)
-			// if err != nil {
-			// 	log.LoggerWContext(c.Ctx).Error(err.Error())
-			// }
-			skid, err = certutils.CalculateSKID(KeyECDSA.PublicKey)
+			key = KeyECDSA
+			pub = &key.(*ecdsa.PrivateKey).PublicKey
+			skid, err = certutils.CalculateSKID(pub)
 			if err != nil {
 				Information.Error = err.Error()
 				return Information, err
 			}
 			bytes, _ := x509.MarshalECPrivateKey(KeyECDSA)
 			pem.Encode(keyOut, &pem.Block{Type: "EC PRIVATE KEY", Bytes: bytes})
+		case certutils.KEY_DSA:
+			KeyDSA, err = ssh.ParseDSAPrivateKey(block.Bytes)
+			key = KeyDSA
+			pub = &key.(*dsa.PrivateKey).PublicKey
+			skid, err = certutils.CalculateSKID(pub)
+			if err != nil {
+				Information.Error = err.Error()
+				return Information, err
+			}
+			val := certutils.DSAKeyFormat{
+				P: key.(*dsa.PrivateKey).P, Q: key.(*dsa.PrivateKey).Q, G: key.(*dsa.PrivateKey).G,
+				Y: key.(*dsa.PrivateKey).Y, X: key.(*dsa.PrivateKey).X,
+			}
+			bytes, _ := asn1.Marshal(val)
+			pem.Encode(keyOut, &pem.Block{Type: "DSA PRIVATE KEY", Bytes: bytes})
 		}
-
-		// pubKeyBlock := pem.Block{
-		// 	Type:    "PUBLIC KEY",
-		// 	Headers: nil,
-		// 	Bytes:   publicKeyDer,
-		// }
-		// pubKeyPem := string(pem.EncodeToMemory(&pubKeyBlock))
-		// fmt.Println(pubKeyPem)
 
 		var cadb CA
 		var newcadb []CA
@@ -884,9 +896,11 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 
 		switch *c.KeyType {
 		case certutils.KEY_RSA:
-			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, keyRSA.PublicKey, keyRSA)
+			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*rsa.PrivateKey))
 		case certutils.KEY_ECDSA:
-			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, KeyECDSA.PublicKey, KeyECDSA)
+			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*ecdsa.PrivateKey))
+		case certutils.KEY_DSA:
+			caBytes, err = x509.CreateCertificate(rand.Reader, ca, ca, pub, key.(*dsa.PrivateKey))
 		}
 		if err != nil {
 			return Information, err
