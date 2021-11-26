@@ -8,7 +8,7 @@ testcases:
     steps:
     - type: http
       method: DELETE
-      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/{{.pfdhcplistener_single_tenant.nodes.node10.first_ip}}'
+      url: '{{.pfserver_webadmin_url}}/api/v1/ip4log/{{.pfdhcplistener_single_tenant.nodes.node10.first_ip}}'
       ignore_verify_ssl: true
       headers:
         "Authorization": "{{.get_login_token.json.result.token}}"
