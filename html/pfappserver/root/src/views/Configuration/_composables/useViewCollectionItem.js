@@ -16,15 +16,22 @@ export const useViewCollectionItemProps = {
   isNew: {
     type: Boolean
   },
-  actionKeyButtonVerb: {
+  labelActionKey: {
     type: String
-  }
+  },
+  labelCreate: {
+    type: String
+  },
+  labelSave: {
+    type: String
+  },
 }
 
 export const useViewCollectionItem = (collection, props, context) => {
 
   const {
     useItemDefaults = useDefaultsFromMeta, // {}
+    useItemConfirmSave = () => {},
     useItemTitle = () => {},
     useItemTitleBadge = () => {},
     useRouter: _useRouter = () => {},
@@ -53,6 +60,7 @@ export const useViewCollectionItem = (collection, props, context) => {
   const title = useItemTitle(props, context, form)
   const titleBadge = useItemTitleBadge(props, context, form)
   const isModified = ref(false)
+  const confirmSave = useItemConfirmSave(props, context, form)
 
   // unhandled custom props
   const customProps = ref(context.attrs)
@@ -197,6 +205,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     onRemove,
     onReset,
     onSave,
+    confirmSave,
 
     // to overload
     scopedSlotProps: props

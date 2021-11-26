@@ -14,6 +14,7 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_pkis/createCa', recomposeCa(params)),
     getItem: params => $store.dispatch('$_pkis/getCa', params.id)
       .then(item => decomposeCa(item)),
+    updateItem: params => $store.dispatch('$_pkis/resignCa', recomposeCa(params)),
   }
 }
 
@@ -70,6 +71,20 @@ export const actions = {
   createCa: ({ commit, dispatch }, data) => {
     commit('CA_REQUEST')
     return api.create(data).then(item => {
+      // reset list
+      commit('CA_LIST_RESET')
+      dispatch('allCas')
+      // update item
+      commit('CA_ITEM_REPLACED', item)
+      return item
+    }).catch(err => {
+      commit('CA_ERROR', err.response)
+      throw err
+    })
+  },
+  resignCa: ({ commit, dispatch }, data) => {
+    commit('CA_REQUEST')
+    return api.resign(data).then(item => {
       // reset list
       commit('CA_LIST_RESET')
       dispatch('allCas')

@@ -3,11 +3,11 @@
     :form="form"
     :schema="schema"
     :isLoading="isLoading"
-    :isReadonly="!isNew && !isClone"
   >
     <form-group-identifier v-if="!isNew && !isClone"
       namespace="ID"
       :column-label="$i18n.t('Identifier')"
+      :disabled="!isNew && !isClone"
     />
     <form-group-cn namespace="cn"
       :column-label="$i18n.t('Common Name')"
@@ -40,13 +40,16 @@
     -->
     <form-group-key-type namespace="key_type"
       :column-label="$i18n.t('Key type')"
+      :disabled="!isNew && !isClone"
     />
     <form-group-key-size namespace="key_size"
       :column-label="$i18n.t('Key size')"
       :options="keySizeOptions"
+      :disabled="!isNew && !isClone"
     />
     <form-group-digest namespace="digest"
       :column-label="$i18n.t('Digest')"
+      :disabled="!isNew && !isClone"
     />
     <form-group-key-usage namespace="key_usage"
       :column-label="$i18n.t('Key usage')"

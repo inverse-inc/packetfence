@@ -10,12 +10,18 @@ const components = {
   TheForm
 }
 
+import i18n from '@/utils/locale'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../../_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
 
 const props = {
   ...useViewCollectionItemProps,
-  ...collection.useItemProps
+  ...collection.useItemProps,
+
+  labelSave: {
+    type: String,
+    default: i18n.t('Re-Sign')
+  }
 }
 
 const setup = (props, context) => useViewCollectionItem(collection, props, context)

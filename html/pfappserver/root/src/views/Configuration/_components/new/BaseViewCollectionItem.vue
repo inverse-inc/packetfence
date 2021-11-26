@@ -21,7 +21,6 @@
       <slot name="buttonsPrepend" v-if="$scopedSlots.buttonsPrepend" v-bind="scopedSlotProps" />
       <form-button-bar
         :actionKey="actionKey"
-        :actionKeyButtonVerb="actionKeyButtonVerb"
         :isNew="isNew"
         :isClone="isClone"
         :isLoading="isLoading"
@@ -30,6 +29,10 @@
         :isDeletable="isDeletable"
         :isValid="isValid"
         :formRef="rootRef"
+        :labelActionKey="labelActionKey"
+        :labelCreate="labelCreate"
+        :labelSave="labelSave"
+        :confirmSave="confirmSave"
         @close="onClose"
         @clone="onClone"
         @remove="onRemove"
