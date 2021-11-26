@@ -35,6 +35,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Bug Fixes
 
 * Reply to Windows devices configured through Intune even if they requested a non-existing URL (#6687)
+* Add RADIUS audit log entry in correct tenant when switches are defined by MAC address (#6540)
 
 == Version 11.1.0 released on 2021-10-28
 
