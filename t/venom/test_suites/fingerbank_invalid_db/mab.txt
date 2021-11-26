@@ -1,5 +1,0 @@
-User-Name = 12:34:56:78:90:ab
-Calling-Station-Id = 12:34:56:78:90:ab
-Called-Station-Id = aa:bb:cc:dd:ee:ff
-#TODO: change this? it comes from switches.conf.example
-NAS-IP-Address = 192.168.1.2
