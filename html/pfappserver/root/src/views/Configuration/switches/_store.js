@@ -5,6 +5,7 @@ import Vue from 'vue'
 import store from '@/store'
 import { computed } from '@vue/composition-api'
 import api from './_api'
+import { baseRoles } from './config'
 
 export const useStore = $store => {
   return {
@@ -76,8 +77,25 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.item(id).then(item => {
-      commit('ITEM_REPLACED', item)
-      return JSON.parse(JSON.stringify(state.cache[id]))
+      // pre-declare role mappings, fixes #6721
+      return store.dispatch('$_roles/all').then(roles => {
+        roles = [
+          ...baseRoles,
+          ...roles.map(role => role.id)
+        ]
+        roles
+          .forEach(role => {
+            item = {
+              [`${role}Vlan`]: null,
+              [`${role}Role`]: null,
+              [`${role}AccessList`]: null,
+              [`${role}Url`]: null,
+              ...item
+            }
+          })
+        commit('ITEM_REPLACED', item)
+        return JSON.parse(JSON.stringify(state.cache[id]))
+      })
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err

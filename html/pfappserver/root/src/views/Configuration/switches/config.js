@@ -1,6 +1,13 @@
 import i18n from '@/utils/locale'
 import { pfFieldType as fieldType } from '@/globals/pfField'
 
+export const baseRoles = [
+  'registration',
+  'isolation',
+  'macDetection',
+  'inline'
+]
+
 export const inlineTriggers = {
   always: {
     value: 'always',
