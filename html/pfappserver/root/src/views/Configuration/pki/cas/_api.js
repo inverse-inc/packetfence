@@ -31,8 +31,8 @@ export default {
     })
   },
   resign: data => {
-    const { id } = data
-    return apiCall.post(['pki', 'ca', 'resign', id], data).then(response => {
+    const { id, ...rest } = data
+    return apiCall.post(['pki', 'ca', 'resign', id], rest).then(response => {
       const { data: { error } = {} } = response
       if (error) {
         throw error
