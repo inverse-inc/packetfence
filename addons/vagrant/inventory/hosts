@@ -148,6 +148,7 @@ all:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
             pfdeb11localdev:
