@@ -63,7 +63,7 @@ sub isDeviceRegEnabled {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
     my $logger  = $c->log;
-    my $pid     = $c->user_session->{"username"};
+    my $pid     = $c->user_session->{"username"} // $c->{_session}->{username};
     my $request = $c->request;
 
     # See if user is trying to login and if is not already authenticated

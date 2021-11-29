@@ -30,7 +30,8 @@ Catalyst Controller.
 sub unreg :Local :Args(1) {
     my ($self, $c, $mac) = @_;
     my $node = node_view($mac);
-    my $username = lc($c->user_session->{username});
+    my $username = $c->user_session->{"username"} // $c->{_session}->{username};
+    $username = lc($username);
     my $owner = lc($node->{pid});
               
     my $device_reg_profile = $c->profile->{'_self_service'};
