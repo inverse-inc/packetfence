@@ -16,10 +16,13 @@
       - fingerbank_invalid_db/clear_cache
       - wireless_mac_auth
       - wireless_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
       - wired_dot1x_eap_peap
       - wired_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
       - wireless_dot1x_eap_peap
       - wireless_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
       - pfdhcplistener_single_tenant
       - pfdhcplistener_single_tenant/teardown
       - fingerbank_invalid_db/corrupt/teardown
@@ -31,10 +34,13 @@
       - fingerbank_invalid_db/clear_cache
       - wireless_mac_auth
       - wireless_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
       - wired_dot1x_eap_peap
       - wired_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
       - wireless_dot1x_eap_peap
       - wireless_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
       - pfdhcplistener_single_tenant
       - pfdhcplistener_single_tenant/teardown
       - fingerbank_invalid_db/missing_table/teardown
