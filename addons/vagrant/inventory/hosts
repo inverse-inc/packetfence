@@ -207,6 +207,7 @@ all:
           fingerbank_api_key:
             secret_id: 'd2c4d4f8-c5b1-4281-a724-e4ade5c31fe1'
             email: 'support@inverse.ca'
+        # Docker bridge should never used 172.18.0.0/16 subnet !!
         networks:
           - name: mgmt_route_ci
             subnet: '172.18.200.0/24'
