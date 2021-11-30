@@ -208,16 +208,16 @@ all:
             secret_id: 'd2c4d4f8-c5b1-4281-a724-e4ade5c31fe1'
             email: 'support@inverse.ca'
         networks:
-          - name: mgmt_ci
+          - name: mgmt_route_ci
             subnet: '172.18.200.0/24'
             forward_mode: 'route'
-          - name: reg_ci
+          - name: reg_isolated_ci
             subnet: '172.18.201.0/24'
             forward_mode: 'none'
-          - name: iso_ci
+          - name: iso_isolated_ci
             subnet: '172.18.202.0/24'
             forward_mode: 'none'
-          - name: inline_ci
+          - name: inline_isolated_ci
             subnet: '172.18.203.0/24'
             forward_mode: 'none'
           - name: inline_l3_ci
@@ -286,16 +286,16 @@ all:
             secret_id: '98090324-0b00-4877-a0b2-e8a215350c72'
             email: 'nqb+git@azyx.fr'
         networks:
-          - name: mgmt_nqb
+          - name: mgmt_route_nqb
             subnet: '172.18.140.0/24'
             forward_mode: 'route'
-          - name: reg_nqb
+          - name: reg_isolated_nqb
             subnet: '172.18.141.0/24'
             forward_mode: 'none'
-          - name: iso_nqb
+          - name: iso_isolated_nqb
             subnet: '172.18.142.0/24'
             forward_mode: 'none'
-          - name: inline_nqb
+          - name: inline_isolated_nqb
             subnet: '172.18.143.0/24'
             forward_mode: 'none'
           - name: inline_l3_nqb
@@ -363,16 +363,16 @@ all:
             secret_id: ''
             email: ''
         networks:
-          - name: mgmt_jrouzier
+          - name: mgmt_route_jrouzier
             subnet: '172.18.115.0/24'
             forward_mode: 'route'
-          - name: reg_jrouzier
+          - name: reg_isolated_jrouzier
             subnet: '172.18.116.0/24'
             forward_mode: 'none'
-          - name: iso_jrouzier
+          - name: iso_isolated_jrouzier
             subnet: '172.18.117.0/24'
             forward_mode: 'none'
-          - name: inline_jrouzier
+          - name: inline_isolated_jrouzier
             subnet: '172.18.118.0/24'
             forward_mode: 'none'
           - name: inline_l3_jrouzier
@@ -440,16 +440,16 @@ all:
             secret_id: ''
             email: ''
         networks:
-          - name: mgmt_lzammit
+          - name: mgmt_route_lzammit
             subnet: '172.18.145.0/24'
             forward_mode: 'route'
-          - name: reg_lzammit
+          - name: reg_isolated_lzammit
             subnet: '172.18.146.0/24'
             forward_mode: 'none'
-          - name: iso_lzammit
+          - name: iso_isolated_lzammit
             subnet: '172.18.147.0/24'
             forward_mode: 'none'
-          - name: inline_lzammit
+          - name: inline_isolated_lzammit
             subnet: '172.18.148.0/24'
             forward_mode: 'none'
           - name: inline_l3_lzammit
@@ -517,16 +517,16 @@ all:
             secret_id: 'ba503744-9ea6-4be3-bd73-d3d5f75d7092'
             email: 'jgoimard@inverse.ca'
         networks:
-          - name: mgmt_jgoimard
+          - name: mgmt_route_jgoimard
             subnet: '172.18.120.0/24'
             forward_mode: 'route'
-          - name: reg_jgoimard
+          - name: reg_isolated_jgoimard
             subnet: '172.18.121.0/24'
             forward_mode: 'none'
-          - name: iso_jgoimard
+          - name: iso_isolated_jgoimard
             subnet: '172.18.122.0/24'
             forward_mode: 'none'
-          - name: inline_jgoimard
+          - name: inline_isolated_jgoimard
             subnet: '172.18.123.0/24'
             forward_mode: 'none'
           - name: inline_l3_jgoimard
@@ -594,16 +594,16 @@ all:
             secret_id: '1ec6dc22-39c8-4ae8-99c8-01403c6cb247'
             email: 'dsatkuna@akamai.com'
         networks:
-          - name: mgmt_dsatkunas
+          - name: mgmt_route_dsatkunas
             subnet: '172.18.125.0/24'
             forward_mode: 'route'
-          - name: reg_dsatkunas
+          - name: reg_isolated_dsatkunas
             subnet: '172.18.126.0/24'
             forward_mode: 'none'
-          - name: iso_dsatkunas
+          - name: iso_isolated_dsatkunas
             subnet: '172.18.127.0/24'
             forward_mode: 'none'
-          - name: inline_dsatkunas
+          - name: inline_isolated_dsatkunas
             subnet: '172.18.128.0/24'
             forward_mode: 'none'
           - name: inline_l3_dsatkunas
@@ -671,16 +671,16 @@ all:
             secret_id: ''
             email: ''
         networks:
-          - name: mgmt_fdurand
+          - name: mgmt_route_fdurand
             subnet: '172.18.135.0/24'
             forward_mode: 'route'
-          - name: reg_fdurand
+          - name: reg_isolated_fdurand
             subnet: '172.18.136.0/24'
             forward_mode: 'none'
-          - name: iso_fdurand
+          - name: iso_isolated_fdurand
             subnet: '172.18.137.0/24'
             forward_mode: 'none'
-          - name: inline_fdurand
+          - name: inline_isolated_fdurand
             subnet: '172.18.138.0/24'
             forward_mode: 'none'
           - name: inline_l3_fdurand
@@ -748,16 +748,16 @@ all:
             secret_id: '22f6cf2d-3603-44aa-9789-7727e55df1ce'
             email: 'jul.semaan@gmail.com'
         networks:
-          - name: mgmt_jsemaan
+          - name: mgmt_route_jsemaan
             subnet: '172.18.155.0/24'
             forward_mode: 'route'
-          - name: reg_jsemaan
+          - name: reg_isolated_jsemaan
             subnet: '172.18.156.0/24'
             forward_mode: 'none'
-          - name: iso_jsemaan
+          - name: iso_isolated_jsemaan
             subnet: '172.18.157.0/24'
             forward_mode: 'none'
-          - name: inline_jsemaan
+          - name: inline_isolated_jsemaan
             subnet: '172.18.158.0/24'
             forward_mode: 'none'
           - name: inline_l3_jsemaan
