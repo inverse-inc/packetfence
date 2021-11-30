@@ -209,74 +209,74 @@ all:
             email: 'support@inverse.ca'
         networks:
           - name: mgmt_ci
-            subnet: '172.17.200.0/24'
+            subnet: '172.18.200.0/24'
             forward_mode: 'route'
           - name: reg_ci
-            subnet: '172.17.201.0/24'
+            subnet: '172.18.201.0/24'
             forward_mode: 'none'
           - name: iso_ci
-            subnet: '172.17.202.0/24'
+            subnet: '172.18.202.0/24'
             forward_mode: 'none'
           - name: inline_ci
-            subnet: '172.17.203.0/24'
+            subnet: '172.18.203.0/24'
             forward_mode: 'none'
           - name: inline_l3_ci
-            subnet: '172.17.204.0/24'
+            subnet: '172.18.204.0/24'
         vms:
           switch01:
-            ip: '172.17.200.201'
+            ip: '172.18.200.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.203.3'
+            inline_ip: '172.18.203.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.204.4'
+            inline_l3_ip: '172.18.204.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.200.251'
+            ip: '172.18.200.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.200.252'
+            ip: '172.18.200.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.200.100'
+            ip: '172.18.200.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.200.210'
+            ip: '172.18.200.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.200.101'
+            ip: '172.18.200.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.200.102'
+            ip: '172.18.200.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.200.10'
+            ip: '172.18.200.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.200.11'
+            ip: '172.18.200.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.200.12'
+            ip: '172.18.200.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.200.13'
+            ip: '172.18.200.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.200.14'
+            ip: '172.18.200.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.200.15'
+            ip: '172.18.200.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.200.16'
+            ip: '172.18.200.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.200.17'
+            ip: '172.18.200.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.200.18'
+            ip: '172.18.200.18'
             netmask: '255.255.255.0'
       # local dev
       _nqb:
@@ -287,74 +287,74 @@ all:
             email: 'nqb+git@azyx.fr'
         networks:
           - name: mgmt_nqb
-            subnet: '172.17.140.0/24'
+            subnet: '172.18.140.0/24'
             forward_mode: 'route'
           - name: reg_nqb
-            subnet: '172.17.141.0/24'
+            subnet: '172.18.141.0/24'
             forward_mode: 'none'
           - name: iso_nqb
-            subnet: '172.17.142.0/24'
+            subnet: '172.18.142.0/24'
             forward_mode: 'none'
           - name: inline_nqb
-            subnet: '172.17.143.0/24'
+            subnet: '172.18.143.0/24'
             forward_mode: 'none'
           - name: inline_l3_nqb
-            subnet: '172.17.144.0/24'
+            subnet: '172.18.144.0/24'
         vms:
           switch01:
-            ip: '172.17.140.201'
+            ip: '172.18.140.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.143.3'
+            inline_ip: '172.18.143.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.144.4'
+            inline_l3_ip: '172.18.144.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.140.251'
+            ip: '172.18.140.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.140.252'
+            ip: '172.18.140.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.140.100'
+            ip: '172.18.140.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.140.210'
+            ip: '172.18.140.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.140.101'
+            ip: '172.18.140.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.140.102'
+            ip: '172.18.140.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.140.10'
+            ip: '172.18.140.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.140.11'
+            ip: '172.18.140.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.140.12'
+            ip: '172.18.140.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.140.13'
+            ip: '172.18.140.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.140.14'
+            ip: '172.18.140.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.140.15'
+            ip: '172.18.140.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.140.16'
+            ip: '172.18.140.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.140.17'
+            ip: '172.18.140.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.140.18'
+            ip: '172.18.140.18'
             netmask: '255.255.255.0'
       _jrouzier:
         vars:
@@ -364,74 +364,74 @@ all:
             email: ''
         networks:
           - name: mgmt_jrouzier
-            subnet: '172.17.115.0/24'
+            subnet: '172.18.115.0/24'
             forward_mode: 'route'
           - name: reg_jrouzier
-            subnet: '172.17.116.0/24'
+            subnet: '172.18.116.0/24'
             forward_mode: 'none'
           - name: iso_jrouzier
-            subnet: '172.17.117.0/24'
+            subnet: '172.18.117.0/24'
             forward_mode: 'none'
           - name: inline_jrouzier
-            subnet: '172.17.118.0/24'
+            subnet: '172.18.118.0/24'
             forward_mode: 'none'
           - name: inline_l3_jrouzier
-            subnet: '172.17.119.0/24'
+            subnet: '172.18.119.0/24'
         vms:
           switch01:
-            ip: '172.17.115.201'
+            ip: '172.18.115.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.118.3'
+            inline_ip: '172.18.118.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.119.4'
+            inline_l3_ip: '172.18.119.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.115.251'
+            ip: '172.18.115.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.115.252'
+            ip: '172.18.115.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.115.100'
+            ip: '172.18.115.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.115.210'
+            ip: '172.18.115.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.115.101'
+            ip: '172.18.115.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.115.102'
+            ip: '172.18.115.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.115.10'
+            ip: '172.18.115.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.115.11'
+            ip: '172.18.115.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.115.12'
+            ip: '172.18.115.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.115.13'
+            ip: '172.18.115.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.115.14'
+            ip: '172.18.115.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.115.15'
+            ip: '172.18.115.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.115.16'
+            ip: '172.18.115.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.115.17'
+            ip: '172.18.115.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.115.18'
+            ip: '172.18.115.18'
             netmask: '255.255.255.0'
       _lzammit:
         vars:
@@ -441,74 +441,74 @@ all:
             email: ''
         networks:
           - name: mgmt_lzammit
-            subnet: '172.17.145.0/24'
+            subnet: '172.18.145.0/24'
             forward_mode: 'route'
           - name: reg_lzammit
-            subnet: '172.17.146.0/24'
+            subnet: '172.18.146.0/24'
             forward_mode: 'none'
           - name: iso_lzammit
-            subnet: '172.17.147.0/24'
+            subnet: '172.18.147.0/24'
             forward_mode: 'none'
           - name: inline_lzammit
-            subnet: '172.17.148.0/24'
+            subnet: '172.18.148.0/24'
             forward_mode: 'none'
           - name: inline_l3_lzammit
-            subnet: '172.17.149.0/24'
+            subnet: '172.18.149.0/24'
         vms:
           switch01:
-            ip: '172.17.145.201'
+            ip: '172.18.145.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.148.3'
+            inline_ip: '172.18.148.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.149.4'
+            inline_l3_ip: '172.18.149.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.145.251'
+            ip: '172.18.145.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.145.252'
+            ip: '172.18.145.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.145.100'
+            ip: '172.18.145.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.145.210'
+            ip: '172.18.145.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.145.101'
+            ip: '172.18.145.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.145.102'
+            ip: '172.18.145.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.145.10'
+            ip: '172.18.145.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.145.11'
+            ip: '172.18.145.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.145.12'
+            ip: '172.18.145.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.145.13'
+            ip: '172.18.145.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.145.14'
+            ip: '172.18.145.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.145.15'
+            ip: '172.18.145.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.145.16'
+            ip: '172.18.145.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.145.17'
+            ip: '172.18.145.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.145.18'
+            ip: '172.18.145.18'
             netmask: '255.255.255.0'
       _jgoimard:
         vars:
@@ -518,74 +518,74 @@ all:
             email: 'jgoimard@inverse.ca'
         networks:
           - name: mgmt_jgoimard
-            subnet: '172.17.120.0/24'
+            subnet: '172.18.120.0/24'
             forward_mode: 'route'
           - name: reg_jgoimard
-            subnet: '172.17.121.0/24'
+            subnet: '172.18.121.0/24'
             forward_mode: 'none'
           - name: iso_jgoimard
-            subnet: '172.17.122.0/24'
+            subnet: '172.18.122.0/24'
             forward_mode: 'none'
           - name: inline_jgoimard
-            subnet: '172.17.123.0/24'
+            subnet: '172.18.123.0/24'
             forward_mode: 'none'
           - name: inline_l3_jgoimard
-            subnet: '172.17.124.0/24'
+            subnet: '172.18.124.0/24'
         vms:
           switch01:
-            ip: '172.17.120.201'
+            ip: '172.18.120.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.123.3'
+            inline_ip: '172.18.123.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.124.4'
+            inline_l3_ip: '172.18.124.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.120.251'
+            ip: '172.18.120.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.120.252'
+            ip: '172.18.120.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.120.100'
+            ip: '172.18.120.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.120.210'
+            ip: '172.18.120.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.120.101'
+            ip: '172.18.120.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.120.102'
+            ip: '172.18.120.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.120.10'
+            ip: '172.18.120.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.120.11'
+            ip: '172.18.120.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.120.12'
+            ip: '172.18.120.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.120.13'
+            ip: '172.18.120.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.120.14'
+            ip: '172.18.120.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.120.15'
+            ip: '172.18.120.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.120.16'
+            ip: '172.18.120.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.120.17'
+            ip: '172.18.120.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.120.18'
+            ip: '172.18.120.18'
             netmask: '255.255.255.0'
       _dsatkunas:
         vars:
@@ -595,74 +595,74 @@ all:
             email: 'dsatkuna@akamai.com'
         networks:
           - name: mgmt_dsatkunas
-            subnet: '172.17.125.0/24'
+            subnet: '172.18.125.0/24'
             forward_mode: 'route'
           - name: reg_dsatkunas
-            subnet: '172.17.126.0/24'
+            subnet: '172.18.126.0/24'
             forward_mode: 'none'
           - name: iso_dsatkunas
-            subnet: '172.17.127.0/24'
+            subnet: '172.18.127.0/24'
             forward_mode: 'none'
           - name: inline_dsatkunas
-            subnet: '172.17.128.0/24'
+            subnet: '172.18.128.0/24'
             forward_mode: 'none'
           - name: inline_l3_dsatkunas
-            subnet: '172.17.119.0/24'
+            subnet: '172.18.119.0/24'
         vms:
           switch01:
-            ip: '172.17.125.201'
+            ip: '172.18.125.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.128.3'
+            inline_ip: '172.18.128.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.128.4'
+            inline_l3_ip: '172.18.128.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.125.251'
+            ip: '172.18.125.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.125.252'
+            ip: '172.18.125.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.125.100'
+            ip: '172.18.125.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.125.210'
+            ip: '172.18.125.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.125.101'
+            ip: '172.18.125.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.125.102'
+            ip: '172.18.125.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.125.10'
+            ip: '172.18.125.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.125.11'
+            ip: '172.18.125.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.125.12'
+            ip: '172.18.125.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.125.13'
+            ip: '172.18.125.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.125.14'
+            ip: '172.18.125.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.125.15'
+            ip: '172.18.125.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.125.16'
+            ip: '172.18.125.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.125.17'
+            ip: '172.18.125.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.125.18'
+            ip: '172.18.125.18'
             netmask: '255.255.255.0'
       _fdurand:
         vars:
@@ -672,74 +672,74 @@ all:
             email: ''
         networks:
           - name: mgmt_fdurand
-            subnet: '172.17.135.0/24'
+            subnet: '172.18.135.0/24'
             forward_mode: 'route'
           - name: reg_fdurand
-            subnet: '172.17.136.0/24'
+            subnet: '172.18.136.0/24'
             forward_mode: 'none'
           - name: iso_fdurand
-            subnet: '172.17.137.0/24'
+            subnet: '172.18.137.0/24'
             forward_mode: 'none'
           - name: inline_fdurand
-            subnet: '172.17.138.0/24'
+            subnet: '172.18.138.0/24'
             forward_mode: 'none'
           - name: inline_l3_fdurand
-            subnet: '172.17.139.0/24'
+            subnet: '172.18.139.0/24'
         vms:
           switch01:
-            ip: '172.17.135.201'
+            ip: '172.18.135.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.138.3'
+            inline_ip: '172.18.138.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.139.4'
+            inline_l3_ip: '172.18.139.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.135.251'
+            ip: '172.18.135.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.135.252'
+            ip: '172.18.135.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.135.100'
+            ip: '172.18.135.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.135.210'
+            ip: '172.18.135.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.135.101'
+            ip: '172.18.135.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.135.102'
+            ip: '172.18.135.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.135.10'
+            ip: '172.18.135.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.135.11'
+            ip: '172.18.135.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.135.12'
+            ip: '172.18.135.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.135.13'
+            ip: '172.18.135.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.135.14'
+            ip: '172.18.135.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.135.15'
+            ip: '172.18.135.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.135.16'
+            ip: '172.18.135.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.135.17'
+            ip: '172.18.135.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.135.18'
+            ip: '172.18.135.18'
             netmask: '255.255.255.0'
       _jsemaan:
         vars:
@@ -749,72 +749,72 @@ all:
             email: 'jul.semaan@gmail.com'
         networks:
           - name: mgmt_jsemaan
-            subnet: '172.17.155.0/24'
+            subnet: '172.18.155.0/24'
             forward_mode: 'route'
           - name: reg_jsemaan
-            subnet: '172.17.156.0/24'
+            subnet: '172.18.156.0/24'
             forward_mode: 'none'
           - name: iso_jsemaan
-            subnet: '172.17.157.0/24'
+            subnet: '172.18.157.0/24'
             forward_mode: 'none'
           - name: inline_jsemaan
-            subnet: '172.17.158.0/24'
+            subnet: '172.18.158.0/24'
             forward_mode: 'none'
           - name: inline_l3_jsemaan
-            subnet: '172.17.159.0/24'
+            subnet: '172.18.159.0/24'
         vms:
           switch01:
-            ip: '172.17.155.201'
+            ip: '172.18.155.201'
             netmask: '255.255.255.0'
-            inline_ip: '172.17.158.3'
+            inline_ip: '172.18.158.3'
             inline_netmask: '255.255.255.0'
-            inline_l3_ip: '172.17.159.4'
+            inline_l3_ip: '172.18.159.4'
             inline_l3_netmask: '255.255.255.0'
           node01:
-            ip: '172.17.155.251'
+            ip: '172.18.155.251'
             netmask: '255.255.255.0'
           node02:
-            ip: '172.17.155.252'
+            ip: '172.18.155.252'
             netmask: '255.255.255.0'
           ad:
-            ip: '172.17.155.100'
+            ip: '172.18.155.100'
             netmask: '255.255.255.0'
           wireless01:
-            ip: '172.17.155.210'
+            ip: '172.18.155.210'
             netmask: '255.255.255.0'
           linux01:
-            ip: '172.17.155.101'
+            ip: '172.18.155.101'
             netmask: '255.255.255.0'
           linux02:
-            ip: '172.17.155.102'
+            ip: '172.18.155.102'
             netmask: '255.255.255.0'
           pfel8dev:
-            ip: '172.17.155.10'
+            ip: '172.18.155.10'
             netmask: '255.255.255.0'
           el8dev:
-            ip: '172.17.155.11'
+            ip: '172.18.155.11'
             netmask: '255.255.255.0'
           pfdeb11dev:
-            ip: '172.17.155.12'
+            ip: '172.18.155.12'
             netmask: '255.255.255.0'
           deb11dev:
-            ip: '172.17.155.13'
+            ip: '172.18.155.13'
             netmask: '255.255.255.0'
           localhost:
             ip: ''
             netmask: '255.255.255.0'
           pfel8localdev:
-            ip: '172.17.155.14'
+            ip: '172.18.155.14'
             netmask: '255.255.255.0'
           pfdeb11localdev:
-            ip: '172.17.155.15'
+            ip: '172.18.155.15'
             netmask: '255.255.255.0'
           pfel8stable:
-            ip: '172.17.155.16'
+            ip: '172.18.155.16'
             netmask: '255.255.255.0'
           pfdeb9stable:
-            ip: '172.17.155.17'
+            ip: '172.18.155.17'
             netmask: '255.255.255.0'
           pfdeb11stable:
-            ip: '172.17.155.18'
+            ip: '172.18.155.18'
             netmask: '255.255.255.0'
