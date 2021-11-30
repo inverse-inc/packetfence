@@ -1,8 +1,8 @@
 name: Forge DHCP request to update node10
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
+  - name: get_login_token
+    steps:
+    - type: get_login_token
 
   - name: get_node10_attributes
     steps:

@@ -1,14 +1,8 @@
 name: Forge DHCP request to create node10 in DB
 testcases:
-<<<<<<< HEAD
   - name: get_login_token
     steps:
     - type: get_login_token
-=======
-- name: get_login_token
-  steps:
-  - type: get_login_token
->>>>>>> Add pfdhcplistener_single_tenant
 
   - name: forge_dhcp_request_node10
     steps:
