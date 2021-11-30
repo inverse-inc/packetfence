@@ -1,0 +1,17 @@
+name: FingerbankMissingTable
+testcases:
+- name: Backup the DB and configuration
+  steps:
+
+  - type: exec
+    script: 'cp /usr/local/fingerbank/db/fingerbank_Upstream.db /usr/local/fingerbank/db/fingerbank_Upstream.db.fingerbank_corrupted_db_test_backup'
+
+- name: Deleting the device table from the Fingerbank DB
+  steps:
+
+  - type: exec
+    script: 'sqlite3 /usr/local/fingerbank/db/fingerbank_Upstream.db "drop table device;"'
+
+  - type: exec
+    script: 'chown fingerbank: /usr/local/fingerbank/db/fingerbank_Upstream.db'
+

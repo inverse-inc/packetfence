@@ -128,6 +128,13 @@ example_el8:
 	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
 
+fingerbank_invalid_db_deb11:
+	make \
+	PF_VM_NAME=pfdeb11$(DEV_ENV) \
+	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	SCENARIOS_TO_RUN=fingerbank_invalid_db \
+	$(MAKE_TARGET)
+
 example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
@@ -135,3 +142,4 @@ example_deb11:
 	#INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
+
