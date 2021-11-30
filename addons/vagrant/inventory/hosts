@@ -213,13 +213,13 @@ all:
             forward_mode: 'route'
           - name: reg_ci
             subnet: '172.17.201.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_ci
             subnet: '172.17.202.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_ci
             subnet: '172.17.203.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_ci
             subnet: '172.17.204.0/24'
         vms:
@@ -291,13 +291,13 @@ all:
             forward_mode: 'route'
           - name: reg_nqb
             subnet: '172.17.141.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_nqb
             subnet: '172.17.142.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_nqb
             subnet: '172.17.143.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_nqb
             subnet: '172.17.144.0/24'
         vms:
@@ -368,13 +368,13 @@ all:
             forward_mode: 'route'
           - name: reg_jrouzier
             subnet: '172.17.116.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_jrouzier
             subnet: '172.17.117.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_jrouzier
             subnet: '172.17.118.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_jrouzier
             subnet: '172.17.119.0/24'
         vms:
@@ -445,13 +445,13 @@ all:
             forward_mode: 'route'
           - name: reg_lzammit
             subnet: '172.17.146.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_lzammit
             subnet: '172.17.147.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_lzammit
             subnet: '172.17.148.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_lzammit
             subnet: '172.17.149.0/24'
         vms:
@@ -522,13 +522,13 @@ all:
             forward_mode: 'route'
           - name: reg_jgoimard
             subnet: '172.17.121.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_jgoimard
             subnet: '172.17.122.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_jgoimard
             subnet: '172.17.123.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_jgoimard
             subnet: '172.17.124.0/24'
         vms:
@@ -599,13 +599,13 @@ all:
             forward_mode: 'route'
           - name: reg_dsatkunas
             subnet: '172.17.126.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_dsatkunas
             subnet: '172.17.127.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_dsatkunas
             subnet: '172.17.128.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_dsatkunas
             subnet: '172.17.119.0/24'
         vms:
@@ -676,13 +676,13 @@ all:
             forward_mode: 'route'
           - name: reg_fdurand
             subnet: '172.17.136.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_fdurand
             subnet: '172.17.137.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_fdurand
             subnet: '172.17.138.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_fdurand
             subnet: '172.17.139.0/24'
         vms:
@@ -753,13 +753,13 @@ all:
             forward_mode: 'route'
           - name: reg_jsemaan
             subnet: '172.17.156.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: iso_jsemaan
             subnet: '172.17.157.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_jsemaan
             subnet: '172.17.158.0/24'
-            forward_mode: 'route'
+            forward_mode: 'none'
           - name: inline_l3_jsemaan
             subnet: '172.17.159.0/24'
         vms:
