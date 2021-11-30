@@ -41,7 +41,6 @@ switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
 switch01.api.user: cumulus
 switch01.api.password: CumulusLinux!
 switch01.dot1x_interface.id: swp12
-switch01.dot1x_interface.mac: 44:38:39:00:00:12
 
 # nodes variables
 node01_ens7_mac_address: 00:03:00:11:11:01
@@ -50,7 +49,6 @@ node01_ens7_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
 # wireless01 variables
 wireless01_wlan1_mac_address: 02:00:00:00:01:00
 wireless01_wlan1_mac_address_url_encoded: 02%3A00%3A00%3A00%3A01%3A00
-wireless01.dot1x_interface.mac: 02:00:00:00:00:00
 
 # network detection
 network_detection_url: 'http://192.95.20.194/common/network-access-detection.gif'
@@ -80,7 +78,6 @@ cumulus_switch_group.radiusSecret: testing123
 
 # Switch
 cumulus_switch.id1: '{{.switch01_mgmt_ip}}'
-cumulus_switch.id2: '{{.switch01.dot1x_interface.mac}}'
 cumulus_switch.description: switch01
 
 # Wireless Switch group
@@ -90,7 +87,6 @@ wireless_switch_group.radiusSecret: testing123
 
 # Wireless Switch
 wireless_switch.id1: '{{.wireless01_mgmt_ip}}'
-wireless_switch.id2: '{{.wireless01.dot1x_interface.mac}}'
 wireless_switch.description: wireless01
 
 ################################################################################
