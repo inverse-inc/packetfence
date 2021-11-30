@@ -1,1 +1,6 @@
-../../switches/common/enable_mac_auth_dot1x_int.yml
+name: Enable MAC Authentication on dot1x interface on switch01
+testcases:
+- name: enable_mac_auth_on_switch01
+  steps:
+  - type: run_cumulus_command
+    command: "add interface {{.switch01.dot1x_interface.id}} dot1x mab"

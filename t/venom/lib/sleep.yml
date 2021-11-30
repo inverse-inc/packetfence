@@ -1,0 +1,6 @@
+executor: sleep
+input:
+  time_to_sleep: {}
+steps:
+  - type: exec
+    script: sleep "{{.input.time_to_sleep}}"

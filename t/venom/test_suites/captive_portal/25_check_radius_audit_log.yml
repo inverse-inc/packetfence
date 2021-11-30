@@ -9,7 +9,7 @@ testcases:
   - type: exec
     script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
     vars:
-      last_minute:
+      two_minutes_ago:
         from: result.systemout
 
 # only latest search entry since two minutes that matches
@@ -71,7 +71,7 @@ testcases:
                 {
                   "field": "created_at",
                   "op": "greater_than",
-                  "value": "{{.get_time.last_minute}}"
+                  "value": "{{.get_time.two_minutes_ago}}"
                 }
               ]
             }
@@ -100,4 +100,3 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.roles.registration.vlan_id}}"'
-
