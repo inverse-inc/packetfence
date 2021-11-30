@@ -6,7 +6,10 @@
   vars:
     # put your test suites to try here
     test_suites:
+      - configurator
+      - global_config
       - pfdhcplistener_single_tenant
+      - pfdhcplistener_single_tenant/teardown
 
   tasks:
     - name: Run Venom testsuites
