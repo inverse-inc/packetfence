@@ -107,6 +107,7 @@ all:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
             pfdeb11dev:
@@ -124,6 +125,7 @@ all:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
             deb11dev:
@@ -169,6 +171,7 @@ all:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 8192
             # to test upgrades
