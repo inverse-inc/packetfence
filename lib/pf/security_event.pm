@@ -881,15 +881,20 @@ sub security_event_maintenance {
     my $end_time;
     my $rows_processed = 0;
     my @processed;
+    my $id = 0;
+    my $release_date = $ZERO_DATE;
     while(1) {
         my ($status, $iter) = pf::dal::security_event->search(
             -where => {
-                status => ["open", "delayed"],
-                release_date => [-and => {"!=" => $ZERO_DATE}, {"<=" => \'NOW()'}],
-                id => { -not_in => \@processed },
-            },
+                -and => [
+                    { status       => [ 'open', 'delayed' ] },
+                    { release_date => { '<=' => \'NOW()' } },
+                    \[ '(release_date, id) > (?, ?)', $release_date, $id ],
+                ],
+              },
            -limit => $batch,
-           -columns => [qw(id mac security_event_id notes status)],
+           -columns => [qw(id mac security_event_id notes status release_date)],
+           -order_by => [qw(release_date id)],
            -no_default_join => 1,
         );
         if (is_error($status)) {
@@ -900,9 +905,7 @@ sub security_event_maintenance {
         while (my $row = $iter->next(undef)) {
             if($row->{status} eq 'delayed' ) {
                 $client->notify(security_event_delayed_run => ($row));
-                push @processed, $row->{id};
-            }
-            else {
+            } else {
                 my $mac = $row->{mac};
                 my $security_event_id = $row->{security_event_id};
                 my $result = security_event_force_close($mac,$security_event_id);
@@ -911,6 +914,8 @@ sub security_event_maintenance {
                     pf::enforcement::reevaluate_access( $mac, "manage_vclose" );
                 }
             }
+            $id = $row->{id};
+            $release_date = $row->{release_date};
         }
         $rows_processed+=$rows;
         $end_time = time;
