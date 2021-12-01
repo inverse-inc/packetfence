@@ -1,4 +1,4 @@
-# pfdhcplistener_single_tenant
+# pfdhcplistener
 
 ## Requirements
 - Configurator test passed with portal on management interface.

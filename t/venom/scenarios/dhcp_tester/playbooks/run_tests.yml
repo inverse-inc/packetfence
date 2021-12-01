@@ -8,8 +8,8 @@
     test_suites:
       - configurator
       - global_config
-      - pfdhcplistener_single_tenant
-      - pfdhcplistener_single_tenant/teardown
+      - pfdhcplistener
+      - pfdhcplistener/teardown
 
   tasks:
     - name: Run Venom testsuites

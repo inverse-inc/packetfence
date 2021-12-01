@@ -23,8 +23,8 @@
       - wireless_dot1x_eap_peap
       - wireless_dot1x_eap_peap/teardown
       - fingerbank_invalid_db/clear_cache
-      - pfdhcplistener_single_tenant
-      - pfdhcplistener_single_tenant/teardown
+      - pfdhcplistener
+      - pfdhcplistener/teardown
       - fingerbank_invalid_db/corrupt/teardown
 
       - fingerbank_invalid_db/missing_table
@@ -41,8 +41,8 @@
       - wireless_dot1x_eap_peap
       - wireless_dot1x_eap_peap/teardown
       - fingerbank_invalid_db/clear_cache
-      - pfdhcplistener_single_tenant
-      - pfdhcplistener_single_tenant/teardown
+      - pfdhcplistener
+      - pfdhcplistener/teardown
       - fingerbank_invalid_db/missing_table/teardown
 
   tasks:

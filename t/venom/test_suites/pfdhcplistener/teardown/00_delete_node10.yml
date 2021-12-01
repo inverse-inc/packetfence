@@ -8,11 +8,11 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener.nodes.node10.mac_url_encoded}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Deleted {{.pfdhcplistener_single_tenant.nodes.node10.mac}} successfully"
+      - result.bodyjson.message ShouldEqual "Deleted {{.pfdhcplistener.nodes.node10.mac}} successfully"

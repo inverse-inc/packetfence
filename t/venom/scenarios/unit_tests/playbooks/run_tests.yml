@@ -13,6 +13,8 @@
       - pfcron
       - backup_db_and_restore
       - backup_db_and_restore/teardown
+      - pfdhcplistener
+      - pfdhcplistener/teardown
 
 
   tasks:

@@ -8,7 +8,7 @@ testcases:
     steps:
     - type: http
       method: GET
-      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener.nodes.node10.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
         "Authorization": "{{.get_login_token.json.result.token}}"
@@ -24,7 +24,7 @@ testcases:
   - name: forge_dhcp_request_node10
     steps:
     - type: exec
-      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener_single_tenant.nodes.node10.mac}} --ip={{.pfdhcplistener_single_tenant.nodes.node10.second_ip}} --hostname={{.pfdhcplistener_single_tenant.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_server}}"
+      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener.nodes.node10.mac}} --ip={{.pfdhcplistener.nodes.node10.second_ip}} --hostname={{.pfdhcplistener.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener.nodes.node10.dhcp_server}}"
 
   # let node be **updated** in DB
   - name: sleep_some_time
@@ -36,7 +36,7 @@ testcases:
     steps:
     - type: http
       method: GET
-      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener.nodes.node10.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
         "Authorization": "{{.get_login_token.json.result.token}}"
@@ -50,11 +50,11 @@ testcases:
     steps:
     - type: http
       method: GET
-      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener.nodes.node10.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
         "Authorization": "{{.get_login_token.json.result.token}}"
         "Content-Type": "application/json"
       assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.ip ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.second_ip}}"
+      - result.bodyjson.item.ip ShouldEqual "{{.pfdhcplistener.nodes.node10.second_ip}}"
