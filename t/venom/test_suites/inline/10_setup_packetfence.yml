@@ -1,0 +1,96 @@
+name: Enable Inline l3 configuration in PacketFence
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: Configure interface inlinel3 as type inline l2
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/inlinel3'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "inlinel3",
+       "isClone": false,
+       "isNew": false,
+       "prefixRouteName": "",
+       "additional_listening_daemons": [],
+       "address": "100.64.0.2/30",
+       "coa": "disabled",
+       "dhcpd_enabled": "enabled",
+       "dns": "8.8.8.8",
+       "high_availability": 0,
+       "hwaddr": "56:63:1a:4b:44:fc",
+       "ifindex": "8",
+       "ipaddress": "100.64.0.2",
+       "ipv6_address": null,
+       "ipv6_prefix": null,
+       "is_running": true,
+       "master": null,
+       "name": "inlinel3-b",
+       "nat_dns": "disabled",
+       "nat_enabled": "enabled",
+       "netflow_accounting_enabled": "disabled",
+       "netmask": "255.255.255.252",
+       "network": "100.64.0.0",
+       "network_iseditable": true,
+       "networks": [
+         "192.168.1.0"
+       ],
+       "not_editable": false,
+       "reg_network": null,
+       "split_network": "disabled",
+       "tenant_id": 1,
+       "type": "inlinel2",
+       "vip": null,
+       "vlan": null
+     }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: Configure inline l3 network
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/routed_networks'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "192.168.1.0",
+       "isClone": false,
+       "isNew": true,
+       "algorithm": 1,
+       "coa": "disabled",
+       "description": "Inline L3",
+       "dhcp_default_lease_time": "30",
+       "dhcp_end": "192.168.1.254",
+       "dhcp_max_lease_time": "30",
+       "dhcp_start": "192.168.1.10",
+       "dhcpd": "enabled",
+       "dns": "8.8.8.8",
+       "fake_mac_enabled": 0,
+       "gateway": "192.168.1.1",
+       "ip_assigned": null,
+       "ip_reserved": null,
+       "nat_dns": 1,
+       "nat_enabled": 1,
+       "netflow_accounting_enabled": "disabled",
+       "netmask": "255.255.255.0",
+       "network": null,
+       "next_hop": "100.64.0.1",
+       "pool_backend": "memory",
+       "portal_fqdn": null,
+       "tenant_id": 1,
+       "type": "inlinel3"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+

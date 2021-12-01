@@ -1,0 +1,147 @@
+name: Setup inlinel3 network
+testcases:
+  - name: create_inlinel3_network_namespace
+    steps:
+      - type: exec
+        script: ip netns add inlinel3
+
+  - name: Create two virtual ethernet interfaces
+    steps:
+    - type: exec
+      script: ip link add inlinel3-a type veth peer name inlinel3
+
+  - name: Move one virtual ethernet interface in inlinel3 network namespace
+    steps:
+    - type: exec
+      script: ip link set inlinel3-a netns inlinel3
+
+  - name: Assign an ip on inlinel3-a
+    steps: 
+    - type: exec
+      script: ip -n inlinel3 addr add 100.64.0.1/30 dev inlinel3-a
+
+  - name: Assign an ip on inlinel3
+    steps:
+    - type: exec
+      script: ip addr add 100.64.0.2/30 dev inlinel3
+
+  - name: Set inlinel3-a up
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link set dev inlinel3-a up
+
+  - name: Set inlinel3 up
+    steps:
+    - type: exec
+      script: ip link set dev inlinel3 up
+
+  - name: Set default route in namespace inlinel3
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 route add default gw 100.64.0.2 dev inlinel3-a
+
+  - name: Set lo interface up in namespace inlinel3
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link set dev lo up
+      
+  - name: create_inlinel3_routing_table
+    steps:
+    - type: exec
+      script: echo 202 inlinel3 >> /etc/iproute2/rt_tables
+
+  - name: Set rule from 100.64.0.2
+    steps:
+    - type: exec
+      script: ip rule add from 100.64.0.2 lookup inlinel3
+
+
+  - name: Add 10.0.0.0/8 route in table inlinel3 table
+    steps:
+    - type: exec
+      script: ip route add 10.0.0.0/8 via 100.64.0.1 dev inlinel3 table inlinel3
+
+  - name: Add 172.16.0.0/12 route in inlinel3 table
+    steps:
+    - type: exec
+      script: ip route add 172.16.0.0/12 via 100.64.0.1 dev inlinel3 table inlinel3
+
+  - name: Add 192.168.0.0/16 in inlinel3 table
+    steps:
+    - type: exec
+      script: ip route add 192.168.0.0/16 via 100.64.0.1 dev inlinel3 table inlinel3
+
+  - name: Add 100.64.0.0/30 route in inlinel3 table
+    steps:
+    - type: exec
+      script: ip route add 100.64.0.0/30 dev inlinel3 scope link src 100.64.0.2 table inlinel3
+
+  - name: create_bridge_in_inline_l3
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link add blok-br0 type bridge
+
+  - name: Set bridge up
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link set blok-br0 up
+      
+  - name: create_virtual_ethernet_interfaces
+    steps:
+    - type: exec
+      script: ip link add blok-veth0 type veth peer name blok-vpeer0
+
+  - name: Move blok-veth0 in inlinel3 namespace
+    steps:
+    - type: exec
+      script: ip link set blok-veth0 netns inlinel3
+
+  - name: Move blok-vpeer0 in inlinel3 namespace
+    steps:
+    - type: exec
+      script:  ip link set blok-vpeer0 netns inlinel3
+
+  - name: Set blok-vpeer0 up
+    steps:
+    - type: exec
+      script:  ip netns exec inlinel3 ip link set blok-vpeer0 up
+
+  - name: Set blok-veth0 up
+    steps:
+    - type: exec
+      script:  ip netns exec inlinel3 ip link set blok-veth0 up
+
+  - name: Add ip to blok-vpeer0 interface
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip addr add 192.168.1.1/24 dev blok-vpeer0
+      
+  - name: Add blok-veth0 in the blok-br0 bridge
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link set blok-veth0 master blok-br0
+
+  - name: Create client virtual interfaces
+    steps:
+    - type: exec
+      script: ip link add client-l3-a type veth peer name client-l3-b
+
+  - name: Move client-l3-a interface in inlinel3 namespace
+    steps:
+    - type: exec
+      script: ip link set client-l3-a netns inlinel3
+
+  - name: Set client-l3-b up
+    steps:
+    - type: exec
+      script: ip link set dev client-l3-b up
+
+  - name: Set client-l3-a up
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link set client-l3-a up
+
+  - name: Add client-l3-a in the bridge
+    steps:
+    - type: exec
+      script: ip netns exec inlinel3 ip link set client-l3-a master blok-br0

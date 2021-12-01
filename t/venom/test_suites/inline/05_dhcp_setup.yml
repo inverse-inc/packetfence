@@ -1,0 +1,55 @@
+name: Setup DHCP relay
+testcases:
+  - name: Create DHCP configuration
+    steps:
+       - type: exec
+         script: | 
+           cat > /usr/local/etc/godhcp.ini << EOF
+           [interfaces]
+           #Interfaces that act as dhcp server
+           listen=blok-vpeer0
+           #Interface:Relay ip mean dhcp request received on this interface will be forwarded to the relay address.
+           relay=blok-vpeer0:100.64.0.2
+           EOF
+
+  - name: Get the DHCP source code
+    steps:
+      - type: exec
+        script: git clone https://github.com/fdurand/standalone_dhcp.git /tmp/standalone_dhcp/
+
+  - name: Compile the DHCP source
+    steps:
+      - type: exec
+        script: cd /tmp/standalone_dhcp ; go build
+
+  - name: Install systemd script
+    steps:
+      - type: exec
+        script: |
+          cat > /lib/systemd/system/godhcp.service << EOF
+          [Unit]
+          Description=GO DHCPv4 Server/Relay Daemon
+          After=syslog.target network.target
+
+          [Service]
+          StartLimitBurst=3
+          StartLimitInterval=60
+          Type=notify
+          WatchdogSec=30s
+          ExecStart=ip netns exec inlinel3 /tmp/standalone_dhcp/standalone_dhcp
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+  - name: Systemctl daemon-reload
+    steps:
+      - type: exec
+        script: systemctl daemon-reload
+          
+  - name: Start the DHCP relay
+    steps:
+      - type: exec
+        script: systemctl start godhcp
+
