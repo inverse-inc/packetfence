@@ -951,7 +951,7 @@ sub _security_event_run_delayed {
         $data{release_date} = $date;
     }
     $logger->info("processing delayed security_event : $security_event->{id}, $security_event->{security_event_id}");
-    my $notes = $security_event->{security_event_id};
+    my $notes = $security_event->{notes};
     pf::security_event::security_event_modify($security_event->{id}, %data);
     pf::action::action_execute( $mac, $security_event_id, $notes );
 }
