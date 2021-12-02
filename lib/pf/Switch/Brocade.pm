@@ -79,6 +79,7 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use pf::constants::role qw($VOICE_ROLE);
+use pf::locationlog;
 
 =head1 SUBROUTINES
 
@@ -343,8 +344,144 @@ sub returnAuthorizeRead {
    return [$status, %$radius_reply_ref];
 }
 
-sub enableMABFloatingDevice{}
-sub disableMABFloatingDevice{}
+sub find_ifdesc_in_locationlog {
+    my ($self, $ifIndex) = @_;
+
+   my @res =  pf::locationlog::_db_list({
+        -where => {
+            switch => $self->{_ip},
+            port => $ifIndex,
+        },
+        -order_by => { -desc => 'start_time' },
+        -limit => 1,
+    });
+    if(scalar(@res) > 0) {
+        my $ifDesc = $res[0]->{ifDesc};
+        $self->logger->info("Found ifDesc $ifDesc for ifIndex $ifIndex via locationlog on switch $self->{_ip}");
+        return $ifDesc;
+    }
+    else {
+        $self->logger->error("Unable to find ifDesc for ifIndex $ifIndex via locationlog on switch $self->{_ip}");
+        return undef;
+    }
+}
+
+=head2 _commandSSH
+
+Execute a command on an SSH channel with a timeout
+
+=cut
+
+sub _commandSSH{
+    my ($self, $chan, $command, $timeout) = @_;
+    my $logger = $self->logger;
+    $timeout //= 5;
+    eval {
+        local $SIG{ALRM} = sub { die "timeout\n" };
+        alarm $timeout;
+        print $chan "$command\n";
+        $logger->info("SSH output : $_") while <$chan>;
+        alarm 0;
+    };
+}
+
+sub _connectSSH {
+    my ($self) = @_;
+    
+    my $ssh;
+    eval {
+        require Net::SSH2;
+        $ssh = Net::SSH2->new();
+        $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
+        $ssh->auth_password($self->{_cliUser},$self->{_cliPwd}) or die "Cannot authenticate" ;
+    };
+
+    if($@) {
+        $self->logger->error("Error connecting through SSH: $@");
+    }
+    return $ssh;
+
+}
+
+sub recently_enabled_floating_key {
+    my ($self, $port) = @_;
+    return "recently_enabled_floating_key-$self->{_ip}-$port";
+}
+
+=head2 enableMABFloatingDevice
+
+Enable the MAB floating device mode on a switch port
+
+=cut
+
+sub enableMABFloatingDevice{
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
+
+    my $ssh = $self->_connectSSH();
+
+    return unless($ssh);
+
+    my $port = $self->find_ifdesc_in_locationlog($ifIndex);
+    return unless($port);
+
+    if($self->cache_distributed->get($self->recently_enabled_floating_key($port))) {
+        $logger->warn("Floating device mode was recently enabled on this port. Will not enable it again");
+        return;
+    }
+    $self->cache_distributed->set($self->recently_enabled_floating_key($port), 1, '1m');
+
+    my $chan = $ssh->channel();
+    $chan->shell();
+    $self->_commandSSH($chan, "enable");
+    $self->_commandSSH($chan, $self->{_cliEnablePwd});
+    $self->_commandSSH($chan, "configure t");
+    $self->_commandSSH($chan, "interface ethernet $port");
+    $self->_commandSSH($chan, "authentication max-sessions 1024");
+
+    $ssh->disconnect();
+
+    $logger->info("Completed configuration of floating device on $port");
+
+    return 1;
+}
+
+=head2 disableMABFloatingDevice
+
+Disable the MAB floating device mode on a switch port
+
+=cut
+
+sub disableMABFloatingDevice{
+    my ($self, $ifIndex) = @_;
+    my $logger = $self->logger;
+
+    my $ssh = $self->_connectSSH();
+
+    return unless($ssh);
+
+    my $port = $self->find_ifdesc_in_locationlog($ifIndex);
+    return unless($port);
+
+    if($self->cache_distributed->get($self->recently_enabled_floating_key($port))) {
+        $logger->warn("Floating device mode was recently enabled on this port. Will not disable since enabling this mode on the port causes all the devices to reauthenticate which calls this code (disableMABFloatingDevice)");
+        return;
+    }
+
+    my $chan = $ssh->channel();
+    $chan->shell();
+    $self->_commandSSH($chan, "enable");
+    $self->_commandSSH($chan, $self->{_cliEnablePwd});
+    $self->_commandSSH($chan, "configure t");
+    $self->_commandSSH($chan, "interface ethernet $port");
+    $self->_commandSSH($chan, "no authentication max-sessions 1024");
+
+    $ssh->disconnect();
+    
+    $logger->info("Completed de-configuration of floating device on $port");
+
+    return 1;
+}
 
 =back
 
