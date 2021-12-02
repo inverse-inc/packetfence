@@ -101,7 +101,7 @@ is_deeply(
                 },
                 ntlm_cache_expiry => {
                     type => 'integer',
-                    description => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.',
+                    description => 'The amount of seconds an entry should be cached.',
                 },
                 status => {
                     type => 'string',

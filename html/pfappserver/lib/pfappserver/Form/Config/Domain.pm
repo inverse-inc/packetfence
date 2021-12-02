@@ -181,7 +181,7 @@ has_field 'ntlm_cache_expiry' =>
    label => 'Expiration',
    default => 3600,
    tags => { after_element => \&help,
-             help => 'The amount of seconds an entry should be cached. This should be adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval if using the batch mode.' },
+             help => 'The amount of seconds an entry should be cached.' },
   );
 
 has_block definition =>
