@@ -116,10 +116,6 @@ sub authorize {
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
     
-    #### REMOVE THIS FOR DEVEL
-    $switch_ip = $source_ip;
-    #######################
-    
     my $RAD_REPLY_REF;
 
     $self->handleNtlmCaching($radius_request);
