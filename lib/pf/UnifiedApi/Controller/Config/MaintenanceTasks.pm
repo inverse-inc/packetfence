@@ -37,7 +37,6 @@ use pfappserver::Form::Config::Pfcron::node_cleanup;
 use pfappserver::Form::Config::Pfcron::nodes_maintenance;
 use pfappserver::Form::Config::Pfcron::option82_query;
 use pfappserver::Form::Config::Pfcron::person_cleanup;
-use pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache;
 use pfappserver::Form::Config::Pfcron::provisioning_compliance_poll;
 use pfappserver::Form::Config::Pfcron::radius_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::switch_cache_lldpLocalPort_description;
@@ -65,7 +64,6 @@ our %TYPES_TO_FORMS = (
       nodes_maintenance
       option82_query
       person_cleanup
-      populate_ntlm_redis_cache
       provisioning_compliance_poll
       radius_audit_log_cleanup
       dns_audit_log_cleanup
