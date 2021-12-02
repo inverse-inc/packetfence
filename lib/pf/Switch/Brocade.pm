@@ -94,6 +94,8 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     RadiusVoip
     Lldp
+    FloatingDevice
+    MABFloatingDevices
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }
@@ -340,6 +342,9 @@ sub returnAuthorizeRead {
    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
    return [$status, %$radius_reply_ref];
 }
+
+sub enableMABFloatingDevice{}
+sub disableMABFloatingDevice{}
 
 =back
 
