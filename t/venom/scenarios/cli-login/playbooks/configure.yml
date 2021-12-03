@@ -8,3 +8,47 @@
   roles:
     - role: packetfence_go
       tags: go
+  tasks:
+  - name: Creating radius configt
+    copy:
+      dest: "/usr/local/pf/raddb/test.conf"
+      content: |
+        # Copyright (C) Inverse inc.
+        pidfile = /usr/local/pf/var/run/radiusd.pid
+        $INCLUDE radiusd.conf
+        listen {
+            ipaddr = 127.0.0.1
+            port = 1820
+            type = auth
+            virtual_server = default
+        }
+        listen {
+            type = control
+            socket = /usr/local/pf/var/run/radiusd-default.sock
+            mode = rw
+        }
+        log {
+            destination = syslog
+            colourise = yes
+            file = ${logdir}/radius-default.log
+            syslog_facility = local1
+            stripped_names = no
+            auth = yes
+            auth_badpass = no
+            auth_goodpass = no
+            msg_denied = "You are already logged in - access denied"
+        }
+  - name: Creating a file for password
+    copy:
+      dest: "/usr/local/pf/pod.txt"
+      content: |
+        User-Name = "bob"
+        User-Password = "hello"
+
+  - name: Authorization in radb
+    blockinfile:
+      path: /usr/local/pf/raddb/mods-config/files/authorize
+      block: |
+        'bob     Cleartext-Password := "hello"'
+        '        Reply-Message := "Hello, %{User-Name}"'
+
