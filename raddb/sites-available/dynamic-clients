@@ -118,14 +118,13 @@ server dynamic_clients {
         # If the MAC was not found, try finding the IP
         if ( &control:PacketFence-NasName == '0' ) {
             update {
-                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname FROM radius_nas WHERE nasname = '%{Packet-Src-IP-Address}'), 0)}"
-            }
-        }
-
-        # If the IP was not found, try finding a matching IP range
-        if ( &control:PacketFence-NasName == '0' ) {
-            update {
-                &control:PacketFence-NasName := "%{sql: SELECT IFNULL((SELECT nasname from radius_nas WHERE start_ip <= INET_ATON('%{Packet-Src-IP-Address}') and INET_ATON('%{Packet-Src-IP-Address}') <= end_ip order by range_length limit 1 ), 0 )}"
+                &control:PacketFence-NasName := "%{sql: \
+SELECT nasname FROM (\
+    ( SELECT nasname, 1 as o from radius_nas WHERE INET_ATON('%{Packet-Src-IP-Address}') BETWEEN start_ip AND end_ip order by range_length limit 1)\
+    UNION ALL\
+    ( SELECT nasname, 2 as o from radius_nas WHERE INET_ATON('%{raw:NAS-IP-Address}') BETWEEN start_ip AND end_ip order by range_length limit 1)\
+    UNION ALL ( SELECT '0', 3)\
+) as x ORDER BY o limit 0,1}"
             }
         }
 
