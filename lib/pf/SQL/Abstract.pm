@@ -257,7 +257,7 @@ sub merge_conditions {
         }
       }
     }
-    elsif (does($cond, 'ARRAY')) {
+    elsif (does($cond, 'ARRAY') || does($cond, 'REF')) {
       $merged{-nest} = $merged{-nest} ? {-and => [$merged{-nest}, $cond]}
                                       : $cond;
     }
