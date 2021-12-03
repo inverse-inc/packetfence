@@ -76,6 +76,21 @@ testcases:
     - type: exec
       script: ip route add 100.64.0.0/30 dev inlinel3 scope link src 100.64.0.2 table inlinel3
 
+  - name: Create tap interface
+    steps:
+      - type: exec
+        script: ip tuntap add blok-tap0 mode tap
+
+  - name: Move blok-tap0 in inlinel3 namespace
+    steps:
+      - type: exec
+        script: ip link set blok-tap0 netns inlinel3
+
+  - name: Set blok-tap0 up
+    steps:
+      - type: exec
+        script: ip netns exec inlinel3 ip link set blok-tap0 up
+
   - name: create_bridge_in_inline_l3
     steps:
     - type: exec
@@ -121,27 +136,7 @@ testcases:
     - type: exec
       script: ip netns exec inlinel3 ip link set blok-veth0 master blok-br0
 
-  - name: Create client virtual interfaces
+  - name: Add blok-tap0 in the blok-br0 bridge
     steps:
     - type: exec
-      script: ip link add client-l3-a type veth peer name client-l3-b
-
-  - name: Move client-l3-a interface in inlinel3 namespace
-    steps:
-    - type: exec
-      script: ip link set client-l3-a netns inlinel3
-
-  - name: Set client-l3-b up
-    steps:
-    - type: exec
-      script: ip link set dev client-l3-b up
-
-  - name: Set client-l3-a up
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set client-l3-a up
-
-  - name: Add client-l3-a in the bridge
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set client-l3-a master blok-br0
+      script: ip netns exec inlinel3 ip link set blok-tap0 master blok-br0

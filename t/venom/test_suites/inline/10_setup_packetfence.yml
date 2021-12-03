@@ -68,7 +68,7 @@ testcases:
        "coa": "disabled",
        "description": "Inline L3",
        "dhcp_default_lease_time": "30",
-       "dhcp_end": "192.168.1.254",
+       "dhcp_end": "192.168.1.10",
        "dhcp_max_lease_time": "30",
        "dhcp_start": "192.168.1.10",
        "dhcpd": "enabled",
@@ -92,5 +92,49 @@ testcases:
       "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 200
+      - result.statuscode ShouldEqual 201
 
+- name: restart_iptables
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-iptables
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdns_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdns
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdhcp_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdhcp
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_haproxy-portal_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-haproxy-portal
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_keepalived_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-keepalived
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
