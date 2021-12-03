@@ -132,7 +132,7 @@ Requires: perl(Log::Fast)
 # Required by switch modules
 # Net::Appliance::Session specific version added because newer versions broke API compatibility (#1312)
 # We would need to port to the new 3.x API (tracked by #1313)
-Requires: perl(Net::SSH2) >= 0.63
+Requires: perl(Net::SSH2) >= 0.63, libssh2
 Requires: perl(Net::OAuth2) >= 0.65
 # Required by configurator script, pf::config
 Requires: perl(Net::Interface)
