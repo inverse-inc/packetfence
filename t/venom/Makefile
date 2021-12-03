@@ -120,16 +120,16 @@ dot1x_eap_tls_deb11:
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
-dhcp_tester_deb11:
+multi_tenant_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
-	SCENARIOS_TO_RUN=dhcp_tester \
+	SCENARIOS_TO_RUN=multi_tenant \
 	$(MAKE_TARGET)
 
-dhcp_tester_el8:
+multi_tenant_el8:
 	make \
 	PF_VM_NAME=pfel8$(DEV_ENV) \
-	SCENARIOS_TO_RUN=dhcp_tester \
+	SCENARIOS_TO_RUN=multi_tenant \
 	$(MAKE_TARGET)
 
 example_el8:
