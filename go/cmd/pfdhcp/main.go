@@ -385,6 +385,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 			firstTry := true
 			log.LoggerWContext(ctx).Info("DHCPDISCOVER from " + clientMac + " (" + clientHostname + ")")
 			var free int
+			free = -1
 			// Static assign IP address ?
 			if position, ok := handler.ipAssigned[answer.MAC.String()]; ok {
 				free = int(position)
@@ -474,7 +475,7 @@ func (I *Interface) ServeDHCP(ctx context.Context, p dhcp.Packet, msgType dhcp.M
 				}
 
 				// If we still haven't found an IP address to offer, we get the next one
-				if free == 0 {
+				if free == -1 {
 					log.LoggerWContext(ctx).Debug("Grabbing next available IP")
 					freeu64, _, err := handler.available.GetFreeIPIndex(answer.MAC.String())
 

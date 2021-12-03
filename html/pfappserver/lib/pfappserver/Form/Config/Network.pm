@@ -156,7 +156,7 @@ sub validate {
     my $self = shift;
 
     if ($self->value->{dhcp_start} && $self->value->{dhcp_end}
-        && ip2int($self->value->{dhcp_start}) >= ip2int($self->value->{dhcp_end})) {
+        && ip2int($self->value->{dhcp_start}) > ip2int($self->value->{dhcp_end})) {
         $self->field('dhcp_end')->add_error('The ending DHCP address must be greater than the starting DHCP address.');
     }
     if ($self->value->{dhcp_default_lease_time} && $self->value->{dhcp_max_lease_time}
