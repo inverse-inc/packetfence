@@ -1,0 +1,86 @@
+name: Create and test AD machine source
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_radius_source
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.cli_login_radius.sources.id}}",
+        "isClone":false,
+        "isNew":true,
+        "sourceType":"RADIUS",
+        "administration_rules": null,
+        "authentication_rules": [
+          {
+            "id": "catchall",
+            "description": null,
+            "match": "all",
+            "actions": [
+              {
+                "type": "set_role",
+                "value": "{{.cli_login_radius.sources.role}}"
+              },
+              {
+                "type": "set_access_duration",
+                "value": "{{.cli_login_radius.sources.access_duration}}"
+              }
+            ],
+            "conditions": []
+          }
+        ],
+        "description":"{{.cli_login_radius.sources.desc}}",
+        "host":"{{.cli_login_radius.sources.host}}",
+        "ldapfilter_operator":null,
+        "monitor":"1",
+        "options":"type = auth+acct",
+        "port":"{{.cli_login_radius.sources.port}}",
+        "realms":["{{.cli_login_radius.sources.realms}}"],
+        "secret":"\"{{.cli_login_radius.sources.secret}}\"",
+        "set_access_durations_action":[],
+        "set_role_from_source_action":null,
+        "timeout":1,
+        "type":"RADIUS"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: test_radius_source
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources/test'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id":"{{.cli_login_radius.sources.id}}",
+        "sourceType":"RADIUS",
+        "description":"{{.cli_login_radius.sources.desc}}",
+        "host":"{{.cli_login_radius.sources.host}}",
+        "ldapfilter_operator":null,
+        "monitor":"1",
+        "options":"type = auth+acct",
+        "port":"{{.cli_login_radius.sources.port}}",
+        "realms":["{{.cli_login_radius.sources.realms}}"],
+        "secret":"\"{{.cli_login_radius.sources.secret}}\"",
+        "set_access_durations_action":[],
+        "set_role_from_source_action":null,
+        "timeout":1,
+        "type":"RADIUS"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    retry: 3
+    delay: 5
