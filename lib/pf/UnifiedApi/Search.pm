@@ -197,6 +197,11 @@ Convert search query to SQL::Abstract
 
 sub searchQueryToSqlAbstract {
     my ($query) = @_;
+    my $r = ref($query);
+    if ($r eq 'REF') {
+        return $query;
+    }
+
     my $op = $query->{op};
     if (exists $OP_TO_HANDLER{$op} ) {
         return $OP_TO_HANDLER{$op}->($query);
