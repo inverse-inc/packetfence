@@ -277,6 +277,7 @@ sub locationlog_update_end_switchport_no_VoIP {
         -where => {
             switch => $switch,
             port   => $ifIndex,
+            connection_type => { -like => 'Ethernet%'},
             end_time => $ZERO_DATE,
             voip   => { "!=" => "yes" },
         },
@@ -294,6 +295,7 @@ sub locationlog_update_end_switchport_only_VoIP {
         -where => {
             switch => $switch,
             port   => $ifIndex,
+            connection_type => { -like => 'Ethernet%'},
             end_time => $ZERO_DATE,
             voip   => "yes",
         },
