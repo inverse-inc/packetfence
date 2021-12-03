@@ -584,44 +584,25 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
     my @f = qw(mac online);
 
     my %search_info = (
-        dal => $dal,
+        dal    => $dal,
         fields => \@f,
     );
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online" ]],
+        [
+            200,
+            [
+                'node.mac',
+"CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = n.mac AND ba.tenant_id = n.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+            ]
+        ],
         'Return the columns'
     );
 
     is_deeply(
-        [
-            $sb->make_from(\%search_info)
-        ],
-        [
-            200,
-            [
-                -join => 'node',
-                {
-                    operator  => '=>',
-                    condition => {
-                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                        'online.tenant_id' => 1 ,
-                    },
-                },
-                'bandwidth_accounting|online',
-                {
-                    operator  => '=>',
-                    condition => [
-                        -and => [
-                        'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
-                        \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
-                        ],
-                    ],
-                },
-                'bandwidth_accounting|b2',
-          ]
-        ],
+        [ $sb->make_from( \%search_info ) ],
+        [ 200, ['node'] ],
         'Return the joined tables'
     );
 }
