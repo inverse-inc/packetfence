@@ -20,7 +20,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id2}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id1}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -44,7 +44,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.wireless_switch.id2}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.wireless_switch.id1}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

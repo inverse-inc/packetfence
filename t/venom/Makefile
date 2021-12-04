@@ -135,6 +135,20 @@ fingerbank_invalid_db_deb11:
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 
+captive_portal_el8:
+	make \
+	PF_VM_NAME=pfel8$(DEV_ENV) \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=captive_portal \
+	$(MAKE_TARGET)
+
+captive_portal_deb11:
+	make \
+	PF_VM_NAME=pfdeb11$(DEV_ENV) \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=captive_portal \
+	$(MAKE_TARGET)
+
 example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \

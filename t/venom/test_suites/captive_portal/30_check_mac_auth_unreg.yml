@@ -5,7 +5,6 @@ testcases:
   - type: run_cumulus_command
     command: "show dot1x interface {{.switch01.dot1x_interface.id}} json"
     assertions:
-      # we didn't check MAC address on port to make this testcase reusable
       - result.body ShouldContainSubstring "{{.roles.registration.vlan_id}}"
       - result.body ShouldContainSubstring MAB
       - result.body ShouldContainSubstring AUTHORIZED
