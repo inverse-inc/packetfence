@@ -100,3 +100,4 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.roles.registration.vlan_id}}"'
+      - result.bodyjson.item.profile ShouldEqual "{{.captive_portal.profiles.id}}"
