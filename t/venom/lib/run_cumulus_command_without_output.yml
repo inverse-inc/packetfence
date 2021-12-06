@@ -1,0 +1,20 @@
+executor: run_cumulus_command_without_output
+input:
+  command: {}
+steps:
+  - type: http
+    method: POST
+    basic_auth_user: "{{.switch01.api.user}}"
+    basic_auth_password: "{{.switch01.api.password}}"
+    url: '{{.switch01.api.url}}/nclu/v1/rpc'
+    ignore_verify_ssl: true
+    body: >-
+      {
+       "cmd": "{{.input.command}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+# no output because some commands contain control characters
+# and Venom failed to convert them automatically in JSON
