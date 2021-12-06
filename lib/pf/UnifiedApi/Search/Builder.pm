@@ -398,12 +398,15 @@ sub verify_query {
     }
 
     if (pf::UnifiedApi::Search::is_sub_query($op)) {
+        my @new_values;
         for my $q (@{$query->{values} // []}) {
             my ($status, $query) = $self->verify_query($s, $q);
             if (is_error($status)) {
                 return $status, $query;
             }
+            push @new_values, $query;
         }
+        $query->{values} = \@new_values;
     } else {
         my $field = $query->{field};
         my $err_msg = $self->valid_query($s, $query);
