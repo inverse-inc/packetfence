@@ -238,9 +238,9 @@ sub rewrite_security_event_close_count {
     return (200, $q);
 }
 
-our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by last_updated HAVING last_updated != '0000-00-00 00:00:00')";
-our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by last_updated HAVING last_updated = '0000-00-00 00:00:00')";
-our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1)';
+our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
+our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
+our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by ba.last_updated DESC LIMIT 1)';
 our $UNKNOWN_QUERY = "NOT $NOT_UNKNOWN_QUERY";
 
 sub rewrite_online_query {
