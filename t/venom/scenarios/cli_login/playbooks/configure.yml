@@ -2,12 +2,12 @@
 - hosts: pfservers
   name: configure Golang environment for unit tests
   become: True
-  collections:
-    - inverse_inc.packetfence
+#  collections:
+#  - inverse_inc.packetfence
 
-  roles:
-    - role: packetfence_go
-      tags: go
+#  roles:
+#    - role: packetfence_go
+#      tags: go
   tasks:
   - name: Creating radius configt
     copy:
