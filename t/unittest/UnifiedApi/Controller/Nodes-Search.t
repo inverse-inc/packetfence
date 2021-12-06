@@ -30,7 +30,7 @@ use Test2::Tools::Compare qw(bag hash item end field etc array);
 
 #insert known data
 #run tests
-use Test::More tests => 22;
+use Test::More tests => 31;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -129,6 +129,49 @@ $t->post_ok( '/api/v1/nodes/search' => json =>
               values => [
                   {
                       field => 'online',
+                      op => 'not_equals',
+                      value => 'on',
+                  },
+                  {
+                      op => 'or',
+                      values => [
+                          map {{ field => 'mac', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
+                      ]
+                  }
+              ]
+          } 
+      }
+  )
+  ->status_is(200);
+
+Test2::Tools::Compare::is(
+    $t->tx->res->json,
+    {
+            items => bag {
+                item hash {
+                    field mac => $mac1;
+                    field online => "unknown";
+                };
+                item hash {
+                    field mac => $mac3;
+                    field online => "off";
+                };
+                end();
+            },
+            status => 200,
+            prevCursor => 0,
+    },
+    "Search for online nodes"
+);
+
+$t->post_ok( '/api/v1/nodes/search' => json =>
+      {
+          fields => [qw(mac online)],
+          query => {
+              op => 'and',
+              values => [
+                  {
+                      field => 'online',
                       op => 'equals',
                       value => 'on',
                   },
@@ -199,6 +242,50 @@ Test2::Tools::Compare::is(
     "Search for offline nodes"
 );
 
+
+$t->post_ok( '/api/v1/nodes/search' => json =>
+      {
+          fields => [qw(mac online)],
+          query => {
+              op => 'and',
+              values => [
+                  {
+                      field => 'online',
+                      op => 'not_equals',
+                      value => 'off',
+                  },
+                  {
+                      op => 'or',
+                      values => [
+                          map {{ field => 'mac', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
+                      ]
+                  }
+              ]
+          } 
+      }
+  )
+  ->status_is(200);
+
+Test2::Tools::Compare::is(
+    $t->tx->res->json,
+    {
+            items => bag {
+                item hash {
+                    field mac => $mac1;
+                    field online => "unknown"
+                };
+                item hash {
+                    field mac => $mac2;
+                    field online => "on"
+                };
+                end();
+            },
+            status => 200,
+            prevCursor => 0,
+    },
+    "Search for offline nodes"
+);
+
 $t->post_ok( '/api/v1/nodes/search' => json =>
       {
           fields => [qw(mac online)],
@@ -238,6 +325,48 @@ Test2::Tools::Compare::is(
     "Search for unknown nodes"
 );
 
+$t->post_ok( '/api/v1/nodes/search' => json =>
+      {
+          fields => [qw(mac online)],
+          query => {
+              op => 'and',
+              values => [
+                  {
+                      field => 'online',
+                      op => 'not_equals',
+                      value => 'unknown',
+                  },
+                  {
+                      op => 'or',
+                      values => [
+                          map {{ field => 'mac', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
+                      ]
+                  }
+              ],
+          } 
+      }
+  )
+  ->status_is(200);
+
+Test2::Tools::Compare::is(
+    $t->tx->res->json,
+    {
+            items => bag {
+                item hash {
+                    field mac => $mac2;
+                    field online => "on"
+                };
+                item hash {
+                    field mac => $mac3;
+                    field online => "off"
+                };
+                end();
+            },
+            status => 200,
+            prevCursor => 0,
+    },
+    "Search for nodes that are not unknown"
+);
 
 =head1 AUTHOR
 
