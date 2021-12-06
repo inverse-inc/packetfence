@@ -56,49 +56,6 @@ our @IP6LOG_JOIN = (
     'ip6log',
 );
 
-our @ONLINE_JOIN = (
-    '=>{node.mac=online.mac,node.tenant_id=online.tenant_id}',
-    'bandwidth_accounting|online',
-    {
-        operator  => '=>',
-        condition => [
-            -and => [
-            'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
-            \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
-            ],
-        ],
-    },
-    'bandwidth_accounting|b2',
-);
-
-sub online_join {
-    my ($self, $s) = @_;
-    return (
-        {
-            operator  => '=>',
-            condition => {
-                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                'online.tenant_id' => $s->{dal}->get_tenant() ,
-            },
-        },
-        'bandwidth_accounting|online',
-        {
-            operator  => '=>',
-            condition => [
-                -and => [
-                'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
-                \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
-                ],
-            ],
-        },
-        'bandwidth_accounting|b2',
-    );
-}
-
-our %ONLINE_WHERE = (
-    'b2.node_id' => undef,
-);
-
 our @NODE_CATEGORY_JOIN = (
     '=>{node.category_id=node_category.category_id}', 'node_category',
 );
