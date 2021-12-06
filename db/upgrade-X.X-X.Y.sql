@@ -83,6 +83,12 @@ ALTER TABLE `pki_revoked_certs`
   MODIFY created_at DATETIME,
   MODIFY updated_at DATETIME;
 
+\! echo "Updating bandwidth_accounting indexes";
+ALTER TABLE bandwidth_accounting
+ DROP INDEX IF EXISTS bandwidth_accounting_tenant_id_mac,
+ ADD INDEX bandwidth_accounting_tenant_id_mac_last_updated (tenant_id, mac, last_updated);
+
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
