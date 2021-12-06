@@ -24,7 +24,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Mojo;
 use pf::UnifiedApi::Search;
 
