@@ -1,4 +1,4 @@
-name: Enable Inline l3 configuration in PacketFence
+name: Change role
 testcases:
 - name: get_login_token
   steps:

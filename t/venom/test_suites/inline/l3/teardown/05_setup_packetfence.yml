@@ -1,4 +1,4 @@
-name: Enable Inline l3 configuration in PacketFence
+name: Delete PacketFence configuration
 testcases:
 - name: get_login_token
   steps:
