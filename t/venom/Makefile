@@ -130,6 +130,12 @@ inline_deb11:
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
+inline_el8:
+	make \
+	PF_VM_NAME=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=inline \
+	$(MAKE_TARGET)
+
 fingerbank_invalid_db_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
