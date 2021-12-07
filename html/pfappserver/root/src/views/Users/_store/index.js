@@ -10,7 +10,7 @@ export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_users/isLoading']),
     reloadItem: params => $store.dispatch('$_users/refreshUser', params.id),
-    deleteItem: params => $store.dispatch('$_users/deleteuser', params.id),
+    deleteItem: params => $store.dispatch('$_users/deleteUser', params.id),
     getItem: params => $store.dispatch('$_users/getUser', params.id),
     createItem: params => $store.dispatch('$_users/createUser', params),
     updateItem: params => $store.dispatch('$_users/updateUser', params)
