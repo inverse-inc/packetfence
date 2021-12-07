@@ -1,0 +1,130 @@
+name: Enable Inline l3 configuration in PacketFence
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: Delete inlinel3 network
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/routed_network/192.168.1.0'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: Configure inlineil2 as other
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/inlinel3'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "inlinel3",
+       "isClone": false,
+       "isNew": false,
+       "prefixRouteName": "",
+       "additional_listening_daemons": [],
+       "address": "100.64.0.2/30",
+       "coa": "disabled",
+       "dhcpd_enabled": "enabled",
+       "dns": "8.8.8.8",
+       "high_availability": 0,
+       "hwaddr": "a2:57:cf:58:f6:85",
+       "ifindex": "7",
+       "ipaddress": "100.64.0.2",
+       "ipv6_address": null,
+       "ipv6_prefix": null,
+       "is_running": true,
+       "master": null,
+       "name": "inlinel3",
+       "nat_dns": "disabled",
+       "nat_enabled": "enabled",
+       "netflow_accounting_enabled": "disabled",
+       "netmask": "255.255.255.252",
+       "network": "100.64.0.0",
+       "network_iseditable": true,
+       "networks": [],
+       "not_editable": false,
+       "reg_network": null,
+       "split_network": "disabled",
+       "tenant_id": 1,
+       "type": "none",
+       "vip": null,
+       "vlan": null
+     }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: delete_user_in_db
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/iastigmate'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: restart_iptables
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-iptables
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdns_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdns
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdhcp_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdhcp
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_haproxy-portal_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-haproxy-portal
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_keepalived_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-keepalived
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdhcplistener_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdhcplistener
+
+    # let service restarts
+  - type: exec
+    script: sleep 5

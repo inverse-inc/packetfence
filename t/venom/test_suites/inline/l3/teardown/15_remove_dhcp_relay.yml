@@ -1,0 +1,19 @@
+name: Remove the DHCP relay
+testcases:
+  - name: Stop the DHCP relay
+    steps:
+      - type: exec
+        script: systemctl stop godhcp
+
+
+  - name: Delete DHCP configuration
+    steps:
+       - type: exec
+         script: rm -f /usr/local/etc/godhcp.ini
+
+  - name: Systemctl daemon-reload
+    steps:
+      - type: exec
+        script: systemctl daemon-reload
+          
+

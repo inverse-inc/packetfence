@@ -1,0 +1,43 @@
+name: Remove inlinel3 network
+testcases:
+  - name: delete_inlinel3_network_namespace
+    steps:
+      - type: exec
+        script: ip netns del inlinel3
+
+  - name: Delete inlinel3 interface
+    steps:
+    - type: exec
+      script: ip link del inlinel3
+
+  - name: Delete inlinel3 routing table
+    steps:
+    - type: exec
+      script: sed -i 's/202 inlinel3//g' /etc/iproute2/rt_tables
+
+  - name: Delete rule from 100.64.0.2
+    steps:
+    - type: exec
+      script: ip rule del from 100.64.0.2 lookup inlinel3
+
+
+  - name: Del 10.0.0.0/8 route in table inlinel3 table
+    steps:
+    - type: exec
+      script: ip route del 10.0.0.0/8 via 100.64.0.1 dev inlinel3 table inlinel3
+
+  - name: Del 172.16.0.0/12 route in inlinel3 table
+    steps:
+    - type: exec
+      script: ip route del 172.16.0.0/12 via 100.64.0.1 dev inlinel3 table inlinel3
+
+  - name: Del 192.168.0.0/16 in inlinel3 table
+    steps:
+    - type: exec
+      script: ip route del 192.168.0.0/16 via 100.64.0.1 dev inlinel3 table inlinel3
+
+  - name: Del 100.64.0.0/30 route in inlinel3 table
+    steps:
+    - type: exec
+      script: ip route del 100.64.0.0/30 dev inlinel3 scope link src 100.64.0.2 table inlinel3
+

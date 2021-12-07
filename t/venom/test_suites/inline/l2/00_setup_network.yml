@@ -1,0 +1,52 @@
+name: Setup inlinel2 network
+testcases:
+
+  - name: Create two virtual ethernet interfaces
+    steps:
+    - type: exec
+      script: ip link add inlinel2-a type veth peer name inlinel2
+
+  - name: Create tap interface
+    steps:
+      - type: exec
+        script: ip tuntap add blok-tap1 mode tap
+
+  - name: Set blok-tap1 up
+    steps:
+      - type: exec
+        script: ip link set blok-tap1 up
+
+  - name: create_bridge
+    steps:
+    - type: exec
+      script: ip link add blok-br1 type bridge
+
+  - name: Set bridge up
+    steps:
+    - type: exec
+      script: ip link set blok-br1 up
+
+  - name: Set blok-vpeer0 up
+    steps:
+    - type: exec
+      script:  ip link set inlinel2 up
+
+  - name: Set blok-veth0 up
+    steps:
+    - type: exec
+      script:  ip link set inlinel2-a up
+ 
+  - name: Add ip to inlinel2 interface
+    steps:
+    - type: exec
+      script: ip addr add 192.168.2.1/24 dev inlinel2
+
+  - name: Add inlinel2-a in the blok-br1 bridge
+    steps:
+    - type: exec
+      script: ip link set inlinel2-a master blok-br1
+
+  - name: Add blok-tap1 in the blok-br1 bridge
+    steps:
+    - type: exec
+      script: ip link set blok-tap0 master blok-br1
