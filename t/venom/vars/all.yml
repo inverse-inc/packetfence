@@ -467,7 +467,7 @@ fingerbank_proxy_test_wan_ip: 1.1.1.1
 ################################################################################
 #Cli Radius test test suite specific variables
 #################################################################################
-cli_login_radius.sources.id: radius_cli_test
+cli_login_radius.sources.id: cli_login_radius_source
 cli_login_radius.sources.radius_machine.id: 
 cli_login_radius.sources.access_duration: 5D
 cli_login_radius.sources.desc: "Test for radius cli"
@@ -475,3 +475,6 @@ cli_login_radius.sources.host: "127.0.0.1"
 cli_login_radius.sources.port: 1820
 cli_login_radius.sources.realms: ""
 cli_login_radius.sources.secret: testing123
+cli_login_radius.sources.role: default
+cli_login_radius.realm.id: cli_login_radius_realm_id
+cli_login_radius.realm.domain: example
