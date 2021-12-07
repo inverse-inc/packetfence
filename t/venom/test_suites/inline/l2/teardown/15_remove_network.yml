@@ -1,0 +1,16 @@
+name: Remove inlinel2 network
+testcases:
+  - name: Delete bridgeinline2 interface
+    steps:
+      - type: exec
+        script: ip link del bridgeinlinel2
+
+  - name: Delete blok-tap1 interface
+    steps:
+    - type: exec
+      script: ip link del blok-tap1
+
+  - name: Delete blok-br1 bridge
+    steps:
+    - type: exec
+      script: ip link del blok-br1
