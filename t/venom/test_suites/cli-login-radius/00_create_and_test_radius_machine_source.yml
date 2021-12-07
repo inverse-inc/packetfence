@@ -1,4 +1,4 @@
-name: Create and test AD machine source
+name: Create and test Radius machine source
 testcases:
 - name: get_login_token
   steps:
@@ -41,8 +41,7 @@ testcases:
         "monitor":"1",
         "options":"type = auth+acct",
         "port":"{{.cli_login_radius.sources.port}}",
-        "realms":["{{.cli_login_radius.sources.realms}}"],
-        "secret":"\"{{.cli_login_radius.sources.secret}}\"",
+        "secret":"{{.cli_login_radius.sources.secret}}",
         "set_access_durations_action":[],
         "set_role_from_source_action":null,
         "timeout":1,
@@ -70,8 +69,7 @@ testcases:
         "monitor":"1",
         "options":"type = auth+acct",
         "port":"{{.cli_login_radius.sources.port}}",
-        "realms":["{{.cli_login_radius.sources.realms}}"],
-        "secret":"\"{{.cli_login_radius.sources.secret}}\"",
+        "secret":"{{.cli_login_radius.sources.secret}}",
         "set_access_durations_action":[],
         "set_role_from_source_action":null,
         "timeout":1,

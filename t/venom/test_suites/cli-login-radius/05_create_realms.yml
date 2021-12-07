@@ -13,14 +13,14 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.ad_domain_id}}",
+        "domain": "{{.cli_login_radius.realm.domain}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
         "eduroam_radius_auth": null,
         "eduroam_radius_auth_compute_in_pf": "enabled",
         "eduroam_radius_auth_proxy_type": "keyed-balance",
-        "id": "{{.ad_domain_upper}}",
+        "id": "{{.cli_login_radius.realm.id}}",
         "ldap_source": null,
         "options": null,
         "permit_custom_attributes": "disabled",
@@ -78,7 +78,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.ad_domain_id}}"
+        "domain": "{{.cli_login_radius.realm.domain}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -92,7 +92,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.ad_domain_id}}"
+        "domain": "{{.cli_login_radius.realm.domain}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

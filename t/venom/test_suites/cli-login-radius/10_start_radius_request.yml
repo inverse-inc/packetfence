@@ -1,0 +1,8 @@
+name: Start radclient
+testcases:
+- name: radclient test
+  steps:
+  - type: exec
+    script: "cat /usr/local/pf/pod.txt | radclient -x 127.0.0.1:1820 auth testing123"
+    assertions:
+      - result.code ShouldEqual 0
