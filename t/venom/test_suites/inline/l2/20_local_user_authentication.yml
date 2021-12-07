@@ -1,0 +1,26 @@
+name: Local User Authentication
+testcases:
+  - name: Register device on the portal
+    steps:
+    - type: exec
+      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@192.168.2.10"  -t "/root/register_node -portal http://192.168.2.1"
+
+    # let wait a bit until the device is set in the ipset
+    - type: exec
+      script: sleep 5
+
+  - name: Test if the device is in the ipset Register set
+    steps:
+      - type: exec
+        script: ipset test pfsession_Reg_192.168.2.0 192.168.2.10
+
+
+  - name: Test if the device is in the ipset role ID 1 (Default role)
+    steps:
+      - type: exec
+        script: ipset test PF-iL2_ID1_192.168.2.0 192.168.2.10
+
+  - name: Test if the device can reach cnn.com
+    steps:
+    - type: exec
+      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@192.168.2.10"  -t "/root/test_internet_access"

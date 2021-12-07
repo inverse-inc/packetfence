@@ -12,15 +12,10 @@ testcases:
            relay=blok-vpeer0:100.64.0.2
            EOF
 
-  - name: Get the DHCP source code
+  - name: Download the DHCP relay
     steps:
-      - type: exec
-        script: git clone https://github.com/fdurand/standalone_dhcp.git /tmp/standalone_dhcp/
-
-  - name: Compile the DHCP source
-    steps:
-      - type: exec
-        script: cd /tmp/standalone_dhcp ; go build
+    - type: exec
+      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/standalone_dhcp -O /tmp/standalone_dhcp
 
   - name: Install systemd script
     steps:
@@ -36,7 +31,7 @@ testcases:
           StartLimitInterval=60
           Type=notify
           WatchdogSec=30s
-          ExecStart=ip netns exec inlinel3 /tmp/standalone_dhcp/standalone_dhcp
+          ExecStart=ip netns exec inlinel3 /tmp/standalone_dhcp
           Restart=on-failure
 
           [Install]

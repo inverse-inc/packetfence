@@ -1,0 +1,38 @@
+name: Start client
+testcases:
+  - name: Download ulinux
+    steps:
+    - type: exec
+      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/ulinux.qcow2 -O /tmp/ulinux.qcow2
+
+  - name: Install systemd script
+    steps:
+      - type: exec
+        script: |
+          cat > /lib/systemd/system/ulinux.service << EOF
+          [Unit]
+          Description=QEMU virtual machine
+
+          [Service]
+          Environment="haltcmd=kill -INT $MAINPID"
+          ExecStart= ip netns exec inlinel3 qemu-system-x86_64 -boot d -hda /tmp/ulinux.qcow2 -m 128M -device virtio-net-pci,netdev=network0,mac=02:06:19:98:00:00 -netdev tap,id=network0,ifname=blok-tap1,script=no,downscript=no -nographic -serial telnet:localhost:4321,server,nowait
+          ExecStop=/usr/bin/bash -c ${haltcmd}
+          ExecStop=/usr/bin/bash -c 'while nc localhost 7100; do sleep 1; done'
+
+          [Install]
+          WantedBy=multi-user.target
+          EOF
+
+  - name: Systemctl daemon-reload
+    steps:
+      - type: exec
+        script: systemctl daemon-reload
+
+  - name: Start the Client
+    steps:
+      - type: exec
+        script: systemctl start ulinux
+      
+      # let ulinux start
+      - type: exec
+        script: sleep 30

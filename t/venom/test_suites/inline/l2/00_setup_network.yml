@@ -4,12 +4,17 @@ testcases:
   - name: Create two virtual ethernet interfaces
     steps:
     - type: exec
-      script: ip link add inlinel2-a type veth peer name inlinel2
+      script: ip link add bridgeinlinel2 type veth peer name inlinel2
 
   - name: Create tap interface
     steps:
       - type: exec
         script: ip tuntap add blok-tap1 mode tap
+
+  - name: Set blok-tap1 up
+    steps:
+      - type: exec
+        script: ip link set blok-tap1 up
 
   - name: Set blok-tap1 up
     steps:
@@ -31,22 +36,22 @@ testcases:
     - type: exec
       script:  ip link set inlinel2 up
 
-  - name: Set blok-veth0 up
+  - name: Set bridgeinlinel2 up
     steps:
     - type: exec
-      script:  ip link set inlinel2-a up
+      script:  ip link set bridgeinlinel2 up
  
   - name: Add ip to inlinel2 interface
     steps:
     - type: exec
       script: ip addr add 192.168.2.1/24 dev inlinel2
 
-  - name: Add inlinel2-a in the blok-br1 bridge
+  - name: Add bridgeinlinel2 in the blok-br1 bridge
     steps:
     - type: exec
-      script: ip link set inlinel2-a master blok-br1
+      script: ip link set bridgeinlinel2 master blok-br1
 
   - name: Add blok-tap1 in the blok-br1 bridge
     steps:
     - type: exec
-      script: ip link set blok-tap0 master blok-br1
+      script: ip link set blok-tap1 master blok-br1
