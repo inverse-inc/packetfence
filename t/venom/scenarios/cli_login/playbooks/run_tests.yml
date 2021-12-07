@@ -6,6 +6,7 @@
   vars:
     # put your test suites to try here
     test_suites:
+      - configurator
       - cli-login-radius
 
   tasks:
