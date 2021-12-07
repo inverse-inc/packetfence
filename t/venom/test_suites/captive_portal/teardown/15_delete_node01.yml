@@ -1,7 +1,13 @@
 name: Delete node01
 testcases:
+# temp, can be simplified with Venom 1.0.0 due to https://github.com/ovh/venom/pull/452
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: delete_node01
   steps:
   - type: delete_node
     mac_address: "{{.node01_ens7_mac_address}}"
     mac_address_url_encoded: "{{.node01_ens7_mac_address_url_encoded}}"
+    token: "{{.get_login_token.json.result.token}}"

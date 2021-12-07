@@ -2,32 +2,27 @@ executor: delete_node
 input:
   mac_address: {}
   mac_address_url_encoded: {}
+  token: {}
 steps:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
-- name: delete_node
-  steps:
+  # delete_node
   - type: http
     method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.mac_address_url_encoded}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.input.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Deleted {{.input.mac_address}} successfully"
 
-- name: check_node_deleted
-  steps:
+  # check node deleted
   - type: http
     method: GET
     url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.mac_address_url_encoded}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.input.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 404
