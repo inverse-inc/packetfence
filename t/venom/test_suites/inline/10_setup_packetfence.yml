@@ -161,6 +161,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
      {
+       "quiet": true,
        "valid_from": "2021-12-06 00:00:00",
        "expiration": null,
        "actions": [
@@ -204,7 +205,12 @@ testcases:
        "custom_field_6": "",
        "custom_field_7": "",
        "custom_field_8": "",
-       "custom_field_9": ""
+       "custom_field_9": "",
+       "access_duration": "1h",
+       "access_level": null,
+       "can_sponsor": null,
+       "category": "1",
+       "unregdate": null
      }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
