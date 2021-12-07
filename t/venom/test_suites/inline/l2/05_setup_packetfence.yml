@@ -207,6 +207,44 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
+- name: configure_snat_interface_for_passthroughs
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/network'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "interfaceSNAT":"eth0"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+- name: configure_snat_interface_for_inline
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/inline'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "inline",
+       "interfaceSNAT": "eth0",
+       "not_deletable": true,
+       "not_sortable": true,
+       "ports_redirect": null,
+       "should_reauth_on_vlan_change": "disabled"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
 - name: restart_iptables
   steps:
   - type: exec
