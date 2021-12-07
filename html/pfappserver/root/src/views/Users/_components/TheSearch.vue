@@ -62,8 +62,8 @@
             <base-button-confirm v-if="!item.not_deletable"
               size="sm" variant="outline-danger" class="my-1 mr-1" reverse
               :disabled="isLoading"
-              :confirm="$t('Delete Node?')"
-              @click="onRemove(item.id)"
+              :confirm="$t('Delete User?')"
+              @click="onRemove(item)"
             >{{ $t('Delete') }}</base-button-confirm>
           </span>
         </template>
@@ -200,7 +200,7 @@ const setup = (props, context) => {
     selectedItems,
   } = selected
 
-  const onRemove = id => {
+  const onRemove = ({ pid: id }) => {
     deleteItem({ id })
       .then(() => reSearch())
   }
