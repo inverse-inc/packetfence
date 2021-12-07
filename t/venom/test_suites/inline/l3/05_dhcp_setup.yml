@@ -15,7 +15,7 @@ testcases:
   - name: Download the DHCP relay
     steps:
     - type: exec
-      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/standalone_dhcp -O /tmp/standalone_dhcp
+      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/standalone_dhcp -O /tmp/standalone_dhcp && chmod +x /tmp/standalone_dhcp
 
   - name: Install systemd script
     steps:
