@@ -129,7 +129,8 @@ Depends: ${misc:Depends}, vlan,
 # packaging workaround (we don't require it but something in catalyst seem to do)
  libmodule-install-perl,
 # i18n
- liblocale-gettext-perl, 
+ liblocale-gettext-perl,
+ locales-all,
 # logging framework
  liblog-log4perl-perl (>=1.43),
  liblog-any-perl,

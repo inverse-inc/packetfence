@@ -1,0 +1,29 @@
+executor: delete_node
+input:
+  mac_address: {}
+  mac_address_url_encoded: {}
+  token: {}
+steps:
+  # delete_node
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.input.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Deleted {{.input.mac_address}} successfully"
+
+  # check node deleted
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.mac_address_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.input.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 404
+      - result.bodyjson.message ShouldEqual "Unable to get resource with this identifier"
