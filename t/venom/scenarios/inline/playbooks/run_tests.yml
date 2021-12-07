@@ -6,7 +6,7 @@
   vars:
     # put your test suites to try here
     test_suites:
-      - config
+      - configurator
       - inline/l3
       #- inline/l3/teardown
 
