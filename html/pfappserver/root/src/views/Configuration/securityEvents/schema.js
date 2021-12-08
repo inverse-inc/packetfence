@@ -97,7 +97,7 @@ export const schema = (props) => {
   return yup.object({
     id: yup.string()
       .nullable()
-      .required(i18n.t('Name required.'))
+      .required(i18n.t('Identifier required.'))
       .securityEventIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
     triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') }),
