@@ -16,11 +16,6 @@ testcases:
       - type: exec
         script: ip link set blok-tap1 up
 
-  - name: Set blok-tap1 up
-    steps:
-      - type: exec
-        script: ip link set blok-tap1 up
-
   - name: create_bridge
     steps:
     - type: exec
