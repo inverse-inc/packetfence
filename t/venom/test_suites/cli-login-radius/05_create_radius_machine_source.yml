@@ -16,7 +16,23 @@ testcases:
         "isClone":false,
         "isNew":true,
         "sourceType":"RADIUS",
-        "administration_rules": null,
+        "administration_rules": [
+          {
+            "actions": [
+              {
+                "type": "set_access_level",
+                "value": [
+                  "Switch_Access"
+                ]
+              }
+            ],
+            "conditions": [],
+            "description": null,
+            "id": "Catch_all",
+            "match": "all",
+            "status": "enabled"
+          }
+        ],
         "authentication_rules": [
           {
             "id": "catchall",
@@ -52,33 +68,3 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
-
-- name: test_radius_source
-  steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources/test'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id":"{{.cli_login_radius.sources.id}}",
-        "sourceType":"RADIUS",
-        "description":"{{.cli_login_radius.sources.desc}}",
-        "host":"{{.cli_login_radius.sources.host}}",
-        "ldapfilter_operator":null,
-        "monitor":"1",
-        "options":"type = auth+acct",
-        "port":"{{.cli_login_radius.sources.port}}",
-        "secret":"{{.cli_login_radius.sources.secret}}",
-        "set_access_durations_action":[],
-        "set_role_from_source_action":null,
-        "timeout":1,
-        "type":"RADIUS"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-    retry: 3
-    delay: 5

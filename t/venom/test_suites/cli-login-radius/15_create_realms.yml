@@ -1,0 +1,38 @@
+name: Create and configure REALMS
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_realms
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realms'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "admin_strip_username": "enabled",
+        "eduroam_options": null,
+        "eduroam_radius_acct": null,
+        "eduroam_radius_acct_proxy_type": "load-balance",
+        "eduroam_radius_auth": null,
+        "eduroam_radius_auth_compute_in_pf": "enabled",
+        "eduroam_radius_auth_proxy_type": "keyed-balance",
+        "id": "{{.cli_login_radius.realm.id}}",
+        "ldap_source": null,
+        "options": null,
+        "permit_custom_attributes": "disabled",
+        "portal_strip_username": "enabled",
+        "radius_acct": null,
+        "radius_acct_proxy_type": "load-balance",
+        "radius_auth": "{{.cli_login_radius.sources.id}}",
+        "radius_auth_compute_in_pf": "enabled",
+        "radius_auth_proxy_type": "keyed-balance",
+        "radius_strip_username": "enabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
