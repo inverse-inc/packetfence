@@ -1,42 +1,31 @@
-package pf::pfcron::task::provisioning_compliance_poll;
+package pf::provisioner::dummy;
 
 =head1 NAME
 
-pf::pfcron::task::provisioning_compliance_poll - class for pfcron task provisioning compliance poll
-
-=cut
+pf::provisioner::dummy -
 
 =head1 DESCRIPTION
 
-pf::pfcron::task::provisioning_compliance_poll
+pf::provisioner::dummy
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
-extends qw(pf::pfcron::task);
-use pf::ConfigStore::Provisioning;
-use pf::factory::provisioner;
+use List::MoreUtils qw(any);
+use Moo;
+extends 'pf::provisioner';
+our $POLL_COUNT = 0;
 
-=head2 run
+sub pollAndEnforce {
+    $POLL_COUNT++
+}
 
-Polls each provisioner to enforce compliance
-
-=cut
-
-sub run {
-    my ($self) = @_;
-    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
-        my $provisioner = pf::factory::provisioner->new($id);
-        if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($self->interval);
-        }
-    }
+sub supportsPolling {
+    1;
 }
 
 =head1 AUTHOR
-
 
 Inverse inc. <info@inverse.ca>
 
@@ -64,3 +53,4 @@ USA.
 =cut
 
 1;
+

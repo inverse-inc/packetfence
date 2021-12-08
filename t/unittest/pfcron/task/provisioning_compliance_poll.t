@@ -1,42 +1,49 @@
-package pf::pfcron::task::provisioning_compliance_poll;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::pfcron::task::provisioning_compliance_poll - class for pfcron task provisioning compliance poll
-
-=cut
+provisioning_compliance_poll
 
 =head1 DESCRIPTION
 
-pf::pfcron::task::provisioning_compliance_poll
+unit test for provisioning_compliance_poll
 
 =cut
 
 use strict;
 use warnings;
-use Moose;
-extends qw(pf::pfcron::task);
-use pf::ConfigStore::Provisioning;
-use pf::factory::provisioner;
 
-=head2 run
-
-Polls each provisioner to enforce compliance
-
-=cut
-
-sub run {
-    my ($self) = @_;
-    foreach my $id (@{pf::ConfigStore::Provisioning->new->readAllIds}) {
-        my $provisioner = pf::factory::provisioner->new($id);
-        if($provisioner->supportsPolling){
-            $provisioner->pollAndEnforce($self->interval);
-        }
-    }
+BEGIN {
+    #include test libs
+    use lib qw(/usr/local/pf/t);
+    #Module for overriding configuration paths
+    use setup_test_config;
 }
 
-=head1 AUTHOR
+use Test::More tests => 2;
 
+#This test will running last
+use Test::NoWarnings;
+use pf::pfcron::task::provisioning_compliance_poll;
+
+my $task = pf::pfcron::task::provisioning_compliance_poll->new(
+    {
+        status   => "enabled",
+        id       => 'test',
+        interval => 0,
+        type     => 'provisioning_compliance_poll',
+    }
+);
+
+{
+    no warnings qw(redefine);
+    local *pf::provisioner::google_workspace_chromebook::supportsPolling = sub { 0 };
+    $task->run();
+}
+
+ok($pf::provisioner::dummy::POLL_COUNT, "pollAndEnforce ran for pf::provisioner::dummy");
+
+=head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
@@ -64,3 +71,4 @@ USA.
 =cut
 
 1;
+
