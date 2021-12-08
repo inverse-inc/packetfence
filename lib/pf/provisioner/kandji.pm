@@ -16,8 +16,11 @@ use warnings;
 use Moo;
 extends 'pf::provisioner';
 
+use pf::log;
 use pf::constants;
 use LWP::UserAgent;
+use JSON::MaybeXS qw(decode_json);
+use pf::error;
 
 =head1 Atrributes
 
@@ -83,8 +86,26 @@ sub get_lwp_client {
 sub authorize {
     my ($self,$mac) = @_;
     my $ua = $self->get_lwp_client();
-    my $res = $ua->get($self->api_url("/api/v1/devices/?mac_address=\"$mac\""));
-    use Data::Dumper ; print Dumper($res->decoded_content);
+    my $res = $ua->get($self->api_url("/api/v1/devices/?mac_address=$mac"));
+    if($res->code != $STATUS::OK) {
+        $self->logger->error("Failed to communicate with Kandji API: ", $res->status_line);
+        return $pf::provisioner::COMMUNICATION_FAILED;
+    }
+    
+    my $data = decode_json($res->decoded_content);
+    if(scalar(@$data) == 0) {
+        $self->logger->info("$mac wasn't found in the Kandji inventory");
+        return $FALSE;
+    }
+    elsif(scalar(@$data) > 1) {
+        $self->logger->error("$mac was found multiple times in the Kandji inventory");
+        return $FALSE;
+    }
+    else {
+        $self->logger->info("$mac was found in the Kandji inventory, checking if agent is still installed and active");
+        my $entry = $data->[0];
+        return ($entry->{agent_installed} && !$entry->{is_missing} && !$entry->{is_removed});
+    }
 }
 
 =head2 logger
