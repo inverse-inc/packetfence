@@ -348,6 +348,10 @@ sub generate_filter_if_src_to_chain {
             }
             $rules_forward .= "-A FORWARD --in-interface $val --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
         }
+        if($management_network) {
+            my $mgmt_int = $management_network->tag("int");
+            $rules_forward .= "-A FORWARD --in-interface $mgmt_int --match state --state ESTABLISHED,RELATED --jump ACCEPT\n";
+        }
     }
 
     return ($rules,$rules_forward);
@@ -492,6 +496,7 @@ sub generate_passthrough_rules {
     my @ints = split(',', get_network_snat_interface());
     foreach my $int (@ints) {
         my $if   = IO::Interface::Simple->new($int);
+        next unless defined($if);
         foreach my $network ( keys %ConfigNetworks ) {
             my $network_obj = new Net::Netmask( $network, $ConfigNetworks{$network}{'netmask'} );
             if ( pf::config::is_network_type_inline($network) ) {
