@@ -168,3 +168,13 @@
         ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
         Restart=on-failure
       when: ansible_facts['os_family'] == "RedHat"
+
+  - name: Just force systemd reload
+    ansible.builtin.systemd:
+      daemon_reload: yes
+
+  - name: Restart service
+    ansible.builtin.systemd:
+      state: restarted
+      daemon_reload: yes
+      name: radius-test 
