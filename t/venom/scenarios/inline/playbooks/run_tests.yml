@@ -8,7 +8,9 @@
     test_suites:
       - configurator
       - inline/l3
-      #- inline/l3/teardown
+      - inline/l3/teardown
+      - inline/l2
+      - inline/l2/teardown
 
   tasks:
     - name: Run Venom testsuites
