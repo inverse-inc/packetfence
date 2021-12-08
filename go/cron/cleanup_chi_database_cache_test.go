@@ -33,6 +33,7 @@ func TestChiCleanup(t *testing.T) {
         ( "f", UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 1 DAY)) * 1.0 )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "chi_cache entries left",

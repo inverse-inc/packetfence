@@ -2,6 +2,7 @@ package maint
 
 import (
 	"testing"
+	"time"
 )
 
 func TestIp4logCleanupNoRotate(t *testing.T) {
@@ -42,6 +43,7 @@ func TestIp4logCleanupNoRotate(t *testing.T) {
 (1, "82:59:26:37:77:72", "172.20.21.90",  DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name: "ip4log_history entries gone",
@@ -123,6 +125,7 @@ func TestIp4logCleanupRotate(t *testing.T) {
 (1, "82:59:26:37:77:72", "172.20.21.90",  DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name: "ip4log_history entries gone",
@@ -160,9 +163,12 @@ func TestIp4logCleanupRotate(t *testing.T) {
 
 }
 
-func testCronTask(t *testing.T, job JobSetupConfig, setupSql []string, tests []sqlCountTest, cleanupSql []string) {
+func testCronTask(t *testing.T, job JobSetupConfig, setupSql []string, pause time.Duration, tests []sqlCountTest, cleanupSql []string) {
 	runStatements(t, setupSql)
 	job.Run()
+	if pause > 0 {
+		time.Sleep(pause)
+	}
 	testSqlCountTests(t, tests)
 	runStatements(t, cleanupSql)
 }
