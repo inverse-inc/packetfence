@@ -38,17 +38,133 @@
             auth_goodpass = no
             msg_denied = "You are already logged in - access denied"
         }
-  - name: Creating a file for password
+
+  - name: Creating a file for password simple auth
     copy:
       dest: "/usr/local/pf/pod.txt"
       content: |
         User-Name = "bob"
         User-Password = "hello"
+        NAS-IP-Address = "192.168.0.1"
+
+  - name: Creating a file for password via proxy
+    copy:
+      dest: "/usr/local/pf/pod_proxy.txt"
+      content: |
+        User-Name = '{{.cli_login_radius.realm.id}}\bob'
+        User-Password = "hello"
+        NAS-IP-Address = "192.168.0.1" 
 
   - name: Authorization in radb
     blockinfile:
       path: /usr/local/pf/raddb/mods-config/files/authorize
       block: |
-        'bob     Cleartext-Password := "hello"'
-        '        Reply-Message := "Hello, %{User-Name}"'
+        bob     Cleartext-Password := "hello"
+                Reply-Message := "Hello, %{User-Name}"
 
+  - name: Creating radius server enabled config
+    copy:
+      dest: "/usr/local/pf/raddb/sites-enabled/default"
+      content: |
+        server default {
+        authorize {
+                filter_username
+                preprocess
+                chap
+                mschap
+                digest
+                suffix
+                eap {
+                        ok = return
+                }
+                files
+                -sql
+                -ldap
+                expiration
+                logintime
+                pap
+        }
+        authenticate {
+                Auth-Type PAP {
+                        pap
+                }
+                Auth-Type CHAP {
+                        chap
+                }
+                Auth-Type MS-CHAP {
+                        mschap
+                }
+                digest
+                eap
+        }
+        preacct {
+                preprocess
+                acct_unique
+                suffix
+                files
+        }
+        accounting {
+                detail
+                unix
+                -sql
+                exec
+                attr_filter.accounting_response
+        }
+        session {
+        }
+        post-auth {
+                update {
+                        &reply: += &session-state:
+                }
+                -sql
+                exec
+                remove_reply_message_if_eap
+                Post-Auth-Type REJECT {
+                        -sql
+                        attr_filter.access_reject
+                        eap
+                        remove_reply_message_if_eap
+                }
+        }
+        pre-proxy {
+        }
+        post-proxy {
+                eap
+        }
+        }
+
+  - name: Creating radius service
+    copy:
+      dest: "/lib/systemd/system/radius-test.service"
+      content: |
+        # Copyright (C) Inverse inc.
+        [Unit]
+        Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
+        Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
+        
+        [Service]
+        Type=notify
+        WatchdogSec=10
+        StartLimitBurst=3
+        StartLimitInterval=10
+        ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
+        Restart=on-failure
+      when: ansible_facts['os_family'] == "Debian"
+
+  - name: Creating radius service
+    copy:
+      dest: "/lib/systemd/system/radius-test.service"
+      content: |
+        # Copyright (C) Inverse inc.
+        [Unit]
+        Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
+        Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
+
+        [Service]
+        Type=notify
+        WatchdogSec=10
+        StartLimitBurst=3
+        StartLimitInterval=10
+        ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
+        Restart=on-failure
+      when: ansible_facts['os_family'] == "RedHat"
