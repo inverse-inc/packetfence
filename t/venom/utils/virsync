@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+user=$(whoami)
+if [ $# -eq 0 ]; then
+	path=$(realpath ~/packetfence)
+	echo "usage: $(basename "$0") [/path/to/packetfence]"
+else
+	path=$(realpath $1)
+fi
+echo "watching $path"
+while true; do
+ 	inotifywait -r -e modify,attrib,close_write,move,create,delete $path/t/venom
+	hosts=$(yq -r ".all.vars.users_vars.$user.vms | keys | .[]" $path/addons/vagrant/inventory/hosts | grep '^pf.*$')
+	for host in $hosts; do
+		ip=$(yq -r ".all.vars.users_vars.$user.vms.$host.ip" $path/addons/vagrant/inventory/hosts)
+		if ping -c 1 $ip &> /dev/null; then
+			echo "=========================="
+			echo "rsync with $host"
+			echo "=========================="
+			rsync -avz --exclude="vars/local.yml" --rsync-path="sudo rsync" -e "ssh" $path/t/venom/ $ip:/usr/local/pf/t/venom/
+		fi
+	done
+done
+
+
+

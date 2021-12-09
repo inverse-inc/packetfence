@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "usage: $(basename "$0") [hostname]"
+  yq -r ".all.vars.users_vars.$(whoami).vms" ~/packetfence/addons/vagrant/inventory/hosts
+else
+  ip=$(yq -r ".all.vars.users_vars.$(whoami).vms.$1.ip" ~/packetfence/addons/vagrant/inventory/hosts)
+  echo "ssh vagrant@$ip ${@:2}"
+  ssh vagrant@$ip ${@:2}
+fi
+
+
+
+
+
+
