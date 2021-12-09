@@ -75,14 +75,13 @@ sub build_child {
             }
         }
 
-        if ($task_data->{type} eq 'acct_maintenance') {
-            my $schedule = $task_data->{schedule};
-            my $interval = 60;
-            if ($schedule =~ /^\@every (.*)$/) {
-                $interval = golangDurationToSeconds($1);
-            }
-            $task_data->{interval} = $interval;
+        my $schedule = $task_data->{schedule};
+        my $interval = 60;
+        if ($schedule =~ /^\@every (.*)$/) {
+            $interval = golangDurationToSeconds($1);
         }
+
+        $task_data->{interval} = $interval;
     }
 
     return $tmp_cfg;
