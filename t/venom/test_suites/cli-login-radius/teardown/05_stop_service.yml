@@ -1,0 +1,11 @@
+name: Cli RADIUS Service Teardown
+testcases:
+- name: stop_radius_test_service
+  steps:
+  - type: exec
+    script: systemctl stop radius-test
+
+- name: disable_radius_test_service
+  steps:
+  - type: exec
+    script: systemctl disable radius-test
