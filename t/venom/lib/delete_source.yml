@@ -1,0 +1,28 @@
+executor: delete_source
+input:
+  id: {}
+  token: {}
+steps:
+  # delete source
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.input.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.input.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Deleted {{.input.id}} successfully"
+
+  # check source deleted
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.input.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 404
+      - result.bodyjson.message ShouldEqual "Unable to get resource with this identifier"
