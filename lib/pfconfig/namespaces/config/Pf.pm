@@ -225,7 +225,7 @@ sub isSelfSigned {
             my $ca = $FALSE;
             foreach my $oid (keys %$exts) {
                 my $ext = $$exts{$oid};
-                $ca = $TRUE if ( ( $oid eq '2.5.29.19' ) && ( $ext->to_string() ~= /CA:TRUE/i ) );
+                $ca = $TRUE if ( ( $oid eq '2.5.29.19' ) && ( $ext->to_string() =~ /CA:TRUE/i ) );
             }
             if ($cert->is_selfsigned && !$ca) {
                 $has_self_signed = 1;
@@ -270,4 +270,3 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
-/
