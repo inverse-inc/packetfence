@@ -41,7 +41,7 @@
 
   - name: Creating a file for password simple auth
     copy:
-      dest: "/usr/local/pf/pod.txt"
+      dest: "{{.cli_login_radius.pod}}"
       content: |
         User-Name = "bob"
         User-Password = "hello"
@@ -49,7 +49,7 @@
 
   - name: Creating a file for password via proxy
     copy:
-      dest: "/usr/local/pf/pod_proxy.txt"
+      dest: "{{.cli_login_radius.pod_proxy}}"
       content: |
         User-Name = '{{.cli_login_radius.realm.id}}\bob'
         User-Password = "hello"
@@ -168,10 +168,6 @@
         ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
         Restart=on-failure
       when: ansible_facts['os_family'] == "RedHat"
-
-  - name: Just force systemd reload
-    ansible.builtin.systemd:
-      daemon_reload: yes
 
   - name: Restart service
     ansible.builtin.systemd:

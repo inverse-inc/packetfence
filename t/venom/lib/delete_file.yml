@@ -1,0 +1,8 @@
+executor: delete_file
+input:
+  file: "myfile.txt"
+steps:
+  - type: exec
+    script: "rm -f {{.input.file}}"
+    assertions:
+      - result.exitcode ShouldEqual 0

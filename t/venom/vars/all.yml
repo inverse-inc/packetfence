@@ -478,3 +478,5 @@ cli_login_radius.sources.secret: testing123
 cli_login_radius.sources.role: default
 cli_login_radius.realm.id: cli_login_radius_realm_id
 cli_login_radius.realm.domain: example
+cli_login_radius.pod: "/usr/local/pf/pod.txt"
+cli_login_radius.pod_proxy: "/usr/local/pf/pod_proxy.txt"
