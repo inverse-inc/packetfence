@@ -9,3 +9,10 @@ testcases:
   - type: delete_source
     id: "{{.cli_login_radius.sources.id}}"
     token: "{{.get_login_token.json.result.token}}"
+
+- name: delete radius realm
+  steps:
+  - type: delete_realm
+    id: "{{.cli_login_radius.realm.id}}"
+    token: "{{.get_login_token.json.result.token}}"
+
