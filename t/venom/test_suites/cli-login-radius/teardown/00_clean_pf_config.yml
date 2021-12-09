@@ -1,16 +1,16 @@
-name: Teardown
+name: Cli RADIUS Config Teardown
 testcases:
 - name: get_login_token
   steps:
   - type: get_login_token
 
-- name: delete radius source
+- name: delete_radius_source
   steps:
   - type: delete_source
     id: "{{.cli_login_radius.sources.id}}"
     token: "{{.get_login_token.json.result.token}}"
 
-- name: Switch 192.168.0.1 back to default
+- name: Switch_192.168.0.1_back_to_default
   steps:
   - type: http
     method: PATCH
@@ -26,7 +26,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: delete radius realm
+- name: delete_radius_realm
   steps:
   - type: delete_realm
     id: "{{.cli_login_radius.realm.id}}"
