@@ -11,8 +11,7 @@ testcases:
     script: "cat /usr/local/pf/pod.txt | radclient -x 172.17.120.15:1812 auth $(cat /usr/local/pf/conf/unified_api_system_pass)"
     assertions:
       - result.code ShouldEqual 0
-      - result.systemout ShouldContainSubstring bob
-      - result.systemout ShouldContainSubstring Hello
+      - result.systemout ShouldContainSubstring access granted by PacketFence
 
 - name: radclient test proxy
   steps:
@@ -20,5 +19,4 @@ testcases:
     script: "cat /usr/local/pf/pod_proxy.txt | radclient -x 172.17.120.15:1812 auth $(cat /usr/local/pf/conf/unified_api_system_pass)"
     assertions:
       - result.code ShouldEqual 0
-      - result.systemout ShouldContainSubstring bob
-      - result.systemout ShouldContainSubstring Hello
+      - result.systemout ShouldContainSubstring access granted by PacketFence
