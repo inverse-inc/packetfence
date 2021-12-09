@@ -7,20 +7,22 @@ if [ $# -eq 0 ]; then
 else
 	path=$(realpath $1)
 fi
+
+hosts=$(yq -r ".all.vars.users_vars.$user.vms | keys | .[]" $path/addons/vagrant/inventory/hosts | grep '^pf.*$')
+declare -A ips
+for host in $hosts; do
+	ips[$host]=$(yq -r ".all.vars.users_vars.$user.vms.$host.ip" $path/addons/vagrant/inventory/hosts)
+done
+
 echo "watching $path"
 while true; do
  	inotifywait -r -e modify,attrib,close_write,move,create,delete $path/t/venom
-	hosts=$(yq -r ".all.vars.users_vars.$user.vms | keys | .[]" $path/addons/vagrant/inventory/hosts | grep '^pf.*$')
 	for host in $hosts; do
-		ip=$(yq -r ".all.vars.users_vars.$user.vms.$host.ip" $path/addons/vagrant/inventory/hosts)
-		if ping -c 1 $ip &> /dev/null; then
+		if ping -c 1 ${ips[$host]} &> /dev/null; then
 			echo "=========================="
-			echo "rsync with $host"
+			echo "rsync with $host/$ip[$host]"
 			echo "=========================="
-			rsync -avz --exclude="vars/local.yml" --rsync-path="sudo rsync" -e "ssh" $path/t/venom/ $ip:/usr/local/pf/t/venom/
+			rsync -avz --exclude="*.swp" --exclude="vars/local.yml" --rsync-path="sudo rsync" -e "ssh" $path/t/venom/ ${ips[$host]}:/usr/local/pf/t/venom/
 		fi
 	done
 done
-
-
-
