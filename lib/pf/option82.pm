@@ -46,6 +46,10 @@ sub search_switch {
     my $cache = pf::CHI->new( namespace => 'switch' );
     foreach my $switch_id ( grep { $_ ne 'default' } keys %pf::SwitchFactory::SwitchConfig ) {
         my $switch = pf::SwitchFactory->instantiate($switch_id);
+        if (!$switch) {
+            $logger->error("Cannot create switch $switch_id");
+            next;
+        }
         my $switch_mac = $switch->getRelayAgentInfoOptRemoteIdSub() if defined($switch->{'_switchIp'});
         $cache->set("${OPTION82_PREFIX}${switch_mac}", $switch_id) if defined($switch_mac);
     }
