@@ -10,9 +10,24 @@ testcases:
     id: "{{.cli_login_radius.sources.id}}"
     token: "{{.get_login_token.json.result.token}}"
 
+- name: Switch 192.168.0.1 back to default
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/192.168.0.1'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cliAccess": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
 - name: delete radius realm
   steps:
   - type: delete_realm
     id: "{{.cli_login_radius.realm.id}}"
     token: "{{.get_login_token.json.result.token}}"
-
