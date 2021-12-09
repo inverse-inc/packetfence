@@ -42,13 +42,13 @@ func NewCertificatesCheck(config map[string]interface{}) JobSetupConfig {
 }
 
 func (j *CertificatesCheck) Run() {
-	j.VerifyCertFiles(j.Certificates)
+	j.VerifyCertFiles(j.Certificates, time.Now())
 }
 
-func (j *CertificatesCheck) VerifyCertFiles(files []string) {
+func (j *CertificatesCheck) VerifyCertFiles(files []string, now time.Time) {
 	certErrors := []error{}
 	for _, file := range files {
-		if err := j.VerifyFile(file); err != nil {
+		if err := j.VerifyFile(file, now); err != nil {
 			certErrors = append(certErrors, err)
 		}
 	}
@@ -56,13 +56,13 @@ func (j *CertificatesCheck) VerifyCertFiles(files []string) {
 	j.SendEmails(certErrors)
 }
 
-func (j *CertificatesCheck) VerifyFile(file string) error {
+func (j *CertificatesCheck) VerifyFile(file string, now time.Time) error {
 	contents, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
 
-	return j.VerifyContents(file, contents, time.Now())
+	return j.VerifyContents(file, contents, now)
 }
 
 func (j *CertificatesCheck) VerifyContents(file string, contents []byte, now time.Time) error {
