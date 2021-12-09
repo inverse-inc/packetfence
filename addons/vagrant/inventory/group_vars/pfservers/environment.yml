@@ -12,5 +12,6 @@ inventory__group_environment:
   PSONO_CI_API_KEY_ID: '{{ lookup("env", "PSONO_CI_API_KEY_ID") }}'
   PSONO_CI_API_SECRET_KEY_HEX: '{{ lookup("env", "PSONO_CI_API_SECRET_KEY_HEX") }}'
   PATH: '/usr/local/go/bin:{{ ansible_env.PATH }}'
-
+  CI: '{{ True if lookup("env", "CI")
+               else False }}'
 
