@@ -18,11 +18,11 @@ steps:
   # check realm deleted
   - type: http
     method: GET
-    url: '{{.pfserver_webadmin_url}}/api/v1/realm/{{.input.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.input.id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.input.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 404
-      - result.bodyjson.message ShouldEqual "Unable to get resource with this identifier"
+      - result.bodyjson.message ShouldEqual "Item ({{.input.id}}) not found"
