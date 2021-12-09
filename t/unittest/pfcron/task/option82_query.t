@@ -39,7 +39,7 @@ my $task = pf::pfcron::task::option82_query->new(
 
 $task->run();
 
-is(pf::option82::get_switch_from_option82($pf::Switch::TestOption82::OPTION82_MAC), '172.16.8.29');
+is(pf::option82::get_switch_from_option82($pf::Switch::TestOption82::OPTION82_MAC), '172.16.8.33');
 
 =head1 AUTHOR
 
