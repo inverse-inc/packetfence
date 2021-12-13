@@ -13,19 +13,54 @@ unit test for ubiquiti_ap_mac_to_ip
 use strict;
 use warnings;
 
+our %macIp;
+
 BEGIN {
     #include test libs
     use lib qw(/usr/local/pf/t);
     #Module for overriding configuration paths
     use setup_test_config;
+    %macIp = (
+        '47:11:f7:d7:d6:a1' => '1.2.3.4',
+        '47:11:f7:d7:d6:a2' => '1.2.3.4',
+        '47:11:f7:d7:d6:a3' => '1.2.3.4',
+        '47:11:f7:d7:d6:a4' => '1.2.3.4',
+        '47:11:f7:d7:d6:a5' => '1.2.3.4',
+        '47:11:f7:d7:d6:a6' => '1.2.3.5',
+        '47:11:f7:d7:d6:a7' => '1.2.3.5',
+        '47:11:f7:d7:d6:a8' => '1.2.3.5',
+        '47:11:f7:d7:d6:a9' => '1.2.3.5',
+        '47:11:f7:d7:d6:aa' => '1.2.3.5',
+    );
 }
 
-use Test::More tests => 2;
+use Test::More tests => 2 + (scalar keys %macIp) * 2;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::pfcron::task::ubiquiti_ap_mac_to_ip;
 use pf::Switch::Ubiquiti::Unifi;
+use Symbol 'gensym';
+use IPC::Open3;
+use pf::defer;
+use pf::SwitchFactory;
+
+my $child_err = gensym;
+my $pid = open3(my $chld_out, my $chld_in, $child_err, "/usr/local/pf/t/mock_servers/ubiquiti_ap_mac_to_ip.pl", "daemon", "-l", "http://127.0.0.1:8443");
+sleep(1);
+my $defer = pf::defer::defer(
+    sub {
+        kill( 'INT', $pid );
+        waitpid( $pid, 0 );
+    }
+);
+
+
+my $switch = pf::SwitchFactory->instantiate('172.16.8.32');
+ok($switch, 'Switch created');
+for my $m (keys %macIp) {
+    is( $switch->getAccessPointMACIP($m), 0, "Mac $m is not defined");
+}
 
 my $task = pf::pfcron::task::ubiquiti_ap_mac_to_ip->new(
      {
@@ -36,14 +71,15 @@ my $task = pf::pfcron::task::ubiquiti_ap_mac_to_ip->new(
      }
  );
 
-my $COUNT = 0;
-{
-    no warnings qw(redefine);
-    local *pf::Switch::Ubiquiti::Unifi::populateAccessPointMACIP = sub { $COUNT++ };
-    $task->run();
-}
+$task->run();
 
-is($COUNT, 1);
+while( my ($m, $ip) = each %macIp) {
+    is(
+        $switch->getAccessPointMACIP($m),
+        $ip,
+        "Mac $m ip is $ip",
+    )
+}
 
 =head1 AUTHOR
 
