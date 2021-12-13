@@ -1214,7 +1214,11 @@ func email(ctx context.Context, cert Cert, profile Profile, file []byte, passwor
 	message.DefaultCatalog = cat
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", alerting.FromAddr)
+	if len(profile.P12MailFrom) > 0 {
+		m.SetHeader("From", profile.P12MailFrom)
+	} else {
+		m.SetHeader("From", alerting.FromAddr)
+	}
 	m.SetHeader("To", cert.Mail)
 	m.SetHeader("Subject", profile.P12MailSubject)
 
