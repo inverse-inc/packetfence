@@ -1,0 +1,23 @@
+- hosts: pfservers
+  name: Get logs on PacketFence VM
+  become: True
+  tags: logs
+  any_error_fatal: True
+
+  vars:
+    # result_dir = full path to 'results' directory at root of PF sources tree
+    result_dir: '{{ lookup("env", "RESULT_DIR") }}'
+
+  tasks:
+    - name: Sanitize logs
+      shell: '{{ venom_dir }}/utils/sanitize-venom-logs.sh &> /dev/null'
+      args:
+        executable: '/bin/bash'
+      no_log: True
+
+    # Store archive into result_dir/hostname/results.tar.gz
+    - name: Get logs on runner
+      fetch:
+        src: '{{ venom_dir }}/results.tar.gz'
+        dest: '{{ result_dir }}/results.tar.gz'
+
