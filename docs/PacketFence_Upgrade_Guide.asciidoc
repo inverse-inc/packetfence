@@ -81,10 +81,32 @@ Starting from PacketFence 11.0.0, you can upgrade your PacketFence installation 
 
 For all PacketFence versions prior to 11.0.0, you should follow <<_upgrade_procedure,steps described in Upgrade procedure section>>.
 
-
 == Upgrade to a patch version (X.Y.PATCH)
 
+=== Disable monit alerts (only if you have monit installed)
+
+If `monit` is installed and running, shut it down with:
+
+[source,bash]
+----
+systemctl stop monit
+systemctl disable monit
+----
+
+=== Stop all PacketFence services
+
+It is recommended that you stop the currently running PacketFence services before proceeding any further.
+To do so, run the following commands:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf stop
+systemctl stop packetfence-config
+----
+
 === Upgrade packages
+
+WARNING: All changes to files not considered as configuration files will be overwritten by new packages.
 
 include::common/upgrade_packages.asciidoc[]
 
