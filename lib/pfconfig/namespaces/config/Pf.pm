@@ -223,10 +223,8 @@ sub isSelfSigned {
             my $cert = Crypt::OpenSSL::X509->new_from_string($pemcert);
             my $exts = $cert->extensions_by_oid();
             my $ca = $FALSE;
-            foreach my $oid (keys %$exts) {
-                my $ext = $$exts{$oid};
-                $ca = $TRUE if ( ( $oid eq '2.5.29.19' ) && ( $ext->to_string() =~ /CA:TRUE/i ) );
-            }
+            my $ext = $$exts{'2.5.29.19'};
+            $ca = $TRUE if defined $ext && $ext->to_string() =~ /CA:TRUE/i;
             if ($cert->is_selfsigned && !$ca) {
                 $has_self_signed = 1;
             }
