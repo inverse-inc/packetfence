@@ -148,7 +148,7 @@ sub valid_date {
         !~ /^\d{4}\-((0[1-9])|(1[0-2]))\-((0[1-9])|([12][0-9])|(3[0-1]))\s+(([01][0-9])|(2[0-3]))(:[0-5][0-9]){2}$/
         )
     {
-        $logger->warn("invalid date " . ($date // "'undef'"));
+        $logger->warn('invalid date ' . ($date // "'undef'"));
         return (0);
     } else {
         return (1);
@@ -229,7 +229,7 @@ Returns an untainted string with MAC in format: xx:xx:xx:xx:xx:xx
 
 sub clean_mac {
     my ($mac) = @_;
-    return "0" unless defined $mac;
+    return '0' unless defined $mac;
 
     # trim garbage
     $mac =~ tr/\-\.:\t\n\r //d;
@@ -242,7 +242,7 @@ sub clean_mac {
         return $1;
     }
 
-    return "0";
+    return '0';
 }
 
 =item format_mac_for_acct
@@ -313,7 +313,7 @@ sub valid_mac {
    }
    $mac = clean_mac($mac);
    if( !$mac || $mac =~ $NON_VALID_MAC_REGEX || $mac !~ $VALID_PF_MAC_REGEX) {
-       $logger->debug("invalid MAC: " . ($mac?$mac:"empty"));
+       $logger->debug('invalid MAC: ' . ($mac?$mac:'empty'));
        return (0);
    } else {
        return (1);
@@ -379,7 +379,7 @@ sub oid2mac {
     my ($oid) = @_;
     my $logger = get_logger();
     if ($oid =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/) {
-        return lc(sprintf( "%02X:%02X:%02X:%02X:%02X:%02X", $1, $2, $3, $4, $5, $6));
+        return lc(sprintf( '%02X:%02X:%02X:%02X:%02X:%02X', $1, $2, $3, $4, $5, $6));
     } else {
         $logger->warn("$oid is not a MAC in oid format");
         return;
@@ -398,7 +398,7 @@ sub mac2oid {
     my ($mac) = @_;
     my $logger = get_logger();
     if ($mac =~ /^([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})$/i) {
-        return hex($1).".".hex($2).".".hex($3).".".hex($4).".".hex($5).".".hex($6);
+        return hex($1).'.'.hex($2).'.'.hex($3).'.'.hex($4).'.'.hex($5).'.'.hex($6);
     } else {
         $logger->warn("$mac is not a valid MAC");
         return;
@@ -469,11 +469,11 @@ sub getlocalmac {
 }
 
 sub ip2int {
-    return ( unpack( "N", pack( "C4", split( /\./, shift ) ) ) );
+    return ( unpack( 'N', pack( 'C4', split( /\./, shift ) ) ) );
 }
 
 sub int2ip {
-    return ( join( ".", unpack( "C4", pack( "N", shift ) ) ) );
+    return ( join( '.', unpack( 'C4', pack( 'N', shift ) ) ) );
 }
 
 =item sort_ip
@@ -565,7 +565,7 @@ sub parse_template {
     }
 
     # add generated file header (inserting in front of array)
-    $comment_char = "#" if (!defined($comment_char));
+    $comment_char = '#' if (!defined($comment_char));
     unshift @parsed,
         "$comment_char This file is generated from a template at $template\n"
         ."$comment_char Any changes made to this file will be lost on restart\n\n";
@@ -576,7 +576,7 @@ sub parse_template {
             pf_chown($1);
         }
         my $destination_fh;
-        open( $destination_fh, ">", $destination )
+        open( $destination_fh, '>', $destination )
             || $logger->logcroak( "Unable to open template destination $destination: $!");
 
         foreach my $line (@parsed) {
@@ -590,7 +590,7 @@ sub parse_template {
 }
 
 sub mysql_date {
-    return ( POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+    return ( POSIX::strftime( '%Y-%m-%d %H:%M:%S', localtime ) );
 }
 
 sub oui_to_vendor {
@@ -617,10 +617,10 @@ sub download_oui {
     my $response = $browser->get($oui_url);
     my ($status,$msg) = $response->code;
     if ( !$response->is_success ) {
-        $msg = "Unable to update OUI prefixes: " . $response->status_line;
+        $msg = 'Unable to update OUI prefixes: ' . $response->status_line;
     } else {
         my ($oui_fh);
-        open( $oui_fh, '>', "$oui_file" )
+        open( $oui_fh, '>', $oui_file )
             || $logger->info("Unable to open $oui_file: $!");
         print $oui_fh $response->content;
         close($oui_fh);
@@ -679,7 +679,7 @@ sub parse_mac_from_trap {
         $mac = $1;
         $mac =~ s/\\"/"/g; # replaces \" with "
         $mac =~ s/\\\\/\\/g; # replaces \\ with \
-        $mac = unpack("H*", $mac);
+        $mac = unpack('H*', $mac);
         $mac =~ s/([a-f0-9]{2})(?!$)/$1:/g; # builds groups of two separ ated by :
     }
 
@@ -752,10 +752,10 @@ sub log_of {
 
 sub format_bytes {
     my ($n, @args) = @_;
-    my @DEFAULT_UNITS = ("bytes","KB", "MB", "GB", "TB", "PB");
+    my @DEFAULT_UNITS = ('bytes', 'KB', 'MB', 'GB', 'TB', 'PB');
     my $unit = 1024;
     my $i = 0;
-    my $format = "%.2f";
+    my $format = '%.2f';
     return undef unless ($n);
     if ($n >= $unit) {
         $i = int(log_of($n,$unit));
@@ -774,13 +774,13 @@ Returns the proper bandwidth calculation along with the unit
 
 sub pretty_bandwidth {
     my ($bytes) = @_;
-    my @units = ("Bytes", "KB", "MB", "GB", "TB", "PB");
+    my @units = ('Bytes', 'KB', 'MB', 'GB', 'TB', 'PB');
     my $x;
 
     for ($x=0; $bytes>=800 && $x < scalar(@units); $x++ ) {
         $bytes /= 1024;
     }
-    my $rounded = sprintf("%.2f",$bytes);
+    my $rounded = sprintf('%.2f',$bytes);
     return "$rounded $units[$x]"
 }
 
@@ -1017,7 +1017,7 @@ sub expand_csv {
 sub pf_chown {
     my ($file) = @_;
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
-        or die "pf not in passwd file";
+        or die 'pf not in passwd file';
     chown $uid, $gid, $file;
 }
 
@@ -1118,13 +1118,13 @@ sub normalize_time {
     } else {
         my ( $num, $modifier ) = $date =~ /^(\d+)($pf::constants::config::TIME_MODIFIER_RE)/ or return (0);
 
-        if ( $modifier eq "s" ) { return ($num * 1);
-        } elsif ( $modifier eq "m" ) { return ( $num * 60 );
-        } elsif ( $modifier eq "h" ) { return ( $num * 60 * 60 );
-        } elsif ( $modifier eq "D" ) { return ( $num * 24 * 60 * 60 );
-        } elsif ( $modifier eq "W" ) { return ( $num * 7 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "M" ) { return ( $num * 30 * 24 * 60 * 60 );
-        } elsif ( $modifier eq "Y" ) { return ( $num * 365 * 24 * 60 * 60 );
+        if ( $modifier eq 's' ) { return ($num * 1);
+        } elsif ( $modifier eq 'm' ) { return ( $num * 60 );
+        } elsif ( $modifier eq 'h' ) { return ( $num * 60 * 60 );
+        } elsif ( $modifier eq 'D' ) { return ( $num * 24 * 60 * 60 );
+        } elsif ( $modifier eq 'W' ) { return ( $num * 7 * 24 * 60 * 60 );
+        } elsif ( $modifier eq 'M' ) { return ( $num * 30 * 24 * 60 * 60 );
+        } elsif ( $modifier eq 'Y' ) { return ( $num * 365 * 24 * 60 * 60 );
         }
     }
 }
@@ -1274,7 +1274,7 @@ sub validate_argv {
         my %diff;
         @diff{ @{$require} } = @{$require};
         delete @diff{ @{$found} };
-        $logger->error("Missing argument ". join(',',keys %diff) ." for the function ".whowasi());
+        $logger->error('Missing argument '. join(',',keys %diff) .' for the function '.whowasi());
         return 0;
     }
     return 1;
@@ -1345,7 +1345,7 @@ sub validate_date {
     my $valid = $FALSE;
 
     eval {
-        my $t = Time::Piece->strptime($date, "%Y-%m-%d");
+        my $t = Time::Piece->strptime($date, '%Y-%m-%d');
         if (
             $t->year > 2038
             || $t->year == 2038 && $t->mon > 1
@@ -1374,7 +1374,7 @@ Check if a date is between 1970-01-01 and 2038-01-18 or 0000-MM-DD
 sub validate_unregdate {
     my ($date) = @_;
     my $valid = $FALSE;
-    if ($date eq "0000-00-00") {
+    if ($date eq '0000-00-00') {
         return $TRUE;
     }
 
@@ -1382,7 +1382,7 @@ sub validate_unregdate {
         return validate_date($date);
     }
 
-    if (eval { Time::Piece->strptime($1, "%m-%d") } ) {
+    if (eval { Time::Piece->strptime($1, '%m-%d') } ) {
         $valid =  $TRUE;
     }
 
@@ -1421,7 +1421,7 @@ sub parse_api_action_spec {
 
 sub ping {
     my ($host) = @_;
-    my $p = Net::Ping->new("icmp");
+    my $p = Net::Ping->new('icmp');
     return $p->ping($host);
 }
 
@@ -1465,9 +1465,9 @@ sub find_outgoing_interface {
     my @interface_src;
 
     if (defined $dev) {
-        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway iif $dev"));
+        @interface_src = split(' ', pf_run("sudo ip route get 8.8.8.8 from $gateway iif $dev"));
     } else {
-        @interface_src = split(" ", pf_run("sudo ip route get 8.8.8.8 from $gateway"));
+        @interface_src = split(' ', pf_run("sudo ip route get 8.8.8.8 from $gateway"));
     }
 
     if ($interface_src[3] eq 'via') {
@@ -1487,7 +1487,7 @@ sub find_outgoing_srcip {
     my ($target) = @_;
     my @src_ip;
 
-    @src_ip = split(" ", pf_run("sudo ip route get $target"));
+    @src_ip = split(' ', pf_run("sudo ip route get $target"));
 
     if ($src_ip[1] eq 'via') {
         return $src_ip[6];
@@ -1542,7 +1542,7 @@ sub str_to_connection_type {
         return $connection_type{$conn_type_str};
     } elsif (defined($conn_type_str) && $conn_type_str eq '') {
 
-        $logger->debug("got an empty connection_type, this happens if we discovered the node but it never connected");
+        $logger->debug('got an empty connection_type, this happens if we discovered the node but it never connected');
         return $UNKNOWN;
 
     } else {
@@ -1585,7 +1585,7 @@ Compare two items based off multiple comparsions
 sub mcmp {
     my ($aa, $bb, $cmps) = @_;
     my $r;
-    die "No compare given" if @$cmps == 0;
+    die 'No compare given' if @$cmps == 0;
     #Stop at the first non equal comparsion
     for my $cmp (@$cmps) {
        $r = $cmp->($aa, $bb);
@@ -1637,7 +1637,7 @@ sub make_num_cmp {
 
 sub mac2dec {
     my ($mac) = @_;
-    return join (".",  map { hex($_) } split( /:/, $mac ));
+    return join ('.',  map { hex($_) } split( /:/, $mac ));
 }
 
 sub expand_ordered_array {
@@ -1655,7 +1655,7 @@ sub make_node_id {
 sub split_node_id {
     my ($node_id) = @_;
     my $tenant_id = $node_id >> 48;
-    my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
+    my $mac = clean_mac(sprintf('%012x',$node_id & 0x0000FFFFFFFFFFFF));
     return ($tenant_id, $mac);
 }
 
@@ -1666,9 +1666,9 @@ sub split_node_id {
 sub os_detection {
     my $logger = get_logger();
     if (-e '/etc/debian_version') {
-        return "debian";
+        return 'debian';
     }elsif (-e '/etc/redhat-release') {
-        return "rhel";
+        return 'rhel';
     }
 }
 
@@ -1734,7 +1734,7 @@ sub resolve {
 }
 
 sub random_mac {
-    return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
+    return clean_mac(unpack('h*', pack('S', int(rand(65536)))) . unpack('h*', pack('N', $$ + rand(2147352576))));
 }
 
 =back
