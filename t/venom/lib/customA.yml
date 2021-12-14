@@ -6,10 +6,10 @@ steps:
   myWord: "{{.input.myArg}}"
   vars:
     content:
-      from: foobarB
+      from: result.foobarb
 - script: echo "hello {{.content}}"
   assertions:
   - result.code ShouldEqual 0
-  - result.systemout ShouldContainSubstring "{{.content}}"
+  - result.systemout ShouldContainSubstring "{{.input.myArg}}"
 output:
   foobarA: "{{.result.systemout}}"

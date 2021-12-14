@@ -3,21 +3,21 @@ testcases:
   steps:
   - type: customB
     assertions:
-    - foobarB ShouldContainSubstring world
+    - result.foobarb ShouldContainSubstring world
 
 - name: customB_custom
   steps:
   - type: customB
     myWord: "universe"
     assertions:
-    - foobarB ShouldContainSubstring universe
+    - result.foobarb ShouldContainSubstring universe
 
 - name: customA_default
   steps:
   - type: customA
     assertions:
-    - foobarA ShouldContainSubstring world2
-    - foobarA ShouldContainSubstring hello
+    - result.foobara ShouldContainSubstring world2
+    - result.foobara ShouldContainSubstring hello
  
 - name: customA_custom
   steps:
