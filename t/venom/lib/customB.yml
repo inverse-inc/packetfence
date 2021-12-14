@@ -2,9 +2,9 @@ executor: customB
 input:
   myWord: "world"
 steps:
-- script: echo "{\"hi\":\"{{.input.myWord}}\"}"
+- script: echo "{{.input.myWord}}"
   assertions:
   - result.code ShouldEqual 0
   - result.systemout ShouldContainSubstring "{{.input.myWord}}"
 output:
-  foobarB: "{{.result.systemoutjson.hi}}"
+  foobarB: "{{.result.systemout}}"

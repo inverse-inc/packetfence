@@ -2,7 +2,7 @@ executor: customA
 input:
   myArg: "world2"
 steps:
-- script: customB
+- type: customB
   myWord: "{{.input.myArg}}"
   vars:
     content:
