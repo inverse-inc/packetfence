@@ -46,3 +46,7 @@ include::provisioner/intune.asciidoc[]
 === Google Chromebook Provisioner
 
 include::provisioner/google_chrome_provisioner.asciidoc[]
+
+=== Kandji
+
+include::provisioner/kandji.asciidoc[]

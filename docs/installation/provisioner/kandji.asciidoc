@@ -1,0 +1,99 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Kandji
+
+==== Configure Kandji
+
+First of all you will need to configure the basic functionality of Kandji using their documentation and enable a blueprint to apply on your devices.
+
+==== Create an API user
+
+Next, we will need a user that has the rights to access the Kandji API in order to verify the state of the devices directly from PacketFence.
+
+In the Kandji admin panel, first go in the 'Settings' tab and then in 'Access'.
+
+Note down the value of `Your organization’s API URL` for usage in the PacketFence configuration.
+
+Now, click 'Add token' under 'API token'.
+
+Create your API token by giving it a meaningful name and you will then be presented the API token
+
+Note the API token for usage in the PacketFence configuration, then hit 'Next'.
+
+==== Configure the API permissions
+
+After creating your API token, you will be offered the option to configure the API permissions for the token, you should select the following permissions:
+
+[options="compact"]
+* Device list (`/devices`)
+* Device ID (`/devices/{device_id}`)
+
+==== Configure PacketFence
+
+In PacketFence, MDM are referred to as provisioners. 
+This will walk you through adding Kandji as a provisioner.
+
+===== Create the provisioner
+
+Login in the PacketFence administration interface, then go in the 'Configuration' tab, then in 'Provisioners'.
+Click 'Add provisioner' then select 'Kandji'.
+
+Now configure this new provisioner with the information you got above.
+
+[options="compact"]
+* The API token is the token you obtained in the instructions above
+* The host is obtained by the value of your organization's API URL. For example, if your API URL is `https://foo.clients.us-1.kandji.io/api/v1/`, the host will be `foo.clients.us-1.kandji.io`
+* The enroll URL can be obtained in the 'Add devices' menu of the Kandji admin panel under 'Enrollment Portal Link'
+
+===== Add the provisioner to the connection profile
+
+In order for the provisioner to be used by your captive portal you need to add it in its configuration.
+Go in 'Connection Profiles', then select the portal you want to modify and add your new provisioner in the list.
+
+==== Add the necessary passthroughs
+
+NOTE: This step is only necessary if you wish to enroll devices via the PacketFence captive-portal. Adding these passthroughs may prevent the Apple CNA (Captive-Network Assistant) from opening when the user is unregistered.
+
+Next, still in the PacketFence administration console, go in 'Fencing' in the left menu, then scroll then to 'Passthroughs'.
+
+Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
+
+[options="compact"]
+* packetfence.kandji.io
+* packetfence.clients.us-1.kandji.io
+* *.kandji.io
+* *.web-api.kandji.io
+* *.devices.us-1.kandji.io
+* gateway.icloud.com
+* *.apple.com
+
+===== Restart PacketFence
+
+In order to enable the boarding passthrough for the device enrollment, you will need to restart the iptables service of PacketFence.
+
+You can do this using the command line by doing '/usr/local/pf/bin/pfcmd service iptables restart' or in the administration interface under 'Status / Services'.
+
+==== Testing
+
+You can now test that Kandji enrollment is mandatory after the device registration.
+Connect a device to your test network and register like you normally would.
+At the end of the registration process you will be presented a page asking you to install the Kandji MDM on your device.
+After you install the agent click 'Continue'. If your access is enabled than this means the connectivity between PacketFence and Kandji is good.
+
