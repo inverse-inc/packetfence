@@ -157,7 +157,7 @@ Next you need to compile the radius extention for openvpn:
  unzip master.zip
  cd openvpn-radiusplugin-master
 
- Then apply this patch:
+Then apply this patch:
 
  diff -ruN openvpn-radiusplugin-master.orig/Config.cpp openvpn-radiusplugin-master/Config.cpp
  --- openvpn-radiusplugin-master.orig/Config.cpp 2015-12-23 08:07:19.000000000 -0500
