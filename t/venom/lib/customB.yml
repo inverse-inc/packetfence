@@ -1,0 +1,9 @@
+executor: customB
+input:
+  myWord: "world"
+steps:
+- script: echo "{{.input.myWord}}"
+  assertions:
+  - result.code ShouldEqual 0
+output:
+  foobarB: "{{.result.systemout}}"

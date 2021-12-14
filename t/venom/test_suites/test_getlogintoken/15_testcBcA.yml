@@ -1,0 +1,28 @@
+testcases:
+- name: customB_default
+  steps:
+  - type: customB
+    assertions:
+    - foobarB ShouldContainSubstring world
+
+- name: customB_custom
+  steps:
+  - type: customB
+    myWord: "universe"
+    assertions:
+    - foobarB ShouldContainSubstring universe
+
+- name: customA_default
+  steps:
+  - type: customA
+    assertions:
+    - foobarA ShouldContainSubstring world2
+    - foobarA ShouldContainSubstring hello
+ 
+- name: customA_custom
+  steps:
+  - type: customA
+    myArg: "universe"
+    assertions:
+    - foobarA ShouldContainSubstring universe
+    - foobarA ShouldContainSubstring hello
