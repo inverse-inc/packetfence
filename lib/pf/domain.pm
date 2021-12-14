@@ -103,7 +103,6 @@ sub join_domain {
     my $logger = get_logger();
     my $chroot_path = chroot_path($domain);
     my $output;
-    my $error;
     if (!exists $ConfigDomain{$domain}) {
         return { message => "Domain $domain is not configured", status => 404 }, undef;
     }

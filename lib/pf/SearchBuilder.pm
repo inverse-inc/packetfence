@@ -91,7 +91,6 @@ sub _process_select {
     my @columns;
     for my $column (@args) {
         my $type = ref($column);
-        my $new_column;
         if($type eq 'SCALAR') {
             $column= L_($$column);
         } elsif ($type eq '') {

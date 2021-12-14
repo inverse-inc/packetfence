@@ -537,7 +537,6 @@ sub rotate {
     my $sql = "INSERT INTO ip6log_archive (tenant_id, mac, ip, type, start_time, end_time) $subsql;";
 
     while (1) {
-        my $query;
         my ( $rows_inserted, $rows_deleted );
         pf::db::db_transaction_execute( sub{
             my ($status, $sth) = pf::dal::ip6log_archive->db_execute($sql, @bind);

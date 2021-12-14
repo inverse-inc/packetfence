@@ -367,7 +367,7 @@ sub getRegisteredRole {
     my $logger = $self->logger;
     my $attributes;
 
-    my ($vlan, $role, $result, $person, $source, $portal);
+    my ($vlan, $role, $person, $source, $portal);
     my $profile = $args->{'profile'};
     my $action = $Actions::SET_ROLE;
     if (defined($args->{'node_info'}->{'pid'})) {

@@ -1035,7 +1035,6 @@ sub isVoIPEnabled {
 sub setVlanAllPort {
     my ( $self, $vlan, $switch_locker_ref ) = @_;
     my $oid_ifType = '1.3.6.1.2.1.2.2.1.3';    # MIB: ifTypes
-    my @ports;
 
     my $logger = $self->logger;
     $logger->info("setting all ports of switch $self->{_id} to VLAN $vlan");

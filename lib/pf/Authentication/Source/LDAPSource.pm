@@ -167,7 +167,6 @@ sub authenticate {
   my ( $self, $username, $password ) = @_;
   my $timer_stat_prefix = called() . "." .  $self->{'id'};
   my $timer = pf::StatsD::Timer->new({'stat' => "${timer_stat_prefix}", level => 6});
-  my $before; # will hold time before StatsD calls
 
   my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 

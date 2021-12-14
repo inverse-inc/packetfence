@@ -565,7 +565,6 @@ sub rotate {
     my $insert_sql = "INSERT INTO ip4log_archive (`tenant_id`, `mac`, `ip`, `start_time`, `end_time`) $subsql;";
 
     while (1) {
-        my $query;
         my ( $rows_inserted, $rows_deleted );
         pf::db::db_transaction_execute( sub{
             my ($status, $sth) = pf::dal::ip4log_archive->db_execute($insert_sql, @insert_bind);

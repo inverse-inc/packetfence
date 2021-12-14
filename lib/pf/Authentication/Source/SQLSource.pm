@@ -89,7 +89,6 @@ sub match {
     }
 
     my @actions = ();
-    my $action;
 
     my $access_duration = $result->{'access_duration'};
     if (defined $access_duration) {
