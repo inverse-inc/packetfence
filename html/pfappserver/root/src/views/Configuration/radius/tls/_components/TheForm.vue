@@ -30,10 +30,6 @@
       :column-label="$i18n.t('ECDH Curve')"
     />
 
-    <form-group-disable-tlsv12 namespace="disable_tlsv1_2"
-      :column-label="$i18n.t('Disable TLSv1.2')"
-    />
-
     <form-group-tls-min-version namespace="tls_min_version"
       :column-label="$i18n.t('TLS Minimum version')"
     />
@@ -60,7 +56,6 @@ import {
   FormGroupCaPath,
   FormGroupCipherList,
   FormGroupEcdhCurve,
-  FormGroupDisableTlsv12,
   FormGroupTlsMinVersion,
   FormGroupTlsMaxVersion,
   FormGroupOcsp
@@ -75,7 +70,6 @@ const components = {
   FormGroupCaPath,
   FormGroupCipherList,
   FormGroupEcdhCurve,
-  FormGroupDisableTlsv12,
   FormGroupTlsMinVersion,
   FormGroupTlsMaxVersion,
   FormGroupOcsp

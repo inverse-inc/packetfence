@@ -268,12 +268,6 @@ eap [% key -%] {
         # in "man 1 ciphers".
         cipher_list = "[% eap.$key.tls.$tls.cipher_list %]"
 
-        # Work-arounds for OpenSSL nonsense
-        # OpenSSL 1.0.1f and 1.0.1g do not calculate
-        # the EAP keys correctly.  The fix is to upgrade
-        # OpenSSL, or disable TLS 1.2 here. 
-        disable_tlsv1_2 = "[% eap.$key.tls.$tls.disable_tlsv1_2 %]"
-
         tls_min_version = "[% eap.$key.tls.$tls.tls_min_version %]"
         tls_max_version = "[% eap.$key.tls.$tls.tls_max_version %]"
 
