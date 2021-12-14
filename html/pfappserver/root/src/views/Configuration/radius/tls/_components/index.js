@@ -21,6 +21,8 @@ export {
   BaseFormGroupInput              as FormGroupCipherList,
   BaseFormGroupInput              as FormGroupEcdhCurve,
   BaseFormGroupToggleNoYesDefault as FormGroupDisableTlsv12,
+  BaseFormGroupChosenOne          as FormGroupTlsMinVersion,
+  BaseFormGroupChosenOne          as FormGroupTlsMaxVersion,
   BaseFormGroupChosenOne          as FormGroupOcsp,
 
   BaseViewCollectionItem          as BaseView,
