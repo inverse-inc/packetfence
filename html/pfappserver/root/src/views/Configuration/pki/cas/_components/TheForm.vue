@@ -15,6 +15,13 @@
     <form-group-mail namespace="mail"
       :column-label="$i18n.t('Email')"
     />
+    <b-form-group v-if="!isNew && !isClone"
+      label-cols="3">
+      <div class="alert alert-warning mb-0">
+        <strong>{{ $i18n.t('Note:') }}</strong>
+        {{ $i18n.t('Changing the "Organisational Unit", "Organisation", "Country", "State or Province", "Locality", or "Street Address" will invalidate the previously signed certificates using EAP-TLS') }}.
+      </div>
+    </b-form-group>
     <form-group-organisational-unit namespace="organisational_unit"
       :column-label="$i18n.t('Organisational Unit')"
     />
