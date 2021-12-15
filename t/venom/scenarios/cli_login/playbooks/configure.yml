@@ -9,7 +9,7 @@
 #    - role: packetfence_go
 #      tags: go
   tasks:
-  - name: Creating radius configt
+  - name: Creating radius config
     copy:
       dest: "/usr/local/pf/raddb/test.conf"
       content: |
@@ -41,7 +41,7 @@
 
   - name: Creating a file for password simple auth
     copy:
-      dest: "{{.cli_login_radius.pod}}"
+      dest: "{{ cli_login_radius.pod }}"
       content: |
         User-Name = "bob"
         User-Password = "hello"
@@ -49,9 +49,9 @@
 
   - name: Creating a file for password via proxy
     copy:
-      dest: "{{.cli_login_radius.pod_proxy}}"
+      dest: "{{ cli_login_radius.pod_proxy }}"
       content: |
-        User-Name = '{{.cli_login_radius.realm.id}}\bob'
+        User-Name = '{{ cli_login_radius.realm.id }}\bob'
         User-Password = "hello"
         NAS-IP-Address = "192.168.0.1" 
 
