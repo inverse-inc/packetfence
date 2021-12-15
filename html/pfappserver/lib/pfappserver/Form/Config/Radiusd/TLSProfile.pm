@@ -15,6 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Radiusd::OCSPProfile;
 use pf::ConfigStore::SSLCertificate;
+use pf::radius::constants;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -79,7 +80,7 @@ sub options_ocsp {
 }
 
 sub options_tls_version {
-    return map { { value => $_, label => $_ } } qw(1.0 1.1 1.2 1.3);
+    return map { { value => $_, label => $_ } } @{RADIUS::TLS_VERSIONS};
 }
 
 =head1 AUTHOR
