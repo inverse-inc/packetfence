@@ -77,8 +77,10 @@
               :disabled="!isServiceAlive"
               @click.stop.prevent="goToClone({ id: item.ID, ...item })"
             >{{ $t('Clone') }}</b-button>
-            <button-certificate-download :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
-            <button-certificate-email :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+            <button-certificate-download v-if="!item.scep"
+              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+            <button-certificate-email v-if="!item.scep"
+              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
             <button-certificate-revoke :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" @change="reSearch" />
           </span>
         </template>
@@ -87,6 +89,9 @@
         </template>
         <template #cell(profile_name)="{ item }">
           <router-link :is="(isServiceAlive) ? 'router-link' : 'span'" :to="{ name: 'pkiProfile', params: { id: item.profile_id } }">{{ item.profile_name }}</router-link>
+        </template>
+        <template #cell(scep)="{ item }">
+          <icon name="circle" :class="{ 'text-success': !!item.scep, 'text-danger': !item.scep }" />
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
