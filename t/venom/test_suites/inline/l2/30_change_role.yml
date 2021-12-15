@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: get_login_token
 
-- name: Change the device role to guest
+- name: change_the_device_role_to_guest
   steps:
   - type: http
     method: PATCH
@@ -13,57 +13,10 @@ testcases:
     body: >-
      {
        "id": "02:06:19:98:00:01",
-       "autoreg": "no",
-       "bandwidth_balance": null,
-       "bypass_role": null,
-       "bypass_role_id": null,
-       "bypass_vlan": "",
        "category": "guest",
        "category_id": 2,
-       "computername": "ulinux",
-       "detect_date": "2021-11-11 15:34:36",
-       "device_class": "",
-       "device_manufacturer": "",
-       "device_score": 0,
-       "device_type": "",
-       "device_version": "",
-       "dhcp6_enterprise": "",
-       "dhcp6_fingerprint": "",
-       "dhcp_fingerprint": "1,3,6,12,15,28,42",
-       "dhcp_vendor": "udhcp 1.33.0.git",
-       "last_arp": "0000-00-00 00:00:00",
-       "last_connection_sub_type": "inlinel2",
-       "last_connection_type": "Inline",
-       "last_dhcp": "2021-12-06 15:15:01",
-       "last_dot1x_username": "",
-       "last_end_time": "0000-00-00 00:00:00",
-       "last_ifDesc": null,
-       "last_port": "0",
-       "last_role": null,
-       "last_seen": "2021-12-06 15:15:01",
-       "last_ssid": "",
-       "last_start_time": "2021-11-11 15:34:37",
-       "last_start_timestamp": 1636662877,
-       "last_switch": "192.168.2.1",
-       "last_switch_mac": null,
-       "last_vlan": "0",
-       "lastskip": "0000-00-00 00:00:00",
        "mac": "02:06:19:98:00:01",
-       "machine_account": null,
-       "not_deletable": true,
-       "notes": "",
-       "pid": "iastigmate",
-       "realm": null,
-       "regdate": "2021-12-06 14:51:45",
-       "sessionid": "",
-       "status": "reg",
-       "stripped_user_name": null,
        "tenant_id": 1,
-       "time_balance": null,
-       "unregdate": "2021-12-06 15:51:45",
-       "user_agent": "Go-http-client/1.1",
-       "voip": "no",
-       "fingerbank": {}
      }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -71,8 +24,11 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: Test if the device is in the ipset role ID 2 (Guest role)
+- name: test_if_the_device_is_in_the_ipset_role_id_2
   steps:
+  - type: exec
+    script: sleep 5
+
   - type: exec
     script: ipset test PF-iL2_ID2_192.168.2.0 192.168.2.10
 

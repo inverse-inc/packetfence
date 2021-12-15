@@ -1,6 +1,6 @@
 name: Stop client
 testcases:
-  - name: Stop the Client
+  - name: stop_the_client
     steps:
       - type: exec
         script: systemctl stop ulinux
@@ -9,12 +9,12 @@ testcases:
       - type: exec
         script: sleep 20
 
-  - name: Delete systemd script
+  - name: delete_systemd_script
     steps:
       - type: exec
         script: rm -f /lib/systemd/system/ulinux.service
 
-  - name: Systemctl daemon-reload
+  - name: systemctl_daemon-reload
     steps:
       - type: exec
         script: systemctl daemon-reload

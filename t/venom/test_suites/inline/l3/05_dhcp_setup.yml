@@ -1,6 +1,6 @@
 name: Setup DHCP relay
 testcases:
-  - name: Create DHCP configuration
+  - name: create_dhcp_configuration
     steps:
        - type: exec
          script: | 
@@ -12,12 +12,12 @@ testcases:
            relay=blok-vpeer0:100.64.0.2
            EOF
 
-  - name: Download the DHCP relay
+  - name: download_the_dhcp_relay
     steps:
     - type: exec
       script: wget http://inverse.ca/downloads/PacketFence/LiveCD/standalone_dhcp -O /tmp/standalone_dhcp && chmod +x /tmp/standalone_dhcp
 
-  - name: Install systemd script
+  - name: install_systemd_script
     steps:
       - type: exec
         script: |
@@ -38,12 +38,12 @@ testcases:
           WantedBy=multi-user.target
           EOF
 
-  - name: Systemctl daemon-reload
+  - name: systemctl_daemon-reload
     steps:
       - type: exec
         script: systemctl daemon-reload
           
-  - name: Start the DHCP relay
+  - name: start_the_dhcp_relay
     steps:
       - type: exec
         script: systemctl start godhcp

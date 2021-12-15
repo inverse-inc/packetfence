@@ -1,11 +1,11 @@
 name: Start client
 testcases:
-  - name: Download ulinux
+  - name: download_ulinux
     steps:
     - type: exec
       script: wget http://inverse.ca/downloads/PacketFence/LiveCD/ulinux.qcow2 -O /tmp/ulinux.qcow2
 
-  - name: Install systemd script
+  - name: install_systemd_script
     steps:
       - type: exec
         script: |
@@ -23,12 +23,12 @@ testcases:
           WantedBy=multi-user.target
           EOF
 
-  - name: Systemctl daemon-reload
+  - name: systemctl_daemon-reload
     steps:
       - type: exec
         script: systemctl daemon-reload
 
-  - name: Start the Client
+  - name: start_the_client
     steps:
       - type: exec
         script: systemctl start ulinux

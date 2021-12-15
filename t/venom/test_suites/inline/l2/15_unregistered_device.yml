@@ -1,6 +1,6 @@
 name: Unregistered device
 testcases:
-  - name: Test if the device is in the ipset Unregister set
+  - name: test_if_the_device_is_in_the_ipset_unregister_set
     steps:
       - type: exec
         script: ipset test pfsession_Unreg_192.168.2.0 192.168.2.10
