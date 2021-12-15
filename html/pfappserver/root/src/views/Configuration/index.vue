@@ -157,7 +157,7 @@ const setup = () => {
         { name: i18n.t('Cluster'), path: '/configuration/active_active' },
         { name: i18n.t('RADIUS'),
           items: [
-            { name: i18n.t('General'), path: '/configuration/radius' },
+            { name: i18n.t('General'), path: '/configuration/radius/general' },
             { name: i18n.t('EAP Profiles'), path: '/configuration/radius/eap' },
             { name: i18n.t('TLS Profiles'), path: '/configuration/radius/tls' },
             { name: i18n.t('Fast Profiles'), path: '/configuration/radius/fast' },

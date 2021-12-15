@@ -11,7 +11,7 @@ export const beforeEnter = (to, from, next = () => {}) => {
 
 export default [
   {
-    path: 'radius',
+    path: 'radius/general',
     name: 'radiusGeneral',
     component: TheTabs,
     props: () => ({ tab: 'radiusGeneral' }),
