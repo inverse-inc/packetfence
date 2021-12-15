@@ -76,13 +76,38 @@ Next, still in the PacketFence administration console, go in 'Fencing' in the le
 Check the 'Passthrough' box above the field and add the following domains to the passthrough list.
 
 [options="compact"]
-* packetfence.kandji.io
-* packetfence.clients.us-1.kandji.io
-* *.kandji.io
-* *.web-api.kandji.io
-* *.devices.us-1.kandji.io
-* gateway.icloud.com
-* *.apple.com
+* `<your instance>.<your region>.kandji.io` (this is your API URL)
+* `*.devices.<your region>.kandji.io` (you can obtain your region from the API URL)
+* `*.hs-analytics.net`
+* `*.hs-banner.com`
+* `*.hs-scripts.com`
+* `*.hsadspixel.net`
+* `*.hubapi.com`
+* `*.hubspot.com`
+* `*.kandji.io`
+* `*.push.apple.com`
+* `*.usemessages.com`
+* `*.web-api.kandji.io`
+* `albert.apple.com`
+* `deviceenrollment.apple.com`
+* `deviceservices-external.apple.com`
+* `gateway.icloud.com`
+* `gdmf.apple.com`
+* `gs.apple.com`
+* `humb.apple.com`
+* `identity.apple.com`
+* `iprofiles.apple.com`
+* `kandji-prd-managed-library-items.s3.amazonaws.com`
+* `kandji-prd.s3.amazonaws.com`
+* `mdmenrollment.apple.com`
+* `setup.icloud.com`
+* `sq-device.apple.com`
+* `static.ips.apple.com`
+* `tbsc.apple.com`
+* `time-ios.apple.com`
+* `time-macos.apple.com`
+* `time.apple.com`
+* `vpp.itunes.apple.com`
 
 ===== Restart PacketFence
 
