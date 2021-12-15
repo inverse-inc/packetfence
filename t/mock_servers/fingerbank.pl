@@ -22,7 +22,9 @@ use URI::Escape qw(uri_escape);
 
 get '/api/v2/download/db' => sub {
     my ($c) = @_;
-    $c->res->headers->content_type('application/sqlite3');
+    my $headers = $c->res->headers;
+    $headers->add('Content-Disposition', 'attachment; filename="fingerbank.db"');
+    $headers->content_type('application/sqlite3');
     $c->reply->file('/usr/local/pf/t/data/fingerbank.db');
 };
 
