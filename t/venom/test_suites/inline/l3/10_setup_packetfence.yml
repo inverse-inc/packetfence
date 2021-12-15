@@ -32,7 +32,7 @@ testcases:
        "name": "inlinel3-b",
        "nat_dns": "disabled",
        "nat_enabled": "enabled",
-       "netflow_accounting_enabled": "disabled",
+       "netflow_accounting_enabled": "enabled",
        "netmask": "255.255.255.252",
        "network": "100.64.0.0",
        "network_iseditable": true,
