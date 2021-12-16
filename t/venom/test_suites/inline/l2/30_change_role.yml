@@ -16,7 +16,7 @@ testcases:
        "category": "guest",
        "category_id": 2,
        "mac": "02:06:19:98:00:01",
-       "tenant_id": 1,
+       "tenant_id": 1
      }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

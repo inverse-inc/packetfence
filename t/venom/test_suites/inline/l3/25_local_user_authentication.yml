@@ -3,7 +3,7 @@ testcases:
   - name: register_device_on_the_portal
     steps:
     - type: exec
-      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@192.168.1.10"  -t "/root/register_node  -portal=http://100.64.0.2"
+      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@192.168.1.10"  -t "/root/register_node  -portal=https://100.64.0.2"
 
     # let wait a bit until the device is set in the ipset
     - type: exec
