@@ -26,3 +26,19 @@ testcases:
     assertions:
     - result.foobara ShouldContainSubstring universe
     - result.foobara ShouldContainSubstring hello
+
+- name: customD_default
+  steps:
+  - type: customD
+    assertions:
+    - result.foobard ShouldContainSubstring world2
+    - result.foobard ShouldContainSubstring hello
+
+- name: customD_custom
+  steps:
+  - type: customD
+    myArg: "universe"
+    assertions:
+    - result.foobard ShouldContainSubstring universe
+    - result.foobard ShouldContainSubstring hello
+
