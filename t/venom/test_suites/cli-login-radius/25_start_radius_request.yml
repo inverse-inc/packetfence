@@ -1,14 +1,9 @@
 name: Start radclient
 testcases:
-- name: Start service
-  steps:
-  - type: exec
-    script: 'systemctl start packetfence-pfcron'
-
 - name: radclient test
   steps:
   - type: exec
-    script: "cat /usr/local/pf/pod.txt | radclient -x 172.17.120.15:1812 auth $(cat /usr/local/pf/conf/unified_api_system_pass)"
+    script: cat /usr/local/pf/pod.txt | radclient -x {{.pfserver_mgmt_ip}}:1812 auth $(cat /usr/local/pf/conf/unified_api_system_pass)
     assertions:
       - result.code ShouldEqual 0
       - result.systemout ShouldContainSubstring access granted by PacketFence
@@ -16,7 +11,7 @@ testcases:
 - name: radclient test proxy
   steps:
   - type: exec
-    script: "cat /usr/local/pf/pod_proxy.txt | radclient -x 172.17.120.15:1812 auth $(cat /usr/local/pf/conf/unified_api_system_pass)"
+    script: cat /usr/local/pf/pod_proxy.txt | radclient -x {{.pfserver_mgmt_ip}}:1812 auth $(cat /usr/local/pf/conf/unified_api_system_pass)
     assertions:
       - result.code ShouldEqual 0
       - result.systemout ShouldContainSubstring access granted by PacketFence

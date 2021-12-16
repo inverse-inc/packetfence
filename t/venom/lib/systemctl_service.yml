@@ -1,0 +1,9 @@
+executor: systemctl_service
+input:
+  unit_commands: {}
+  service: {}
+steps:
+  - type: exec
+    script: systemctl {{.input.unit_commands }} {{.input.service}}
+    assertions:
+      - result.systemout ShouldContainSubstring ""

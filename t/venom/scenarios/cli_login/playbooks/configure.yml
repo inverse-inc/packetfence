@@ -9,6 +9,70 @@
 #    - role: packetfence_go
 #      tags: go
   tasks:
+  - name: Creating generic radius config
+    copy:
+      dest: "/usr/local/pf/raddb/radiusd.conf"
+      content: |
+        prefix = /usr
+        exec_prefix = /usr
+        sysconfdir = /etc
+        localstatedir = /usr/local/pf/var
+        sbindir = /usr/sbin
+        logdir = /usr/local/pf/logs
+        raddbdir = /usr/local/pf/var/radiusd
+        radacctdir = /usr/local/pf/logs/radacct
+        name = radiusd
+        confdir = ${raddbdir}
+        modconfdir = ${confdir}/mods-config
+        certdir = ${confdir}/certs
+        cadir   = ${confdir}/certs
+        run_dir = ${localstatedir}/run
+        db_dir = ${raddbdir}
+        rpc_user   = ''
+        rpc_pass   = "''"
+        rpc_port   = 7070
+        rpc_host   = 127.0.0.1
+        rpc_proto  = http
+        libdir = /usr/lib64/freeradius:/usr/lib/freeradius
+        correct_escapes = true
+        max_request_time = 10
+        cleanup_delay = 5
+        max_requests = 20000
+        hostname_lookups = no
+        checkrad = ${sbindir}/checkrad
+        security {
+          user = pf
+          group = pf
+          allow_core_dumps = no
+          max_attributes = 200
+          reject_delay = 1
+          status_server = yes
+          allow_vulnerable_openssl = yes
+        }
+        proxy_requests  = yes
+        $INCLUDE proxy.conf
+        $INCLUDE clients.conf
+        thread pool {
+          start_servers = 0
+          max_servers = 64
+          min_spare_servers = 3
+          max_spare_servers = 10
+          max_requests_per_server = 0
+          auto_limit_acct = no
+        }
+        modules {
+          $INCLUDE mods-enabled/
+        }
+        instantiate {
+            redis
+            rest
+            raw
+        }
+        policy {
+          $INCLUDE policy.d/
+        }
+        $INCLUDE sites-enabled/
+
   - name: Creating radius config
     copy:
       dest: "/usr/local/pf/raddb/test.conf"
@@ -41,7 +105,7 @@
 
   - name: Creating a file for password simple auth
     copy:
-      dest: "{{ cli_login_radius.pod }}"
+      dest: "{{ cli_login_radius_pod }}"
       content: |
         User-Name = "bob"
         User-Password = "hello"
@@ -49,9 +113,9 @@
 
   - name: Creating a file for password via proxy
     copy:
-      dest: "{{ cli_login_radius.pod_proxy }}"
+      dest: "{{ cli_login_radius_pod_proxy }}"
       content: |
-        User-Name = '{{ cli_login_radius.realm.id }}\bob'
+        User-Name = '{{ cli_login_radius_realm_id }}\bob'
         User-Password = "hello"
         NAS-IP-Address = "192.168.0.1" 
 
@@ -78,7 +142,6 @@
                         ok = return
                 }
                 files
-                -sql
                 -ldap
                 expiration
                 logintime
@@ -106,7 +169,6 @@
         accounting {
                 detail
                 unix
-                -sql
                 exec
                 attr_filter.accounting_response
         }
@@ -120,7 +182,6 @@
                 exec
                 remove_reply_message_if_eap
                 Post-Auth-Type REJECT {
-                        -sql
                         attr_filter.access_reject
                         eap
                         remove_reply_message_if_eap
@@ -133,7 +194,25 @@
         }
         }
 
-  - name: Creating radius service
+  - name: Creating radius service for Debian
+    copy:
+      dest: "/lib/systemd/system/radius-test.service"
+      content: |
+        # Copyright (C) Inverse inc.
+        [Unit]
+        Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
+        Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
+         
+        [Service]
+        Type=notify
+        WatchdogSec=10
+        StartLimitBurst=3
+        StartLimitInterval=10
+        ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
+        Restart=on-failure
+    when: ansible_facts['os_family'] == "Debian"
+
+  - name: Creating radius service for RHEL8
     copy:
       dest: "/lib/systemd/system/radius-test.service"
       content: |
@@ -147,30 +226,25 @@
         WatchdogSec=10
         StartLimitBurst=3
         StartLimitInterval=10
-        ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
-        Restart=on-failure
-      when: ansible_facts['os_family'] == "Debian"
-
-  - name: Creating radius service
-    copy:
-      dest: "/lib/systemd/system/radius-test.service"
-      content: |
-        # Copyright (C) Inverse inc.
-        [Unit]
-        Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
-        Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
-
-        [Service]
-        Type=notify
-        WatchdogSec=10
-        StartLimitBurst=3
-        StartLimitInterval=10
         ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
         Restart=on-failure
-      when: ansible_facts['os_family'] == "RedHat"
+    when: ansible_facts['os_family'] == "RedHat"
 
-  - name: Restart service
+  - name: Reload services
     ansible.builtin.systemd:
-      state: restarted
       daemon_reload: yes
-      name: radius-test 
+
+#
+# need to be done after packtfence configurator
+# 
+#  - name: Restart pf radiusd-auth service
+#    ansible.builtin.systemd:
+#      state: restarted
+#      daemon_reload: yes
+#      name: packetfence-radiusd-auth.service
+
+#  - name: Restart radius-test service
+#    ansible.builtin.systemd:
+#      state: restarted
+#      daemon_reload: yes
+#      name: radius-test 

@@ -1,0 +1,19 @@
+name: Start Services
+testcases:
+- name: start pfcron services
+  steps:
+  - type: systemctl_service
+    unit_commands: start
+    service: packetfence-pfcron
+
+- name: start radius auth services
+  steps:
+  - type: systemctl_service
+    unit_commands: start
+    service: packetfence-radiusd-auth.service
+
+- name: start radius test services
+  steps:
+  - type: systemctl_service
+    unit_commands: restart
+    service: radius-test.service
