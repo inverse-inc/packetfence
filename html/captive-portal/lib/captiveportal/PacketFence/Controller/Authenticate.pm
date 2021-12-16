@@ -84,6 +84,10 @@ sub authenticationLogin : Private {
     if ($request->{'match'} eq "status/login") {
         my $person_info = pf::person::person_view($request->param("username"));
         if($person_info) {
+            if($person_info->{potd} eq "yes") {
+                $c->error("This username cannot be used on the self-service portal.");
+                $c->detach();
+            }
             my $source = pf::authentication::getAuthenticationSource($person_info->{source});
             if (defined($source) && $source->{'class'} eq 'external') {
                 # Source is external, we have to use local source to authenticate
