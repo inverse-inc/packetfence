@@ -20,6 +20,7 @@ BEGIN {
 }
 
 use pf::IniFiles;
+use File::Copy qw(copy);
 
 our %CMDS = (
     add => \&add,
@@ -36,6 +37,10 @@ if (!defined $cmd) {
 
 if (!exists $CMDS{$cmd}) {
     die "$cmd is not valid\n";
+}
+
+if (-f $file) {
+    copy($file, "${file}.bak") or die "$!";
 }
 
 my $ini = pf::IniFiles->new(
