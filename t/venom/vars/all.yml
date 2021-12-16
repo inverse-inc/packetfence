@@ -18,6 +18,9 @@ pfserver_root_dir: /usr/local/pf
 pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
 pfserver_bin_dir: '{{.pfserver_root_dir}}/bin'
 pfserver_pfcmd: '{{.pfserver_bin_dir}}/pfcmd'
+pfserver_test_dir: '{{.pfserver_root_dir}}/t'
+ini_cmd: '{{.pfserver_test_dir}}/ini_cmd.pl'
+fingerbank_conf_dir: '/usr/local/fingerbank/conf'
 
 # PacketFence general settings
 pfserver_api_inactivity_timeout.interval: 12
