@@ -171,7 +171,7 @@ example_el8:
 	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
 
-example_deb1:
+example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
 	# if you want to start additional VMs
