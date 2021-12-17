@@ -153,6 +153,6 @@ example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
 	INT_TEST_VM_NAMES="linux02" \
-	SCENARIOS_TO_RUN=example \
+	SCENARIOS_TO_RUN=configurator \
 	$(MAKE_TARGET)
 
