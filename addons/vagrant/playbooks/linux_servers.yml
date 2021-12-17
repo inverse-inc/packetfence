@@ -1,4 +1,6 @@
 ---
+- import_playbook: linux_servers/apt_update.yml
+
 - import_playbook: linux_servers/rsyslog.yml
   tags: rsyslog
 
