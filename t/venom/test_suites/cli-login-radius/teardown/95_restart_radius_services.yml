@@ -1,1 +1,5 @@
-../../common/restart_radius_services.yml
+name: Cli PF RADIUS Services restart
+testcases:
+- name: restart PF RADIUS service
+  steps:
+  - type: restart_radius_services
