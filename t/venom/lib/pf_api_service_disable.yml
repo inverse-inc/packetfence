@@ -1,0 +1,7 @@
+executor: pf_api_service_disable
+input:
+  service: {}
+steps:
+- type: pf_api_service_action
+  service: "{{.input.service}}"
+  action: "disable"

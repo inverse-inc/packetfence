@@ -1,0 +1,21 @@
+executor: pf_api_service_action
+input:
+  service: {}
+  action: {}
+steps:
+- type: get_login_token
+
+- type: http
+  method: POST
+  url: '{{.pfserver_webadmin_url}}/api/v1/service/{{.input.service}}/{{.input.action}}'
+  ignore_verify_ssl: true
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+  output: 
+     postjson: "{{.result.bodyjson}}"
+
+- type: sleep
+  time_to_sleep: 5
