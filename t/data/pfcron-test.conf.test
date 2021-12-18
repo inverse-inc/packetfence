@@ -5,3 +5,7 @@ description=Task to data to a file
 content=bob
 outfile=/tmp/pfcron-test.log
 schedule=@every 5s
+
+[fingerbank_data_update]
+status=enabled
+schedule=@every 5s

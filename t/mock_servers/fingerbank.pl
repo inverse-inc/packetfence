@@ -16,20 +16,18 @@ use lib qw(
     /usr/local/pf/lib
     /usr/local/pf/lib_perl/lib/perl5
 );
-use Mojolicious::Lite;
+use Mojolicious::Lite -signatures;
 use URI::Escape qw(uri_escape);
 
 
-get '/api/v2/download/db' => sub {
-    my ($c) = @_;
+get '/api/v2/download/db' => sub ($c) {
     my $headers = $c->res->headers;
     $headers->add('Content-Disposition', 'attachment; filename="fingerbank.db"');
     $headers->content_type('application/sqlite3');
     $c->reply->file('/usr/local/pf/t/data/fingerbank.db');
 };
 
-any '/*dapath' => sub {
-    my ($c) = @_;
+any '/*dapath' => sub ($c) {
     my $req = $c->req;
     return $c->rendered( 204 ) if $req->method eq 'OPTIONS';
     my $variant = variant($req);
@@ -41,18 +39,13 @@ any '/*dapath' => sub {
 
 };
 
-sub variant {
-    my ($req) = @_;
-    my $query_params = $req->query_params;
-    for my $k (qw(pageToken query)) {
-        my $value = $query_params->param($k);
-        if ($value) {
-            return "$k=" . uri_escape($value);
-        }
-    }
-
+sub variant ($req) {
     return undef;
 }
+
+hook before_server_start => sub ($server, $app) {
+    $server->daemonize;
+};
 
 app->start;
 

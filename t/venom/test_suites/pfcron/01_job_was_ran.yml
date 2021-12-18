@@ -7,13 +7,22 @@ testcases:
     script: 'systemctl stop packetfence-pfcron'
 
   - type: exec
+    script: 'cp "{{.fingerbank_upstream_db}}" "{{.fingerbank_upstream_db}}.bak"'
+
+  - type: exec
     script: 'cp "{{.pfserver_root_dir}}/t/data/pfcron-test.conf.test" "{{.pfserver_conf_dir}}/pfcron.conf"'
+
+  - type: exec
+    script: '{{.ini_cmd}} {{.fingerbank_conf_dir}}/fingerbank.conf add upstream host 127.0.0.1 upstream port 3000 upstream use_https disabled'
 
   - type: exec
     script: '{{.pfserver_pfcmd}} configreload'
 
   - type: exec
     script: 'rm -f /tmp/pfcron-test.log'
+
+  - type: exec
+    script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.pfserver_root_dir}}/var/run/fingerbank.pid -w 1 -s 1'
 
   - type: exec
     script: 'systemctl start packetfence-pfcron'
@@ -34,6 +43,11 @@ testcases:
     assertions:
       - result.systemout ShouldContainSubstring bobbob
 
+  - type: exec
+    script: 'sqlite3 {{.fingerbank_upstream_db}} "SELECT COUNT(*) FROM pf_test"'
+    assertions:
+      - result.systemout ShouldEqualTrimSpace 1
+
 - name: Teardown
   steps:
   - type: exec
@@ -43,4 +57,13 @@ testcases:
     script: 'cp "{{.pfserver_conf_dir}}/pfcron.conf.example" "{{.pfserver_conf_dir}}/pfcron.conf"'
 
   - type: exec
+    script: 'cp "{{.fingerbank_conf_dir}}/fingerbank.conf.bak" "{{.fingerbank_conf_dir}}/fingerbank.conf"'
+
+  - type: exec
+    script: 'mv "{{.fingerbank_upstream_db}}.bak" "{{.fingerbank_upstream_db}}"'
+
+  - type: exec
     script: '{{.pfserver_pfcmd}} configreload'
+
+  - type: exec
+    script: 'kill $(cat {{.pfserver_root_dir}}/var/run/fingerbank.pid)'
