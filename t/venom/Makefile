@@ -4,7 +4,6 @@ include ../../config.mk
 #==============================================================================
 SHELL=/bin/bash
 PFSERVERS_DIR=pfservers
-CI_PIPELINE_ID=123456789
 
 #==============================================================================
 # Tests CI or localdev
@@ -14,10 +13,12 @@ ifeq ($(CI), true)
  $(info CI environment detected)
  MAKE_TARGET=run
  DEV_ENV=dev
+ RESULT_DIR=$(CI_PROJECT_DIR)/results
 else
  $(info localdev environment detected)
  MAKE_TARGET=run_w_clean
  DEV_ENV=localdev
+ RESULT_DIR=$(SRC_ROOT_DIR)/results
 endif
 
 #==============================================================================
@@ -30,6 +31,7 @@ install:
 run: clean
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	RESULT_DIR=$(RESULT_DIR) \
 	PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
@@ -38,6 +40,7 @@ run: clean
 run_w_clean:
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	RESULT_DIR=$(RESULT_DIR) \
 	PF_VM_NAME=$(PF_VM_NAME) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
@@ -54,6 +57,7 @@ run_tests:
 
 halt:
 	PF_VM_NAME=$(PF_VM_NAME) \
+	RESULT_DIR=$(RESULT_DIR) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt
 
