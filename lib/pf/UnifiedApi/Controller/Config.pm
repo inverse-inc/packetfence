@@ -878,7 +878,7 @@ sub resource_options {
         return $self->render_error($status, $form);
     }
 
-    my (%defaults, %placeholders, %allowed, %meta);
+    my %meta;
     my %output = (
         meta => \%meta,
     );

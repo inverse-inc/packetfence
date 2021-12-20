@@ -90,7 +90,6 @@ sub _initialize {
     my ($self,$mac) = @_;
     my $logger = get_logger();
     my $cgi = new CGI;
-    my $options;
     $cgi->charset("UTF-8");
 
     $self->{'_cgi'} = $cgi;

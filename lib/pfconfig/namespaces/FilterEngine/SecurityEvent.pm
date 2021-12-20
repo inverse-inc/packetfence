@@ -44,7 +44,6 @@ sub build {
     my @filters;
     while (my ($security_event, $security_event_config) = each %SecurityEvents_Config) {
         my @conditions;
-        my $security_event_condition;
         next unless (isenabled($security_event_config->{enabled}) && defined($security_event_config->{trigger}));
         foreach my $trigger (split(/\s*,\s*/, $security_event_config->{trigger})) {
             my $condition;

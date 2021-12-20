@@ -38,7 +38,6 @@ Build the map that allows to get the cluster name for a cluster hostname
 
 sub build {
     my ($self) = @_;
-    my @cluster_ips;
     $self->{cluster_resource}->build();
 
     return $self->{cluster_resource}->{hostname_map};

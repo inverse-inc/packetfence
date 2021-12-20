@@ -289,7 +289,6 @@ sub handleMacTrap {
     my $trapType = $trap->{trapType};
     my $mac  = lc($trapMac);
     my $vlan = $trapVlan;
-    my $wasInline;
 
     $logger->info("$trapOperation trap received on $switch_id ifIndex $switch_port for $mac in VLAN $vlan");
 

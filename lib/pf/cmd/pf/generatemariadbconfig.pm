@@ -216,7 +216,6 @@ sub update_udf_config {
         print "Cannot open $filename\n";
     }
     my $hostname = hostname();
-    my %hosts;
     my $pf_version = pf::version::version_get_current();
     while (my ($k, $v) = each %$event_logger) {
         for my $logger (@$v) {

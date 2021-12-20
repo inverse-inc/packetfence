@@ -79,7 +79,6 @@ sub translate {
         my $session_cook = pf::web::util::getcookie($r->headers_in->{Cookie});
         #If there is a session cookie then push the remote ip in the session and redirect to the captive portal
         if ($session_cook) {
-            my (%session_id);
             my $chi = pf::CHI->new(namespace => 'httpd.portal');
             $chi->set($session_cook,{remote_ip => $r->connection->remote_ip});
             my $uri = $parsed_portal->unparse;

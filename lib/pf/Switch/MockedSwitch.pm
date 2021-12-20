@@ -1676,7 +1676,6 @@ sub isDefinedVlan {
 # FIXME not properly mocked
 sub getUpLinks {
     my $self = shift;
-    my @ifIndex;
     my @upLinks;
     my $result;
     my $logger = $self->logger;
@@ -2044,7 +2043,6 @@ L<http://www.cpanforum.com/threads/6909/>
 sub clearMacAddressTable {
     my ( $self, $ifIndex, $vlan ) = @_;
     my $command;
-    my $session;
     my $oid_ifName = '1.3.6.1.2.1.31.1.1.1.1';
     my $logger     = $self->logger;
     $logger->info("clearMacAddressTable called.");

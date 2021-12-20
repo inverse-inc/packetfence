@@ -27,7 +27,6 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    my @cluster_ips;
     $self->{cluster_resource}->build();
 
     my @cluster_hosts = map { $_->{host} } @{$self->{cluster_resource}->{_servers}->{$self->{cluster_name}}};

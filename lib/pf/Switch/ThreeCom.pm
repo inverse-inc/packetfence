@@ -104,7 +104,6 @@ sub getIfIndexByNasPortId {
         my $subslot = $3;
         my $port = $4;
         my $OID_ifDesc = '1.3.6.1.2.1.2.2.1.2';
-        my $ifDescHashRef;
         my $result = $self->cachedSNMPTable([-baseoid => $OID_ifDesc]);
         foreach my $key ( keys %{$result} ) {
             my $ifDesc = $result->{$key};

@@ -42,7 +42,6 @@ Builds a hash of all the configured switches
 sub build {
     my ($self) = @_;
     my %types;
-    my @ranges;
     foreach my $data ( values %{$self->{switches}} ) {
         my $type = $data->{type};
         next if !defined $type;

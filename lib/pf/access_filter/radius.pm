@@ -129,7 +129,6 @@ sub updateAnswerNameValue {
         my $prefix = $1 // 'reply:';
         if (ref($value) eq 'ARRAY') {
             my $key;
-            my @attributes;
             foreach my $response (@{$value}) {
                 if ($response =~ /([\w\-:]*)\s?[:=]\s?([\w\-:]*)/) {
                     $key = $1;

@@ -80,8 +80,6 @@ has 'managed_networks' => (is => 'ro', builder => '_build_managed_networks');
 
 our $logger = get_logger;
 my $ROGUE_DHCP_TRIGGER = '1100010';
-my @local_dhcp_servers_mac;
-my @local_dhcp_servers_ip;
 
 #
 # This lua script appends an offer comment to a list for the rogue DHCP server

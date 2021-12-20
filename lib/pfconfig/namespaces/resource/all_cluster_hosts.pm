@@ -35,7 +35,6 @@ Build the list of all servers in the cluster (including the ones across multiple
 
 sub build {
     my ($self) = @_;
-    my @cluster_ips;
     $self->{cluster_resource}->build();
 
     my @servers;
@@ -45,7 +44,6 @@ sub build {
     }
 
     @servers = map{$_->{host}} @servers;
-
     return \@servers;
 }
 

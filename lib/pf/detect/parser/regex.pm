@@ -113,7 +113,6 @@ match line
 
 sub matchLine {
     my ($self, $line, $include_ip2mac_failures) = @_;
-    my @actions;
     my @rules;
     my @matches;
     my $logger = get_logger();

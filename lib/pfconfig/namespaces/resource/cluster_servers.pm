@@ -28,7 +28,6 @@ sub init {
 
 sub build {
     my ($self) = @_;
-    my @cluster_ips;
     $self->{cluster_resource}->build();
 
     return $self->{cluster_resource}->{_servers}->{$self->{cluster_name}};

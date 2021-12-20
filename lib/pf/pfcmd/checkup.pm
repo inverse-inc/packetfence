@@ -1079,7 +1079,7 @@ sub valid_certs {
 
     my $httpd_conf = read_file("$generated_conf_dir/ssl-certificates.conf");
 
-    my ($httpd_crt, $radius_crt);
+    my $httpd_crt;
 
     if($httpd_conf =~ /SSLCertificateFile\s*(.*)\s*/){
         $httpd_crt = $1;
