@@ -5,4 +5,4 @@ steps:
   - type: exec
     script: "rm -f {{.input.file}}"
     assertions:
-      - result.exitcode ShouldEqual 0
+      - result.code ShouldEqual 0
