@@ -3,7 +3,7 @@ input:
   id: {}
   token: {}
 steps:
-  # delete source
+  # delete switch
   - type: http
     method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.input.id}}'
