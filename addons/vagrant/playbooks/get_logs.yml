@@ -1,8 +1,7 @@
-- hosts: pfservers
-  name: Get logs on PacketFence VM
+- hosts: pfservers, service_venom, nodes
+  name: Get Venom logs on all VM
   become: True
   tags: logs
-  any_error_fatal: True
 
   vars:
     # result_dir = full path to 'results' directory at root of PF sources tree
@@ -14,6 +13,8 @@
       args:
         executable: '/bin/bash'
       no_log: True
+      # to make Psono variables available
+      environment: '{{ inventory__group_environment | d({}) }}'
 
     # Store archive into result_dir/hostname/results.tar.gz
     - name: Get logs on runner
