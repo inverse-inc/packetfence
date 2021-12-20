@@ -1,4 +1,4 @@
-name: Create and configure REALMS
+name: Create REALMS
 testcases:
 - name: get_login_token
   steps:

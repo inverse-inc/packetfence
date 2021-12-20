@@ -14,7 +14,7 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/192.168.0.1'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cli_login_radius.switch.ip}}'
     ignore_verify_ssl: true
     body: >-
       {

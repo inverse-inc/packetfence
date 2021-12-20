@@ -1,4 +1,4 @@
-name: Create and test Radius machine source
+name: Create RADIUS machine source
 testcases:
 - name: get_login_token
   steps:

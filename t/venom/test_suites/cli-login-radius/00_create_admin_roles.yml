@@ -1,10 +1,10 @@
-name: Create and test Radius machine source
+name: Create ADMIN role
 testcases:
 - name: get_login_token
   steps:
   - type: get_login_token
 
-- name: create_radius_source
+- name: create_admin_role
   steps:
   - type: http
     method: POST

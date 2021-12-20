@@ -1,14 +1,14 @@
-name: Create and test Radius machine source
+name: Change Switch Config
 testcases:
 - name: get_login_token
   steps:
   - type: get_login_token
 
-- name: create_radius_source
+- name: change_switch_config
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/192.168.0.1'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cli_login_radius.switch.ip}}'
     ignore_verify_ssl: true
     body: >-
       {
