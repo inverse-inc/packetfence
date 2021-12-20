@@ -159,7 +159,8 @@ captive_portal_deb11:
 example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
-	INT_TEST_VM_NAMES="linux02" \
-	SCENARIOS_TO_RUN=configurator \
+	# if you want to start additional VMs
+	#INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
 
