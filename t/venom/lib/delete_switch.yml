@@ -3,25 +3,27 @@ input:
   id: {}
   token: {}
 steps:
-  # delete switch
+  - type: get_login_token
+  
+    # delete switch
   - type: http
     method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.input.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.input.token}}"
+      "Authorization": "{{.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Deleted {{.input.id}} successfully"
 
-  # check source deleted
+  # check witch deleted
   - type: http
     method: GET
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.input.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.input.token}}"
+      "Authorization": "{{.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 404
