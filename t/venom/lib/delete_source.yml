@@ -1,15 +1,16 @@
 executor: delete_source
 input:
   id: {}
-  token: {}
 steps:
+  - type: get_login_token
+  
   # delete source
   - type: http
     method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.input.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.input.token}}"
+      "Authorization": "{{.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -18,10 +19,10 @@ steps:
   # check source deleted
   - type: http
     method: GET
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.input.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.input.token}}"
+      "Authorization": "{{.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 404
