@@ -1,5 +1,5 @@
-- hosts: service_dhcpd
-  name: Manage dhcpd service
+- hosts: service_rsyslog, service_dhcpd, service_freeradius, service_tinyproxy
+  name: Update the apt cache
   become: True
 
   tasks:
