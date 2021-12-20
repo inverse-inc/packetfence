@@ -1,9 +1,10 @@
 name: FingerbankConnectivity
 testcases:
-- name: get_psono_secret
+# The key is taken from the conf file and not psono because this test can run with internet disabled
+- name: get_fb_api_key
   steps:
   - type: exec
-    script: "psonoci secret get {{.configurator.fingerbank_api_key.secret_id}} password"
+    script: "grep api_key /usr/local/fingerbank/conf/fingerbank.conf | awk -F '=' '{ printf $2 }'"
     vars:
       fingerbank_api_key:
         from: result.systemout
@@ -25,7 +26,7 @@ testcases:
     url: 'https://127.0.0.1:4723/endpoint_data/001122000001/details'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "Token {{.get_psono_secret.fingerbank_api_key}}"
+      "Authorization": "Token {{.get_fb_api_key.fingerbank_api_key}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
