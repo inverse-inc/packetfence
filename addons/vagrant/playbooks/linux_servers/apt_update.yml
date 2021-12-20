@@ -1,0 +1,9 @@
+- hosts: service_dhcpd
+  name: Manage dhcpd service
+  become: True
+
+  tasks:
+    - name: Update APT repository cache
+      apt:  # noqa no-handler
+        update_cache: True
+
