@@ -1,5 +1,13 @@
 name: FingerbankConnectivity
 testcases:
+- name: get_psono_secret
+  steps:
+  - type: exec
+    script: "psonoci secret get {{.configurator.fingerbank_api_key.secret_id}} password"
+    vars:
+      fingerbank_api_key:
+        from: result.systemout
+    
 - name: Validate the account info through the Fingerbank Perl lib
   steps:
 
@@ -17,14 +25,10 @@ testcases:
     url: 'https://127.0.0.1:4723/endpoint_data/001122000001/details'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "Token 7eeffe6d2805b5eb69b24cee0a753e17549b95b0"
+      "Authorization": "Token {{.get_psono_secret.fingerbank_api_key}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.cloud_api_result.device_name ShouldEqual "Hardware Manufacturer/CIMSYS Inc"
 
 
-#-A OUTPUT -d 10.0.0.0/8 -j ACCEPT
-#-A OUTPUT -d 172.16.0.0/12 -j ACCEPT
-#-A OUTPUT -d 192.168.0.0/16 -j ACCEPT
-#-A OUTPUT -j DROP
