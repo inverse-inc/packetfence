@@ -1,13 +1,8 @@
 ---
 - hosts: pfservers
-  name: configure Golang environment for unit tests
+  name: configure PF environment for unit tests
   become: True
-#  collections:
-#  - inverse_inc.packetfence
 
-#  roles:
-#    - role: packetfence_go
-#      tags: go
   tasks:
   - name: Creating generic radius config
     copy:
@@ -119,7 +114,7 @@
         User-Password = "hello"
         NAS-IP-Address = "192.168.0.1" 
 
-  - name: Authorization in radb
+  - name: Authorization in raddb
     blockinfile:
       path: /usr/local/pf/raddb/mods-config/files/authorize
       block: |
@@ -233,18 +228,3 @@
   - name: Reload services
     ansible.builtin.systemd:
       daemon_reload: yes
-
-#
-# need to be done after packtfence configurator
-# 
-#  - name: Restart pf radiusd-auth service
-#    ansible.builtin.systemd:
-#      state: restarted
-#      daemon_reload: yes
-#      name: packetfence-radiusd-auth.service
-
-#  - name: Restart radius-test service
-#    ansible.builtin.systemd:
-#      state: restarted
-#      daemon_reload: yes
-#      name: radius-test 
