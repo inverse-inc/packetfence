@@ -7,7 +7,6 @@
     # put your test suites to try here
     test_suites:
       - configurator
-      - global_config
 
       - fingerbank_proxy/setup_proxy
       - fingerbank_proxy/fingerbank_connectivity

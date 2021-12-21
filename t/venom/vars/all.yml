@@ -89,6 +89,9 @@ wireless_switch_group.radiusSecret: anHardSharedSecret
 wireless_switch.id1: '{{.wireless01_mgmt_ip}}'
 wireless_switch.description: wireless01
 
+# Tinyproxy on linux02
+linux02.tinyproxy.port: "8888"
+
 ################################################################################
 # global_config_multi_tenant test suite specific variables
 ################################################################################

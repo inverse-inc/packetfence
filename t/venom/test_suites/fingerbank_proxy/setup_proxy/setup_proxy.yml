@@ -13,7 +13,7 @@ testcases:
     body: >-
       {
         "host": "{{.linux02_mgmt_ip}}",
-        "port": "8888",
+        "port": "{{.linux02.tinyproxy.port}}",
         "use_proxy": "enabled",
         "verify_ssl": "disabled"
       }
