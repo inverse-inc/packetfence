@@ -9,7 +9,7 @@ testcases:
       fingerbank_api_key:
         from: result.systemout
     
-- name: Validate the account info through the Fingerbank Perl lib
+- name: validate_account_info_perl_lib
   steps:
 
   - type: exec
@@ -18,7 +18,7 @@ testcases:
     assertions:
       - result.systemout ShouldEqual "200"
 
-- name: Validate the Fingerbank Collector connectivity to the API
+- name: validate_collector_api_connectivity
   steps:
 
   - type: http

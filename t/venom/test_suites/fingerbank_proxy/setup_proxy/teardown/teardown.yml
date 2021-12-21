@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: get_login_token
 
-- name: Teardown proxy in fingerbank.conf
+- name: teardown_proxy_fingerbank_conf
   steps:
   - type: http
     method: PATCH
@@ -23,7 +23,7 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
-- name: Reset iptables rules
+- name: reset_iptables_rules
   steps:
   - type: exec
     script: iptables -F
@@ -31,7 +31,7 @@ testcases:
   - type: exec
     script: systemctl restart packetfence-iptables
 
-- name: Test ping to WAN is working
+- name: ping_to_wan_should_work
   steps:
   - type: exec
     script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
@@ -39,7 +39,7 @@ testcases:
     - result.code ShouldEqual 0
 
 
-- name: Restart fingerbank-collector and clear the fingerbank cache
+- name: restart_collector_and_clear_cache
   steps:
   - type: exec
     script: systemctl restart packetfence-fingerbank-collector

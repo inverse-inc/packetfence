@@ -4,7 +4,7 @@ testcases:
   steps:
   - type: get_login_token
 
-- name: Setup proxy in fingerbank.conf
+- name: setup_proxy_fingerbank_conf
   steps:
   - type: http
     method: PATCH
@@ -23,7 +23,7 @@ testcases:
     assertions:
     - result.statuscode ShouldEqual 200
 
-- name: Drop traffic to WAN in iptables (to force it through the proxy)
+- name: drop_wan_traffic_in_iptables
   steps:
   - type: exec
     script: systemctl stop packetfence-iptables
@@ -46,14 +46,14 @@ testcases:
   - type: exec
     script: iptables -A OUTPUT -j DROP
 
-- name: Test ping to WAN is failing
+- name: ping_to_wan_should_fail
   steps:
   - type: exec
     script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
     assertions:
     - result.code ShouldNotEqual 0
 
-- name: Restart fingerbank-collector and clear the fingerbank cache
+- name: restart_collector_and_clear_cache
   steps:
   - type: exec
     script: systemctl restart packetfence-fingerbank-collector
