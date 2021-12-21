@@ -135,11 +135,11 @@ fingerbank_invalid_db_deb11:
 	SCENARIOS_TO_RUN=fingerbank_invalid_db \
 	$(MAKE_TARGET)
 
-fingerbank_proxy_deb11:
+external_integrations_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
 	INT_TEST_VM_NAMES="linux02" \
-	SCENARIOS_TO_RUN=fingerbank_proxy \
+	SCENARIOS_TO_RUN=external_integrations \
 	$(MAKE_TARGET)
 
 captive_portal_el8:

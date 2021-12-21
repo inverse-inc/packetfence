@@ -622,7 +622,7 @@ fingerbank_invalid_db_deb11:
     - .test_script_job
     - .test_devel_branches_and_maintenance_rules
 
-fingerbank_proxy_deb11:
+external_integrations_deb11:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
   extends:

@@ -1,6 +1,6 @@
 ---
 - hosts: pfservers
-  name: Run Fingerbank Proxy tests
+  name: Run External Integration tests
   become: True
 
   vars:
