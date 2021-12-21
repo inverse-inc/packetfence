@@ -16,5 +16,5 @@ steps:
   - result.code ShouldEqual 0
   - result.systemout ShouldContainSubstring "{{.input.myArg}}"
 output:
-  foobarb: "{{.varCustomB}}"
+  foobarb: "{{.varcustomb}}"
   foobare: "{{.result.systemout}}"
