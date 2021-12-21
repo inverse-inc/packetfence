@@ -42,3 +42,18 @@ testcases:
     - result.foobard ShouldContainSubstring universe
     - result.foobard ShouldContainSubstring hello
 
+- name: customE_custom
+  steps:
+  - type: customD
+    myArg: "{{.customD_custom.result.foobard}}"
+    assertions:
+    - result.foobard ShouldContainSubstring universe
+    - result.foobard ShouldContainSubstring hello
+
+- name: customF_custom
+  steps:
+  - type: customD
+    myArg: "{{.customD_custom.json.result.foobard}}"
+    assertions:
+    - result.foobard ShouldContainSubstring universe
+    - result.foobard ShouldContainSubstring hello
