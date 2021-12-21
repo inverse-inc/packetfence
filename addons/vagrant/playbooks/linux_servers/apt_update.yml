@@ -1,4 +1,4 @@
-- hosts: service_rsyslog, service_dhcpd, service_freeradius, service_tinyproxy
+- hosts: linux_servers
   name: Update the apt cache
   become: True
 
