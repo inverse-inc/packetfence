@@ -1,0 +1,8 @@
+name: testsuite with a user executor in custom dir which has multiple steps
+testcases:
+- name: testfoobar multisteps custom
+  steps:
+  - type: foobarcustommultisteps
+    assertions:
+    - result.foobar ShouldEqual "hello world"
+    - result.content ShouldEqual "hello"

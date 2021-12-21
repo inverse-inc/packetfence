@@ -1,0 +1,11 @@
+executor: foobarcustommultisteps
+input: {}
+steps:
+- script: echo "hello"
+  vars:
+    content:
+      from: result.systemout
+- script: echo "{{.content}} world"
+output:
+  foobar: "{{.result.systemout}}"
+  content: "{{.content}}"
