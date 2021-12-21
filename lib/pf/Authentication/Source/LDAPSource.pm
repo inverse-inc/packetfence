@@ -211,7 +211,7 @@ sub authenticate {
   };
 
   if ($result->is_error) {
-    $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $logger->warn("[$self->{'id'}] User " . $user->dn . " cannot bind from $self->{'basedn'} on $LDAPServer:$LDAPServerPort: " . $result->error_desc());
     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} . ".failure.count" );
     return ($FALSE, $AUTH_FAIL_MSG);
   }
