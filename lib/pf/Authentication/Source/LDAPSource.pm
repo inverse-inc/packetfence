@@ -188,7 +188,7 @@ sub authenticate {
   };
 
   if ($result->is_error) {
-    $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort");
+    $logger->error("[$self->{'id'}] Unable to execute search $filter from $self->{'basedn'} on $LDAPServer:$LDAPServerPort :" . $result->error_desc());
     $pf::StatsD::statsd->increment(called() . "." . $self->{'id'} .".error.count" );
     return ($FALSE, $COMMUNICATION_ERROR_MSG);
   }
