@@ -1,8 +1,7 @@
 name: Pfcron
 testcases:
-- name: Cron Job was ran successfully
+- name: setup pfcron and mock servers
   steps:
-
   - type: exec
     script: 'systemctl stop packetfence-pfcron'
 
@@ -27,6 +26,9 @@ testcases:
   - type: exec
     script: 'systemctl start packetfence-pfcron'
 
+- name: check pfcron run correctly
+  steps:
+
   - type: exec
     script: 'sleep 6'
 
@@ -48,7 +50,7 @@ testcases:
     assertions:
       - result.systemout ShouldEqualTrimSpace 1
 
-- name: Teardown
+- name: teardown
   steps:
   - type: exec
     script: 'systemctl stop packetfence-pfcron'
@@ -57,7 +59,7 @@ testcases:
     script: 'cp "{{.pfserver_conf_dir}}/pfcron.conf.example" "{{.pfserver_conf_dir}}/pfcron.conf"'
 
   - type: exec
-    script: 'cp "{{.fingerbank_conf_dir}}/fingerbank.conf.bak" "{{.fingerbank_conf_dir}}/fingerbank.conf"'
+    script: 'mv "{{.fingerbank_conf_dir}}/fingerbank.conf.bak" "{{.fingerbank_conf_dir}}/fingerbank.conf"'
 
   - type: exec
     script: 'mv "{{.fingerbank_upstream_db}}.bak" "{{.fingerbank_upstream_db}}"'
