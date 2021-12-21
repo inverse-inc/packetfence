@@ -1,0 +1,20 @@
+executor: customE
+input:
+  myArg: "world2"
+steps:
+- type: customB
+  myWord: "{{.input.myArg}}"
+  vars:
+    varCustomB:
+      from: result.foobarb
+- script: echo "hello {{.varCustomB}}"
+  assertions:
+  - result.code ShouldEqual 0
+  - result.systemout ShouldContainSubstring "{{.input.myArg}}"
+- script: echo "hello you {{.varCustomB}}"
+  assertions:
+  - result.code ShouldEqual 0
+  - result.systemout ShouldContainSubstring "{{.input.myArg}}"
+output:
+  foobarb: "{{.varCustomB}}"
+  foobare: "{{.result.systemout}}"

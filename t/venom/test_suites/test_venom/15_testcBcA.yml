@@ -57,3 +57,12 @@ testcases:
     assertions:
     - result.foobard ShouldContainSubstring universe
     - result.foobard ShouldContainSubstring hello
+
+- name: customG_custom
+  steps:
+  - type: customE
+    myArg: "{{.customD_custom.json.result.foobard}}"
+    assertions:
+    - result.foobare ShouldContainSubstring universe
+    - result.foobare ShouldContainSubstring you
+    - result.foobarb ShouldContainSubstring hello
