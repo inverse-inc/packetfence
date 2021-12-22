@@ -5,7 +5,7 @@ input:
     "surname": "default2"
   }
 steps:
-- script: echo "{{.inputi.myarg.name}}" > t.log
+- script: echo "{{.input.myarg.name}}" > t.log
 - script: echo "{\"hello\":\"{{.input.myarg.name}} and {{.input.myarg.surname}}\"}"
   assertions:
   - result.code ShouldEqual 0
