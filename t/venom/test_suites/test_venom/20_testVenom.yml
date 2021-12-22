@@ -5,4 +5,11 @@ testcases:
   - type: foobarcustommultisteps
     assertions:
     - result.foobar ShouldEqual "hello world"
-    - result.content ShouldEqual "hello"
+    - result.contento ShouldEqual "hello"
+
+- name: testfoobar multisteps custom
+  steps:
+  - type: foobarcustommultisteps
+    assertions:
+    - result.foobar ShouldEqual "hello world"
+    - content ShouldEqual "hello"

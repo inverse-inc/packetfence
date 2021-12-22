@@ -8,4 +8,4 @@ steps:
 - script: echo "{{.content}} world"
 output:
   foobar: "{{.result.systemout}}"
-  content: "{{.content}}"
+  contento: "{{.content}}"
