@@ -49,7 +49,7 @@ run_test_suites() {
     for test_suite in ${test_suites}; do
         # if it's a directory, we sort alphabetically files in it
         if [ -d "${test_suite}" ]; then
-            sorted_files=$(find ${test_suite} -maxdepth 1 -type f,l -name "*.yml" | sort)
+            sorted_files=$(find ${test_suite} -maxdepth 1 \( -type f -or -type l \) -and -name "*.yml" | sort)
             test_suites_files+=($sorted_files)
         else
             test_suites_files+=($test_suite)
