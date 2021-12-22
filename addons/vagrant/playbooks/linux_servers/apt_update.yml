@@ -1,0 +1,9 @@
+- hosts: linux_servers
+  name: Update the apt cache
+  become: True
+
+  tasks:
+    - name: Update APT repository cache
+      apt:  # noqa no-handler
+        update_cache: True
+

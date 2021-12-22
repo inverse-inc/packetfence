@@ -1,0 +1,35 @@
+name: FingerbankConnectivity
+testcases:
+# The key is taken from the conf file and not psono because this test can run with internet disabled
+- name: get_fb_api_key
+  steps:
+  - type: exec
+    script: "grep api_key /usr/local/fingerbank/conf/fingerbank.conf | awk -F '=' '{ printf $2 }'"
+    vars:
+      fingerbank_api_key:
+        from: result.systemout
+    
+- name: validate_account_info_perl_lib
+  steps:
+
+  - type: exec
+    script: >
+      perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mfingerbank::API -e '($res, $data) = fingerbank::API->new_from_config->account_info; print $res'
+    assertions:
+      - result.systemout ShouldEqual "200"
+
+- name: validate_collector_api_connectivity
+  steps:
+
+  - type: http
+    method: GET
+    url: 'https://127.0.0.1:4723/endpoint_data/001122000001/details'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "Token {{.get_fb_api_key.fingerbank_api_key}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.cloud_api_result.device_name ShouldEqual "Hardware Manufacturer/CIMSYS Inc"
+
+

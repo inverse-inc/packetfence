@@ -1,0 +1,48 @@
+name: FingerbankSetupProxyTeardown
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: teardown_proxy_fingerbank_conf
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/fingerbank_setting/proxy'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "host": "",
+        "port": "",
+        "use_proxy": "disabled",
+        "verify_ssl": "enabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+    - result.statuscode ShouldEqual 200
+
+- name: reset_iptables_rules
+  steps:
+  - type: exec
+    script: iptables -F
+  
+  - type: exec
+    script: systemctl restart packetfence-iptables
+
+- name: ping_to_wan_should_work
+  steps:
+  - type: exec
+    script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
+    assertions:
+    - result.code ShouldEqual 0
+
+
+- name: restart_collector_and_clear_cache
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-fingerbank-collector
+
+  - type: exec
+    script: /usr/local/pf/bin/pfcmd cache fingerbank clear

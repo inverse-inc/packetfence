@@ -1,0 +1,63 @@
+name: FingerbankSetupProxy
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: setup_proxy_fingerbank_conf
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/fingerbank_setting/proxy'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "host": "{{.linux02_mgmt_ip}}",
+        "port": "{{.linux02.tinyproxy.port}}",
+        "use_proxy": "enabled",
+        "verify_ssl": "disabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+    - result.statuscode ShouldEqual 200
+
+- name: drop_wan_traffic_in_iptables
+  steps:
+  - type: exec
+    script: systemctl stop packetfence-iptables
+
+  - type: exec
+    script: iptables -A OUTPUT -d 8.8.8.8/32 -j ACCEPT
+
+  - type: exec
+    script: iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT
+
+  - type: exec
+    script: iptables -A OUTPUT -d 10.0.0.0/8 -j ACCEPT
+
+  - type: exec
+    script: iptables -A OUTPUT -d 172.16.0.0/12 -j ACCEPT
+
+  - type: exec
+    script: iptables -A OUTPUT -d 192.168.0.0/16 -j ACCEPT
+
+  - type: exec
+    script: iptables -A OUTPUT -j DROP
+
+- name: ping_to_wan_should_fail
+  steps:
+  - type: exec
+    script: ping -c 1 -W 5 {{.fingerbank_proxy_test_wan_ip}}
+    assertions:
+    - result.code ShouldNotEqual 0
+
+- name: restart_collector_and_clear_cache
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-fingerbank-collector
+
+  - type: exec
+    script: /usr/local/pf/bin/pfcmd cache fingerbank clear
+
