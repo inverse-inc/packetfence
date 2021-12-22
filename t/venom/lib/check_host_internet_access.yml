@@ -1,4 +1,5 @@
 executor: check_host_internet_access
+# By default it will use the node1
 input:
   host: "{{.node01_mgmt_ip}}"
   user: "{{.ssh_user}}"
@@ -7,5 +8,5 @@ steps:
     host: '{{.input.host}}'
     user: '{{.input.user}}'
     command: |
-      cd /usr/local/pf/t/venom ; \
-      sudo /usr/local/pf/t/venom/venom-wrapper.sh test_suite//common/check_internet_access.yml
+      cd '{{.venom_dir}}'  ; \
+      sudo '{{.venom_dir}}/venom-wrapper.sh' '{{.test_suites_dir}}/common/check_internet_access.yml'

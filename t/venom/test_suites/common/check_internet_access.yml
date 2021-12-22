@@ -1,4 +1,4 @@
-name: Check Internet access
+name: Check access internet
 testcases:
 - name: check_internet_access
   steps:
