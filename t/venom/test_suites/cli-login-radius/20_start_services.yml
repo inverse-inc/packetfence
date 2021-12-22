@@ -3,5 +3,5 @@ testcases:
 - name: start_radius_test_service
   steps:
   - type: systemctl_service
-    unit_commands: restart
+    unit_command: restart
     service: radius-test.service

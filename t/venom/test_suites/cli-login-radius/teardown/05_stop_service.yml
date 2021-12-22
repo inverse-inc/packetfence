@@ -3,17 +3,17 @@ testcases:
 - name: stop_radius_test_service
   steps:
   - type: systemctl_service
-    unit_commands: stop
+    unit_command: stop
     service: radius-test.service
 
 - name: disable_radius_test_service
   steps:
   - type: systemctl_service
-    unit_commands: disable
+    unit_command: disable
     service: radius-test.service
 
 - name: Reload Deamon
   steps:
   - type: systemctl_service
-    unit_commands: daemon-reload
+    unit_command: daemon-reload
     service: "" 
