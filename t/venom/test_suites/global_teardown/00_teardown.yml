@@ -11,7 +11,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/admin_role/{{.access_level_user_and_node.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -23,7 +23,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id1}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -35,7 +35,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.cumulus_switch_group.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -47,7 +47,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.wireless_switch.id1}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -59,7 +59,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.wireless_switch_group.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

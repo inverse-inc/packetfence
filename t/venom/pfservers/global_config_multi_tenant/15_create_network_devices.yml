@@ -120,7 +120,7 @@ testcases:
         "wsUser": null
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
@@ -143,7 +143,7 @@ testcases:
         "description": "{{.cumulus_switch.description}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
@@ -261,7 +261,7 @@ testcases:
         "wsUser": null
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
@@ -281,7 +281,7 @@ testcases:
         "description": "{{.wireless_switch.description}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:

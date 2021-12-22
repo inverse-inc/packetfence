@@ -11,7 +11,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/service/radiusd-auth/restart'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -21,7 +21,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/service/pfacct/restart'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

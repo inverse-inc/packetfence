@@ -28,7 +28,7 @@ testcases:
         "ocsp_url": "{{.wired_dot1x_eap_tls_manual.certs.ocsp_url}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -61,7 +61,7 @@ testcases:
         "ocsp_url": "{{.wired_dot1x_eap_tls_manual.certs.ocsp_url}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -84,7 +84,7 @@ testcases:
         "ip_addresses": "{{.wired_dot1x_eap_tls_manual.certs.radius.ip_addresses}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -168,7 +168,7 @@ testcases:
         "ocsp_url": "{{.wired_dot1x_eap_tls_manual.certs.ocsp_url}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -191,7 +191,7 @@ testcases:
         "ip_addresses": "{{.wired_dot1x_eap_tls_manual.certs.http.ip_addresses}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -281,7 +281,7 @@ testcases:
         "scep_days_before_renewal": "{{.wired_dot1x_eap_tls_manual.certs.user.scep_days_before_renewal}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -302,7 +302,7 @@ testcases:
         "mail": "{{.wired_dot1x_eap_tls_manual.certs.user.mail}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

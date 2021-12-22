@@ -21,7 +21,7 @@ testcases:
         "ocsp_use_nonce": "{{.wired_dot1x_eap_tls_scep.ocsp.use_nonce}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -38,7 +38,7 @@ testcases:
         "ocsp": "{{.wired_dot1x_eap_tls_scep.ocsp.id}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

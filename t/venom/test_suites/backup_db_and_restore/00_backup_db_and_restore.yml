@@ -15,7 +15,7 @@ testcases:
           "pid": "{{.backup_db_and_restore.user}}"
         }
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.get_login_token.result.token}}"
         "Content-Type": "application/json"
       assertions:
         - result.statuscode ShouldEqual 201
@@ -97,7 +97,7 @@ testcases:
         }
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

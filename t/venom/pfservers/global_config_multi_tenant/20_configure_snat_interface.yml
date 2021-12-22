@@ -24,7 +24,7 @@ testcases:
         "interfaceSNAT":"{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
       "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:

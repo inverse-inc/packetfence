@@ -11,7 +11,7 @@ testcases:
       url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.get_login_token.result.token}}"
         "Content-Type": "application/json"
       assertions:
       - result.statuscode ShouldEqual 200
@@ -39,7 +39,7 @@ testcases:
       url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.get_login_token.result.token}}"
         "Content-Type": "application/json"
       assertions:
       - result.statuscode ShouldEqual 200
@@ -53,7 +53,7 @@ testcases:
       url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
       ignore_verify_ssl: true
       headers:
-        "Authorization": "{{.get_login_token.json.result.token}}"
+        "Authorization": "{{.get_login_token.result.token}}"
         "Content-Type": "application/json"
       assertions:
       - result.statuscode ShouldEqual 200

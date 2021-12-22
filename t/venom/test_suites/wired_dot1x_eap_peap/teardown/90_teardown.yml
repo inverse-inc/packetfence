@@ -15,7 +15,7 @@ testcases:
         "domain": null
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -29,7 +29,7 @@ testcases:
         "domain": null
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -41,7 +41,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.ad_domain_upper}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -51,7 +51,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.ad_dns_domain}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -63,7 +63,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -75,7 +75,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_eap_peap.profiles.wired.id}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -87,7 +87,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_user.name}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -97,7 +97,7 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_machine.name}}'
     ignore_verify_ssl: true
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
