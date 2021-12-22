@@ -1,4 +1,4 @@
-# captive_portal
+# fingerbank_proxy
 
 Test that the Fingerbank Perl library and Fingerbank Collector are able to work behind a proxy
 
