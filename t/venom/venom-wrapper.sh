@@ -27,7 +27,7 @@ configure_and_check() {
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     VENOM_BINARY="${VENOM_BINARY:-`which venom`}"
     # temp, overcome tap issue: https://github.com/ovh/venom/issues/428
-    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format=tap}"
+    VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:-}"
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:-}"
 
     echo -e "Using venom using following variables:"
