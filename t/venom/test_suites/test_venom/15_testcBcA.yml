@@ -67,13 +67,14 @@ testcases:
     - result.foobare ShouldContainSubstring you
     - result.foobarb ShouldContainSubstring hello
 
-# This will fails, the variable varcustomb is in the executor and can not be called outside
+# Variable varcustomb is in the executor and can not be called outside
+# We don't expect output to contain substrings
 # 
 - name: customH_custom
   steps:
   - type: customE
     myArg: "{{.customD_custom.result.foobard}}"
     assertions:
-    - varcustomb ShouldContainSubstring hello
-    - custome.varcustomb ShouldContainSubstring hello
-    - result.custome.varcustomb ShouldContainSubstring hello
+    - varcustomb ShouldNotContainSubstring hello
+    - custome.varcustomb ShouldNotContainSubstring hello
+    - result.custome.varcustomb ShouldNotContainSubstring hello
