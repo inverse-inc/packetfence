@@ -203,7 +203,6 @@ all:
       # ci
       gitlab-runner:
         vars:
-          # secrets (not secrets ID) can't contain "~" character due to sanitize
           rhel_sub_secret_id: 'e9d98894-bd22-4f32-8b59-653aceb72ec4'
           fingerbank_api_key:
             secret_id: 'd2c4d4f8-c5b1-4281-a724-e4ade5c31fe1'
