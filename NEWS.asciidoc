@@ -31,7 +31,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Allow Meraki::MR_v2 module to be able to use a RADIUS Disconnect instead of only a RADIUS CoA
 * Simplify local development of Venom tests (#6711)
-* Integration tests on Fingerbank (#6725)
+* Integration tests on Fingerbank (#6725, #6786)
 * Integration tests on captive portal (#6744)
 
 === Bug Fixes
