@@ -16,9 +16,9 @@
       # to make Psono variables available
       environment: '{{ inventory__group_environment | d({}) }}'
 
-    # Store archive into result_dir/hostname/results.tar.gz
+    # Store archive into result_dir/hostname/src
     - name: Get logs on runner
       fetch:
         src: '{{ venom_dir }}/results.tar.gz'
-        dest: '{{ result_dir }}/results.tar.gz'
+        dest: '{{ result_dir }}'
 
