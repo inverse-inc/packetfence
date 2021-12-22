@@ -12,4 +12,4 @@ testcases:
   - type: foobarcustommultisteps
     assertions:
     - result.foobar ShouldEqual "hello world"
-    - content ShouldEqual "hello"
+    - content ShouldBeEmpty
