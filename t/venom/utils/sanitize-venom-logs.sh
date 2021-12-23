@@ -7,8 +7,9 @@ set -o nounset -o pipefail -o errexit
 
 venom_root=/usr/local/pf/t/venom
 venom_result_dir=${venom_root}/results
-venom_result_archive=${venom_root}/results.tar.gz
+venom_result_archive=${venom_root}/results-$(hostname).tar.gz
 venom_local_vars_file=${venom_root}/vars/local.yml
+PSONO_CI_API_KEY_ID=${PSONO_CI_API_KEY_ID:-}
 
 # https://stackoverflow.com/a/2705678
 escape_secret () {
@@ -37,7 +38,7 @@ remove_secrets() {
         secret=$(psonoci secret get ${secret_id} password)
         escaped_secret=$(escape_secret $secret)
         # replace secret in results **files**
-        find ${venom_result_dir} -type f -print0 | xargs -0 sed --silent -i "s/${escaped_secret}/REDACTED/g"
+        find ${venom_result_dir} -type f -print0 | xargs -0 sed -i "s/${escaped_secret}/REDACTED/g"
     done
 }
 

@@ -9,16 +9,16 @@
 
   tasks:
     - name: Sanitize logs
-      shell: '{{ venom_dir }}/utils/sanitize-venom-logs.sh &> /dev/null'
+      shell: '{{ venom_dir }}/utils/sanitize-venom-logs.sh'
       args:
         executable: '/bin/bash'
       no_log: True
       # to make Psono variables available
       environment: '{{ inventory__group_environment | d({}) }}'
 
-    # Store archive into result_dir/hostname/src
+    # Store archive into result_dir/results/results-$(hostname).tar.gz
     - name: Get logs on runner
       fetch:
-        src: '{{ venom_dir }}/results.tar.gz'
-        dest: '{{ result_dir }}'
-
+        src: '{{ venom_dir }}/results-{{ inventory_hostname }}.tar.gz'
+        dest: '{{ result_dir }}/'
+        flat: True
