@@ -19,7 +19,7 @@ testcases:
        "tenant_id": 1
      }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200

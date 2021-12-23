@@ -48,7 +48,7 @@ testcases:
        "vlan": null
      }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -89,7 +89,7 @@ testcases:
        "type": "inlinel3"
      }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -148,7 +148,7 @@ testcases:
        "custom_field_9": ""
      }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -213,7 +213,7 @@ testcases:
        "unregdate": null
      }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -229,7 +229,7 @@ testcases:
         "interfaceSNAT":"eth0"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
@@ -247,7 +247,7 @@ testcases:
        "interfaceSNAT": "eth0"
      }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
