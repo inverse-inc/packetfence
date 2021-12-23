@@ -9,6 +9,21 @@
       - configurator
       - global_config
 
+      # Run the captive_portal suite independently from the other ones since it it requires to keep the IP in the registration VLAN and the other test suites perform VLAN changes
+      - fingerbank_invalid_db/corrupt
+      - fingerbank_invalid_db/clear_cache
+      - captive_portal
+      - captive_portal/locales
+      - captive_portal/teardown
+      - fingerbank_invalid_db/corrupt/teardown
+
+      - fingerbank_invalid_db/missing_table
+      - fingerbank_invalid_db/clear_cache
+      - captive_portal
+      - captive_portal/locales
+      - captive_portal/teardown
+      - fingerbank_invalid_db/missing_table/teardown
+
       - fingerbank_invalid_db/corrupt
       - fingerbank_invalid_db/clear_cache
       - wired_mac_auth
