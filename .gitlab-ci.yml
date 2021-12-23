@@ -230,6 +230,10 @@ variables:
 .test_job:
   stage: test
   dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - results/*
   tags:
     - inverse.ca
     - shell
