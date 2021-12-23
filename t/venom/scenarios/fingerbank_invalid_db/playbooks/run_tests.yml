@@ -9,45 +9,56 @@
       - configurator
       - global_config
 
+      # Run the captive_portal suite independently from the other ones since it it requires to keep the IP in the registration VLAN and the other test suites perform VLAN changes
       - fingerbank_invalid_db/corrupt
       - fingerbank_invalid_db/clear_cache
-        #- wired_mac_auth
-        #- wired_mac_auth/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- wireless_mac_auth
-        #- wireless_mac_auth/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- wired_dot1x_eap_peap
-        #- wired_dot1x_eap_peap/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- wireless_dot1x_eap_peap
-        #- wireless_dot1x_eap_peap/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- pfdhcplistener_single_tenant
-        #- pfdhcplistener_single_tenant/teardown
-        #- fingerbank_invalid_db/clear_cache
       - captive_portal
       - captive_portal/locales
       - captive_portal/teardown
       - fingerbank_invalid_db/corrupt/teardown
 
-        #- fingerbank_invalid_db/missing_table
-        #- fingerbank_invalid_db/clear_cache
-        #- wired_mac_auth
-        #- wired_mac_auth/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- wireless_mac_auth
-        #- wireless_mac_auth/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- wired_dot1x_eap_peap
-        #- wired_dot1x_eap_peap/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- wireless_dot1x_eap_peap
-        #- wireless_dot1x_eap_peap/teardown
-        #- fingerbank_invalid_db/clear_cache
-        #- pfdhcplistener_single_tenant
-        #- pfdhcplistener_single_tenant/teardown
-        #- fingerbank_invalid_db/missing_table/teardown
+      - fingerbank_invalid_db/missing_table
+      - fingerbank_invalid_db/clear_cache
+      - captive_portal
+      - captive_portal/locales
+      - captive_portal/teardown
+      - fingerbank_invalid_db/missing_table/teardown
+
+      - fingerbank_invalid_db/corrupt
+      - fingerbank_invalid_db/clear_cache
+      - wired_mac_auth
+      - wired_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wireless_mac_auth
+      - wireless_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wired_dot1x_eap_peap
+      - wired_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wireless_dot1x_eap_peap
+      - wireless_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
+      - pfdhcplistener_single_tenant
+      - pfdhcplistener_single_tenant/teardown
+      - fingerbank_invalid_db/corrupt/teardown
+
+      - fingerbank_invalid_db/missing_table
+      - fingerbank_invalid_db/clear_cache
+      - wired_mac_auth
+      - wired_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wireless_mac_auth
+      - wireless_mac_auth/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wired_dot1x_eap_peap
+      - wired_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
+      - wireless_dot1x_eap_peap
+      - wireless_dot1x_eap_peap/teardown
+      - fingerbank_invalid_db/clear_cache
+      - pfdhcplistener_single_tenant
+      - pfdhcplistener_single_tenant/teardown
+      - fingerbank_invalid_db/missing_table/teardown
 
   tasks:
     - name: Run Venom testsuites
