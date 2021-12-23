@@ -1,0 +1,12 @@
+executor: customD
+input:
+  myArg: "world2"
+steps:
+- type: customB
+  myWord: "{{.input.myArg}}"
+- script: echo "hello {{.result.foobarb}}"
+  assertions:
+  - result.code ShouldEqual 0
+  - result.systemout ShouldContainSubstring "{{.input.myArg}}"
+output:
+  foobard: "{{.result.systemout}}"

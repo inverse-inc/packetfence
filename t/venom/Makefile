@@ -164,3 +164,8 @@ example_deb11:
 	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
 
+test_deb11:
+	make \
+        PF_VM_NAME=pfdeb11$(DEV_ENV) \
+        SCENARIOS_TO_RUN=test_venom\
+        $(MAKE_TARGET)

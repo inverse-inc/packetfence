@@ -1,0 +1,5 @@
+executor: enable_node_cleanup
+
+steps:
+- type: node_task_cleanup
+  status: "disable"

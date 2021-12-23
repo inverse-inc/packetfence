@@ -1,0 +1,80 @@
+testcases:
+- name: customB_default
+  steps:
+  - type: customB
+    assertions:
+    - result.foobarb ShouldContainSubstring world
+
+- name: customB_custom
+  steps:
+  - type: customB
+    myWord: "universe"
+    assertions:
+    - result.foobarb ShouldContainSubstring universe
+
+- name: customA_default
+  steps:
+  - type: customA
+    assertions:
+    - result.foobara ShouldContainSubstring world2
+    - result.foobara ShouldContainSubstring hello
+ 
+- name: customA_custom
+  steps:
+  - type: customA
+    myArg: "universe"
+    assertions:
+    - result.foobara ShouldContainSubstring universe
+    - result.foobara ShouldContainSubstring hello
+
+- name: customD_default
+  steps:
+  - type: customD
+    assertions:
+    - result.foobard ShouldContainSubstring world2
+    - result.foobard ShouldContainSubstring hello
+
+- name: customD_custom
+  steps:
+  - type: customD
+    myArg: "universe"
+    assertions:
+    - result.foobard ShouldContainSubstring universe
+    - result.foobard ShouldContainSubstring hello
+
+- name: customE_custom
+  steps:
+  - type: customD
+    myArg: "{{.customD_custom.result.foobard}}"
+    assertions:
+    - result.foobard ShouldContainSubstring universe
+    - result.foobard ShouldContainSubstring hello
+
+- name: customF_custom
+  steps:
+  - type: customD
+    myArg: "{{.customD_custom.json.result.foobard}}"
+    assertions:
+    - result.foobard ShouldContainSubstring universe
+    - result.foobard ShouldContainSubstring hello
+
+- name: customG_custom
+  steps:
+  - type: customE
+    myArg: "{{.customD_custom.json.result.foobard}}"
+    assertions:
+    - result.foobare ShouldContainSubstring universe
+    - result.foobare ShouldContainSubstring you
+    - result.foobarb ShouldContainSubstring hello
+
+# Variable varcustomb is in the executor and can not be called outside
+# We don't expect output to contain substrings
+# 
+- name: customH_custom
+  steps:
+  - type: customE
+    myArg: "{{.customD_custom.result.foobard}}"
+    assertions:
+    - varcustomb ShouldNotContainSubstring hello
+    - custome.varcustomb ShouldNotContainSubstring hello
+    - result.custome.varcustomb ShouldNotContainSubstring hello

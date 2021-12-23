@@ -1,0 +1,15 @@
+executor: customA
+input:
+  myArg: "world2"
+steps:
+- type: customB
+  myWord: "{{.input.myArg}}"
+  vars:
+    content:
+      from: result.foobarb
+- script: echo "hello {{.content}}"
+  assertions:
+  - result.code ShouldEqual 0
+  - result.systemout ShouldContainSubstring "{{.input.myArg}}"
+output:
+  foobarA: "{{.result.systemout}}"

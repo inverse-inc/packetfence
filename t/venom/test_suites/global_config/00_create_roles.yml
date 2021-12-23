@@ -17,7 +17,7 @@ testcases:
         "notes":"{{.eap_peap.roles.ad_user.notes}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -35,7 +35,7 @@ testcases:
         "notes":"{{.eap_peap.roles.ad_machine.notes}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -53,7 +53,7 @@ testcases:
         "notes":"{{.mac_auth.roles.headless_device.notes}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -71,7 +71,7 @@ testcases:
         "notes":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.notes}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
@@ -89,7 +89,7 @@ testcases:
         "notes":"{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.notes}}"
       }
     headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201

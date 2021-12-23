@@ -1,0 +1,24 @@
+name: testsuite with a user executor
+testcases:
+- name: customC_default
+  steps:
+  - type: customC
+    info: 
+    - result of customC is {{.result.systemoutjson.hello}}
+    assertions:
+    - result.systemoutjson.hello ShouldContainSubstring default
+    - result.systemoutjson.hello ShouldContainSubstring default2
+
+
+- name: customC_over
+  steps:
+  - type: customC
+    myarg: {
+      "name": "world",
+      "surname": "universe"
+    }
+    info: 
+    - result of customC is {{.result.systemoutjson.hello}}
+    assertions:
+    - result.systemoutjson.hello ShouldContainSubstring world
+    - result.systemoutjson.hello ShouldContainSubstring universe

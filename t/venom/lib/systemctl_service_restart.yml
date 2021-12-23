@@ -1,0 +1,18 @@
+executor: systemctl_service_restart
+input:
+  service: {} 
+steps:
+# service restarted by hand because using API cause Venom failure (EOF)
+- type: systemctl_service
+  unit_commands: restart
+  service: "{{.input.service}}"
+
+# let service restarts
+- type: sleep
+  time_to_sleep: 5
+
+- type: systemctl_service
+  unit_commands: status
+  service: "{{.input.service}}"
+  assertions:
+    - result.systemout ShouldContainSubstring active (running)

@@ -15,11 +15,10 @@
       loop: '{{ test_suites }}'
       vars:
         venom_wrapper_args:
-          # temp, overcome two Venom issues:
-          # - tap: https://github.com/ovh/venom/issues/428
+          # temp, overcome Venom issue:
           # - when running test suite one by one, previous logs and results are overriden
           # Venom will create one directory per test suite to store results
-          VENOM_COMMON_FLAGS: '--format=tap --output-dir={{ venom_dir }}/results/{{ item }}'
+          VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}'
 
       # add inventory__group_environment to Ansible environment
       # useful to make env vars available for Venom

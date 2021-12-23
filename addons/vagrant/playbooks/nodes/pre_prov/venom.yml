@@ -7,7 +7,7 @@
     - inverse_inc.utils
 
   vars:
-    venom__version: 'v1.0.0-rc.7'
+    venom__version: 'v1.0.1'
     
   roles:
     - role: venom

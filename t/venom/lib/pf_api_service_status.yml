@@ -1,0 +1,9 @@
+executor: pf_api_service_status
+input:
+  service: {}
+steps:
+- type: pf_api_service_action
+  service: "{{.input.service}}"
+  action: "status"
+  output:
+    postjson: "{{.result.postjson}}"

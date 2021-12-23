@@ -1,0 +1,14 @@
+executor: customC
+input:
+  myarg: { 
+    "name": "default",
+    "surname": "default2"
+  }
+steps:
+- script: echo "{{.input.myarg.name}}" > t.log
+- script: echo "{\"hello\":\"{{.input.myarg.name}} and {{.input.myarg.surname}}\"}"
+  assertions:
+  - result.code ShouldEqual 0
+output:
+   systemout: "{{.result.systemout}}"
+   systemoutjson.hello: "{{.result.systemoutjson.hello}}"
