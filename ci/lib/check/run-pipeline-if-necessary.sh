@@ -12,15 +12,23 @@ FUNCTIONS_FILE=${PF_SRC_DIR}/ci/lib/common/functions.sh
 
 source ${FUNCTIONS_FILE}
 
+# GitLab API: https://docs.gitlab.com/ee/api/
+
 configure_and_check() {
     CI_PROJECT_ID=${CI_PROJECT_ID:-}
+    CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     CI_COMMIT_REF_NAME=${CI_COMMIT_REF_NAME:-}
+    GITLAB_API_TOKEN=${GITLAB_API_TOKEN:-}
 
     COMMIT_REF_NAME_ENCODED=$(urlencode "$CI_COMMIT_REF_NAME")
     COMMIT_SHA=$(git rev-parse HEAD~0)
+
+    [ -z "${GITLAB_API_TOKEN}" ] && die "not set: GITLAB_API_TOKEN"
     
     # get SHA of latest pipeline scheduled with status=succes for that branch
-    SHA_LATEST_PIPELINE=$(curl -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/pipelines?status=success&source=schedule&ref=${COMMIT_REF_NAME_ENCODED}" | jq -r '.[0].sha')
+    SHA_LATEST_PIPELINE=$(curl --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
+                               -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/pipelines?status=success&source=schedule&ref=${COMMIT_REF_NAME_ENCODED}" \
+                              | jq -r '.[0].sha')
 
     RUN_PIPELINE=yes
 
@@ -36,20 +44,32 @@ configure_and_check() {
     declare -p RUN_PIPELINE
 }
 
-set_exit_code() {
+cancel_pipeline() {
+    curl --request POST \
+         --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
+         -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/cancel" \
+         | jq -r '.status'
+}
+
+define_next_action() {
     if [ "$RUN_PIPELINE" = "yes" ]; then
         echo "We need to run a pipeline"
         exit 0
     else
-        # GitLab job will failed and prevent execution of next job
-        echo "No need to run a pipeline"
-        exit 1
+        echo "No need to run a pipeline, cancelling pipeline"
+        if [ $(cancel_pipeline) = "canceled" ]; then
+            echo "Pipeline canceled"
+            exit 0
+        else
+            echo "Unable to cancel pipeline"
+            # job will failed and pipeline will be stopped
+            exit 1
+        fi
     fi
 }
-
 
 log_section "Configure and check"
 configure_and_check
 
-log_section "Set exit code"
-set_exit_code
+log_section "Define next action"
+define_next_action

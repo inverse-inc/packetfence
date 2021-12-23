@@ -349,6 +349,7 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/unittest/Authentication/Source/*.t
 	# Venom
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/venom/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/venom/utils/*.sh
 	# packetfence pkg
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh

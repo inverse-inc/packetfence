@@ -1,7 +1,5 @@
 # PacketFence
 
-[![pipeline status](https://gitlab.com/inverse-inc/packetfence/badges/devel/pipeline.svg)](https://gitlab.com/inverse-inc/packetfence/commits/devel)
-
 ## What is PacketFence?
 
 PacketFence is a fully supported, trusted, Free and Open Source
