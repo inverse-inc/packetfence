@@ -15,7 +15,7 @@ testcases:
 
           [Service]
           Environment="haltcmd=kill -INT $MAINPID"
-          ExecStart= ip netns exec inlinel3 qemu-system-x86_64 -boot d -hda /tmp/ulinux.qcow2 -m 128M -device virtio-net-pci,netdev=network0,mac=02:06:19:98:00:00 -netdev tap,id=network0,ifname=blok-tap0,script=no,downscript=no -nographic -serial telnet:localhost:4321,server,nowait
+          ExecStart= ip netns exec inlinel3 /usr/bin/qemu-system-x86_64 -boot d -hda /tmp/ulinux.qcow2 -m 128M -device "virtio-net-pci,netdev=network0,mac={{.inline_l3.node.macaddress}}" -netdev tap,id=network0,ifname=blok-tap0,script=no,downscript=no -nographic -serial telnet:localhost:4321,server,nowait
           ExecStop=/usr/bin/bash -c ${haltcmd}
           ExecStop=/usr/bin/bash -c 'while nc localhost 7100; do sleep 1; done'
 

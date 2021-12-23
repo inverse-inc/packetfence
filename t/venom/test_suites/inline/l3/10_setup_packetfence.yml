@@ -37,7 +37,7 @@ testcases:
        "network": "100.64.0.0",
        "network_iseditable": true,
        "networks": [
-         "192.168.1.0"
+         "{{.inline_l3.routed_networks}}"
        ],
        "not_editable": false,
        "reg_network": null,
@@ -61,16 +61,16 @@ testcases:
     ignore_verify_ssl: true
     body: >-
      {
-       "id": "192.168.1.0",
+       "id": "{{.inline_l3.routed_networks}}",
        "isClone": false,
        "isNew": true,
        "algorithm": 1,
        "coa": "disabled",
        "description": "Inline L3",
        "dhcp_default_lease_time": "30",
-       "dhcp_end": "192.168.1.10",
+       "dhcp_end": "{{.inline_l3.node.ipaddress}}",
        "dhcp_max_lease_time": "30",
-       "dhcp_start": "192.168.1.10",
+       "dhcp_start": "{{.inline_l3.node.ipaddress}}",
        "dhcpd": "enabled",
        "dns": "8.8.8.8",
        "fake_mac_enabled": 0,

@@ -22,3 +22,10 @@
         state: present
         enablerepo: "epel"
       when: ansible_facts['os_family'] == "RedHat"
+
+    - name: For RHEL8Create a symbolic link for qemu-system-x86_64
+      ansible.builtin.file:
+        src: /usr/libexec/qemu-kvm
+        dest: /usr/bin/qemu-system-x86_64
+        state: link
+      when: ansible_facts['os_family'] == "RedHat"

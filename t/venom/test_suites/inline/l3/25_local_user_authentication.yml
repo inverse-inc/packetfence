@@ -3,7 +3,7 @@ testcases:
   - name: register_device_on_the_portal
     steps:
     - type: exec
-      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@192.168.1.10"  -t "/root/register_node  -portal=https://100.64.0.2"
+      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@{{.inline_l3.node.ipaddress}}"  -t "/root/register_node  -portal=https://100.64.0.2"
 
     # let wait a bit until the device is set in the ipset
     - type: exec
@@ -12,15 +12,15 @@ testcases:
   - name: test_if_the_device_is_in_the_ipset_register_set
     steps:
       - type: exec
-        script: ipset test pfsession_Reg_192.168.1.0 192.168.1.10
+        script: 'ipset test pfsession_Reg_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
 
 
   - name: test_if_the_device_is_in_the_ipset_role_id_1
     steps:
       - type: exec
-        script: ipset test PF-iL3_ID1_192.168.1.0 192.168.1.10
+        script: 'ipset test PF-iL3_ID1_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
 
   - name: test_if_the_device_can_reach_cnn_com
     steps:
     - type: exec
-      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@192.168.1.10"  -t "/root/test_internet_access"
+      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@{{.inline_l3.node.ipaddress}}"  -t "/root/test_internet_access"
