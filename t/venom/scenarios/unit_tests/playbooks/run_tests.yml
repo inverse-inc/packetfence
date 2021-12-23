@@ -13,7 +13,10 @@
       - pfcron
       - backup_db_and_restore
       - backup_db_and_restore/teardown
-
+      - inline/l3
+      - inline/l3/teardown
+      - inline/l2
+      - inline/l2/teardown
 
   tasks:
     # only to debug what is injected in Ansible environment

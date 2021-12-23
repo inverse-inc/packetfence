@@ -8,3 +8,17 @@
   roles:
     - role: packetfence_go
       tags: go
+
+  tasks:
+    - name: Install qemu-system-x86 on debian
+      apt:
+        name: qemu-system-x86
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install qemu-kvm on el8
+      yum:
+        name: qemu-kvm
+        state: present
+        enablerepo: "epel"
+      when: ansible_facts['os_family'] == "RedHat"
