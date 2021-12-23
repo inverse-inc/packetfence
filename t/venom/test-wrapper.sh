@@ -26,7 +26,8 @@ delete_dir_if_exists() {
 
 configure_and_check() {
     log_section "Configure and check"
-    # Tests
+    # full path to root of sources
+    RESULT_DIR=${RESULT_DIR:-}
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     SCENARIOS_BASE_DIR=${VENOM_ROOT_DIR}/scenarios
     SCENARIOS_TO_RUN=${SCENARIOS_TO_RUN:-foo bar}
@@ -56,9 +57,8 @@ configure_and_check() {
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
-
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
-    declare -p ANSIBLE_INVENTORY VENOM_ROOT_DIR
+    declare -p ANSIBLE_INVENTORY RESULT_DIR VENOM_ROOT_DIR
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
     declare -p PF_VM_NAME INT_TEST_VM_NAMES ANSIBLE_VM_LIST
     declare -p SCENARIOS_TO_RUN DESTROY_ALL
