@@ -1,0 +1,33 @@
+name: Cli RADIUS Config Teardown
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: delete_radius_source
+  steps:
+  - type: delete_source
+    id: "{{.cli_login_radius.sources.id}}"
+    token: "{{.get_login_token.json.result.token}}"
+
+- name: Switch_192.168.0.1_back_to_default
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cli_login_radius.switch.ip}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cliAccess": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: delete_radius_realm
+  steps:
+  - type: delete_realm
+    id: "{{.cli_login_radius.realm.id}}"
+    token: "{{.get_login_token.json.result.token}}"

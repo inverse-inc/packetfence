@@ -1,0 +1,22 @@
+name: Change Switch Config
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: change_switch_config
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cli_login_radius.switch.ip}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "cliAccess": "Y"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+

@@ -1,0 +1,4 @@
+---
+cli_login_radius_pod: "/usr/local/pf/pod.txt"
+cli_login_radius_pod_proxy: "/usr/local/pf/pod_proxy.txt"
+cli_login_radius_realm_id: "cli_login_radius_realm_id"

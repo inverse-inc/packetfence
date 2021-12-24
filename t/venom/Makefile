@@ -124,14 +124,6 @@ dot1x_eap_tls_deb11:
 	SCENARIOS_TO_RUN=dot1x_eap_tls \
 	$(MAKE_TARGET)
 
-example_el8:
-	make \
-	PF_VM_NAME=pfel8$(DEV_ENV) \
-	# if you want to start additional VMs
-	#INT_TEST_VM_NAMES="switch01 node01" \
-	SCENARIOS_TO_RUN=example \
-	$(MAKE_TARGET)
-
 fingerbank_invalid_db_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
@@ -146,6 +138,18 @@ external_integrations_deb11:
 	SCENARIOS_TO_RUN=external_integrations \
 	$(MAKE_TARGET)
 
+cli_login_el8:
+	make \
+	PF_VM_NAME=pfel8$(DEV_ENV) \
+        SCENARIOS_TO_RUN=cli_login \
+        $(MAKE_TARGET)
+
+cli_login_deb11:
+	make \
+	PF_VM_NAME=pfdeb11$(DEV_ENV) \
+	SCENARIOS_TO_RUN=cli_login \
+	$(MAKE_TARGET)
+
 captive_portal_el8:
 	make \
 	PF_VM_NAME=pfel8$(DEV_ENV) \
@@ -158,6 +162,14 @@ captive_portal_deb11:
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
 	SCENARIOS_TO_RUN=captive_portal \
+	$(MAKE_TARGET)
+
+example_el8:
+	make \
+	PF_VM_NAME=pfel8$(DEV_ENV) \
+	# if you want to start additional VMs
+	#INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=example \
 	$(MAKE_TARGET)
 
 example_deb11:

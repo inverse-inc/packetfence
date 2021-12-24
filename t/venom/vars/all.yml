@@ -459,8 +459,25 @@ pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
 # need to be a network not already attached to PacketFence server
 pfdhcplistener_multi_tenant.nodes.node11.dhcp_server: 10.10.10.1
 
-
 ################################################################################
 # fingerbank_proxy test suite specific variables
 ################################################################################
 fingerbank_proxy_test_wan_ip: 1.1.1.1
+
+################################################################################
+#Cli Radius test test suite specific variables
+#################################################################################
+cli_login_radius.sources.id: cli_login_radius_source
+cli_login_radius.sources.radius_machine.id: 
+cli_login_radius.sources.access_duration: 5D
+cli_login_radius.sources.desc: "Test for radius cli"
+cli_login_radius.sources.host: "127.0.0.1"
+cli_login_radius.sources.port: 1820
+cli_login_radius.sources.realms: ""
+cli_login_radius.sources.secret: testing123
+cli_login_radius.sources.role: default
+cli_login_radius.realm.id: cli_login_radius_realm_id
+cli_login_radius.realm.domain: example
+cli_login_radius.pod: "/usr/local/pf/pod.txt"
+cli_login_radius.pod_proxy: "/usr/local/pf/pod_proxy.txt"
+cli_login_radius.switch.ip: 192.168.0.1

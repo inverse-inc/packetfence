@@ -1,0 +1,33 @@
+name: Create ADMIN role
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_admin_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/admin_roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "Switch_Access",
+        "isClone": false,
+        "isNew": true,
+        "actions": [
+          "SWITCH_LOGIN_WRITE"
+        ],
+        "allowed_access_durations": null,
+        "allowed_access_levels": [],
+        "allowed_actions": [],
+        "allowed_node_roles": [],
+        "allowed_roles": [],
+        "allowed_unreg_date": null,
+        "description": "Switch Access"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
