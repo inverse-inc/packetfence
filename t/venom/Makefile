@@ -136,6 +136,7 @@ external_integrations_deb11:
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
 	INT_TEST_VM_NAMES="linux02" \
 	SCENARIOS_TO_RUN=external_integrations \
+	$(MAKE_TARGET)
 
 cli_login_el8:
 	make \
