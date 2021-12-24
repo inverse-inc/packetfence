@@ -257,6 +257,7 @@ variables:
   stage: test
   dependencies: []
   artifacts:
+    when: always
     expire_in: 1 day
     paths:
       - results/*
