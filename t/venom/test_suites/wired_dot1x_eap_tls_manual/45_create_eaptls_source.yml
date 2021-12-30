@@ -15,7 +15,7 @@ testcases:
         "administration_rules": null,
         "authentication_rules": [
           {
-            "id": "check_issuer",
+            "id": "check_issuer_and_subject",
             "description": null,
             "match": "all",
             "actions": [
@@ -33,6 +33,11 @@ testcases:
                 "attribute": "radius_request.TLS-Client-Cert-Issuer",
                 "operator": "equals",
                 "value": "{{.wired_dot1x_eap_tls_manual.certs.ca.issuer}}"
+              },
+              {
+                "attribute": "radius_request.TLS-Client-Cert-Subject",
+                "operator": "equals",
+                "value": "{{.wired_dot1x_eap_tls_manual.certs.user.subject}}"
               }
             ]
           }
