@@ -351,7 +351,7 @@ d-i partman/confirm_nooverwrite boolean true
 # currently not supported.
 
 d-i apt-setup/local0/repository string \
-  http://inverse.ca/downloads/PacketFence/debian/11.1 bullseye bullseye
+  http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bullseye bullseye
 d-i apt-setup/local0/source boolean true
 d-i apt-setup/local0/key string https://inverse.ca/downloads/GPG_PUBLIC_KEY
 
@@ -498,7 +498,7 @@ d-i preseed/late_command string \
   sed -i '/^deb cdrom:/s/^/#/' /target/etc/apt/sources.list ; \
   sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config ; \
   sed -i 's/.*inverse\.ca.*//g' /target/etc/apt/sources.list ; \
-  echo 'deb http://inverse.ca/downloads/PacketFence/debian/11.1 bullseye bullseye' > /target/etc/apt/sources.list.d/packetfence.list ; \
+  echo 'deb http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bullseye bullseye' > /target/etc/apt/sources.list.d/packetfence.list ; \
   echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /target/tmp/reset-root.sql ; \
   mkdir /target/run/mysqld ; \
   chroot /target chown mysql: /run/mysqld/ ; \

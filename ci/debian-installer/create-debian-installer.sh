@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PF_VERSION=11.1
+
 ISO_IN=debian-11.2.0-amd64-netinst.iso
 ISO_OUT=packetfence-debian-installer.iso
 
@@ -8,6 +10,8 @@ if ! [ -f $ISO_IN ]; then
 fi
 
 rm -fr isofiles/
+
+cat preseed.cfg.tmpl | sed "s/%%PF_VERSION%%/$PF_VERSION/g"  > preseed.cfg
 
 xorriso -osirrox on -indev $ISO_IN -extract / isofiles
 
