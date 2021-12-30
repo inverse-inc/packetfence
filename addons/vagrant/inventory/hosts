@@ -119,6 +119,60 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
+            pf1el8dev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf1deb11dev:
+              box: inverse-inc/pfdeb11dev
+              box_version: 11.2.20211230142646
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb11dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf2el8dev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf2deb11dev:
+              box: inverse-inc/pfdeb11dev
+              box_version: 11.2.20211230142646
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb11dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf3el8dev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf3deb11dev:
+              box: inverse-inc/pfdeb11dev
+              box_version: 11.2.20211230142646
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb11dev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb11dev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
             el8dev:
               box: generic/rhel8
               box_version: '3.4.2'
@@ -162,6 +216,60 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 6144
+            pf1el8localdev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf1deb11localdev:
+              box: inverse-inc/pfdeb11dev
+              box_version: 11.2.20211230142646
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb11localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb11localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf2el8localdev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf2deb11localdev:
+              box: inverse-inc/pfdeb11dev
+              box_version: 11.2.20211230142646
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb11localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb11localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf3el8localdev:
+              box: generic/rhel8
+              box_version: '3.4.2'
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
+            pf3deb11localdev:
+              box: inverse-inc/pfdeb11dev
+              box_version: 11.2.20211230142646
+              mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb11localdev']['ip'] }}"
+              mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb11localdev']['netmask'] }}"
+              ansible_host: "{{ mgmt_ip }}"
+              ansible_python_interpreter: '/usr/bin/python3'
+              cpus: 2
+              memory: 6144
 
         stable:
           hosts:
@@ -192,6 +300,21 @@ all:
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 2
               memory: 8192
+
+    cluster:
+      hosts:
+        pf1el8dev: {}
+        pf2el8dev: {}
+        pf3el8dev: {}
+        pf1el8localdev: {}
+        pf2el8localdev: {}
+        pf3el8localdev: {}
+        pf1deb11dev: {}
+        pf2deb11dev: {}
+        pf3deb11dev: {}
+        pf1deb11localdev: {}
+        pf2deb11localdev: {}
+        pf3deb11localdev: {}
 
 
   vars:
@@ -279,6 +402,42 @@ all:
           pfdeb11stable:
             ip: '172.18.200.18'
             netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.200.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.200.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.200.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.200.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.200.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.200.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.200.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.200.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.200.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.200.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.200.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.200.34'
+            netmask: '255.255.255.0'
       # local dev
       _nqb:
         vars:
@@ -357,6 +516,42 @@ all:
           pfdeb11stable:
             ip: '172.18.140.18'
             netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.140.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.140.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.140.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.140.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.140.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.140.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.140.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.140.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.140.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.140.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.140.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.140.34'
+            netmask: '255.255.255.0'
       _jrouzier:
         vars:
           rhel_sub_secret_id: ''
@@ -433,6 +628,42 @@ all:
             netmask: '255.255.255.0'
           pfdeb11stable:
             ip: '172.18.115.18'
+            netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.115.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.115.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.115.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.115.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.115.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.115.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.115.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.115.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.115.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.115.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.115.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.115.34'
             netmask: '255.255.255.0'
       _lzammit:
         vars:
@@ -511,6 +742,42 @@ all:
           pfdeb11stable:
             ip: '172.18.145.18'
             netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.145.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.145.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.145.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.145.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.145.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.145.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.145.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.145.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.145.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.145.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.145.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.145.34'
+            netmask: '255.255.255.0'
       _jgoimard:
         vars:
           rhel_sub_secret_id: '14e54e10-247a-4a38-b19c-b1f8209daf70'
@@ -587,6 +854,42 @@ all:
             netmask: '255.255.255.0'
           pfdeb11stable:
             ip: '172.18.120.18'
+            netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.120.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.120.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.120.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.120.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.120.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.120.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.120.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.120.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.120.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.120.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.120.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.120.34'
             netmask: '255.255.255.0'
       _dsatkunas:
         vars:
@@ -665,6 +968,42 @@ all:
           pfdeb11stable:
             ip: '172.18.125.18'
             netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.125.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.125.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.125.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.125.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.125.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.125.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.125.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.125.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.125.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.125.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.125.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.125.34'
+            netmask: '255.255.255.0'
       _fdurand:
         vars:
           rhel_sub_secret_id: ''
@@ -742,6 +1081,42 @@ all:
           pfdeb11stable:
             ip: '172.18.135.18'
             netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.135.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.135.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.135.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.135.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.135.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.135.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.135.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.135.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.135.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.135.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.135.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.135.34'
+            netmask: '255.255.255.0'
       _jsemaan:
         vars:
           rhel_sub_secret_id: ''
@@ -818,4 +1193,40 @@ all:
             netmask: '255.255.255.0'
           pfdeb11stable:
             ip: '172.18.155.18'
+            netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.155.20'
+            netmask: '255.255.255.0'
+          pf2el8dev:
+            ip: '172.18.155.21'
+            netmask: '255.255.255.0'
+          pf3el8dev:
+            ip: '172.18.155.22'
+            netmask: '255.255.255.0'
+          pf1el8localdev:
+            ip: '172.18.155.24'
+            netmask: '255.255.255.0'
+          pf2el8localdev:
+            ip: '172.18.155.25'
+            netmask: '255.255.255.0'
+          pf3el8localdev:
+            ip: '172.18.155.26'
+            netmask: '255.255.255.0'
+          pf1deb11dev:
+            ip: '172.18.155.28'
+            netmask: '255.255.255.0'
+          pf2deb11dev:
+            ip: '172.18.155.29'
+            netmask: '255.255.255.0'
+          pf3deb11dev:
+            ip: '172.18.155.30'
+            netmask: '255.255.255.0'
+          pf1deb11localdev:
+            ip: '172.18.155.32'
+            netmask: '255.255.255.0'
+          pf2deb11localdev:
+            ip: '172.18.155.33'
+            netmask: '255.255.255.0'
+          pf3deb11localdev:
+            ip: '172.18.155.34'
             netmask: '255.255.255.0'
