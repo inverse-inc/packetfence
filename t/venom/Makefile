@@ -199,3 +199,16 @@ test_deb11:
         PF_VM_NAME=pfdeb11$(DEV_ENV) \
         SCENARIOS_TO_RUN=test_venom\
         $(MAKE_TARGET)
+
+cluster_deb11:
+	make \
+	PF_VM_NAME="pf1deb11$(DEV_ENV) pf2deb11$(DEV_ENV) pf3deb11$(DEV_ENV)" \
+	INT_TEST_VM_NAMES="switch01 node01" \
+	SCENARIOS_TO_RUN=cluster \
+	$(MAKE_TARGET)
+
+cluster_el8:
+	make \
+	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
+	SCENARIOS_TO_RUN=cluster \
+	$(MAKE_TARGET)
