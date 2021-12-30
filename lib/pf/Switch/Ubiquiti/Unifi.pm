@@ -255,6 +255,8 @@ sub _deauthenticateMacWithHTTP {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
         return;
     }
+    
+    $logger->info("Switching status on the Unifi controller using command $command");
 
     my $sites = decode_json($response->decoded_content());
 
@@ -279,6 +281,13 @@ sub _deauthenticateMacWithHTTP {
         $response = $ua->post("$base_url/api/s/$site_opts{'name'}/cmd/stamgr", Content => encode_json($args));
         if ($response->is_success) {
             $logger->info("Deauth on site: $site_opts{'desc'}");
+        }
+    } else {
+        foreach my $entry (@{$sites->{'data'}}) {
+            $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
+            if ($response->is_success) {
+                $logger->trace("Deauth on site: $entry->{'desc'}");
+            }
         }
     }
 
@@ -314,7 +323,6 @@ sub _deauthenticateMacWithHTTP {
     	$logger->info("Deauth on $count access points");
     }
 
-    $logger->info("Switched status on the Unifi controller using command $command");
 }
 
 =item getAccessPointMACIP
