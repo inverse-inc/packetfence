@@ -74,7 +74,7 @@ testcases:
        "dhcpd": "enabled",
        "dns": "8.8.8.8",
        "fake_mac_enabled": 0,
-       "gateway": "192.168.1.1",
+       "gateway": "{{.inline_l3.pf_portal}}",
        "ip_assigned": null,
        "ip_reserved": null,
        "nat_dns": 1,

@@ -39,7 +39,7 @@ testcases:
   - name: add_ip_to_inlinel2_interface
     steps:
     - type: exec
-      script: ip addr add 192.168.2.1/24 dev inlinel2
+      script: 'ip addr add {{.inline_l2.pf_portal}}/24 dev inlinel2'
 
   - name: add_bridgeinlinel2_in_the_blok-br1_bridge
     steps:

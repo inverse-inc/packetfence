@@ -39,7 +39,7 @@ testcases:
        "type": "inlinel2",
        "vip": null,
        "vlan": null,
-       "ipaddress": "192.168.2.1",
+       "ipaddress": "{{.inline_l2.pf_portal}}",
        "netmask": "255.255.255.0"
      }
     headers:
@@ -52,19 +52,19 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/l2_network/192.168.2.0'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/l2_network/{{.inline_l2.routed_networks}}'
     ignore_verify_ssl: true
     body: >-
      {
-       "id": "192.168.2.0",
+       "id": "{{.inline_l2.routed_networks}}",
        "isClone": false,
        "isNew": false,
        "algorithm": 1,
        "description": null,
        "dhcp_default_lease_time": "30",
-       "dhcp_end": "192.168.2.10",
+       "dhcp_end": "{{.inline_l2.node.ipaddress}}",
        "dhcp_max_lease_time": "30",
-       "dhcp_start": "192.168.2.10",
+       "dhcp_start": "{{.inline_l2.node.ipaddress}}",
        "dns": "8.8.8.8",
        "ip_assigned": null,
        "ip_reserved": null,
@@ -145,7 +145,7 @@ testcases:
 - name: assign_a_password_to_the_user
   steps:
   - type: http
-    method: POST
+    method: PATCH
     url: '{{.pfserver_webadmin_url}}/api/v1/user/iastigmate/password'
     ignore_verify_ssl: true
     body: >-
@@ -205,7 +205,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldEqual 200
 
 - name: configure_snat_interface_for_passthroughs
   steps:

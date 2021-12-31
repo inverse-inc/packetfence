@@ -129,7 +129,7 @@ testcases:
   - name: add_ip_to_blok-vpeer0_interface
     steps:
     - type: exec
-      script: ip netns exec inlinel3 ip addr add 192.168.1.1/24 dev blok-vpeer0
+      script: 'ip netns exec inlinel3 ip addr add {{.inline_l3.pf_portal}}/24 dev blok-vpeer0'
       
   - name: add_blok-veth0_in_the_blok-br0_bridge
     steps:
