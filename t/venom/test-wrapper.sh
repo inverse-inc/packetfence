@@ -31,17 +31,18 @@ configure_and_check() {
     VENOM_ROOT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     SCENARIOS_BASE_DIR=${VENOM_ROOT_DIR}/scenarios
     SCENARIOS_TO_RUN=${SCENARIOS_TO_RUN:-foo bar}
-    PF_VM_NAME=${PF_VM_NAME:-}
+    PF_VM_NAMES=${PF_VM_NAMES:-}
     INT_TEST_VM_NAMES=${INT_TEST_VM_NAMES:-}
     DESTROY_ALL=${DESTROY_ALL:-no}
 
-    ANSIBLE_VM_LIST=${PF_VM_NAME}
     if [ -n "${INT_TEST_VM_NAMES}" ]; then
-        # create a list of vm split by comma
-        for vm in ${INT_TEST_VM_NAMES}; do
-            ANSIBLE_VM_LIST+=",${vm}"
-        done
+	ALL_VM_NAMES="${PF_VM_NAMES} ${INT_TEST_VM_NAMES}"
+    else
+	ALL_VM_NAMES="${PF_VM_NAMES}"
     fi
+    # replace spaces by commas
+    ANSIBLE_VM_LIST=${ALL_VM_NAMES// /,}
+
     # Vagrant
     VAGRANT_FORCE_COLOR=${VAGRANT_FORCE_COLOR:-true}
     VAGRANT_ANSIBLE_VERBOSE=${VAGRANT_ANSIBLE_VERBOSE:-false}
@@ -60,7 +61,7 @@ configure_and_check() {
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p ANSIBLE_INVENTORY RESULT_DIR VENOM_ROOT_DIR
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
-    declare -p PF_VM_NAME INT_TEST_VM_NAMES ANSIBLE_VM_LIST
+    declare -p PF_VM_NAMES INT_TEST_VM_NAMES ALL_VM_NAMES ANSIBLE_VM_LIST
     declare -p SCENARIOS_TO_RUN DESTROY_ALL
 
     export ANSIBLE_INVENTORY
@@ -69,7 +70,7 @@ configure_and_check() {
 
 run() {
     log_section "Tests"
-    start_and_provision_pf_vm ${PF_VM_NAME}
+    start_and_provision_pf_vm ${PF_VM_NAMES}
     if [ -n "${INT_TEST_VM_NAMES}" ]; then
         start_and_provision_other_vm ${INT_TEST_VM_NAMES}
     else
