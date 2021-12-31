@@ -7,16 +7,16 @@
     test_suites:
       # configurator is necessary to have Fingerbank configured
       - configurator
+      - inline/l3
+      - inline/l3/teardown
+      - inline/l2
+      - inline/l2/teardown
       - unit_tests/configure_smoke_db.yml
       - unit_tests/perl_tests.yml
       - unit_tests/golang_tests.yml
       - pfcron
       - backup_db_and_restore
       - backup_db_and_restore/teardown
-      - inline/l3
-      - inline/l3/teardown
-      - inline/l2
-      - inline/l2/teardown
 
   tasks:
     # only to debug what is injected in Ansible environment
