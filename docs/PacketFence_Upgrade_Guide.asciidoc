@@ -1670,6 +1670,13 @@ The `pf-maint.pl` script used to get maintenance patches has been deprecated. Yo
 
 The WMI scan engines have been deprecated. If you previously used these scan engines, you should migrate to other scan engines.
 
+=== TLS 1.0 and 1.1 are disabled by default in FreeRADIUS
+
+TLS 1.0 and TLS 1.1 are now disabled by default. If you still have supplicants
+using theses protocols, you should move to TLS 1.2. If it's not possible, you
+can adjust `TLS Minimum version` in _Configuration -> System configuration ->
+RADIUS -> TLS profiles_.
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
