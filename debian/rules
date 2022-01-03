@@ -45,7 +45,7 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	#copying example files with the extention
+	#copying example files without example extention (.conf.example -> .conf)
 	for i in `find * -name "*.example" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*'`; do \
 		$(INSTALL) $$i "$(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$(dirname $$i)/$$(basename $$i .example)"; \
 	done
