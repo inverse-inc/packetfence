@@ -164,20 +164,22 @@ captive_portal_deb11:
 	SCENARIOS_TO_RUN=captive_portal \
 	$(MAKE_TARGET)
 
+example_el8: SCENARIOS_TO_RUN=example
 example_el8:
 	make \
 	PF_VM_NAME=pfel8$(DEV_ENV) \
-	# if you want to start additional VMs
-	#INT_TEST_VM_NAMES="switch01 node01" \
-	SCENARIOS_TO_RUN=example \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	$(MAKE_TARGET)
 
+# can be overriden like this:
+# make -C t/venom/ INT_TEST_VM_NAMES=switch01 SCENARIOS_TO_RUN=configurator example_deb11
+example_deb11: SCENARIOS_TO_RUN=example
 example_deb11:
 	make \
 	PF_VM_NAME=pfdeb11$(DEV_ENV) \
-	# if you want to start additional VMs
-	#INT_TEST_VM_NAMES="switch01 node01" \
-	SCENARIOS_TO_RUN=example \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	$(MAKE_TARGET)
 
 test_deb11:
