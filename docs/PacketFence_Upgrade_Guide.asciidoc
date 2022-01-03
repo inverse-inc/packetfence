@@ -1669,6 +1669,36 @@ Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_export
 
 Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_import_on_new_installation,import process>>.
 
+=== Instructions for upgrades without import
+
+If you don't use import mechanism to upgrade your previous PacketFence
+installation, you will need to follow the instructions in this section to
+upgrade the configuration and database schema.
+
+==== Configuration upgrade
+
+[source,bash]
+----
+# Only run this if you don't import your previous configuration
+/usr/local/pf/addons/upgrade/to-11.0-firewall_sso-conf.pl
+/usr/local/pf/addons/upgrade/to-11.0-no-slash-32-switches.pl
+/usr/local/pf/addons/upgrade/to-11.0-openid-username_attribute.pl
+----
+
+==== Database schema
+
+Changes have been made to the database schema. You will need to update it accordingly.
+An SQL upgrade script has been provided to upgrade the database from the 10.3 schema to 11.0.
+
+To upgrade the database schema, run the following command:
+
+[source,bash]
+----
+# Only run this if you don't import your previous configuration
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-10.3-11.0.sql
+----
+
+
 === NTLM cache background job deprecated in Active Directory Domains
 
 The option `NTLM cache background job` and its associated parameters have been deprecated. If you previously used this option on one of your domains, it will now automatically use the `NTLM cache on connection` method.
