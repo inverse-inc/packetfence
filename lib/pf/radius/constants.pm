@@ -160,6 +160,13 @@ Readonly::Hash our %NAS_port_type => (
     36 => "PPPoEoQinQ",
 );
 
+=item TLS Versions
+
+Define all the TLS versions we can use
+
+=cut
+
+Readonly::Array our @TLS_VERSIONS => qw(1.0 1.1 1.2 1.3);
 
 package ACCOUNTING;
 

@@ -15,6 +15,7 @@ use warnings;
 use HTML::FormHandler::Moose;
 use pf::ConfigStore::Radiusd::OCSPProfile;
 use pf::ConfigStore::SSLCertificate;
+use pf::radius::constants;
 extends 'pfappserver::Base::Form';
 with qw(pfappserver::Base::Form::Role::Help);
 ## Definition
@@ -59,12 +60,27 @@ has_field disable_tlsv1_2 => (
         default         => 'no',
 );
 
+has_field tls_min_version => (
+    type => 'Select',
+    options_method => \&options_tls_version,
+);
+
+has_field tls_max_version => (
+    type => 'Select',
+    options_method => \&options_tls_version,
+);
+
+
 sub options_certificate_profile {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::SSLCertificate->new->readAllIds};
 }
 
 sub options_ocsp {
     return  map { { value => $_, label => $_ } } @{pf::ConfigStore::Radiusd::OCSPProfile->new->readAllIds};
+}
+
+sub options_tls_version {
+    return map { { value => $_, label => $_ } } @{RADIUS::TLS_VERSIONS};
 }
 
 =head1 AUTHOR
