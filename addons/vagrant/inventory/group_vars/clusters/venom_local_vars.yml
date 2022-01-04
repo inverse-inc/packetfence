@@ -7,17 +7,17 @@ venom_local_vars:
   - name: 'pfserver_mgmt_netmask'
     value: "{{ packetfence_install__mgmt_interface['mask'] }}"
 
-  # get second IP (.2) usable without /CIDR
+  # inventory_hostname is a special Ansible variable
   - name: 'configurator.interfaces.reg.ip'
-    value: "{{ users_vars[dict_name]['networks'][1]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+    value: "{{ users_vars[dict_name]['vms'][inventory_hostname]['ip_reg'] }}"
 
   # get netmask based on CIDR
   - name: 'configurator.interfaces.reg.netmask'
     value: "{{ users_vars[dict_name]['networks'][1]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
 
-  # get second IP (.2) usable without /CIDR
+  # inventory_hostname is a special Ansible variable
   - name: 'configurator.interfaces.iso.ip'
-    value: "{{ users_vars[dict_name]['networks'][2]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+    value: "{{ users_vars[dict_name]['vms'][inventory_hostname]['ip_iso'] }}"
 
   # get netmask based on CIDR
   - name: 'configurator.interfaces.iso.netmask'
