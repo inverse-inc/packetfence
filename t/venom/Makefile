@@ -33,6 +33,7 @@ run: clean
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
 	RESULT_DIR=$(RESULT_DIR) \
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	./test-wrapper.sh run
@@ -42,6 +43,7 @@ run_w_clean:
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
 	RESULT_DIR=$(RESULT_DIR) \
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	./test-wrapper.sh run
@@ -51,12 +53,14 @@ run_tests:
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	./test-wrapper.sh run_tests
 
 halt:
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	RESULT_DIR=$(RESULT_DIR) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt
@@ -203,11 +207,13 @@ test_deb11:
 cluster_deb11:
 	make \
 	PF_VM_NAMES="pf1deb11$(DEV_ENV) pf2deb11$(DEV_ENV) pf3deb11$(DEV_ENV)" \
+	CLUSTER_NAME="$@$(DEV_ENV)" \
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
 
 cluster_el8:
 	make \
 	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
+	CLUSTER_NAME="$@$(DEV_ENV)" \
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)

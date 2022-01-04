@@ -359,6 +359,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_ci
             subnet: '172.18.204.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.200.23'
+            ip_reg: '172.18.201.23'
+            ip_iso: '172.18.202.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.200.27'
+            ip_reg: '172.18.201.27'
+            ip_iso: '172.18.202.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.200.31'
+            ip_reg: '172.18.201.31'
+            ip_iso: '172.18.202.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.200.35'
+            ip_reg: '172.18.201.35'
+            ip_iso: '172.18.202.35'
         vms:
           switch01:
             ip: '172.18.200.201'
@@ -497,6 +514,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_nqb
             subnet: '172.18.144.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.140.23'
+            ip_reg: '172.18.141.23'
+            ip_iso: '172.18.142.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.140.27'
+            ip_reg: '172.18.141.27'
+            ip_iso: '172.18.142.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.140.31'
+            ip_reg: '172.18.141.31'
+            ip_iso: '172.18.142.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.140.35'
+            ip_reg: '172.18.141.35'
+            ip_iso: '172.18.142.35'
         vms:
           switch01:
             ip: '172.18.140.201'
@@ -634,6 +668,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_jrouzier
             subnet: '172.18.119.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.115.23'
+            ip_reg: '172.18.116.23'
+            ip_iso: '172.18.117.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.115.27'
+            ip_reg: '172.18.116.27'
+            ip_iso: '172.18.117.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.115.31'
+            ip_reg: '172.18.116.31'
+            ip_iso: '172.18.117.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.115.35'
+            ip_reg: '172.18.116.35'
+            ip_iso: '172.18.117.35'
         vms:
           switch01:
             ip: '172.18.115.201'
@@ -771,6 +822,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_lzammit
             subnet: '172.18.149.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.145.23'
+            ip_reg: '172.18.146.23'
+            ip_iso: '172.18.147.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.145.27'
+            ip_reg: '172.18.146.27'
+            ip_iso: '172.18.147.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.145.31'
+            ip_reg: '172.18.146.31'
+            ip_iso: '172.18.147.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.145.35'
+            ip_reg: '172.18.146.35'
+            ip_iso: '172.18.147.35'
         vms:
           switch01:
             ip: '172.18.145.201'
@@ -908,6 +976,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_jgoimard
             subnet: '172.18.124.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.120.23'
+            ip_reg: '172.18.121.23'
+            ip_iso: '172.18.122.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.120.27'
+            ip_reg: '172.18.121.27'
+            ip_iso: '172.18.122.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.120.31'
+            ip_reg: '172.18.121.31'
+            ip_iso: '172.18.122.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.120.35'
+            ip_reg: '172.18.121.35'
+            ip_iso: '172.18.122.35'
         vms:
           switch01:
             ip: '172.18.120.201'
@@ -1045,6 +1130,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_dsatkunas
             subnet: '172.18.119.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.125.23'
+            ip_reg: '172.18.126.23'
+            ip_iso: '172.18.127.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.125.27'
+            ip_reg: '172.18.126.27'
+            ip_iso: '172.18.127.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.125.31'
+            ip_reg: '172.18.126.31'
+            ip_iso: '172.18.127.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.125.35'
+            ip_reg: '172.18.126.35'
+            ip_iso: '172.18.127.35'
         vms:
           switch01:
             ip: '172.18.125.201'
@@ -1182,6 +1284,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_fdurand
             subnet: '172.18.139.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.135.23'
+            ip_reg: '172.18.136.23'
+            ip_iso: '172.18.137.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.135.27'
+            ip_reg: '172.18.136.27'
+            ip_iso: '172.18.137.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.135.31'
+            ip_reg: '172.18.136.31'
+            ip_iso: '172.18.137.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.135.35'
+            ip_reg: '172.18.136.35'
+            ip_iso: '172.18.137.35'
         vms:
           switch01:
             ip: '172.18.135.201'
@@ -1319,6 +1438,23 @@ all:
             forward_mode: 'none'
           - name: inline_l3_jsemaan
             subnet: '172.18.159.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.155.23'
+            ip_reg: '172.18.156.23'
+            ip_iso: '172.18.157.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.155.27'
+            ip_reg: '172.18.156.27'
+            ip_iso: '172.18.157.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.155.31'
+            ip_reg: '172.18.156.31'
+            ip_iso: '172.18.157.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.155.35'
+            ip_reg: '172.18.156.35'
+            ip_iso: '172.18.157.35'
         vms:
           switch01:
             ip: '172.18.155.201'
