@@ -31,12 +31,7 @@ testcases:
         [ req_attributes ]
         challengePassword = {{.wired_dot1x_eap_tls_manual.certs.user.scep_challenge_password}}
         
-        # only CN is kept by pfpki
         [ dn ]
-        C=FR
-        ST=Radius
-        L=Somewhere
-        O=Example Inc.
         CN={{.wired_dot1x_eap_tls_scep.certs.user.cn}}
         EOF
         

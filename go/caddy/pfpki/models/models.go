@@ -458,7 +458,7 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
 	if len(options) >= 1 {
-		if err := c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
+		if err := c.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
 			return profiledb, errors.New("A database error occured. See log for details.")
 		}
 		if len(profiledb) == 0 {
@@ -466,7 +466,7 @@ func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 		}
 
 	} else {
-		c.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
+		c.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
 	c.SCEPAssociateProfile = profiledb[0].Name
 
@@ -686,11 +686,11 @@ func (p Profile) New() (types.Info, error) {
 func (p Profile) Update() (types.Info, error) {
 	var profiledb []Profile
 	Information := types.Info{}
-	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
+	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New("A database error occured. See log for details.")
 	}
-	p.DB.Select("id, name, ca_id, ca_name, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
@@ -1214,7 +1214,11 @@ func email(ctx context.Context, cert Cert, profile Profile, file []byte, passwor
 	message.DefaultCatalog = cat
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", alerting.FromAddr)
+	if len(profile.P12MailFrom) > 0 {
+		m.SetHeader("From", profile.P12MailFrom)
+	} else {
+		m.SetHeader("From", alerting.FromAddr)
+	}
 	m.SetHeader("To", cert.Mail)
 	m.SetHeader("Subject", profile.P12MailSubject)
 
