@@ -1,4 +1,4 @@
-- hosts: pfservers
+- hosts: standalones
   name: Enable IPv6 in generic EL images
   become: True
   gather_facts: True
