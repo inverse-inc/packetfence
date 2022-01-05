@@ -31,7 +31,7 @@ testcases:
     script: sleep 5
 
   - type: exec
-    script: 'ipset test pfsession_Isol_{{.inline_l2.routed_networks}} {{.inline_l2.node.ipaddress}}'
+    script: 'ipset test pfsession_Isol_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
 
 - name: release_violation_on_the_node
   steps:
@@ -57,5 +57,5 @@ testcases:
     script: sleep 5
 
   - type: exec
-    script: 'ipset test pfsession_Reg_{{.inline_l2.routed_networks}} {{.inline_l2.node.ipaddress}}'
+    script: 'ipset test pfsession_Reg_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
 

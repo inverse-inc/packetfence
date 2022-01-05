@@ -482,5 +482,5 @@ inline_l3.routed_networks: 192.168.1.0
 inline_l2.node.macaddress: 02:06:19:98:00:01
 inline_l2.node.ipaddress: 192.168.2.10
 inline_l2.pf_portal: 192.168.2.1
-inline_l2.routed_networks: 192.168.2.0
+inline_l2.networks: 192.168.2.0
 

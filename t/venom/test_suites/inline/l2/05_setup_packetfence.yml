@@ -52,11 +52,11 @@ testcases:
   steps:
   - type: http
     method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/l2_network/{{.inline_l2.routed_networks}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/l2_network/{{.inline_l2.networks}}'
     ignore_verify_ssl: true
     body: >-
      {
-       "id": "{{.inline_l2.routed_networks}}",
+       "id": "{{.inline_l2.networks}}",
        "isClone": false,
        "isNew": false,
        "algorithm": 1,

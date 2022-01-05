@@ -30,5 +30,5 @@ testcases:
     script: sleep 5
 
   - type: exec
-    script: 'ipset test PF-iL2_ID2_{{.inline_l2.routed_networks}} {{.inline_l2.node.ipaddress}}'
+    script: 'ipset test PF-iL2_ID2_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
 
