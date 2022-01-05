@@ -1621,6 +1621,7 @@ BEGIN
     PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
 
     START TRANSACTION;
+    SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
     EXECUTE insert_into_to_delete using @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete;
     IF @count > 0 THEN
@@ -1784,8 +1785,8 @@ BEGIN
     SET @insert_into_to_delete_stmt = CONCAT('INSERT INTO to_delete SELECT node_id, tenant_id, mac, ', @date_rounding,'(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != ', @date_rounding, '(time_bucket) LIMIT ?');
     PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
 
-    SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
     START TRANSACTION;
+    SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
     EXECUTE insert_into_to_delete using @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete;
     IF @count > 0 THEN
