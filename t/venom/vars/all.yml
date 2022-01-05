@@ -444,6 +444,7 @@ pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor: test
 # need to be a network not already attached to PacketFence server
 pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
 
+inline_l2.pf_portal: 192.168.2.1
 ################################################################################
 # pfdhcplistener_multi_tenant test suite specific variables
 ################################################################################
@@ -469,6 +470,7 @@ fingerbank_proxy_test_wan_ip: 1.1.1.1
 ################################################################################
 ## Inline test suite specific variables
 #################################################################################
+inline_lx_iastigmate.password.expiration: "2031-12-01 00:00:00"
 inline_l3.node.macaddress: 02:06:19:98:00:00
 inline_l3.node.ipaddress: 192.168.1.10
 inline_l3.pf_portal: 192.168.1.1

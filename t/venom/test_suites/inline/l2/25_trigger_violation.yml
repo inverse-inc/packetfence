@@ -8,12 +8,12 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/02:06:19:98:00:01/apply_security_event'
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.inline_l2.node.macaddress}}/apply_security_event'
     ignore_verify_ssl: true
     body: >-
      {
-       "id": "02:06:19:98:00:01",
-       "mac": "02:06:19:98:00:01",
+       "id": "{{.inline_l2.node.macaddress}}",
+       "mac": "{{.inline_l2.node.macaddress}}",
        "security_event_id": "1300000"
      }
     headers:
@@ -31,18 +31,18 @@ testcases:
     script: sleep 5
 
   - type: exec
-    script: ipset test pfsession_Isol_192.168.2.0 192.168.2.10
+    script: 'ipset test pfsession_Isol_{{.inline_l2.routed_networks}} {{.inline_l2.node.ipaddress}}'
 
 - name: release_violation_on_the_node
   steps:
   - type: http
     method: PUT
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/02:06:19:98:00:01/close_security_event'
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.inline_l2.node.macaddress}}/close_security_event'
     ignore_verify_ssl: true
     body: >-
      {
        "security_event_id": "{{.trigger_a_violation_on_the_node.vid}}",
-       "mac": "02:06:19:98:00:01"
+       "mac": "{{.inline_l2.node.macaddress}}"
      }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
@@ -57,5 +57,5 @@ testcases:
     script: sleep 5
 
   - type: exec
-    script: ipset test pfsession_Reg_192.168.2.0 192.168.2.10
+    script: 'ipset test pfsession_Reg_{{.inline_l2.routed_networks}} {{.inline_l2.node.ipaddress}}'
 

@@ -163,7 +163,7 @@ testcases:
      {
        "quiet": true,
        "valid_from": "2021-12-06 00:00:00",
-       "expiration": null,
+       "expiration": "{{.inline_lx_iastigmate.password.expiration}}",
        "actions": [
          {
            "type": "set_role",

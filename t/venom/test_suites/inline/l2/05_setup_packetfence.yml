@@ -145,14 +145,14 @@ testcases:
 - name: assign_a_password_to_the_user
   steps:
   - type: http
-    method: PATCH
+    method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/user/iastigmate/password'
     ignore_verify_ssl: true
     body: >-
      {
        "quiet": true,
        "valid_from": "2021-12-06 00:00:00",
-       "expiration": null,
+       "expiration": "{{.inline_lx_iastigmate.password.expiration}}",
        "actions": [
          {
            "type": "set_role",
@@ -205,7 +205,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 200
+      - result.statuscode ShouldEqual 201
 
 - name: configure_snat_interface_for_passthroughs
   steps:
