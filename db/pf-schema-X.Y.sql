@@ -1612,7 +1612,7 @@ BEGIN
 
     DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0');
+    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete INDEX(node_id, unique_session_id, new_time_bucket) ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0');
     PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
     EXECUTE create_table_to_delete;
     DEALLOCATE PREPARE create_table_to_delete;
