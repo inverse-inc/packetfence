@@ -470,6 +470,10 @@ fingerbank_proxy_test_wan_ip: 1.1.1.1
 ################################################################################
 ## Inline test suite specific variables
 #################################################################################
+#
+# WARNING some variables are hard coded in golang executor
+# like the user (iastigmate) and password in the /root/register_node
+#
 inline_lx_iastigmate.password.expiration: "2031-12-01 00:00:00"
 inline_l3.node.macaddress: 02:06:19:98:00:00
 inline_l3.node.ipaddress: 192.168.1.10
