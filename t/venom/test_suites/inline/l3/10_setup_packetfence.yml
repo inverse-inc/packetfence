@@ -1,0 +1,316 @@
+name: Enable Inline l3 configuration in PacketFence
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: configure_interface_inlinel3_as_type_inline_l2
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/inlinel3'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "inlinel3",
+       "isClone": false,
+       "isNew": false,
+       "prefixRouteName": "",
+       "additional_listening_daemons": [],
+       "address": "100.64.0.2/30",
+       "coa": "disabled",
+       "dhcpd_enabled": "enabled",
+       "dns": "8.8.8.8",
+       "high_availability": 0,
+       "hwaddr": "56:63:1a:4b:44:fc",
+       "ifindex": "8",
+       "ipaddress": "100.64.0.2",
+       "ipv6_address": null,
+       "ipv6_prefix": null,
+       "is_running": true,
+       "master": null,
+       "name": "inlinel3-b",
+       "nat_dns": "disabled",
+       "nat_enabled": "enabled",
+       "netflow_accounting_enabled": "enabled",
+       "netmask": "255.255.255.252",
+       "network": "100.64.0.0",
+       "network_iseditable": true,
+       "networks": [
+         "{{.inline_l3.routed_networks}}"
+       ],
+       "not_editable": false,
+       "reg_network": null,
+       "split_network": "disabled",
+       "tenant_id": 1,
+       "type": "inlinel2",
+       "vip": null,
+       "vlan": null
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: configure_inline_l3_network
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/routed_networks'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "{{.inline_l3.routed_networks}}",
+       "isClone": false,
+       "isNew": true,
+       "algorithm": 1,
+       "coa": "disabled",
+       "description": "Inline L3",
+       "dhcp_default_lease_time": "30",
+       "dhcp_end": "{{.inline_l3.node.ipaddress}}",
+       "dhcp_max_lease_time": "30",
+       "dhcp_start": "{{.inline_l3.node.ipaddress}}",
+       "dhcpd": "enabled",
+       "dns": "8.8.8.8",
+       "fake_mac_enabled": 0,
+       "gateway": "{{.inline_l3.pf_portal}}",
+       "ip_assigned": null,
+       "ip_reserved": null,
+       "nat_dns": 1,
+       "nat_enabled": 1,
+       "netflow_accounting_enabled": "enabled",
+       "netmask": "255.255.255.0",
+       "network": null,
+       "next_hop": "100.64.0.1",
+       "pool_backend": "memory",
+       "portal_fqdn": null,
+       "tenant_id": 1,
+       "type": "inlinel3"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_a_user
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/users'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "valid_from": "2021-12-06 00:00:00",
+       "expiration": null,
+       "actions": [
+         {
+           "type": "set_role",
+           "value": "1"
+         },
+         {
+           "type": "set_access_duration",
+           "value": "1h"
+         }
+       ],
+       "pid_overwrite": 0,
+       "pid": "iastigmate",
+       "email": "iastigmate@test.ca",
+       "sponsor": "",
+       "password": "password",
+       "login_remaining": null,
+       "gender": "",
+       "title": "",
+       "firstname": "Igmout",
+       "lastname": "Astigmate",
+       "nickname": "",
+       "company": "",
+       "telephone": "",
+       "cell_phone": "",
+       "work_phone": "",
+       "address": "",
+       "apartment_number": "",
+       "building_number": "",
+       "room_number": "",
+       "anniversary": "",
+       "birthday": "",
+       "psk": "",
+       "notes": "",
+       "custom_field_1": "",
+       "custom_field_2": "",
+       "custom_field_3": "",
+       "custom_field_4": "",
+       "custom_field_5": "",
+       "custom_field_6": "",
+       "custom_field_7": "",
+       "custom_field_8": "",
+       "custom_field_9": ""
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: assign_a_password_to_the_user
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/user/iastigmate/password'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "quiet": true,
+       "valid_from": "2021-12-06 00:00:00",
+       "expiration": "{{.inline_lx_iastigmate.password.expiration}}",
+       "actions": [
+         {
+           "type": "set_role",
+           "value": "1"
+         },
+         {
+           "type": "set_access_duration",
+           "value": "1h"
+         }
+       ],
+       "pid_overwrite": 0,
+       "pid": "iastigmate",
+       "email": "iastigmate@test.ca",
+       "sponsor": "",
+       "password": "password",
+       "login_remaining": null,
+       "gender": "",
+       "title": "",
+       "firstname": "Igmout",
+       "lastname": "Astigmate",
+       "nickname": "",
+       "company": "",
+       "telephone": "",
+       "cell_phone": "",
+       "work_phone": "",
+       "address": "",
+       "apartment_number": "",
+       "building_number": "",
+       "room_number": "",
+       "anniversary": "",
+       "birthday": "",
+       "psk": "",
+       "notes": "",
+       "custom_field_1": "",
+       "custom_field_2": "",
+       "custom_field_3": "",
+       "custom_field_4": "",
+       "custom_field_5": "",
+       "custom_field_6": "",
+       "custom_field_7": "",
+       "custom_field_8": "",
+       "custom_field_9": "",
+       "access_duration": "1h",
+       "access_level": null,
+       "can_sponsor": null,
+       "category": "1",
+       "unregdate": null
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: configure_snat_interface_for_passthroughs
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/network'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "interfaceSNAT":"eth0"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+- name: configure_snat_interface_for_inline
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/inline'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "inline",
+       "interfaceSNAT": "eth0"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: restart_iptables
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-iptables
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdns_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdns
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdhcp_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdhcp
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_haproxy-portal_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-haproxy-portal
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_keepalived_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-keepalived
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfdhcplistener_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfdhcplistener
+
+    # let service restarts
+  - type: exec
+    script: sleep 5
+
+- name: restart_pfacct_service
+  steps:
+  - type: exec
+    script: systemctl restart packetfence-pfacct
+
+    # let service restarts
+  - type: exec
+    script: sleep 5

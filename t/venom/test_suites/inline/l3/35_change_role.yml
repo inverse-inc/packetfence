@@ -1,0 +1,34 @@
+name: Change role
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: change_the_device_role_to_guest
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.inline_l3.node.macaddress}}'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "{{.inline_l3.node.macaddress}}",
+       "category": "guest",
+       "category_id": 2,
+       "mac": "{{.inline_l3.node.macaddress}}",
+       "tenant_id": 1
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: test_if_the_device_is_in_the_ipset_role_id_2
+  steps:
+  - type: exec
+    script: sleep 5
+
+  - type: exec
+    script: 'ipset test PF-iL3_ID2_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
+

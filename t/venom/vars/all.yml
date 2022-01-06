@@ -483,3 +483,21 @@ cli_login_radius.realm.domain: example
 cli_login_radius.pod: "/usr/local/pf/pod.txt"
 cli_login_radius.pod_proxy: "/usr/local/pf/pod_proxy.txt"
 cli_login_radius.switch.ip: 192.168.0.1
+
+################################################################################
+## Inline test suite specific variables
+#################################################################################
+#
+# WARNING some variables are hard coded in golang executor
+# like the user (iastigmate) and password in the /root/register_node
+#
+inline_lx_iastigmate.password.expiration: "2031-12-01 00:00:00"
+inline_l3.node.macaddress: 02:06:19:98:00:00
+inline_l3.node.ipaddress: 192.168.1.10
+inline_l3.pf_portal: 192.168.1.1
+inline_l3.routed_networks: 192.168.1.0
+inline_l2.node.macaddress: 02:06:19:98:00:01
+inline_l2.node.ipaddress: 192.168.2.10
+inline_l2.pf_portal: 192.168.2.1
+inline_l2.networks: 192.168.2.0
+

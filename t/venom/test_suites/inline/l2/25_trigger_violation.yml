@@ -1,0 +1,61 @@
+name: Test inline l2 violation
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: trigger_a_violation_on_the_node
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.inline_l2.node.macaddress}}/apply_security_event'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "id": "{{.inline_l2.node.macaddress}}",
+       "mac": "{{.inline_l2.node.macaddress}}",
+       "security_event_id": "1300000"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      vid:
+        from: result.bodyjson.id
+
+- name: test_if_the_device_is_in_the_isolation_ipset
+  steps:
+  - type: exec
+    script: sleep 5
+
+  - type: exec
+    script: 'ipset test pfsession_Isol_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
+
+- name: release_violation_on_the_node
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.inline_l2.node.macaddress}}/close_security_event'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "security_event_id": "{{.trigger_a_violation_on_the_node.vid}}",
+       "mac": "{{.inline_l2.node.macaddress}}"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+
+- name: test_if_the_device_is_in_the_register_ipset
+  steps:
+  - type: exec
+    script: sleep 5
+
+  - type: exec
+    script: 'ipset test pfsession_Reg_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
+
