@@ -6,7 +6,7 @@
   vars:
     # put your test suites to try here
     test_suites:
-      - configurator
+      - configurator_inline
       - inline/l3
       - inline/l3/teardown
       - inline/l2
