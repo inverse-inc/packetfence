@@ -134,26 +134,30 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
 	unique_session_id := h.accountingUniqueSessionId(r)
-	if err := h.InsertBandwidthAccounting(
-		status,
-		node_id,
-		switchInfo.TenantId,
-		mac.String(),
-		unique_session_id,
-		timestamp,
-		in_bytes,
-		out_bytes,
-	); err != nil {
-		logError(ctx, "InsertBandwidthAccounting: "+err.Error())
-	}
+	go func() {
+		if err := h.InsertBandwidthAccounting(
+			status,
+			node_id,
+			switchInfo.TenantId,
+			mac.String(),
+			unique_session_id,
+			timestamp,
+			in_bytes,
+			out_bytes,
+		); err != nil {
+			logError(ctx, "InsertBandwidthAccounting: "+err.Error())
+		}
 
-	if status == rfc2866.AcctStatusType_Value_Stop {
-		h.CloseSession(node_id, unique_session_id)
-	}
+		if status == rfc2866.AcctStatusType_Value_Stop {
+			h.CloseSession(node_id, unique_session_id)
+		}
 
-	h.sendRadiusAccounting(r, switchInfo)
-	h.handleTimeBalance(r, switchInfo, unique_session_id)
-	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
+		h.sendRadiusAccounting(r, switchInfo)
+		h.handleTimeBalance(r, switchInfo, unique_session_id)
+		h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
+	}()
+	return
+
 }
 
 func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, unique_session uint64) {
