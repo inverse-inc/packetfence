@@ -1,5 +1,4 @@
-executor: enable_node_cleanup
-
+executor: node_disable_cleanup
 steps:
-- type: node_task_cleanup
+- type: node_tasks_cleanup
   status: "disable"
