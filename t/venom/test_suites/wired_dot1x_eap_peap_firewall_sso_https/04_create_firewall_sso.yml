@@ -15,11 +15,7 @@ testcases:
         "id": "{{.firewall_sso.firewall.host}}",
         "cache_timeout": null,
         "cache_updates": null,
-<<<<<<< HEAD
-        "categories": ["{{.firewall_sso.roles.headless_device.id}}","{{.dot1x_eap_peap.roles.ad_machine.id}}"],
-=======
         "categories": ["{{.firewall_sso.roles.headless_device.id}}"],
->>>>>>> venom(firewall_sso): initial commit
         "default_realm": null,
         "networks": null,
         "password": "{{.firewall_sso.firewall.password}}",
