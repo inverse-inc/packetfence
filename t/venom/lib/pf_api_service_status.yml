@@ -7,3 +7,5 @@ steps:
   action: "status"
   output:
     postjson: "{{.result.postjson}}"
+  assertions:
+    - result.postjson ShoulContain "alive": 0
