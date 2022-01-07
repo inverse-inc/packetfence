@@ -7,7 +7,7 @@ testcases:
 - name: delete_firewall_sso
   steps:
   - type: http
-    method: DELETEzzz
+    method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/config/firewall/{{.firewall_sso.firewall.host}}'
     ignore_verify_ssl: true
     headers:
