@@ -15,7 +15,7 @@ testcases:
         "id": "{{.firewall_sso.firewall.host}}",
         "cache_timeout": null,
         "cache_updates": null,
-        "categories": ["{{.firewall_sso.roles.headless_device.id}}"],
+        "categories": ["{{.firewall_sso.roles.headless_device.id}}","{{.dot1x_eap_peap.roles.ad_machine.id}}"],
         "default_realm": null,
         "networks": null,
         "password": "{{.firewall_sso.firewall.password}}",
