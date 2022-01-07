@@ -1,0 +1,25 @@
+executor: cumulus_api_command_line
+input:
+  user: "{{.switch01.api.user}}"
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  json_body: '"cmd": "show dot1x interface {{.switch01.dot1x_interface.id}} json"'
+steps:
+- type: http
+  method: POST
+  basic_auth_user: "{{.input.user}}"
+  basic_auth_password: "{{.input.password}}"
+  url: "{{.input.url}}"
+  ignore_verify_ssl: true
+  body: >-
+    {
+     "{{.input.json_body}}"
+    }
+  headers:
+    "Content-Type": "application/json"
+  assertions:
+    - result.body ShouldContainSubstring TLS
+    - result.body ShouldContainSubstring AUTHORIZED
+    - result.statuscode ShouldEqual 200
+  output:
+    postjson: "{{.result.bodyjson}}"
