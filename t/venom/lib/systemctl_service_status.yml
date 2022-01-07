@@ -1,0 +1,9 @@
+executor: systemctl_service_status
+input:
+  service: {} 
+steps:
+- type: systemctl_service
+  unit_commands: status
+  service: "{{.input.service}}"
+  assertions:
+    - result.systemout ShouldContainSubstring active (running)
