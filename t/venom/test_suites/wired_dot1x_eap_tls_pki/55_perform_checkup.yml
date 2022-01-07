@@ -1,1 +1,5 @@
-../common/perform_checkup.yml
+name: Perform checkup
+testcases:
+- name: pf_api_config_checkup
+  steps:
+    - type: pf_api_config_checkup

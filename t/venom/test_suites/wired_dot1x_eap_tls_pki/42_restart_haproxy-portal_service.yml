@@ -1,1 +1,6 @@
-../common/restart_haproxy_portal.yml
+name: Restart haproxy-portal service
+testcases:
+- name: restart_haproxy-portal_service
+  steps:
+  - type: systemctl_service_restart
+    service: haproxy-portal
