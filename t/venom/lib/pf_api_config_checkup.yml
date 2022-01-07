@@ -1,0 +1,14 @@
+executor: pf_api_config_checkup
+steps:
+- type: get_login_token
+
+- type: http
+  method: GET
+  url: '{{.pfserver_webadmin_url}}/api/v1/config/checkup'
+  ignore_verify_ssl: true
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+
