@@ -1,1 +1,17 @@
-../common/restart_radius_services.yml
+name: Restart RADIUS services
+testcases:
+- name: restart_radius_services
+  steps:
+  - type: pf_api_service_start
+    service: radiusd-auth
+
+  - type: pf_api_service_start
+    service: pfacct
+
+- name: check_radius_services
+  steps:
+  - type: pf_api_service_status
+    service: radiusd-auth
+
+  - type: pf_api_service_status
+    service: pfacct
