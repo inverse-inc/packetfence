@@ -68,6 +68,23 @@ halt:
 clean:
 	./test-wrapper.sh teardown
 
+### Pristine images
+# use pristine images to install PacketFence from scratch
+# with all dependencies
+configurator_el8_pristine:
+	make \
+	PF_VM_NAMES=el8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=configurator \
+	$(MAKE_TARGET)
+
+configurator_deb11_pristine:
+	make \
+	PF_VM_NAMES=deb11$(DEV_ENV) \
+	SCENARIOS_TO_RUN=configurator \
+	$(MAKE_TARGET)
+
+### End of pristine images
+
 unit_tests_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
