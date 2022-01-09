@@ -112,7 +112,7 @@ all:
               memory: 6144
             pf1deb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -130,7 +130,7 @@ all:
               memory: 6144
             pf2deb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -148,7 +148,7 @@ all:
               memory: 6144
             pf3deb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -166,7 +166,7 @@ all:
               memory: 6144
             pf1deb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1deb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1deb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -184,7 +184,7 @@ all:
               memory: 6144
             pf2deb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2deb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2deb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -202,7 +202,7 @@ all:
               memory: 6144
             pf3deb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3deb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3deb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -223,7 +223,7 @@ all:
               memory: 6144
             pfdeb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -263,7 +263,7 @@ all:
               memory: 6144
             pfdeb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.2.20211230142646
+              box_version: 11.2.20220107224856
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
