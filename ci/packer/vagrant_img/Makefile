@@ -19,7 +19,7 @@ VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=""
 VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
-PACKER_LOG_PATH=/var/tmp/packer.log
+PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
 #==============================================================================
 # Targets
 #==============================================================================
