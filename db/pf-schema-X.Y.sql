@@ -1610,19 +1610,13 @@ CREATE PROCEDURE `bandwidth_aggregation` (
 )
 BEGIN
 
-    DROP TABLE IF EXISTS to_delete;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
-    SET @create_table_to_delete_stmt = CONCAT('CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0');
-    PREPARE create_table_to_delete FROM @create_table_to_delete_stmt;
-    EXECUTE create_table_to_delete;
-    DEALLOCATE PREPARE create_table_to_delete;
     SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
-    SET @insert_into_to_delete_stmt = CONCAT('INSERT INTO to_delete SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting FORCE INDEX (bandwidth_source_type_time_bucket) WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) ORDER BY time_bucket DESC LIMIT ?');
-    PREPARE insert_into_to_delete FROM @insert_into_to_delete_stmt;
+    SET @insert_into_to_delete_stmt = CONCAT('CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation (INDEX(node_id, new_time_bucket, unique_session_id)) ENGINE=MEMORY, MAX_ROWS=', @batch,' SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting FORCE INDEX (bandwidth_source_type_time_bucket) WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) ORDER BY time_bucket LIMIT ?');
 
     START TRANSACTION;
-    EXECUTE insert_into_to_delete using @end_bucket, @batch;
-    SELECT COUNT(*) INTO @count FROM to_delete;
+    EXECUTE IMMEDIATE @insert_into_to_delete_stmt USING @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_aggregation;
     IF @count > 0 THEN
 
         INSERT INTO bandwidth_accounting
@@ -1637,7 +1631,7 @@ BEGIN
              sum(out_bytes) AS out_bytes,
              MAX(last_updated),
              "radius"
-            FROM to_delete
+            FROM to_delete_bandwidth_aggregation
             GROUP BY node_id, unique_session_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
@@ -1646,16 +1640,10 @@ BEGIN
             ;
 
         DELETE bandwidth_accounting
-            FROM to_delete INNER JOIN bandwidth_accounting
-            WHERE
-                to_delete.node_id = bandwidth_accounting.node_id AND
-                to_delete.time_bucket = bandwidth_accounting.time_bucket AND
-                to_delete.unique_session_id = bandwidth_accounting.unique_session_id;
+            FROM  bandwidth_accounting RIGHT JOIN to_delete_bandwidth_aggregation USING(node_id, time_bucket, unique_session_id);
     END IF;
     COMMIT;
 
-    DROP TABLE to_delete;
-    DEALLOCATE PREPARE insert_into_to_delete;
     SELECT @count AS aggreated;
 END /
 DELIMITER ;
@@ -1712,27 +1700,21 @@ BEGIN
     DROP TABLE to_process;
     SELECT @count as count;
 END/
-
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `bandwidth_accounting_radius_to_history`;
 DELIMITER /
-CREATE PROCEDURE `bandwidth_accounting_radius_to_history` (
+CREATE OR REPLACE PROCEDURE `bandwidth_accounting_radius_to_history` (
   IN `p_end_bucket` datetime,
   IN `p_batch` int(11) unsigned
 )
 BEGIN
     SET @batch = p_batch;
     SET @end_bucket = p_end_bucket;
-    DROP TABLE IF EXISTS to_delete;
-    CREATE TEMPORARY TABLE to_delete ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
     START TRANSACTION;
-    PREPARE insert_into_to_delete FROM 'INSERT to_delete SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ?';
-    EXECUTE insert_into_to_delete USING @end_bucket, @batch;
-    DEALLOCATE PREPARE insert_into_to_delete;
-    SELECT COUNT(*) INTO @count FROM to_delete;
-    IF @count > 0 THEN
+    EXECUTE IMMEDIATE CONCAT('CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_accounting_radius_to_history ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ? FOR UPDATE') USING @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_accounting_radius_to_history;
 
+    IF @count > 0 THEN
         INSERT INTO bandwidth_accounting_history
         (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
          SELECT
@@ -1742,27 +1724,21 @@ BEGIN
              new_time_bucket,
              sum(in_bytes) AS in_bytes,
              sum(out_bytes) AS out_bytes
-            FROM to_delete
+            FROM to_delete_bandwidth_accounting_radius_to_history
             GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
                 out_bytes = out_bytes + VALUES(out_bytes)
             ;
 
-        DELETE bandwidth_accounting
-            FROM to_delete INNER JOIN bandwidth_accounting
-            WHERE
-                to_delete.node_id = bandwidth_accounting.node_id AND
-                to_delete.time_bucket = bandwidth_accounting.time_bucket AND
-                to_delete.unique_session_id = bandwidth_accounting.unique_session_id;
+         DELETE bandwidth_accounting
+            FROM bandwidth_accounting RIGHT JOIN to_delete_bandwidth_accounting_radius_to_history USING (node_id, time_bucket, unique_session_id);
 
     END IF;
     COMMIT;
 
-    DROP TABLE to_delete;
     SELECT @count as count;
 END/
-
 DELIMITER ;
 
 DELIMITER /
