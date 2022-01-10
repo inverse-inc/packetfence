@@ -1206,6 +1206,20 @@ sub cluster {
             }
         }
     }
+
+    _check_database_host_in_cluster();
+}
+
+
+sub _check_database_host_in_cluster {
+    require pf::ConfigStore::Pf;
+    my $cs = pf::ConfigStore::Pf->new();
+    my $db = $cs->readRaw("database");
+    my $host = $db->{host};
+    if ( !defined($host) || $host eq 'localhost' ) {
+        add_problem($WARN, "The database.host should not be configured to 'localhost' in a cluster");
+    }
+
 }
 
 =item valid_fingerbank_device_id
