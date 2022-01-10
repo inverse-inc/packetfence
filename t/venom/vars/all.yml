@@ -501,3 +501,16 @@ inline_l2.node.ipaddress: 192.168.2.10
 inline_l2.pf_portal: 192.168.2.1
 inline_l2.networks: 192.168.2.0
 
+################################################################################
+#Security event autoreg test suite specific variables
+#################################################################################
+security_event_autoreg.node.mac: 44:44:44:44:44:44
+security_event_autoreg.node.mac_url_encoded: 44%3A44%3A44%3A44%3A44%3A44
+security_event_autoreg.node.ip: 192.168.44.44
+security_event_autoreg.node.hostname: autoregnode
+security_event_autoreg.node.dhcp_fingerprint: 1,2,3,4,5,6,11,12,13,1
+security_event_autoreg.node.dhcp_fingerprint_id: 67703
+security_event_autoreg.node.dhcp_vendor: test
+# need to be a network not already attached to PacketFence server
+security_event_autoreg.node.dhcp_server: 10.10.10.1
+

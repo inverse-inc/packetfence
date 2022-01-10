@@ -1,0 +1,66 @@
+name: SecurityEventAutoreg
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {"id":"88888888","isClone":false,"isNew":true,"access_duration":"5D","actions":["autoreg","role"],"desc":"Test DHCP autoreg venom","enabled":"Y","target_category":"default","triggers":[{"dhcp_fingerprint":"{{.security_event_autoreg.node.dhcp_fingerprint_id}}"}],"whitelisted_roles":[]}
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: calculate_unregdate_should_be_after
+  steps:
+  - type: exec
+    script: 'date +"%Y-%m-%dT%H:%M:%S+00:00" -d "5 days"'
+    vars:
+      datetime:
+        from: result.systemout
+
+  
+- name: forge_dhcp_request_node
+  steps:
+  - type: exec
+    script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.security_event_autoreg.node.mac}} --ip={{.security_event_autoreg.node.first_ip}} --hostname={{.security_event_autoreg.node.hostname}} --dhcp-fingerprint={{.security_event_autoreg.node.dhcp_fingerprint}} --dhcp-vendor={{.security_event_autoreg.node.dhcp_vendor}} --server={{.security_event_autoreg.node.dhcp_server}}"
+
+# let node be registered in DB
+- name: sleep_some_time
+  steps:
+  - type: exec
+    script: sleep 20
+  
+- name: check_node_autoregistered
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_autoreg.node.mac_url_encoded}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.item.computername ShouldEqual "{{.security_event_autoreg.node.hostname}}"
+    - result.bodyjson.item.dhcp_fingerprint ShouldEqual "{{.security_event_autoreg.node.dhcp_fingerprint}}"
+    - result.bodyjson.item.dhcp_vendor ShouldEqual "{{.security_event_autoreg.node.dhcp_vendor}}"
+    - result.bodyjson.item.status ShouldEqual "reg"
+    vars:
+      unregdate:
+        from: result.bodyjson.item.unregdate  
+
+- name: check_node_unregdate
+  steps:
+  - type: exec
+    script: 'date +"%Y-%m-%dT%H:%M:%S+00:00" --date="{{.check_node_autoregistered.unregdate}}"'
+    assertions:
+      - result.systemout ShouldHappenAfter "{{.calculate_unregdate_should_be_after.datetime}}"
+
