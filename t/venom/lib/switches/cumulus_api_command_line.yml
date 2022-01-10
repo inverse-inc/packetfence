@@ -18,8 +18,6 @@ steps:
   headers:
     "Content-Type": "application/json"
   assertions:
-    - result.body ShouldContainSubstring TLS
-    - result.body ShouldContainSubstring AUTHORIZED
     - result.statuscode ShouldEqual 200
   output:
     postjson: "{{.result.bodyjson}}"
