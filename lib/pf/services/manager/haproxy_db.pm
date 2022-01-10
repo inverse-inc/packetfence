@@ -58,6 +58,7 @@ sub generateConfig {
     $tags{'mysql_backend'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
+    $tags{'timeout'} = $Config{'database_advanced'}{'net_write_timeout'};
     if ($OS eq 'debian') {
         $tags{'os_path'} = '/etc/haproxy/errors/';
     } else {

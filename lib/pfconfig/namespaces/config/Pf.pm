@@ -191,6 +191,8 @@ sub build_child {
         $Config{'captive_portal'}{'secure_redirect'} = 'disabled';
         get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
     }
+    $Config{'database_advanced'}{'net_read_timeout'} = normalize_time( $Config{'database_advanced'}{'net_read_timeout'} );
+    $Config{'database_advanced'}{'net_write_timeout'} = normalize_time( $Config{'database_advanced'}{'net_write_timeout'} );
 
     return \%Config;
 }

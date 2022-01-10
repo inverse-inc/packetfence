@@ -67,7 +67,7 @@
 
     <form-group-net-write-timeout namespace="net_write_timeout"
       :column-label="$i18n.t('Net Write Timeout')"
-      :text="$i18n.t('The net_write_timeout MySQL configuration.')"
+      :text="$i18n.t('The net_write_timeout MySQL configuration. This value will also be used in haproxy-db configuration to define the timeout')"
     />
 
     <form-group-masterslave namespace="masterslave"
