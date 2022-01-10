@@ -19,7 +19,7 @@ testcases:
         "default_realm": null,
         "networks": null,
         "password": "{{.firewall_sso.firewall.password}}",
-        "port": {{.firewall_sso.firewall.port}},
+        "port": {{.firewall_sso.firewall.port_https}},
         "tenant_id": 1,
         "transport": "{{.firewall_sso.firewall.transport}}",
         "type": "PaloAlto",

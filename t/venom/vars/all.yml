@@ -579,8 +579,9 @@ firewall_sso.profiles.wired.unreg_on_acct_stop: disabled
 
 # Firewall
 firewall_sso.firewall.host: '{{.pfserver_mgmt_ip}}'
-firewall_sso.firewall.port: 8080
-firewall_sso.firewall.port_config: 8081
+firewall_sso.firewall.port_config: 8080
+firewall_sso.firewall.port_http: 8081
+firewall_sso.firewall.port_https: 8082
 firewall_sso.firewall.transport: http
 firewall_sso.firewall.password: secret
 firewall_sso.firewall.type: PaloAlto
