@@ -1,0 +1,76 @@
+name: Run configurator step 1
+testcases:
+# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)  
+- name: get_name_of_mgmt_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.mgmt.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      mgmt_interface:
+        from: result.systemout
+
+- name: configure_mgmt_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_mgmt_int.mgmt_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator.interfaces.mgmt.ip}}",
+        "netmask": "{{.configurator.interfaces.mgmt.netmask}}",
+        "type": "management",
+        "additional_listening_daemons": ["portal"]
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: get_name_of_inline_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator_inline_l2.interfaces.inline.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      inline_interface:
+        from: result.systemout
+
+# workaround for Debian Vagrant box: interfaces are down if they don't have an IP
+- name: bounce_inline_int
+  steps:
+  - type: exec
+    script: "ip link set dev {{.get_name_of_inline_int.inline_interface}} up"
+
+- name: configure_inline_int
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/interface/{{.get_name_of_inline_int.inline_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "ipaddress": "{{.configurator_inline_l2.interfaces.inline.ip}}",
+        "netmask": "{{.configurator_inline_l2.interfaces.inline.netmask}}",
+        "type": "inlinel2",
+        "dns": "{{.configurator_inline_l2.dns.primary_ip}},{{.configurator_inline_l2.dns.secondary_ip}}",
+        "dhcpd_enabled": "{{.configurator_inline_l2.interfaces.inline.dhcpd_enabled}}"
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: configure_dns_servers
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/system/dns_servers'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "dns_servers": ["{{.configurator_inline_l2.dns.primary_ip}}", "{{.configurator_inline_l2.dns.secondary_ip}}"]
+      }
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200

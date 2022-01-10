@@ -32,6 +32,14 @@ venom_local_vars:
   - name: 'configurator.interfaces.iso.netmask'
     value: "{{ users_vars[dict_name]['networks'][2]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
 
+  # return latest usable IP (.254) based on CIDR
+  - name: 'configurator_inline_l2.interfaces.inline.ip'
+    value: "{{ users_vars[dict_name]['networks'][3]['subnet'] | ansible.netcommon.ipaddr('last_usable') }}"
+
+  # get netmask based on CIDR
+  - name: 'configurator_inline_l2.interfaces.inline.netmask'
+    value: "{{ users_vars[dict_name]['networks'][3]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
+
   - name: 'smtp_server'
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"
 

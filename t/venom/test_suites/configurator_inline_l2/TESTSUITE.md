@@ -1,8 +1,8 @@
-# Configurator
+# Configurator inline L2
 
 This configurator test suite is different from: configurator and
-configurator_inline_l2 because it only configures management interface. Inline
-interface is added and created later.
+configurator_inline because it configures only one interface as inline with
+DHCP enabled.
 
 ## Requirements
 PacketFence server has been provisionned using Vagrant and Ansible and is in
@@ -34,6 +34,7 @@ will have two IP addresses one static and another one dynamic.
 ### Step 1
 1. Configure second interface as management with portal daemon (to test other
    feature later)
+1. Configure fifth interface (inline L2) with DHCP enabled
 1. Configure two DNS servers: a public DNS server and future AD
 
 ### Step 2

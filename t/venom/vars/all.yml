@@ -248,6 +248,9 @@ configurator.interfaces.reg.dhcpd_enabled: enabled
 configurator.interfaces.iso.index: 5
 configurator.interfaces.iso.dhcpd_enabled: enabled
 
+# Interface inline
+configurator.interfaces.inline.index: 6
+
 # DNS servers
 configurator.dns.primary_ip: 8.8.8.8
 configurator.dns.secondary_ip: '{{.ad_mgmt_ip}}'
@@ -277,6 +280,14 @@ configurator.admin.password: '{{.pfserver_admin_password}}'
 ### Step 3
 # Fingerbank
 configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'
+
+################################################################################
+# configurator_inline_l2 test suite specific variables
+################################################################################
+configurator_inline_l2.interfaces.inline.index: '{{.configurator.interfaces.inline.index }}'
+configurator_inline_l2.interfaces.inline.dhcpd_enabled: enabled
+configurator_inline_l2.dns.primary_ip: 8.8.8.8
+configurator_inline_l2.dns.secondary_ip: '{{.ad_mgmt_ip}}'
 
 ################################################################################
 # captive_portal test suite specific variables
