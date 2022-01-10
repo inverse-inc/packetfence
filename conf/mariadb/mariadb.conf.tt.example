@@ -23,6 +23,8 @@ socket    = /var/lib/mysql/mysql.sock
 skip-external-locking
 key_buffer_size = [% key_buffer_size %]M
 max_allowed_packet = [% max_allowed_packet %]M
+net_read_timeout = [% net_read_timeout %]
+net_write_timeout = [% net_write_timeout %]
 table_open_cache = 512
 sort_buffer_size = 2M
 read_buffer_size = 2M
