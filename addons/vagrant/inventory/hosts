@@ -32,6 +32,14 @@ all:
           ansible_host: "{{ mgmt_ip }}"
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
+        node03:
+          box: debian/bullseye64
+          box_version: 11.20211230.1
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['node03']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['node03']['netmask'] }}"
+          ansible_host: "{{ mgmt_ip }}"
+          # only used when run outside Vagrant
+          ansible_python_interpreter: '/usr/bin/python3'
 
     winservers:
       hosts:
@@ -410,6 +418,9 @@ all:
           node02:
             ip: '172.18.200.252'
             netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.200.253'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.18.200.100'
             netmask: '255.255.255.0'
@@ -571,6 +582,9 @@ all:
           node02:
             ip: '172.18.140.252'
             netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.140.253'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.18.140.100'
             netmask: '255.255.255.0'
@@ -730,6 +744,9 @@ all:
             netmask: '255.255.255.0'
           node02:
             ip: '172.18.115.252'
+            netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.115.253'
             netmask: '255.255.255.0'
           ad:
             ip: '172.18.115.100'
@@ -891,6 +908,9 @@ all:
           node02:
             ip: '172.18.145.252'
             netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.145.253'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.18.145.100'
             netmask: '255.255.255.0'
@@ -1050,6 +1070,9 @@ all:
             netmask: '255.255.255.0'
           node02:
             ip: '172.18.120.252'
+            netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.120.253'
             netmask: '255.255.255.0'
           ad:
             ip: '172.18.120.100'
@@ -1211,6 +1234,9 @@ all:
           node02:
             ip: '172.18.125.252'
             netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.125.253'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.18.125.100'
             netmask: '255.255.255.0'
@@ -1371,6 +1397,9 @@ all:
           node02:
             ip: '172.18.135.252'
             netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.135.253'
+            netmask: '255.255.255.0'
           ad:
             ip: '172.18.135.100'
             netmask: '255.255.255.0'
@@ -1530,6 +1559,9 @@ all:
             netmask: '255.255.255.0'
           node02:
             ip: '172.18.155.252'
+            netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.155.253'
             netmask: '255.255.255.0'
           ad:
             ip: '172.18.155.100'
