@@ -60,6 +60,16 @@
       :text="$i18n.t('The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.')"
     />
 
+    <form-group-net-read-timeout namespace="net_read_timeout"
+      :column-label="$i18n.t('Net Read Timeout')"
+      :text="$i18n.t('The net_read_timeout MySQL configuration.')"
+    />
+
+    <form-group-net-write-timeout namespace="net_write_timeout"
+      :column-label="$i18n.t('Net Write Timeout')"
+      :text="$i18n.t('The net_write_timeout MySQL configuration.')"
+    />
+
     <form-group-masterslave namespace="masterslave"
       :column-label="$i18n.t('Master/Slave mode')"
       :text="$i18n.t('Enable master/slave replication.')"
@@ -89,6 +99,8 @@ import {
   FormGroupMaxAllowedPacket,
   FormGroupPerformanceSchema,
   FormGroupMaxConnectErrors,
+  FormGroupNetReadTimeout,
+  FormGroupNetWriteTimeout,
   FormGroupMasterslave,
   FormGroupOtherMembers
 } from './'
@@ -107,6 +119,8 @@ const components = {
   FormGroupMaxAllowedPacket,
   FormGroupPerformanceSchema,
   FormGroupMaxConnectErrors,
+  FormGroupNetReadTimeout,
+  FormGroupNetWriteTimeout,
   FormGroupMasterslave,
   FormGroupOtherMembers
 }
