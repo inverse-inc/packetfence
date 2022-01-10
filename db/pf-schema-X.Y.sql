@@ -1648,25 +1648,20 @@ BEGIN
 END /
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `process_bandwidth_accounting_netflow`;
 DELIMITER /
-CREATE PROCEDURE `process_bandwidth_accounting_netflow` (
+CREATE OR REPLACE PROCEDURE `process_bandwidth_accounting_netflow` (
   IN `p_end_bucket` datetime,
   IN `p_batch` int(11) unsigned
 )
 BEGIN
     SET @batch = p_batch;
     SET @end_bucket = p_end_bucket;
-    DROP TABLE IF EXISTS to_process;
-    CREATE TEMPORARY TABLE to_process ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, time_bucket as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
     START TRANSACTION;
-    PREPARE insert_into_to_process FROM 'INSERT to_process SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? LIMIT ?';
-    EXECUTE insert_into_to_process USING @end_bucket, @batch;
-    DEALLOCATE PREPARE insert_into_to_process;
-    SELECT COUNT(*) INTO @count FROM to_process;
+    EXECUTE IMMEDIATE 'CREATE OR REPLACE TEMPORARY TABLE to_process_bandwidth_accounting_netflow (INDEX(node_id, time_bucket, unique_session_id)) ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? LIMIT ?' USING @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_process_bandwidth_accounting_netflow;
     IF @count > 0 THEN
         UPDATE
-            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process GROUP BY node_id) AS x
+            (SELECT tenant_id, mac, SUM(total_bytes) AS total_bytes FROM to_process_bandwidth_accounting_netflow GROUP BY node_id) AS x
             LEFT JOIN node USING(tenant_id, mac)
             SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
             WHERE node.bandwidth_balance IS NOT NULL;
@@ -1680,7 +1675,7 @@ BEGIN
              new_time_bucket,
              sum(in_bytes) AS in_bytes,
              sum(out_bytes) AS out_bytes
-            FROM to_process
+            FROM to_process_bandwidth_accounting_netflow
             GROUP BY node_id, new_time_bucket
             ON DUPLICATE KEY UPDATE
                 in_bytes = in_bytes + VALUES(in_bytes),
@@ -1688,16 +1683,11 @@ BEGIN
             ;
 
         DELETE bandwidth_accounting
-            FROM to_process INNER JOIN bandwidth_accounting
-            WHERE
-                to_process.node_id = bandwidth_accounting.node_id AND
-                to_process.time_bucket = bandwidth_accounting.time_bucket AND
-                to_process.unique_session_id = bandwidth_accounting.unique_session_id;
+            FROM bandwidth_accounting RIGHT JOIN to_process_bandwidth_accounting_netflow USING (node_id, time_bucket, unique_session_id);
 
     END IF;
     COMMIT;
 
-    DROP TABLE to_process;
     SELECT @count as count;
 END/
 DELIMITER ;
