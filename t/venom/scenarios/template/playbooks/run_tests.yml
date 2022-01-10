@@ -1,6 +1,6 @@
 ---
 - hosts: pfservers
-  name: Run unit tests
+  name: Run Venom tests
   become: True
 
   vars:
