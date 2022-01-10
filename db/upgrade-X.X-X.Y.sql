@@ -47,6 +47,45 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+DELIMITER /
+CREATE OR REPLACE PROCEDURE `bandwidth_aggregation_history` (
+  IN `p_bucket_size` varchar(255),
+  IN `p_end_bucket` datetime,
+  IN `p_batch` int(11) unsigned
+)
+BEGIN
+
+    SET @end_bucket= p_end_bucket, @batch = p_batch;
+    SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
+
+    START TRANSACTION;
+    EXECUTE IMMEDIATE CONCAT('CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation_history ENGINE=MEMORY, MAX_ROWS=',@batch , ' SELECT node_id, tenant_id, mac, ', @date_rounding,'(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != ', @date_rounding, '(time_bucket) ORDER BY time_bucket LIMIT ? FOR UPDATE') USING @end_bucket, @batch;
+    SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_aggregation_history;
+    IF @count > 0 THEN
+        INSERT INTO bandwidth_accounting_history
+        (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
+         SELECT
+             node_id,
+             tenant_id,
+             mac,
+             new_time_bucket,
+             sum(in_bytes) AS in_bytes,
+             sum(out_bytes) AS out_bytes
+            FROM to_delete_bandwidth_aggregation_history
+            GROUP BY node_id, new_time_bucket
+            ON DUPLICATE KEY UPDATE
+                in_bytes = in_bytes + VALUES(in_bytes),
+                out_bytes = out_bytes + VALUES(out_bytes)
+            ;
+
+        DELETE bandwidth_accounting_history
+            FROM bandwidth_accounting_history RIGHT JOIN to_delete_bandwidth_aggregation_history USING (node_id, time_bucket);
+    END IF;
+    COMMIT;
+
+    SELECT @count AS aggreated;
+END /
+DELIMITER ;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
