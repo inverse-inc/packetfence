@@ -29,10 +29,10 @@ sub ldap_attributes {
   my ($self) = @_;
   return (
     $self->SUPER::ldap_attributes,
-     { value => "sAMAccountName", type => $Conditions::LDAP_ATTRIBUTE },
-     { value => "sAMAccountType", type => $Conditions::LDAP_ATTRIBUTE },
-     { value => "userAccountControl", type => $Conditions::LDAP_ATTRIBUTE },
-     { value => "memberOf:1.2.840.113556.1.4.1941:", type => $Conditions::LDAP_ATTRIBUTE },
+     { value => 'sAMAccountName', type => $Conditions::LDAP_ATTRIBUTE },
+     { value => 'sAMAccountType', type => $Conditions::LDAP_ATTRIBUTE },
+     { value => 'userAccountControl', type => $Conditions::LDAP_ATTRIBUTE },
+     { value => 'memberOf:1.2.840.113556.1.4.1941:', type => $Conditions::LDAP_ATTRIBUTE },
     );
 }
 
@@ -49,7 +49,7 @@ sub findAtttributeFrom {
     my ($connection, $LDAPServer, $LDAPServerPort ) = $self->_connect();
 
     if (!defined($connection)) {
-        return ($FALSE, "Error communicating with the LDAP server");
+        return ($FALSE, 'Error communicating with the LDAP server');
     }
 
     my $result = $connection->search(
@@ -93,7 +93,7 @@ USA.
 
 =cut
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 1;
 
 # vim: set shiftwidth=4:
