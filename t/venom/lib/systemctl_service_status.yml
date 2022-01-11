@@ -1,9 +1,11 @@
 executor: systemctl_service_status
 input:
   service: {} 
+  sudo: {}
 steps:
 - type: systemctl_service
   unit_commands: status
   service: "{{.input.service}}"
+  sudo: "{{.input.sudo}}"
   assertions:
     - result.systemout ShouldContainSubstring active (running)

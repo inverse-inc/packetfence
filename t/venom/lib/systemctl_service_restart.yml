@@ -1,11 +1,13 @@
 executor: systemctl_service_restart
 input:
   service: {} 
+  sudo: {}
 steps:
 # service restarted by hand because using API cause Venom failure (EOF)
 - type: systemctl_service
   unit_commands: restart
   service: "{{.input.service}}"
+  sudo: "{{.input.sudo}}"
 
 # let service restarts
 - type: sleep
@@ -14,3 +16,4 @@ steps:
 # check service status
 - type: systemctl_service_status
   service: "{{.input.service}}"
+  sudo: "{{.input.sudo}}"
