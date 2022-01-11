@@ -11,10 +11,9 @@
 
       - security_event_autoreg/prepare
       - security_event_autoreg/verify
-        #- security_event_autoreg/teardown
+      - security_event_autoreg/teardown
 
-        #- captive_portal/teardown
-        #- global_teardown
+      - global_teardown
 
   tasks:
     - name: Run Venom testsuites
