@@ -1,0 +1,4 @@
+executor: switch01_dynamic_vlan_disable
+steps:
+- type: cumulus_api_command_line
+  cmd: "del dot1x dynamic-vlan"

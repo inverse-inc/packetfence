@@ -1,0 +1,8 @@
+executor: switch01_check_dot1x_int_status
+steps:
+- type: cumulus_api_command_line
+  assertions:
+    # we didn't check MAC address on port to make this testcase reusable
+    - result.postjson ShouldContainSubstring "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"
+    - result.postjson ShouldContainSubstring TLS
+    - result.postjson ShouldContainSubstring AUTHORIZED

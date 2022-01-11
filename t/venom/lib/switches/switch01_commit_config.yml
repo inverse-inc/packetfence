@@ -1,0 +1,4 @@
+executor: switch01_commit_config 
+steps:
+- type: cumulus_api_command_line
+  cmd: "commit"
