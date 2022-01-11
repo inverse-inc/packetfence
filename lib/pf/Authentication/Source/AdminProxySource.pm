@@ -79,7 +79,7 @@ sub authenticate {
     my ($self, $address, $headers) = @_;
     my @address = split /\s*,\s*/ , $self->proxy_addresses;
     return ($FALSE, 'Invalid proxy address') unless any { $_ eq $address } @address ;
-    return ($TRUE, "Valid proxy address");
+    return ($TRUE, 'Valid proxy address');
 }
 
 =head2 getUserFromHeader
@@ -114,8 +114,8 @@ sub match_in_subclass {
     my ($self, $params, $rule, $own_conditions, $matching_conditions) = @_;
     my $group_header =  $params->{'group_header'};
     foreach my $condition (@{ $own_conditions }) {
-        if ($condition->{'attribute'} eq "group_header") {
-            if ( $condition->matches("group_header", $group_header, $params) ) {
+        if ($condition->{'attribute'} eq 'group_header') {
+            if ( $condition->matches('group_header', $group_header, $params) ) {
                 push(@{ $matching_conditions }, $group_header);
             }
         }
