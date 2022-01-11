@@ -24,6 +24,18 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Service has been restarted"
 
+- name: restart_pfqueue_service
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-pfqueue/restart'
+    ignore_verify_ssl: true
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Service has been restarted"
+
 - name: update_systemd
   steps:
   - type: http

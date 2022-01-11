@@ -1,0 +1,36 @@
+name: SecurityEventAutoreg
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {"id":"88888888","isClone":false,"isNew":true,"access_duration":"5D","actions":["autoreg","role"],"desc":"Test DHCP autoreg venom","enabled":"Y","target_category":"machine_employee","triggers":[{"dhcp_fingerprint":"{{.security_event_autoreg.node.dhcp_fingerprint_id}}"}],"whitelisted_roles":[]}
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: calculate_unregdate_should_be_after
+  steps:
+  - type: exec
+    script: 'date +"%Y-%m-%dT%H:%M:%S+00:00" -d "5 days" > /tmp/calculate_unregdate_should_be_after.txt'
+
+  
+- name: clear_fingerbank_cache
+  steps:
+  - type: exec
+    script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
+
+#- name: restart_pfqueue
+#  steps:
+#  - type: exec
+#    script: '/usr/local/pf/bin/pfcmd service pfqueue restart'
+

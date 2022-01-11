@@ -7,9 +7,14 @@
     # put your test suites to try here
     test_suites:
       - configurator
+      - global_config
 
-      - security_event_autoreg
-      - security_event_autoreg/teardown
+      - security_event_autoreg/prepare
+      - security_event_autoreg/verify
+        #- security_event_autoreg/teardown
+
+        #- captive_portal/teardown
+        #- global_teardown
 
   tasks:
     - name: Run Venom testsuites
