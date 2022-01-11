@@ -566,17 +566,6 @@ inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 ################################################################################
 ## firewall_sso test suite specific variables
 #################################################################################
-# Roles
-firewall_sso.roles.headless_device.id: 'firewall_sso'
-firewall_sso.roles.headless_device.notes: '{{.mac_auth.roles.headless_device.notes}}'
-firewall_sso.roles.headless_device.vlan_id: '{{.mac_auth.roles.headless_device.vlan_id}}'
-
-# Connection profiles
-firewall_sso.profiles.wired.id: catch_firewall_sso_authentication
-firewall_sso.profiles.wired.description: Firewall SSO authentication
-firewall_sso.profiles.wired.filters.connection_type: Ethernet-NoEAP
-firewall_sso.profiles.wired.unreg_on_acct_stop: disabled
-
 # Firewall
 firewall_sso.firewall.host: '{{.pfserver_mgmt_ip}}'
 firewall_sso.firewall.port_config: 8080
