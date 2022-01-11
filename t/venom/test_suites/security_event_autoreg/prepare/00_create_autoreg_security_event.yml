@@ -1,4 +1,4 @@
-name: SecurityEventAutoreg
+name: Create autoreg security event
 testcases:
 - name: get_login_token
   steps:
