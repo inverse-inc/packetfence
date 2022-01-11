@@ -1,0 +1,8 @@
+executor: mac_address_url_encoder
+input:
+  mac_address: {}
+steps:
+- type: exec
+  script: sed 's|:|%3A|g' <<< "{{.input.mac_address}}"
+outpost:
+  mac_address_url_encoded: "{{.result.systemout}}" 

@@ -1,0 +1,19 @@
+executor: pf_api_node_action
+input:
+  action: {}
+  node_id: {}
+  status_code: 200
+steps:
+- type: get_login_token
+
+- type: http
+  method: "{{.input.action}}"
+  url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.input.node_id}}'
+  ignore_verify_ssl: true
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual "{{.imput.status_code}}"
+  outpost:
+    pf_api_node_action_json: "{{.result.bodyjson}}"
