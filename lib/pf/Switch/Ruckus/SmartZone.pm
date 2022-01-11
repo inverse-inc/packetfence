@@ -358,9 +358,15 @@ sub check_if_radius_request_psk_matches {
         return $FALSE;
     }
 
+    my $pmk = $self->cache->compute(
+        "Ruckus::SmartZone::check_if_radius_request_psk_matches::PMK::$radius_request->{'Ruckus-Wlan-Name'}+$psk", 
+        "1 month",
+        sub { pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk) },
+    );
+
     return pf::util::wpa::match_mic(
       pf::util::wpa::calculate_ptk(
-        pf::util::wpa::calculate_pmk($radius_request->{"Ruckus-Wlan-Name"}, $psk),
+        $pmk,
         pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-BSSID"})),
         pack("H*", $radius_request->{"User-Name"}),
         pack("H*", pf::util::wpa::strip_hex_prefix($radius_request->{"Ruckus-DPSK-Anonce"})),
