@@ -1,5 +1,6 @@
 name: Create smocker HTTP mock
 testcases:
+
 - name: create_smocker_dir
   steps:
     - type: exec
@@ -29,7 +30,6 @@ testcases:
       sudo touch {{.smocker_dir}}/smocker.out
       sudo chmod a+w {{.smocker_dir}}/smocker.out
       nohup {{.smocker_dir}}/smocker -static-files="{{.smocker_dir}}" -persistence-directory="{{.smocker_dir}}" -mock-server-listen-port={{.firewall_sso.firewall.port_http}} -config-listen-port={{.firewall_sso.firewall.port_config}} -log-level="debug" > {{.smocker_dir}}/smocker.out 2>&1 &
-      echo "$!" > {{.smocker_dir}}/smocker.pid
       EOF
 
 - name: run_smocker
