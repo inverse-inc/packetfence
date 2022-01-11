@@ -1601,9 +1601,8 @@ CREATE OR REPLACE FUNCTION ROUND_TO_MONTH (d DATETIME)
     RETURNS DATETIME DETERMINISTIC
         RETURN DATE_ADD(DATE(d),interval -DAY(d)+1 DAY);
 
-DROP PROCEDURE IF EXISTS `bandwidth_aggregation`;
 DELIMITER /
-CREATE PROCEDURE `bandwidth_aggregation` (
+CREATE OR REPLACE PROCEDURE `bandwidth_aggregation` (
   IN `p_bucket_size` varchar(255),
   IN `p_end_bucket` datetime,
   IN `p_batch` int(11) unsigned
