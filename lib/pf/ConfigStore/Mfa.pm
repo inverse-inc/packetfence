@@ -21,7 +21,7 @@ sub configFile { $mfa_config_file };
 
 sub pfconfigNamespace { 'config::Mfa' }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 =head1 AUTHOR
 

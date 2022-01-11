@@ -276,7 +276,7 @@ sub membersOfGroup {
       : $self->search( 'group', $groupName, 'id' );
 }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 =back
 

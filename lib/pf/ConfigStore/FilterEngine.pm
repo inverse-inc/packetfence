@@ -69,7 +69,7 @@ sub _update_section {
     $self->SUPER::_update_section($section, $assignments);
 }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 =head1 AUTHOR
 

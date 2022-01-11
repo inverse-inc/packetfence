@@ -24,7 +24,7 @@ sub pfconfigNamespace {'config::SwitchFilters'}
 
 sub ordered_arrays { ['params', 'param'] }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 =head1 AUTHOR
 

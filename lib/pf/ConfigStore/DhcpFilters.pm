@@ -25,7 +25,7 @@ sub pfconfigNamespace {'config::DhcpFilters'}
 
 sub ordered_arrays { ( [ 'actions', 'action' ], [ 'answers', 'answer' ] ) }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 =head1 AUTHOR
 

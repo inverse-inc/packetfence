@@ -20,7 +20,7 @@ has 'sql_strings'  => ( is => 'rw', builder => 1, lazy => 1 );
 has 'table' => ( is => 'rw', default => 'chi_cache' );
 has 'key_prefix' => ( is => 'rw', builder => 1, lazy => 1);
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 sub BUILD {
     my ( $self, $args ) = @_;

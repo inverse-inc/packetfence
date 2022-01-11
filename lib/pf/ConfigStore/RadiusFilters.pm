@@ -26,7 +26,7 @@ sub pfconfigNamespace {'config::RadiusFilters'}
 
 sub ordered_arrays { ['answers', 'answer'] }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 =head1 AUTHOR
 

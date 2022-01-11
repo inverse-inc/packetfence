@@ -243,7 +243,7 @@ sub identifyType {
     $self->_attributesToString;
 }
 
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
+__PACKAGE__->meta->make_immutable unless $ENV{'PF_SKIP_MAKE_IMMUTABLE'};
 
 
 =head1 AUTHOR
