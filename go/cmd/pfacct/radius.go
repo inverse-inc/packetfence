@@ -13,7 +13,6 @@ import (
 
 	"github.com/OneOfOne/xxhash"
 	cache "github.com/fdurand/go-cache"
-
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
 	"github.com/inverse-inc/go-radius/inversedict"
@@ -32,6 +31,16 @@ const ACCOUNTING_POLICY_BANDWIDTH = "BandwidthExpired"
 const ACCOUNTING_POLICY_TIME = "TimeExpired"
 
 var radiusDictionary *dictionary.Dictionary
+
+type acct_info struct {
+	node_id        uint64
+	tenant_id      int
+	mac            string
+	unique_session uint64
+	bucket         time.Time
+	in_bytes       int64
+	out_bytes      int64
+}
 
 func (h *PfAcct) AddProxyState(packet *radius.Packet, r *radius.Request) *radius.Packet {
 	state, err := rfc2865.ProxyState_Lookup(r.Packet)
@@ -134,6 +143,14 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
 	unique_session_id := h.accountingUniqueSessionId(r)
+	node_acct_info := acct_info{node_id: node_id,
+		tenant_id:      switchInfo.TenantId,
+		mac:            mac.String(),
+		unique_session: unique_session_id,
+		bucket:         timestamp,
+		in_bytes:       in_bytes,
+		out_bytes:      out_bytes,
+	}
 	go func() {
 		if err := h.InsertBandwidthAccounting(
 			status,
@@ -147,7 +164,6 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		); err != nil {
 			logError(ctx, "InsertBandwidthAccounting: "+err.Error())
 		}
-
 		if status == rfc2866.AcctStatusType_Value_Stop {
 			h.CloseSession(node_id, unique_session_id)
 		}
@@ -157,7 +173,6 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
 	}()
 	return
-
 }
 
 func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, unique_session uint64) {
@@ -795,6 +810,28 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 		)
 	}
 	return err
+}
+
+func (rs *RadiusStatements) InsertBandwidthAccountingWrapper(acct acct_info) error {
+	_, err := rs.insertBandwidthAccounting.Exec(
+		acct.node_id,
+		acct.tenant_id,
+		acct.mac,
+		acct.unique_session,
+		acct.bucket,
+		acct.in_bytes,
+		acct.out_bytes,
+		acct.node_id,
+		acct.unique_session,
+		acct.bucket,
+	)
+	return err
+}
+
+func (h *PfAcct) AcctSQLWorker() {
+	for acct_info := range h.JobChan {
+		h.InsertBandwidthAccountingWrapper(acct_info)
+	}
 }
 
 func init() {

@@ -55,6 +55,7 @@ type PfAcct struct {
 	isProxied          bool
 	radiusdAcctEnabled bool
 	AllNetworks        bool
+	JobChan            chan acct_info
 }
 
 func NewPfAcct() *PfAcct {
@@ -75,6 +76,7 @@ func NewPfAcct() *PfAcct {
 	}
 
 	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
+	pfAcct.JobChan = make(chan acct_info, 1000)
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)

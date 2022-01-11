@@ -24,6 +24,8 @@ func main() {
 	increaseFileLimit()
 
 	pfacct := NewPfAcct()
+	go pfacct.AcctSQLWorker()
+
 	w := sync.WaitGroup{}
 	rs := pfacct.radiusListen(&w)
 	/*
