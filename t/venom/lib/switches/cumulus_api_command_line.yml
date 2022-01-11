@@ -3,7 +3,7 @@ input:
   user: "{{.switch01.api.user}}"
   password: "{{.switch01.api.password}}"
   url: '{{.switch01.api.url}}/nclu/v1/rpc'
-  cmd: "show dot1x interface {{.switch01.dot1x_interface.id}} json"
+  cmd: ""
 steps:
 - type: http
   method: POST
@@ -20,4 +20,4 @@ steps:
   assertions:
     - result.statuscode ShouldEqual 200
   output:
-    postjson: "{{.result.bodyjson}}"
+    cumulus_api_command_line_json: "{{.result.bodyjson}}"

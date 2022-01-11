@@ -15,7 +15,7 @@ steps:
   assertions:
     - result.statuscode ShouldEqual 200
   output: 
-    postjson: "{{.result.bodyjson}}"
+    pf_api_service_action_json: "{{.result.bodyjson}}"
 
 - type: sleep
   time_to_sleep: 5

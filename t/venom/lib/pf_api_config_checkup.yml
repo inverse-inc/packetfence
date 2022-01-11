@@ -12,3 +12,5 @@ steps:
   assertions:
     - result.statuscode ShouldEqual 200
 
+outpost:
+  pf_api_config_checkup_json: "{{.result.bodyjson}}"

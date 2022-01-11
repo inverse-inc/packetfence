@@ -5,7 +5,7 @@ steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
   action: "status"
-  output:
-    postjson: "{{.result.postjson}}"
   assertions:
-    - result.postjson ShoulContain "alive": 0
+    - result.json ShoulContain "alive": 0
+  output:
+    pf_api_service_status_json: "{{.result.pf_api_service_action_json}}"
