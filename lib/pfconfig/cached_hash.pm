@@ -63,9 +63,9 @@ sub TIEHASH {
     my $self = bless {}, $class;
     $self->init();
     $self->set_namespace($config);
-    $self->{"_scoped_by_tenant_id"} = $extra{tenant_id_scoped};
-    $self->{"_control_file_path"} = pfconfig::util::control_file_path($self->{_namespace});
-    $self->{element_socket_method} = "hash_element";
+    $self->{_scoped_by_tenant_id} = $extra{tenant_id_scoped};
+    $self->{_control_file_path} = pfconfig::util::control_file_path($self->{_namespace});
+    $self->{element_socket_method} = 'hash_element';
     return $self;
 }
 
@@ -115,8 +115,8 @@ sub keys {
     my ($self) = @_;
     my $logger = $self->logger;
 
-    my $keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
-        return $self->_get_from_socket( $self->{_namespace}, "keys" );
+    my $keys = $self->compute_from_subcache('__PFCONFIG_HASH_KEYS__', sub {
+        return $self->_get_from_socket( $self->{_namespace}, 'keys' );
     });
 
     return @$keys;
@@ -133,8 +133,8 @@ sub FIRSTKEY {
     my ($self) = @_;
     my $logger = $self->logger;
 
-    return $self->compute_from_subcache("__PFCONFIG_FIRST_KEY__", sub {
-        my $first_key = $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => undef ) );
+    return $self->compute_from_subcache('__PFCONFIG_FIRST_KEY__', sub {
+        my $first_key = $self->_get_from_socket( $self->{_namespace}, 'next_key', ( last_key => undef ) );
         return $first_key ? $first_key->{next_key} : undef;
     });
 }
@@ -151,7 +151,7 @@ sub NEXTKEY {
     my $logger = $self->logger;
 
     return $self->compute_from_subcache("__PFCONFIG_NEXT_KEY_${last_key}__", sub {
-        return $self->_get_from_socket( $self->{_namespace}, "next_key", ( last_key => $last_key ) )->{next_key};
+        return $self->_get_from_socket( $self->{_namespace}, 'next_key', ( last_key => $last_key ) )->{next_key};
     });
 }
 
@@ -184,7 +184,7 @@ sub EXISTS {
     my ( $self, $key ) = @_;
     return undef unless defined $key;
     return $self->compute_from_subcache("__PFCONFIG_KEY_EXISTS_${key}__", sub {
-        my $reply =  $self->_get_from_socket( $self->{_namespace}, "key_exists", ( search => $key ) );
+        my $reply =  $self->_get_from_socket( $self->{_namespace}, 'key_exists', ( search => $key ) );
         return defined $reply ? $reply->{result} : undef;
     });
 }
@@ -199,8 +199,8 @@ Call it using tied(%hash)->all
 
 sub all {
     my ( $self ) = @_;
-    my $result = $self->compute_from_subcache("__PFCONFIG_ALL__", sub {
-        my $reply = $self->_get_from_socket("$self->{_namespace}");
+    my $result = $self->compute_from_subcache('__PFCONFIG_ALL__', sub {
+        my $reply = $self->_get_from_socket($self->{_namespace});
         my $result = defined($reply) ? $reply->{element} : undef;
     });
 
