@@ -1,4 +1,0 @@
-executor: node_enable_cleanup
-steps:
-- type: node_tasks_cleanup
-  status: "enable"

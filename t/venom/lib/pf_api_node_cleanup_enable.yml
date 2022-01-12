@@ -1,0 +1,4 @@
+executor: pf_api_node_cleanup_enable 
+steps:
+- type: pf_api_node_cleanup_tasks
+  status: "enable"
