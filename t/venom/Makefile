@@ -255,3 +255,4 @@ cluster_el8:
 	CLUSTER_NAME="$@$(DEV_ENV)" \
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
+

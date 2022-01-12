@@ -1,4 +1,4 @@
-# dot1x_eap_peap
+# dot1x_eap_peap_firewall_sso_https
 
 ## Requirements
 AD server running
@@ -12,6 +12,12 @@ AD server running
 1. Enable node_cleanup task with following parameters:
 - delete_windows=1m
 1. Restart `pfcron` to take change into account
+1. Create HTTPS mock with Smocker HTTP mock and haproxy SSL termination
+1. Create Firewall SSO
+1. Enable SSO in base advanced configuration with the following parameters:
+- sso_on_access_reevaluation: enabled
+- sso_on_accounting: enabled
+1. Restart `pfsso` to take change into account
 1. Join domain
 1. Configure REALMS
 1. Restart RADIUS services (common test suite)
@@ -25,14 +31,18 @@ AD server running
 1. Wait some time to let RADIUS request be sent by switch01 and handled by
    PacketFence server
 1. Check RADIUS audit log for node01
+1. Check HTTPS mock for Firewall SSO Start
 1. Check node status for node01
 1. Check VLAN assigned to node01 *on* switch01
 1. Check Internet access *on* node01
+1. Deregister node01 to force Firewall SSO Stop
+1. Check HTTPS mock for Firewall SSO Stop
 
 ## Teardown steps
 1. Kill wpa_supplicant: an accounting stop will be generated if we wait
    EAP-TIMEOUT on the switch (not the case here due to next task). Access is
    still working until we run next task.
+1. Kill HTTPS mock
 1. Unconfigure switch port and dynamic VLAN on switch01
    1. Generate a RADIUS Accounting stop message (sent by switch01) which update
       `last_seen` attribute of node01 and unreg device based on
@@ -45,6 +55,11 @@ AD server running
 1. Check node has been deleted
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
+1. Delete Firewall SSO
+1. Restart `pfsso` to take change into account
+1. Disable SSO in base advanced configuration with the following parameters:
+- sso_on_access_reevaluation: disabled
+- sso_on_accounting: disabled
 1. Unconfigure and delete REALMS
 1. Delete domain
 1. Delete connection profile
