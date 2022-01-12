@@ -1,0 +1,22 @@
+executor: pf_api_action
+input:
+  status_code: 200
+  url: {}
+  method: {}
+steps:
+- type: get_login_token
+
+- type: http
+  method: "{{.input.method}}"
+  url: '{{.pfserver_webadmin_url}}/api/v1/{{.input.url}}'
+  ignore_verify_ssl: true
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual "{{.input.status_code}}"
+  output: 
+    pf_api_action_json: "{{.result.bodyjson}}"
+
+- type: sleep
+  time_to_sleep: 5

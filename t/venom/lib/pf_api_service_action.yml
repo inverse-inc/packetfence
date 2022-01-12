@@ -3,19 +3,8 @@ input:
   service: {}
   action: {}
 steps:
-- type: get_login_token
-
-- type: http
+- type: pf_api_action
   method: POST
-  url: '{{.pfserver_webadmin_url}}/api/v1/service/{{.input.service}}/{{.input.action}}'
-  ignore_verify_ssl: true
-  headers:
-    "Authorization": "{{.result.token}}"
-    "Content-Type": "application/json"
-  assertions:
-    - result.statuscode ShouldEqual 200
+  url: 'service/{{.input.service}}/{{.input.action}}'
   output: 
-    pf_api_service_action_json: "{{.result.bodyjson}}"
-
-- type: sleep
-  time_to_sleep: 5
+    pf_api_service_action_json: "{{.result.pf_api_action_json}}"
