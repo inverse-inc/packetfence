@@ -1,20 +1,17 @@
 executor: pf_api_node_delete
 input:
-  node_id: {}
+  id: {}
 steps:
-- type: mac_address_url_encoder
-  mac_address: "{{.input.node_id}}"
-
 # delete_node
 - type: pf_api_node_action
   action: DELETE
-  node_id: "{{.result.mac_address_url_encoded}}"
+  id: "{{.input.id}}"
   assertions:
-    - result.pf_api_node_action_json.message ShouldEqual "Deleted {{.input.node_id}} successfully"
+    - result.pf_api_node_action_json.message ShouldEqual "Deleted {{.input.id}} successfully"
 
 # check node deleted
-- type: pf_api_node_check
-  node_id: "{{.result.mac_address_url_encoded}}"
+- type: pf_api_node_status
+  id: "{{.input.id}}"
   status_code: 404
   assertions:
     - result.pf_api_node_check_json.message ShouldEqual "Unable to get resource with this identifier"
