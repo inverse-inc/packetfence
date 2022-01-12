@@ -20,7 +20,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldBeIn 201 409
+      - result.statuscode ShouldEqual 201
 
 - name: create_eap_peap_roles_machine
   steps:
@@ -38,7 +38,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldBeIn 201 409
+      - result.statuscode ShouldEqual 201
 
 - name: create_headless_device_role
   steps:
@@ -56,7 +56,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldBeIn 201 409
+      - result.statuscode ShouldEqual 201
 
 - name: create_wired_dot1x_eap_tls_manual_role
   steps:
@@ -74,7 +74,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldBeIn 201 409
+      - result.statuscode ShouldEqual 201
 
 - name: create_wired_dot1x_eap_tls_scep_role
   steps:
@@ -92,7 +92,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldBeIn 201 409
+      - result.statuscode ShouldBeIn 201
 
 - name: create_inline_l2_and_radius_first_role
   steps:
@@ -144,5 +144,5 @@ testcases:
       "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldBeIn 201 409
+      - result.statuscode ShouldBeIn 201
 
