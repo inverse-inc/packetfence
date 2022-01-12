@@ -29,7 +29,7 @@ testcases:
       #!/bin/bash
       sudo touch {{.smocker_dir}}/smocker.out
       sudo chmod a+w {{.smocker_dir}}/smocker.out
-      nohup {{.smocker_dir}}/smocker -static-files="{{.smocker_dir}}" -persistence-directory="{{.smocker_dir}}" -mock-server-listen-port={{.firewall_sso.firewall.port_http}} -config-listen-port={{.firewall_sso.firewall.port_config}} -log-level="debug" > {{.smocker_dir}}/smocker.out 2>&1 &
+      nohup {{.smocker_dir}}/smocker -static-files="{{.smocker_dir}}" -persistence-directory="{{.smocker_dir}}" -mock-server-listen-port={{.firewall_sso.https.port_http}} -config-listen-port={{.firewall_sso.https.port_config}} -log-level="debug" > {{.smocker_dir}}/smocker.out 2>&1 &
       EOF
 
 - name: run_smocker
@@ -42,7 +42,7 @@ testcases:
   steps:
   - type: http
     method: GET
-    url: 'http://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_config}}/version'
+    url: 'http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/version'
     headers:
       "Content-Type": "application/json"
     assertions:
@@ -52,13 +52,13 @@ testcases:
   steps:
   - type: exec
     script: |
-      curl -XPOST --header "Content-Type: application/x-yaml" --data-binary "@mocks/firewall-sso.yml" {{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_config}}/mocks
+      curl -XPOST --header "Content-Type: application/x-yaml" --data-binary "@mocks/firewall-sso.yml" {{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/mocks
 
 - name: check_smocker_http
   steps:
   - type: http
     method: GET
-    url: 'http://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_http}}/test'
+    url: 'http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_http}}/test'
     headers:
       "Content-Type": "application/json"
     assertions:
@@ -79,12 +79,12 @@ testcases:
         timeout client 1m
         timeout server 1m
 
-      frontend {{.firewall_sso.firewall.host}}
-        bind {{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_https}} ssl crt /usr/local/pf/conf/ssl/server.pem
+      frontend {{.firewall_sso.https.host}}
+        bind {{.firewall_sso.https.host}}:{{.firewall_sso.https.port_https}} ssl crt /usr/local/pf/conf/ssl/server.pem
         default_backend web_servers
 
       backend web_servers
-          server server1 {{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_http}}
+          server server1 {{.firewall_sso.https.host}}:{{.firewall_sso.https.port_http}}
       EOF
 
 - name: run_ssl_termination_haproxy
@@ -98,7 +98,7 @@ testcases:
   - type: http
     method: GET
     ignore_verify_ssl: true
-    url: 'https://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_https}}/test'
+    url: 'https://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_https}}/test'
     headers:
       "Content-Type": "application/json"
     assertions:

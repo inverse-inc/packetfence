@@ -567,13 +567,13 @@ inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 ## firewall_sso test suite specific variables
 #################################################################################
 # Firewall
-firewall_sso.firewall.host: '{{.pfserver_mgmt_ip}}'
-firewall_sso.firewall.port_config: 8080
-firewall_sso.firewall.port_http: 8081
-firewall_sso.firewall.port_https: 8082
-firewall_sso.firewall.transport: http
-firewall_sso.firewall.password: secret
-firewall_sso.firewall.type: PaloAlto
+firewall_sso.https.host: '{{.pfserver_mgmt_ip}}'
+firewall_sso.https.port_config: 8080
+firewall_sso.https.port_http: 8081
+firewall_sso.https.port_https: 8082
+firewall_sso.https.transport: http
+firewall_sso.https.password: secret
+firewall_sso.https.type: PaloAlto
 
 # Smocker
 smocker_dir: /opt/smocker

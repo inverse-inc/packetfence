@@ -12,16 +12,16 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id": "{{.firewall_sso.firewall.host}}",
+        "id": "{{.firewall_sso.https.host}}",
         "cache_timeout": null,
         "cache_updates": null,
         "categories": ["{{.eap_peap.roles.ad_user.id}}"],
         "default_realm": null,
         "networks": null,
-        "password": "{{.firewall_sso.firewall.password}}",
-        "port": {{.firewall_sso.firewall.port_https}},
+        "password": "{{.firewall_sso.https.password}}",
+        "port": {{.firewall_sso.https.port_https}},
         "tenant_id": 1,
-        "transport": "{{.firewall_sso.firewall.transport}}",
+        "transport": "{{.firewall_sso.https.transport}}",
         "type": "PaloAlto",
         "uid": null,
         "username_format": "$pf_username",

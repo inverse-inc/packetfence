@@ -23,16 +23,16 @@ testcases:
   steps:
   - type: exec
     script: |
-      curl http://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_config}}/history | jq '.[-1].request'
+      curl http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/history | jq '.[-1].request'
     assertions:
       - result.systemoutjson.path ShouldEqual "/api/"
       - result.systemoutjson.method ShouldEqual "POST"
-      - result.systemoutjson.query_params.key ShouldContain "{{.firewall_sso.firewall.password}}"
+      - result.systemoutjson.query_params.key ShouldContain "{{.firewall_sso.https.password}}"
 
 - name: check_mock_history_request_body_string
   steps:
   - type: exec
     script: |
-      curl http://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_config}}/history | jq -r '.[-1].request.body' | cut -d '=' -f 2  | sed 's/\+/%20/g' | sed -e "s/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g" | xargs -0 echo -e | xq .
+      curl http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/history | jq -r '.[-1].request.body' | cut -d '=' -f 2  | sed 's/\+/%20/g' | sed -e "s/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g" | xargs -0 echo -e | xq .
     assertions:
       - result.systemoutjson.uid-message.payload.login.entry.@name ShouldEqual "{{.ad_domain_user}}"
