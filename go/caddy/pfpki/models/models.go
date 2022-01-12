@@ -22,7 +22,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
 
@@ -1074,9 +1073,8 @@ func (c Cert) New() (types.Info, error) {
 		Subject.PostalCode = []string{PostalCode}
 	}
 	NotAfter := time.Now().AddDate(0, 0, prof.Validity)
-	MySQLDate, _ := time.Parse("2006-01-02 3:04PM", "1970-01-01 9:00PM")
+
 	c.ValidUntil = NotAfter
-	spew.Dump(NotAfter)
 	// Prepare certificate
 	cert := &x509.Certificate{
 		SerialNumber:       SerialNumber,
@@ -1118,7 +1116,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: bibop}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: c.ValidUntil}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
