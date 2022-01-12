@@ -1,5 +1,6 @@
 executor: pf_api_action
 input:
+  body: {}
   method: {}
   status_code: 200
   url: {}
