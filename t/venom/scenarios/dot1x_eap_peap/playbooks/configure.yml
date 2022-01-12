@@ -1,0 +1,34 @@
+---
+- hosts: pfservers
+  name: configure Packetfence VM
+  become: True
+
+  vars:
+    debianPackages:
+      - python3-pip
+      - virtualenv
+      - setuptools
+      - jq
+
+    el8Packages:
+      - pip
+      - virtualenv
+      - setuptools
+      - jq
+
+  tasks:
+    - name: Install packages on debian
+      package:
+        name: "{{ debianPackages }}"
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install packages on el8
+      package:
+        name: "{{ el8Packages }}"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install yq python package
+      pip:
+        name: yq

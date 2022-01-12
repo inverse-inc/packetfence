@@ -1,24 +1,6 @@
 name: Check firewall sso start
 testcases:
 
-- name: install_jq
-  steps:
-  - type: exec
-    script: |
-     sudo apt-get -y install jq
-
-- name: install_pip
-  steps:
-  - type: exec
-    script: |
-     sudo apt-get -y install pip
-
-- name: install_yq
-  steps:
-  - type: exec
-    script: |
-     sudo pip install yq
-
 - name: check_mock_history_request
   steps:
   - type: exec
