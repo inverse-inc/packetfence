@@ -33,7 +33,7 @@ testcases:
   steps:
   - type: exec
     script: |
-      curl http://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_config}}/history | jq -r '.[-1].request.body_string' | cut -d '=' -f 2  | sed 's/\+/%20/g'| sed -e "s/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g" | xargs -0 echo -e | xq .
+      curl http://{{.firewall_sso.firewall.host}}:{{.firewall_sso.firewall.port_config}}/history | jq -r '.[-1].request.body' | cut -d '=' -f 2  | sed 's/\+/%20/g'| sed -e "s/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g" | xargs -0 echo -e | xq .
     assertions:
       - result.systemoutjson.uid-message.payload.login.entry.@name ShouldEqual "{{.ad_domain_user}}"
 
