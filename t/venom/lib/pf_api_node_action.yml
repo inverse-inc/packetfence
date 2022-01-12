@@ -3,7 +3,7 @@ input:
   body: {}
   id: {}
   method: {}
-  status_code: 200
+  status_code: {}
 steps:
 - type: mac_address_url_encoder
   mac_address: "{{.input.node_id}}"
