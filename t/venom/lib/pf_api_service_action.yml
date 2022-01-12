@@ -1,12 +1,15 @@
 executor: pf_api_service_action
 input:
-  service: {}
   action: {}
   body: {}
+  method: POST
+  service: {}
+  status_code: {}
 steps:
 - type: pf_api_action
-  body: {}
-  method: POST
+  body: "{{.input.body}}"
+  status_code: "{{.input.status_code}}"
+  method: "{{.input.method}}"
   url: 'service/{{.input.service}}/{{.input.action}}'
   output: 
     pf_api_service_action_json: "{{.result.pf_api_action_json}}"
