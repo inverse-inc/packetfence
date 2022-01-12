@@ -1,0 +1,11 @@
+executor: pf_api_switch_status
+input:
+  id: {}
+  status_code: 200
+steps:
+- type: pf_api_switch_action
+  id: "{{.input.id}}"
+  method: GET
+  status_code: "{{.input.status_code}}"
+  outpost:
+    pf_api_switch_status_json: "{{.result.pf_api_switch_action_json}}"

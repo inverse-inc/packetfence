@@ -1,0 +1,15 @@
+executor: pf_api_switch_delete
+input:
+  id: {}
+steps:
+- type: pf_api_switch_action
+  method: DELETE
+  id: "{{.input.id}}"
+  assertions:
+    - result.pf_api_switch_action_json.message ShouldEqual "Deleted {{.input.id}} successfully"
+
+- type: pf_api_switch_status
+  status_code: 404
+  id: "{{.input.id}}"
+  assertions:
+    - result.pf_api_switch_status_json.message ShouldEqual "Item ({{.input.id}}) not found"
