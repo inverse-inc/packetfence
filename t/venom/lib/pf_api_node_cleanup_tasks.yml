@@ -4,12 +4,12 @@ input:
   interval: "{{.node_cleanup.delete_window.interval}}"
   unit: "{{.node_cleanup.delete_window.unit}}"
 steps:
-- type: pf_api_action_body
+- type: pf_api_action
   method: PATCH
   url: 'config/maintenance_task/node_cleanup'
   body: "status": "{{.input.status}}"
 
-- type: pf_api_action_body
+- type: pf_api_action
   method: PATCH
   url: 'config/maintenance_task/node_cleanup'
   body: >-

@@ -2,8 +2,10 @@ executor: pf_api_service_action
 input:
   service: {}
   action: {}
+  body: {}
 steps:
 - type: pf_api_action
+  body: {}
   method: POST
   url: 'service/{{.input.service}}/{{.input.action}}'
   output: 

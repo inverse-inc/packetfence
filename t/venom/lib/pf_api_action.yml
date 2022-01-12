@@ -10,6 +10,10 @@ steps:
   method: "{{.input.method}}"
   url: '{{.pfserver_webadmin_url}}/api/v1/{{.input.url}}'
   ignore_verify_ssl: true
+  body: >-
+    {
+      "{{.input.body}}"
+    }
   headers:
     "Authorization": "{{.result.token}}"
     "Content-Type": "application/json"
