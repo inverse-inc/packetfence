@@ -5,6 +5,7 @@ steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
   action: "status"
+  time_to_sleep: 0
   assertions:
     - result.json ShoulContain "alive": 0
   output:

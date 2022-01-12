@@ -3,8 +3,6 @@ input:
   service: {}
 steps:
 - type: pf_api_service_action
+  method: POST
   service: "{{.input.service}}"
   action: "enable"
-
-- type: sleep
-  time_to_sleep: 5

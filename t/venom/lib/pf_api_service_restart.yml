@@ -6,8 +6,5 @@ steps:
   service: "{{.input.service}}"
   action: "restart"
 
-- type: sleep
-  time_to_sleep: 5
-
 - type: pf_api_service_status
   service: "{{.input.service}}"
