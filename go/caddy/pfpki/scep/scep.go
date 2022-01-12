@@ -146,6 +146,8 @@ func ProfileAttributes(prof models.Profile) map[string]string {
 	if len(prof.Mail) > 0 {
 		attributes["Mail"] = prof.Mail
 	}
-
+	if len(prof.Digest.String()) > 0 {
+		attributes["Digest"] = prof.Digest.String()
+	}
 	return attributes
 }
