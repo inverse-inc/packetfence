@@ -109,7 +109,12 @@ sub revoke {
     if (is_success($status)) {
         my $key_value = $iter->next(undef);
         if ($key_value) {
-            my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
+            my $value = eval {
+                my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
+            };
+            if ($@) {                                                                                                                                                                                                                                                                   
+                $logger->debug("Unable to revoke certificate associated with this cn $cn");
+            }
         } else {
             $logger->error("Unable to find certificate in the cache $cn");
         }
