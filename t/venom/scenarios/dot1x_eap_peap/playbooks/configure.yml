@@ -7,7 +7,6 @@
     debianPackages:
       - python3-pip
       - virtualenv
-      - setuptools
       - jq
 
     el8Packages:
