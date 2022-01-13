@@ -38,6 +38,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Upload logs of tests (#6784)
 * Management of TLS minimum and maximum versions in GUI (#6773)
 * Integration tests for Inline L2 and L3 (#6769)
+* Drastically improved the performance of the Ruckus unbound DPSK implementation (#6817)
 
 === Bug Fixes
 
