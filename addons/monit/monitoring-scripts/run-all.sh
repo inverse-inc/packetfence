@@ -31,7 +31,6 @@ function _run {
   if [ $code -eq 0 ]; then
     echo "$cmd succeeded" > /dev/null
   else
-    echo "ret $cmd $code"
     ERROR=1
     if [ $code -eq 124 ]; then
       output="$cmd has timeout"
