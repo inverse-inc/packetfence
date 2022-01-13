@@ -115,6 +115,7 @@ sub authorize {
     my ($do_auto_reg, %autoreg_node_defaults, $action);
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
+    
     my $RAD_REPLY_REF;
 
     $self->handleNtlmCaching($radius_request);
