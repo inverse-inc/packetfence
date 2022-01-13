@@ -1132,7 +1132,6 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 			}
 		}
 	}
-
 	// Find the CA
 	var ca CA
 	if CaDB := c.DB.Model(&cert).Related(&ca); CaDB.Error != nil {
