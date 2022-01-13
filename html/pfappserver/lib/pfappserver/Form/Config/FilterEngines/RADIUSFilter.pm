@@ -28,7 +28,7 @@ with qw(
 
 sub scopes {
     return map { { value => $_, label => $_ } } qw(
-      returnRadiusAccessAccept returnAuthorizeRead returnAuthorizeWrite returnAuthorizeVoip
+      returnRadiusAccessAccept returnAuthorizeRead returnAuthorizeWrite returnAuthorizeVoip returnAuthorizeProbe
       packetfence.authorize packetfence.authenticate packetfence.pre-proxy packetfence.post-proxy
       packetfence-tunnel.authorize packetfence.preacct packetfence.accounting
       preProcess eduroam.authorize eduroam.pre-proxy eduroam.post-proxy eduroam.preacct
