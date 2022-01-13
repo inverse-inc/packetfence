@@ -1,7 +1,0 @@
-executor: haproxy-admin_restart
-input:
-  myarg: {}
-steps:
-# service restarted by hand because using API cause Venom failure (EOF)
-- type: restart_systemctl_service
-  service: packetfence-haproxy-admin
