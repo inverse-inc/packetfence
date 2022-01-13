@@ -30,7 +30,7 @@ function import_mysqldump() {
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
-    mariadb_args="$mariadb_args -p$mariadb_root_pass"
+    mariadb_args="$mariadb_args -p'$mariadb_root_pass'"
   fi
 
   db_name=`get_db_name $pf_conf`
@@ -153,7 +153,7 @@ function upgrade_database() {
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
-    mariadb_args="$mariadb_args -p$mariadb_root_pass"
+    mariadb_args="$mariadb_args -p'$mariadb_root_pass'"
   fi
 
   db_name="$1"
