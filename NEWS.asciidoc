@@ -42,6 +42,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Integration tests for Inline L2 and L3 (#6769)
 * Drastically improved the performance of the Ruckus unbound DPSK implementation (#6817)
 * Added an admin action to allow RADIUS Probe requests
+* Allow access to the Status/Node Manager/Device Registration pages on SAML auth.
 
 === Bug Fixes
 
