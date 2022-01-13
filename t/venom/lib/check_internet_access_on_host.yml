@@ -1,4 +1,4 @@
-executor: check_host_internet_access
+executor: check_internet_access_on_host
 # By default it will use the node1
 input:
   host: "{{.node01_mgmt_ip}}"
