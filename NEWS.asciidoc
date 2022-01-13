@@ -47,6 +47,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fixes issue on PKI template save (#6749)
 * Fixes issue on PKI templates can be modified by a SCEP request (#6751)
 * Fixes issue with PKI From value when sending certificate by email (#6370)
+* Fixes documentation for Huawei (PR #6692)
 
 == Version 11.1.0 released on 2021-10-28
 
