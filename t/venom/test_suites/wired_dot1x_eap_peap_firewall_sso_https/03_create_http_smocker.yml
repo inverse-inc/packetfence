@@ -5,9 +5,6 @@ testcases:
   steps:
     - type: exec
       script: "mkdir -p {{.smocker_dir}}"
-      vars:
-        temp_dir:
-          from: result.systemout
 
 - name: download_smocker
   steps:
