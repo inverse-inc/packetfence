@@ -32,3 +32,4 @@
     - name: Install yq python package
       pip:
         name: yq
+        state: present
