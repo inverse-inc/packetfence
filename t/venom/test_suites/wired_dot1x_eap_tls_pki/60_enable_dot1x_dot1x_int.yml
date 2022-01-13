@@ -3,3 +3,7 @@ testcases:
 - name: enable_dot1x_on_switch01
   steps:
   - type: switch01_dot1x_int_enable
+    interface_id: "{{.switch01.dot1x_interface.id}}"
+    connexion_type: TLS
+    status: AUTHORIZED
+    vlan_id: "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"
