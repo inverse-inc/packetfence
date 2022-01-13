@@ -1,1 +1,5 @@
-../../switches/wired_dot1x_eap_tls/check_dot1x_int_status.yml
+name: Check dot1x interface status on switch01
+testcases:
+- name: check_dot1x_int_status_on_switch01
+  steps:
+  - type: switch01_check_dot1x_int_status

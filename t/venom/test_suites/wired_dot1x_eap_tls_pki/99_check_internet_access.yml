@@ -1,1 +1,7 @@
-../common/check_internet_access.yml
+name: Check internet access on supplicant
+testcases:
+- name: check_internet_access
+  steps:
+  - type: check_internet_access_on_host
+    host: "{{.node01_mgmt_ip}}"
+    user: "{{.ssh_user}}"
