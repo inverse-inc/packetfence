@@ -1,4 +1,4 @@
-executor: run_pfcmd_command
+executor: pfcmd_run_command
 input:
   command: {}
 steps:

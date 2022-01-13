@@ -2,5 +2,5 @@ name: Clean httpd.portal cache
 testcases:
 - name: clean_httpd_portal_cache
   steps:
-  - type: run_pfcmd_command
+  - type: pfcmd_run_command
     command: "cache httpd.portal clear"
