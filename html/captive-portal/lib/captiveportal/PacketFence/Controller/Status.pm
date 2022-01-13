@@ -42,7 +42,7 @@ sub auto :Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $pid     = $c->user_session->{"username"};
+    my $pid     = $c->user_session->{"username"} // $c->{_session}->{username};
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
         $c->clear_errors;
@@ -77,7 +77,7 @@ sub is_lost_stolen {
 
 sub userIsAuthenticated : Private {
     my ( $self, $c ) = @_;
-    my $pid   = $c->user_session->{"username"};
+    my $pid     = $c->user_session->{"username"} // $c->{_session}->{username};
     my @person_nodes = person_nodes($pid);
     my @nodes;
     foreach my $person_node (@person_nodes) {
