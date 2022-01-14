@@ -1,12 +1,18 @@
-executor: switch01_check_dot1x_int_status
+executor: cumulus_check_dot1x_int_status
 input:
-  interface_id: {}
   connexion_type: {} # PEAP TLS
+  id: "{{.switch01.dot1x_interface.id}}"
+  password: "{{.switch01.api.password}}"
   status: {} # AUTHORIZED
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
   vlan_id: {}
 steps:
 - type: cumulus_api_command_line
-  cmd: "show dot1x interface {{.input.interface_id}} json"
+  user: "{{.input.user}}"
+  password: "{{.input.password}}"
+  url: '{{.input.url}}'
+  cmd: "show dot1x interface {{.input.id}} json"
   assertions:
     - result.cumulus_api_command_line_json.body ShouldContainSubstring "{{.input.vlan_id}}"
     - result.cumulus_api_command_line_json.body ShouldContainSubstring "{{.input.connexion_type}}"
