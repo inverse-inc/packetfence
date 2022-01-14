@@ -121,7 +121,7 @@ type (
 		gorm.Model
 		DB                 gorm.DB         `gorm:"-"`
 		Ctx                context.Context `gorm:"-"`
-		Cn                 string          `json:"cn,omitempty" gorm:"UNIQUE"`
+		Cn                 string          `json:"cn,omitempty"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
 		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
@@ -144,6 +144,8 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
+		User               string          `json:"user,omitampty"`
+		Node               string          `json:"node,omitempty"`
 	}
 
 	// RevokedCert struct
@@ -175,6 +177,8 @@ type (
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Revoked            time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+		User               string          `json:"user,omitampty"`
+		Node               string          `json:"node,omitempty"`
 	}
 )
 
@@ -569,7 +573,8 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 
 	var certif Cert
 	var CertDB *gorm.DB
-	if CertDB = c.DB.Where("Cn = ?", cn).Find(&certif); CertDB.Error != nil {
+
+	if CertDB := c.DB.Where("Cn = ? AND profile_name = ?", cn, options[0]).Find(&certif); CertDB.Error != nil {
 		// There is no certificate with this CN in the DB
 		return true, nil
 	}
@@ -1022,6 +1027,7 @@ func (c Cert) New() (types.Info, error) {
 	if len(OrganizationalUnit) > 0 {
 		Subject.OrganizationalUnit = []string{OrganizationalUnit}
 	}
+	Subject.OrganizationalUnit = append(Subject.OrganizationalUnit, prof.Name)
 
 	Country := ""
 	if len(prof.Country) > 0 {
