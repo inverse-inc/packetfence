@@ -1,0 +1,26 @@
+executor: cumulus_dot1x_int_enable
+input:
+  connexion_type: {} # PEAP TLS
+  id: "{{.switch01.dot1x_interface.id}}"
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
+  vlan_id: {}
+steps:
+- type: cumulus_api_command_line
+  user: "{{.input.user}}"
+  password: "{{.input.password}}"
+  url: '{{.input.url}}'
+  cmd: "add interface {{.input.id}} dot1x"
+
+- type: sleep
+  time_to_sleep: 5
+
+- type: cumulus_dot1x_int_check
+  connexion_type: "{{input.connexion_type}}"
+  id: "{{.input.id}}"
+  password: "{{.input.password}}"
+  status: AUTHORIZED
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
+  vlan_id: {}
