@@ -1,0 +1,12 @@
+executor: venom_wrapper_on_host
+input:
+  host: {}
+  user: {}
+  test_suite_path: {}
+steps:
+- type: ssh
+  host: "{{.input.host}}"
+  user: "{{.input.user}}"
+  command:  |
+    cd /usr/local/pf/t/venom ; \
+    sudo /usr/local/pf/t/venom/venom-wrapper.sh {{.input.test_suite_path}}
