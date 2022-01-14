@@ -1,0 +1,11 @@
+executor: cumulus_dot1x_int_disable
+input:
+  id: "{{.switch01.dot1x_interface.id}}"
+  user: "{{.switch01.api.user}}"
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+steps:
+- type: cumulus_api_command_line
+  user: "{{.input.user}}"
+  password: "{{.input.password}}"
+  cmd: "del interface {{.input.id}} dot1x"
