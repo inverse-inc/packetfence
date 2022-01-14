@@ -31,5 +31,5 @@
       when: ansible_facts['os_family'] == "RedHat"
 
     - name: Install xmltodict python package
-      pip3:
+      pip:
         name: xmltodict
