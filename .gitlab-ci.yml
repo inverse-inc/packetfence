@@ -429,12 +429,12 @@ build_img_docker_release:
     ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
 
 ### build_img_vagrant jobs
-build_img_vagrant_devel_and_branches_el_8:
-  extends:
-    - .build_img_vagrant_devel_and_branches_job
-    - .build_img_vagrant_devel_and_branches_rules
-  variables:
-    BOX_NAME: pfel8dev
+# build_img_vagrant_devel_and_branches_el_8:
+#   extends:
+#     - .build_img_vagrant_devel_and_branches_job
+#     - .build_img_vagrant_devel_and_branches_rules
+#   variables:
+#     BOX_NAME: pfel8dev
 
 build_img_vagrant_devel_and_branches_debian_bullseye:
   extends:
@@ -787,16 +787,16 @@ build_pf_img_zen_release:
       allow_failure: true
 
 ### build_pf_img_vagrant jobs
-build_pf_img_vagrant_release_el_8:
-  extends:
-    - .build_pf_img_vagrant_release_job
-  variables:
-    BOX_NAME: pfel8stable
-  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: manual
-      allow_failure: true
+# build_pf_img_vagrant_release_el_8:
+#   extends:
+#     - .build_pf_img_vagrant_release_job
+#   variables:
+#     BOX_NAME: pfel8stable
+#   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+#   rules:
+#     - if: '$CI_COMMIT_TAG'
+#       when: manual
+#       allow_failure: true
 
 build_pf_img_vagrant_release_debian_bullseye:
   extends:
