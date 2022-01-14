@@ -48,7 +48,7 @@ pfbox:	clean
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer build -only="$(BUILD_NAME)" .
 
-# CentOS 7 builds
+# EL builds
 .PHONY: pfel8dev
 pfel8dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
@@ -67,7 +67,7 @@ pfel8stable:
 	BUILD_NAME="$(STABLE_GROUP).vagrant.el-8" \
 	pfbox
 
-# Debian 9 builds
+# Debian builds
 .PHONY: pfdeb11dev
 pfdeb11dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
