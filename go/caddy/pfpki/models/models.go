@@ -936,7 +936,7 @@ func (c Cert) New() (types.Info, error) {
 		return Information, errors.New(dbError)
 	}
 
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND ProfileName = ?", c.Cn, prof.Name).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, prof.Name).First(&newcertdb)
 	Information.Entries = newcertdb
 	Information.Serial = SerialNumber.String()
 
