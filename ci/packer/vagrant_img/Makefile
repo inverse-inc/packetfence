@@ -19,7 +19,7 @@ VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS=""
 VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir"
 PACKER_LOG=1
 # work only when PACKER_LOG value is different than 0
-PACKER_LOG_PATH=/var/tmp/packer.log
+PACKER_LOG_PATH=/var/tmp/packer_$(shell date +%Y-%m_%d-%Hh%Mm%S.log)
 #==============================================================================
 # Targets
 #==============================================================================
@@ -48,7 +48,7 @@ pfbox:	clean
 	PACKER_LOG_PATH=$(PACKER_LOG_PATH) \
 	packer build -only="$(BUILD_NAME)" .
 
-# CentOS 7 builds
+# EL builds
 .PHONY: pfel8dev
 pfel8dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \
@@ -67,7 +67,7 @@ pfel8stable:
 	BUILD_NAME="$(STABLE_GROUP).vagrant.el-8" \
 	pfbox
 
-# Debian 9 builds
+# Debian builds
 .PHONY: pfdeb11dev
 pfdeb11dev:
 	VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="'--run $(CURDIR)/provisioners/shell/sysprep.sh'" \

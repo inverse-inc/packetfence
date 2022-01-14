@@ -2,11 +2,23 @@
 # common variables to be available for all VM and also for Venom
 dns_domain: 'example.lan'
 
-# to get name of current PF server up in test environment
-packetfence_server_name: '{{ lookup("env","PF_VM_NAME") | default("pfel8dev", true) }}'
+# to get name of current cluster
+cluster_name: '{{ lookup("env","CLUSTER_NAME") | d() }}'
 
-# lookup in Ansible inventory using name of PF server
-packetfence_server_mgmt_ip: '{{ hostvars[packetfence_server_name]["mgmt_ip"] }}'
+# to get name of current PF servers up
+# TODO: use split filter in future Ansible version to keep only one server in this variable when CLUSTER_NAME is defined
+packetfence_server_name: '{{ lookup("env","PF_VM_NAMES") | d() }}'
+
+cluster_vip:
+  mgmt: "{{ users_vars[dict_name]['clusters'][cluster_name]['ip_mgmt'] if cluster_name|d() else '' }}"
+  reg: "{{ users_vars[dict_name]['clusters'][cluster_name]['ip_reg'] if cluster_name|d() else '' }}"
+  iso: "{{ users_vars[dict_name]['clusters'][cluster_name]['ip_iso'] if cluster_name|d() else '' }}"
+
+### Variable is used to provision network devices which will send RADIUS requests to PacketFence
+# if cluster_name is defined, PF_VM_NAMES contains several PF servers names
+# if cluster_name is not defined, PF_VM_NAMES contains **one** server name
+# and we use this name to lookup IP in inventory
+packetfence_server_mgmt_ip: "{{ cluster_vip['mgmt'] if cluster_name|d() else hostvars[packetfence_server_name]['mgmt_ip'] }}"
 
 pipeline_id: '{{ lookup("env","CI_PIPELINE_ID") | default("123456789", true) }}'
 

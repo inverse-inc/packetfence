@@ -684,7 +684,7 @@ inline_el8:
     - .test_devel_branches_and_maintenance_rules
 
 ### release
-configurator_el8:
+configurator_el8_pristine:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
@@ -692,7 +692,7 @@ configurator_el8:
     - .test_script_job
     - .release_only_rules
 
-configurator_deb11:
+configurator_deb11_pristine:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
