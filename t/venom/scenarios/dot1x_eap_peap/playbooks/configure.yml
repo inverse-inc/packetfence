@@ -10,9 +10,9 @@
       - jq
 
     el8Packages:
-      - pip
+      - python3-pip
+      - python3-setuptools
       - virtualenv
-      - setuptools
       - jq
 
   tasks:
