@@ -122,7 +122,7 @@ sub revoke {
         $logger->error("Unable to revoke user certificate $cn");
     }
 
-    ($status, my $count) = pf::dal::key_value_storage->remove_items(%options);
+    ($status, $iter) = pf::dal::key_value_storage->remove_items(%options);
     
     if (is_error($status)) {
         $logger->error("Unable to delete the key value '$cn'");
