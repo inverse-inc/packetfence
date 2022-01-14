@@ -5,11 +5,13 @@
 
   vars:
     debianPackages:
+      - curl
       - python3-pip
       - virtualenv
       - jq
 
     el8Packages:
+      - curl
       - python3-pip
       - python3-setuptools
       - virtualenv
@@ -28,7 +30,6 @@
         state: present
       when: ansible_facts['os_family'] == "RedHat"
 
-    - name: Install yq python package
-      pip:
-        name: yq
-        state: present
+    - name: Install xmltodict python package
+      pip3:
+        name: xmltodict
