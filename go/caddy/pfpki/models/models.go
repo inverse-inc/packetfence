@@ -1220,12 +1220,13 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 			}
 		}
 	} else {
-		if val, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
-				Information.Error = CertDB.Error.Error()
-				return Information, errors.New(dbError)
-			}
-		}
+		// Needs to be deprecated
+		// if val, ok := params["cn"]; ok {
+		// 	if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
+		// 		Information.Error = CertDB.Error.Error()
+		// 		return Information, errors.New(dbError)
+		// 	}
+		// }
 		if val, ok := params["id"]; ok {
 			if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
@@ -1325,12 +1326,13 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 				return Information, CertDB.Error
 			}
 		}
-		if cn, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("cn = ?", cn).Find(&cert); CertDB.Error != nil {
-				Information.Error = CertDB.Error.Error()
-				return Information, CertDB.Error
-			}
-		}
+		// Needs to be deprecated
+		// if cn, ok := params["cn"]; ok {
+		// 	if CertDB := c.DB.Where("cn = ?", cn).Find(&cert); CertDB.Error != nil {
+		// 		Information.Error = CertDB.Error.Error()
+		// 		return Information, CertDB.Error
+		// 	}
+		// }
 	}
 	// Find the CA
 	var ca CA
