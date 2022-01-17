@@ -1,0 +1,6 @@
+executor: switch01_dynamic_vlan_del
+steps:
+- type: cumulus_dynamic_vlan_del
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"

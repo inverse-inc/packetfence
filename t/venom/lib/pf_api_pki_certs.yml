@@ -1,0 +1,19 @@
+executor: pf_api_certs_certs
+input:
+  profile_id: {}
+  cn: {}
+  mail: {}
+  dns_names: {}
+  ip_addresses: {}
+steps:
+- type: pf_api_action
+  body: >-
+    "profile_id": "{{.input.profile_id}}",
+    "cn": "{{.input.cn}}",
+    "mail": "{{.input.mail}}",
+    "dns_names": "{{.input.dns_names}}",
+    "ip_addresses": "{{.input.ip_addresses}}"
+  method: POST 
+  url: "pki/certs"
+  outpost:
+    pf_api_pki_certs_json: "{{.result.pf_api_action_json}}" 

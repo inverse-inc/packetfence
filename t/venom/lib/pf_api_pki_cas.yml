@@ -1,0 +1,37 @@
+executor: pf_api_certs_cas
+input:
+  cn: {}
+  mail: {}
+  organisational_unit: {}
+  organisation: {}
+  country: {}
+  state: {}
+  locality: {}
+  key_type: {}
+  digest: {}
+  key_usage: {}
+  extended_key_usage: {}
+  days: {}
+  key_size: {}
+  ocsp_url: {}
+steps:
+- type: pf_api_action
+  body: >-
+    "cn": "{{.input.cn}}",
+    "mail": "{{.input.mail}}",
+    "organisational_unit": "{{.input.organisational_unit}}",
+    "organisation": "{{.input.organisation}}",
+    "country": "{{.input.country}}",
+    "state": "{{.input.state}}",
+    "locality": "{{.input.locality}}",
+    "key_type": "{{.input.key_type}}",
+    "digest": "{{.input.digest}}",
+    "key_usage": "{{.input.key_usage}}",
+    "extended_key_usage": "{{.input.extended_key_usage}}",
+    "days": "{{.input.days}}",
+    "key_size": "{{.input.key_size}}",
+    "ocsp_url": "{{.input.ocsp_url}}"
+  method: POST 
+  url: "pki/cas"
+  outpost:
+    pf_api_pki_cas_json: "{{.result.pf_api_action_json}}" 
