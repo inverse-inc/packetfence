@@ -1108,7 +1108,12 @@ func (c Cert) New() (types.Info, error) {
 
 	if len(c.IPAddresses) > 0 {
 		for _, ip := range strings.Split(c.IPAddresses, ",") {
-			cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			if net.ParseIP(ip) == nil {
+				fmt.Printf("IP Address: %s - Invalid\n", ip)
+			} else {
+				cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			}
+
 		}
 	}
 
