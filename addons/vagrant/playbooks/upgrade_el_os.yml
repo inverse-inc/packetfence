@@ -5,11 +5,18 @@
   tags: upgrade
 
   tasks:
+    - name: Install packages missing from EL images
+      yum:
+        name: 'dhcp-client'
+        state: 'present'
+        update_cache: yes
+      when: ansible_os_family == 'RedHat'
+
     - name: update to latest OS version (EL)
       yum:
         name: '*'
         state: latest
-        update_cache: yes
+        update_cache: no
       register: upgrade_os_el_register
       when: ansible_os_family == 'RedHat'
 
