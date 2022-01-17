@@ -1,13 +1,10 @@
-executor: cumulus_dot1x_mac_auth_unreg
-input:
-  id: "{{.switch01.dot1x_interface.id}}"
-  connexion_type: {} # PEAP TLS MAB
-  password: "{{.switch01.api.password}}"
-  status: {} # AUTHORIZED
-  url: '{{.switch01.api.url}}/nclu/v1/rpc'
-  user: "{{.switch01.api.user}}"
-  vlan_id: {}
+executor: switch01_dot1x_mac_auth_unreg
 steps:
 - type: cumulus_dot1x_int_action
+  id: "{{.switch01.dot1x_interface.id}}"
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
+  vlan_id: "{{.roles.registration.vlan_id}}"
   connexion_type: MAB
   status: AUTHORIZED 
