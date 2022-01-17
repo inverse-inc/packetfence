@@ -1,0 +1,17 @@
+{
+  "name": "mock_node_radius",
+  "version": "1.0.0",
+  "description": "Mock RADIUS server with NodeJS",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "Darren Satkunas",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "dgram": "^1.0.1",
+    "express": "^4.17.2",
+    "node-persist": "^3.1.0",
+    "radius": "^1.1.4"
+  }
+}
