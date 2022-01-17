@@ -1,0 +1,48 @@
+executor: extract_certificates
+input:
+  cnt: {}
+  cnCA: {}
+  certPath: {}
+  serial_number: {}
+steps:
+- type: exec
+  script: "mktemp -d"
+  vars:
+    temp_dir:
+      from: result.systemout
+
+# download_p12_file
+- type: exec
+  script: |
+    curl -k --output {{.temp_dir}}/{{.input.cn}}.p12 \
+    http://127.0.0.1:22225/api/v1/pki/cert/{{.input.serial_number}}/download/secret
+
+# extract_ca_certificate
+- type: exec
+  script: |
+    openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -cacerts -nokeys \
+    -out {{.temp_dir}}/{{.input.cnCA}}.crt -passin pass:secret
+
+# extract_certificate
+- type: exec
+  script: |
+    openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -clcerts -nokeys \
+    -out {{.temp_dir}}/{{.input.cn}}.crt -passin pass:secret
+
+# extract_key
+- type: exec
+  script: |
+    openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -nocerts -nodes \
+    -out {{.temp_dir}}/{{.input.cn}}.key -passin pass:secret
+
+# install_ca_cert
+- type: exec
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.crt {{.input.certPath}}/ca.pem"
+
+# install_cert
+- type: exec
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.crt {{.input.certPath}}/server.crt"
+
+# install_key
+- type: exec
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.key {{.input.certPath}}/server.key"
