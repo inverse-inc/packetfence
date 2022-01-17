@@ -147,13 +147,13 @@ dot1x_eap_tls_deb11:
 
 inline_deb11:
 	make \
-	PF_VM_NAME=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
 inline_el8:
 	make \
-	PF_VM_NAME=pfel8$(DEV_ENV) \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	SCENARIOS_TO_RUN=inline \
 	$(MAKE_TARGET)
 
@@ -200,7 +200,7 @@ captive_portal_deb11:
 example_el8: SCENARIOS_TO_RUN=example
 example_el8:
 	make \
-	PF_VM_NAME=pfel8$(DEV_ENV) \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	$(MAKE_TARGET)
@@ -210,7 +210,7 @@ example_el8:
 example_deb11: SCENARIOS_TO_RUN=example
 example_deb11:
 	make \
-	PF_VM_NAME=pfdeb11$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	$(MAKE_TARGET)
