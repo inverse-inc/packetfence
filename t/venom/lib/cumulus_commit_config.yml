@@ -1,6 +1,5 @@
 executor: cumulus_commit_config 
 input:
-  id: "{{.switch01.dot1x_interface.id}}"
   password: "{{.switch01.api.password}}"
   url: '{{.switch01.api.url}}/nclu/v1/rpc'
   user: "{{.switch01.api.user}}"
