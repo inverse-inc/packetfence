@@ -24,15 +24,26 @@ testcases:
         [req]
         default_bits = 2048
         prompt = no
-        default_md = sha256
+        # must be ignored by pfpki in favor of PKI template setting
+        default_md = sha1
         distinguished_name = dn
         attributes = req_attributes
+        req_extensions = req_ext
         
         [ req_attributes ]
         challengePassword = {{.wired_dot1x_eap_tls_manual.certs.user.scep_challenge_password}}
+
+        [ req_ext ]
+        subjectAltName = @alt_names
+        # must be ignored by pfpki in favor of PKI template setting
+        extendedKeyUsage = serverAuth
         
         [ dn ]
         CN={{.wired_dot1x_eap_tls_scep.certs.user.cn}}
+
+        [ alt_names ]
+        DNS.1 = {{.wired_dot1x_eap_tls_scep.certs.user.dns1}}
+        email.1 = {{.wired_dot1x_eap_tls_scep.certs.user.mail}}
         EOF
         
 - name: generate_csr_with_challenge
@@ -56,6 +67,48 @@ testcases:
         sscep enroll -c {{.create_temp_directory.temp_dir}}/ca.pem  -k {{.create_temp_directory.temp_dir}}/client.key \
         -r {{.create_temp_directory.temp_dir}}/client.csr \
         -u http://{{.pfserver_mgmt_ip}}/scep/{{.wired_dot1x_eap_tls_scep.templates.user.name}} -l {{.create_temp_directory.temp_dir}}/client.pem -v -d -S sha1 -E aes
+
+- name: check_client_cert
+  steps:
+
+    # check signature algorithm
+    - type: exec
+      script: |
+        openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -text \
+        -certopt ca_default \
+        -certopt no_validity \
+        -certopt no_serial \
+        -certopt no_subject \
+        -certopt no_extensions \
+        -certopt no_signame
+      assertions:
+        - result.systemout ShouldContainSubstring "{{.wired_dot1x_eap_tls_scep.certs.digest.text}}"
+
+    # check extendedKeyUsage
+    - type: exec
+      script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -ext extendedKeyUsage'
+      assertions:
+        - result.systemout ShouldContainSubstring "{{.wired_dot1x_eap_tls_scep.certs.user.extended_key_usage.text}}"
+
+      # check subject
+    - type: exec
+      script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -subject'
+      assertions:
+        - result.systemout ShouldContainSubstring "{{.wired_dot1x_eap_tls_scep.certs.user.subject_openssl}}"
+
+    # check email
+    - type: exec
+      script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -email'
+      # exact match
+      assertions:
+        - result.systemout ShouldEqual "{{.wired_dot1x_eap_tls_scep.certs.user.mail}}"
+
+    # check subjectAltName which can contains mail, IP addresses and DNS
+    # here we check for DNS
+    - type: exec
+      script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -ext subjectAltName'
+      assertions:
+        - result.systemout ShouldContainSubstring "DNS:{{.wired_dot1x_eap_tls_scep.certs.user.dns1}}"
 
 - name: move_certificates
   steps:
