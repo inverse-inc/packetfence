@@ -1,9 +1,0 @@
-executor: switch01_mac_auth_dot1x_enable
-  steps:
-  - type: cumulus_api_command_line
-    cmd: "show dot1x interface {{.switch01.dot1x_interface.id}} json"
-    assertions:
-      # we didn't check MAC address on port to make this testcase reusable
-      - result.body ShouldContainSubstring "{{.wired_mac_auth.roles.headless_device.vlan_id}}"
-      - result.body ShouldContainSubstring MAB
-      - result.body ShouldContainSubstring AUTHORIZED

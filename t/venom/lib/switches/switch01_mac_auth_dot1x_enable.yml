@@ -1,9 +1,5 @@
 executor: switch01_mac_auth_dot1x_enable
 steps:
-- type: cumulus_api_command_line
-  cmd: "add interface {{.switch01.dot1x_interface.id}} dot1x mab"
-
-- type: sleep
-  time_to_sleep: 5
-
-- type: switch01_mac_auth_dot1x_check
+- type: cumulus_dot1x_int_add
+  id: "{{.switch01.dot1x_interface.id}}"
+  dot1x_ext: mab

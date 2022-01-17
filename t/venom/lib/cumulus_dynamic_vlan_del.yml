@@ -1,0 +1,11 @@
+executor: cumulus_dynamic_vlan_del
+input:
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
+steps:
+- type: cumulus_api_command_line
+  password: "{{.input.password}}"
+  url: "{{.input.url}}"
+  user: "{{.input.user}}"
+  cmd: "del dot1x dynamic-vlan"

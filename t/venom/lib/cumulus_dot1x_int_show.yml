@@ -1,6 +1,6 @@
-executor: cumulus_dot1x_int_check
+executor: cumulus_dot1x_int_show
 input:
-  connexion_type: {} # PEAP TLS
+  connexion_type: {} # PEAP TLS MAB
   id: "{{.switch01.dot1x_interface.id}}"
   password: "{{.switch01.api.password}}"
   status: {} # AUTHORIZED

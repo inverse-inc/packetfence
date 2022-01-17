@@ -1,9 +1,0 @@
-executor: switch01_dynamic_vlan_enable
-steps:
-- type: cumulus_api_command_line
-  cmd: "add dot1x dynamic-vlan"
-
-- type: sleep
-  time_to_sleep: 5
-
-#- type: switch01_dynamic_vlan_check

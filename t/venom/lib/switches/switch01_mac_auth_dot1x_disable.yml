@@ -1,4 +1,5 @@
 executor: switch01_mac_auth_dot1x_disable
   steps:
-  - type: cumulus_api_command_line
-    cmd: "del interface {{.switch01.dot1x_interface.id}} dot1x mab"
+  - type: cumulus_dot1x_int_del
+    id: "{{.switch01.dot1x_interface.id}}"
+    dot1x_ext: mab
