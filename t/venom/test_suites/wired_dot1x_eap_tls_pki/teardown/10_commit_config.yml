@@ -1,1 +1,5 @@
-../../../switches/common/commit_config.yml
+name: Commit changes in configuration
+testcases:
+- name: commit_configuration
+  steps:
+  - type: switch01_commit_config
