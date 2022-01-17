@@ -525,7 +525,12 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 		c.DB.First(&ca)
 	}
 	notFalse := true
-	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter, Scep: &notFalse}).Error; err != nil {
+	var IPAddresses []string
+	for _, IP := range crt.IPAddresses {
+		IPAddresses = append(IPAddresses, IP.String())
+	}
+
+	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: strings.Join(crt.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], DNSNames: strings.Join(crt.DNSNames, ","), IPAddresses: strings.Join(IPAddresses, ","), Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter, Scep: &notFalse}).Error; err != nil {
 		return errors.New(dbError)
 	}
 
