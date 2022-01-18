@@ -2,4 +2,4 @@ name: Check dot1x interface status on switch01
 testcases:
 - name: check_dot1x_int_status_on_switch01
   steps:
-  - type: switch01_check_dot1x_int_status
+  - type: switch01_dot1x_int_tls_show

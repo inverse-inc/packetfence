@@ -7,7 +7,8 @@ steps:
 - type: pf_api_action
   method: PATCH
   url: 'config/maintenance_task/node_cleanup'
-  body: "status": "{{.input.status}}"
+  body: >-
+    "status": "{{.input.status}}"
 
 - type: pf_api_action
   method: PATCH

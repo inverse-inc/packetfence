@@ -2,4 +2,4 @@ name: Enable dynamic VLAN on switch01
 testcases:
 - name: enable_dynamic_vlan_on_switch01
   steps:
-  - type: switch01_dynamic_vlan_enable
+  - type: switch01_dynamic_vlan_add

@@ -1,6 +1,6 @@
-executor: switch01_dot1x_int_disable
+executor: switch01_dot1x_int_del
 steps:
-- type: cumulus_dot1x_int_disable
+- type: cumulus_dot1x_int_del
   id: "{{.switch01.dot1x_interface.id}}"
   user: "{{.switch01.api.user}}"
   password: "{{.switch01.api.password}}"

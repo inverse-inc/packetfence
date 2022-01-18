@@ -2,4 +2,4 @@ name: Disable 802.1X on dot1x interface on switch01
 testcases:
 - name: disable_dot1x_on_switch01
   steps:
-  - type: switch01_dot1x_int_disable 
+  - type: switch01_dot1x_int_del 

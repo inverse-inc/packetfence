@@ -1,4 +1,4 @@
-executor: pf_api_certs_cas
+executor: pf_api_pki_cas
 input:
   cn: {}
   mail: {}
