@@ -21,6 +21,12 @@
   gather_facts: True
   tags: utils
 
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+      when: ansible_os_family == 'Debian'
+
   roles:
     - role: geerlingguy.nodejs
       vars:
