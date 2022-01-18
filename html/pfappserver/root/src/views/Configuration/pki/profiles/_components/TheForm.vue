@@ -119,6 +119,12 @@
           :text="$i18n.t('Cloud Service to integrate.')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('Advanced Configuration')">
+        <form-group-days-before-renewal namespace="days_before_renewal"
+          :column-label="$i18n.t('Days before renewal')"
+          :text="$i18n.t('Number of days before the pki authorize renewal')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -157,7 +163,8 @@ import {
   FormGroupScepChallengePassword,
   FormGroupScepDaysBeforeRenewal,
   FormGroupCloudEnabled,
-  FormGroupCloudService
+  FormGroupCloudService,
+  FormGroupDaysBeforeRenewal
 } from './'
 
 const components = {

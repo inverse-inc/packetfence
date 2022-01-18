@@ -55,6 +55,7 @@ export {
   BaseFormGroupInputNumber                as FormGroupScepDaysBeforeRenewal,
   BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupCloudEnabled,
   BaseFormGroupChosenOneCloud             as FormGroupCloudService,
+  BaseFormGroupInputNumber                as FormGroupDaysBeforeRenewal,
   TheForm,
   TheView
 }
