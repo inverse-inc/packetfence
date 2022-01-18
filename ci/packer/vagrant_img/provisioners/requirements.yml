@@ -1,6 +1,8 @@
 ---
 roles:
   - src: inverse_inc.gitlab_buildpkg_tools
+  - src: geerlingguy.nodejs
+    version: 6.0.0
 
 collections:
   - name: inverse_inc.utils

@@ -13,3 +13,16 @@
 
     - role: psonoci
       tags: psonoci
+
+# no need to install nodejs on stable machines
+- hosts: dev
+  name: Install nodejs to rebuild web admin
+  become: True
+  gather_facts: False
+  tags: utils
+
+  roles:
+    - role: geerlingguy.nodejs
+      vars:
+        nodejs_version: "12.x"
+      tags: nodejs
