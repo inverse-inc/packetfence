@@ -37,7 +37,7 @@ steps:
 
 # install_ca_cert
 - type: exec
-  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.crt {{.input.certPath}}/ca.pem"
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cnCA}}.crt {{.input.certPath}}/ca.pem"
 
 # install_cert
 - type: exec

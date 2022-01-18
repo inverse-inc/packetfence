@@ -55,7 +55,7 @@ testcases:
       serial_number:
         from: result.pf_api_pki_certs_json.items.items0.id
 
-- name: wired_extract_certificates
+- name: wired_radius_extract_certificates
   steps:
     - type: extract_certificates
       cn: "{{.wired_dot1x_eap_tls_manual.certs.radius.cn}}"
@@ -98,59 +98,13 @@ testcases:
       serial_number:
         from: result.bodyjson.items.items0.id
 
-- name: create_temp_directory
+- name: wired_http_extract_certificates
   steps:
-    - type: exec
-      script: "mktemp -d"
-      vars:
-        temp_dir:
-          from: result.systemout
-
-- name: download_http_p12_file
-  steps:
-  - type: exec
-    script: |
-      curl -k --output {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.p12 \
-      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_pf_http_cert.serial_number}}/download/secret
-
-- name: extract_ca_certificate
-  steps:
-  - type: exec
-    script: |
-      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.p12 -cacerts -nokeys \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}.crt -passin pass:secret
-
-- name: extract_http_certificate
-  steps:
-  - type: exec
-    script: |
-      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.p12 -clcerts -nokeys \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.crt -passin pass:secret
-
-- name: extract_http_key
-  steps:
-  - type: exec
-    script: |
-      openssl pkcs12 -in {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.p12 -nocerts -nodes \
-      -out {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.key -passin pass:secret
-
-- name: install_http_cert_portal
-  steps:
-  - type: exec
-    script: |
-      cat {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.crt \
-      {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.key > /usr/local/pf/conf/ssl/server.pem
-
-- name: install_http_cert_webadmin
-  steps:
-  - type: exec
-    script: "cat {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.crt > /usr/local/pf/conf/ssl/server.crt"
-
-- name: install_http_key_webadmin
-  steps:
-  - type: exec
-    script: "cat {{.create_temp_directory.temp_dir}}/{{.wired_dot1x_eap_tls_manual.certs.http.cn}}.key > /usr/local/pf/conf/ssl/server.key"
-        
+    - type: extract_certificates
+      cn: "{{.wired_dot1x_eap_tls_manual.certs.http.cn}}"
+      cnCA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
+      certPath: "/usr/local/pf/conf/ssl"
+      serial_number: "{{.create_pf_http_cert.serial_number}}"
 
 ### User certificate part
 - name: create_user_cert_template
@@ -187,35 +141,11 @@ testcases:
       serial_number:
         from: result.bodyjson.items.items0.id
 
-- name: create_client_directory
-  steps:
-    - type: exec
-      script: "mkdir -p {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}"
 
-- name: download_user_p12_file
+- name: wired_user_extract_certificates
   steps:
-  - type: exec
-    script: |
-      curl -k --output {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}.p12 \
-      http://127.0.0.1:22225/api/v1/pki/cert/{{.create_user_cert.serial_number}}/download/secret
-
-- name: extract_ca_certificate
-  steps:
-  - type: exec
-    script: |
-      openssl pkcs12 -in {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}.p12 -cacerts -nokeys \
-      -out {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}/ca.pem -passin pass:secret
-
-- name: extract_user_certificate
-  steps:
-  - type: exec
-    script: |
-      openssl pkcs12 -in {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}.p12 -clcerts -nokeys \
-      -out {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}/client.pem -passin pass:secret
-
-- name: extract_user_key
-  steps:
-  - type: exec
-    script: |
-      openssl pkcs12 -in {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}.p12 -nocerts -nodes \
-      -out {{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}/client.key -passin pass:secret
+    - type: extract_certificates
+      cn: "{{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}"
+      cnCA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
+      serial_number: "{{.create_user_cert.serial_number}}"
+      extract_directory: "{{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}"
