@@ -1105,15 +1105,15 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 
 	reason := params["reason"]
 
-	if serial, ok := params["serial"]; ok {
+	if profile, ok := params["profile"]; ok {
 		if id, ok := params["id"]; ok {
-			if CertDB := c.DB.Where("id = ? AND serial_number = ?", id, serial).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Where("id = ? AND profile_id = ?", id, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
 		}
 		if cn, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("cn = ? AND serial_number = ?", cn, serial).Find(&cert); CertDB.Error != nil {
+			if CertDB := c.DB.Where("cn = ? AND profile_id = ?", cn, profile).Find(&cert); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
 				return Information, CertDB.Error
 			}
