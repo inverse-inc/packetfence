@@ -17,7 +17,7 @@ endif::[]
 ////
 
 
-=== PacketFence Apple, Android and Windows Wireless Provisioning
+//=== PacketFence Apple, Android and Windows Wireless Provisioning
 
 Provisioners allow devices to automatically configure themselves to connect to the proper SSID (if applicable), use the proper authentication method (e.g. EAP-TLS) and trust the CA certificate and any certificate signed by it.
 
