@@ -118,7 +118,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	// Revoke Certificate
 	api.Handle("/pki/cert/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
 
-	// Revoke Certificate from serial
+	// Revoke Certificate from profile
 	api.Handle("/pki/cert/{profile}/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
 	// Revoked Certificates
 	api.Handle("/pki/revokedcerts", handlers.GetRevoked(PFPki)).Methods("GET")
