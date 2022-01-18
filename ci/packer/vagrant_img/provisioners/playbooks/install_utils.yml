@@ -18,7 +18,7 @@
 - hosts: dev
   name: Install nodejs to rebuild web admin
   become: True
-  gather_facts: False
+  gather_facts: True
   tags: utils
 
   roles:
