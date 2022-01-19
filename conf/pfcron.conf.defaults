@@ -743,43 +743,21 @@ history_timeout=10s
 #
 # How long to keep a bandwidth_accounting_history entry before deleting it
 history_window=48h
-
-[bandwidth_maintenance_session]
 #
-# type
-#
-# Task type
-type=bandwidth_maintenance_session
-#
-# status
-#
-# If the task is enabled
-status=enabled
-#
-# description
-#
-# The description of task
-description=Controls the cleanup of the bandwidth accounting sessions.
-#
-# schedule
-#
-# The schedule of task
-schedule=@every 5m
-#
-# batch
+# session_batch
 #
 # How many session to clean up at a time
-batch=100
+session_batch=100
 #
-# timeout
+# session_timeout
 #
 # How long a session cleanup job can run
-timeout=5s
+session_timeout=5s
 #
-# window
+# session_window
 #
 # How long to keep a session open
-window=24h
+session_window=24h
 
 [ubiquiti_ap_mac_to_ip]
 #

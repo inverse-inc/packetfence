@@ -39,7 +39,6 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 		`DELETE FROM radacct WHERE acctstarttime < DATE_SUB(?, INTERVAL ? SECOND) AND acctstoptime IS NOT NULL LIMIT ?`,
 		`DELETE FROM radacct_log WHERE timestamp < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
-	"bandwidth_maintenance_session": NewNoop,
 }
 
 func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
