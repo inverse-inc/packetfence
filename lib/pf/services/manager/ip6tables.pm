@@ -52,7 +52,6 @@ generateConfig
 =cut
 
 sub generateConfig {
-    my $technique;
     pf::ip6tables->generate();
     return 1;
 }
