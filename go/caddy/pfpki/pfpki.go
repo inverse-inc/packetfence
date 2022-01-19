@@ -95,6 +95,8 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	api.Handle("/pki/ca/fix", handlers.FixCA(PFPki)).Methods("GET")
 	// Get CA by ID
 	api.Handle("/pki/ca/{id}", handlers.GetCAByID(PFPki)).Methods("GET")
+	// Resign CA
+	api.Handle("/pki/ca/resign/{id}", handlers.ResignCA(PFPki)).Methods("POST")
 
 	// Profiles (GET: list, POST: create)
 	api.Handle("/pki/profiles", handlers.GetSetProfile(PFPki)).Methods("GET", "POST")

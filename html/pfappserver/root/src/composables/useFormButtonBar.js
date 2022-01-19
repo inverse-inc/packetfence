@@ -5,10 +5,6 @@ export const useFormButtonBarProps = {
   actionKey: {
     type: Boolean
   },
-  actionKeyButtonVerb: {
-    type: String,
-    default: i18n.t('Close')
-  },
   isClone: {
     type: Boolean,
     default: undefined // allow explicit `false`
@@ -34,6 +30,21 @@ export const useFormButtonBarProps = {
   },
   formRef: {
     type: HTMLFormElement
+  },
+  labelActionKey: {
+    type: String,
+    default: 'Close' // i18n.defer
+  },
+  labelCreate: {
+    type: String,
+    default: 'Create' // i18n.defer
+  },
+  labelSave: {
+    type: String,
+    default: 'Save' // i18n.defer
+  },
+  confirmSave: {
+    type: Boolean
   }
 }
 
@@ -46,7 +57,10 @@ export const useFormButtonBar = (props, context) => {
     isSaveable,
     isNew,
     actionKey,
-    actionKeyButtonVerb
+    labelActionKey,
+    labelCreate,
+    labelSave,
+    confirmSave,
   } = toRefs(props)
 
   const { emit, listeners } = context
@@ -77,20 +91,20 @@ export const useFormButtonBar = (props, context) => {
     switch (true) {
       case isClone.value && actionKey.value && canClose.value:
       case isNew.value && actionKey.value:
-        return i18n.t('Create & {actionKeyButtonVerb}', { actionKeyButtonVerb: actionKeyButtonVerb.value })
+        return i18n.t(`${labelCreate.value} & ${labelActionKey.value}`)
         // break
 
       case isClone.value:
       case isNew.value:
-        return i18n.t('Create')
+        return i18n.t(labelCreate.value)
         // break
 
       case actionKey.value:
-        return i18n.t('Save & {actionKeyButtonVerb}', { actionKeyButtonVerb: actionKeyButtonVerb.value })
+        return i18n.t(`${labelSave.value} & ${labelActionKey.value}`)
         // break
 
       default:
-        return i18n.t('Save')
+        return i18n.t(labelSave.value)
     }
   })
 
@@ -106,6 +120,7 @@ export const useFormButtonBar = (props, context) => {
     onReset,
     onSave,
 
-    saveButtonLabel
+    saveButtonLabel,
+    confirmSave
   }
 }

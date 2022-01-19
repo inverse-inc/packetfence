@@ -29,5 +29,17 @@ export default {
       const { data: { items: { 0: item = {} } = {} } = {} } = response
       return item
     })
+  },
+  resign: data => {
+    const { id, ...rest } = data
+    return apiCall.post(['pki', 'ca', 'resign', id], rest).then(response => {
+      const { data: { error } = {} } = response
+      if (error) {
+        throw error
+      } else {
+        const { data: { items: { 0: item = {} } = {} } = {} } = response
+        return item
+      }
+    })
   }
 }

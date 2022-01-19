@@ -16,7 +16,7 @@ import { useViewCollectionItem, useViewCollectionItemProps } from '../../_compos
 const props = {
   ...useViewCollectionItemProps,
 
-  actionKeyButtonVerb: {
+  labelActionKey: {
     type: String,
     default: i18n.t('Join Domain')
   }

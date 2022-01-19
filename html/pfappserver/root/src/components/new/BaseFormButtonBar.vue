@@ -1,13 +1,22 @@
 <template>
   <div class="d-inline">
     <b-button-group class="mr-1">
-      <base-button-save v-if="canSave"
-        :isLoading="isLoading"
-        :disabled="!isValid"
-        @click="onSave"
-      >
-        {{ saveButtonLabel }}
-      </base-button-save>
+
+      <template v-if="canSave">
+        <base-button-confirm v-if="confirmSave"
+          variant="primary"
+          :isLoading="isLoading"
+          :disabled="!isValid"
+          :confirm="$t('Are you sure?')"
+          @click="onSave"
+        >{{ saveButtonLabel }}</base-button-confirm>
+        <base-button-save v-else
+          :isLoading="isLoading"
+          :disabled="!isValid"
+          @click="onSave"
+        >{{ saveButtonLabel }}</base-button-save>
+      </template>
+
       <b-button v-if="canClone"
         :disabled="isLoading"
         variant="outline-primary"
