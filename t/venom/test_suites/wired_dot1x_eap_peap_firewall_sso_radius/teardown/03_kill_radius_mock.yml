@@ -1,10 +1,18 @@
 name: Kill RADIUS mock
 testcases:
 
-- name: create_radius_mock
+- name: kill_radius_mock
   steps:
   - type: exec
     script: |
       cd {{.firewall_sso.radius.radius_mock_dir}} && pm2 delete radius_mock.config.js
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: remove_npm_pm2
+  steps:
+  - type: exec
+    script: |
+      npm remove pm2 -g
     assertions:
     - result.code ShouldEqual 0
