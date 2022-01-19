@@ -19,6 +19,8 @@ testcases:
       {
         "ipaddress": "{{.configurator.interfaces.mgmt.ip}}",
         "netmask": "{{.configurator.interfaces.mgmt.netmask}}",
+        "ipv6_address": "{{.configurator.interfaces.mgmt.ipv6}}",
+        "ipv6_prefix": "{{.configurator.interfaces.mgmt.prefix}}",
         "type": "management",
         "additional_listening_daemons": ["portal"]
       }
@@ -51,6 +53,8 @@ testcases:
       {
         "ipaddress": "{{.configurator.interfaces.reg.ip}}",
         "netmask": "{{.configurator.interfaces.reg.netmask}}",
+        "ipv6_address": "{{.configurator.interfaces.reg.ipv6}}",
+        "ipv6_prefix": "{{.configurator.interfaces.reg.prefix}}",
         "type": "vlan-registration",
         "dhcpd_enabled": "{{.configurator.interfaces.reg.dhcpd_enabled}}"
       }
@@ -83,6 +87,8 @@ testcases:
       {
         "ipaddress": "{{.configurator.interfaces.iso.ip}}",
         "netmask": "{{.configurator.interfaces.iso.netmask}}",
+        "ipv6_address": "{{.configurator.interfaces.iso.ipv6}}",
+        "ipv6_prefix": "{{.configurator.interfaces.iso.prefix}}",
         "type": "vlan-isolation",
         "dhcpd_enabled": "{{.configurator.interfaces.iso.dhcpd_enabled}}"
       }

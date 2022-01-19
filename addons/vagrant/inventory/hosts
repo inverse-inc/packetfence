@@ -539,15 +539,23 @@ all:
         networks:
           - name: mgmt_route_nqb
             subnet: '172.18.140.0/24'
+            libvirt_ipv6_address: 'fd28:ffd:18:140::1'
+            libvirt_ipv6_prefix: '64'
             forward_mode: 'route'
           - name: reg_isolated_nqb
             subnet: '172.18.141.0/24'
+            libvirt_ipv6_address: 'fd28:ffd:18:141::1'
+            libvirt_ipv6_prefix: '64'
             forward_mode: 'none'
           - name: iso_isolated_nqb
             subnet: '172.18.142.0/24'
+            libvirt_ipv6_address: 'fd28:ffd:18:142::1'
+            libvirt_ipv6_prefix: '64'
             forward_mode: 'none'
           - name: inline_isolated_nqb
             subnet: '172.18.143.0/24'
+            libvirt_ipv6_address: 'fd28:ffd:18:143::1'
+            libvirt_ipv6_prefix: '64'
             forward_mode: 'none'
           - name: inline_l3_nqb
             subnet: '172.18.144.0/24'
@@ -615,9 +623,11 @@ all:
           pfel8localdev:
             ip: '172.18.140.14'
             netmask: '255.255.255.0'
+            ipv6: 'fd28:ffd:18:140::14'
           pfdeb11localdev:
             ip: '172.18.140.15'
             netmask: '255.255.255.0'
+            ipv6: 'fd28:ffd:18:140::15'
           el8localdev:
             ip: '172.18.140.8'
             netmask: '255.255.255.0'

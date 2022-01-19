@@ -33,7 +33,10 @@ Vagrant.configure("2") do |config|
                      :ip => user_vars['vms'][server]['ip'],
                      :netmask => user_vars['vms'][server]['netmask'],
                      :libvirt__dhcp_enabled => false,
-                     :libvirt__forward_mode => user_vars['networks'][0]['forward_mode']
+                     :libvirt__forward_mode => user_vars['networks'][0]['forward_mode'],
+                     :libvirt__guest_ipv6 => "yes",
+                     :libvirt__ipv6_address => user_vars['networks'][0]['libvirt_ipv6_address'],
+                     :libvirt__ipv6_prefix => user_vars['networks'][0]['libvirt_ipv6_prefix']
 
       srv.vm.provider "libvirt" do |v|
         v.cpus = details['cpus']
