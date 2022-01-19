@@ -255,7 +255,7 @@ sub _deauthenticateMacWithHTTP {
         $logger->error("Can't have the site list from the Unifi controller: ".$response->status_line);
         return;
     }
-    
+
     $logger->info("Switching status on the Unifi controller using command $command");
 
     my $sites = decode_json($response->decoded_content());
@@ -270,7 +270,7 @@ sub _deauthenticateMacWithHTTP {
             last;
         }
     }
-    
+
     # There are two flows of deauth that will be attempted
 
     # First...
@@ -320,7 +320,7 @@ sub _deauthenticateMacWithHTTP {
         }
     }
     if($count > 0) {
-    	$logger->info("Deauth on $count access points");
+        $logger->info("Deauth on $count access points");
     }
 
 }
