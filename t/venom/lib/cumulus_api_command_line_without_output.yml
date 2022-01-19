@@ -1,8 +1,8 @@
 executor: cumulus_api_command_line_without_output
 input:
-  user: "{{.switch01.api.user}}"
-  password: "{{.switch01.api.password}}"
-  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: ""
+  password: ""
+  url: ""
   cmd: ""
 steps:
 - type: http

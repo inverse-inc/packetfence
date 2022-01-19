@@ -1,0 +1,10 @@
+executor: switch01_dot1x_int_tls_show
+steps:
+- type: cumulus_dot1x_int_show 
+  connexion_type: TLS
+  id: "{{.switch01.dot1x_interface.id}}"
+  password: "{{.switch01.api.password}}"
+  status: AUTHORIZED
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
+  vlan_id: "{{.roles.registration.vlan_id}}"

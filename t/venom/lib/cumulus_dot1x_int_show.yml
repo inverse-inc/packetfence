@@ -14,6 +14,6 @@ steps:
   url: '{{.input.url}}'
   cmd: "show dot1x interface {{.input.id}} json"
   assertions:
-    - result.cumulus_api_command_line_json.body ShouldContainSubstring "{{.input.vlan_id}}"
-    - result.cumulus_api_command_line_json.body ShouldContainSubstring "{{.input.connexion_type}}"
-    - result.cumulus_api_command_line_json.body ShouldContainSubstring "{{.input.status}}"
+    - result.cumulus_api_command_line_body ShouldContainSubstring "{{.input.vlan_id}}"
+    - result.cumulus_api_command_line_body ShouldContainSubstring "{{.input.connexion_type}}"
+    - result.cumulus_api_command_line_body ShouldContainSubstring "{{.input.status}}"

@@ -3,4 +3,4 @@ steps:
 - type: cumulus_commit_config
   password: "{{.switch01.api.password}}"
   user: "{{.switch01.api.user}}"
-  user: "{{.input.user}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
