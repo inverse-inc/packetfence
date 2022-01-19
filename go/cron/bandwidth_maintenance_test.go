@@ -180,9 +180,9 @@ func TestBandwidthMaintenanceSession(t *testing.T) {
 		MergeArgs(
 			config.(map[string]interface{}),
 			map[string]interface{}{
-				"timeout": 1000.0,
-				"batch":   100.0,
-				"window":  float64(12 * 60 * 60),
+				"session_timeout": 1000.0,
+				"session_batch":   100.0,
+				"session_window":  float64(12 * 60 * 60),
 			},
 		),
 	)

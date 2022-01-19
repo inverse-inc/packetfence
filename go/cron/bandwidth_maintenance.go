@@ -29,6 +29,9 @@ type BandwidthMaintenance struct {
 	HistoryWindow  int
 	HistoryBatch   int
 	HistoryTimeout time.Duration
+	SessionWindow  int
+	SessionBatch   int
+	SessionTimeout time.Duration
 	ClientApi      *jsonrpc2.Client
 }
 
@@ -41,6 +44,9 @@ func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
 		HistoryBatch:   int(config["history_batch"].(float64)),
 		HistoryTimeout: time.Duration((config["history_timeout"].(float64))) * time.Second,
 		HistoryWindow:  int(config["history_window"].(float64)),
+		SessionBatch:   int(config["session_batch"].(float64)),
+		SessionTimeout: time.Duration((config["session_timeout"].(float64))) * time.Second,
+		SessionWindow:  int(config["session_window"].(float64)),
 		ClientApi:      jsonrpc2.NewClientFromConfig(context.Background()),
 	}
 }
@@ -62,11 +68,11 @@ func (j *BandwidthMaintenance) Run() {
 func (j *BandwidthMaintenance) BandwidthMaintenanceSessionCleanup(ctx context.Context) {
 	count, _ := BatchSql(
 		ctx,
-		j.Timeout,
+		j.SessionTimeout,
 		bandwidthMaintenanceSessionCleanupSQL,
 		time.Now(),
-		j.Window,
-		j.Batch,
+		j.SessionWindow,
+		j.SessionBatch,
 	)
 
 	if count > -1 {
