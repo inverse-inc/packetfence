@@ -45,8 +45,13 @@ const setup = (props, context) => {
 
   const cert = ref({})
   watch(id, () => {
-    $store.dispatch('$_pkis/getCert', id.value)
-      .then(_cert => cert.value = _cert)
+    if(!id.value) {
+      cert.value = {}
+    }
+    else {
+      $store.dispatch('$_pkis/getCert', id.value)
+        .then(_cert => cert.value = _cert)
+    }
   }, { immediate: true })
   const isScep = computed(() => {
     const { scep } = cert.value
