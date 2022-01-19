@@ -1,5 +1,5 @@
 <template>
-  <b-button-group v-if="!isClone && !isNew">
+  <b-button-group v-if="!isClone && !isNew && !isScep">
     <b-button size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click="onShowModal">{{ $t('Download') }}</b-button>
     <b-modal v-model="isShowModal"
       size="lg" centered cancel-disabled>
@@ -67,7 +67,7 @@ const schema = yup.object({
   password: yup.string().required(i18n.t('Password required.')).min(8)
 })
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import StoreModule from '../../_store'
 
@@ -82,6 +82,16 @@ const setup = (props, context) => {
   if (!$store.state.$_pkis)
     $store.registerModule('$_pkis', StoreModule)
 
+  const cert = ref({})
+  watch(id, () => {
+    $store.dispatch('$_pkis/getCert', id.value)
+      .then(_cert => cert.value = _cert)
+  }, { immediate: true })
+  const isScep = computed(() => {
+    const { scep } = cert.value
+    return scep
+  })
+
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const rootRef = ref(null)
   const clipboard = ref(false)
@@ -92,31 +102,29 @@ const setup = (props, context) => {
   const onHideModal = () => { isShowModal.value = false }
   const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onDownload = () => {
-    $store.dispatch('$_pkis/getCert', id.value).then(cert => {
-      const { ca_id, profile_id } = cert
-      $store.dispatch('$_pkis/getProfile', profile_id).then(profile => {
-        $store.dispatch('$_pkis/getCa', ca_id).then(ca => {
-          const filename = `${ca.cn}-${profile.name}-${cert.cn}.p12`
-          const { password } = form.value || {}
-          $store.dispatch('$_pkis/downloadCert', { id: id.value, password }).then(arrayBuffer => {
-            if (clipboard.value) {
-              navigator.clipboard.writeText(password).then(() => {
-                $store.dispatch('notification/info', { message: i18n.t('Certificate password copied to clipboard') })
-              })
-            }
-            const blob = new Blob([arrayBuffer], { type: 'application/x-pkcs12' })
-            if (window.navigator.msSaveOrOpenBlob) {
-              window.navigator.msSaveBlob(blob, filename)
-            } else {
-              let elem = window.document.createElement('a')
-              elem.href = window.URL.createObjectURL(blob)
-              elem.download = filename
-              document.body.appendChild(elem)
-              elem.click()
-              document.body.removeChild(elem)
-            }
-            onHideModal()
-          })
+    const { ca_id, profile_id } = cert.value
+    $store.dispatch('$_pkis/getProfile', profile_id).then(profile => {
+      $store.dispatch('$_pkis/getCa', ca_id).then(ca => {
+        const filename = `${ca.cn}-${profile.name}-${cert.cn}.p12`
+        const { password } = form.value || {}
+        $store.dispatch('$_pkis/downloadCert', { id: id.value, password }).then(arrayBuffer => {
+          if (clipboard.value) {
+            navigator.clipboard.writeText(password).then(() => {
+              $store.dispatch('notification/info', { message: i18n.t('Certificate password copied to clipboard') })
+            })
+          }
+          const blob = new Blob([arrayBuffer], { type: 'application/x-pkcs12' })
+          if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveBlob(blob, filename)
+          } else {
+            let elem = window.document.createElement('a')
+            elem.href = window.URL.createObjectURL(blob)
+            elem.download = filename
+            document.body.appendChild(elem)
+            elem.click()
+            document.body.removeChild(elem)
+          }
+          onHideModal()
         })
       })
     })
@@ -128,6 +136,7 @@ const setup = (props, context) => {
     clipboard,
     form,
     schema: ref(schema),
+    isScep,
     isValid,
     isShowModal,
     onShowModal,

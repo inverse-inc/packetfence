@@ -1,5 +1,5 @@
 <template>
-  <b-button v-if="!isClone && !isNew"
+  <b-button v-if="!isClone && !isNew && !isScep"
     size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onEmail">{{ $t('Email') }}</b-button>
 </template>
 <script>
@@ -28,7 +28,7 @@ const props = {
   }
 }
 
-import { computed, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import StoreModule from '../../_store'
 
@@ -43,20 +43,29 @@ const setup = (props, context) => {
   if (!$store.state.$_pkis)
     $store.registerModule('$_pkis', StoreModule)
 
+  const cert = ref({})
+  watch(id, () => {
+    $store.dispatch('$_pkis/getCert', id.value)
+      .then(_cert => cert.value = _cert)
+  }, { immediate: true })
+  const isScep = computed(() => {
+    const { scep } = cert.value
+    return scep
+  })
+
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const onEmail = () => {
-    $store.dispatch('$_pkis/getCert', id.value).then(cert => {
-      const { ID, cn, mail } = cert
-      $store.dispatch('$_pkis/emailCert', ID).then(() => {
-        $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
-      }).catch(e => {
-        $store.dispatch('notification/danger', { message: i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', { cn, mail }) + e })
-      })
+    const { ID, cn, mail } = cert.value
+    $store.dispatch('$_pkis/emailCert', ID).then(() => {
+      $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
+    }).catch(e => {
+      $store.dispatch('notification/danger', { message: i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', { cn, mail }) + e })
     })
   }
 
   return {
     isLoading,
+    isScep,
     onEmail
   }
 }
