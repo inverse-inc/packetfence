@@ -572,10 +572,16 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
 
+	return revokeNeeded(cn, options[0], allowTime, &c.DB)
+
+}
+
+func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, error) {
+
 	var certif Cert
 	var CertDB *gorm.DB
 
-	if CertDB := c.DB.Where("Cn = ? AND profile_name = ?", cn, options[0]).Find(&certif); CertDB.Error != nil {
+	if CertDB := c.Where("Cn = ? AND profile_name = ?", cn, profile).Find(&certif); CertDB.Error != nil {
 		// There is no certificate with this CN in the DB
 		return true, nil
 	}
@@ -584,16 +590,13 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 		return true, nil
 	}
 
-	certif.DB = c.DB
-	certif.Ctx = c.Ctx
-
 	store := make(map[pemutil.BlockType]interface{})
 
 	pemutil.Decode(store, []byte(certif.Cert))
 	for _, pemUtil := range store {
 		cert := pemUtil.(*x509.Certificate)
 
-		if cert.NotAfter.Unix()-int64((14*24*time.Hour).Seconds()) < time.Now().Unix() {
+		if cert.NotAfter.Unix()-int64((time.Duration(allowTime)*time.Hour).Seconds()) < time.Now().Unix() {
 
 			params := make(map[string]string)
 
@@ -604,6 +607,7 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 		}
 	}
 	return false, errors.New("Certificate with this CN already exist")
+
 }
 
 // SCEP Verify
@@ -968,6 +972,13 @@ func (c Cert) New() (types.Info, error) {
 	if CaDB := c.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
 		Information.Error = CaDB.Error.Error()
 		return Information, errors.New(dbError)
+	}
+
+	// Check if the certificate
+	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
 	}
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
