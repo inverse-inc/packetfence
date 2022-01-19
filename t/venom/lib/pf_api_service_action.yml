@@ -12,8 +12,9 @@ steps:
   status_code: "{{.input.status_code}}"
   method: "{{.input.method}}"
   url: 'service/{{.input.service}}/{{.input.action}}'
-  output: 
-    pf_api_service_action_json: "{{.result.pf_api_action_json}}"
 
 - type: sleep
   time_to_sleep: "{{.input.time_to_sleep}}"
+
+output: 
+  pf_api_service_action_json: "{{.result.pf_api_action_json}}"
