@@ -57,6 +57,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fixes documentation for Huawei (PR #6692)
 * Fix issue when pulling the wrong certificate only based on the cn (#5861)
 * Fix regression in the Unifi module for deauthentication of webauth clients when the APs are defined using an IP or CIDR in the configuration (#6686)
+* Fixes revoke certificate on unregistration (#6826)
 
 == Version 11.1.0 released on 2021-10-28
 
