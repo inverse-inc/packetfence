@@ -47,6 +47,13 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "altering pki_certs"
+ALTER TABLE pki_certs
+    ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses;
+
+\! echo "set pki_certs.scep to true if private key is empty"
+UPDATE pki_certs
+    SET `scep`=1 WHERE `key` = "";
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

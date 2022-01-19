@@ -101,6 +101,13 @@ export const useSearch = makeSearch('pkiCerts', {
       visible: true
     },
     {
+      key: 'scep',
+      label: 'SCEP', // i18n defer
+      required: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
