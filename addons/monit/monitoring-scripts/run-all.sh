@@ -22,17 +22,22 @@ function _run {
     return
   elif grep -o --quiet '^#as-root$' $cmd; then
     echo "Running $cmd as root"
-    cmd_output=`$cmd`
+    cmd_output=`timeout 10 $cmd`
   else
-    cmd_output=`su pf-monitoring -c $cmd`
+    cmd_output=`timeout 10 su pf-monitoring -c $cmd`
   fi
+  code="$?"
 
-  if [ $? -eq 0 ]; then
+  if [ $code -eq 0 ]; then
     echo "$cmd succeeded" > /dev/null
   else
     ERROR=1
-    output="$cmd failed"
-    output="$output\nResult of $cmd"
+    if [ $code -eq 124 ]; then
+      output="$cmd has timeout"
+    else
+      output="$cmd has failed"
+    fi
+    output="$output\nOutput of $cmd"
     output="$output\n$cmd_output\n------------------------------------------"
     full_output="$full_output\n$output"
   fi
