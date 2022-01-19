@@ -6,10 +6,17 @@ testcases:
   - type: exec
     script: |
       cd {{.firewall_sso.radius.radius_mock_dir}}
-      sudo npm install
+      npm install
     assertions:
     - result.code ShouldEqual 0
 
+- name: install_npm_pm2
+  steps:
+  - type: exec
+    script: |
+      npm install pm2 -g
+    assertions:
+    - result.code ShouldEqual 0
 
 - name: configure_radius_mock
   steps:

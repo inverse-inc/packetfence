@@ -566,7 +566,7 @@ inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 ################################################################################
 ## firewall_sso test suite specific variables
 #################################################################################
-# Firewall
+# HTTPS Firewall SSO
 firewall_sso.https.host: '{{.pfserver_mgmt_ip}}'
 firewall_sso.https.port_config: 8080
 firewall_sso.https.port_http: 8081
@@ -575,6 +575,15 @@ firewall_sso.https.transport: http
 firewall_sso.https.password: secret
 firewall_sso.https.type: PaloAlto
 
-# Smocker
+# HTTPS Firewall SSO Mock - Smocker
 smocker_dir: /opt/smocker
 
+# RADIUS Firewall SSO
+firewall_sso.radius.api_host: '{{.pfserver_mgmt_ip}}'
+firewall_sso.radius.api_port: 8083
+firewall_sso.radius.radius_host: '{{.pfserver_mgmt_ip}}'
+firewall_sso.radius.radius_port: 8084
+firewall_sso.radius.radius_secret: secret
+firewall_sso.radius.radius_user_name: foo
+firewall_sso.radius.radius_user_password: bar
+firewall_sso.radius.radius_mock_dir: '{{.pfserver_root_dir}}/t/mock_servers/node_radius'
