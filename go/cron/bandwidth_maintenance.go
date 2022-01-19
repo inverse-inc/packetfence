@@ -2,9 +2,24 @@ package maint
 
 import (
 	"context"
+	"fmt"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"time"
 )
+
+const bandwidthMaintenanceSessionCleanupSQL = `
+BEGIN NOT ATOMIC
+SET @window = DATE_SUB(?, INTERVAL ? SECOND);
+UPDATE bandwidth_accounting INNER JOIN (
+    SELECT DISTINCT node_id, unique_session_id
+    FROM bandwidth_accounting as ba1
+    WHERE last_updated BETWEEN '0001-01-01 00:00:00' AND @window AND NOT EXISTS ( SELECT 1 FROM bandwidth_accounting ba2 WHERE ba2.last_updated > @window AND (ba1.node_id, ba1.unique_session_id) = (ba2.node_id, ba2.unique_session_id) )
+    ORDER BY last_updated
+LIMIT ?) AS old_sessions USING (node_id, unique_session_id)
+SET last_updated = '0000-00-00 00:00:00';
+END;
+`
 
 type BandwidthMaintenance struct {
 	Task
@@ -32,6 +47,7 @@ func NewBandwidthMaintenance(config map[string]interface{}) JobSetupConfig {
 
 func (j *BandwidthMaintenance) Run() {
 	ctx := context.Background()
+	j.BandwidthMaintenanceSessionCleanup(ctx)
 	j.ProcessBandwidthAccountingNetflow(ctx)
 	j.TriggerBandwidth(ctx)
 	j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
@@ -43,6 +59,21 @@ func (j *BandwidthMaintenance) Run() {
 	j.BandwidthAccountingHistoryCleanup(ctx)
 }
 
+func (j *BandwidthMaintenance) BandwidthMaintenanceSessionCleanup(ctx context.Context) {
+	count, _ := BatchSql(
+		ctx,
+		j.Timeout,
+		bandwidthMaintenanceSessionCleanupSQL,
+		time.Now(),
+		j.Window,
+		j.Batch,
+	)
+
+	if count > -1 {
+		log.LogInfo(context.Background(), fmt.Sprintf("%s cleaned items %d", "bandwidth_maintenance_session", count))
+	}
+}
+
 func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Context) {
 	BatchSqlCount(
 		ctx,
@@ -51,6 +82,7 @@ func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Con
 		300,
 		j.Batch,
 	)
+
 }
 
 func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
