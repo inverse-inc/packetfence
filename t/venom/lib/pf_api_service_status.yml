@@ -8,5 +8,5 @@ steps:
   time_to_sleep: 0
   assertions:
     - result.json ShoulContain "alive": 0
-  output:
-    pf_api_service_status_json: "{{.result.pf_api_service_action_json}}"
+output:
+  pf_api_service_status_json: "{{.result.pf_api_service_action_json}}"

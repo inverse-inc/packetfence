@@ -10,5 +10,5 @@ steps:
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'config/switch/{{.input.id}}'
-  output:
-    pf_api_switch_action_json: "{{.result.pf_api_action_json}}"
+output:
+  pf_api_switch_action_json: "{{.result.pf_api_action_json}}"

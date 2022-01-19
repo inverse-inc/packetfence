@@ -10,5 +10,5 @@ steps:
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'config/source/{{.input.id}}'
-  output:
-    pf_api_source_action_json: "{{.result.pf_api_action_json}}"
+output:
+  pf_api_source_action_json: "{{.result.pf_api_action_json}}"

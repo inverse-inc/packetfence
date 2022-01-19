@@ -1,15 +1,15 @@
 executor: pf_api_node_action
 input:
-  body: {}
+  body: ""
   id: {}
   method: GET
-  status_code: {}
+  status_code: 200
 steps:
 - type: mac_address_url_encoder
   mac_address: "{{.input.node_id}}"
 
 - type: pf_api_action
-  body: {}
+  body: "{{.input.body}}"
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'node/{{.result.mac_address_url_encoded}}'

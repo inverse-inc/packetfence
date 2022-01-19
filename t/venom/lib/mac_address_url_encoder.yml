@@ -3,6 +3,6 @@ input:
   mac_address: {}
 steps:
 - type: exec
-  script: sed 's|:|%3A|g' <<< "{{.input.mac_address}}"
+  script: echo "{{.input.mac_address}}" | sed -e 's|:|%3A|g' 
 outpost:
   mac_address_url_encoded: "{{.result.systemout}}" 

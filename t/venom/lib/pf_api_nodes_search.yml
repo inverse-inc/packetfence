@@ -6,5 +6,5 @@ steps:
   url: 'nodes/search'
   body: "{{.input.body}}"
   method: POST
-  output:
-    pf_api_nodes_search_json: "{{.result.pf_api_action_json}}"
+output:
+  pf_api_nodes_search_json: "{{.result.pf_api_action_json}}"
