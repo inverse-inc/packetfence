@@ -1,0 +1,41 @@
+name: Disable SSO on access reevalution and accounting
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: disable_sso_on_access_reevaluation
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/advanced'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "advanced",
+        "sso_on_access_reevaluation": "disabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+      "X-PacketFence-Tenant-Id": "1"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: disable_sso_on_accounting
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/advanced'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "advanced",
+        "sso_on_accounting": "disabled"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+      "X-PacketFence-Tenant-Id": "1"
+    assertions:
+      - result.statuscode ShouldEqual 200

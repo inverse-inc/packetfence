@@ -587,3 +587,4 @@ firewall_sso.radius.radius_secret: secret
 firewall_sso.radius.radius_user_name: foo
 firewall_sso.radius.radius_user_password: bar
 firewall_sso.radius.radius_mock_dir: '{{.pfserver_root_dir}}/t/mock_servers/node_radius'
+firewall_sso.radius.type: FortiGate
