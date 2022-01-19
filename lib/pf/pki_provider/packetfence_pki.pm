@@ -58,35 +58,31 @@ sub get_bundle {
 
     my $certpwd = $args->{'certificate_pwd'};
 
-
-    my $return = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/certs", {
-        "cn"             => $cn,
-        "mail"           => $email,
-        "organisation"   => $organisation,
-        "country"        => $country,
-        "state"          => $state,
-        "locality"       => $locality,
-        "postal_code"    => $postalcode,
-        "street_address" => $streetaddress,
-        "profile_id"     => $profile,
-    });
-
-    if ($return->{'status'} eq "422") {
-        $logger->warn("Certificate already exist");
+    my $value = eval {
+        my $return = pf::api::unifiedapiclient->default_client->call("POST", "/api/v1/pki/certs", {
+            "cn"             => $cn,
+            "mail"           => $email,
+            "organisation"   => $organisation,
+            "country"        => $country,
+            "state"          => $state,
+            "locality"       => $locality,
+            "postal_code"    => $postalcode,
+            "street_address" => $streetaddress,
+            "profile_id"     => $profile,
+        });
+    };
+    if ($@) {
+        $logger->warn("Certificate creation failed");
+        return;
     }
-
-    my %data;
-    $data{id} = "/pki/$cn";
-    $data{value} = $return->{serial};
-
-    my ($status, $obj) = pf::dal::key_value_storage->find_or_create({
-        %data,
-        id => "/pki/$cn"
-    });
-
-
-    $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
-
+    my $return;
+    $value = eval {
+        $return = pf::api::unifiedapiclient->default_client->call("GET", "/api/v1/pki/cert/$profile/$cn/download/$certpwd");
+    };
+    if ($@) {
+        $logger->warn("Download certificate failed");
+        return;
+    }
     return $return;
 }
 
@@ -99,28 +95,12 @@ Revoke the certificate for a user
 sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
-    my %options = (
-        -where => {
-            id => "/pki/$cn",
-        }
-    );
 
-    my ($status, $iter) = pf::dal::key_value_storage->search(%options);
-    if (is_success($status)) {
-        my $key_value = $iter->next(undef);
-        if ($key_value) {
-            my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$key_value->{value}/$cn/1");
-        } else {
-            $logger->error("Unable to find certificate in the cache $cn");
-        }
-    } else {
-        $logger->error("Unable to revoke user certificate $cn");
-    }
-
-    ($status, my $count) = pf::dal::key_value_storage->remove_items(%options);
-    
-    if (is_error($status)) {
-        $logger->error("Unable to delete the key value '$cn'");
+    my $value = eval {
+        my $return = pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/pki/cert/$self->{'profile'}/$cn/1");
+    };
+    if ($@) {
+        $logger->debug("Unable to revoke certificate associated with this cn $cn");
     }
 }
 
