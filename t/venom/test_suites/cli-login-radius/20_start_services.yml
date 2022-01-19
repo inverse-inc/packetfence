@@ -5,3 +5,4 @@ testcases:
   - type: systemctl_service
     unit_command: restart
     service: radius-test.service
+    sudo: sudo
