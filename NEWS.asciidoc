@@ -45,6 +45,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Allow access to the Status/Node Manager/Device Registration pages on SAML auth.
 * Give each monitoring script a maximum of 10 seconds to run (#6828)
 * Resign CA feature in PKI (#6770)
+* Allow to download any certificates without private key using a button (#6778)
 
 === Bug Fixes
 
