@@ -450,8 +450,7 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 		Error := types.Errors{Status: 0}
 
 		vars := mux.Vars(req)
-		if len(regexp.MustCompile(`(?i)^([0-9A-F]{2}[:]){5}[0-9A-F]{2}$`).FindStringIndex(vars["id"])) > 0 {
-			vars["cn"] = vars["id"]
+		if _, ok := vars["cn"]; ok {
 			delete(vars, "id")
 		}
 		switch req.Method {
