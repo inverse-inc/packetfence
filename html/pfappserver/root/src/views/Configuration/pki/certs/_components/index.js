@@ -7,6 +7,7 @@ import {
 import {
   BaseFormGroupChosenOneProfile
 } from '../../_components/'
+import ButtonCertificateCopy from './ButtonCertificateCopy'
 import ButtonCertificateDownload from './ButtonCertificateDownload'
 import ButtonCertificateEmail from './ButtonCertificateEmail'
 import ButtonCertificateRevoke from './ButtonCertificateRevoke'
@@ -31,6 +32,7 @@ export {
   BaseFormGroupInput              as FormGroupStreetAddress,
   BaseFormGroupInput              as FormGroupPostalCode,
 
+  ButtonCertificateCopy,
   ButtonCertificateDownload,
   ButtonCertificateEmail,
   ButtonCertificateRevoke,

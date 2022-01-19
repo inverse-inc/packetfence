@@ -77,16 +77,14 @@
               :disabled="!isServiceAlive"
               @click.stop.prevent="goToClone({ id: item.ID, ...item })"
             >{{ $t('Clone') }}</b-button>
+            <button-certificate-copy
+              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
             <button-certificate-download v-if="!item.scep"
               :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
             <button-certificate-email v-if="!item.scep"
               :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
-            <b-button
-              size="sm" variant="outline-primary" class="mr-1 text-nowrap"
-              :disabled="!isServiceAlive"
-              @click.stop.prevent="onClipboard(item)"
-            >{{ $t('Copy Certificate') }}</b-button>
-            <button-certificate-revoke :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" @change="reSearch" />
+            <button-certificate-revoke
+              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" @change="reSearch" />
           </span>
         </template>
         <template #cell(ca_name)="{ item }">
@@ -120,6 +118,7 @@ import {
   BaseTableEmpty
 } from '@/components/new/'
 import {
+  ButtonCertificateCopy,
   ButtonCertificateDownload,
   ButtonCertificateEmail,
   ButtonCertificateRevoke
@@ -131,6 +130,7 @@ const components = {
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty,
+  ButtonCertificateCopy,
   ButtonCertificateDownload,
   ButtonCertificateEmail,
   ButtonCertificateRevoke
@@ -141,7 +141,6 @@ import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import { useSearch, useRouter } from '../_composables/useCollection'
-import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -190,20 +189,6 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
-  const onClipboard = item => {
-    $store.dispatch('$_pkis/getCert', item.ID).then(cert => {
-      try {
-        navigator.clipboard.writeText(cert.cert).then(() => {
-          $store.dispatch('notification/info', { message: i18n.t('<code>{cn}</code> certificate copied to clipboard', cert) })
-        }).catch(() => {
-          $store.dispatch('notification/danger', { message: i18n.t('Could not copy <code>{cn}</code> certificate to clipboard.', cert) })
-        })
-      } catch (e) {
-        $store.dispatch('notification/danger', { message: i18n.t('Clipboard not supported.') })
-      }
-    })
-  }
-
   return {
     useSearch,
     isServiceAlive,
@@ -211,7 +196,6 @@ const setup = (props, context) => {
     profilesSorted,
     tableRef,
     onBulkExport,
-    onClipboard,
     ...router,
     ...selected,
     ...toRefs(search)

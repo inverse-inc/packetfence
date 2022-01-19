@@ -1,5 +1,6 @@
 import {
   BaseView,
+  ButtonCertificateCopy,
   ButtonCertificateDownload,
   ButtonCertificateEmail,
   ButtonCertificateRevoke,
@@ -34,6 +35,7 @@ import { BButtonGroup } from 'bootstrap-vue'
 const render = renderHOCWithScopedSlots(BaseView, { components, props, setup }, {
   buttonsAppend: (h, props) => {
     return h(BButtonGroup, {}, [
+      h(ButtonCertificateCopy, { props }),
       h(ButtonCertificateDownload, { props }),
       h(ButtonCertificateEmail, { props }),
       h(ButtonCertificateRevoke, { props })
