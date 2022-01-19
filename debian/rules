@@ -231,6 +231,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-httpd.proxy
 	dh_installinit --name=packetfence-httpd.webservices
 	dh_installinit --name=packetfence-iptables
+	dh_installinit --name=packetfence-ip6tables
 	dh_installinit --name=packetfence-keepalived
 	dh_installinit --name=packetfence-mariadb
 	dh_installinit --name=packetfence-netdata
