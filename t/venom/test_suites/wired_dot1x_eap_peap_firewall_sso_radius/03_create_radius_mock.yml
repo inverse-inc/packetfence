@@ -1,0 +1,91 @@
+name: Create RADIUS mock
+testcases:
+
+- name: install_radius_mock
+  steps:
+  - type: exec
+    script: |
+      cd {{.firewall_sso.radius.radius_mock_dir}}
+      sudo npm install
+    assertions:
+    - result.code ShouldEqual 0
+
+
+- name: configure_radius_mock
+  steps:
+  - type: exec
+    script: |
+      cat << EOF > {{.firewall_sso.radius.radius_mock_dir}}/radius_mock.config.js
+      module.exports = {
+        apps: [
+          {
+            name: "radius_mock",
+            script: "src/index.js",
+            instances: 1,
+            autorestart: true,
+            watch: false,
+            max_memory_restart: "1M",
+            env_production: {
+              API_HOST: "{{.firewall_sso.radius.api_host}}",
+              API_PORT: {{.firewall_sso.radius.api_port}},
+              RADIUS_HOST: "{{.firewall_sso.radius.radius_host}}",
+              RADIUS_PORT: {{.firewall_sso.radius.radius_port}},
+              RADIUS_SECRET: "{{.firewall_sso.radius.radius_secret}}",
+              RADIUS_USER_NAME: "{{.firewall_sso.radius.radius_user_name}}",
+              RADIUS_USER_PASSWORD: "{{.firewall_sso.radius.radius_user_password}}",
+            },
+            error_file: "{{.firewall_sso.radius.radius_mock_dir}}/node.err",
+            out_file: "{{.firewall_sso.radius.radius_mock_dir}}/node.out",
+            pid_file: "{{.firewall_sso.radius.radius_mock_dir}}/node.pid"
+          }
+        ]
+      };
+      EOF
+
+- name: create_radius_mock
+  steps:
+  - type: exec
+    script: |
+      cd {{.firewall_sso.radius.radius_mock_dir}} && pm2 start radius_mock.config.js --env production
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: wait_radius_mock
+  steps:
+  - type: exec
+    script: |
+      sleep 3
+
+- name: check_radius_mock_api_history
+  steps:
+  - type: exec
+    script: |
+      curl -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemout ShouldEqual []
+
+- name: check_radclient_success
+  steps:
+  - type: exec
+    script: |
+      echo "User-Name={{.firewall_sso.radius.radius_user_name}},User-Password={{.firewall_sso.radius.radius_user_password}}" | radclient {{.firewall_sso.radius.radius_host}}:{{.firewall_sso.radius.radius_port}} auth {{.firewall_sso.radius.radius_secret}}
+    assertions:
+    - result.code ShouldEqual 0
+
+- name: check_radclient_failure
+  steps:
+  - type: exec
+    script: |
+      echo "User-Name={{.firewall_sso.radius.radius_user_name}},User-Password=xxx" | radclient {{.firewall_sso.radius.radius_host}}:{{.firewall_sso.radius.radius_port}} auth {{.firewall_sso.radius.radius_secret}}
+    assertions:
+    - result.code ShouldEqual 1
+
+- name: check_radius_mock_api_history
+  steps:
+  - type: exec
+    script: |
+      curl -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemoutjson ShouldHaveLength 2

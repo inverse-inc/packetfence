@@ -83,7 +83,10 @@ mock.radius = function (host, port, secret, user_name, user_password) {
 }
 
 mock.radius.prototype.bind = function () {
-  return this.socket.bind(this.port, this.host)
+  try {
+    return this.socket.bind(this.port, this.host)
+  }
+  catch {}
 }
 
 mock.radius.prototype.close = function () {
