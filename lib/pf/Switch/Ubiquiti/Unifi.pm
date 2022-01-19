@@ -256,9 +256,11 @@ sub _deauthenticateMacWithHTTP {
         return;
     }
 
-    my $json_data = decode_json($response->decoded_content());
+    $logger->info("Switching status on the Unifi controller using command $command");
 
-    foreach my $entry (@{$json_data->{'data'}}) {
+    my $sites = decode_json($response->decoded_content());
+
+    foreach my $entry (@{$sites->{'data'}}) {
         $response = $ua->get("$base_url/api/s/$entry->{'name'}/stat/sta/$mac");
         if ($response->is_success) {
             $found = $TRUE;
@@ -269,6 +271,31 @@ sub _deauthenticateMacWithHTTP {
         }
     }
 
+    # There are two flows of deauth that will be attempted
+
+    # First...
+    # The first one is doing the deauth on the site itself without adding the ap_mac in it which will grant access on the AP the user is currently connected on
+    # This only happens if we found where the client is connected
+    # This supports access points defined via IP or CIDR in the PF configuration
+    if ($found) {
+        $response = $ua->post("$base_url/api/s/$site_opts{'name'}/cmd/stamgr", Content => encode_json($args));
+        if ($response->is_success) {
+            $logger->info("Deauth on site: $site_opts{'desc'}");
+        }
+    } else {
+        foreach my $entry (@{$sites->{'data'}}) {
+            $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
+            if ($response->is_success) {
+                $logger->trace("Deauth on site: $entry->{'desc'}");
+            }
+        }
+    }
+
+    # Second...
+    # We go through all the entries in switches.conf and find the ones that are MAC address based and part of the group of the current entry
+    # For each of these, we send the command including the AP MAC which allows to grant access to the device on all APs of that site (to enable web-auth roaming)
+    # If we don't know which site the endpoint is connected on, we send the messages to all the sites
+    # This only supports entries defined by their MAC address in switches.conf
     tie my %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
     my $count = 0;
     foreach my $switch_id (keys(%SwitchConfig)) {
@@ -283,7 +310,7 @@ sub _deauthenticateMacWithHTTP {
                     $logger->trace("Deauth on site: $site_opts{'desc'} for $switch_id");
                 }
             } else {
-                foreach my $entry (@{$json_data->{'data'}}) {
+                foreach my $entry (@{$sites->{'data'}}) {
                     $response = $ua->post("$base_url/api/s/$entry->{'name'}/cmd/stamgr", Content => encode_json($args));
                     if ($response->is_success) {
                         $logger->trace("Deauth on site: $entry->{'desc'} for $switch_id");
@@ -292,14 +319,10 @@ sub _deauthenticateMacWithHTTP {
             }
         }
     }
-    $logger->info("Deauth on $count access points");
-
-    unless($response->is_success) {
-        $logger->error("Can't send request on the Unifi controller: ".$response->status_line);
-        return;
+    if($count > 0) {
+        $logger->info("Deauth on $count access points");
     }
 
-    $logger->info("Switched status on the Unifi controller using command $command");
 }
 
 =item getAccessPointMACIP
