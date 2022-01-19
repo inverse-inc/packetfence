@@ -44,6 +44,7 @@ testcases:
         [ alt_names ]
         DNS.1 = {{.wired_dot1x_eap_tls_scep.certs.user.dns1}}
         email.1 = {{.wired_dot1x_eap_tls_scep.certs.user.mail}}
+        otherName = 1.3.6.1.4.1.311.20.2.3;UTF8:{{.wired_dot1x_eap_tls_scep.certs.user.mail}}
         EOF
         
 - name: generate_csr_with_challenge
