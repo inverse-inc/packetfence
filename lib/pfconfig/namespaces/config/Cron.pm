@@ -84,12 +84,6 @@ sub build_child {
         $task_data->{interval} = $interval;
     }
 
-    my $bandwidth_maintenance = $tmp_cfg->{bandwidth_maintenance};
-    my $bandwidth_maintenance_session = $tmp_cfg->{bandwidth_maintenance_session};
-    for my $f (qw(batch timeout window)) {
-        $tmp_cfg->{bandwidth_maintenance}{"session_$f"} = $bandwidth_maintenance_session->{$f};
-    }
-
     return $tmp_cfg;
 }
 
