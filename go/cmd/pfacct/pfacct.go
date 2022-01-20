@@ -28,7 +28,6 @@ type radiusRequest struct {
 	switchInfo *SwitchInfo
 	status     rfc2866.AcctStatusType
 	mac        mac.Mac
-	done       chan struct{}
 }
 
 type PfAcct struct {
@@ -77,7 +76,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 
 	pfAcct.SetupConfig(ctx)
-	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
+	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 1000)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
 	pfAcct.runPing()
