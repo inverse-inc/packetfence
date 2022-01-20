@@ -3,6 +3,7 @@ package scep
 import (
 	"net/http"
 	"os"
+	"strconv"
 
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
@@ -147,7 +148,8 @@ func ProfileAttributes(prof models.Profile) map[string]string {
 		attributes["Mail"] = prof.Mail
 	}
 	if len(prof.Digest.String()) > 0 {
-		attributes["Digest"] = prof.Digest.String()
+		val := strconv.Itoa(int(prof.Digest))
+		attributes["Digest"] = val
 	}
 	return attributes
 }
