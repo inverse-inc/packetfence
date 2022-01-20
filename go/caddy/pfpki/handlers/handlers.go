@@ -651,6 +651,35 @@ func GetRevokedByID(pfpki *types.Handler) http.Handler {
 	})
 }
 
+func CheckRenewal(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewCertModel(pfpki)
+		var Information types.Info
+		var err error
+
+		Error := types.Errors{Status: 0}
+		switch req.Method {
+		case "GET":
+			Information.Status = http.StatusOK
+			vars := mux.Vars(req)
+			Information, err = o.CheckRenewal(vars)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusNotFound
+				break
+			}
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req)
+	})
+}
+
 func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handler, res http.ResponseWriter, req *http.Request) {
 	var err error
 

@@ -145,6 +145,7 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
+		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
 	}
 
 	// RevokedCert struct
@@ -1370,6 +1371,40 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		Information.Error = err.Error()
 		return Information, err
 	}
+
+	return Information, nil
+}
+
+func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var certdb []Cert
+
+	if CertDB := c.DB.Where("alert <> ? and scep <>", 1, 1).Find(&certdb); CertDB.Error != nil {
+		Information.Error = CertDB.Error.Error()
+		return Information, CertDB.Error
+	}
+
+	for _, v := range certdb {
+		// Find the profile
+		var prof Profile
+		if profDB := c.DB.First(&prof, v.ProfileID); profDB.Error != nil {
+			Information.Error = profDB.Error.Error()
+			return Information, errors.New(dbError)
+		}
+		// Revoke due certificate
+		if time.Now().Unix() > v.ValidUntil.Unix() {
+			params := make(map[string]string)
+
+			params["id"] = strconv.Itoa(int(v.ID))
+			params["reason"] = strconv.Itoa(ocsp.Superseded)
+			c.Revoke(params)
+		}
+		if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewal)*24*time.Hour).Seconds()) < time.Now().Unix() {
+			// Send Email
+		}
+	}
+
+	Information.Entries = certdb
 
 	return Information, nil
 }

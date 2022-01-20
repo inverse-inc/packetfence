@@ -49,7 +49,8 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
-    ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses;
+    ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses,
+    ADD COLUMN IF NOT EXISTS `alert` BOOLEAN DEFAULT FALSE AFTER scep;
 
 \! echo "set pki_certs.scep to true if private key is empty"
 UPDATE pki_certs
