@@ -180,188 +180,188 @@ variables:
 ########################################    
 # JOBS
 ########################################
-.check_job:
-  stage: check
-  dependencies: []
-  script:
-    - ${CHECKDIR}/run-pipeline-if-necessary.sh
-  tags:
-    - docker-inverse
-
-.build_img_docker_job:
-  stage: build_img
-  script:
-    - make -e -C ${PACKERDIR} build_img_docker_pfbuild
-  tags:
-    - shell
-
-.build_img_vagrant_devel_and_branches_job:
-  stage: build_img
-  variables:
-    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
-    BOX_DESC: ${CI_PIPELINE_URL}
-  script:
-    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
-  after_script:
-    - make -e -C ${VAGRANT_IMG_DIR} clean
-  tags:
-    - shell
-    - inverse.ca
-
-.build_artifacts_pkg_job:
-  stage: build_artifacts
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - result/*
-  tags:
-    - docker-inverse
-
-.build_artifacts_website_job:
-  stage: build_artifacts
-  dependencies: []
-  script:
-    - make -e website
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - website/*
-  tags:
-    - docker-inverse
-
-.build_artifacts_material_job:
-  stage: build_artifacts
-  dependencies: []
-  variables:
-    GIT_USER_NAME: packetfence-bot
-    GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
-    #GIT_USER_PASSWORD: provided through environment
-    GIT_REPO: git.inverse.ca/inverse/website-packetfence.git
-    SRC_FILE: result/material.html
-    DST_FILE: layouts/partials/about/material.html
-  script:
-    - ${BUILDDIR}/start-pfconfig-in-container.sh
-    - make material
-    - ${RELEASEDIR}/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
-  tags:
-    - docker-inverse
-
-.publish_job:
-  stage: publish
-  environment:
-    name: PPA
-    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
-  script:
-    - ci-pages-ppa
-    - ci-pages-home
-    - ci-pages-tree
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    GITLAB_DEPLOY_DIR: ${CI_PIPELINE_ID}
-  tags:
-    - shell
-
-.test_job:
-  stage: test
-  dependencies: []
-  artifacts:
-    when: always
-    expire_in: 1 day
-    paths:
-      - results/*
-  tags:
-    - inverse.ca
-    - shell
-
-.deploy_deb_job:
-  stage: deploy
-  dependencies:
-    - sign_devel_release_branches_and_maintenance
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
-  tags:
-    - shell
-
-.deploy_maintenance_deb_job:
-  stage: deploy
-  dependencies:
-    - sign_devel_release_branches_and_maintenance
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
-  tags:
-    - shell
-
-.deploy_rpm_job:
-  stage: deploy
-  dependencies:
-    - sign_devel_release_branches_and_maintenance
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    DEPLOY_SRPMS: "no"
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
-  tags:
-    - shell
-
-.deploy_rpm_maintenance_job:
-  stage: deploy
-  dependencies:
-    - sign_devel_release_branches_and_maintenance
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-    DEPLOY_SRPMS: "no"
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
-  tags:
-    - shell
-
-.deploy_pkg_friendly_names:
-  stage: deploy
-  dependencies:
-    - sign_devel_release_branches_and_maintenance
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-export
-  tags:
-    - shell
-
-.deploy_website_artifacts_job:
-  stage: deploy
-  dependencies:
-    - build_artifacts_website_devel_and_branches
-    - build_artifacts_website_release
-  variables:
-    DEPLOY_USER: reposync
-    DEPLOY_HOST: web.inverse.ca
-  script:
-    - ./${UPLOAD_DIR}/deploy-artifacts.sh website
-  tags:
-    - shell
-
-.build_pf_img_zen_job:
-  stage: build_pf_img
-  environment:
-    name: sourceforge
-    url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
-  after_script:
-    - make -e -C ${ZENDIR} clean
-    - make -e -C ${ZENDIR} clean_cache
-  dependencies: []
-  tags:
-    - shell
+#.check_job:
+#  stage: check
+#  dependencies: []
+#  script:
+#    - ${CHECKDIR}/run-pipeline-if-necessary.sh
+#  tags:
+#    - docker-inverse
+#
+#.build_img_docker_job:
+#  stage: build_img
+#  script:
+#    - make -e -C ${PACKERDIR} build_img_docker_pfbuild
+#  tags:
+#    - shell
+#
+#.build_img_vagrant_devel_and_branches_job:
+#  stage: build_img
+#  variables:
+#    RESULT_DIR: /var/local/gitlab-runner/vagrant_img
+#    BOX_DESC: ${CI_PIPELINE_URL}
+#  script:
+#    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+#  after_script:
+#    - make -e -C ${VAGRANT_IMG_DIR} clean
+#  tags:
+#    - shell
+#    - inverse.ca
+#
+#.build_artifacts_pkg_job:
+#  stage: build_artifacts
+#  artifacts:
+#    expire_in: 1 day
+#    paths:
+#      - result/*
+#  tags:
+#    - docker-inverse
+#
+#.build_artifacts_website_job:
+#  stage: build_artifacts
+#  dependencies: []
+#  script:
+#    - make -e website
+#  artifacts:
+#    expire_in: 1 day
+#    paths:
+#      - website/*
+#  tags:
+#    - docker-inverse
+#
+#.build_artifacts_material_job:
+#  stage: build_artifacts
+#  dependencies: []
+#  variables:
+#    GIT_USER_NAME: packetfence-bot
+#    GIT_USER_MAIL: ${GIT_USER_NAME}@inverse.ca
+#    #GIT_USER_PASSWORD: provided through environment
+#    GIT_REPO: git.inverse.ca/inverse/website-packetfence.git
+#    SRC_FILE: result/material.html
+#    DST_FILE: layouts/partials/about/material.html
+#  script:
+#    - ${BUILDDIR}/start-pfconfig-in-container.sh
+#    - make material
+#    - ${RELEASEDIR}/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
+#  tags:
+#    - docker-inverse
+#
+#.publish_job:
+#  stage: publish
+#  environment:
+#    name: PPA
+#    url: http://inverse.ca/downloads/PacketFence/gitlab/${CI_PIPELINE_ID}
+#  script:
+#    - ci-pages-ppa
+#    - ci-pages-home
+#    - ci-pages-tree
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh ppa
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#    GITLAB_DEPLOY_DIR: ${CI_PIPELINE_ID}
+#  tags:
+#    - shell
+#
+#.test_job:
+#  stage: test
+#  dependencies: []
+#  artifacts:
+#    when: always
+#    expire_in: 1 day
+#    paths:
+#      - results/*
+#  tags:
+#    - inverse.ca
+#    - shell
+#
+#.deploy_deb_job:
+#  stage: deploy
+#  dependencies:
+#    - sign_devel_release_branches_and_maintenance
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#  script:
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
+#  tags:
+#    - shell
+#
+#.deploy_maintenance_deb_job:
+#  stage: deploy
+#  dependencies:
+#    - sign_devel_release_branches_and_maintenance
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#  script:
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
+#  tags:
+#    - shell
+#
+#.deploy_rpm_job:
+#  stage: deploy
+#  dependencies:
+#    - sign_devel_release_branches_and_maintenance
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#    DEPLOY_SRPMS: "no"
+#  script:
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
+#  tags:
+#    - shell
+#
+#.deploy_rpm_maintenance_job:
+#  stage: deploy
+#  dependencies:
+#    - sign_devel_release_branches_and_maintenance
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#    DEPLOY_SRPMS: "no"
+#  script:
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
+#  tags:
+#    - shell
+#
+#.deploy_pkg_friendly_names:
+#  stage: deploy
+#  dependencies:
+#    - sign_devel_release_branches_and_maintenance
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#  script:
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-export
+#  tags:
+#    - shell
+#
+#.deploy_website_artifacts_job:
+#  stage: deploy
+#  dependencies:
+#    - build_artifacts_website_devel_and_branches
+#    - build_artifacts_website_release
+#  variables:
+#    DEPLOY_USER: reposync
+#    DEPLOY_HOST: web.inverse.ca
+#  script:
+#    - ./${UPLOAD_DIR}/deploy-artifacts.sh website
+#  tags:
+#    - shell
+#
+#.build_pf_img_zen_job:
+#  stage: build_pf_img
+#  environment:
+#    name: sourceforge
+#    url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
+#  after_script:
+#    - make -e -C ${ZENDIR} clean
+#    - make -e -C ${ZENDIR} clean_cache
+#  dependencies: []
+#  tags:
+#    - shell
 
 .build_pf_img_iso_job:
   stage: build_pf_img
