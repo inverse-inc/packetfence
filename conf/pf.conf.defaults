@@ -344,6 +344,15 @@ performance_schema=OFF
 #
 # The max_connect_errors MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
 max_connect_errors=100
+# database_advanced.net_read_timeout
+#
+# The net_read_timeout MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+net_read_timeout=360s
+#
+# database_advanced.net_write_timeout
+#
+# The net_write_timeout MySQL configuration attribute. Only change if you know what you are doing. Will only affect a locally running MySQL server.
+net_write_timeout=360s
 #
 # database_advanced.masterslave
 #

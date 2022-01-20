@@ -101,6 +101,8 @@ sub _run {
         server_ip => $management_network ? ($management_network->{Tvip} // $management_network->{Tip}) : "",
         performance_schema => _pf_config_val("database_advanced", "performance_schema"),
         max_connect_errors => _pf_config_val("database_advanced", "max_connect_errors"),
+        net_read_timeout => normalize_time(_pf_config_val("database_advanced", "net_read_timeout")),
+        net_write_timeout => normalize_time(_pf_config_val("database_advanced", "net_write_timeout")),
         masterslave => _pf_config_val("database_advanced", "masterslave"),
     );
 

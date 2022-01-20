@@ -27,8 +27,8 @@ defaults
 	option	httplog
 	option	dontlognull
         timeout connect 5000
-        timeout client 50000
-        timeout server 50000
+        timeout client %%timeout%%
+        timeout server %%timeout%%
         errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
 
 %%management_ip_frontend%%
