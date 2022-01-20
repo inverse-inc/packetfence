@@ -17,7 +17,7 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.item.autoreg ShouldEqual yes
       - result.bodyjson.item.category ShouldEqual "{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id}}"
-      - result.bodyjson.item.pid ShouldEqual "{{.wired_dot1x_eap_tls_scep.certs.user.cn}}"
+      - result.bodyjson.item.pid ShouldEqual "{{.wired_dot1x_eap_tls_scep.certs.user.other_name}}"
       - result.bodyjson.item.status ShouldEqual reg
     vars:
       regdate:

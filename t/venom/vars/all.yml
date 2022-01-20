@@ -45,6 +45,7 @@ switch01.api.password: CumulusLinux!
 switch01.dot1x_interface.id: swp12
 
 # nodes variables
+node01_hostname: node01
 node01_ens7_mac_address: 00:03:00:11:11:01
 node01_ens7_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
 
@@ -365,7 +366,8 @@ wired_dot1x_eap_tls_manual.paths.per_client_directory: '{{.wired_dot1x_eap_tls_m
 wired_dot1x_eap_tls_scep.certs.validity: 750
 wired_dot1x_eap_tls_scep.certs.key_size: 2048
 wired_dot1x_eap_tls_scep.certs.key_type: 1
-wired_dot1x_eap_tls_scep.certs.digest: 4
+wired_dot1x_eap_tls_scep.certs.digest.number: 4
+wired_dot1x_eap_tls_scep.certs.digest.text: sha256WithRSAEncryption
 wired_dot1x_eap_tls_scep.certs.country: CA
 wired_dot1x_eap_tls_scep.certs.state: Quebec
 wired_dot1x_eap_tls_scep.certs.locality: Montreal
@@ -398,11 +400,17 @@ wired_dot1x_eap_tls_scep.certs.http.ip_addresses: '{{.configurator.interfaces.mg
 
 # User cert
 wired_dot1x_eap_tls_scep.certs.user.cn: '{{.wired_dot1x_eap_tls_scep.templates.user.name}}_cert'
-wired_dot1x_eap_tls_scep.certs.user.mail: '{{.configurator.email}}'
+wired_dot1x_eap_tls_scep.certs.user.extended_key_usage.number: 2
+wired_dot1x_eap_tls_scep.certs.user.extended_key_usage.text: TLS Web Client Authentication
+wired_dot1x_eap_tls_scep.certs.user.dns1: '{{.node01_hostname}}'
+wired_dot1x_eap_tls_scep.certs.user.email: '{{.node01_hostname}}@{{.configurator.domain}}'
+wired_dot1x_eap_tls_scep.certs.user.other_name: '{{.node01_hostname}}-alias@{{.configurator.domain}}'
 wired_dot1x_eap_tls_scep.certs.user.scep_enabled: 1
 wired_dot1x_eap_tls_scep.certs.user.scep_challenge_password: secret
 wired_dot1x_eap_tls_scep.certs.user.scep_days_before_renewal: 7
 wired_dot1x_eap_tls_scep.certs.user.subject: "/C={{.wired_dot1x_eap_tls_scep.certs.country}}/ST={{.wired_dot1x_eap_tls_scep.certs.state}}/L={{.wired_dot1x_eap_tls_scep.certs.locality}}/O={{.wired_dot1x_eap_tls_scep.certs.organisation}}/OU={{.wired_dot1x_eap_tls_scep.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_scep.certs.user.cn}}"
+
+wired_dot1x_eap_tls_scep.certs.user.subject_openssl: "C = {{.wired_dot1x_eap_tls_scep.certs.country}}, ST = {{.wired_dot1x_eap_tls_scep.certs.state}}, L = {{.wired_dot1x_eap_tls_scep.certs.locality}}, O = {{.wired_dot1x_eap_tls_scep.certs.organisation}}, OU = {{.wired_dot1x_eap_tls_scep.certs.organisational_unit}}, CN = {{.wired_dot1x_eap_tls_scep.certs.user.cn}}"
 
 # OCSP config
 wired_dot1x_eap_tls_scep.ocsp.id: ocsp_from_cert

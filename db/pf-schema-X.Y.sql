@@ -1395,9 +1395,9 @@ CREATE TABLE dhcppool (
 
 CREATE TABLE `pki_cas` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` datetime NULL DEFAULT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  `deleted_at` datetime NULL DEFAULT NULL,
   `cn` varchar(255) DEFAULT NULL,
   `mail` varchar(255) DEFAULT NULL,
   `organisation` varchar(255) DEFAULT NULL,
@@ -1432,9 +1432,9 @@ CREATE TABLE `pki_cas` (
 
 CREATE TABLE `pki_certs` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` datetime NULL DEFAULT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  `deleted_at` datetime NULL DEFAULT NULL,
   `cn` varchar(255) DEFAULT NULL,
   `mail` varchar(255) DEFAULT NULL,
   `ca_id` int(10) unsigned DEFAULT NULL,
@@ -1450,8 +1450,8 @@ CREATE TABLE `pki_certs` (
   `cert` longtext,
   `profile_id` int(10) unsigned DEFAULT NULL,
   `profile_name` varchar(255) DEFAULT NULL,
-  `valid_until` timestamp NULL DEFAULT NULL,
-  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `valid_until` datetime NULL DEFAULT NULL,
+  `date` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `serial_number` varchar(255) DEFAULT NULL,
   `dns_names` varchar(255) DEFAULT NULL,
   `ip_addresses` varchar(255) DEFAULT NULL,
@@ -1473,9 +1473,9 @@ CREATE TABLE `pki_certs` (
 
 CREATE TABLE `pki_profiles` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` datetime NULL DEFAULT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  `deleted_at` datetime NULL DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `mail` varchar(255) DEFAULT NULL,
   `organisation` varchar(255) DEFAULT NULL,
@@ -1516,9 +1516,9 @@ CREATE TABLE `pki_profiles` (
 
 CREATE TABLE `pki_revoked_certs` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` datetime NULL DEFAULT NULL,
+  `updated_at` datetime NULL DEFAULT NULL,
+  `deleted_at` datetime NULL DEFAULT NULL,
   `cn` varchar(255) DEFAULT NULL,
   `mail` varchar(255) DEFAULT NULL,
   `ca_id` int(10) unsigned DEFAULT NULL,
@@ -1534,8 +1534,8 @@ CREATE TABLE `pki_revoked_certs` (
   `cert` longtext,
   `profile_id` int(10) unsigned DEFAULT NULL,
   `profile_name` varchar(255) DEFAULT NULL,
-  `valid_until` timestamp NULL DEFAULT NULL,
-  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `valid_until` datetime NULL DEFAULT NULL,
+  `date` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `serial_number` varchar(255) DEFAULT NULL,
   `dns_names` varchar(255) DEFAULT NULL,
   `ip_addresses` varchar(255) DEFAULT NULL,

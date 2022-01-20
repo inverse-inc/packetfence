@@ -55,6 +55,34 @@ ALTER TABLE pki_certs
 UPDATE pki_certs
     SET `scep`=1 WHERE `key` = "";
 
+\! echo "Alter table pki_certs"
+ALTER TABLE `pki_certs`
+  MODIFY valid_until DATETIME,
+  MODIFY date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  MODIFY deleted_at DATETIME,
+  MODIFY created_at DATETIME,
+  MODIFY updated_at DATETIME;
+
+\! echo "Alter table pki_cas"
+ALTER TABLE `pki_cas`
+  MODIFY deleted_at DATETIME,
+  MODIFY created_at DATETIME,
+  MODIFY updated_at DATETIME;
+
+\! echo "Alter table pki_profiles"
+ALTER TABLE `pki_profiles`
+  MODIFY deleted_at DATETIME,
+  MODIFY created_at DATETIME,
+  MODIFY updated_at DATETIME;
+
+\! echo "Alter table pki_revoked_certs"
+ALTER TABLE `pki_revoked_certs`
+  MODIFY valid_until DATETIME,
+  MODIFY date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  MODIFY deleted_at DATETIME,
+  MODIFY created_at DATETIME,
+  MODIFY updated_at DATETIME;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

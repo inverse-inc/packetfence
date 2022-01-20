@@ -67,7 +67,9 @@ You can choose to enable SCEP on this template.
 image::packetfence-pki-scep.png[scaledwidth="100%",alt="SCEP configuration"]
 
 
-IMPORTANT: Attributes defined in PKI templates will be used to generate certificates requested through SCEP if they are not defined in CSR.
+IMPORTANT: Common name and Subject Alt Name attributes provided in CSR to get a certificate through SCEP will override values in PKI template.
+Other values like Signature Algorithm, Key usage, Extended key usage will be taken from PKI template.
+
 
 ====== SCEP Test
 

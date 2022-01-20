@@ -74,3 +74,6 @@ TODO:
 Reauthentication is done by switch based on `eap_reauth_period` setting to
 avoid node been unregistered when it reach unregdate and automatically deleted
 by `pfcron` without running teardown steps.
+
+`pid` of user created by 802.1X authentication is equals to CN attribute of
+certificate because there is no Alt-Name-UPN in certificate created.
