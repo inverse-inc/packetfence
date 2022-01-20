@@ -46,6 +46,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Give each monitoring script a maximum of 10 seconds to run (#6828)
 * Resign CA feature in PKI (#6770)
 * Allow to download any certificates without private key using a button (#6778)
+* Fixes date format of the PKI SQL tables (#6823)
+* Use the Digest of the profile on SCEP request (#6823)
 
 === Bug Fixes
 
@@ -59,6 +61,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fix issue when pulling the wrong certificate only based on the cn (#5861)
 * Fix regression in the Unifi module for deauthentication of webauth clients when the APs are defined using an IP or CIDR in the configuration (#6686)
 * Fixes revoke certificate on unregistration (#6826)
+* Send certificates by email using alerting settings (#5917)
 
 == Version 11.1.0 released on 2021-10-28
 
