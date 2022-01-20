@@ -3,7 +3,7 @@ input:
   host: {}
   user: {}
 steps:
-- type: venom_rapper_command_on_host
+- type: venom_wrapper_command_on_host 
   host: "{{.input.host}}"
   user: "{{.input.user}}"
   test_suite_path: /usr/local/pf/test_suites/distant/wpasupplicant_kill.yml
