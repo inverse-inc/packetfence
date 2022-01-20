@@ -3,7 +3,7 @@ input:
   multi: ""
 steps:
 - type: exec
-  script: "echo {{.input.multi}}"
+  script: 'echo {{.input.multi}}'
   info:
     - {{.input.multi}}
 output:
