@@ -122,7 +122,7 @@
       <base-form-tab :title="$i18n.t('Advanced Configuration')">
         <form-group-days-before-renewal namespace="days_before_renewal"
           :column-label="$i18n.t('Days before renewal')"
-          :text="$i18n.t('Number of days before the pki authorize renewal')"
+          :text="$i18n.t('Number of days before the pki authorize renewal. Set to 0 mean renewal is always allowed')"
         />
       </base-form-tab>
     </b-tabs>
