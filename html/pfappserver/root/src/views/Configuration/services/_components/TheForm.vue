@@ -75,6 +75,11 @@
       :text="$i18n.t(`Should iptables be managed by PacketFence? Keep enabled unless you know what you're doing.`)"
     />
 
+    <form-group-ip6tables namespace="ip6tables"
+      :column-label="$i18n.t('ip6tables')"
+      :text="$i18n.t(`Should ip6tables be managed by PacketFence? Keep enabled unless you know what you're doing.`)"
+    />
+
     <form-group-keepalived namespace="keepalived"
       :column-label="$i18n.t('keepalived')"
       :text="$i18n.t(`Should keepalived be started? Keep enabled unless you know what you're doing.`)"
@@ -243,6 +248,7 @@ import {
   FormGroupHttpdProxy,
   FormGroupHttpdWebservices,
   FormGroupIptables,
+  FormGroupIp6tables,
   FormGroupKeepalived,
   FormGroupNetdata,
   FormGroupNetflowAddress,
@@ -292,6 +298,7 @@ const components = {
   FormGroupHttpdProxy,
   FormGroupHttpdWebservices,
   FormGroupIptables,
+  FormGroupIp6tables,
   FormGroupKeepalived,
   FormGroupNetdata,
   FormGroupNetflowAddress,

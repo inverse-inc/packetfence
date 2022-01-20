@@ -26,6 +26,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdProxy,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdWebservices,
   BaseFormGroupToggleDisabledEnabled  as FormGroupIptables,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupIp6tables,
   BaseFormGroupToggleDisabledEnabled  as FormGroupKeepalived,
   BaseFormGroupInput                  as FormGroupNetflowAddress,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetdata,
