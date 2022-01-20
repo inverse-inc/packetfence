@@ -74,3 +74,7 @@ TODO:
 Reauthentication is done by switch based on `eap_reauth_period` setting to
 avoid node been unregistered when it reach unregdate and automatically deleted
 by `pfcron` without running teardown steps.
+
+`pid` of user created by 802.1X authentication is equals to `otherName`
+attribute in certificate obtained through SCEP because this attribute is
+defined in CSR generated on `node01`.
