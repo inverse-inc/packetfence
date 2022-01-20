@@ -198,7 +198,8 @@ const components = {
   FormGroupScepChallengePassword,
   FormGroupScepDaysBeforeRenewal,
   FormGroupCloudEnabled,
-  FormGroupCloudService
+  FormGroupCloudService,
+  FormGroupDaysBeforeRenewal
 }
 
 export const props = {

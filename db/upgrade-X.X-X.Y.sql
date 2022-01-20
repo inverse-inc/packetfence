@@ -96,6 +96,10 @@ ALTER TABLE bandwidth_accounting
  DROP INDEX IF EXISTS bandwidth_accounting_tenant_id_mac,
  ADD INDEX bandwidth_accounting_tenant_id_mac_last_updated (tenant_id, mac, last_updated);
 
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    ADD COLUMN IF NOT EXISTS `days_before_renewal` varchar(255) DEFAULT 14 AFTER scep_days_before_renewal,
+    ALTER scep_days_before_renewal SET DEFAULT 14;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

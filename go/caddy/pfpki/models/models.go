@@ -111,8 +111,8 @@ type (
 		P12MailFooter         string                  `json:"p12_mail_footer,omitempty"`
 		SCEPEnabled           int                     `json:"scep_enabled,omitempty,string"`
 		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
-		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,omitempty,string"`
-		DaysBeforeRenewal     int                     `json:"days_before_renewal,omitempty,string"`
+		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,omitempty,string" gorm:"default:14"`
+		DaysBeforeRenewal     int                     `json:"days_before_renewal,omitempty,string" gorm:"default:14"`
 		CloudEnabled          int                     `json:"cloud_enabled,omitempty,string"`
 		CloudService          string                  `json:"cloud_service,omitempty"`
 	}
@@ -974,7 +974,7 @@ func (c Cert) New() (types.Info, error) {
 		return Information, errors.New(dbError)
 	}
 
-	// Check if the certificate
+	// Check if the certificate is allowed to be revoked
 	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
 	if err != nil {
 		Information.Error = err.Error()
