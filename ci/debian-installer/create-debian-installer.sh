@@ -1,9 +1,7 @@
 #!/bin/bash
 
-PF_VERSION=11.1
-
-ISO_IN=debian-11.2.0-amd64-netinst.iso
-ISO_OUT=packetfence-debian-installer.iso
+ISO_IN=${ISO_IN:-debian-11.2.0-amd64-netinst.iso}
+ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
 if ! [ -f $ISO_IN ]; then
 	wget https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/$ISO_IN
@@ -11,7 +9,7 @@ fi
 
 rm -fr isofiles/
 
-cat preseed.cfg.tmpl | sed "s/%%PF_VERSION%%/$PF_VERSION/g"  > preseed.cfg
+cat preseed.cfg.tmpl | sed "s/%%PF_VERSION%%/$PF_RELEASE/g"  > preseed.cfg
 
 xorriso -osirrox on -indev $ISO_IN -extract / isofiles
 
@@ -29,4 +27,5 @@ cd ..
 
 genisoimage -r -J -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $ISO_OUT isofiles
 
+rm -fr isofiles/
 

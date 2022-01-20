@@ -1,5 +1,17 @@
 
+PF_VERSION=$(CI_COMMIT_REF_SLUG)
+
+RESULT_DIR=results
+
 .PHONY: packetfence-debian-installer.iso
 
-packetfence-debian-installer.iso:
-	bash create-debian-installer.sh
+iso:
+	echo "Building Debian installer for $(PF_VERSION)"
+	PF_RELEASE='$(shell cat ../../conf/pf-release)' \
+	PF_VERSION='$(PF_VERSION)' \
+	 ./build-and-upload.sh
+
+.PHONY: clean
+clean:
+	rm -rf $(RESULT_DIR)
+
