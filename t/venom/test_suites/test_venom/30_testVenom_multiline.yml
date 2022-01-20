@@ -1,0 +1,32 @@
+name: testsuite var multilines
+testcases:
+- name: custom_multilines_with_var
+  steps:
+  - type: customL
+    multi: >-
+      {
+        "cursor": 0,
+        "fields": [
+          "online"
+        ],
+        "limit": 1,
+        "query": {
+          "op": "and",
+          "values": [
+            {
+              "op": "or",
+              "values": [
+                {
+                  "field": "mac",
+                  "op": "equals",
+                  "value": "00:11:22:33:44:55"
+                }
+              ]
+            }
+          ]
+        }
+      }
+
+- name: custom_mutilines_with_executor_as_proxy
+  steps:
+  - type: customLy

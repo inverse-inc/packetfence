@@ -1,0 +1,11 @@
+executor: customL
+input:
+  multi: ""
+steps:
+- type: exec
+  script: "echo {{.input.multi}}"
+  info:
+    - {{.input.multi}}
+output:
+  - customL_json: "{{.result.bodyjson}}"
+  - customL_body: "{{.result.body}}"

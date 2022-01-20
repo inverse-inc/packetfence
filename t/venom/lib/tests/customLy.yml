@@ -1,0 +1,26 @@
+executor: customLy
+steps:
+- type: customL
+  multi: >-
+    {
+      "cursor": 0,
+      "fields": [
+        "online"
+      ],
+      "limit": 1,
+      "query": {
+        "op": "and",
+        "values": [
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "mac",
+                "op": "equals",
+                "value": "00:11:22:33:44:55"
+              }
+            ]
+          }
+        ]
+      }
+    }
