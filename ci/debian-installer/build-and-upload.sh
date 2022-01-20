@@ -29,5 +29,5 @@ mkdir -p ${SF_RESULT_DIR}
 echo "===> Build ISO for release $PF_RELEASE"
 PF_RELEASE=$PF_RELEASE ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" ./create-debian-installer.sh
 
-#echo "===> Upload to Sourceforge"
-#upload_to_sf
+echo "===> Upload to Sourceforge"
+upload_to_sf

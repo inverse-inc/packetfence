@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if ! which xorriso; then
+  apt install xorriso -yqq
+fi
+
 ISO_IN=${ISO_IN:-debian-11.2.0-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
