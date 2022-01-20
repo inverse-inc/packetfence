@@ -372,7 +372,7 @@ variables:
     - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
-    - shell
+    - jsemaan-test
 
 .build_pf_img_vagrant_release_job:
   stage: build_pf_img
