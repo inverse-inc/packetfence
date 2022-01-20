@@ -408,430 +408,430 @@ variables:
 # JOBS
 ################################################################################
 
-########################################
-# CHECK JOBS
-########################################
-run_pipeline_if_necessary:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  extends:
-    - .check_job
-    - .check_devel_branches_and_maintenance_rules
-
-########################################
-# BUILD_IMG JOBS
-########################################
-### build_img_docker jobs
-build_img_docker_devel:
-  extends:
-    - .build_img_docker_job
-    - .build_img_docker_devel_rules
-  variables:
-    DOCKER_TAGS: latest,maintenance-99-9
-
-build_img_docker_branches_and_maintenance:
-  extends:
-    - .build_img_docker_job
-    - .build_img_docker_branches_and_maintenance_rules
-  variables:
-    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
-
-# build a docker image at release
-# used to build release and maintenance packages
-build_img_docker_release:
-  extends:
-    - .build_img_docker_job
-    - .release_only_rules
-  variables:
-    DOCKER_TAGS: ${CI_COMMIT_TAG}
-    ANSIBLE_CENTOS_GROUP: common_centos
-    ANSIBLE_CENTOS8_GROUP: stable_centos8
-    ANSIBLE_DEBIAN_GROUP: common_debian
-    ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
-
-### build_img_vagrant jobs
-build_img_vagrant_devel_and_branches_el_8:
-  extends:
-    - .build_img_vagrant_devel_and_branches_job
-    - .build_img_vagrant_devel_and_branches_rules
-  variables:
-    BOX_NAME: pfel8dev
-
-build_img_vagrant_devel_and_branches_debian_bullseye:
-  extends:
-    - .build_img_vagrant_devel_and_branches_job
-    - .build_img_vagrant_devel_and_branches_rules
-  variables:
-    BOX_NAME: pfdeb11dev
-
-########################################
-#  BUILD_ARTIFACTS JOBS
-########################################
-# build_artifacts_pkg jobs for development
-build_artifacts_pkg_devel_and_branches_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .rpm_script_job
-    - .devel_and_branches_rules
-
-build_artifacts_pkg_devel_and_branches_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .deb_script_job
-    - .devel_and_branches_rules
-
-# build_artifacts_pkg jobs for release
-# CI_COMMIT_TAG contains vX.Y.X
-build_artifacts_pkg_release_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_TAG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .rpm_script_job
-    - .release_only_rules
-
-build_artifacts_pkg_release_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .deb_script_job
-    - .release_only_rules
-
-# CI_COMMIT_REF_SLUG contains maintenance-X-Y
-build_artifacts_pkg_maintenance_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .rpm_script_job
-    - .maintenance_only_rules
-
-build_artifacts_pkg_maintenance_debian_bullseye:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_REF_SLUG}
-  extends:
-    - .build_artifacts_pkg_job
-    - .deb_script_job
-    - .maintenance_only_rules
-
-# build_artifacts_website jobs for development
-build_artifacts_website_devel_and_branches:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  extends:
-    - .build_artifacts_website_job
-    - .build_artifacts_website_devel_and_branches_rules
-
-# build_artifacts_website job for release
-# CI_COMMIT_TAG contains vX.Y.X
-build_artifacts_website_release:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
-  extends:
-    - .build_artifacts_website_job
-    - .release_only_rules
-
-# build_artificats_material job for development
-material_devel_and_branches:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
-  extends:
-    - .build_artifacts_material_job
-    - .build_artifacts_material_devel_and_branches_rules
-
-# build_artificats_material job for release
-material_release:
-  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
-  extends:
-    - .build_artifacts_material_job
-    - .release_only_rules
-
-########################################
-# SIGN JOBS
-########################################
-sign_devel_release_branches_and_maintenance:
-  # GPG_USER_ID see GitLab variable
-  # only use when executor is docker
-  image: buildpkg/debian:buster
-  stage: sign
-  script:
-    - ci-sign-pkg
-  dependencies:
-    - build_artifacts_pkg_devel_and_branches_centos_8
-    - build_artifacts_pkg_devel_and_branches_debian_bullseye
-    - build_artifacts_pkg_release_centos_8
-    - build_artifacts_pkg_release_debian_bullseye
-    - build_artifacts_pkg_maintenance_centos_8
-    - build_artifacts_pkg_maintenance_debian_bullseye
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - result/*
-  tags:
-    - shell
-  extends:
-    - .devel_release_branches_and_maintenance_rules
-
-########################################
-# PUBLISH JOBS
-########################################g
-publish_ppa_devel_release_branches_and_maintenance::
-  # only use when executor is docker
-  image: buildpkg/debian:buster
-  dependencies:
-    - sign_devel_release_branches_and_maintenance
-  extends:
-    - .publish_job
-    - .test_rules
-
-########################################
-# TEST JOBS
-########################################
-### development
-unit_tests_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-dot1x_eap_peap_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-dot1x_eap_peap_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-mac_auth_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-mac_auth_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-dot1x_eap_tls_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-dot1x_eap_tls_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-fingerbank_invalid_db_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-cli_login_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-cli_login_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-external_integrations_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-captive_portal_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-captive_portal_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
-
-### release
-configurator_el8:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .release_only_rules
-
-configurator_deb11:
-  variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
-  extends:
-    - .test_job
-    - .test_script_job
-    - .release_only_rules
-
-########################################
-# DEPLOY JOBS
-########################################
-### RPM jobs
-deploy_devel_rpm:
-  extends:
-    - .deploy_rpm_job
-    - .devel_only_rules
-  environment:
-    name: pf-devel
-
-deploy_branches_rpm:
-  extends:
-    - .deploy_rpm_job
-    - .branches_only_rules
-  environment:
-    name: pf-branches
-  variables:
-    RPM_DEPLOY_DIR: branches/x86_64
-
-deploy_release_rpm:
-  extends:
-    - .deploy_rpm_job
-    - .release_only_rules
-  environment:
-    name: pf-stable
-
-deploy_maintenance_rpm:
-  extends:
-    - .deploy_rpm_maintenance_job
-    - .maintenance_only_rules
-  environment:
-    name: maintenance
-
-### Debian jobs
-deploy_devel_deb:
-  extends:
-    - .deploy_deb_job
-    - .devel_only_rules
-  environment:
-    name: pf-devel
-  variables:
-    DEB_DEPLOY_DIR: debian
-
-deploy_branches_deb:
-  extends:
-    - .deploy_deb_job
-    - .branches_only_rules
-  environment:
-    name: pf-branches
-  variables:
-    DEB_DEPLOY_DIR: debian-branches
-
-deploy_release_deb:
-  extends:
-    - .deploy_deb_job
-    - .release_only_rules
-  environment:
-    name: pf-stable
-  variables:
-    DEB_DEPLOY_DIR: debian
-
-deploy_maintenance_deb:
-  extends:
-    - .deploy_maintenance_deb_job
-    - .maintenance_only_rules
-  environment:
-    name: maintenance
-  variables:
-    DEB_DEPLOY_DIR: debian
-
-### Common jobs (Deb and RPM)
-deploy_devel_pkg_friendly_names:
-  extends:
-    - .deploy_pkg_friendly_names
-    - .devel_only_rules
-  environment:
-    name: pf-devel
-  variables:
-    # Values are automatically generated by deploy-artifacts.sh script based on current PF version
-    # PKG_DEST_NAME:
-    # PF_EXPORT_RPM_DEST_NAME:
-    # PF_EXPORT_DEB_DEST_NAME:
-
-deploy_branches_pkg_friendly_names:
-  extends:
-    - .deploy_pkg_friendly_names
-    - .branches_only_rules
-  environment:
-    name: pf-branches
-  variables:
-    PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
-    PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
-    PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
-
-deploy_release_pkg_friendly_names:
-  extends:
-    - .deploy_pkg_friendly_names
-    - .release_only_rules
-  environment:
-    name: pf-stable
-  variables:
-    # Values are automatically generated by deploy-artifacts.sh script based on current PF version    
-    #PKG_DEST_NAME
-    #PF_EXPORT_RPM_DEST_NAME
-    #PF_EXPORT_DEB_DEST_NAME
-
-deploy_maintenance_pkg_friendly_names:
-  extends:
-    - .deploy_pkg_friendly_names
-    - .maintenance_only_rules
-  variables:
-    # Values are automatically generated by deploy-artifacts.sh script
-    #PKG_DEST_NAME
-    #PF_EXPORT_RPM_DEST_NAME
-    #PF_EXPORT_DEB_DEST_NAME
-
-# website artifacts
-deploy_devel_and_branches_website_artifacts:
-  extends:
-    - .deploy_website_artifacts_job
-    - .build_artifacts_website_devel_and_branches_rules
-
-deploy_release_website_artifacts:
-  extends:
-    - .deploy_website_artifacts_job
-    - .release_only_rules
+#########################################
+## CHECK JOBS
+#########################################
+#run_pipeline_if_necessary:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+#  extends:
+#    - .check_job
+#    - .check_devel_branches_and_maintenance_rules
+#
+#########################################
+## BUILD_IMG JOBS
+#########################################
+#### build_img_docker jobs
+#build_img_docker_devel:
+#  extends:
+#    - .build_img_docker_job
+#    - .build_img_docker_devel_rules
+#  variables:
+#    DOCKER_TAGS: latest,maintenance-99-9
+#
+#build_img_docker_branches_and_maintenance:
+#  extends:
+#    - .build_img_docker_job
+#    - .build_img_docker_branches_and_maintenance_rules
+#  variables:
+#    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG}
+#
+## build a docker image at release
+## used to build release and maintenance packages
+#build_img_docker_release:
+#  extends:
+#    - .build_img_docker_job
+#    - .release_only_rules
+#  variables:
+#    DOCKER_TAGS: ${CI_COMMIT_TAG}
+#    ANSIBLE_CENTOS_GROUP: common_centos
+#    ANSIBLE_CENTOS8_GROUP: stable_centos8
+#    ANSIBLE_DEBIAN_GROUP: common_debian
+#    ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
+#    ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
+#
+#### build_img_vagrant jobs
+#build_img_vagrant_devel_and_branches_el_8:
+#  extends:
+#    - .build_img_vagrant_devel_and_branches_job
+#    - .build_img_vagrant_devel_and_branches_rules
+#  variables:
+#    BOX_NAME: pfel8dev
+#
+#build_img_vagrant_devel_and_branches_debian_bullseye:
+#  extends:
+#    - .build_img_vagrant_devel_and_branches_job
+#    - .build_img_vagrant_devel_and_branches_rules
+#  variables:
+#    BOX_NAME: pfdeb11dev
+#
+#########################################
+##  BUILD_ARTIFACTS JOBS
+#########################################
+## build_artifacts_pkg jobs for development
+#build_artifacts_pkg_devel_and_branches_centos_8:
+#  image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+#  extends:
+#    - .build_artifacts_pkg_job
+#    - .rpm_script_job
+#    - .devel_and_branches_rules
+#
+#build_artifacts_pkg_devel_and_branches_debian_bullseye:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+#  extends:
+#    - .build_artifacts_pkg_job
+#    - .deb_script_job
+#    - .devel_and_branches_rules
+#
+## build_artifacts_pkg jobs for release
+## CI_COMMIT_TAG contains vX.Y.X
+#build_artifacts_pkg_release_centos_8:
+#  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_TAG}
+#  extends:
+#    - .build_artifacts_pkg_job
+#    - .rpm_script_job
+#    - .release_only_rules
+#
+#build_artifacts_pkg_release_debian_bullseye:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+#  extends:
+#    - .build_artifacts_pkg_job
+#    - .deb_script_job
+#    - .release_only_rules
+#
+## CI_COMMIT_REF_SLUG contains maintenance-X-Y
+#build_artifacts_pkg_maintenance_centos_8:
+#  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .build_artifacts_pkg_job
+#    - .rpm_script_job
+#    - .maintenance_only_rules
+#
+#build_artifacts_pkg_maintenance_debian_bullseye:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .build_artifacts_pkg_job
+#    - .deb_script_job
+#    - .maintenance_only_rules
+#
+## build_artifacts_website jobs for development
+#build_artifacts_website_devel_and_branches:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+#  extends:
+#    - .build_artifacts_website_job
+#    - .build_artifacts_website_devel_and_branches_rules
+#
+## build_artifacts_website job for release
+## CI_COMMIT_TAG contains vX.Y.X
+#build_artifacts_website_release:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+#  extends:
+#    - .build_artifacts_website_job
+#    - .release_only_rules
+#
+## build_artificats_material job for development
+#material_devel_and_branches:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+#  extends:
+#    - .build_artifacts_material_job
+#    - .build_artifacts_material_devel_and_branches_rules
+#
+## build_artificats_material job for release
+#material_release:
+#  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+#  extends:
+#    - .build_artifacts_material_job
+#    - .release_only_rules
+#
+#########################################
+## SIGN JOBS
+#########################################
+#sign_devel_release_branches_and_maintenance:
+#  # GPG_USER_ID see GitLab variable
+#  # only use when executor is docker
+#  image: buildpkg/debian:buster
+#  stage: sign
+#  script:
+#    - ci-sign-pkg
+#  dependencies:
+#    - build_artifacts_pkg_devel_and_branches_centos_8
+#    - build_artifacts_pkg_devel_and_branches_debian_bullseye
+#    - build_artifacts_pkg_release_centos_8
+#    - build_artifacts_pkg_release_debian_bullseye
+#    - build_artifacts_pkg_maintenance_centos_8
+#    - build_artifacts_pkg_maintenance_debian_bullseye
+#  artifacts:
+#    expire_in: 1 day
+#    paths:
+#      - result/*
+#  tags:
+#    - shell
+#  extends:
+#    - .devel_release_branches_and_maintenance_rules
+#
+#########################################
+## PUBLISH JOBS
+#########################################g
+#publish_ppa_devel_release_branches_and_maintenance::
+#  # only use when executor is docker
+#  image: buildpkg/debian:buster
+#  dependencies:
+#    - sign_devel_release_branches_and_maintenance
+#  extends:
+#    - .publish_job
+#    - .test_rules
+#
+#########################################
+## TEST JOBS
+#########################################
+#### development
+#unit_tests_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#dot1x_eap_peap_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#dot1x_eap_peap_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#mac_auth_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#mac_auth_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#dot1x_eap_tls_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#dot1x_eap_tls_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#fingerbank_invalid_db_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#cli_login_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#cli_login_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#external_integrations_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#captive_portal_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#captive_portal_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .test_devel_branches_and_maintenance_rules
+#
+#### release
+#configurator_el8:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .release_only_rules
+#
+#configurator_deb11:
+#  variables:
+#    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+#  extends:
+#    - .test_job
+#    - .test_script_job
+#    - .release_only_rules
+#
+#########################################
+## DEPLOY JOBS
+#########################################
+#### RPM jobs
+#deploy_devel_rpm:
+#  extends:
+#    - .deploy_rpm_job
+#    - .devel_only_rules
+#  environment:
+#    name: pf-devel
+#
+#deploy_branches_rpm:
+#  extends:
+#    - .deploy_rpm_job
+#    - .branches_only_rules
+#  environment:
+#    name: pf-branches
+#  variables:
+#    RPM_DEPLOY_DIR: branches/x86_64
+#
+#deploy_release_rpm:
+#  extends:
+#    - .deploy_rpm_job
+#    - .release_only_rules
+#  environment:
+#    name: pf-stable
+#
+#deploy_maintenance_rpm:
+#  extends:
+#    - .deploy_rpm_maintenance_job
+#    - .maintenance_only_rules
+#  environment:
+#    name: maintenance
+#
+#### Debian jobs
+#deploy_devel_deb:
+#  extends:
+#    - .deploy_deb_job
+#    - .devel_only_rules
+#  environment:
+#    name: pf-devel
+#  variables:
+#    DEB_DEPLOY_DIR: debian
+#
+#deploy_branches_deb:
+#  extends:
+#    - .deploy_deb_job
+#    - .branches_only_rules
+#  environment:
+#    name: pf-branches
+#  variables:
+#    DEB_DEPLOY_DIR: debian-branches
+#
+#deploy_release_deb:
+#  extends:
+#    - .deploy_deb_job
+#    - .release_only_rules
+#  environment:
+#    name: pf-stable
+#  variables:
+#    DEB_DEPLOY_DIR: debian
+#
+#deploy_maintenance_deb:
+#  extends:
+#    - .deploy_maintenance_deb_job
+#    - .maintenance_only_rules
+#  environment:
+#    name: maintenance
+#  variables:
+#    DEB_DEPLOY_DIR: debian
+#
+#### Common jobs (Deb and RPM)
+#deploy_devel_pkg_friendly_names:
+#  extends:
+#    - .deploy_pkg_friendly_names
+#    - .devel_only_rules
+#  environment:
+#    name: pf-devel
+#  variables:
+#    # Values are automatically generated by deploy-artifacts.sh script based on current PF version
+#    # PKG_DEST_NAME:
+#    # PF_EXPORT_RPM_DEST_NAME:
+#    # PF_EXPORT_DEB_DEST_NAME:
+#
+#deploy_branches_pkg_friendly_names:
+#  extends:
+#    - .deploy_pkg_friendly_names
+#    - .branches_only_rules
+#  environment:
+#    name: pf-branches
+#  variables:
+#    PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
+#    PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
+#    PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
+#
+#deploy_release_pkg_friendly_names:
+#  extends:
+#    - .deploy_pkg_friendly_names
+#    - .release_only_rules
+#  environment:
+#    name: pf-stable
+#  variables:
+#    # Values are automatically generated by deploy-artifacts.sh script based on current PF version    
+#    #PKG_DEST_NAME
+#    #PF_EXPORT_RPM_DEST_NAME
+#    #PF_EXPORT_DEB_DEST_NAME
+#
+#deploy_maintenance_pkg_friendly_names:
+#  extends:
+#    - .deploy_pkg_friendly_names
+#    - .maintenance_only_rules
+#  variables:
+#    # Values are automatically generated by deploy-artifacts.sh script
+#    #PKG_DEST_NAME
+#    #PF_EXPORT_RPM_DEST_NAME
+#    #PF_EXPORT_DEB_DEST_NAME
+#
+## website artifacts
+#deploy_devel_and_branches_website_artifacts:
+#  extends:
+#    - .deploy_website_artifacts_job
+#    - .build_artifacts_website_devel_and_branches_rules
+#
+#deploy_release_website_artifacts:
+#  extends:
+#    - .deploy_website_artifacts_job
+#    - .release_only_rules
 
 ########################################
 # BUILD_PF_IMG JOBS
