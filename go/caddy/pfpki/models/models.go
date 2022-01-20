@@ -145,8 +145,6 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
-		User               string          `json:"user,omitampty"`
-		Node               string          `json:"node,omitempty"`
 	}
 
 	// RevokedCert struct
@@ -178,8 +176,6 @@ type (
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Revoked            time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
-		User               string          `json:"user,omitampty"`
-		Node               string          `json:"node,omitempty"`
 	}
 )
 
