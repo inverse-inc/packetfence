@@ -5,6 +5,10 @@
 
   vars:
     nodejs_version: "12.x"
+    nodejs_npm_global_packages:
+      - name: pm2
+        version: 5.1.2
+    npm_config_unsafe_perm: "true"
     debianPackages:
       - curl
       - python3-pip

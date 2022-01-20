@@ -8,11 +8,3 @@ testcases:
       cd {{.firewall_sso.radius.radius_mock_dir}} && pm2 delete radius_mock.config.js
     assertions:
     - result.code ShouldEqual 0
-
-- name: remove_npm_pm2
-  steps:
-  - type: exec
-    script: |
-      npm remove pm2 -g
-    assertions:
-    - result.code ShouldEqual 0
