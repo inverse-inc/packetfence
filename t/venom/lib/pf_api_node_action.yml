@@ -1,7 +1,7 @@
 executor: pf_api_node_action
 input:
-  body: ""
-  id: {}
+  body: {}
+  id: ""
   method: GET
   status_code: 200
 steps:
@@ -9,9 +9,12 @@ steps:
   mac_address: "{{.input.node_id}}"
 
 - type: pf_api_action
-  body: "{{.input.body}}"
+  body: '{{.input.body}}'
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'node/{{.result.mac_address_url_encoded}}'
-  outpost:
-    pf_api_node_action_json: "{{.result.pf_api_action_json}}"
+  vars:
+    node_temp:
+      from: result.bodyjson 
+outpost:
+  pf_api_node_action_json: "{{.node_temp}}"

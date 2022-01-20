@@ -3,7 +3,8 @@ input:
   body: {}
   method: GET
   status_code: 200
-  url: {}
+  url: ""
+  time_to_sleep: 5
 steps:
 - type: get_login_token
 
@@ -11,10 +12,7 @@ steps:
   method: "{{.input.method}}"
   url: '{{.pfserver_webadmin_url}}/api/v1/{{.input.url}}'
   ignore_verify_ssl: true
-  body: >-
-    {
-      "{{.input.body}}"
-    }
+  body: '{{.input.body}}'
   headers:
     "Authorization": "{{.result.token}}"
     "Content-Type": "application/json"
@@ -25,7 +23,7 @@ steps:
       from: result.bodyjson
 
 - type: sleep
-  time_to_sleep: 5
+  time_to_sleep: "{{.input.time_to_sleep}}"
 
 output:
   pf_api_action_json: "{{.http_json}}"

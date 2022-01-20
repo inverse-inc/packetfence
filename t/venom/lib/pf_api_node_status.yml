@@ -6,5 +6,5 @@ steps:
 - type: pf_api_node_action
   id: "{{.input.id}}"
   status_code: "{{.input.status_code}}"
-  outpost:
-    pf_api_node_status_json: "{{.result.pf_api_node_action_json}}"
+outpost:
+  pf_api_node_status_json: "{{.result.pf_api_node_action_json}}"

@@ -1,6 +1,6 @@
 executor: node01_offline
 steps:
 - type: pf_api_nodes_search_mac_address_online
-  mac_addess: "{{.node01_ens7_mac_address}}"
+  mac_address: "{{.node01_ens7_mac_address}}"
   assertions:
-    - results.pf_api_nodes_search_mac_address_online_json.items.items0.online ShouldEqual off
+    - result.pf_api_nodes_search_mac_address_online_json.items.items0.online ShouldEqual off

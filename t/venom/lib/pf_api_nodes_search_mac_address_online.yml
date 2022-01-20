@@ -1,6 +1,6 @@
 executor: pf_api_nodes_search_mac_address_online
 input:
-  mac_addess: {}
+  mac_address: {}
 steps:
 - type: pf_api_nodes_search
   body: >-
@@ -26,5 +26,5 @@ steps:
         ]
       }
     }
-  outpost:
-    pf_api_nodes_search_mac_address_online_json: "{{result.pf_api_nodes_search_json}}"
+outpost:
+  pf_api_nodes_search_mac_address_online_json: "{{.result.pf_api_nodes_search_json}}"

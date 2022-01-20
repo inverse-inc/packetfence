@@ -8,13 +8,17 @@ steps:
   method: PATCH
   url: 'config/maintenance_task/node_cleanup'
   body: >-
-    "status": "{{.input.status}}"
+    {
+      "status": "{{.input.status}}"
+    }
 
 - type: pf_api_action
   method: PATCH
   url: 'config/maintenance_task/node_cleanup'
   body: >-
-    "delete_window": {
+   { 
+     "delete_window": {
       "interval": "{{.input.interval}}",
       "unit": "{{.input.unit}}"
-    }
+     }
+   }

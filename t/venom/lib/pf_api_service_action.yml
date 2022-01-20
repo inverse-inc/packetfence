@@ -1,20 +1,23 @@
 executor: pf_api_service_action
 input:
-  action: {}
+  action: ""
   body: {}
-  method: {}
-  service: {}
-  status_code: {}
+  method: ""
+  service: ""
+  status_code: ""
   time_to_sleep: 5
 steps:
 - type: pf_api_action
-  body: "{{.input.body}}"
+  body: '{{.input.body}}'
   status_code: "{{.input.status_code}}"
   method: "{{.input.method}}"
   url: 'service/{{.input.service}}/{{.input.action}}'
+  vars:
+    service_temp:
+       from: result.pf_api_action_json
 
 - type: sleep
   time_to_sleep: "{{.input.time_to_sleep}}"
 
 output: 
-  pf_api_service_action_json: "{{.result.pf_api_action_json}}"
+  pf_api_service_action_json: "{{.service_temp}}"

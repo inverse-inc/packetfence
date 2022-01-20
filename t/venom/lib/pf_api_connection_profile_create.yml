@@ -1,11 +1,11 @@
 executor: pf_api_connection_profiles
 input:
-  connection_type: {}
-  connection_subtype: {}
-  id: {}
-  desc: {}
-  source: {}
-  unreg_on_acct_stop: {}
+  connection_type: ""
+  connection_subtype: ""
+  id: ""
+  desc: ""
+  source: ""
+  unreg_on_acct_stop: ""
 steps:
 - type: pf_api_action
   method: POST

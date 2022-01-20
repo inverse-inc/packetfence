@@ -1,12 +1,12 @@
 executor: pf_api_source_action
 input:
   body: {}
-  id: {}
+  id: ""
   method: GET
-  status_code: {}
+  status_code: ""
 steps:
 - type: pf_api_action
-  body: "{{.input.body}}"
+  body: '{{.input.body}}'
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'config/source/{{.input.id}}'

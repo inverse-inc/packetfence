@@ -1,42 +1,44 @@
 executor: pf_api_pki_profiles
 input:
-  ca_id: {}
-  name: {}
-  validity: {}
-  key_type: {}
-  digest: {}
-  key_usage: {}
-  extended_key_usage": {}
-  key_size: {}
-  organisational_unit: {}
-  organisation: {}
-  country: {}
-  state: {}
-  locality: {}
-  ocsp_url: {}
-  scep_enabled: {}
-  scep_challenge_password: {}
-  scep_days_before_renewal: {}
+  ca_id: ""
+  name: ""
+  validity: ""
+  key_type: ""
+  digest: ""
+  key_usage: ""
+  extended_key_usage": ""
+  key_size: ""
+  organisational_unit: ""
+  organisation: ""
+  country: ""
+  state: ""
+  locality: ""
+  ocsp_url: ""
+  scep_enabled: ""
+  scep_challenge_password: ""
+  scep_days_before_renewal: ""
 steps:
 - type: pf_api_action
   body: >-
-    "ca_id": "{{.input.ca_id}}",
-    "name": "{{.input.name}}",
-    "validity": "{{.input.validity}}",
-    "key_type": "{{.input.key_type}}",
-    "digest": "{{.input.digest}}",
-    "key_usage": "{{input.key_usage}}",
-    "extended_key_usage": "{{input.extended_key_usage}}",
-    "key_size": "{{.input.key_size}}",
-    "organisational_unit": "{{.input.organisational_unit}}",
-    "organisation": "{{.input.organisation}}",
-    "country": "{{.input.country}}",
-    "state": "{{.input.state}}",
-    "locality": "{{.input.locality}}",
-    "ocsp_url": "{{.input.ocsp_url}}",
-    "scep_challenge_password": "{{input.scep_challenge_password}}",
-    "scep_days_before_renewal": "{{.input.scep_days_before_renewal}}"
+    {
+      "ca_id": "{{.input.ca_id}}",
+      "name": "{{.input.name}}",
+      "validity": "{{.input.validity}}",
+      "key_type": "{{.input.key_type}}",
+      "digest": "{{.input.digest}}",
+      "key_usage": "{{input.key_usage}}",
+      "extended_key_usage": "{{input.extended_key_usage}}",
+      "key_size": "{{.input.key_size}}",
+      "organisational_unit": "{{.input.organisational_unit}}",
+      "organisation": "{{.input.organisation}}",
+      "country": "{{.input.country}}",
+      "state": "{{.input.state}}",
+      "locality": "{{.input.locality}}",
+      "ocsp_url": "{{.input.ocsp_url}}",
+      "scep_challenge_password": "{{input.scep_challenge_password}}",
+      "scep_days_before_renewal": "{{.input.scep_days_before_renewal}}"
+    }
   method: POST
   url: "pki/profiles"
-  outpost:
-    pf_api_pki_profiles_json: "{{.result.pf_api_action_json}}" 
+outpost:
+  pf_api_pki_profiles_json: "{{.result.pf_api_action_json}}" 

@@ -3,8 +3,8 @@ input:
   body: {}
 steps:
 - type: pf_api_action
-  url: 'nodes/search'
-  body: "{{.input.body}}"
+  url: "nodes/search"
+  body: '{{.input.body}}'
   method: POST
 output:
   pf_api_nodes_search_json: "{{.result.pf_api_action_json}}"
