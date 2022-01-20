@@ -18,9 +18,10 @@ BEGIN
 
     SET @end_bucket= p_end_bucket, @batch = p_batch;
     SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
-    SET @insert_into_to_delete_stmt = CONCAT('CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation ENGINE=MEMORY, MAX_ROWS=', @batch,' SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting FORCE INDEX (bandwidth_source_type_time_bucket) WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) ORDER BY time_bucket LIMIT ?');
 
+    SET @insert_into_to_delete_stmt = CONCAT('INSERT to_delete_bandwidth_aggregation SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) ORDER BY time_bucket LIMIT ?');
     START TRANSACTION;
+    CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0;
     EXECUTE IMMEDIATE @insert_into_to_delete_stmt USING @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_aggregation;
     IF @count > 0 THEN
@@ -63,7 +64,8 @@ BEGIN
     SET @batch = p_batch;
     SET @end_bucket = p_end_bucket;
     START TRANSACTION;
-    EXECUTE IMMEDIATE 'CREATE OR REPLACE TEMPORARY TABLE to_process_bandwidth_accounting_netflow ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? LIMIT ?' USING @end_bucket, @batch;
+    CREATE OR REPLACE TEMPORARY TABLE to_process_bandwidth_accounting_netflow ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
+    EXECUTE IMMEDIATE 'INSERT to_process_bandwidth_accounting_netflow SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < ? LIMIT ?' USING @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_process_bandwidth_accounting_netflow;
     IF @count > 0 THEN
         UPDATE
@@ -107,7 +109,8 @@ BEGIN
     SET @batch = p_batch;
     SET @end_bucket = p_end_bucket;
     START TRANSACTION;
-    EXECUTE IMMEDIATE CONCAT('CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_accounting_radius_to_history ENGINE=MEMORY, MAX_ROWS=', @batch, ' SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ? FOR UPDATE') USING @end_bucket, @batch;
+    CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_accounting_radius_to_history ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting LIMIT 0;
+    EXECUTE IMMEDIATE 'INSERT to_delete_bandwidth_accounting_radius_to_history SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ? FOR UPDATE' USING @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_accounting_radius_to_history;
 
     IF @count > 0 THEN
@@ -149,7 +152,8 @@ BEGIN
     SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
 
     START TRANSACTION;
-    EXECUTE IMMEDIATE CONCAT('CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation_history ENGINE=MEMORY, MAX_ROWS=',@batch , ' SELECT node_id, tenant_id, mac, ', @date_rounding,'(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != ', @date_rounding, '(time_bucket) ORDER BY time_bucket LIMIT ? FOR UPDATE') USING @end_bucket, @batch;
+    CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation_history ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history LIMIT 0;
+    EXECUTE IMMEDIATE CONCAT('INSERT to_delete_bandwidth_aggregation_history SELECT node_id, tenant_id, mac, ', @date_rounding,'(time_bucket) as new_time_bucket, time_bucket, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= ? AND time_bucket != ', @date_rounding, '(time_bucket) ORDER BY time_bucket LIMIT ? FOR UPDATE') USING @end_bucket, @batch;
     SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_aggregation_history;
     IF @count > 0 THEN
         INSERT INTO bandwidth_accounting_history
