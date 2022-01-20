@@ -7,13 +7,15 @@
     test_suites:
       - configurator
       - global_config
-      - wired_dot1x_eap_peap
-      - wired_dot1x_eap_peap/teardown
-      - wired_dot1x_eap_peap_firewall_sso_https
-      - wired_dot1x_eap_peap_firewall_sso_https/teardown
-      - wireless_dot1x_eap_peap
-      - wireless_dot1x_eap_peap/teardown
-      - global_teardown
+#      - wired_dot1x_eap_peap
+#      - wired_dot1x_eap_peap/teardown
+#      - wired_dot1x_eap_peap_firewall_sso_https
+#      - wired_dot1x_eap_peap_firewall_sso_https/teardown
+      - wired_dot1x_eap_peap_firewall_sso_radius
+#      - wired_dot1x_eap_peap_firewall_sso_radius/teardown
+#      - wireless_dot1x_eap_peap
+#      - wireless_dot1x_eap_peap/teardown
+#      - global_teardown
 
   tasks:
     - name: Run Venom testsuites
@@ -26,7 +28,8 @@
           # temp, overcome Venom issue:
           # - when running test suite one by one, previous logs and results are overriden
           # Venom will create one directory per test suite to store results
-          VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}'
+          VENOM_COMMON_FLAGS: '--output-dir={{ venom_dir }}/results/{{ item }}
+            --var test_suite_results_dir={{ venom_dir }}/results/{{ item }}'
 
       # add inventory__group_environment to Ansible environment
       # useful to make env vars available for Venom

@@ -5,6 +5,7 @@
 # Variables assigned based on environment variables
 venom_dir: /usr/local/pf/t/venom
 test_suites_dir: '{{.venom_dir}}/test_suites'
+test_suite_results_dir: '{{.venom_dir}}/results'
 switch_test_suite_dir: '{{.venom_dir}}/switches'
 nodes_test_suite_dir: '{{.test_suites_dir}}/nodes'
 
