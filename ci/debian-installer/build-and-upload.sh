@@ -27,7 +27,7 @@ mkdir -p ${SF_RESULT_DIR}
 
 # Manifest need to be generate by hand because we modify OVF during last step
 echo "===> Build ISO for release $PF_RELEASE"
-PF_RELEASE=$PF_RELEASE ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" sudo /var/local/gitlab-runner/builds/EGRXY5p9/0/inverse-inc/packetfence/ci/debian-installer/create-debian-installer.sh
+sudo PF_RELEASE=$PF_RELEASE ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" /var/local/gitlab-runner/builds/EGRXY5p9/0/inverse-inc/packetfence/ci/debian-installer/create-debian-installer.sh
 
 echo "===> Upload to Sourceforge"
 upload_to_sf
