@@ -43,8 +43,9 @@ testcases:
 
         [ alt_names ]
         DNS.1 = {{.wired_dot1x_eap_tls_scep.certs.user.dns1}}
-        email.1 = {{.wired_dot1x_eap_tls_scep.certs.user.mail}}
-        otherName = 1.3.6.1.4.1.311.20.2.3;UTF8:{{.wired_dot1x_eap_tls_scep.certs.user.mail}}
+        email.1 = {{.wired_dot1x_eap_tls_scep.certs.user.email}}
+        # first number is an OID to identify attribute
+        otherName = 1.3.6.1.4.1.311.20.2.3;UTF8:{{.wired_dot1x_eap_tls_scep.certs.user.other_name}}
         EOF
         
 - name: generate_csr_with_challenge
@@ -102,10 +103,13 @@ testcases:
       script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -email'
       # exact match
       assertions:
-        - result.systemout ShouldEqual "{{.wired_dot1x_eap_tls_scep.certs.user.mail}}"
+        - result.systemout ShouldEqual "{{.wired_dot1x_eap_tls_scep.certs.user.email}}"
 
-    # check subjectAltName which can contains mail, IP addresses and DNS
+    # check subjectAltName which can contains mail, IP addresses, DNS and otherName
     # here we check for DNS
+    # otherName value can be read using:
+    # openssl asn1parse -in client.pem (to get offset of SAN)
+    # openssl asn1parse -in client.epm -strparse OFFSET_NUMBER
     - type: exec
       script: 'openssl x509 -in {{.create_temp_directory.temp_dir}}/client.pem -noout -ext subjectAltName'
       assertions:

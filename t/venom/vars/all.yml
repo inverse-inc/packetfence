@@ -403,7 +403,8 @@ wired_dot1x_eap_tls_scep.certs.user.cn: '{{.wired_dot1x_eap_tls_scep.templates.u
 wired_dot1x_eap_tls_scep.certs.user.extended_key_usage.number: 2
 wired_dot1x_eap_tls_scep.certs.user.extended_key_usage.text: TLS Web Client Authentication
 wired_dot1x_eap_tls_scep.certs.user.dns1: '{{.node01_hostname}}'
-wired_dot1x_eap_tls_scep.certs.user.mail: '{{.node01_hostname}}@{{.configurator.domain}}'
+wired_dot1x_eap_tls_scep.certs.user.email: '{{.node01_hostname}}@{{.configurator.domain}}'
+wired_dot1x_eap_tls_scep.certs.user.other_name: '{{.node01_hostname}}-alias@{{.configurator.domain}}'
 wired_dot1x_eap_tls_scep.certs.user.scep_enabled: 1
 wired_dot1x_eap_tls_scep.certs.user.scep_challenge_password: secret
 wired_dot1x_eap_tls_scep.certs.user.scep_days_before_renewal: 7
