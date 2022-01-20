@@ -833,27 +833,27 @@ variables:
 #    - .deploy_website_artifacts_job
 #    - .release_only_rules
 
-########################################
-# BUILD_PF_IMG JOBS
-########################################
-### build_pf_img_zen jobs
-build_pf_img_zen_devel:
-  extends:
-    - .build_pf_img_zen_job
-    - .build_pf_img_zen_devel_rules
-  script:
-    - make -e -C ${ZENDIR} zen-deb11
-
-build_pf_img_zen_release:
-  extends:
-    - .build_pf_img_zen_job
-  script:
-    - make -e -C ${ZENDIR} zen-deb11
-  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: manual
-      allow_failure: true
+#########################################
+## BUILD_PF_IMG JOBS
+#########################################
+#### build_pf_img_zen jobs
+#build_pf_img_zen_devel:
+#  extends:
+#    - .build_pf_img_zen_job
+#    - .build_pf_img_zen_devel_rules
+#  script:
+#    - make -e -C ${ZENDIR} zen-deb11
+#
+#build_pf_img_zen_release:
+#  extends:
+#    - .build_pf_img_zen_job
+#  script:
+#    - make -e -C ${ZENDIR} zen-deb11
+#  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+#  rules:
+#    - if: '$CI_COMMIT_TAG'
+#      when: manual
+#      allow_failure: true
 
 ### build_pf_img_iso jobs
 build_pf_img_iso_devel:
