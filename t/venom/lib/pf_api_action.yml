@@ -18,6 +18,7 @@ steps:
     "Content-Type": "application/json"
   assertions:
     - result.statuscode ShouldEqual "{{.input.status_code}}"
+    - result.bodyjson.__type__ ShouldEqual Map
   vars:
     http_json:
       from: result.bodyjson
@@ -26,4 +27,4 @@ steps:
   time_to_sleep: "{{.input.time_to_sleep}}"
 
 output:
-  pf_api_action_json: "{{.http_json}}"
+  pf_api_action_: "{{.http_json}}"

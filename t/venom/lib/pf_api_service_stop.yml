@@ -1,13 +1,13 @@
-executor: pf_api_service_start
+executor: pf_api_service_stop
 input:
   service: ""
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
-  action: "start"
+  action: "stop"
   method: POST
 
 - type: pf_api_service_status
   service: "{{.input.service}}"
   assertions:
-    - result.pf_api_service_status_json.alive ShouldEqual 1
+    - result.pf_api_service_status_json.alive ShouldEqual 0
