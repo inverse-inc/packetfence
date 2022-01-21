@@ -986,6 +986,11 @@ EOT
 detail $realm {
         filename = \${radacctdir}/$realm/detail-%Y%m%d:%H:%G
 }
+
+detail error-$realm {
+        filename = \${radacctdir}/$realm/error-%Y%m%d
+}
+
 EOT
         # Generate Eduroam realms config
         my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
