@@ -1,0 +1,24 @@
+name: testsuite json accross executors
+testcases:
+- name: customT
+  steps:
+  - type: customT
+    info:
+      - "{{.result}}"
+      - "{{.result.all0}}"
+      - "{{.result.result1.all0json}}"
+      - "{{.result.result1.all0json.fieldname}}"
+      - "{{.result.result2.all1json}}"
+      - "{{.result.result2.all1json.fieldname}}"
+      - "{{.result.allbjson}}"
+      - "{{.result.result3.allbjson}}"
+
+- name: customlU
+  steps:
+  - type: customU
+    info:
+      - "{{.result.ally0}}"
+      - "{{.result.ally0json.fieldname}}"
+      - "{{.result.allyb}}"
+    assertions:
+      - result.ally0json ShouldContainKey fieldName

@@ -1,0 +1,17 @@
+name: testsuite json accross executors
+testcases:
+- name: customR
+  steps:
+  - type: customR
+    info:
+      - "{{.result}}"
+      - "{{.result.allb}}"
+      - "{{.result.result0.allb}}"
+      - "{{.result.result1.allr}}"
+
+- name: customlS
+  steps:
+  - type: customS
+    info:
+      - "{{.result}}"
+      - "{{.result.allyb}}"

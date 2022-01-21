@@ -1,0 +1,14 @@
+executor: customU
+steps:
+- type: customT
+  vars:
+    ally0_temp:
+      from: result.result1json.all0
+    #allyb_temp:
+       #from: result.result2json.allb
+- type: exec
+  script: sleep 5
+
+output:
+  ally0: "{{.ally0_temp}}"
+  #allyb: "{{.allyb_temp}}"

@@ -1,0 +1,14 @@
+executor: customS
+steps:
+- type: customR
+  vars:
+    allyb_temp:
+      from: result.result0.allb
+    allyr_temp:
+      from: result.result1.allr
+- type: exec
+  script: sleep 5
+
+output:
+  allyb: "{{.allyb_temp}}"
+  allyr: "{{.allyr_temp}}"
