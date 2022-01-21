@@ -158,7 +158,7 @@ variables:
 # - all branches, except maintenance/X.Y and devel (web) if variable BUILD_PF_IMG_ISO sets to yes or if CI_COMMIT_MESSAGE contains "build_pf_img_iso=yes".
 .build_pf_img_iso_devel_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "feature/debian-installer" && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_iso=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME == "feature/debian-installer.with.dots" && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_iso=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_ISO=yes/ )'
 
 # run this job on:
