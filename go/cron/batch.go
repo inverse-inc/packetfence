@@ -48,11 +48,16 @@ func BatchStmtQueryWithCount(ctx context.Context, time_limit time.Duration, stmt
 			break
 		}
 
-		if count <= 0 {
+		if count == 0 {
 			break
 		}
 
-		rows_affected += count
+		if count < 0 {
+			log.LogWarn(ctx, "Retrying statement query")
+		} else {
+			rows_affected += count
+		}
+
 		if time.Now().Sub(start) > time_limit {
 			break
 		}
