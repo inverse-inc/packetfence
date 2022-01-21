@@ -1,0 +1,50 @@
+name: testsuite test pf api body output
+testcases:
+- name: service restart pf_api_action
+  steps:
+  - type: pf_api_action
+    status_code: 200
+    method: POST
+    url: 'service/pfcron/restart'
+    info:
+     - "{{.result}}"
+     - "{{.result.pf_api_action_json.restart}}"
+    assertions:
+      - result.pf_api_action_json.restart ShouldEqual 1
+
+- name: service status pf_api_action
+  steps:
+  - type: pf_api_action
+    status_code: 200
+    method: GET
+    url: 'service/pfcron/status'
+    info:
+     - "{{.result}}"
+    assertions:
+      - result.pf_api_action_json.alive ShouldEqual 1
+
+- name: service status pf_api_service_action
+  steps:
+  - type: pf_api_service_action
+    status_code: 200
+    method: GET
+    service: pfcron
+    action: status
+    info:
+     - "{{.result}}"
+    assertions:
+      - result.pf_api_service_action_json.alive ShouldEqual 1
+
+- name: service status pf_api_service_status
+  steps:
+  - type: pf_api_service_status
+    service: pfcron
+    info:
+     - "{{.result}}"
+    assertions:
+      - result.pf_api_service_status_json.alive ShouldEqual 1
+
+- name: service status pf_api_service_restart
+  steps:
+  - type: pf_api_service_restart
+    service: pfcron
