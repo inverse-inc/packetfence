@@ -15,41 +15,48 @@ CREATE OR REPLACE PROCEDURE `bandwidth_aggregation` (
   IN `p_batch` int(11) unsigned
 )
 BEGIN
-
+    SET @count = 0;
     SET @end_bucket= p_end_bucket, @batch = p_batch;
     SET @date_rounding = CASE WHEN p_bucket_size = 'monthly' THEN 'ROUND_TO_MONTH' WHEN p_bucket_size = 'daily' THEN 'DATE' ELSE 'ROUND_TO_HOUR' END;
 
-    SET @insert_into_to_delete_stmt = CONCAT('INSERT to_delete_bandwidth_aggregation SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) ORDER BY time_bucket LIMIT ?');
+    SET @insert_into_to_delete_stmt = CONCAT('INSERT to_delete_bandwidth_aggregation SELECT node_id, tenant_id, mac, ',@date_rounding,'(time_bucket) as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting WHERE time_bucket <= ? AND source_type = "radius" AND time_bucket != ',@date_rounding,'(time_bucket) LIMIT ? FOR UPDATE');
     START TRANSACTION;
-    CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0;
-    EXECUTE IMMEDIATE @insert_into_to_delete_stmt USING @end_bucket, @batch;
-    SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_aggregation;
-    IF @count > 0 THEN
+    tblock: BEGIN
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            SET @count = -1;
+            ROLLBACK;
+        END;
+        CREATE OR REPLACE TEMPORARY TABLE to_delete_bandwidth_aggregation ENGINE=MEMORY SELECT node_id, tenant_id, mac, time_bucket as new_time_bucket, time_bucket, unique_session_id, in_bytes, out_bytes, last_updated FROM bandwidth_accounting LIMIT 0;
+        EXECUTE IMMEDIATE @insert_into_to_delete_stmt USING @end_bucket, @batch;
+        SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_aggregation;
+        IF @count > 0 THEN
 
-        INSERT INTO bandwidth_accounting
-        (node_id, unique_session_id, tenant_id, mac, time_bucket, in_bytes, out_bytes, last_updated, source_type)
-         SELECT
-             node_id,
-             unique_session_id,
-             tenant_id,
-             mac,
-             new_time_bucket,
-             sum(in_bytes) AS in_bytes,
-             sum(out_bytes) AS out_bytes,
-             MAX(last_updated),
-             "radius"
-            FROM to_delete_bandwidth_aggregation
-            GROUP BY node_id, unique_session_id, new_time_bucket
-            ON DUPLICATE KEY UPDATE
-                in_bytes = in_bytes + VALUES(in_bytes),
-                out_bytes = out_bytes + VALUES(out_bytes),
-                last_updated = GREATEST(last_updated, VALUES(last_updated))
-            ;
+            INSERT INTO bandwidth_accounting
+            (node_id, unique_session_id, tenant_id, mac, time_bucket, in_bytes, out_bytes, last_updated, source_type)
+             SELECT
+                 node_id,
+                 unique_session_id,
+                 tenant_id,
+                 mac,
+                 new_time_bucket,
+                 sum(in_bytes) AS in_bytes,
+                 sum(out_bytes) AS out_bytes,
+                 MAX(last_updated),
+                 "radius"
+                FROM to_delete_bandwidth_aggregation
+                GROUP BY node_id, unique_session_id, new_time_bucket
+                ON DUPLICATE KEY UPDATE
+                    in_bytes = in_bytes + VALUES(in_bytes),
+                    out_bytes = out_bytes + VALUES(out_bytes),
+                    last_updated = GREATEST(last_updated, VALUES(last_updated))
+                ;
 
-        DELETE bandwidth_accounting
-            FROM  bandwidth_accounting RIGHT JOIN to_delete_bandwidth_aggregation USING(node_id, time_bucket, unique_session_id);
-    END IF;
-    COMMIT;
+            DELETE bandwidth_accounting
+                FROM  bandwidth_accounting RIGHT JOIN to_delete_bandwidth_aggregation USING(node_id, time_bucket, unique_session_id);
+        END IF;
+        COMMIT;
+    END tblock;
 
     SELECT @count AS aggreated;
 END /
