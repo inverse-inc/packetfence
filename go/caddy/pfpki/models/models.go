@@ -2,6 +2,7 @@ package models
 
 import (
 	"crypto"
+	"html/template"
 	"net"
 	"time"
 
@@ -27,7 +28,6 @@ import (
 
 	"context"
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 
@@ -1301,7 +1301,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		Information.Raw = pkcs12
 		Information.ContentType = "application/x-pkcs12"
 	} else {
-		Information, err = email(c.Ctx, cert, prof, pkcs12, password)
+		Information, err = emailcert(c.Ctx, cert, prof, pkcs12, password)
 	}
 
 	return Information, err
@@ -1379,7 +1379,7 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	var certdb []Cert
 
-	if CertDB := c.DB.Where("alert <> ? and scep <>", 1, 1).Find(&certdb); CertDB.Error != nil {
+	if CertDB := c.DB.Where("alert <> ?", 1).Find(&certdb); CertDB.Error != nil {
 		Information.Error = CertDB.Error.Error()
 		return Information, CertDB.Error
 	}
@@ -1399,12 +1399,17 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			params["reason"] = strconv.Itoa(ocsp.Superseded)
 			c.Revoke(params)
 		}
-		if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewal)*24*time.Hour).Seconds()) < time.Now().Unix() {
-			// Send Email
+		if *v.Scep == false {
+			if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewal)*24*time.Hour).Seconds()) < time.Now().Unix() {
+				emailRenewal(c.Ctx, v, prof)
+				notfalse := true
+				v.Alert = &notfalse
+				c.DB.Save(&v)
+			}
 		}
 	}
 
-	Information.Entries = certdb
+	// Information.Entries = certdb
 
 	return Information, nil
 }
@@ -1477,9 +1482,57 @@ type EmailType struct {
 	Header   string
 	Footer   string
 	Password string
+	To       string
+	From     string
+	Subject  string
+	FileName string
+	File     []byte
+	Template string
 }
 
-func email(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+func emailcert(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	alerting := pfconfigdriver.Config.PfConf.Alerting
+
+	mail := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
+	if len(profile.P12MailFrom) > 0 {
+		mail.From = profile.P12MailFrom
+	} else {
+		mail.From = alerting.FromAddr
+	}
+	mail.To = cert.Mail
+	mail.Subject = profile.P12MailSubject
+	mail.FileName = cert.Cn
+	mail.Template = "emails-pki_certificate.html"
+	mail.File = file
+	mail.Password = password
+	return email(ctx, mail)
+}
+
+func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	alerting := pfconfigdriver.Config.PfConf.Alerting
+
+	mail := EmailType{}
+	mail.From = alerting.FromAddr
+
+	if cert.Mail != "" {
+		mail.To = cert.Mail
+	} else if profile.Mail != "" {
+		mail.To = profile.Mail
+	} else {
+		mail.To = alerting.EmailAddr
+	}
+	mail.Subject = "Certificate Renewall"
+	mail.FileName = profile.Name + " : " + cert.Cn
+	mail.Template = "emails-renewal_certificate.html"
+	mail.Header = "Hello"
+	mail.Footer = "Bye"
+
+	return email(ctx, mail)
+}
+
+func email(ctx context.Context, email EmailType) (types.Info, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	alerting := pfconfigdriver.Config.PfConf.Alerting
@@ -1500,41 +1553,22 @@ func email(ctx context.Context, cert Cert, profile Profile, file []byte, passwor
 	message.DefaultCatalog = cat
 
 	m := gomail.NewMessage()
-	if len(profile.P12MailFrom) > 0 {
-		m.SetHeader("From", profile.P12MailFrom)
-	} else {
-		m.SetHeader("From", alerting.FromAddr)
-	}
-	m.SetHeader("To", cert.Mail)
-	m.SetHeader("Subject", profile.P12MailSubject)
 
-	email := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
-
-	// Undefined Header
-	if profile.P12MailHeader == "" {
-		email.Header = "msg_header"
-	}
-	// Undefined Footer
-	if profile.P12MailHeader == "" {
-		email.Footer = "msg_footer"
-	}
-
-	if profile.P12MailPassword == 1 {
-		email.Password = password
-		Information.Password = password
-	}
+	m.SetHeader("From", email.From)
+	m.SetHeader("To", email.To)
+	m.SetHeader("Subject", email.Subject)
 
 	lang := language.MustParse(advanced.Language)
 
-	emailContent, err := parseTemplate("emails-pki_certificate.html", lang, email)
+	emailContent, err := parseTemplate(email.Template, lang, email)
 
 	m.SetBody("text/html", emailContent)
-
-	m.Attach(cert.Cn+".p12", gomail.SetCopyFunc(func(w io.Writer) error {
-		_, err := w.Write(file)
-		return err
-	}))
-
+	if len(email.File) > 0 {
+		m.Attach(email.FileName+".p12", gomail.SetCopyFunc(func(w io.Writer) error {
+			_, err := w.Write(email.File)
+			return err
+		}))
+	}
 	d := gomail.NewDialer(alerting.SMTPServer, alerting.SMTPPort, alerting.SMTPUsername, alerting.SMTPPassword)
 
 	if alerting.SMTPVerifySSL == "disabled" || alerting.SMTPEncryption == "none" {
@@ -1557,12 +1591,12 @@ func parseTemplate(tplName string, lang language.Tag, data interface{}) (string,
 
 	t, err := template.New(tplName).Funcs(fmap).ParseFiles("/usr/local/pf/html/captive-portal/templates/emails/" + tplName)
 	if err != nil {
-		return "", fmt.Errorf("cannot parse template")
+		return "", err
 	}
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := t.Execute(buf, data); err != nil {
-		return "", fmt.Errorf("cannot execute parse template")
+		return "", err
 	}
 
 	return buf.String(), nil
