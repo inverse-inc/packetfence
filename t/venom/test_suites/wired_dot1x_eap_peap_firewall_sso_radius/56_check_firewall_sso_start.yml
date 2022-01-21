@@ -9,6 +9,5 @@ testcases:
     assertions:
       - result.code ShouldEqual 0
       - result.systemoutjson.code ShouldEqual "Accounting-Request"
-      - result.systemoutjson.attributes.acct-status-type ShouldEqual "Stop"
+      - result.systemoutjson.attributes.acct-status-type ShouldEqual "Start"
       - result.systemoutjson.attributes.user-name ShouldEqual "{{.ad_domain_user}}"
-

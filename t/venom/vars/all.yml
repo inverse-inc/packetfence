@@ -582,7 +582,7 @@ smocker_dir: /opt/smocker
 # RADIUS Firewall SSO
 firewall_sso.radius.api_host: '{{.pfserver_mgmt_ip}}'
 firewall_sso.radius.api_port: 8083
-firewall_sso.radius.radius_host: '{{.pfserver_mgmt_ip}}'
+firewall_sso.radius.radius_host: '127.0.0.1'
 firewall_sso.radius.radius_port: 8084
 firewall_sso.radius.radius_secret: secret
 firewall_sso.radius.radius_user_name: foo

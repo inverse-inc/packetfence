@@ -1,19 +1,12 @@
 name: Create RADIUS mock
 testcases:
 
-- name: install_radius_mock
+- name: install_configure_radius_mock
   steps:
-  - type: exec
-    script: |
+  - script: |
       cd {{.firewall_sso.radius.radius_mock_dir}}
       npm install
-    assertions:
-    - result.code ShouldEqual 0
-
-- name: configure_radius_mock
-  steps:
-  - type: exec
-    script: |
+      npm install pm2 -g
       cat << EOF > {{.firewall_sso.radius.radius_mock_dir}}/radius_mock.config.js
       module.exports = {
         apps: [
@@ -41,12 +34,14 @@ testcases:
         ]
       };
       EOF
+    assertions:
+    - result.code ShouldEqual 0
 
-- name: create_radius_mock
+- name: start_radius_mock
   steps:
-  - type: exec
-    script: |
-      cd {{.firewall_sso.radius.radius_mock_dir}} && pm2 start radius_mock.config.js --env production
+  - script: |
+      cd {{.firewall_sso.radius.radius_mock_dir}}
+      pm2 start radius_mock.config.js --env production
     assertions:
     - result.code ShouldEqual 0
 
@@ -62,8 +57,8 @@ testcases:
     script: |
       curl -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history
     assertions:
-      - result.code ShouldEqual 0
-      - result.systemout ShouldEqual []
+    - result.code ShouldEqual 0
+    - result.systemout ShouldEqual []
 
 - name: check_radclient_success
   steps:
@@ -87,8 +82,8 @@ testcases:
     script: |
       curl -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history
     assertions:
-      - result.code ShouldEqual 0
-      - result.systemoutjson ShouldHaveLength 2
+    - result.code ShouldEqual 0
+    - result.systemoutjson ShouldHaveLength 2
 
 - name: delete_radius_mock_api_history
   steps:
@@ -96,5 +91,5 @@ testcases:
     script: |
       curl -X DELETE -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history
     assertions:
-      - result.code ShouldEqual 0
-      - result.systemoutjson ShouldHaveLength 0
+    - result.code ShouldEqual 0
+    - result.systemoutjson ShouldHaveLength 0

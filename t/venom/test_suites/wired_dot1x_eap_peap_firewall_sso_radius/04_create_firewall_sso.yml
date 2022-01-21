@@ -14,7 +14,7 @@ testcases:
       {
         "id": "{{.firewall_sso.radius.radius_host}}",
         "categories": ["{{.eap_peap.roles.ad_user.id}}"],
-        "password": "{{.firewall_sso.radius.password}}",
+        "password": "{{.firewall_sso.radius.radius_secret}}",
         "port": {{.firewall_sso.radius.radius_port}},
         "tenant_id": 1,
         "type": "{{.firewall_sso.radius.type}}",
