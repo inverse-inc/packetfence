@@ -41,6 +41,12 @@ sub cleanupAfterRead {
     if(ref($profile->{options}) eq 'ARRAY'){
         $profile->{options} = $self->join_options($profile->{options});
     }
+    if(ref($profile->{radius_acct_virtual_server_options}) eq 'ARRAY'){
+        $profile->{radius_acct_virtual_server_options} = $self->join_options($profile->{radius_acct_virtual_server_options});
+    }
+    if(ref($profile->{radius_auth_virtual_server_options}) eq 'ARRAY'){
+        $profile->{radius_auth_virtual_server_options} = $self->join_options($profile->{radius_auth_virtual_server_options});
+    }
 }
 
 =head2 cleanupBeforeCommit
