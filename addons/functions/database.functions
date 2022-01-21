@@ -24,13 +24,13 @@ function import_mysqldump() {
     exit 1
   fi
 
-  mariadb_args=""
+  mariadb_args="--defaults-file=`pwd`/setup_mycnf"
   # we need a grant dump generated via: mysql ${MYSQL_CONN} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql ${MYSQL_CONN} --skip-column-names -A | sed 's/$/;/g' > grants.sql
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
-    mariadb_args="$mariadb_args -p'$mariadb_root_pass'"
+    setup_mycnf $mariadb_root_pass
   fi
 
   db_name=`get_db_name $pf_conf`
@@ -146,18 +146,26 @@ function get_db_upgrade_scripts() {
   echo $db_scripts
 }
 
+function setup_mycnf() {
+  cat <<EOT > setup_mycnf
+[client]
+user=root
+password=$1
+EOT
+}
+
 function upgrade_database() {
-  mariadb_args=""
+  mariadb_args="--defaults-file=`pwd`/setup_mycnf"
   if ! test_db_connection_no_creds; then
     echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
     echo -n "Please enter the root password for MariaDB:"
     read -s mariadb_root_pass
     echo
-    mariadb_args="$mariadb_args -p'$mariadb_root_pass'"
+    setup_mycnf $mariadb_root_pass
   fi
 
   db_name="$1"
-  db_version=`mysql $mariadb_args $db_name -e "select version from pf_version order by id desc limit 1;" | egrep -o '^[0-9]+\.[0-9]+'`  
+  db_version=`mysql ${mariadb_args} $db_name -e "select version from pf_version order by id desc limit 1;" | egrep -o '^[0-9]+\.[0-9]+'`  
   echo "Database $db_name runs version $db_version"
   if [ -z "$db_version" ]; then
     echo "Unable to find DB version"
@@ -168,7 +176,7 @@ function upgrade_database() {
   for script in $scripts; do
     sub_splitter
     echo "Running $script"
-    mysql -v $mariadb_args $db_name < $script
+    mysql ${mariadb_args} -v $db_name < $script
     check_code $?
   done
   
