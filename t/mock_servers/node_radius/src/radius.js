@@ -3,9 +3,10 @@ const Dgram = require('dgram')
 const db = require('node-persist')
 
 const codes = {
-  request: 'Access-Request',
-  reject: 'Access-Reject',
-  accept: 'Access-Accept'
+  access_request: 'Access-Request',
+  access_reject: 'Access-Reject',
+  access_accept: 'Access-Accept',
+  accounting_response: 'Accounting-Response'
 }
 
 const mock = {}
@@ -35,42 +36,55 @@ mock.radius = function (host, port, secret, user_name, user_password) {
   })
 
   this.socket.on('message', (message, client) => {
-    let code
+    let response_code
 
     const request = Radius.decode({
         packet: message,
         secret: this.secret
     })
+    const { code, identifer, length, attributes, attributes: {
+      'Acct-Status-Type': _acct_status_type,
+      'User-Name': _user_name,
+      'User-Password': _user_password
+    } } = request
 
-    if (this.user_name) {
-      const user_name = request.attributes['User-Name']
-      const user_password = request.attributes['User-Password']
-      if (user_name == this.user_name && user_password == this.user_password) {
-        code = codes.accept
-      }
-      else {
-        code = codes.reject
-      }
+    switch (code) {
+
+      case 'Accounting-Request': // RFC2866 (4.2)
+        response_code = codes.accounting_response
+        break
+
+      case 'Access-Request':
+      default:
+        if (this.user_name) {
+          if (_user_name === this.user_name && _user_password === this.user_password) {
+            response_code = codes.access_accept
+          }
+          else {
+            response_code = codes.access_reject
+          }
+        }
+        else {
+          response_code = codes.access_accept
+        }
+        break
+
     }
-    else {
-      code = codes.accept
-    }
+
+    console.debug(`Sending ${response_code}: ${JSON.stringify({ code, identifer, length, attributes })}`)
 
     const response = Radius.encode_response({
         packet: request,
-        code: code,
+        code: response_code,
         secret: this.secret
     })
 
     Promise.resolve(db.init()).then(() => {
       db.getItem('history').then(history => {
-        const { code, identifer, length, attributes } = request
         history.push({ code, identifer, length, attributes })
         db.setItem('history', history)
       })
     })
-
-    console.log('Sending ' + code + ' for User-Name ' + user_name)
 
     this.socket.send(response, 0, response.length, client.port, client.address, err => {
       if (err) {
