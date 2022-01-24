@@ -134,7 +134,7 @@ type (
 		Profile            Profile         `json:"-"`
 		ProfileID          uint            `json:"profile_id,omitempty,string" gorm:"INDEX:profile_id"`
 		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty"`
 		DNSNames           string          `json:"dns_names,omitempty"`
@@ -164,7 +164,7 @@ type (
 		Profile            Profile         `json:"-"`
 		ProfileID          uint            `json:"profile_id,omitempty" gorm:"INDEX:profile_id"`
 		ProfileName        string          `json:"profile_name,omitempty" gorm:"INDEX:profile_name"`
-		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until"`
+		ValidUntil         time.Time       `json:"valid_until,omitempty" gorm:"INDEX:valid_until" gorm:"type:time"`
 		Date               time.Time       `json:"date,omitempty" gorm:"default:CURRENT_TIMESTAMP"`
 		SerialNumber       string          `json:"serial_number,omitempty"`
 		DNSNames           string          `json:"dns_names,omitempty"`
@@ -521,7 +521,12 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 		c.DB.First(&ca)
 	}
 	notFalse := true
-	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: attributeMap["emailAddress"], StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["emailAddress"], Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter, Scep: &notFalse}).Error; err != nil {
+	var IPAddresses []string
+	for _, IP := range crt.IPAddresses {
+		IPAddresses = append(IPAddresses, IP.String())
+	}
+
+	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: strings.Join(crt.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], DNSNames: strings.Join(crt.DNSNames, ","), IPAddresses: strings.Join(IPAddresses, ","), Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter, Scep: &notFalse}).Error; err != nil {
 		return errors.New(dbError)
 	}
 
@@ -891,16 +896,18 @@ func (c Cert) New() (types.Info, error) {
 	if len(PostalCode) > 0 {
 		Subject.PostalCode = []string{PostalCode}
 	}
+	NotAfter := time.Now().AddDate(0, 0, prof.Validity)
 
 	// Prepare certificate
 	cert := &x509.Certificate{
-		SerialNumber: SerialNumber,
-		Subject:      Subject,
-		NotBefore:    time.Now(),
-		NotAfter:     time.Now().AddDate(0, 0, prof.Validity),
-		ExtKeyUsage:  certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
-		KeyUsage:     x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
-		SubjectKeyId: skid,
+		SerialNumber:       SerialNumber,
+		Subject:            Subject,
+		NotBefore:          time.Now(),
+		NotAfter:           NotAfter,
+		SignatureAlgorithm: prof.Digest,
+		ExtKeyUsage:        certutils.Extkeyusage(strings.Split(*prof.ExtendedKeyUsage, "|")),
+		KeyUsage:           x509.KeyUsage(certutils.Keyusage(strings.Split(*prof.KeyUsage, "|"))),
+		SubjectKeyId:       skid,
 	}
 
 	if len(prof.OCSPUrl) > 0 {
@@ -917,10 +924,15 @@ func (c Cert) New() (types.Info, error) {
 			cert.DNSNames = append(cert.DNSNames, dns)
 		}
 	}
-
+	var IPAddresses []string
 	if len(c.IPAddresses) > 0 {
 		for _, ip := range strings.Split(c.IPAddresses, ",") {
-			cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			if net.ParseIP(ip) == nil {
+				fmt.Printf("IP Address: %s - Invalid\n", ip)
+			} else {
+				IPAddresses = append(IPAddresses, ip)
+				cert.IPAddresses = append(cert.IPAddresses, net.ParseIP(ip))
+			}
 		}
 	}
 
@@ -932,7 +944,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: c.IPAddresses, Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
@@ -1293,7 +1305,7 @@ func email(ctx context.Context, cert Cert, profile Profile, file []byte, passwor
 
 	d := gomail.NewDialer(alerting.SMTPServer, alerting.SMTPPort, alerting.SMTPUsername, alerting.SMTPPassword)
 
-	if alerting.SMTPVerifySSL == "disabled" {
+	if alerting.SMTPVerifySSL == "disabled" || alerting.SMTPEncryption == "none" {
 		d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
