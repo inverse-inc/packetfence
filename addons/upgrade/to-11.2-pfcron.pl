@@ -21,8 +21,15 @@ use pf::file_paths qw(
 
 my $pfcron = pf::IniFiles->new( -file => $cron_config_file, -allowempty => 1);
 my $section = 'bandwidth_maintenance_session';
+my $to_section2 = 'bandwidth_maintenance';
 if ($pfcron->SectionExists($section)) {
-    $pfcron->DeleteSection($section); 
+    for my $f (qw(batch window timeout)) {
+        if ($pfcron->exists($section, $f)) {
+            print "Moving $section.$f -> $to_section2.session_$f\n";
+            $pfcron->newval($to_section2, "session_$f", $pfcron->val($section, $f));
+        }
+    }
+    $pfcron->DeleteSection($section);
     $pfcron->RewriteConfig();
     print "Remove $section\n";
 } else {
