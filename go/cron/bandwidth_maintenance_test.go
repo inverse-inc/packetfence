@@ -11,8 +11,8 @@ func TestBandwidthMaintenanceNetFlow(t *testing.T) {
 		"bandwidth_maintenance",
 		nil,
 		[]string{
-			"DELETE FROM bandwidth_accounting",
-			"DELETE FROM bandwidth_accounting_history",
+			"TRUNCATE bandwidth_accounting",
+			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
         tenant_id,
@@ -83,8 +83,8 @@ FROM macs JOIN dates;
 			},
 		},
 		[]string{
-			"DELETE FROM bandwidth_accounting",
-			"DELETE FROM bandwidth_accounting_history",
+			"TRUNCATE bandwidth_accounting",
+			"TRUNCATE bandwidth_accounting_history",
 		},
 	)
 }
@@ -95,8 +95,8 @@ func TestBandwidthMaintenanceAggregation(t *testing.T) {
 		"bandwidth_maintenance",
 		nil,
 		[]string{
-			"DELETE FROM bandwidth_accounting",
-			"DELETE FROM bandwidth_accounting_history",
+			"TRUNCATE bandwidth_accounting",
+			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
         tenant_id,
@@ -197,7 +197,7 @@ func TestBandwidthMaintenanceSession(t *testing.T) {
 	runStatements(
 		t,
 		[]string{
-			"DELETE FROM bandwidth_accounting",
+			"TRUNCATE bandwidth_accounting",
 			`
 INSERT INTO bandwidth_accounting (
         tenant_id,
@@ -255,7 +255,7 @@ FROM macs JOIN dates;
 	runStatements(
 		t,
 		[]string{
-			"DELETE FROM bandwidth_accounting",
+			"TRUNCATE bandwidth_accounting",
 		},
 	)
 
