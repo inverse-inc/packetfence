@@ -1,5 +1,5 @@
 const Radius = require('radius')
-const Dgram = require('dgram')
+const dgram = require('dgram')
 const db = require('node-persist')
 
 const codes = {
@@ -19,7 +19,7 @@ mock.radius = function (host, port, secret, user_name, user_password) {
   this.user_name = user_name
   this.user_password = user_password
 
-  this.socket = Dgram.createSocket('udp4')
+  this.socket = dgram.createSocket('udp4')
 
   this.socket.on('error', err => {
     console.error(err)
@@ -28,7 +28,7 @@ mock.radius = function (host, port, secret, user_name, user_password) {
 
   this.socket.on('listening', () => {
     const address = this.socket.address()
-    console.log('RADIUS listening on ' + address.address + ':' + address.port)
+    console.info('RADIUS listening on ' + address.address + ':' + address.port)
 
     Promise.resolve(db.init()).then(() => {
       db.setItem('history', [])
@@ -104,6 +104,7 @@ mock.radius.prototype.bind = function () {
 }
 
 mock.radius.prototype.close = function () {
+  console.info('RADIUS closing on ' + address.address + ':' + address.port)
   return this.socket.close()
 }
 

@@ -6,3 +6,8 @@ api.listen(config.API_PORT, config.API_HOST, () => console.info(`API listening o
 
 var mock = new radius(config.RADIUS_HOST, config.RADIUS_PORT, config.RADIUS_SECRET, config.RADIUS_USER_NAME, config.RADIUS_USER_PASSWORD)
 mock.bind()
+
+process.on('SIGHUP', () => {
+  api.close()
+  mock.close()
+})
