@@ -111,11 +111,15 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	api.Handle("/pki/cert/{id}", handlers.GetCertByID(PFPki)).Methods("GET")
 	// Download Certificate
 	api.Handle("/pki/cert/{id}/download/{password}", handlers.DownloadCert(PFPki)).Methods("GET")
+	// Download Certificate from profile
+	api.Handle("/pki/cert/{profile}/{id}/download/{password}", handlers.DownloadCert(PFPki)).Methods("GET")
 	// Get Certificate by email
 	api.Handle("/pki/cert/{id}/email", handlers.EmailCert(PFPki)).Methods("GET")
 	// Revoke Certificate
 	api.Handle("/pki/cert/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
 
+	// Revoke Certificate from serial
+	api.Handle("/pki/cert/{serial}/{id}/{reason}", handlers.RevokeCert(PFPki)).Methods("DELETE")
 	// Revoked Certificates
 	api.Handle("/pki/revokedcerts", handlers.GetRevoked(PFPki)).Methods("GET")
 	// Search Revoked Certificates
