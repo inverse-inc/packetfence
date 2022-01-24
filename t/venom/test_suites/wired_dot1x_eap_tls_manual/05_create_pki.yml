@@ -19,7 +19,7 @@ testcases:
     ocsp_url: "{{.wired_dot1x_eap_tls_manual.certs.ocsp_url}}"
     vars:
       ca_id:
-        from: result.pf_api_pki_cas_id_
+        from: result.pf_api_pki_cas_id
 
 ### RADIUS certificate part
 - name: create_pf_radius_cert_template
@@ -41,7 +41,7 @@ testcases:
     ocsp_url: "{{.wired_dot1x_eap_tls_manual.certs.ocsp_url}}"
     vars:
       profile_id:
-        from: result.pf_api_pki_cas_id_
+        from: result.pf_api_pki_cert_id
 
 - name: create_pf_radius_cert
   steps:
