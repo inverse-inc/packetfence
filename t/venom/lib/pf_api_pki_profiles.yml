@@ -40,5 +40,11 @@ steps:
     }
   method: POST
   url: "pki/profiles"
+  vars:
+    profiles_tmp:
+      from: result.pf_api_action_
+    profiles_id_tmp:
+      from: result.pf_api_action_items_item0_id
 outpost:
-  pf_api_pki_profiles_json: "{{.result.pf_api_action_json}}" 
+  pf_api_pki_profiles_: "{{.profiles_temp}}"
+  pf_api_pki_profiles_id: "{{.profiles_id_tmp}}"

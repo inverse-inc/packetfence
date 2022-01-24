@@ -28,3 +28,4 @@ steps:
 
 output:
   pf_api_action_: "{{.http_json}}"
+  pf_api_action_items_item0_id: "{{.http_json.items.items0.id}}" 

@@ -17,5 +17,11 @@ steps:
     }
   method: POST 
   url: "pki/certs"
+  vars:
+    certs_tmp:
+      from: result.pf_api_action_
+    certs_id_tmp:
+      from: result.pf_api_action_items_item0_id
 outpost:
-  pf_api_pki_certs_json: "{{.result.pf_api_action_json}}" 
+  pf_api_pki_certs_: "{{.certs_temp}}" 
+  pf_api_pki_certs_id: "{{.certs_id_tmp}}" 

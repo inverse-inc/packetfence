@@ -35,6 +35,12 @@ steps:
     }
   method: POST 
   url: "pki/cas"
+  vars:
+    cas_tmp:
+      from: result.pf_api_action_
+    cas_id_tmp:
+      from: result.pf_api_action_items_item0_id
 
 outpost:
-  pf_api_pki_cas_json: "{{.result.pf_api_action_json}}" 
+  pf_api_pki_cas_: "{{.cas_tmp}}" 
+  pf_api_pki_cas_id_: "{{.cas_id_tmp}}" 
