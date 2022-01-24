@@ -119,10 +119,36 @@
           :text="$i18n.t('Cloud Service to integrate.')"
         />
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Advanced Configuration')">
+      <base-form-tab :title="$i18n.t('Renewal Configuration')">
         <form-group-days-before-renewal namespace="days_before_renewal"
           :column-label="$i18n.t('Days before renewal')"
           :text="$i18n.t('Number of days before the pki authorize renewal. Set to 0 mean renewal is always allowed')"
+        />
+        <form-group-renewal-mail namespace="renewal_mail"
+          :column-label="$i18n.t('Renewal Email')"
+          :text="$i18n.t('Send email to the owner when the certificate is about to expire.')"
+        />
+        <form-group-days-before-renewal-mail namespace="days_before_renewal_mail"
+          :column-label="$i18n.t('Days before sending renewal email')"
+          :text="$i18n.t('Number of days before expiration of the certificate that trigger sending email.')"
+        />
+        <form-group-renewal-mail-subject namespace="renewal_mail_subject"
+          :column-label="$i18n.t('Renewal mail subject')"
+          :text="$i18n.t('Renewal email subject.')"
+        />
+        <form-group-renewal-mail-from namespace="renewal_mail_from"
+          :column-label="$i18n.t('Renewal mail from')"
+          :text="$i18n.t('Sender email address.')"
+        />
+        <form-group-renewal-mail-header namespace="renewal_mail_header"
+          :column-label="$i18n.t('Renewal mail header')"
+          :text="$i18n.t('Email header.')"
+          auto-fit
+        />
+        <form-group-renewal-mail-footer namespace="renewal_mail_footer"
+          :column-label="$i18n.t('Renewal mail footer')"
+          :text="$i18n.t('Email footer.')"
+          auto-fit
         />
       </base-form-tab>
     </b-tabs>
@@ -164,7 +190,13 @@ import {
   FormGroupScepDaysBeforeRenewal,
   FormGroupCloudEnabled,
   FormGroupCloudService,
-  FormGroupDaysBeforeRenewal
+  FormGroupDaysBeforeRenewal,
+  FormGroupRenewalMail,
+  FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailSubject,
+  FormGroupRenewalMailFrom,
+  FormGroupRenewalMailHeader,
+  FormGroupRenewalMailFooter
 } from './'
 
 const components = {
@@ -199,7 +231,13 @@ const components = {
   FormGroupScepDaysBeforeRenewal,
   FormGroupCloudEnabled,
   FormGroupCloudService,
-  FormGroupDaysBeforeRenewal
+  FormGroupDaysBeforeRenewal,
+  FormGroupRenewalMail,
+  FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailSubject,
+  FormGroupRenewalMailFrom,
+  FormGroupRenewalMailHeader,
+  FormGroupRenewalMailFooter
 }
 
 export const props = {
