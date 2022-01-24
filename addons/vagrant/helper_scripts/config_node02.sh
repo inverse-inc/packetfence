@@ -2,8 +2,10 @@
 set -o nounset -o pipefail -o errexit
 mgmt_ip=$1
 mgmt_netmask=$2
+mgmt_ipv6=$3
+mgmt_prefix=$4
 
-declare -p mgmt_ip mgmt_netmask
+declare -p mgmt_ip mgmt_netmask mgmt_ipv6 mgmt_prefix
 
 echo "#################################"
 echo "  Running config_node.sh"
@@ -42,11 +44,18 @@ cat <<EOT > /etc/network/interfaces
 auto lo
 iface lo inet loopback
 
+# IPv4
 auto ens6
 iface ens6 inet static
     alias VLAN 17
     address ${mgmt_ip}
     netmask ${mgmt_netmask}
+
+# IPv6
+auto ens6
+iface ens6 inet6 static
+    alias VLAN 17 IPv6
+    address ${mgmt_ipv6}/${mgmt_prefix}
 
 allow-hotplug ens7
 iface ens7 inet dhcp
