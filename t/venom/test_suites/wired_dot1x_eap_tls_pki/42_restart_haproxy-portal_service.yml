@@ -3,4 +3,5 @@ testcases:
 - name: restart_haproxy-portal_service
   steps:
   - type: systemctl_service_restart
-    service: haproxy-portal
+    service: packetfence-haproxy-portal
+    sudo: sudo
