@@ -259,5 +259,4 @@ FROM macs JOIN dates;
 		},
 	)
 
-
 }

@@ -83,6 +83,7 @@ func (j *BandwidthMaintenance) BandwidthMaintenanceSessionCleanup(ctx context.Co
 func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Context) {
 	BatchSqlCount(
 		ctx,
+		"process_bandwidth_accounting_netflow",
 		j.Timeout,
 		"CALL process_bandwidth_accounting_netflow(SUBDATE(NOW(), INTERVAL ? SECOND) ,?);",
 		300,
@@ -97,17 +98,40 @@ func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
 
 func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, rounding string, date_sql string, interval int) {
 	sql := "CALL bandwidth_aggregation(?, " + date_sql + ", ?)"
-	BatchSqlCount(ctx, j.Timeout, sql, rounding, interval, j.Batch)
+	BatchSqlCount(
+		ctx,
+		"bandwidth_aggregation-"+rounding,
+		j.Timeout,
+		sql,
+		rounding,
+		interval,
+		j.Batch,
+	)
 }
 
 func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistory(ctx context.Context) {
 	sql := "CALL bandwidth_accounting_radius_to_history(DATE_SUB(NOW(), INTERVAL ? SECOND), ?);"
-	BatchSqlCount(ctx, j.Timeout, sql, j.Window, j.Batch)
+	BatchSqlCount(
+		ctx,
+		"bandwidth_accounting_radius_to_history",
+		j.Timeout,
+		sql,
+		j.Window,
+		j.Batch,
+	)
 }
 
 func (j *BandwidthMaintenance) BandwidthHistoryAggregation(ctx context.Context, rounding string, date_sql string, interval int) {
 	sql := "CALL bandwidth_aggregation_history(?, " + date_sql + ", ?)"
-	BatchSqlCount(ctx, j.Timeout, sql, rounding, interval, j.Batch)
+	BatchSqlCount(
+		ctx,
+		"bandwidth_aggregation_history-"+rounding,
+		j.Timeout,
+		sql,
+		rounding,
+		interval,
+		j.Batch,
+	)
 }
 
 func (j *BandwidthMaintenance) BandwidthAccountingHistoryCleanup(ctx context.Context) {
