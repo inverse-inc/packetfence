@@ -1,7 +1,7 @@
 executor: systemctl_service_restart
 input:
-  service: {} 
-  sudo: {}
+  service: "" 
+  sudo: ""
 steps:
 # service restarted by hand because using API cause Venom failure (EOF)
 - type: systemctl_service

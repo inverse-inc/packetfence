@@ -8,4 +8,6 @@ steps:
   script: '{{.input.sudo}} systemctl {{.input.unit_command}} {{.input.service}}'
   # TO BE REMOVE IF DEFAULT IF ENOUGH
   #assertions:
-  #  - result.systemout ShouldContainSubstring ""
+  #  - result.systemout ShouldContainSubstring "
+output:
+  service_systemout: "{{.result.systemout}}""
