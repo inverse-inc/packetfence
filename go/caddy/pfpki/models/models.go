@@ -1405,12 +1405,14 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			params["reason"] = strconv.Itoa(ocsp.Superseded)
 			c.Revoke(params)
 		}
-		if *v.Scep == false {
-			if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewalMail)*24*time.Hour).Seconds()) < time.Now().Unix() {
-				emailRenewal(c.Ctx, v, prof)
-				notfalse := true
-				v.Alert = &notfalse
-				c.DB.Save(&v)
+		if prof.RenewalMail == 1 {
+			if *v.Scep == false {
+				if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewalMail)*24*time.Hour).Seconds()) < time.Now().Unix() {
+					emailRenewal(c.Ctx, v, prof)
+					notfalse := true
+					v.Alert = &notfalse
+					c.DB.Save(&v)
+				}
 			}
 		}
 	}
@@ -1520,7 +1522,7 @@ func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, 
 	alerting := pfconfigdriver.Config.PfConf.Alerting
 
 	mail := EmailType{}
-	mail.From = alerting.FromAddr
+	mail.From = profile.RenewalMailFrom
 
 	if cert.Mail != "" {
 		mail.To = cert.Mail
@@ -1529,11 +1531,11 @@ func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, 
 	} else {
 		mail.To = alerting.EmailAddr
 	}
-	mail.Subject = "Certificate Renewall"
-	mail.FileName = profile.Name + " : " + cert.Cn
+	mail.Subject = profile.RenewalMailSubject
+	mail.FileName = "Profile Name: " + profile.Name + " Certificate CN: " + cert.Cn
 	mail.Template = "emails-renewal_certificate.html"
-	mail.Header = "Hello"
-	mail.Footer = "Bye"
+	mail.Header = profile.RenewalMailHeader
+	mail.Footer = profile.RenewalMailFooter
 
 	return email(ctx, mail)
 }

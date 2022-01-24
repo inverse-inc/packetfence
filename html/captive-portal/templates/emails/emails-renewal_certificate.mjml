@@ -1,14 +1,14 @@
 <mjml>
   <mj-head>
     <mj-include path="_header.mjml" />
-    <mj-preview>{{translate "msg_subject"}} {{.Subject}}</mj-preview>
+    <mj-preview>{{translate .Subject}}</mj-preview>
   </mj-head>
   <mj-body>
     <mj-section></mj-section>
     <mj-wrapper>
       <mj-section>
         <mj-column>
-          <mj-text mj-class="title">{{translate "msg_subject"}}</mj-text>
+          <mj-text mj-class="title">{{translate .Subject}}</mj-text>
         </mj-column>
       </mj-section>
       <mj-section>
@@ -19,9 +19,8 @@
       <mj-section padding-top="0">
         <mj-column>
           <mj-text>
-            <p style="padding-bottom: 20px">{{translate "msg_hello"}}</p>
             <p>{{translate .Header }}</p>
-            <p>{{.FileName}} is about to expire</p>
+            <p>{{translate .FileName }}</p>
           </mj-text>
         </mj-column>
       </mj-section>
