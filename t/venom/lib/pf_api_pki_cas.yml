@@ -14,8 +14,14 @@ input:
   days: ""
   key_size: ""
   ocsp_url: ""
+  time_to_sleep: 5
 steps:
-- type: pf_api_action
+- type: get_login_token
+
+- type: http
+  method: POST
+  url: '{{.pfserver_webadmin_url}}/api/v1/pki/cas'
+  ignore_verify_ssl: true
   body: >-
     {
       "cn": "{{.input.cn}}",
@@ -33,14 +39,18 @@ steps:
       "key_size": "{{.input.key_size}}",
       "ocsp_url": "{{.input.ocsp_url}}"
     }
-  method: POST 
-  url: "pki/cas"
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.__type__ ShouldEqual Map
   vars:
-    cas_tmp:
-      from: result.pf_api_action_
-    cas_id_tmp:
-      from: result.pf_api_action_items_item0_id
+    http_json:
+      from: result.bodyjson
 
-outpost:
-  pf_api_pki_cas_: "{{.cas_tmp}}" 
-  pf_api_pki_cas_id: "{{.cas_id_tmp}}" 
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep}}"
+
+output:
+  pf_api_pki_cas_id: "{{.http_json.items.items0.id}}"
