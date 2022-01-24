@@ -5,7 +5,7 @@ input:
 steps:
 # service restarted by hand because using API cause Venom failure (EOF)
 - type: systemctl_service
-  unit_commands: restart
+  unit_command: restart
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
 

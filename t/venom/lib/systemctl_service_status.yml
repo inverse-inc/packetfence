@@ -4,7 +4,7 @@ input:
   sudo: {}
 steps:
 - type: systemctl_service
-  unit_commands: status
+  unit_command: status
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
   assertions:
