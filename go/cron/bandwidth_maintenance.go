@@ -56,7 +56,7 @@ func (j *BandwidthMaintenance) Run() {
 	j.BandwidthMaintenanceSessionCleanup(ctx)
 	j.ProcessBandwidthAccountingNetflow(ctx)
 	j.TriggerBandwidth(ctx)
-	j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
+	// j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
 	j.BandwidthAggregation(ctx, "daily", "DATE_SUB(NOW(), INTERVAL ? DAY)", 2)
 	j.BandwidthAggregation(ctx, "monthly", "DATE_SUB(NOW(), INTERVAL ? MONTH)", 1)
 	j.BandwidthAccountingRadiusToHistory(ctx)
