@@ -49,6 +49,7 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
+    DROP INDEX cn,
     ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses,
     ADD COLUMN IF NOT EXISTS `alert` BOOLEAN DEFAULT FALSE AFTER scep;
 
