@@ -21,7 +21,7 @@ testcases:
     script: 'rm -f /tmp/pfcron-test.log'
 
   - type: exec
-    script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.pfserver_root_dir}}/var/run/fingerbank.pid -w 1 -s 1'
+    script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.fingerbank_api_mock_pidfile}} -w 1 -s 1'
 
   - type: exec
     script: 'systemctl start packetfence-pfcron'
@@ -68,4 +68,4 @@ testcases:
     script: '{{.pfserver_pfcmd}} configreload'
 
   - type: exec
-    script: 'kill $(cat {{.pfserver_root_dir}}/var/run/fingerbank.pid)'
+    script: 'kill $(cat {{.fingerbank_api_mock_pidfile}})'
