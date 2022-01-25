@@ -66,7 +66,7 @@ my $task = pf::pfcron::task::ubiquiti_ap_mac_to_ip->new(
      {
          status   => "enabled",
          id       => 'test',
-		 interval  => 0,
+         interval  => 0,
          type     => 'ubiquiti_ap_mac_to_ip',
      }
  );
