@@ -46,6 +46,14 @@ has_field 'template' =>
              help => 'The template to use to display the message' },
   );
 
+has_field 'with_layout' =>
+  (
+   type => 'Checkbox',
+   label => 'Enable Layout',
+   checkbox_value => 1,
+   input_without_param => 0,
+  );
+
 sub child_definition {
     return qw(message template skipable);
 }
@@ -54,6 +62,7 @@ sub BUILD {
     my ($self) = @_;
     $self->field('template')->default($self->for_module->meta->find_attribute_by_name('template')->default->());
     $self->field('skipable')->default($self->for_module->meta->find_attribute_by_name('skipable')->default->());
+    $self->field('with_layout')->default($self->for_module->meta->find_attribute_by_name('with_layout')->default->());
 }
 
 =over

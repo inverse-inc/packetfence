@@ -19,6 +19,8 @@ has 'skipable' => (is => 'rw', default => sub {1});
 
 has 'message' => (is => 'rw', required => 1);
 
+has 'with_layout' => ('is' => 'rw', default => sub {1});
+
 =head2 execute_child
 
 Display the message to the user and handle the continue if applicable
@@ -35,6 +37,7 @@ sub execute_child {
             message => $self->message, 
             skipable => $self->skipable,
             title => $self->description,
+            layout => $self->with_layout,
         });
     }
 }

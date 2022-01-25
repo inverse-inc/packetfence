@@ -47,6 +47,7 @@ export {
   BaseFormGroupInput                        as FormGroupUrl,
   BaseFormGroupInput                        as FormGroupUsername,
   BaseFormGroupToggle                       as FormGroupWithAup,
+  BaseFormGroupToggle                       as FormGroupWithLayout,
 
   TheForm,
   TheView
