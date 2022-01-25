@@ -1508,7 +1508,7 @@ CREATE TABLE `pki_profiles` (
   `renewal_mail_subject` varchar(255) DEFAULT NULL,
   `renewal_mail_from` varchar(255) DEFAULT NULL,
   `renewal_mail_header` varchar(255) DEFAULT NULL,
-  `renewal_mail_footer` varchar(255) DEFAULT NULL;
+  `renewal_mail_footer` varchar(255) DEFAULT NULL,
   `cloud_enabled` int(11) DEFAULT NULL,
   `cloud_service` varchar(255) DEFAULT NULL,
   UNIQUE KEY `name` (`name`),
