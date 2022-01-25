@@ -467,7 +467,7 @@ ip6tables=enabled
 # 
 # services.ip6tables_binary
 # 
-# location of the ip6tables binary. only necessary to change if you are not running the rpmed version.
+# location of the ip6tables binary. only necessary to change if you are not running the official packaged version.
 ip6tables_binary=/usr/sbin/ip6tables
 #
 # services.httpd_portal
