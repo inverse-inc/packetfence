@@ -3,6 +3,7 @@ package maint
 import (
 	"context"
 	"database/sql"
+	"github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"time"
 )
@@ -44,6 +45,11 @@ func BatchStmtQueryWithCount(ctx context.Context, time_limit time.Duration, stmt
 		var count int64
 		err = stmt.QueryRow(args...).Scan(&count)
 		if err != nil {
+			if merr, ok := err.(*mysql.MySQLError); ok {
+				log.LogError(ctx, "Retrying query: "+err.Error())
+				time.Sleep(time.Millisecond * 10)
+				continue
+			}
 			log.LogError(ctx, "Database error: "+err.Error())
 			break
 		}
