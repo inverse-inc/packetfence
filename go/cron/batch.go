@@ -46,7 +46,7 @@ func BatchStmtQueryWithCount(ctx context.Context, time_limit time.Duration, stmt
 		err = stmt.QueryRow(args...).Scan(&count)
 		if err != nil {
 			if merr, ok := err.(*mysql.MySQLError); ok {
-				log.LogError(ctx, "Retrying query: "+err.Error())
+				log.LogError(ctx, "Retrying query: "+merr.Error())
 				time.Sleep(time.Millisecond * 10)
 				continue
 			}
