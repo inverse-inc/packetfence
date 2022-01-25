@@ -29,6 +29,7 @@ import FormTypeDpsk from './FormTypeDpsk'
 import FormTypeIbm from './FormTypeIbm'
 import FormTypeIntune from './FormTypeIntune'
 import FormTypeJamf from './FormTypeJamf'
+import FormTypeKandji from './FormTypeKandji'
 import FormTypeMobileconfig from './FormTypeMobileconfig'
 import FormTypeMobileiron from './FormTypeMobileiron'
 import FormTypeOpswat from './FormTypeOpswat'
@@ -50,6 +51,7 @@ const components = {
   FormTypeIbm,
   FormTypeIntune,
   FormTypeJamf,
+  FormTypeKandji,
   FormTypeMobileconfig,
   FormTypeMobileiron,
   FormTypeOpswat,
@@ -78,6 +80,7 @@ export const setup = (props) => {
       case 'ibm':                         return FormTypeIbm //break
       case 'intune':                      return FormTypeIntune //break
       case 'jamf':                        return FormTypeJamf //break
+      case 'kandji':                      return FormTypeKandji //break
       case 'mobileconfig':                return FormTypeMobileconfig //break
       case 'mobileiron':                  return FormTypeMobileiron //break
       case 'opswat':                      return FormTypeOpswat //break
