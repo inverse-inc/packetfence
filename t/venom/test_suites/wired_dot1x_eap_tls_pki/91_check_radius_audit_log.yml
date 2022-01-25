@@ -7,7 +7,7 @@ testcases:
 - name: get_time
   steps:
   - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='155 minutes ago'"
     vars:
       two_minutes_ago:
         from: result.systemout
@@ -84,6 +84,8 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.items.items0 ShouldContainKey id
+    info:
+      - "{{.result.bodyjson}}"
     vars:
       id:
         from: result.bodyjson.items.items0.id

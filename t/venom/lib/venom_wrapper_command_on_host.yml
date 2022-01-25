@@ -1,8 +1,8 @@
-executor: venom_wrapper_on_host
+executor: venom_wrapper_command_on_host
 input:
-  host: {}
-  user: {}
-  test_suite_path: {}
+  host: ""
+  user: ""
+  test_suite_path: ""
 steps:
 - type: ssh
   host: "{{.input.host}}"

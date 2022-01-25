@@ -43,6 +43,10 @@ steps:
 - type: exec
   script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.crt {{.input.certPath}}/server.crt"
 
+# add ca.pem in server,crt
+- type: exec
+  script: "cat {{.input.certPath}}/ca.pem >> {{.input.certPath}}/server.crt"
+
 # install_key
 - type: exec
   script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.key {{.input.certPath}}/server.key"

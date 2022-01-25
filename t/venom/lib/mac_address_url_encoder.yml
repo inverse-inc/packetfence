@@ -4,5 +4,5 @@ input:
 steps:
 - type: exec
   script: echo "{{.input.mac_address}}" | sed -e 's|:|%3A|g' 
-outpost:
+output:
   mac_address_url_encoded: "{{.result.systemout}}" 

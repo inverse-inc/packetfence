@@ -6,7 +6,7 @@ input:
   status_code: 200
 steps:
 - type: mac_address_url_encoder
-  mac_address: "{{.input.node_id}}"
+  mac_address: "{{.input.id}}"
 
 - type: pf_api_action
   body: '{{.input.body}}'
