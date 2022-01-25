@@ -245,8 +245,6 @@ configurator.interfaces.dhcp_listener.netmask: '{{.internet_int_netmask}}'
 configurator.interfaces.mgmt.index: 3
 configurator.interfaces.mgmt.ip: '{{.pfserver_mgmt_ip}}'
 configurator.interfaces.mgmt.netmask: '{{.pfserver_mgmt_netmask}}'
-configurator.interfaces.mgmt.ipv6: '{{.pfserver_mgmt_ipv6}}'
-configurator.interfaces.mgmt.prefix: '{{.pfserver_mgmt_prefix}}'
 
 # Interface registration
 configurator.interfaces.reg.index: 4
