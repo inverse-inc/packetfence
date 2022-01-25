@@ -1456,6 +1456,7 @@ CREATE TABLE `pki_certs` (
   `dns_names` varchar(255) DEFAULT NULL,
   `ip_addresses` varchar(255) DEFAULT NULL,
   `scep` BOOLEAN DEFAULT FALSE,
+  UNIQUE KEY `cn_profile` (`cn`, `profile_name`),
   KEY `profile_name` (`profile_name`),
   KEY `valid_until` (`valid_until`),
   KEY `idx_certs_deleted_at` (`deleted_at`),
