@@ -32,7 +32,7 @@ my $task = pf::pfcron::task::option82_query->new(
      {
          status   => "enabled",
          id       => 'test',
-		 interval  => 0,
+         interval  => 0,
          type     => 'option82_query',
      }
  );
