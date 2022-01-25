@@ -12,10 +12,6 @@ pf::Switch::TestOption82
 
 use strict;
 use warnings;
-use Carp;
-use Data::Dumper;
-use Net::SNMP;
-use Time::HiRes qw( usleep );
 
 use base ('pf::Switch');
 our $OPTION82_MAC = "ff:22:33:44:55:66";
