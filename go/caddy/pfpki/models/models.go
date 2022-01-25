@@ -1235,13 +1235,6 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 			}
 		}
 	} else {
-		// Needs to be deprecated
-		// if val, ok := params["cn"]; ok {
-		// 	if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
-		// 		Information.Error = CertDB.Error.Error()
-		// 		return Information, errors.New(dbError)
-		// 	}
-		// }
 		if val, ok := params["id"]; ok {
 			if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
@@ -1341,13 +1334,6 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 				return Information, CertDB.Error
 			}
 		}
-		// Needs to be deprecated
-		// if cn, ok := params["cn"]; ok {
-		// 	if CertDB := c.DB.Where("cn = ?", cn).Find(&cert); CertDB.Error != nil {
-		// 		Information.Error = CertDB.Error.Error()
-		// 		return Information, CertDB.Error
-		// 	}
-		// }
 	}
 	// Find the CA
 	var ca CA
@@ -1416,8 +1402,6 @@ func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
 			}
 		}
 	}
-
-	// Information.Entries = certdb
 
 	return Information, nil
 }
