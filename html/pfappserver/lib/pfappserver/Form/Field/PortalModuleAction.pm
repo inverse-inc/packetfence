@@ -109,7 +109,7 @@ sub options_roles {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2021 Inverse inc.
+Copyright (C) 2005-2022 Inverse inc.
 
 =head1 LICENSE
 
