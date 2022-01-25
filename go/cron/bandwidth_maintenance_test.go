@@ -141,7 +141,7 @@ FROM macs JOIN dates;
 			{
 				name:          "bandwidth just keep the last 2hrs",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 160,
+				expectedCount: 180,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
