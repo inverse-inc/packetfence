@@ -1,9 +1,9 @@
 executor: extract_certificates_user
 input:
-  cnt: {}
-  cnCA: {}
-  serial_number: {}
-  extract_directory: {}
+  cn: ""
+  cnCA: ""
+  serial_number: ""
+  extract_directory: ""
 steps:
 - type: exec
   script: "mkdir -p {{.input.extract_directory}}"
@@ -21,7 +21,7 @@ steps:
 - type: exec
   script: |
     openssl pkcs12 -in {{.input.extract_directory}}.p12 -cacerts -nokeys \
-    -out {{.input.extract_directory}}./ca.pem -passin pass:secret
+    -out {{.input.extract_directory}}/ca.pem -passin pass:secret
 
 # extract_certificate
 - type: exec

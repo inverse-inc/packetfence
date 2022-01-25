@@ -1,4 +1,4 @@
-executor: pf_api_pki_profiles
+executor: pf_api_pki_profiles_users
 input:
   ca_id: ""
   name: ""
@@ -39,7 +39,9 @@ steps:
       "country": "{{.input.country}}",
       "state": "{{.input.state}}",
       "locality": "{{.input.locality}}",
-      "ocsp_url": "{{.input.ocsp_url}}"
+      "ocsp_url": "{{.input.ocsp_url}}",
+      "scep_challenge_password": "{{input.scep_challenge_password}}",
+      "scep_days_before_renewal": "{{.input.scep_days_before_renewal}}"
     }
   headers:
     "Authorization": "{{.result.token}}"

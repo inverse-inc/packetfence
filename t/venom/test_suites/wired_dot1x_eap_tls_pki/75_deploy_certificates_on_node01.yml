@@ -2,4 +2,4 @@ name: Deploy certificates on node01
 testcases:
   - name: node01_deploy_certificatess
     steps:
-    - type: node01_deploy_certificatess
+    - type: node01_deploy_certificates
