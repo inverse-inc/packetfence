@@ -56,49 +56,6 @@ our @IP6LOG_JOIN = (
     'ip6log',
 );
 
-our @ONLINE_JOIN = (
-    '=>{node.mac=online.mac,node.tenant_id=online.tenant_id}',
-    'bandwidth_accounting|online',
-    {
-        operator  => '=>',
-        condition => [
-            -and => [
-            'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
-            \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
-            ],
-        ],
-    },
-    'bandwidth_accounting|b2',
-);
-
-sub online_join {
-    my ($self, $s) = @_;
-    return (
-        {
-            operator  => '=>',
-            condition => {
-                'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                'online.tenant_id' => $s->{dal}->get_tenant() ,
-            },
-        },
-        'bandwidth_accounting|online',
-        {
-            operator  => '=>',
-            condition => [
-                -and => [
-                'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
-                \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
-                ],
-            ],
-        },
-        'bandwidth_accounting|b2',
-    );
-}
-
-our %ONLINE_WHERE = (
-    'b2.node_id' => undef,
-);
-
 our @NODE_CATEGORY_JOIN = (
     '=>{node.category_id=node_category.category_id}', 'node_category',
 );
@@ -143,11 +100,9 @@ our %ALLOWED_JOIN_FIELDS = (
         namespace     => 'ip6log',
     },
     'online' => {
-        join_spec     => \&online_join,
-        where_spec    => \%ONLINE_WHERE,
         namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
-        column_spec   => "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online",
+        column_spec   => "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
     },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
@@ -240,6 +195,11 @@ sub rewrite_security_event_close_count {
     return (200, $q);
 }
 
+our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
+our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
+our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by ba.last_updated DESC LIMIT 1)';
+our $UNKNOWN_QUERY = "NOT $NOT_UNKNOWN_QUERY";
+
 sub rewrite_online_query {
     my ($self, $s, $q) = @_;
     my $op =$q->{op};
@@ -253,38 +213,26 @@ sub rewrite_online_query {
     }
 
     if ($value eq 'unknown') {
-        $q->{value} = undef;
-        $q->{field} = 'online.node_id';
-    } else {
         if ($op eq 'equals') {
-            $q->{field} = 'online.last_updated';
-            $q->{'value'} = '0000-00-00 00:00:00';
-            if ($value eq 'on') {
-                $q->{op} = $op eq 'equals' ? 'not_equals' : 'equals';
-            }
-        } else {
-            my %unknown_query = (
-                value => undef,
-                field => 'online.node_id',
-                op => 'equals',
-            );
-            my %last_updated_query = (
-                field => 'online.last_updated',
-                value => '0000-00-00 00:00:00',
-                op => $value eq 'on' ? 'equals' : 'not_equals'
-            );
-
-            %$q = (
-                op => 'or',
-                values => [
-                    \%unknown_query,
-                    \%last_updated_query
-                ],
-            );
+            return (200, \[$UNKNOWN_QUERY]);
         }
+
+        return (200, \[$NOT_UNKNOWN_QUERY]);
     }
 
-    return (200, $q);
+    if ($op eq 'equals') {
+        if ($value eq 'on') {
+            return (200, \[$ON_QUERY]);
+        }
+
+        return (200, \[$OFF_QUERY]);
+    }
+
+    if ($value eq 'on') {
+        return (200, \["( ($UNKNOWN_QUERY) OR ($OFF_QUERY) )"]);
+    }
+
+    return (200, \["( ($UNKNOWN_QUERY) OR ($ON_QUERY) )"]);
 }
 
 sub map_dal_fields_to_join_spec {

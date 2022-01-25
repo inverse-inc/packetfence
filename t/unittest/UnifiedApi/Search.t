@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Mojo;
 use pf::UnifiedApi::Search;
 
@@ -35,6 +35,12 @@ use Test::NoWarnings;
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 #This is the first test
+is_deeply(
+    pf::UnifiedApi::Search::searchQueryToSqlAbstract(\["Bob"]),
+    \["Bob"],
+    "Passthrough a ref",
+);
+
 is_deeply(
     pf::UnifiedApi::Search::searchQueryToSqlAbstract(
         {

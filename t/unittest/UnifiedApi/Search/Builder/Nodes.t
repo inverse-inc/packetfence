@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 34;
+use Test::More tests => 36;
 
 #This test will running last
 use Test::NoWarnings;
@@ -34,6 +34,71 @@ use pf::dal::node;
 my $dal = "pf::dal::node";
 
 my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
+
+{
+    my @f = qw(mac online);
+    my %search_info = (
+        dal => $dal,
+        fields => \@f,
+        "query" => {
+            "op"     => "and",
+            "values" => [
+                {
+                    "field" => "online",
+                    "op"    => "equals",
+                    "value" => "on"
+                },
+                {
+                    "op"  => 'or',
+                    "values" => [
+                            {
+                                op => 'equals',
+                                value => '00:00:00:00:00:01',
+                                field => 'mac',
+                            },
+                            {
+                                op => 'equals',
+                                value => '00:00:00:00:00:02',
+                                field => 'mac',
+                            },
+                    ],
+                }
+            ]
+        },
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+                "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online",
+            ],
+        ],
+        'Return the columns'
+    );
+
+    my $where = [ $sb->make_where(\%search_info) ];
+    is_deeply(
+        $where,
+        [
+            200,
+            {
+                -and => [
+                    \["EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')"],
+                    {
+                        -or => [
+                            { 'node.mac' => { '=' => '00:00:00:00:00:01'} },
+                            { 'node.mac' => { '=' => '00:00:00:00:00:02'} },
+                        ],
+                    }
+                ],
+            }
+        ],
+        'Make where'
+    );
+}
 
 {
     my @f = qw(mac);
@@ -584,44 +649,25 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
     my @f = qw(mac online);
 
     my %search_info = (
-        dal => $dal,
+        dal    => $dal,
         fields => \@f,
     );
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', "IF(online.node_id IS NULL,'unknown',IF(online.last_updated != '0000-00-00 00:00:00', 'on', 'off'))|online" ]],
+        [
+            200,
+            [
+                'node.mac',
+"CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+            ]
+        ],
         'Return the columns'
     );
 
     is_deeply(
-        [
-            $sb->make_from(\%search_info)
-        ],
-        [
-            200,
-            [
-                -join => 'node',
-                {
-                    operator  => '=>',
-                    condition => {
-                        'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-                        'online.tenant_id' => 1 ,
-                    },
-                },
-                'bandwidth_accounting|online',
-                {
-                    operator  => '=>',
-                    condition => [
-                        -and => [
-                        'online.node_id' => { '=' => { -ident => '%2$s.node_id' } },
-                        \"(online.last_updated,online.unique_session_id,online.time_bucket) < (b2.last_updated,b2.unique_session_id,b2.time_bucket)",
-                        ],
-                    ],
-                },
-                'bandwidth_accounting|b2',
-          ]
-        ],
+        [ $sb->make_from( \%search_info ) ],
+        [ 200, ['node'] ],
         'Return the joined tables'
     );
 }
