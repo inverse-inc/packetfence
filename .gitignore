@@ -153,6 +153,8 @@ conf/httpd.conf.d/ssl-certificates.conf
 conf/iptables.conf
 conf/iptables-input.conf.inc
 conf/iptables-input-management.conf.inc
+conf/ip6tables.conf
+conf/ip6tables-input-management.conf.inc
 conf/listener.msg
 conf/provisioning.conf
 conf/portal_modules.conf
