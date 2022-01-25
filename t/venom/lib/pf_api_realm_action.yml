@@ -4,11 +4,13 @@ input:
   id: ""
   method: ""
   status_code: 200
+  time_to_sleep: 5
 steps:
 - type: pf_api_action
   body: '{{.input.body}}'
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'config/realm/{{.input.id}}'
+  time_to_sleep: "{{.input.time_to_sleep}}"
 output:
-  pf_api_realm_action_json: "{{.result.pf_api_action_json}}"
+  pf_api_realm_action_: "{{.result.pf_api_action_}}"

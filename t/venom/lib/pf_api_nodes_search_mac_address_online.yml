@@ -1,6 +1,7 @@
 executor: pf_api_nodes_search_mac_address_online
 input:
-  mac_address: {}
+  mac_address: ""
+  time_to_sleep: 5
 steps:
 - type: pf_api_nodes_search
   body: >-
@@ -26,5 +27,6 @@ steps:
         ]
       }
     }
-outpost:
-  pf_api_nodes_search_mac_address_online_json: "{{.result.pf_api_nodes_search_json}}"
+  time_to_sleep: "{{.input.time_to_sleep}}"
+output:
+  pf_api_nodes_search_mac_address_online_: "{{.result.pf_api_nodes_search_}}"

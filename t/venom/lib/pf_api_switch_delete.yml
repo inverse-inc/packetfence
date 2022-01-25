@@ -1,6 +1,6 @@
 executor: pf_api_switch_delete
 input:
-  id: {}
+  id: ""
 steps:
 - type: pf_api_switch_action
   method: DELETE

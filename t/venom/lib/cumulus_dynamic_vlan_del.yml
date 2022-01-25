@@ -3,9 +3,13 @@ input:
   password: "{{.switch01.api.password}}"
   url: '{{.switch01.api.url}}/nclu/v1/rpc'
   user: "{{.switch01.api.user}}"
+  time_to_sleep: 5
 steps:
 - type: cumulus_api_command_line
   password: "{{.input.password}}"
   url: "{{.input.url}}"
   user: "{{.input.user}}"
   cmd: "del dot1x dynamic-vlan"
+
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep}}"

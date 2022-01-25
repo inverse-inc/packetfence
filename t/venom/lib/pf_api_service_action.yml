@@ -1,9 +1,7 @@
 executor: pf_api_service_action
 input:
   action: ""
-  body: >-
-     {
-     }
+  body: {}
   method: ""
   service: ""
   status_code: ""

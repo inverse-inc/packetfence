@@ -1,11 +1,13 @@
 executor: pf_api_service_stop
 input:
   service: ""
+  time_to_sleep: 5
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
   action: "stop"
   method: POST
+  time_to_sleep: "{{.input.time_to_sleep}}"
 
 - type: pf_api_service_status
   service: "{{.input.service}}"

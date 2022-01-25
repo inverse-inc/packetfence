@@ -15,6 +15,6 @@ steps:
   url: 'node/{{.result.mac_address_url_encoded}}'
   vars:
     node_temp:
-      from: result.bodyjson 
-outpost:
-  pf_api_node_action_json: "{{.node_temp}}"
+      from: result.pf_api_action_
+output:
+  pf_api_node_action_: "{{.node_temp}}"

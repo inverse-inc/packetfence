@@ -1,6 +1,6 @@
 executor: pf_api_realm_delete
 input:
-  id: {}
+  id: ""
 steps:
 - type: pf_api_realm_action
   id: "{{.input.id}}"

@@ -7,8 +7,5 @@ steps:
   action: "status"
   time_to_sleep: 0
   method: GET
-  vars:
-    service_temp:
-      from: result.pf_api_service_action_
 output:
   pf_api_service_status_: "{{.result.pf_api_service_action_}}"

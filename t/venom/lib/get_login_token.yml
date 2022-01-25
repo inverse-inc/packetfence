@@ -6,20 +6,20 @@ input:
   delay: 1
   status_code: 200
 steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/login'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "username": "{{.input.username}}",
-        "password": "{{.input.password}}"
-      }      
-    headers:
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual "{{.input.status_code}}"
-    retry: "{{.input.retry}}"
-    delay: "{{.input.delay}}"
+- type: http
+  method: POST
+  url: '{{.pfserver_webadmin_url}}/api/v1/login'
+  ignore_verify_ssl: true
+  body: >-
+    {
+      "username": "{{.input.username}}",
+      "password": "{{.input.password}}"
+    }      
+  headers:
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual "{{.input.status_code}}"
+  retry: "{{.input.retry}}"
+  delay: "{{.input.delay}}"
 output: 
-   token: "{{.result.bodyjson.token}}"
+  token: "{{.result.bodyjson.token}}"

@@ -1,6 +1,6 @@
 executor: mac_address_url_encoder
 input:
-  mac_address: {}
+  mac_address: ""
 steps:
 - type: exec
   script: echo "{{.input.mac_address}}" | sed -e 's|:|%3A|g' 

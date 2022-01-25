@@ -1,9 +1,9 @@
 executor: extract_certificates
 input:
-  cnt: {}
-  cnCA: {}
-  certPath: {}
-  serial_number: {}
+  cnt: ""
+  cnCA: ""
+  certPath: ""
+  serial_number: ""
 steps:
 - type: exec
   script: "mktemp -d"

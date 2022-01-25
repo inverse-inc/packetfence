@@ -1,12 +1,13 @@
 executor: cumulus_dot1x_int_show
+# TODO: Make better assertion, it is too large
 input:
-  connexion_type: {} # PEAP TLS MAB
+  connexion_type: "" # PEAP TLS MAB
   id: "{{.switch01.dot1x_interface.id}}"
   password: "{{.switch01.api.password}}"
-  status: {} # AUTHORIZED
+  status: "" # AUTHORIZED
   url: '{{.switch01.api.url}}/nclu/v1/rpc'
   user: "{{.switch01.api.user}}"
-  vlan_id: {}
+  vlan_id: ""
 steps:
 - type: cumulus_api_command_line
   user: "{{.input.user}}"

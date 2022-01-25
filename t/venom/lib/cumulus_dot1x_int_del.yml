@@ -4,7 +4,8 @@ input:
   password: "{{.switch01.api.password}}"
   url: '{{.switch01.api.url}}/nclu/v1/rpc'
   user: "{{.switch01.api.user}}"
-  dot1x_ext: {}
+  dot1x_ext: ""
+  time_to_sleep: 5
 steps:
 - type: cumulus_api_command_line
   user: "{{.input.user}}"
@@ -13,4 +14,4 @@ steps:
   cmd: "del interface {{.input.id}} dot1x {{.input.dot1x_ext}}"
 
 - type: sleep
-  time_to_sleep: 5
+  time_to_sleep: "{{.input.time_to_sleep}}"

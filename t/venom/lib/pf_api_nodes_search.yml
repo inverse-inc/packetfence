@@ -1,10 +1,12 @@
 executor: pf_api_nodes_search
 input:
   body: {}
+  time_to_sleep: 5
 steps:
 - type: pf_api_action
   url: "nodes/search"
   body: '{{.input.body}}'
   method: POST
+  time_to_sleep: "{{.input.time_to_sleep}}"
 output:
-  pf_api_nodes_search_json: "{{.result.pf_api_action_json}}"
+  pf_api_nodes_search_: "{{.result.pf_api_action_}}"

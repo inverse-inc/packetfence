@@ -61,3 +61,6 @@ steps:
       "unreg_on_acct_stop": "{{.nput.unreg_on_acct_stop}}",
       "vlan_pool_technique": "username_hash"
     }
+
+output:
+  - pf_api_connection_profiles: "{{.result.pf_api_action_}}"

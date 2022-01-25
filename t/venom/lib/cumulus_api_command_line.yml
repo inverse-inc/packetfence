@@ -20,5 +20,5 @@ steps:
   assertions:
     - result.statuscode ShouldEqual 200
 output:
-  cumulus_api_command_line_json: "{{.result.bodyjson}}"
+  cumulus_api_command_line_: "{{.result.bodyjson}}"
   cumulus_api_command_line_body: "{{.result.body}}"
