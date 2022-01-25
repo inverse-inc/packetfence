@@ -50,7 +50,22 @@ our %DISCONNECT_DISPATCH = (
 
 our %LOOKUP = (
     last_accounting => \&lookupLastAccounting,
+    locationlog => \&lookupLocationlog,
 );
+
+sub lookupLocationlog {
+    my ($self, $args) = @_;
+    if (!exists $args->{mac}) {
+        return undef;
+    }
+
+    my $mac = $args->{mac};
+    if (!$mac) {
+        return undef;
+    }
+
+    return pf::locationlog::locationlog_view_open_mac($mac);
+}
 
 sub lookupLastAccounting {
     my ($self, $args) = @_;
