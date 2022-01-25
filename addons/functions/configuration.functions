@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PF_CONF_PATH="/usr/local/pf/conf/pf.conf"
+
 function ipcalc_wrapper() {
   if is_deb_based; then
     ipcalc-ng $@
@@ -35,7 +37,7 @@ function restore_config_files() {
 }
 
 function list_pf_interfaces() {
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print join(\"\n\", Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->GroupMembers('interface')) . \"\n\"" | sed 's/^interface //g'
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print join(\"\n\", Config::IniFiles->new( -file => '$PF_CONF_PATH')->GroupMembers('interface')) . \"\n\"" | sed 's/^interface //g'
 }
 
 function get_os_ip_address() {
@@ -61,7 +63,7 @@ function get_ip_network() {
 }
 
 function get_pf_ip_address() {
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->val('interface $1', 'ip')" 
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '$PF_CONF_PATH')->val('interface $1', 'ip')" 
 }
 
 function pf_has_network() {
@@ -73,8 +75,8 @@ function rewrite_pf_ip_address() {
   old_ip=`get_pf_ip_address $int`
   new_ip="$2"
   new_mask="$3"
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $int', 'ip', '$new_ip') ; \$c->RewriteConfig"
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('interface $int', 'mask', '$new_mask') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->setval('interface $int', 'ip', '$new_ip') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->setval('interface $int', 'mask', '$new_mask') ; \$c->RewriteConfig"
   echo "Changed IP settings of $int to $new_ip/$new_mask in pf.conf"
 
   
@@ -98,17 +100,17 @@ function rewrite_pf_ip_address() {
 }
 
 function rename_interface() {
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->RenameSection('interface $1', 'interface $2') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->RenameSection('interface $1', 'interface $2') ; \$c->RewriteConfig"
   echo "Renamed $1 to $2 in pf.conf"
 }
 
 function delete_interface() {
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->DeleteSection('interface $1') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->DeleteSection('interface $1') ; \$c->RewriteConfig"
   echo "Deleted interface $1 in pf.conf"
 }
 
 function get_pf_interface_type() {
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf')->val('interface $1', 'type')" 
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "print Config::IniFiles->new( -file => '$PF_CONF_PATH')->val('interface $1', 'type')" 
 }
 
 function handle_interface_exists() {
@@ -214,7 +216,7 @@ function restore_profile_templates() {
 function adjust_configuration() {
   echo "Setting localhost as the database host"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->setval('mysql', 'host', 'localhost') ; \$c->RewriteConfig"
-  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pf.conf') ; \$c->setval('database', 'host', 'localhost') ; \$c->RewriteConfig"
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->setval('database', 'host', 'localhost') ; \$c->RewriteConfig"
 }
 
 function is_cluster() {

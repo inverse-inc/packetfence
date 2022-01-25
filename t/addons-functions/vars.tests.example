@@ -1,0 +1,10 @@
+# A physical interface on the server you are testing on (ex: eth0)
+export TEST_INTERFACE=
+# The IP address of TEST_INTERFACE (ex: 192.168.1.5)
+export TEST_INTERFACE_IP=
+# The CIDR of the IP on TEST_INTERFACE (ex: 192.168.1.5/24)
+export TEST_INTERFACE_CIDR=
+# The netmask on TEST_INTERFACE (ex: 255.255.255.0)
+export TEST_INTERFACE_NETMASK=
+# The network of the IP on TEST_INTERFACE (ex: 192.168.1.0)
+export TEST_INTERFACE_NETWORK=

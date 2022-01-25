@@ -1,0 +1,100 @@
+#!/bin/bash
+
+set -o nounset -o pipefail -o errexit
+
+source /usr/local/pf/t/addons-functions/vars.tests
+
+source /usr/local/pf/addons/functions/helpers.functions
+source /usr/local/pf/addons/functions/configuration.functions
+
+export PF_CONF_PATH="/usr/local/pf/t/data/pf.conf"
+PRISTINE_PF_CONF_PATH=$PF_CONF_PATH
+
+function setup_test_pf_conf() {
+  cp $PF_CONF_PATH $PF_CONF_PATH.configuration.tests
+  PRISTINE_PF_CONF_PATH="$PF_CONF_PATH"
+  export PF_CONF_PATH=$PF_CONF_PATH.configuration.tests
+}
+
+function revert_test_pf_conf() {
+  rm -f $PF_CONF_PATH
+  export PF_CONF_PATH=$PRISTINE_PF_CONF_PATH
+}
+
+function test_list_pf_interfaces() {
+  # Bash doesn't provide a way to perform multi-line equality so we compare the md5 sum to establish the equality
+  [[ `list_pf_interfaces | md5sum` == `echo -e "eth0\neth1.1\neth1.2" | md5sum` ]] \
+    || failed_test "list_pf_interfaces provides the right list of interfaces"
+}
+
+function test_ipcalc_wrapper() {
+  ipcalc_wrapper -v | grep '^ipcalc' > /dev/null || failed_test "ipcalc_wrapper -v is working"
+}
+
+function test_get_os_ip_address() {
+  [[ `get_os_ip_address $TEST_INTERFACE` == "$TEST_INTERFACE_IP" ]] || failed_test "get_os_ip_address provides the right IP address"
+}
+
+function test_get_os_ip_cidr() {
+  [[ `get_os_ip_cidr $TEST_INTERFACE` == "$TEST_INTERFACE_CIDR" ]] || failed_test "get_os_ip_cidr provides the right CIDR"
+}
+
+function test_get_os_netmask() {
+  [[ `get_os_netmask $TEST_INTERFACE` == "$TEST_INTERFACE_NETMASK" ]] || failed_test "get_os_netmask provides the right netmask"
+}
+
+function test_get_os_network() {
+  [[ `get_os_network $TEST_INTERFACE` == "$TEST_INTERFACE_NETWORK" ]] || failed_test "get_os_network provides the right network"
+}
+
+function test_get_ip_network() {
+  [[ `get_ip_network $TEST_INTERFACE_CIDR` == "$TEST_INTERFACE_NETWORK" ]] || failed_test "get_ip_network provides the right network"
+}
+
+function test_pf_get_ip_address() {
+  [[ `get_pf_ip_address eth0` == "10.0.0.13" ]] || failed_test "get_pf_ip_address provides the right IP from the configuration"
+}
+
+function test_rewrite_pf_address() {
+  setup_test_pf_conf
+  yes | rewrite_pf_ip_address eth0 99.99.99.99 255.255.255.255 >/dev/null || echo 1 > /dev/null
+  [[ `get_pf_ip_address eth0` == "99.99.99.99" ]] || failed_test "rewrite_pf_ip_address rewrites the IP address of eth0"
+  revert_test_pf_conf
+}
+
+function test_rename_interface() {
+  setup_test_pf_conf
+  rename_interface eth0 ensbanana > /dev/null
+  [[ `get_pf_ip_address ensbanana` == "10.0.0.13" ]] || failed_test "rename_interface renamed the interface in the configuration"
+  revert_test_pf_conf
+}
+
+function test_delete_interface() {
+  setup_test_pf_conf
+  delete_interface eth0 > /dev/null
+  [[ `get_pf_ip_address eth0` == "" ]] || failed_test "delete_interface deleted the interface in the configuration"
+  revert_test_pf_conf
+}
+
+function test_get_pf_interface_type() {
+  [[ `get_pf_interface_type eth0` == "management" ]] || failed_test "get_pf_interface_type returns the right type"
+}
+
+function run_configuration_tests() {
+  echo "==> Starting configuration tests"
+  test_ipcalc_wrapper
+  test_list_pf_interfaces
+  test_get_os_ip_address
+  test_get_os_ip_cidr
+  test_get_os_netmask
+  test_get_os_network
+  test_get_ip_network
+  test_pf_get_ip_address
+  test_rewrite_pf_address
+  test_rename_interface
+  test_delete_interface
+  test_get_pf_interface_type
+  echo "==> Completed configuration tests"
+}
+
+run_configuration_tests

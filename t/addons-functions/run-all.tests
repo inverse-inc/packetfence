@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o nounset -o pipefail -o errexit
+
+echo "=> Running all the tests for addons/functions/t/"
+
+./configuration.tests
+./helpers.tests
+
+echo "=> Ran the tests successfully"
+
