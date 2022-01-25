@@ -42,14 +42,17 @@ sub run {
         push @lldp_detection_switches, $switch_entry if isenabled($pf::SwitchFactory::SwitchConfig{$switch_entry}{VoIPLLDPDetect});
     }
 
-    foreach my $switch ( @lldp_detection_switches ) {
+    foreach my $switch (@lldp_detection_switches) {
         # Switch range
-        if ( $switch =~ /\// && isenabled($self->process_switchranges) ) {
-            get_logger->info("Processing switch range '$switch'");
-            my $ip = new Net::IP($switch);
-            do {
-                populate_switch_cache($ip->ip());
-            } while (++$ip);
+        if ( $switch =~ /\// ) {
+            if ( isenabled( $self->process_switchranges ) ) {
+                get_logger->info("Processing switch range '$switch'");
+                my $range = new Net::IP($switch);
+                my $last_ip = $range->last_ip();
+                while (++$range && $last_ip ne $range->ip()) {
+                    populate_switch_cache( $range->ip() );
+                }
+            }
         } else {
             populate_switch_cache($switch);
         }
