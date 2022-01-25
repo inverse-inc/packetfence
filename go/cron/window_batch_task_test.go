@@ -3,11 +3,12 @@ package maint
 import (
 	"context"
 	"testing"
+	"time"
 )
 
 var jobsConfig = GetMaintenanceConfig(context.Background())
 
-func testWindowSqlCleanup(t *testing.T, name string, additional_args map[string]interface{}, setupSql []string, tests []sqlCountTest, cleanupSQL []string) {
+func testWindowSqlCleanup(t *testing.T, name string, additional_args map[string]interface{}, setupSql []string, pause time.Duration, tests []sqlCountTest, cleanupSQL []string) {
 	config, found := jobsConfig[name]
 	if !found {
 		t.Fatalf("config for %s not found", name)
@@ -23,6 +24,7 @@ func testWindowSqlCleanup(t *testing.T, name string, additional_args map[string]
 			),
 		),
 		setupSql,
+		pause,
 		tests,
 		cleanupSQL,
 	)
@@ -58,6 +60,7 @@ func TestAdminApiAuditLogCleanup(t *testing.T) {
         ( NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "admin_api_audit_log entries left",
@@ -99,6 +102,7 @@ func TestAuthLogCleanup(t *testing.T) {
         ( NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "auth_log entries left",
@@ -140,6 +144,7 @@ func TestDnsAuditLogCleanup(t *testing.T) {
         ( NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "dns_audit_log entries left",
@@ -181,6 +186,7 @@ func TestRadiusAuditLogCleanup(t *testing.T) {
         ( NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "radius_audit_log entries left",
@@ -240,6 +246,7 @@ func TestLocationlogCleanup(t *testing.T) {
         ("00:00:00:00:00:0e", "0000-00-00 00:00:00" )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "locationlog entries left",
@@ -306,6 +313,7 @@ func TestAcctCleanup(t *testing.T) {
         ( NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "radacct entries left",
@@ -376,6 +384,7 @@ SELECT
 FROM macs JOIN dates;
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "bandwidth_accounting marked done",
@@ -438,6 +447,7 @@ SELECT
 FROM macs JOIN dates;
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "bandwidth_accounting marked done",

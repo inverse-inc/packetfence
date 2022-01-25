@@ -51,6 +51,7 @@ SELECT
 FROM macs JOIN dates;
 `,
 		},
+		0,
 		[]sqlCountTest{
 			{
 				name:          "bandwidth just keep the last 2hrs",
@@ -134,6 +135,7 @@ SELECT
 FROM macs JOIN dates;
 `,
 		},
+		0,
 		[]sqlCountTest{
 			{
 				name:          "bandwidth just keep the last 2hrs",

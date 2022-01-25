@@ -42,6 +42,7 @@ INSERT INTO ip6log_history (tenant_id, mac, ip, start_time, end_time) VALUES
     (1, "82:59:26:37:77:72", "2001:0db8:85a3:0000:0000:8a2e:0370:733d", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() )
 `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "ip6log_history entries kept",
@@ -94,6 +95,7 @@ func TestIp6logCleanupRotate(t *testing.T) {
 (1, "82:59:26:37:77:72", "2001:0db8:85a3:0000:0000:8a2e:0370:733d", DATE_SUB(NOW(), INTERVAL 2 DAY), NOW() )
             `,
 		},
+		0,
 		[]sqlCountTest{
 			sqlCountTest{
 				name:          "ip6log_history entries kept",
