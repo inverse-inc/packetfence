@@ -109,7 +109,7 @@ server packetfence {
 				&control:Auth-Type := Accept
 			}
 		}
-		if (Control:Auth-type == "MS-CHAP") {
+		if ("%{%{Control:Auth-type}:-No-MS_CHAP}" == "MS-CHAP") {
 			packetfence-multi-domain
 		}
 		packetfence-eap-mac-policy
