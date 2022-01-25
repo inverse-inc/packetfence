@@ -1216,6 +1216,8 @@ fi
 %config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
                         /usr/local/pf/html/captive-portal/script
                         /usr/local/pf/html/captive-portal/templates
+
+%dir %attr(02755, pf, pf)  /usr/local/pf/html/captive-portal/profile-templates
 # pfappserver dir
                         /usr/local/pf/html/pfappserver
 
