@@ -49,6 +49,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Fixes date format of the PKI SQL tables (#6823)
 * Use the Digest of the profile on SCEP request (#6823)
 * Improve CLI login support on Ubiquiti Edge switches (#6727)
+* Expose the open locationlog as a variable to switch templates.
 
 === Bug Fixes
 
