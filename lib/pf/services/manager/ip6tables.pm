@@ -20,6 +20,8 @@ use pf::log;
 use pf::util;
 use pf::ip6tables;
 use pf::config qw(%Config);
+use pf::constants;
+use pf::constants::exit_code qw($EXIT_SUCCESS);
 
 extends 'pf::services::manager';
 
@@ -42,7 +44,7 @@ sub startService {
         pf::ip6tables->save($install_dir . '/var/ip6tables.bak');
     }
     pf::ip6tables->generate();
-    return 1;
+    return $TRUE;
 }
 
 =head2
@@ -53,7 +55,7 @@ generateConfig
 
 sub generateConfig {
     pf::ip6tables->generate();
-    return 1;
+    return $TRUE;
 }
 
 =head2 start
@@ -65,7 +67,7 @@ Wrapper around systemctl. systemctl should in turn call the actuall _start.
 sub start {
     my ($self,$quick) = @_;
     system('sudo systemctl start packetfence-ip6tables');
-    return $? == 0;
+    return $? == $EXIT_SUCCESS;
 }
 
 =head2 _start
@@ -86,7 +88,7 @@ sub _start {
 sub startAndCheck {
     my ($self) = @_;
 
-    while(1) {
+    while($TRUE) {
         $self->_start() unless($self->isAlive());
         sleep 60;
     }
@@ -101,7 +103,7 @@ Wrapper around systemctl. systemctl should in turn call the actual _stop.
 sub stop {
     my ($self) = @_;
     system('sudo systemctl stop packetfence-ip6tables');
-    return 1;
+    return $TRUE;
 }
 
 =head2 _stop
@@ -114,7 +116,7 @@ sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
     pf::ip6tables->restore( $install_dir . '/var/ip6tables.bak' );
-    return 1;
+    return $TRUE;
 }
 
 =head2 isAlive
@@ -129,9 +131,9 @@ sub isAlive {
     my $logger = get_logger();
     my $result;
     my $pid = $self->pid;
-    my $_EXIT_CODE_EXISTS = "0";
+    my $_EXIT_CODE_EXISTS = "$EXIT_SUCCESS";
     my $rules_applied = defined( pf_run( "sudo " . $Config{'services'}{"ip6tables_binary"} . " -S | grep " . $pf::ip6tables::FW_FILTER_INPUT_MGMT ,accepted_exit_status => [$_EXIT_CODE_EXISTS]) );
-    return ($pid && $rules_applied) ? 1 : 0;
+    return ($pid && $rules_applied) ? $TRUE : $FALSE;
 }
 
 =head1 AUTHOR
