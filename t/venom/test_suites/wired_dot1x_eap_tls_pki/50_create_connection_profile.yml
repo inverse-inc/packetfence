@@ -1,7 +1,6 @@
 name: Create connection profile
 testcases:
+- name: wired_dot1x_eap_tls_manual_connection_profiles
   steps:
-  - name: wired_dot1x_eap_tls_manual_connection_profiles
-    steps:
-    - type: wired_dot1x_eap_tls_manual_connection_profiles
+  - type: wired_dot1x_eap_tls_manual_connection_profiles
 

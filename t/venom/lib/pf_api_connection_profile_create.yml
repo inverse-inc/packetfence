@@ -1,10 +1,10 @@
 executor: pf_api_connection_profiles
 input:
   connection_type: ""
-  connection_subtype: ""
+  connection_sub_type: ""
   id: ""
   desc: ""
-  source: ""
+  sources: ""
   unreg_on_acct_stop: ""
 steps:
 - type: pf_api_action
