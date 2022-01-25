@@ -38,6 +38,7 @@ use pf::file_paths qw(
     $lib_dir
     $config_version_file
     $iptable_config_file
+    $captiveportal_profile_templates_path
 );
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
@@ -65,7 +66,7 @@ sub action_all {
     _changeFilesToOwner('root',$pfcmd);
     chmod($PFCMD_MODE, $pfcmd);
     chmod(0664, @stored_config_files, $iptable_config_file);
-    chmod($DIR_MODE, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
+    chmod($DIR_MODE, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue", $captiveportal_profile_templates_path);
     _fingerbank();
     find({ wanted => \&wanted,untaint => 1}, $log_dir);
     print "Fixed permissions.\n";
