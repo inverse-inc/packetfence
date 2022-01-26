@@ -196,6 +196,7 @@ So here is mini templating language to format values.
 ** stripped_user_name
 ** switch._ExternalPortalEnforcement
 ** switch._RoleMap
+** switch._VpnMap
 ** switch._SNMPAuthPasswordRead
 ** switch._SNMPAuthPasswordTrap
 ** switch._SNMPAuthPasswordWrite
@@ -305,6 +306,7 @@ So here is mini templating language to format values.
 * voip
 ** switch._ExternalPortalEnforcement
 ** switch._RoleMap
+** switch._VpnMap
 ** switch._SNMPAuthPasswordRead
 ** switch._SNMPAuthPasswordTrap
 ** switch._SNMPAuthPasswordWrite
@@ -396,6 +398,7 @@ So here is mini templating language to format values.
 ** switch._macSearchesSleepInterval
 ** switch._mode
 ** switch._RoleMap
+** switch._VpnMap
 ** switch._roles
 ** switch._SNMPAuthPasswordRead
 ** switch._SNMPAuthPasswordTrap

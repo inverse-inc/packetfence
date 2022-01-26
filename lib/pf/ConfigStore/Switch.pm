@@ -37,6 +37,7 @@ our %MappingKey = (
     VlanMapping => 'vlan',
     UrlMapping => 'url',
     ControllerRoleMapping => 'controller_role',
+    VpnMapping => 'vpn',
 );
 
 our %MappingKey2 = (
@@ -44,6 +45,7 @@ our %MappingKey2 = (
     VlanMapping => 'Vlan',
     UrlMapping => 'Url',
     ControllerRoleMapping => 'Role',
+    VpnMapping => 'Vpn',
 );
 
 =head2 Methods
@@ -98,7 +100,7 @@ sub _expandMapping {
     # We put it back as a string so it works in the admin UI
     my $toset = {};
     while (my ($attr, $val) = each %$switch) {
-        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role)$/) {
+        if ($attr =~ /(.*)(AccessList|Vlan|Url|Role|Vpn)$/) {
             my $type = $2;
             my $role = $1;
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
@@ -121,7 +123,7 @@ sub _expandMapping {
         $switch->{$attr} = $val;
     }
 
-    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping))  {
+    for my $k (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping))  {
         next if !exists $switch->{$k};
         $switch->{$k} = [sort { $a->{role} cmp $b->{role} } @{$switch->{$k} // []}]
     }
@@ -150,7 +152,7 @@ sub cleanupBeforeCommit {
 
 sub _flattenRoleMappings {
     my ( $switch ) = @_;
-    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping))  {
+    for my $namespace (qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping))  {
         my $list = $switch->{$namespace} // [];
         for my $mapping (@$list) {
             my $role = $mapping->{role};
@@ -161,7 +163,7 @@ sub _flattenRoleMappings {
 
 sub _deleteRoleMappings {
     my ( $switch ) = @_;
-    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping)};
+    delete @{$switch}{qw(AccessListMapping VlanMapping UrlMapping ControllerRoleMapping VpnMapping)};
 }
 
 =head2 _normalizeUplink

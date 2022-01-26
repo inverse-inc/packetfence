@@ -48,7 +48,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     WiredMacAuth
     WirelessDot1x
-    RoleBasedEnforcement
+    VPNRoleBasedEnforcement
     VPN
 );
 
@@ -160,6 +160,18 @@ sub getAcceptForm {
     return $html_form;
 }
 
+=item returnVpnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnVpnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Fortinet-Group-Name';
+}
+
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
@@ -218,15 +230,19 @@ sub identifyConnectionType {
     my ( $self, $connection, $radius_request ) = @_;
     my $logger = $self->logger;
 
-    my @require = qw(Fortinet-Vdom-Name);
+    my @require = qw(Connect-Info);
     my @found = grep {exists $radius_request->{$_}} @require;
 
-    if (@require == @found) {
+    if ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(vpn-ssl|vpn-ikev2)$/i ) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
-    } else {
+    } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(admin-login)$/i ) {
         $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
     }
+    # Default to CLI
+    $connection->isVPN($FALSE);
+    $connection->isCLI($TRUE);
 }
 
 
@@ -247,7 +263,25 @@ sub returnAuthorizeVPN {
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
 
-    my $node = $args->{'node_info'};
+    my $role;
+    if ( isenabled($self->{_VpnMap}) && $self->supportsVPNRoleBasedEnforcement()) {
+        $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
+        if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
+            $role = $self->getRoleByName($args->{'user_role'});
+        }
+        if ( defined($role) && $role ne "" ) {
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                $self->returnVpnRoleAttributes($role),
+            };
+            $logger->info(
+                "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"
+            );
+        }
+        else {
+            $logger->debug("(".$self->{'_id'}.") Received undefined role. No Role added to RADIUS Access-Accept");
+        }
+    }
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     $logger->info("Returning ACCEPT");

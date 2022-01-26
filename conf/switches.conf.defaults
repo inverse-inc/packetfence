@@ -27,6 +27,7 @@ VoIPEnabled = N
 cliAccess = N
 VlanMap = Y
 RoleMap = N
+VpnMap = N
 ExternalPortalEnforcement = N
 TenantId = 1
 

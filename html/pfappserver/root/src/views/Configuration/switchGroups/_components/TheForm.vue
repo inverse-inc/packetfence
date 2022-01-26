@@ -119,7 +119,7 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Roles')">
 
-        <div v-if="!advancedMode && !supports(['RadiusDynamicVlanAssignment', 'RoleBasedEnforcement', 'AccessListBasedEnforcement', 'ExternalPortal'])"
+        <div v-if="!advancedMode && !supports(['RadiusDynamicVlanAssignment', 'RoleBasedEnforcement', 'VPNRoleBasedEnforcement', 'AccessListBasedEnforcement', 'ExternalPortal'])"
           class="alert alert-warning"
         >
           <strong>{{ $i18n.t('Note:') }}</strong>
@@ -158,6 +158,24 @@
 
               <form-group-role-map-role v-for="role in roles" :key="`${role}Role`" :namespace="`${role}Role`"
                 v-show="isRoleMap"
+                :column-label="role"
+              />
+            </div>
+          </b-card>
+
+          <b-card v-show="supports(['VPNRoleBasedEnforcement'])"
+            class="mb-3 pb-0" no-body
+          >
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Vpn Role'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-vpn-map namespace="VpnMap"
+                :column-label="$i18n.t('Role by Vpn Role')"
+              />
+
+              <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" :namespace="`${role}Vpn`"
+                v-show="isVpnMap"
                 :column-label="role"
               />
             </div>
@@ -443,6 +461,7 @@ import {
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
+  FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
   FormGroupSnmpAuthProtocolTrap,
@@ -469,6 +488,7 @@ import {
   FormGroupTenantIdentifier,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
+  FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
   FormGroupType,
@@ -513,6 +533,7 @@ const components = {
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
+  FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
   FormGroupSnmpAuthProtocolTrap,
@@ -539,6 +560,7 @@ const components = {
   FormGroupTenantIdentifier,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
+  FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
   FormGroupType,

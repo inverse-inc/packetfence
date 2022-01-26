@@ -76,6 +76,7 @@ use pf::SwitchSupports qw(
     -RoleBasedEnforcement
     -SaveConfig
     -VPN
+    -VPNRoleBasedEnforcement
     -WebFormRegistration
     -WiredDot1x
     -WiredMacAuth
@@ -165,6 +166,7 @@ sub new {
         '_VlanMap'                      => 'enabled',
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
+        '_VpnMap'                       => 'enabled',
         '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
@@ -2817,6 +2819,17 @@ sub returnRoleAttributes {
     return ($self->returnRoleAttribute() => $role);
 }
 
+=item returnVpnRoleAttributes
+
+Return the specific Vpn role attribute of the switch.
+
+=cut
+
+sub returnVpnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnVpnRoleAttribute() => $role);
+}
+
 =item handleRadiusDeny
 
 Return RLM_MODULE_USERLOCK if the vlan id is -1
@@ -3275,7 +3288,7 @@ Check if switch should use CoA
 sub shouldUseCoA {
     my ($self, $args) = @_;
     # Roles are configured and the user should have one
-    return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap})) && isenabled($self->{_useCoA}));
+    return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap}) || isenabled($self->{_VpnMap})) && isenabled($self->{_useCoA}));
 }
 
 =item getRelayAgentInfoOptRemoteIdSub
