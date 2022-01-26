@@ -45,7 +45,7 @@ our %MappingKey2 = (
     VlanMapping => 'Vlan',
     UrlMapping => 'Url',
     ControllerRoleMapping => 'Role',
-    VpnMapping => 'vpn',
+    VpnMapping => 'Vpn',
 );
 
 =head2 Methods

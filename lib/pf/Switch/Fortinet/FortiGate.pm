@@ -160,6 +160,18 @@ sub getAcceptForm {
     return $html_form;
 }
 
+=item returnVpnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnVpnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Fortinet-Group-Name';
+}
+
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
@@ -260,7 +272,7 @@ sub returnAuthorizeVPN {
         if ( defined($role) && $role ne "" ) {
             $radius_reply_ref = {
                 %$radius_reply_ref,
-                $self->returnRoleAttributes($role),
+                $self->returnVpnRoleAttributes($role),
             };
             $logger->info(
                 "(".$self->{'_id'}.") Added role $role to the returned RADIUS Access-Accept"

@@ -2819,6 +2819,17 @@ sub returnRoleAttributes {
     return ($self->returnRoleAttribute() => $role);
 }
 
+=item returnVpnRoleAttributes
+
+Return the specific Vpn role attribute of the switch.
+
+=cut
+
+sub returnVpnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnVpnRoleAttribute() => $role);
+}
+
 =item handleRadiusDeny
 
 Return RLM_MODULE_USERLOCK if the vlan id is -1

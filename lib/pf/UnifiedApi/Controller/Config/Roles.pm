@@ -237,7 +237,7 @@ sub reassign_role_config_store_switch {
     my $i = 0;
     my $cachedConfig = $cs->cachedConfig;
     for my $sect ($cachedConfig->Sections()) {
-        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList) ) {
+        for my $f (map { "${old}${_}" } qw(Role Url Vlan AccessList Vpn) ) {
             next if !$cachedConfig->exists($sect, $f);
             $cachedConfig->delval($sect, $f);
             $i |= 1;

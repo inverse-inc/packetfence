@@ -121,7 +121,7 @@
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Roles')">
 
-        <div v-if="!advancedMode && !supports(['RadiusDynamicVlanAssignment', 'RoleBasedEnforcement', 'AccessListBasedEnforcement', 'ExternalPortal'])"
+        <div v-if="!advancedMode && !supports(['RadiusDynamicVlanAssignment', 'RoleBasedEnforcement', 'VPNRoleBasedEnforcement', 'AccessListBasedEnforcement', 'ExternalPortal'])"
           class="alert alert-warning"
         >
           <strong>{{ $i18n.t('Note:') }}</strong>
