@@ -1,0 +1,97 @@
+name: Configure Inline L2 interface and network
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+# get_name_of: one-liner to get name (ex: eth0) based on index (ex: 1, 2)
+- name: get_name_of_dhcp_listener_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      dhcp_listener_interface:
+        from: result.systemout
+
+- name: configure_snat_interface_for_inline
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/inline'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "interfaceSNAT":"{{.get_name_of_dhcp_listener_int.dhcp_listener_interface}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual "Settings updated"
+
+- name: get_name_of_inline_int
+  steps:
+  - type: exec
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator_inline_l2.interfaces.inline.index}}' | awk -F ': ' '{print $2;}'"
+    vars:
+      inline_interface:
+        from: result.systemout
+
+- name: get_inline_network
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/{{.get_name_of_inline_int.inline_interface}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      inline_network:
+        from: result.bodyjson.item.network
+
+- name: configure_interface_inlinel2
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/interface/{{.get_name_of_inline_int.inline_interface}}'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "ipaddress": "{{.configurator_inline_l2.interfaces.inline.ip}}",
+       "netmask": "{{.configurator_inline_l2.interfaces.inline.netmask}}",
+       "type": "inlinel2",
+       "dns": "{{.configurator_inline_l2.dns.primary_ip}},{{.configurator_inline_l2.dns.secondary_ip}}",
+       "dhcpd_enabled": "{{.configurator_inline_l2.interfaces.inline.dhcpd_enabled}}",
+       "nat_enabled": "{{.inline_l2_and_radius.l2_network.nat}}",
+       "reg_network": "{{.inline_l2_and_radius.l2_network.registration}}",
+       "split_network": "{{.inline_l2_and_radius.l2_network.split}}",
+       "coa": "{{.inline_l2_and_radius.l2_network.coa}}",
+       "netflow_accounting_enabled": "{{.inline_l2_and_radius.l2_network.netflow}}"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: configure_inline_l2_network
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/l2_network/{{.get_inline_network.inline_network}}'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "dhcp_default_lease_time": "{{.inline_l2_and_radius.l2_network.lease_time}}",
+       "dhcp_max_lease_time": "{{.inline_l2_and_radius.l2_network.lease_time}}"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+

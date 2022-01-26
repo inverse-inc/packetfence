@@ -531,7 +531,7 @@ inline_l2.pf_portal: 192.168.2.1
 inline_l2.networks: 192.168.2.0
 
 ################################################################################
-#Security event autoreg test suite specific variables
+## Security event autoreg test suite specific variables
 #################################################################################
 security_event_autoreg.event.id: '88888888'
 security_event_autoreg.event.access_duration: '5D'
@@ -540,4 +540,22 @@ security_event_autoreg.node.mac: '{{.node01_ens7_mac_address}}'
 security_event_autoreg.node.mac_url_encoded: '{{.node01_ens7_mac_address_url_encoded}}'
 security_event_autoreg.node.dhcp_fingerprint: 1,28,2,3,15,6,119,12,44,47,26,121,42
 security_event_autoreg.node.dhcp_fingerprint_id: 276
+
+#################################################################################
+## inline_l2_and_radius test suite specific variables
+#################################################################################
+
+# network and interfaces
+inline_l2_and_radius.l2_network.nat: enabled
+inline_l2_and_radius.l2_network.registration: 10.0.1.0/8
+inline_l2_and_radius.l2_network.split: enabled
+inline_l2_and_radius.l2_network.coa: enabled
+inline_l2_and_radius.l2_network.netflow: enabled
+inline_l2_and_radius.l2_network.lease_time: 30
+
+# roles
+inline_l2_and_radius.roles.first: role_01
+inline_l2_and_radius.roles.second: role_02
+
+>>>>>>> 6072e84eea (test suite inline_l2 with network config)
 

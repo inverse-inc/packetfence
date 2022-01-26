@@ -8,6 +8,9 @@
   vars:
     test_suites:
       - configurator_inline_l2
+      - global_config
+
+      - inline_l2_and_radius
 
   tasks:
     - name: Check configurator state
