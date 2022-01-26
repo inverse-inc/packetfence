@@ -28,6 +28,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === New Features
 
 * Added MAB floating device support to Ruckus/Brocade switches (#6774)
+* Support for roles in VPN access
 
 === Enhancements
 
