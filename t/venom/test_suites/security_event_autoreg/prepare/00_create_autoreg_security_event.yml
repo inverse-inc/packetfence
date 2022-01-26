@@ -11,7 +11,18 @@ testcases:
     url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
     ignore_verify_ssl: true
     body: >-
-      {"id":"88888888","isClone":false,"isNew":true,"access_duration":"5D","actions":["autoreg","role"],"desc":"Test DHCP autoreg venom","enabled":"Y","target_category":"machine_employee","triggers":[{"dhcp_fingerprint":"{{.security_event_autoreg.node.dhcp_fingerprint_id}}"}],"whitelisted_roles":[]}
+      {
+        "id": "{{ .security_event_autoreg.event.id }}",
+        "access_duration": "{{ .security_event_autoreg.event.access_duration }}",
+        "actions": ["autoreg", "role"],
+        "desc": "{{ .security_event_autoreg.event.desc }}",
+        "enabled": "Y",
+        "target_category": "{{ .mac_auth.roles.headless_device.id }}",
+        "triggers": [{
+          "dhcp_fingerprint": "{{.security_event_autoreg.node.dhcp_fingerprint_id}}"
+        }],
+        "whitelisted_roles": []
+      }
     headers:
       "Content-Type": "application/json"
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -28,9 +39,4 @@ testcases:
   steps:
   - type: exec
     script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
-
-#- name: restart_pfqueue
-#  steps:
-#  - type: exec
-#    script: '/usr/local/pf/bin/pfcmd service pfqueue restart'
 

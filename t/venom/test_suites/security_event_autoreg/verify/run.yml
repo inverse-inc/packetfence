@@ -6,8 +6,8 @@ testcases:
 
 - name: sleep_some_time
   steps:
-  - type: exec
-    script: sleep 30
+  - type: sleep
+    time_to_sleep: 30
 
 - name: get_unregdate_should_be_after
   steps:
