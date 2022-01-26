@@ -165,6 +165,24 @@
             </div>
           </b-card>
 
+          <b-card v-show="supports(['VPNRoleBasedEnforcement'])"
+            class="mb-3 pb-0" no-body
+          >
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Vpn Role'"></h4>
+            </b-card-header>
+            <div class="card-body pb-0">
+              <form-group-toggle-vpn-map namespace="VpnMap"
+                :column-label="$i18n.t('VPN Role by Switch Role')"
+              />
+
+              <form-group-role-map-vpn v-for="role in roles" :key="`${role}Vpn`" :namespace="`${role}Vpn`"
+                v-show="isVpnMap"
+                :column-label="role"
+              />
+            </div>
+          </b-card>
+
           <b-card v-show="supports(['AccessListBasedEnforcement'])"
             class="mb-3 pb-0" no-body
           >
@@ -376,6 +394,7 @@ import {
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
+  FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
   FormGroupSnmpAuthProtocolTrap,
@@ -402,6 +421,7 @@ import {
   FormGroupTenantIdentifier,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
+  FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
   FormGroupType,
@@ -444,6 +464,7 @@ const components = {
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
+  FormGroupRoleMapVpn,
   FormGroupRoleMapUrl,
   FormGroupRoleMapVlan,
   FormGroupSnmpAuthProtocolTrap,
@@ -470,6 +491,7 @@ const components = {
   FormGroupTenantIdentifier,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
+  FormGroupToggleVpnMap,
   FormGroupToggleUrlMap,
   FormGroupToggleVlanMap,
   FormGroupType,

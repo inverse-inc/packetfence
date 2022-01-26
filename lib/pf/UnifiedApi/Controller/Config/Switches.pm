@@ -83,12 +83,14 @@ sub cleanup_options {
     my $vlanMapping = $placeholder->{VlanMapping};
     my $accessListMapping = $placeholder->{AccessListMapping};
     my $urlMapping = $placeholder->{UrlMapping};
+    my $vpnMapping = $placeholder->{VpnMapping};
     my $roleMapping = $placeholder->{ControllerRoleMapping};
     for my $a (@{$allowed_roles}) {
         my $r = $a->{value};
         $meta->{"${r}Vlan"} = mapping_meta($r, $vlanMapping, 'vlan', $self->json_false);
         $meta->{"${r}AccessList"} = mapping_meta($r, $accessListMapping, 'accesslist', $self->json_false);
         $meta->{"${r}Url"} = mapping_meta($r, $urlMapping, 'url', $self->json_false);
+        $meta->{"${r}Vpn"} = mapping_meta($r, $vpnMapping, 'vpn', $self->json_false);
         $meta->{"${r}Role"} = mapping_meta($r, $roleMapping, 'controller_role', $self->json_false);
     }
 }

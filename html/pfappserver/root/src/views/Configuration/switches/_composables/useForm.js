@@ -100,6 +100,17 @@ const useForm = (props, context) => {
     return placeholder === 'Y'
   })
 
+  const isVpnMap = computed(() => {
+    // inspect form value for `VpnMap`
+    const { VpnMap } = form.value
+    if (VpnMap !== null)
+      return VpnMap === 'Y'
+
+    // inspect meta placeholder for `VpnMap`
+    const { VpnMap: { placeholder } = {} } =  meta.value
+    return placeholder === 'Y'
+  })
+
   const isUrlMap = computed(() => {
     // inspect form value for `UrlMap`
     const { UrlMap } = form.value
@@ -145,6 +156,7 @@ const useForm = (props, context) => {
     isUplinkDynamic,
     isAccessListMap,
     isRoleMap,
+    isVpnMap,
     isUrlMap,
     isVlanMap,
     roles

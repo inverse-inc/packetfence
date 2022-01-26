@@ -48,7 +48,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     WiredMacAuth
     WirelessDot1x
-    RoleBasedEnforcement
+    VPNRoleBasedEnforcement
     VPN
 );
 
@@ -252,7 +252,7 @@ sub returnAuthorizeVPN {
     return $kick if (defined($kick));
 
     my $role;
-    if ( isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+    if ( isenabled($self->{_VpnMap}) && $self->supportsVPNRoleBasedEnforcement()) {
         $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});

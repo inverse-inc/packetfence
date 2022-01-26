@@ -116,6 +116,14 @@ has_field 'RoleMap' =>
    label => 'Role by Switch Role',
    default => undef,
   );
+
+has_field 'VpnMap' =>
+  (
+   type => 'Toggle',
+   label => 'Role by Vpn Role',
+   default => undef,
+  );
+
 has_field 'AccessListMap' =>
   (
    type => 'Toggle',
@@ -476,6 +484,7 @@ addRoleMapping("VlanMapping", "vlan");
 addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
 addRoleMapping("AccessListMapping", "accesslist");
+addRoleMapping("VpnMapping", "vpn");
 
 sub options_roles {
     my $self = shift;

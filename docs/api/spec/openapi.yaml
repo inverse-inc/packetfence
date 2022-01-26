@@ -9215,6 +9215,9 @@ components:
         RoleMap:
           description: Role by Switch Role
           type: string
+        VpnMap:
+          description: Role by Vpn Role
+          type: string
         SNMPAuthPasswordRead:
           description: Auth Password Read
           type: string
@@ -9420,6 +9423,9 @@ components:
           type: string
         RoleMap:
           description: Role by Switch Role
+          type: string
+        VpnMap:
+          description: Role by Vpn Role
           type: string
         SNMPAuthPasswordRead:
           description: Auth Password Read
