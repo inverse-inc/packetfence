@@ -90,6 +90,11 @@ testcases:
     script: |
       sudo /usr/sbin/haproxy -Ws -f {{.smocker_dir}}/haproxy.conf -p {{.smocker_dir}}/haproxy.pid > {{.smocker_dir}}/haproxy.out 2>&1 &
 
+- name: sleep_10s_wait_haproxy
+  steps:
+  - type: exec
+    script: sleep 10
+
 - name: check_smocker_https
   steps:
   - type: http
