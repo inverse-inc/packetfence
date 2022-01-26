@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-to-11.2-pfcron-populate_ntlm_redis_cache.p
+to-11.2-pfcron-populate_ntlm_redis_cache.pl
 
 =head1 DESCRIPTION
 
