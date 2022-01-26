@@ -108,7 +108,12 @@ ALTER TABLE pki_profiles
     ADD COLUMN IF NOT EXISTS `renewal_mail_subject` varchar(255) DEFAULT NULL AFTER days_before_renewal_mail,
     ADD COLUMN IF NOT EXISTS `renewal_mail_from` varchar(255) DEFAULT NULL AFTER renewal_mail_subject,
     ADD COLUMN IF NOT EXISTS `renewal_mail_header` varchar(255) DEFAULT NULL AFTER renewal_mail_from,
-    ADD COLUMN IF NOT EXISTS `renewal_mail_footer` varchar(255) DEFAULT NULL AFTER renewal_mail_header;
+    ADD COLUMN IF NOT EXISTS `renewal_mail_footer` varchar(255) DEFAULT NULL AFTER renewal_mail_header,
+    ADD COLUMN IF NOT EXISTS `revoked_valid_until` varchar(255) DEFAULT 14 AFTER renewal_mail_footer;
+
+\! echo "altering pki_cas"
+ALTER TABLE pki_cas
+    ADD COLUMN IF NOT EXISTS `serial_number` int(11) AFTER ocsp_url;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

@@ -62,6 +62,7 @@ export {
   BaseFormGroupInput                      as FormGroupRenewalMailFrom,
   BaseFormGroupTextarea                   as FormGroupRenewalMailHeader,
   BaseFormGroupTextarea                   as FormGroupRenewalMailFooter,
+  BaseFormGroupInputNumber                as FormGroupRevokedValidUntil,
   TheForm,
   TheView
 }

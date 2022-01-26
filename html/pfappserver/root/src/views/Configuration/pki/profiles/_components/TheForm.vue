@@ -150,6 +150,10 @@
           :text="$i18n.t('Renewal email footer.')"
           auto-fit
         />
+        <form-group-revoked-valid-until namespace="revoked_valid_until"
+          :column-label="$i18n.t('Days after revoked certificate is valid')"
+          :text="$i18n.t('Number of days an old certificate is still valid after it has been revoked.')"
+        />
       </base-form-tab>
     </b-tabs>
   </base-form>
@@ -196,7 +200,8 @@ import {
   FormGroupRenewalMailSubject,
   FormGroupRenewalMailFrom,
   FormGroupRenewalMailHeader,
-  FormGroupRenewalMailFooter
+  FormGroupRenewalMailFooter,
+  FormGroupRevokedValidUntil
 } from './'
 
 const components = {
@@ -237,7 +242,8 @@ const components = {
   FormGroupRenewalMailSubject,
   FormGroupRenewalMailFrom,
   FormGroupRenewalMailHeader,
-  FormGroupRenewalMailFooter
+  FormGroupRenewalMailFooter,
+  FormGroupRevokedValidUntil
 }
 
 export const props = {
