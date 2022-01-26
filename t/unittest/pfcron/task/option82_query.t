@@ -27,19 +27,25 @@ use Test::NoWarnings;
 use pf::pfcron::task::option82_query;
 use pf::option82;
 use pf::Switch::TestOption82;
+use pf::Switch::Cisco::Catalyst_2950;
 
-my $task = pf::pfcron::task::option82_query->new(
-     {
-         status   => "enabled",
-         id       => 'test',
-         interval  => 0,
-         type     => 'option82_query',
-     }
- );
+{
+    no warnings qw(redefine);
+    #improve speed
+    local *pf::Switch::Cisco::Catalyst_2950::getRelayAgentInfoOptRemoteIdSub = sub { undef };
+    my $task = pf::pfcron::task::option82_query->new(
+         {
+             status   => "enabled",
+             id       => 'test',
+             interval  => 0,
+             type     => 'option82_query',
+         }
+     );
 
-$task->run();
+    $task->run();
+}
 
-is(pf::option82::get_switch_from_option82($pf::Switch::TestOption82::OPTION82_MAC), '172.16.8.33');
+is(pf::option82::get_switch_from_option82($pf::Switch::TestOption82::OPTION82_MAC), '172.16.8.31');
 
 =head1 AUTHOR
 
