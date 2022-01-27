@@ -3,6 +3,7 @@ import {
   BaseFormButtonBar,
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
+  BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled,
 } from '@/components/new/'
 import AlertServices from './AlertServices'
@@ -27,6 +28,7 @@ export {
   BaseFormGroupInputNumber            as FormGroupCollectorQueryCacheTime,
   BaseFormGroupInputNumber            as FormGroupCollectorDatabasePersistenceInterval,
   BaseFormGroupInputNumber            as FormGroupCollectorClusterResyncInterval,
+  BaseFormGroupTextarea               as FormGroupCollectorAdditionalEnv,
   BaseFormGroupToggleDisabledEnabled  as FormGroupQueryRecordUnmatched,
   BaseFormGroupToggleDisabledEnabled  as FormGroupProxyUseProxy,
   BaseFormGroupInput                  as FormGroupProxyHost,

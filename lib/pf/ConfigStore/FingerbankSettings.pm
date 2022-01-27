@@ -38,6 +38,32 @@ Delete an existing item
 
 sub remove { return; }
 
+=head2 cleanupAfterRead
+
+Clean up settings data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    if($data->{additional_env}) {
+        $data->{additional_env} = join("\n", split(/\s*,\s*/, $data->{additional_env}));
+    }
+}
+
+=head2 cleanupBeforeCommit
+
+Clean data before update or creating
+
+=cut
+
+sub cleanupBeforeCommit {
+    my ($self, $id, $data) = @_;
+    if($data->{additional_env}) {
+        $data->{additional_env} = join(",", split("\n", $data->{additional_env}));
+    }
+}
+
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 =head1 COPYRIGHT

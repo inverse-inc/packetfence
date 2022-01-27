@@ -118,6 +118,11 @@
       :text="$i18n.t('Interval in seconds at which the collector will fully resynchronize with its peers when in cluster mode. The collector synchronizes in real-time, so this only acts as a safety net when there is a communication error between the collectors.')"
     />
 
+    <form-group-collector-additional-env namespace="collector.additional_env"
+      :column-label="$i18n.t('Collector environment')"
+      :text="$i18n.t('Additional environment variables to setup for the Fingerbank collector. One by line, following this format: COLLECTOR_ALL_HOSTS_CACHE_SIZE=100')"
+    />
+
     <form-group-query-record-unmatched namespace="query.record_unmatched"
       :column-label="$i18n.t('Record Unmatched Parameters')"
       :text="$i18n.t('Should the local instance of Fingerbank record unmatched parameters so that it will be possible to submit thoses unmatched parameters to the upstream Fingerbank project for contribution.')"
@@ -167,6 +172,7 @@ import {
   FormGroupCollectorQueryCacheTime,
   FormGroupCollectorDatabasePersistenceInterval,
   FormGroupCollectorClusterResyncInterval,
+  FormGroupCollectorAdditionalEnv,
   FormGroupQueryRecordUnmatched,
   FormGroupProxyUseProxy,
   FormGroupProxyHost,
@@ -192,6 +198,7 @@ const components = {
   FormGroupCollectorQueryCacheTime,
   FormGroupCollectorDatabasePersistenceInterval,
   FormGroupCollectorClusterResyncInterval,
+  FormGroupCollectorAdditionalEnv,
   FormGroupQueryRecordUnmatched,
   FormGroupProxyUseProxy,
   FormGroupProxyHost,
