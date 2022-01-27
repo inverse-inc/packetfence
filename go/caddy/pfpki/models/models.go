@@ -114,7 +114,7 @@ type (
 		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
 		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,string" gorm:"default:14"`
 		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
-		RenewalMail           int                     `json:"renewal_mail,omitempty,string"`
+		RenewalMail           int                     `json:"renewal_mail,omitempty,string" gorm:"default:1"`
 		DaysBeforeRenewalMail int                     `json:"days_before_renewal_mail,string" gorm:"default:14"`
 		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty"`
 		RenewalMailFrom       string                  `json:"renewal_mail_from,omitempty"`
@@ -1505,7 +1505,12 @@ func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, 
 	alerting := pfconfigdriver.Config.PfConf.Alerting
 
 	mail := EmailType{}
-	mail.From = profile.RenewalMailFrom
+
+	if len(profile.RenewalMailFrom) > 0 {
+		mail.From = profile.RenewalMailFrom
+	} else {
+		mail.From = alerting.FromAddr
+	}
 
 	if cert.Mail != "" {
 		mail.To = cert.Mail

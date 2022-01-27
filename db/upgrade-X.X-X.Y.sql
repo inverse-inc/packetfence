@@ -103,7 +103,7 @@ ALTER TABLE bandwidth_accounting
 ALTER TABLE pki_profiles
     ADD COLUMN IF NOT EXISTS `days_before_renewal` varchar(255) DEFAULT 14 AFTER scep_days_before_renewal,
     ALTER scep_days_before_renewal SET DEFAULT 14,
-    ADD COLUMN IF NOT EXISTS `renewal_mail` int(11) AFTER days_before_renewal,
+    ADD COLUMN IF NOT EXISTS `renewal_mail` int(11) DEFAULT 1 AFTER days_before_renewal,
     ADD COLUMN IF NOT EXISTS `days_before_renewal_mail` varchar(255) DEFAULT 14 AFTER renewal_mail,
     ADD COLUMN IF NOT EXISTS `renewal_mail_subject` varchar(255) DEFAULT NULL AFTER days_before_renewal_mail,
     ADD COLUMN IF NOT EXISTS `renewal_mail_from` varchar(255) DEFAULT NULL AFTER renewal_mail_subject,
