@@ -10,7 +10,7 @@ StartLimitInterval=60
 Type=notify
 WatchdogSec=30s
 Environment=LOG_LEVEL=INFO
-ExecStart=/usr/local/pf/sbin/mysql_probe
+ExecStart=/usr/local/pf/sbin/mysql-probe
 Restart=on-failure
 Slice=packetfence.slice
 

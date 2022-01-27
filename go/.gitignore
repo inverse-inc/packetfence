@@ -7,7 +7,7 @@ pfacct
 pfcertmanager
 pfcron
 galera-autofix
-mysql_probe
+mysql-probe
 !pfhttpd/
 !pfdns/
 !pfdhcp/
@@ -17,7 +17,7 @@ mysql_probe
 !pfcertmanager/
 !pfcron/
 !galera-autofix/
-!mysql_probe/
+!mysql-probe/
 Caddyfile
 acct-tester/db-tester/db-tester
 acct-tester/radius-tester/radius-tester

@@ -29,7 +29,7 @@ Services managed by PacketFence:
   httpd.webservices      | Apache Webservices
   iptables               | PacketFence firewall rules
   keepalived             | Virtual IP management
-  mysql_probe            | MySQL probe service
+  mysql-probe            | MySQL probe service
   netdata                | Monitoring service
   pfacct                 | Netflow and Radius Accounting service
   pf                     | all services that should be running based on your config

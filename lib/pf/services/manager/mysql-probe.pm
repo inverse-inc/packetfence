@@ -1,14 +1,14 @@
-package pf::services::manager::mysql_probe;
+package pf::services::manager::mysql-probe;
 
 =head1 NAME
 
-pf::services::manager::mysql_probe add documentation
+pf::services::manager::mysql-probe add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::mysql_probe
+pf::services::manager::mysql-probe
 
 =cut
 
@@ -18,7 +18,7 @@ use pf::cluster;
 use Moo;
 extends 'pf::services::manager';
 
-has '+name' => (default => sub { 'mysql_probe' } );
+has '+name' => (default => sub { 'mysql-probe' } );
 
 
 sub isManaged {

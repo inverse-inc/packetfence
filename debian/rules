@@ -234,7 +234,7 @@ binary-arch: build install
 	dh_installinit --name=packetfence-ip6tables
 	dh_installinit --name=packetfence-keepalived
 	dh_installinit --name=packetfence-mariadb
-	dh_installinit --name=packetfence-mysql_probe
+	dh_installinit --name=packetfence-mysql-probe
 	dh_installinit --name=packetfence-netdata
 	dh_installinit --name=packetfence-pfbandwidthd
 	dh_installinit --name=packetfence-pfacct

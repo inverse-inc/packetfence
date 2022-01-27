@@ -214,6 +214,11 @@
       :column-label="$i18n.t('winbindd')"
       :text="$i18n.t(`Should winbindd be started? Keep enabled unless you know what you're doing.`)"
     />
+
+    <form-group-mysql-probe namespace="mysql-probe"
+      :column-label="$i18n.t('mysql-probe')"
+      :text="$i18n.t(`Should mysql-probe be started? Keep enabled unless you know what you're doing.`)"
+    />
   </base-form>
 </template>
 <script>
@@ -265,7 +270,8 @@ import {
   FormGroupSnmpTrapd,
   FormGroupTc,
   FormGroupTrackingConfig,
-  FormGroupWinbindd
+  FormGroupWinbindd,
+  FormGroupMysqlProbe
 } from './'
 
 const components = {
@@ -313,7 +319,8 @@ const components = {
   FormGroupSnmpTrapd,
   FormGroupTc,
   FormGroupTrackingConfig,
-  FormGroupWinbindd
+  FormGroupWinbindd,
+  FormGroupMysqlProbe
 }
 
 export const props = {

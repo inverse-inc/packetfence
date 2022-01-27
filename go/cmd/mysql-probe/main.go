@@ -29,6 +29,11 @@ func main() {
 	go func() {
 		interval, err := daemon.SdWatchdogEnabled(false)
 		if err != nil || interval == 0 {
+			if err != nil {
+				log.LoggerWContext(ctx).Error(err.Error())
+			} else {
+				log.LoggerWContext(ctx).Error("Interval is set to 0")
+			}
 			return
 		}
 		cli := &http.Client{}
