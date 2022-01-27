@@ -8,7 +8,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_event/{{ .security_event_autoreg.event.id }}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_event/{{.security_event_autoreg.event.id}}'
     ignore_verify_ssl: true
     headers:
       "Content-Type": "application/json"

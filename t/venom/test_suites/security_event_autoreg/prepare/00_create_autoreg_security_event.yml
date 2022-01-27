@@ -12,12 +12,12 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "id": "{{ .security_event_autoreg.event.id }}",
-        "access_duration": "{{ .security_event_autoreg.event.access_duration }}",
+        "id": "{{.security_event_autoreg.event.id}}",
+        "access_duration": "{{.security_event_autoreg.event.access_duration}}",
         "actions": ["autoreg", "role"],
-        "desc": "{{ .security_event_autoreg.event.desc }}",
+        "desc": "{{.security_event_autoreg.event.desc}}",
         "enabled": "Y",
-        "target_category": "{{ .mac_auth.roles.headless_device.id }}",
+        "target_category": "{{.mac_auth.roles.headless_device.id}}",
         "triggers": [{
           "dhcp_fingerprint": "{{.security_event_autoreg.node.dhcp_fingerprint_id}}"
         }],
