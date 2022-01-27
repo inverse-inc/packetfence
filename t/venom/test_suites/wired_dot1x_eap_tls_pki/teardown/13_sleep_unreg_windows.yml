@@ -1,0 +1,6 @@
+name: Sleep delete windows and 10 seconds
+testcases:
+- name: sleep_delete_windows
+  steps:
+  - type: sleep
+    time_to_sleep: 4m
