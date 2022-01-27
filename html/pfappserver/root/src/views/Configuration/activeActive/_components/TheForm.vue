@@ -30,6 +30,11 @@
       :text="$i18n.t('Set the gateway option in DHCP replies to point only to the VIP in cluster mode rather than to all servers in the cluster.')"
     />
 
+    <form-group-centralize-vips namespace="centralize_vips"
+      :column-label="$i18n.t('Centralized virtual IPs')"
+      :text="$i18n.t('Centralize the virtual IP addresses on the same node instead of distributing them on the two first nodes of the cluster.')"
+    />
+
     <form-group-centralized-deauth namespace="centralized_deauth"
       :column-label="$i18n.t('Centralized access reevaluation')"
       :text="$i18n.t('Centralize the deauthentication to the management node of the cluster.')"
@@ -70,6 +75,7 @@ import schemaFn from '../schema'
 import {
   FormGroupAuthOnManagement,
   FormGroupCentralizedDeauth,
+  FormGroupCentralizeVips,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
   FormGroupGatewayOnVipOnly,
@@ -86,6 +92,7 @@ const components = {
 
   FormGroupAuthOnManagement,
   FormGroupCentralizedDeauth,
+  FormGroupCentralizeVips,
   FormGroupConflictResolutionThreshold,
   FormGroupDnsOnVipOnly,
   FormGroupGatewayOnVipOnly,
