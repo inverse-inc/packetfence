@@ -23,6 +23,7 @@ export {
   BaseFormGroupInput                  as FormGroupGaleraReplicationUsername,
   BaseFormGroupInputPassword          as FormGroupGaleraReplicationPassword,
   BaseFormGroupInputPassword          as FormGroupPassword,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupPortalOnManagement,
   BaseFormGroupInput                  as FormGroupVirtualRouterIdentifier,
   BaseFormGroupToggleDisabledEnabled  as FormGroupVrrpUnicast,
 
