@@ -4,7 +4,7 @@ input:
 steps:
 - type: pf_api_action
   method: GET
-  url: '{{.pfserver_webadmin_url}}/api/v1/config/checkup'
+  url: 'config/checkup'
   time_to_sleep: "{{.input.time_to_sleep}}"
 
 output:
