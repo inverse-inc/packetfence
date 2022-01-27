@@ -40,6 +40,11 @@
       :text="$i18n.t('Process RADIUS authentication requests on the management server (the current load balancer). Disabling it will make the management server only proxy requests to other servers. Useful if your load balancer cannot handle both tasks. Changing this requires to restart radiusd.')"
     />
 
+    <form-group-portal-on-management namespace="portal_on_management"
+      :column-label="$i18n.t('Portal authentication on management')"
+      :text="$i18n.t('Process captive portal requests requests on the management server (the current load balancer). Disabling it will make the management server only proxy requests to other servers. Useful if your load balancer cannot handle both tasks. Changing this requires to restart haproxy-portal.')"
+    />
+
     <form-group-conflict-resolution-threshold namespace="conflict_resolution_threshold"
       :column-label="$i18n.t('Conflict resolution threshold')"
       :text="$i18n.t('Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes.')"
@@ -77,6 +82,7 @@ import {
   FormGroupGaleraReplicationUsername,
   FormGroupGaleraReplicationPassword,
   FormGroupPassword,
+  FormGroupPortalOnManagement,
   FormGroupVirtualRouterIdentifier,
   FormGroupVrrpUnicast
 } from './'
@@ -93,6 +99,7 @@ const components = {
   FormGroupGaleraReplicationUsername,
   FormGroupGaleraReplicationPassword,
   FormGroupPassword,
+  FormGroupPortalOnManagement,
   FormGroupVirtualRouterIdentifier,
   FormGroupVrrpUnicast
 }
