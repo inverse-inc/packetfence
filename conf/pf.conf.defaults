@@ -1169,6 +1169,10 @@ galera_replication_password=
 # Centralize the virtual IP addresses on the same node instead of distributing them on the two first nodes of the cluster
 centralize_vips=disabled
 
+# active_active.probe_mysql_from_haproxy_db
+#
+# Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
+probe_mysql_from_haproxy_db=disabled
 
 [parking]
 #

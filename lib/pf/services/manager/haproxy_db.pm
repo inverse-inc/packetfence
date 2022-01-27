@@ -56,6 +56,7 @@ sub generateConfig {
     $tags{'template'} = $self->haproxy_config_template;
     $tags{'http'} = '';
     $tags{'mysql_backend'} = '';
+    $tags{'mysql_probe'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
     $tags{'timeout'} = $Config{'database_advanced'}{'net_write_timeout'} * 1000;
@@ -74,6 +75,12 @@ sub generateConfig {
     my @mysql_backend;
 
     if ($cluster_enabled) {
+        if (isenabled($Config{active_active}{probe_mysql_from_haproxy_db})){
+            $tags{'mysql_probe'} = <<"EOT";
+    option httpchk
+    default-server port 3307 inter 2s downinter 5s rise 3 fall 2 slowstart 60s maxconn 64 maxqueue 128 weight 100
+EOT
+        }
         my $management_ip = pf::cluster::management_cluster_ip();
         if (pf::cluster::isSlaveMode()) {
             if (pf::cluster::getDBMaster()) {

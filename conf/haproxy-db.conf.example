@@ -42,8 +42,7 @@ frontend  main
 backend mysql
     mode tcp
     option tcplog
-    #option httpchk
-    #default-server port 3307 inter 2s downinter 5s rise 3 fall 2 slowstart 60s maxconn 64 maxqueue 128 weight 100
+%%mysql_probe%%
     timeout connect 3s
 %%mysql_backend%%
 

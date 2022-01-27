@@ -69,6 +69,12 @@
       :column-label="$i18n.t('Galera replication password')"
       :text="$i18n.t('Defines the replication password to be used for the MariaDB Galera cluster replication.')"
     />
+
+    <form-group-probe-mysql-from-haproxy-db namespace="probe_mysql_from_haproxy_db"
+      :column-label="$i18n.t('Probe Mysql from haproxy-db')"
+      :text="$i18n.t('Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -90,7 +96,8 @@ import {
   FormGroupPassword,
   FormGroupPortalOnManagement,
   FormGroupVirtualRouterIdentifier,
-  FormGroupVrrpUnicast
+  FormGroupVrrpUnicast,
+  FormGroupProbeMysqlFromHaproxyDb
 } from './'
 
 const components = {
@@ -108,7 +115,8 @@ const components = {
   FormGroupPassword,
   FormGroupPortalOnManagement,
   FormGroupVirtualRouterIdentifier,
-  FormGroupVrrpUnicast
+  FormGroupVrrpUnicast,
+  FormGroupProbeMysqlFromHaproxyDb
 }
 
 export const props = {

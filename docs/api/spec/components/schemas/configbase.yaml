@@ -770,6 +770,9 @@ ConfigBase:
       vrrp_unicast:
         description: Enable keepalived in unicast mode instead of multicast
         type: string
+      probe_mysql_from_haproxy_db:
+        description: Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
+        type: string
     type: object
   - properties:
       aaa:

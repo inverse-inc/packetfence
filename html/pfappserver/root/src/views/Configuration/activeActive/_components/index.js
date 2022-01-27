@@ -27,6 +27,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupPortalOnManagement,
   BaseFormGroupInput                  as FormGroupVirtualRouterIdentifier,
   BaseFormGroupToggleDisabledEnabled  as FormGroupVrrpUnicast,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupProbeMysqlFromHaproxyDb,
 
   BaseViewResource                    as BaseView,
   TheForm,
