@@ -1,14 +1,14 @@
-package pf::services::manager::mysql-probe;
+package pf::services::manager::mysql_probe;
 
 =head1 NAME
 
-pf::services::manager::mysql-probe add documentation
+pf::services::manager::mysql_probe add documentation
 
 =cut
 
 =head1 DESCRIPTION
 
-pf::services::manager::mysql-probe
+pf::services::manager::mysql_probe
 
 =cut
 
