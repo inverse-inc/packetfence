@@ -49,10 +49,10 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
-    DROP INDEX cn,
-    ADD CONSTRAINT cn_profile UNIQUE KEY(`cn`,`profile_name`),
+    DROP INDEX IF EXISTS cn,
     ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses,
-    ADD COLUMN IF NOT EXISTS `alert` BOOLEAN DEFAULT FALSE AFTER scep;
+    ADD COLUMN IF NOT EXISTS `alert` BOOLEAN DEFAULT FALSE AFTER scep,
+    ADD COLUMN IF NOT EXISTS `subject` VARCHAR(255) UNIQUE AFTER alert;
 
 \! echo "set pki_certs.scep to true if private key is empty"
 UPDATE pki_certs
@@ -114,6 +114,10 @@ ALTER TABLE pki_profiles
 \! echo "altering pki_cas"
 ALTER TABLE pki_cas
     ADD COLUMN IF NOT EXISTS `serial_number` int(11) AFTER ocsp_url;
+
+\! echo "altering pki_revoked_certs"
+ALTER TABLE pki_revoked_certs
+    ADD COLUMN IF NOT EXISTS `subject` varchar(255) AFTER crl_reason;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
