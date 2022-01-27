@@ -1,0 +1,10 @@
+executor: wpasupplicant_run_on_host
+input:
+  host: ""
+  user: ""
+  wpa_type: ""
+steps:
+- type: venom_wrapper_command_on_host 
+  host: "{{.input.host}}"
+  user: "{{.input.user}}"
+  test_suite_path: "{{.nodes_test_suite_dir}}/{{.input.wpa_type}}/{{.venom.testcase}}.yml"

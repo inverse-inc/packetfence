@@ -1,11 +1,13 @@
 executor: pf_api_node_delete
 input:
-  id: {}
+  id: ""
 steps:
 # delete_node
 - type: pf_api_node_action
   action: DELETE
   id: "{{.input.id}}"
+  info:
+    - "{{.result.pf_api_node_action_json}}"
   assertions:
     - result.pf_api_node_action_json.message ShouldEqual "Deleted {{.input.id}} successfully"
 

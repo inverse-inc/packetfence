@@ -1,15 +1,16 @@
 name: Create and test AD machine source
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
+#
+# Need bug fixed before doing an executor
+# https://github.com/ovh/venom/issues/493
+# https://github.com/ovh/venom/issues/425
+#
 - name: create_ad_machine_source
   steps:
-  - type: http
+  - type: pf_api_action
     method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
-    ignore_verify_ssl: true
+    url: "config/sources"
+    status_code: 201
     body: >-
       {
         "administration_rules": null,
@@ -59,18 +60,13 @@ testcases:
         "ca_file": "",
         "write_timeout": 5
       }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
 
 - name: test_ad_machine_source
   steps:
-  - type: http
+  - type: pf_api_action
     method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources/test'
-    ignore_verify_ssl: true
+    url: "config/sources/test"
+    status_code: 200
     body: >-
       {
         "basedn": "{{.ad_base_dn}}",
@@ -94,10 +90,5 @@ testcases:
         "ca_file": "",
         "write_timeout": 5
       }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
     retry: 3
     delay: 5

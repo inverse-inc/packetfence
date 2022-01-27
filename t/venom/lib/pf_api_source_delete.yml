@@ -1,8 +1,6 @@
 executor: pf_api_source_delete
 input:
   id: ""
-  method: ""
-  status_code: ""
 steps:
 - type: pf_api_source_action
   method: DELETE
@@ -15,4 +13,4 @@ steps:
   id: "{{.input.id}}"
   status_code: 404
   assertions:
-    - result.pf_api_source_action_json.message ShouldEqual "Unable to get resource with this identifier"
+    - result.pf_api_source_action_json.message ShouldEqual "Item ({{.input.id}}) not found"

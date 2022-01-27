@@ -1,0 +1,14 @@
+executor: pf_api_radiusd_tls_profile_patch 
+input:
+  id: ""
+  ocsp_id: ""
+  body: {}
+steps:
+- type: pf_api_radiusd_tls_profile_action
+  method: PATCH
+  id: "{{.input.id}}"
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "ocsp": "{{.input.ocsp_id}}"
+    }

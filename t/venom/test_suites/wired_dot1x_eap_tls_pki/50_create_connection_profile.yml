@@ -1,6 +1,6 @@
 name: Create connection profile
 testcases:
-- name: wired_dot1x_eap_tls_pki_connection_profiles
+- name: wired_dot1x_eap_tls_pki_connection_profiles_create
   steps:
-  - type: wired_dot1x_eap_tls_pki_connection_profiles 
+  - type: wired_dot1x_eap_tls_pki_connection_profiles_create 
 

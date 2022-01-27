@@ -1,6 +1,6 @@
-executor: wired_dot1x_eap_tls_manual_connection_profiles
+executor: wired_dot1x_eap_tls_manual_connection_profiles_create
 steps:
-- type: pf_api_connection_profiles
+- type: pf_api_connection_profiles_create
   connection_type: "{{.wired_dot1x_eap_tls_manual.profiles.wired.filters.connection_type}}"
   connection_sub_type: "{{.wired_dot1x_eap_tls_manual.profiles.wired.filters.connection_sub_type}}"
   id: "{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}"

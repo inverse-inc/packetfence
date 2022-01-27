@@ -1,59 +1,22 @@
 name: Teardown
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: delete_connection_profile
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_connection_profile_delete
+    id: '{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}'
 
 - name: delete_source
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.wired_dot1x_eap_tls_manual.sources.eaptls.name}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
+  - type: pf_api_source_delete
+    id: '{{.wired_dot1x_eap_tls_manual.sources.eaptls.name}}'
 
 - name: disable_ocsp
   steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/tls_profile/tls-common'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id": "tls-common",
-        "ocsp": "default"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_radiusd_tls_profile_patch
+    id: 'tls-common'
+    ocsp_id: "default"
 
 - name: delete_ocsp_profile
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/radiusd/ocsp_profile/{{.wired_dot1x_eap_tls_manual.ocsp.id}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_radiusd_ocsp_profile_delete
+    id: '{{.wired_dot1x_eap_tls_manual.ocsp.id}}'

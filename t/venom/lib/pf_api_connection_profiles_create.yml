@@ -1,4 +1,4 @@
-executor: pf_api_connection_profiles
+executor: pf_api_connection_profiles_create
 input:
   connection_type: ""
   connection_sub_type: ""
@@ -63,4 +63,4 @@ steps:
     }
 
 output:
-  - pf_api_connection_profiles: "{{.result.pf_api_action_}}"
+  - pf_api_connection_profiles_create_: "{{.result.pf_api_action_}}"

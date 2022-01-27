@@ -1,9 +1,5 @@
 name: Check RADIUS audit log
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: get_time
   steps:
   - type: exec
@@ -16,12 +12,18 @@ testcases:
 # auth_status equals Accept (to avoid Disconnect)
 # mac equals {{.node01_ens7_mac_address}}"
 # connection type of test suite connection profile
+
+#
+# Need bug fixed before doing an executor
+# https://github.com/ovh/venom/issues/493
+# https://github.com/ovh/venom/issues/425
+#
+
 - name: get_id_of_radius_audit_log_entry
   steps:
-  - type: http
+  - type: pf_api_action
     method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
-    ignore_verify_ssl: true
+    url: "radius_audit_logs/search"
     body: >-
       {
         "cursor": 0,
@@ -78,23 +80,38 @@ testcases:
           ]
         }
       }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.items.items0 ShouldContainKey id
+
     info:
-      - "{{.result.bodyjson}}"
+      - "{{.result.pf_api_action_}}"
+      - "{{.result.pf_api_action_json.items.items0.id}}"
+    assertions:
+      - result.pf_api_action_json.items.items0 ShouldContainKey id
     vars:
-      id:
-        from: result.bodyjson.items.items0.id
-      
+      id_tmp:
+        from: result.pf_api_action_json.items.items0.id
+
+#
+# There is an issue ther with this executor
+#
+#- name: check_radius_reply
+#  steps:
+#  - type: pf_api_action
+#    info:
+#      - "{{.get_id_of_radius_audit_log_entry.id_tmp}}"
+#    url: 'radius_audit_log/{{.get_id_of_radius_audit_log_entry.id_tmp}}'
+#    assertions:
+#      - result.pf_api_action_json.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"'
+#      - result.pf_api_action_json.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}"
+
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: check_radius_reply
   steps:
   - type: http
     method: GET
-    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.get_id_of_radius_audit_log_entry.id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.get_id_of_radius_audit_log_entry.id_tmp}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"

@@ -1,15 +1,14 @@
 name: Create and test AD user source
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
+#
+# Will be able to use pf_api_sources_create when bug is fixed
+#
 - name: create_ad_user_source
   steps:
-  - type: http
+  - type: pf_api_action
     method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources'
-    ignore_verify_ssl: true
+    url: 'config/sources'
+    status_code: 201
     body: >-
       {
         "administration_rules": null,
@@ -59,18 +58,15 @@ testcases:
         "ca_file": "",
         "write_timeout": 5
       }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
 
+#
+# Will be able to use pf_api_sources_create when bug is fixed
+#
 - name: test_ad_user_source
   steps:
-  - type: http
+  - type: pf_api_action
     method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/sources/test'
-    ignore_verify_ssl: true
+    url: 'config/sources/test'
     body: >-
       {
         "basedn": "{{.ad_base_dn}}",
@@ -94,10 +90,5 @@ testcases:
         "ca_file": "",
         "write_timeout": 5
       }
-    headers:
-      "Authorization": "{{.get_login_token.json.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200      
     retry: 3
     delay: 5

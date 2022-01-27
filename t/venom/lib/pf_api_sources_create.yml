@@ -1,0 +1,72 @@
+executor: pf_api_sources_create 
+#
+# This one fails probably an issue with a bug in VENOM
+# https://github.com/ovh/venom/issues/425
+#
+input:
+  administration_rules: "null"
+  authentication_rules: "null"
+  basedn: ""
+  binddn: ""
+  cache_match: ""
+  connection_timeout: 1
+  description: ""
+  email_attribute: ""
+  encryption: ""
+  host: "[]"
+  idi_t: ""
+  monitor: ""
+  password: ""
+  port: ""
+  read_timeout: ""
+  realms: ""
+  scope: ""
+  searchattributes: ""
+  set_access_durations_action: "null"
+  shuffle: ""
+  type_source: ""
+  usernameattribute: ""
+  verify: ""
+  client_cert_file: ""
+  client_key_file: ""
+  ca_file: ""
+  write_timeout: "5"
+steps:
+- type: pf_api_action
+  method: POST
+  url: "config/sources"
+  status_code: 201
+  body: >-
+    {
+      "administration_rules": "{{.input.administration_rules}}",
+      "authentication_rules": "{{.input.authentication_rules}}",
+      "basedn": "{{.input.basedn}}",
+      "binddn": "{{.input.binddn}}",
+      "cache_match": "{{.input.cache_match}}",
+      "connection_timeout": "{{.input.connection_timeout}}",
+      "description": "{{.input.description}}",
+      "email_attribute": "{{.input.email_attribute}}",
+      "encryption": "{{.input.encryption}}",
+      "host": "{{.input.host}}",
+      "id": "{{.input.id_t}}",
+      "monitor": "{{.input.monitor}}",
+      "password": "{{.input.password}}",
+      "port": "{{.input.port}}",
+      "read_timeout": "{{.input.read_timeout}}",
+      "realms": "{{.input.realms}}",
+      "scope": "{{.input.scope}}",
+      "searchattributes": "{{.input.searchattributes}}",
+      "set_access_durations_action": "{{.input.set_access_durations_action}}",
+      "shuffle": "{{.input.shuffle}}",
+      "type": "{{.input.type_source}}",
+      "usernameattribute": "{{.input.usernameattribute}}",
+      "verify": "{{.input.verify}}",
+      "client_cert_file": "{{.input.client_cert_file}}",
+      "client_key_file": "{{.input.client_key_file}}",
+      "ca_file": "{{.input.ca_file}}",
+      "write_timeout": "{{.input.write_timeout}}"
+    }
+
+- type: pf_api_source_action
+  method: GET
+  id: "{{.input.id}}"

@@ -1,0 +1,42 @@
+executor: pf_api_domains_create
+input:
+  ad_server: ""
+  bind_dn: ""
+  bind_pass: ""
+  dns_name: ""
+  dns_servers: ""
+  id: ""
+  ntlm_cache: ""
+  ntlm_cache_expiry: ""
+  ntlm_cache_source: ""
+  ntlmv2_only: ""
+  ou: ""
+  registration: ""
+  server_name: ""
+  status: ""
+  sticky_dc: ""
+  workgroup: ""
+steps:
+- type: pf_api_action
+  method: POST
+  status_code: 201
+  body: >-
+    {
+      "ad_server": "{{.input.ad_server}}",
+      "bind_dn": "{{.input.bind_dn}}",
+      "bind_pass": "{{.input.bind_pass}}",
+      "dns_name": "{{.input.dns_name}}",
+      "dns_servers": "{{.input.dns_servers}}",
+      "id": "{{.input.id}}",
+      "ntlm_cache": "{{.input.ntlm_cache}}",
+      "ntlm_cache_expiry": "{{.input.ntlm_cache_expiry}}",
+      "ntlm_cache_source": "{{.input.ntlm_cache_source}}",
+      "ntlmv2_only": "{{.input.ntlmv2_only}}",
+      "ou": "{{.input.ou}}",
+      "registration": "{{.input.registration}}",
+      "server_name": "{{.input.server_name}}",
+      "status": "{{.input.status}}",
+      "sticky_dc": "{{.input.sticky_dc}}",
+      "workgroup": "{{.input.workgroup}}"
+    }
+  url: "config/domains"

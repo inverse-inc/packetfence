@@ -1,0 +1,13 @@
+executor: pf_api_realm_patch
+input:
+  id: ""
+  domain_id: ""
+  body: {}
+steps:
+- type: pf_api_realm_action
+  method: PATCH
+  id: "{{.input.id}}"
+  body: >-
+    {
+      "domain": "{{.input.domain_id}}"
+    }

@@ -1,0 +1,34 @@
+executor: pf_api_domain_join
+input:
+  id: ""
+  username: ""
+  password: ""
+steps:
+- type: pf_api_domain_action
+  method: POST
+  status_code: 202
+  id: "{{.input.id}}"
+  domain_extension: "/join"
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "username": "{{.input.username}}",
+      "password": "{{.input.password}}"
+    }
+
+- type: pf_api_domain_action
+  id: "{{.input.id}}"
+  domain_extension: "/status/poll"
+  assertion:
+    - result.pf_api_domain_action_json.message ShouldEqual Completed
+    - result.pf_api_domain_action_json.progress ShouldEqual 100
+    - result.pf_api_domain_action_json.status ShouldEqual 200 
+  retry: 8
+  delay: 15
+
+- type: pf_api_domain_action
+  id: "{{.input.id}}"
+  domain_extension: "/test_join"
+  assertion:
+    - result.pf_api_domain_action_json.status ShouldEqual 200
+    - result.pf_api_domain_action_json.message ShouldEqual "Join is OK"

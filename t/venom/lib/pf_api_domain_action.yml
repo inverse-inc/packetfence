@@ -1,0 +1,17 @@
+executor: pf_api_domain_action
+input:
+  body: {}
+  id: ""
+  method: GET
+  status_code: ""
+  time_to_sleep: 5
+  domain_extension: ""
+steps:
+- type: pf_api_action
+  body: '{{.input.body}}'
+  method: "{{.input.method}}"
+  status_code: "{{.input.status_code}}"
+  url: 'config/domaine/{{.input.id}}{{domain_extension}}'
+  time_to_sleep: "{{.input.time_to_sleep}}"
+output:
+  pf_api_source_action_: "{{.result.pf_api_action_}}"

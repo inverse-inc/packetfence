@@ -1,1 +1,5 @@
-../../common/check_node01_deleted.yml
+name: Check if node01 has been correctly deleted
+testcases:
+- name: check_node01_deleted
+  steps:
+  - type: mode01_check_deleted
