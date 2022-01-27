@@ -1157,6 +1157,12 @@ galera_replication_username=
 #
 # Defines the replication password to be used for the MariaDB Galera cluster replication
 galera_replication_password=
+#
+# active_active.centralize_vips
+#
+# Centralize the virtual IP addresses on the same node instead of distributing them on the two first nodes of the cluster
+centralize_vips=disabled
+
 
 [parking]
 #

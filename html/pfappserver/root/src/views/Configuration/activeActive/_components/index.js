@@ -16,6 +16,7 @@ export {
 
   BaseFormGroupToggleDisabledEnabled  as FormGroupAuthOnManagement,
   BaseFormGroupToggleDisabledEnabled  as FormGroupCentralizedDeauth,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupCentralizeVips,
   BaseFormGroupIntervalUnit           as FormGroupConflictResolutionThreshold,
   BaseFormGroupToggleDisabledEnabled  as FormGroupDnsOnVipOnly,
   BaseFormGroupToggleDisabledEnabled  as FormGroupGatewayOnVipOnly,
