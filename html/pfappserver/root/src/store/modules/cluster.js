@@ -4,9 +4,10 @@
 import Vue from 'vue'
 import store from '@/store'
 import apiCall from '@/utils/api'
+import i18n from '@/utils/locale'
 
 const api = (state, server) => {
-  let headers = { "X-foo": 'bar' }
+  let headers = {}
   if (server && state.config) { // is cluster
     const { servers: { [server]: { management_ip } = {} } = {} } = state
     if (management_ip) {
@@ -53,39 +54,75 @@ const api = (state, server) => {
       }
     },
     service: id => {
-      return apiCall.get(['service', id, 'status'], {}, { headers }).then(response => {
+      return apiCall.get(['service', id, 'status'], { headers }).then(response => {
         return response.data
       })
     },
     disable: id => {
       return apiCall.postQuiet(['service', id, 'disable'], { headers }).then(response => {
-        return response.data
+        const { data: { disable } } = response
+        if (parseInt(disable) > 0) {
+          return response.data
+        }
+        else {
+          throw new Error(i18n.t(`Could not disable {id} on {server}.`, { server, id }))
+        }
       })
     },
     enable: id => {
       return apiCall.postQuiet(['service', id, 'enable'], { headers }).then(response => {
-        return response.data
+        const { data: { enable } } = response
+        if (parseInt(enable) > 0) {
+          return response.data
+        }
+        else {
+          throw new Error(i18n.t(`Could not enable {id} on {server}.`, { server, id }))
+        }
       })
     },
     restart: id => {
       return apiCall.postQuiet(['service', id, 'restart'], { async: true }, { headers })
         .then(response => {
           const { data: { task_id } = {} } = response
-          return store.dispatch('pfqueue/pollTaskStatus', { task_id, headers })
+          return store.dispatch('pfqueue/pollTaskStatus', { task_id, headers }).then(response => {
+            const { restart } = response
+            if (parseInt(restart) > 0) {
+              return response
+            }
+            else {
+              throw new Error(i18n.t(`Could not restart {id} on {server}.`, { server, id }))
+            }
+          })
         })
     },
     start: id => {
       return apiCall.postQuiet(['service', id, 'start'], { async: true }, { headers })
         .then(response => {
           const { data: { task_id } = {} } = response
-          return store.dispatch('pfqueue/pollTaskStatus', { task_id, headers })
+          return store.dispatch('pfqueue/pollTaskStatus', { task_id, headers }).then(response => {
+            const { start } = response
+            if (parseInt(start) > 0) {
+              return response
+            }
+            else {
+              throw new Error(i18n.t(`Could not start {id} on {server}.`, { server, id }))
+            }
+          })
         })
     },
     stop: id => {
       return apiCall.postQuiet(['service', id, 'stop'], { async: true }, { headers })
         .then(response => {
           const { data: { task_id } = {} } = response
-          return store.dispatch('pfqueue/pollTaskStatus', { task_id, headers })
+          return store.dispatch('pfqueue/pollTaskStatus', { task_id, headers }).then(response => {
+            const { stop } = response
+            if (parseInt(stop) > 0) {
+              return response
+            }
+            else {
+              throw new Error(i18n.t(`Could not stop {id} on {server}.`, { server, id }))
+            }
+          })
         })
     },
     restartSystem: id => {
@@ -141,20 +178,29 @@ const initialState = () => {
 }
 
 const getters = {
-  isLoading: state => state.status === types.LOADING
+  isLoading: state => state.status === types.LOADING,
+  servicesByServer: state => Object.keys(state.servers).reduce((services, server) => {
+    Object.keys(state.servers[server].services).map(id => {
+      services[id] = { ...services[id], [server]: state.servers[server].services[id] }
+    })
+    return services
+  }, {})
 }
 
 const actions = {
-  getConfig: ({ state, commit, dispatch }) => {
+  getConfig: ({ state, commit, dispatch }, withServices) => {
     commit('CONFIG_REQUEST')
     return api(state).config().then(item => {
       commit('CONFIG_SUCCESS', item)
       const { CLUSTER, ...servers } = item
-      let promises = []
-      Object.keys(servers).map(server => {
-        promises.push(dispatch('getServices', server))
-      })
-      return Promise.all(promises).then(() => state.config)
+      if (withServices) {
+        let promises = []
+        Object.keys(servers).map(server => {
+          promises.push(dispatch('getServices', server))
+        })
+        return Promise.all(promises).then(() => state.config)
+      }
+      return state.config
     }).catch(err => {
       const { response } = err
       commit('CONFIG_ERROR', response)
@@ -183,7 +229,27 @@ const actions = {
       throw err
     })
   },
+  getServiceCluster: ({ state, dispatch }, id) => {
+    dispatch('getConfig').then(() => {
+/*
+      // async requests
+      const async = (idx = 0) => {
+        dispatch('getService', { server: state.servers[idx], id })
+          .finally(() => {
+            if (idx < state.servers.length-1) {
+              async(++idx)
+            }
+          })
+      }
+      async()
+*/
+      Object.keys(state.servers).map(server => {
+        dispatch('getService', { server, id })
+      })
+    })
+  },
   disableService: ({ state, commit, dispatch }, { server, id }) => {
+    commit('SERVICE_REQUEST', { server, id })
     commit('SERVICE_DISABLING', { server, id })
     return api(state, server).disable(id).then(response => {
       commit('SERVICE_DISABLED', { server, id, response })
@@ -194,7 +260,15 @@ const actions = {
       throw err
     }).finally(() => dispatch('getService', { server, id }))
   },
+  disableServiceCluster: ({ state, dispatch }, id) => {
+    dispatch('getConfig').then(() => {
+      Object.keys(state.servers).map(server => {
+        dispatch('disableService', { server, id })
+      })
+    })
+  },
   enableService: ({ state, commit, dispatch }, { server, id }) => {
+    commit('SERVICE_REQUEST', { server, id })
     commit('SERVICE_ENABLING', { server, id })
     return api(state, server).enable(id).then(response => {
       commit('SERVICE_ENABLED', { server, id, response })
@@ -205,7 +279,15 @@ const actions = {
       throw err
     }).finally(() => dispatch('getService', { server, id }))
   },
+  enableServiceCluster: ({ state, dispatch }, id) => {
+    dispatch('getConfig').then(() => {
+      Object.keys(state.servers).map(server => {
+        dispatch('enableService', { server, id })
+      })
+    })
+  },
   restartService: ({ state, commit, dispatch }, { server, id }) => {
+    commit('SERVICE_REQUEST', { server, id })
     commit('SERVICE_RESTARTING', { server, id })
     return api(state, server).restart(id).then(response => {
       commit('SERVICE_RESTARTED', { server, id, response })
@@ -216,7 +298,22 @@ const actions = {
       throw err
     }).finally(() => dispatch('getService', { server, id }))
   },
+  restartServiceCluster: ({ state, dispatch }, id) => {
+    dispatch('getConfig').then(() => {
+      // async requests
+      const async = (idx = 0) => {
+        dispatch('restartService', { server: state.servers[idx], id })
+          .finally(() => {
+            if (idx < state.servers.length-1) {
+              async(++idx)
+            }
+          })
+      }
+      async()
+    })
+  },
   startService: ({ state, commit, dispatch }, { server, id }) => {
+    commit('SERVICE_REQUEST', { server, id })
     commit('SERVICE_STARTING', { server, id })
     return api(state, server).start(id).then(response => {
       commit('SERVICE_STARTED', { server, id, response })
@@ -225,9 +322,24 @@ const actions = {
       const { response: error } = err
       commit('SERVICE_ERROR', { server, id, error })
       throw err
-    }).finally(() => dispatch('getServices', { server, id }))
+    }).finally(() => dispatch('getService', { server, id }))
+  },
+  startServiceCluster: ({ state, dispatch }, id) => {
+    dispatch('getConfig').then(() => {
+      // async requests
+      const async = (idx = 0) => {
+        dispatch('startService', { server: state.servers[idx], id })
+          .finally(() => {
+            if (idx < state.servers.length-1) {
+              async(++idx)
+            }
+          })
+      }
+      async()
+    })
   },
   stopService: ({ state, commit, dispatch }, { server, id }) => {
+    commit('SERVICE_REQUEST', { server, id })
     commit('SERVICE_STOPPING', { server, id })
     return api(state, server).stop(id).then(response => {
       commit('SERVICE_STOPPED', { server, id, response })
@@ -237,6 +349,20 @@ const actions = {
       commit('SERVICE_ERROR', { server, id, error })
       throw err
     }).finally(() => dispatch('getService', { server, id }))
+  },
+  stopServiceCluster: ({ state, dispatch }, id) => {
+    dispatch('getConfig').then(() => {
+      // async requests
+      const async = (idx = 0) => {
+        dispatch('stopService', { server: state.servers[idx], id })
+          .finally(() => {
+            if (idx < state.servers.length-1) {
+              async(++idx)
+            }
+          })
+      }
+      async()
+    })
   },
 
   restartSystemService: ({ state, commit }, { server, id }) => {
@@ -324,7 +450,9 @@ const mutations = {
 
   SERVICE_REQUEST: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, { services: { [id]: { status: types.LOADING } }, ...state.servers[server] })
+    Vue.set(state.servers, server, state.servers[server] || { services: {} })
+    Vue.set(state.servers[server].services, id, state.servers[server].services[id] || {})
+    Vue.set(state.servers[server].services[id], 'status', types.LOADING)
   },
   SERVICE_SUCCESS: (state, { server, id, service }) => {
     service.pid = parseInt(service.pid)
@@ -333,7 +461,7 @@ const mutations = {
   },
   SERVICE_DISABLING: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, { services: { [id]: { status: types.DISABLING } }, ...state.servers[server] })
+    Vue.set(state.servers[server].services[id], 'status', types.DISABLING)
   },
   SERVICE_DISABLED: (state, { server, id }) => {
     state.status = types.SUCCESS
@@ -342,7 +470,7 @@ const mutations = {
   },
   SERVICE_ENABLING: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, { services: { [id]: { status: types.ENABLING } }, ...state.servers[server] })
+    Vue.set(state.servers[server].services[id], 'status', types.ENABLING)
   },
   SERVICE_ENABLED: (state, { server, id }) => {
     state.status = types.SUCCESS
@@ -351,7 +479,7 @@ const mutations = {
   },
   SERVICE_RESTARTING: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, { services: { [id]: { status: types.RESTARTING } }, ...state.servers[server] })
+    Vue.set(state.servers[server].services[id], 'status', types.RESTARTING)
   },
   SERVICE_RESTARTED: (state, { server, id, response }) => {
     state.status = types.SUCCESS
@@ -361,7 +489,7 @@ const mutations = {
   },
   SERVICE_STARTING: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, { services: { [id]: { status: types.STARTING } }, ...state.servers[server] })
+    Vue.set(state.servers[server].services[id], 'status', types.STARTING)
   },
   SERVICE_STARTED: (state, { server, id, response }) => {
     state.status = types.SUCCESS
@@ -371,7 +499,7 @@ const mutations = {
   },
   SERVICE_STOPPING: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, { services: { [id]: { status: types.STOPPING } }, ...state.servers[server] })
+    Vue.set(state.servers[server].services[id], 'status', types.STOPPING)
   },
   SERVICE_STOPPED: (state, { server, id }) => {
     state.status = types.SUCCESS
