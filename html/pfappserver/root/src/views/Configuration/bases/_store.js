@@ -916,7 +916,7 @@ const actions = {
     return api.createDatabase({ ...data,
       async: true // use pfqueue polling
     }).then(({ task_id }) => {
-      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('ITEM_SUCCESS')
         return response
       })

@@ -127,7 +127,8 @@ const actions = {
   joinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
     return api.join(data).then(response => {
-      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+      const { task_id } = response
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('JOIN_SUCCESS', { id: data.id, response })
         return state.joins[data.id]
       })
@@ -139,7 +140,8 @@ const actions = {
   rejoinDomain: ({ state, commit }, data) => {
     commit('JOIN_REQUEST', data.id)
     return api.rejoin(data).then(response => {
-      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+      const { task_id } = response
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('JOIN_SUCCESS', { id: data.id, response })
         return state.joins[data.id]
       })
@@ -151,7 +153,8 @@ const actions = {
   unjoinDomain: ({ state, commit }, data) => {
     commit('UNJOIN_REQUEST', data.id)
     return api.unjoin(data).then(response => {
-      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+      const { task_id } = response
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('UNJOIN_SUCCESS', { id: data.id, response })
         return state.joins[data.id]
       })

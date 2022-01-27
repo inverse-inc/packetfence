@@ -170,7 +170,7 @@ const actions = {
     commit('SERVICE_RESTARTING', id)
     return api.restartServiceAsync(id).then(response => {
       const { data: { task_id } = {} } = response
-      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('SERVICE_RESTARTED', { id, response })
         return state.cache[id]
       })
@@ -191,7 +191,7 @@ const actions = {
     commit('SERVICE_STARTING', id)
     return api.startServiceAsync(id).then(response => {
       const { data: { task_id } = {} } = response
-      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('SERVICE_STARTED', { id, response })
         return state.cache[id]
       })
@@ -214,7 +214,7 @@ const actions = {
   updateSystemdAsync: (context, id) => {
     return api.updateSystemdAsync(id).then(response => {
       const { data: { task_id } = {} } = response
-      return store.dispatch('pfqueue/pollTaskStatus', task_id)
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id })
     })
   },
   restartSystemService: ({ state, commit }, arg) => {
