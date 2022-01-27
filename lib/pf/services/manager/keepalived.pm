@@ -104,11 +104,14 @@ EOT
         foreach my $interface ( @ints ) {
             my $cfg = $Config{"interface $interface"};
             next unless $cfg;
-            my $priority = 100 - pf::cluster::reg_cluster_index();
-            my $process_tracking = "haproxy_portal";
-            if ($Config{"interface $interface"}{'type'} =~ /management/i || $Config{"interface $interface"}{'type'} =~ /radius/i) {
-                $process_tracking = "radius_load_balancer";
-                $priority = 100 - pf::cluster::cluster_index();
+            my $priority = 100 - pf::cluster::cluster_index();
+            if(isdisabled($Config{active_active}{centralize_vips})) {
+                $priority = 100 - pf::cluster::reg_cluster_index();
+                my $process_tracking = "haproxy_portal";
+                if ($Config{"interface $interface"}{'type'} =~ /management/i || $Config{"interface $interface"}{'type'} =~ /radius/i) {
+                    $process_tracking = "radius_load_balancer";
+                    $priority = 100 - pf::cluster::cluster_index();
+                }
             }
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             $tags{'vrrp'} .= <<"EOT";
