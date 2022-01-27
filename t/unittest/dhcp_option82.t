@@ -38,6 +38,7 @@ my $created_at = $item->{created_at};
 #This is the first test
 ok ($created_at ne '0000-00-00 00:00:00', "Created is not null");
 
+sleep(1);
 dhcp_option82_insert_or_update(
     mac => $mac,
     port => 'sds',

@@ -1191,7 +1191,7 @@ CREATE TABLE radius_audit_log (
 
 CREATE TABLE `dhcp_option82` (
   `mac` varchar(17) NOT NULL PRIMARY KEY,
-  `created_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   `option82_switch` varchar(17) NULL,
   `switch_id` varchar(17) NULL,
   `port` varchar(8) NOT NULL default '',
@@ -1209,7 +1209,7 @@ CREATE TABLE `dhcp_option82` (
 CREATE TABLE `dhcp_option82_history` (
   `dhcp_option82_history_id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `mac` varchar(17) NOT NULL,
-  `created_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   `option82_switch` varchar(17) NULL,
   `switch_id` varchar(17) NULL,
   `port` varchar(8) NOT NULL default '',
