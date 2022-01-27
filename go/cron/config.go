@@ -22,7 +22,6 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"file_logger":                 NewFileLogger,
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
-	"populate_ntlm_redis_cache":   NewPopulateNtlmRedisCache,
 	"ip4log_cleanup":              NewIp4logCleanup,
 	"ip6log_cleanup":              NewIp6logCleanup,
 	"admin_api_audit_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),

@@ -1,40 +1,50 @@
-package pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pfappserver::Form::Config::Pfcron::populate_ntlm_redis_cache - Web form for populate_ntlm_redis_cache pfcron task
+to-11.2-pfcron-populate_ntlm_redis_cache.pl
 
 =head1 DESCRIPTION
 
-Web form for populate_ntlm_redis_cache pfcron task
-
 =cut
 
-use HTML::FormHandler::Moose;
+use strict;
+use warnings;
+use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
+use pf::IniFiles;
+use pf::file_paths qw(
+    $cron_config_file
+);
 
-extends 'pfappserver::Form::Config::Pfcron';
-with 'pfappserver::Base::Form::Role::Help';
+main($cron_config_file) if not caller();
 
+sub main {
+    my ($file) = @_;
+    my $cs = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    my $update = 0;
+    my $section = 'populate_ntlm_redis_cache';
+    if ($cs->SectionExists($section)) {
+        $cs->DeleteSection($section);
+        $update = 1;
+    }
 
-=head2 default_type
+    if (!$update) {
+        print "Nothing to be done\n";
+        exit 0;
+    }
 
-default value of type
-
-=cut
-
-sub default_type {
-    return "populate_ntlm_redis_cache";
+    $cs->RewriteConfig();
+    print "All done\n";
 }
 
-has_block  definition =>
-  (
-    render_list => [qw(type status interval)],
-  );
+=head1 AUTHOR
 
+Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2021 Inverse inc.
 
 =head1 LICENSE
 
@@ -54,7 +64,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
 USA.
 
 =cut
-
-__PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};
 
 1;

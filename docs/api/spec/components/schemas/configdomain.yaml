@@ -38,9 +38,7 @@ ConfigDomain:
         is about 4 times slower when enabled.
       type: string
     ntlm_cache_expiry:
-      description: The amount of seconds an entry should be cached. This should be
-        adjusted to twice the value of maintenance.populate_ntlm_redis_cache_interval
-        if using the batch mode.
+      description: The amount of seconds an entry should be cached.
       type: integer
     ntlm_cache_filter:
       description: An LDAP query to filter out the users that should be cached.

@@ -43,8 +43,6 @@ pfcmd pfmon <task> [options...]
 
 =item person_cleanup
 
-=item populate_ntlm_redis_cache
-
 =item provisioning_compliance_poll
 
 =item radius_audit_log_cleanup
