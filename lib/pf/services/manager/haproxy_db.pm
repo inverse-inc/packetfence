@@ -75,7 +75,7 @@ sub generateConfig {
     my @mysql_backend;
 
     if ($cluster_enabled) {
-        if (isenabled($Config{active_active}{probe_mysql_from_haproxy_db})){
+        if (isenabled($Config{active_active}{probe_mysql_from_haproxy_db}) && isenabled($Config{'services'}{'mysql-probe'})){
             $tags{'mysql_probe'} = <<"EOT";
     option httpchk
     default-server port 3307 inter 2s downinter 5s rise 3 fall 2 slowstart 60s maxconn 64 maxqueue 128 weight 100
