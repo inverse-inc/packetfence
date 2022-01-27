@@ -7,7 +7,7 @@ testcases:
 - name: get_time
   steps:
   - type: exec
-    script: "date '+%Y-%m-%d %H:%M:%S' --date='155 minutes ago'"
+    script: "date '+%Y-%m-%d %H:%M:%S' --date='2 minutes ago'"
     vars:
       two_minutes_ago:
         from: result.systemout

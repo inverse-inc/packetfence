@@ -16,8 +16,8 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.item.autoreg ShouldEqual yes
-      - result.bodyjson.item.category ShouldEqual "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}"
-      - result.bodyjson.item.pid ShouldEqual "{{.wired_dot1x_eap_tls_manual.certs.user.cn}}"
+      - result.bodyjson.item.category ShouldEqual "user_employee"
+      - result.bodyjson.item.pid ShouldEqual "packetfence"
       - result.bodyjson.item.status ShouldEqual reg
     vars:
       regdate:

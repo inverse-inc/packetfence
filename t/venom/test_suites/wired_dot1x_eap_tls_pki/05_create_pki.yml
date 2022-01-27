@@ -134,7 +134,7 @@ testcases:
   steps:
   - type: pf_api_pki_certs
     profile_id: "{{.create_user_cert_template.profiles_id}}"
-    cn: "{{.wired_dot1x_eap_tls_manual.certs.user.cn}}"
+    cn: "packetfence"
     mail: "{{.wired_dot1x_eap_tls_manual.certs.user.mail}}"
     vars:
       serial_number:
