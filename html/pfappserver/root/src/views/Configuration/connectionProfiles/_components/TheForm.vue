@@ -140,7 +140,7 @@
 
         <form-group-show-manage-devices-on-max-nodes namespace="show_manage_devices_on_max_nodes"
           :column-label="$i18n.t('Show manage devices options when user reaches max nodes')"
-          :text="$i18n.t('When the user reaches the maximum amount of nodes for his username, enabling this will display an option in the portal to access the status page to manage/unregister devices.')"
+          :text="$i18n.t('When the user reaches the maximum amount of registered nodes associated with his or her username, enabling this will display an option in the portal to access the status page to manage/unregister devices.')"
         />
 
         <form-group-block-interval namespace="block_interval"
