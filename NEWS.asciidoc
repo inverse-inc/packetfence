@@ -56,6 +56,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Improve the speed on the node online query.
 * Message portal module can be used without the portal template.
 * The ip6tables rules are now managed by PacketFence (#6836)
+* Certificate signing requests created via the admin interface now include a Subject Alternative Name (SAN)
+* The Subject Alternative Names of a certificate are now displayed in the admin interface
 
 === Bug Fixes
 
