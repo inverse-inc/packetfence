@@ -121,8 +121,13 @@ If you build inside a Docker container, you need to define `QA_RPATHS=$((
 dpkg-buildpackage --no-sign -rfakeroot
 ```
 
-## How to replace a Perl module installed by packetfence-perl packages by a package ?
+## How to replace a Perl module installed by packetfence-perl package by a package ?
 
-1. Remove Perl module from `./dependencies.csv
+1. Remove Perl module from `./dependencies.csv`
 1. Remove Perl module from  `./debian/control`
 1. Update PacketFence SPEC files (Debian and RPM) to add a dependency to this package
+
+## How to add a new dependency
+
+1. Add new dependency in `./dependencies.csv` based on CPAN informations
+1. Remove dependency from our repositories (Debian and RPM)

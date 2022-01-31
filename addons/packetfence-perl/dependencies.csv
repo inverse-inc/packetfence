@@ -145,6 +145,7 @@ Perl::Version,1.013,BDFOY/Perl-Version-1.013.tar.gz,True,B/BD/BDFOY/Perl-Version
 Crypt::Rijndael,1.16,LEONT/Crypt-Rijndael-1.16.tar.gz,True,L/LE/LEONT/Crypt-Rijndael-1.16.tar.gz,2
 IO::Interface,1.09,LDS/IO-Interface-1.09.tar.gz,True,L/LD/LDS/IO-Interface-1.09.tar.gz,2
 Crypt::OpenSSL::PKCS10,0.16,JONOZZZ/Crypt-OpenSSL-PKCS10-0.16.tar.gz,True,J/JO/JONOZZZ/Crypt-OpenSSL-PKCS10-0.16.tar.gz,2
+Crypt::OpenSSL::PKCS12,1.9,JONASBN/Crypt-OpenSSL-PKCS12-1.9,True,J/JO/JONASBN/Crypt-OpenSSL-PKCS12-1.9.tar.gz,2
 Catalyst::Authentication::Credential::HTTP,1.018,ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz,True,E/ET/ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz,2
 Data::Serializer::Sereal,1.05,ROUZIER/Data-Serializer-Sereal-1.05.tar.gz,True,R/RO/ROUZIER/Data-Serializer-Sereal-1.05.tar.gz,2
 Apache::Session,1.94,CHORNY/Apache-Session-1.94.tar.gz,True,C/CH/CHORNY/Apache-Session-1.94.tar.gz,2
