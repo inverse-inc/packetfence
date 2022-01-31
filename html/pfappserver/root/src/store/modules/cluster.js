@@ -231,18 +231,6 @@ const actions = {
   },
   getServiceCluster: ({ state, dispatch }, id) => {
     dispatch('getConfig').then(() => {
-/*
-      // async requests
-      const async = (idx = 0) => {
-        dispatch('getService', { server: state.servers[idx], id })
-          .finally(() => {
-            if (idx < state.servers.length-1) {
-              async(++idx)
-            }
-          })
-      }
-      async()
-*/
       Object.keys(state.servers).map(server => {
         dispatch('getService', { server, id })
       })
@@ -261,9 +249,29 @@ const actions = {
     }).finally(() => dispatch('getService', { server, id }))
   },
   disableServiceCluster: ({ state, dispatch }, id) => {
-    dispatch('getConfig').then(() => {
-      Object.keys(state.servers).map(server => {
-        dispatch('disableService', { server, id })
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
+            if (idx < state.servers.length-1) {
+              async(++idx)
+            }
+            else {
+              resolve()
+            }
+          }
+          if (state.servers[server].services[id].enabled) {
+            dispatch('disableService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
       })
     })
   },
@@ -280,9 +288,29 @@ const actions = {
     }).finally(() => dispatch('getService', { server, id }))
   },
   enableServiceCluster: ({ state, dispatch }, id) => {
-    dispatch('getConfig').then(() => {
-      Object.keys(state.servers).map(server => {
-        dispatch('enableService', { server, id })
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
+            if (idx < state.servers.length-1) {
+              async(++idx)
+            }
+            else {
+              resolve()
+            }
+          }
+          if (!state.servers[server].services[id].enabled) {
+            dispatch('enableService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
       })
     })
   },
@@ -299,17 +327,30 @@ const actions = {
     }).finally(() => dispatch('getService', { server, id }))
   },
   restartServiceCluster: ({ state, dispatch }, id) => {
-    dispatch('getConfig').then(() => {
-      // async requests
-      const async = (idx = 0) => {
-        dispatch('restartService', { server: state.servers[idx], id })
-          .finally(() => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
             if (idx < state.servers.length-1) {
               async(++idx)
             }
-          })
-      }
-      async()
+            else {
+              resolve()
+            }
+          }
+          if (state.servers[server].services[id].alive) {
+            dispatch('restartService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
+      })
     })
   },
   startService: ({ state, commit, dispatch }, { server, id }) => {
@@ -325,17 +366,30 @@ const actions = {
     }).finally(() => dispatch('getService', { server, id }))
   },
   startServiceCluster: ({ state, dispatch }, id) => {
-    dispatch('getConfig').then(() => {
-      // async requests
-      const async = (idx = 0) => {
-        dispatch('startService', { server: state.servers[idx], id })
-          .finally(() => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
             if (idx < state.servers.length-1) {
               async(++idx)
             }
-          })
-      }
-      async()
+            else {
+              resolve()
+            }
+          }
+          if (!state.servers[server].services[id].alive) {
+            dispatch('startService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
+      })
     })
   },
   stopService: ({ state, commit, dispatch }, { server, id }) => {
@@ -351,17 +405,30 @@ const actions = {
     }).finally(() => dispatch('getService', { server, id }))
   },
   stopServiceCluster: ({ state, dispatch }, id) => {
-    dispatch('getConfig').then(() => {
-      // async requests
-      const async = (idx = 0) => {
-        dispatch('stopService', { server: state.servers[idx], id })
-          .finally(() => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
             if (idx < state.servers.length-1) {
               async(++idx)
             }
-          })
-      }
-      async()
+            else {
+              resolve()
+            }
+          }
+          if (state.servers[server].services[id].alive) {
+            dispatch('stopService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
+      })
     })
   },
 
