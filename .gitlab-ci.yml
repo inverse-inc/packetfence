@@ -23,7 +23,7 @@ stages:
 # VARIABLES
 ################################################################################
 variables:
-  PFBUILD_CENTOS_8_IMG: inverseinc/pfbuild-centos-8
+  PFBUILD_EL_8_IMG: inverseinc/pfbuild-el-8
   PFBUILD_DEB_BULLSEYE_IMG: inverseinc/pfbuild-debian-bullseye
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
@@ -422,11 +422,11 @@ build_img_docker_release:
     - .release_only_rules
   variables:
     DOCKER_TAGS: ${CI_COMMIT_TAG}
-    ANSIBLE_CENTOS_GROUP: common_centos
-    ANSIBLE_CENTOS8_GROUP: stable_centos8
+    ANSIBLE_EL_GROUP: common_el
+    ANSIBLE_EL8_GROUP: stable_el8
     ANSIBLE_DEBIAN_GROUP: common_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
-    ACTIVE_BUILDS: 'pfbuild-centos-8,pfbuild-bullseye'
+    ACTIVE_BUILDS: 'pfbuild-el-8,pfbuild-bullseye'
 
 ### build_img_vagrant jobs
 # build_img_vagrant_devel_and_branches_el_8:
@@ -447,8 +447,8 @@ build_img_vagrant_devel_and_branches_debian_bullseye:
 #  BUILD_ARTIFACTS JOBS
 ########################################
 # build_artifacts_pkg jobs for development
-build_artifacts_pkg_devel_and_branches_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+build_artifacts_pkg_devel_and_branches_el_8:
+  image: ${PFBUILD_EL_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
@@ -463,8 +463,8 @@ build_artifacts_pkg_devel_and_branches_debian_bullseye:
 
 # build_artifacts_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
-build_artifacts_pkg_release_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_TAG}
+build_artifacts_pkg_release_el_8:
+  image: ${PFBUILD_EL_8_IMG}:${CI_COMMIT_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
@@ -478,8 +478,8 @@ build_artifacts_pkg_release_debian_bullseye:
     - .release_only_rules
 
 # CI_COMMIT_REF_SLUG contains maintenance-X-Y
-build_artifacts_pkg_maintenance_centos_8:
-  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
+build_artifacts_pkg_maintenance_el_8:
+  image: ${PFBUILD_EL_8_IMG}:${CI_COMMIT_REF_SLUG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
@@ -532,11 +532,11 @@ sign_devel_release_branches_and_maintenance:
   script:
     - ci-sign-pkg
   dependencies:
-    - build_artifacts_pkg_devel_and_branches_centos_8
+    - build_artifacts_pkg_devel_and_branches_el_8
     - build_artifacts_pkg_devel_and_branches_debian_bullseye
-    - build_artifacts_pkg_release_centos_8
+    - build_artifacts_pkg_release_el_8
     - build_artifacts_pkg_release_debian_bullseye
-    - build_artifacts_pkg_maintenance_centos_8
+    - build_artifacts_pkg_maintenance_el_8
     - build_artifacts_pkg_maintenance_debian_bullseye
   artifacts:
     expire_in: 1 day
