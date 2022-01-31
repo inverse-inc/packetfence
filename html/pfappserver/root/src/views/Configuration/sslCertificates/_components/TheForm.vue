@@ -115,6 +115,19 @@
               rows="6" auto-fit
             />
 
+            <form-group-find-intermediate-cas v-model="isFindIntermediateCas"
+              :column-label="$i18n.t('Find {name} Server intermediate CA(s) automatically', { name })"
+            />
+
+            <form-group-intermediate-certification-authorities v-if="!isFindIntermediateCas"
+              namespace="intermediate_cas"
+              :column-label="$i18n.t('Intermediate CA certificate(s)')"
+            />
+
+            <form-group-check-chain namespace="check_chain"
+              :column-label="$i18n.t('Validate certificate chain')"
+            />
+
             <form-group-private-key namespace="private_key"
               :column-label="$i18n.t('{name} Server Private Key', { name })"
               rows="6" auto-fit
@@ -127,18 +140,6 @@
               rows="6" auto-fit
             />
 
-            <form-group-check-chain namespace="check_chain"
-              :column-label="$i18n.t('Validate certificate chain')"
-            />
-
-            <form-group-find-intermediate-cas v-model="isFindIntermediateCas"
-              :column-label="$i18n.t('Find intermediate CA certificates automatically')"
-            />
-
-            <form-group-intermediate-certification-authorities v-if="!isFindIntermediateCas"
-              namespace="intermediate_cas"
-              :column-label="$i18n.t('Intermediate CA certificate(s)')"
-            />
           </template>
         </base-form>
       </b-form>
