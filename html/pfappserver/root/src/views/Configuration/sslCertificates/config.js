@@ -16,3 +16,5 @@ export const strings = {
   serial:       'Serial', // i18n defer
   subject:      'Subject', // i18n defer
 }
+
+export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name', 'subject_alt_name']
