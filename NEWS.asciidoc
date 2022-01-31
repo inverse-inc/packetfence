@@ -59,6 +59,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Certificate signing requests created via the admin interface now include a Subject Alternative Name (SAN)
 * The Subject Alternative Names of a certificate are now displayed in the admin interface
 * SSL Certificates - RADIUS / HTTPs page Simple GUI Enhancements (wording clarification) (#6613)
+* New mysql-probe service to monitor haproxy-db backends
 
 === Bug Fixes
 
