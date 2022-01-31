@@ -18,4 +18,4 @@ export const strings = {
   subject_alt_name: 'Subject Alternative Names', // i18n defer
 }
 
-export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name']
+export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name', 'subject_alt_name']
