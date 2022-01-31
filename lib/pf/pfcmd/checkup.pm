@@ -1217,7 +1217,7 @@ sub _check_database_host_in_cluster {
     my $db = $cs->readRaw("database");
     my $host = $db->{host};
     if ( !defined($host) || $host eq 'localhost' ) {
-        add_problem($WARN, "The database.host should not be configured to 'localhost' in a cluster");
+        add_problem($FATAL, "The database.host should not be configured to 'localhost' in a cluster");
     }
 
 }
