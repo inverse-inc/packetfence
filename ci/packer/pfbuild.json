@@ -3,7 +3,8 @@
     "min_packer_version": "1.5.0",
     "variables": {
         "builder_prefix": "pfbuild",
-        "buildpkg_user": "registry.gitlab.com/orange-opensource/gitlab-buildpkg",
+        "registry_el": "registry.access.redhat.com",
+        "registry_deb": "registry.gitlab.com/orange-opensource/gitlab-buildpkg",
         "pf_root": "../..",
         "prov_dir": "provisionners_pfbuild",
         "files_dir": "files",
@@ -28,7 +29,7 @@
         {
             "name": "{{user `builder_prefix`}}-el-8",
             "type": "docker",
-            "image": "{{user `buildpkg_user`}}/el:8",
+            "image": "{{user `registry_el`}}/ubi8/s2i-base",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
@@ -38,7 +39,7 @@
         {
             "name": "{{user `builder_prefix`}}-bullseye",
             "type": "docker",
-            "image": "{{user `buildpkg_user`}}/debian:bullseye",
+            "image": "{{user `registry_deb`}}/debian:bullseye",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
