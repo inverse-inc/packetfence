@@ -31,6 +31,8 @@ function import_mysqldump() {
     read -s mariadb_root_pass
     echo
     setup_mycnf $mariadb_root_pass
+  else
+    touch `pwd`/setup_mycnf
   fi
 
   db_name=`get_db_name $pf_conf`
@@ -162,6 +164,8 @@ function upgrade_database() {
     read -s mariadb_root_pass
     echo
     setup_mycnf $mariadb_root_pass
+  else
+    touch `pwd`/setup_mycnf
   fi
 
   db_name="$1"
