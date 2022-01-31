@@ -178,6 +178,7 @@ type PfConfServices struct {
 	Keepalived           string `json:"keepalived"`
 	Netdata              string `json:"netdata"`
 	NetFlowAddress       string `json:"netflow_address"`
+	MysqlProbe           string `json:"mysql-probe"`
 	Pfacct               string `json:"pfacct"`
 	PfcertManager        string `json:"pfcertmanager"`
 	Pfdhcp               string `json:"pfdhcp"`

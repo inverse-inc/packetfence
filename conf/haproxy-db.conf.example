@@ -42,11 +42,7 @@ frontend  main
 backend mysql
     mode tcp
     option tcplog
-    # disabled for now since it proved to be useless - jsemaan@inverse.ca
-    # TODO: remove it after cluster testing
-    #option external-check
-    #external-check command /usr/local/pf/var/run/db-check
-    #external-check path "/usr/bin:/bin"
+%%mysql_probe%%
     timeout connect 3s
 %%mysql_backend%%
 

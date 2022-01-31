@@ -54,6 +54,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupTc,
   BaseFormGroupToggleDisabledEnabled  as FormGroupTrackingConfig,
   BaseFormGroupToggleDisabledEnabled  as FormGroupWinbindd,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupMysqlProbe,
 
   BaseViewResource                    as BaseView,
   TheForm,

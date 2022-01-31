@@ -188,6 +188,68 @@ func IsDBAvailable(ctx context.Context, host string) bool {
 	return false
 }
 
+func IsLocalDBReady(ctx context.Context) bool {
+	return IsDBReady(ctx, "localhost")
+}
+
+func IsDBReady(ctx context.Context, host string) bool {
+	ctx = log.AddToLogContext(ctx, "function", "IsDBReady")
+	ready := IsDBAvailable(ctx, "localhost")
+	if ready {
+		conf := DatabaseConfig(ctx)
+		db, err := db.ManualConnectDb(ctx, conf.User, conf.Pass, host, conf.Db)
+		if err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			return false
+		}
+		defer db.Close()
+		rows, err := db.Query("show variables like 'read_only'")
+		if err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			return false
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var name string
+			var status string
+			if err := rows.Scan(&name, &status); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+				return false
+			}
+			if status == "ON" {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Database on %s : status is Read Only", host))
+				return false
+			}
+		}
+		rows, err = db.Query("show variables like 'wsrep_desync'")
+		if err != nil {
+			log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+			return false
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var name string
+			var status string
+			if err := rows.Scan(&name, &status); err != nil {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+				return false
+			}
+			if status == "ON" {
+				log.LoggerWContext(ctx).Warn(fmt.Sprintf("Database on %s : status is Desync", host))
+				return false
+			} else {
+				return true
+			}
+		}
+		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Unable to connect to database on %s : %s", host, err.Error()))
+		return false
+	} else {
+		return ready
+	}
+}
+
 func IsActive(ctx context.Context) bool {
 	cmd := exec.Command(`systemctl`, `is-active`, `packetfence-mariadb`)
 	out, _ := cmd.Output()

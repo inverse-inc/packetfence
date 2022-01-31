@@ -165,10 +165,6 @@ sub _run {
     chmod 0744, $db_update_path;
     user_chown("mysql", $db_update_path);
 
-    my $db_check_path = "$install_dir/var/run/db-check";
-    $tt->process("$conf_dir/mariadb/db-check.tt", \%vars, $db_check_path) or die $tt->error();
-    chmod 0744, $db_check_path;
-    pf_chown($db_check_path);
     update_udf_config($mariadb_pf_udf_file, \%EventLoggers);
     update_init_file($tt, "$conf_dir/mariadb/mariadb.sql.tt", "$install_dir/var/conf/mariadb.sql", make_init_file_vars());
     chmod 0644, "$install_dir/var/conf/mariadb.sql";
