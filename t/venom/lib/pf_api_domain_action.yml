@@ -11,7 +11,7 @@ steps:
   body: '{{.input.body}}'
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
-  url: 'config/domaine/{{.input.id}}{{domain_extension}}'
+  url: 'config/domain/{{.input.id}}{{domain_extension}}'
   time_to_sleep: "{{.input.time_to_sleep}}"
 output:
   pf_api_source_action_: "{{.result.pf_api_action_}}"
