@@ -321,6 +321,8 @@ sub generate_csr {
 
     my $csr = Crypt::OpenSSL::PKCS10->new_from_rsa($rsa);
     $csr->set_subject($subject);
+    $csr->add_ext(Crypt::OpenSSL::PKCS10::NID_subject_alt_name, "DNS:".$info->{common_name});
+    $csr->add_ext_final();
     $csr->sign();
     
     return ($TRUE, $csr);
@@ -373,6 +375,7 @@ sub x509_info {
         not_before => $x509->notBefore(),
         not_after => $x509->notAfter(),
         serial => $x509->serial(),
+        subject_alt_name => [split(/\s*,\s*/, $x509->extensions_by_name()->{'subjectAltName'}->to_string)],
     };
 }
 

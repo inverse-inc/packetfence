@@ -4,7 +4,8 @@ import i18n from '@/utils/locale'
 import schemaFn from '../schema'
 import {
   certificateServices,
-  strings
+  strings,
+  sortSslKeys,
 } from '../config'
 
 const useFormProps = {
@@ -49,7 +50,6 @@ const useForm = (form, props, context) => {
     return lets_encrypt
   })
 
-  const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name']
   const fnSortSslKeys = (a, b) => {
     return sortSslKeys.indexOf(a) - sortSslKeys.indexOf(b)
   }

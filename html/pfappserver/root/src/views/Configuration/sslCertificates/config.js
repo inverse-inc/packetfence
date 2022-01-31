@@ -9,10 +9,13 @@ export const certificateServices = {
 }
 
 export const strings = {
-  common_name:  'Common name (CN)', // i18n defer
-  issuer:       'Issuer', // i18n defer
-  not_after:    'Not after', // i18n defer
-  not_before:   'Not before', // i18n defer
-  serial:       'Serial', // i18n defer
-  subject:      'Subject', // i18n defer
+  common_name:      'Common name (CN)', // i18n defer
+  issuer:           'Issuer', // i18n defer
+  not_after:        'Not after', // i18n defer
+  not_before:       'Not before', // i18n defer
+  serial:           'Serial', // i18n defer
+  subject:          'Subject', // i18n defer
+  subject_alt_name: 'Subject Alternative Names', // i18n defer
 }
+
+export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name', 'subject_alt_name']

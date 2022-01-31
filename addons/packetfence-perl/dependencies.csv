@@ -208,7 +208,7 @@ Digest::HMAC_MD5,1.04,ARODLAND/Digest-HMAC-1.04.tar.gz,True,A/AR/ARODLAND/Digest
 Switch,2.17,CHORNY/Switch-2.17.tar.gz,True,C/CH/CHORNY/Switch-2.17.tar.gz,2
 Rose::DB::Object,0.820,JSIRACUSA/Rose-DB-Object-0.820.tar.gz,True,J/JS/JSIRACUSA/Rose-DB-Object-0.820.tar.gz,2
 Data::Phrasebook::Loader::YAML,0.13,BARBIE/Data-Phrasebook-Loader-YAML-0.13.tar.gz,True,B/BA/BARBIE/Data-Phrasebook-Loader-YAML-0.13.tar.gz,2
-Crypt::OpenSSL::X509,1.908,JONASBN/Crypt-OpenSSL-X509-1.908.tar.gz,True,J/JO/JONASBN/Crypt-OpenSSL-X509-1.908.tar.gz,2
+Crypt::OpenSSL::X509,1.910,JONASBN/Crypt-OpenSSL-X509-1.910.tar.gz,True,J/JO/JONASBN/Crypt-OpenSSL-X509-1.910.tar.gz,2
 Template::AutoFilter,0.143050,MITHALDU/Template-AutoFilter-0.143050.tar.gz,True,M/MI/MITHALDU/Template-AutoFilter-0.143050.tar.gz,2
 Config::IniFiles,3.000003,SHLOMIF/Config-IniFiles-3.000003.tar.gz,True,S/SH/SHLOMIF/Config-IniFiles-3.000003.tar.gz,2
 MIME::Lite::TT,0.02,HORIUCHI/MIME-Lite-TT-0.02.tar.gz,True,H/HO/HORIUCHI/MIME-Lite-TT-0.02.tar.gz,2

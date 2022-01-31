@@ -37,7 +37,10 @@
           </b-row>
           <b-row align-v="baseline" v-for="(value, key) in certificateLocale" :key="key">
             <b-col sm="3" class="col-form-label">{{ key }}</b-col>
-            <b-col sm="9">{{ value }}</b-col>
+              <b-col sm="9" v-if="Array.isArray(value)">
+                <b-badge v-for="(v, k) in value" :key="`${key}-${k}`" class="mr-1" variant="secondary">{{ v }}</b-badge>
+              </b-col>
+            <b-col sm="9" v-else>{{ value }}</b-col>
           </b-row>
         </b-container>
       </b-card>
@@ -54,7 +57,10 @@
             class="mb-3" :class="{ 'border-top': index }" fluid>
             <b-row align-v="center" v-for="(value, key) in ca" :key="key">
               <b-col sm="3" class="col-form-label">{{ key }}</b-col>
-              <b-col sm="9">{{ value }}</b-col>
+              <b-col sm="9" v-if="Array.isArray(value)">
+                <b-badge v-for="(v, k) in value" :key="`${key}-${k}`" class="mr-1" variant="secondary">{{ v }}</b-badge>
+              </b-col>
+            <b-col sm="9" v-else>{{ value }}</b-col>
             </b-row>
           </b-container>
         </template>
