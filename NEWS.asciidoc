@@ -30,6 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Added MAB floating device support to Ruckus/Brocade switches (#6774)
 * Support for roles in VPN access
 * Allow to centralize the virtual IPs on the same server (#6853)
+* Added support for Kandji MDM as a provisioner
 
 === Enhancements
 
