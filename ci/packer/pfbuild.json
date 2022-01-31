@@ -3,7 +3,7 @@
     "min_packer_version": "1.5.0",
     "variables": {
         "builder_prefix": "pfbuild",
-        "registry_el": "registry.access.redhat.com",
+        "registry_el": "docker.io",
         "registry_deb": "registry.gitlab.com/orange-opensource/gitlab-buildpkg",
         "pf_root": "../..",
         "prov_dir": "provisionners_pfbuild",
@@ -29,7 +29,7 @@
         {
             "name": "{{user `builder_prefix`}}-el-8",
             "type": "docker",
-            "image": "{{user `registry_el`}}/ubi8/s2i-base",
+            "image": "{{user `registry_el`}}/rockylinux:8",
             "run_command": ["-d", "-i", "-t", "--", "{{.Image}}"],
             "commit": true,
             "changes": [
