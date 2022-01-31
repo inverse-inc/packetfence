@@ -9,7 +9,7 @@ import (
 )
 
 const bandwidthMaintenanceSessionCleanupSQL = `
-BEGIN NOT ATOMIC
+SET STATEMENT max_statement_time=5 FOR BEGIN NOT ATOMIC
 SET @window = DATE_SUB(?, INTERVAL ? SECOND);
 UPDATE bandwidth_accounting INNER JOIN (
     SELECT DISTINCT node_id, unique_session_id
