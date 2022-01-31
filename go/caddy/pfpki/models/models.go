@@ -1115,8 +1115,16 @@ func (c Cert) New() (types.Info, error) {
 	if len(prof.OCSPUrl) > 0 {
 		cert.OCSPServer = []string{prof.OCSPUrl}
 	}
+
+	Email := ""
+	if len(prof.Mail) > 0 {
+		Email = prof.Mail
+	}
 	if len(c.Mail) > 0 {
-		for _, mail := range strings.Split(c.Mail, ",") {
+		Email = c.Mail
+	}
+	if len(Email) > 0 {
+		for _, mail := range strings.Split(Email, ",") {
 			cert.EmailAddresses = append(cert.EmailAddresses, mail)
 		}
 	}
@@ -1146,7 +1154,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, Subject: Subject.String()}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
