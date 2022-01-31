@@ -173,7 +173,7 @@
       [% i18n("Network subscriptions") %]
     </a>
     [% END %]
-    <a href="/status/logout" class="c-btn c-btn--tertiary u-1/1 u-margin-top-small">
+    <a href="[% IF logout_url ; logout_url ; ELSE %]/status/logout[% END %]" class="c-btn c-btn--tertiary u-1/1 u-margin-top-small">
       [% i18n("Logout") %]
     </a>
   </div>

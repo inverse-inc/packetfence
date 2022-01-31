@@ -708,6 +708,11 @@ sub stripeCustomerPortalSource {
     return firstval { ($_->type eq "Stripe" && isenabled($_->customer_portal)) } $self->getSourcesAsObjects();
 }
 
+sub showManageDevicesOnMaxNodes {
+    my ($self) = @_;
+    return isenabled($self->{_show_manage_devices_on_max_nodes});
+}
+
 =back
 
 =head1 AUTHOR

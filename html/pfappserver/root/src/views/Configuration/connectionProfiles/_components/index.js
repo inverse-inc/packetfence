@@ -53,6 +53,7 @@ export {
   BaseFormGroupInput                  as FormGroupLogo,
   BaseFormGroupInput                  as FormGroupRedirectUrl,
   BaseFormGroupToggleDisabledEnabled  as FormGroupAlwaysUseRedirecturl,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupShowManageDevicesOnMaxNodes,
   BaseFormGroupIntervalUnit           as FormGroupBlockInterval,
   BaseFormGroupInputNumber            as FormGroupSmsPinRetryLimit,
   BaseFormGroupInputNumber            as FormGroupSmsRequestLimit,
