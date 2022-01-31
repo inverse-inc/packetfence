@@ -117,33 +117,35 @@
           -->
           <template v-else>
             <form-group-certificate namespace="certificate"
-              :column-label="$i18n.t('Certificate')"
+              :column-label="$i18n.t('{name} Server Certificate', { name })"
               rows="6" auto-fit
-            />
-
-            <form-group-ca v-if="id === 'radius'"
-              namespace="ca"
-              :column-label="$i18n.t('Certification Authority certificate(s)')"
-              rows="6" auto-fit
-            />
-
-            <form-group-private-key namespace="private_key"
-              :column-label="$i18n.t('Private Key')"
-              rows="6" auto-fit
-            />
-
-            <form-group-check-chain namespace="check_chain"
-              :column-label="$i18n.t('Validate certificate chain')"
             />
 
             <form-group-find-intermediate-cas v-model="isFindIntermediateCas"
-              :column-label="$i18n.t('Find intermediate CA certificates automatically')"
+              :column-label="$i18n.t('Find {name} Server intermediate CA(s) automatically', { name })"
             />
 
             <form-group-intermediate-certification-authorities v-if="!isFindIntermediateCas"
               namespace="intermediate_cas"
               :column-label="$i18n.t('Intermediate CA certificate(s)')"
             />
+
+            <form-group-check-chain namespace="check_chain"
+              :column-label="$i18n.t('Validate certificate chain')"
+            />
+
+            <form-group-private-key namespace="private_key"
+              :column-label="$i18n.t('{name} Server Private Key', { name })"
+              rows="6" auto-fit
+            />
+
+            <form-group-ca v-if="id === 'radius'"
+              namespace="ca"
+              :column-label="$i18n.t('Certification Authority certificate(s)')"
+              :text="$i18n.t('Trusted client authority certificates including root or intermediate certificates used for EAP-TLS must be added here.')"
+              rows="6" auto-fit
+            />
+
           </template>
         </base-form>
       </b-form>
@@ -210,6 +212,8 @@ const components = {
 
   TheCsr
 }
+
+import { computed, toRefs } from '@vue/composition-api'
 import { useForm, useFormProps } from '../_composables/useForm'
 import { useViewCollectionItemFixed, useViewCollectionItemFixedProps } from '../../_composables/useViewCollectionItemFixed'
 import * as collection from '../_composables/useCollection'
@@ -220,6 +224,19 @@ const props = {
 }
 
 const setup = (props, context) => {
+
+  const {
+    id
+  } = toRefs(props)
+  const name = computed(() => {
+    switch(id.value.toLowerCase()) {
+      case 'http':
+        return 'HTTPs'
+        //break
+      default:
+        return id.value.toUpperCase()
+    }
+  })
 
   const {
     rootRef,
@@ -273,6 +290,7 @@ const setup = (props, context) => {
   }
 
   return {
+    name,
     // useViewCollectionItemFixed
     rootRef,
     form,
