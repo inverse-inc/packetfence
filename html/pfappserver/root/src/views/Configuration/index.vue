@@ -161,7 +161,7 @@ const setup = () => {
             { name: i18n.t('EAP Profiles'), path: '/configuration/radius/eap' },
             { name: i18n.t('TLS Profiles'), path: '/configuration/radius/tls' },
             { name: i18n.t('Fast Profiles'), path: '/configuration/radius/fast' },
-            { name: i18n.t('SSL Certificates'), path: '/configuration/radius/ssl' },
+            { name: i18n.t('PKI SSL Certificates'), path: '/configuration/radius/ssl' },
             { name: i18n.t('OCSP Profiles'), path: '/configuration/radius/ocsp' }
           ]
         },
