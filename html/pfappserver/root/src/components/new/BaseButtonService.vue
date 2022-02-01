@@ -16,7 +16,7 @@
            <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
             name="exclamation-triangle" class="text-danger fa-overlap mr-1" />
           <icon v-else :key="`icon-${server}`"
-            name="circle" :class="service.alive ? 'text-success' : 'text-danger'" class="fa-overlap mr-1" />
+            name="circle" :class="(service.alive && service.pid) ? 'text-success' : 'text-danger'" class="fa-overlap mr-1" />
         </template>
         {{ service }}
       </div>
@@ -32,15 +32,16 @@
         @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
       <b-dropdown-item v-if="disable && Object.keys(servers).filter(server => servers[server].enabled).length"
         @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="restart && Object.keys(servers).filter(server => servers[server].alive).length"
+      <b-dropdown-item v-if="restart && Object.keys(servers).filter(server => (servers[server].alive && servers[server].pid)).length"
         @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="start && Object.keys(servers).filter(server => !servers[server].alive).length"
+      <b-dropdown-item v-if="start && Object.keys(servers).filter(server => !(servers[server].alive && servers[server].pid)).length"
         @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="stop && Object.keys(servers).filter(server => servers[server].alive).length"
+      <b-dropdown-item v-if="stop && Object.keys(servers).filter(server => (servers[server].alive && servers[server].pid)).length"
         @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
     </b-dropdown-group>
 
     <template v-for="(service, server) in servers">
+      <b-dropdown-divider :key="`divider-${server}`" />
       <b-dropdown-group :key="`group-${server}`">
        <template v-slot:header>
          {{ server }}
@@ -82,15 +83,15 @@
                 @click="doDisable(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
                 <icon name="toggle-off" class="mr-1" /> {{ $t('Disable') }}
               </b-button>
-              <b-button v-if="restart && service.alive"
+              <b-button v-if="restart && service.alive && service.pid"
                 @click="doRestart(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
                 <icon name="redo" class="mr-1" /> {{ $t('Restart') }}
               </b-button>
-              <b-button v-if="start && !service.alive"
+              <b-button v-if="start && !(service.alive && service.pid)"
                 @click="doStart(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
                 <icon name="play" class="mr-1" /> {{ $t('Start') }}
               </b-button>
-              <b-button v-if="stop && service.alive"
+              <b-button v-if="stop && service.alive && service.pid"
                 @click="doStop(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
                 <icon name="stop" class="mr-1" /> {{ $t('Stop') }}
               </b-button>
@@ -102,7 +103,6 @@
           {{ service.message }}
         </b-dropdown-form>
       </b-dropdown-group>
-      <b-dropdown-divider :key="`divider-${server}`" />
     </template>
   </b-dropdown>
 

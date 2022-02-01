@@ -347,10 +347,10 @@ const actions = {
               resolve()
             }
           }
-          if (state.servers[server].services[id].alive) {
+         if (state.servers[server].services[id].alive && state.servers[server].services[id].pid) {
             dispatch('restartService', { server, id })
              .catch(err => reject(err))
-             .then(() => next())
+              .then(() => next())
           }
           else {
             next()
@@ -386,7 +386,7 @@ const actions = {
               resolve()
             }
           }
-          if (!state.servers[server].services[id].alive) {
+          if (!(state.servers[server].services[id].alive && state.servers[server].services[id].pid)) {
             dispatch('startService', { server, id })
              .catch(err => reject(err))
              .then(() => next())
@@ -425,7 +425,7 @@ const actions = {
               resolve()
             }
           }
-          if (state.servers[server].services[id].alive) {
+          if (state.servers[server].services[id].alive && state.servers[server].services[id].pid) {
             dispatch('stopService', { server, id })
              .catch(err => reject(err))
              .then(() => next())
