@@ -62,6 +62,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * The Subject Alternative Names of a certificate are now displayed in the admin interface
 * SSL Certificates - RADIUS / HTTPs page Simple GUI Enhancements (wording clarification) (#6613)
 * New mysql-probe service to monitor haproxy-db backends
+* Allow to add environment overrides to Fingerbank collector via the config (#6854)
 
 === Bug Fixes
 
