@@ -22,6 +22,24 @@
       </div>
     </template>
 
+    <b-dropdown-text v-if="isBlacklisted"
+      class="small">
+      {{ $t('This service must be managed from the command-line.') }}
+    </b-dropdown-text>
+    <b-dropdown-group v-else-if="isAllowed && Object.keys(servers).length"
+      :header="$i18n.t('CLUSTER')">
+      <b-dropdown-item v-if="enable && Object.keys(servers).filter(server => !servers[server].enabled).length"
+        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
+      <b-dropdown-item v-if="disable && Object.keys(servers).filter(server => servers[server].enabled).length"
+        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
+      <b-dropdown-item v-if="restart && Object.keys(servers).filter(server => servers[server].alive).length"
+        @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
+      <b-dropdown-item v-if="start && Object.keys(servers).filter(server => !servers[server].alive).length"
+        @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
+      <b-dropdown-item v-if="stop && Object.keys(servers).filter(server => servers[server].alive).length"
+        @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
+    </b-dropdown-group>
+
     <template v-for="(service, server) in servers">
       <b-dropdown-group :key="`group-${server}`">
        <template v-slot:header>
@@ -86,23 +104,6 @@
       </b-dropdown-group>
       <b-dropdown-divider :key="`divider-${server}`" />
     </template>
-    <b-dropdown-text v-if="isBlacklisted"
-      class="small">
-      {{ $t('This service must be managed from the command-line.') }}
-    </b-dropdown-text>
-    <b-dropdown-group v-else-if="isAllowed && Object.keys(servers).length"
-      :header="$i18n.t('CLUSTER')">
-      <b-dropdown-item v-if="enable && Object.keys(servers).filter(server => !servers[server].enabled).length"
-        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="disable && Object.keys(servers).filter(server => servers[server].enabled).length"
-        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="restart && Object.keys(servers).filter(server => servers[server].alive).length"
-        @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="start && Object.keys(servers).filter(server => !servers[server].alive).length"
-        @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="stop && Object.keys(servers).filter(server => servers[server].alive).length"
-        @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
-    </b-dropdown-group>
   </b-dropdown>
 
 </template>

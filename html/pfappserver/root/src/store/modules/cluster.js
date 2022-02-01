@@ -262,7 +262,7 @@ const actions = {
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
-            if (idx < state.servers.length-1) {
+            if (idx < Object.keys(state.servers).length - 1) {
               async(++idx)
             }
             else {
@@ -301,7 +301,7 @@ const actions = {
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
-            if (idx < state.servers.length-1) {
+            if (idx < Object.keys(state.servers).length - 1) {
               async(++idx)
             }
             else {
@@ -340,7 +340,7 @@ const actions = {
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
-            if (idx < state.servers.length-1) {
+            if (idx < Object.keys(state.servers).length-1) {
               async(++idx)
             }
             else {
@@ -379,7 +379,7 @@ const actions = {
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
-            if (idx < state.servers.length-1) {
+            if (idx < Object.keys(state.servers).length - 1) {
               async(++idx)
             }
             else {
@@ -418,7 +418,7 @@ const actions = {
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
-            if (idx < state.servers.length-1) {
+            if (idx < Object.keys(state.servers).length - 1) {
               async(++idx)
             }
             else {
