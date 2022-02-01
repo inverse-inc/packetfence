@@ -698,6 +698,7 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
 
 		Error := types.Errors{Status: 0}
 		switch req.Method {
@@ -710,6 +711,7 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusNotFound
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, nil, "pfpki.CheckRenewal")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -717,7 +719,7 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req, nil)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
