@@ -90,14 +90,18 @@ static_ipaddress {
 static_routes {
 
 #Static from packetfence config
-$Config{'network'}{'staticroutes'}
-
+EOT
+    foreach my $route (@{$Config{'network'}{'staticroutes'}}) {
+        $tags{'vrrp'} .= <<"EOT";
+$route
+EOT
+    }
+    $tags{'vrrp'} .= <<"EOT";
 #PacketFence managed networks
 $routes
 }
 
 EOT
-
 
     if ( $pf::cluster::cluster_enabled ) {
         my @ints = uniq(@listen_ints,@dhcplistener_ints, (map { $_->{'Tint'} } @portal_ints, @radius_ints));
