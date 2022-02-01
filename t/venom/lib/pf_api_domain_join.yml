@@ -19,14 +19,15 @@ steps:
     task_id:
       from: result.pf_api_domain_action_json.task_id
 
-- type: pf_api_pfqueue_task_action
-  id: '{{.task_id}}'
-  pfqueue_extension: "/status/poll"
-  assertion:
-    - result.pf_api_pfqueue_task_action_json.message ShouldEqual Completed
-    - result.pf_api_pfqueue_task_action_json.progress ShouldEqual 100
-    - result.pf_api_pfqueue_task_action_json.status ShouldEqual 200 
-  retry: 12
+- type: pf_api_action
+  url: 'pfqueue/task/{{.task_id}}/status/poll'
+  ignore_verify_ssl: true
+  assertions:
+    - result.pf_api_action_message ShouldEqual Completed
+    - result.pf_api_action_progress ShouldEqual 100
+    - result.pf_api_action_status ShouldEqual 200
+  # wait two minutes before failing
+  retry: 8
   delay: 15
 
 - type: pf_api_domain_action

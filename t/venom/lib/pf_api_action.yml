@@ -29,3 +29,6 @@ steps:
 output:
   pf_api_action_: "{{.http_json}}"
   pf_api_action_items_item0_id: "{{.http_json.items.items0.id}}" 
+  pf_api_action_message: "{{.http_json.message}}" 
+  pf_api_action_progress: "{{.http_json.progress}}" 
+  pf_api_action_status: "{{.http_json.status}}" 
