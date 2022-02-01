@@ -230,9 +230,16 @@ const actions = {
     })
   },
   getServiceCluster: ({ state, dispatch }, id) => {
-    dispatch('getConfig').then(() => {
+    return dispatch('getConfig').then(() => {
+      let promises = []
       Object.keys(state.servers).map(server => {
-        dispatch('getService', { server, id })
+        promises.push(dispatch('getService', { server, id }))
+      })
+      return Promise.all(promises).then(servers => {
+        return servers.reduce((assoc, service, index) => {
+          const server = Object.keys(state.servers)[index]
+          return { ...assoc, [server]: state.servers[server].services[id] }
+        }, {})
       })
     })
   },
