@@ -1795,6 +1795,14 @@ Check if the logic is still ok if the value is null/undef.
 
 If the filter needs to ensure that the value is defined you would need to add an additional defined condition to that filter.
 
+=== Notification on certificates expiration in pfpki
+
+If you use `pfpki` and you created PKI templates without email attribute, we
+recommend you to set a value for this attribute.
+
+By doing this, `pfpki` will use email addresses defined in PKI templates to
+notify about next certificates expirations for certificates without emails.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
