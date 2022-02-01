@@ -17,6 +17,26 @@ const api = (state, server) => {
 
   return {
     config: () => {
+      return new Promise(resolve => resolve({
+        "CLUSTER": {
+          "host": "CLUSTER",
+          "management_ip": "192.168.56.110"
+        },
+        "example.local": {
+          "host": "example.local",
+          "management_ip": "192.168.56.110"
+        },
+        "example.local2": {
+          "host": "example.local",
+          "management_ip": "192.168.56.111"
+        },
+        "example.local3": {
+          "host": "example.local",
+          "management_ip": "192.168.56.112"
+        }
+      }))
+/*
+
       return apiCall.get('cluster/config').then(response => {
         const { data: { item, item: { CLUSTER = {} } = {} } = {} } = response
         if (Object.keys(CLUSTER).length) {
@@ -40,21 +60,22 @@ const api = (state, server) => {
           })
         })
       })
+*/
     },
     services: () => {
       if (state.config) { // is cluster
-        return apiCall.get(`services/cluster_status/${server}`).then(response => {
+        return apiCall.getQuiet(`services/cluster_status/${server}`).then(response => {
           return response.data.item.services
         })
       }
       else { // no cluster
-        return apiCall.get('services/status_all').then(response => {
+        return apiCall.getQuiet('services/status_all').then(response => {
           return response.data.items
         })
       }
     },
     service: id => {
-      return apiCall.get(['service', id, 'status'], { headers }).then(response => {
+      return apiCall.getQuiet(['service', id, 'status'], { headers }).then(response => {
         return response.data
       })
     },
@@ -224,8 +245,8 @@ const actions = {
       commit('SERVICE_SUCCESS', { server, id, service })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response } = err
-      commit('SERVICE_ERROR', response)
+      const { response: { data: { message: error } = {} } = {} } = err
+      commit('SERVICE_ERROR', { server, id, error })
       throw err
     })
   },
@@ -250,7 +271,7 @@ const actions = {
       commit('SERVICE_DISABLED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', { server, id, error })
       throw err
     }).finally(() => dispatch('getService', { server, id }))
@@ -289,7 +310,7 @@ const actions = {
       commit('SERVICE_ENABLED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', { server, id, error })
       throw err
     }).finally(() => dispatch('getService', { server, id }))
@@ -328,7 +349,7 @@ const actions = {
       commit('SERVICE_RESTARTED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', { server, id, error })
       throw err
     }).finally(() => dispatch('getService', { server, id }))
@@ -367,7 +388,7 @@ const actions = {
       commit('SERVICE_STARTED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', { server, id, error })
       throw err
     }).finally(() => dispatch('getService', { server, id }))
@@ -406,7 +427,7 @@ const actions = {
       commit('SERVICE_STOPPED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', { server, id, error })
       throw err
     }).finally(() => dispatch('getService', { server, id }))
@@ -445,7 +466,7 @@ const actions = {
       commit('SYSTEM_SERVICE_RESTARTED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SYSTEM_SERVICE_ERROR', { server, id, error })
       throw err
     })
@@ -456,7 +477,7 @@ const actions = {
       commit('SYSTEM_SERVICE_STARTED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SYSTEM_SERVICE_ERROR', { server, id, error })
       throw err
     })
@@ -467,7 +488,7 @@ const actions = {
       commit('SYSTEM_SERVICE_STOPPED', { server, id, response })
       return state.servers[server].services[id]
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SYSTEM_SERVICE_ERROR', { server, id, error })
       throw err
     })
@@ -478,7 +499,7 @@ const actions = {
       commit('SYSTEMD_SUCCESS', { server, id, response })
       return response
     }).catch(err => {
-      const { response: error } = err
+      const { response: { data: error } = {} } = err
       commit('SYSTEMD_ERROR', { server, id, error })
       throw err
     })
@@ -488,7 +509,6 @@ const actions = {
 const mutations = {
   CONFIG_REQUEST: state => {
     state.status = types.LOADING
-    state.message = ''
   },
   CONFIG_SUCCESS: (state, item) => {
     const { CLUSTER, ...servers } = item
@@ -497,16 +517,16 @@ const mutations = {
       Vue.set(state.servers, server, { services: {}, ...state.servers[server], ...item[server] })
     })
     state.status = types.SUCCESS
+    state.message = ''
   },
   CONFIG_ERROR: (state, error) => {
-    state.message = error
     state.status = types.ERROR
+    state.message = error
   },
 
   SERVICES_REQUEST: (state, server) => {
     Vue.set(state.servers, server, state.servers[server] || {})
     state.status = types.LOADING
-    state.message = ''
   },
   SERVICES_SUCCESS: (state, { server, services }) => {
     const _services = services.reduce((assoc, service) => {
@@ -516,10 +536,11 @@ const mutations = {
       return { ...assoc, [id]: { ...assoc[id], ...service } }
     }, state.servers[server].services)
     Vue.set(state.servers[server], 'services', _services)
+    state.message = ''
   },
   SERVICES_ERROR: (state, error) => {
-    state.message = error
     state.status = types.ERROR
+    state.message = error
   },
 
   SERVICE_REQUEST: (state, { server, id }) => {
@@ -541,6 +562,7 @@ const mutations = {
     state.status = types.SUCCESS
     Vue.set(state.servers[server].services[id], 'enabled', false)
     Vue.set(state.servers[server].services[id], 'status', types.SUCCESS)
+    Vue.delete(state.servers[server].services[id], 'message')
   },
   SERVICE_ENABLING: (state, { server, id }) => {
     state.status = types.LOADING
@@ -550,6 +572,7 @@ const mutations = {
     state.status = types.SUCCESS
     Vue.set(state.servers[server].services[id], 'enabled', true)
     Vue.set(state.servers[server].services[id], 'status', types.SUCCESS)
+    Vue.delete(state.servers[server].services[id], 'message')
   },
   SERVICE_RESTARTING: (state, { server, id }) => {
     state.status = types.LOADING
@@ -560,6 +583,7 @@ const mutations = {
     Vue.set(state.servers[server].services[id], 'pid', parseInt(response.pid))
     Vue.set(state.servers[server].services[id], 'alive', true)
     Vue.set(state.servers[server].services[id], 'status', types.SUCCESS)
+    Vue.delete(state.servers[server].services[id], 'message')
   },
   SERVICE_STARTING: (state, { server, id }) => {
     state.status = types.LOADING
@@ -570,6 +594,7 @@ const mutations = {
     Vue.set(state.servers[server].services[id], 'pid', parseInt(response.pid))
     Vue.set(state.servers[server].services[id], 'alive', true)
     Vue.set(state.servers[server].services[id], 'status', types.SUCCESS)
+    Vue.delete(state.servers[server].services[id], 'message')
   },
   SERVICE_STOPPING: (state, { server, id }) => {
     state.status = types.LOADING
@@ -580,10 +605,12 @@ const mutations = {
     Vue.set(state.servers[server].services[id], 'pid', 0)
     Vue.set(state.servers[server].services[id], 'alive', false)
     Vue.set(state.servers[server].services[id], 'status', types.SUCCESS)
+    Vue.delete(state.servers[server].services[id], 'message')
   },
-  SERVICE_ERROR: (state, { server, id }) => {
+  SERVICE_ERROR: (state, { server, id, error }) => {
     state.status = types.ERROR
     Vue.set(state.servers[server].services[id], 'status', types.ERROR)
+    Vue.set(state.servers[server].services[id], 'message', error)
   },
 
   SYSTEM_SERVICE_RESTARTING: state => {
@@ -611,14 +638,14 @@ const mutations = {
 
   SYSTEMD_REQUEST: state => {
     state.status = types.LOADING
-    state.message = ''
   },
   SYSTEMD_SUCCESS: state => {
     state.status = types.SUCCESS
+    state.message = ''
   },
   SYSTEMD_ERROR: (state, error) => {
-    state.message = error
     state.status = types.ERROR
+    state.message = error
   },
 
   // eslint-disable-next-line no-unused-vars

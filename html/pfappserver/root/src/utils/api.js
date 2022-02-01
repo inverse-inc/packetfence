@@ -73,7 +73,8 @@ Object.assign(apiCall, {
         try {
           jsonData = JSON.parse(data)
         } catch (e) {
-          jsonData = {}
+          // response likely a non-JSON error
+          jsonData = { message: data }
         }
         return Object.assign({ quiet: true }, jsonData)
       }]

@@ -13,6 +13,8 @@
         <template v-else v-for="(service, server) in servers">
           <icon v-if="service.status === 'loading'" :key="`icon-${server}`"
             name="circle-notch" spin class="text-primary fa-overlap mr-1" />
+           <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
+            name="exclamation-triangle" class="text-danger fa-overlap mr-1" />
           <icon v-else :key="`icon-${server}`"
             name="circle" :class="service.alive ? 'text-success' : 'text-danger'" class="fa-overlap mr-1" />
         </template>
@@ -24,7 +26,7 @@
       <b-dropdown-group :key="`group-${server}`">
        <template v-slot:header>
          {{ server }}
-         <div v-if="!['success', 'loading'].includes(service.status)"
+         <div v-if="!['loading', 'success', 'error'].includes(service.status)"
           class="d-inline float-right">
             <icon name="circle-notch" spin class="mr-1" />
             <span v-if="service.status === 'disabling'">{{ $i18n.t('Disabling') }}...</span>
@@ -77,10 +79,10 @@
             </b-col>
           </b-row>
         </b-dropdown-form>
-        <b-dropdown-text v-if="service.message"
-          class="small">
+        <b-dropdown-form v-if="service.message && ['success', 'error'].includes(service.status)"
+          class="small mb-0" :class="(service.status === 'error') ? 'text-danger' : 'text-secondary'">
           {{ service.message }}
-        </b-dropdown-text>
+        </b-dropdown-form>
       </b-dropdown-group>
       <b-dropdown-divider :key="`divider-${server}`" />
     </template>
