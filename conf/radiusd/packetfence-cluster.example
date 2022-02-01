@@ -10,7 +10,7 @@ home_server_pool pf_pool.cluster {
 }
 
 home_server_pool pfacct_pool.cluster {
-        type = load-balance
+        type = keyed-balance
 
 %%home_server%%
 
@@ -60,6 +60,7 @@ server pf.cluster {
         authenticate {
         }
         accounting {
+                packetfence-balanced-key-policy
                 update control {
                         Proxy-To-Realm := "packetfence"
                 }
