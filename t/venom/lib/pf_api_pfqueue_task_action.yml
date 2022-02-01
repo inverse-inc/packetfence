@@ -1,17 +1,17 @@
-executor: pf_api_domain_action
+executor: pf_api_pfqueue_task_action
 input:
   body: {}
   id: ""
   method: GET
   status_code: ""
-  time_to_sleep: 5
-  domain_extension: ""
+  time_to_sleep: 0
+  pfqueue_extension: ""
 steps:
 - type: pf_api_action
   body: '{{.input.body}}'
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
-  url: 'config/domain/{{.input.id}}{{.input.domain_extension}}'
+  url: 'pfqueue/task/{{.input.id}}{{.input.pfqueue_extension}}'
   time_to_sleep: "{{.input.time_to_sleep}}"
 output:
-  pf_api_domain_action_: "{{.result.pf_api_action_}}"
+  pf_api_pfqueue_task_action_: "{{.result.pf_api_action_}}"

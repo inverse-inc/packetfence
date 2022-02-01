@@ -15,15 +15,18 @@ steps:
       "username": "{{.input.username}}",
       "password": "{{.input.password}}"
     }
+  vars:
+    task_id:
+      from: result.pf_api_domain_action_json.task_id
 
-- type: pf_api_domain_action
-  id: "{{.input.id}}"
-  domain_extension: "/status/poll"
+- type: pf_api_pfqueue_task_action
+  id: '{{.task_id}}'
+  pfqueue_extension: "/status/poll"
   assertion:
-    - result.pf_api_domain_action_json.message ShouldEqual Completed
-    - result.pf_api_domain_action_json.progress ShouldEqual 100
-    - result.pf_api_domain_action_json.status ShouldEqual 200 
-  retry: 8
+    - result.pf_api_pfqueue_task_action_json.message ShouldEqual Completed
+    - result.pf_api_pfqueue_task_action_json.progress ShouldEqual 100
+    - result.pf_api_pfqueue_task_action_json.status ShouldEqual 200 
+  retry: 12
   delay: 15
 
 - type: pf_api_domain_action
