@@ -10,9 +10,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocspresponder"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/scep"
@@ -49,7 +51,7 @@ func SearchCA(pfpki *types.Handler) http.Handler {
 			Information.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -58,6 +60,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
 
 		Error := types.Errors{Status: 0}
 
@@ -95,6 +98,7 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusUnprocessableEntity
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetCA")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -102,8 +106,35 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
+}
+
+func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information types.Info, body []byte, action string) *admin_api_audit_log.AdminApiAuditLog {
+	tenantId := 1
+	tenant := req.Header.Get("X-PacketFence-Tenant-Id")
+	if tenant != "" {
+		if val, err := strconv.ParseInt(tenant, 10, 32); err == nil {
+			tenantId = int(val)
+		}
+	}
+	vars := mux.Vars(req)
+	log := &admin_api_audit_log.AdminApiAuditLog{
+		TenantId: tenantId,
+		UserName: req.Header.Get("X-PacketFence-Username"),
+		Action:   action,
+		ObjectId: vars["id"],
+		Url:      req.URL.Path,
+		Method:   req.Method,
+		Status:   int16(Information.Status),
+	}
+	if body != nil {
+		log.Request, _ = admin_api_audit_log.MaskSecrets(
+			string(body),
+			"scep_challenge_password",
+		)
+	}
+	return log
 }
 
 func ResignCA(pfpki *types.Handler) http.Handler {
@@ -111,6 +142,7 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 		o := models.NewCAModel(pfpki)
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
 
@@ -135,6 +167,7 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusUnprocessableEntity
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.ResignCA")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -142,7 +175,7 @@ func ResignCA(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
@@ -171,7 +204,7 @@ func GetCAByID(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -189,7 +222,7 @@ func FixCA(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusNotFound
 		}
 		Information.Status = http.StatusOK
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -200,6 +233,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
 
@@ -237,6 +271,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusUnprocessableEntity
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetProfile")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -244,7 +279,7 @@ func GetSetProfile(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
@@ -279,7 +314,7 @@ func SearchProfile(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -290,6 +325,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
 
@@ -322,6 +358,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusUnprocessableEntity
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.UpdateProfile")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -329,7 +366,7 @@ func GetProfileByID(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
@@ -340,6 +377,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
 
@@ -377,6 +415,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusUnprocessableEntity
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetCert")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -384,7 +423,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
@@ -419,7 +458,7 @@ func SearchCert(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -449,7 +488,7 @@ func GetCertByID(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -486,7 +525,7 @@ func DownloadCert(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -516,7 +555,7 @@ func EmailCert(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -526,6 +565,7 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 		o := models.NewCertModel(pfpki)
 		var Information types.Info
 		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog = nil
 
 		Error := types.Errors{Status: 0}
 
@@ -542,6 +582,7 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusUnprocessableEntity
 				break
 			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, nil, "pfpki.RevokeCert")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")
@@ -549,7 +590,7 @@ func RevokeCert(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
 	})
 }
 
@@ -584,7 +625,7 @@ func GetRevoked(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -618,7 +659,7 @@ func SearchRevoked(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -647,7 +688,7 @@ func GetRevokedByID(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
@@ -676,11 +717,11 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 			Error.Status = http.StatusMethodNotAllowed
 			break
 		}
-		manageAnswer(Information, Error, pfpki, res, req)
+		manageAnswer(Information, Error, pfpki, res, req, nil)
 	})
 }
 
-func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handler, res http.ResponseWriter, req *http.Request) {
+func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handler, res http.ResponseWriter, req *http.Request, alog *admin_api_audit_log.AdminApiAuditLog) {
 	var err error
 
 	if Error.Status != 0 {
@@ -696,6 +737,12 @@ func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handl
 		log.LoggerWContext(*pfpki.Ctx).Info(err.Error())
 		if Information.Status >= 400 {
 			Information.Error = http.StatusText(Information.Status)
+		}
+	}
+
+	if Information.Status < 300 {
+		if alog != nil {
+			alog.Add(pfpki.DB)
 		}
 	}
 

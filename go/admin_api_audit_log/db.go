@@ -2,8 +2,8 @@ package admin_api_audit_log
 
 import (
 	"github.com/jinzhu/gorm"
-    "time"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"time"
 )
 
 /*
@@ -27,15 +27,16 @@ CREATE TABLE `admin_api_audit_log` (
 */
 
 type AdminApiAuditLog struct {
-	ID       int64
-	TenantId int
-    CreatedAt time.Time
-	UserName string
-	Action   string
-	ObjectId string
-	Method   string
-	Request  string
-	Status   int16
+	ID        int64
+	TenantId  int
+	CreatedAt time.Time
+	UserName  string
+	Url       string
+	Action    string
+	ObjectId  string
+	Method    string
+	Request   string
+	Status    int16
 }
 
 func (*AdminApiAuditLog) TableName() string {
