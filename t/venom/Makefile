@@ -147,14 +147,14 @@ dot1x_eap_tls_deb11:
 
 dot1x_eap_tls_pki_el8:
 	make \
-        PF_VM_NAME=pfel8$(DEV_ENV) \
+        PF_VM_NAMES=pfel8$(DEV_ENV) \
         INT_TEST_VM_NAMES="ad switch01 node01" \
         SCENARIOS_TO_RUN=wired_dot1x_eap_tls_pki \
         $(MAKE_TARGET)
 
 dot1x_eap_tls_pki_deb11:
 	make \
-        PF_VM_NAME=pfdeb11$(DEV_ENV) \
+        PF_VM_NAMES=pfdeb11$(DEV_ENV) \
         INT_TEST_VM_NAMES="ad switch01 node01" \
         SCENARIOS_TO_RUN=dot1x_eap_tls_pki \
         $(MAKE_TARGET)
