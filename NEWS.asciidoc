@@ -68,6 +68,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Send email X days before the expiration date to the user email/ profile email / administrator
 * PKI CN provides certificate for the same CN but for different profiles (profile name added in Subject)
 * Auto-revoke certificate if expired
+* PKI actions are now logged to the admin API audit log
 
 === Bug Fixes
 
