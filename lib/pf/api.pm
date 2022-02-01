@@ -1487,7 +1487,7 @@ sub handle_accounting_metadata : Public {
         else {
             $logger->debug("Not handling iplog update because we're not configured to do so on accounting packets.");
         }
-        
+
         if ($framed_ip && pf::util::isenabled($advanced->{scan_on_accounting})) {
             my $node = pf::node::node_attributes($mac);
             if($node->{status} eq $pf::constants::node::STATUS_REGISTERED) {
