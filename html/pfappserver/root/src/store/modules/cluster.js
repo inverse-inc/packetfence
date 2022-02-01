@@ -17,26 +17,6 @@ const api = (state, server) => {
 
   return {
     config: () => {
-      return new Promise(resolve => resolve({
-        "CLUSTER": {
-          "host": "CLUSTER",
-          "management_ip": "192.168.56.110"
-        },
-        "example.local": {
-          "host": "example.local",
-          "management_ip": "192.168.56.110"
-        },
-        "example.local2": {
-          "host": "example.local",
-          "management_ip": "192.168.56.111"
-        },
-        "example.local3": {
-          "host": "example.local",
-          "management_ip": "192.168.56.112"
-        }
-      }))
-/*
-
       return apiCall.get('cluster/config').then(response => {
         const { data: { item, item: { CLUSTER = {} } = {} } = {} } = response
         if (Object.keys(CLUSTER).length) {
@@ -60,7 +40,6 @@ const api = (state, server) => {
           })
         })
       })
-*/
     },
     services: () => {
       if (state.config) { // is cluster
