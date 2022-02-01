@@ -1788,6 +1788,13 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.0-11.1.sql
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Change of behavior for filter engines not_equals operator
+
+If any condition for filters (VLAN, RADIUS, Switch, DNS, DHCP, and Profile) uses a ```not equals`` operator.
+Check if the logic is still ok if the value is null/undef.
+
+If the filter needs to ensure that the value is defined you would need to add an additional defined condition to that filter.
+
 === Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
