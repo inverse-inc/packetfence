@@ -594,7 +594,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
             SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
                 SELECT * FROM (
                     SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
-                ) AS sum_bytes WHERE in_bytes !=0 AND out_bytes != 0
+                ) AS sum_bytes WHERE in_bytes !=0 OR out_bytes != 0
             ) AS y
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes), last_updated = NOW();
 	`)
@@ -769,7 +769,7 @@ func (rs *RadiusStatements) InsertBandwidthAccounting(status rfc2866.AcctStatusT
 			unique_session,
 			bucket,
 		)
-	} else {
+	} else if in_bytes != 0 || out_bytes != 0 {
 		_, err = rs.insertBandwidthAccountingUpdate.Exec(
 			node_id,
 			tenant_id,
