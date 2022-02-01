@@ -764,7 +764,6 @@ func ManageSCEP(pfpki *types.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		log.LoggerWContext(*pfpki.Ctx).Info(fmt.Sprintf("Got %s request from %s", req.Method, req.RemoteAddr))
 		scep.ScepHandler(pfpki, res, req)
-
 	})
 }
 
