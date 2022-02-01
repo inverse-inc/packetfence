@@ -32,6 +32,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Allow to centralize the virtual IPs on the same server (#6853)
 * Added support for Kandji MDM as a provisioner
 * OpenWiFi switch module
+* Allow to manage devices (unregister) when reaching max nodes (#6860)
 
 === Enhancements
 
