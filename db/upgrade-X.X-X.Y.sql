@@ -105,7 +105,7 @@ ALTER TABLE pki_profiles
     ALTER scep_days_before_renewal SET DEFAULT 14,
     ADD COLUMN IF NOT EXISTS `renewal_mail` int(11) DEFAULT 1 AFTER days_before_renewal,
     ADD COLUMN IF NOT EXISTS `days_before_renewal_mail` varchar(255) DEFAULT 14 AFTER renewal_mail,
-    ADD COLUMN IF NOT EXISTS `renewal_mail_subject` varchar(255) DEFAULT NULL AFTER days_before_renewal_mail,
+    ADD COLUMN IF NOT EXISTS `renewal_mail_subject` varchar(255) DEFAULT 'Certificate expiration' AFTER days_before_renewal_mail,
     ADD COLUMN IF NOT EXISTS `renewal_mail_from` varchar(255) DEFAULT NULL AFTER renewal_mail_subject,
     ADD COLUMN IF NOT EXISTS `renewal_mail_header` varchar(255) DEFAULT NULL AFTER renewal_mail_from,
     ADD COLUMN IF NOT EXISTS `renewal_mail_footer` varchar(255) DEFAULT NULL AFTER renewal_mail_header,

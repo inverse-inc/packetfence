@@ -116,7 +116,7 @@ type (
 		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
 		RenewalMail           int                     `json:"renewal_mail,omitempty,string" gorm:"default:1"`
 		DaysBeforeRenewalMail int                     `json:"days_before_renewal_mail,string" gorm:"default:14"`
-		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty"`
+		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty" gorm:"default:Certificate expiration"`
 		RenewalMailFrom       string                  `json:"renewal_mail_from,omitempty"`
 		RenewalMailHeader     string                  `json:"renewal_mail_header,omitempty"`
 		RenewalMailFooter     string                  `json:"renewal_mail_footer,omitempty"`

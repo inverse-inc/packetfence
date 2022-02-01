@@ -1508,7 +1508,7 @@ CREATE TABLE `pki_profiles` (
   `days_before_renewal` varchar(255) DEFAULT 14,
   `renewal_mail` int(11) DEFAULT 1,
   `days_before_renewal_mail` varchar(255) DEFAULT 14,
-  `renewal_mail_subject` varchar(255) DEFAULT NULL,
+  `renewal_mail_subject` varchar(255) DEFAULT 'Certificate expiration',
   `renewal_mail_from` varchar(255) DEFAULT NULL,
   `renewal_mail_header` varchar(255) DEFAULT NULL,
   `renewal_mail_footer` varchar(255) DEFAULT NULL,
