@@ -45,7 +45,8 @@ export default (props) => {
     mail: yup.string()
       .nullable()
       .email(i18n.t('Invalid email address.'))
-      .max(255, i18n.t('Maximum 255 characters.')),
+      .max(255, i18n.t('Maximum 255 characters.'))
+      .required(i18n.t('Email is required.')),
 
     organisational_unit: yup.string().max(255, i18n.t('Maximum 255 characters.')),
     organisation: yup.string().max(64, i18n.t('Maximum 64 characters.')),

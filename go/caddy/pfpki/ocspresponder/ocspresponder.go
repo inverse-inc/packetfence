@@ -87,6 +87,7 @@ func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca models.CA) (*Ind
 	var cert models.Cert
 	var revokedcert models.RevokedCert
 	var ent IndexEntry
+
 	// Search for the certificate that match the serial and has been signed by the CA
 	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&cert); CertDB.Error == nil {
 		ent = IndexEntry{Status: StatusValid, Serial: s, IssueTime: cert.Date, RevocationTime: cert.ValidUntil, DistinguishedName: cert.Cn}
@@ -99,6 +100,9 @@ func (ocspr *OCSPResponder) getCertificateStatus(s *big.Int, ca models.CA) (*Ind
 	// Check in revoked Certificates
 	if CertDB := ocspr.Handler.DB.Where("serial_number = ? AND ca_id = ?", s.String(), ca.ID).Find(&revokedcert); CertDB.Error == nil {
 		ent = IndexEntry{Status: StatusRevoked, Serial: s, IssueTime: revokedcert.Date, RevocationTime: revokedcert.Revoked, Reason: revokedcert.CRLReason, DistinguishedName: revokedcert.Cn}
+		if time.Now().Unix() < revokedcert.Revoked.Unix() {
+			ent.Status = StatusValid
+		}
 		return &ent, nil
 	}
 	return nil, nil

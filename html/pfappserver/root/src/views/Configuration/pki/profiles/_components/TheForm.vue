@@ -119,6 +119,42 @@
           :text="$i18n.t('Cloud Service to integrate.')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('Renewal Configuration')">
+        <form-group-days-before-renewal namespace="days_before_renewal"
+          :column-label="$i18n.t('Days before renewal')"
+          :text="$i18n.t('Number of days before the PKI authorizes renewal. Setting it to 0 means renewal is always allowed.')"
+        />
+        <form-group-renewal-mail namespace="renewal_mail"
+          :column-label="$i18n.t('Renewal Email')"
+          :text="$i18n.t('Send an email to the owner of the certificate when it is about to expire.')"
+        />
+        <form-group-days-before-renewal-mail namespace="days_before_renewal_mail"
+          :column-label="$i18n.t('Days before sending renewal email')"
+          :text="$i18n.t('Number of days before certificate expiration to trigger sending email.')"
+        />
+        <form-group-renewal-mail-subject namespace="renewal_mail_subject"
+          :column-label="$i18n.t('Renewal mail subject')"
+          :text="$i18n.t('Subject of the renewal email.')"
+        />
+        <form-group-renewal-mail-from namespace="renewal_mail_from"
+          :column-label="$i18n.t('Renewal mail from')"
+          :text="$i18n.t('Sender address of the renewal email.')"
+        />
+        <form-group-renewal-mail-header namespace="renewal_mail_header"
+          :column-label="$i18n.t('Renewal mail header')"
+          :text="$i18n.t('Renewal email header.')"
+          auto-fit
+        />
+        <form-group-renewal-mail-footer namespace="renewal_mail_footer"
+          :column-label="$i18n.t('Renewal mail footer')"
+          :text="$i18n.t('Renewal email footer.')"
+          auto-fit
+        />
+        <form-group-revoked-valid-until namespace="revoked_valid_until"
+          :column-label="$i18n.t('Days after revoked certificate is valid')"
+          :text="$i18n.t('Number of days an old certificate is still valid after it has been revoked.')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -157,7 +193,15 @@ import {
   FormGroupScepChallengePassword,
   FormGroupScepDaysBeforeRenewal,
   FormGroupCloudEnabled,
-  FormGroupCloudService
+  FormGroupCloudService,
+  FormGroupDaysBeforeRenewal,
+  FormGroupRenewalMail,
+  FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailSubject,
+  FormGroupRenewalMailFrom,
+  FormGroupRenewalMailHeader,
+  FormGroupRenewalMailFooter,
+  FormGroupRevokedValidUntil
 } from './'
 
 const components = {
@@ -191,7 +235,15 @@ const components = {
   FormGroupScepChallengePassword,
   FormGroupScepDaysBeforeRenewal,
   FormGroupCloudEnabled,
-  FormGroupCloudService
+  FormGroupCloudService,
+  FormGroupDaysBeforeRenewal,
+  FormGroupRenewalMail,
+  FormGroupDaysBeforeRenewalMail,
+  FormGroupRenewalMailSubject,
+  FormGroupRenewalMailFrom,
+  FormGroupRenewalMailHeader,
+  FormGroupRenewalMailFooter,
+  FormGroupRevokedValidUntil
 }
 
 export const props = {

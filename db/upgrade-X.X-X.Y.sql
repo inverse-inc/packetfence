@@ -49,7 +49,10 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
-    ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses;
+    DROP INDEX IF EXISTS cn,
+    ADD COLUMN IF NOT EXISTS `scep` BOOLEAN DEFAULT FALSE AFTER ip_addresses,
+    ADD COLUMN IF NOT EXISTS `alert` BOOLEAN DEFAULT FALSE AFTER scep,
+    ADD COLUMN IF NOT EXISTS `subject` VARCHAR(255) UNIQUE AFTER alert;
 
 \! echo "set pki_certs.scep to true if private key is empty"
 UPDATE pki_certs
@@ -96,6 +99,25 @@ ALTER TABLE bandwidth_accounting
  DROP INDEX IF EXISTS bandwidth_accounting_tenant_id_mac,
  ADD INDEX bandwidth_accounting_tenant_id_mac_last_updated (tenant_id, mac, last_updated);
 
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    ADD COLUMN IF NOT EXISTS `days_before_renewal` varchar(255) DEFAULT 14 AFTER scep_days_before_renewal,
+    ALTER scep_days_before_renewal SET DEFAULT 14,
+    ADD COLUMN IF NOT EXISTS `renewal_mail` int(11) DEFAULT 1 AFTER days_before_renewal,
+    ADD COLUMN IF NOT EXISTS `days_before_renewal_mail` varchar(255) DEFAULT 14 AFTER renewal_mail,
+    ADD COLUMN IF NOT EXISTS `renewal_mail_subject` varchar(255) DEFAULT 'Certificate expiration' AFTER days_before_renewal_mail,
+    ADD COLUMN IF NOT EXISTS `renewal_mail_from` varchar(255) DEFAULT NULL AFTER renewal_mail_subject,
+    ADD COLUMN IF NOT EXISTS `renewal_mail_header` varchar(255) DEFAULT NULL AFTER renewal_mail_from,
+    ADD COLUMN IF NOT EXISTS `renewal_mail_footer` varchar(255) DEFAULT NULL AFTER renewal_mail_header,
+    ADD COLUMN IF NOT EXISTS `revoked_valid_until` varchar(255) DEFAULT 14 AFTER renewal_mail_footer;
+
+\! echo "altering pki_cas"
+ALTER TABLE pki_cas
+    ADD COLUMN IF NOT EXISTS `serial_number` int(11) AFTER ocsp_url;
+
+\! echo "altering pki_revoked_certs"
+ALTER TABLE pki_revoked_certs
+    ADD COLUMN IF NOT EXISTS `subject` varchar(255) AFTER crl_reason;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());

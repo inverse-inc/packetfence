@@ -129,6 +129,8 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	// Get Revoked Certificate by ID
 	api.Handle("/pki/revokedcert/{id}", handlers.GetRevokedByID(PFPki)).Methods("GET")
 
+	api.Handle("/pki/checkrenewal", handlers.CheckRenewal(PFPki)).Methods("GET")
+
 	// OCSP responder
 	api.Handle("/pki/ocsp", handlers.ManageOcsp(PFPki)).Methods("GET", "POST")
 

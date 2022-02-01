@@ -16,7 +16,12 @@ export const useItemDefaults = (meta, props) => {
   } = toRefs(props)
   return {
     ca_id: ca_id.value,
-    scep_days_before_renewal: '0'
+    scep_days_before_renewal: '0',
+    renewal_mail: '1',
+    days_before_renewal: '14',
+    days_before_renewal_mail: '14',
+    renewal_mail_subject: 'Certificate expiration',
+    revoked_valid_until: '14'
   }
 }
 

@@ -2,9 +2,10 @@ package maint
 
 import (
 	"context"
+	"reflect"
+
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
-	"reflect"
 )
 
 var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))
@@ -19,6 +20,7 @@ type JobSetupConfig interface {
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"fingerbank_data_update":      NewFingerbankDataUpdate,
 	"certificates_check":          NewCertificatesCheck,
+	"pki_certificates_check":      NewPkiCertificatesCheck,
 	"file_logger":                 NewFileLogger,
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"bandwidth_maintenance":       NewBandwidthMaintenance,

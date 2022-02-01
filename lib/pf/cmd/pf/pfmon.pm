@@ -21,6 +21,8 @@ pfcmd pfmon <task> [options...]
 
 =item certificates_check
 
+=item pki_certificates_check
+
 =item cleanup_chi_database_cache
 
 =item cluster_check

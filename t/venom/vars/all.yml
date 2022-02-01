@@ -326,7 +326,7 @@ wired_dot1x_eap_tls_manual.certs.user.cn: '{{.wired_dot1x_eap_tls_manual.templat
 wired_dot1x_eap_tls_manual.certs.user.mail: '{{.configurator.email}}'
 wired_dot1x_eap_tls_manual.certs.user.scep_enabled: 1
 wired_dot1x_eap_tls_manual.certs.user.scep_challenge_password: secret
-wired_dot1x_eap_tls_manual.certs.user.scep_days_before_renewal: 7
+wired_dot1x_eap_tls_manual.certs.user.scep_days_before_renewal: 0
 wired_dot1x_eap_tls_manual.certs.user.subject: "/C={{.wired_dot1x_eap_tls_manual.certs.country}}/ST={{.wired_dot1x_eap_tls_manual.certs.state}}/L={{.wired_dot1x_eap_tls_manual.certs.locality}}/O={{.wired_dot1x_eap_tls_manual.certs.organisation}}/OU={{.wired_dot1x_eap_tls_manual.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_manual.certs.user.cn}}"
 
 # OCSP config

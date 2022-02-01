@@ -2,6 +2,7 @@ package models
 
 import (
 	"crypto"
+	"html/template"
 	"net"
 	"time"
 
@@ -27,7 +28,6 @@ import (
 
 	"context"
 	"fmt"
-	"html/template"
 	"io"
 	"io/ioutil"
 
@@ -78,6 +78,7 @@ type (
 		OCSPUrl              string                  `json:"ocsp_url,omitempty"`
 		SCEPAssociateProfile string                  `gorm:"-"`
 		Cloud                cloud.Cloud             `gorm:"-"`
+		SerialNumber         int                     `json:"-"`
 	}
 
 	// Profile struct
@@ -111,7 +112,15 @@ type (
 		P12MailFooter         string                  `json:"p12_mail_footer,omitempty"`
 		SCEPEnabled           int                     `json:"scep_enabled,omitempty,string"`
 		SCEPChallengePassword string                  `json:"scep_challenge_password,omitempty"`
-		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,omitempty,string"`
+		SCEPDaysBeforeRenewal int                     `json:"scep_days_before_renewal,string" gorm:"default:14"`
+		DaysBeforeRenewal     int                     `json:"days_before_renewal,string" gorm:"default:14"`
+		RenewalMail           int                     `json:"renewal_mail,omitempty,string" gorm:"default:1"`
+		DaysBeforeRenewalMail int                     `json:"days_before_renewal_mail,string" gorm:"default:14"`
+		RenewalMailSubject    string                  `json:"renewal_mail_subject,omitempty" gorm:"default:Certificate expiration"`
+		RenewalMailFrom       string                  `json:"renewal_mail_from,omitempty"`
+		RenewalMailHeader     string                  `json:"renewal_mail_header,omitempty"`
+		RenewalMailFooter     string                  `json:"renewal_mail_footer,omitempty"`
+		RevokedValidUntil     int                     `json:"revoked_valid_until,omitempty,string" gorm:"default:14"`
 		CloudEnabled          int                     `json:"cloud_enabled,omitempty,string"`
 		CloudService          string                  `json:"cloud_service,omitempty"`
 	}
@@ -121,7 +130,7 @@ type (
 		gorm.Model
 		DB                 gorm.DB         `gorm:"-"`
 		Ctx                context.Context `gorm:"-"`
-		Cn                 string          `json:"cn,omitempty" gorm:"UNIQUE"`
+		Cn                 string          `json:"cn,omitempty"`
 		Mail               string          `json:"mail,omitempty" gorm:"INDEX:mail"`
 		Ca                 CA              `json:"-"`
 		CaID               uint            `json:"ca_id,omitempty" gorm:"INDEX:ca_id"`
@@ -144,6 +153,8 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
+		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
+		Subject            string          `json:"-" gorm:"UNIQUE"`
 	}
 
 	// RevokedCert struct
@@ -175,6 +186,7 @@ type (
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Revoked            time.Time       `json:"revoked,omitempty" gorm:"INDEX:revoked"`
 		CRLReason          int             `json:"crl_reason,omitempty" gorm:"INDEX:crl_reason"`
+		Subject            string          `json:"-"`
 	}
 )
 
@@ -351,7 +363,7 @@ func (c CA) New() (types.Info, error) {
 
 	h.Write(cacert.RawIssuer)
 
-	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl}).Error; err != nil {
+	if err := c.DB.Create(&CA{Cn: c.Cn, Mail: c.Mail, Organisation: c.Organisation, OrganisationalUnit: c.OrganisationalUnit, Country: c.Country, State: c.State, Locality: c.Locality, StreetAddress: c.StreetAddress, PostalCode: c.PostalCode, KeyType: c.KeyType, KeySize: c.KeySize, Digest: c.Digest, KeyUsage: c.KeyUsage, ExtendedKeyUsage: c.ExtendedKeyUsage, Days: c.Days, Key: keyOut.String(), Cert: cert.String(), IssuerKeyHash: hex.EncodeToString(skid), IssuerNameHash: hex.EncodeToString(h.Sum(nil)), OCSPUrl: c.OCSPUrl, SerialNumber: 1}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
@@ -465,7 +477,7 @@ func (c CA) Search(vars sql.Vars) (types.Info, error) {
 func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 	var profiledb []Profile
 	if len(options) >= 1 {
-		if err := c.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
+		if err := c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`name` = ?", options[0]).First(&profiledb).Error; err != nil {
 			return profiledb, errors.New(dbError)
 		}
 		if len(profiledb) == 0 {
@@ -473,7 +485,7 @@ func (c *CA) FindSCEPProfile(options []string) ([]Profile, error) {
 		}
 
 	} else {
-		c.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
+		c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("`scep_enabled` = ?", "1").First(&profiledb)
 	}
 	c.SCEPAssociateProfile = profiledb[0].Name
 
@@ -530,7 +542,7 @@ func (c CA) Put(cn string, crt *x509.Certificate, options ...string) error {
 		IPAddresses = append(IPAddresses, IP.String())
 	}
 
-	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: strings.Join(crt.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], DNSNames: strings.Join(crt.DNSNames, ","), IPAddresses: strings.Join(IPAddresses, ","), Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter, Scep: &notFalse}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: cn, Ca: ca, CaName: ca.Cn, ProfileName: profiledb[0].Name, SerialNumber: crt.SerialNumber.String(), Mail: strings.Join(crt.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], DNSNames: strings.Join(crt.DNSNames, ","), IPAddresses: strings.Join(IPAddresses, ","), Profile: profiledb[0], Key: "", Cert: publicKey.String(), ValidUntil: crt.NotAfter, Scep: &notFalse, Subject: crt.Subject.String()}).Error; err != nil {
 		return errors.New(dbError)
 	}
 
@@ -567,9 +579,16 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
 
+	return revokeNeeded(cn, options[0], allowTime, &c.DB)
+
+}
+
+func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, error) {
+
 	var certif Cert
 	var CertDB *gorm.DB
-	if CertDB = c.DB.Where("Cn = ?", cn).Find(&certif); CertDB.Error != nil {
+
+	if CertDB = c.Where("Cn = ? AND profile_name = ?", cn, profile).Find(&certif); CertDB.Error != nil {
 		// There is no certificate with this CN in the DB
 		return true, nil
 	}
@@ -577,17 +596,14 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 	if CertDB.RowsAffected == 0 {
 		return true, nil
 	}
-
-	certif.DB = c.DB
-	certif.Ctx = c.Ctx
+	certif.DB = *c
 
 	store := make(map[pemutil.BlockType]interface{})
 
 	pemutil.Decode(store, []byte(certif.Cert))
 	for _, pemUtil := range store {
 		cert := pemUtil.(*x509.Certificate)
-
-		if cert.NotAfter.Unix()-int64((14*24*time.Hour).Seconds()) < time.Now().Unix() {
+		if cert.NotAfter.Unix()-int64((time.Duration(allowTime)*24*time.Hour).Seconds()) < time.Now().Unix() || allowTime == 0 {
 
 			params := make(map[string]string)
 
@@ -597,7 +613,8 @@ func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCer
 			return true, nil
 		}
 	}
-	return false, errors.New("Certificate with this CN already exist")
+	return false, errors.New("Certificate with this Subject already exist")
+
 }
 
 // SCEP Verify
@@ -635,7 +652,7 @@ func (c CA) SuccessNotify(cert *x509.Certificate, m *scep.CSRReqMessage, message
 
 func (c CA) GetProfileByName(name string) (*Profile, error) {
 	var profiledb []Profile
-	c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", name).First(&profiledb)
+	c.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", name).First(&profiledb)
 
 	return &profiledb[0], nil
 }
@@ -686,11 +703,11 @@ func (p Profile) New() (types.Info, error) {
 		return Information, CaDB.Error
 	}
 
-	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService}).Error; err != nil {
+	if err := p.DB.Create(&Profile{Name: p.Name, Ca: *ca, CaID: p.CaID, CaName: ca.Cn, Mail: p.Mail, StreetAddress: p.StreetAddress, Organisation: p.Organisation, OrganisationalUnit: p.OrganisationalUnit, Country: p.Country, State: p.State, Locality: p.Locality, PostalCode: p.PostalCode, Validity: p.Validity, KeyType: p.KeyType, KeySize: p.KeySize, Digest: p.Digest, KeyUsage: p.KeyUsage, ExtendedKeyUsage: p.ExtendedKeyUsage, OCSPUrl: p.OCSPUrl, P12MailPassword: p.P12MailPassword, P12MailSubject: p.P12MailSubject, P12MailFrom: p.P12MailFrom, P12MailHeader: p.P12MailHeader, P12MailFooter: p.P12MailFooter, SCEPEnabled: p.SCEPEnabled, SCEPChallengePassword: p.SCEPChallengePassword, SCEPDaysBeforeRenewal: p.SCEPDaysBeforeRenewal, DaysBeforeRenewal: p.DaysBeforeRenewal, RenewalMail: p.RenewalMail, DaysBeforeRenewalMail: p.DaysBeforeRenewalMail, RenewalMailSubject: p.RenewalMailSubject, RenewalMailFrom: p.RenewalMailFrom, RenewalMailHeader: p.RenewalMailHeader, RenewalMailFooter: p.RenewalMailFooter, RevokedValidUntil: p.RevokedValidUntil, CloudEnabled: p.CloudEnabled, CloudService: p.CloudService}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
@@ -699,11 +716,11 @@ func (p Profile) New() (types.Info, error) {
 func (p Profile) Update() (types.Info, error) {
 	var profiledb []Profile
 	Information := types.Info{}
-	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
+	if err := p.DB.Model(&Profile{}).Where("name = ?", p.Name).Updates(map[string]interface{}{"mail": p.Mail, "street_address": p.StreetAddress, "organisation": p.Organisation, "organisational_unit": p.OrganisationalUnit, "country": p.Country, "state": p.State, "locality": p.Locality, "postal_code": p.PostalCode, "validity": p.Validity, "key_type": p.KeyType, "key_size": p.KeySize, "digest": p.Digest, "key_usage": p.KeyUsage, "extended_key_usage": p.ExtendedKeyUsage, "ocsp_url": p.OCSPUrl, "p12_mail_password": p.P12MailPassword, "p12_mail_subject": p.P12MailSubject, "p12_mail_from": p.P12MailFrom, "p12_mail_header": p.P12MailHeader, "p12_mail_footer": p.P12MailFooter, "revoked_valid_until": p.RevokedValidUntil, "scep_enabled": p.SCEPEnabled, "scep_challenge_password": p.SCEPChallengePassword, "scep_days_before_renewal": p.SCEPDaysBeforeRenewal, "days_before_renewal": p.DaysBeforeRenewal, "renewal_mail": p.RenewalMail, "days_before_renewal_mail": p.DaysBeforeRenewalMail, "renewal_mail_subject": p.RenewalMailSubject, "renewal_mail_from": p.RenewalMailFrom, "renewal_mail_header": p.RenewalMailHeader, "renewal_mail_footer": p.RenewalMailFooter, "cloud_enabled": p.CloudEnabled, "cloud_service": p.CloudService}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
-	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
+	p.DB.Select("id, name, ca_id, ca_name,  mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, validity, key_type, key_size, digest, key_usage, extended_key_usage, ocsp_url, p12_mail_password, p12_mail_subject, p12_mail_from, p12_mail_header, p12_mail_footer, scep_enabled, scep_challenge_password, scep_days_before_renewal, days_before_renewal, renewal_mail, days_before_renewal_mail, renewal_mail_subject, renewal_mail_from, renewal_mail_header, renewal_mail_footer, revoked_valid_until, cloud_enabled, cloud_service").Where("name = ?", p.Name).First(&profiledb)
 	Information.Entries = profiledb
 
 	return Information, nil
@@ -963,6 +980,13 @@ func (c Cert) New() (types.Info, error) {
 		Information.Error = CaDB.Error.Error()
 		return Information, errors.New(dbError)
 	}
+
+	// Check if the certificate is allowed to be revoked
+	_, err := revokeNeeded(c.Cn, prof.Name, prof.DaysBeforeRenewal, &c.DB)
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
 	// Load the certificates from the database
 	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
 	if err != nil {
@@ -976,16 +1000,13 @@ func (c Cert) New() (types.Info, error) {
 		return Information, err
 	}
 
-	var certdb Cert
 	var newcertdb []Cert
 	var SerialNumber *big.Int
 
-	if CertDB := c.DB.Last(&certdb); CertDB.Error != nil {
-		SerialNumber = big.NewInt(1)
-	} else {
-		SerialNumber = big.NewInt(int64(certdb.ID + 1))
-	}
-
+	SerialNumber = big.NewInt(int64(ca.SerialNumber))
+	ca.SerialNumber = ca.SerialNumber + 1
+	ca.DB = c.DB
+	ca.DB.Save(ca)
 	keyOut, pub, _, err := certutils.GenerateKey(*prof.KeyType, prof.KeySize)
 
 	if err != nil {
@@ -1094,8 +1115,16 @@ func (c Cert) New() (types.Info, error) {
 	if len(prof.OCSPUrl) > 0 {
 		cert.OCSPServer = []string{prof.OCSPUrl}
 	}
+
+	Email := ""
+	if len(prof.Mail) > 0 {
+		Email = prof.Mail
+	}
 	if len(c.Mail) > 0 {
-		for _, mail := range strings.Split(c.Mail, ",") {
+		Email = c.Mail
+	}
+	if len(Email) > 0 {
+		for _, mail := range strings.Split(Email, ",") {
 			cert.EmailAddresses = append(cert.EmailAddresses, mail)
 		}
 	}
@@ -1125,7 +1154,7 @@ func (c Cert) New() (types.Info, error) {
 	// Public key
 	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: c.Mail, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, errors.New(dbError)
 	}
@@ -1214,12 +1243,6 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 			}
 		}
 	} else {
-		if val, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("Cn = ?", val).Find(&cert); CertDB.Error != nil {
-				Information.Error = CertDB.Error.Error()
-				return Information, errors.New(dbError)
-			}
-		}
 		if val, ok := params["id"]; ok {
 			if CertDB := c.DB.First(&cert, val); CertDB.Error != nil {
 				Information.Error = CertDB.Error.Error()
@@ -1285,7 +1308,7 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 		Information.Raw = pkcs12
 		Information.ContentType = "application/x-pkcs12"
 	} else {
-		Information, err = email(c.Ctx, cert, prof, pkcs12, password)
+		Information, err = emailcert(c.Ctx, cert, prof, pkcs12, password)
 	}
 
 	return Information, err
@@ -1319,12 +1342,6 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 				return Information, CertDB.Error
 			}
 		}
-		if cn, ok := params["cn"]; ok {
-			if CertDB := c.DB.Where("cn = ?", cn).Find(&cert); CertDB.Error != nil {
-				Information.Error = CertDB.Error.Error()
-				return Information, CertDB.Error
-			}
-		}
 	}
 	// Find the CA
 	var ca CA
@@ -1345,14 +1362,53 @@ func (c Cert) Revoke(params map[string]string) (types.Info, error) {
 		Information.Error = "Reason unsupported"
 		return Information, errors.New("Reason unsupported")
 	}
-
-	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: time.Now(), CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses}).Error; err != nil {
+	RevokeDate := time.Now().AddDate(0, 0, profile.RevokedValidUntil)
+	if err := c.DB.Create(&RevokedCert{Cn: cert.Cn, Mail: cert.Mail, Ca: ca, CaID: cert.CaID, CaName: cert.CaName, StreetAddress: cert.StreetAddress, Organisation: cert.Organisation, OrganisationalUnit: cert.OrganisationalUnit, Country: cert.Country, State: cert.State, Locality: cert.Locality, PostalCode: cert.Locality, Key: cert.Key, Cert: cert.Cert, Profile: profile, ProfileID: cert.ProfileID, ProfileName: cert.ProfileName, ValidUntil: cert.ValidUntil, Date: cert.Date, Revoked: RevokeDate, CRLReason: intreason, SerialNumber: cert.SerialNumber, DNSNames: cert.DNSNames, IPAddresses: cert.IPAddresses, Subject: cert.Subject}).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
 	}
 	if err := c.DB.Unscoped().Delete(&cert).Error; err != nil {
 		Information.Error = err.Error()
 		return Information, err
+	}
+
+	return Information, nil
+}
+
+func (c Cert) CheckRenewal(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	var certdb []Cert
+
+	if CertDB := c.DB.Where("alert <> ?", 1).Find(&certdb); CertDB.Error != nil {
+		Information.Error = CertDB.Error.Error()
+		return Information, CertDB.Error
+	}
+
+	for _, v := range certdb {
+		// Find the profile
+		var prof Profile
+		if profDB := c.DB.First(&prof, v.ProfileID); profDB.Error != nil {
+			Information.Error = profDB.Error.Error()
+			return Information, errors.New(dbError)
+		}
+		// Revoke due certificate
+		if time.Now().Unix() > v.ValidUntil.Unix() {
+			params := make(map[string]string)
+
+			params["id"] = strconv.Itoa(int(v.ID))
+			params["reason"] = strconv.Itoa(ocsp.Superseded)
+			c.Revoke(params)
+		}
+		if prof.RenewalMail == 1 {
+			if *v.Scep == false {
+				if v.ValidUntil.Unix()-int64((time.Duration(prof.DaysBeforeRenewalMail)*24*time.Hour).Seconds()) < time.Now().Unix() {
+					emailRenewal(c.Ctx, v, prof)
+					notfalse := true
+					v.Alert = &notfalse
+					c.DB.Save(&v)
+				}
+			}
+		}
 	}
 
 	return Information, nil
@@ -1426,9 +1482,62 @@ type EmailType struct {
 	Header   string
 	Footer   string
 	Password string
+	To       string
+	From     string
+	Subject  string
+	FileName string
+	File     []byte
+	Template string
 }
 
-func email(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+func emailcert(ctx context.Context, cert Cert, profile Profile, file []byte, password string) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	alerting := pfconfigdriver.Config.PfConf.Alerting
+
+	mail := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
+	if len(profile.P12MailFrom) > 0 {
+		mail.From = profile.P12MailFrom
+	} else {
+		mail.From = alerting.FromAddr
+	}
+	mail.To = cert.Mail
+	mail.Subject = profile.P12MailSubject
+	mail.FileName = cert.Cn
+	mail.Template = "emails-pki_certificate.html"
+	mail.File = file
+	mail.Password = password
+	return email(ctx, mail)
+}
+
+func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, error) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
+	alerting := pfconfigdriver.Config.PfConf.Alerting
+
+	mail := EmailType{}
+
+	if len(profile.RenewalMailFrom) > 0 {
+		mail.From = profile.RenewalMailFrom
+	} else {
+		mail.From = alerting.FromAddr
+	}
+
+	if cert.Mail != "" {
+		mail.To = cert.Mail
+	} else if profile.Mail != "" {
+		mail.To = profile.Mail
+	} else {
+		mail.To = alerting.EmailAddr
+	}
+	mail.Subject = profile.RenewalMailSubject
+	mail.FileName = "Profile Name: " + profile.Name + " Certificate CN: " + cert.Cn
+	mail.Template = "emails-renewal_certificate.html"
+	mail.Header = profile.RenewalMailHeader
+	mail.Footer = profile.RenewalMailFooter
+
+	return email(ctx, mail)
+}
+
+func email(ctx context.Context, email EmailType) (types.Info, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Alerting)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	alerting := pfconfigdriver.Config.PfConf.Alerting
@@ -1449,41 +1558,22 @@ func email(ctx context.Context, cert Cert, profile Profile, file []byte, passwor
 	message.DefaultCatalog = cat
 
 	m := gomail.NewMessage()
-	if len(profile.P12MailFrom) > 0 {
-		m.SetHeader("From", profile.P12MailFrom)
-	} else {
-		m.SetHeader("From", alerting.FromAddr)
-	}
-	m.SetHeader("To", cert.Mail)
-	m.SetHeader("Subject", profile.P12MailSubject)
 
-	email := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
-
-	// Undefined Header
-	if profile.P12MailHeader == "" {
-		email.Header = "msg_header"
-	}
-	// Undefined Footer
-	if profile.P12MailHeader == "" {
-		email.Footer = "msg_footer"
-	}
-
-	if profile.P12MailPassword == 1 {
-		email.Password = password
-		Information.Password = password
-	}
+	m.SetHeader("From", email.From)
+	m.SetHeader("To", email.To)
+	m.SetHeader("Subject", email.Subject)
 
 	lang := language.MustParse(advanced.Language)
 
-	emailContent, err := parseTemplate("emails-pki_certificate.html", lang, email)
+	emailContent, err := parseTemplate(email.Template, lang, email)
 
 	m.SetBody("text/html", emailContent)
-
-	m.Attach(cert.Cn+".p12", gomail.SetCopyFunc(func(w io.Writer) error {
-		_, err := w.Write(file)
-		return err
-	}))
-
+	if len(email.File) > 0 {
+		m.Attach(email.FileName+".p12", gomail.SetCopyFunc(func(w io.Writer) error {
+			_, err := w.Write(email.File)
+			return err
+		}))
+	}
 	d := gomail.NewDialer(alerting.SMTPServer, alerting.SMTPPort, alerting.SMTPUsername, alerting.SMTPPassword)
 
 	if alerting.SMTPVerifySSL == "disabled" || alerting.SMTPEncryption == "none" {
@@ -1506,12 +1596,12 @@ func parseTemplate(tplName string, lang language.Tag, data interface{}) (string,
 
 	t, err := template.New(tplName).Funcs(fmap).ParseFiles("/usr/local/pf/html/captive-portal/templates/emails/" + tplName)
 	if err != nil {
-		return "", fmt.Errorf("cannot parse template")
+		return "", err
 	}
 
 	buf := bytes.NewBuffer([]byte{})
 	if err := t.Execute(buf, data); err != nil {
-		return "", fmt.Errorf("cannot execute parse template")
+		return "", err
 	}
 
 	return buf.String(), nil

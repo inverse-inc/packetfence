@@ -55,10 +55,9 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		prof, _ := o.FindSCEPProfile([]string{vars["id"]})
 		var vcloud cloud.Cloud
-		if prof[0].CloudEnabled == 1 {
-			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", prof[0].CloudService)
+		if profile[0].CloudEnabled == 1 {
+			vcloud, err = cloud.Create(*pfpki.Ctx, "intune", profile[0].CloudService)
 			o.Cloud = vcloud
 			if err != nil {
 				lginfo.Log("err", "Enable to create Cloud service")
@@ -75,7 +74,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			// Todo Support CA password
 			// scepdepot.WithCAPass(*flCAPass),
 		)
-		if prof[0].CloudEnabled != 1 {
+		if profile[0].CloudEnabled != 1 {
 			signer = scepserver.ChallengeMiddleware(profile[0].SCEPChallengePassword, signer)
 		}
 		// Load the Intune/MDM csr Verifier

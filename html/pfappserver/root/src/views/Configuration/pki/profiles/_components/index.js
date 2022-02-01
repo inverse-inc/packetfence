@@ -55,6 +55,14 @@ export {
   BaseFormGroupInputNumber                as FormGroupScepDaysBeforeRenewal,
   BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupCloudEnabled,
   BaseFormGroupChosenOneCloud             as FormGroupCloudService,
+  BaseFormGroupInputNumber                as FormGroupDaysBeforeRenewal,
+  BaseFormGroupToggleZeroOneStringAsOffOn as FormGroupRenewalMail,
+  BaseFormGroupInputNumber                as FormGroupDaysBeforeRenewalMail,
+  BaseFormGroupInput                      as FormGroupRenewalMailSubject,
+  BaseFormGroupInput                      as FormGroupRenewalMailFrom,
+  BaseFormGroupTextarea                   as FormGroupRenewalMailHeader,
+  BaseFormGroupTextarea                   as FormGroupRenewalMailFooter,
+  BaseFormGroupInputNumber                as FormGroupRevokedValidUntil,
   TheForm,
   TheView
 }
