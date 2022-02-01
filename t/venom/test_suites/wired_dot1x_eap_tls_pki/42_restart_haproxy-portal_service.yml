@@ -4,4 +4,3 @@ testcases:
   steps:
   - type: systemctl_service_restart
     service: packetfence-haproxy-portal
-    sudo: sudo
