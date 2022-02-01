@@ -236,6 +236,10 @@ cmp_deeply(
                     type => 'string',
                     description => 'When enabled, PacketFence will not use the role initialy computed on the portal but will use an authorized source if defined to recompute the role.',
                 },
+                'show_manage_devices_on_max_nodes' => {
+                    type => 'string',
+                    description => 'Show manage devices on max nodes',
+                },
                 'filter' => {
                     type => 'array',
                     description => 'Filters',
