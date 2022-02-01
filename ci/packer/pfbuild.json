@@ -49,6 +49,11 @@
     ],
     "provisioners": [
         {
+            "type": "shell",
+            "script": "{{user `prov_dir`}}/shell/use-deprecated-repos.sh",
+            "only": ["{{user `builder_prefix`}}-centos-8"]
+        },
+        {
             "type": "ansible",
             "playbook_file": "{{user `prov_dir`}}/site.yml",
             "galaxy_file": "{{user `prov_dir`}}/requirements.yml",
