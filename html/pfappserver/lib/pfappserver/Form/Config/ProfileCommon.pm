@@ -403,6 +403,18 @@ has_field 'dot1x_unset_on_unmatch' =>
              help => 'When enabled, PacketFence will unset the role of the device if no authentication sources returned one.' },
   );
 
+=head2 show_manage_devices_on_max_nodes
+
+=cut
+
+has_field 'show_manage_devices_on_max_nodes' =>
+  (
+    type => 'Checkbox',
+    checkbox_value => 'enabled',
+    unchecked_value => 'disabled',
+    default => 'disabled',
+  );
+
 =head2 block_interval
 
 The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry

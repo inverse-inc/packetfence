@@ -1,0 +1,26 @@
+<div class="o-layout--center u-padding">
+  <div class="o-media o-media--error u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='error') %]</div>
+    <p class="o-media__body">[% i18n("You have reached the maximum amount of endpoints you can register with this username.") %]</p>
+  </div>
+
+  <div class="o-layout o-layout--center">
+    <div class="o-layout__item u-1/1 u-2/3@tablet">
+      <div class="u-padding-vertical-small">
+        <a href="/logout" class="c-btn c-btn--secondary u-1/1">
+          [% i18n("Retry signup") %]
+        </a>
+      </div>
+    </div>
+    [% IF show_manage_devices %]
+    <div class="o-layout__item u-1/1 u-2/3@tablet">
+      <div class="u-padding-vertical-small">
+        <a href="/status?logout_url=/logout" class="c-btn c-btn--secondary u-1/1">
+          [% i18n("Manage your devices") %]
+        </a>
+      </div>
+    </div>
+    [% END %]
+  </div>
+</div>
+

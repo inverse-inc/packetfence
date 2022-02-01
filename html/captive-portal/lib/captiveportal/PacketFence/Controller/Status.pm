@@ -42,6 +42,9 @@ sub auto :Private {
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
+    if($c->request->param('logout_url')) {
+        $c->user_session->{logout_url} = $c->request->param('logout_url');
+    }
     my $pid     = $c->user_session->{"username"} // $c->{_session}->{username};
     if ( $c->has_errors ) {
         $c->stash->{txt_auth_error} = join(' ', grep { ref ($_) eq '' } @{$c->error});
@@ -61,6 +64,7 @@ sub index : Path : Args(0) {
         template => 'status.html',
         billing  => $c->profile->hasBilling(),
         access_registration_when_registered => $c->profile->canAccessRegistrationWhenRegistered(),
+        logout_url => $c->user_session->{logout_url},
     );
 }
 
@@ -158,6 +162,7 @@ sub reset_password : Local {
     $c->stash(
         title => "Status - Manage Account",
         template => 'status/reset_password.html',
+        logout_url => $c->user_session->{logout_url},
     );
 } 
 

@@ -244,6 +244,11 @@ sub apply_new_node_info {
     my ($self) = @_;
     get_logger->debug(sub { use Data::Dumper; "Applying new node_info to user ".Dumper($self->new_node_info)});
 
+    if(pf::node::is_max_reg_nodes_reached($self->current_mac, $self->new_node_info->{pid}, $self->new_node_info->{category})) {
+        $self->render("max-nodes-reached.html", { show_manage_devices => $self->app->profile->showManageDevicesOnMaxNodes });
+        $self->detach();
+    }
+
     my $node_view = node_view($self->current_mac);
 
     # When device is pending, we take the role+unregdate from the computed node info. 

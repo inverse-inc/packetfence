@@ -138,6 +138,11 @@
           :text="$i18n.t('Under most circumstances we can redirect the user to the URL he originally intended to visit. However, you may prefer to force the captive portal to redirect the user to the redirection URL.')"
         />
 
+        <form-group-show-manage-devices-on-max-nodes namespace="show_manage_devices_on_max_nodes"
+          :column-label="$i18n.t('Show manage devices options when user reaches max nodes')"
+          :text="$i18n.t('When the user reaches the maximum amount of registered nodes associated with his or her username, enabling this will display an option in the portal to access the status page to manage/unregister devices.')"
+        />
+
         <form-group-block-interval namespace="block_interval"
           :column-label="$i18n.t('Block Interval')"
           :text="$i18n.t('The amount of time a user is blocked after reaching the defined limit for login, sms request and sms pin retry.')"
@@ -221,6 +226,7 @@ import {
   FormGroupLogo,
   FormGroupRedirectUrl,
   FormGroupAlwaysUseRedirecturl,
+  FormGroupShowManageDevicesOnMaxNodes,
   FormGroupBlockInterval,
   FormGroupSmsPinRetryLimit,
   FormGroupSmsRequestLimit,
@@ -262,6 +268,7 @@ const components = {
   FormGroupLogo,
   FormGroupRedirectUrl,
   FormGroupAlwaysUseRedirecturl,
+  FormGroupShowManageDevicesOnMaxNodes,
   FormGroupBlockInterval,
   FormGroupSmsPinRetryLimit,
   FormGroupSmsRequestLimit,
