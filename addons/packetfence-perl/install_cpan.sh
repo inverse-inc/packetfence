@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset -o pipefail -o errexit
 
 # ===== USAGE =====
 # Usage: $ install_cpan.sh dependencies.csv
