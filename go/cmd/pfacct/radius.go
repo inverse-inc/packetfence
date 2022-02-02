@@ -770,7 +770,7 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 			unique_session,
 			bucket,
 		)
-	} else if in_bytes != 0 || out_bytes != 0 {
+	} else {
 		s := h.GetAcctSession(node_id, unique_session)
 		if s != nil && s.in_bytes == in_bytes && s.out_bytes == out_bytes {
 			return nil
