@@ -39,6 +39,7 @@ my $ID_ERR_MSG = "The security event ID should be between 1 and 2000000000";
 has 'triggers' => ( is => 'ro' );
 has 'templates' => ( is => 'ro', builder => 'build_templates');
 has 'placeholders' => ( is => 'ro' );
+has 'email_templates' => ( is => 'ro', builder => 'build_email_templates');
 
 # Form fields
 has_field 'enabled' =>
@@ -117,7 +118,8 @@ has_field 'recipient_email' =>
 
 has_field 'recipient_template_email' =>
   (
-   type => 'Text',
+   type => 'Select',
+   options_method => \&options_email_template,
    label => 'Recipient template email',
    tags => { after_element => \&help,
              help => 'Template email to use to send the security event by email.' },
@@ -421,6 +423,35 @@ sub build_templates {
     return [map { { value => $_, label => "${_}.html" } } sort(uniq(@templates))];
 }
 
+=head2 options_email_template
+
+=cut
+
+sub options_email_template {
+    my ($self) = @_;
+    return @{$self->form->email_templates // []};
+}
+
+
+=head2 build_email_templates
+
+build_email_templates
+
+=cut
+
+sub build_email_templates {
+    my @dirs = ($captiveportal_templates_path, grep { -d }  map { "$captiveportal_profile_templates_path/$_" } keys(%Profiles_Config));
+    my @templates;
+    foreach my $dir (@dirs) {
+        next unless opendir(my $dh, $dir . '/emails');
+        push @templates, grep { /^[^\.]+\.html$/ } readdir($dh);
+        s/\.html// for @templates;
+        s/emails-// for @templates;
+        closedir($dh);
+    }
+
+    return [map { { value => $_, label => "${_}" } } sort(uniq(@templates))];
+}
 
 =head2 validate
 

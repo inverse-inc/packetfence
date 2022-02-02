@@ -155,7 +155,7 @@ import {
   BaseFormGroupTextarea     as FormGroupUserMailMessage,
   BaseFormGroupInput        as FormGroupRecipientEmail,
   BaseFormGroupTextarea     as FormGroupRecipientMessage,
-  BaseFormGroupInput        as FormGroupRecipientTemplateMessage,
+  BaseFormGroupChosenOne    as FormGroupRecipientTemplateMessage,
   BaseFormGroupChosenOne    as FormGroupVClose,
   BaseFormGroupChosenOne    as FormGroupVlan,
 } from '@/components/new'
