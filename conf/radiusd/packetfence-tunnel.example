@@ -279,7 +279,7 @@ post-auth {
 			&request:PacketFence-NTCacheHash := &control:PacketFence-NTCacheHash
 		}
 	}
-	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-SHortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
+	if !( ("%{client:shortname}" =~ /eduroam_tlrs/)  || (&request:PacketFence-ShortName && &request:PacketFence-ShortName =~ /eduroam_tlrs/)) {
 		rest
 	}
 	update {
