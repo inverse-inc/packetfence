@@ -149,7 +149,9 @@ ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_d
 
 $source_id_ref = undef;
 
-is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'),'2037-12-31', "Set unreg date test");
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+my $date = sprintf("%04d-02-02", $year+1901);
+is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'), $date, "Set unreg date test");
 
 is_deeply(
     pf::authentication::match("tls_all", { username => 'bobbe', SSID => 'tls',
@@ -288,7 +290,7 @@ my @tests = (
             context => $pf::constants::realm::ADMIN_CONTEXT,
         },
         expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
-        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+        expected_match => {set_role => "default", set_unreg_date => "2037-12-31"},
     },
     # Non-stripped username in a non-stripping context to a stripped source
     {
@@ -310,7 +312,7 @@ my @tests = (
             context => $pf::constants::realm::PORTAL_CONTEXT,
         },
         expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
-        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+        expected_match => {set_role => "default", set_unreg_date => "2037-12-31"},
     },
     # Non-stripped username in a stripping context to a stripped source
     {
@@ -321,7 +323,7 @@ my @tests = (
             context => $pf::constants::realm::PORTAL_CONTEXT,
         },
         expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
-        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+        expected_match => {set_role => "default", set_unreg_date => "2037-12-31"},
     },
 
     # Stripped username in a non-stripping context to a non-stripped source
@@ -344,7 +346,7 @@ my @tests = (
             context => $pf::constants::realm::ADMIN_CONTEXT,
         },
         expected_auth => [$TRUE, $AUTH_SUCCESS_MSG],
-        expected_match => {set_role => "default", set_unreg_date => "2038-01-01"},
+        expected_match => {set_role => "default", set_unreg_date => "2037-12-31"},
     },
     # Stripped username in a stripping context to a non-stripped source
     {
@@ -407,7 +409,7 @@ is_deeply(
             ),
             pf::Authentication::Action->new(
                 {
-                    'value' => '2038-01-01',
+                    'value' => '2037-12-31',
                     'type'  => 'set_unreg_date',
                     'class' => 'authentication',
                 }
@@ -416,7 +418,7 @@ is_deeply(
         'source_id' => 'potd',
         'values'    => {
             'set_role'       => 'default',
-            'set_unreg_date' => '2038-01-01'
+            'set_unreg_date' => '2037-12-31'
         },
         rule_id => 'match_test',
     },
