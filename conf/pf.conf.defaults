@@ -1440,6 +1440,7 @@ alert_email_to=
 subject_prefix=
 configurations=packetfence,os-checks
 mailserver=
+sender=monit@$HOST
 
 [services_url]
 httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://containers-gateway.internal:8080") %]

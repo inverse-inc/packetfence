@@ -36,7 +36,7 @@ my $MONIT_EXTRA_PATH = "$MONIT_PATH/packetfence";
 
 
 if ( $#ARGV eq "-1" ) {
-    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations' 'mailserver'\n\n";
+    print "Usage: ./monit_configuration_builder.pl 'email(s)' 'subject' 'configurations' 'mailserver' 'sender email'\n\n";
     print "email(s): List of alerting email address(es) (comma-separated if more than one)\n";
     print "subject: Identifier for email alerts\n";
     print "configurations: List of configuration to generate (comma-separated if more than one)\n";
@@ -50,11 +50,12 @@ if ( $#ARGV eq "-1" ) {
     die "\n";
 }
 
-my ( $emails, $subject_identifier, $configurations, $mailserver ) = @ARGV;
+my ( $emails, $subject_identifier, $configurations, $mailserver, $sender ) = @ARGV;
 die "No alerting email address(es) specified\n" if !defined $emails;
 die "No alerting subject specified\n" if !defined $subject_identifier;
 die "No configuration(s) specified\n" if !defined $configurations;
 $mailserver = "localhost" if !defined $mailserver;
+$sender = 'monit@$HOST' if !defined $sender;
 
 
 my @emails = split(/\,/, $emails);
@@ -87,6 +88,7 @@ sub generate_monit_configurations {
         SUBJECT_IDENTIFIER  => $subject_identifier,
         MAILSERVER          => $mailserver,
         ALERTING_CONF       => $Config{alerting},
+        SENDER              => $sender,
     };
     my $tt = Template->new(ABSOLUTE => 1);
     my $template_file;

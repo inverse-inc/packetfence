@@ -11,6 +11,7 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar                   as FormButtonBar,
 
+  BaseFormGroupTextarea               as FormGroupSender,
   BaseFormGroupTextarea               as FormGroupAlertEmailTo,
   BaseFormGroupInput                  as FormGroupConfigurations,
   BaseFormGroupInput                  as FormGroupMailserver,
