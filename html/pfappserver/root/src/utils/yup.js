@@ -86,7 +86,7 @@ yup.addMethod(yup.array, 'ifThenRestricts', function (message, ifIterFn, restric
  * yup.string
 **/
 const reAlphaNumeric = value => /^[a-zA-Z0-9]*$/.test(value)
-const reAlphaNumericHyphenUnderscore = value => /^[a-zA-Z0-9-_]*$/.test(value)
+const reAlphaNumericHyphenUnderscoreDot = value => /^[a-zA-Z0-9-_.]*$/.test(value)
 const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
 const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
@@ -138,11 +138,11 @@ yup.addMethod(yup.string, 'isAlphaNumeric', function (message) {
   })
 })
 
-yup.addMethod(yup.string, 'isAlphaNumericHyphenUnderscore', function (message) {
+yup.addMethod(yup.string, 'isAlphaNumericHyphenUnderscoreDot', function (message) {
   return this.test({
-    name: 'isAlphaNumericHyphenUnderscore',
-    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), or underscore (_).'),
-    test: value => ['', null, undefined].includes(value) || reAlphaNumericHyphenUnderscore(value)
+    name: 'isAlphaNumericHyphenUnderscoreDot',
+    message: message || i18n.t('Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), underscore (_), or dot (.).'),
+    test: value => ['', null, undefined].includes(value) || reAlphaNumericHyphenUnderscoreDot(value)
   })
 })
 

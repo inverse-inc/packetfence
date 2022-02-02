@@ -8119,11 +8119,11 @@ msgstr ""
 
 #: html/pfappserver/root/src/utils/yup.js:144
 msgid ""
-"Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), or "
-"underscore (_)."
+"Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), "
+"underscore (_), or dot (.)."
 msgstr ""
 "Caractère non valide, uniquement des lettres (A-Z), des chiffres (0-9), des "
-"tirets (-) ou des traits de soulignement (_)."
+"tirets (-), des traits de soulignement (_) ou des point (.)."
 
 #: html/pfappserver/root/src/utils/yup.js:171
 #: html/pfappserver/root/src/utils/yup.js:271
