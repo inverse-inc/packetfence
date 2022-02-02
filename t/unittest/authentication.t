@@ -149,7 +149,7 @@ ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_d
 
 $source_id_ref = undef;
 
-is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
+is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'),'2037-12-31', "Set unreg date test");
 
 is_deeply(
     pf::authentication::match("tls_all", { username => 'bobbe', SSID => 'tls',
