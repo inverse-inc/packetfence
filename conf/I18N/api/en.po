@@ -7315,7 +7315,7 @@ msgid "Invalid character, only letters (A-Z) or numbers (0-9)."
 msgstr ""
 
 #: html/pfappserver/root/src/utils/yup.js:144
-msgid "Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), or underscore (_)."
+msgid "Invalid character, only letters (A-Z), numbers (0-9), hyphen (-), underscore (_), or dot (.)."
 msgstr ""
 
 #: html/pfappserver/root/src/utils/yup.js:171
