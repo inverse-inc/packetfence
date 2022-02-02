@@ -148,8 +148,9 @@ ok( $value , "set_access_duration matched on set_unreg_date");
 ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_duration is a date");
 
 $source_id_ref = undef;
-
-is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'),'2022-02-02', "Set unreg date test");
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+my $date = sprintf("%04d-02-02", $year+1901);
+is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'), $date, "Set unreg date test");
 
 is_deeply(
     pf::authentication::match("tls_all", { username => 'bobbe', SSID => 'tls',
