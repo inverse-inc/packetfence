@@ -9,7 +9,7 @@ Test::Deep,1.130,RJBS/Test-Deep-1.130.tar.gz,True,R/RJ/RJBS/Test-Deep-1.130.tar.
 Capture::Tiny,0.48,DAGOLDEN/Capture-Tiny-0.48.tar.gz,True,D/DA/DAGOLDEN/Capture-Tiny-0.48.tar.gz,16
 Time::HiRes,1.9764,ATOOMIC/Time-HiRes-1.9764.tar.gz,True,A/AT/ATOOMIC/Time-HiRes-1.9764.tar.gz,16
 Socket,2.032,PEVANS/Socket-2.032.tar.gz,True,P/PE/PEVANS/Socket-2.032.tar.gz,16
-Try::Tiny,0.30,ETHER/Try-Tiny-0.30.tar.gz,True,E/ET/ETHER/Try-Tiny-0.30.tar.gz,16
+Try::Tiny,0.31,ETHER/Try-Tiny-0.31.tar.gz,True,E/ET/ETHER/Try-Tiny-0.31.tar.gz,16
 Test::Needs,0.002009,HAARG/Test-Needs-0.002009.tar.gz,True,H/HA/HAARG/Test-Needs-0.002009.tar.gz,14
 Dist::CheckConflicts,0.11,DOY/Dist-CheckConflicts-0.11.tar.gz,True,D/DO/DOY/Dist-CheckConflicts-0.11.tar.gz,14
 Class::Data::Inheritable,0.08,TMTM/Class-Data-Inheritable-0.08.tar.gz,True,T/TM/TMTM/Class-Data-Inheritable-0.08.tar.gz,14
@@ -41,7 +41,7 @@ IO::Scalar,2.113,CAPOEIRAB/IO-Stringy-2.113.tar.gz,True,C/CA/CAPOEIRAB/IO-String
 Test::Pod,1.52,ETHER/Test-Pod-1.52.tar.gz,True,E/ET/ETHER/Test-Pod-1.52.tar.gz,10
 Test::CleanNamespaces,0.24,ETHER/Test-CleanNamespaces-0.24.tar.gz,True,E/ET/ETHER/Test-CleanNamespaces-0.24.tar.gz,10
 HTTP::Cookies,6.10,OALDERS/HTTP-Cookies-6.10.tar.gz,True,O/OA/OALDERS/HTTP-Cookies-6.10.tar.gz,10
-Test::NoWarnings,1.04,ADAMK/Test-NoWarnings-1.04.tar.gz,True,A/AD/ADAMK/Test-NoWarnings-1.04.tar.gz,10
+Test::NoWarnings,1.06,HAARG/Test-NoWarnings-1.06.tar.gz,True,H/HA/HAARG/Test-NoWarnings-1.06.tar.gz,10
 HTTP::Negotiate,6.01,GAAS/HTTP-Negotiate-6.01.tar.gz,True,G/GA/GAAS/HTTP-Negotiate-6.01.tar.gz,10
 Test::Class,0.52,SZABGAB/Test-Class-0.52.tar.gz,True,S/SZ/SZABGAB/Test-Class-0.52.tar.gz,10
 Class::XSAccessor,1.19,SMUELLER/Class-XSAccessor-1.19.tar.gz,True,S/SM/SMUELLER/Class-XSAccessor-1.19.tar.gz,10
@@ -68,7 +68,7 @@ Hash::Merge,0.302,HERMES/Hash-Merge-0.302.tar.gz,True,H/HE/HERMES/Hash-Merge-0.3
 boolean,0.46,INGY/boolean-0.46.tar.gz,True,I/IN/INGY/boolean-0.46.tar.gz,8
 String::RewritePrefix,0.008,RJBS/String-RewritePrefix-0.008.tar.gz,True,R/RJ/RJBS/String-RewritePrefix-0.008.tar.gz,8
 Class::Load,0.25,ETHER/Class-Load-0.25.tar.gz,True,E/ET/ETHER/Class-Load-0.25.tar.gz,8
-HTTP::Request::Common,6.33,OALDERS/HTTP-Message-6.33.tar.gz,True,O/OA/OALDERS/HTTP-Message-6.33.tar.gz,8
+HTTP::Message,6.36,OALDERS/HTTP-Message-6.36.tar.gz,True,O/OA/OALDERS/HTTP-Message-6.36.tar.gz,8
 Test::Pod::Coverage,1.10,NEILB/Test-Pod-Coverage-1.10.tar.gz,True,N/NE/NEILB/Test-Pod-Coverage-1.10.tar.gz,6
 Hash::MoreUtils,0.06,REHSACK/Hash-MoreUtils-0.06.tar.gz,True,R/RE/REHSACK/Hash-MoreUtils-0.06.tar.gz,6
 Cache::Cache,1.08,RJBS/Cache-Cache-1.08.tar.gz,True,R/RJ/RJBS/Cache-Cache-1.08.tar.gz,6
@@ -91,6 +91,7 @@ MooseX::Types,0.50,ETHER/MooseX-Types-0.50.tar.gz,True,E/ET/ETHER/MooseX-Types-0
 common::sense,3.75,MLEHMANN/common-sense-3.75.tar.gz,True,M/ML/MLEHMANN/common-sense-3.75.tar.gz,6
 Log::Dispatch::Configurator::Any,1.122640,OLIVER/Log-Dispatch-Configurator-Any-1.122640.tar.gz,True,O/OL/OLIVER/Log-Dispatch-Configurator-Any-1.122640.tar.gz,6
 Template,3.009,ATOOMIC/Template-Toolkit-3.009.tar.gz,True,A/AT/ATOOMIC/Template-Toolkit-3.009.tar.gz,6
+CHI,0.60,JSWARTZ/CHI-0.60.tar.gz,True,J/JS/JSWARTZ/CHI-0.60.tar.gz,4
 CGI::Session::Driver::chi,1.0.3,ROUZIER/CGI-Session-Driver-chi-1.0.3.tar.gz,True,R/RO/ROUZIER/CGI-Session-Driver-chi-1.0.3.tar.gz,5
 Crypt::SmbHash,0.12,BJKUIT/Crypt-SmbHash-0.12.tar.gz,True,B/BJ/BJKUIT/Crypt-SmbHash-0.12.tar.gz,5
 Sereal::Decoder,4.018,YVES/Sereal-Decoder-4.018.tar.gz,True,Y/YV/YVES/Sereal-Decoder-4.018.tar.gz,4
@@ -111,6 +112,7 @@ IPTables::Parse,1.6,MRASH/IPTables-Parse-1.6.tar.gz,True,M/MR/MRASH/IPTables-Par
 Sereal::Encoder,4.018,YVES/Sereal-Encoder-4.018.tar.gz,True,Y/YV/YVES/Sereal-Encoder-4.018.tar.gz,4
 ExtUtils::CppGuess,0.23,ETJ/ExtUtils-CppGuess-0.23.tar.gz,True,E/ET/ETJ/ExtUtils-CppGuess-0.23.tar.gz,4
 Crypt::OpenSSL::RSA,0.31,TODDR/Crypt-OpenSSL-RSA-0.31.tar.gz,True,T/TO/TODDR/Crypt-OpenSSL-RSA-0.31.tar.gz,4
+Text::CSV_XS,1.46,HMBRAND/Text-CSV_XS-1.46.tgz,True,H/HM/HMBRAND/Text-CSV_XS-1.46.tgz,2
 Text::CSV,2.01,ISHIGAKI/Text-CSV-2.01.tar.gz,True,I/IS/ISHIGAKI/Text-CSV-2.01.tar.gz,4
 HTML::FormFu::MultiForm,1.03,NIGELM/HTML-FormFu-MultiForm-1.03.tar.gz,True,N/NI/NIGELM/HTML-FormFu-MultiForm-1.03.tar.gz,4
 Catalyst::View::TT,0.45,HAARG/Catalyst-View-TT-0.45.tar.gz,True,H/HA/HAARG/Catalyst-View-TT-0.45.tar.gz,4
@@ -118,10 +120,9 @@ Log::Log4perl,1.54,ETJ/Log-Log4perl-1.54.tar.gz,True,E/ET/ETJ/Log-Log4perl-1.54.
 Test::MockObject,1.20200122,CHROMATIC/Test-MockObject-1.20200122.tar.gz,True,C/CH/CHROMATIC/Test-MockObject-1.20200122.tar.gz,4
 Log::Any::Adapter,1.709,PREACTION/Log-Any-1.709.tar.gz,True,P/PR/PREACTION/Log-Any-1.709.tar.gz,4
 Lingua::EN::Nums2Words,1.16,HIGHTOWE/Lingua-EN-Nums2Words-1.16.zip,True,H/HI/HIGHTOWE/Lingua-EN-Nums2Words-1.16.zip,4
-CHI,0.60,JSWARTZ/CHI-0.60.tar.gz,True,J/JS/JSWARTZ/CHI-0.60.tar.gz,4
 HTML::FormFu,2.07,CFRANKS/HTML-FormFu-2.07.tar.gz,True,C/CF/CFRANKS/HTML-FormFu-2.07.tar.gz,4
 Data::Structure::Util,0.16,ANDYA/Data-Structure-Util-0.16.tar.gz,True,A/AN/ANDYA/Data-Structure-Util-0.16.tar.gz,4
-Data::Serializer,0.65,NEELY/Data-Serializer-0.65.tar.gz,True,N/NE/NEELY/Data-Serializer-0.65.tar.gz,4
+Data::Serializer,0.65,NEELY/Data-Serializer-0.65.tar.gz,False,N/NE/NEELY/Data-Serializer-0.65.tar.gz,4
 URI::SmartURI,0.032,RKITOVER/URI-SmartURI-0.032.tar.gz,True,R/RK/RKITOVER/URI-SmartURI-0.032.tar.gz,4
 LWP::UserAgent,6.55,OALDERS/libwww-perl-6.55.tar.gz,True,O/OA/OALDERS/libwww-perl-6.55.tar.gz,4
 Crypt::OpenSSL::Bignum,0.09,KMX/Crypt-OpenSSL-Bignum-0.09.tar.gz,True,K/KM/KMX/Crypt-OpenSSL-Bignum-0.09.tar.gz,4
@@ -133,7 +134,6 @@ Mojolicious,9.19,SRI/Mojolicious-9.19.tar.gz,True,S/SR/SRI/Mojolicious-9.19.tar.
 JSON,4.03,ISHIGAKI/JSON-4.03.tar.gz,True,I/IS/ISHIGAKI/JSON-4.03.tar.gz,4
 Catalyst::Action::RenderView,0.16,BOBTFISH/Catalyst-Action-RenderView-0.16.tar.gz,True,B/BO/BOBTFISH/Catalyst-Action-RenderView-0.16.tar.gz,4
 Catalyst::Plugin::ConfigLoader,0.35,HAARG/Catalyst-Plugin-ConfigLoader-0.35.tar.gz,True,H/HA/HAARG/Catalyst-Plugin-ConfigLoader-0.35.tar.gz,4
-Text::CSV_XS,1.46,HMBRAND/Text-CSV_XS-1.46.tgz,True,H/HM/HMBRAND/Text-CSV_XS-1.46.tgz,2
 Term::ReadKey,2.38,JSTOWE/TermReadKey-2.38.tar.gz,True,J/JS/JSTOWE/TermReadKey-2.38.tar.gz,2
 Devel::CheckLib,1.14,MATTN/Devel-CheckLib-1.14.tar.gz,True,M/MA/MATTN/Devel-CheckLib-1.14.tar.gz,2
 File::Tail,1.3,MGRABNAR/File-Tail-1.3.tar.gz,True,M/MG/MGRABNAR/File-Tail-1.3.tar.gz,2
@@ -145,7 +145,7 @@ Perl::Version,1.013,BDFOY/Perl-Version-1.013.tar.gz,True,B/BD/BDFOY/Perl-Version
 Crypt::Rijndael,1.16,LEONT/Crypt-Rijndael-1.16.tar.gz,True,L/LE/LEONT/Crypt-Rijndael-1.16.tar.gz,2
 IO::Interface,1.09,LDS/IO-Interface-1.09.tar.gz,True,L/LD/LDS/IO-Interface-1.09.tar.gz,2
 Crypt::OpenSSL::PKCS10,0.16,JONOZZZ/Crypt-OpenSSL-PKCS10-0.16.tar.gz,True,J/JO/JONOZZZ/Crypt-OpenSSL-PKCS10-0.16.tar.gz,2
-Crypt::OpenSSL::PKCS12,1.9,JONASBN/Crypt-OpenSSL-PKCS12-1.9,True,J/JO/JONASBN/Crypt-OpenSSL-PKCS12-1.9.tar.gz,2
+Crypt::OpenSSL::PKCS12,1.9,JONASBN/Crypt-OpenSSL-PKCS12-1.9.tar.gz,True,J/JO/JONASBN/Crypt-OpenSSL-PKCS12-1.9.tar.gz,2
 Catalyst::Authentication::Credential::HTTP,1.018,ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz,True,E/ET/ETHER/Catalyst-Authentication-Credential-HTTP-1.018.tar.gz,2
 Data::Serializer::Sereal,1.05,ROUZIER/Data-Serializer-Sereal-1.05.tar.gz,True,R/RO/ROUZIER/Data-Serializer-Sereal-1.05.tar.gz,2
 Apache::Session,1.94,CHORNY/Apache-Session-1.94.tar.gz,True,C/CH/CHORNY/Apache-Session-1.94.tar.gz,2
@@ -166,7 +166,6 @@ DateTime::Format::RFC3339,v1.2.0,IKEGAMI/DateTime-Format-RFC3339-v1.2.0.tar.gz,T
 Linux::Distribution,0.23,CHORNY/Linux-Distribution-0.23.tar.gz,True,C/CH/CHORNY/Linux-Distribution-0.23.tar.gz,2
 Log::Log4perl::Catalyst,1.54,ETJ/Log-Log4perl-1.54.tar.gz,True,E/ET/ETJ/Log-Log4perl-1.54.tar.gz,2
 Linux::FD,0.011,LEONT/Linux-FD-0.011.tar.gz,True,L/LE/LEONT/Linux-FD-0.011.tar.gz,2
-HTTP::Message,6.33,OALDERS/HTTP-Message-6.33.tar.gz,True,O/OA/OALDERS/HTTP-Message-6.33.tar.gz,2
 Locale::gettext,1.07,PVANDRY/gettext-1.07.tar.gz,True,P/PV/PVANDRY/gettext-1.07.tar.gz,2
 JSON::XS,4.03,MLEHMANN/JSON-XS-4.03.tar.gz,True,M/ML/MLEHMANN/JSON-XS-4.03.tar.gz,2
 TimeDate,2.33,ATOOMIC/TimeDate-2.33.tar.gz,True,A/AT/ATOOMIC/TimeDate-2.33.tar.gz,2
@@ -196,7 +195,7 @@ Proc::ProcessTable,0.59,JWB/Proc-ProcessTable-0.59.tar.gz,True,J/JW/JWB/Proc-Pro
 URI::Escape::XS,0.14,DANKOGAI/URI-Escape-XS-0.14.tar.gz,True,D/DA/DANKOGAI/URI-Escape-XS-0.14.tar.gz,2
 Log::Dispatch::Syslog,2.70,DROLSKY/Log-Dispatch-2.70.tar.gz,True,D/DR/DROLSKY/Log-Dispatch-2.70.tar.gz,2
 HTML::FormHandler,0.40068,GSHANK/HTML-FormHandler-0.40068.tar.gz,True,G/GS/GSHANK/HTML-FormHandler-0.40068.tar.gz,2
-IO::Socket::INET6,2.72,SHLOMIF/IO-Socket-INET6-2.72.tar.gz,True,S/SH/SHLOMIF/IO-Socket-INET6-2.72.tar.gz,2
+IO::Socket::INET6,2.72,SHLOMIF/IO-Socket-INET6-2.72.tar.gz,False,S/SH/SHLOMIF/IO-Socket-INET6-2.72.tar.gz,2
 Text::RecordParser,1.6.5,KCLARK/Text-RecordParser-1.6.5.tar.gz,True,K/KC/KCLARK/Text-RecordParser-1.6.5.tar.gz,2
 Class::Accessor::Fast::Contained,1.01,OLIVER/Class-Accessor-Fast-Contained-1.01.tar.gz,True,O/OL/OLIVER/Class-Accessor-Fast-Contained-1.01.tar.gz,2
 Catalyst::View::CSV,1.8,JMREIN/Catalyst-View-CSV-1.8.tar.gz,True,J/JM/JMREIN/Catalyst-View-CSV-1.8.tar.gz,2
@@ -256,5 +255,5 @@ Thread::Pool,0.35,LNATION/Thread-Pool-0.35.tar.gz,True,L/LN/LNATION/Thread-Pool-
 Net::LDAP,0.68,MARSCHAP/perl-ldap-0.68.tar.gz,True,M/MA/MARSCHAP/perl-ldap-0.68.tar.gz,2
 re::engine::RE2,0.14,DGL/re-engine-RE2-0.14.tar.gz,True,D/DG/DGL/re-engine-RE2-0.14.tar.gz,2
 HTML::Parser,3.76,OALDERS/HTML-Parser-3.76.tar.gz,True,O/OA/OALDERS/HTML-Parser-3.76.tar.gz,2
-CryptX,0.072,MIK/CryptX-0.072.tar.gz,True,M/MI/MIK/CryptX-0.072.tar.gz,?
+CryptX,0.076,MIK/CryptX-0.076.tar.gz,True,M/MI/MIK/CryptX-0.076.tar.gz,?
 Crypt::JWT,0.033,MIK/Crypt-JWT-0.033.tar.gz,True,/M/MI/MIK/Crypt-JWT-0.033.tar.gz,?

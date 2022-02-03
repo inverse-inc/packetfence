@@ -25,6 +25,7 @@ configure_and_check() {
 prepare_env() {
     # ===== PREPARE ENV =====
     mkdir -p /usr/local/pf/lib/perl_modules/lib/perl5/
+    # to find already downloaded Perl modules
     export PERL5LIB=/root/perl5/lib/perl5:/usr/local/pf/lib/perl_modules/lib/perl5/
     export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
     TestPerlConfig=$(perl -e exit)
