@@ -113,7 +113,7 @@ ALTER TABLE pki_profiles
 
 \! echo "altering pki_cas"
 ALTER TABLE pki_cas
-    ADD COLUMN IF NOT EXISTS `serial_number` int(11) AFTER ocsp_url;
+    ADD COLUMN IF NOT EXISTS `serial_number` int(11) DEFAULT 1 AFTER ocsp_url;
 
 \! echo "altering pki_revoked_certs"
 ALTER TABLE pki_revoked_certs
