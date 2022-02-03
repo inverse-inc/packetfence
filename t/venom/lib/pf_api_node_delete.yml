@@ -4,7 +4,7 @@ input:
 steps:
 # delete_node
 - type: pf_api_node_action
-  action: DELETE
+  method: DELETE
   id: "{{.input.id}}"
   info:
     - "{{.result.pf_api_node_action_json}}"
