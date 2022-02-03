@@ -1753,6 +1753,7 @@ BEGIN
                  sum(out_bytes) AS out_bytes
                 FROM to_delete_bandwidth_accounting_radius_to_history
                 GROUP BY node_id, new_time_bucket
+                HAVING SUM(in_bytes) != 0 OR sum(out_bytes) != 0
                 ON DUPLICATE KEY UPDATE
                     in_bytes = in_bytes + VALUES(in_bytes),
                     out_bytes = out_bytes + VALUES(out_bytes)
