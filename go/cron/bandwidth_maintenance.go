@@ -56,10 +56,10 @@ func (j *BandwidthMaintenance) Run() {
 	j.BandwidthMaintenanceSessionCleanup(ctx)
 	j.ProcessBandwidthAccountingNetflow(ctx)
 	j.TriggerBandwidth(ctx)
-	// j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
+	j.BandwidthAccountingRadiusToHistory(ctx)
+	//j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
 	j.BandwidthAggregation(ctx, "daily", "DATE_SUB(NOW(), INTERVAL ? DAY)", 2)
 	j.BandwidthAggregation(ctx, "monthly", "DATE_SUB(NOW(), INTERVAL ? MONTH)", 1)
-	j.BandwidthAccountingRadiusToHistory(ctx)
 	j.BandwidthHistoryAggregation(ctx, "daily", "SUBDATE(NOW(), INTERVAL ? DAY)", 1)
 	j.BandwidthHistoryAggregation(ctx, "monthly", "SUBDATE(NOW(), INTERVAL ? MONTH)", 1)
 	j.BandwidthAccountingHistoryCleanup(ctx)
@@ -109,14 +109,17 @@ func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, roundin
 	)
 }
 
+const BandwidthAccountingRadiusToHistoryWindow = 5 * 60;
+
 func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistory(ctx context.Context) {
-	sql := "CALL bandwidth_accounting_radius_to_history(DATE_SUB(NOW(), INTERVAL ? SECOND), ?);"
+	sql := "CALL bandwidth_accounting_radius_to_history(DATE_SUB(?, INTERVAL ? SECOND), ?);"
 	BatchSqlCount(
 		ctx,
 		"bandwidth_accounting_radius_to_history",
 		j.Timeout,
 		sql,
-		j.Window,
+		time.Now(),
+		BandwidthAccountingRadiusToHistoryWindow,
 		j.Batch,
 	)
 }
