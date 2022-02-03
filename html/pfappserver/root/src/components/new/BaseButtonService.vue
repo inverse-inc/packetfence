@@ -26,7 +26,7 @@
       class="small">
       {{ $t('This service must be managed from the command-line.') }}
     </b-dropdown-text>
-    <b-dropdown-group v-else-if="isAllowed && Object.keys(servers).length > 1"
+    <b-dropdown-group v-else-if="isAllowed && isCluster"
       :header="$i18n.t('CLUSTER')">
       <b-dropdown-item v-if="enable && Object.keys(servers).filter(server => !servers[server].enabled).length"
         @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
@@ -41,7 +41,7 @@
     </b-dropdown-group>
 
     <template v-for="(service, server) in servers">
-      <b-dropdown-divider v-if="Object.keys(servers).length > 1" :key="`divider-${server}`" />
+      <b-dropdown-divider v-if="isCluster" :key="`divider-${server}`" />
       <b-dropdown-group :key="`group-${server}`">
        <template v-slot:header>
          {{ server }}
@@ -182,6 +182,7 @@ const setup = (props, context) => {
   }, { immediate: true })
 
   const isBlacklisted = computed(() => !!blacklistedServices.find(bls => bls === service.value))
+  const isCluster = computed(() => $store.getters['cluster/isCluster'])
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
   const isDisabled = computed(() => disabled.value || !isAllowed.value || !Object.keys(servers.value).length)
 
@@ -274,6 +275,7 @@ const setup = (props, context) => {
 
     isAllowed,
     isBlacklisted,
+    isCluster,
     isDisabled,
     isLoading,
     tooltip,

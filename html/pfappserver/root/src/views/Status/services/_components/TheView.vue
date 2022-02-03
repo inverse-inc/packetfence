@@ -2,6 +2,51 @@
   <div>
     <b-card no-body>
       <b-card-header>
+        <h4 class="d-inline mb-0" v-t="'Services'"></h4>
+        <p class="mt-3 mb-0" v-t="'...'"></p>
+      </b-card-header>
+      <div class="card-body">
+        <b-table
+          :fields="serviceFields"
+          :items="serviceItems"
+          :sort-by="'service'"
+          :sort-desc="false"
+          show-empty
+          responsive
+          fixed
+          sort-icon-left
+          striped
+        >
+          <template v-slot:empty>
+            <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
+          </template>
+          <template v-slot:cell(service)="{ value }">
+            {{ value }}
+          </template>
+          <template v-slot:cell(actions)="{ item: { service, canDisable, canEnable, canRestart, canStart, canStop } }">
+            <b-button v-if="canEnable"
+              class="m-1" variant="outline-primary" @click="doEnableAll" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-button>
+            <b-button v-if="canDisable"
+              class="m-1" variant="outline-primary" @click="doDisableAll" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-button>
+            <b-button v-if="canRestart"
+              class="m-1" variant="outline-primary" @click="doRestartAll" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-button>
+            <b-button v-if="canStart"
+              class="m-1" variant="outline-primary" @click="doStartAll" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-button>
+            <b-button v-if="canStop"
+              class="m-1" variant="outline-primary" @click="doStopAll" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-button>
+          </template>
+          <template v-slot:cell()="{ item, value }">
+            <base-service :id="item.service" :server="value.server" class="py-3" lazy />
+          </template>
+        </b-table>
+      </div>
+    </b-card>
+
+
+
+
+    <b-card no-body class="mt-3">
+      <b-card-header>
         <h4 class="d-inline mb-0" v-t="'Protected Services'"></h4>
         <p class="mt-3 mb-0" v-t="'These services can not be managed since they are required in order for this page to function.'"></p>
       </b-card-header>
@@ -103,21 +148,62 @@
 import {
   BaseTableEmpty
 } from '@/components/new/'
+import BaseService from './BaseService'
 import ToggleServiceAlive from './ToggleServiceAlive'
 import ToggleServiceEnabled from './ToggleServiceEnabled'
 
 const components = {
+  BaseService,
   BaseTableEmpty,
   ToggleServiceAlive,
   ToggleServiceEnabled
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, onMounted, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
+
+  onMounted(() => $store.dispatch('cluster/getConfig', true))
+  const servers = computed(() => Object.keys($store.state.cluster.servers))
+  const services = computed(() => $store.getters['cluster/servicesByServer'])
+  const serviceFields = computed(() => {
+    return [
+      {
+        key: 'service',
+        label: i18n.t('Service'),
+        sortable: true,
+        visible: true
+      },
+      ...servers.value.map(server => ({
+        key: server,
+        label: server,
+        visible: true,
+        tdClass: 'p-0'
+      })),
+      {
+        key: 'actions',
+        label: 'CLUSTER',
+        visible: true
+      }
+    ]
+  })
+  const serviceItems = computed(() => {
+    return Object.keys(services.value).map(service => {
+      return {
+        service,
+        ...services.value[service],
+        canEnable: Object.values(services.value[service]).filter(service => !service.enabled).length > 0,
+        canDisable: Object.values(services.value[service]).filter(service => service.enabled).length > 0,
+        canRestart: Object.values(services.value[service]).filter(service => service.alive && service.pid).length > 0,
+        canStart: Object.values(services.value[service]).filter(service => !(service.alive && service.pid)).length > 0,
+        canStop: Object.values(services.value[service]).filter(service => service.alive && service.pid).length > 0,
+      }
+    })
+  })
+
 
   const fields = computed(() => ([
     {
@@ -194,7 +280,12 @@ const setup = (props, context) => {
     stopAllServices,
     startAllServices,
     restartAllServices,
-    isBlacklisted
+    isBlacklisted,
+
+    serviceFields,
+    serviceItems,
+    servers,
+    services
   }
 }
 

@@ -178,10 +178,11 @@ const initialState = () => {
 }
 
 const getters = {
+  isCluster: state => Object.keys(state.servers).length > 1,
   isLoading: state => state.status === types.LOADING,
   servicesByServer: state => Object.keys(state.servers).reduce((services, server) => {
     Object.keys(state.servers[server].services).map(id => {
-      services[id] = { ...services[id], [server]: state.servers[server].services[id] }
+      services[id] = { ...services[id], [server]: { server, ...state.servers[server].services[id] } }
     })
     return services
   }, {})
@@ -198,7 +199,9 @@ const actions = {
         Object.keys(servers).map(server => {
           promises.push(dispatch('getServices', server))
         })
-        return Promise.all(promises).then(() => state.config)
+        return Promise.all(promises).then(() => {
+         return state.config
+        })
       }
       return state.config
     }).catch(err => {
@@ -515,6 +518,7 @@ const mutations = {
       return { ...assoc, [id]: { ...assoc[id], ...service } }
     }, state.servers[server].services)
     Vue.set(state.servers[server], 'services', _services)
+    state.status = types.SUCCESS
     state.message = ''
   },
   SERVICES_ERROR: (state, error) => {
