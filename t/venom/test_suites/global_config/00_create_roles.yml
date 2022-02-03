@@ -94,3 +94,36 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 201
 
+- name: create_inline_l2_and_radius_first_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.inline_l2_and_radius.roles.first}}",
+        "max_nodes_per_pid": 0
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_inline_l2_and_radius_second_role
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.inline_l2_and_radius.roles.second}}",
+        "max_nodes_per_pid": 0
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201

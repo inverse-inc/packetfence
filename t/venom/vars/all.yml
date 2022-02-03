@@ -557,5 +557,9 @@ inline_l2_and_radius.l2_network.lease_time: 30
 inline_l2_and_radius.roles.first: role_01
 inline_l2_and_radius.roles.second: role_02
 
->>>>>>> 6072e84eea (test suite inline_l2 with network config)
+# profiles
+inline_l2_and_radius.profiles.id: catch_wired_mac_authentication
+inline_l2_and_radius.profiles.description: Wired Mac authentication
+inline_l2_and_radius.profiles.filters.connection_type: Ethernet-NoEAP
+inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 
