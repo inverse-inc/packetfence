@@ -5,18 +5,18 @@
         <b-col cols="6">
           <b-row class="row-nowrap">
             <b-col>{{ $t('Alive') }}</b-col>
-            <b-col cols="auto">
+            <b-col cols="auto" class="text-right ml-auto">
               <b-badge v-if="service.alive && service.pid" pill variant="success">{{ service.pid }}</b-badge>
               <icon v-else class="text-danger" name="circle"/>
             </b-col>
           </b-row>
           <b-row class="row-nowrap">
             <b-col>{{ $t('Enabled') }}</b-col>
-            <b-col cols="auto"><icon :class="(service.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
+            <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
           <b-row class="row-nowrap">
             <b-col>{{ $t('Managed') }}</b-col>
-            <b-col cols="auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
+            <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
         </b-col>
         <b-col cols="6" class="text-wrap" v-if="isAllowed">
@@ -46,25 +46,25 @@
       </b-row>
       <b-row v-if="isProtected"
         class="mt-2">
-        <b-col cols="auto" class="small text-secondary">
+        <b-col class="small text-secondary">
           {{ $i18n.t('This service can not be managed since it is required for this page to function.') }}
         </b-col>
       </b-row>
       <b-row v-if="!service.alive && service.managed"
         class="mt-2">
-        <b-col cols="auto" class="small text-danger">
+        <b-col class="small text-danger">
           {{ $t('Service {name} is required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.alive && !service.managed"
         class="mt-2">
-        <b-col cols="auto" class="small text-success">
+        <b-col class="small text-success">
           {{ $t('Service {name} is not required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.message"
         class="mt-2">
-        <b-col cols="auto" class="small text-danger">
+        <b-col class="small text-danger">
           {{ service.message }}
         </b-col>
       </b-row>
@@ -144,7 +144,9 @@ const setup = (props, context) => {
 
   watch([id, server], () => {
     if (id.value && server.value && isAllowed.value && !lazy.value) {
-      $store.dispatch('cluster/getService', { server: server.value, id: id.value })
+      $store.dispatch('system/getHostname').then(() => {
+        $store.dispatch('cluster/getService', { server: server.value, id: id.value })
+      })
     }
   }, { immediate: true })
   const service = computed(() => $store.state.cluster.servers[server.value].services[id.value] || {})

@@ -11,7 +11,7 @@
         :fields="serviceFields"
         :sort-by="'service'"
         :sort-desc="false"
-        class="mb-0 table-no-overflow"
+        class="mb-0"
         show-empty
         responsive
         fixed
@@ -63,7 +63,7 @@
             class="m-1" variant="outline-primary" @click="doStopAll(service)" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-button>
         </template>
         <template v-slot:cell()="{ item, value }">
-          <base-service :id="item.service" :server="value.server" class="py-3" lazy
+          <base-service :id="item.service" :server="value.server" class="p-3" lazy
             enable disable restart start stop />
         </template>
       </b-table>

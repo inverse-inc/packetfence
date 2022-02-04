@@ -25,17 +25,10 @@ const api = (state, server = store.state.system.hostname) => {
           return item
         }
         // no cluster
-        const host = store.state.system.hostname
-        return apiCall.getQuiet('config/interfaces').then(response => {
+        return store.dispatch('system/getHostname').then(host => {
           return {
             "CLUSTER": false,
-            [host]: response.data.items.reduce((server, iface) => {
-              const { id, ipaddress: ip, netmask: mask, type } = iface
-              if (type === "management") {
-                server.management_ip = ip
-              }
-              return { ...server, [`interface ${id}`]: { ip, mask } }
-            }, { host })
+            [host]: { host, management_ip: "127.0.0.1" }
           }
         })
       })
@@ -244,6 +237,7 @@ const actions = {
     })
   },
   getService: ({ state, commit }, { server, id }) => {
+console.log('getService', {id,server})
     commit('SERVICE_REQUEST', { server, id })
     return api(state, server).service(id).then(service => {
       commit('SERVICE_SUCCESS', { server, id, service })

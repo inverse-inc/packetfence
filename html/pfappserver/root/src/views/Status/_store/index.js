@@ -55,7 +55,7 @@ const getters = {
 }
 
 const actions = {
-  allCharts: ({ state, getters, commit }) => {
+  allCharts: ({ state, commit }) => {
     if (state.allCharts.length > 0) {
       return Promise.resolve(state.allCharts)
     }

@@ -1,4 +1,3 @@
-import apiCall from '@/utils/api'
 import chartsCall from '@/utils/charts'
 
 export default {

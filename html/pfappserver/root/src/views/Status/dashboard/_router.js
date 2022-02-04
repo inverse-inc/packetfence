@@ -7,7 +7,17 @@ const TheView = () => import(/* webpackChunkName: "Status" */ './_components/The
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_status)
     store.registerModule('$_status', StoreModule)
-  next()
+  if (acl.$can('read', 'users_sources'))
+    store.dispatch('config/getSources')
+  if (acl.$can('read', 'system')) {
+    store.dispatch('system/getHostname').then(() => {
+      store.dispatch('cluster/getConfig').then(() => {
+        store.dispatch('$_status/allCharts').finally(() => next())
+      }).catch(() => next())
+    })
+  }
+  else
+    next()
 }
 
 export default [
@@ -16,20 +26,7 @@ export default [
     name: 'statusDashboard',
     component: TheView,
     props: { storeName: '$_status' },
-    beforeEnter: (to, from, next) => {
-      beforeEnter()
-      if (acl.$can('read', 'users_sources'))
-        store.dispatch('config/getSources')
-      if (acl.$can('read', 'system')) {
-        store.dispatch('system/getHostname').then(() => {
-          store.dispatch('cluster/getConfig').then(() => {
-            store.dispatch('$_status/allCharts').finally(() => next())
-          }).catch(() => next())
-        })
-      }
-      else
-        next()
-    },
+    beforeEnter,
     meta: {
       isFailRoute: true
     }
