@@ -86,7 +86,7 @@ EOT
             if (pf::cluster::getDBMaster()) {
                  push(@mysql_backend, pf::cluster::getDBMaster());
             }
-            push(@mysql_backend, $tags{'management_ip'});
+            push(@mysql_backend, $management_ip);
         } else {
             @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
         }
