@@ -16,7 +16,7 @@
 
     <form-group-sender namespace="sender"
       :column-label="$i18n.t('Sender Email Address')"
-      :text="$i18n.t('Email address of the sender of the monit alerts. When left empty, the emails address will be monit@$HOST.')"
+      :text="$i18n.t('Email address of the sender of the monit alerts. When left empty, the email address will be monit@$HOST.')"
     />
 
     <form-group-alert-email-to namespace="alert_email_to"
