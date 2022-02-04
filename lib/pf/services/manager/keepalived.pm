@@ -115,6 +115,9 @@ EOT
             my $process_tracking = "haproxy_portal";
             if ($Config{"interface $interface"}{'type'} =~ /management/i || $Config{"interface $interface"}{'type'} =~ /radius/i) {
                 $process_tracking = "radius_load_balancer";
+                if(isdisabled($Config{active_active}{centralize_vips})) {
+                    $priority = 100 - pf::cluster::cluster_index();
+                }
             }
             my $cluster_ip = pf::cluster::cluster_ip($interface);
             $tags{'vrrp'} .= <<"EOT";
