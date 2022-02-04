@@ -60,6 +60,7 @@ sub generateConfig {
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
     $tags{'timeout'} = $Config{'database_advanced'}{'net_write_timeout'} * 1000;
+    $tags{'management_ip_frontend'} = '';
     if ($OS eq 'debian') {
         $tags{'os_path'} = '/etc/haproxy/errors/';
     } else {
@@ -89,14 +90,14 @@ EOT
             push(@mysql_backend, $management_ip);
         } else {
             @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
-        }
-        $tags{'management_ip_frontend'} = <<"EOT";
+            $tags{'management_ip_frontend'} = <<"EOT";
 frontend  management_ip
     bind $management_ip:3306
     mode tcp
     option tcplog
     default_backend             mysql
 EOT
+        }
     } else {
         @mysql_backend = split(',', $Config{database_advanced}{other_members});
         push(@mysql_backend, $tags{'management_ip'});
