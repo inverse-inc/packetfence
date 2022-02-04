@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset -o pipefail -o errexit
 
 function clean() {
   rm -fr isofiles/
@@ -28,7 +29,8 @@ chmod -w -R isofiles/install.amd/
 
 cd isofiles
 chmod +w md5sum.txt
-find -follow -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt
+# The '|| echo' is there so that it always exits with 0 because find returns a non-zero status because there is debian symlink in isofiles that points to '.'
+find -follow -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt || echo
 chmod -w md5sum.txt
 cd ..
 
