@@ -69,7 +69,7 @@ FROM first_mac JOIN seq_0_to_49;`,
            FROM security_event_maintenance_test_mac_delay
             `,
 		},
-		1*time.Second,
+		2*time.Second,
 		[]sqlCountTest{
 			{
 				"delayed switch to open",
@@ -148,7 +148,7 @@ FROM first_mac JOIN seq_0_to_99;`,
            FROM security_event_maintenance_test_mac_open
             `,
 		},
-		0,
+		2*time.Second,
 		[]sqlCountTest{
 			{
 				"delayed switch to open",
@@ -238,7 +238,7 @@ FROM first_mac JOIN seq_0_to_99;
            FROM security_event_maintenance_test_mac_mixed
             `,
 		},
-		1*time.Second,
+		2*time.Second,
 		[]sqlCountTest{
 			{
 				"open to close",
