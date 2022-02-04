@@ -63,6 +63,10 @@ func BatchStmtQueryWithCount(ctx context.Context, name string, time_limit time.D
 		}
 	}
 
+	if rows_affected > -1 {
+		log.LogInfo(ctx, fmt.Sprintf("%s handled items %d", name, rows_affected))
+	}
+
 	return rows_affected
 }
 
