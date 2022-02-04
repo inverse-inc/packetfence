@@ -58,7 +58,7 @@
       </b-row>
       <b-row v-if="service.alive && !service.managed"
         class="mt-2">
-        <b-col class="small text-success">
+        <b-col class="small text-danger">
           {{ $t('Service {name} is not required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>

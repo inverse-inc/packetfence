@@ -33,6 +33,22 @@
             </template>
           </span>
         </template>
+        <template #head(actions)>
+          <b-row class="align-items-center">
+            <b-col cols="auto" class="mr-auto">CLUSTER</b-col>
+            <b-col>
+              <b-dropdown size="sm" variant="link" class="float-right">
+                <template #button-content>
+                  <icon class="ml-1" name="directions" /> {{ $t('API Redirect') }}
+                </template>
+                  <b-dropdown-item @click="setApiServer()" :active="isApiServer(null)">{{ $t('None') }}</b-dropdown-item>
+                  <b-dropdown-item v-for="({ management_ip }, server) in apiServers" :key="server" @click="setApiServer(server)" :active="isApiServer(server)">
+                    {{ server }} ({{ management_ip }})
+                  </b-dropdown-item>
+              </b-dropdown>
+            </b-col>
+          </b-row>
+        </template>
         <template #top-row v-if="selected.length">
         <base-button-bulk-actions
           :selectedItems="selectedItems" :visibleColumns="serviceFields" class="my-3" />
@@ -89,13 +105,13 @@ const components = {
   BaseTableEmpty
 }
 
-import { computed, onMounted, ref } from '@vue/composition-api'
+import { computed, customRef, onMounted, ref } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
   onMounted(() => $store.dispatch('cluster/getConfig', true))
   const isCluster = computed(() => $store.getters['cluster/isCluster'])
@@ -174,6 +190,33 @@ const setup = (props, context) => {
   const tableRef = ref(null)
   const selected = useBootstrapTableSelected(tableRef, serviceItems, 'service')
 
+  const apiServer = customRef((track, trigger) => ({
+    get() {
+      track()
+      return localStorage.getItem('X-PacketFence-Server') || null
+    },
+    set(newValue) {
+      localStorage.setItem('X-PacketFence-Server', newValue)
+      $router.go() // reload
+      trigger()
+    }
+  }))
+  const apiServers = computed(() => $store.state.cluster.servers)
+  const isApiServer = host => {
+    const { [host]: { management_ip: _apiServer = null } = {} } = $store.state.cluster.servers
+    return _apiServer === host
+  }
+  const setApiServer = (host = null) => {
+    if (host) {
+      const { [host]: { management_ip: _apiServer } = {} } = $store.state.cluster.servers
+    if (_apiServer) {
+        apiServer.value = _apiServer
+        return
+      }
+    }
+    apiServer.value = null
+  }
+
   return {
     serviceFields,
     serviceItems,
@@ -189,6 +232,11 @@ const setup = (props, context) => {
 
     tableRef,
     ...selected,
+
+    apiServer,
+    apiServers,
+    isApiServer,
+    setApiServer,
   }
 }
 
