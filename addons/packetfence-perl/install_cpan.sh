@@ -74,6 +74,11 @@ generate_pfperl_cpan_config() {
     # allow to installed outdated dists
     (echo o conf allow_installing_outdated_dists 'yes'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
 
+    # use cpan.metacpan.org to get outdated modules
+    # disable pushy_https
+    (echo o conf urllist 'https://cpan.metacpan.org'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+    (echo o conf pushy_https '0'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+
     echo "packetfence-perl CPAN config generated"
 }
 #
