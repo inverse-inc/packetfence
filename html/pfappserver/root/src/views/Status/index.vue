@@ -17,11 +17,8 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-const setup = (props, context) => {
+const setup = () => {
 
-  const { root: { $store } = {} } = context
-
-  const cluster = computed(() => $store.state.$_status.cluster || [])
   const sections = computed(() => ([
     {
       name: i18n.t('Dashboard'),

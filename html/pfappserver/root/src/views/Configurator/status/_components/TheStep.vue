@@ -43,12 +43,12 @@ const setup = (props, context) => {
   const onComplete = () => {
     isLoading.value = true
     progressFeedback.value = i18n.t('Applying configuration')
-    $store.dispatch('services/restartSystemService', 'packetfence-config').then(() => {
+    $store.dispatch('cluster/restartSystemService', { id: 'packetfence-config' }).then(() => {
       progressFeedback.value = i18n.t('Enabling PacketFence')
-      return $store.dispatch('services/updateSystemdAsync', 'pf').then(() => {
+      return $store.dispatch('cluster/updateSystemd', { id: 'pf' }).then(() => {
         progressFeedback.value = i18n.t('Starting PacketFence')
-        return $store.dispatch('services/restartServiceAsync', 'haproxy-admin').then(() => {
-          return $store.dispatch('services/startServiceAsync', 'pf').then(() => {
+        return $store.dispatch('cluster/restartService', { id: 'haproxy-admin' }).then(() => {
+          return $store.dispatch('cluster/startService', { id: 'pf' }).then(() => {
             progressFeedback.value = i18n.t('Disabling Configurator')
             return advancedPromise.then(data => {
               data.configurator = 'disabled'

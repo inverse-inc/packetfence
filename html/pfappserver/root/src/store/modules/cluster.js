@@ -6,8 +6,9 @@ import store from '@/store'
 import apiCall from '@/utils/api'
 import i18n from '@/utils/locale'
 
-const api = (state, server) => {
+const api = (state, server = store.state.system.hostname) => {
   let headers = {}
+
   if (server && state.config) { // is cluster
     const { servers: { [server]: { management_ip } = {} } = {} } = state
     if (management_ip) {
@@ -24,20 +25,18 @@ const api = (state, server) => {
           return item
         }
         // no cluster
-        return apiCall.getQuiet('config/system/hostname').then(response => {
-          const host = response.data.item
-          return apiCall.getQuiet('config/interfaces').then(response => {
-            return {
-              "CLUSTER": false,
-              [host]: response.data.items.reduce((server, iface) => {
-                const { id, ipaddress: ip, netmask: mask, type } = iface
-                if (type === "management") {
-                  server.management_ip = ip
-                }
-                return { ...server, [`interface ${id}`]: { ip, mask } }
-              }, { host })
-            }
-          })
+        const host = store.state.system.hostname
+        return apiCall.getQuiet('config/interfaces').then(response => {
+          return {
+            "CLUSTER": false,
+            [host]: response.data.items.reduce((server, iface) => {
+              const { id, ipaddress: ip, netmask: mask, type } = iface
+              if (type === "management") {
+                server.management_ip = ip
+              }
+              return { ...server, [`interface ${id}`]: { ip, mask } }
+            }, { host })
+          }
         })
       })
     },
@@ -178,7 +177,7 @@ export const protectedServices = [ // prevent start|stop|restart control on thes
 // Default values
 const initialState = () => {
   return {
-    config: {},
+    config: false,
     servers: {},
     message: '',
     status: ''
@@ -186,8 +185,9 @@ const initialState = () => {
 }
 
 const getters = {
-  isCluster: state => true /*Object.keys(state.servers).length > 1*/,
+  isCluster: state => Object.keys(state.servers).length > 1,
   isLoading: state => state.status === types.LOADING,
+  clusterIPs: state => Object.values(state.servers).map(server => server.management_ip),
   servicesByServer: state => {
     return Object.entries(state.servers).reduce((sorted, [server, {services = {}}]) => {
       return Object.entries(services).reduce((sorted, [id, service]) => {
@@ -617,7 +617,6 @@ const mutations = {
     Vue.set(state.servers[server].services[id], 'status', types.ERROR)
     const { message } = error
     if (message) {
-console.log('message', message)
       error = (message.consructor === String) ? JSON.parse(message) : message
       Vue.set(state.servers[server].services[id], 'message', error)
     }

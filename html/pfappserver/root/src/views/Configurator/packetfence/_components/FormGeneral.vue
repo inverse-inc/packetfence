@@ -93,7 +93,7 @@ export const setup = (props, context) => {
           .then(() => {
             state.value.general = form.value
             if (restartMariaDB)
-              return $store.dispatch('services/restartSystemService', { id: 'packetfence-mariadb', quiet: true })
+              return $store.dispatch('cluster/restartSystemService', { id: 'packetfence-mariadb' })
           })
           .catch(error => {
             const { response: { config: { url } = {}, data: { errors = [], message = '' } = {} } = {} } = error

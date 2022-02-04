@@ -21,9 +21,11 @@ export default [
       if (acl.$can('read', 'users_sources'))
         store.dispatch('config/getSources')
       if (acl.$can('read', 'system')) {
-        store.dispatch('$_status/getCluster').then(() => {
-          store.dispatch('$_status/allCharts').finally(() => next())
-        }).catch(() => next())
+        store.dispatch('system/getHostname').then(() => {
+          store.dispatch('cluster/getConfig').then(() => {
+            store.dispatch('$_status/allCharts').finally(() => next())
+          }).catch(() => next())
+        })
       }
       else
         next()

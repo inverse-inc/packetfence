@@ -59,7 +59,7 @@ const setup = (props, context) => {
   const alarmsInterval = ref(60 * 1E3) // 60s
 
   const chartsError = computed(() => !$store.state.session.charts)
-  const cluster = computed(() => ($store.state['$_status']) ? $store.state['$_status'].cluster : [])
+  const cluster = computed(() => $store.state.cluster.servers)
   const filteredSections = computed(() => { // filter out empty sections
     const isValid = chart => {
       const uniqueCharts = $store.getters[`$_status/uniqueCharts`]
@@ -108,7 +108,7 @@ const setup = (props, context) => {
       pingNetdataTimer.value = setTimeout(pingNetdata, pingNetdataInterval.value)
     } else if (acl.$can('read', 'services')) {
       // No charts yet
-      $store.dispatch('services/getService', 'netdata').then(service => {
+      $store.dispatch('cluster/getService', { server: $store.state.system.hostname, id: 'netdata' }).then(service => {
         if (service.alive) {
           setTimeout(() => {
             $store.dispatch(`$_status/allCharts`).then(() => {
@@ -126,7 +126,7 @@ const setup = (props, context) => {
 
   const getAlarms = () => {
     if ($store.state['$_status'].allCharts) {
-      cluster.value.forEach(({ management_ip: ip }) => {
+      Object.values(cluster.value).forEach(({ management_ip: ip }) => {
         $store.dispatch(`$_status/alarms`, ip).then(({ hostname, alarms = {} } = {}) => {
           Object.keys(alarms).forEach(url => {
             const alarm = alarms[url]
@@ -167,7 +167,7 @@ const setup = (props, context) => {
     if (mode === modes.COMBINED) {
       // Cluster data is aggregated into one chart
       hosts = [$store.getters[`$_status/hostsForChart`](metric).map(host => `/netdata/${host}`).join(',')]
-      params['friendly-host-names'] = cluster.value.filter(server => {
+      params['friendly-host-names'] = Object.values(cluster.value).filter(server => {
         return $store.getters[`$_status/hostsForChart`](metric).includes(server.management_ip)
       }).map(server => {
         return `/netdata/${server.management_ip}=${server.host}`
