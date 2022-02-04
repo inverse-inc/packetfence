@@ -167,6 +167,14 @@ const types = {
   ERROR: 'error'
 }
 
+export const protectedServices = [ // prevent start|stop|restart control on these services
+  'api-frontend',
+  'pf',
+  'pfperl-api',
+  'haproxy-admin',
+  'httpd.admin_dispatcher'
+]
+
 // Default values
 const initialState = () => {
   return {
@@ -178,14 +186,28 @@ const initialState = () => {
 }
 
 const getters = {
-  isCluster: state => Object.keys(state.servers).length > 1,
+  isCluster: state => true /*Object.keys(state.servers).length > 1*/,
   isLoading: state => state.status === types.LOADING,
-  servicesByServer: state => Object.keys(state.servers).reduce((services, server) => {
-    Object.keys(state.servers[server].services).map(id => {
-      services[id] = { ...services[id], [server]: { server, ...state.servers[server].services[id] } }
-    })
-    return services
-  }, {})
+  servicesByServer: state => {
+    return Object.entries(state.servers).reduce((sorted, [server, {services = {}}]) => {
+      return Object.entries(services).reduce((sorted, [id, service]) => {
+        return {
+          ...sorted,
+          [id]: {
+            servers: {
+               ...((id in sorted) ? sorted[id].servers : {} ),
+              [server]: service
+            },
+            hasAlive: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.alive && service.pid) > -1,
+            hasDead: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !(service.alive || service.pid)) > -1,
+            hasEnabled: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.enabled) > -1,
+            hasDisabled: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !service.enabled) > -1,
+            isProtected: !!protectedServices.find(listed => listed === id)
+          }
+        }
+      }, sorted)
+    }, {})
+  }
 }
 
 const actions = {
@@ -593,7 +615,15 @@ const mutations = {
   SERVICE_ERROR: (state, { server, id, error }) => {
     state.status = types.ERROR
     Vue.set(state.servers[server].services[id], 'status', types.ERROR)
-    Vue.set(state.servers[server].services[id], 'message', error)
+    const { message } = error
+    if (message) {
+console.log('message', message)
+      error = (message.consructor === String) ? JSON.parse(message) : message
+      Vue.set(state.servers[server].services[id], 'message', error)
+    }
+    else {
+      Vue.set(state.servers[server].services[id], 'message', error)
+    }
   },
 
   SYSTEM_SERVICE_RESTARTING: state => {

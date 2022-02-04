@@ -1,6 +1,6 @@
 <template>
-  <b-overlay :show="service.status && !['success', 'error'].includes(service.status)">
-    <b-container fluid>
+  <b-overlay :show="service.status && !['success', 'error'].includes(service.status)" variant="white">
+    <b-container fluid class="px-0">
       <b-row class="row-nowrap" align-v="start">
         <b-col cols="6">
           <b-row class="row-nowrap">
@@ -19,45 +19,69 @@
             <b-col cols="auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
         </b-col>
-        <b-col cols="6" v-if="!isBlacklisted && isAllowed">
+        <b-col cols="6" class="text-wrap" v-if="isAllowed">
           <template>
-            <b-button v-if="!service.enabled"
+            <b-button v-if="enable && !service.enabled"
               @click="doEnable(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
               <icon name="toggle-on" class="mr-1" /> {{ $t('Enable') }}
             </b-button>
-            <b-button v-if="service.enabled"
+            <b-button v-if="disable && service.enabled"
               @click="doDisable(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
               <icon name="toggle-off" class="mr-1" /> {{ $t('Disable') }}
             </b-button>
-            <b-button v-if="service.alive && service.pid"
+            <b-button v-if="restart && service.alive && service.pid && !isProtected "
               @click="doRestart(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
               <icon name="redo" class="mr-1" /> {{ $t('Restart') }}
             </b-button>
-            <b-button v-if="!(service.alive && service.pid)"
+            <b-button v-if="start && !(service.alive && service.pid) && !isProtected "
               @click="doStart(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
               <icon name="play" class="mr-1" /> {{ $t('Start') }}
             </b-button>
-            <b-button v-if="service.alive && service.pid"
+            <b-button v-if="stop && service.alive && service.pid && !isProtected "
               @click="doStop(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
               <icon name="stop" class="mr-1" /> {{ $t('Stop') }}
             </b-button>
           </template>
         </b-col>
       </b-row>
-      <b-alert v-if="service.message && ['success', 'error'].includes(service.status)"
-        show class="small mb-0" :class="(service.status === 'error') ? 'text-danger' : 'text-secondary'">
-        {{ service.message }}
-      </b-alert>
+      <b-row v-if="isProtected"
+        class="mt-2">
+        <b-col cols="auto" class="small text-secondary">
+          {{ $i18n.t('This service can not be managed since it is required for this page to function.') }}
+        </b-col>
+      </b-row>
+      <b-row v-if="!service.alive && service.managed"
+        class="mt-2">
+        <b-col cols="auto" class="small text-danger">
+          {{ $t('Service {name} is required with this configuration.', { name: service.id }) }}
+        </b-col>
+      </b-row>
+      <b-row v-if="service.alive && !service.managed"
+        class="mt-2">
+        <b-col cols="auto" class="small text-success">
+          {{ $t('Service {name} is not required with this configuration.', { name: service.id }) }}
+        </b-col>
+      </b-row>
+      <b-row v-if="service.message"
+        class="mt-2">
+        <b-col cols="auto" class="small text-danger">
+          {{ service.message }}
+        </b-col>
+      </b-row>
     </b-container>
     <template v-slot:overlay v-if="service.status && !['loading'].includes(service.status)">
-      <b-media class="text-uppercase font-weight-bold">
-        <template v-slot:aside><icon name="circle-notch" spin scale="1.5" /></template>
-        <h6 v-if="service.status === 'disabling'" class="my-2">{{ $i18n.t('Disabling') }}</h6>
-        <h6 v-if="service.status === 'enabling'" class="my-2">{{ $i18n.t('Enabling') }}</h6>
-        <h6 v-if="service.status === 'restarting'" class="my-2">{{ $i18n.t('Restarting') }}</h6>
-        <h6 v-if="service.status === 'starting'" class="my-2">{{ $i18n.t('Starting') }}</h6>
-        <h6 v-if="service.status === 'stopping'" class="my-2">{{ $i18n.t('Stopping') }}</h6>
-      </b-media>
+      <b-row class="justify-content-md-center">
+        <b-col cols="auto">
+          <b-media class="text-gray text-uppercase font-weight-bold">
+            <template v-slot:aside><icon name="circle-notch" spin scale="1.5" /></template>
+            <p v-if="service.status === 'disabling'" class="mb-0">{{ $i18n.t('Disabling') }}</p>
+            <p v-if="service.status === 'enabling'" class="mb-0">{{ $i18n.t('Enabling') }}</p>
+            <p v-if="service.status === 'restarting'" class="mb-0">{{ $i18n.t('Restarting') }}</p>
+            <p v-if="service.status === 'starting'" class="mb-0">{{ $i18n.t('Starting') }}</p>
+            <p v-if="service.status === 'stopping'" class="mb-0">{{ $i18n.t('Stopping') }}</p>
+          </b-media>
+        </b-col>
+      </b-row>
     </template>
   </b-overlay>
 </template>
@@ -69,7 +93,19 @@ const props = {
   server: {
     type: String
   },
-  disabled: {
+  enable: {
+    type: Boolean
+  },
+  disable: {
+    type: Boolean
+  },
+  restart: {
+    type: Boolean
+  },
+  start: {
+    type: Boolean
+  },
+  stop: {
     type: Boolean
   },
   acl: {
@@ -82,7 +118,7 @@ const props = {
 }
 
 import { computed, toRefs, watch } from '@vue/composition-api'
-import { blacklistedServices } from '@/store/modules/services'
+import { protectedServices } from '@/store/modules/cluster'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 
@@ -91,7 +127,6 @@ const setup = (props, context) => {
   const {
     id,
     server,
-    disabled,
     lazy,
     acl: _acl
   } = toRefs(props)
@@ -108,16 +143,14 @@ const setup = (props, context) => {
   })
 
   watch([id, server], () => {
-    if (isAllowed.value && !lazy.value) {
+    if (id.value && server.value && isAllowed.value && !lazy.value) {
       $store.dispatch('cluster/getService', { server: server.value, id: id.value })
     }
   }, { immediate: true })
-  const service = computed(() => $store.state.cluster.servers[server.value].services[id.value])
-
-  const isBlacklisted = computed(() => !!blacklistedServices.find(bls => bls === id.value))
+  const service = computed(() => $store.state.cluster.servers[server.value].services[id.value] || {})
+  const isProtected = computed(() => !!protectedServices.find(listed => listed === id.value))
   const isCluster = computed(() => $store.getters['cluster/isCluster'])
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
-  const isDisabled = computed(() => disabled.value || !isAllowed.value)
 
   const doEnable = () => $store.dispatch('cluster/enableService', { server: server.value, id: id.value }).then(() => {
     $store.dispatch('notification/info', { url: server.value, message: i18n.t('Service <code>{service}</code> enabled.', { service: id.value }) })
@@ -158,10 +191,9 @@ const setup = (props, context) => {
     service,
 
     isAllowed,
-    isBlacklisted,
+    isProtected,
     isCluster,
     isLoading,
-    isDisabled,
 
     doEnable,
     doDisable,

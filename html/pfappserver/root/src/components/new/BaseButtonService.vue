@@ -22,21 +22,17 @@
       </div>
     </template>
 
-    <b-dropdown-text v-if="isBlacklisted"
-      class="small">
-      {{ $t('This service must be managed from the command-line.') }}
-    </b-dropdown-text>
-    <b-dropdown-group v-else-if="isAllowed && isCluster"
+    <b-dropdown-group v-if="isAllowed && isCluster"
       :header="$i18n.t('CLUSTER')">
-      <b-dropdown-item v-if="enable && Object.keys(servers).filter(server => !servers[server].enabled).length"
+      <b-dropdown-item v-if="enable && cluster.hasDisabled"
         @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="disable && Object.keys(servers).filter(server => servers[server].enabled).length"
+      <b-dropdown-item v-if="disable && cluster.hasEnabled"
         @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="restart && Object.keys(servers).filter(server => (servers[server].alive && servers[server].pid)).length"
+      <b-dropdown-item v-if="restart && cluster.hasAlive"
         @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="start && Object.keys(servers).filter(server => !(servers[server].alive && servers[server].pid)).length"
+      <b-dropdown-item v-if="start && cluster.hasDead"
         @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
-      <b-dropdown-item v-if="stop && Object.keys(servers).filter(server => (servers[server].alive && servers[server].pid)).length"
+      <b-dropdown-item v-if="stop && cluster.hasAlive"
         @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
     </b-dropdown-group>
 
@@ -45,62 +41,9 @@
       <b-dropdown-group :key="`group-${server}`">
        <template v-slot:header>
          {{ server }}
-         <div v-if="!['loading', 'success', 'error'].includes(service.status)"
-          class="d-inline float-right">
-            <icon name="circle-notch" spin class="mr-1" />
-            <span v-if="service.status === 'disabling'">{{ $i18n.t('Disabling') }}...</span>
-            <span v-if="service.status === 'enabling'">{{ $i18n.t('Enabling') }}...</span>
-            <span v-if="service.status === 'restarting'">{{ $i18n.t('Restarting') }}...</span>
-            <span v-if="service.status === 'starting'">{{ $i18n.t('Starting') }}...</span>
-            <span v-if="service.status === 'stopping'">{{ $i18n.t('Stopping') }}...</span>
-          </div>
         </template>
         <b-dropdown-form style="width: 400px;">
-          <b-row class="row-nowrap" align-v="start">
-            <b-col cols="6">
-              <b-row class="row-nowrap">
-                <b-col>{{ $t('Alive') }}</b-col>
-                <b-col cols="auto">
-                  <b-badge v-if="service.alive && service.pid" pill variant="success">{{ service.pid }}</b-badge>
-                  <icon v-else class="text-danger" name="circle"/>
-                </b-col>
-              </b-row>
-              <b-row class="row-nowrap">
-                <b-col>{{ $t('Enabled') }}</b-col>
-                <b-col cols="auto"><icon :class="(service.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
-              </b-row>
-              <b-row class="row-nowrap">
-                <b-col>{{ $t('Managed') }}</b-col>
-                <b-col cols="auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
-              </b-row>
-            </b-col>
-            <b-col cols="6" v-if="!isBlacklisted && isAllowed">
-              <b-button v-if="enable && !service.enabled"
-                @click="doEnable(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
-                <icon name="toggle-on" class="mr-1" /> {{ $t('Enable') }}
-              </b-button>
-              <b-button v-if="disable && service.enabled"
-                @click="doDisable(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
-                <icon name="toggle-off" class="mr-1" /> {{ $t('Disable') }}
-              </b-button>
-              <b-button v-if="restart && service.alive && service.pid"
-                @click="doRestart(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
-                <icon name="redo" class="mr-1" /> {{ $t('Restart') }}
-              </b-button>
-              <b-button v-if="start && !(service.alive && service.pid)"
-                @click="doStart(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
-                <icon name="play" class="mr-1" /> {{ $t('Start') }}
-              </b-button>
-              <b-button v-if="stop && service.alive && service.pid"
-                @click="doStop(server)" @click.stop="onClick" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
-                <icon name="stop" class="mr-1" /> {{ $t('Stop') }}
-              </b-button>
-            </b-col>
-          </b-row>
-        </b-dropdown-form>
-        <b-dropdown-form v-if="service.message && ['success', 'error'].includes(service.status)"
-          class="small mb-0" :class="(service.status === 'error') ? 'text-danger' : 'text-secondary'">
-          {{ service.message }}
+          <base-service :id="service.id" :server="server" v-bind="{ enable, disable, restart, start, stop }" />
         </b-dropdown-form>
       </b-dropdown-group>
     </template>
@@ -108,8 +51,13 @@
 
 </template>
 <script>
+import BaseService from '@/views/Status/services/_components/BaseService'
+
+const components = {
+  BaseService
+}
+
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
-import { blacklistedServices } from '@/store/modules/services'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 
@@ -174,17 +122,23 @@ const setup = (props, context) => {
     return true
   })
 
-  const servers = computed(() => $store.getters['cluster/servicesByServer'][service.value] || {})
+  const servers = computed(() => {
+    const { [service.value]: { servers = {} } = {} } = $store.getters['cluster/servicesByServer']
+    return servers
+  })
   watch(service, () => {
     if (isAllowed.value) {
       $store.dispatch('cluster/getServiceCluster', service.value)
     }
   }, { immediate: true })
 
-  const isBlacklisted = computed(() => !!blacklistedServices.find(bls => bls === service.value))
   const isCluster = computed(() => $store.getters['cluster/isCluster'])
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
   const isDisabled = computed(() => disabled.value || !isAllowed.value || !Object.keys(servers.value).length)
+  const cluster = computed(() => {
+    const { [service.value]: cluster = {} } = $store.getters['cluster/servicesByServer']
+    return cluster
+  })
 
   const tooltip = computed(() => {
     switch (true) {
@@ -274,10 +228,10 @@ const setup = (props, context) => {
     onClick,
 
     isAllowed,
-    isBlacklisted,
     isCluster,
     isDisabled,
     isLoading,
+    cluster,
     tooltip,
 
     doEnable,
@@ -297,6 +251,7 @@ const setup = (props, context) => {
 export default {
   name: 'base-button-service',
   inheritAttrs: false,
+  components,
   props,
   setup
 }
