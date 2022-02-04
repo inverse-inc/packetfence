@@ -27,7 +27,6 @@ upload_to_sf() {
 
 mkdir -p ${SF_RESULT_DIR}
 
-# Manifest need to be generate by hand because we modify OVF during last step
 echo "===> Build ISO for release $PF_RELEASE"
 docker run --rm -e PF_RELEASE=$PF_RELEASE -e ISO_OUT="${SF_RESULT_DIR}/${ISO_NAME}" -v `pwd`:/debian-installer debian:11 /debian-installer/create-debian-installer-docker.sh
 
