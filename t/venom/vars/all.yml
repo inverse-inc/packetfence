@@ -466,6 +466,101 @@ wired_dot1x_eap_tls_scep.profiles.wired.filters.connection_sub_type: EAP-TLS
 wired_dot1x_eap_tls_scep.profiles.wired.unreg_on_acct_stop: enabled
 
 ################################################################################
+# wired_dot1x_eap_tls_pki test suite specific variables
+################################################################################
+### General settings for certs
+wired_dot1x_eap_tls_pki.certs.validity: 750
+wired_dot1x_eap_tls_pki.certs.key_size: 2048
+wired_dot1x_eap_tls_pki.certs.key_type: 1
+wired_dot1x_eap_tls_pki.certs.digest.number: 4
+wired_dot1x_eap_tls_pki.certs.digest.text: sha256WithRSAEncryption
+wired_dot1x_eap_tls_pki.certs.country: CA
+wired_dot1x_eap_tls_pki.certs.state: Quebec
+wired_dot1x_eap_tls_pki.certs.locality: Montreal
+wired_dot1x_eap_tls_pki.certs.organisation: Inverse
+wired_dot1x_eap_tls_pki.certs.organisational_unit: PacketFence
+wired_dot1x_eap_tls_pki.certs.ocsp_url: 'https://127.0.0.1:22225/api/v1/pki/ocsp'
+
+# CA
+wired_dot1x_eap_tls_pki.certs.ca.cn: InverseCA3
+wired_dot1x_eap_tls_pki.certs.ca.mail: '{{.configurator.email}}'
+
+wired_dot1x_eap_tls_pki.certs.ca.issuer: "/C={{.wired_dot1x_eap_tls_pki.certs.country}}/ST={{.wired_dot1x_eap_tls_pki.certs.state}}/L={{.wired_dot1x_eap_tls_pki.certs.locality}}/O={{.wired_dot1x_eap_tls_pki.certs.organisation}}/OU={{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_pki.certs.ca.cn}}"
+
+### Templates
+wired_dot1x_eap_tls_pki.templates.radius.name: '{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}_radius'
+wired_dot1x_eap_tls_pki.templates.http.name: '{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}_http'
+wired_dot1x_eap_tls_pki.templates.user.name: '{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}_user'
+
+# RADIUS cert
+wired_dot1x_eap_tls_pki.certs.radius.cn: '{{.wired_dot1x_eap_tls_pki.templates.radius.name}}_cert'
+wired_dot1x_eap_tls_pki.certs.radius.mail: '{{.configurator.email}}'
+wired_dot1x_eap_tls_pki.certs.radius.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}}'
+wired_dot1x_eap_tls_pki.certs.radius.ip_addresses: '{{.configurator.interfaces.mgmt.ip}}'
+
+# HTTP cert
+wired_dot1x_eap_tls_pki.certs.http.cn: '{{.wired_dot1x_eap_tls_pki.templates.http.name}}_cert'
+wired_dot1x_eap_tls_pki.certs.http.mail: '{{.configurator.email}}'
+wired_dot1x_eap_tls_pki.certs.http.dns_names: '{{.configurator.hostname}}.{{.configurator.domain}},packetfence.example.lan'
+wired_dot1x_eap_tls_pki.certs.http.ip_addresses: '{{.configurator.interfaces.mgmt.ip}},66.70.255.147,{{.configurator.interfaces.reg.ip}},{{.configurator.interfaces.iso.ip}}'
+
+# User cert
+wired_dot1x_eap_tls_pki.certs.user.cn: '{{.wired_dot1x_eap_tls_pki.templates.user.name}}_cert'
+wired_dot1x_eap_tls_pki.certs.user.extended_key_usage.number: 2
+wired_dot1x_eap_tls_pki.certs.user.extended_key_usage.text: TLS Web Client Authentication
+wired_dot1x_eap_tls_pki.certs.user.dns1: '{{.node01_hostname}}'
+wired_dot1x_eap_tls_pki.certs.user.email: '{{.node01_hostname}}@{{.configurator.domain}}'
+wired_dot1x_eap_tls_pki.certs.user.other_name: '{{.node01_hostname}}-alias@{{.configurator.domain}}'
+wired_dot1x_eap_tls_pki.certs.user.scep_enabled: 1
+wired_dot1x_eap_tls_pki.certs.user.scep_challenge_password: secret
+wired_dot1x_eap_tls_pki.certs.user.scep_days_before_renewal: 7
+wired_dot1x_eap_tls_pki.certs.user.subject: "/C={{.wired_dot1x_eap_tls_pki.certs.country}}/ST={{.wired_dot1x_eap_tls_pki.certs.state}}/L={{.wired_dot1x_eap_tls_pki.certs.locality}}/O={{.wired_dot1x_eap_tls_pki.certs.organisation}}/OU={{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_pki.certs.user.cn}}"
+
+wired_dot1x_eap_tls_pki.certs.user.subject_openssl: "C = {{.wired_dot1x_eap_tls_pki.certs.country}}, ST = {{.wired_dot1x_eap_tls_pki.certs.state}}, L = {{.wired_dot1x_eap_tls_pki.certs.locality}}, O = {{.wired_dot1x_eap_tls_pki.certs.organisation}}, OU = {{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}, CN = {{.wired_dot1x_eap_tls_pki.certs.user.cn}}"
+
+# OCSP config
+wired_dot1x_eap_tls_pki.ocsp.id: ocsp_from_cert
+wired_dot1x_eap_tls_pki.ocsp.enable: yes
+wired_dot1x_eap_tls_pki.ocsp.url: ""
+wired_dot1x_eap_tls_pki.ocsp.override_cert_url: no
+wired_dot1x_eap_tls_pki.ocsp.softfail: no
+wired_dot1x_eap_tls_pki.ocsp.timeout: 0
+wired_dot1x_eap_tls_pki.ocsp.use_nonce: yes
+
+# Roles
+wired_dot1x_eap_tls_pki.roles.ad_user.id: '{{.eap_peap.roles.ad_user.id}}'
+wired_dot1x_eap_tls_pki.roles.ad_user.notes: '{{.eap_peap.roles.ad_user.notes}}'
+wired_dot1x_eap_tls_pki.roles.ad_user.vlan_id: '{{.eap_peap.roles.ad_user.vlan_id}}'
+
+wired_dot1x_eap_tls_pki.roles.ad_machine.id: '{{.eap_peap.roles.ad_machine.id}}'
+wired_dot1x_eap_tls_pki.roles.ad_machine.notes: '{{.eap_peap.roles.ad_machine.notes}}'
+wired_dot1x_eap_tls_pki.roles.ad_machine.vlan_id: '{{.eap_peap.roles.ad_machine.vlan_id}}'
+
+wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.id: dot1x_eap_tls_pki
+wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
+wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id: 100
+
+# Sources
+wired_dot1x_eap_tls_pki.sources.eaptls.name: 'eaptlspki'
+wired_dot1x_eap_tls_pki.sources.eaptls.description: 'EAP-TLS source'
+wired_dot1x_eap_tls_pki.sources.eaptls.access_duration: '{{.access_duration.default_choice}}'
+
+wired_dot1x_eap_tls_pki.sources.ad_user.name: wired_dot1x_eap_tls_pki_user_auth
+wired_dot1x_eap_tls_pki.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
+wired_dot1x_eap_tls_pki.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
+
+wired_dot1x_eap_tls_pki.sources.ad_machine.name: wired_dot1x_eap_tls_pki_machine_auth
+wired_dot1x_eap_tls_pki.sources.ad_machine.description: '{{.ad_mgmt_ip}} machine authentication'
+wired_dot1x_eap_tls_pki.sources.ad_machine.access_duration: '{{.access_duration.default_choice}}'
+
+# Connection profiles
+wired_dot1x_eap_tls_pki.profiles.wired.id: catch_dot1x_wired_eap_tls
+wired_dot1x_eap_tls_pki.profiles.wired.description: 802.1X wired EAP-TLS
+wired_dot1x_eap_tls_pki.profiles.wired.filters.connection_type: Ethernet-EAP
+wired_dot1x_eap_tls_pki.profiles.wired.filters.connection_sub_type: EAP-TLS
+wired_dot1x_eap_tls_pki.profiles.wired.unreg_on_acct_stop: enabled
+
+################################################################################
 # pfdhcplistener_single_tenant test suite specific variables
 ################################################################################
 # node10

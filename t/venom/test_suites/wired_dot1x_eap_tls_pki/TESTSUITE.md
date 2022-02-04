@@ -1,4 +1,4 @@
-# wired_dot1x_eap_tls_manual
+# wired_dot1x_eap_tls_pki
 
 ## Requirements
 N/A

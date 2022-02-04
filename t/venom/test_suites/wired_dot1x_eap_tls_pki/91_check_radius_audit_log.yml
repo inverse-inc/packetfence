@@ -63,7 +63,7 @@ testcases:
                 {
                   "field": "connection_type",
                   "op": "equals",
-                  "value": "{{.wired_dot1x_eap_tls_manual.profiles.wired.filters.connection_type}}"
+                  "value": "{{.wired_dot1x_eap_tls_pki.profiles.wired.filters.connection_type}}"
                 }
               ]
             },
@@ -100,8 +100,8 @@ testcases:
 #      - "{{.get_id_of_radius_audit_log_entry.id_tmp}}"
 #    url: 'radius_audit_log/{{.get_id_of_radius_audit_log_entry.id_tmp}}'
 #    assertions:
-#      - result.pf_api_action_json.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"'
-#      - result.pf_api_action_json.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}"
+#      - result.pf_api_action_json.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id}}"'
+#      - result.pf_api_action_json.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_pki.profiles.wired.id}}"
 
 - name: get_login_token
   steps:
@@ -118,5 +118,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"'
-      - result.bodyjson.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}"
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id}}"'
+      - result.bodyjson.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_pki.profiles.wired.id}}"

@@ -23,7 +23,7 @@ testcases:
 #   - type: exec
 #     script: |
 #       perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::config::util \
-#       -e 'my @times = get_translatable_time("{{.wired_dot1x_eap_tls_manual.sources.eaptls.access_duration}}"); print("$times[2]$times[1]");'
+#       -e 'my @times = get_translatable_time("{{.wired_dot1x_eap_tls_pki.sources.eaptls.access_duration}}"); print("$times[2]$times[1]");'
 #     vars:
 #       translatable_time:
 #         from: result.systemout

@@ -3,12 +3,12 @@ testcases:
 - name: delete_connection_profile
   steps:
   - type: pf_api_connection_profile_delete
-    id: '{{.wired_dot1x_eap_tls_manual.profiles.wired.id}}'
+    id: '{{.wired_dot1x_eap_tls_pki.profiles.wired.id}}'
 
 - name: delete_source
   steps:
   - type: pf_api_source_delete
-    id: '{{.wired_dot1x_eap_tls_manual.sources.eaptls.name}}'
+    id: '{{.wired_dot1x_eap_tls_pki.sources.eaptls.name}}'
 
 - name: disable_ocsp
   steps:
@@ -19,4 +19,4 @@ testcases:
 - name: delete_ocsp_profile
   steps:
   - type: pf_api_radiusd_ocsp_profile_delete
-    id: '{{.wired_dot1x_eap_tls_manual.ocsp.id}}'
+    id: '{{.wired_dot1x_eap_tls_pki.ocsp.id}}'
