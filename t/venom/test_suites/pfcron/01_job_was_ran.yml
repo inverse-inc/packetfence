@@ -1,6 +1,6 @@
 name: Pfcron
 testcases:
-- name: setup pfcron and mock servers
+- name: setup_pfcron_and_mock_servers
   steps:
   - type: exec
     script: 'systemctl stop packetfence-pfcron'
@@ -12,7 +12,7 @@ testcases:
     script: 'cp "{{.pfserver_root_dir}}/t/data/pfcron-test.conf.test" "{{.pfserver_conf_dir}}/pfcron.conf"'
 
   - type: exec
-    script: '{{.ini_cmd}} {{.fingerbank_conf_dir}}/fingerbank.conf add upstream host 127.0.0.1 upstream port 3000 upstream use_https disabled'
+    script: '{{.ini_cmd}} {{.fingerbank_conf_dir}}/fingerbank.conf add upstream host {{.fingerbank_host}} upstream port {{.fingerbank_port}} upstream use_https disabled'
 
   - type: exec
     script: '{{.pfserver_pfcmd}} configreload'
@@ -26,7 +26,7 @@ testcases:
   - type: exec
     script: 'systemctl start packetfence-pfcron'
 
-- name: check pfcron run correctly
+- name: check_pfcron_run_correctly
   steps:
 
   - type: exec
