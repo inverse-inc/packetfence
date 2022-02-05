@@ -29,6 +29,7 @@ use pf::cluster;
 use File::Spec::Functions qw(catfile splitpath);
 use pf::config qw(%Config);
 use pf::util;
+use pf::log;
 use List::Util qw(any first none);
 use pf::file_paths qw(
     $captiveportal_profile_templates_path
@@ -167,6 +168,7 @@ sub new_file {
         write_file($path, {binmode => ':utf8', no_clobber => 1}, $content);
     };
     if ($@) {
+       pf::log::get_logger->error("Error writing file: $@");
        return $self->render_error(422, "Error writing to the '$file'");
     }
 
@@ -199,9 +201,10 @@ sub replace_file {
     my $content = $self->req->text;
 
     eval {
-        pf::util::safe_file_update($path, $content, ":encoding(UTF-8)");
+        write_file($path, {atomic=> 1, binmode => ':utf8', no_clobber => 0}, $content);
     };
     if ($@) {
+       pf::log::get_logger->error("Error writing file: $@");
        return $self->render_error(422, "Error writing to the '$file'");
     }
 
