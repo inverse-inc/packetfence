@@ -47,6 +47,8 @@ use pf::accounting qw(node_accounting_current_sessionid);
 use pf::SwitchSupports qw(
     WirelessDot1x
     WirelessMacAuth
+    ExternalPortal
+    WebFormRegistration
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -198,6 +200,58 @@ sub extractSsid {
         $logger->info("Unable to extract SSID of Called-Station-Id");
         return;
     }
+}
+
+=item parseExternalPortalRequest
+
+Parse external portal request using URI and it's parameters then return an hash reference with the appropriate parameters
+
+See L<pf::web::externalportal::handle>
+
+=cut
+
+sub parseExternalPortalRequest {
+    my ( $self, $r, $req ) = @_;
+    my $logger = $self->logger;
+
+    # Using a hash to contain external portal parameters
+    my %params = ();
+
+    %params = (
+        switch_id               => $req->param('ac-ip'),
+        client_mac              => clean_mac($req->param('usermac')),
+        client_ip               => $req->param('userip'),
+        ssid                    => $req->param('ssid'),
+        redirect_url            => defined($req->param('redirect-url')),
+        status_code             => '200',
+        synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
+    );
+
+    return \%params;
+}
+
+=item getAcceptForm
+
+Creates the form that should be given to the client device to trigger a reauthentication.
+
+=cut
+
+sub getAcceptForm {
+    my ( $self, $mac, $destination_url, $portalSession ) = @_;
+    my $logger = $self->logger;
+    $logger->debug("Creating web release form");
+
+    my $controller_ip = $self->{_ip};
+
+    my $html_form = qq[
+        <form name="weblogin_form" data-autosubmit="1000" method="GET" action="http://$controller_ip:8443/login?username=bob&password=bob" style="display:none">
+        </form>
+        <script src="/content/autosubmit.js" type="text/javascript"></script>
+    ];
+
+    $logger->debug("Generated the following html form : ".$html_form);
+    return $html_form;
 }
 
 =back
