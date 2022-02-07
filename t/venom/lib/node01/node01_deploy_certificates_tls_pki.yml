@@ -1,0 +1,5 @@
+executor: node01_deploy_certificates_tls_pki
+steps:
+- type: node01_deploy_certificates 
+  directory: "{{.wired_dot1x_eap_tls_pki.paths.per_client_directory}}"
+  cn: "{{.wired_dot1x_eap_tls_pki.certs.user.cn}}"

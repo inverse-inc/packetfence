@@ -1,5 +1,5 @@
 name: Deploy certificates on node01
 testcases:
-  - name: node01_deploy_certificatess
+  - name: node01_deploy_certificatess_tls_pki
     steps:
-    - type: node01_deploy_certificates
+    - type: node01_deploy_certificates_tls_pki
