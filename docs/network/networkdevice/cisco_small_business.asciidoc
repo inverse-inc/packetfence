@@ -49,7 +49,8 @@ In order to configure MAC authentication, you must enable it on each interface
 
   interface x/y/z
    dot1x host-mode multi-sessions 
-   dot1x reauthentication 
+   dot1x reauthentication
+   dot1x timeout reauth-period 10800
    dot1x timeout quiet-period 10 
    dot1x timeout server-timeout 5 
    dot1x timeout supp-timeout 3 
