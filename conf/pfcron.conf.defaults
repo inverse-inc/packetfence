@@ -712,7 +712,7 @@ description=Controls the aggregation of the bandwidth accounting records.
 # schedule
 #
 # The schedule of task
-schedule=@every 5m
+schedule=@every 1m
 #
 # batch
 #
