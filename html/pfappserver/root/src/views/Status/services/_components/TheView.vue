@@ -79,7 +79,7 @@
             class="m-1" variant="outline-primary" @click="doStopAll(service)" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-button>
         </template>
         <template v-slot:cell()="{ item, value }">
-          <base-service :id="item.service" :server="value.server" class="p-3" lazy
+          <base-service :id="item.service" :server="value.server" :key="`${value.server}-${item.service}`" class="p-3" lazy
             enable disable restart start stop />
         </template>
       </b-table>

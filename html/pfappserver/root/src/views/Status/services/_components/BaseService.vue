@@ -2,7 +2,7 @@
   <b-overlay :show="service.status && !['success', 'error'].includes(service.status)" variant="white">
     <b-container fluid class="px-0">
       <b-row class="row-nowrap" align-v="start">
-        <b-col cols="6">
+        <b-col cols="7">
           <b-row class="row-nowrap">
             <b-col>{{ $t('Alive') }}</b-col>
             <b-col cols="auto" class="text-right ml-auto">
@@ -19,26 +19,26 @@
             <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
         </b-col>
-        <b-col cols="6" class="text-wrap" v-if="isAllowed">
+        <b-col cols="5" class="text-wrap" v-if="isAllowed">
           <template>
             <b-button v-if="enable && !service.enabled"
-              @click="doEnable(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
+              @click="doEnable(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
               <icon name="toggle-on" class="mr-1" /> {{ $t('Enable') }}
             </b-button>
             <b-button v-if="disable && service.enabled"
-              @click="doDisable(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
+              @click="doDisable(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
               <icon name="toggle-off" class="mr-1" /> {{ $t('Disable') }}
             </b-button>
             <b-button v-if="restart && service.alive && service.pid && !isProtected "
-              @click="doRestart(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
+              @click="doRestart(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
               <icon name="redo" class="mr-1" /> {{ $t('Restart') }}
             </b-button>
             <b-button v-if="start && !(service.alive && service.pid) && !isProtected "
-              @click="doStart(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
+              @click="doStart(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
               <icon name="play" class="mr-1" /> {{ $t('Start') }}
             </b-button>
             <b-button v-if="stop && service.alive && service.pid && !isProtected "
-              @click="doStop(server)" :disabled="isLoading" variant="link" size="sm" class="text-secondary mr-1">
+              @click="doStop(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
               <icon name="stop" class="mr-1" /> {{ $t('Stop') }}
             </b-button>
           </template>
