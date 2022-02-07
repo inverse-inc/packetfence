@@ -11,6 +11,8 @@
       - wired_dot1x_eap_tls_manual/teardown
       - wired_dot1x_eap_tls_scep
       - wired_dot1x_eap_tls_scep/teardown
+      - wired_dot1x_eap_tls_pki
+      - wired_dot1x_eap_tls_pki/teardown
       - global_teardown
 
   tasks:
