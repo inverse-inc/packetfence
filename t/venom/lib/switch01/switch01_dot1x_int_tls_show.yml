@@ -1,4 +1,6 @@
 executor: switch01_dot1x_int_tls_show
+input:
+  vlan_id: ""
 steps:
 - type: cumulus_dot1x_int_show 
   connexion_type: TLS
@@ -7,4 +9,4 @@ steps:
   status: AUTHORIZED
   url: '{{.switch01.api.url}}/nclu/v1/rpc'
   user: "{{.switch01.api.user}}"
-  vlan_id: "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"
+  vlan_id: "{{.input.vlan_id}}"

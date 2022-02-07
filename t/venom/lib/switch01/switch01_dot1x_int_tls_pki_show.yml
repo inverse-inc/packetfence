@@ -1,0 +1,4 @@
+executor: switch01_dot1x_int_tls_pki_show
+steps:
+- type: switch01_dot1x_int_tls_show 
+  vlan_id: "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.vlan_id}}"
