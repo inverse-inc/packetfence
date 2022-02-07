@@ -18,6 +18,6 @@ Once you're setup, just run:
 
 ```
 cd addons/functions/t/
-./run-all.tests
+make test
 ```
 
