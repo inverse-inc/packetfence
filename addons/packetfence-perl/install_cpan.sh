@@ -16,6 +16,7 @@ configure_and_check() {
     ### Variables
     DISABLE_REPO="--disablerepo=packetfence"
     CPAN_BIN_PATH="/usr/bin/cpan"
+    CPAN_VERSION=2.29
 
     prepare_env
     install_requirements
@@ -58,7 +59,7 @@ upgrade_cpan() {
     (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} &> /dev/null
 
     # upgrade CPAN
-    ${CPAN_BIN_PATH} -i CPAN &> /dev/null
+    ${CPAN_BIN_PATH} -i ANDK/CPAN-${CPAN_VERSION}.tar.gz &> /dev/null
 
     # display CPAN version
     ${CPAN_BIN_PATH} -D CPAN
