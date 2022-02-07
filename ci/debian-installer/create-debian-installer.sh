@@ -27,6 +27,12 @@ echo preseed.cfg | cpio -H newc -o -A -F isofiles/install.amd/initrd
 gzip isofiles/install.amd/initrd
 chmod -w -R isofiles/install.amd/
 
+chmod a+w isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
+cp gtk.cfg isofiles/isolinux/gtk.cfg
+cp gtk.cfg isofiles/isolinux/drkgtk.cfg
+cp grub.cfg isofiles/boot/grub/grub.cfg
+chmod 0444 isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
+
 cd isofiles
 chmod +w md5sum.txt
 # The '|| echo' is there so that it always exits with 0 because find returns a non-zero status because there is debian symlink in isofiles that points to '.'
