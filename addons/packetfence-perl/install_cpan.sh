@@ -17,6 +17,7 @@ configure_and_check() {
     # dir of current script
     SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
     BASE_DIR=/usr/local/pf/lib/perl_modules
+    DUMP_FILE=${BASE_DIR}/modules_installed.csv
     DISABLE_REPO="--disablerepo=packetfence"
     CPAN_BIN_PATH="/usr/bin/cpan"
     CPAN_VERSION=2.29
@@ -72,11 +73,16 @@ upgrade_cpan() {
 # generate MyConfig.pm for packetfence-perl
 generate_pfperl_cpan_config() {
     # install modules in a specific directory
-    (echo o conf makepl_arg '"INSTALL_BASE=${BASE_DIR}"'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
-    (echo o conf mbuildpl_arg '"--install_base ${BASE_DIR}"'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+    (echo o conf makepl_arg "INSTALL_BASE=${BASE_DIR}"; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+    # hard-coded due to quotes
+    (echo o conf mbuildpl_arg '"--install_base /usr/local/pf/lib/perl_modules"' ; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
 
     # allow to installed outdated dists
     (echo o conf allow_installing_outdated_dists 'yes'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+
+    # allow to downgrade installed modules automatically
+    # assertion at end of script will check everything is expected
+    (echo o conf allow_installing_module_downgrades 'yes'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
 
     # use cpan.metacpan.org to get outdated modules
     # disable pushy_https
@@ -88,7 +94,14 @@ generate_pfperl_cpan_config() {
 
 # generate a CSV file which module name,module version
 dump_modules_installed() {
-    perl $SCRIPT_DIR/get_modules_installed.pl > ${BASE_DIR}/modules_installed.csv
+    perl $SCRIPT_DIR/get_modules_installed.pl > ${DUMP_FILE}
+}
+
+check_module_installed() {
+    local mod_name=$1
+    local mod_version=$2
+
+    grep "$mod_name,$mod_version" ${DUMP_FILE}
 }
 
 #
@@ -153,8 +166,9 @@ OLDIFS=$IFS
 IFS=','
 while read cpanName cpanVersion cpanInstall cpanTest cpanAll
 do
-  ListCsvModInstall+=( $cpanInstall )
   ListCsvModName+=( $cpanName )
+  ListCsvModVersion+=( $cpanVersion )
+  ListCsvModInstall+=( $cpanInstall )
   if [[ $cpanTest != "True" && $cpanTest != "False" ]]; then
      echo "$cpanTest for $cpanName is not valid, it will be equal to true"
      cpanTest="True"
@@ -182,3 +196,25 @@ done
 date >> ${InstallPath}/date.log
 
 dump_modules_installed
+
+#
+# Assertions
+# Parse all modules in source CSV file and assert they are installed at correct version
+# based on dump
+
+install_status=0
+for i in ${!ListCsvModInstall[@]}
+do
+    if ! check_module_installed ${ListCsvModName[$i]} ${ListCsvModVersion[$i]}; then
+        echo "${ListCsvModName[$i]} ${ListCsvModVersion[$i]} not found installed in ${DUMP_FILE}"
+        install_status=1
+    fi
+done
+
+if [ "$install_status" -eq 0 ]; then
+    echo "All good, ready to package packetfence-perl"
+    exit 0
+else
+    echo "Some modules are not installed correctly"
+    exit 1
+fi
