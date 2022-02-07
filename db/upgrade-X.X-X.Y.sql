@@ -243,7 +243,7 @@ BEGIN
             SET @count = -1;
             ROLLBACK;
         END;
-        EXECUTE IMMEDIATE 'INSERT to_delete_bandwidth_accounting_radius_to_history SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" LIMIT ? FOR UPDATE' USING @end_bucket, @batch;
+        EXECUTE IMMEDIATE 'INSERT to_delete_bandwidth_accounting_radius_to_history SELECT node_id, tenant_id, mac, time_bucket, ROUND_TO_HOUR(time_bucket) as new_time_bucket, unique_session_id, in_bytes, out_bytes, total_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < ? AND last_updated = "0000-00-00 00:00:00" ORDER BY time_bucket LIMIT ? FOR UPDATE' USING @end_bucket, @batch;
         SELECT COUNT(*) INTO @count FROM to_delete_bandwidth_accounting_radius_to_history;
 
         IF @count > 0 THEN
@@ -258,6 +258,7 @@ BEGIN
                  sum(out_bytes) AS out_bytes
                 FROM to_delete_bandwidth_accounting_radius_to_history
                 GROUP BY node_id, new_time_bucket
+                HAVING SUM(in_bytes) != 0 OR sum(out_bytes) != 0
                 ON DUPLICATE KEY UPDATE
                     in_bytes = in_bytes + VALUES(in_bytes),
                     out_bytes = out_bytes + VALUES(out_bytes)
