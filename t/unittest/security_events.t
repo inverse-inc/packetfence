@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 26;
 use Test2::Tools::Compare qw(bag item end);
 use_ok('pf::security_event');
 
@@ -110,7 +110,7 @@ is($security_events[0], "1100014");
     }
 );
 is(@security_events, 1);
-is($security_events[0], "1100017");
+is($security_events[0], "1100018");
 
 #This test will running last
 use Test::NoWarnings;
