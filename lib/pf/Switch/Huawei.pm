@@ -27,6 +27,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $SSID
+    $WEBAUTH_WIRELESS
 );
 sub description { 'Huawei AC6605' }
 
