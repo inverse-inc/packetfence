@@ -1481,7 +1481,7 @@ all:
             ip_iso: '172.18.137.34'
       _jsemaan:
         vars:
-          rhel_sub_secret_id: ''
+          rhel_sub_secret_id: '99d6f340-a3cb-471d-bcc2-b5c8af02428a'
           fingerbank_api_key:
             secret_id: '22f6cf2d-3603-44aa-9789-7727e55df1ce'
             email: 'jul.semaan@gmail.com'

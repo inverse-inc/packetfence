@@ -1,0 +1,85 @@
+#!/bin/bash
+
+set -o nounset -o pipefail -o errexit
+
+source /usr/local/pf/t/addons-functions/vars.tests
+
+source /usr/local/pf/addons/functions/helpers.functions
+
+function test_prompt() {
+  export -f prompt
+  echo "y" | prompt "Test prompt" > /dev/null || failed_test "Saying 'y' to a prompt returns 0"
+  
+  ret=0
+  echo "n" | prompt "Test prompt" > /dev/null || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "Saying 'n' to a prompt returns 1"
+
+  ret=0
+  echo "yes" | timeout 1 bash -c 'prompt "Test prompt"' > /dev/null || ret="$?"
+  [[ "$ret" -eq 124 ]] || failed_test "Saying 'yes' to a prompt should not be accepted as an input"
+  
+  ret=0
+  echo "no" | timeout 1 bash -c 'prompt "Test prompt"' > /dev/null || ret="$?"
+  [[ "$ret" -eq 124 ]] || failed_test "Saying 'no' to a prompt should not be accepted as an input"
+  
+  ret=0
+  echo "banana" | timeout 1 bash -c 'prompt "Test prompt"' > /dev/null || ret="$?"
+  [[ "$ret" -eq 124 ]] || failed_test "Saying 'banana' to a prompt should not be accepted as an input"
+}
+
+function test_versions_since() {
+  versions_since "10.3.0" | grep '^11.0 11.1' > /dev/null || failed_test "versions_since returns the right values for a patch version"
+  versions_since "10.3" | grep '^11.0 11.1' > /dev/null || failed_test "versions_since returns the right values for a minor version"
+}
+
+function test_os_detection() {
+  if ! is_rpm_based && ! is_deb_based; then
+    failed_test "Wasn't able to detect this is a deb or rpm operating system"
+  fi
+
+  if is_rpm_based && is_deb_based; then
+    failed_test "Detected that this is a deb and rpm operating system"
+  fi
+
+}
+
+function test_is_enabled() {
+  is_enabled "yes" || failed_test "'yes' is a true value for is_enabled"
+  is_enabled "enabled" || failed_test "'enabled' is a true value for is_enabled"
+
+  ret=0
+  is_enabled "no" || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "'no' is not a true value for is_enabled"
+  
+  ret=0
+  is_enabled "y" || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "'y' is not a true value for is_enabled"
+  
+  ret=0
+  is_enabled "disabled" || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "'disabled' is not a true value for is_enabled"
+
+  ret=0
+  is_enabled "true" || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "'true' is not a true value for is_enabled"
+
+  ret=0
+  is_enabled "false" || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "'false' is not a true value for is_enabled"
+
+  ret=0
+  is_enabled "banana" || ret="$?"
+  [[ "$ret" -eq 1 ]] || failed_test "'banana' is not a true value for is_enabled"
+}
+
+function run_helpers_tests() {
+  echo "==> Starting helpers tests"
+  test_versions_since
+  test_prompt
+  test_os_detection
+  test_is_enabled
+  echo "==> Completed helpers tests"
+}
+
+
+run_helpers_tests

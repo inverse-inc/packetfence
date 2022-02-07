@@ -352,6 +352,10 @@ binary-arch: build install
 	# Venom
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/venom/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/venom/utils/*.sh
+
+	# export/import unit tests
+	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/addons-functions/*.tests
+
 	# Addon Stress-tester
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/stress-tester/dhcp_test
 	# packetfence pkg
