@@ -4,20 +4,20 @@ testcases:
 - name: prepare_vars
   steps:
   - type: exec
-    script: cp /usr/local/pf/t/addons-functions/vars.tests.ci-el8 /usr/local/pf/t/addons-functions/vars.tests
+    script: cp {{.pfserver_test_dir}}/addons-functions/vars.tests.ci {{.pfserver_test_dir}}/addons-functions/vars.tests
   - type: exec
-    script: "sed -i 's#%%TEST_INTERFACE%%#{{ .pfserver_mgmt_interface }}#g' /usr/local/pf/t/addons-functions/vars.tests"
+    script: "sed -i 's#%%TEST_INTERFACE%%#{{.pfserver_mgmt_interface}}#g' {{.pfserver_test_dir}}/addons-functions/vars.tests"
   - type: exec
-    script: "sed -i 's#%%TEST_INTERFACE_IP%%#{{ .pfserver_mgmt_ip }}#g' /usr/local/pf/t/addons-functions/vars.tests"
+    script: "sed -i 's#%%TEST_INTERFACE_IP%%#{{.pfserver_mgmt_ip}}#g' {{.pfserver_test_dir}}/addons-functions/vars.tests"
   - type: exec
-    script: "sed -i 's#%%TEST_INTERFACE_CIDR%%#{{ .pfserver_mgmt_cidr }}#g' /usr/local/pf/t/addons-functions/vars.tests"
+    script: "sed -i 's#%%TEST_INTERFACE_CIDR%%#{{.pfserver_mgmt_cidr}}#g' {{.pfserver_test_dir}}/addons-functions/vars.tests"
   - type: exec
-    script: "sed -i 's#%%TEST_INTERFACE_NETMASK%%#{{ .pfserver_mgmt_netmask }}#g' /usr/local/pf/t/addons-functions/vars.tests"
+    script: "sed -i 's#%%TEST_INTERFACE_NETMASK%%#{{.pfserver_mgmt_netmask}}#g' {{.pfserver_test_dir}}/addons-functions/vars.tests"
   - type: exec
-    script: "sed -i 's#%%TEST_INTERFACE_NETWORK%%#{{ .pfserver_mgmt_net }}#g' /usr/local/pf/t/addons-functions/vars.tests"
+    script: "sed -i 's#%%TEST_INTERFACE_NETWORK%%#{{.pfserver_mgmt_net}}#g' {{.pfserver_test_dir}}/addons-functions/vars.tests"
 
 - name: run_addons_functions_tests
   steps:
   - type: exec
-    script: make -C /usr/local/pf/t/addons-functions test
+    script: make -C {{.pfserver_test_dir}}/addons-functions test
 
