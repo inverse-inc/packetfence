@@ -509,13 +509,13 @@ wired_dot1x_eap_tls_pki.certs.user.cn: '{{.wired_dot1x_eap_tls_pki.templates.use
 wired_dot1x_eap_tls_pki.certs.user.extended_key_usage.number: 2
 wired_dot1x_eap_tls_pki.certs.user.extended_key_usage.text: TLS Web Client Authentication
 wired_dot1x_eap_tls_pki.certs.user.dns1: '{{.node01_hostname}}'
+wired_dot1x_eap_tls_pki.certs.user.mail: '{{.configurator.email}}'
 wired_dot1x_eap_tls_pki.certs.user.email: '{{.node01_hostname}}@{{.configurator.domain}}'
 wired_dot1x_eap_tls_pki.certs.user.other_name: '{{.node01_hostname}}-alias@{{.configurator.domain}}'
 wired_dot1x_eap_tls_pki.certs.user.scep_enabled: 1
 wired_dot1x_eap_tls_pki.certs.user.scep_challenge_password: secret
 wired_dot1x_eap_tls_pki.certs.user.scep_days_before_renewal: 7
 wired_dot1x_eap_tls_pki.certs.user.subject: "/C={{.wired_dot1x_eap_tls_pki.certs.country}}/ST={{.wired_dot1x_eap_tls_pki.certs.state}}/L={{.wired_dot1x_eap_tls_pki.certs.locality}}/O={{.wired_dot1x_eap_tls_pki.certs.organisation}}/OU={{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_pki.certs.user.cn}}"
-
 wired_dot1x_eap_tls_pki.certs.user.subject_openssl: "C = {{.wired_dot1x_eap_tls_pki.certs.country}}, ST = {{.wired_dot1x_eap_tls_pki.certs.state}}, L = {{.wired_dot1x_eap_tls_pki.certs.locality}}, O = {{.wired_dot1x_eap_tls_pki.certs.organisation}}, OU = {{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}, CN = {{.wired_dot1x_eap_tls_pki.certs.user.cn}}"
 
 # OCSP config
@@ -559,6 +559,10 @@ wired_dot1x_eap_tls_pki.profiles.wired.description: 802.1X wired EAP-TLS
 wired_dot1x_eap_tls_pki.profiles.wired.filters.connection_type: Ethernet-EAP
 wired_dot1x_eap_tls_pki.profiles.wired.filters.connection_sub_type: EAP-TLS
 wired_dot1x_eap_tls_pki.profiles.wired.unreg_on_acct_stop: enabled
+
+# Path to client certificates
+wired_dot1x_eap_tls_pki.paths.clients_directory: /root/client_certificates
+wired_dot1x_eap_tls_pki.paths.per_client_directory: '{{.wired_dot1x_eap_tls_pki.paths.clients_directory}}/{{.wired_dot1x_eap_tls_pki.certs.user.cn}}'
 
 ################################################################################
 # pfdhcplistener_single_tenant test suite specific variables
