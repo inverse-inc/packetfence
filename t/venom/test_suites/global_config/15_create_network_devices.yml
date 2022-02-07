@@ -236,6 +236,10 @@ testcases:
         "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}Role": null,
         "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}Url": null,
         "{{.wireless_dot1x_eap_peap.roles.ad_user.id}}Vlan": "{{.wireless_dot1x_eap_peap.roles.ad_user.vlan_id}}",
+        "{{.wireless_dot1x_eap_tls_pki.roles.ad_user.id}}AccessList": null,
+        "{{.wireless_dot1x_eap_tls_pki.roles.ad_user.id}}Role": null,
+        "{{.wireless_dot1x_eap_tls_pki.roles.ad_user.id}}Url": null,
+        "{{.wireless_dot1x_eap_tls_pki.roles.ad_user.id}}Vlan": "{{.wireless_dot1x_eap_tls_pki.roles.ad_user.vlan_id}}",
         "mode": "production",
         "port_trigger": null,
         "radiusSecret": "{{.wireless_switch_group.radiusSecret}}",
@@ -287,3 +291,4 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+
