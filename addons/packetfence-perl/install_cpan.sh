@@ -14,6 +14,9 @@ fi
 # ===== FUNCTIONS =====
 configure_and_check() {
     ### Variables
+    # dir of current script
+    SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
+    BASE_DIR=/usr/local/pf/lib/perl_modules
     DISABLE_REPO="--disablerepo=packetfence"
     CPAN_BIN_PATH="/usr/bin/cpan"
     CPAN_VERSION=2.29
@@ -25,9 +28,9 @@ configure_and_check() {
 
 prepare_env() {
     # ===== PREPARE ENV =====
-    mkdir -p /usr/local/pf/lib/perl_modules/lib/perl5/
+    mkdir -p ${BASE_DIR}/lib/perl5/
     # to find already downloaded Perl modules
-    export PERL5LIB=/root/perl5/lib/perl5:/usr/local/pf/lib/perl_modules/lib/perl5/
+    export PERL5LIB=/root/perl5/lib/perl5:${BASE_DIR}/lib/perl5/
     export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
     TestPerlConfig=$(perl -e exit)
     if [[ "$TestPerlConfig" != "" ]]; then
@@ -69,8 +72,8 @@ upgrade_cpan() {
 # generate MyConfig.pm for packetfence-perl
 generate_pfperl_cpan_config() {
     # install modules in a specific directory
-    (echo o conf makepl_arg 'INSTALL_BASE=/usr/local/pf/lib/perl_modules'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
-    (echo o conf mbuildpl_arg '"--install_base /usr/local/pf/lib/perl_modules"'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+    (echo o conf makepl_arg '"INSTALL_BASE=${BASE_DIR}"'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
+    (echo o conf mbuildpl_arg '"--install_base ${BASE_DIR}"'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
 
     # allow to installed outdated dists
     (echo o conf allow_installing_outdated_dists 'yes'; echo o conf commit)|${CPAN_BIN_PATH} &> /dev/null
@@ -82,6 +85,12 @@ generate_pfperl_cpan_config() {
 
     echo "packetfence-perl CPAN config generated"
 }
+
+# generate a CSV file which module name,module version
+dump_modules_installed() {
+    perl $SCRIPT_DIR/get_modules_installed.pl > ${BASE_DIR}/modules_installed.csv
+}
+
 #
 # Extract a simple name from perl
 #  Replace :: by _ in perl name dependencies
@@ -171,3 +180,5 @@ do
   NumberOfDeps=$((NumberOfDeps-1))
 done
 date >> ${InstallPath}/date.log
+
+dump_modules_installed
