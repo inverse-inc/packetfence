@@ -512,7 +512,7 @@ wired_dot1x_eap_tls_pki.certs.user.dns1: '{{.node01_hostname}}'
 wired_dot1x_eap_tls_pki.certs.user.mail: '{{.configurator.email}}'
 wired_dot1x_eap_tls_pki.certs.user.email: '{{.node01_hostname}}@{{.configurator.domain}}'
 wired_dot1x_eap_tls_pki.certs.user.other_name: '{{.node01_hostname}}-alias@{{.configurator.domain}}'
-wired_dot1x_eap_tls_pki.certs.user.scep_enabled: 1
+wired_dot1x_eap_tls_pki.certs.user.scep_enabled: 0
 wired_dot1x_eap_tls_pki.certs.user.scep_challenge_password: secret
 wired_dot1x_eap_tls_pki.certs.user.scep_days_before_renewal: 7
 wired_dot1x_eap_tls_pki.certs.user.subject: "/C={{.wired_dot1x_eap_tls_pki.certs.country}}/ST={{.wired_dot1x_eap_tls_pki.certs.state}}/L={{.wired_dot1x_eap_tls_pki.certs.locality}}/O={{.wired_dot1x_eap_tls_pki.certs.organisation}}/OU={{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}/CN={{.wired_dot1x_eap_tls_pki.certs.user.cn}}"
@@ -541,10 +541,6 @@ wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence P
 wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id: 100
 
 # Sources
-wired_dot1x_eap_tls_pki.sources.eaptls.name: 'eaptlspki'
-wired_dot1x_eap_tls_pki.sources.eaptls.description: 'EAP-TLS source'
-wired_dot1x_eap_tls_pki.sources.eaptls.access_duration: '{{.access_duration.default_choice}}'
-
 wired_dot1x_eap_tls_pki.sources.ad_user.name: wired_dot1x_eap_tls_pki_user_auth
 wired_dot1x_eap_tls_pki.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'
 wired_dot1x_eap_tls_pki.sources.ad_user.access_duration: '{{.access_duration.default_choice}}'
