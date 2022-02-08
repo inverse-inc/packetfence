@@ -1,3 +1,9 @@
+packetfence-perl (1.2.0) unstable; urgency=medium
+
+  * Add new dependencies and improve download from CPAN
+
+ -- Inverse <info@inverse.ca>  Tue, 08 Feb 2022 11:17:00 +0100
+
 packetfence-perl (1.1.2) unstable; urgency=medium
 
   * Remove Crypt::OpenSSL::PKCS12

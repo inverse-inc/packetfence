@@ -99,7 +99,7 @@ Logs are available in `/root/install_perl` directory.
 
 ## How to build RPM package ?
 
-1. Update `Release` in `rhel8/SPECS/packetfence-perl.spec` and add a changelog
+1. Update `Release` or `Version` in `rhel8/SPECS/packetfence-perl.spec` and add a changelog
    entry if necessary
 1. Run following commands:
 
