@@ -5,7 +5,12 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/inverse-inc/go-utils/log"
+	"strconv"
+	"strings"
 	"time"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) (int64, error) {
@@ -89,6 +94,23 @@ func BatchSql(ctx context.Context, timeout time.Duration, sql string, args ...in
 
 	defer stmt.Close()
 	return BatchStmt(ctx, timeout, stmt, args...)
+}
+
+func BatchSingleSql(ctx context.Context, sql string, args ...interface{}) error {
+	db, err := getLocalDb()
+	if err != nil {
+		log.LogError(ctx, err.Error())
+		return err
+	}
+
+	sql = strings.Replace(sql, "?", strconv.Itoa(args[0].(int)), -1)
+	_, err = db.ExecContext(ctx, sql)
+	spew.Dump(sql)
+	if err != nil {
+		log.LogError(ctx, err.Error())
+		return err
+	}
+	return nil
 }
 
 func BatchSqlCount(ctx context.Context, name string, timeout time.Duration, sql string, args ...interface{}) {

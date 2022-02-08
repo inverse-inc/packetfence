@@ -3,8 +3,9 @@ package maint
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type WindowSqlCleanup struct {
@@ -68,5 +69,32 @@ func (c *MultiWindowSqlCleanup) Run() {
 func MakeMultiWindowSqlJobSetupConfig(sqls ...string) func(config map[string]interface{}) JobSetupConfig {
 	return func(config map[string]interface{}) JobSetupConfig {
 		return NewMultiWindowSqlCleanup(config, sqls...)
+	}
+}
+
+type SingleWindowSqlCleanup struct {
+	Task
+	Window int
+	Sql    string
+}
+
+func NewSingleWindowSqlCleanup(config map[string]interface{}, sql string) JobSetupConfig {
+	return &SingleWindowSqlCleanup{
+		Task:   SetupTask(config),
+		Window: int(config["window"].(float64)),
+		Sql:    sql,
+	}
+}
+
+func (c *SingleWindowSqlCleanup) Run() {
+	err := BatchSingleSql(context.Background(), c.Sql, c.Window)
+	if err != nil {
+		log.LogError(context.Background(), fmt.Sprintf("%s on sql query", err))
+	}
+}
+
+func MakeSingleWindowSqlJobSetupConfig(sql string) func(config map[string]interface{}) JobSetupConfig {
+	return func(config map[string]interface{}) JobSetupConfig {
+		return NewSingleWindowSqlCleanup(config, sql)
 	}
 }

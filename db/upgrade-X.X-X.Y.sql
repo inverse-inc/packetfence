@@ -126,7 +126,12 @@ DROP PROCEDURE IF EXISTS `process_bandwidth_accounting_netflow`;
 DROP PROCEDURE IF EXISTS `bandwidth_accounting_radius_to_history`;
 DROP PROCEDURE IF EXISTS `bandwidth_aggregation_history`;
 
+\! echo "Grant binlog admin for pf user"
+GRANT BINLOG ADMIN ON *.* TO `pf`@`%`;
+GRANT BINLOG ADMIN ON *.* TO `pf`@`localhost`;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
+
 
 \! echo "Upgrade completed successfully.";
