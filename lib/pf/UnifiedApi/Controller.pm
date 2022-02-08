@@ -46,6 +46,10 @@ sub log {
     return $self->app->log;
 }
 
+sub reinitGenerator {
+    $GENERATOR = Data::UUID->new;
+}
+
 sub render_error {
     my ($self, $code, $msg, $errors) = @_;
     $errors //= [];

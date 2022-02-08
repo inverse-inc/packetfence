@@ -92,7 +92,22 @@ sub startup {
         #$self->preload_namespaces(['pf::UnifiedApi::Controller']);
     }
 
+    $self->hook(before_server_start => \&before_server_start);
     return;
+}
+
+
+sub before_server_start {
+    my ($server, $app) = @_;
+    if ($server->isa("Mojo::Server::Prefork")) {
+        $server->on(
+            spawn => sub {
+                my ($prefork, $pid) = @_;
+                srand();
+                pf::UnifiedApi::Controller::reinitGenerator();
+            }
+        );
+    }
 }
 
 =head2 before_render_cb
