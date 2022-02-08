@@ -1,5 +1,6 @@
 import { MysqlDatabase } from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
+import { addYears, compareAsc, format, getYear, setYear, isValid, parse } from 'date-fns'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
 
@@ -126,7 +127,22 @@ export const pfActions = {
     text: 'Unregistration date', // i18n defer
     types: [fieldType.DATE],
     props: {
-      placeholder: '0000-00-00'
+      placeholder: '0000-00-00',
+      text: value => {
+        const date = parse(value)
+        if (date instanceof Date && isValid(date)) {
+          const now = new Date()
+          if (compareAsc(date, now) < 0) {
+            const year = getYear(now)
+            const normalized = setYear(date, year)
+            let unreg_date = format(normalized, 'YYYY-MM-DD')
+            if (compareAsc(normalized, now) < 0) {
+              unreg_date = format(addYears(normalized, 1), 'YYYY-MM-DD')
+            }
+            return i18n.t(`Past dates dynamically increase up to 1 year in the future (eg ${unreg_date}).`, { unreg_date })
+          }
+        }
+      }
     }
   },
   set_unreg_date_by_acl_user: {
