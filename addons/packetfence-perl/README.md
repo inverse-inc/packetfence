@@ -44,7 +44,10 @@ rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_s
 ```
 
 If you build inside a Docker container, you need to define `QA_RPATHS=$((
-0x0001 ))` inside environment used by `rpmbuild` to avoid error related to RPATHS
+0x0001 ))` inside environment used by `rpmbuild` to avoid error related to
+RPATHS
+
+1. Copy your RPM from `/root/rpmbuild/RPMS/x86_64/packetfence-perl-1.2.0-1.el8.x86_64.rpm`
 
 ## How to build Debian package ?
 
@@ -55,6 +58,8 @@ If you build inside a Docker container, you need to define `QA_RPATHS=$((
 ./make_tar_from_source.sh
 dpkg-buildpackage --no-sign -rfakeroot
 ```
+
+1. Copy your .deb from parent directory
 
 ## How to replace a Perl module installed by packetfence-perl package by a package ?
 

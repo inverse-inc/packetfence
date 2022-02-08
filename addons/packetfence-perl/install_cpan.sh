@@ -19,8 +19,11 @@ configure_and_check() {
     BASE_DIR=/usr/local/pf/lib/perl_modules
     DUMP_FILE=${BASE_DIR}/modules_installed.csv
     DISABLE_REPO="--disablerepo=packetfence"
+
     CPAN_BIN_PATH="/usr/bin/cpan"
     CPAN_VERSION=2.29
+
+    MODULES_WITHOUT_VERSION="Net::Radius LWP::UserAgent Module::Loaded"
 
     prepare_env
     install_requirements
@@ -97,13 +100,21 @@ dump_modules_installed() {
     perl $SCRIPT_DIR/get_modules_installed.pl > ${DUMP_FILE}
 }
 
-check_module_installed() {
+check_module_installed_in_dump() {
     local mod_name=$1
-    local mod_version=$2
+    local mod_version=${mod_version:-$2}
 
-    grep "$mod_name,$mod_version" ${DUMP_FILE}
+    if [ -n "${mod_version}" ]; then
+        grep "$mod_name,$mod_version" ${DUMP_FILE}
+    else
+        grep "$mod_name" ${DUMP_FILE}
+    fi
 }
 
+# https://stackoverflow.com/a/8063398
+contains() {
+    [[ $1 =~ (^|[[:space:]])$2($|[[:space:]]) ]] && exit 0 || exit 1
+}
 #
 # Extract a simple name from perl
 #  Replace :: by _ in perl name dependencies
@@ -205,9 +216,21 @@ dump_modules_installed
 install_status=0
 for i in ${!ListCsvModInstall[@]}
 do
-    if ! check_module_installed ${ListCsvModName[$i]} ${ListCsvModVersion[$i]}; then
+    if ! check_module_installed_in_dump ${ListCsvModName[$i]} ${ListCsvModVersion[$i]}; then
         echo "${ListCsvModName[$i]} ${ListCsvModVersion[$i]} not found installed in ${DUMP_FILE}"
-        install_status=1
+        if contains ${MODULES_WITHOUT_VERSION} ${ListCsvModName[$i]}; then
+            echo "${ListCsvModName[$i]} doesn't have version returned by 'dump_modules_installed', checking without version"
+
+            # we check in dump without version
+            if ! check_module_installed_in_dump ${ListCsvModName[$i]}; then
+                echo "${ListCsvModName[$i]} not found installed in ${DUMP_FILE}"
+                install_status=1
+            else
+                echo "${ListCsvModName[$i]} found installed in ${DUMP_FILE}"
+            fi
+        else
+            install_status=1
+        fi
     fi
 done
 
