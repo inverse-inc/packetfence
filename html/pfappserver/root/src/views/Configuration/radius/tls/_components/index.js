@@ -5,8 +5,7 @@ import {
 } from '@/components/new/'
 import { BaseViewCollectionItem } from '../../../_components/new/'
 import {
-  AlertServices,
-  BaseFormGroupToggleNoYesDefault
+  AlertServices
 } from '../../_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
