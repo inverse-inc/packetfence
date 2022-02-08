@@ -173,7 +173,7 @@ const setup = (props, context) => {
             content: i18n.t('Locations')
           })
           addVisItem({
-            id: `location-${location.id}`,
+            id: `location-${location.start_time}`,
             group: `${id.value}-location`,
             start: new Date(location.start_time),
             end: (location.end_time && location.end_time !== '0000-00-00 00:00:00' && location.end_time !== location.start_time) ? new Date(location.end_time) : null,
@@ -258,7 +258,7 @@ const setup = (props, context) => {
     if (timeoutVis) {
       clearTimeout(timeoutVis)
     }
-  })  
+  })
 
   const securityEventDescription = (id) => {
     const { state: { config: { securityEvents: { [id]: { desc = i18n.t('Unknown') } = {} } = {} } = {} } = {} } = $store
