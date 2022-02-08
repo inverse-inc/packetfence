@@ -92,20 +92,20 @@ Warning: paths to `tar`, `gzip` and `bzip2` are different on Debian.
 ## Download and install all CPAN dependencies
 
 ``` shell
-./install.sh dependencies.csv
+./install_cpan.sh dependencies.csv &> $HOME/install_cpan.log
 ```
 
 Logs are available in `/root/install_perl` directory.
 
 ## How to build RPM package ?
 
-1. Update `Release` in `rhel8/SPECS/cpan_perl_module.spec` and add a changelog
+1. Update `Release` in `rhel8/SPECS/packetfence-perl.spec` and add a changelog
    entry if necessary
 1. Run following commands:
 
 ``` shell
 ./make_tar_from_source.sh
-rpmbuild -bb ./rhel8/SPECS/cpan_perl_module.spec --clean --rmsource --define "_sourcedir ${PWD}/rhel8/SOURCES"
+rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_sourcedir ${PWD}/rhel8/SOURCES"
 ```
 
 If you build inside a Docker container, you need to define `QA_RPATHS=$((
