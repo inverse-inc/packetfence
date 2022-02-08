@@ -97,7 +97,7 @@ testcases:
       serial_number:
         from: result.pf_api_pki_certs_id
 
-- name: wired_http_extract_certificates
+- name: extract_http_certificates
   steps:
     - type: extract_certificates
       cn: "{{.wired_dot1x_eap_tls_pki.certs.http.cn}}"
