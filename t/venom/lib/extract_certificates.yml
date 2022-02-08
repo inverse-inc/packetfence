@@ -1,8 +1,8 @@
 executor: extract_certificates
 input:
-  cnt: ""
-  cnCA: ""
-  certPath: ""
+  cn: ""
+  cn_ca: ""
+  cert_path: ""
   serial_number: ""
 steps:
 - type: exec
@@ -21,7 +21,7 @@ steps:
 - type: exec
   script: |
     openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -cacerts -nokeys \
-    -out {{.temp_dir}}/{{.input.cnCA}}.crt -passin pass:secret
+    -out {{.temp_dir}}/{{.input.cn_ca}}.crt -passin pass:secret
 
 # extract_certificate
 - type: exec
@@ -37,16 +37,16 @@ steps:
 
 # install_ca_cert
 - type: exec
-  script: "yes | cp -r {{.temp_dir}}/{{.input.cnCA}}.crt {{.input.certPath}}/ca.pem"
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cn_ca}}.crt {{.input.cert_path}}/ca.pem"
 
 # install_cert
 - type: exec
-  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.crt {{.input.certPath}}/server.crt"
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.crt {{.input.cert_path}}/server.crt"
 
-# add ca.pem in server,crt
+# add ca.pem in server.crt
 - type: exec
-  script: "cat {{.input.certPath}}/ca.pem >> {{.input.certPath}}/server.crt"
+  script: "cat {{.input.cert_path}}/ca.pem >> {{.input.cert_path}}/server.crt"
 
 # install_key
 - type: exec
-  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.key {{.input.certPath}}/server.key"
+  script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.key {{.input.cert_path}}/server.key"

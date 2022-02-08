@@ -1,7 +1,5 @@
 executor: extract_certificates_user
 input:
-  cn: ""
-  cnCA: ""
   serial_number: ""
   extract_directory: ""
 steps:
