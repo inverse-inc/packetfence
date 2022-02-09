@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"html/template"
 	"net"
+	"os"
 	"time"
 
 	"bytes"
@@ -1497,8 +1498,11 @@ func emailcert(ctx context.Context, cert Cert, profile Profile, file []byte, pas
 	mail := EmailType{Header: profile.P12MailHeader, Footer: profile.P12MailFooter}
 	if len(profile.P12MailFrom) > 0 {
 		mail.From = profile.P12MailFrom
-	} else {
+	} else if len(alerting.FromAddr) > 0 {
 		mail.From = alerting.FromAddr
+	} else {
+		name, _ := os.Hostname()
+		mail.From = "root@" + name
 	}
 	mail.To = cert.Mail
 	mail.Subject = profile.P12MailSubject
@@ -1521,12 +1525,15 @@ func emailRenewal(ctx context.Context, cert Cert, profile Profile) (types.Info, 
 		mail.From = alerting.FromAddr
 	}
 
-	if cert.Mail != "" {
+	if len(cert.Mail) > 0 {
 		mail.To = cert.Mail
-	} else if profile.Mail != "" {
+	} else if len(profile.Mail) > 0 {
 		mail.To = profile.Mail
-	} else {
+	} else if len(alerting.EmailAddr) > 0 {
 		mail.To = alerting.EmailAddr
+	} else {
+		name, _ := os.Hostname()
+		mail.From = "root@" + name
 	}
 	mail.Subject = profile.RenewalMailSubject
 	mail.FileName = "Profile Name: " + profile.Name + " Certificate CN: " + cert.Cn
