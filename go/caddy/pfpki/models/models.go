@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"html/template"
 	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -967,7 +968,7 @@ func (c CA) Resign(params map[string]string) (types.Info, error) {
 
 func (c Cert) New() (types.Info, error) {
 	Information := types.Info{}
-
+	Information.Status = http.StatusUnprocessableEntity
 	// Find the profile
 	var prof Profile
 	if profDB := c.DB.First(&prof, c.ProfileID); profDB.Error != nil {
@@ -1157,6 +1158,7 @@ func (c Cert) New() (types.Info, error) {
 
 	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: SerialNumber.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: Email, StreetAddress: StreetAddress, Organisation: Organization, OrganisationalUnit: OrganizationalUnit, Country: Country, State: Province, Locality: Locality, PostalCode: PostalCode, Profile: prof, Key: keyOut.String(), Cert: certBuff.String(), ValidUntil: cert.NotAfter, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
+		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 

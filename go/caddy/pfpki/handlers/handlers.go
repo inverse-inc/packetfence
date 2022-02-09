@@ -412,7 +412,7 @@ func GetSetCert(pfpki *types.Handler) http.Handler {
 			}
 			if Information, err = o.New(); err != nil {
 				Error.Message = err.Error()
-				Error.Status = http.StatusUnprocessableEntity
+				Error.Status = Information.Status
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SetCert")
