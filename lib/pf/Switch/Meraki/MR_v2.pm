@@ -108,8 +108,6 @@ sub radiusDisconnect {
         };
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
-        my $roleResolver = pf::roles::custom->instance();
-        my $role = $roleResolver->getRoleForNode($mac, $self);
 
         my $node_info = node_view($mac);
         # transforming MAC to the expected format 00-11-22-33-CA-FE
@@ -128,9 +126,7 @@ sub radiusDisconnect {
         # Roles are configured and the user should have one.
         # We send a regular disconnect if there is an open trapping security_event
         # to ensure the VLAN is actually changed to the isolation VLAN.
-        if ( $self->shouldUseCoA({role => $role}) ) {
-            $logger->info("Returning ACCEPT with Role: $role");
-
+        if ( $self->shouldUseCoA({role => $TRUE}) ) {
             my $vsa = [
                 {
                 vendor => "Cisco",
