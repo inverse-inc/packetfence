@@ -3,5 +3,5 @@ testcases:
 - name: check_unregistered_node
   steps:
   - type: node01_is_unregistered
-    retry: 8
-    delay: 15
+    retry: 16
+    delay: 5

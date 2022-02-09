@@ -3,4 +3,4 @@ testcases:
 - name: sleep_delete_windows
   steps:
   - type: sleep
-    time_to_sleep: 4m
+    time_to_sleep: 3m
