@@ -180,12 +180,13 @@ apiCall.interceptors.response.use((response) => {
   /* Intercept successful API call */
   const { config: { url } = {}, data: { message, warnings, quiet } = {} } = response
   if (message && !quiet) {
-    store.dispatch('notification/info', { message, url })
+
+    store.dispatch('notification/info', { message, url: decodeURIComponent(url) })
   }
   if (warnings && !quiet) {
     warnings.forEach(warning => {
       const { message } = warning
-      store.dispatch('notification/warning', { message, url })
+      store.dispatch('notification/warning', { message, url: decodeURIComponent(url) })
     })
   }
   store.commit('session/API_OK')
