@@ -534,7 +534,7 @@ BEGIN
 END /
 DELIMITER ;
 
-\!echo "altering sms_carrier"
+\! echo "altering sms_carrier"
 ALTER TABLE sms_carrier
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
@@ -552,6 +552,10 @@ ALTER TABLE ip4log ADD INDEX IF NOT EXISTS ip4log_mac_start_time (mac, start_tim
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `csr` BOOLEAN DEFAULT FALSE AFTER scep;
+
+\! echo "altering activation"
+ALTER TABLE activation
+    CONVERT TO CHARACTER SET utf8mb4;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
