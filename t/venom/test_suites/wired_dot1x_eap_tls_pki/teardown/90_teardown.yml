@@ -8,7 +8,7 @@ testcases:
 - name: delete_source
   steps:
   - type: pf_api_source_delete
-    id: '{{.wired_dot1x_eap_tls_pki.sources.eaptls.name}}'
+    id: '{{.wired_dot1x_eap_tls_pki.sources.ad_user.name}}'
 
 - name: disable_ocsp
   steps:
