@@ -18,8 +18,15 @@ extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
 
 
+has_field 'window' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
+
 has_block definition => (
-    render_list => [qw(type status interval)],
+    render_list => [qw(type status interval window)],
 );
 
 
