@@ -11,7 +11,7 @@
 
 # this is only for the mysqld standalone daemon
 [mysqld]
-
+default-character-set=utf8mb4
 [% IF server_ip.length %]
 bind-address=[% server_ip %]
 [% ELSE %]
