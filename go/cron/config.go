@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
 )
@@ -129,8 +130,5 @@ func (t *Task) Name() string {
 }
 
 func (t *Task) ForceLocal() bool {
-	if t.Local != "1" {
-		return false
-	}
-	return true
+	return sharedutils.IsEnabled(t.Local)
 }

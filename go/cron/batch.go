@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/log"
 )
 
@@ -105,7 +104,6 @@ func BatchSingleSql(ctx context.Context, sql string, args ...interface{}) error 
 
 	sql = strings.Replace(sql, "?", strconv.Itoa(args[0].(int)), -1)
 	_, err = db.ExecContext(ctx, sql)
-	spew.Dump(sql)
 	if err != nil {
 		log.LogError(ctx, err.Error())
 		return err
