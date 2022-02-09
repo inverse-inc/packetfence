@@ -534,6 +534,9 @@ BEGIN
 END /
 DELIMITER ;
 
+\!echo "altering sms_carrier"
+ALTER TABLE sms_carrier
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
 INSERT INTO sms_carrier
     (name, email_pattern, created)
