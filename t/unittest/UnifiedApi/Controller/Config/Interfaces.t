@@ -24,25 +24,24 @@ use Test::More tests => 14;
 
 my $interface = "dummy$$";
 
-system("ip link del $interface type dummy");
+system("ip link del $interface type dummy &> /dev/null");
 system("ip link add $interface type dummy");
 
 END {
     local $?;
     system("ip link del $interface type dummy");
 }
-#This test will running last
+
+use Utils;
+use pf::ConfigStore::Pf;
 use Test::Mojo;
-use Test::NoWarnings;
+my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 my $t = Test::Mojo->new('pf::UnifiedApi');
+#This test will running last
+use Test::NoWarnings;
 $t->get_ok("/api/v1/config/interface/$interface")
   ->json_is('/item/is_running', 0)
   ->status_is(200);
-
-{
-    my $data = $t->tx->res->json;
-    use Data::Dumper; print Dumper($data);
-}
 
 $t->post_ok("/api/v1/config/interface/$interface/up")
   ->status_is(200);
@@ -58,6 +57,34 @@ $t->get_ok("/api/v1/config/interface/$interface")
   ->json_is('/item/is_running', 0)
   ->status_is(200);
 
+$t->patch_ok(
+    "/api/v1/config/interface/$interface" => json => {
+        'vip'                          => undef,
+        'ipv6_prefix'                  => undef,
+        'type'                         => 'dns-enforcement',
+        'ipv6_address'                 => undef,
+        'nat_enabled'                  => undef,
+        'dns'                          => undef,
+        'ifindex'                      => '20',
+        'high_availability'            => 0,
+        'dhcpd_enabled'                => undef,
+        'vlan'                         => undef,
+        'reg_network'                  => undef,
+        'tenant_id'                    => 1,
+        'id'                           => 'dummy61501',
+        'additional_listening_daemons' => [],
+        'split_network'                => undef,
+        'network'                      => undef,
+        'coa'                          => undef,
+        'networks'                     => [],
+        'master'                       => undef,
+        'name'                         => 'dummy61501'
+    }
+);
+
+$t->get_ok("/api/v1/config/interface/$interface")
+  ->json_is('/item/type', 'dns-enforcement')
+  ->status_is(200);
 
 =head1 AUTHOR
 
