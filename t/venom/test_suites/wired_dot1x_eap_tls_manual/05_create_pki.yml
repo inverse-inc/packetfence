@@ -59,8 +59,8 @@ testcases:
   steps:
     - type: extract_certificates
       cn: "{{.wired_dot1x_eap_tls_manual.certs.radius.cn}}"
-      cnCA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
-      certPath: "/usr/local/pf/raddb/certs"
+      cn_ca: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
+      cert_path: "/usr/local/pf/raddb/certs"
       serial_number: "{{.create_pf_radius_cert.serial_number}}"
 
 ### HTTP certificate part
@@ -101,8 +101,8 @@ testcases:
   steps:
     - type: extract_certificates
       cn: "{{.wired_dot1x_eap_tls_manual.certs.http.cn}}"
-      cnCA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
-      certPath: "/usr/local/pf/conf/ssl"
+      cn_ca: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
+      cert_path: "/usr/local/pf/conf/ssl"
       serial_number: "{{.create_pf_http_cert.serial_number}}"
 
 ### User certificate part
@@ -144,6 +144,6 @@ testcases:
   steps:
     - type: extract_certificates_user
       cn: "{{.wired_dota1x_eap_tls_manual.paths.per_client_directory}}"
-      cnCA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
+      cnC_cA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
       serial_number: "{{.create_user_cert.serial_number}}"
       extract_directory: "{{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}"
