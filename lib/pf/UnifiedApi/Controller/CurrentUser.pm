@@ -16,7 +16,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::admin_roles qw(admin_allowed_options %ADMIN_ROLES);
 use pf::Authentication::constants;
 use pf::nodecategory;
-use pf::config qw(%Config %ConfigRoles);
+use pf::config qw(%Config %ConfigRoles %ConfigMfa);
 use List::Util qw(maxstr);
 
 sub _allowed_options {
@@ -77,6 +77,16 @@ sub allowed_user_actions {
 sub allowed_user_access_durations {
     my ($self) = @_;
     return $self->_allowed_options('allowed_access_durations', 'access_duration', sub { split(/\s*,\s*/, $Config{'guests_admin_registration'}{'access_duration_choices'}) } );
+}
+
+sub allowed_user_portal_mfas {
+    my ($self) = @_;
+    return $self->_allowed_options('allowed_portal_mfas', 'action', sub { sort grep {$ConfigMfa{$_}->{"scope"} =~ /Portal/i } keys %ConfigMfa });
+}
+
+sub allowed_user_radius_mfas {
+    my ($self) = @_;
+    return $self->_allowed_options('allowed_radius_mfas', 'action', sub { sort grep {$ConfigMfa{$_}->{"scope"} =~ /Radius/i } keys %ConfigMfa });
 }
 
 sub allowed_node_roles {

@@ -49,6 +49,12 @@ const api = {
   getAllowedUserUnregDate: () => {
     return apiCall.get(`current_user/allowed_user_unreg_date`)
   },
+  getAllowedUserPortalMfas: () => {
+    return apiCall.get(`current_user/allowed_user_portal_mfas`)
+  },
+  getAllowedUserRadiusMfas: () => {
+    return apiCall.get(`current_user/allowed_user_radius_mfas`)
+  },
   getAdvanced: () => {
     return apiCall.getQuiet('config/base/advanced').then(response => {
       return response.data.item
@@ -94,7 +100,11 @@ const initialState = () => {
     allowedUserRoles: false,
     allowedUserRolesStatus: '',
     allowedUserUnregDate: false,
-    allowedUserUnregDateStatus: ''
+    allowedUserUnregDateStatus: '',
+    allowedUserPortalMfas: false,
+    allowedUserPortalMfasStatus: '',
+    allowedUserRadiusMfas: false,
+    allowedUserRadiusMfasStatus: ''
   }
 }
 
@@ -138,6 +148,8 @@ const getters = {
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
+  allowedUserPortalMfas: state => state.allowedUserPortalMfas || [],
+  allowedUserRadiusMfas: state => state.allowedUserPortalMfas || [],
   tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
   tenantMask: (state) => {
     if (state.tenant_id_mask) {
@@ -346,6 +358,26 @@ const actions = {
       return state.allowedUserUnregDate
     })
   },
+  getAllowedUserPortalMfas: ({ state, commit }) => {
+    if (state.allowedUserPortalMfas) {
+      return Promise.resolve(state.allowedUserPortalMfas)
+    }
+    commit('ALLOWED_USER_PORTAL_MFAS_REQUEST')
+    return api.getAllowedUserPortalMfas().then(response => {
+      commit('ALLOWED_USER_PORTAL_MFAS_UPDATED', response.data.items)
+      return state.allowedUserPortalMfas
+    })
+  },
+  getAllowedUserRadiusMfas: ({ state, commit }) => {
+    if (state.allowedUserRadiusMfas) {
+      return Promise.resolve(state.allowedUserRadiusMfas)
+    }
+    commit('ALLOWED_USER_RADIUS_MFAS_REQUEST')
+    return api.getAllowedUserRadiusMfas().then(response => {
+      commit('ALLOWED_USER_RADIUS_MFAS_UPDATED', response.data.items)
+      return state.allowedUserRadiusMfas
+    })
+  },
   getConfiguratorState: ({ commit }) => {
     if (acl.$can('read', 'configuration_main')) {
       return api.getAdvanced().then(advanced => {
@@ -545,6 +577,26 @@ const mutations = {
   },
   LANGUAGES_UPDATED: (state, languages) => {
     state.languages = languages
+  },
+  ALLOWED_USER_PORTAL_MFAS_REQUEST: (state) => {
+    state.allowedUserPortalMfasStatus = types.LOADING
+  },
+  ALLOWED_USER_PORTAL_MFAS_UPDATED: (state, data) => {
+    state.allowedUserPortalMfasStatus = types.SUCCESS
+    state.allowedUserPortalMfas = data
+  },
+  ALLOWED_USER_PORTAL_MFAS_DELETED: (state) => {
+    state.allowedUserPortalMfas = false
+  },
+  ALLOWED_USER_RADIUS_MFAS_REQUEST: (state) => {
+    state.allowedUserRadiusMfasStatus = types.LOADING
+  },
+  ALLOWED_USER_RADIUS_MFAS_UPDATED: (state, data) => {
+    state.allowedUserRadiusMfasStatus = types.SUCCESS
+    state.allowedUserRadiusMfas = data
+  },
+  ALLOWED_USER_RADIUS_MFAS_DELETED: (state) => {
+    state.allowedUserRadiusMfas = false
   },
   // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
