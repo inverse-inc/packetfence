@@ -405,7 +405,13 @@ export default {
         {
           value: 'category_id',
           text: 'Role', // i18n defer
-          types: [conditionType.ROLE, conditionType.SUBSTRING],
+          types: [conditionType.ROLE],
+          icon: 'project-diagram'
+        },
+        {
+          value: 'node_category.name',
+          text: 'Role (Name)', // i18n defer
+          types: [conditionType.SUBSTRING],
           icon: 'project-diagram'
         },
         {
