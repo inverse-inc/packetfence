@@ -11,6 +11,7 @@ func TestSecurityEventMaintenanceDelayed(t *testing.T) {
 		"security_event_maintenance",
 		map[string]interface{}{},
 		[]string{
+			`TRUNCATE security_event`,
 			`CREATE OR REPLACE TABLE security_event_maintenance_test_mac_delay
 WITH first_mac AS (
     (
@@ -79,6 +80,7 @@ FROM first_mac JOIN seq_0_to_49;`,
 		},
 		[]string{
 			`DELETE from node WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_delay)`,
+			`DELETE from security_event WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_delay)`,
 			`DROP TABLE IF EXISTS security_event_maintenance_test_mac_delay`,
 		},
 	)
@@ -90,6 +92,7 @@ func TestSecurityEventMaintenanceOpen(t *testing.T) {
 		"security_event_maintenance",
 		map[string]interface{}{},
 		[]string{
+			`TRUNCATE security_event`,
 			`CREATE OR REPLACE TABLE security_event_maintenance_test_mac_open
 WITH first_mac AS (
     (
@@ -151,13 +154,14 @@ FROM first_mac JOIN seq_0_to_99;`,
 		2*time.Second,
 		[]sqlCountTest{
 			{
-				"delayed switch to open",
+				"delayed open to closed",
 				`SELECT COUNT(*) FROM security_event WHERE mac IN (SELECT mac from security_event_maintenance_test_mac_open) AND status = 'closed';`,
 				100,
 			},
 		},
 		[]string{
 			`DELETE from node WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_open)`,
+			`DELETE from security_event WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_open)`,
 			`DROP TABLE IF EXISTS security_event_maintenance_test_mac_open`,
 		},
 	)
@@ -169,6 +173,7 @@ func TestSecurityEventMaintenanceMixed(t *testing.T) {
 		"security_event_maintenance",
 		map[string]interface{}{},
 		[]string{
+			`TRUNCATE security_event`,
 			`
 CREATE OR REPLACE TABLE security_event_maintenance_test_mac_mixed
 WITH first_mac AS (
@@ -263,7 +268,8 @@ FROM first_mac JOIN seq_0_to_99;
 		},
 		[]string{
 			`DELETE from node WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_mixed)`,
-            `DROP TABLE IF EXISTS security_event_maintenance_test_mac_mixed`,
+			`DELETE from security_event WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_mixed)`,
+			`DROP TABLE IF EXISTS security_event_maintenance_test_mac_mixed`,
 		},
 	)
 }
