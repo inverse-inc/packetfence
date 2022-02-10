@@ -45,6 +45,8 @@ export const pfFieldType = {
   DURATION:                            'duration',
   DURATION_BY_ACL_USER:                'duration_by_acl_user',
   DURATIONS:                           'durations',
+  MFA_PORTAL:                          'mfa_portal',
+  MFA_RADIUS:                          'mfa_radius',
   OPTIONS:                             'options',
   REALM:                               'realm',
   ROLE:                                'role',
@@ -86,6 +88,8 @@ export const pfFieldTypeComponent = {
   [pfFieldType.GENDER]:                pfComponentType.SELECTONE,
   [pfFieldType.LDAPATTRIBUTE]:         pfComponentType.SUBSTRING,
   [pfFieldType.LDAPFILTER]:            pfComponentType.SUBSTRING,
+  [pfFieldType.MFA_PORTAL]:            pfComponentType.SELECTONE,
+  [pfFieldType.MFA_RADIUS]:            pfComponentType.SELECTONE,
   [pfFieldType.NODE_STATUS]:           pfComponentType.SELECTONE,
   [pfFieldType.OPTIONS]:               pfComponentType.SELECTONE,
   [pfFieldType.RADIUSATTRIBUTE]:       pfComponentType.SUBSTRING,
@@ -272,6 +276,12 @@ export const pfFieldTypeValues = {
 
   [pfFieldType.DURATIONS]: () =>
     store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
+
+  [pfFieldType.MFA_PORTAL]: () =>
+    store.dispatch('session/getAllowedUserPortalMfas').then(() => store.getters['session/allowedUserPortalMfas']),
+
+  [pfFieldType.MFA_RADIUS]: () =>
+    store.dispatch('session/getAllowedUserRadiusMfas').then(() => store.getters['session/allowedUserRadiusMfas']),
 
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {
