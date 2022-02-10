@@ -40,31 +40,35 @@ func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, ar
 func BatchStmtQueryWithCount(ctx context.Context, name string, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) int64 {
 	start := time.Now()
 	rows_affected := int64(0)
+	i := 0
 	for {
+		i++
 		var count int64
 		err := stmt.QueryRow(args...).Scan(&count)
 		if err != nil {
-			log.LogError(ctx, fmt.Sprintf("Database error (%s): %s", name, err.Error()))
-			break
-		}
-
-		if count == 0 {
-			break
-		}
-
-		if count < 0 {
-			log.LogWarn(ctx, fmt.Sprintf("Retrying query for %s", name))
+			log.LogError(ctx, fmt.Sprintf("%d) Database error (%s): %s", i, name, err.Error()))
 			time.Sleep(10 * time.Millisecond)
 		} else {
-			rows_affected += count
+
+			if count == 0 {
+				break
+			}
+
+			if count < 0 {
+				log.LogWarn(ctx, fmt.Sprintf("%d) Retrying query for %s", i, name))
+				time.Sleep(10 * time.Millisecond)
+			} else {
+				rows_affected += count
+			}
 		}
+
 		if time.Now().Sub(start) > time_limit {
 			break
 		}
 	}
 
 	if rows_affected > -1 {
-		log.LogInfo(ctx, fmt.Sprintf("%s handled %d items", name, rows_affected))
+		log.LogInfo(ctx, fmt.Sprintf("%s called times %d and handled %d items", name, i, rows_affected))
 	}
 
 	return rows_affected
