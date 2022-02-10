@@ -144,6 +144,6 @@ testcases:
   steps:
     - type: extract_certificates_user
       cn: "{{.wired_dota1x_eap_tls_manual.paths.per_client_directory}}"
-      cnC_cA: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
+      cn_ca: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
       serial_number: "{{.create_user_cert.serial_number}}"
       extract_directory: "{{.wired_dot1x_eap_tls_manual.paths.per_client_directory}}"
