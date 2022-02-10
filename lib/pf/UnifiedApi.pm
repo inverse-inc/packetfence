@@ -387,6 +387,7 @@ sub setup_api_v1_current_user_routes {
                 qw(
                   allowed_user_unreg_date allowed_user_roles allowed_node_roles
                   allowed_user_access_levels allowed_user_actions allowed_user_access_durations
+                  allowed_user_portal_mfas allowed_user_radius_mfas
                 )
             ],
             method => 'GET'
