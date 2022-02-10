@@ -148,8 +148,8 @@ const getters = {
   allowedUserRoles: state => state.allowedUserRoles || [],
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
-  allowedUserPortalMfas: state => state.allowedUserPortalMfas || [],
-  allowedUserRadiusMfas: state => state.allowedUserPortalMfas || [],
+  allowedUserPortalMfasList: state => (state.allowedUserPortalMfas || []).map(mfa => { return { value: mfa.action, text: mfa.action } }),
+  allowedUserRadiusMfasList: state => (state.allowedUserRadiusMfas || []).map(mfa => { return { value: mfa.action, text: mfa.action } }),
   tenantIdMask: state => state.tenant_id_mask || state.tenant.id,
   tenantMask: (state) => {
     if (state.tenant_id_mask) {
@@ -537,6 +537,7 @@ const mutations = {
   },
   ALLOWED_USER_ACCESS_LEVELS_REQUEST: (state) => {
     state.allowedUserAccessLevelsStatus = types.LOADING
+    state.allowedUserAccessLevels = []
   },
   ALLOWED_USER_ACCESS_LEVELS_UPDATED: (state, data) => {
     state.allowedUserAccessLevelsStatus = types.SUCCESS
@@ -580,23 +581,19 @@ const mutations = {
   },
   ALLOWED_USER_PORTAL_MFAS_REQUEST: (state) => {
     state.allowedUserPortalMfasStatus = types.LOADING
+    state.allowedUserPortalMfas = []
   },
   ALLOWED_USER_PORTAL_MFAS_UPDATED: (state, data) => {
     state.allowedUserPortalMfasStatus = types.SUCCESS
     state.allowedUserPortalMfas = data
   },
-  ALLOWED_USER_PORTAL_MFAS_DELETED: (state) => {
-    state.allowedUserPortalMfas = false
-  },
   ALLOWED_USER_RADIUS_MFAS_REQUEST: (state) => {
     state.allowedUserRadiusMfasStatus = types.LOADING
+    state.allowedUserRadiusMfas = []
   },
   ALLOWED_USER_RADIUS_MFAS_UPDATED: (state, data) => {
     state.allowedUserRadiusMfasStatus = types.SUCCESS
     state.allowedUserRadiusMfas = data
-  },
-  ALLOWED_USER_RADIUS_MFAS_DELETED: (state) => {
-    state.allowedUserRadiusMfas = false
   },
   // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {

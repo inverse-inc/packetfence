@@ -278,10 +278,10 @@ export const pfFieldTypeValues = {
     store.dispatch('config/getBaseGuestsAdminRegistration').then(() => store.getters['config/accessDurationsList']),
 
   [pfFieldType.MFA_PORTAL]: () =>
-    store.dispatch('session/getAllowedUserPortalMfas').then(() => store.getters['session/allowedUserPortalMfas']),
+    store.dispatch('session/getAllowedUserPortalMfas').then(() => store.getters['session/allowedUserPortalMfasList']),
 
   [pfFieldType.MFA_RADIUS]: () =>
-    store.dispatch('session/getAllowedUserRadiusMfas').then(() => store.getters['session/allowedUserRadiusMfas']),
+    store.dispatch('session/getAllowedUserRadiusMfas').then(() => store.getters['session/allowedUserRadiusMfasList']),
 
   [pfFieldType.OPTIONS]: ({ field }) => {
     if (field === undefined) {
