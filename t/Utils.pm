@@ -41,8 +41,9 @@ sub random_pid {
 }
 
 sub tempfileForConfigStore {
-    my ($configstore) = @_;
-    my ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
+    my ($configstore, $unlink) = @_;
+    $unlink //= 1;
+    my ($fh, $filename) = File::Temp::tempfile( UNLINK => $unlink );
     my $old_file = $configstore->configFile;
     copy($old_file, $fh);
     {
