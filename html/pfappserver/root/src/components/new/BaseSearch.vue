@@ -234,8 +234,15 @@ const setup = (props, context) => {
         })
         .finally(() => _clearRouteQuery())
     }
-    else
+    else { // reset
+      $store.dispatch('preferences/get', saveSearchNamespace)
+        .then(({ meta, ...value }) => {
+          const { conditionBasic, ...rest } = value || {}
+          $store.dispatch('preferences/set', { id: saveSearchNamespace, value: rest })
+        })
+        .finally(() => _clearRouteQuery())
       doReset()
+    }
     emit('basic', conditionBasic.value)
   }
 
