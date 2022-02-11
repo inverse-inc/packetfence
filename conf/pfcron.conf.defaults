@@ -854,23 +854,6 @@ history_timeout=10s
 # How long to keep a bandwidth_accounting_history entry before deleting it
 history_window=48h
 #
-# local
-#
-# Local task
-local=0
-
-[bandwidth_maintenance_session]
-#
-# type
-#
-# Task type
-type=bandwidth_maintenance_session
-#
-# status
-#
-# If the task is enabled
-status=enabled
-#
 # session_batch
 #
 # How many session to clean up at a time
