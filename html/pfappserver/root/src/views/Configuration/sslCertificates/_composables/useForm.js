@@ -1,5 +1,4 @@
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import useEventActionKey from '@/composables/useEventActionKey'
 import i18n from '@/utils/locale'
 import schemaFn from '../schema'
 import {
@@ -20,8 +19,6 @@ const useForm = (form, props, context) => {
   } = toRefs(props)
 
   const { emit } = context
-
-  const actionKey = useEventActionKey()
 
   const schema = computed(() => schemaFn(props))
 
@@ -118,7 +115,6 @@ const useForm = (form, props, context) => {
   }, { deep: true, immediate: true })
 
   return {
-    actionKey,
     schema,
     certificateLocale,
     certificationAuthorityLocale,
