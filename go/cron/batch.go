@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"strconv"
 	"strings"
 	"time"
