@@ -51,6 +51,11 @@ sub form_parameters {
     ];
 }
 
+sub commit {
+    my ($self, $cs) = @_;
+    pf::fingerbank::clear_cache();
+    return $self->SUPER::commit($cs);
+}
  
 =head1 AUTHOR
 
