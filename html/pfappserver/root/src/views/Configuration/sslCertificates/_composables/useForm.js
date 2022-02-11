@@ -67,6 +67,20 @@ const useForm = (form, props, context) => {
   })
 
   // translate keys in certificate
+  const intermediateCertificatesLocale = computed(() => {
+    const { info: { intermediate_cas = [] } = {} } = form.value
+    return intermediate_cas.map((_ca, _i) => {
+      return Object.keys(_ca)
+        .sort(fnSortSslKeys)
+        .reduce((stack, key) => {
+          return (key in strings)
+            ? { ...stack, [i18n.t(strings[key])]: form.value.info.intermediate_cas[_i][key] }
+            : { ...stack, [key]: form.value.info.intermediate_cas[_i][key] }
+        }, {})
+    })
+  })
+
+  // translate keys in certificate
   const certificationAuthorityLocale = computed(() => {
     const { info: { ca = [] } = {} } = form.value
     return ca.map((_ca, _i) => {
@@ -117,6 +131,7 @@ const useForm = (form, props, context) => {
     schema,
     certificateLocale,
     certificationAuthorityLocale,
+    intermediateCertificatesLocale,
     title,
     services,
 
