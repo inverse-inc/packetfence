@@ -32,7 +32,7 @@ Depends: ${misc:Depends}, vlan,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  mariadb-server (>= 10.5.13),
- mariadb-client (>= 10.5.10),
+ mariadb-client (>= 10.5.13),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # for import/export scripts
  ipcalc, ipcalc-ng,
