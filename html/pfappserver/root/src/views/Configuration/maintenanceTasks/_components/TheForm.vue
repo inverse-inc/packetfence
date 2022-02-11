@@ -63,19 +63,19 @@
       :text="$i18n.t('Window to apply the job to. In the case of a deletion, setting this to 7 days would delete affected data older than 7 days.')"
     />
 
-    <form-group-history-batch v-show="wants('session_batch')"
+    <form-group-session-batch v-show="wants('session_batch')"
       namespace="session_batch"
       :column-label="$i18n.t('Session Batch')"
       :text="$i18n.t('Amount of items that will be processed in each batch of this task. Batches are executed until there is no more items to process or until the timeout is reached.')"
     />
 
-    <form-group-history-timeout v-show="wants('session_timeout')"
+    <form-group-session-timeout v-show="wants('session_timeout')"
       namespace="session_timeout"
       :column-label="$i18n.t('Session Timeout')"
       :text="$i18n.t('Maximum amount of time this task can run.')"
     />
 
-    <form-group-history-window v-show="wants('session_window')"
+    <form-group-session-window v-show="wants('session_window')"
       namespace="session_window"
       :column-label="$i18n.t('Session Window')"
       :text="$i18n.t('Window to keep a sesson open.')"
