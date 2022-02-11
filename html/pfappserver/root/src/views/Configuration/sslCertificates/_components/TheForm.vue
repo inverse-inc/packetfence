@@ -1,10 +1,10 @@
 <template>
-  <b-container fluid class="p-0">
+  <b-tabs v-model="tabIndex" card>
 
     <!--
       View mode (default)
     -->
-    <template v-if="!isShowEdit">
+    <b-tab :title="$t('View {title} Certificates', { title })" class="p-0">
       <b-card no-body class="m-3">
         <b-card-header>
           <h5 class="mb-0 d-inline">{{ title.value }} {{ $i18n.t('{name} Server Certificate', { name }) }}</h5>
@@ -48,7 +48,7 @@
         <b-card v-for="(intermediate_ca, index) in intermediateCertificatesLocale" :key="intermediate_ca.serial"
           no-body class="m-3">
           <b-card-header>
-            <h4 class="mb-0 d-inline">{{ title.value }} {{ $t('Intermediate CA certificate') }}</h4>
+            <h4 class="mb-0 d-inline">{{ title }} {{ $t('Intermediate CA certificate') }}</h4>
             <b-badge variant="secondary" class="ml-1">{{ index + 1 }}</b-badge>
           </b-card-header>
           <b-row align-v="center" v-for="(value, key) in intermediate_ca" :key="key">
@@ -62,7 +62,7 @@
       </template>
       <b-card no-body class="m-3" v-if="isCertificationAuthority">
         <b-card-header>
-          <h4 class="mb-0">{{ title.value }} {{ $t('Certification Authority Certificate(s)') }}</h4>
+          <h4 class="mb-0">{{ title }} {{ $t('Certification Authority Certificate(s)') }}</h4>
         </b-card-header>
         <base-container-loading v-if="isLoading"
           :title="$i18n.t('Loading Certification Authority Certificates')"
@@ -82,14 +82,14 @@
         </template>
       </b-card>
       <b-card-footer>
-        <b-button v-t="'Edit'" @click="doShowEdit"/>
+        <b-button v-t="'Edit'" @click="tabIndex.value = 1"/>
       </b-card-footer>
-    </template>
+    </b-tab>
 
     <!--
       Edit mode
     -->
-    <template v-else>
+    <b-tab :title="$t('Edit {title} Certificates', { title })" class="p-0">
       <b-form @submit.prevent="onSave" ref="rootRef">
         <base-form
           :form="form.certificate"
@@ -152,7 +152,6 @@
           </template>
         </base-form>
       </b-form>
-
       <b-card-footer>
         <alert-services :show="isModified" :disabled="isLoading" :services="services" />
         <base-form-button-bar
@@ -162,12 +161,12 @@
           :is-saveable="true"
           :is-valid="isValid"
           :form-ref="rootRef"
-          @close="doHideEdit"
+          @close="tabIndex = 0"
           @reset="onReset"
           @save="onSaveWrapper"
         />
       </b-card-footer>
-    </template>
+    </b-tab>
 
     <!--
       CSR modal
@@ -177,8 +176,7 @@
       :id="id"
       @hidden="doHideCsr"
     />
-
-  </b-container>
+  </b-tabs>
 </template>
 <script>
 import {
@@ -216,7 +214,7 @@ const components = {
   TheCsr
 }
 
-import { computed, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import { useForm, useFormProps } from '../_composables/useForm'
 import { useViewCollectionItemFixed, useViewCollectionItemFixedProps } from '../../_composables/useViewCollectionItemFixed'
 import * as collection from '../_composables/useCollection'
@@ -261,10 +259,6 @@ const setup = (props, context) => {
     intermediateCertificatesLocale,
     services,
 
-    isShowEdit,
-    doShowEdit,
-    doHideEdit,
-
     isShowCsr,
     doShowCsr,
     doHideCsr,
@@ -288,10 +282,12 @@ const setup = (props, context) => {
             .then(item => form.value = item)
             .finally(() => {
               if (closeAfter)
-                doHideEdit()
+                tabIndex.value = 0
             })
       })
   }
+
+  const tabIndex = ref(0)
 
   return {
     name,
@@ -313,9 +309,6 @@ const setup = (props, context) => {
     certificationAuthorityLocale,
     intermediateCertificatesLocale,
     services,
-    isShowEdit,
-    doShowEdit,
-    doHideEdit,
     isShowCsr,
     doShowCsr,
     doHideCsr,
@@ -326,7 +319,8 @@ const setup = (props, context) => {
     isFindIntermediateCas,
 
     // custom
-    onSaveWrapper
+    onSaveWrapper,
+    tabIndex
   }
 }
 
