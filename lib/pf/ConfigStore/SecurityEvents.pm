@@ -20,7 +20,6 @@ use pf::file_paths qw(
 );
 use List::MoreUtils qw(uniq);
 use pf::security_event_config;
-use pf::fingerbank;
 
 extends 'pf::ConfigStore';
 
@@ -168,7 +167,6 @@ sub commit {
     my ( $self ) = @_;
     my ($result,$msg) = $self->SUPER::commit();
     pf::security_event_config::loadSecurityEventsIntoDb();
-    pf::fingerbank::clear_cache();
     return ($result,$msg);
 }
 
