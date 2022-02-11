@@ -94,15 +94,6 @@ const useForm = (form, props, context) => {
     })
   })
 
-  const isShowEdit = ref(false)
-  const doShowEdit = () => {
-    isShowEdit.value = true
-    window.scrollTo(0, 0)
-  }
-  const doHideEdit = () => {
-    isShowEdit.value = false
-  }
-
   const isShowCsr = ref(false)
   const doShowCsr = () => {
     isShowCsr.value = true
@@ -134,10 +125,6 @@ const useForm = (form, props, context) => {
     intermediateCertificatesLocale,
     title,
     services,
-
-    isShowEdit,
-    doShowEdit,
-    doHideEdit,
 
     isShowCsr,
     doShowCsr,
