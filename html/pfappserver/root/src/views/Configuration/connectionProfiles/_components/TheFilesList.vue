@@ -145,7 +145,9 @@ const tableFields = [
   {
     key: 'mtime',
     label: 'Last modification', // i18n defer
-    formatter: pfFormatters.shortDateTime,
+    formatter: value => { // suppress 'Never'
+      return (value) ? pfFormatters.shortDateTime(value) : ''
+    },
     tdClass: 'text-right text-nowrap',
     thClass: 'text-right text-nowrap',
     sortable: true
@@ -171,11 +173,12 @@ const setup = (props, context) => {
   const sortDesc = ref(false)
   const entries = ref([])
 
-  const expandPaths = ref([])
+  const expandPaths = ref(['/'])
   const expandPath = (path) => {
     expandPaths.value = [ ...expandPaths.value, path ]
   }
   const collapsePath = (path) => {
+    if (path === '/') return
     expandPaths.value = expandPaths.value.filter(_path => {
       if (_path.indexOf(path) !== 0)
         return _path
@@ -194,7 +197,11 @@ const setup = (props, context) => {
     else
       sort.push('name')
     $store.dispatch('$_connection_profiles/files', { id: id.value, sort }).then(response => {
-      entries.value = JSON.parse(JSON.stringify(response.entries))
+      entries.value = [{
+        name: '/',
+        type: 'dir',
+        entries: JSON.parse(JSON.stringify(response.entries))
+      }]
     })
   }
 
@@ -213,7 +220,7 @@ const setup = (props, context) => {
             icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
           let { entries: childEntries = [], ...rest } = entry || {}
           const { type, name } = rest || {}
-          const fullPath = `${path}/${name}`
+          const fullPath = `${path}/${name}`.replace('//', '/')
           switch(type) {
             case 'dir':
               childEntries = childEntries.filter(visibleFilter)
@@ -247,7 +254,7 @@ const setup = (props, context) => {
             icons = [ ..._icons, (last) ? 'tree-last' : 'tree-node' ]
           const { entries: childEntries = [], ...rest } = entry || {}
           const { type, name } = rest || {}
-          const fullPath = `${path}/${name}`
+          const fullPath = `${path}/${name}`.replace('//', '/')
           switch(type) {
             case 'dir':
               if (expandPaths.value.includes(fullPath)) {
@@ -278,8 +285,8 @@ const setup = (props, context) => {
 
   const onRowClicked = (row) => {
     const { path, name, type } = row || {}
-    const fullPath = `${path}/${name}`
     if (type === 'dir') {
+      const fullPath = `${path}/${name}`.replace('//', '/')
       if (expandPaths.value.includes(fullPath))
         collapsePath(fullPath)
       else
@@ -292,8 +299,12 @@ const setup = (props, context) => {
 
   const onDelete = (item) => {
     const { path, name } = item
-    $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}` }).then(response => {
-      entries.value = JSON.parse(JSON.stringify(response.entries))
+    $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}`.replace('//', '/') }).then(response => {
+      entries.value = entries.value = [{
+        name: '/',
+        type: 'dir',
+        entries: JSON.parse(JSON.stringify(response.entries))
+      }]
     })
   }
 
@@ -308,19 +319,21 @@ const setup = (props, context) => {
   const lastPath = ref(undefined)
   const isShowDirectoryModal = ref(false)
   const onToggleDirectory = (item) => {
-    lastPath.value = `${item.path}/${item.name}`
+    const { path = '', name = '' } = item || {}
+    lastPath.value = `${path}/${name}`.replace('//', '/')
     isShowDirectoryModal.value = !isShowDirectoryModal.value
   }
 
   const isShowFileModal = ref(false)
   const onToggleFile = (item) => {
-    lastPath.value = `${item.path}/${item.name}`
+    const { path = '', name = '' } = item || {}
+    lastPath.value = `${path}/${name}`.replace('//', '/')
     isShowFileModal.value = !isShowFileModal.value
   }
 
   const onCreateDirectory = (name) => {
     let _entries = entries.value
-    let parts = lastPath.value.split('/').filter(p => p)
+    let parts = ['/', ...lastPath.value.split('/').filter(p => p)]
     // traverse tree using path parts
     while (parts.length > 0) {
       for (let e = 0; e < _entries.length; e++) {
