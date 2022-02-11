@@ -39,11 +39,7 @@ const setup = () => {
             { name: i18n.t('Switch Groups'), path: '/configuration/switch_groups' }
           ]
         },
-        { name: i18n.t('Connection Profiles'),
-          items: [
-            { name: i18n.t('Standard Connection Profiles'), path: '/configuration/connection_profiles' }
-          ]
-        }
+        { name: i18n.t('Connection Profiles'), path: '/configuration/connection_profiles' }
       ]
     },
     {

@@ -79,7 +79,7 @@ image::meraki-dpsk-provioner.jpg[scaledwidth="100%",alt="DPSK provisioner config
 
 Connection profile configuration
 
-Go to Configuration > Policies and Access Control > Standard Connection Profiles > New Connection Profile
+Go to Configuration > Policies and Access Control > Connection Profiles > New Connection Profile
 
 image::meraki-dpsk-connection-profile-1.jpg[scaledwidth="100%",alt="Connection Profile configuration"] 
 
