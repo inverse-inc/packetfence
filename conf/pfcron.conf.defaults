@@ -911,7 +911,7 @@ type=purge_binary_logs
 # status
 #
 # If the task is enabled
-status=enabled
+status=disabled
 #
 # description
 #
@@ -932,4 +932,3 @@ window=1h
 #
 # Local task
 local=1
-
