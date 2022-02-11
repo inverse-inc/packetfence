@@ -60,7 +60,7 @@ func (j *BandwidthMaintenance) Run() {
 	//j.BandwidthAggregation(ctx, "hourly", "DATE_SUB(NOW(), INTERVAL ? HOUR)", 2)
 	j.BandwidthAggregation(ctx, "daily", "DATE_SUB(NOW(), INTERVAL ? DAY)", 2)
 	j.BandwidthAggregation(ctx, "monthly", "DATE_SUB(NOW(), INTERVAL ? MONTH)", 1)
-	j.BandwidthHistoryAggregation(ctx, "DATE", "DAY" , 1)
+	j.BandwidthHistoryAggregation(ctx, "DATE", "DAY", 1)
 	j.BandwidthHistoryAggregation(ctx, "ROUND_TO_MONTH", "MONTH", 1)
 	j.BandwidthAccountingHistoryCleanup(ctx)
 }
@@ -81,12 +81,64 @@ func (j *BandwidthMaintenance) BandwidthMaintenanceSessionCleanup(ctx context.Co
 }
 
 func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Context) {
+	sql := `
+BEGIN NOT ATOMIC
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+    SET @count = 0;
+    SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);
+    START TRANSACTION;
+    UPDATE
+     node INNER JOIN
+        (
+            SELECT
+                tenant_id, mac, SUM(total_bytes) AS total_bytes
+                FROM (
+                    SELECT node_id, tenant_id, mac, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                ) AS to_process_bandwidth_accounting_netflow GROUP BY node_id
+        ) AS summarization
+        SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
+        WHERE node.bandwidth_balance IS NOT NULL;
+
+    INSERT INTO bandwidth_accounting_history
+    (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
+     SELECT
+         node_id,
+         tenant_id,
+         mac,
+         new_time_bucket,
+         sum(in_bytes) AS in_bytes,
+         sum(out_bytes) AS out_bytes
+        FROM (
+            SELECT node_id, tenant_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+        ) AS to_process_bandwidth_accounting_netflow
+        GROUP BY node_id, new_time_bucket
+        ON DUPLICATE KEY UPDATE
+            in_bytes = in_bytes + VALUES(in_bytes),
+            out_bytes = out_bytes + VALUES(out_bytes)
+        ;
+
+    DELETE bandwidth_accounting
+    FROM bandwidth_accounting RIGHT JOIN (
+            SELECT node_id, time_bucket, unique_session_id FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+    ) as to_process_bandwidth_accounting_netflow USING (node_id, time_bucket, unique_session_id);
+    SET @count = ROW_COUNT();
+    COMMIT;
+    SELECT @count;
+END;
+`
 	BatchSqlCount(
 		ctx,
 		"process_bandwidth_accounting_netflow",
 		j.Timeout,
-		"CALL process_bandwidth_accounting_netflow(SUBDATE(NOW(), INTERVAL ? SECOND) ,?);",
+		sql,
+		time.Now(),
 		300,
+		j.Batch,
+		j.Batch,
 		j.Batch,
 	)
 
@@ -122,8 +174,8 @@ BEGIN NOT ATOMIC
 END;
 
     SET @count = 0;
-    START TRANSACTION;
     SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);
+    START TRANSACTION;
 INSERT INTO bandwidth_accounting_history
     (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
      SELECT
@@ -200,12 +252,11 @@ BEGIN NOT ATOMIC
         COMMIT;
     SELECT @count;
 END;`,
-        unit,
+		unit,
 		rounding_func,
 		rounding_func,
 		rounding_func,
 	)
-    log.LogInfo(ctx, "Running " + sql)
 	BatchSqlCount(
 		ctx,
 		"bandwidth_aggregation_history-"+unit,
