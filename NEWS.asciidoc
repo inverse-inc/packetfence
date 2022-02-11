@@ -69,6 +69,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * PKI CN provides certificate for the same CN but for different profiles (profile name added in Subject)
 * Auto-revoke certificate if expired
 * PKI actions are now logged to the admin API audit log
+* Reduce list of accepted ciphers in haproxy-portal and haproxy-admin to reinforce security
 
 === Bug Fixes
 
