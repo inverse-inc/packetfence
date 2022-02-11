@@ -43,12 +43,6 @@ sub _search_by_id {
     return $self->render(json => undef);
 }
 
-sub commit {
-    my ($self, $cs) = @_;
-    pf::fingerbank::clear_cache();
-    return $self->SUPER::commit($cs);
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
