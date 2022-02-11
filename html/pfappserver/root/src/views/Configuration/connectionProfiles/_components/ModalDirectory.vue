@@ -16,7 +16,7 @@
         >
           <form-group-name ref="inputRef"
             namespace="name"
-            :column-label="`${path}/`"
+            :column-label="`${path}/`.replace('//', '/')"
             :label-cols="4"
             placeholder="directory"
           />
@@ -114,7 +114,7 @@ const setup = (props, context) => {
     form.value = defaults() // reset form when shown/hidden
     if (shown) { // if showing
       nextTick(() => { // after DOM update
-        const { $refs: { input: { focus = () => {} } = {} } = {} } = inputRef.value
+        const { $refs: { input: { focus = () => {} } = {} } = {} } = inputRef.value || {}
         focus() // focus input element
       })
     }

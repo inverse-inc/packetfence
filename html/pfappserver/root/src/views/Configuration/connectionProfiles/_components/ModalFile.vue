@@ -149,7 +149,7 @@ const setup = (props, context) => {
   const _isNew = (entries, path) => {
     // traverse tree using path parts
     let lastType
-    let parts = path.split('/').filter(p => p)
+    let parts = ['/', ...path.split('/').filter(p => p)]
     while (parts.length > 0) {
       for (let e = 0; e < entries.length; e++) {
         const { type, name, entries: childEntries = [] } = entries[e]

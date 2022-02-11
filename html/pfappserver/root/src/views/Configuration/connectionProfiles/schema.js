@@ -28,7 +28,7 @@ yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
       // point @ primitive
       let ptrEntries = entries.value
       // traverse tree using path parts
-      let parts = path.value.split('/').filter(p => p)
+      let parts = ['/', ...path.value.split('/').filter(p => p)]
       while (parts.length > 0) {
         for (let e = 0; e < ptrEntries.length; e++) {
           const { name, entries: childEntries = [] } = ptrEntries[e]
