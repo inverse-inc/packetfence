@@ -41,6 +41,22 @@
           </b-row>
         </b-container>
       </b-card>
+      <template v-if="form.info">
+        <b-card v-for="(intermediate_ca, index) in intermediateCertificatesLocale" :key="intermediate_ca.serial"
+          no-body class="m-3">
+          <b-card-header>
+            <h4 class="mb-0 d-inline">{{ title.value }} {{ $t('Intermediate CA certificate') }}</h4>
+            <b-badge variant="secondary" class="ml-1">{{ index + 1 }}</b-badge>
+          </b-card-header>
+          <b-row align-v="center" v-for="(value, key) in intermediate_ca" :key="key">
+              <b-col sm="3" class="col-form-label">{{ key }}</b-col>
+              <b-col sm="9" v-if="Array.isArray(value)">
+                <b-badge v-for="(v, k) in value" :key="`${key}-${k}`" class="mr-1" variant="secondary">{{ v }}</b-badge>
+              </b-col>
+            <b-col sm="9" v-else>{{ value }}</b-col>
+          </b-row>
+        </b-card>
+      </template>
       <b-card no-body class="m-3" v-if="isCertificationAuthority">
         <b-card-header>
           <h4 class="mb-0">{{ title.value }} {{ $t('Certification Authority Certificates') }}</h4>
@@ -232,6 +248,7 @@ const setup = (props, context) => {
     schema,
     certificateLocale,
     certificationAuthorityLocale,
+    intermediateCertificatesLocale,
     services,
 
     isShowEdit,
@@ -283,6 +300,7 @@ const setup = (props, context) => {
     schema,
     certificateLocale,
     certificationAuthorityLocale,
+    intermediateCertificatesLocale,
     services,
     isShowEdit,
     doShowEdit,
