@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::security_event;
+use pf::fingerbank;
 
 has dal => 'pf::dal::security_event';
 has url_param_name => 'security_event_id';
@@ -40,6 +41,12 @@ sub _search_by_id {
     my @security_event = pf::security_event::security_event_view($id);
     return $self->render(json => { items => [ $security_event[0] ] } ) if scalar @security_event > 0 and defined($security_event[0]);
     return $self->render(json => undef);
+}
+
+sub commit {
+    my ($self, $cs) = @_;
+    pf::fingerbank::clear_cache();
+    return $self->SUPER::commit($cs);
 }
 
 =head1 AUTHOR
