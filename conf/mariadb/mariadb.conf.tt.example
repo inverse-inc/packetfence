@@ -65,7 +65,7 @@ init_file=/usr/local/pf/var/conf/mariadb.sql
 # Replication Master Server (default)
 #log-bin=mysql-bin
 binlog-format=row
-expire_logs_days=2
+expire_logs_days=1
 max_binlog_size=13107200
 
 # required unique id between 1 and 2^32 - 1
