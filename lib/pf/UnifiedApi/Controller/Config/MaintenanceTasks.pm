@@ -47,7 +47,6 @@ use pfappserver::Form::Config::Pfcron::acct_cleanup;
 use pfappserver::Form::Config::Pfcron::dns_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::admin_api_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::bandwidth_maintenance;
-use pfappserver::Form::Config::Pfcron::bandwidth_maintenance_session;
 use pfappserver::Form::Config::Pfcron::ubiquiti_ap_mac_to_ip;
 
 our %TYPES_TO_FORMS = (
@@ -75,7 +74,6 @@ our %TYPES_TO_FORMS = (
       acct_cleanup
       admin_api_audit_log_cleanup
       bandwidth_maintenance
-      bandwidth_maintenance_session
       ubiquiti_ap_mac_to_ip
     )
 );

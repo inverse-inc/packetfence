@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net"
 	"time"
 
@@ -44,6 +45,7 @@ type PfAcct struct {
 	Dispatcher         *Dispatcher
 	SwitchInfoCache    *cache.Cache
 	NodeSessionCache   *cache.Cache
+	AcctSessionCache   *cache.Cache
 	StatsdAddress      string
 	StatsdOption       statsd.Option
 	StatsdClient       *statsd.Client
@@ -75,6 +77,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
+	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 
@@ -209,4 +212,22 @@ func (t *Timing) Send(name string) {
 	}
 
 	t.timing.Send(name)
+}
+
+type AcctSession struct {
+	in_bytes  int64
+	out_bytes int64
+}
+
+func (pfAcct *PfAcct) SetAcctSession(node_id, unique_session uint64, session *AcctSession) {
+	key := fmt.Sprintf("%x:%x", node_id, unique_session)
+	pfAcct.AcctSessionCache.Set(key, session, cache.DefaultExpiration)
+}
+
+func (pfAcct *PfAcct) GetAcctSession(node_id, unique_session uint64) *AcctSession {
+	key := fmt.Sprintf("%x:%x", node_id, unique_session)
+	if s, found := pfAcct.AcctSessionCache.Get(key); found {
+		return s.(*AcctSession)
+	}
+	return nil
 }
