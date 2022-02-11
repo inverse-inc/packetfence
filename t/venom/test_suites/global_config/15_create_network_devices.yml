@@ -117,7 +117,7 @@ testcases:
         "{{.inline_l2_and_radius.roles.first}}AccessList": null,
         "{{.inline_l2_and_radius.roles.first}}Role": null,
         "{{.inline_l2_and_radius.roles.first}}Url": null,
-        "{{.inline_l2_and_radius.roles.first}}Vlan": null
+        "{{.inline_l2_and_radius.roles.first}}Vlan": null,
         "{{.inline_l2_and_radius.roles.second}}AccessList": null,
         "{{.inline_l2_and_radius.roles.second}}Role": null,
         "{{.inline_l2_and_radius.roles.second}}Url": null,
