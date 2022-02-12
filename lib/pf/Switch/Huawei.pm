@@ -239,7 +239,7 @@ Creates the form that should be given to the client device to trigger a reauthen
 =cut
 
 sub getAcceptForm {
-    my ( $self, $mac, $destination_url, $portalSession, $username ) = @_;
+    my ( $self, $mac, $destination_url, $portalSession, $username, $password ) = @_;
     my $logger = $self->logger;
     $logger->debug("Creating web release form");
 
@@ -248,7 +248,7 @@ sub getAcceptForm {
     my $html_form = qq[
         <form name="weblogin_form" data-autosubmit="1000" method="POST" action="http://$controller_ip:8443/login">
             <input type="hidden" name="username" value="$username">
-            <input type="hidden" name="password" value="$mac">
+            <input type="hidden" name="password" value="$password">
         </form>
         <script src="/content/autosubmit.js" type="text/javascript"></script>
     ];
