@@ -35,6 +35,8 @@ my $dal = "pf::dal::node";
 
 my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 
+my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) = (node.mac, node.tenant_id) ORDER BY start_time DESC LIMIT 1) AS `ip4log.ip`';
+
 {
     my @f = qw(mac online);
     my %search_info = (
@@ -159,7 +161,15 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 
     is_deeply(
         [ $sb->make_columns( \%search_info ) ],
-        [ 200, [ 'node.mac', \'`ip4log`.`ip` AS `ip4log.ip`', \'`locationlog`.`ssid` AS `locationlog.ssid`', \'`locationlog`.`port` AS `locationlog.port`'] ],
+        [
+            200,
+            [
+                'node.mac',
+                $ip4log_col,
+                \'`locationlog`.`ssid` AS `locationlog.ssid`',
+                \'`locationlog`.`port` AS `locationlog.port`'
+            ]
+        ],
         'Return the columns'
     );
 
@@ -171,7 +181,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
                 @pf::UnifiedApi::Search::Builder::Nodes::LOCATION_LOG_JOIN,
             ]
         ],
@@ -446,7 +455,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             [
                 -join => 'node',
                 @pf::UnifiedApi::Search::Builder::Nodes::LOCATION_LOG_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
             ]
         ],
         'Return the joined tables'
@@ -469,7 +477,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
                 'node.status',
                 'node.mac',
                 'node.pid',
-                \'`ip4log`.`ip` AS `ip4log.ip`',
+                $ip4log_col,
                 'node.bypass_role_id',
             ],
         ],
@@ -492,10 +500,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         \@a,
         [
             200,
-            [
-                -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::IP4LOG_JOIN,
-            ]
+            [qw(node)],
         ],
         'Return the joined tables'
     );

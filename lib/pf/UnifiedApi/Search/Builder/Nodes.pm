@@ -27,22 +27,6 @@ our @LOCATION_LOG_JOIN = (
     "locationlog",
 );
 
-our @IP4LOG_JOIN = (
-    {
-        operator  => '=>',
-        condition => {
-            'ip4log.ip' => {
-                "=" => \
-"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
-            },
-            'ip4log.tenant_id' => {
-                -ident => 'node.tenant_id'
-            },
-        }
-    },
-    'ip4log',
-);
-
 our @IP6LOG_JOIN = (
     {
         operator  => '=>',
@@ -90,9 +74,9 @@ our @SECURITY_EVENT_CLOSED_JOIN = (
 
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
-        join_spec     => \@IP4LOG_JOIN,
-        column_spec   => make_join_column_spec( 'ip4log', 'ip' ),
-        namespace     => 'ip4log',
+        column_spec   => \"(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) = (node.mac, node.tenant_id) ORDER BY start_time DESC LIMIT 1) AS `ip4log.ip`",
+        namespace     => 'ip4log.ip',
+        rewrite_query => \&rewrite_ip4log_ip,
     },
     'ip6log.ip' => {
         join_spec     => \@IP6LOG_JOIN,
@@ -187,6 +171,11 @@ sub rewrite_security_event_close_security_event_id {
     my ($self, $s, $q) = @_;
     $q->{field} = 'security_event_close.security_event_id';
     return (200, $q);
+}
+
+sub rewrite_ip4log_ip {
+    my ($self, $s, $q) = @_;
+    return (422, { message => "" });
 }
 
 sub rewrite_security_event_close_count {
