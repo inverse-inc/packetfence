@@ -117,10 +117,11 @@ sub handle_web_form_release {
         }
     }
     my $session = new pf::Portal::Session(client_mac => $self->current_mac)->session;
+    my $password = $self->app->session->{saved_fields}{password} // "";
     if(defined($switch) && $switch && $switch->supportsWebFormRegistration && defined($session->param('is_external_portal')) && $session->param('is_external_portal')){
         get_logger->info("(" . $switch->{_id} . ") supports web form release. Will use this method to authenticate");
         $self->render('webFormRelease.html', {
-            content => $switch->getAcceptForm($self->current_mac, $self->app->session->{destination_url}, $session, $self->username, $self->password),
+            content => $switch->getAcceptForm($self->current_mac, $self->app->session->{destination_url}, $session, $self->username, $password),
             %{$self->_release_args()}
         });
         return $TRUE;

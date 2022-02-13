@@ -77,6 +77,8 @@ foreach my $field (@FIELDS){
     push @PROMPTABLE_FIELDS, $field;
 }
 
+push @PROMPTABLE_FIELDS, "password";
+
 =back
 
 =head1 SUBROUTINES

@@ -17,6 +17,7 @@ modules=default_login_policy,default_guest_policy,default_oauth_policy,default_b
 [default_login_policy]
 description=Username/password login
 type=Authentication::Login
+fields_to_save=password
 
 [default_guest_policy]
 description=Guest signup

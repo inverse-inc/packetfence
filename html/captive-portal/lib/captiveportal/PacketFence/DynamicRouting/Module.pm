@@ -40,8 +40,6 @@ has parent => (is => 'ro', required => 1, isa => 'captiveportal::DynamicRouting:
 
 has username => (is => 'rw', builder => '_build_username', lazy => 1, trigger => \&_username_set);
 
-has password => (is => 'rw');
-
 has renderer => (is => 'rw');
 
 has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{}});
