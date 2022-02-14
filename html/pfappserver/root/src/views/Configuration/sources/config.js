@@ -83,7 +83,6 @@ export const authenticationRuleActionsFromSourceType = (sourceType) => ([
 ])
 
 export const decomposeSource = (item) => {
-
   const { allowed_domains , banned_domains } = item
   return {
     ...item,
