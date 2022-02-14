@@ -28,7 +28,7 @@ testcases:
 - name: test_if_the_device_is_in_the_isolation_ipset
   steps:
   - type: exec
-    script: sleep 5
+    script: sleep 1m +10
 
   - type: exec
     script: 'ipset test pfsession_Isol_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
