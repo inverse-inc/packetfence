@@ -248,6 +248,9 @@ configurator.interfaces.reg.dhcpd_enabled: enabled
 configurator.interfaces.iso.index: 5
 configurator.interfaces.iso.dhcpd_enabled: enabled
 
+# Interface inline
+configurator.interfaces.inline.index: 6
+
 # DNS servers
 configurator.dns.primary_ip: 8.8.8.8
 configurator.dns.secondary_ip: '{{.ad_mgmt_ip}}'
@@ -277,6 +280,14 @@ configurator.admin.password: '{{.pfserver_admin_password}}'
 ### Step 3
 # Fingerbank
 configurator.fingerbank_api_key.secret_id: '{{.fingerbank_api_key.secret_id}}'
+
+################################################################################
+# configurator_inline_l2 test suite specific variables
+################################################################################
+configurator_inline_l2.interfaces.inline.index: '{{.configurator.interfaces.inline.index }}'
+configurator_inline_l2.interfaces.inline.dhcpd_enabled: enabled
+configurator_inline_l2.dns.primary_ip: 8.8.8.8
+configurator_inline_l2.dns.secondary_ip: '{{.ad_mgmt_ip}}'
 
 ################################################################################
 # captive_portal test suite specific variables
@@ -520,7 +531,7 @@ inline_l2.pf_portal: 192.168.2.1
 inline_l2.networks: 192.168.2.0
 
 ################################################################################
-#Security event autoreg test suite specific variables
+## Security event autoreg test suite specific variables
 #################################################################################
 security_event_autoreg.event.id: '88888888'
 security_event_autoreg.event.access_duration: '5D'
@@ -529,4 +540,26 @@ security_event_autoreg.node.mac: '{{.node01_ens7_mac_address}}'
 security_event_autoreg.node.mac_url_encoded: '{{.node01_ens7_mac_address_url_encoded}}'
 security_event_autoreg.node.dhcp_fingerprint: 1,28,2,3,15,6,119,12,44,47,26,121,42
 security_event_autoreg.node.dhcp_fingerprint_id: 276
+
+#################################################################################
+## inline_l2_and_radius test suite specific variables
+#################################################################################
+
+# network and interfaces
+inline_l2_and_radius.l2_network.nat: enabled
+inline_l2_and_radius.l2_network.registration: 10.0.1.0/8
+inline_l2_and_radius.l2_network.split: enabled
+inline_l2_and_radius.l2_network.coa: enabled
+inline_l2_and_radius.l2_network.netflow: enabled
+inline_l2_and_radius.l2_network.lease_time: 30
+
+# roles
+inline_l2_and_radius.roles.first: role_01
+inline_l2_and_radius.roles.second: role_02
+
+# profiles
+inline_l2_and_radius.profiles.id: catch_wired_mac_authentication
+inline_l2_and_radius.profiles.description: Wired Mac authentication
+inline_l2_and_radius.profiles.filters.connection_type: Ethernet-NoEAP
+inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 
