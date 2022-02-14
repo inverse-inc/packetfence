@@ -3,91 +3,9 @@
 ## How it works
 
 Two main steps:
-* download and install all CPAN dependencies listed in dependencies.csv
+* download and install all CPAN dependencies listed in dependencies.csv (using `install_cpan.sh`)
 * create RPM or Debian package with all Perl librairies installed at first
-  step
-  
-## Prerequisites
-
-You need to create following file: `$HOME/.cpan/CPAN/MyConfig.pm` with
-following content:
-
-```
-$CPAN::Config = {
-  'applypatch' => q[],
-  'auto_commit' => q[0],
-  'build_cache' => q[100],
-  'build_dir' => q[/root/.cpan/build],
-  'build_dir_reuse' => q[0],
-  'build_requires_install_policy' => q[yes],
-  'bzip2' => q[],
-  'cache_metadata' => q[1],
-  'check_sigs' => q[0],
-  'cleanup_after_install' => q[0],
-  'colorize_output' => q[0],
-  'commandnumber_in_prompt' => q[1],
-  'connect_to_internet_ok' => q[1],
-  'cpan_home' => q[/root/.cpan],
-  'curl' => q[/usr/bin/curl],
-  'ftp_passive' => q[1],
-  'ftp_proxy' => q[],
-  'getcwd' => q[cwd],
-  'gpg' => q[/usr/bin/gpg],
-  'gzip' => q[/usr/bin/gzip],
-  'halt_on_failure' => q[0],
-  'histfile' => q[/root/.cpan/histfile],
-  'histsize' => q[100],
-  'http_proxy' => q[],
-  'inactivity_timeout' => q[0],
-  'index_expire' => q[1],
-  'inhibit_startup_message' => q[0],
-  'keep_source_where' => q[/root/.cpan/sources],
-  'load_module_verbosity' => q[none],
-  'make' => q[/usr/bin/make],
-  'make_arg' => q[],
-  'make_install_arg' => q[],
-  'make_install_make_command' => q[/usr/bin/make],
-  'makepl_arg' => q[INSTALL_BASE=/usr/local/pf/lib/perl_modules],
-  'mbuild_arg' => q[],
-  'mbuild_install_arg' => q[],
-  'mbuild_install_build_command' => q[./Build],
-  'mbuildpl_arg' => q[--install_base /usr/local/pf/lib/perl_modules],
-  'no_proxy' => q[],
-  'pager' => q[/usr/bin/less],
-  'patch' => q[],
-  'perl5lib_verbosity' => q[none],
-  'prefer_external_tar' => q[1],
-  'prefer_installer' => q[MB],
-  'prefs_dir' => q[/root/.cpan/prefs],
-  'prerequisites_policy' => q[follow],
-  'recommends_policy' => q[1],
-  'scan_cache' => q[atstart],
-  'shell' => q[/bin/bash],
-  'show_unparsable_versions' => q[0],
-  'show_upload_date' => q[0],
-  'show_zero_versions' => q[0],
-  'suggests_policy' => q[0],
-  'tar' => q[/usr/bin/tar],
-  'tar_verbosity' => q[none],
-  'term_is_latin' => q[1],
-  'term_ornaments' => q[1],
-  'test_report' => q[0],
-  'trust_test_report_history' => q[0],
-  'unzip' => q[/usr/bin/unzip],
-  'urllist' => [q[https://cpan.metacpan.org/]],
-  'use_prompt_default' => q[0],
-  'use_sqlite' => q[0],
-  'version_timeout' => q[15],
-  'wget' => q[],
-  'yaml_load_code' => q[0],
-  'yaml_module' => q[YAML],
-};
-1;
-__END__
-
-```
-
-Warning: paths to `tar`, `gzip` and `bzip2` are different on Debian.
+  step (manual step, see below)
 
 ## Download and install all CPAN dependencies
 
@@ -95,7 +13,24 @@ Warning: paths to `tar`, `gzip` and `bzip2` are different on Debian.
 ./install_cpan.sh dependencies.csv &> $HOME/install_cpan.log
 ```
 
-Logs are available in `/root/install_perl` directory.
+Logs for installation of each module are available in `/root/install_perl`
+directory.
+
+Script will stop at first error, you can look at `$HOME/install_cpan.log` to
+have more details.
+
+### Upgrades and downgrades behavior
+
+Installation of modules listed in `dependencies.csv` could install *latest*
+version of other modules. If these other modules are also listed in
+`dependencies.csv` but with an older version, CPAN will need to downgrade
+modules.
+
+Depending of the order of dependencies in `dependencies.csv` and values in
+`META.yml` of modules, you can get modules with a version that don't match
+what you have in `dependencies.csv`. `install_cpan.sh` will warn you if this
+is the case. The best option will be to look at `META.yml` of modules and
+certainly update `dependencies.csv` with new version.
 
 ## How to build RPM package ?
 
@@ -109,7 +44,10 @@ rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_s
 ```
 
 If you build inside a Docker container, you need to define `QA_RPATHS=$((
-0x0001 ))` inside environment used by `rpmbuild` to avoid error related to RPATHS
+0x0001 ))` inside environment used by `rpmbuild` to avoid error related to
+RPATHS
+
+1. Copy your RPM from `/root/rpmbuild/RPMS/x86_64/packetfence-perl-1.2.0-1.el8.x86_64.rpm`
 
 ## How to build Debian package ?
 
@@ -121,6 +59,8 @@ If you build inside a Docker container, you need to define `QA_RPATHS=$((
 dpkg-buildpackage --no-sign -rfakeroot
 ```
 
+1. Copy your .deb from parent directory
+
 ## How to replace a Perl module installed by packetfence-perl package by a package ?
 
 1. Remove Perl module from `./dependencies.csv`
@@ -128,6 +68,14 @@ dpkg-buildpackage --no-sign -rfakeroot
 1. Update PacketFence SPEC files (Debian and RPM) to add a dependency to this package
 
 ## How to add a new dependency
+
+Before adding a new dependency, you need to verify:
+  * if this dependency is not part of a Perl distribution already present in
+    `dependencies.csv` (for example: `Log::Log4perl::Catalyst` is part of
+    `Log::Log4perl` distribution and already mentioned in `dependencies.csv`)
+  * name and version of dependency (first and second columns in `dependencies.csv`) match name
+    returned by `get_modules_installed.pl`
+
 
 1. Add new dependency in `./dependencies.csv` based on CPAN informations
 1. Remove dependency from our repositories (Debian and RPM)
