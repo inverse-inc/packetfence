@@ -273,3 +273,95 @@ FROM first_mac JOIN seq_0_to_99;
 		},
 	)
 }
+
+func TestSecurityEventMaintenanceStayOpen(t *testing.T) {
+	testWindowSqlCleanup(
+		t,
+		"security_event_maintenance",
+		map[string]interface{}{},
+		[]string{
+			`TRUNCATE security_event`,
+			`
+CREATE OR REPLACE TABLE security_event_maintenance_test_mac_stay_open
+WITH first_mac AS (
+    (
+    SELECT
+      LOWER(CONCAT_WS( ':', LPAD(HEX(((cur + 1) >> 40) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 32) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 24) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 16) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 8) & 255), 2, '0'), LPAD(HEX((cur + 1) & 255), 2, '0') )) AS mac, cur + 1 as start_int
+    FROM
+      (
+        SELECT
+          mac as cur_mac,
+          CONV(REPLACE(mac, ':', ''), 16, 10) cur,
+          CONV( REPLACE(IFNULL(LEAD(mac) OVER (
+        ORDER BY
+          mac), "ff:ff:ff:ff:ff:ff"), ':' , ''), 16, 10 ) as next
+        FROM
+          node
+      )
+      as x
+    WHERE
+      next - cur >= 100 LIMIT 1
+    )
+    UNION ALL
+    (
+        SELECT "00:00:00:00:00:01", 1
+    )
+    LIMIT 1
+)
+
+SELECT
+    LOWER(CONCAT_WS(
+        ':',
+        LPAD(HEX(((seq + start_int) >> 40) & 255), 2, '0'),
+        LPAD(HEX(((seq + start_int) >> 32) & 255), 2, '0'),
+        LPAD(HEX(((seq + start_int) >> 24) & 255), 2, '0'),
+        LPAD(HEX(((seq + start_int) >> 16) & 255), 2, '0'),
+        LPAD(HEX(((seq + start_int) >> 8) & 255), 2, '0'),
+        LPAD(HEX((seq + start_int) & 255), 2, '0')
+    )) AS mac,
+    ntile(2) over (order by mac) type
+
+FROM first_mac JOIN seq_0_to_99;
+            `,
+			`INSERT INTO node (tenant_id, mac) SELECT 1, mac FROM security_event_maintenance_test_mac_stay_open`,
+			`INSERT INTO security_event (
+                tenant_id,
+                mac,
+                security_event_id,
+                start_date,
+                release_date,
+                status
+            )
+           SELECT
+            1,
+            mac,
+            '1100017',
+            DATE_SUB(NOW(), INTERVAL 1 HOUR),
+            CASE type
+            WHEN 1 THEN '0000-00-00 00:00:00'
+            ELSE DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+            END,
+            "open"
+           FROM security_event_maintenance_test_mac_stay_open
+            `,
+		},
+		2*time.Second,
+		[]sqlCountTest{
+			{
+				"open to close",
+				`SELECT COUNT(*) FROM security_event WHERE mac IN (SELECT mac from security_event_maintenance_test_mac_stay_open WHERE type = 2) AND status = 'closed';`,
+				50,
+			},
+			{
+				"stayed open",
+				`SELECT COUNT(*) FROM security_event WHERE mac IN (SELECT mac from security_event_maintenance_test_mac_stay_open WHERE type = 1) AND status = 'open';`,
+				50,
+			},
+		},
+		[]string{
+			`DELETE from node WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_stay_open)`,
+			`DELETE from security_event WHERE mac IN (SELECT mac FROM security_event_maintenance_test_mac_stay_open)`,
+			`DROP TABLE IF EXISTS security_event_maintenance_test_mac_stay_open`,
+		},
+	)
+}
