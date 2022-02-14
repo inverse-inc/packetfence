@@ -8,9 +8,9 @@ yup.addMethod(yup.string, 'securityEventIdNotExistsExcept', function (exceptId =
     name: 'securityEventIdNotExistsExcept',
     message: message || i18n.t('Identifier exists.'),
     test: (value) => {
-      if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
+      if (!value || `${value}`.toLowerCase() === exceptId.toLowerCase()) return true
       return store.dispatch('config/getSecurityEvents').then(response => {
-        return Object.keys(response).filter(item => item.toLowerCase() === value.toLowerCase()).length === 0
+        return Object.keys(response).filter(item => item.toLowerCase() === `${value}`.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })
@@ -97,11 +97,12 @@ export const schema = (props) => {
   return yup.object({
     id: yup.string()
       .nullable()
-      .required(i18n.t('Identifier required.'))
+      .required(i18n.t('Name required.'))
       .securityEventIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
     triggers: schemaTriggers.meta({ invalidFeedback: i18n.t('Triggers contains one or more errors.') }),
     desc: yup.string().nullable()
+      .required(i18n.t('Description required.'))
       .label(i18n.t('Description')),
     priority: yup.string().nullable().label(i18n.t('Priority')),
     whitelisted_roles: schemaWhiteListedRoles
