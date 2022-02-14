@@ -60,7 +60,7 @@ install_requirements() {
 }
 
 upgrade_cpan() {
-    echo "CPAN upgrade"
+    echo "CPAN installation"
     # 1. configure CPAN with defaults (answer yes)
     # 2. override default conf to UNINST cpan after upgrade (seems mandatory for EL8)
     (echo o conf make_install_arg 'UNINST=1'; echo o conf commit)|PERL_MM_USE_DEFAULT=1 ${CPAN_BIN_PATH} &> /dev/null
@@ -70,7 +70,7 @@ upgrade_cpan() {
 
     # display CPAN version
     ${CPAN_BIN_PATH} -D CPAN
-    echo "CPAN upgraded"
+    echo "CPAN installed at ${CPAN_VERSION}"
 }
 
 # generate MyConfig.pm for packetfence-perl
@@ -169,8 +169,9 @@ generate_pfperl_cpan_config
 # Read from csv file
 #  Read and extract info from csv file
 #
-ListCsvModInstall=()
 ListCsvModName=()
+ListCsvModVersion=()
+ListCsvModInstall=()
 ListCsvModTest=()
 
 OLDIFS=$IFS
