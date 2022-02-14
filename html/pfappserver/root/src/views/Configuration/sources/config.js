@@ -84,11 +84,11 @@ export const authenticationRuleActionsFromSourceType = (sourceType) => ([
 
 export const decomposeSource = (item) => {
 
-  const { allowed_domains = '', banned_domains = [] } = item
+  const { allowed_domains , banned_domains } = item
   return {
     ...item,
-    allowed_domains: allowed_domains.split(',').map(s => s.trim()),
-    banned_domains: banned_domains.split(',').map(s => s.trim())
+    allowed_domains: (allowed_domains || '').split(',').map(s => s.trim()).filter(s => s),
+    banned_domains: (banned_domains || '').split(',').map(s => s.trim()).filter(s => s)
   }
 }
 
