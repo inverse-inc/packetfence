@@ -882,7 +882,7 @@ sub security_event_maintenance {
     my $rows_processed = 0;
     my @processed;
     my $id = 0;
-    my $release_date = $ZERO_DATE;
+    my $release_date = '0000-01-01 00:00:00';
     while(1) {
         my ($status, $iter) = pf::dal::security_event->search(
             -where => {
