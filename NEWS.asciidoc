@@ -71,6 +71,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * PKI actions are now logged to the admin API audit log
 * Reduce list of accepted ciphers in haproxy-portal and haproxy-admin to reinforce security
 * Improved the performance of the bandwidth accounting cleanup process (#6850)
+* Purge binary logs task
 
 === Bug Fixes
 
