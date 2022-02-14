@@ -64,7 +64,7 @@ You can download the ISO here: https://www.packetfence.org/download.html#/iso
 
 This setup has been tested using VMware ESXi, Proxmox VE and VirtualBox but will also work with any hypervisor PacketFence supports as well as bare-metal servers.
 
-You will need a virtual machine or server with 12 GB of RAM dedicated to machine as well as 2 CPUs. Make sure you also have a hard-drive of at least 100GB.
+You will need a virtual machine or server with 12 GB of RAM dedicated to machine as well as 2 CPUs. Make sure you allocate at least 100GB of disk space for PacketFence.
 
 ==== Installing the ISO to a virtual machine
 
@@ -73,7 +73,7 @@ The installer will open and you will simply have to follow the instructions on s
 
 ==== Installing the ISO to a bare-metal server
 
-First, make sure your server follows the specifications above and then burn the ISO onto a DVD and boot your server using the DVD.
+First, make sure your server follows the specifications above and then burn the ISO onto a DVD or USB key and boot it on the server.
 The installer will open and you will simply have to follow the instructions on screen to complete the installation.
 
 === Installing PacketFence on existing Linux
