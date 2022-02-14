@@ -31,6 +31,15 @@ func ManualConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql
 	return ConnectURI(ctx, uri)
 }
 
+func DbLocalFromConfig(ctx context.Context) (*sql.DB, error) {
+
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
+
+	dbConfig := pfconfigdriver.Config.PfConf.Database
+
+	return ManualConnectDb(ctx, dbConfig.User, dbConfig.Pass, "localhost", dbConfig.Db)
+}
+
 func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
 	uri := ReturnURIFromConfig(ctx, dbName)
 	return ConnectURI(ctx, uri)

@@ -48,6 +48,7 @@ use pfappserver::Form::Config::Pfcron::dns_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::admin_api_audit_log_cleanup;
 use pfappserver::Form::Config::Pfcron::bandwidth_maintenance;
 use pfappserver::Form::Config::Pfcron::ubiquiti_ap_mac_to_ip;
+use pfappserver::Form::Config::Pfcron::purge_binary_logs;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Pfcron::$_" } qw(
@@ -75,6 +76,7 @@ our %TYPES_TO_FORMS = (
       admin_api_audit_log_cleanup
       bandwidth_maintenance
       ubiquiti_ap_mac_to_ip
+      purge_binary_logs
     )
 );
 

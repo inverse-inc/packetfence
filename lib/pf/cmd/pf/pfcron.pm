@@ -67,6 +67,8 @@ pfcmd pfcron <task> [options...]
 
 =item ubiquiti_ap_mac_to_ip
 
+=item purge_binary_logs
+
 =back
 
 =head1 DESCRIPTION

@@ -3,9 +3,10 @@ package maint
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
-	"time"
 )
 
 const bandwidthMaintenanceSessionCleanupSQL = `

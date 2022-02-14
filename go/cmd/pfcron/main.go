@@ -3,11 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/cron"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/robfig/cron/v3"
 	"net"
 	"os"
 	"os/signal"
@@ -16,6 +11,12 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+
+	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/go-utils/log"
+	maint "github.com/inverse-inc/packetfence/go/cron"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/robfig/cron/v3"
 )
 
 func setProcessing() {
@@ -63,7 +64,7 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 var processJobs uint32 = 1
 
-func wrapJob(logger log.PfLogger, j string) cron.Job {
+func wrapJob(logger log.PfLogger, j string, l bool) cron.Job {
 	var ch = make(chan struct{}, 1)
 	ch <- struct{}{}
 	return cron.FuncJob(func() {
@@ -73,7 +74,7 @@ func wrapJob(logger log.PfLogger, j string) cron.Job {
 			}
 		}()
 
-		if atomic.LoadUint32(&processJobs) == 0 {
+		if atomic.LoadUint32(&processJobs) == 0 && l == false {
 			logger.Info("Not processing " + j)
 			return
 		}
@@ -165,7 +166,7 @@ func main() {
 	)))
 
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
-		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name()))
+		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name(), job.ForceLocal()))
 		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))
 	}
 

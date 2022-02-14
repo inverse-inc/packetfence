@@ -4,6 +4,7 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
 )
@@ -15,6 +16,7 @@ type JobSetupConfig interface {
 	Schedule() cron.Schedule
 	ScheduleSpec() string
 	Name() string
+	ForceLocal() bool
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
@@ -26,6 +28,7 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
 	"ip4log_cleanup":              NewIp4logCleanup,
 	"ip6log_cleanup":              NewIp6logCleanup,
+	"purge_binary_logs":           MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
 	"admin_api_audit_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"auth_log_cleanup":            MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"dns_audit_log_cleanup":       MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
@@ -100,6 +103,7 @@ type Task struct {
 	Status          string `json:"status"`
 	Description     string `json:"description"`
 	ScheduleSpecStr string `json:"schedule"`
+	Local           string `json:"local"`
 }
 
 func SetupTask(config map[string]interface{}) Task {
@@ -108,6 +112,7 @@ func SetupTask(config map[string]interface{}) Task {
 		Status:          config["status"].(string),
 		Description:     config["description"].(string),
 		ScheduleSpecStr: config["schedule"].(string),
+		Local:           config["local"].(string),
 	}
 }
 
@@ -122,4 +127,8 @@ func (t *Task) ScheduleSpec() string {
 
 func (t *Task) Name() string {
 	return t.Type
+}
+
+func (t *Task) ForceLocal() bool {
+	return sharedutils.IsEnabled(t.Local)
 }
