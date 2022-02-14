@@ -889,7 +889,7 @@ sub security_event_maintenance {
                 -and => [
                     { status       => [ 'open', 'delayed' ] },
                     { release_date => { '<=' => \'NOW()' } },
-                    { release_date => { '!=' => $ZERO_DATE } },
+                    { release_date => { '>' => $release_date } },
                     { id => { '>' => $id } },
                 ],
               },
