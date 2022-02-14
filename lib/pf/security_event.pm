@@ -889,8 +889,7 @@ sub security_event_maintenance {
                 -and => [
                     { status       => [ 'open', 'delayed' ] },
                     { release_date => { '<=' => \'NOW()' } },
-                    { release_date => { '>' => $release_date } },
-                    { id => { '>' => $id } },
+                    \[ '(release_date, id) > (?, ?)', $release_date, $id ],
                 ],
               },
            -limit => $batch,
