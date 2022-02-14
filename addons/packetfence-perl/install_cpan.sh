@@ -23,7 +23,7 @@ configure_and_check() {
     CPAN_BIN_PATH="/usr/bin/cpan"
     CPAN_VERSION=2.29
 
-    MODULES_WITHOUT_VERSION="Net::Radius LWP::UserAgent Module::Loaded"
+    MODULES_WITHOUT_VERSION=("Net::Radius" "libwww-perl" "Module::Loaded")
 
     prepare_env
     install_requirements
@@ -102,7 +102,7 @@ dump_modules_installed() {
 
 check_module_installed_in_dump() {
     local mod_name=$1
-    local mod_version=${mod_version:-$2}
+    local mod_version=${2:-}
 
     if [ -n "${mod_version}" ]; then
         grep "$mod_name,$mod_version" ${DUMP_FILE}
@@ -111,9 +111,12 @@ check_module_installed_in_dump() {
     fi
 }
 
-# https://stackoverflow.com/a/8063398
-contains() {
-    [[ $1 =~ (^|[[:space:]])$2($|[[:space:]]) ]] && exit 0 || exit 1
+# https://stackoverflow.com/a/8574392
+contains_element() {
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done
+    return 1
 }
 #
 # Extract a simple name from perl
@@ -219,7 +222,8 @@ for i in ${!ListCsvModInstall[@]}
 do
     if ! check_module_installed_in_dump ${ListCsvModName[$i]} ${ListCsvModVersion[$i]}; then
         echo "${ListCsvModName[$i]} ${ListCsvModVersion[$i]} not found installed in ${DUMP_FILE}"
-        if contains ${MODULES_WITHOUT_VERSION} ${ListCsvModName[$i]}; then
+        # quotes around array is important
+        if contains_element ${ListCsvModName[$i]} "${MODULES_WITHOUT_VERSION[@]}"; then
             echo "${ListCsvModName[$i]} doesn't have version returned by 'dump_modules_installed', checking without version"
 
             # we check in dump without version

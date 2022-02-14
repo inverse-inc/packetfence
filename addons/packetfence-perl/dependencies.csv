@@ -121,7 +121,7 @@ HTML::FormFu,2.07,CFRANKS/HTML-FormFu-2.07.tar.gz,True,C/CF/CFRANKS/HTML-FormFu-
 Data::Structure::Util,0.16,ANDYA/Data-Structure-Util-0.16.tar.gz,True,A/AN/ANDYA/Data-Structure-Util-0.16.tar.gz,4
 Data::Serializer,0.65,NEELY/Data-Serializer-0.65.tar.gz,False,N/NE/NEELY/Data-Serializer-0.65.tar.gz,4
 URI::SmartURI,0.032,RKITOVER/URI-SmartURI-0.032.tar.gz,True,R/RK/RKITOVER/URI-SmartURI-0.032.tar.gz,4
-LWP::UserAgent,6.55,OALDERS/libwww-perl-6.55.tar.gz,True,O/OA/OALDERS/libwww-perl-6.55.tar.gz,4
+libwww-perl,6.55,OALDERS/libwww-perl-6.55.tar.gz,True,O/OA/OALDERS/libwww-perl-6.55.tar.gz,4
 Crypt::OpenSSL::Bignum,0.09,KMX/Crypt-OpenSSL-Bignum-0.09.tar.gz,True,K/KM/KMX/Crypt-OpenSSL-Bignum-0.09.tar.gz,4
 YAML,1.30,TINITA/YAML-1.30.tar.gz,True,T/TI/TINITA/YAML-1.30.tar.gz,4
 Mock::Config,0.03,RURBAN/Mock-Config-0.03.tar.gz,True,R/RU/RURBAN/Mock-Config-0.03.tar.gz,4
@@ -163,7 +163,7 @@ Linux::Distribution,0.23,CHORNY/Linux-Distribution-0.23.tar.gz,True,C/CH/CHORNY/
 Linux::FD,0.011,LEONT/Linux-FD-0.011.tar.gz,True,L/LE/LEONT/Linux-FD-0.011.tar.gz,2
 Locale::gettext,1.07,PVANDRY/gettext-1.07.tar.gz,True,P/PV/PVANDRY/gettext-1.07.tar.gz,2
 JSON::XS,4.03,MLEHMANN/JSON-XS-4.03.tar.gz,True,M/ML/MLEHMANN/JSON-XS-4.03.tar.gz,2
-TimeDate,2.33,ATOOMIC/TimeDate-2.33.tar.gz,True,A/AT/ATOOMIC/TimeDate-2.33.tar.gz,2
+Date::Parse,2.33,ATOOMIC/TimeDate-2.33.tar.gz,True,A/AT/ATOOMIC/TimeDate-2.33.tar.gz,2
 Term::Size::Any,0.002,FERREIRA/Term-Size-Any-0.002.tar.gz,True,F/FE/FERREIRA/Term-Size-Any-0.002.tar.gz,2
 Catalyst::Devel,1.42,HAARG/Catalyst-Devel-1.42.tar.gz,True,H/HA/HAARG/Catalyst-Devel-1.42.tar.gz,2
 Crypt::Eksblowfish,0.009,ZEFRAM/Crypt-Eksblowfish-0.009.tar.gz,True,Z/ZE/ZEFRAM/Crypt-Eksblowfish-0.009.tar.gz,2
