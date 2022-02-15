@@ -1,4 +1,4 @@
-name: Check firewall sso start
+name: Check firewall SSO stop
 testcases:
 
 - name: check_mock_history_request

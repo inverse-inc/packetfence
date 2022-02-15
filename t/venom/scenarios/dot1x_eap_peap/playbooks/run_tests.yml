@@ -5,17 +5,15 @@
 
   vars:
     test_suites:
-      - configurator
-      - global_config
-#      - wired_dot1x_eap_peap
-#      - wired_dot1x_eap_peap/teardown
-#      - wired_dot1x_eap_peap_firewall_sso_https
-#      - wired_dot1x_eap_peap_firewall_sso_https/teardown
-      - wired_dot1x_eap_peap_firewall_sso_radius
-#      - wired_dot1x_eap_peap_firewall_sso_radius/teardown
-#      - wireless_dot1x_eap_peap
-#      - wireless_dot1x_eap_peap/teardown
-#      - global_teardown
+    - configurator
+    - global_config
+    - wired_dot1x_eap_peap
+    - wired_dot1x_eap_peap/teardown
+    - wired_dot1x_eap_peap_firewall_sso_https
+    - wired_dot1x_eap_peap_firewall_sso_https/teardown
+    - wired_dot1x_eap_peap_firewall_sso_radius
+    - wired_dot1x_eap_peap_firewall_sso_radius/teardown
+    - global_teardown
 
   tasks:
     - name: Run Venom testsuites

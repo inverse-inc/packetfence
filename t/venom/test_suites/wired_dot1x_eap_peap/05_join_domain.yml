@@ -76,11 +76,6 @@ testcases:
     retry: 8
     delay: 15
 
-- name: sleep_10s_wait_domain_join
-  steps:
-  - type: exec
-    script: sleep 10
-
 - name: test_join
   steps:
   - type: http
