@@ -383,7 +383,7 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import {
   nodeFields as _nodeFields,
@@ -402,6 +402,12 @@ const setup = (props, context) => {
   const rootRef = ref(null)
   const form = ref({})
   const schema = computed(() => schemaFn(props, form.value))
+
+  const user = computed(() => $store.state.$_users.users[pid.value] || {})
+  watch(user, () => {
+    form.value = { ...user.value } // dereference
+  }, { deep: true, immediate: true })
+
   const tabIndex = ref(0)
   const isDefaultUser = computed(() => {
     const { pid } = form.value
@@ -464,9 +470,7 @@ const setup = (props, context) => {
     $store.dispatch('$_users/getUserSecurityEvents', pid.value).then(_securityEvents => {
       securityEvents.value = _securityEvents
     })
-    $store.dispatch('$_users/refreshUser', pid.value).then(user => {
-      form.value = { ...user }
-    })
+    $store.dispatch('$_users/refreshUser', pid.value)
   }
   onInit()
 

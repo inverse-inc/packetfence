@@ -127,7 +127,7 @@ const actions = {
   },
   refreshUser: ({ state, commit, dispatch }, pid) => {
     if (state.users[pid]) {
-      commit('USER_DESTROYED', pid)
+      Vue.set(state.users, pid, false)
     }
     commit('USER_REQUEST')
     return new Promise((resolve, reject) => {
@@ -195,10 +195,11 @@ const actions = {
       })
     })
   },
-  updateUser: ({ commit }, data) => {
+  updateUser: ({ commit, dispatch }, data) => {
     commit('USER_REQUEST')
     return api.updateUser(data).then(response => {
       commit('USER_REPLACED', data)
+      dispatch('refreshUser', data.pid)
       return response
     }).catch(err => {
       commit('USER_ERROR', err.response)
