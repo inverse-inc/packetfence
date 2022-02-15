@@ -71,7 +71,6 @@
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
-        <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
     </b-navbar>
     <app-api-progress />
@@ -95,6 +94,8 @@
     </b-container>
     <!-- Show login if session expires -->
     <app-login modal />
+    <!-- Show notifications late in DOM for z-index above b-modal -->
+    <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
   </div>
 </template>
 
