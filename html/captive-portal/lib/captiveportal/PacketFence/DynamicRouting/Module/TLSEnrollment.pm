@@ -28,6 +28,7 @@ use Crypt::OpenSSL::X509;
 use pf::password;
 use Crypt::GeneratePassword qw(word);
 use pf::constants;
+use Email::Valid;
 
 has 'pki_provider' => (is => 'rw', isa => 'pf::pki_provider');
 
@@ -157,6 +158,10 @@ sub process_form  {
         $certificate_email = $self->session->{certificate_email};
     }
     elsif ( defined($self->app->request->param('certificate_email')) && $self->app->request->param('certificate_email') ne '' ){
+        unless( Email::Valid->address($self->app->request->param('certificate_email')) ) {
+            $self->app->flash->{error} = "Wrong e-mail format given";
+            return $FALSE;
+        }
         $certificate_email = $self->app->request->param('certificate_email');
     }
     else {
