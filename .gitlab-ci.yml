@@ -33,10 +33,12 @@ variables:
   RELEASEDIR: ${CILIBDIR}/release
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
+  ISODIR: $CIDIR/debian-installer
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   TESTDIR: t/venom
   UPLOAD_DIR: $CILIBDIR/upload
-  SF_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
+  SF_ZEN_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
+  SF_ISO_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ISO
   # env variables
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
@@ -150,6 +152,14 @@ variables:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_PF_IMG_ZEN == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_zen=yes/ )'
+
+# run this job on:
+# - devel branch with BUILD_PF_IMG_ISO variable defined or build_pf_img_iso=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_PF_IMG_ISO sets to yes or if CI_COMMIT_MESSAGE contains "build_pf_img_iso=yes".
+.build_pf_img_iso_devel_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_iso=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_PF_IMG_ISO == "yes" || $CI_COMMIT_MESSAGE =~ /build_pf_img_ISO=yes/ )'
 
 # run this job on:
 # - devel branch with BUILD_ARTIFACTS_WEBSITE variable defined or build_artifacts_website=yes in commit message
@@ -345,10 +355,20 @@ variables:
   stage: build_pf_img
   environment:
     name: sourceforge
-    url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
+    url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
   after_script:
     - make -e -C ${ZENDIR} clean
     - make -e -C ${ZENDIR} clean_cache
+  dependencies: []
+  tags:
+    - shell
+
+.build_pf_img_iso_job:
+  stage: build_pf_img
+  environment:
+    name: sourceforge
+  after_script:
+    - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
     - shell
@@ -852,6 +872,29 @@ build_pf_img_zen_release:
     - .build_pf_img_zen_job
   script:
     - make -e -C ${ZENDIR} zen-deb11
+  # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual
+      allow_failure: true
+
+### build_pf_img_iso jobs
+build_pf_img_iso_devel:
+  extends:
+    - .build_pf_img_iso_job
+    - .build_pf_img_iso_devel_rules
+  environment:
+    url: ${SF_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}
+  script:
+    - PF_VERSION=${CI_COMMIT_REF_SLUG} make -e -C ${ISODIR} iso
+
+build_pf_img_iso_release:
+  extends:
+    - .build_pf_img_iso_job
+  environment:
+    url: ${SF_ISO_REPO_URL}/${CI_COMMIT_TAG}
+  script:
+    - PF_VERSION=${CI_COMMIT_TAG} make -e -C ${ISODIR} iso
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
