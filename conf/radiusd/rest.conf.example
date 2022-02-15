@@ -187,6 +187,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	pre-proxy {
 		uri = "${..connect_uri}/radius/rest/filter"
