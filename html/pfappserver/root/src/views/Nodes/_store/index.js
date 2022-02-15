@@ -6,6 +6,10 @@ import { computed } from '@vue/composition-api'
 import api from '../_api'
 import store from '@/store'
 import i18n from '@/utils/locale'
+import {
+  decomposeNode,
+  recomposeNode
+} from '../_config/'
 
 export const useStore = $store => {
   return {
@@ -13,9 +17,9 @@ export const useStore = $store => {
     sortedSecurityEvents: computed(() => $store.getters['config/sortedSecurityEvents']),
     reloadItem: params => $store.dispatch('$_nodes/refreshNode', params.id),
     deleteItem: params => $store.dispatch('$_nodes/deleteNode', params.id),
-    getItem: params => $store.dispatch('$_nodes/getNode', params.id),
-    createItem: params => $store.dispatch('$_nodes/createNode', params),
-    updateItem: params => $store.dispatch('$_nodes/updateNode', params),
+    getItem: params => $store.dispatch('$_nodes/getNode', decomposeNode(params.id)),
+    createItem: params => $store.dispatch('$_nodes/createNode', recomposeNode(params)),
+    updateItem: params => $store.dispatch('$_nodes/updateNode', recomposeNode(params)),
     reevaluateAccess: params => $store.dispatch('$_nodes/reevaluateAccessNode', params.id),
     refreshFingerbank: params => $store.dispatch('$_nodes/refreshFingerbankNode', params.id),
     restartSwitchport: params => $store.dispatch('$_nodes/restartSwitchportNode', params.id),
