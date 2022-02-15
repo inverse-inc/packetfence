@@ -33,6 +33,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Added support for Kandji MDM as a provisioner
 * OpenWiFi switch module
 * Allow to manage devices (unregister) when reaching max nodes (#6860)
+* ISO installer based on Debian 11 (#6803)
 
 === Enhancements
 
