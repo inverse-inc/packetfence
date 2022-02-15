@@ -285,8 +285,9 @@ server packetfence {
 		packetfence-nas-ip-address
 
 		[% IF proxy_pfacct %]
+		replicate
 		update control {
-			Proxy-To-Realm := "pfacct"
+			Replicate-To-Realm := "pfacct"
 		}
 		[% ELSE %]
 		# proxying to pfacct is not necessary
