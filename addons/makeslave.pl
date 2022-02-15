@@ -51,9 +51,6 @@ while (my $row = <$fh>) {
     if ($row =~ /^([a-zA-Z0-9_\-\.]+)\s+(\d+)(\s+)?((\d+-\d+-\d+)?(,(\d+-\d+-\d+))?)?$/ ) {
         $file = $1;
         $position = $2;
-        if (defined($4)) {
-            $gtid = $4;
-        }
     } else {
         die "unable to find the position in the binary log, check if the file /var/lib/mysql/xtrabackup_binlog_info contains the correct information";
     }
@@ -65,7 +62,7 @@ if (!defined($gtid)) {
     @output = `sudo mysql -u $replication_username -p'$replication_password' -h$mysql_master_ip -e "SELECT BINLOG_GTID_POS('$file', $position)\\G"`;
 
     foreach my $item (@output) {
-        if ($item =~ /((\d+-\d+-\d+)?(,(\d+-\d+-\d+))?)$/) {
+        if ($item =~ /((\d+-\d+-\d+)?(,(\d+-\d+-\d+))+(,(\d+-\d+-\d+))?)$/) {
             $gtid = $1;
         }
     }
