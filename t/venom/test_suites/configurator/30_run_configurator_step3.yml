@@ -29,6 +29,8 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Settings updated"
+    retry: 3
+    delay: 5
 
 - name: check_api_key_configured
   steps:
