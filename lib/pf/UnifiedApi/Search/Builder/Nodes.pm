@@ -18,6 +18,7 @@ use Moo;
 extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
 use pf::dal::locationlog;
+use pf::dal::ip4log;
 use pf::dal::radacct;
 use pf::util qw(clean_mac ip2int valid_ip);
 use pf::constants qw($ZERO_DATE);
@@ -175,7 +176,30 @@ sub rewrite_security_event_close_security_event_id {
 
 sub rewrite_ip4log_ip {
     my ($self, $s, $q) = @_;
-    return (422, { message => "" });
+    my $op = $q->{op};
+    my $value = $q->{value};
+    if (!defined $value) {
+        if ($op ne 'equals' && $op ne 'not_equals') {
+            return (422, { message => "$op is not valid for a null $q->{name} field" });
+        }
+        my $not = $op eq 'equals' ? 'NOT' : '';
+        return (200, \["$not EXISTS (SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) = (node.mac, node.tenant_id))"])
+    }
+
+    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($q);
+    my $sqla = pf::dal->get_sql_abstract;
+    my ($sql, @bind) = pf::dal::ip4log->select(
+        -from => 'ip4log',
+        -columns => [qw(ip)],
+        -where => $sqla->merge_conditions(
+            $where,
+            {
+                'ip4log.mac' => { '=' => {-ident => 'node.mac'} },
+            },
+        ),
+    );
+
+    return (200, \["EXISTS ($sql)", @bind]);
 }
 
 sub rewrite_security_event_close_count {

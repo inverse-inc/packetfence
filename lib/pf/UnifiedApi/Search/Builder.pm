@@ -524,6 +524,18 @@ Makes the SQL::Abstract::More where clause from the search_info
 sub make_where {
     my ($self, $s) = @_;
     my $query = $s->{query};
+    my ($status, $where) = $self->make_where_from_query($s, $query);
+    if (is_error($status)) {
+        return $status, $where;
+    }
+
+    my $sqla = pf::dal->get_sql_abstract;
+    return 200, $sqla->merge_conditions(@$where, $self->additional_where_clause($s));
+}
+
+sub make_where_from_query {
+    my ($self, $s) = @_;
+    my $query = $s->{query};
     my @where;
     if (defined $query) {
         (my $status, $query) = $self->verify_query($s, $query);
@@ -534,9 +546,7 @@ sub make_where {
         push @where, $where;
     }
 
-    my $sqla = pf::dal->get_sql_abstract;
-    my $where = $sqla->merge_conditions(@where, $self->additional_where_clause($s));
-    return 200, $where;
+    return 200, \@where;
 }
 
 =head2 additional_where_clause

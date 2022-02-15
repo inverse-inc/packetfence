@@ -227,16 +227,12 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
             200,
             {
                 '-and' => [
-                    {
-                        'ip4log.ip' => {
-                            '=' => undef
-                        }
-                    },
+                    \["NOT EXISTS (SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) = (node.mac, node.tenant_id))"],
                     {
                         'node.mac' => {
                             '!=' => undef
                         }
-                    }
+                    },
                 ]
             }
         ],
@@ -286,7 +282,7 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
     my @f = qw(mac);
     my %q = (
         op     => 'between',
-        field  => 'ip4log.ip',
+        field  => 'mac',
         values => undef,
     );
     my %search_info = (
@@ -347,7 +343,7 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
         [
             200,
             {
-                'ip4log.ip' => {
+                'node.mac' => {
                     -between => [1,2],
                 }
             }
@@ -374,7 +370,7 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
         fields => \@f,
         query => {
             op => 'equals',
-            field => 'ip4log.ip',
+            field => 'mac',
             value => undef,
         },
     );
@@ -397,7 +393,7 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
         [
             200,
             {
-                'ip4log.ip' => {
+                'node.mac' => {
                     '=' => undef,
                 },
             },
@@ -432,6 +428,7 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
         ],
         'Return the columns'
     );
+
     is_deeply(
         [
             $sb->make_where(\%search_info)
@@ -439,13 +436,15 @@ my $ip4log_col = \'(SELECT ip FROM ip4log WHERE (ip4log.mac, ip4log.tenant_id) =
         [
             200,
             {
-                'ip4log.ip' => { "=" => "1.1.1.1"},
-            },
+                '-nest' => \[
+'EXISTS (SELECT `ip` FROM `ip4log` WHERE ( ( `ip4log`.`ip` = ? AND `ip4log`.`mac` = `node`.`mac` AND `ip4log`.`tenant_id` = ? ) ))',
+                    '1.1.1.1',
+                    1
+                ]
+            }
         ],
         'Return the joined tables'
     );
-
-    $sb->make_where(\%search_info);
 
     my @a = $sb->make_from(\%search_info);
     is_deeply(
