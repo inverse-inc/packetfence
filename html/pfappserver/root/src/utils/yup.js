@@ -89,6 +89,7 @@ const reAlphaNumeric = value => /^[a-zA-Z0-9]*$/.test(value)
 const reAlphaNumericHyphenUnderscoreDot = value => /^[a-zA-Z0-9-_.]*$/.test(value)
 const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
 const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
+const reDomain = value => /^((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9*]+\.)+[a-zA-Z]{2,}))$/.test(value)
 const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
 const reIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
 const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
@@ -244,6 +245,19 @@ yup.addMethod(yup.string, 'isDateFormatOrZero', function (message, dateFormat = 
         ['', null, undefined].includes(value)
         || [0, '0'].includes(value)
         || dateFormat.replace(/[a-z]/gi, '0') === value.replace(/[0-9]/g, '0') // '0000-00-00 00:00:00' === '0000-00-00 00:00:00'
+      )
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'isDomain', function (message) {
+  return this.test({
+    name: 'isDomain',
+    message: message || i18n.t('Invalid domain name.'),
+    test: value => {
+      return (
+        ['', null, undefined].includes(value)
+        || reDomain(value)
       )
     }
   })

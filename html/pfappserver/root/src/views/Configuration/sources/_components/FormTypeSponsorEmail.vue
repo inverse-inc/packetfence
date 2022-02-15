@@ -20,13 +20,13 @@
     />
 
     <form-group-banned-domains namespace="banned_domains"
-      :column-label="$i18n.t('Comma-separated list of Banned Domains')"
-      :text="$i18n.t('A comma-separated list of domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.')"
+      :column-label="$i18n.t('Banned Domains')"
+      :text="$i18n.t('Domains that are banned for email registration. Wildcards are accepted (*pfdemo.org). Banned domains are checked before allowed domains.')"
     />
 
     <form-group-allowed-domains namespace="allowed_domains"
-      :column-label="$i18n.t('Comma-separated list of Allowed Domains')"
-      :text="$i18n.t('A comma-separated list of domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.')"
+      :column-label="$i18n.t('Allowed Domains')"
+      :text="$i18n.t('Domains that are allowed for email registration. Wildcards are accepted (*pfdemo.org). Allowed domains are checked after banned domains.')"
     />
 
     <form-group-email-activation-timeout namespace="email_activation_timeout"
