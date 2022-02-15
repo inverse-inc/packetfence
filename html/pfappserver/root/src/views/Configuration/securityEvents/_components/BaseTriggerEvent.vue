@@ -8,6 +8,7 @@
       <component :is="valueComponent" ref="valueComponentRef"
         :namespace="`${namespace}.value`"
         :options="valueOptions"
+        taggable
       />
     </div>
     <template v-if="hasFingerbankNetworkBehaviorPolicy">
@@ -132,12 +133,12 @@ const setup = (props, context) => {
   })
   const hasFingerbankNetworkBehaviorPolicy = computed(() => {
     const { type, value } = inputValue.value || {}
-    return type === 'internal' 
+    return type === 'internal'
       && fingerbankNetworkBehaviorPolicyTypes.includes(value)
   })
   watch(hasFingerbankNetworkBehaviorPolicy, () => { // when policy requirement changes
     if (!hasFingerbankNetworkBehaviorPolicy.value) { // and policy is no longer required
-      const { type, value } = inputValue.value || {}  
+      const { type, value } = inputValue.value || {}
       onChange({ type, value }) // clear policy
     }
   })
