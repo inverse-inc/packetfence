@@ -26,6 +26,11 @@
       :text="$i18n.t('If you use an alternative port, please specify.')"
     />
 
+    <form-group-verify-hostname namespace="verify_hostname"
+      :column-label="$i18n.t('Verify Hostname')"
+      :text="$i18n.t('Verify hostname of server when connecting to the API.')"
+    />
+
     <form-group-nessus-clientpolicy namespace="nessus_clientpolicy"
       :column-label="$i18n.t('Nessus client policy')"
       :text="$i18n.t('Name of the policy to use on the nessus server.')"
@@ -82,7 +87,8 @@ import {
   FormGroupPostRegistration,
   FormGroupRegistration,
   FormGroupScannerName,
-  FormGroupUsername
+  FormGroupUsername,
+  FormGroupVerifyHostname
 } from './'
 
 const components = {
@@ -100,7 +106,8 @@ const components = {
   FormGroupPostRegistration,
   FormGroupRegistration,
   FormGroupScannerName,
-  FormGroupUsername
+  FormGroupUsername,
+  FormGroupVerifyHostname
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
