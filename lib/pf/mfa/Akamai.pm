@@ -156,6 +156,9 @@ sub check_user {
             if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
                 if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
                     return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
+                } else {
+                    $logger->warn("Unsuported method totp on device ".$default_device[0]->{'name'});
+                    return $FALSE;
                 }
             } elsif ($otp =~ /^\d{8,8}$/) {
                     return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp);
