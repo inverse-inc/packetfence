@@ -73,6 +73,9 @@ venom_local_vars:
   - name: 'node02_mgmt_ip'
     value: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
 
+  - name: 'node03_mgmt_ip'
+    value: "{{ users_vars[dict_name]['vms']['node03']['ip'] }}"
+
   - name: 'wireless01_mgmt_ip'
     value: "{{ users_vars[dict_name]['vms']['wireless01']['ip'] }}"
 

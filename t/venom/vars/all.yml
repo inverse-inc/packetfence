@@ -54,11 +54,16 @@ switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
 switch01.api.user: cumulus
 switch01.api.password: CumulusLinux!
 switch01.dot1x_interface.id: swp12
+switch01.dot1x_interface.node03: swp17
 
 # nodes variables
 node01_hostname: node01
 node01_ens7_mac_address: 00:03:00:11:11:01
 node01_ens7_mac_address_url_encoded: 00%3A03%3A00%3A11%3A11%3A01
+
+node03_hostname: node03
+node03_ens7_mac_address: 00:03:00:11:13:01
+node03_ens7_mac_address_url_encoded: 00%3A03%3A00%3A11%3A13%3A01
 
 # wireless01 variables
 wireless01_wlan1_mac_address: 02:00:00:00:01:00
