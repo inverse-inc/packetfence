@@ -1031,7 +1031,7 @@ sub returnRadiusCli{
 sub mfa_post_auth {
     my ($self, $args, $options, $sources, $source_id, $extra ,$otp, $password) = @_;
     my $logger = $self->logger;
-    $logger->debug("Pre MFA Authentication");
+    $logger->info("MFA Post Authentication");
     my $merged = { %$options, %$args };
     $merged->{'rule_class'} = $Rules::AUTH;
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
@@ -1062,7 +1062,7 @@ sub mfa_pre_auth {
     my $logger = $self->logger;
     my $caller = (caller(1))[3];
 
-    $logger->info("Pre MFA Authentication");
+    $logger->info("MFA Pre Authentication");
     # Special case where we need to check if there is a MFA config who exist and if we need to split the password field
     $args->{'mac'} = $FAKE_MAC unless defined($args->{'mac'});
     my $profile = pf::Connection::ProfileFactory->instantiate($args->{'mac'},$options);
