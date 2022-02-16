@@ -71,6 +71,7 @@
             </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
+        <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
     </b-navbar>
     <app-api-progress />
@@ -95,7 +96,7 @@
     <!-- Show login if session expires -->
     <app-login modal />
     <!-- Show notifications late in DOM for z-index above b-modal -->
-    <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
+    <app-notification-toasts />
   </div>
 </template>
 
@@ -104,6 +105,7 @@ import AppApiProgress from '@/components/AppApiProgress'
 import AppDocumentation from '@/components/AppDocumentation'
 import AppLogin from '@/components/AppLogin'
 import AppNotifications from '@/components/AppNotifications'
+import AppNotificationToasts from '@/components/AppNotificationToasts'
 import IconCounter from '@/components/IconCounter'
 
 const components = {
@@ -111,6 +113,7 @@ const components = {
   AppDocumentation,
   AppLogin,
   AppNotifications,
+  AppNotificationToasts,
   IconCounter
 }
 
