@@ -13,7 +13,7 @@ testcases:
     body: >-
       {
         "items": [
-          "{{.node01_ens7_mac_address}}"
+          "{{.node03_ens7_mac_address}}"
         ]
       }
     headers:

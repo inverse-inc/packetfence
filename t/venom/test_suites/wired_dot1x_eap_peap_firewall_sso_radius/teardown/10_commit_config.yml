@@ -1,1 +1,6 @@
-../../../switches/common/commit_config.yml
+name: Commit changes in configuration
+testcases:
+- name: commit_configuration
+  steps:
+  - type: run_cumulus_command_without_output
+    command: "commit"

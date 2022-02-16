@@ -18,3 +18,4 @@ steps:
       - result.statuscode ShouldEqual 200
 output:
   body: "{{.result.body}}"
+  status_code: "{{.result.statuscode}}"
