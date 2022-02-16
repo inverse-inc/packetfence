@@ -225,7 +225,7 @@ FROM macs JOIN dates;
 			{
 				name:          "aggregated records",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 1000,
+				expectedCount: 540,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
