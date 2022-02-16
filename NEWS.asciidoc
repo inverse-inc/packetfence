@@ -78,17 +78,17 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Reply to Windows devices configured through Intune even if they requested a non-existing URL (#6687)
 * Add RADIUS audit log entry in correct tenant when switches are defined by MAC address (#6540)
-* Fixes issue with edition of PKI template (#6713)
-* Fixes issue on PKI template save (#6749)
-* Fixes issue on PKI templates can be modified by a SCEP request (#6751)
-* Fixes issue with PKI From value when sending certificate by email (#6370)
-* Fixes documentation for Huawei (PR #6692)
-* Fix issue when pulling the wrong certificate only based on the cn (#5861)
-* Fix regression in the Unifi module for deauthentication of webauth clients when the APs are defined using an IP or CIDR in the configuration (#6686)
-* Fixes revoke certificate on unregistration (#6826)
+* Fixed issue with edition of PKI template (#6713)
+* Fixed issue on PKI template save (#6749)
+* Fixed issue on PKI templates can be modified by a SCEP request (#6751)
+* Fixed issue with PKI From value when sending certificate by email (#6370)
+* Fixed documentation for Huawei (PR #6692)
+* Fixed issue when pulling the wrong certificate only based on the cn (#5861)
+* Fixed regression in the Unifi module for deauthentication of webauth clients when the APs are defined using an IP or CIDR in the configuration (#6686)
+* Fixed revoke certificate on unregistration (#6826)
 * Send certificates by email using alerting settings (#5917)
 * Validate email format on TLS Enrollment form
-* Fix issue where portal could apply actions from different auth rules (#6896)
+* Fixed issue where portal could apply actions from different auth rules (#6896)
 
 == Version 11.1.0 released on 2021-10-28
 
