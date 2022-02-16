@@ -310,7 +310,15 @@ sub format_column {
     }
     my $allowed_join_fields = $self->allowed_join_fields;
     my $specs = $allowed_join_fields->{$c};
-    return exists $specs->{column_spec} ? $specs->{column_spec} : $c;
+    if (!exists $specs->{column_spec} ) {
+        return $c;
+    }
+    my $column_spec = $specs->{column_spec};
+    if (ref ($column_spec) eq 'CODE') {
+        return $column_spec->($self, $s, $c);
+    }
+
+    return $column_spec;
 }
 
 =head2 $self->allowed_join_fields()
