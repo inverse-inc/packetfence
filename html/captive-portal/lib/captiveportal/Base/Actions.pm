@@ -28,20 +28,52 @@ our %AUTHENTICATION_ACTIONS = (
     set_role => sub { $_[0]->new_node_info->{category} = $_[1]; },
     set_unregdate => sub { $_[0]->new_node_info->{unregdate} = $_[1] },
     set_access_duration => sub { $_[0]->new_node_info->{unregdate} = pf::config::access_duration($_[1]) },
-    unregdate_from_source => sub { $_[0]->new_node_info->{unregdate} = authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_UNREG_DATE, undef, $_[0]->session->{extra}); },
-    role_from_source => sub { $_[0]->new_node_info->{category} = authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_ROLE, undef, $_[0]->session->{extra}); },
+    unregdate_from_source => sub {
+           $_[0]->new_node_info->{unregdate} =
+               action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_UNREG_DATE, undef, $_[0]->session->{extra}) ||
+               action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_ACCESS_DURATION, undef, $_[0]->session->{extra});
+    },
+    role_from_source => sub { $_[0]->new_node_info->{category} = action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_ROLE, undef, $_[0]->session->{extra}); },
     no_action => sub {},
     set_time_balance => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time($_[1]) },
     set_bandwidth_balance => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth($_[1]) },
-    time_balance_from_source => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_TIME_BALANCE)); },
-    bandwidth_balance_from_source => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth(authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_BANDWIDTH_BALANCE)); },
+    time_balance_from_source => sub { $_[0]->new_node_info->{time_balance} = pf::util::normalize_time(action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_TIME_BALANCE)); },
+    bandwidth_balance_from_source => sub { $_[0]->new_node_info->{bandwidth_balance} = pf::util::unpretty_bandwidth(action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::SET_BANDWIDTH_BALANCE)); },
     default_actions => \&execute_default_actions,
     on_failure => sub {},
     on_success => sub {},
     destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];$_[0]->app->session->{portal_module_force_destination_url} = $TRUE},
     unregdate_from_sponsor_source => sub { $_[0]->new_node_info->{unregdate} = $_[0]->session->{unregdate} if defined($_[0]->session->{unregdate}) },
-    trigger_portal_mfa => sub { $_[0]->app->session->{mfa_id} = authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::TRIGGER_PORTAL_MFA, undef, $_[0]->session->{extra}); },
+    trigger_portal_mfa => sub { $_[0]->app->session->{mfa_id} = action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::TRIGGER_PORTAL_MFA, undef, $_[0]->session->{extra}); },
 );
+
+=head2 action_authentication_match_wrapper
+
+A wrapper around pf::authentication::match to add the portal context in the parameters
+This will filter the resulting actions on the provided action but will not perform the filtering via pf::authentication::match (see #6896)
+
+=cut
+
+sub action_authentication_match_wrapper {
+    my (@all) = @_;
+    $all[1]->{context} = $pf::constants::realm::PORTAL_CONTEXT,
+    # Extract the action from the parameters and remove it so it's not passed to pf::authentication::match
+    my $action = $all[2];
+    $all[2] = undef;
+
+    if(!defined($action)) {
+       get_logger->warn("Called action_authentication_match_wrapper without an action. No match will be returned.");
+        return undef;
+    }
+
+    my $results = pf::authentication::match(@all);
+    for my $result (@$results) {
+        if($result->{type} eq $action) {
+            return exists($pf::authentication::ACTION_VALUE_FILTERS{$action}) ? $pf::authentication::ACTION_VALUE_FILTERS{$action}->($result->{value}) : $result->{value};
+        }
+    }
+    return undef;
+}
 
 =head2 authentication_match_wrapper
 
