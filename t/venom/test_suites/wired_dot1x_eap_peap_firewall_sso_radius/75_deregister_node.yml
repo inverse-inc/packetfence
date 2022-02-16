@@ -1,4 +1,4 @@
-name: Deregister node to force stop accounting stop
+name: Deregister node to force SSO on reevaluation
 testcases:
 - name: get_login_token
   steps:
