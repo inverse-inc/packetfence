@@ -52,7 +52,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
     "eslint-plugin-vue": "^6.2.2",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "sass-loader": "^7.3.1",
     "stylelint": "^13.13.1",
     "stylelint-config-idiomatic-css": "^1.1.0",
