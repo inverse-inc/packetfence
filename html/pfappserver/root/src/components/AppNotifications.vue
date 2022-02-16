@@ -73,7 +73,6 @@ const setup = (props, context) => {
       $store.commit('notification/NOTIFICATION_UNMARK_UNREAD', notification)
     })
   }
-  const dismiss = notification => $store.commit('notification/NOTIFICATION_DISMISS', notification)
   const clear = () => $store.commit('notification/$RESET')
   const clipboard = notification => {
     const { url, message } = notification
@@ -98,7 +97,6 @@ const setup = (props, context) => {
     variant,
     show,
     markAsRead,
-    dismiss,
     clear,
     clipboard
   }

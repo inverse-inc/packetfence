@@ -1,7 +1,7 @@
 <template>
   <div class="notifications-toasts">
     <b-alert v-for="(notification) in newNotifications" :key="notification.id" variant="secondary"
-      @dismissed="dismiss(notification)" :show="notification.new" fade dismissible>
+      @dismissed="dismiss(notification)" show fade dismissible>
       <b-row class="justify-content-md-center">
         <b-col>
           <div class="notification-message">
@@ -29,9 +29,11 @@ const setup = (props, context) => {
 
   const notifications = computed(() => $store.state.notification.all)
   const newNotifications = computed(() => notifications.value.filter(n => n.new))
+  const dismiss = notification => $store.commit('notification/NOTIFICATION_DISMISS', notification)
 
   return {
-    newNotifications
+    newNotifications,
+    dismiss
   }
 }
 
@@ -49,7 +51,11 @@ $enable-shadows: true;
     position: fixed;
     z-index: $zindex-tooltip;
     top: .5rem; // in case of a single one-line notification, center the notification in the top navbar
-    right: 3rem; // keep the notification bell icon visible in the top navbar
+    right: 4rem; // keep the notification bell icon visible in the top navbar
     width: 30vw;
+
+    .alert {
+        @include box-shadow($toast-box-shadow);
+    }
 }
 </style>
