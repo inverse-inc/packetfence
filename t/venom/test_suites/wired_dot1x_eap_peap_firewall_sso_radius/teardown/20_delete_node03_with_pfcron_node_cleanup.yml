@@ -1,1 +1,6 @@
-../../wired_dot1x_eap_peap/teardown/20_delete_node01_with_pfcron_node_cleanup.yml
+name: Delete node03 by running pfcron node_cleanup task
+testcases:
+- name: delete_node03_with_pfcron_node_cleanup
+  steps:
+  - type: run_pfcmd_command
+    command: "pfcron node_cleanup"
