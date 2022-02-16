@@ -7,7 +7,7 @@ import api from '../_api'
 import store from '@/store'
 import i18n from '@/utils/locale'
 import {
-  decomposeNode,
+  normalizeMac,
   recomposeNode
 } from '../_config/'
 
@@ -17,7 +17,7 @@ export const useStore = $store => {
     sortedSecurityEvents: computed(() => $store.getters['config/sortedSecurityEvents']),
     reloadItem: params => $store.dispatch('$_nodes/refreshNode', params.id),
     deleteItem: params => $store.dispatch('$_nodes/deleteNode', params.id),
-    getItem: params => $store.dispatch('$_nodes/getNode', decomposeNode(params.id)),
+    getItem: params => $store.dispatch('$_nodes/getNode', normalizeMac(params.id)),
     createItem: params => $store.dispatch('$_nodes/createNode', recomposeNode(params)),
     updateItem: params => $store.dispatch('$_nodes/updateNode', recomposeNode(params)),
     reevaluateAccess: params => $store.dispatch('$_nodes/reevaluateAccessNode', params.id),
