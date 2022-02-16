@@ -41,6 +41,10 @@ const schemaCondition = yup.object({
 
 const schemaConditions = yup.array().ensure().unique(i18n.t('Duplicate condition.')).of(schemaCondition)
 
+const schemaDomain = yup.string().required(i18n.t('Domain required.')).isDomain()
+
+const schemaDomains = yup.array().ensure().unique(i18n.t('Duplicate domain.')).of(schemaDomain)
+
 const schemaHost = yup.string().nullable().label(i18n.t('Host'))
 
 const schemaHosts = yup.array().ensure().of(schemaHost).label(i18n.t('Hosts'))
@@ -86,12 +90,14 @@ export const schema = (props) => {
     access_token_param: yup.string().label(i18n.t('Parameter')),
     access_token_path: yup.string().label(i18n.t('Path')),
     account_sid: yup.string().label(i18n.t('SID')),
+    allowed_domains: schemaDomains,
     api_key: yup.string().label(i18n.t('API key')),
     api_login_id: yup.string().label(i18n.t('ID')),
     auth_token: yup.string().label(i18n.t('Token')),
     authenticate_realm: yup.string().label(i18n.t('Realm')),
     authorization_source_id: yup.string().label(i18n.t('Source')),
     authorize_path: yup.string().label(i18n.t('Path')),
+    banned_domains: schemaDomains,
     basedn: yup.string().label(i18n.t('Base DN')),
     cert_file: yup.string().label(i18n.t('File')),
     cert_id: yup.string().label(i18n.t('ID')),

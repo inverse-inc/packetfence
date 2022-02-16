@@ -17,6 +17,7 @@ import {
 import BaseFormGroupActiveDirectoryPasswordTest from './BaseFormGroupActiveDirectoryPasswordTest'
 import BaseFormGroupAdministrationRules from './BaseFormGroupAdministrationRules'
 import BaseFormGroupAuthenticationRules from './BaseFormGroupAuthenticationRules'
+import BaseFormGroupDomains from './BaseFormGroupDomains'
 import BaseFormGroupHostPortEncryption from './BaseFormGroupHostPortEncryption'
 import BaseFormGroupPersonMappings from './BaseFormGroupPersonMappings'
 import BaseFormGroupProtocolHostPort from './BaseFormGroupProtocolHostPort'
@@ -35,7 +36,7 @@ export {
   BaseFormGroupInput                        as FormGroupAccountSid,
   BaseFormGroupInput                        as FormGroupActivationDomain,
   BaseFormGroupAdministrationRules          as FormGroupAdministrationRules,
-  BaseFormGroupTextarea                     as FormGroupAllowedDomains,
+  BaseFormGroupDomains                      as FormGroupAllowedDomains,
   BaseFormGroupToggleNoYes                  as FormGroupAllowLocaldomain,
   BaseFormGroupInput                        as FormGroupApiKey,
   BaseFormGroupInputPassword                as FormGroupApiPassword,
@@ -49,7 +50,7 @@ export {
   BaseFormGroupInput                        as FormGroupAuthorizePath,
   BaseFormGroupInputNumber                  as FormGroupAuthListeningPort,
   BaseFormGroupInput                        as FormGroupAuthToken,
-  BaseFormGroupTextarea                     as FormGroupBannedDomains,
+  BaseFormGroupDomains                      as FormGroupBannedDomains,
   BaseFormGroupInput                        as FormGroupBaseDn,
   BaseFormGroupChosenOne                    as FormGroupBaseUrl,
   BaseFormGroupInput                        as FormGroupBindDn,
