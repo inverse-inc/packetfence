@@ -96,7 +96,7 @@ const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
 const reMac = value => /^([0-9a-fA-F]{2}[-:]?){5,}([0-9a-fA-F]){2}$/.test(value)
 const reNumeric = value => /^-?[0-9]*$/.test(value)
 // eslint-disable-next-line no-useless-escape
-const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?dev\s+[a-z,0-9\.]+$/i.test(value)
+const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?(via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?)?dev\s+[a-z,0-9\.]+$/i.test(value)
 
 yup.addMethod(yup.string, 'in', function (ref, message) {
   return this.test({

@@ -57,7 +57,7 @@
 
     <form-group-staticroutes namespace="staticroutes"
       :column-label="$i18n.t('Static routes')"
-      :text="$i18n.t('Add custom static toutes managed by keepalived, one line per static route. (like: 10.0.0.0/24 via 10.0.0.1 dev eth1)')"
+      :text="$i18n.t('Add custom static toutes managed by keepalived, one line per static route. (like: <code>10.0.0.0/24 dev eth1</code> or <code>10.0.0.0/24 via 10.0.0.1 dev eth1</code>)')"
     />
   </base-form>
 </template>
