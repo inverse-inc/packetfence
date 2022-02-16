@@ -25,6 +25,7 @@ func TestFileLogger(t *testing.T) {
 			"schedule":    "@every 1m",
 			"outfile":     name,
 			"content":     "content\n",
+			"local":       "1",
 		},
 	)
 
