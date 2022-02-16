@@ -5,21 +5,26 @@ import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from './_api'
+import {
+  decomposeSource,
+  recomposeSource
+} from './config'
 
 export const useStore = $store => {
   return {
     isLoading: computed(() => $store.getters['$_sources/isLoading']),
     getList: () => $store.dispatch('$_sources/all'),
     getListOptions: params => $store.dispatch('$_sources/optionsBySourceType', params.sourceType),
-    createItem: params => $store.dispatch('$_sources/createAuthenticationSource', params),
+    createItem: params => $store.dispatch('$_sources/createAuthenticationSource', recomposeSource(params)),
     sortItems: params => $store.dispatch('$_sources/sortAuthenticationSources', params.items),
     getItem: params => $store.dispatch('$_sources/getAuthenticationSource', params.id).then(item => {
-      return (params.isClone)
+      return decomposeSource((params.isClone)
         ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
         : item
+      )
     }),
     getItemOptions: params => $store.dispatch('$_sources/optionsById', params.id),
-    updateItem: params => $store.dispatch('$_sources/updateAuthenticationSource', params),
+    updateItem: params => $store.dispatch('$_sources/updateAuthenticationSource', recomposeSource(params)),
     deleteItem: params => $store.dispatch('$_sources/deleteAuthenticationSource', params.id),
   }
 }
@@ -73,7 +78,6 @@ const actions = {
     })
   },
   optionsBySourceType: ({ commit }, sourceType) => {
-
     commit('ITEM_REQUEST')
     return api.listOptions(sourceType).then(response => {
       commit('ITEM_SUCCESS')
