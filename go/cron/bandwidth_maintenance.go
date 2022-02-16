@@ -227,7 +227,7 @@ END;
 	)
 }
 
-const BandwidthAccountingRadiusToHistoryWindow = 24 * 60 * 60
+var bandwidthAccountingRadiusToHistoryWindow = 24 * 60 * 60
 
 func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistory(ctx context.Context) {
 	sql := `
@@ -275,7 +275,7 @@ END;
 		j.Timeout,
 		sql,
 		time.Now(),
-		BandwidthAccountingRadiusToHistoryWindow,
+		bandwidthAccountingRadiusToHistoryWindow,
 		j.Batch,
 		j.Batch,
 	)

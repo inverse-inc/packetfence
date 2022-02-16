@@ -6,6 +6,7 @@ import (
 )
 
 func TestBandwidthMaintenanceNetFlow(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	testWindowSqlCleanup(
 		t,
 		"bandwidth_maintenance",
@@ -55,7 +56,7 @@ FROM macs JOIN dates;
 		0,
 		[]sqlCountTest{
 			{
-				name:          "bandwidth just keep the last 5 minutes",
+				name:          "bandwidth just keep the last 2 hours",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
 				expectedCount: 20,
 			},
@@ -90,6 +91,7 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceAggregation(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	testWindowSqlCleanup(
 		t,
 		"bandwidth_maintenance",
@@ -139,9 +141,9 @@ FROM macs JOIN dates;
 		0,
 		[]sqlCountTest{
 			{
-				name:          "bandwidth just keep the last 5 minutes",
+				name:          "bandwidth just keep the last 2 hours",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 20,
+				expectedCount: 160,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
@@ -171,6 +173,7 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceAggregation2(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	testWindowSqlCleanup(
 		t,
 		"bandwidth_maintenance",
@@ -252,6 +255,7 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceAggregationZeroIn(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	testWindowSqlCleanup(
 		t,
 		"bandwidth_maintenance",
@@ -303,9 +307,9 @@ FROM macs JOIN dates;
 		0,
 		[]sqlCountTest{
 			{
-				name:          "bandwidth just keep the last 5 minutes",
+				name:          "bandwidth just keep the last 2 hours",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 20,
+				expectedCount: 160,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
@@ -347,6 +351,7 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceAggregationZeroOut(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	testWindowSqlCleanup(
 		t,
 		"bandwidth_maintenance",
@@ -398,9 +403,9 @@ FROM macs JOIN dates;
 		0,
 		[]sqlCountTest{
 			{
-				name:          "bandwidth just keep the last 5 minutes",
+				name:          "bandwidth just keep the last 2 hours",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 20,
+				expectedCount: 160,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
@@ -442,6 +447,7 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceAggregationZero(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	testWindowSqlCleanup(
 		t,
 		"bandwidth_maintenance",
@@ -491,9 +497,9 @@ FROM macs JOIN dates;
 		0,
 		[]sqlCountTest{
 			{
-				name:          "bandwidth just keep the last 5 minutes",
+				name:          "bandwidth just keep the last 2 hours",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 20,
+				expectedCount: 160,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
@@ -523,6 +529,7 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceSession(t *testing.T) {
+	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	name := "bandwidth_maintenance"
 	config, found := jobsConfig[name]
 	if !found {
