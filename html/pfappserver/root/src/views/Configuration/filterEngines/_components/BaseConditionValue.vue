@@ -29,10 +29,11 @@
         :disabled="disabled"
       />
 
-      <base-input v-else
+      <base-input-group-textarea v-else
         class="flex-grow-1 m-1"
         :namespace="`${namespace}.value`"
         :disabled="disabled"
+        autoFit
       />
 
     </template>
@@ -59,14 +60,14 @@
 </template>
 <script>
 import {
-  BaseInput,
+  BaseInputGroupTextarea,
   BaseInputChosenOne
 } from '@/components/new/'
 import BaseConditionOperator from './BaseConditionOperator'
 
 const components = {
   BaseConditionOperator,
-  BaseInput,
+  BaseInputGroupTextarea,
   BaseInputChosenOne
 }
 
@@ -218,3 +219,19 @@ export default {
   setup
 }
 </script>
+
+<style lang="scss">
+* [draggable] {
+  textarea[autofit] {
+    white-space: pre;
+    overflow: hidden;
+    max-height: $input-height;
+    transition: max-height .3s ease-in-out;
+    &:hover, &:focus {
+      max-height: 250px;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+  }
+}
+</style>
