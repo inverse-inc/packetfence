@@ -3,7 +3,6 @@ package maint
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
@@ -18,23 +17,9 @@ func getDb() (*sql.DB, error) {
 	err := dbhOnce.Do(
 		func() error {
 			var ctx = context.Background()
-			var successDBConnect = false
 			_dbh, err := db.DbFromConfig(ctx)
-			for err != nil {
-				if err != nil {
-					time.Sleep(time.Duration(5) * time.Second)
-				}
-
-				_dbh, err = db.DbFromConfig(ctx)
-			}
-
-			for !successDBConnect {
-				err = _dbh.Ping()
-				if err != nil {
-					time.Sleep(time.Duration(5) * time.Second)
-				} else {
-					successDBConnect = true
-				}
+			if err != nil {
+				return err
 			}
 
 			dbh = _dbh
