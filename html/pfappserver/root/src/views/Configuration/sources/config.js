@@ -93,10 +93,10 @@ export const decomposeSource = (item) => {
 }
 
 export const recomposeSource = (item) => {
-  const { allowed_domains = [], banned_domains = [] } = item
+  const { allowed_domains, banned_domains } = item
   return {
     ...item,
-    allowed_domains: allowed_domains.join(','),
-    banned_domains: banned_domains.join(',')
+    allowed_domains: (allowed_domains || []).join(','),
+    banned_domains: (banned_domains || []).join(',')
   }
 }
