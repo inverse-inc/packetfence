@@ -48,7 +48,7 @@ const components = {
   BaseInputGroup
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -67,10 +67,14 @@ export const props = {
   },
   max: {
     type: [Date, String]
-  }
+  },
 }
 
 export const setup = (props, context) => {
+
+  const {
+    textFn
+  } = toRefs(props)
 
   const metaProps = useInputMeta(props, context)
 
@@ -105,8 +109,8 @@ export const setup = (props, context) => {
   const onHidden = () => { isShown.value = false }
 
   const inputText = computed(() => {
-    if (text.value.constructor === Function) {
-      return text.value(value.value)
+    if (textFn.value) {
+      return textFn.value(value.value)
     }
     return text.value
   })

@@ -1,8 +1,32 @@
 import { MysqlDatabase } from '@/globals/mysql'
 import { pfFieldType as fieldType } from '@/globals/pfField'
-import { addYears, compareAsc, format, getYear, setYear, isValid, parse } from 'date-fns'
+import { compareAsc, format, getYear, setYear, isValid, parse } from 'date-fns'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+
+const setUnregDateTextFn = value => {
+  const reDate = /^([0-9]{1,4})-([0-9]{2})-([0-9]{2})/
+  if (value && reDate.test(value)) {
+    // eslint-disable-next-line no-unused-vars
+    const [_, y, m, d] = value.match(reDate)
+    if (+y < 1970) { // ensure parse-able string
+      value = `1970-${m}-${d}`
+    }
+  }
+  const date = parse(value, 'yyyy-MM-dd')
+  if (date instanceof Date && isValid(date)) {
+    const now = new Date()
+    if (compareAsc(date, now) < 0) {
+      const year = getYear(now)
+      const normalized = setYear(date, year)
+      let unreg_date = format(normalized, 'YYYY-MM-DD')
+      if (compareAsc(normalized, now) < 0) {
+        unreg_date = format(setYear(normalized, year + 1), 'YYYY-MM-DD')
+      }
+      return i18n.t(`Past dates dynamically increase up to 1 year in the future (eg ${unreg_date}).`, { unreg_date })
+    }
+  }
+}
 
 export const pfActions = {
   bandwidth_balance_from_source: {
@@ -128,21 +152,7 @@ export const pfActions = {
     types: [fieldType.DATE],
     props: {
       placeholder: '0000-00-00',
-      text: value => {
-        const date = parse(value)
-        if (date instanceof Date && isValid(date)) {
-          const now = new Date()
-          if (compareAsc(date, now) < 0) {
-            const year = getYear(now)
-            const normalized = setYear(date, year)
-            let unreg_date = format(normalized, 'YYYY-MM-DD')
-            if (compareAsc(normalized, now) < 0) {
-              unreg_date = format(addYears(normalized, 1), 'YYYY-MM-DD')
-            }
-            return i18n.t(`Past dates dynamically increase up to 1 year in the future (eg ${unreg_date}).`, { unreg_date })
-          }
-        }
-      }
+      textFn: setUnregDateTextFn
     }
   },
   set_unreg_date_by_acl_user: {
@@ -151,6 +161,7 @@ export const pfActions = {
     types: [fieldType.DATE],
     props: {
       placeholder: '0000-00-00',
+      textFn: setUnregDateTextFn
     }
   },
   time_balance_from_source: {
