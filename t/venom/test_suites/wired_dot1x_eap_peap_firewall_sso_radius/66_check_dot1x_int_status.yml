@@ -8,4 +8,4 @@ testcases:
       - result.body ShouldContainSubstring "{{.dot1x_eap_peap.roles.ad_user.vlan_id}}"
       - result.body ShouldContainSubstring PEAP
       - result.body ShouldContainSubstring AUTHORIZED
-      - result.statuscode ShouldEqual 200
+      - result.status_code ShouldEqual 200

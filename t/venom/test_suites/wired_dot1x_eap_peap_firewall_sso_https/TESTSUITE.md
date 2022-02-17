@@ -16,7 +16,6 @@ AD server running
 1. Create Firewall SSO
 1. Enable SSO in base advanced configuration with the following parameters:
 - sso_on_access_reevaluation: enabled
-- sso_on_accounting: enabled
 1. Restart `pfsso` to take change into account
 1. Join domain
 1. Configure REALMS
@@ -39,27 +38,28 @@ AD server running
 1. Check HTTPS mock for Firewall SSO Stop
 
 ## Teardown steps
+1. Check node unregistration
 1. Kill wpa_supplicant: an accounting stop will be generated if we wait
    EAP-TIMEOUT on the switch (not the case here due to next task). Access is
    still working until we run next task.
-1. Kill HTTPS mock
 1. Unconfigure switch port and dynamic VLAN on switch01
    1. Generate a RADIUS Accounting stop message (sent by switch01) which update
       `last_seen` attribute of node01 and unreg device based on
       `unreg_on_accounting_stop`
    1. Don't send a RADIUS Disconnect message
-1. Check online status of node01: should be offline due to accounting stop
-1. Check node status for node01
 1. Wait `delete_windows` + 10 seconds before running `node_cleanup` task
 1. Delete node by running `pfcron's node_cleanup` task
 1. Check node has been deleted
+1. Restart interface on node01 to:
+  * release DHCP lease
+  * restart DHCP client for next tests
 1. Disable `node_cleanup` task
 1. Restart `pfcron` to take change into account
 1. Delete Firewall SSO
-1. Restart `pfsso` to take change into account
 1. Disable SSO in base advanced configuration with the following parameters:
 - sso_on_access_reevaluation: disabled
-- sso_on_accounting: disabled
+1. Restart `pfsso` to take change into account
+1. Kill HTTPS mock
 1. Unconfigure and delete REALMS
 1. Delete domain
 1. Delete connection profile
@@ -68,6 +68,10 @@ AD server running
 
 ## Additional notes
 
-Reauthentication is done by switch based on `eap_reauth_period` setting to
-avoid node been unregistered when it reach unregdate and automatically deleted
-by `pfcron` without running teardown steps.
+Accounting sent by Cumulus switch is not used to trigger firewall SSO workflow
+because RADIUS accounting message don't include IP addresses of devices.
+
+Trigger of SSO Start is done using DHCP request on production VLAN.  Trigger
+of SSO Stop is possible thanks to SSO on access reevaluation. We trigger it
+using API when we deregister node. It's not possible to trigger a SSO stop
+only with a reevaluate acess when node is registered.
