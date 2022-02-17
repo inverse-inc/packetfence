@@ -46,6 +46,9 @@ sub _get_db {
     if($@) {
         $logger->error("DB handler is unable to ping the DB, reconnecting...");
     }
+    if($self_dbh_valid) {
+        return $self->{_db};
+    }
 
     $logger->info("Connecting to MySQL database");
     
