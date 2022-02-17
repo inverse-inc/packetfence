@@ -35,8 +35,8 @@ const schemaAnswer = yup.object({
 const schemaAnswers = yup.array().ensure().unique(i18n.t('Duplicate answer.')).of(schemaAnswer)
 
 const schemaCondition = yup.object({
-  field: yup.string().required(i18n.t('Field required.')),
-  op: yup.string().required(i18n.t('Operator required.')),
+  field: yup.string().nullable().required(i18n.t('Field required.')),
+  op: yup.string().nullable().required(i18n.t('Operator required.')),
   value: yup.string().required(i18n.t('Value required.')),
   values: yup.array().ensure().of(
     yup.lazy(() => { // avoid infinite nesting when casted
@@ -68,6 +68,7 @@ export const schema = (props) => {
     id: yup.string()
       .nullable()
       .required(i18n.t('Name required.'))
+      .isAlphaNumericHyphenUnderscoreDot()
       .filterIdNotExistsExcept((!isNew && !isClone) ? { collection, id } : { collection }, i18n.t('Name exists.')),
 
     actions: schemaActions,
