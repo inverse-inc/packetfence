@@ -73,6 +73,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Reduce list of accepted ciphers in haproxy-portal and haproxy-admin to reinforce security
 * Improved the performance of the bandwidth accounting cleanup process (#6850)
 * Purge binary logs task
+* Integration tests for firewall SSO (HTTPS/RADIUS) (#6822)
+* Add text warning on unreg date when past date is used (#6871)
 
 === Bug Fixes
 
