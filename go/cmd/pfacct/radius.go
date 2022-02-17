@@ -33,6 +33,7 @@ const ACCOUNTING_POLICY_TIME = "TimeExpired"
 var radiusDictionary *dictionary.Dictionary
 
 type acct_info struct {
+	status         rfc2866.AcctStatusType
 	node_id        uint64
 	tenant_id      int
 	mac            string
@@ -143,7 +144,9 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
 	unique_session_id := h.accountingUniqueSessionId(r)
-	node_acct_info := acct_info{node_id: node_id,
+	node_acct_info := acct_info{
+		status:         status,
+		node_id:        node_id,
 		tenant_id:      switchInfo.TenantId,
 		mac:            mac.String(),
 		unique_session: unique_session_id,
@@ -152,16 +155,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		out_bytes:      out_bytes,
 	}
 	go func() {
-		if err := h.InsertBandwidthAccounting(
-			status,
-			node_id,
-			switchInfo.TenantId,
-			mac.String(),
-			unique_session_id,
-			timestamp,
-			in_bytes,
-			out_bytes,
-		); err != nil {
+		if err := h.InsertBandwidthAccountingWrapper(node_acct_info); err != nil {
 			logError(ctx, "InsertBandwidthAccounting: "+err.Error())
 		}
 		if status == rfc2866.AcctStatusType_Value_Stop {
@@ -812,8 +806,9 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 	return err
 }
 
-func (rs *RadiusStatements) InsertBandwidthAccountingWrapper(acct acct_info) error {
-	_, err := rs.insertBandwidthAccounting.Exec(
+func (h *PfAcct) InsertBandwidthAccountingWrapper(acct acct_info) error {
+	err := h.InsertBandwidthAccounting(
+		acct.status,
 		acct.node_id,
 		acct.tenant_id,
 		acct.mac,
@@ -821,9 +816,6 @@ func (rs *RadiusStatements) InsertBandwidthAccountingWrapper(acct acct_info) err
 		acct.bucket,
 		acct.in_bytes,
 		acct.out_bytes,
-		acct.node_id,
-		acct.unique_session,
-		acct.bucket,
 	)
 	return err
 }
