@@ -29,12 +29,22 @@
         :disabled="disabled"
       />
 
-      <base-input-group-textarea v-else
-        class="flex-grow-1 m-1"
-        :namespace="`${namespace}.value`"
-        :disabled="disabled"
-        autoFit
-      />
+      <template v-else>
+
+        <base-input-group-textarea v-if="['time_period', 'not_time_period'].includes(inputValueOperator)"
+          class="flex-grow-1 m-1"
+          :namespace="`${namespace}.value`"
+          :disabled="disabled"
+          autoFit
+        />
+
+        <base-input v-else
+          class="flex-grow-1 m-1"
+          :namespace="`${namespace}.value`"
+          :disabled="disabled"
+        />
+
+      </template>
 
     </template>
 
@@ -60,6 +70,7 @@
 </template>
 <script>
 import {
+  BaseInput,
   BaseInputGroupTextarea,
   BaseInputChosenOne
 } from '@/components/new/'
@@ -67,6 +78,7 @@ import BaseConditionOperator from './BaseConditionOperator'
 
 const components = {
   BaseConditionOperator,
+  BaseInput,
   BaseInputGroupTextarea,
   BaseInputChosenOne
 }
