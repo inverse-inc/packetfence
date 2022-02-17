@@ -58,7 +58,7 @@ use fingerbank::FilePath;
 use Pod::Usage;
 
 
-my ($master_server, $as_master, $api_user, $api_password, $with_fingerbank_db, $file, $help);
+my ($master_server, $as_master, $api_user, $api_password, $with_fingerbank_db, $file, $storage, $help);
 GetOptions (
     "from=s"   => \$master_server,
     "api-user=s" => \$api_user,
@@ -66,6 +66,7 @@ GetOptions (
     "as-master" => \$as_master,
     "with-fingerbank-db" => \$with_fingerbank_db,
     "file=s" => \$file,
+    "storage=s" => \$storage,
     "help|h" => \$help,
 );
 
@@ -98,7 +99,10 @@ if (-e '/usr/local/pf/conf/cluster-files.txt') {
 
 if($as_master){
     pf::config::cluster::increment_config_version();
-    if($file){
+    if($storage) {
+        pf::cluster::sync_storages([$storage]);
+    }
+    elsif($file){
         unless($file =~ /^\//){
             get_logger->fatal("File path has to be absolute.");
             exit 1;
