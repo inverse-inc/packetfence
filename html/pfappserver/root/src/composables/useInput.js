@@ -17,7 +17,7 @@ export const useInputProps = {
     default: 0
   },
   text: {
-    type: String
+    type: [String, Function]
   },
   type: {
     type: String,

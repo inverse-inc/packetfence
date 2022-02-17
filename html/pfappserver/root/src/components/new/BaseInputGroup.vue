@@ -57,7 +57,7 @@ export const props = {
     default: undefined
   },
   text: {
-    type: String
+    type: [String, Function]
   },
   isFocus: {
     type: Boolean

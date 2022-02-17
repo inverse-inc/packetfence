@@ -48,7 +48,7 @@ const components = {
   BaseInputGroup
 }
 
-import { ref } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import { useFormGroupProps } from '@/composables/useFormGroup'
 import { useInput, useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
@@ -104,12 +104,19 @@ export const setup = (props, context) => {
   const onShown = () => { isShown.value = true }
   const onHidden = () => { isShown.value = false }
 
+  const inputText = computed(() => {
+    if (text.value.constructor === Function) {
+      return text.value(value.value)
+    }
+    return text.value
+  })
+
   return {
     // useInput
     inputPlaceholder: placeholder,
     inputReadonly: readonly,
     inputTabIndex: tabIndex,
-    inputText: text,
+    inputText,
     inputType: type,
     isFocus,
     isLocked,
