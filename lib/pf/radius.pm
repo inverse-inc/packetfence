@@ -1261,14 +1261,14 @@ sub radius_filter {
             "Can't instantiate switch ($switch_ip). This request will be failed. "
             ."Are you sure your switches.conf is correct?"
         );
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Switch is not managed by PacketFence") ];
+        return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
     $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
-        return [$RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "Mac is empty")];
+        return [$RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Mac is empty")];
     }
     Log::Log4perl::MDC->put( 'mac', $mac );
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
