@@ -57,6 +57,9 @@ const setup = (props, context) => {
   const collections = ref([])
   $store.dispatch('$_filter_engines/getCollections').then(_collections => {
     collections.value = _collections.sort((a, b) => a.name.localeCompare(b.name)) // sort by name
+    if (!collection.value) {
+      tabIndex.value = 0 // force initial tabIndex to push first collection into route
+    }
   })
 
   const tabIndex = customRef((track, trigger) => ({
@@ -69,6 +72,7 @@ const setup = (props, context) => {
       const { [newTabIndex]: { collection } = {} } = collections.value
       if (collection)
         $router.push({ name: 'filterEnginesCollection', params: { collection } })
+          .catch(e => { if (e.name !== "NavigationDuplicated") throw e })
       trigger()
     }
   }))
