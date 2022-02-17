@@ -2,6 +2,9 @@ roles:
   - src: inverse_inc.gitlab_buildpkg_tools
     version: v1.3.2
 
+  - src: geerlingguy.nodejs
+    version: 6.0.0
+
 # For roles, to test locally
 # Ansible will create an export, not a symlink to git repository
   # - src: file:///home/nqb/git/inverse-inc.gitlab-buildpkg-tools/.git

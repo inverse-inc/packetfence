@@ -1,0 +1,6 @@
+name: Release DHCP on node03
+testcases:
+- name: release_dhcp_on_node03
+  steps:
+  - type: release_dhcp_on_dot1x_interface
+    host: "{{.node03_mgmt_ip}}"

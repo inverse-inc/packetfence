@@ -19,7 +19,7 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-    
+
 - name: change_delete_window
   steps:
   - type: http

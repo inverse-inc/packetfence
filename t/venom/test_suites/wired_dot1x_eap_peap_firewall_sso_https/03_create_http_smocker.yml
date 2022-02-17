@@ -1,0 +1,107 @@
+name: Create smocker HTTP mock
+testcases:
+
+- name: create_smocker_dir
+  steps:
+    - type: exec
+      script: "mkdir -p {{.smocker_dir}}"
+
+- name: download_smocker
+  steps:
+  - type: exec
+    script: |
+      wget -P {{.smocker_dir}} https://github.com/Thiht/smocker/releases/latest/download/smocker.tar.gz
+
+- name: untar_smocker
+  steps:
+  - type: exec
+    script: |
+      tar -C {{.smocker_dir}} -xf {{.smocker_dir}}/smocker.tar.gz
+
+- name: create_smocker_wrapper
+  steps:
+  - type: exec
+    script: |
+      cat << EOF > {{.smocker_dir}}/smocker_wrapper.sh
+      #!/bin/bash
+      sudo touch {{.smocker_dir}}/smocker.out
+      sudo chmod a+w {{.smocker_dir}}/smocker.out
+      nohup {{.smocker_dir}}/smocker -static-files="{{.smocker_dir}}" -persistence-directory="{{.smocker_dir}}" -mock-server-listen-port={{.firewall_sso.https.port_http}} -config-listen-port={{.firewall_sso.https.port_config}} -log-level="debug" > {{.smocker_dir}}/smocker.out 2>&1 &
+      EOF
+
+- name: run_smocker
+  steps:
+  - type: exec
+    script: |
+      bash {{.smocker_dir}}/smocker_wrapper.sh
+
+- name: check_smocker_running
+  steps:
+  - type: http
+    method: GET
+    url: 'http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/version'
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.bodyjson.app_name ShouldEqual smocker
+
+- name: configure_smocker_http
+  steps:
+  - type: exec
+    script: |
+      curl -XPOST --header "Content-Type: application/x-yaml" --data-binary "@mocks/firewall-sso.yml" {{.firewall_sso.https.host}}:{{.firewall_sso.https.port_config}}/mocks
+
+- name: check_smocker_http
+  steps:
+  - type: http
+    method: GET
+    url: 'http://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_http}}/test'
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.bodyjson ShouldEqual true
+
+- name: create_ssl_termination_haproxy_config
+  steps:
+  - type: exec
+    script: |
+      cat << EOF > {{.smocker_dir}}/haproxy.conf
+      global
+        user haproxy
+        group haproxy
+        daemon
+
+      defaults
+        timeout connect 5s
+        timeout client 1m
+        timeout server 1m
+
+      frontend {{.firewall_sso.https.host}}
+        bind {{.firewall_sso.https.host}}:{{.firewall_sso.https.port_https}} ssl crt /usr/local/pf/conf/ssl/server.pem
+        default_backend web_servers
+
+      backend web_servers
+          server server1 {{.firewall_sso.https.host}}:{{.firewall_sso.https.port_http}}
+      EOF
+
+- name: run_ssl_termination_haproxy
+  steps:
+  - type: exec
+    script: |
+      sudo /usr/sbin/haproxy -Ws -f {{.smocker_dir}}/haproxy.conf -p {{.smocker_dir}}/haproxy.pid > {{.smocker_dir}}/haproxy.out 2>&1 &
+
+- name: sleep_10s_wait_haproxy
+  steps:
+  - type: exec
+    script: sleep 10
+
+- name: check_smocker_https
+  steps:
+  - type: http
+    method: GET
+    ignore_verify_ssl: true
+    url: 'https://{{.firewall_sso.https.host}}:{{.firewall_sso.https.port_https}}/test'
+    headers:
+      "Content-Type": "application/json"
+    assertions:
+      - result.bodyjson ShouldEqual true

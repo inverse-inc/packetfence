@@ -1,0 +1,10 @@
+name: Kill wpasupplicant on node03
+testcases:
+  - name: kill_wpasupplicant_on_node03
+    steps:
+      - type: ssh
+        host: '{{.node03_mgmt_ip}}'
+        user: '{{.ssh_user}}'
+        command:  |
+          cd /usr/local/pf/t/venom ; \
+          sudo /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/common/kill_wpasupplicant.yml

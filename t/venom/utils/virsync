@@ -1,28 +1,56 @@
 #!/usr/bin/bash
 
-user=$(whoami)
 if [ $# -eq 0 ]; then
-	path=$(realpath ~/packetfence)
-	echo "usage: $(basename "$0") [/path/to/packetfence]"
+	path=$(realpath .)
+	echo "usage: $(basename "$0") [/path/to/packetfence/folder/to/sync]"
 else
 	path=$(realpath $1)
 fi
 
-hosts=$(yq -r ".all.vars.users_vars.$user.vms | keys | .[]" $path/addons/vagrant/inventory/hosts | grep '^pf.*$')
+pf_directory=$path
+while [ ! -e "$pf_directory/conf/pf-release" ] && [ "x$pf_directory" != x/ ]; do
+		pf_directory="$(dirname $pf_directory)/"
+done
+if [ "x$pf_directory" == x/ ]; then
+	echo "$path is not a packetfence directory"
+	exit 1
+fi
+e=""
+pf_folder="${path//${pf_directory}/${e}}"
+if [[ ! -d "$pf_directory/$pf_folder" ]]
+then
+    echo "$pf_directory/$pf_folder does not exist"
+		exit 1
+fi
+
+user=$(whoami)
+vagrant_hosts=$(yq -r ".all.vars.users_vars.$user.vms | keys | .[]" $pf_directory/addons/vagrant/inventory/hosts | grep '^pf.*$')
 declare -A ips
-for host in $hosts; do
-	ips[$host]=$(yq -r ".all.vars.users_vars.$user.vms.$host.ip" $path/addons/vagrant/inventory/hosts)
+declare -A hosts
+echo -n "scanning vagrant hosts: "
+for host in $vagrant_hosts; do
+	ip=$(yq -r ".all.vars.users_vars.$user.vms.$host.ip" $pf_directory/addons/vagrant/inventory/hosts)
+	if ping -W 1 -c 1 $ip &> /dev/null; then
+		ips[$host]=$ip
+		hosts[$ip]=$host
+		echo -n "*"
+	else
+		echo -n "."
+	fi
+done
+echo ""
+
+for ip in ${ips[@]}; do
+	echo "sync ${hosts[$ip]} $ip"
 done
 
 echo "watching $path"
 while true; do
- 	inotifywait -r -e modify,attrib,close_write,move,create,delete $path/t/venom
-	for host in $hosts; do
-		if ping -c 1 ${ips[$host]} &> /dev/null; then
-			echo "=========================="
-			echo "rsync with $host/$ip[$host]"
-			echo "=========================="
-			rsync -avz --exclude="*.swp" --exclude="vars/local.yml" --rsync-path="sudo rsync" -e "ssh" $path/t/venom/ ${ips[$host]}:/usr/local/pf/t/venom/
-		fi
+ 	inotifywait -r -e modify,attrib,close_write,move,create,delete $pf_directory/$pf_folder
+	for ip in ${ips[@]}; do
+		echo "=========================="
+		echo "sync $ip"
+		rsync -avz --exclude="*.swp" --exclude="vars/local.yml" --rsync-path="sudo rsync" -e "ssh" $pf_directory/$pf_folder/ $ip:/usr/local/pf/${pf_folder}/
+		echo "=========================="
 	done
 done

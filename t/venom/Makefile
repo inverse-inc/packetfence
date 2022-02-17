@@ -106,14 +106,14 @@ configurator_deb11:
 dot1x_eap_peap_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	INT_TEST_VM_NAMES="ad switch01 node01 node03 wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
 dot1x_eap_peap_deb11:
 	make \
 	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
-	INT_TEST_VM_NAMES="ad switch01 node01 wireless01" \
+	INT_TEST_VM_NAMES="ad switch01 node01 node03 wireless01" \
 	SCENARIOS_TO_RUN=dot1x_eap_peap \
 	$(MAKE_TARGET)
 
@@ -255,3 +255,4 @@ cluster_el8:
 	CLUSTER_NAME="$@$(DEV_ENV)" \
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
+

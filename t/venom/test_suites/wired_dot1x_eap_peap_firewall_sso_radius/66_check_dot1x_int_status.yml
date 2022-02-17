@@ -1,0 +1,11 @@
+name: Check dot1x interface status on switch01
+testcases:
+- name: check_dot1x_int_status_on_switch01
+  steps:
+  - type: run_cumulus_command
+    command: "show dot1x interface {{.switch01.dot1x_interface.node03}} json"
+    assertions:
+      - result.body ShouldContainSubstring "{{.dot1x_eap_peap.roles.ad_user.vlan_id}}"
+      - result.body ShouldContainSubstring PEAP
+      - result.body ShouldContainSubstring AUTHORIZED
+      - result.status_code ShouldEqual 200

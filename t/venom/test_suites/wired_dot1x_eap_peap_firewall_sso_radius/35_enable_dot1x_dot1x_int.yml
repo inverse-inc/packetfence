@@ -1,0 +1,6 @@
+name: Enable 802.1X only on dot1x interface (node03) on switch01
+testcases:
+- name: enable_dot1x_on_switch01_swp17
+  steps:
+  - type: run_cumulus_command
+    command: "add interface {{.switch01.dot1x_interface.node03}} dot1x"

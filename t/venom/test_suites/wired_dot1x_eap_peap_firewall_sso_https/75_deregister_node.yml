@@ -1,0 +1,24 @@
+name: Deregister node to force SSO on reevaluation
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: deregister_node
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/nodes/bulk_deregister'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "items": [
+          "{{.node01_ens7_mac_address}}"
+        ]
+      }
+    headers:
+      "Authorization": "{{.get_login_token.json.result.token}}"
+      "Content-Type": "application/json"
+      "X-PacketFence-Tenant-Id": "1"
+    assertions:
+      - result.statuscode ShouldEqual 200

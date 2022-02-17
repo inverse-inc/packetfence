@@ -1,0 +1,19 @@
+# firewall sso https mock
+- request:
+    method: GET
+    path: /test
+  response:
+    status: 200
+    headers:
+      Content-Type: application/json
+    body: >
+      true
+
+# PaloAlto Firewall SSO
+- request:
+    method: POST
+    path: /api/
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+  response:
+    status: 200

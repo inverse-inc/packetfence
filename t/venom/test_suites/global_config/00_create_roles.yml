@@ -39,7 +39,7 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
-    
+
 - name: create_headless_device_role
   steps:
   - type: http
@@ -92,7 +92,7 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
-      - result.statuscode ShouldEqual 201
+      - result.statuscode ShouldBeIn 201
 
 - name: create_inline_l2_and_radius_first_role
   steps:
@@ -127,3 +127,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
+
+

@@ -1,0 +1,19 @@
+name: Create smocker HTTP mock
+testcases:
+
+- name: kill_ssl_termination_haproxy
+  steps:
+  - type: exec
+    script: |
+      kill -9 `cat {{.smocker_dir}}/haproxy.pid`
+
+- name: kill_smocker
+  steps:
+  - type: exec
+    script: |
+      pkill smocker
+
+- name: remove_smocker_dir
+  steps:
+    - type: exec
+      script: "rm -Rf {{.smocker_dir}}"

@@ -1,0 +1,10 @@
+name: Kill RADIUS mock
+testcases:
+
+- name: kill_radius_mock
+  steps:
+  - script: |
+      cd {{.firewall_sso.radius.radius_mock_dir}}
+      pm2 delete radius_mock
+    assertions:
+    - result.code ShouldEqual 0

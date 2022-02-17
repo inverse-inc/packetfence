@@ -1,0 +1,14 @@
+name: Check firewall sso start
+testcases:
+
+- name: check_mock_history_request
+  steps:
+  - type: exec
+    script: |
+      sudo curl -s http://{{.firewall_sso.radius.api_host}}:{{.firewall_sso.radius.api_port}}/history | jq '.[-1]'
+    assertions:
+      - result.code ShouldEqual 0
+      - result.systemoutjson.code ShouldEqual "Accounting-Request"
+      - result.systemoutjson.attributes.acct-status-type ShouldEqual "Stop"
+      - result.systemoutjson.attributes.user-name ShouldEqual "{{.ad_domain_user}}"
+
