@@ -6,4 +6,8 @@
     - name: Update APT repository cache
       apt:  # noqa no-handler
         update_cache: True
+      register: apt_update
+      retries: 3
+      delay: 5
+      until: apt_update is succeeded
 
