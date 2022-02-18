@@ -48,13 +48,21 @@ export default [
     name: 'filter_engine',
     component: TheView,
     props: (route) => ({ collection: route.params.collection, id: route.params.id }),
-    beforeEnter
+    beforeEnter: (to, from, next) => {
+      beforeEnter()
+      store.dispatch('$_filter_engines/getFilterEngine', { collection: to.params.collection, id: to.params.id })
+        .finally(() => next())
+    }
   },
   {
     path: 'filter_engines/:collection/:id/clone',
     name: 'cloneFilterEngine',
     component: TheView,
     props: (route) => ({ collection: route.params.collection, id: route.params.id, isClone: true }),
-    beforeEnter
+    beforeEnter: (to, from, next) => {
+      beforeEnter()
+      store.dispatch('$_filter_engines/getFilterEngine', { collection: to.params.collection, id: to.params.id })
+        .finally(() => next())
+    }
   }
 ]
