@@ -245,8 +245,10 @@ export const setup = (props) => {
     () => form.value && form.value.type, // when `form.type` is mutated
     () => {
       const { type } = form.value || {}
-      if (type !== 'inlinel3') // and `form.type` is not 'inlinel3'
+      if (type !== 'inlinel3') // and `type` is not 'inlinel3'
         form.value.fake_mac_enabled = 0 // disable `fake_mac_enabled`
+      if (type === 'other') // and `type` is 'other'
+        form.value.dhcpd = 'disabled' // disable `dhcpd`
     }
   )
 
