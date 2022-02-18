@@ -221,8 +221,11 @@ FROM macs JOIN dates;
 		[]sqlCountTest{
 			{
 				name:          "aggregated records",
-				sql:           `SELECT COUNT(*) FROM bandwidth_accounting`,
-				expectedCount: 540,
+				sql:           ` SELECT COUNT(*) FROM (
+                                    SELECT COUNT(*) as total_count FROM bandwidth_accounting HAVING total_count = 1000 OR total_count = 540
+                                ) as x
+                                `,
+				expectedCount: 1,
 			},
 			{
 				name:          "bandwidth was kept in bandwidth_accounting",
