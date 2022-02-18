@@ -58,7 +58,7 @@ steps:
         "{{.input.sources}}"
       ],
       "status": "enabled",
-      "unreg_on_acct_stop": "{{.nput.unreg_on_acct_stop}}",
+      "unreg_on_acct_stop": "{{.input.unreg_on_acct_stop}}",
       "vlan_pool_technique": "username_hash"
     }
 
