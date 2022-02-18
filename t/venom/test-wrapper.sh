@@ -194,6 +194,7 @@ destroy() {
     else
         destroy_pf_vm
         destroy_node01_vm
+        destroy_node03_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
     fi
 }
@@ -208,6 +209,11 @@ destroy_pf_vm() {
 destroy_node01_vm() {
     ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f node01 )
+}
+
+destroy_node03_vm() {
+    ( cd $VAGRANT_DIR ; \
+      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f node03 )
 }
 
 # using "|| true" as a workaround to unusual behavior
