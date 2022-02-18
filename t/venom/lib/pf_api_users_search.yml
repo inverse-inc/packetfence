@@ -1,0 +1,34 @@
+executor: pf_api_users_search
+input:
+  user: "{{.backup_db_and_restore.user}}" 
+steps:
+- type: pf_api_action
+  url: "users/search"
+  body: >-
+    {
+      "cursor": 0,
+      "fields": [
+        "pid"
+      ],
+      "limit": 1,
+      "query": {
+        "op": "and",
+        "values": [
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "pid",
+                "op": "equals",
+                "value": "{{.input.user}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  method: POST
+  assertions:
+    - result.pf_api_action_son.items.items0.pid ShouldEqual "{{.input.user}}"
+output:
+  pf_api_users_search_: "{{.result.pf_api_action_json}}"

@@ -1,0 +1,4 @@
+executor: pf_files_backup_delete
+steps:
+- type: exec
+  script: 'find {{.backup_db_and_restore.backup_dir}} -name "packetfence-*" -delete'

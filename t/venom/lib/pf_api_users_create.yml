@@ -1,0 +1,15 @@
+executor: pf_api_users_create
+input:
+  user: "{{.backup_db_and_restore.user}}" 
+steps:
+- type: pf_api_action
+  url: "users"
+  body: >-
+    {
+      "pid": "{{.input.user}}"
+    }
+  method: POST
+  time_to_sleep: 0
+  status_code: 201
+output:
+  pf_api_users_create_: "{{.result.pf_api_action_json}}"

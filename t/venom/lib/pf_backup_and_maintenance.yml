@@ -1,0 +1,4 @@
+executor: pf_backup_and_maintenance 
+steps:
+  - type: exec
+    script: /usr/local/pf/addons/backup-and-maintenance.sh

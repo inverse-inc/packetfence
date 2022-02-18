@@ -1,0 +1,9 @@
+executor: pf_api_user_delete
+input:
+  user: "{{.backup_db_and_restore.user}}" 
+steps:
+- type: pf_api_action
+  url: "user/{{.input.user}}"
+  method: DELETE
+output:
+  pf_api_user_delete_: "{{.result.pf_api_action_json}}"
