@@ -5,6 +5,8 @@
 # - variables defined in playbooks will always take precedence over inventory
 # - no Internet access, some actions can failed
 
+- import_playbook: nodes/pre_prov/enable_libvirt_console.yml
+
 - import_playbook: nodes/pre_prov/packages.yml
 
 - import_playbook: nodes/pre_prov/venom.yml
