@@ -276,6 +276,14 @@ server packetfence {
 		#
 		#  Read the 'acct_users' file
 		files
+		[% IF proxy_pfacct %]
+		replicate
+		update control {
+			Replicate-To-Realm := "pfacct"
+		}
+		[% ELSE %]
+		# proxying to pfacct is not necessary
+		[% END %],
 	}
 
 	#
