@@ -296,11 +296,10 @@ const mutations = {
     if (!('items' in state.cache[collection])) {
       Vue.set(state.cache[collection], 'items', [])
     }
-    Vue.set(state.cache[collection], 'items', state.cache[collection].items.map(_item => {
-      return (_item.id === id)
-        ? { id, ...item }
-        : _item
-    }))
+    Vue.set(state.cache[collection], 'items', [
+      ...state.cache[collection].items.filter(_item => _item.id !== id),
+      { id, ...item }
+    ])
   },
   ITEM_DESTROYED: (state, { collection, id }) => {
     state.itemStatus = types.SUCCESS
