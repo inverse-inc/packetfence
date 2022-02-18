@@ -205,8 +205,10 @@ required to be done *BEFORE* the packages upgrades.
 
 Run the following command to update PacketFence:
 
-[source,bash]
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
 ----
+yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-{release_minor}.el8.noarch.rpm
 yum update --enablerepo=packetfence
 ----
 
@@ -244,8 +246,9 @@ yum update ipset ipset-libs --enablerepo=packetfence
 
 Run the following commands to update PacketFence:
 
-[source,bash]
+[source,bash,subs="attributes"]
 ----
+echo "deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye" > /etc/apt/sources.list.d/packetfence.list
 apt update
 apt install packetfence
 ----
