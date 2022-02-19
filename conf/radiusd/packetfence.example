@@ -283,7 +283,7 @@ server packetfence {
 		}
 		[% ELSE %]
 		# proxying to pfacct is not necessary
-		[% END %],
+		[% END %]
 	}
 
 	#
