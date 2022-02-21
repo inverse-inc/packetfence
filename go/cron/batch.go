@@ -126,3 +126,44 @@ func BatchSqlCount(ctx context.Context, name string, timeout time.Duration, sql 
 	defer stmt.Close()
 	BatchStmtQueryWithCount(ctx, name, timeout, stmt, args...)
 }
+
+type BatchCursor interface {
+	Scan(*sql.Row) (count int64, err error)
+	StmtArgs() []interface{}
+}
+
+func BatchStmtQueryCursor(ctx context.Context, name string, time_limit time.Duration, stmt *sql.Stmt, batcher BatchCursor) int64 {
+	start := time.Now()
+	rows_affected := int64(0)
+	i := 0
+	for {
+		i++
+		count, err := batcher.Scan(stmt.QueryRow(batcher.StmtArgs()...))
+		if err != nil {
+			log.LogError(ctx, fmt.Sprintf("%d) Database error (%s): %s", i, name, err.Error()))
+			time.Sleep(10 * time.Millisecond)
+		} else {
+
+			if count == 0 {
+				break
+			}
+
+			if count < 0 {
+				log.LogWarn(ctx, fmt.Sprintf("%d) Retrying query for %s", i, name))
+				time.Sleep(10 * time.Millisecond)
+			} else {
+				rows_affected += count
+			}
+		}
+
+		if time.Now().Sub(start) > time_limit {
+			break
+		}
+	}
+
+	if rows_affected > -1 {
+		log.LogInfo(ctx, fmt.Sprintf("%s called times %d and handled %d items", name, i, rows_affected))
+	}
+
+	return rows_affected
+}
