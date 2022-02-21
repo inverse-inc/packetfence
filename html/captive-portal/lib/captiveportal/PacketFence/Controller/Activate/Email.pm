@@ -181,7 +181,7 @@ sub doSponsorRegistration : Private {
             }
             # Verify if the user has the role mark as sponsor
             my $source_match = $c->user_session->{source_match} || $c->user_session->{source_id};
-            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+            my $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::MARK_AS_SPONSOR, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
             my $values = $matched->{values};
 
             unless (defined $values->{$Actions::MARK_AS_SPONSOR}) {
@@ -190,6 +190,9 @@ sub doSponsorRegistration : Private {
                 $self->showError($c,"does not have permission to sponsor a user");
                 $c->detach('login');
             }
+
+            $matched = pf::authentication::match2($source_match, {username => $c->user_session->{"username"}, rule_class => $Rules::ADMIN, action => $Actions::SET_ACCESS_DURATIONS, 'context' => $pf::constants::realm::PORTAL_CONTEXT});
+            $values = $matched->{values};
             if ($values->{$Actions::SET_ACCESS_DURATIONS}) {
                 if ($request->param("access_duration")) {
                     my $unregdate = pf::config::access_duration($request->param("access_duration"));
