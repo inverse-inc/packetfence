@@ -385,19 +385,21 @@ Do the same thing with the personal account you created
 
 Login into the Paypal business account that you created at https://www.sandbox.paypal.com/ if you are using a sandbox account or on https://www.paypal.com/ if you are using a real account.
 
-Next go in _My Account -> Profile_ in order to go into your profile configuration.
+Next go in _Account_Settings_ on the top right bellow your user account.
 
-Next in the `Selling Preferences` you will need to select `Website Payment Preferences`
+Next in the `Account Settings` you will need to select `Website Payment` -> `Website preferences`
 
 Configure the settings so they match the screenshot below.
 
 You should turn on `Auto Return`, set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
 
-You should also take note of the `Identity Token` as it will be required in the PacketFence configuration.
+Enable `Payment data trasfert` and you should see the `Identity Token` appear, note it as it will be required in the PacketFence configuration.
 
 image::billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
+image::billing/paypal-website-payment2.png[scaledwidth="100%",alt="Paypal website payment settings"]
+image::billing/paypal-website-payment3.png[scaledwidth="100%",alt="Paypal website payment settings"]
 
-Next go back in your profile configuration _My account -> Profile_ and select `Encrypted Payment Settings`
+Next go back in _Account_Settings_ on the top right bellow your user account, select `Website Payment` -> `Encrypted payment settings`
 
 Now on this page you will need to submit the certificate used by PacketFence to Paypal ([filename]`/usr/local/pf/conf/ssl/server.crt` by default).
 
