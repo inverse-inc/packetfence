@@ -393,7 +393,7 @@ Configure the settings so they match the screenshot below.
 
 You should turn on `Auto Return`, set the return URL to https://YOUR_PORTAL_HOSTNAME/billing/paypal/verify.
 
-Enable `Payment data trasfert` and you should see the `Identity Token` appear, note it as it will be required in the PacketFence configuration.
+Enable `Payment data transfert` and you should see the `Identity Token` appear, note it as it will be required in the PacketFence configuration.
 
 image::billing/paypal-website-payment.png[scaledwidth="100%",alt="Paypal website payment settings"]
 image::billing/paypal-website-payment2.png[scaledwidth="100%",alt="Paypal website payment settings"]
