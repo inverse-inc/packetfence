@@ -167,3 +167,20 @@ func BatchStmtQueryCursor(ctx context.Context, name string, time_limit time.Dura
 
 	return rows_affected
 }
+
+func BatchSqlQueryCursor(ctx context.Context, name string, timeout time.Duration, sql string, batcher BatchCursor) {
+	db, err := getDb()
+	if err != nil {
+		log.LogError(ctx, err.Error())
+		return
+	}
+
+	stmt, err := db.Prepare(sql)
+	if err != nil {
+		log.LogError(ctx, err.Error())
+		return
+	}
+
+	defer stmt.Close()
+	BatchStmtQueryCursor(ctx, name, timeout, stmt, batcher)
+}

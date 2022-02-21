@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 )
 
@@ -67,18 +66,15 @@ func (j *BandwidthMaintenance) Run() {
 }
 
 func (j *BandwidthMaintenance) BandwidthMaintenanceSessionCleanup(ctx context.Context) {
-	count, _ := BatchSql(
+	cursor := newBandwithSessionBatchCursor(j.SessionBatch, j.SessionWindow)
+	BatchSqlQueryCursor(
 		ctx,
+		"bandwidth_sessions",
 		j.SessionTimeout,
-		bandwidthMaintenanceSessionCleanupSQL,
-		time.Now(),
-		j.SessionWindow,
-		j.SessionBatch,
+		bandwidthSessionSQL,
+		cursor,
 	)
 
-	if count > -1 {
-		log.LogInfo(context.Background(), fmt.Sprintf("%s cleaned items %d", "bandwidth_maintenance_session", count))
-	}
 }
 
 func (j *BandwidthMaintenance) ProcessBandwidthAccountingNetflow(ctx context.Context) {
