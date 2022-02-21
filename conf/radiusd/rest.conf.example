@@ -147,6 +147,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	authenticate {
 		uri = "${..connect_uri}/radius/rest/filter"
@@ -155,6 +156,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 
 	#  Accounting/Post-auth
@@ -171,6 +173,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	accounting {
 		uri = "${..connect_uri}/radius/rest/accounting"
@@ -179,6 +182,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	post-auth {
 		uri = "${..connect_uri}/radius/rest/authorize"
@@ -196,6 +200,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	post-proxy {
 		uri = "${..connect_uri}/radius/rest/filter"
@@ -204,6 +209,7 @@ rest {
 		tls = ${..tls}
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	#
 	#  The connection pool is new for 3.0, and will be used in many
@@ -303,6 +309,7 @@ rest rest-cli {
                 timeout = 60.000000
 		attr_num = 'true'
 		raw_value ='true'
+		chunk = '8192'
 	}
 	authenticate {
 	}
