@@ -92,7 +92,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Send certificates by email using alerting settings (#5917)
 * Validate email format on TLS Enrollment form
 * Fixed issue where portal could apply actions from different auth rules (#6896)
-* Handle DBI library ping call dying in pfconfig mysql backend (#6895)
+* Handle DBI library ping call dying in pfconfig MySQL backend (#6895)
 
 == Version 11.1.0 released on 2021-10-28
 
