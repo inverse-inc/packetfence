@@ -64,6 +64,9 @@ sub options_type {
     return @actions;
 }
 
+our %ARRAY_TYPES = (
+    (map { $_ => 1 } qw(set_access_durations set_access_level) ),
+);
 =head2 inflate
 
 inflate the value from the config store
@@ -74,9 +77,10 @@ sub inflate {
     my ($self, $value) = @_;
     my %condition;
     @condition{qw(type value)} = split /\s*=\s*/, $value,2;
-    if ($condition{type} eq 'set_access_level') {
+    if (exists $ARRAY_TYPES{$condition{type}}) {
         $condition{value} = [split /\s*,\s*/, $condition{value} ];
     }
+
     return \%condition;
 }
 
