@@ -16,8 +16,7 @@ export const useSearch = makeSearch('radiusLogs', {
       label: 'Log ID', // i18n defer
       required: true,
       searchable: true,
-      sortable: true,
-      visible: true
+      sortable: true
     },
     {
       key: 'created_at',
@@ -204,7 +203,8 @@ export const useSearch = makeSearch('radiusLogs', {
       key: 'nas_ip_address',
       label: 'NAS IP Address', // i18n defer
       searchable: false,
-      sortable: true
+      sortable: true,
+      visible: true
     },
     {
       key: 'nas_port',

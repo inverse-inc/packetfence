@@ -16,8 +16,7 @@ export const useSearch = makeSearch('adminApiLogs', {
       label: 'Log ID', // i18n defer
       searchable: true,
       required: true,
-      sortable: true,
-      visible: true
+      sortable: true
     },
     {
       key: 'created_at',
