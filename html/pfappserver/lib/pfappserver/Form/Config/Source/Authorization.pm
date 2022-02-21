@@ -20,6 +20,14 @@ with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::Inte
 
 use pf::Authentication::Source::AuthorizationSource;
 
+has_field "+${Rules::ADMIN}_rules" => (
+    inactive => 1,
+);
+
+has_field "+${Rules::ADMIN}_rules.contains" => (
+    inactive => 1,
+);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
