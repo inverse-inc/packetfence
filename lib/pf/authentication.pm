@@ -502,6 +502,7 @@ sub adminAuthentication {
                 username => $user,
                 rule_class => $Rules::ADMIN, 
                 context => $pf::constants::realm::ADMIN_CONTEXT,
+                action => $Actions::SET_ACCESS_LEVEL,
             }, $extra);
         my $values = $match->{values};
 
