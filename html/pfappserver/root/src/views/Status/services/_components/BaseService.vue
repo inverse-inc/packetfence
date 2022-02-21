@@ -1,7 +1,7 @@
 <template>
   <b-overlay :show="service.status && !['success', 'error'].includes(service.status)" variant="white">
     <b-container fluid class="px-0">
-      <b-row class="row-nowrap" align-v="start">
+      <b-row class="row-nowrap mx-0" align-v="start">
         <b-col cols="7">
           <b-row class="row-nowrap">
             <b-col>{{ $t('Alive') }}</b-col>
@@ -45,25 +45,25 @@
         </b-col>
       </b-row>
       <b-row v-if="isProtected"
-        class="mt-2">
+        class="mt-2 mx-0">
         <b-col class="small text-secondary">
           {{ $i18n.t('This service can not be managed since it is required for this page to function.') }}
         </b-col>
       </b-row>
       <b-row v-if="!service.alive && service.managed"
-        class="mt-2">
+        class="mt-2 mx-0">
         <b-col class="small text-danger">
           {{ $t('Service {name} is required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.alive && !service.managed"
-        class="mt-2">
+        class="mt-2 mx-0">
         <b-col class="small text-danger">
           {{ $t('Service {name} is not required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.message"
-        class="mt-2">
+        class="mt-2 mx-0">
         <b-col class="small text-danger">
           {{ service.message }}
         </b-col>

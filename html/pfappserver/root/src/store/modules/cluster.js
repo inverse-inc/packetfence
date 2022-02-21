@@ -237,7 +237,6 @@ const actions = {
     })
   },
   getService: ({ state, commit }, { server, id }) => {
-console.log('getService', {id,server})
     commit('SERVICE_REQUEST', { server, id })
     return api(state, server).service(id).then(service => {
       commit('SERVICE_SUCCESS', { server, id, service })

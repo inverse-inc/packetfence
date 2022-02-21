@@ -79,7 +79,7 @@
             class="m-1" variant="outline-primary" @click="doStopAll(service)" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-button>
         </template>
         <template v-slot:cell()="{ item, value }">
-          <base-service :id="item.service" :server="value.server" :key="`${value.server}-${item.service}`" class="p-3" lazy
+          <base-service :id="item.service" :server="value.server" :key="`${value.server}-${item.service}`" lazy
             enable disable restart start stop />
         </template>
       </b-table>
@@ -135,7 +135,7 @@ const setup = (props, context) => {
         key: server,
         label: server,
         visible: true,
-        tdClass: 'p-0'
+        tdClass: 'px-0'
       })),
       ...((isCluster.value)
         ? [ { key: 'actions', label: 'CLUSTER', visible: true } ]
