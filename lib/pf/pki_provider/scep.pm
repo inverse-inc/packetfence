@@ -15,7 +15,8 @@ pf::pki_provider::scep
 use strict;
 use warnings;
 use Moo;
-use IPC::Open2;
+use IPC::Open3;
+use Symbol 'gensym'; 
 use WWW::Curl::Easy;
 use pf::constants;
 use pf::log;
@@ -106,9 +107,9 @@ sub get_bundle {
     my $ca = $self->get_ca($path, $args);
     my $request  = $self->make_request($path, $args);
     my $cert_path = "$path/cert";
-    my ($code, $out) = run_command("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
+    my ($code, $out, $err) = run_command("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
     if ($code != 0) {
-        get_logger->error("Error running command : $out");
+        get_logger->error("Error running command : $out $err");
         die "Unable to enroll\n";
     }
 
@@ -194,7 +195,10 @@ sub revoke {
 
 sub run_command {
     my (@args) = @_;
-    my $pid = open2(my $chld_out, my $chld_in, @args);
+    my $chld_in;
+    my $chld_out;
+    my $chld_err = gensym();
+    my $pid = open3($chld_in, $chld_out, $chld_err, @args);
     waitpid $pid, 0;
     my $code = $? >> 8;
     my $out = do {
@@ -202,7 +206,15 @@ sub run_command {
         <$chld_out>
     };
 
-    return ($code, $out);
+    my $err = do {
+        local $/ = undef;
+        <$chld_err>
+    };
+    close($chld_out);
+    close($chld_in);
+    close($chld_err);
+
+    return ($code, $out, $err);
 }
 
 =head1 AUTHOR
