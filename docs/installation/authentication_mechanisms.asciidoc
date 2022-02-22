@@ -504,44 +504,53 @@ NOTE: If don't want to use all the billing tiers that are defined, you can speci
 
 PacketFence supports subscription based billing using Stripe as a billing provider.
 
+===== Stripe configuration
+
+In your Stripe dashboard, you should go in _Products -> Add product_.
+
+Then create a new product.
+
+image::billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
+
+Where :
+[options="compact"]
+* *Price* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
+* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
+* *Billing period* is the interval at which the customer should be billed. In the case of this example, it is monthly.
+
+Save it and edit the product to see details information
+
+image::billing/stripe-product-detail.png[scaledwidth="100%",alt="Stripe product detail"]
+
+Where :
+[options="compact"]
+* *API ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
+
+Now, following the same procedure, create the advanced plan.
+
 ===== Billing tier
 
 When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
 
-You should configure a billing tier for each subscription plan you want to have. This example will use the plan `simple` and `advanced` configured using the following parameters.
 
-  [simple]
-  name=Simple network access
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan `simple` and `advanced` configured using the following parameters.
+In this case price_1KW0jVIHkusDcikdVCGcvCii and price_1HFl6mIHkusDcikdZfIh5Bcj are the API ID copied from the 2 products.
+
+  [price_1KW0jVIHkusDcikdVCGcvCii]
+  name=Base access
   description=Click here if you are poor
   price=3.99
   role=guest
   access_duration=10Y
   use_time_balance=disabled
 
-  [advanced]
-  name=Simple network access
+  [price_1HFl6mIHkusDcikdZfIh5Bcj]
+  name=Advanced network access
   description=Click here if you are poor
   price=9.99
   role=advanced_guest
   access_duration=10Y
   use_time_balance=disabled
-
-===== Stripe configuration
-
-Then in your Stripe dashboard, you should go in _Subscriptions -> Plans_.
-
-Then create a new plan.
-
-image::billing/stripe-plan.png[scaledwidth="100%",alt="Stripe plan configuration"]
-
-Where :
-[options="compact"]
-* *ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
-* *Amount* is the price of the plan. It is *important* that this matches the price of the billing tier in PacketFence.
-* *Currency* is the currency that will be used in the transactions. It is *important* that this matches the currency of the Stripe source in PacketFence.
-* *Interval* is the interval at which the customer should be billed. In the case of this example, it is monthly.
-
-Now, following the same procedure, create the advanced plan.
 
 ===== Receiving updates from Stripe
 
