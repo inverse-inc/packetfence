@@ -14,7 +14,7 @@ input:
   email_attribute: ""
   encryption: ""
   host: "[]"
-  idi_t: ""
+  id_t: ""
   monitor: ""
   password: ""
   port: ""
