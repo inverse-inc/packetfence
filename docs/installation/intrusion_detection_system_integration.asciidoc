@@ -228,7 +228,7 @@ Locate the outputs section and modify the fast options as follow:
 
     outputs:
       - fast:
-          enabled: "no"
+          enabled: "yes"
           filename: /nsm/fast.log
           append: "yes"
       - eve-log:
@@ -250,6 +250,15 @@ Reload the configuration on all minions with (it will take few minutes to apply)
 You can verify the configuration done under:
 
   sudo vim /opt/so/conf/suricata/suricata.yaml
+
+If you want to disable some rules in suricata, you can use so-rule:
+
+  so-rule disabled add 're:STUN'
+  so-rule disabled add 2101411
+
+You can also check this video to understand how to manage suricata rules:
+
+  https://www.youtube.com/watch?v=1jEkFIEUCuI
 
 ==== Rsyslog configuration on SO
 
