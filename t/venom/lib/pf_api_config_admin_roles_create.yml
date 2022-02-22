@@ -1,0 +1,26 @@
+executor: pf_api_config_admin_roles_create
+input:
+  id: "Switch_Access"
+  actions: "SWITCH_LOGIN_WRITE"
+  desc: "Switch Access"
+steps:
+- type: pf_api_action
+  method: POST
+  url: 'config/admin_roles'
+  status_code: 201
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "isClone": false,
+      "isNew": true,
+      "actions": [
+        "{{.input.actions}}"
+      ],
+      "allowed_access_durations": null,
+      "allowed_access_levels": [],
+      "allowed_actions": [],
+      "allowed_node_roles": [],
+      "allowed_roles": [],
+      "allowed_unreg_date": null,
+      "description": "{{.input.desc}}"
+    }

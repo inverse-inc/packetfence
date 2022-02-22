@@ -1,0 +1,106 @@
+executor: pf_api_check_radius_audit_log
+input:
+  - mac_address: ""
+  - connection_type_value: ""
+  - time_ago: "2 minutes"
+  - vlan_registration: ""
+  - profile: ""
+steps:
+- type: get_login_token
+
+- type: exec
+  script: "date '+%Y-%m-%d %H:%M:%S' --date='{{.input.time_ago}} ago'"
+  vars:
+    my_time_ago:
+      from: result.systemout
+
+# only latest search entry since two minutes that matches
+# auth_status equals Accept (to avoid Disconnect)
+# mac equals {{.node01_ens7_mac_address}}"
+# connection type of test suite connection profile
+#
+# Need bug fixed before doing an executor
+# https://github.com/ovh/venom/issues/493
+# https://github.com/ovh/venom/issues/425
+#
+- type: http
+  method: POST
+  url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_logs/search'
+  ignore_verify_ssl: true
+  body: >-
+    {
+      "cursor": 0,
+      "fields": [
+        "id"
+      ],
+      "sort": [
+        "created_at DESC"
+      ],
+      "limit": 1,
+      "query": {
+        "op": "and",
+        "values": [
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "mac",
+                "op": "equals",
+                "value": "{{.input.mac_address}}"
+              }
+            ]
+          },
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "auth_status",
+                "op": "equals",
+                "value": "Accept"
+              }
+            ]
+          },
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "connection_type",
+                "op": "equals",
+                "value": "{{.input.connection_type}}"
+              }
+            ]
+          },
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "created_at",
+                "op": "greater_than",
+                "value": "{{.result.my_time_ago}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.items.items0 ShouldContainKey id
+  vars:
+    my_id:
+      from: result.bodyjson.items.items0.id
+
+- type: http
+  method: GET
+  url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.result.my_id}}'
+  ignore_verify_ssl: true
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.input.vlan_id}}"'
+    - result.bodyjson.item.profile ShouldEqual "{{.input.profiles_id}}"

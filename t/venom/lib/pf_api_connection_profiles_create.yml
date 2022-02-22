@@ -1,5 +1,35 @@
 executor: pf_api_connection_profiles_create
 input:
+  access_registration_when_registered: null,
+  advanced_filter: null,
+  always_use_redirecturl: null,
+  autoregister: "enabled",
+  billing_tiers: null,
+  block_interval_interval: "10",
+  block_interval_unit: "m"
+  default_psk_key: null,
+  description: "{{.input.desc}}",
+  dot1x_recompute_role_from_portal: "enabled",
+  dot1x_unset_on_unmatch: "disabled",
+  dpsk: "disabled",
+  filter_match_style: "all",
+  locale: null,
+  login_attempt_limit: 0,
+  logo: null,
+  mac_auth_recompute_role_from_portal: "disabled",
+  network_logoff: null,
+  network_logoff_popup: null,
+  preregistration: null,
+  provisioners: null,
+  redirecturl: null,
+  reuse_dot1x_credentials: null,
+  root_module: "default_policy",
+  scans: null,
+  self_service: null,
+  sms_pin_retry_limit: 0,
+  sms_request_limit: 0,
+  status: "enabled",
+  vlan_pool_technique: "username_hash"
   connection_type: ""
   connection_sub_type: ""
   id: ""
@@ -13,20 +43,20 @@ steps:
   status_code: 201
   body: >-
     {
-      "access_registration_when_registered": null,
-      "advanced_filter": null,
-      "always_use_redirecturl": null,
-      "autoregister": "enabled",
-      "billing_tiers": null,
+      "access_registration_when_registered": "{{.input.access_registration_when_registered}}",
+      "advanced_filter": "{{.input.advanced_filter}}",
+      "always_use_redirecturl": "{{.input.always_use_redirecturl}}",
+      "autoregister": "{{.input.autoregister}}",
+      "billing_tiers": "{{.input.billing_tiers}}",
       "block_interval": {
-        "interval": "10",
-        "unit": "m"
+        "interval": "{{.input.block_interval_interval}}",
+        "unit": "{{.input.block_interval_unit}}"
       },
-      "default_psk_key": null,
+      "default_psk_key": "{{.input.default_psk_key}}",
       "description": "{{.input.desc}}",
-      "dot1x_recompute_role_from_portal": "enabled",
-      "dot1x_unset_on_unmatch": "disabled",
-      "dpsk": "disabled",
+      "dot1x_recompute_role_from_portal": "{{.input.dot1x_recompute_role_from_portal}}",
+      "dot1x_unset_on_unmatch": "{{.input.dot1x_unset_on_unmatch}}",
+      "dpsk": "{{.input.dpsk}}",
       "filter": [
         {
           "type": "connection_type",
@@ -37,29 +67,29 @@ steps:
           "match": "{{.input.connection_sub_type}}"
         }
       ],
-      "filter_match_style": "all",
+      "filter_match_style": "{{.input.filter_match_style}}",
       "id": "{{.input.id}}",
-      "locale": null,
-      "login_attempt_limit": 0,
-      "logo": null,
-      "mac_auth_recompute_role_from_portal": "disabled",
-      "network_logoff": null,
-      "network_logoff_popup": null,
-      "preregistration": null,
-      "provisioners": null,
-      "redirecturl": null,
-      "reuse_dot1x_credentials": null,
-      "root_module": "default_policy",
-      "scans": null,
-      "self_service": null,
-      "sms_pin_retry_limit": 0,
-      "sms_request_limit": 0,
+      "locale": "{{.input.locale}}",
+      "login_attempt_limit": "{{.input.login_attempt_limit}}",
+      "logo": "{{.input.logo}}",
+      "mac_auth_recompute_role_from_portal": "{{.input.mac_auth_recompute_role_from_portal}}",
+      "network_logoff": "{{.input.network_logoff}}",
+      "network_logoff_popup": "{{.input.network_logoff_popup}}",
+      "preregistration": "{{.input.preregistration}}",
+      "provisioners": "{{.input.provisioners}}",
+      "redirecturl": "{{.input.redirecturl}}",
+      "reuse_dot1x_credentials": "{{.input.reuse_dot1x_credentials}}",
+      "root_module": "{{.input.root_module}}",
+      "scans": "{{.input.scans}}",
+      "self_service": "{{.input.self_service}}",
+      "sms_pin_retry_limit": "{{.input.sms_pin_retry_limit}}",
+      "sms_request_limit": "{{.input.sms_request_limit}}",
       "sources": [
         "{{.input.sources}}"
       ],
-      "status": "enabled",
+      "status": "{{.input.status}}",
       "unreg_on_acct_stop": "{{.input.unreg_on_acct_stop}}",
-      "vlan_pool_technique": "username_hash"
+      "vlan_pool_technique": "{{.input.vlan_pool_technique}}"
     }
 
 output:
