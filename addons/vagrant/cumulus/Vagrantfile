@@ -112,6 +112,8 @@ node01_ipv6 = user_vars['vms']['node01']['ipv6']
 node01_prefix = user_vars['networks'][0]['libvirt_ipv6_prefix']
 node02_ipv6 = user_vars['vms']['node02']['ipv6']
 node02_prefix = user_vars['networks'][0]['libvirt_ipv6_prefix']
+node03_ipv6 = user_vars['vms']['node03']['ipv6']
+node03_prefix = user_vars['networks'][0]['libvirt_ipv6_prefix']
 
 Vagrant.configure("2") do |config|
 
@@ -616,7 +618,7 @@ vagrant_interface_rule
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
     device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node03.sh",
-                        args: [ "#{node03_ip}", "#{node03_netmask}"]
+                        args: [ "#{node03_ip}", "#{node03_netmask}", "#{node03_ipv6}", "#{node03_prefix}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
