@@ -8,19 +8,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 )
 
-const bandwidthMaintenanceSessionCleanupSQL = `
-SET STATEMENT max_statement_time=5 FOR BEGIN NOT ATOMIC
-SET @window = DATE_SUB(?, INTERVAL ? SECOND);
-UPDATE bandwidth_accounting INNER JOIN (
-    SELECT DISTINCT node_id, unique_session_id
-    FROM bandwidth_accounting as ba1
-    WHERE last_updated BETWEEN '0001-01-01 00:00:00' AND @window AND NOT EXISTS ( SELECT 1 FROM bandwidth_accounting ba2 WHERE ba2.last_updated > @window AND (ba1.node_id, ba1.unique_session_id) = (ba2.node_id, ba2.unique_session_id) )
-    ORDER BY last_updated
-LIMIT ?) AS old_sessions USING (node_id, unique_session_id)
-SET last_updated = '0000-00-00 00:00:00';
-END;
-`
-
 type BandwidthMaintenance struct {
 	Task
 	Window         int
