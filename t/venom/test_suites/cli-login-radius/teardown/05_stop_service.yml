@@ -1,18 +1,9 @@
 name: Cli RADIUS Service Teardown
 testcases:
-- name: stop_radius_test_service
-  steps:
-  - type: systemctl_service
-    unit_command: stop
-    service: radius-test.service
-    sudo: sudo
-
 - name: disable_radius_test_service
   steps:
-  - type: systemctl_service
-    unit_command: disable
+  - type: systemctl_service_disable
     service: radius-test.service
-    sudo: sudo
 
 - name: Reload Deamon
   steps:
