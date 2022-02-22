@@ -107,9 +107,11 @@ sub get_bundle {
     my $ca = $self->get_ca($path, $args);
     my $request  = $self->make_request($path, $args);
     my $cert_path = "$path/cert";
-    my ($code, $out, $err) = run_command("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
+    my @args = ("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
+    my ($code, $out, $err) = run_command(@args);
     if ($code != 0) {
-        get_logger->error("Error running command : $out $err");
+        my $cmd = join(" ", @args);
+        get_logger->error("Error running command : '$cmd' [$out, $err]");
         die "Unable to enroll\n";
     }
 
