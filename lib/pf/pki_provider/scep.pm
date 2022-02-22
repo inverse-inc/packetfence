@@ -17,6 +17,7 @@ use warnings;
 use Moo;
 use WWW::Curl::Easy;
 use pf::constants;
+use pf::log;
 use URI::Escape::XS qw(uri_escape uri_unescape);
 use File::Tempdir;
 use File::Slurp qw(read_file);
@@ -108,6 +109,10 @@ sub get_bundle {
     my $cert = eval {
         read_file ($cert_path)
     };
+    if ($@) {
+        get_logger->error("Unable to enroll : $@");
+        die "Unable to enroll";
+    }
     return Crypt::OpenSSL::PKCS12->create_as_string($cert, $request->{key}, $args->{certificate_pwd});
 }
 
