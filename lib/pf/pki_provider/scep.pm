@@ -15,6 +15,7 @@ pf::pki_provider::scep
 use strict;
 use warnings;
 use Moo;
+use IPC::Open2;
 use WWW::Curl::Easy;
 use pf::constants;
 use pf::log;
@@ -105,7 +106,12 @@ sub get_bundle {
     my $ca = $self->get_ca($path, $args);
     my $request  = $self->make_request($path, $args);
     my $cert_path = "$path/cert";
-    system("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
+    my ($code, $out) = run_command("sscep", "enroll", "-c", $ca->[0],'-e', $ca->[1],"-k",$request->{key}, '-r', $request->{csr}, "-u",$self->url, '-S', 'sha1', '-l', $cert_path);
+    if ($code != 0) {
+        get_logger->error("Error running command : $out");
+        die "Unable to enroll\n";
+    }
+
     my $cert = eval {
         read_file ($cert_path)
     };
@@ -184,6 +190,19 @@ sub revoke {
     my ($self, $cn) = @_;
     my $logger = get_logger();
     $logger->warn("Calling a revoke on a PKI provider that does not support it");
+}
+
+sub run_command {
+    my (@args) = @_;
+    my $pid = open2(my $chld_out, my $chld_in, @args);
+    waitpid $pid, 0;
+    my $code = $? >> 8;
+    my $out = do {
+        local $/ = undef;
+        <$chld_out>
+    };
+
+    return ($code, $out);
 }
 
 =head1 AUTHOR
