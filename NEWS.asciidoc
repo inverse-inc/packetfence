@@ -77,6 +77,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Add text warning on unreg date when past date is used (#6871)
 * Add an option to sync a single ConfigStore storage in the bin/cluster/sync tool (#6904)
 * Updated PayPal integration documentation
+* Match expected administration rules for web admin and sponsor login (#3631)
 
 === Bug Fixes
 
