@@ -23,7 +23,7 @@ endif::[]
 
 First of all you will need to configure the basic functionality of Kandji using their documentation and enable a blueprint to apply on your devices.
 
-==== Create an API user
+==== Create an API token
 
 Next, we will need a user that has the rights to access the Kandji API in order to verify the state of the devices directly from PacketFence.
 
