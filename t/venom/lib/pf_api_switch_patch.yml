@@ -1,0 +1,9 @@
+executor: pf_api_switch_patch
+input:
+  id: ""
+  body: {}
+steps:
+- type: pf_api_switch_action
+  method: PATCH
+  id: "{{.input.id}}"
+  body: '{{.input.body}}"

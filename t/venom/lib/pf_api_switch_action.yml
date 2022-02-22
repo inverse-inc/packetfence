@@ -2,8 +2,8 @@ executor: pf_api_switch_action
 input:
   body: {}
   id: ""
-  method: ""
-  status_code: ""
+  method: "GET"
+  status_code: 200
   time_to_sleep: 0
 steps:
 - type: pf_api_action

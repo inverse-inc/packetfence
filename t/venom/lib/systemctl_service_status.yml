@@ -2,12 +2,13 @@ executor: systemctl_service_status
 input:
   service: "" 
   sudo: ""
+  system_output_contains: "active (running)"
 steps:
 - type: systemctl_service
   unit_command: status
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
   assertions:
-    - result.service_systemout ShouldContainSubstring active (running)
+    - result.service_systemout ShouldContainSubstring "{{.input.system_output_contains}}"
 output:
   service_status_systemout: "{{.result.service_systemout}}"
