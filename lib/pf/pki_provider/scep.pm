@@ -111,7 +111,7 @@ sub get_bundle {
     };
     if ($@) {
         get_logger->error("Unable to enroll : $@");
-        die "Unable to enroll";
+        die "Unable to enroll\n";
     }
     return Crypt::OpenSSL::PKCS12->create_as_string($cert, $request->{key}, $args->{certificate_pwd});
 }
