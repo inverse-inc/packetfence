@@ -526,14 +526,14 @@ Where :
 [options="compact"]
 * *API ID* is the billing tier identifier. It is *important* that this matches the ID of the billing tier in PacketFence.
 
-Now, following the same procedure, create the advanced plan.
+Now, following the same procedure, create the advance plan.
 
 ===== Billing tier
 
 When using subscription based billing, it is advised to configure the billing tier so it has an almost infinite access duration (e.g. 20 years) as the billing provider will be contacting the PacketFence server when the subscription is canceled.
 
 
-You should configure a billing tier for each subscription plan you want to have. This example will use the plan `simple` and `advanced` configured using the following parameters.
+You should configure a billing tier for each subscription plan you want to have. This example will use the plan `base` and `advance` configured using the following parameters.
 In this case price_1KW0jVIHkusDcikdVCGcvCii and price_1HFl6mIHkusDcikdZfIh5Bcj are the *API ID* copied from the 2 products.
 
   [price_1KW0jVIHkusDcikdVCGcvCii]
