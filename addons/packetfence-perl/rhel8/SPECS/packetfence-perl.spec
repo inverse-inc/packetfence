@@ -9,7 +9,7 @@ AutoProv:       yes
 Group:          Applications
 License:        GPL3
 #URL:
-Source0:        packetfence_perl_module_without_all_path.tar.gz
+Source0:        packetfence_perl_el_module_without_all_path.tar.gz
 
 %description
 All PacketFence required modules installed with cpan
