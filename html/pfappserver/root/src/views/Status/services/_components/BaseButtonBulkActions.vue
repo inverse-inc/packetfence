@@ -81,7 +81,7 @@ const setup = (props, context) => {
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/restartServiceCluster', service).catch(e => e))
     ).then(() => {
       $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Services restarted.') })
-    }).catch(err => console.error(err))
+    })
   }
 
   const doStartCluster = () => {
