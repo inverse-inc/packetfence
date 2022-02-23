@@ -23,7 +23,7 @@ configure_and_check() {
     CPAN_BIN_PATH="/usr/bin/cpan"
     CPAN_VERSION=2.29
 
-    MODULES_WITHOUT_VERSION=("Net::Radius" "libwww-perl" "Module::Loaded")
+    MODULES_WITHOUT_VERSION=("Net::Radius" "libwww::perl" "Module::Loaded")
 
     prepare_env
     install_requirements
