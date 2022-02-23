@@ -532,7 +532,6 @@ FROM macs JOIN dates;
 }
 
 func TestBandwidthMaintenanceSession(t *testing.T) {
-	bandwidthAccountingRadiusToHistoryWindow = 2 * 60 * 60
 	name := "bandwidth_maintenance"
 	config, found := jobsConfig[name]
 	if !found {
@@ -611,6 +610,135 @@ FROM macs JOIN dates;
 				name:          "bandwidth_accounting marked done",
 				sql:           `SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated = '0000-00-00 00:00:00'`,
 				expectedCount: 7200,
+			},
+		},
+	)
+	runStatements(
+		t,
+		[]string{
+			"TRUNCATE bandwidth_accounting",
+		},
+	)
+
+}
+
+func TestBandwidthMaintenanceSession2(t *testing.T) {
+	name := "bandwidth_maintenance"
+	config, found := jobsConfig[name]
+	if !found {
+		t.Fatalf("config for %s not found", name)
+	}
+
+	j := BuildJob(
+		name,
+		MergeArgs(
+			config.(map[string]interface{}),
+			map[string]interface{}{
+				"session_timeout": 10.0,
+				"session_batch":   100.0,
+				"session_window":  float64(60 * 60),
+			},
+		),
+	)
+
+	job, ok := j.(*BandwidthMaintenance)
+	if !ok {
+		t.Fatalf("*BandwidthMaintenance for %s not found", name)
+	}
+
+	runStatements(
+		t,
+		[]string{
+			"TRUNCATE bandwidth_accounting",
+			`
+INSERT INTO bandwidth_accounting (
+        tenant_id,
+        node_id,
+        unique_session_id,
+        mac,
+        time_bucket,
+        in_bytes,
+        out_bytes,
+        last_updated,
+        source_type
+)
+
+WITH macs AS (
+    SELECT
+        (1 << 48 | seq) as node_id,
+        LOWER(CONCAT_WS(
+            ':',
+            LPAD(HEX((seq >> 40) & 255), 2, '0'),
+            LPAD(HEX((seq >> 32) & 255), 2, '0'),
+            LPAD(HEX((seq >> 24) & 255), 2, '0'),
+            LPAD(HEX((seq >> 16) & 255), 2, '0'),
+            LPAD(HEX((seq >> 8) & 255), 2, '0'),
+            LPAD(HEX(seq & 255), 2, '0')
+        )) AS mac,
+        seq as node_seq
+        FROM seq_1_to_20
+),
+dates AS (
+    SELECT
+        s1.seq as seq1,
+        s2.seq as seq2,
+        DATE_SUB(NOW(), INTERVAL (s1.seq*6 + s2.seq) * 15 MINUTE ) as time_bucket
+    FROM seq_0_to_59 as s1 JOIN seq_0_to_5 as s2
+)
+SELECT
+    1 AS tenant_id,
+    node_id,
+    seq1,
+    mac,
+    time_bucket,
+    100 in_bytes,
+    100 out_bytes,
+    time_bucket AS last_updated,
+    'radius' AS source_type
+FROM macs JOIN dates;
+            `,
+		},
+	)
+
+	job.BandwidthMaintenanceSessionCleanup(context.Background())
+
+	testSqlCountTests(
+		t,
+		[]sqlCountTest{
+			sqlCountTest{
+				name:          "bandwidth_accounting marked done",
+				sql:           `SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated = '0000-00-00 00:00:00'`,
+				expectedCount: 7200-120,
+			},
+			sqlCountTest{
+				name:          "bandwidth_accounting not mark done",
+				sql:           `SELECT COUNT(*) FROM bandwidth_accounting WHERE last_updated > '0000-00-00 00:00:00' AND last_updated < DATE_SUB(NOW(), INTERVAL 60*60 SECOND)`,
+				expectedCount: 40,
+			},
+			sqlCountTest{
+				name: "bandwidth_accounting not mark done",
+				sql: `
+SELECT
+	COUNT(*)
+FROM
+	bandwidth_accounting as b1
+WHERE
+	EXISTS (
+		SELECT
+			1
+		FROM
+			bandwidth_accounting AS b2
+		WHERE
+			last_updated > '0000-00-00 00:00:00'
+			AND     (
+				b1.node_id, b1.unique_session_id
+			) = (
+				b2.node_id, b2.unique_session_id
+			)
+	)
+	AND last_updated = '0000-00-00 00:00:00'  ;
+`,
+				expectedCount: 0,
 			},
 		},
 	)
