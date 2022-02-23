@@ -50,7 +50,7 @@ install_requirements() {
         apt install libmodule-signature-perl zip make build-essential libssl-dev zlib1g-dev libmariadb-dev-compat libmariadb-dev libssh2-1-dev libexpat1-dev pkg-config libkrb5-dev libsystemd-dev libgd-dev libcpan-distnameinfo-perl libyaml-perl curl wget graphviz libio-socket-ssl-perl libnet-ssleay-perl libcpan-perl-releases-perl -y
     elif [ -f /etc/redhat-release ]; then
         echo "EL system detected"
-        yum install -y openssl-devel krb5-libs MariaDB-devel epel-release libssh2-devel systemd-devel gd-devel perl-open perl-Test perl-experimental perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO
+        yum install -y openssl-devel krb5-libs MariaDB-devel epel-release libssh2-devel systemd-devel gd-devel perl-open perl-experimental perl-CPAN perl-IO-Socket-SSL perl-Net-SSLeay perl-Devel-Peek perl-CPAN-DistnameInfo $DISABLE_REPO
         yum group install -y "Development Tools" $DISABLE_REPO
         yum install -y http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-5.el8.noarch.rpm
     else
