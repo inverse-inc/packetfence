@@ -40,14 +40,23 @@ certainly update `dependencies.csv` with new version.
 
 ``` shell
 ./make_tar_from_source.sh
+# only in Docker container, see note below
+QA_RPATHS=$(( 0x0001 )) rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_sourcedir ${PWD}/rhel8/SOURCES"
+# or
 rpmbuild -bb ./rhel8/SPECS/packetfence-perl.spec --clean --rmsource --define "_sourcedir ${PWD}/rhel8/SOURCES"
 ```
 
-If you build inside a Docker container, you need to define `QA_RPATHS=$((
-0x0001 ))` inside environment used by `rpmbuild` to avoid error related to
+If you build inside a Docker container, you need to define `QA_RPATHS=$(( 0x0001 ))` inside environment used by `rpmbuild` to avoid error related to
 RPATHS
 
-1. Copy your RPM from `/root/rpmbuild/RPMS/x86_64/packetfence-perl-1.2.0-1.el8.x86_64.rpm`
+1. Copy your RPM from `/root/rpmbuild/RPMS/x86_64/`
+
+IMPORTANT: you can get a list of all Perl modules with their version provided through RPM using following command:
+
+```shell
+rpm -qp --provides RPM_PKG
+```
+
 
 ## How to build Debian package ?
 
@@ -56,7 +65,7 @@ RPATHS
 
 ``` shell
 ./make_tar_from_source.sh
-dpkg-buildpackage --no-sign -rfakeroot
+PERL5LIB=/usr/local/pf/lib/perl_modules/lib/perl5/ dpkg-buildpackage --no-sign -rfakeroot
 ```
 
 1. Copy your .deb from parent directory
