@@ -1,0 +1,20 @@
+name: Test ip6tables rules on management
+testcases:
+
+  - name: check_webadmin
+    steps:
+      - type: http
+        method: GET
+        url: 'https://[fd28:ffd:18:140::14]:1443'
+        ignore_verify_ssl: true
+        assertions:
+          - result.statuscode ShouldEqual 200
+
+  - name: check_ssh
+    steps:
+      - type: ssh
+        host: 'fd28:ffd:18:140::14'
+        user: vagrant
+        comamand: |
+          /bin/true
+        
