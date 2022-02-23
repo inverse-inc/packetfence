@@ -1,52 +1,51 @@
 name: Setup inlinel2 network
 testcases:
+- name: create_two_virtual_ethernet_interfaces
+  steps:
+  - type: exec
+    script: ip link add bridgeinlinel2 type veth peer name inlinel2
 
-  - name: create_two_virtual_ethernet_interfaces
-    steps:
-    - type: exec
-      script: ip link add bridgeinlinel2 type veth peer name inlinel2
+- name: create_tap_interface
+  steps:
+  - type: exec
+    script: ip tuntap add blok-tap1 mode tap
 
-  - name: create_tap_interface
-    steps:
-      - type: exec
-        script: ip tuntap add blok-tap1 mode tap
+- name: set_blok-tap1_up
+  steps:
+  - type: exec
+    script: ip link set blok-tap1 up
 
-  - name: set_blok-tap1_up
-    steps:
-      - type: exec
-        script: ip link set blok-tap1 up
+- name: create_bridge
+  steps:
+  - type: exec
+    script: ip link add blok-br1 type bridge
 
-  - name: create_bridge
-    steps:
-    - type: exec
-      script: ip link add blok-br1 type bridge
+- name: set_bridge_up
+  steps:
+  - type: exec
+    script: ip link set blok-br1 up
 
-  - name: set_bridge_up
-    steps:
-    - type: exec
-      script: ip link set blok-br1 up
+- name: set_blok-vpeer0_up
+  steps:
+  - type: exec
+    script:  ip link set inlinel2 up
 
-  - name: set_blok-vpeer0_up
-    steps:
-    - type: exec
-      script:  ip link set inlinel2 up
+- name: set_bridgeinlinel2_up
+  steps:
+  - type: exec
+    script:  ip link set bridgeinlinel2 up
 
-  - name: set_bridgeinlinel2_up
-    steps:
-    - type: exec
-      script:  ip link set bridgeinlinel2 up
- 
-  - name: add_ip_to_inlinel2_interface
-    steps:
-    - type: exec
-      script: 'ip addr add {{.inline_l2.pf_portal}}/24 dev inlinel2'
+- name: add_ip_to_inlinel2_interface
+  steps:
+  - type: exec
+    script: 'ip addr add {{.inline_l2.pf_portal}}/24 dev inlinel2'
 
-  - name: add_bridgeinlinel2_in_the_blok-br1_bridge
-    steps:
-    - type: exec
-      script: ip link set bridgeinlinel2 master blok-br1
+- name: add_bridgeinlinel2_in_the_blok-br1_bridge
+  steps:
+  - type: exec
+    script: ip link set bridgeinlinel2 master blok-br1
 
-  - name: add_blok-tap1_in_the_blok-br1_bridge
-    steps:
-    - type: exec
-      script: ip link set blok-tap1 master blok-br1
+- name: add_blok-tap1_in_the_blok-br1_bridge
+  steps:
+  - type: exec
+    script: ip link set blok-tap1 master blok-br1

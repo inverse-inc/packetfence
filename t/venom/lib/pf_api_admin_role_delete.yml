@@ -1,3 +1,4 @@
+  id: "{{.input.id}}"
 executor: pf_api_admin_role_delete
 input:
   id: ""
