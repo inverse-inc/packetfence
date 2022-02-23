@@ -1,5 +1,5 @@
 Name:       packetfence-export
-Version:    11.2.0
+Version:    11.3.0
 Release:    2%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence export files
@@ -47,6 +47,9 @@ This package should only be installed on releases before v11.
 %attr(0644, -, -)     /usr/local/pf/addons/functions/*.functions
 
 %changelog
+* Wed Feb 23 2022 Inverse <info@inverse.ca> - 11.3.0-1
+- New release 11.3.0
+
 * Fri Oct 29 2021 Inverse <info@inverse.ca> - 11.2.0-1
 - New release 11.2.0
 
