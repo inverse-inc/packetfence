@@ -18,4 +18,3 @@ file_filter = conf/I18N/api/<lang>.po
 source_file = conf/I18N/api/en.po
 source_lang = en
 type = PO
-
