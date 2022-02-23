@@ -1,0 +1,29 @@
+executor: pf_api_switch_group_delete
+input:
+  body: {}
+  id: ""
+  method: "DELETE"
+  status_code: 200
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  body: '{{.input.body}}'
+  method: "{{.input.method}}"
+  status_code: "{{.input.status_code}}"
+  url: 'config/switch_group/{{.input.id}}'
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  vars:
+    my_tmp_:
+      from: result.pf_api_action_
+
+- type: pf_api_switch_group_status
+  status_code: 404
+  body: '{{.input.body}}'
+  method: "{{.input.method}}"
+  url: 'config/switch_group/{{.input.id}}'
+  time_to_sleep: 0
+  assertions:
+    - result.pf_api_switch_status_json.message ShouldEqual "Item ({{.input.id}}) not found"
+
+output:
+  pf_api_switchi_group_delete_: "{{.result.my_tmp_json}}"

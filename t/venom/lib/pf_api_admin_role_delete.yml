@@ -1,0 +1,14 @@
+executor: pf_api_admin_role_delete
+input:
+  id: ""
+steps:
+- type: pf_api_action
+  method: DELETE
+  url: 'config/admin_role/{{.input.id}}'
+
+- type: pf_api_action
+  method: GET
+  url: 'config/admin_role/{{.input.id}}'
+  status_code: 404
+  assertion:
+    - result.pf_api_realm_action_json.message ShouldEqual "Item ({{.input.id}}) not found"

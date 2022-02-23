@@ -1,67 +1,26 @@
 name: Global teardown
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: delete_access_level
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/admin_role/{{.access_level_user_and_node.id}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_admin_role_delete
+    id: "{{.access_level_user_and_node.id}}"
   
 - name: delete_switch
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.cumulus_switch.id1}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_switch_delete
+    url: '{{.cumulus_switch.id1}}'
 
 - name: delete_switch_group
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.cumulus_switch_group.id}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_switch_group_delete
+    id: "{{.cumulus_switch_group.id}}"
 
 - name: delete_wireless_switch
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.wireless_switch.id1}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_switch_delete 
+    id: "{{.wireless_switch.id1}}"
 
 - name: delete_wireless_switch_group
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch_group/{{.wireless_switch_group.id}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
-
+  - type: pf_api_switch_group_delete
+    id: "{{.wireless_switch_group.id}}"

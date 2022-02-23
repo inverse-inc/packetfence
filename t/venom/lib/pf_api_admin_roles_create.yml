@@ -1,4 +1,4 @@
-executor: pf_api_config_admin_roles_create
+executor: pf_api_admin_roles_create
 input:
   id: "Switch_Access"
   actions: "SWITCH_LOGIN_WRITE"

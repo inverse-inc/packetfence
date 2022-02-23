@@ -1,0 +1,16 @@
+executor: pf_api_roles_create 
+input:
+  id: ""
+  max_nodes_per_pid: 0
+  notes: ""
+steps:
+- type: pf_api_action
+  method: POST
+  url: "config/roles"
+  status_code: 201
+  body: >-
+    {
+      "id":"{{.input.id}}",
+      "max_nodes_per_pid":"{{.input.max_nodes_per_pid}}",
+      "notes":"{{.input.notes}}"
+    }

@@ -1,130 +1,41 @@
 name: Create roles
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: create_eap_peap_roles_user
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id":"{{.eap_peap.roles.ad_user.id}}",
-        "max_nodes_per_pid":0,
-        "notes":"{{.eap_peap.roles.ad_user.notes}}"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_roles_create 
+    id: "{{.eap_peap.roles.ad_user.id}}"
+    notes: "{{.eap_peap.roles.ad_user.notes}}"
 
 - name: create_eap_peap_roles_machine
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id":"{{.eap_peap.roles.ad_machine.id}}",
-        "max_nodes_per_pid":0,
-        "notes":"{{.eap_peap.roles.ad_machine.notes}}"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
-
+  - type: pf_api_roles_create
+    id: "{{.eap_peap.roles.ad_machine.id}}"
+    notes: "{{.eap_peap.roles.ad_machine.notes}}"
+    
 - name: create_headless_device_role
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id":"{{.mac_auth.roles.headless_device.id}}",
-        "max_nodes_per_pid":0,
-        "notes":"{{.mac_auth.roles.headless_device.notes}}"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_roles_create
+    id: "{{.mac_auth.roles.headless_device.id}}"
+    notes: "{{.mac_auth.roles.headless_device.notes}}"
 
 - name: create_wired_dot1x_eap_tls_manual_role
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}",
-        "max_nodes_per_pid":0,
-        "notes":"{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.notes}}"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_roles_create
+    id: "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.id}}"
+    notes: "{{.wired_dot1x_eap_tls_manual.roles.dot1x_eap_tls.notes}}"
 
 - name: create_wired_dot1x_eap_tls_scep_role
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id":"{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id}}",
-        "max_nodes_per_pid":0,
-        "notes":"{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.notes}}"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldBeIn 201
+  - type: pf_api_roles_create
+    id: "{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.id}}"
+    notes: "{{.wired_dot1x_eap_tls_scep.roles.dot1x_eap_tls.notes}}"
 
 - name: create_inline_l2_and_radius_first_role
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id": "{{.inline_l2_and_radius.roles.first}}",
-        "max_nodes_per_pid": 0
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_roles_create
+    id: "{{.inline_l2_and_radius.roles.first}}"
 
 - name: create_inline_l2_and_radius_second_role
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/roles'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "id": "{{.inline_l2_and_radius.roles.second}}",
-        "max_nodes_per_pid": 0
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
-
+  - type: pf_api_roles_create
+    id: "{{.inline_l2_and_radius.roles.second}}"
