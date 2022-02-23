@@ -77,7 +77,7 @@ systemctl disable monit
 Starting from PacketFence 11.0.0, you can upgrade your PacketFence installation in two ways:
 
 * <<#_upgrade_to_a_patch_version_x_y_patch,Upgrade to a patch version (X.Y.PATCH)>>
-* <<#_upgrade_to_a_major_or_minor_version_majour_minor_z,Upgrade to a major or minor version (MAJOR.MINOR.Z)>>
+* <<#_upgrade_to_a_major_or_minor_version_major_minor_z,Upgrade to a major or minor version (MAJOR.MINOR.Z)>>
 
 For all PacketFence versions prior to 11.0.0, you should follow <<_upgrade_procedure,steps described in Upgrade procedure section>>.
 
