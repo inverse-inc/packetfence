@@ -491,6 +491,6 @@ d-i preseed/late_command string \
   echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /target/tmp/reset-root.sql ; \
   mkdir /target/run/mysqld ; \
   chroot /target chown mysql: /run/mysqld/ ; \
-  chroot /target timeout 10 mysqld --skip-networking --init-file /tmp/reset-root.sql ; \
+  chroot /target timeout 10 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /target/var/reset-root.log 2>&1 ; \
   rm -f /target/tmp/reset-root.sql
 
