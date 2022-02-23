@@ -1,34 +1,34 @@
 executor: pf_api_connection_profiles_create
 input:
-  access_registration_when_registered: null,
-  advanced_filter: null,
-  always_use_redirecturl: null,
-  autoregister: "enabled",
-  billing_tiers: null,
-  block_interval_interval: "10",
+  access_registration_when_registered: null
+  advanced_filter: null
+  always_use_redirecturl: null
+  autoregister: "enabled"
+  billing_tiers: null
+  block_interval_interval: "10"
   block_interval_unit: "m"
-  default_psk_key: null,
-  description: "{{.input.desc}}",
-  dot1x_recompute_role_from_portal: "enabled",
-  dot1x_unset_on_unmatch: "disabled",
-  dpsk: "disabled",
-  filter_match_style: "all",
-  locale: null,
-  login_attempt_limit: 0,
-  logo: null,
-  mac_auth_recompute_role_from_portal: "disabled",
-  network_logoff: null,
-  network_logoff_popup: null,
-  preregistration: null,
-  provisioners: null,
-  redirecturl: null,
-  reuse_dot1x_credentials: null,
-  root_module: "default_policy",
-  scans: null,
-  self_service: null,
-  sms_pin_retry_limit: 0,
-  sms_request_limit: 0,
-  status: "enabled",
+  default_psk_key: null
+  description: "default description"
+  dot1x_recompute_role_from_portal: "enabled"
+  dot1x_unset_on_unmatch: "disabled"
+  dpsk: "disabled"
+  filter_match_style: "all"
+  locale: null
+  login_attempt_limit: 0
+  logo: null
+  mac_auth_recompute_role_from_portal: "disabled"
+  network_logoff: null
+  network_logoff_popup: null
+  preregistration: null
+  provisioners: null
+  redirecturl: null
+  reuse_dot1x_credentials: null
+  root_module: "default_policy"
+  scans: null
+  self_service: null
+  sms_pin_retry_limit: 0
+  sms_request_limit: 0
+  status: "enabled"
   vlan_pool_technique: "username_hash"
   connection_type: ""
   connection_sub_type: ""
