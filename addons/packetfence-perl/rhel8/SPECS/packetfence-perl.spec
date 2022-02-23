@@ -1,5 +1,5 @@
 Name:           packetfence-perl
-Version:        1.2.0
+Version:        1.2.1
 Release:        1%{?dist}
 Summary:        All modules loaded with cpan
 BuildArch:      x86_64
@@ -9,7 +9,7 @@ AutoProv:       yes
 Group:          Applications
 License:        GPL3
 #URL:
-Source0:        packetfence_perl_module_without_all_path.tar.gz
+Source0:        packetfence_perl_el_module_without_all_path.tar.gz
 
 %description
 All PacketFence required modules installed with cpan
@@ -33,6 +33,9 @@ export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
         /usr/local/pf/lib_perl/*
 
 %changelog
+* Wed Feb 23 2022 Inverse <info@inverse.ca> 1.2.1-1
+- Add Test::Simple
+   
 * Tue Feb 08 2022 Inverse <info@inverse.ca> 1.2.0-1
 - Add new dependencies and improve download from CPAN
 

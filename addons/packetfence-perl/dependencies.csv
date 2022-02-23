@@ -1,5 +1,6 @@
 Module::Metadata,1.000037,ETHER/Module-Metadata-1.000037.tar.gz,True,E/ET/ETHER/Module-Metadata-1.000037.tar.gz,24
 Test,1.26,JESSE/Test-1.26.tar.gz,True,/J/JE/JESSE/Test-1.26.tar.gz,?
+Test::Simple,1.302188,EXODIST/Test-Simple-1.302188.tar.gz,True,/E/EX/EXODIST/Test-Simple-1.302188.tar.gz,?
 Text::Balanced,2.04,SHAY/Text-Balanced-2.04.tar.gz,True,/S/SH/SHAY/Text-Balanced-2.04.tar.gz,?
 Role::Tiny,2.002004,HAARG/Role-Tiny-2.002004.tar.gz,True,/H/HA/HAARG/Role-Tiny-2.002004.tar.gz,?
 Type::Tiny,1.012003,TOBYINK/Type-Tiny-1.012003.tar.gz,True,/T/TO/TOBYINK/Type-Tiny-1.012003.tar.gz,?
@@ -121,7 +122,7 @@ HTML::FormFu,2.07,CFRANKS/HTML-FormFu-2.07.tar.gz,True,C/CF/CFRANKS/HTML-FormFu-
 Data::Structure::Util,0.16,ANDYA/Data-Structure-Util-0.16.tar.gz,True,A/AN/ANDYA/Data-Structure-Util-0.16.tar.gz,4
 Data::Serializer,0.65,NEELY/Data-Serializer-0.65.tar.gz,False,N/NE/NEELY/Data-Serializer-0.65.tar.gz,4
 URI::SmartURI,0.032,RKITOVER/URI-SmartURI-0.032.tar.gz,True,R/RK/RKITOVER/URI-SmartURI-0.032.tar.gz,4
-libwww-perl,6.55,OALDERS/libwww-perl-6.55.tar.gz,True,O/OA/OALDERS/libwww-perl-6.55.tar.gz,4
+libwww::perl,6.55,OALDERS/libwww-perl-6.55.tar.gz,True,O/OA/OALDERS/libwww-perl-6.55.tar.gz,4
 Crypt::OpenSSL::Bignum,0.09,KMX/Crypt-OpenSSL-Bignum-0.09.tar.gz,True,K/KM/KMX/Crypt-OpenSSL-Bignum-0.09.tar.gz,4
 YAML,1.30,TINITA/YAML-1.30.tar.gz,True,T/TI/TINITA/YAML-1.30.tar.gz,4
 Mock::Config,0.03,RURBAN/Mock-Config-0.03.tar.gz,True,R/RU/RURBAN/Mock-Config-0.03.tar.gz,4
