@@ -15,7 +15,7 @@ use warnings;
 
 use base ('pf::Switch::Juniper');
 
-sub description { 'Juniper EX Series' }
+sub description { 'Juniper EX Legacy Switch' }
 
 =head1 AUTHOR
 

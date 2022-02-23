@@ -1,0 +1,22 @@
+# Do not edit.
+# Any changes will be lost on upgrade
+
+description=Juniper EX Switch
+radiusDisconnect=disconnect
+
+acceptVlan= <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+
+acceptRole=Filter-Id = $role
+reject=Reply-Message = This node is not allowed to use this service
+
+disconnect= <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+User-Name = $last_accounting.username
+Acct-Session-Id = $last_accounting.acctsessionid
+EOT
+voip=Juniper-VoIP-Vlan = $switch._voiceVlan
