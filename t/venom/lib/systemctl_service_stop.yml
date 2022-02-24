@@ -13,3 +13,9 @@ steps:
 # let service restarts
 - type: sleep
   time_to_sleep: "{{.input.time_to_sleep}}"
+
+# check service status
+- type: systemctl_service_status
+  service: "{{.input.service}}"
+  sudo: "{{.input.sudo}}"
+  system_output_contains: "inactive"

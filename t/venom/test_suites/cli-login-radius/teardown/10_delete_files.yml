@@ -2,5 +2,5 @@ name: Cli RADIUS Config Teardown
 testcases:
 - name: delete_pod_file
   steps:
-  - type: delete_file
+  - type: file_delete
     file: "{{.cli_login_radius.pod}}"

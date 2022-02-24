@@ -9,6 +9,6 @@ steps:
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
   assertions:
-    - result.service_systemout ShouldContainSubstring "{{.input.system_output_contains}}"
+    - result.systemctl_service ShouldContainSubstring "{{.input.system_output_contains}}"
 output:
-  service_status_systemout: "{{.result.service_systemout}}"
+  service_status: "{{.result.systemctl_service}}"

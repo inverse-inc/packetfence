@@ -8,7 +8,7 @@ testcases:
 
 - name: delete_systemd_script
   steps:
-  - type: delete_file
+  - type: file_delete
     file: "/lib/systemd/system/ulinux.service"
 
 - name: systemctl_daemon-reload

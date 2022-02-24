@@ -30,5 +30,5 @@ testcases:
 - name: start_the_client
   steps:
   - type: systemctl_service_start
-    servicev: ulinux
+    service: ulinux
     time_to_sleep: 30  

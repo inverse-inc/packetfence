@@ -91,6 +91,7 @@ testcases:
 - name: assign_a_password_to_the_user
   steps:
   - type: pf_api_user_add_password
+    user: "iastigmate"
     expiration: "{{.inline_lx_iastigmate.password.expiration}}"
     password: "password"
 
