@@ -1,50 +1,48 @@
 name: Setup DHCP relay
 testcases:
-  - name: create_dhcp_configuration
-    steps:
-       - type: exec
-         script: | 
-           cat > /usr/local/etc/godhcp.ini << EOF
-           [interfaces]
-           #Interfaces that act as dhcp server
-           listen=blok-vpeer0
-           #Interface:Relay ip mean dhcp request received on this interface will be forwarded to the relay address.
-           relay=blok-vpeer0:100.64.0.2
-           EOF
+- name: create_dhcp_configuration
+  steps:
+  - type: exec
+    script: | 
+      cat > /usr/local/etc/godhcp.ini << EOF
+      [interfaces]
+      #Interfaces that act as dhcp server
+      listen=blok-vpeer0
+      #Interface:Relay ip mean dhcp request received on this interface will be forwarded to the relay address.
+      relay=blok-vpeer0:100.64.0.2
+      EOF
 
-  - name: download_the_dhcp_relay
-    steps:
-    - type: exec
-      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/standalone_dhcp -O /tmp/standalone_dhcp && chmod +x /tmp/standalone_dhcp
+- name: download_the_dhcp_relay
+  steps:
+  - type: exec
+    script: wget http://inverse.ca/downloads/PacketFence/LiveCD/standalone_dhcp -O /tmp/standalone_dhcp && chmod +x /tmp/standalone_dhcp
 
-  - name: install_systemd_script
-    steps:
-      - type: exec
-        script: |
-          cat > /lib/systemd/system/godhcp.service << EOF
-          [Unit]
-          Description=GO DHCPv4 Server/Relay Daemon
-          After=syslog.target network.target
+- name: install_systemd_script
+  steps:
+  - type: exec
+    script: |
+      cat > /lib/systemd/system/godhcp.service << EOF
+      [Unit]
+      Description=GO DHCPv4 Server/Relay Daemon
+      After=syslog.target network.target
 
-          [Service]
-          StartLimitBurst=3
-          StartLimitInterval=60
-          Type=notify
-          WatchdogSec=30s
-          ExecStart=ip netns exec inlinel3 /tmp/standalone_dhcp
-          Restart=on-failure
+      [Service]
+      StartLimitBurst=3
+      StartLimitInterval=60
+      Type=notify
+      WatchdogSec=30s
+      ExecStart=ip netns exec inlinel3 /tmp/standalone_dhcp
+      Restart=on-failure
 
-          [Install]
-          WantedBy=multi-user.target
-          EOF
+      [Install]
+      WantedBy=multi-user.target
+      EOF
 
-  - name: systemctl_daemon-reload
-    steps:
-      - type: exec
-        script: systemctl daemon-reload
+- name: systemctl_daemon-reload
+  steps:
+  - type: systemctl_daemon_reload
           
-  - name: start_the_dhcp_relay
-    steps:
-      - type: exec
-        script: systemctl start godhcp
-
+- name: start_the_dhcp_relay
+  steps:
+  - type: systemctl_service_start
+    service: godhcp

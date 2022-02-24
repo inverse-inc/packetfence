@@ -1,38 +1,34 @@
 name: Start client
 testcases:
-  - name: download_ulinux
-    steps:
-    - type: exec
-      script: wget http://inverse.ca/downloads/PacketFence/LiveCD/ulinux.qcow2 -O /tmp/ulinux.qcow2
+- name: download_ulinux
+  steps:
+  - type: exec
+    script: wget http://inverse.ca/downloads/PacketFence/LiveCD/ulinux.qcow2 -O /tmp/ulinux.qcow2
 
-  - name: install_systemd_script
-    steps:
-      - type: exec
-        script: |
-          cat > /lib/systemd/system/ulinux.service << EOF
-          [Unit]
-          Description=QEMU virtual machine
+- name: install_systemd_script
+  steps:
+  - type: exec
+    script: |
+      cat > /lib/systemd/system/ulinux.service << EOF
+      [Unit]
+      Description=QEMU virtual machine
 
-          [Service]
-          Environment="haltcmd=kill -INT $MAINPID"
-          ExecStart= ip netns exec inlinel3 /usr/bin/qemu-system-x86_64 -boot d -hda /tmp/ulinux.qcow2 -m 128M -device "virtio-net-pci,netdev=network0,mac={{.inline_l3.node.macaddress}}" -netdev tap,id=network0,ifname=blok-tap0,script=no,downscript=no -nographic -serial telnet:localhost:4321,server,nowait
-          ExecStop=/usr/bin/bash -c ${haltcmd}
-          ExecStop=/usr/bin/bash -c 'while nc localhost 7100; do sleep 1; done'
+      [Service]
+      Environment="haltcmd=kill -INT $MAINPID"
+      ExecStart= ip netns exec inlinel3 /usr/bin/qemu-system-x86_64 -boot d -hda /tmp/ulinux.qcow2 -m 128M -device "virtio-net-pci,netdev=network0,mac={{.inline_l3.node.macaddress}}" -netdev tap,id=network0,ifname=blok-tap0,script=no,downscript=no -nographic -serial telnet:localhost:4321,server,nowait
+      ExecStop=/usr/bin/bash -c ${haltcmd}
+      ExecStop=/usr/bin/bash -c 'while nc localhost 7100; do sleep 1; done'
 
-          [Install]
-          WantedBy=multi-user.target
-          EOF
+      [Install]
+      WantedBy=multi-user.target
+      EOF
 
-  - name: systemctl_daemon-reload
-    steps:
-      - type: exec
-        script: systemctl daemon-reload
+- name: systemctl_daemon-reload
+  steps:
+  - type: systemctl_daemon_reload
 
-  - name: start_the_client
-    steps:
-      - type: exec
-        script: systemctl start ulinux
-      
-      # let ulinux start
-      - type: exec
-        script: sleep 30
+- name: start_the_client
+  steps:
+  - type: systemctl_service_start
+    servicev: ulinux
+    time_to_sleep: 30  

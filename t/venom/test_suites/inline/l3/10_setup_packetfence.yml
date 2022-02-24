@@ -96,127 +96,15 @@ testcases:
 
 - name: create_a_user
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/users'
-    ignore_verify_ssl: true
-    body: >-
-     {
-       "valid_from": "2021-12-06 00:00:00",
-       "expiration": null,
-       "actions": [
-         {
-           "type": "set_role",
-           "value": "1"
-         },
-         {
-           "type": "set_access_duration",
-           "value": "1h"
-         }
-       ],
-       "pid_overwrite": 0,
-       "pid": "iastigmate",
-       "email": "iastigmate@test.ca",
-       "sponsor": "",
-       "password": "password",
-       "login_remaining": null,
-       "gender": "",
-       "title": "",
-       "firstname": "Igmout",
-       "lastname": "Astigmate",
-       "nickname": "",
-       "company": "",
-       "telephone": "",
-       "cell_phone": "",
-       "work_phone": "",
-       "address": "",
-       "apartment_number": "",
-       "building_number": "",
-       "room_number": "",
-       "anniversary": "",
-       "birthday": "",
-       "psk": "",
-       "notes": "",
-       "custom_field_1": "",
-       "custom_field_2": "",
-       "custom_field_3": "",
-       "custom_field_4": "",
-       "custom_field_5": "",
-       "custom_field_6": "",
-       "custom_field_7": "",
-       "custom_field_8": "",
-       "custom_field_9": ""
-     }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_users_create
+    user: "iastigmate"
 
 - name: assign_a_password_to_the_user
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/user/iastigmate/password'
-    ignore_verify_ssl: true
-    body: >-
-     {
-       "quiet": true,
-       "valid_from": "2021-12-06 00:00:00",
-       "expiration": "{{.inline_lx_iastigmate.password.expiration}}",
-       "actions": [
-         {
-           "type": "set_role",
-           "value": "1"
-         },
-         {
-           "type": "set_access_duration",
-           "value": "1h"
-         }
-       ],
-       "pid_overwrite": 0,
-       "pid": "iastigmate",
-       "email": "iastigmate@test.ca",
-       "sponsor": "",
-       "password": "password",
-       "login_remaining": null,
-       "gender": "",
-       "title": "",
-       "firstname": "Igmout",
-       "lastname": "Astigmate",
-       "nickname": "",
-       "company": "",
-       "telephone": "",
-       "cell_phone": "",
-       "work_phone": "",
-       "address": "",
-       "apartment_number": "",
-       "building_number": "",
-       "room_number": "",
-       "anniversary": "",
-       "birthday": "",
-       "psk": "",
-       "notes": "",
-       "custom_field_1": "",
-       "custom_field_2": "",
-       "custom_field_3": "",
-       "custom_field_4": "",
-       "custom_field_5": "",
-       "custom_field_6": "",
-       "custom_field_7": "",
-       "custom_field_8": "",
-       "custom_field_9": "",
-       "access_duration": "1h",
-       "access_level": null,
-       "can_sponsor": null,
-       "category": "1",
-       "unregdate": null
-     }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_user_add_password
+    expiration: "{{.inline_lx_iastigmate.password.expiration}}"
+    user: "iastigmate"
+    password: "password"
 
 - name: configure_snat_interface_for_passthroughs
   steps:
@@ -254,63 +142,35 @@ testcases:
 
 - name: restart_iptables
   steps:
-  - type: exec
-    script: systemctl restart packetfence-iptables
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-iptables
 
 - name: restart_pfdns_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfdns
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfdns
 
 - name: restart_pfdhcp_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfdhcp
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfdhcp
 
 - name: restart_haproxy-portal_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-haproxy-portal
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-haproxy-portal
 
 - name: restart_keepalived_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-keepalived
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-keepalived
 
 - name: restart_pfdhcplistener_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfdhcplistener
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfdhcplistener
 
 - name: restart_pfacct_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfacct
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart 
+    service: packetfence-pfacct

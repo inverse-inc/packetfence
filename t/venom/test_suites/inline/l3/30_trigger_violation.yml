@@ -50,7 +50,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-
 - name: test_if_the_device_is_in_the_register_ipset
   steps:
   - type: exec
@@ -58,4 +57,3 @@ testcases:
 
   - type: exec
     script: 'ipset test pfsession_Reg_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
-

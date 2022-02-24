@@ -25,15 +25,8 @@ testcases:
 
 - name: delete_user_in_db
   steps:
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/user/iastigmate'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_user_delete
+    user: 'iastigmate'
 
 - name: deconfigure_snat_interface_for_passthroughs
   steps:
@@ -71,63 +64,35 @@ testcases:
 
 - name: restart_iptables
   steps:
-  - type: exec
-    script: systemctl restart packetfence-iptables
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-iptables
 
 - name: restart_pfdns_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfdns
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfdns
 
 - name: restart_pfdhcp_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfdhcp
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfdhcp
 
 - name: restart_haproxy-portal_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-haproxy-portal
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-haproxy-portal
 
 - name: restart_keepalived_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-keepalived
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-keepalived
 
 - name: restart_pfdhcplistener_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfdhcplistener
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfdhcplistener
 
 - name: restart_pfacct_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfacct
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: systemctl_service_restart
+    service: packetfence-pfacct

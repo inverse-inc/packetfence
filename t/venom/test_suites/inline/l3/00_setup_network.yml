@@ -1,142 +1,141 @@
 name: Setup inlinel3 network
 testcases:
-  - name: create_inlinel3_network_namespace
-    steps:
-      - type: exec
-        script: ip netns add inlinel3
+- name: create_inlinel3_network_namespace
+  steps:
+  - type: exec
+    script: ip netns add inlinel3
 
-  - name: create_two_virtual_ethernet_interfaces
-    steps:
-    - type: exec
-      script: ip link add inlinel3-a type veth peer name inlinel3
+- name: create_two_virtual_ethernet_interfaces
+  steps:
+  - type: exec
+    script: ip link add inlinel3-a type veth peer name inlinel3
 
-  - name: move_one_virtual_ethernet_interface_in_inlinel3_network_namespace
-    steps:
-    - type: exec
-      script: ip link set inlinel3-a netns inlinel3
+- name: move_one_virtual_ethernet_interface_in_inlinel3_network_namespace
+  steps:
+  - type: exec
+    script: ip link set inlinel3-a netns inlinel3
 
-  - name: assign_an_ip_on_inlinel3-a
-    steps: 
-    - type: exec
-      script: ip -n inlinel3 addr add 100.64.0.1/30 dev inlinel3-a
+- name: assign_an_ip_on_inlinel3-a
+  steps: 
+  - type: exec
+    script: ip -n inlinel3 addr add 100.64.0.1/30 dev inlinel3-a
 
-  - name: assign_an_ip_on_inlinel3
-    steps:
-    - type: exec
-      script: ip addr add 100.64.0.2/30 dev inlinel3
+- name: assign_an_ip_on_inlinel3
+  steps:
+  - type: exec
+    script: ip addr add 100.64.0.2/30 dev inlinel3
 
-  - name: set_inlinel3-a_up
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set dev inlinel3-a up
+- name: set_inlinel3-a_up
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 ip link set dev inlinel3-a up
 
-  - name: set_inlinel3_up
-    steps:
-    - type: exec
-      script: ip link set dev inlinel3 up
+- name: set_inlinel3_up
+  steps:
+  - type: exec
+    script: ip link set dev inlinel3 up
 
-  - name: set_default_route_in_namespace_inlinel3
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 route add default gw 100.64.0.2 dev inlinel3-a
+- name: set_default_route_in_namespace_inlinel3
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 route add default gw 100.64.0.2 dev inlinel3-a
 
-  - name: set_lo_interface_up_in_namespace_inlinel3
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set dev lo up
+- name: set_lo_interface_up_in_namespace_inlinel3
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 ip link set dev lo up
       
-  - name: create_inlinel3_routing_table
-    steps:
-    - type: exec
-      script: echo 202 inlinel3 >> /etc/iproute2/rt_tables
+- name: create_inlinel3_routing_table
+  steps:
+  - type: exec
+    script: echo 202 inlinel3 >> /etc/iproute2/rt_tables
 
-  - name: set_rule_from_100.64.0.2
-    steps:
-    - type: exec
-      script: ip rule add from 100.64.0.2 lookup inlinel3
+- name: set_rule_from_100.64.0.2
+  steps:
+  - type: exec
+    script: ip rule add from 100.64.0.2 lookup inlinel3
 
+- name: add_10.0.0.0/8_route_in_table_inlinel3_table
+  steps:
+  - type: exec
+    script: ip route add 10.0.0.0/8 via 100.64.0.1 dev inlinel3 table inlinel3
 
-  - name: add_10.0.0.0/8_route_in_table_inlinel3_table
-    steps:
-    - type: exec
-      script: ip route add 10.0.0.0/8 via 100.64.0.1 dev inlinel3 table inlinel3
+- name: add_172.16.0.0/12_route_in_inlinel3_table
+  steps:
+  - type: exec
+    script: ip route add 172.16.0.0/12 via 100.64.0.1 dev inlinel3 table inlinel3
 
-  - name: add_172.16.0.0/12_route_in_inlinel3_table
-    steps:
-    - type: exec
-      script: ip route add 172.16.0.0/12 via 100.64.0.1 dev inlinel3 table inlinel3
+- name: add_192.168.0.0/16_in_inlinel3_table
+  steps:
+  - type: exec
+    script: ip route add 192.168.0.0/16 via 100.64.0.1 dev inlinel3 table inlinel3
 
-  - name: add_192.168.0.0/16_in_inlinel3_table
-    steps:
-    - type: exec
-      script: ip route add 192.168.0.0/16 via 100.64.0.1 dev inlinel3 table inlinel3
+- name: add_100.64.0.0/30_route_in_inlinel3_table
+  steps:
+  - type: exec
+    script: ip route add 100.64.0.0/30 dev inlinel3 scope link src 100.64.0.2 table inlinel3
 
-  - name: add_100.64.0.0/30_route_in_inlinel3_table
-    steps:
-    - type: exec
-      script: ip route add 100.64.0.0/30 dev inlinel3 scope link src 100.64.0.2 table inlinel3
+- name: create_tap_interface
+  steps:
+  - type: exec
+    script: ip tuntap add blok-tap0 mode tap
 
-  - name: create_tap_interface
-    steps:
-      - type: exec
-        script: ip tuntap add blok-tap0 mode tap
+- name: move_blok-tap0_in_inlinel3_namespace
+  steps:
+  - type: exec
+    script: ip link set blok-tap0 netns inlinel3
 
-  - name: move_blok-tap0_in_inlinel3_namespace
-    steps:
-      - type: exec
-        script: ip link set blok-tap0 netns inlinel3
+- name: set_blok-tap0_up
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 ip link set blok-tap0 up
 
-  - name: set_blok-tap0_up
-    steps:
-      - type: exec
-        script: ip netns exec inlinel3 ip link set blok-tap0 up
+- name: create_bridge_in_inline_l3
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 ip link add blok-br0 type bridge
 
-  - name: create_bridge_in_inline_l3
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link add blok-br0 type bridge
-
-  - name: set_bridge_up
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set blok-br0 up
+- name: set_bridge_up
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 ip link set blok-br0 up
       
-  - name: create_virtual_ethernet_interfaces
-    steps:
-    - type: exec
-      script: ip link add blok-veth0 type veth peer name blok-vpeer0
+- name: create_virtual_ethernet_interfaces
+  steps:
+  - type: exec
+    script: ip link add blok-veth0 type veth peer name blok-vpeer0
 
-  - name: move_blok-veth0_in_inlinel3_namespace
-    steps:
-    - type: exec
-      script: ip link set blok-veth0 netns inlinel3
+- name: move_blok-veth0_in_inlinel3_namespace
+  steps:
+  - type: exec
+    script: ip link set blok-veth0 netns inlinel3
 
-  - name: move_blok-vpeer0_in_inlinel3_namespace
-    steps:
-    - type: exec
-      script:  ip link set blok-vpeer0 netns inlinel3
+- name: move_blok-vpeer0_in_inlinel3_namespace
+  steps:
+  - type: exec
+    script:  ip link set blok-vpeer0 netns inlinel3
 
-  - name: set_blok-vpeer0_up
-    steps:
-    - type: exec
-      script:  ip netns exec inlinel3 ip link set blok-vpeer0 up
+- name: set_blok-vpeer0_up
+  steps:
+  - type: exec
+    script:  ip netns exec inlinel3 ip link set blok-vpeer0 up
 
-  - name: set_blok-veth0_up
-    steps:
-    - type: exec
-      script:  ip netns exec inlinel3 ip link set blok-veth0 up
+- name: set_blok-veth0_up
+  steps:
+  - type: exec
+    script:  ip netns exec inlinel3 ip link set blok-veth0 up
 
-  - name: add_ip_to_blok-vpeer0_interface
-    steps:
-    - type: exec
-      script: 'ip netns exec inlinel3 ip addr add {{.inline_l3.pf_portal}}/24 dev blok-vpeer0'
+- name: add_ip_to_blok-vpeer0_interface
+  steps:
+  - type: exec
+    script: 'ip netns exec inlinel3 ip addr add {{.inline_l3.pf_portal}}/24 dev blok-vpeer0'
       
-  - name: add_blok-veth0_in_the_blok-br0_bridge
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set blok-veth0 master blok-br0
+- name: add_blok-veth0_in_the_blok-br0_bridge
+  steps:
+  - type: exec
+    script: ip netns exec inlinel3 ip link set blok-veth0 master blok-br0
 
-  - name: Add_blok-tap0_in_the_blok-br0_bridge
-    steps:
-    - type: exec
-      script: ip netns exec inlinel3 ip link set blok-tap0 master blok-br0
+- name: Add_blok-tap0_in_the_blok-br0_bridge
+  steps:
+  - type: exec
+   script: ip netns exec inlinel3 ip link set blok-tap0 master blok-br0

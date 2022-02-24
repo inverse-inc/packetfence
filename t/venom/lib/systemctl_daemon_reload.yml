@@ -1,0 +1,5 @@
+executor: systemctl_daemon_reload
+steps:
+- type: systemctl_service
+  unit_command: "daemon-reload"
+  service: ""
