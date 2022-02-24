@@ -138,4 +138,4 @@ testcases:
 - name: Add_blok-tap0_in_the_blok-br0_bridge
   steps:
   - type: exec
-   script: ip netns exec inlinel3 ip link set blok-tap0 master blok-br0
+    script: ip netns exec inlinel3 ip link set blok-tap0 master blok-br0
