@@ -48,6 +48,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     WiredMacAuth
     WirelessDot1x
+    RoleBasedEnforcement
     VPNRoleBasedEnforcement
     VPN
 );
