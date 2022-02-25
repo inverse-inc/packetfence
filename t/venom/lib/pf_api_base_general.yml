@@ -1,0 +1,20 @@
+executor: pf_api_base_general
+input:
+  domain: packetfence.org
+  hostname: packetfence
+  dhcpservers: 127.0.0.1
+  timezone: ""
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: general
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "domain": "{{.input.domain}}",
+      "hostname": "{{.input.hostname}}",
+      "dhcpservers": "{{.input.dhcpservers}}",
+      "timezone": "{{.input.timezone}}"
+    }

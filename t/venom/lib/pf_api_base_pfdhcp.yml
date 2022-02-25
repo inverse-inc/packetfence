@@ -1,0 +1,21 @@
+executor: pf_api_base_pfdhcp
+input:
+  ip2mac_lookup: disabled
+  mac2ip_lookup: disabled
+  connect_timeout_ms: 200
+  timeout_ms: 200
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: pfdhcp
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "ip2mac_lookup": "{{.input.ip2mac_lookup}}",
+      "mac2ip_lookup": "{{.input.mac2ip_lookup}}",
+      "connect_timeout_ms": "{{.input.connect_timeout_ms}}",
+      "timeout_ms": "{{.input.timeout_ms}}"
+    }

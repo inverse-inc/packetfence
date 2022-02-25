@@ -1,0 +1,21 @@
+executor: pf_api_base_fingerbank_device_change
+input:
+  enable: disabled
+  trigger_on_device_class_change: enabled
+  device_class_whitelist: ""
+  triggers: ""
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: fingerbank_device_change
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "enable": "{{.input.enable}}",
+      "trigger_on_device_class_change": "{{.input.trigger_on_device_class_change}}",
+      "device_class_whitelist": "{{.input.device_class_whitelist}}",
+      "triggers": "{{.input.triggers}}"
+    }

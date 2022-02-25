@@ -1,0 +1,36 @@
+executor: pf_api_base_network
+input:
+  dhcpdetector: enabled
+  dhcp_rate_limiting: 5s
+  rogue_dhcp_detection: enabled
+  rogueinterval: 10
+  hostname_change_detection: disabled
+  connection_type_change_detection: disabled
+  dhcpoption82logger: disabled
+  dhcp_filter_by_message_types: DHCPREQUEST,DHCPACK
+  dhcp_process_ipv6: enabled
+  force_listener_update_on_ack: disabled
+  interfaceSNAT: ""
+  staticroutes: ""
+  time_to_sleep: 0
+  method: "GET"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: network
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "dhcpdetector": "{{.input.dhcpdetector}}",
+      "dhcp_rate_limiting": "{{.input.dhcp_rate_limiting}}",
+      "rogue_dhcp_detection": "{{.input.rogue_dhcp_detection}}",
+      "rogueinterval": "{{.input.rogueinterval}}",
+      "hostname_change_detection": "{{.input.hostname_change_detection}}",
+      "connection_type_change_detection": "{{.input.connection_type_change_detection}}",
+      "dhcpoption82logger": "{{.input.dhcpoption82logger}}",
+      "dhcp_filter_by_message_types": "{{.input.dhcp_filter_by_message_types}}",
+      "dhcp_process_ipv6": "{{.input.dhcp_process_ipv6}}",
+      "force_listener_update_on_ack": "{{.input.force_listener_update_on_ack}}",
+      "interfaceSNAT": "{{.input.interfaceSNAT}}",
+      "staticroutes": "{{.input.staticroutes}}"
+    }

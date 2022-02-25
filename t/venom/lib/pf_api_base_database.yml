@@ -1,0 +1,23 @@
+executor: pf_api_base_database
+input:
+  host: localhost
+  port: 3306
+  db: pf
+  user: pf
+  pass: packet
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: database
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "host": "{{.input.host}}",
+      "port": "{{.input.port}}",
+      "db": "{{.input.db}}",
+      "user": "{{.input.user}}",
+      "pass": "{{.input.pass}}"
+    }

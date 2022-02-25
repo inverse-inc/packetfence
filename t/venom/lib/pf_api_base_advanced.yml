@@ -1,0 +1,73 @@
+executor: pf_api_base_advanced
+input:
+  api_inactivity_timeout: 15m
+  api_max_expiration: 12h
+  language: en_US
+  admin_csp_security_headers: disabled
+  portal_csp_security_headers: enabled
+  sso_on_access_reevaluation: disabled
+  scan_on_accounting: disabled
+  sso_on_accounting: disabled
+  sso_on_dhcp: enabled
+  hash_passwords: bcrypt
+  hashing_cost: 8
+  disable_pf_domain_auth: disabled
+  ldap_attributes: uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership,basedn,dNSHostName
+  pffilter_processes: 4
+  pfperl_api_processes: 8
+  update_iplog_with_accounting: disabled
+  update_iplog_with_external_portal_requests: enabled
+  locationlog_close_on_accounting_stop: enabled
+  timing_stats_level: 5
+  source_to_send_sms_when_creating_users: 
+  multihost: disabled
+  active_directory_os_join_check_bypass: disabled
+  statsd_listen_port : 8125
+  pfperl_api_timeout : 600
+  configurator : enabled
+  netflow_on_all_networks : disabled
+  accounting_timebucket_size : 5m
+  openid_attributes: email
+  zero_trust_network_starting_ip: 100.64.0.1
+  zero_trust_network_netmask: 10
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: advanced
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "api_inactivity_timeout": "{{.input.api_inactivity_timeout}}",
+      "api_max_expiration": "{{.input.api_max_expiration}}",
+      "language": "{{.input.language}}",
+      "admin_csp_security_headers": "{{.input.admin_csp_security_headers}}",
+      "portal_csp_security_headers": "{{.input.portal_csp_security_headers}}",
+      "sso_on_access_reevaluation": "{{.input.sso_on_access_reevaluation}}",
+      "scan_on_accounting": "{{.input.scan_on_accounting}}",
+      "sso_on_accounting": "{{.input.sso_on_accounting}}",
+      "sso_on_dhcp": "{{.input.sso_on_dhcp}}",
+      "hash_passwords": "{{.input.hash_passwords}}",
+      "hashing_cost": "{{.input.hashing_cost}}",
+      "disable_pf_domain_auth": "{{.input.disable_pf_domain_auth}}",
+      "ldap_attributes": "{{.input.ldap_attributes}}",
+      "pffilter_processes": "{{.input.pffilter_processes}}",
+      "pfperl_api_processes": "{{.input.pfperl_api_processes}}",
+      "update_iplog_with_accounting": "{{.input.update_iplog_with_accounting}}",
+      "update_iplog_with_external_portal_requests": "{{.input.update_iplog_with_external_portal_requests}}",
+      "locationlog_close_on_accounting_stop": "{{.input.locationlog_close_on_accounting_stop}}",
+      "timing_stats_level": "{{.input.timing_stats_level}}",
+      "source_to_send_sms_when_creating_users": "{{.input.source_to_send_sms_when_creating_users}}",
+      "multihost": "{{.input.multihost}}",
+      "active_directory_os_join_check_bypass": "{{.input.active_directory_os_join_check_bypass}}",
+      "statsd_listen_port ": "{{.input.statsd_listen_port }}",
+      "pfperl_api_timeout ": "{{.input.pfperl_api_timeout }}",
+      "configurator ": "{{.input.configurator }}",
+      "netflow_on_all_networks ": "{{.input.netflow_on_all_networks }}",
+      "accounting_timebucket_size ": "{{.input.accounting_timebucket_size }}",
+      "openid_attributes": "{{.input.openid_attributes}}",
+      "zero_trust_network_starting_ip": "{{.input.zero_trust_network_starting_ip}}",
+      "zero_trust_network_netmask": "{{.input.zero_trust_network_netmask}}"
+    }

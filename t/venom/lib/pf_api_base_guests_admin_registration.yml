@@ -1,0 +1,17 @@
+executor: pf_api_base_guests_admin_registration
+input:
+  access_duration_choices: 1h,3h,12h,1D,2D,3D,5D
+  default_access_duration: 12h
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: guests_admin_registration
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "access_duration_choices": "{{.input.access_duration_choices}}",
+      "default_access_duration": "{{.input.default_access_duration}}"
+    }

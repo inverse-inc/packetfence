@@ -1,0 +1,21 @@
+executor: pf_api_base_provisioning
+input:
+  autoconfig: disabled
+  ssid: SSID-Hidden
+  category: any
+  certificate: "" 
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: provisioning
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "autoconfig": "{{.input.autoconfig}}",
+      "ssid": "{{.input.ssid}}",
+      "category": "{{.input.category}}",
+      "certificate": "{{.input.certificate}}"
+    }

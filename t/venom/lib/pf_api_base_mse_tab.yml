@@ -1,0 +1,20 @@
+executor: pf_api_base_mse_tab
+input:
+  enabled: disabled
+  url: "" 
+  user: ""
+  pass: ""
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: mse_tab
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "enabled": "{{.input.enabled}}",
+      "url": "{{.input.url}}",
+      "user": "{{.input.user}}",
+      "pass": "{{.input.pass}}"
+    }

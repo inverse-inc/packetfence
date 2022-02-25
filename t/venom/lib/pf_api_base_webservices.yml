@@ -1,0 +1,27 @@
+executor: pf_api_base_webservices
+input:
+  user: "" 
+  pass: ""
+  host: 127.0.0.1
+  proto: http
+  port: 9090
+  aaa_port: 7070
+  unifiedapi_port: 9999
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: webservices
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "user": "{{.input.user}}",
+      "pass": "{{.input.pass}}",
+      "host": "{{.input.host}}",
+      "proto": "{{.input.proto}}",
+      "port": "{{.input.port}}",
+      "aaa_port": "{{.input.aaa_port}}",
+      "unifiedapi_port": "{{.input.unifiedapi_port}}"
+    }

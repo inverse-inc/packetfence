@@ -1,0 +1,21 @@
+executor: pf_api_base_lets_encrypt
+input:
+  radius: disabled
+  http: disabled
+  live: enabled
+  test_uri: https://ssl-test.inverse.ca/
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: lets_encrypt
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "radius": "{{.input.radius}}",
+      "http": "{{.input.http}}",
+      "live": "{{.input.live}}",
+      "test_uri: https": "{{.input.test_uri: https}}"
+    }

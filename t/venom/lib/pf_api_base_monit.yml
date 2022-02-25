@@ -1,0 +1,23 @@
+executor: pf_api_base_monit
+input:
+  status: disabled
+  alert_email_to: 
+  subject_prefix: 
+  configurations: packetfence,os-checks
+  mailserver: 
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: monit 
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "status": "{{.input.status}}",
+      "alert_email_to": "{{.input.alert_email_to}}",
+      "subject_prefix": "{{.input.subject_prefix}}",
+      "configurations": "{{.input.configurations}}",
+      "mailserver": "{{.input.mailserver}}"
+    }

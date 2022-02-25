@@ -1,0 +1,18 @@
+executor: pf_api_base_inline
+input:
+  ports_redirect: 80/tcp,443/tcp
+  should_reauth_on_vlan_change:  disabled
+  interfaceSNAT: ""
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: inline
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "ports_redirect": "{{.input.ports_redirect}}",
+      "should_reauth_on_vlan_change": "{{.input.should_reauth_on_vlan_change}}",
+      "interfaceSNAT": "{{.input.interfaceSNAT}}" 
+    }

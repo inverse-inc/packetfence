@@ -1,0 +1,26 @@
+executor: pf_api_base_ports
+input:
+  admin: 1443
+  soap: 9090
+  collector: 9292
+  aaa: 7070
+  httpd_portal_modstatus: 1444
+  unifiedapi: 9999
+  pfacct_netflow: 2056
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: ports
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "admin": "{{.input.admin}}",
+      "soap": "{{.input.soap}}",
+      "collector": "{{.input.collector}}",
+      "aaa": "{{.input.aaa}}",
+      "httpd_portal_modstatus": "{{.input.httpd_portal_modstatus}}",
+      "unifiedapi": "{{.input.unifiedapi}}",
+      "pfacct_netflow": "{{.input.pfacct_netflow}}"
+    }

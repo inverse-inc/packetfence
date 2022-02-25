@@ -1,0 +1,46 @@
+executor: pf_api_base_captive_portal
+input:
+  ip_address: 66.70.255.147
+  network_detection: enabled
+  network_detection_ip: 192.95.20.194
+  network_detection_initial_delay: 5s
+  network_detection_retry_delay: 2s
+  network_redirect_delay: 90s
+  image_path: /common/network-access-detection.gif
+  request_timeout: 15
+  loadbalancers_ip: ""
+  secure_redirect: enabled
+  status_only_on_production: disabled
+  detection_mecanism_bypass: disabled
+  detection_mecanism_urls: "http://www.gstatic.com/generate_204,http://clients3.google.com/generate_204,http://www.apple.com/library/test/success,http://connectivitycheck.android.com/generate_204,http://connectivitycheck.gstatic.com/generate_204,http://www.msftncsi.com/ncsi.txt,http://www.appleiphonecell.com,http://captive.apple.com,http://captive.roku.com/ok,http://detectportal.firefox.com/success.txt,http://www.msftconnecttest.com/connecttest.txt,http://fireoscaptiveportal.com/generate_204,http://connectivitycheck.cbg-app.huawei.com/generate_204,http://connect.rom.miui.com/generate_204,http://freetimecaptiveportal.com/generate_204,http://gateway.zscalerthree.net/generate_204,http://gateway.zscloud.net/generate_204,http://g.cn/generate_204,http://play.googleapis.com/generate_204,http://speedtest-global.spatialbuzz.net/generate_204,http://tabletcaptiveportal.com/generate204,http://www.google.cn/generate_204,http://edge.microsoft.com/captiveportal/generate_204"
+  wispr_redirection: disabled
+  rate_limiting: enabled
+  rate_limiting_threshold: 48
+  other_domain_names: ""
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: captive_portal
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "ip_address": "{{.input.ip_address}}",
+      "network_detection": "{{.input.network_detection}}",
+      "network_detection_ip": "{{.input.network_detection_ip}}",
+      "network_detection_initial_delay": "{{.input.network_detection_initial_delay}}",
+      "network_detection_retry_delay": "{{.input.network_detection_retry_delay}}",
+      "network_redirect_delay": "{{.input.network_redirect_delay}}",
+      "image_path": "{{.input.image_path}}",
+      "request_timeout": "{{.input.request_timeout}}",
+      "loadbalancers_ip": "{{.input.loadbalancers_ip}}",
+      "secure_redirect": "{{.input.secure_redirect}}",
+      "status_only_on_production": "{{.input.status_only_on_production}}",
+      "detection_mecanism_bypass": "{{.input.detection_mecanism_bypass}}", 
+      "detection_mecanism_urls":  "{{.input.detection_mecanism_urls}}",
+      "wispr_redirection": "{{.input.wispr_redirection}}",
+      "rate_limiting": "{{.input.rate_limiting}}",
+      "rate_limiting_threshold": "{{.input.rate_limiting_threshold}}",
+      "other_domain_names": "{{.input.other_domain_names}}"
+    }

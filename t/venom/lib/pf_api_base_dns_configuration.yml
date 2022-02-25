@@ -1,0 +1,15 @@
+executor: pf_api_base_dns_configuration
+input:
+  record_dns_in_sql: disabled
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: dns_configuration
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "record_dns_in_sql": "{{.input.record_dns_in_sql}}"
+    }

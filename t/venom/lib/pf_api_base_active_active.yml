@@ -1,0 +1,41 @@
+executor: pf_api_base_active_active
+input:
+  password: 1234
+  virtual_router_id: 50
+  vrrp_unicast: disabled
+  dns_on_vip_only: disabled
+  gateway_on_vip_only: disabled
+  centralized_deauth: enabled
+  portal_on_management: enabled
+  auth_on_management: enabled
+  conflict_resolution_threshold: 5m
+  galera_replication: enabled
+  galera_replication_username: 
+  galera_replication_password: 
+  centralize_vips: disabled
+  probe_mysql_from_haproxy_db: disabled
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: active_active
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "password": "{{.input.password}}",
+      "virtual_router_id": "{{.input.virtual_router_id}}",
+      "vrrp_unicast": "{{.input.vrrp_unicast}}",
+      "dns_on_vip_only": "{{.input.dns_on_vip_only}}",
+      "gateway_on_vip_only": "{{.input.gateway_on_vip_only}}",
+      "centralized_deauth": "{{.input.centralized_deauth}}",
+      "portal_on_management": "{{.input.portal_on_management}}",
+      "auth_on_management": "{{.input.auth_on_management}}",
+      "conflict_resolution_threshold": "{{.input.conflict_resolution_threshold}}",
+      "galera_replication": "{{.input.galera_replication}}",
+      "galera_replication_username": "{{.input.galera_replication_username}}",
+      "galera_replication_password": "{{.input.galera_replication_password}}",
+      "centralize_vips": "{{.input.centralize_vips}}",
+      "probe_mysql_from_haproxy_db": "{{.input.probe_mysql_from_haproxy_db}}"
+    }

@@ -1,0 +1,47 @@
+executor: pf_api_base_radius_configuration
+input:
+  record_accounting_in_sql: enabled
+  filter_in_packetfence_authorize: disabled
+  filter_in_packetfence_pre_proxy: disabled
+  filter_in_packetfence_post_proxy: disabled
+  filter_in_packetfence_preacct: disabled
+  filter_in_packetfence_accounting: disabled
+  filter_in_packetfence-tunnel_authorize: disabled
+  filter_in_eduroam_authorize: disabled
+  filter_in_eduroam_pre_proxy: disabled
+  filter_in_eduroam_post_proxy: disabled
+  filter_in_eduroam_preacct: disabled
+  ntlm_redis_cache: disabled
+  radius_attributes: Packetfence-Raw,User-Name,username,NAS-Identifier,Called-Station-Id,Calling-Station-Id
+  normalize_radius_machine_auth_username: disabled
+  username_attributes: PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Name-Upn,TLS-Client-Cert-Common-Name,User-Name
+  forward_key_balanced: disabled
+  local_auth: disabled
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: radius_configuration
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "record_accounting_in_sql": "{{.input.record_accounting_in_sql}}",
+      "filter_in_packetfence_authorize": "{{.input.filter_in_packetfence_authorize}}",
+      "filter_in_packetfence_pre_proxy": "{{.input.filter_in_packetfence_pre_proxy}}",
+      "filter_in_packetfence_post_proxy": "{{.input.filter_in_packetfence_post_proxy}}",
+      "filter_in_packetfence_preacct": "{{.input.filter_in_packetfence_preacct}}",
+      "filter_in_packetfence_accounting": "{{.input.filter_in_packetfence_accounting}}",
+      "filter_in_packetfence-tunnel_authorize": "{{.input.filter_in_packetfence-tunnel_authorize}}",
+      "filter_in_eduroam_authorize": "{{.input.filter_in_eduroam_authorize}}",
+      "filter_in_eduroam_pre_proxy": "{{.input.filter_in_eduroam_pre_proxy}}",
+      "filter_in_eduroam_post_proxy": "{{.input.filter_in_eduroam_post_proxy}}",
+      "filter_in_eduroam_preacct": "{{.input.filter_in_eduroam_preacct}}",
+      "ntlm_redis_cache": "{{.input.ntlm_redis_cache}}",
+      "radius_attributes": "{{.input.radius_attributes}}",
+      "normalize_radius_machine_auth_username": "{{.input.normalize_radius_machine_auth_username}}",
+      "username_attributes": "{{.input.username_attributes}}",
+      "forward_key_balanced": "{{.input.forward_key_balanced}}",
+      "local_auth": "{{.input.local_auth}}"
+    }

@@ -1,0 +1,41 @@
+executor: pf_api_base_database_advanced
+input:
+  key_buffer_size: 100
+  innodb_buffer_pool_size: 500
+  query_cache_size: 0
+  thread_concurrency: 8
+  max_connections: 1000
+  table_cache: 300
+  thread_cache_size: 25
+  max_allowed_packet: 16
+  performance_schema: OFF
+  max_connect_errors: 100
+  net_read_timeout: 360s
+  net_write_timeout: 360s
+  masterslave: OFF
+  other_members: ""
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: database_advanced
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "key_buffer_size": "{{.input.key_buffer_size}}",
+      "innodb_buffer_pool_size": "{{.input.innodb_buffer_pool_size}}",
+      "query_cache_size": "{{.input.query_cache_size}}",
+      "thread_concurrency": "{{.input.thread_concurrency}}",
+      "max_connections": "{{.input.max_connections}}",
+      "table_cache": "{{.input.table_cache}}",
+      "thread_cache_size": "{{.input.thread_cache_size}}",
+      "max_allowed_packet": "{{.input.max_allowed_packet}}",
+      "performance_schema": "{{.input.performance_schema}}",
+      "max_connect_errors": "{{.input.max_connect_errors}}",
+      "net_read_timeout": "{{.input.net_read_timeout}}",
+      "net_write_timeout": "{{.input.net_write_timeout}}",
+      "masterslave": "{{.input.masterslave}}",
+      "other_members": "{{.input.other_members}}"
+    }

@@ -1,0 +1,21 @@
+executor: pf_api_base_parking
+input:
+  lease_length: 3600
+  threshold: 0
+  place_in_dhcp_parking_group: enabled
+  show_parking_portal: enabled
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: parking
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "lease_length": "{{.input.lease_length}}",
+      "threshold": "{{.input.threshold}}",
+      "place_in_dhcp_parking_group": "{{.input.place_in_dhcp_parking_group}}",
+      "show_parking_portal": "{{.input.show_parking_portal}}"
+    }

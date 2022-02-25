@@ -1,0 +1,22 @@
+executor: pf_api_base_alerting
+input:
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: alerting 
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "emailaddr": "{{.input.emailaddr}}",
+      "fromaddr": "{{.input.fromaddr}}",
+      "smtpserver": "{{.input.smtpserver}}",
+      "subjectprefix: PF Alert": "{{.input.subjectprefix: PF Alert}}",
+      "smtp_encryption": "{{.input.smtp_encryption}}",
+      "smtp_port": "{{.input.smtp_port}}",
+      "smtp_username": "{{.input.smtp_username}}",
+      "smtp_password": "{{.input.smtp_password}}",
+      "smtp_verifyssl": "{{.input.smtp_verifyssl}}",
+      "smtp_timeout": "{{.input.smtp_timeout}}"
+    }

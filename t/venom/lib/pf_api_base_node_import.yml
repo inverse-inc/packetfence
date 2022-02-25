@@ -1,0 +1,19 @@
+executor: pf_api_base_node_import
+input:
+  pid: default
+  category: default
+  voip: no
+
+  time_to_sleep: 0
+  method: "PATCH"
+steps:
+- type: pf_api_base_action
+  method: "{{.input.method}}"
+  base_url_ext: node_import
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  body: >-
+    {
+      "pid": "{{.input.pid}}",
+      "category": "{{.input.category}}",
+      "voip": "{{.input.voip}}"
+    }
