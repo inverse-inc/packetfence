@@ -45,6 +45,7 @@ Readonly our $SWITCH_REWRITE_MAP => {
     'RuckusSmartZone' => 'Ruckus::SmartZone',
     'guest' => 'Ubiquiti::Unifi',
     'AeroHIVE' => 'AeroHIVE::AP',
+    'RuckusSmartZoneCloud' => 'Ruckus::SmartZoneCloud',
 };
 
 =head1 SUBROUTINES
@@ -116,7 +117,6 @@ sub handle {
     } else {
         $switch_type = "pf::Switch::$type_switch";
     }
-
     if ( !(eval "$switch_type->require()") ) {
         $logger->error("Cannot load perl module for switch type '$switch_type'. Either switch type is unknown or switch type perl module have compilation errors. " .
         "See the following message for details: $@");
@@ -139,6 +139,7 @@ sub handle {
         synchronize_locationlog => undef,   # Should we synchronize locationlog
         connection_type         => undef,   # Set the connection_type
         user_id                 => undef,   # Set the user id
+        tenant               => undef,   # Set the cloud tenant
     );
 
     my $switch_params = $switch_type->parseExternalPortalRequest($r, $req);
@@ -179,7 +180,7 @@ sub handle {
     }
 
     # Updating locationlog if required
-    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $params{'connection_type'}, undef, (defined $params{'user_id'} ? $params{'user_id'} : $params{'client_mac'}), $params{'ssid'}) if ( $params{'synchronize_locationlog'} );
+    $switch->synchronize_locationlog("0", "0", $params{'client_mac'}, 0, $params{'connection_type'}, undef, (defined $params{'user_id'} ? $params{'user_id'} : $params{'client_mac'}), $params{'ssid'}, undef, undef, undef, undef,  $params{'tenant'}) if ( $params{'synchronize_locationlog'} );
 
     my $portalSession = $self->_setup_session($req, $params{'client_mac'}, $params{'client_ip'}, $params{'redirect_url'}, $params{'grant_url'});
 

@@ -232,7 +232,7 @@ sub locationlog_view_open_mac {
 }
 
 sub locationlog_insert_start {
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip ) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip, $tenant ) = @_;
     my $logger = get_logger();
 
     my $conn_type = connection_type_to_str($connection_type)
@@ -263,6 +263,7 @@ sub locationlog_insert_start {
         end_time            => $ZERO_DATE,
         voip                => $voip,
         mac                 => lc($mac),
+        tenant              => $tenant,
     );
 
     my $status = pf::dal::locationlog->new(\%values)->save();
@@ -334,7 +335,7 @@ synchronize locationlog to current values if necessary
 
 sub locationlog_synchronize {
     my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
-    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+    my ( $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc, $tenant) = @_;
 
     $voip_status = $NO_VOIP if !defined $voip_status || $voip_status ne $VOIP; #Set the default voip status
     my $logger = get_logger();
@@ -366,7 +367,7 @@ sub locationlog_synchronize {
                     $inline->{_technique}->iptables_unmark_node($mac,$mark) if (defined($mark));
                 }
 
-                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status);
+                locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $locationlog_mac, $ifDesc, $voip_status, $tenant);
 
                 # We just inserted an entry so we won't want to add another one
                 $inserted = 1;
@@ -412,7 +413,7 @@ sub locationlog_synchronize {
 
     # we insert a locationlog entry
     if ($mustInsert && !$inserted) {
-        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc, $voip_status)
+        locationlog_insert_start($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, undef, $ifDesc, $voip_status, $tenant)
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;

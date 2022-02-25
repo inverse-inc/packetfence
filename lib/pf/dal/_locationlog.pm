@@ -56,6 +56,7 @@ BEGIN {
         session_id
         ifDesc
         voip
+        tenant
     );
 
     %DEFAULTS = (
@@ -79,6 +80,7 @@ BEGIN {
         session_id => undef,
         ifDesc => undef,
         voip => 'no',
+        tenant => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -101,6 +103,7 @@ BEGIN {
         session_id
         ifDesc
         voip
+        tenant
     );
 
     %FIELDS_META = (
@@ -228,6 +231,12 @@ BEGIN {
                 'yes' => 1,
             },
         },
+        tenant => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 0,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -256,6 +265,7 @@ BEGIN {
         locationlog.session_id
         locationlog.ifDesc
         locationlog.voip
+        locationlog.tenant
     );
 
 }

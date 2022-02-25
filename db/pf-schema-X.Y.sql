@@ -387,6 +387,7 @@ CREATE TABLE `locationlog` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  `tenant` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`tenant_id`, `mac`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
@@ -418,6 +419,7 @@ CREATE TABLE `locationlog_history` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
+  `tenant` VARCHAR(2552) DEFAULT NULL,
   KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
@@ -455,7 +457,8 @@ BEGIN
             realm = OLD.realm,
             session_id = OLD.session_id,
             ifDesc = OLD.ifDesc,
-            voip = OLD.voip
+            voip = OLD.voip,
+            tenant = OLD.tenant
         ;
   END IF;
 END /

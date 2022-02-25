@@ -105,6 +105,7 @@ sub reevaluate_access {
     }
 
     my $locationlog_entry = locationlog_view_open_mac($mac);
+
     if ( !$locationlog_entry ) {
         $logger->warn("Can't re-evaluate access because no open locationlog entry was found");
         return;
@@ -165,7 +166,7 @@ sub _vlan_reevaluation {
     my ( $mac, $locationlog_entry, %opts ) = @_;
     my $logger = get_logger();
 
-    my $switch = pf::SwitchFactory->instantiate( { switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
+    my $switch = pf::SwitchFactory->instantiate( { switch_id => $locationlog_entry->{'switch'}, switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
     if ( !$switch ) {
         $logger->error("Can't instantiate switch (".$locationlog_entry->{'switch_ip'}.")! Check your configuration!");
         return $FALSE;
@@ -173,7 +174,7 @@ sub _vlan_reevaluation {
 
     if (isenabled($switch->{_deauthOnPrevious})) {
         $locationlog_entry = locationlog_last_entry_previous_switch($mac,$switch);
-        $switch = pf::SwitchFactory->instantiate( { switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
+        $switch = pf::SwitchFactory->instantiate( { switch_id => $locationlog_entry->{'switch'}, switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
     }
 
     my $sync = $opts{sync};

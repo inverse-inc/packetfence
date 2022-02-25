@@ -192,3 +192,15 @@ storage=distributed
 #
 # Amount of time from the current time to expire an entry
 expires_in=120s
+
+[namespace webauth]
+#
+# namespace webauth.storage
+#
+# The storage to use for the namespace
+storage=distributed
+#
+# storage webauth.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=120s
