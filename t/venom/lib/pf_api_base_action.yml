@@ -11,7 +11,7 @@ steps:
   status_code: "{{.input.status_code}}"
   method: "{{.input.method}}"
   time_to_sleep: "{{.input.time_to_sleep}}"
-  url: 'base/{{.input.base_url_ext}}'
+  url: 'config/base/{{.input.base_url_ext}}'
   vars:
     service_temp:
        from: result.pf_api_action_
