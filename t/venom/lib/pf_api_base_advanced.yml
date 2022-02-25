@@ -1,34 +1,34 @@
 executor: pf_api_base_advanced
 input:
-  api_inactivity_timeout: 15m
-  api_max_expiration: 12h
-  language: en_US
-  admin_csp_security_headers: disabled
-  portal_csp_security_headers: enabled
-  sso_on_access_reevaluation: disabled
-  scan_on_accounting: disabled
-  sso_on_accounting: disabled
-  sso_on_dhcp: enabled
-  hash_passwords: bcrypt
+  api_inactivity_timeout: "15m:"
+  api_max_expiration: "12h"
+  language: "en_US"
+  admin_csp_security_headers: "disabled"
+  portal_csp_security_headers: "enabled"
+  sso_on_access_reevaluation: "disabled"
+  scan_on_accounting: "disabled"
+  sso_on_accounting: "disabled"
+  sso_on_dhcp: "enabled"
+  hash_passwords: "bcrypt"
   hashing_cost: 8
-  disable_pf_domain_auth: disabled
-  ldap_attributes: uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership,basedn,dNSHostName
+  disable_pf_domain_auth: "disabled"
+  ldap_attributes: "uid,cn,sAMAccountName,servicePrincipalName,UserPrincipalName,department,displayName,distinguishedName,givenName,memberOf,sn,eduPersonPrimaryAffiliation,mail,postOfficeBox,description,groupMembership,basedn,dNSHostName"
   pffilter_processes: 4
   pfperl_api_processes: 8
-  update_iplog_with_accounting: disabled
-  update_iplog_with_external_portal_requests: enabled
-  locationlog_close_on_accounting_stop: enabled
+  update_iplog_with_accounting: "disabled"
+  update_iplog_with_external_portal_requests: "enabled"
+  locationlog_close_on_accounting_stop: "enabled"
   timing_stats_level: 5
-  source_to_send_sms_when_creating_users: 
-  multihost: disabled
-  active_directory_os_join_check_bypass: disabled
+  source_to_send_sms_when_creating_users: ""
+  multihost: "disabled"
+  active_directory_os_join_check_bypass: "disabled"
   statsd_listen_port : 8125
   pfperl_api_timeout : 600
-  configurator : enabled
-  netflow_on_all_networks : disabled
-  accounting_timebucket_size : 5m
-  openid_attributes: email
-  zero_trust_network_starting_ip: 100.64.0.1
+  configurator : "enabled"
+  netflow_on_all_networks : "disabled"
+  accounting_timebucket_size : "5m"
+  openid_attributes: "email"
+  zero_trust_network_starting_ip: "100.64.0.1"
   zero_trust_network_netmask: 10
 
   time_to_sleep: 0

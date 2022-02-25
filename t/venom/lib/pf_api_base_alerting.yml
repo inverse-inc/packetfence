@@ -1,18 +1,29 @@
 executor: pf_api_base_alerting
 input:
+  emailaddr: "pf@localhost"
+  fromaddr: ""
+  smtpserver: "localhost"
+  subjectprefix: "PF Alert:"
+  smtp_encryption: "none"
+  smtp_port: 0
+  smtp_username: ""
+  smtp_password: ""
+  smtp_verifyssl: "enabled"
+  smtp_timeout: 20
+
   time_to_sleep: 0
   method: "PATCH"
 steps:
 - type: pf_api_base_action
   method: "{{.input.method}}"
-  base_url_ext: alerting 
+  base_url_ext: alerting
   time_to_sleep: "{{.input.time_to_sleep}}"
   body: >-
     {
       "emailaddr": "{{.input.emailaddr}}",
       "fromaddr": "{{.input.fromaddr}}",
       "smtpserver": "{{.input.smtpserver}}",
-      "subjectprefix: PF Alert": "{{.input.subjectprefix: PF Alert}}",
+      "subjectprefix": "{{.input.subjectprefix}}",
       "smtp_encryption": "{{.input.smtp_encryption}}",
       "smtp_port": "{{.input.smtp_port}}",
       "smtp_username": "{{.input.smtp_username}}",

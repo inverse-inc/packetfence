@@ -1,9 +1,9 @@
 executor: pf_api_base_snmp_traps
 input:
-  bounce_duration : 4s
-  trap_limit : enabled
-  trap_limit_threshold : 100
-  trap_limit_action : 
+  bounce_duration: 4s
+  trap_limit: enabled
+  trap_limit_threshold: 100
+  trap_limit_action: "" 
 
   time_to_sleep: 0
   method: "PATCH"

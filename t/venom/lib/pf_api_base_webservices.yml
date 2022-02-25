@@ -1,9 +1,9 @@
 executor: pf_api_base_webservices
 input:
-  user: "" 
+  user: ""
   pass: ""
-  host: 127.0.0.1
-  proto: http
+  host: "127.0.0.1"
+  proto: "http"
   port: 9090
   aaa_port: 7070
   unifiedapi_port: 9999

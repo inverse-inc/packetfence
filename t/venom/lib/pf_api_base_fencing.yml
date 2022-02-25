@@ -16,7 +16,7 @@ input:
 steps:
 - type: pf_api_base_action
   method: "{{.input.method}}"
-  base_url_ext: fencing 
+  base_url_ext: fencing
   time_to_sleep: "{{.input.time_to_sleep}}"
   body: >-
     {

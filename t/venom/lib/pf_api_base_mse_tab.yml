@@ -1,7 +1,7 @@
 executor: pf_api_base_mse_tab
 input:
   enabled: disabled
-  url: "" 
+  url: ""
   user: ""
   pass: ""
   time_to_sleep: 0

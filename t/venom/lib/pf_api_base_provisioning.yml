@@ -3,7 +3,7 @@ input:
   autoconfig: disabled
   ssid: SSID-Hidden
   category: any
-  certificate: "" 
+  certificate: ""
 
   time_to_sleep: 0
   method: "PATCH"
