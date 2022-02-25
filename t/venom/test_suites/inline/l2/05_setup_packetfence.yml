@@ -97,37 +97,13 @@ testcases:
 
 - name: configure_snat_interface_for_passthroughs
   steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/network'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "interfaceSNAT":"eth0"
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Settings updated"
+  - type: pf_api_base_network
+    interfaceSNAT: "eth0"
 
 - name: configure_snat_interface_for_inline
   steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/inline'
-    ignore_verify_ssl: true
-    body: >-
-     {
-       "id": "inline",
-       "interfaceSNAT": "eth0"
-     }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_base_inline
+    interfaceSNAT: "eth0"
 
 - name: restart_iptables
   steps:
