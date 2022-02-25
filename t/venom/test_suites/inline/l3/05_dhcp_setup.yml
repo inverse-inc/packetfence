@@ -44,5 +44,5 @@ testcases:
           
 - name: start_the_dhcp_relay
   steps:
-  - type: systemctl_service_start
+  - type: systemctl_service_restart_without_check_status
     service: godhcp

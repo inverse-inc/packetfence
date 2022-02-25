@@ -1,0 +1,18 @@
+executor: systemctl_service_restart_without_check_status
+#
+# Sometime there is a parsing error in venom due to a complex systemoutput
+#
+input:
+  service: "" 
+  sudo: ""
+  time_to_sleep: 5
+steps:
+# service restarted by hand because using API cause Venom failure (EOF)
+- type: systemctl_service
+  unit_command: restart
+  service: "{{.input.service}}"
+  sudo: "{{.input.sudo}}"
+
+# let service restarts
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep}}"
