@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 36;
+use Test::More tests => 35;
 
 #This test will running last
 use Test::NoWarnings;
@@ -515,8 +515,8 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                \"COUNT(security_event_open.id) AS `security_event.open_count`",
-                \"COUNT(security_event_close.id) AS `security_event.close_count`",
+                \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_count`",
+                \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_count`",
             ],
         ],
         'Return the columns'
@@ -537,9 +537,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             200,
             [
-                -join => 'node',
-                @pf::UnifiedApi::Search::Builder::Nodes::SECURITY_EVENT_OPEN_JOIN,
-                @pf::UnifiedApi::Search::Builder::Nodes::SECURITY_EVENT_CLOSED_JOIN,
+                'node',
             ]
         ],
         'Return the joined tables'
