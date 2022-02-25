@@ -2,8 +2,8 @@ name: Pfcron
 testcases:
 - name: setup_pfcron_and_mock_servers
   steps:
-  - type: exec
-    script: 'systemctl stop packetfence-pfcron'
+  - type: systemctl_service_stop
+    service: 'packetfence-pfcron'
 
   - type: exec
     script: 'cp "{{.fingerbank_upstream_db}}" "{{.fingerbank_upstream_db}}.bak"'
@@ -14,8 +14,7 @@ testcases:
   - type: exec
     script: '{{.ini_cmd}} {{.fingerbank_conf_dir}}/fingerbank.conf add upstream host {{.fingerbank_host}} upstream port {{.fingerbank_port}} upstream use_https disabled'
 
-  - type: exec
-    script: '{{.pfserver_pfcmd}} configreload'
+  - type: pfcmd_configreload
 
   - type: exec
     script: 'rm -f /tmp/pfcron-test.log'
@@ -23,11 +22,18 @@ testcases:
   - type: exec
     script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.fingerbank_api_mock_pidfile}} -w 1 -s 1'
 
-  - type: exec
-    script: 'systemctl start packetfence-pfcron'
+  - type: systemctl_service_start
+    service: 'packetfence-pfcron'
 
 - name: check_pfcron_run_correctly
   steps:
+  - type: exec
+    script: 'sleep 6'
+
+  - type: exec
+    script: 'cat /tmp/pfcron-test.log'
+    assertions:
+    - result.systemout ShouldContainSubstring bob
 
   - type: exec
     script: 'sleep 6'
@@ -35,25 +41,17 @@ testcases:
   - type: exec
     script: 'cat /tmp/pfcron-test.log'
     assertions:
-      - result.systemout ShouldContainSubstring bob
-
-  - type: exec
-    script: 'sleep 6'
-
-  - type: exec
-    script: 'cat /tmp/pfcron-test.log'
-    assertions:
-      - result.systemout ShouldContainSubstring bobbob
+    - result.systemout ShouldContainSubstring bobbob
 
   - type: exec
     script: 'sqlite3 {{.fingerbank_upstream_db}} "SELECT COUNT(*) FROM pf_test"'
     assertions:
-      - result.systemout ShouldEqualTrimSpace 1
+    - result.systemout ShouldEqualTrimSpace 1
 
 - name: teardown
   steps:
-  - type: exec
-    script: 'systemctl stop packetfence-pfcron'
+  - type: systemctl_service_stop
+    service: 'packetfence-pfcron'
 
   - type: exec
     script: 'cp "{{.pfserver_conf_dir}}/pfcron.conf.example" "{{.pfserver_conf_dir}}/pfcron.conf"'
@@ -64,8 +62,7 @@ testcases:
   - type: exec
     script: 'mv "{{.fingerbank_upstream_db}}.bak" "{{.fingerbank_upstream_db}}"'
 
-  - type: exec
-    script: '{{.pfserver_pfcmd}} configreload'
+  - type: pfcmd_configreload
 
   - type: exec
     script: 'kill $(cat {{.fingerbank_api_mock_pidfile}})'

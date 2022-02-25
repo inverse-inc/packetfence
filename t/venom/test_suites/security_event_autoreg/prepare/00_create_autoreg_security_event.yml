@@ -33,10 +33,8 @@ testcases:
   steps:
   - type: exec
     script: 'date +"%Y-%m-%dT%H:%M:%S+00:00" -d "5 days" > /tmp/calculate_unregdate_should_be_after.txt'
-
   
 - name: clear_fingerbank_cache
   steps:
-  - type: exec
-    script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
-
+  - type: pfcmd_run_command
+    command: 'cache fingerbank clear'
