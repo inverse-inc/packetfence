@@ -58,7 +58,7 @@ Requires: sscep
 Requires: net-snmp >= 5.3.2.2
 Requires: net-snmp-perl
 Requires: perl >= %{perl_version}
-Requires: packetfence-perl = 1.2.1
+Requires: packetfence-perl >= 1.2.1
 Requires: MariaDB-server >= 10.5.15, MariaDB-server < 10.6.0
 Requires: MariaDB-client >= 10.5.15, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
