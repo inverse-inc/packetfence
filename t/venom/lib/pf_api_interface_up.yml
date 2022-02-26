@@ -1,0 +1,11 @@
+executor: pf_api_interface_up
+input:
+  id: ""
+steps:
+- type: pf_api_interface_action
+  body: {}
+  status_code: 200
+  method: POST
+  time_to_sleep: 0
+  id: "{{.input.id}}"
+  extention: "/up"

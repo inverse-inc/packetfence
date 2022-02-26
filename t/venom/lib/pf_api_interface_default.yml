@@ -1,0 +1,84 @@
+executor: pf_api_interface_default
+input:
+  id: ""
+  isClone: false
+  isNew: false
+  prefixRouteName: ""
+  additional_listening_daemons: []
+  address: "10.0.0.1/30"
+  coa: "disabled"
+  dhcpd_enabled: "enabled"
+  dns: "8.8.8.8"
+  high_availability: 0
+  hwaddr: "00:aa:11:bb:22:cc"
+  ifindex: "8"
+  ipaddress: "10.0.0.1"
+  ipv6_address: null
+  ipv6_prefix: null
+  is_running: true
+  master: null
+  name: "inlinel2"
+  nat_dns: "disabled"
+  nat_enabled: "enabled"
+  netflow_accounting_enabled: "enabled"
+  netmask: "255.255.255.0"
+  network: "10.0.0.0"
+  network_iseditable: true
+  networks: []
+  not_editable: false
+  reg_network: null
+  split_network: "disabled"
+  tenant_id: 1
+  type: "inlinel2"
+  vip: null
+  vlan: null
+
+  method: "GET"
+  status_code: 200
+  time_to_sleep: 0
+steps:
+- type: pf_api_interface_action
+  body: >-
+    {
+      "isClone": "{{.input.isClone}}",
+      "isNew": "{{.input.isNew}}",
+      "prefixRouteName": "{{.input.prefixRouteName}}",
+      "additional_listening_daemons": "{{.input.additional_listening_daemons}}",
+      "address": "{{.input.address}}",
+      "coa": "{{.input.coa}}",
+      "dhcpd_enabled": "{{.input.dhcpd_enabled}}",
+      "dns": "{{.input.dns}}",
+      "high_availability": "{{.input.high_availability}}",
+      "hwaddr": "{{.input.hwaddr}}",
+      "ifindex": "{{.input.ifindex}}",
+      "ipaddress": "{{.input.ipaddress}}",
+      "ipv6_address": "{{.input.ipv6_address}}",
+      "ipv6_prefix": "{{.input.ipv6_prefix}}",
+      "is_running": "{{.input.is_running}}",
+      "master": "{{.input.master}}",
+      "name": "{{.input.name}}",
+      "nat_dns": "{{.input.nat_dns}}",
+      "nat_enabled": "{{.input.nat_enabled}}",
+      "netflow_accounting_enabled": "{{.input.netflow_accounting_enabled}}",
+      "netmask": "{{.input.netmask}}",
+      "network": "{{.input.network}}",
+      "network_iseditable": "{{.input.network_iseditable}}",
+      "networks": "{{.input.networks}}",
+      "not_editable": "{{.input.not_editable}}",
+      "reg_network": "{{.input.reg_network}}",
+      "split_network": "{{.input.split_network}}",
+      "tenant_id": "{{.input.tenant_id}}",
+      "type": "{{.input.type}}",
+      "vip": "{{.input.vip}}",
+      "vlan": "{{.input.vlan}}"
+    } 
+  status_code: "{{.input.status_code}}"
+  method: "{{.input.method}}"
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  id: '{{.input.id}}'
+  vars:
+    service_temp:
+       from: result.pf_api_action_
+
+output: 
+  pf_api_interface_default_: "{{.service_temp}}"
