@@ -30,37 +30,11 @@ testcases:
 
 - name: deconfigure_snat_interface_for_passthroughs
   steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/network'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "interfaceSNAT":""
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Settings updated"
+  - type: pf_api_base_network
 
 - name: deconfigure_snat_interface_for_inline
   steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/inline'
-    ignore_verify_ssl: true
-    body: >-
-     {
-       "id": "inline",
-       "interfaceSNAT": ""
-     }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_base_inline
 
 - name: restart_iptables
   steps:
@@ -74,7 +48,7 @@ testcases:
 
 - name: restart_pfdhcp_service
   steps:
-  - type: systemctl_service_restart
+  - type: systemctl_service_restart_without_check_status
     service: packetfence-pfdhcp
 
 - name: restart_haproxy-portal_service
