@@ -1,0 +1,73 @@
+executor: pf_api_routed_networks
+input:
+  id: ""
+  algorithm: 1
+  coa: "disabled"
+  description: null
+  dhcp_default_lease_time: null
+  dhcp_end: null
+  dhcp_max_lease_time: null
+  dhcp_start: null
+  dhcpd: "enabled"
+  dns: null
+  fake_mac_enabled: 0
+  gateway: null
+  ip_assigned: null
+  ip_reserved: null
+  nat_dns: 1
+  nat_enabled: 1
+  netflow_accounting_enabled: "disabled"
+  netmask: null
+  network: null
+  next_hop: null
+  pool_backend: "memory"
+  portal_fqdn: null
+  tenant_id: 1
+  type_tmp: null
+  isClone: false
+  isNew: true
+
+  method: "POST"
+  status_code: 201
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "isClone": "{{.input.isClone}}",
+      "isNew": "{{.input.isNew}}",
+      "algorithm": "{{.input.algorithm}}",
+      "coa": "{{.input.coa}}",
+      "description": "{{.input.description}}",
+      "dhcp_default_lease_time": "{{.input.dhcp_default_lease_time}}",
+      "dhcp_end": "{{.input.dhcp_end}}",
+      "dhcp_max_lease_time": "{{.input.dhcp_max_lease_time}}",
+      "dhcp_start": "{{.input.dhcp_start}}",
+      "dhcpd": "{{.input.dhcpd}}",
+      "dns": "{{.input.dns}}",
+      "fake_mac_enabled": "{{.input.fake_mac_enabled}}",
+      "gateway": "{{.input.gateway}}",
+      "ip_assigned": "{{.input.ip_assigned}}",
+      "ip_reserved": "{{.input.ip_reserved}}",
+      "nat_dns": "{{.input.nat_dns}}",
+      "nat_enabled": "{{.input.nat_enabled}}",
+      "netflow_accounting_enabled": "{{.input.netflow_accounting_enabled}}",
+      "netmask": "{{.input.netmask}}",
+      "network": "{{.input.network}}",
+      "next_hop": "{{.input.next_hop}}",
+      "pool_backend": "{{.input.pool_backend}}",
+      "portal_fqdn": "{{.input.portal_fqdn}}",
+      "tenant_id": "{{.input.tenant_id}}",
+      "type": "{{.input.type_tmp}}"
+    }
+  url: "config/routed_networks"
+  status_code: "{{.input.status_code}}"
+  method: "{{.input.method}}"
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  vars:
+    l_temp:
+       from: result.pf_api_action_
+
+output: 
+  pf_api_routed_networks_: "{{.l_temp}}"

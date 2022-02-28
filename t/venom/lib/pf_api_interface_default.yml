@@ -5,13 +5,13 @@ input:
   isNew: false
   prefixRouteName: ""
   additional_listening_daemons: []
-  address: "10.0.0.1/30"
+  address: null
   coa: "disabled"
   dhcpd_enabled: "enabled"
   dns: "8.8.8.8"
   high_availability: 0
   hwaddr: "00:aa:11:bb:22:cc"
-  ifindex: "8"
+  ifindex: "8"  
   ipaddress: "10.0.0.1"
   ipv6_address: null
   ipv6_prefix: null
@@ -29,21 +29,22 @@ input:
   reg_network: null
   split_network: "disabled"
   tenant_id: 1
-  type: "inlinel2"
+  type_tmp: "inlinel2"
   vip: null
   vlan: null
 
-  method: "GET"
+  method: "PATCH"
   status_code: 200
   time_to_sleep: 0
 steps:
-- type: pf_api_interface_action
+- type: pf_api_action
   body: >-
     {
+      "id": "{{.input.id}}",
       "isClone": "{{.input.isClone}}",
       "isNew": "{{.input.isNew}}",
       "prefixRouteName": "{{.input.prefixRouteName}}",
-      "additional_listening_daemons": "{{.input.additional_listening_daemons}}",
+      "additional_listening_daemons": '{{.input.additional_listening_daemons}}',
       "address": "{{.input.address}}",
       "coa": "{{.input.coa}}",
       "dhcpd_enabled": "{{.input.dhcpd_enabled}}",
@@ -63,22 +64,22 @@ steps:
       "netmask": "{{.input.netmask}}",
       "network": "{{.input.network}}",
       "network_iseditable": "{{.input.network_iseditable}}",
-      "networks": "{{.input.networks}}",
+      "networks": '{{.input.networks}}',
       "not_editable": "{{.input.not_editable}}",
       "reg_network": "{{.input.reg_network}}",
       "split_network": "{{.input.split_network}}",
       "tenant_id": "{{.input.tenant_id}}",
-      "type": "{{.input.type}}",
+      "type": "{{.input.type_tmp}}",
       "vip": "{{.input.vip}}",
       "vlan": "{{.input.vlan}}"
     } 
   status_code: "{{.input.status_code}}"
   method: "{{.input.method}}"
   time_to_sleep: "{{.input.time_to_sleep}}"
-  id: '{{.input.id}}'
+  url: 'config/interface/{{.input.id}}'
   vars:
-    service_temp:
+    interface_temp:
        from: result.pf_api_action_
 
 output: 
-  pf_api_interface_default_: "{{.service_temp}}"
+  pf_api_interface_default_: "{{.interface_temp}}"

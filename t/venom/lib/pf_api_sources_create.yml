@@ -4,8 +4,8 @@ executor: pf_api_sources_create
 # https://github.com/ovh/venom/issues/425
 #
 input:
-  administration_rules: "null"
-  authentication_rules: "null"
+  administration_rules: null
+  authentication_rules: null
   basedn: ""
   binddn: ""
   cache_match: ""
@@ -22,7 +22,7 @@ input:
   realms: ""
   scope: ""
   searchattributes: ""
-  set_access_durations_action: "null"
+  set_access_durations_action: null
   shuffle: ""
   type_source: ""
   usernameattribute: ""

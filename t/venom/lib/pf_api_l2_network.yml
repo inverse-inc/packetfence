@@ -1,0 +1,55 @@
+executor: pf_api_l2_network
+input:
+  algorithm: "1"
+  description: ""
+  dhcp_default_lease_time: null
+  dhcp_end: null
+  dhcp_max_lease_time: null
+  dhcp_start: null
+  dns: null
+  ip_assigned: null
+  ip_reserved: null
+  netflow_accounting_enabled: "disabled"
+  netmask: null
+  pool_backend: memory
+  portal_fqdn: null
+  tenant_id: 1
+  type: null
+
+  method: "PATCH"
+  id: ""
+  action: ""
+  extention: ""
+  status_code: 200
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "algorithm": "{{.input.algorithm}}",
+      "description": "{{.input.description}}",
+      "dhcp_default_lease_time": "{{.input.dhcp_default_lease_time}}",
+      "dhcp_end": "{{.input.dhcp_end}}",
+      "dhcp_max_lease_time": "{{.input.dhcp_max_lease_time}}",
+      "dhcp_start": "{{.input.dhcp_start}}",
+      "dns": "{{.input.dns}}",
+      "ip_assigned": "{{.input.ip_assigned}}",
+      "ip_reserved": "{{.input.ip_reserved}}",
+      "netflow_accounting_enabled": "{{.input.netflow_accounting_enabled}}",
+      "netmask": "{{.input.netmask}}",
+      "pool_backend": "{{.input.pool_backend}}",
+      "portal_fqdn": "{{.input.portal_fqdn}}",
+      "tenant_id": "{{.input.tenant_id}}",
+      "type": "{{.input.type}}"
+    }      
+  status_code: "{{.input.status_code}}"
+  method: "{{.input.method}}"
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  url: 'config/l2_network/{{.input.id}}'
+  vars:
+    l2_temp:
+       from: result.pf_api_action_
+
+output: 
+  pf_api_l2_network_: "{{.l2_temp}}"
