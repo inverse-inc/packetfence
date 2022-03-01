@@ -14,7 +14,7 @@ input:
   pool_backend: memory
   portal_fqdn: null
   tenant_id: 1
-  type: null
+  type_tmp: null
 
   method: "PATCH"
   id: ""
@@ -41,7 +41,7 @@ steps:
       "pool_backend": "{{.input.pool_backend}}",
       "portal_fqdn": "{{.input.portal_fqdn}}",
       "tenant_id": "{{.input.tenant_id}}",
-      "type": "{{.input.type}}"
+      "type": "{{.input.type_tmp}}"
     }      
   status_code: "{{.input.status_code}}"
   method: "{{.input.method}}"
