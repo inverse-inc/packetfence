@@ -602,7 +602,8 @@ VALUES
     ('Freedom', '%s@txt.freedommobile.ca', now()),
     ('PC Mobile', '%s@msg.telus.com', now()),
     ('TBayTel', '%s@pcs.rogers.com', now()),
-    ('Google Project Fi', '%s@msg.fi.google.com', now());
+    ('Google Project Fi', '%s@msg.fi.google.com', now()),
+    ('RingRing', '%s@smsemail.be', now());
 
 -- Adding RADIUS nas client table
 
