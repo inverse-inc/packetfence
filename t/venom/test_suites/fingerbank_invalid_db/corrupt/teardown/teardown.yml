@@ -5,10 +5,7 @@ testcases:
   - type: exec
     script: 'mv /usr/local/fingerbank/db/fingerbank_Upstream.db.fingerbank_corrupted_db_test_backup /usr/local/fingerbank/db/fingerbank_Upstream.db'
 
-  - type: exec
-    script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
+  - type: pfcmd_fingerbank_clear_cache
 
-  - type: exec
-    script: 'systemctl restart packetfence-fingerbank-collector'
-
-
+  - type: systemctl_service_restart 
+    service: 'packetfence-fingerbank-collector'

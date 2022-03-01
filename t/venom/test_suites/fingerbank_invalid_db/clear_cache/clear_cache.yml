@@ -1,9 +1,5 @@
 name: FingerbankClearCache
 testcases:
-
 - name: Clear Fingerbank Cache
   steps:
-
-  - type: exec
-    script: '/usr/local/pf/bin/pfcmd cache fingerbank clear'
-
+  - type: pfcmd_fingerbank_clear_cache 
