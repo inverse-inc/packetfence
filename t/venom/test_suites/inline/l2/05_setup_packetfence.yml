@@ -1,5 +1,22 @@
 name: Enable Inline l2 configuration in PacketFence
 testcases:
+#
+# Need to fix issue it looks likes something is broken
+#
+#
+#- name: configure_interface_inlinel2_as_type_inline_l2
+#  steps:
+#  - type: pf_api_interface_default
+#    id: "inlinel2"
+#    hwaddr: "92:ed:ee:36:e9:6a"
+#    ifindex: "10"
+#    name: "inlinel2"
+#    network: null
+#    network_iseditable: false
+#    split_network: null
+#    ipaddress": "{{.inline_l2.pf_portal}}"
+#    netmask: "255.255.255.0"
+
 - name: get_login_token
   steps:
   - type: get_login_token
@@ -50,38 +67,16 @@ testcases:
 
 - name: configure_inline_l2_network
   steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/l2_network/{{.inline_l2.networks}}'
-    ignore_verify_ssl: true
-    body: >-
-     {
-       "id": "{{.inline_l2.networks}}",
-       "isClone": false,
-       "isNew": false,
-       "algorithm": 1,
-       "description": null,
-       "dhcp_default_lease_time": "30",
-       "dhcp_end": "{{.inline_l2.node.ipaddress}}",
-       "dhcp_max_lease_time": "30",
-       "dhcp_start": "{{.inline_l2.node.ipaddress}}",
-       "dns": "8.8.8.8",
-       "ip_assigned": null,
-       "ip_reserved": null,
-       "netflow_accounting_enabled": "enabled",
-       "netmask": "255.255.255.0",
-       "not_deletable": false,
-       "not_sortable": false,
-       "pool_backend": "memory",
-       "portal_fqdn": null,
-       "tenant_id": "1",
-       "type": "inlinel2"
-     }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_l2_network
+    id: "{{.inline_l2.networks}}"
+    dhcp_default_lease_time: "30"
+    dhcp_end: "{{.inline_l2.node.ipaddress}}"
+    dhcp_max_lease_time: "30"
+    dhcp_start: "{{.inline_l2.node.ipaddress}}"
+    dns: "8.8.8.8"
+    netflow_accounting_enabled: "enabled"
+    netmask: "255.255.255.0"
+    type_tmp: "inlinel2"
 
 - name: create_a_user
   steps:

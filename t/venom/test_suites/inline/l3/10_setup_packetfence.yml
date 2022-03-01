@@ -1,5 +1,24 @@
 name: Enable Inline l3 configuration in PacketFence
 testcases:
+#
+# Need to fix issue it looks likes something is broken
+#
+#
+#- name: configure_interface_inlinel3_as_type_inline_l2
+#  steps:
+#  - type: pf_api_interface_default
+#    id: "inlinel3"
+#    address: "100.64.0.2/30"
+#    hwaddr: "56:63:1a:4b:44:fc"
+#    ipaddress: "100.64.0.2"
+#    name: "inlinel3-b"
+#    netmask: "255.255.255.252"
+#    network: "100.64.0.0"
+#    networks: >-
+#      [
+#        "{{.inline_l3.routed_networks}}"
+#      ]
+
 - name: get_login_token
   steps:
   - type: get_login_token
@@ -55,44 +74,19 @@ testcases:
 
 - name: configure_inline_l3_network
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/routed_networks'
-    ignore_verify_ssl: true
-    body: >-
-     {
-       "id": "{{.inline_l3.routed_networks}}",
-       "isClone": false,
-       "isNew": true,
-       "algorithm": 1,
-       "coa": "disabled",
-       "description": "Inline L3",
-       "dhcp_default_lease_time": "30",
-       "dhcp_end": "{{.inline_l3.node.ipaddress}}",
-       "dhcp_max_lease_time": "30",
-       "dhcp_start": "{{.inline_l3.node.ipaddress}}",
-       "dhcpd": "enabled",
-       "dns": "8.8.8.8",
-       "fake_mac_enabled": 0,
-       "gateway": "{{.inline_l3.pf_portal}}",
-       "ip_assigned": null,
-       "ip_reserved": null,
-       "nat_dns": 1,
-       "nat_enabled": 1,
-       "netflow_accounting_enabled": "enabled",
-       "netmask": "255.255.255.0",
-       "network": null,
-       "next_hop": "100.64.0.1",
-       "pool_backend": "memory",
-       "portal_fqdn": null,
-       "tenant_id": 1,
-       "type": "inlinel3"
-     }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 201
+  - type: pf_api_routed_networks
+    id: "{{.inline_l3.routed_networks}}"
+    description: "Inline L3"
+    dhcp_default_lease_time: "30"
+    dhcp_end: "{{.inline_l3.node.ipaddress}}"
+    dhcp_max_lease_time: "30"
+    dhcp_start: "{{.inline_l3.node.ipaddress}}"
+    dns: "8.8.8.8"
+    gateway: "{{.inline_l3.pf_portal}}"
+    netflow_accounting_enabled: "enabled"
+    netmask: "255.255.255.0"
+    next_hop: "100.64.0.1"
+    type_tmp: "inlinel3"
 
 - name: create_a_user
   steps:
