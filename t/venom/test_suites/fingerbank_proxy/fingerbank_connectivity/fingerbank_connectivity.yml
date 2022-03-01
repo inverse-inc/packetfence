@@ -11,7 +11,6 @@ testcases:
     
 - name: validate_account_info_perl_lib
   steps:
-
   - type: exec
     script: >
       perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mfingerbank::API -e '($res, $data) = fingerbank::API->new_from_config->account_info; print $res'
@@ -20,7 +19,6 @@ testcases:
 
 - name: validate_collector_api_connectivity
   steps:
-
   - type: http
     method: GET
     url: 'https://127.0.0.1:4723/endpoint_data/001122000001/details'
@@ -31,5 +29,3 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.cloud_api_result.device_name ShouldEqual "Hardware Manufacturer/CIMSYS Inc"
-
-
