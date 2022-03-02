@@ -362,6 +362,7 @@ sub prompt_fields {
     }
 
     $self->render($self->signup_template, {
+        source => $self->source,
         previous_request => $self->app->request->parameters(),
         fields => $self->merged_fields,
         form => $self->form,
