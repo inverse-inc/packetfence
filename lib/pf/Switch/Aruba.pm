@@ -609,7 +609,7 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     %params = (
-        switch_id               => defined($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
+        switch_id               => valid_ip($req->param('switchip')) ? $req->param('switchip') : $req->param('apname'),
         client_mac              => clean_mac($req->param('mac')),
         client_ip               => $req->param('ip'),
         ssid                    => $req->param('essid'),
