@@ -35,7 +35,7 @@ export default (props, config, bounds, viewBox, nodes, links) => {
         })
       })
       closeLastObserver = () => observer.disconnect()
-      observer.observe(tooltipsRef.value, { attributes: false, characterData: true, childList: true, subtree: true })
+      observer.observe(tooltipsRef.value, { attributes: true, characterData: true, childList: true, subtree: true })
     }
   })
 
@@ -101,7 +101,7 @@ export default (props, config, bounds, viewBox, nodes, links) => {
   }
 
   const _mouseOverNode = node => {
-    _highlightNodeById(node.id) // highlight node
+    highlightNodeById(node.id) // highlight node
     highlight.value = (node.type === 'node') ? color(node) : 'none'
     // tooltips
     if (highlightNodeId.value !== node.id) {
@@ -156,7 +156,7 @@ export default (props, config, bounds, viewBox, nodes, links) => {
     links.value = links.value.map(link => ({ ...link, highlight: false }))
   }
 
-  const _highlightNodeById = id => {
+  const highlightNodeById = id => {
     _unhighlightNodes()
     _unhighlightLinks()
     // highlight all target nodes linked to this source node
@@ -187,14 +187,13 @@ export default (props, config, bounds, viewBox, nodes, links) => {
   const tooltipsLines = computed(() => {
     const { maxX = 0, maxY = 0 } = bounds.value
     const { minX: viewBoxX, minY: viewBoxY, width, height } = viewBox.value
-    const flip = tooltipsOther.value
     return tooltips.value
       .map((tooltip, t) => {
-        if (tooltipsRef.value) {
+        if (tooltipsRef.value && t in tooltipsRef.value.childNodes) {
           const tooltipBounds = tooltipsRef.value.childNodes[t].getBoundingClientRect()
           let x = (tooltipBounds.x - tooltipsRefBounds.value.x) + tooltipBounds.width
           let y = (tooltipBounds.y - tooltipsRefBounds.value.y) + (tooltipBounds.height / 2)
-          if (flip) {
+          if (tooltipsOther.value) {
             x = dimensions.value.width - x
           }
           const x1 = viewBoxX + (x / maxX * width)
@@ -222,6 +221,7 @@ export default (props, config, bounds, viewBox, nodes, links) => {
     tooltipsOther,
     tooltipsPinned,
     highlight,
+    highlightNodeById,
     highlightNodeId,
     highlightedLinks,
     mouseDownNode,

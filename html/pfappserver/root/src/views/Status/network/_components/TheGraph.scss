@@ -86,7 +86,7 @@
 
   .tt-link {
     stroke: rgba(128, 128, 128, 1);
-    animation: dash 3s linear infinite;
+    animation: fadein 3s, dash 3s linear infinite;
   }
   marker#arrow {
     fill: rgba(128, 128, 128, 1);

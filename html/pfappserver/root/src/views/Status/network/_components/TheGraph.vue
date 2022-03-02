@@ -8,11 +8,14 @@
       width="100%"
       :height="dimensions.height+'px'"
       :viewBox="viewBoxString"
-      v-show="lastX && lastY"
+      v-show="(lastX && lastY) || isSimulating"
       @mousemove="mouseMoveSvg($event)"
       @mouseout="mouseUpSvg($event)"
       @mouseup="mouseUpSvg($event)"
-    ></svg>
+
+      @mousedown.prevent="mouseDownSvg($event)"
+      @mousewheel="mouseWheelSvg($event)"
+    />
 
     <!-- SVG draw layer -->
     <svg ref="svgDraw" :class="[ 'svgDraw', `zoom-${zoom}` ]"
@@ -327,7 +330,7 @@ const props = {
   }
 }
 
-import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, nextTick, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useViewBox, useMiniMap } from '../_composables/useSvg'
 import useColor from '../_composables/useColor'
 import useSimulation from '../_composables/useSimulation'
@@ -351,6 +354,7 @@ const setup = props => {
 
   const {
     simulation,
+    isSimulating,
     bounds,
     coords,
     init,
@@ -359,21 +363,28 @@ const setup = props => {
     force
   } = useSimulation(props, config, localNodes, localLinks)
 
-  // init simulation
-  init()
+  onMounted(() => {
+    // init simulation
+    init()
+  })
 
   // watch `dimensions` prop and rebuild simulation forces on resize
+  let dimensionsDebouncer = false
   watch(dimensions, () => {
-console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
-    const { width = 0, height = 0 } = dimensions.value
-    // adjust fixed nodes x, y
-    localNodes.value.forEach((node, index) => {
-      if ('fx' in node && 'fy' in node) {
-        localNodes.value[index].fx = width / 2
-        localNodes.value[index].fy = height / 2
-      }
-    })
-    nextTick(() => force())
+    if (dimensionsDebouncer) {
+      clearTimeout(dimensionsDebouncer)
+    }
+    dimensionsDebouncer = setTimeout(() => {
+      const { width = 0, height = 0 } = dimensions.value
+      // adjust fixed nodes x, y
+      localNodes.value.forEach((node, index) => {
+        if ('fx' in node && 'fy' in node) {
+          localNodes.value[index].fx = width / 2
+          localNodes.value[index].fy = height / 2
+        }
+      })
+      nextTick(force)
+    }, 1000)
   }, { deep: true })
 
   const {
@@ -413,6 +424,7 @@ console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
     tooltipsOther,
     tooltipsPinned,
     highlight,
+    highlightNodeById,
     highlightNodeId,
     highlightedLinks,
     mouseDownNode,
@@ -555,15 +567,15 @@ console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
           if (a[aIndex].type === 'packetfence') {
             // always center packetfence node
             localNodes.value[localNodes.value.length] = {
-              fx: width / 2,
-              fy: height / 2,
+              fx: (width) ? width / 2 : null,
+              fy: (height) ? height / 2 : null,
               ..._cleanNodeProperties(a[aIndex])
             }
           }
           else {
             localNodes.value[localNodes.value.length] = {
-              x: width / 2,
-              y: height / 2,
+              x: (width) ? width / 2 : null,
+              y: (height) ? height / 2 : null,
               ..._cleanNodeProperties(a[aIndex])
             }
           }
@@ -576,9 +588,9 @@ console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
     $d.sort((a, b) => b - a).forEach(index => { // reverse sort, delete bottom-up
       localNodes.value.splice(index, 1)
     })
-    simulation.value.nodes(localNodes.value) // push nodes to simulation
     nextTick(() => {
       force() // reset forces
+      start()
     })
     // if pinned, unpin if node missing
     if (tooltipsPinned.value && localNodes.value.filter(node => node.id === tooltipsPinned.value).length === 0) {
@@ -622,10 +634,9 @@ console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
         } while ('source' in source && (source = source.source) && (++depth))
       })
     localLinks.value = _links
-  }, { deep: true })
-
-  watch(viewBox, () => {
-    mouseDownNode() // unpin tooltips
+    if (highlightNodeId.value) { // links mutated while highlighted
+      highlightNodeById(highlightNodeId.value) // update highlighted links
+    }
   }, { deep: true })
 
   return {
@@ -643,6 +654,7 @@ console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
 
     // useSimulation
     simulation,
+    isSimulating,
     bounds,
     coords,
     start,

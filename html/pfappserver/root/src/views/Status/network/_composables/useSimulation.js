@@ -8,6 +8,8 @@ export default (props, config, nodes, links) => {
   } = toRefs(props)
 
   const simulation = ref(null)
+  const ticks = ref(0)
+  const isSimulating = computed(() => ticks.value < 25)
 
   const bounds = computed(() => {
     const { width, height } = dimensions.value
@@ -20,24 +22,19 @@ export default (props, config, nodes, links) => {
   })
 
   const init = () => {
-console.log('init')
     simulation.value = d3
-      .forceSimulation(nodes.value)
+      .forceSimulation(nodes)
       .on('tick', tick)
-    nextTick(() => force())
   }
 
   const start = () => {
-console.log('start')
     if (simulation.value) {
-      nextTick(() => {
-        simulation.value.restart()
-      })
+      simulation.value.restart()
+      ticks.value = 0
     }
   }
 
   const stop = () => {
-console.log('stop')
     if (simulation.value) {
       simulation.value.stop()
     }
@@ -45,51 +42,29 @@ console.log('stop')
 
   const coords = ref([])
 
-  let tickDebouncer = false
   const tick = () => {
-console.log('tick')
-    if (!tickDebouncer) {
-      tickDebouncer = setTimeout(() => {
-        tickDebouncer = false
-        const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = bounds.value
-        const { height = 0, width = 0 } = dimensions.value
-        if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-          const xMult = (width - (2 * config.value.padding)) / (maxX - minX)
-          const yMult = (height - (2 * config.value.padding)) / (maxY - minY)
-          coords.value = nodes.value.map(node => {
-            const x = config.value.padding + (node.x - minX) * xMult
-            const y = config.value.padding + (node.y - minY) * yMult
-            return {
-              x: isNaN(x) ? 0 : x,
-              y: isNaN(y) ? 0 : y
-            }
-          })
+    ticks.value++
+    const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = bounds.value
+    const { height = 0, width = 0 } = dimensions.value
+    if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
+      const xMult = (width - (2 * config.value.padding)) / (maxX - minX)
+      const yMult = (height - (2 * config.value.padding)) / (maxY - minY)
+      coords.value = nodes.value.map(node => {
+        const x = config.value.padding + (node.x - minX) * xMult
+        const y = config.value.padding + (node.y - minY) * yMult
+        return {
+          x: isNaN(x) ? 0 : x,
+          y: isNaN(y) ? 0 : y
         }
-        else
-          coords.value = nodes.value.map(() => ({ x: 0, y: 0 })) // all zero's
-      }, 100)
+      })
+    }
+    else {
+      coords.value = nodes.value.map(() => ({ x: 0, y: 0 })) // all zero's
     }
   }
-
-  const resume = () => {
-console.log('resume')
-    if (simulation.value) {
-      simulation.value.resume()
-    }
-  }
-
-  /*
-  let forceTimeout = false
-  const force = () => {
-    if (forceTimeout) {
-      clearTimeout(forceTimeout)
-    }
-    forceTimeout = setTimeout(_force, 500)
-  }
-  */
 
   const force = () => {
-    console.log('force')
+    simulation.value.nodes(nodes.value) // push nodes to simulation
 
     /* `collide` force - prevents nodes from overlapping */
     simulation.value.force('collide', d3.forceCollide()
@@ -108,7 +83,7 @@ console.log('resume')
 
     switch (config.value.layout) {
       case 'radial':
-        simulation.value.velocityDecay(0.4) // default: 0.4
+        simulation.value.velocityDecay(0.7) // default: 0.4
         /* `radial` force - orient on circle of specified radius centered at x, y */
         /*
         simulation.value.force('radial', d3.forceRadial()
@@ -121,13 +96,14 @@ console.log('resume')
         break
 
       case 'tree':
-        simulation.value.velocityDecay(0.5) // default: 0.4
+        simulation.value.velocityDecay(0.7) // default: 0.4
         break
 
       default:
         throw new Error(`Unhandled layout ${config.value.layout}`)
     }
-    simulation.value.alpha(1)
+
+    simulation.value.alpha(5)
   }
 
   const _getCoordFromCoordAngle = (x1, y1, angle, length) => {
@@ -386,18 +362,20 @@ console.log('resume')
   }
 
   watch(() => config.value.layout, (a, b) => {
-console.log('config.layout')
     if (simulation.value && a !== b) {
-      init()
+      nextTick(() => {
+        force()
+        start()
+      })
     }
   })
 
   return {
     simulation,
+    isSimulating,
     bounds,
     coords,
     init,
-    resume,
     start,
     stop,
     force

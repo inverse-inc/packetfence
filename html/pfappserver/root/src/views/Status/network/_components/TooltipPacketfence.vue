@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body ref="rootRef"
+  <b-card no-body
     class="tooltip-packetfence" :id="`tooltip-${id}`">
     <b-card-header class="p-2">
       <h5 class="mb-0">PacketFence</h5>
@@ -15,21 +15,15 @@ const props = {
   }
 }
 
-import { computed, ref, watch } from '@vue/composition-api'
+import { computed } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
-  const { emit, root: { $store } = {} } = context
+  const { root: { $store } = {} } = context
 
   const version = computed(() => $store.getters['system/version'])
 
-  const rootRef = ref(null) // component ref
-  watch([rootRef, version], () => {
-    emit('bounds', rootRef.value.getBoundingClientRect())
-  })
-
   return {
-    rootRef,
     version
   }
 }
