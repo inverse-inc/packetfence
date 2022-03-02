@@ -17,18 +17,15 @@ testcases:
   
 - name: check_node10_creation
   steps:
-  - type: http
-    method: GET
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
+  - type: pf_api_node_action
+    url: '{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+    info:
+    - "{{.result.pf_api_node_action_json}}"
+    - "{{.result.pf_api_node_action_}}"
     assertions:
-    - result.statuscode ShouldEqual 200
-    - result.bodyjson.item.computername ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.hostname}}"
-    - result.bodyjson.item.dhcp_fingerprint ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}}"
-    - result.bodyjson.item.dhcp_vendor ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}}"
+    - result.pf_api_node_action_.item.computername ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.hostname}}"
+    - result.pf_api_node_action_.item.dhcp_fingerprint ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}}"
+    - result.pf_api_node_action_.item.dhcp_vendor ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}}"
 
 - name: check_node10_ip4log
   steps:
