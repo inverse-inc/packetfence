@@ -2,7 +2,7 @@ executor: pf_api_check_radius_audit_log
 input:
   mac_address: ""
   connection_type_value: ""
-  time_ago: "2 minutes"
+  time_ago: "20 minutes"
   vlan_registration: ""
   profile: ""
 steps:
@@ -66,7 +66,7 @@ steps:
               {
                 "field": "connection_type",
                 "op": "equals",
-                "value": "{{.input.connection_type}}"
+                "value": "{{.input.connection_type_value}}"
               }
             ]
           },
@@ -76,7 +76,7 @@ steps:
               {
                 "field": "created_at",
                 "op": "greater_than",
-                "value": "{{.result.my_time_ago}}"
+                "value": "{{.my_time_ago}}"
               }
             ]
           }
@@ -95,12 +95,12 @@ steps:
 
 - type: http
   method: GET
-  url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.result.my_id}}'
+  url: '{{.pfserver_webadmin_url}}/api/v1/radius_audit_log/{{.my_id}}'
   ignore_verify_ssl: true
   headers:
     "Authorization": "{{.result.token}}"
     "Content-Type": "application/json"
   assertions:
     - result.statuscode ShouldEqual 200
-    - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.input.vlan_id}}"'
-    - result.bodyjson.item.profile ShouldEqual "{{.input.profiles_id}}"
+    - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.input.vlan_registration}}"'
+    - result.bodyjson.item.profile ShouldEqual "{{.input.profile}}"
