@@ -536,10 +536,6 @@ wired_dot1x_eap_tls_pki.roles.ad_machine.id: '{{.eap_peap.roles.ad_machine.id}}'
 wired_dot1x_eap_tls_pki.roles.ad_machine.notes: '{{.eap_peap.roles.ad_machine.notes}}'
 wired_dot1x_eap_tls_pki.roles.ad_machine.vlan_id: '{{.eap_peap.roles.ad_machine.vlan_id}}'
 
-wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.id: dot1x_eap_tls_pki
-wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.notes: 802.1x role for PacketFence PKI
-wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id: 100
-
 # Sources
 wired_dot1x_eap_tls_pki.sources.ad_user.name: wired_dot1x_eap_tls_pki_user_auth
 wired_dot1x_eap_tls_pki.sources.ad_user.description: '{{.ad_mgmt_ip}} user authentication'

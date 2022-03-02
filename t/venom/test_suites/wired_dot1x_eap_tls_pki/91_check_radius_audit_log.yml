@@ -86,19 +86,6 @@ testcases:
       id_tmp:
         from: result.pf_api_action_json.items.items0.id
 
-#
-# There is an issue ther with this executor
-#
-#- name: check_radius_reply
-#  steps:
-#  - type: pf_api_action
-#    info:
-#      - "{{.get_id_of_radius_audit_log_entry.id_tmp}}"
-#    url: 'radius_audit_log/{{.get_id_of_radius_audit_log_entry.id_tmp}}'
-#    assertions:
-#      - result.pf_api_action_json.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id}}"'
-#      - result.pf_api_action_json.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_pki.profiles.wired.id}}"
-
 - name: get_login_token
   steps:
   - type: get_login_token
@@ -114,5 +101,5 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
-      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_pki.roles.dot1x_eap_tls.vlan_id}}"'
+      - result.bodyjson.item.radius_reply ShouldContainSubstring 'Tunnel-Private-Group-Id = "{{.wired_dot1x_eap_tls_pki.roles.ad_user.vlan_id}}"'
       - result.bodyjson.item.profile ShouldEqual "{{.wired_dot1x_eap_tls_pki.profiles.wired.id}}"
