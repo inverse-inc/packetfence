@@ -20,13 +20,15 @@ export default (props, config, nodes, links) => {
   })
 
   const init = () => {
+console.log('init')
     simulation.value = d3
       .forceSimulation(nodes.value)
       .on('tick', tick)
-    force()
+    nextTick(() => force())
   }
 
   const start = () => {
+console.log('start')
     if (simulation.value) {
       nextTick(() => {
         simulation.value.restart()
@@ -35,14 +37,17 @@ export default (props, config, nodes, links) => {
   }
 
   const stop = () => {
-    if (simulation.value)
+console.log('stop')
+    if (simulation.value) {
       simulation.value.stop()
+    }
   }
 
   const coords = ref([])
 
   let tickDebouncer = false
   const tick = () => {
+console.log('tick')
     if (!tickDebouncer) {
       tickDebouncer = setTimeout(() => {
         tickDebouncer = false
@@ -66,7 +71,26 @@ export default (props, config, nodes, links) => {
     }
   }
 
+  const resume = () => {
+console.log('resume')
+    if (simulation.value) {
+      simulation.value.resume()
+    }
+  }
+
+  /*
+  let forceTimeout = false
   const force = () => {
+    if (forceTimeout) {
+      clearTimeout(forceTimeout)
+    }
+    forceTimeout = setTimeout(_force, 500)
+  }
+  */
+
+  const force = () => {
+    console.log('force')
+
     /* `collide` force - prevents nodes from overlapping */
     simulation.value.force('collide', d3.forceCollide()
       .radius(_forceCollideRadius)
@@ -362,10 +386,9 @@ export default (props, config, nodes, links) => {
   }
 
   watch(() => config.value.layout, (a, b) => {
+console.log('config.layout')
     if (simulation.value && a !== b) {
-      stop()
       init()
-      start()
     }
   })
 
@@ -374,6 +397,7 @@ export default (props, config, nodes, links) => {
     bounds,
     coords,
     init,
+    resume,
     start,
     stop,
     force

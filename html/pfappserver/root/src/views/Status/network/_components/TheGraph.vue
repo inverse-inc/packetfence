@@ -1,5 +1,5 @@
 <template>
-  <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight highlight-${highlight}`]: highlight } ]">
+  <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight highlight-${highlight}`]: highlight, 'pinned': tooltipsPinned } ]">
 
     <!-- SVG drag layer (for event capture only) -->
     <svg ref="svgDrag" class="svgDrag"
@@ -59,11 +59,16 @@
         <symbol id="unknown" viewBox="0 0 32 32" preserveAspectRatio="xMinYMin slice">
           <circle cx="16" cy="16" r="14" />
         </symbol>
+
+        <marker id="arrow" markerWidth="5" markerHeight="3.5" refX="5" refY="1.75" orient="auto">
+          <polygon points="0 0, 5 1.75, 0 3.5" />
+        </marker>
       </defs>
 
       <!-- background to capture node mouseout event -->
       <rect fill-opacity="0" :x="viewBox.minX" :y="viewBox.minY" :width="viewBox.width" :height="viewBox.height"
         @mouseover="mouseOutNode($event)"
+        @mousemove="mouseOutNode($event)"
       />
 
       <!-- links -->
@@ -82,14 +87,6 @@
         </textPath>
       </text>
 
-      <!-- tooltip handles/lines -->
-      <line v-for="tooltip in tooltips" :key="`line-${tooltip.node.id}`" class="tt-link"
-        :x1="tooltip.line.x1"
-        :y1="tooltip.line.y1"
-        :x2="tooltip.line.x2"
-        :y2="tooltip.line.y2"
-      />
-
       <!-- nodes -->
       <template v-for="(node, i) in localNodes">
 
@@ -101,6 +98,7 @@
           :x="coords[i].x - (32 / 2)"
           :y="coords[i].y - (32 / 2)"
           fill="#000000"
+          @mousedown="mouseDownNode(node, $event)"
           @mouseover="mouseOverNode(node, $event)"
           :class="[ 'packetfence', { 'highlight': node.highlight } ]"
           :key="`use-packetfence-${node.id}`"
@@ -114,6 +112,7 @@
             :id="`node-${node.id}`"
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
+            @mousedown="mouseDownNode(node, $event)"
             @mouseover="mouseOverNode(node, $event)"
             :class="[ 'switch-group', 'pointer', { 'highlight': node.highlight } ]"
             :key="`use-switch-group-${node.id}`"
@@ -133,6 +132,7 @@
             :id="`node-${node.id}`"
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
+            @mousedown="mouseDownNode(node, $event)"
             @mouseover="mouseOverNode(node, $event)"
             :class="[ 'switch', 'pointer', { 'highlight': node.highlight } ]"
             :key="`use-switch-${node.id}`"
@@ -152,6 +152,7 @@
             :id="`node-${node.id}`"
             :x="coords[i].x - (32 / 2)"
             :y="coords[i].y - (32 / 2)"
+            @mousedown="mouseDownNode(node, $event)"
             @mouseover="mouseOverNode(node, $event)"
             :class="[ 'unknown', { 'highlight': node.highlight } ]"
             :key="`use-unknown-${node.id}`"
@@ -170,6 +171,7 @@
           :id="`node-${node.id}`"
           :x="coords[i].x - (16 / 2)"
           :y="coords[i].y - (16 / 2)"
+          @mousedown="mouseDownNode(node, $event)"
           @mouseover="mouseOverNode(node, $event)"
           :class="[ 'node', 'pointer', color(node), { 'highlight': node.highlight } ]"
           :key="`use-node-${node.id}`"
@@ -177,43 +179,59 @@
 
       </template>
 
+      <!-- tooltip handles/lines -->
+      <template v-if="tooltipsLines.length > 0">
+        <line v-for="(line, l) in tooltipsLines" :key="`line-${l}`" class="tt-link"
+          :x1="line.x1"
+          :y1="line.y1"
+          :x2="line.x2"
+          :y2="line.y2"
+          marker-end="url(#arrow)"
+        />
+      </template>
+
       <!-- mini map -->
-      <rect v-if="showMiniMap" class="innerMiniMap" v-bind="innerMiniMapProps" />
-      <rect v-if="showMiniMap" class="outerMiniMap" v-bind="outerMiniMapProps"
-        @mousedown.stop="mouseDownMiniMap($event)"
-        @mousemove.capture="mouseMoveMiniMap($event)"
-      />
+      <template v-if="showMiniMap && !(tooltips.length && !tooltipsOther)">
+        <rect class="innerMiniMap" v-bind="innerMiniMapProps" />
+        <rect class="outerMiniMap" v-bind="outerMiniMapProps"
+          @mousedown.stop="mouseDownMiniMap($event);"
+          @mousemove.capture="mouseMoveMiniMap($event)"
+        />
+      </template>
 
     </svg>
 
-    <!-- tooltip -->
-    <div v-for="tooltip in tooltips" :key="`tooltip-${tooltip.node.id}`" class="tt-anchor"
-      v-bind="tooltipAnchorAttrs(tooltip)"
-    >
-      <div class="tt-container">
-        <div class="tt-contents">
-          <!-- NODE -->
-          <tooltip-node v-if="['node'].includes(tooltip.node.type)"
-            :id="tooltip.node.id"
-          />
-          <!-- SWITCH -->
-          <tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
-            :id="tooltip.node.id"
-            :properties="tooltip.node.properties"
-          />
-          <!-- SWITCH GROUP -->
-          <tooltip-switch-group v-else-if="['switch-group'].includes(tooltip.node.type)"
-            :id="tooltip.node.id"
-            :properties="tooltip.node.properties"
-          />
-          <!-- PACKETFENCE -->
-          <tooltip-packetfence v-else-if="['packetfence'].includes(tooltip.node.type)"/>
-        </div>
-      </div>
+    <!-- tooltips -->
+    <div v-if="tooltips.length > 0"
+      ref="tooltipsRef" class="tooltips" :class="{ 'tooltips-left': !tooltipsOther, 'tooltips-right': tooltipsOther, 'tooltips-pinned': tooltipsPinned }">
+      <template v-for="tooltip in tooltips">
+        <!-- NODE -->
+        <tooltip-node v-if="['node'].includes(tooltip.node.type)"
+          :key="`tooltip-${tooltip.node.type}-${tooltip.node.id}`" :id="tooltip.node.id"
+          class="mb-3"
+        />
+        <!-- SWITCH -->
+        <tooltip-switch v-else-if="['switch', 'unknown'].includes(tooltip.node.type)"
+          :key="`tooltip-${tooltip.node.type}-${tooltip.node.id}`" :id="tooltip.node.id"
+          :properties="tooltip.node.properties"
+          class="mb-3"
+        />
+        <!-- SWITCH GROUP -->
+        <tooltip-switch-group v-else-if="['switch-group'].includes(tooltip.node.type)"
+          :key="`tooltip-${tooltip.node.type}-${tooltip.node.id}`" :id="tooltip.node.id"
+          :properties="tooltip.node.properties"
+          class="mb-3"
+        />
+        <!-- PACKETFENCE -->
+        <tooltip-packetfence v-else-if="['packetfence'].includes(tooltip.node.type)"
+          :key="`tooltip-${tooltip.node.type}`" :id="tooltip.node.type"
+          class="mb-3"
+        />
+      </template>
     </div>
 
     <!-- legend -->
-    <div v-if="!lastX && !lastY" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${config.padding}px` }">
+    <div v-if="!lastX && !lastY && !(tooltips.length && tooltipsOther)" :class="[ 'legend', config.legendPosition ]" :style="{ padding: `${config.padding}px` }">
       <ul class="mb-0">
         <li v-for="legend in legends" :key="`legend-${legend.color}`" :class="legend.color">{{ legend.text }} <span v-if="legend.count > 0">({{ legend.count }})</span></li>
       </ul>
@@ -317,6 +335,8 @@ import useTooltips from '../_composables/useTooltips'
 
 const setup = props => {
 
+  const svgContainer = ref(null) // component ref
+
   const {
     options,
     dimensions,
@@ -339,11 +359,12 @@ const setup = props => {
     force
   } = useSimulation(props, config, localNodes, localLinks)
 
-  // initialize simulation
+  // init simulation
   init()
 
   // watch `dimensions` prop and rebuild simulation forces on resize
   watch(dimensions, () => {
+console.log('!dimensions', JSON.stringify(dimensions.value, null, 2))
     const { width = 0, height = 0 } = dimensions.value
     // adjust fixed nodes x, y
     localNodes.value.forEach((node, index) => {
@@ -352,11 +373,8 @@ const setup = props => {
         localNodes.value[index].fy = height / 2
       }
     })
-    nextTick(() => {
-      force()
-      start()
-    })
-  }, { deep: true, imediate: true })
+    nextTick(() => force())
+  }, { deep: true })
 
   const {
     zoom,
@@ -388,15 +406,18 @@ const setup = props => {
   } = useColor(props, config)
 
   const {
+    tooltipsRef,
     coordBounded,
-    localTooltips,
     tooltips,
-    tooltipAnchorAttrs,
+    tooltipsLines,
+    tooltipsOther,
+    tooltipsPinned,
     highlight,
     highlightNodeId,
     highlightedLinks,
+    mouseDownNode,
     mouseOverNode,
-    mouseOutNode
+    mouseOutNode,
   } = useTooltips(props, config, bounds, viewBox, localNodes, localLinks)
 
   const legends = computed(() => {
@@ -509,7 +530,6 @@ const setup = props => {
 
   // watch `node` prop and rebuild private `localNodes` data on change
   watch(nodes, (a, b) => {
-    stop() // stop simulation
     // build lookup maps to determine insert/update/delete
     const $a = a.reduce((map, node, index) => { // build id => index object map
       map[node.id] = index; return map
@@ -559,8 +579,11 @@ const setup = props => {
     simulation.value.nodes(localNodes.value) // push nodes to simulation
     nextTick(() => {
       force() // reset forces
-      start() // start simulation
     })
+    // if pinned, unpin if node missing
+    if (tooltipsPinned.value && localNodes.value.filter(node => node.id === tooltipsPinned.value).length === 0) {
+      mouseDownNode()
+    }
   }, { deep: true, immediate: true })
 
   // watch `link` prop and rebuild private `localLinks` data on change
@@ -599,9 +622,14 @@ const setup = props => {
         } while ('source' in source && (source = source.source) && (++depth))
       })
     localLinks.value = _links
-  }, { deep: true, immediate: true })
+  }, { deep: true })
+
+  watch(viewBox, () => {
+    mouseDownNode() // unpin tooltips
+  }, { deep: true })
 
   return {
+    svgContainer,
     config,
     localNodes,
     localLinks,
@@ -648,13 +676,16 @@ const setup = props => {
     color,
 
     // useTooltips
+    tooltipsRef,
     coordBounded,
-    localTooltips,
     tooltips,
-    tooltipAnchorAttrs,
+    tooltipsLines,
+    tooltipsOther,
+    tooltipsPinned,
     highlight,
     highlightNodeId,
     highlightedLinks,
+    mouseDownNode,
     mouseOverNode,
     mouseOutNode,
   }

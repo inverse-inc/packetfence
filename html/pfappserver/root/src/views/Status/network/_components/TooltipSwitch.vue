@@ -1,5 +1,6 @@
 <template>
-  <b-card no-body class="tooltip-switch">
+  <b-card ref="rootRef"
+    no-body class="tooltip-switch" :id="`tooltip-${id}`">
     <b-card-header class="p-2">
       <h5 class="mb-0 text-nowrap">{{ $t('Switch') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
@@ -44,16 +45,23 @@ const props = {
 import { ref, toRefs, watch } from '@vue/composition-api'
 import apiCall from '@/utils/api'
 
-const setup = props => {
+const setup = (props, context) => {
 
   const {
     id,
     properties
   } = toRefs(props)
 
+  const { emit } = context
+
   const switche = ref(false)
   const isLoading = ref(false)
   const isError = ref(false)
+
+  const rootRef = ref(null) // component ref
+  watch([rootRef, switche], () => {
+    emit('bounds', rootRef.value.getBoundingClientRect())
+  })
 
   watch([id, properties], () => {
     if (id.value !== 'unknown') {
@@ -78,6 +86,7 @@ const setup = props => {
   }, { immediate: true })
 
   return {
+    rootRef,
     switche,
     isLoading,
     isError

@@ -45,6 +45,7 @@ export const useQuerySelectorAll = (el, selector) => {
   const result = ref(null)
   useMutationObserver(
     () => {
+console.log({el})
       const { value, value: { $el } = {} } = el || {}
       return $el || value || el
     },
