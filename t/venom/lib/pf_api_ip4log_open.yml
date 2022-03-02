@@ -1,0 +1,20 @@
+executor: pf_api_ip4log_open
+input:
+  body: {}
+  id: ""
+  method: GET
+  status_code: 200
+steps:
+- type: mac_address_url_encoder
+  mac_address: "{{.input.id}}"
+
+- type: pf_api_action
+  body: '{{.input.body}}'
+  method: "{{.input.method}}"
+  status_code: "{{.input.status_code}}"
+  url: 'ip4logs/open/{{.result.mac_address_url_encoded}}'
+  vars:
+    node_temp:
+      from: result.pf_api_action_
+output:
+  pf_api_ip4log_open_: "{{.node_temp}}"
