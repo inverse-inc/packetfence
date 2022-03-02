@@ -6,6 +6,8 @@
     </p>
     <base-button-service service="haproxy-portal" restart start stop
       :disabled="isLoading" class="mr-1" size="sm"/>
+    <base-button-service service="httpd.portal" restart start stop
+      :disabled="isLoading" class="mr-1" size="sm"/>
   </b-alert>
 </template>
 <script>

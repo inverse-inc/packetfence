@@ -56,8 +56,8 @@
     />
 
     <form-group-status-only-on-production namespace="status_only_on_production"
-      :column-label="$i18n.t('Status URI only on production network')"
-      :text="$i18n.t('When enabled the /status page will only be available on the production network. By default this is disabled.')"
+      :column-label="$i18n.t('Status URI only on management interface')"
+      :text="$i18n.t('When enabled the /status page will only be available when accessed on the management interface. Requires to restart httpd.portal in order to apply the change.')"
     />
 
     <form-group-detection-mecanism-bypass namespace="detection_mecanism_bypass"
