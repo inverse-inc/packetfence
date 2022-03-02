@@ -1,4 +1,4 @@
-name: Check firewall sso start
+name: Check firewall SSO Start
 testcases:
 
 - name: check_mock_history_request
@@ -12,6 +12,8 @@ testcases:
       - result.systemoutjson.path ShouldEqual "/api/"
       - result.systemoutjson.method ShouldEqual "POST"
       - result.systemoutjson.query_params.key ShouldEqual [{{.firewall_sso.https.password}}]
+    retry: 5
+    delay: 1
 
 - name: check_mock_history_request_body_string
   steps:
