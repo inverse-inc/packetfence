@@ -1,0 +1,4 @@
+executor: pfcmd_fingerbank_clear_cache
+steps:
+  - type: pfcmd_run_command
+    command: 'cache fingerbank clear'
