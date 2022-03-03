@@ -80,10 +80,6 @@ testcases:
           ]
         }
       }
-
-    info:
-      - "{{.result.pf_api_action_}}"
-      - "{{.result.pf_api_action_json.items.items0.id}}"
     assertions:
       - result.pf_api_action_json.items.items0 ShouldContainKey id
     vars:
