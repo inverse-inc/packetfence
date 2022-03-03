@@ -26,16 +26,6 @@ case "$1" in
 
     remove)
 
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
-            if [ -x /etc/init.d/packetfence-config ]; then
-                invoke-rc.d packetfence-config stop
-            fi
-            if [ -e /etc/lsb-release ]; then
-                update-rc.d -f packetfence-config remove > /dev/null 2>&1
-            else
-                update-rc.d packetfence-config remove > /dev/null 2>&1
-            fi
-        fi
     ;;
     purge)
     ;;

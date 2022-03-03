@@ -23,18 +23,6 @@ case "$1" in
     ;;
 
     remove)
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
-            if [ -x "/etc/init.d/packetfence-redis-cache" ]; then
-                if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                    invoke-rc.d packetfence-redis-cache stop || exit $?
-                else
-                    /etc/init.d/packetfence-redis-cache stop || exit $?
-                fi
-            fi
-        fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-            systemctl stop packetfence-redis-cache
-        fi
     ;;
 
 # End automatically added sectio
