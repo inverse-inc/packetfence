@@ -97,10 +97,6 @@ case "$1" in
 
 
         /sbin/ldconfig
-        # Enabling ip forwarding
-        echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
-        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
-        sysctl -p /etc/sysctl.d/99-ip_forward.conf
  
         #Starting PacketFence.
         #removing old cache
