@@ -69,4 +69,4 @@ steps:
 
 - type: pf_api_source_action
   method: GET
-  id: "{{.input.id}}"
+  id: "{{.input.id_t}}"
