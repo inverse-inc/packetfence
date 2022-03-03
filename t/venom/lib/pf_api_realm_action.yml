@@ -4,7 +4,7 @@ input:
   id: ""
   method: ""
   status_code: 200
-  time_to_sleep: 5
+  time_to_sleep: 0
 steps:
 - type: pf_api_action
   body: '{{.input.body}}'

@@ -14,7 +14,7 @@ input:
   days: ""
   key_size: ""
   ocsp_url: ""
-  time_to_sleep: 5
+  time_to_sleep: 0
 steps:
 - type: get_login_token
 

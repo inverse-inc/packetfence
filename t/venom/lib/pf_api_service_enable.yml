@@ -1,7 +1,7 @@
 executor: pf_api_service_enable
 input:
   service: ""
-  time_to_sleep: 5
+  time_to_sleep: 0
 steps:
 - type: pf_api_service_action
   method: POST

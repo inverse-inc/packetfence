@@ -11,7 +11,7 @@ steps:
 
 # let service restarts
 - type: sleep
-  time_to_sleep: 5
+  time_to_sleep: 0
 
 # check service status
 - type: systemctl_service_status

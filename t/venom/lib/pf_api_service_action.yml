@@ -5,7 +5,7 @@ input:
   method: ""
   service: ""
   status_code: ""
-  time_to_sleep: 5
+  time_to_sleep: 0
 steps:
 - type: pf_api_action
   body: '{{.input.body}}'
