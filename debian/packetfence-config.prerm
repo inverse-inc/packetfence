@@ -23,18 +23,6 @@ case "$1" in
     ;;
 
     remove)
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
-            if [ -x "/etc/init.d/packetfence-config" ]; then
-                if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                    invoke-rc.d packetfence-config stop || exit $?
-                else
-                    /etc/init.d/packetfence-config stop || exit $?
-                fi
-            fi
-        fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-            systemctl stop packetfence-config || exit $?
-        fi
     ;;
 
 # End automatically added sectio

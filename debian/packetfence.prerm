@@ -23,20 +23,6 @@ case "$1" in
     ;;
 
     remove)
-        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
-            if [ -x "/etc/init.d/packetfence" ]; then
-                if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                    invoke-rc.d packetfence stop || exit $?
-                else
-                        /etc/init.d/packetfence stop || exit $?
-                fi
-            fi
-        fi
-        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-            systemctl stop packetfence-haproxy-admin
-            systemctl set-default multi-user.target
-            systemctl isolate multi-user.target
-        fi
     ;;
 
 # End automatically added sectio
