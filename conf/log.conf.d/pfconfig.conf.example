@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 ### pfdns logger ###
-log4perl.rootLogger = INFO, PFCONFIG
+log4perl.rootLogger = ERROR, PFCONFIG
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
