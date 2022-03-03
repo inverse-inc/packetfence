@@ -68,9 +68,10 @@ sub get_socket {
 
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    $socket = IO::Socket::UNIX->new(
-        Type => SOCK_STREAM,
-        Peer => $socket_path,
+    $socket = IO::Socket::INET->new(
+        PeerHost => "127.0.0.1",
+        PeerPort => "44444",
+        Proto => "tcp",
     );
 
     return $socket;

@@ -57,10 +57,12 @@ sub fetch_decode_socket {
 
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    $socket = IO::Socket::UNIX->new(
-        Type => SOCK_STREAM,
-        Peer => $socket_path,
+    $socket = IO::Socket::INET->new(
+        PeerHost => "127.0.0.1",
+        PeerPort => "44444",
+        Proto => "tcp",
     );
+	die "cannot connect to the server $!n" unless $socket;
 
     my $decoder = Sereal::Decoder->new;
     my $response = fetch_socket($socket, $payload);
