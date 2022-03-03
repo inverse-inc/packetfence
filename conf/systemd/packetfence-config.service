@@ -7,7 +7,8 @@ Wants=packetfence-redis-cache.service
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/bin/bash -c "cd /usr/local/pf/ && docker run -v/usr/local/pf/conf:/usr/local/pf/conf -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock -p 44444:44444 --rm -ti $(docker build -q -f docker/pfconfig/Dockerfile .)"
+ExecStart=/bin/bash -c "cd /usr/local/pf/ && docker container rm -f pfconfig && docker run --sig-proxy=true -v/usr/local/pf/conf:/usr/local/pf/conf -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock -p 44444:44444 --rm -ti --name=pfconfig $(docker build -q -f docker/pfconfig/Dockerfile .)"
+ExecStop=docker stop pfconfig
 Slice=packetfence-base.slice
 Restart=on-failure
 TimeoutStopSec=5
