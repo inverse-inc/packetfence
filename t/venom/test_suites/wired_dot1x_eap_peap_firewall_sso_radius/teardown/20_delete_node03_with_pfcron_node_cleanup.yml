@@ -2,5 +2,5 @@ name: Delete node03 by running pfcron node_cleanup task
 testcases:
 - name: delete_node03_with_pfcron_node_cleanup
   steps:
-  - type: run_pfcmd_command
+  - type: pfcmd_run_command
     command: "pfcron node_cleanup"

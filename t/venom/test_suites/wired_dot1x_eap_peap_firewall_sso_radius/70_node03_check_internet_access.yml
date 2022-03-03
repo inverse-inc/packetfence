@@ -2,6 +2,6 @@ name: Check internet access on node03
 testcases:
 - name: check_host_internet_access
   steps:
-  - type: check_host_internet_access
+  - type: check_internet_access_on_host
     host: "{{.node03_mgmt_ip}}"
 

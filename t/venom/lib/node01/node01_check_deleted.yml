@@ -1,4 +1,4 @@
-executor: mode01_check_deleted 
+executor: node01_check_deleted
 steps:
 - type: pf_api_node_status
   id: "{{.node01_ens7_mac_address}}"
