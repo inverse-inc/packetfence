@@ -5,13 +5,12 @@ After=network.target packetfence-redis-cache.service
 Wants=packetfence-redis-cache.service
 
 [Service]
-Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/usr/local/pf/sbin/pfconfig 
-User=pf
+ExecStart=/bin/bash -c "cd /usr/local/pf/ && docker run -v/usr/local/pf/conf:/usr/local/pf/conf -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock -p 44444:44444 --rm -ti $(docker build -q -f docker/pfconfig/Dockerfile .)"
 Slice=packetfence-base.slice
 Restart=on-failure
+TimeoutStopSec=5
 
 [Install]
 WantedBy=packetfence-base.target
