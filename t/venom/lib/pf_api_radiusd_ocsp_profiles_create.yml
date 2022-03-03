@@ -24,4 +24,4 @@ steps:
     }
 
 output:
-  - pf_api_radiusd_ocsp_profiles_create: "{{.result.pf_api_action_}}"
+  - pf_api_radiusd_ocsp_profiles_create_: "{{.result.pf_api_action_}}"
