@@ -122,6 +122,11 @@ Finally, enable the necessary 802.1X and VOIP settings on each interface:
     lldp med network-policy add 1
     lldp med network-policy add 2
 
+
+===== 802.1X commands
+
+  show dot1x supplicant brief
+
 ==== GS950
 
 PacketFence supports the GS950 switch using :
