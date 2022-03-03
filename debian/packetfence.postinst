@@ -95,28 +95,6 @@ case "$1" in
             echo "pf.conf already exists, won't touch it!"
         fi
 
-        # managing services
-        set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
-
-            if [ -e "/etc/init.d/"$service ] ; then
-                invoke-rc.d $service stop  > /dev/null 2>&1
-                if [ -e /etc/lsb-release ]; then
-                    update-rc.d -f $service remove > /dev/null 2>&1
-                else
-                    update-rc.d $service remove > /dev/null 2>&1
-                fi
-            fi
-            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-                if [ -e "/lib/systemd/system/"$service".service" ] ; then
-                    systemctl stop $service
-                    systemctl disable $service
-                fi
-            fi
-
-        done
-        set -e
-
 
         /sbin/ldconfig
         # Enabling ip forwarding
@@ -127,55 +105,6 @@ case "$1" in
         #Starting PacketFence.
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
-        # Start packetfence web administration
-        if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
-	    echo "This is an upgrade on a clustered system. We don't change the default systemd target."
-        else
-            echo "Setting packetfence.target as the default systemd target."
-           /bin/systemctl set-default packetfence.target
-        fi
-        echo "Restarting journald to enable persistent logging"
-        /bin/systemctl restart systemd-journald
-
-        systemctl enable packetfence-mariadb
-        systemctl enable packetfence-redis-cache
-        systemctl enable packetfence-config
-        systemctl disable packetfence-iptables
-        systemctl enable packetfence-haproxy-admin
-        systemctl enable packetfence-tracking-config.path
-        systemctl daemon-reload
-        systemctl isolate packetfence-base.target
-
-        echo "Restarting rsyslog"
-        systemctl restart rsyslog
-
-        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-        set +e
-        /usr/local/pf/bin/pfcmd configreload
-        /usr/local/pf/bin/pfcmd fixpermissions
-        echo "Starting PacketFence Administration GUI..."
-        /bin/systemctl start packetfence-httpd.admin_dispatcher
-        /bin/systemctl start packetfence-haproxy-admin
-        systemctl enable packetfence-iptables
-        /usr/local/pf/bin/pfcmd service pf updatesystemd
-        if [ ${DIST} = "stretch" ]; then
-            set +e
-            /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
-            /usr/bin/mysql -uroot -e "flush privileges"
-            set -e
-        fi
-        if [ ${DIST} = "bullseye" ]; then
-            set +e
-            /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
-            set -e
-        fi
-
-        # Install the monitoring scripts signing key
-        echo "Install the monitoring scripts signing key"
-        gpg --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
-
-        # Remove the monit service from the multi-user target if its there
-        rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
