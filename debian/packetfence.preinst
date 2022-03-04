@@ -64,6 +64,8 @@ case "$1" in
         usermod -aG pf mysql
         usermod -aG pf netdata
 
+        env
+
         exit 0
     ;;
     
