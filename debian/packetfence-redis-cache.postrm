@@ -25,6 +25,18 @@ case "$1" in
     ;;
 
     remove)
+        if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
+        #Stop packetfence-redis-cache
+            if [ -x /etc/init.d/packetfence-redis-cache ]; then
+                invoke-rc.d packetfence-redis-cache stop
+	    fi
+        # removing init scripts
+            if [ -e /etc/lsb-release ]; then
+                update-rc.d -f packetfence-redis-cache remove > /dev/null 2>&1
+            else
+                update-rc.d packetfence-redis-cache remove > /dev/null 2>&1
+            fi
+        fi
     ;;
     purge)
     ;;
