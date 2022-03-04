@@ -72,7 +72,7 @@ sub get_socket {
         PeerHost => "127.0.0.1",
         PeerPort => "44444",
         Proto => "tcp",
-    );
+    ) || $self->logger->error("Failed to connect to pfconfig TCP socket: $!");
 
     return $socket;
 }
