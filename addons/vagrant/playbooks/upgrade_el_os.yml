@@ -11,6 +11,10 @@
         state: 'present'
         update_cache: yes
       when: ansible_os_family == 'RedHat'
+      register: upgrade_el_os_register_pkg
+      retries: 3
+      delay: 1
+      until: upgrade_el_os_register_pkg is successful
 
     - name: update to latest OS version (EL)
       yum:
