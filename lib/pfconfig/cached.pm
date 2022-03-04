@@ -42,6 +42,8 @@ use pf::Sereal qw($DECODER);
 use pfconfig::config;
 use bytes;
 
+our $LAST_TOUCH_CACHE = 0;
+our $RELOADED_TOUCH_CACHE = 0;
 
 =head2 new
 
@@ -234,6 +236,8 @@ sub _get_from_socket {
             print STDERR $@;
             print STDERR "$what $response";
         }
+        $LAST_TOUCH_CACHE = $result->{last_touch_cache};
+        $RELOADED_TOUCH_CACHE = time;
     }
     else {
         $result = undef;
@@ -245,35 +249,32 @@ sub _get_from_socket {
 =head2 is_valid
 
 Method that is used to determine if the object has been refreshed in pfconfig
-Uses the control files in var/control and the memorized_at hash to know if a namespace has expired
 
 =cut
 
 sub is_valid {
-    #TODO: this must be removed after the testing
-    return 0;
     my ($self)         = @_;
     my $logger         = $self->logger;
     my $what           = $self->{_namespace};
-    my $control_file   = $self->{_control_file_path};
-    my $file_timestamp = (  stat($control_file) )[9];
 
-    unless ( defined($file_timestamp) ) {
-        $logger->warn("Filesystem timestamp is not set for $what. Considering memory as invalid.");
-        return 0;
-    }
+    my $phone_in_at_least = $pfconfig::constants::LAST_TOUCH_CACHE_STALENESS;
 
     my $memory_timestamp = $self->{memorized_at} // 0;
 
-#$logger->trace("Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what");
-# if the timestamp of the file is after the one we have in memory
-# then we are expired
-    if ( $memory_timestamp >= $file_timestamp ) {
-        $logger->trace( sub { "Memory configuration is still valid for key $what in local cached_hash" });
+    if($LAST_TOUCH_CACHE == 0) {
+        $logger->info("Memory configuration was never loaded. Considering $what as invalid do the initial load.");
+        return 0;
+    }
+    elsif ( (time - $RELOADED_TOUCH_CACHE) > $phone_in_at_least ) {
+        $logger->info("LAST_TOUCH_CACHE is more than $phone_in_at_least seconds old. Considering $what as invalid to reload it.");
+        return 0;
+    }
+    elsif ( $memory_timestamp >= $LAST_TOUCH_CACHE ) {
+        $logger->trace( sub { "Memory configuration is still valid for key $what in local cached object" });
         return 1;
     }
     else {
-            $logger->debug("Memory configuration is not valid anymore for key $what in local cached_hash");
+        $logger->info("Memory configuration is not valid anymore for key $what in local cached object");
         return 0;
     }
 }
