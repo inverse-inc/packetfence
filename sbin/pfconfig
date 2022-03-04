@@ -117,13 +117,23 @@ unlink($socket_path);
 #Ensure that the file permissions of the socket is correct 0770
 umask(0007);
 
-my $listner = IO::Socket::INET->new(
-   LocalHost => '0.0.0.0',
-   LocalPort => '44444',
-   Proto => 'tcp',
-   Listen => 5,
-   Reuse => 1
-) or die("Can't create server socket: $!\n");
+my $listner;
+
+if(pfconfig::config->new->get_proto eq "tcp") {
+    $listner = IO::Socket::INET->new(
+       LocalHost => '0.0.0.0',
+       LocalPort => '44444',
+       Proto => 'tcp',
+       Listen => 5,
+       Reuse => 1
+    ) or die("Can't create server socket: $!\n");
+} else {
+	$listner = IO::Socket::UNIX->new(
+	   Type   => SOCK_STREAM,
+	   Local  => $socket_path,
+	   Listen => SOMAXCONN,
+	) or die("Can't create server socket: $!\n");
+}
 
 umask(0);
 

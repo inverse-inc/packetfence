@@ -55,13 +55,24 @@ sub fetch_socket {
 sub fetch_decode_socket {
     my ($payload) = @_;
 
+	# TODO: better to store this on boot and reuse it instead of computing it each time
+	my $proto = pfconfig::config->new->get_proto();
+
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    $socket = IO::Socket::INET->new(
-        PeerHost => "127.0.0.1",
-        PeerPort => "44444",
-        Proto => "tcp",
-    );
+    if(${proto} eq "tcp") {
+        $socket = IO::Socket::INET->new(
+            PeerHost => "127.0.0.1",
+            PeerPort => "44444",
+            Proto => "tcp",
+        );
+    }
+    else {
+		$socket = IO::Socket::UNIX->new(
+			Type => SOCK_STREAM,
+			Peer => $socket_path,
+		);
+    }
 	die "cannot connect to the server $!n" unless $socket;
 
     my $decoder = Sereal::Decoder->new;
