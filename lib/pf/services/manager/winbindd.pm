@@ -52,6 +52,7 @@ sub generateConfig {
 sub _refresh_domains {
     my ($self) = @_;
     pfconfig::manager->new->expire("config::Domain");
+    pfconfig::util::socket_expire(namespace => $namespace, light => 1);
 }
 
 sub build_namespaces(){

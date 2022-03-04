@@ -860,6 +860,7 @@ sub configreload {
     require pfconfig::manager;
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
+    pfconfig::util::socket_expire(light => 1);
     load_configdata_into_db();
     return ;
 }

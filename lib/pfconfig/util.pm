@@ -26,6 +26,7 @@ use pfconfig::constants;
 use IO::Socket::UNIX;
 use Sereal::Decoder;
 use Readonly;
+use JSON::MaybeXS qw(encode_json);
 
 our @EXPORT_OK = qw(
     is_type_inline
@@ -79,6 +80,20 @@ sub fetch_decode_socket {
     my $response = fetch_socket($socket, $payload);
     return $decoder->decode($response);
 
+}
+
+sub socket_expire {
+    my (%opts) = @_;
+    my $namespace = $opts{namespace} // "__all__";
+    my $light = $opts{light} // 0;
+    my $payload = {
+        method => "expire",
+        namespace => $namespace,
+        light => $light,
+    };
+    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload));
+    use Data::Dumper ; print Dumper($response);
+    return $response->{status} eq "OK.";
 }
 
 sub parse_namespace {

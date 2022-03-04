@@ -210,6 +210,7 @@ sub init_cache {
     $self->{cache} = pfconfig::config->new->get_backend;
     $self->{memory}       = {};
     $self->{memorized_at} = {};
+    $self->{last_touch_cache} = time;
 }
 
 =head2 touch_cache
@@ -226,6 +227,7 @@ sub touch_cache {
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
     touch_file($filename);
+    $self->{last_touch_cache} = time;
 }
 
 =head2 get_cache

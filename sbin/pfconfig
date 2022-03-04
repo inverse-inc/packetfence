@@ -413,6 +413,7 @@ sub encode_output {
 
 sub send_output {
     my ($data, $socket) = @_;
+    $data->{last_touch_cache} = $cache->{last_touch_cache};
     my $encoded_data = encode_output($data);
     my $bytes_to_send = length($encoded_data);
     my $bytes_sent  = send_data_with_length($socket,$encoded_data);
