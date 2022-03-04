@@ -30,7 +30,7 @@ use pfconfig::manager;
 use pfconfig::util;
 use pfconfig::cached;
 use Data::Dumper;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::constants;
 use base qw(pf::base::cmd::action_cmd);
 
@@ -68,6 +68,10 @@ sub action_expire {
     $self->verify_namespace($namespace);
     my $manager = pfconfig::manager->new;
     $manager->expire($namespace);
+    if(!pfconfig::util::socket_expire(namespace => $namespace, light => 1)) {
+        print STDERR "Failed to expire $namespace via pfconfig socket\n";
+        return $EXIT_FAILURE;
+    }
     return $EXIT_SUCCESS;
 }
 
@@ -81,6 +85,10 @@ sub action_reload {
     my ($self) = @_;
     my $manager = pfconfig::manager->new;
     $manager->expire_all();
+    if(!pfconfig::util::socket_expire(light => 1)) {
+        print STDERR "Failed to complete expiration via pfconfig socket\n";
+        return $EXIT_FAILURE;
+    }
     return $EXIT_SUCCESS;
 }
 
