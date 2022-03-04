@@ -39,6 +39,7 @@ use pfconfig::constants;
 use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
 use pf::Sereal qw($DECODER);
+use pfconfig::config;
 use bytes;
 
 
@@ -51,9 +52,6 @@ Creates the object but shouldn't be used since it's made as an interface to use 
 sub new {
     my ($class, @args) = @_;
     my $self = bless {}, $class;
-
-	# TODO: better to store this on boot and reuse it instead of computing it each time
-	$self->{proto} = pfconfig::config->new->get_proto;
 
     $self->init(@args);
 
@@ -99,6 +97,8 @@ sub init {
     my ($self) = @_;
     $self->{element_socket_method} = "override-me";
 
+	# TODO: better to store this on boot and reuse it instead of computing it each time
+	$self->{proto} = pfconfig::config->new->get_proto;
 }
 
 =head2 get_from_subcache
@@ -250,6 +250,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 =cut
 
 sub is_valid {
+    #TODO: this must be removed after the testing
     return 0;
     my ($self)         = @_;
     my $logger         = $self->logger;
