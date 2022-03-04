@@ -1,0 +1,32 @@
+executor: pf_api_nodes_search_mac_address_online
+input:
+  mac_address: ""
+  time_to_sleep: 0
+steps:
+- type: pf_api_nodes_search
+  body: >-
+    {
+      "cursor": 0,
+      "fields": [
+        "online"
+      ],
+      "limit": 1,
+      "query": {
+        "op": "and",
+        "values": [
+          {
+            "op": "or",
+            "values": [
+              {
+                "field": "mac",
+                "op": "equals",
+                "value": "{{.input.mac_address}}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  time_to_sleep: "{{.input.time_to_sleep}}"
+output:
+  pf_api_nodes_search_mac_address_online_: "{{.result.pf_api_nodes_search_}}"

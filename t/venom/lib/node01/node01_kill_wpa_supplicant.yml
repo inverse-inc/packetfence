@@ -1,0 +1,5 @@
+executor: node01_kill_wpasupplicant
+steps:
+- type: wpasupplicant_kill_on_host
+  host: '{{.node01_mgmt_ip}}'
+  user: '{{.ssh_user}}'

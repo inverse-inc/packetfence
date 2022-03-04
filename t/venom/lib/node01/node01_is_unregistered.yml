@@ -1,0 +1,4 @@
+executor: node01_is_unregistered
+steps:
+- type: pf_api_node_is_unregistered
+  id: "{{.node01_ens7_mac_address}}"

@@ -1,0 +1,21 @@
+executor: cumulus_api_command_line_without_output
+input:
+  user: ""
+  password: ""
+  url: ""
+  cmd: ""
+steps:
+- type: http
+  method: POST
+  basic_auth_user: "{{.input.user}}"
+  basic_auth_password: "{{.input.password}}"
+  url: "{{.input.url}}"
+  ignore_verify_ssl: true
+  body: >-
+    {
+      "cmd": "{{.input.cmd}}"
+    }
+  headers:
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200

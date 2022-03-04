@@ -1,0 +1,8 @@
+name: Run wpasupplicant on node01
+testcases:
+  - name: run_wpasupplicant
+    steps:
+      - type: wpasupplicant_run_on_host
+        host: '{{.node01_mgmt_ip}}'
+        user: '{{.ssh_user}}'
+        wpa_type: wired_dot1x_eap_tls

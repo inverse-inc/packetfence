@@ -1,0 +1,9 @@
+executor: wpasupplicant_kill_on_host
+input:
+  host: ""
+  user: ""
+steps:
+- type: venom_wrapper_command_on_host 
+  host: "{{.input.host}}"
+  user: "{{.input.user}}"
+  test_suite_path: /usr/local/pf/t/venom/test_suites/common/wpasupplicant_kill.yml

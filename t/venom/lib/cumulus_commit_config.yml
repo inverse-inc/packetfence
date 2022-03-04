@@ -1,0 +1,11 @@
+executor: cumulus_commit_config 
+input:
+  password: {}
+  url: {}
+  user: {}
+steps:
+- type: cumulus_api_command_line_without_output
+  user: "{{.input.user}}"
+  password: "{{.input.password}}"
+  url: '{{.input.url}}'
+  cmd: "commit"

@@ -1,0 +1,6 @@
+executor: switch01_commit_config 
+steps:
+- type: cumulus_commit_config
+  password: "{{.switch01.api.password}}"
+  user: "{{.switch01.api.user}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'

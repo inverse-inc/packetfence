@@ -1,9 +1,11 @@
 executor: pf_api_service_status
 input:
-  service: {}
+  service: ""
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
   action: "status"
-  output:
-    postjson: "{{.result.postjson}}"
+  time_to_sleep: 0
+  method: GET
+output:
+  pf_api_service_status_: "{{.result.pf_api_service_action_}}"

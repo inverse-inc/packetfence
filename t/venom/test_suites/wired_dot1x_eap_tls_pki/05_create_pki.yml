@@ -1,0 +1,149 @@
+name: Create PKI
+testcases:
+- name: create_root_ca
+  steps:
+  - type: pf_api_pki_cas
+    cn: "{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}"
+    mail: "{{.wired_dot1x_eap_tls_pki.certs.ca.mail}}"
+    organisational_unit: "{{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}"
+    organisation: "{{.wired_dot1x_eap_tls_pki.certs.organisation}}"
+    country: "{{.wired_dot1x_eap_tls_pki.certs.country}}"
+    state: "{{.wired_dot1x_eap_tls_pki.certs.state}}"
+    locality: "{{.wired_dot1x_eap_tls_pki.certs.locality}}"
+    key_type: "{{.wired_dot1x_eap_tls_pki.certs.key_type}}"
+    digest: "{{.wired_dot1x_eap_tls_pki.certs.digest.number}}"
+    key_usage: ""
+    extended_key_usage: ""
+    days: "{{.wired_dot1x_eap_tls_pki.certs.validity}}"
+    key_size: "{{.wired_dot1x_eap_tls_pki.certs.key_size}}"
+    ocsp_url: "{{.wired_dot1x_eap_tls_pki.certs.ocsp_url}}"
+    vars:
+      ca_id:
+        from: result.pf_api_pki_cas_id
+
+### RADIUS certificate part
+- name: create_pf_radius_cert_template
+  steps:
+  - type: pf_api_pki_profiles
+    ca_id: "{{.create_root_ca.ca_id}}"
+    name: "{{.wired_dot1x_eap_tls_pki.templates.radius.name}}"
+    validity: "{{.wired_dot1x_eap_tls_pki.certs.validity}}"
+    key_type: "{{.wired_dot1x_eap_tls_pki.certs.key_type}}"
+    digest: "{{.wired_dot1x_eap_tls_pki.certs.digest.number}}"
+    key_usage: ""
+    extended_key_usage: "1"
+    key_size: "{{.wired_dot1x_eap_tls_pki.certs.key_size}}"
+    organisational_unit: "{{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}"
+    organisation: "{{.wired_dot1x_eap_tls_pki.certs.organisation}}"
+    country: "{{.wired_dot1x_eap_tls_pki.certs.country}}"
+    state: "{{.wired_dot1x_eap_tls_pki.certs.state}}"
+    locality: "{{.wired_dot1x_eap_tls_pki.certs.locality}}"
+    ocsp_url: "{{.wired_dot1x_eap_tls_pki.certs.ocsp_url}}"
+    vars:
+      profiles_id:
+        from: result.pf_api_pki_profiles_id
+
+- name: create_pf_radius_cert
+  steps:
+  - type: pf_api_pki_certs
+    profile_id: "{{.create_pf_radius_cert_template.profiles_id}}"
+    cn: "{{.wired_dot1x_eap_tls_pki.certs.radius.cn}}"
+    mail: "{{.wired_dot1x_eap_tls_pki.certs.radius.mail}}"
+    dns_names: "{{.wired_dot1x_eap_tls_pki.certs.radius.dns_names}}"
+    ip_addresses: "{{.wired_dot1x_eap_tls_pki.certs.radius.ip_addresses}}"
+    vars:
+      serial_number:
+        from: result.pf_api_pki_certs_id
+
+- name: extract_radius_certificates
+  steps:
+    - type: extract_certificates
+      cn: "{{.wired_dot1x_eap_tls_pki.certs.radius.cn}}"
+      cn_ca: "{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}"
+      cert_path: "/usr/local/pf/raddb/certs"
+      serial_number: "{{.create_pf_radius_cert.serial_number}}"
+
+### HTTP certificate part
+- name: create_pf_http_cert_template
+  steps:
+  - type: pf_api_pki_profiles
+    ca_id: "{{.create_root_ca.ca_id}}"
+    name: "{{.wired_dot1x_eap_tls_pki.templates.http.name}}"
+    validity: "{{.wired_dot1x_eap_tls_pki.certs.validity}}"
+    key_type: "{{.wired_dot1x_eap_tls_pki.certs.key_type}}"
+    digest: "{{.wired_dot1x_eap_tls_pki.certs.digest.number}}"
+    key_usage: ""
+    extended_key_usage: "1"
+    key_size: "{{.wired_dot1x_eap_tls_pki.certs.key_size}}"
+    organisational_unit: "{{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}"
+    organisation: "{{.wired_dot1x_eap_tls_pki.certs.organisation}}"
+    country: "{{.wired_dot1x_eap_tls_pki.certs.country}}"
+    state: "{{.wired_dot1x_eap_tls_pki.certs.state}}"
+    locality: "{{.wired_dot1x_eap_tls_pki.certs.locality}}"
+    ocsp_url: "{{.wired_dot1x_eap_tls_pki.certs.ocsp_url}}"
+    vars:
+      profiles_id:
+        from: result.pf_api_pki_profiles_id
+
+- name: create_pf_http_cert
+  steps:
+  - type: pf_api_pki_certs
+    profile_id: "{{.create_pf_http_cert_template.profiles_id}}"
+    cn: "{{.wired_dot1x_eap_tls_pki.certs.http.cn}}"
+    mail: "{{.wired_dot1x_eap_tls_pki.certs.http.mail}}"
+    dns_names: "{{.wired_dot1x_eap_tls_pki.certs.http.dns_names}}"
+    ip_addresses: "{{.wired_dot1x_eap_tls_pki.certs.http.ip_addresses}}"
+    vars:
+      serial_number:
+        from: result.pf_api_pki_certs_id
+
+- name: extract_http_certificates
+  steps:
+    - type: extract_certificates
+      cn: "{{.wired_dot1x_eap_tls_pki.certs.http.cn}}"
+      cn_ca: "{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}"
+      cert_path: "/usr/local/pf/conf/ssl"
+      serial_number: "{{.create_pf_http_cert.serial_number}}"
+
+### User certificate part
+- name: create_user_cert_template
+  steps:
+  - type: pf_api_pki_profiles_users
+    ca_id: "{{.create_root_ca.ca_id}}"
+    name: "{{.wired_dot1x_eap_tls_pki.templates.user.name}}"
+    validity: "{{.wired_dot1x_eap_tls_pki.certs.validity}}"
+    key_type: "{{.wired_dot1x_eap_tls_pki.certs.key_type}}"
+    digest: "{{.wired_dot1x_eap_tls_pki.certs.digest.number}}"
+    key_usage: ""
+    extended_key_usage: "2"
+    key_size: "{{.wired_dot1x_eap_tls_pki.certs.key_size}}"
+    organisational_unit: "{{.wired_dot1x_eap_tls_pki.certs.organisational_unit}}"
+    organisation: "{{.wired_dot1x_eap_tls_pki.certs.organisation}}"
+    country: "{{.wired_dot1x_eap_tls_pki.certs.country}}"
+    state: "{{.wired_dot1x_eap_tls_pki.certs.state}}"
+    locality: "{{.wired_dot1x_eap_tls_pki.certs.locality}}"
+    ocsp_url: "{{.wired_dot1x_eap_tls_pki.certs.ocsp_url}}"
+    scep_enabled: "{{.wired_dot1x_eap_tls_pki.certs.user.scep_enabled}}"
+    scep_challenge_password: "{{.wired_dot1x_eap_tls_pki.certs.user.scep_challenge_password}}"
+    scep_days_before_renewal: "{{.wired_dot1x_eap_tls_pki.certs.user.scep_days_before_renewal}}"
+    vars:
+      profiles_id:
+        from: result.pf_api_pki_profiles_id
+
+- name: create_user_cert
+  steps:
+  - type: pf_api_pki_certs
+    profile_id: "{{.create_user_cert_template.profiles_id}}"
+    cn: "packetfence"
+    mail: "{{.wired_dot1x_eap_tls_pki.certs.user.mail}}"
+    vars:
+      serial_number:
+        from: result.pf_api_pki_certs_id
+
+- name: extract_user_certificates
+  steps:
+    - type: extract_certificates_user
+      cn: "{{.wired_dot1x_eap_tls_pki.paths.per_client_directory}}"
+      cn_ca: "{{.wired_dot1x_eap_tls_pki.certs.ca.cn}}"
+      serial_number: "{{.create_user_cert.serial_number}}"
+      extract_directory: "{{.wired_dot1x_eap_tls_pki.paths.per_client_directory}}"

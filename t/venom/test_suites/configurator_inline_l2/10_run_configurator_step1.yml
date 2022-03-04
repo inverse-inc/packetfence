@@ -60,6 +60,14 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
+# necessary for EL to apply correctly IP address on interfaces not configured before configurator
+# These interfaces could be seen as "disconnected" by `nmcli` before restart
+# | true is to make command working on Debian (no NetworkManager installed)
+- name: restart_network_manager
+  steps:
+  - type: exec
+    script: "systemctl restart NetworkManager | true"
+
 - name: configure_dns_servers
   steps:
   - type: http

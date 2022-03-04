@@ -1,21 +1,25 @@
 executor: get_login_token
 input:
-  arg: {}
+  username: "{{.pfserver_default_admin_user}}"
+  password: "{{.pfserver_admin_password}}"
+  retry: 3
+  delay: 1
+  status_code: 200
 steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/login'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "username": "{{.pfserver_default_admin_user}}",
-        "password": "{{.pfserver_admin_password}}"
-      }      
-    headers:
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-    retry: 3
-    delay: 1
+- type: http
+  method: POST
+  url: '{{.pfserver_webadmin_url}}/api/v1/login'
+  ignore_verify_ssl: true
+  body: >-
+    {
+      "username": "{{.input.username}}",
+      "password": "{{.input.password}}"
+    }      
+  headers:
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual "{{.input.status_code}}"
+  retry: "{{.input.retry}}"
+  delay: "{{.input.delay}}"
 output: 
-   token: "{{.result.bodyjson.token}}"
+  token: "{{.result.bodyjson.token}}"

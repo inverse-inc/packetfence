@@ -1,0 +1,14 @@
+executor: customT
+steps:
+- type: http
+  method: POST
+  url: https://eu.api.ovh.com/1.0/newAccount/rules
+  assertions:
+    - result.bodyjson.bodyjson0 ShouldContainKey fieldName
+    - result.bodyjson.__type__ ShouldEqual Array
+output:
+  - fieldname0: "{{.result.bodyjson.bodyjson0.fieldname}}"
+  - all0: "{{.result.bodyjson.bodyjson0}}"
+  - all1: "{{.result.bodyjson.bodyjson1}}"
+  - allb: "{{.result.bodyjson}}"
+  - allr: "{{.result}}"

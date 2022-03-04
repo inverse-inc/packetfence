@@ -1,6 +1,0 @@
-executor: run_pfcmd_command
-input:
-  command: {}
-steps:
-  - type: exec
-    script: "{{.pfserver_pfcmd}} {{.input.command}}"

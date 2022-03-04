@@ -1,0 +1,17 @@
+executor: cumulus_dot1x_int_del
+input:
+  id: "{{.switch01.dot1x_interface.id}}"
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  user: "{{.switch01.api.user}}"
+  dot1x_ext: ""
+  time_to_sleep: 0
+steps:
+- type: cumulus_api_command_line
+  user: "{{.input.user}}"
+  password: "{{.input.password}}"
+  url: '{{.input.url}}'
+  cmd: "del interface {{.input.id}} dot1x {{.input.dot1x_ext}}"
+
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep}}"

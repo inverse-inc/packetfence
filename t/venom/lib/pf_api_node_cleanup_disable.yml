@@ -1,0 +1,6 @@
+executor: pf_api_node_cleanup_disable 
+steps:
+- type: pf_api_node_cleanup_tasks
+  status: "disabled"
+  interval: 0
+  unit: D

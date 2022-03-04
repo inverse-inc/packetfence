@@ -1,0 +1,19 @@
+executor: pf_api_node_delete
+input:
+  id: ""
+steps:
+# delete_node
+- type: pf_api_node_action
+  method: DELETE
+  id: "{{.input.id}}"
+  info:
+    - "{{.result.pf_api_node_action_json}}"
+  assertions:
+    - result.pf_api_node_action_json.message ShouldEqual "Deleted {{.input.id}} successfully"
+
+# check node deleted
+- type: pf_api_node_status
+  id: "{{.input.id}}"
+  status_code: 404
+  assertions:
+    - result.pf_api_node_status_json.message ShouldEqual "Unable to get resource with this identifier"

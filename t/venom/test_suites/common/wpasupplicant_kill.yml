@@ -1,0 +1,6 @@
+name: wpasupplicant kill
+testcases:
+- name: wpasupplicant_kill
+  steps:
+  - type: exec
+    script: 'sudo pkill wpa_supplicant'

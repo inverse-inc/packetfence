@@ -1,0 +1,27 @@
+executor: pf_api_radiusd_ocsp_profiles_create
+input:
+  id: ""
+  ocsp_enable: ""
+  ocsp_url: ""
+  ocsp_override_cert_url: ""
+  ocsp_softfail: ""
+  ocsp_timeout: ""
+  ocsp_use_nonce: ""
+steps:
+- type: pf_api_action
+  method: POST
+  url: 'config/radiusd/ocsp_profiles'
+  status_code: 201
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "ocsp_enable": "{{.input.ocsp_enable}}",
+      "ocsp_url": "{{.input.ocsp_url}}",
+      "ocsp_override_cert_url": "{{.input.ocsp_override_cert_url}}",
+      "ocsp_softfail": "{{.input.ocsp_softfail}}",
+      "ocsp_timeout": "{{.input.ocsp_timeout}}",
+      "ocsp_use_nonce": "{{.input.ocsp_use_nonce}}"
+    }
+
+output:
+  - pf_api_radiusd_ocsp_profiles_create_: "{{.result.pf_api_action_}}"

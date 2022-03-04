@@ -1,0 +1,34 @@
+executor: pf_api_pki_certs
+input:
+  profile_id: ""
+  cn: ""
+  mail: ""
+  dns_names: ""
+  ip_addresses:  ""
+steps:
+- type: get_login_token
+
+- type: http
+  method: POST
+  url: '{{.pfserver_webadmin_url}}/api/v1/pki/certs'
+  ignore_verify_ssl: true
+  body: >-
+    {
+      "profile_id": "{{.input.profile_id}}",
+      "cn": "{{.input.cn}}",
+      "mail": "{{.input.mail}}",
+      "dns_names": "{{.input.dns_names}}",
+      "ip_addresses": "{{.input.ip_addresses}}"
+    }
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+    - result.bodyjson.__type__ ShouldEqual Map
+  vars:
+    certs_tmp:
+      from: result.bodyjson
+
+output:
+  pf_api_pki_certs_id: "{{.certs_tmp.items.items0.id}}" 

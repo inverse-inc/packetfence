@@ -1,0 +1,16 @@
+executor: pf_api_realm_delete
+input:
+  id: ""
+steps:
+- type: pf_api_realm_action
+  id: "{{.input.id}}"
+  method: DELETE
+  assertion:
+    - result.pf_api_realm_action_json.message ShouldEqual "Deleted {{.input.id}} successfully"
+
+- type: pf_api_realm_action
+  method: GET
+  id: "{{.input.id}}"
+  status_code: 404
+  assertion:
+    - result.pf_api_realm_action_json.message ShouldEqual "Item ({{.input.id}}) not found"

@@ -127,5 +127,3 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 201
-
-

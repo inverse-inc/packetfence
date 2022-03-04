@@ -1,10 +1,13 @@
 executor: systemctl_service
 input:
-  unit_command: {}
-  service: {}
+  unit_command: ""
+  service: ""
+  sudo: ""
 steps:
-  - type: exec
-    script: systemctl {{.input.unit_command }} {{.input.service}}
-    # TO BE REMOVE IF DEFAULT IF ENOUGH
-    #assertions:
-    #  - result.systemout ShouldContainSubstring ""
+- type: exec
+  script: '{{.input.sudo}} systemctl {{.input.unit_command}} {{.input.service}}'
+  # TO BE REMOVE IF DEFAULT IF ENOUGH
+  #assertions:
+  #  - result.systemout ShouldContainSubstring "
+output:
+  service_systemout: "{{.result.systemout}}"

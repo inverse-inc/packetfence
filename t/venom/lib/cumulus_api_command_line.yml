@@ -1,0 +1,24 @@
+executor: cumulus_api_command_line
+input:
+  user: "{{.switch01.api.user}}"
+  password: "{{.switch01.api.password}}"
+  url: '{{.switch01.api.url}}/nclu/v1/rpc'
+  cmd: ""
+steps:
+- type: http
+  method: POST
+  basic_auth_user: "{{.input.user}}"
+  basic_auth_password: "{{.input.password}}"
+  url: "{{.input.url}}"
+  ignore_verify_ssl: true
+  body: >-
+    {
+      "cmd": "{{.input.cmd}}"
+    }
+  headers:
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual 200
+output:
+  cumulus_api_command_line_: "{{.result.bodyjson}}"
+  cumulus_api_command_line_body: "{{.result.body}}"

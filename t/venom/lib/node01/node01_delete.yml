@@ -1,0 +1,4 @@
+executor: node01_delete
+steps:
+- type: pf_api_node_delete 
+  id: "{{.node01_ens7_mac_address}}"

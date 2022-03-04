@@ -1,0 +1,34 @@
+executor: pf_api_action
+input:
+  body: {}
+  method: GET
+  status_code: 200
+  url: ""
+  time_to_sleep: 0
+steps:
+- type: get_login_token
+
+- type: http
+  method: "{{.input.method}}"
+  url: '{{.pfserver_webadmin_url}}/api/v1/{{.input.url}}'
+  ignore_verify_ssl: true
+  body: '{{.input.body}}'
+  headers:
+    "Authorization": "{{.result.token}}"
+    "Content-Type": "application/json"
+  assertions:
+    - result.statuscode ShouldEqual "{{.input.status_code}}"
+    - result.bodyjson.__type__ ShouldEqual Map
+  vars:
+    http_json:
+      from: result.bodyjson
+
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep}}"
+
+output:
+  pf_api_action_: "{{.http_json}}"
+  pf_api_action_items_item0_id: "{{.http_json.items.items0.id}}" 
+  pf_api_action_message: "{{.http_json.message}}" 
+  pf_api_action_progress: "{{.http_json.progress}}" 
+  pf_api_action_status: "{{.http_json.status}}" 

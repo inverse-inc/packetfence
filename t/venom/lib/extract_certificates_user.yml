@@ -1,0 +1,34 @@
+executor: extract_certificates_user
+input:
+  serial_number: ""
+  extract_directory: ""
+steps:
+- type: exec
+  script: "mkdir -p {{.input.extract_directory}}"
+  vars:
+    temp_dir:
+      from: result.systemout
+
+# download_p12_file
+- type: exec
+  script: |
+    curl -k --output {{.input.extract_directory}}.p12 \
+    http://127.0.0.1:22225/api/v1/pki/cert/{{.input.serial_number}}/download/secret
+
+# extract_ca_certificate
+- type: exec
+  script: |
+    openssl pkcs12 -in {{.input.extract_directory}}.p12 -cacerts -nokeys \
+    -out {{.input.extract_directory}}/ca.pem -passin pass:secret
+
+# extract_certificate
+- type: exec
+  script: |
+    openssl pkcs12 -in {{.input.extract_directory}}.p12 -clcerts -nokeys \
+    -out {{.input.extract_directory}}/client.pem -passin pass:secret
+
+# extract_key
+- type: exec
+  script: |
+    openssl pkcs12 -in {{.input.extract_directory}}.p12 -nocerts -nodes \
+    -out {{.input.extract_directory}}/client.key -passin pass:secret

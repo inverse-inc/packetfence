@@ -1,0 +1,10 @@
+executor: customR
+steps:
+- type: http
+  method: POST
+  url: https://eu.api.ovh.com/1.0/sms/rates/destinations?billingCountry=fr&country=fr
+  assertions:
+    - result.bodyjson.__type__ ShouldEqual Map
+output:
+  - allb: "{{.result.bodyjson}}"
+  - allr: "{{.result.body}}"

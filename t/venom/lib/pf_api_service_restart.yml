@@ -1,10 +1,15 @@
 executor: pf_api_service_restart
 input:
-  service: {}
+  service: ""
+  time_to_sleep: 0
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
   action: "restart"
+  method: POST
+  time_to_sleep: "{{.input.time_to_sleep}}"
 
-- type: sleep
-  time_to_sleep: 5
+- type: pf_api_service_status
+  service: "{{.input.service}}"
+  assertions:
+    - result.pf_api_service_status_json.alive ShouldEqual 1

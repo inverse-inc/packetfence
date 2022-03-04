@@ -1,0 +1,5 @@
+name: Disable node_cleanup maintenance task and change the delete_window to 0 day
+testcases:
+- name: disable_node_cleanup_task 
+  steps:
+  - type: pf_api_node_cleanup_disable

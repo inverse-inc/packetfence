@@ -1,0 +1,7 @@
+executor: node01_check_deleted
+steps:
+- type: pf_api_node_status
+  id: "{{.node01_ens7_mac_address}}"
+  status_code: 404
+  assertion:
+    - result.pf_api_node_status_json.message ShouldEqual "Unable to get resource with this identifier"

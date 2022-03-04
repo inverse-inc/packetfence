@@ -1,0 +1,5 @@
+name: Enable node_cleanup maintenance task and change the delete_window
+testcases:
+- name: node_enable_cleanup 
+  steps:
+  - type: pf_api_node_cleanup_enable 

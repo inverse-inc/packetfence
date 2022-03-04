@@ -1,0 +1,53 @@
+executor: pf_api_realms_create 
+input:
+  admin_strip_username: ""
+  domain: ""
+  eduroam_options: ""
+  eduroam_radius_acct: ""
+  eduroam_radius_acct_proxy_type: ""
+  eduroam_radius_auth: ""
+  eduroam_radius_auth_compute_in_pf: ""
+  eduroam_radius_auth_proxy_type: ""
+  id: ""
+  ldap_source: ""
+  options: ""
+  permit_custom_attributes: ""
+  portal_strip_username: ""
+  radius_acct: ""
+  radius_acct_proxy_type: ""
+  radius_auth: ""
+  radius_auth_compute_in_pf: ""
+  radius_auth_proxy_type: ""
+  radius_strip_username: ""
+steps:
+- type: pf_api_action
+  id: "{{.input.id}}"
+  method: POST
+  url: "config/realms"
+  status_code: 201
+  body: >-
+   {
+      "admin_strip_username": "{{.input.admin_strip_username}}",
+      "domain": "{{.input.domain}}",
+      "eduroam_options": "{{.input.eduroam_options}}",
+      "eduroam_radius_acct": "{{.input.eduroam_radius_acct}}",
+      "eduroam_radius_acct_proxy_type": "{{.input.eduroam_radius_acct_proxy_type}}",
+      "eduroam_radius_auth": "{{.input.eduroam_radius_auth}}",
+      "eduroam_radius_auth_compute_in_pf": "{{.input.eduroam_radius_auth_compute_in_pf}}",
+      "eduroam_radius_auth_proxy_type": "{{.input.eduroam_radius_auth_proxy_type}}",
+      "id": "{{.input.id}}",
+      "ldap_source": "{{.input.ldap_source}}",
+      "options": "{{.input.options}}",
+      "permit_custom_attributes": "{{.input.permit_custom_attributes}}",
+      "portal_strip_username": "{{.input.portal_strip_username}}",
+      "radius_acct": "{{.input.radius_acct}}",
+      "radius_acct_proxy_type": "{{.input.radius_acct_proxy_type}}",
+      "radius_auth": "{{.input.radius_auth}}",
+      "radius_auth_compute_in_pf": "{{.input.radius_auth_compute_in_pf}}",
+      "radius_auth_proxy_type": "{{.input.radius_auth_proxy_type}}",
+      "radius_strip_username": "{{.input.radius_strip_username}}"
+    }
+
+- type: pf_api_realm_action
+  method: GET
+  id: "{{.input.id}}"

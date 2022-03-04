@@ -2,6 +2,4 @@ name: Delete node01
 testcases:
 - name: delete_node01
   steps:
-  - type: delete_node
-    mac_address: "{{.node01_ens7_mac_address}}"
-    mac_address_url_encoded: "{{.node01_ens7_mac_address_url_encoded}}"
+  - type: node01_delete 
