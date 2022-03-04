@@ -85,6 +85,11 @@ sub get_backend {
     $self->{cache} = $type->new();
 }
 
+sub get_proto {
+	my ( $self ) = @_;
+    return $self->section("general")->{proto} || "unix";	
+}
+
 
 =head1 AUTHOR
 

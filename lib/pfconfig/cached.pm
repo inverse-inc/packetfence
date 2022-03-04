@@ -52,6 +52,9 @@ sub new {
     my ($class, @args) = @_;
     my $self = bless {}, $class;
 
+	# TODO: better to store this on boot and reuse it instead of computing it each time
+	$self->{proto} = pfconfig::config->new->get_proto;
+
     $self->init(@args);
 
     return $self;
@@ -68,11 +71,19 @@ sub get_socket {
 
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    $socket = IO::Socket::INET->new(
-        PeerHost => "127.0.0.1",
-        PeerPort => "44444",
-        Proto => "tcp",
-    ) || $self->logger->error("Failed to connect to pfconfig TCP socket: $!");
+    if($self->{proto} eq "tcp") {
+        $socket = IO::Socket::INET->new(
+            PeerHost => "127.0.0.1",
+            PeerPort => "44444",
+            Proto => "tcp",
+        ) || $self->logger->error("Failed to connect to pfconfig TCP socket: $!");
+    }
+    else {
+		$socket = IO::Socket::UNIX->new(
+			Type => SOCK_STREAM,
+			Peer => $socket_path,
+		);
+    }
 
     return $socket;
 }
@@ -239,6 +250,7 @@ Uses the control files in var/control and the memorized_at hash to know if a nam
 =cut
 
 sub is_valid {
+    return 0;
     my ($self)         = @_;
     my $logger         = $self->logger;
     my $what           = $self->{_namespace};
