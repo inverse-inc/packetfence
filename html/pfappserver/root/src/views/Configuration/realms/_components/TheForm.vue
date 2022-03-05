@@ -57,6 +57,16 @@
           :text="$i18n.t('Home server pool type.')"
         />
 
+        <form-group-radius-auth-home-server-pool-virtual-server namespace="radius_auth_home_server_pool_virtual_server"
+          :column-label="$i18n.t('Enable Virtual Server')"
+          :text="$i18n.t('If enable then the pre-proxy and post-proxy section are called when the request is proxied ?')"
+        />
+
+        <form-group-radius-auth-virtual-server-options namespace="radius_auth_virtual_server_options"
+          :column-label="$i18n.t('Authentication virtual server options')"
+          :text="$i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server')"
+        />
+
         <form-group-radius-auth-compute-in-pf namespace="radius_auth_compute_in_pf"
           :column-label="$i18n.t('Authorize from PacketFence')"
           :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
@@ -70,6 +80,16 @@
         <form-group-radius-acct-proxy-type namespace="radius_acct_proxy_type"
           :column-label="$i18n.t('Type')"
           :text="$i18n.t('Home server pool type.')"
+        />
+
+        <form-group-radius-acct-home-server-pool-virtual-server namespace="radius_acct_home_server_pool_virtual_server"
+          :column-label="$i18n.t('Enable Virtual Server')"
+          :text="$i18n.t('If enable then the pre-proxy and post-proxy section are called when the request is proxied ?')"
+        />
+
+        <form-group-radius-acct-virtual-server-options namespace="radius_acct_virtual_server_options"
+          :column-label="$i18n.t('Accounting virtual server options')"
+          :text="$i18n.t('Write the unlang definition of the virtual server. This will be used if you enabled Enable Virtual Server')"
         />
 
       </base-form-tab>
@@ -163,9 +183,13 @@ import {
   FormGroupOptions,
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
+  FormGroupradiusAuthHomeServerPoolVirtualServer,
+  FormGroupRadiusAuthVirtualServerOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
+  FormGroupRadiusAcctHomeServerPoolVirtualServer,
+  FormGroupRadiusAcctVirtualServerOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
@@ -193,9 +217,13 @@ const components = {
   FormGroupOptions,
   FormGroupRadiusAuth,
   FormGroupRadiusAuthProxyType,
+  FormGroupradiusAuthHomeServerPoolVirtualServer,
+  FormGroupRadiusAuthVirtualServerOptions,
   FormGroupRadiusAuthComputeInPf,
   FormGroupRadiusAcct,
   FormGroupRadiusAcctProxyType,
+  FormGroupRadiusAcctHomeServerPoolVirtualServer,
+  FormGroupRadiusAcctVirtualServerOptions,
   FormGroupEduroamOptions,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
