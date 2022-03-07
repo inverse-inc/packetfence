@@ -276,14 +276,28 @@ type PfconfigKeys struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string
+	Response       struct {
+		Keys           []string
+		LastTouchCache float64
+	}
 }
 
 type PfconfigKeysInt interface {
 	GetKeys() *[]string
+	GetResponse() interface{}
+	SetKeysFromResponse()
+}
+
+func (pk *PfconfigKeys) SetKeysFromResponse() {
+	pk.Keys = pk.Response.Keys
 }
 
 func (pk *PfconfigKeys) GetKeys() *[]string {
 	return &(pk.Keys)
+}
+
+func (pk *PfconfigKeys) GetResponse() interface{} {
+	return &pk.Response
 }
 
 type ListenInts struct {

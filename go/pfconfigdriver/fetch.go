@@ -357,7 +357,7 @@ func FetchKeys(ctx context.Context, name string) ([]string, error) {
 		return nil, err
 	}
 
-	return keys.Keys, nil
+	return keys.Response.Keys, nil
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
@@ -378,7 +378,8 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	if query.method == "keys" {
 		if cs, ok := o.(PfconfigKeysInt); ok {
-			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetKeys())
+			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetResponse())
+			cs.SetKeysFromResponse()
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
