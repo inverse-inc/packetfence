@@ -42,6 +42,7 @@ type FirewallSSOInt interface {
 	FormatUsername(ctx context.Context, info map[string]string) string
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
+	GetLastTouchCache() float64
 	CheckStatus(ctx context.Context, info map[string]string) bool
 }
 
