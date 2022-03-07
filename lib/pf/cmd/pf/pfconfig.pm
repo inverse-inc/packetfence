@@ -68,10 +68,6 @@ sub action_expire {
     $self->verify_namespace($namespace);
     my $manager = pfconfig::manager->new;
     $manager->expire($namespace);
-    if(!pfconfig::util::socket_expire(namespace => $namespace, light => 1)) {
-        print STDERR "Failed to expire $namespace via pfconfig socket\n";
-        return $EXIT_FAILURE;
-    }
     return $EXIT_SUCCESS;
 }
 
@@ -85,10 +81,6 @@ sub action_reload {
     my ($self) = @_;
     my $manager = pfconfig::manager->new;
     $manager->expire_all();
-    if(!pfconfig::util::socket_expire(light => 1)) {
-        print STDERR "Failed to complete expiration via pfconfig socket\n";
-        return $EXIT_FAILURE;
-    }
     return $EXIT_SUCCESS;
 }
 

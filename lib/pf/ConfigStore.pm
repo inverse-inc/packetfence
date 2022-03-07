@@ -678,7 +678,6 @@ sub commitPfconfig {
         else {
             my $manager = pfconfig::manager->new;
             $manager->expire($self->pfconfigNamespace);
-            pfconfig::util::socket_expire(namespace => $self->pfconfigNamespace, light => 1);
         }
     }
     else{

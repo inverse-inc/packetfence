@@ -343,7 +343,7 @@ sub cache_resource {
         print STDERR $message . "\n";
         $logger->error($message);
     }
-    $self->touch_cache($what);
+    pfconfig::util::socket_expire(namespace => $what, light => 1);
     $self->{memory}->{$what}       = $result;
     $self->{memorized_at}->{$what} = time;
 
@@ -434,7 +434,6 @@ sub expire {
                 $self->expire($child_resource, $light);
             }
         }
-
     }
 }
 
