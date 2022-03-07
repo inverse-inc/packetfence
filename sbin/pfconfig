@@ -292,7 +292,7 @@ sub get_keys {
     return unless(defined($elem));
 
     my @keys = keys(%{$elem});
-    send_output(\@keys, $socket);
+    send_output({keys => \@keys}, $socket);
 }
 
 sub get_key_exists {
