@@ -131,7 +131,7 @@ func TestFetchDecodeSocketCache(t *testing.T) {
 
 	// Expire data in pfconfig
 	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
-	time.Sleep(time.Duration(phoneInAtLeast+1) * time.Second)
+	time.Sleep(time.Duration(globalMeta.getPhoneInAtLeast()+1) * time.Second)
 
 	// Load the resource while accepting the reusal of the data already populated in the resource
 	loaded, err = FetchDecodeSocketCache(ctx, &gen)

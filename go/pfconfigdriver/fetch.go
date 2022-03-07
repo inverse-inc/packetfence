@@ -38,10 +38,6 @@ var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 var isNamespaceConfiguration = regexp.MustCompile(`^Pfconfig`)
 var isNotNamespaceConfiguration = regexp.MustCompile(`(^PfconfigKeys$)`)
 
-var phoneInAtLeast float64 = 5
-var reloadedTouchCache float64 = 0
-var lastTouchCache float64 = 0
-
 func init() {
 	var err error
 	myHostname, err = os.Hostname()
@@ -322,12 +318,12 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	q := createQuery(ctx, o)
 	ns := q.basens
 
-	if lastTouchCache == 0 {
+	if globalMeta.getLastTouchCache() == 0 {
 		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration was never loaded. Considering %s as invalid do the initial load.", ns))
 		return false
-	} else if float64(time.Now().UnixMicro()/1000000)-reloadedTouchCache > phoneInAtLeast {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(phoneInAtLeast), ns))
-	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= lastTouchCache {
+	} else if float64(time.Now().UnixMicro()/1000000)-globalMeta.getReloadedTouchCache() > globalMeta.getPhoneInAtLeast() {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(globalMeta.getPhoneInAtLeast()), ns))
+	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= globalMeta.getLastTouchCache() {
 		return true
 	}
 	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
@@ -379,17 +375,17 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		if cs, ok := o.(PfconfigKeysInt); ok {
 			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetResponse())
 			cs.SetKeysFromResponse()
-			lastTouchCache = o.GetLastTouchCache()
+			globalMeta.setLastTouchCache(o.GetLastTouchCache())
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)
-		lastTouchCache = o.GetLastTouchCache()
+		globalMeta.setLastTouchCache(o.GetLastTouchCache())
 	} else {
 		receiver := &PfconfigElementResponse{}
 		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
-		lastTouchCache = receiver.LastTouchCache
+		globalMeta.setLastTouchCache(receiver.LastTouchCache)
 
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
@@ -399,7 +395,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		}
 	}
 
-	reloadedTouchCache = float64(time.Now().UnixMicro() / 1000000)
+	globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
 	o.SetLoadedAt(time.Now())
 
 	return nil
