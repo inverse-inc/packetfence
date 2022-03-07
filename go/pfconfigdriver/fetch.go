@@ -95,6 +95,8 @@ func connectSocket(ctx context.Context) net.Conn {
 
 	timeoutChan := time.After(SocketTimeout)
 
+	proto := sharedutils.EnvOrDefault("PFCONFIG_PROTO", "unix")
+
 	var c net.Conn
 	err := errors.New("Not yet connected")
 	for err != nil {
@@ -105,9 +107,17 @@ func connectSocket(ctx context.Context) net.Conn {
 			// We try to connect to the pfconfig socket
 			// If we fail, we will wait a second before leaving this scope
 			// Otherwise, we continue and the for loop will detect the connection is valid since err will be nil
-			c, err = net.Dial("unix", getPfconfigSocketPath())
+			switch proto {
+			case "tcp":
+				//TODO: this should be configurable/dynamic
+				c, err = net.Dial("tcp", "127.0.0.1:44444")
+			case "unix":
+				c, err = net.Dial("unix", getPfconfigSocketPath())
+			default:
+				panic("Unrecognized protocol for pfconfigdriver")
+			}
 			if err != nil {
-				log.LoggerWContext(ctx).Error("Cannot connect to pfconfig socket...")
+				log.LoggerWContext(ctx).Error("Cannot connect to pfconfig socket..." + err.Error())
 				time.Sleep(1 * time.Second)
 			}
 		}

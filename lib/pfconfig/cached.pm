@@ -72,6 +72,7 @@ sub get_socket {
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if($self->{proto} eq "tcp") {
+        #TODO: make this configurable/dynamic
         $socket = IO::Socket::INET->new(
             PeerHost => "127.0.0.1",
             PeerPort => "44444",
