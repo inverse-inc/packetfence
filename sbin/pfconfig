@@ -396,7 +396,6 @@ sub encode_output {
         my $json = JSON->new;
         $json->convert_blessed(1);
         my $result;
-        # If data isn't defined or the only key in the data is the last_touch_cache
         if(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
             return $json->encode({%data, error => "No valid element was found for query"});
         }
