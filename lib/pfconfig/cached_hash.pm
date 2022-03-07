@@ -116,7 +116,7 @@ sub keys {
     my $logger = $self->logger;
 
     my $keys = $self->compute_from_subcache("__PFCONFIG_HASH_KEYS__", sub {
-        return $self->_get_from_socket( $self->{_namespace}, "keys" );
+        return $self->_get_from_socket( $self->{_namespace}, "keys" )->{keys};
     });
 
     return @$keys;
