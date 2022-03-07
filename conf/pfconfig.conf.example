@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [general]
-proto=unix
+proto=tcp
 backend=mysql
 
 [mysql]
