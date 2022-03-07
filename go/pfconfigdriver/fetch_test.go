@@ -14,13 +14,13 @@ import (
 var ctx = log.LoggerNewContext(context.Background())
 
 func TestFetchSocket(t *testing.T) {
-	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json"}`+"\n")
+	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json","with_last_touch_cache":false}`+"\n")
 	expected := `{"element":"pf.pfdemo.org"}`
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
 	}
 
-	result = FetchSocket(ctx, `{"method":"element", "key":"vidange","encoding":"json"}`+"\n")
+	result = FetchSocket(ctx, `{"method":"element", "key":"vidange","encoding":"json","with_last_touch_cache":false}`+"\n")
 	expected = `{"error":"No valid element was found for query"}`
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
@@ -41,8 +41,8 @@ func TestFetchDecodeSocket(t *testing.T) {
 	FetchDecodeSocket(ctx, &sections)
 
 	generalFound := false
-	for i := range sections.Keys {
-		if sections.Keys[i] == "general" {
+	for i := range sections.Response.Keys {
+		if sections.Response.Keys[i] == "general" {
 			generalFound = true
 		}
 	}
