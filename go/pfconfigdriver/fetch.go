@@ -95,7 +95,7 @@ func connectSocket(ctx context.Context) net.Conn {
 
 	timeoutChan := time.After(SocketTimeout)
 
-	proto := sharedutils.EnvOrDefault("PFCONFIG_PROTO", "unix")
+	proto := sharedutils.EnvOrDefault("PFCONFIG_PROTO", "tcp")
 
 	var c net.Conn
 	err := errors.New("Not yet connected")
