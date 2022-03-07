@@ -92,7 +92,6 @@ sub socket_expire {
         light => $light,
     };
     my $response = pfconfig::util::fetch_decode_socket(encode_json($payload));
-    use Data::Dumper ; print Dumper($response);
     return $response->{status} eq "OK.";
 }
 
