@@ -416,7 +416,7 @@ sub encode_output {
 sub send_output {
     my ($data, $socket, $query) = @_;
     # Gets added by default, client must request that this doesn't get added
-    if(!$query || ($query && $query->{with_last_touch_cache})) {
+    unless ($query && $query->{no_last_touch_cache}) {
         $data->{last_touch_cache} = $cache->{last_touch_cache};
     }
     my $encoded_data = encode_output($data);

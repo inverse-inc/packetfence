@@ -38,6 +38,10 @@ var nsHasOverlayRe = regexp.MustCompile(`.*\(.*\)$`)
 var isNamespaceConfiguration = regexp.MustCompile(`^Pfconfig`)
 var isNotNamespaceConfiguration = regexp.MustCompile(`(^PfconfigKeys$)`)
 
+var phoneInAtLeast float64 = 5
+var reloadedTouchCache float64 = 0
+var lastTouchCache float64 = 0
+
 func init() {
 	var err error
 	myHostname, err = os.Hostname()
@@ -317,22 +321,17 @@ func FindClusterName(ctx context.Context) string {
 func IsValid(ctx context.Context, o PfconfigObject) bool {
 	q := createQuery(ctx, o)
 	ns := q.basens
-	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
 
-	stat, err := os.Stat(controlFile)
-
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid", controlFile))
+	if lastTouchCache == 0 {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration was never loaded. Considering %s as invalid do the initial load.", ns))
 		return false
-	} else {
-		controlTime := stat.ModTime()
-		if o.GetLoadedAt().Before(controlTime) {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
-			return false
-		} else {
-			return true
-		}
+	} else if float64(time.Now().UnixMicro()/1000000)-reloadedTouchCache > phoneInAtLeast {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(phoneInAtLeast), ns))
+	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= lastTouchCache {
+		return true
 	}
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
+	return false
 }
 
 // Fetch and decode from the socket but only if the PfconfigObject is not valid anymore
@@ -380,14 +379,18 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		if cs, ok := o.(PfconfigKeysInt); ok {
 			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetResponse())
 			cs.SetKeysFromResponse()
+			lastTouchCache = o.GetLastTouchCache()
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)
+		lastTouchCache = o.GetLastTouchCache()
 	} else {
 		receiver := &PfconfigElementResponse{}
 		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
+		lastTouchCache = receiver.LastTouchCache
+
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
 			decodeInterface(ctx, query.encoding, b, &o)
@@ -396,6 +399,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		}
 	}
 
+	reloadedTouchCache = float64(time.Now().UnixMicro() / 1000000)
 	o.SetLoadedAt(time.Now())
 
 	return nil
