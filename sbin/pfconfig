@@ -138,6 +138,7 @@ if(pfconfig::config->new->get_proto eq "tcp") {
 umask(0);
 
 my $cache = pfconfig::manager->new;
+$cache->{pfconfig_server} = 1;
 $cache->preload_all();
 
 our %DISPATCH = (

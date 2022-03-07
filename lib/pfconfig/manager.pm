@@ -228,6 +228,8 @@ sub touch_cache {
     $filename = untaint_chain($filename);
     touch_file($filename);
     $self->{last_touch_cache} = time;
+    $pfconfig::cached::LAST_TOUCH_CACHE = time;
+    $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
 }
 
 =head2 get_cache
@@ -343,7 +345,12 @@ sub cache_resource {
         print STDERR $message . "\n";
         $logger->error($message);
     }
-    pfconfig::util::socket_expire(namespace => $what, light => 1);
+    if($self->{pfconfig_server}) {
+        $self->touch_cache($what);
+    }
+    else {
+        pfconfig::util::socket_expire(namespace => $what, light => 1);
+    }
     $self->{memory}->{$what}       = $result;
     $self->{memorized_at}->{$what} = time;
 
