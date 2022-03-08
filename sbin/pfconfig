@@ -397,7 +397,7 @@ sub encode_output {
         $json->convert_blessed(1);
         my $result;
         if(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
-            return $json->encode({%data, error => "No valid element was found for query"});
+            return $json->encode({%$data, error => "No valid element was found for query"});
         }
         elsif(!defined($data)) {
             return $json->encode({error => "No valid element was found for query"});
