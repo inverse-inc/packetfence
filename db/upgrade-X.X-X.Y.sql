@@ -47,6 +47,10 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+INSERT INTO sms_carrier
+    (name, email_pattern, created)
+VALUES
+    ('RingRing', '%s@smsemail.be', now());
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
