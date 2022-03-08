@@ -2,8 +2,17 @@
 
 args="--sig-proxy=true -v/usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/var/run/:/usr/local/pf/var/run/  -p 44444:44444 --rm -ti --name=pfconfig"
 
-if [ -e /var/lib/mysql/mysql.sock ]; then
-  args="$args -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock"
+mysql_sock=""
+
+if [ -e /etc/debian_version ]; then
+  mysql_sock="/var/run/mysqld/mysqld.sock"
+else
+  mysql_sock="/var/lib/mysql/mysql.sock"
+fi
+
+
+if [ -e $mysql_sock ]; then
+  args="$args -v $mysql_sock:/run/mysqld/mysqld.sock"
 fi
 
 cd /usr/local/pf/
