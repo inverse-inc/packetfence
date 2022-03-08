@@ -128,6 +128,10 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
+.publish_ppa_rules:
+  rules:
+    - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
+
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
 # - on all branches (maintenance/X.Y branches included) (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -578,6 +582,7 @@ publish_ppa_devel_release_branches_and_maintenance::
   extends:
     - .publish_job
     - .test_rules
+    - .publish_ppa_rules
 
 ########################################
 # TEST JOBS
