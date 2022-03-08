@@ -1,6 +1,6 @@
 #!/bin/bash
 
-args="--sig-proxy=true -v/usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/var/run/:/usr/local/pf/var/run/  -p 44444:44444 --rm -ti --name=pfconfig"
+args="--sig-proxy=true -v/usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/var/run/:/usr/local/pf/var/run/  -p 44444:44444 --rm --name=pfconfig"
 
 mysql_sock=""
 
