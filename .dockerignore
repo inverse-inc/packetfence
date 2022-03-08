@@ -1,0 +1,2 @@
+# Directories we don't need to send to the build context
+var/
