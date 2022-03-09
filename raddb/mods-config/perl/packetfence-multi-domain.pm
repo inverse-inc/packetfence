@@ -27,13 +27,10 @@ use lib qw(
     /usr/local/pf/raddb/mods-config/perl/
 );
 
-use pf::log (service => 'rlm_perl');
 use pf::radius::constants;
 use pf::radius::soapclient;
 use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
-use pfconfig::cached_hash;
-use pfconfig::cached_array;
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
 use pf::config::tenant;
