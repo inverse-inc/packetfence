@@ -77,13 +77,16 @@ sub get_socket {
             PeerHost => "127.0.0.1",
             PeerPort => "44444",
             Proto => "tcp",
-        ) || $self->logger->error("Failed to connect to pfconfig TCP socket: $!");
+        );
+        if($!) {
+            print STDERR "Can't connect to pfconfig: $!\n";
+        }
     }
     else {
-		$socket = IO::Socket::UNIX->new(
-			Type => SOCK_STREAM,
-			Peer => $socket_path,
-		);
+        $socket = IO::Socket::UNIX->new(
+            Type => SOCK_STREAM,
+            Peer => $socket_path,
+        );
     }
 
     return $socket;

@@ -5,14 +5,14 @@ args="--sig-proxy=true -v/usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/
 mysql_sock=""
 
 if [ -e /etc/debian_version ]; then
-  mysql_sock="/var/run/mysqld/mysqld.sock"
+  mysql_sock="/var/run/mysqld"
 else
-  mysql_sock="/var/lib/mysql/mysql.sock"
+  mysql_sock="/var/lib/mysql"
 fi
 
 
 if [ -e $mysql_sock ]; then
-  args="$args -v $mysql_sock:/run/mysqld/mysqld.sock"
+  args="$args -v $mysql_sock:/run/mysqld"
 fi
 
 cd /usr/local/pf/
