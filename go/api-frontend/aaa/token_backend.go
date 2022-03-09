@@ -15,9 +15,9 @@ type TokenBackend interface {
 }
 
 type TokenInfo struct {
-	AdminRoles map[string]bool
-	Username   string
-	CreatedAt  time.Time
+	AdminRoles map[string]bool `json:"admin_roles" redis:"admin_roles"`
+	Username   string          `json:"username" redis:"username"`
+	CreatedAt  time.Time       `json:"created_at" redis:"created_at"`
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {
