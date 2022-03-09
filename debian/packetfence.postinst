@@ -143,6 +143,8 @@ case "$1" in
           echo "Restarting journald to enable persistent logging"
           /bin/systemctl restart systemd-journald
 
+          systemctl restart docker
+
           systemctl enable packetfence-mariadb
           systemctl enable packetfence-redis-cache
           systemctl enable packetfence-config
