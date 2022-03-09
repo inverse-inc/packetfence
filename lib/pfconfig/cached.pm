@@ -78,7 +78,7 @@ sub get_socket {
             PeerPort => "44444",
             Proto => "tcp",
         );
-        if($!) {
+        if(!$socket) {
             print STDERR "Can't connect to pfconfig: $!\n";
         }
     }
