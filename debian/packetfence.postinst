@@ -143,8 +143,6 @@ case "$1" in
           echo "Restarting journald to enable persistent logging"
           /bin/systemctl restart systemd-journald
 
-          systemctl restart docker
-
           systemctl enable packetfence-mariadb
           systemctl enable packetfence-redis-cache
           systemctl enable packetfence-config
@@ -152,6 +150,7 @@ case "$1" in
           systemctl enable packetfence-haproxy-admin
           systemctl enable packetfence-tracking-config.path
           systemctl daemon-reload
+          systemctl restart docker
           /usr/local/pf/bin/pfcmd generatemariadbconfig --force
           systemctl isolate packetfence-base.target
 
