@@ -151,6 +151,7 @@ case "$1" in
           systemctl enable packetfence-tracking-config.path
           systemctl daemon-reload
           systemctl restart docker
+          systemctl start packetfence-config
           /usr/local/pf/bin/pfcmd generatemariadbconfig --force
           systemctl isolate packetfence-base.target
 
