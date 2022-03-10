@@ -143,6 +143,10 @@ case "$1" in
           echo "Restarting journald to enable persistent logging"
           /bin/systemctl restart systemd-journald
 
+          #TODO: change this to an official repository
+          docker pull julsemaan/pfdebian:11.3
+          docker tag julsemaan/pfdebian:11.3 pfdebian:11.3
+
           systemctl enable packetfence-mariadb
           systemctl enable packetfence-redis-cache
           systemctl enable packetfence-config
