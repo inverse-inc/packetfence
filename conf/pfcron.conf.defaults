@@ -1,44 +1,49 @@
 [acct_maintenance]
-# 
+#
 # type
-# 
+#
 # Task type
 type=acct_maintenance
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task that controls the inline accounting maintenance (bandwidth checks).
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [auth_log_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=auth_log_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the auth_log table. Entries older than the window will be removed from the table.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -56,28 +61,33 @@ timeout=10s
 #
 # How long to keep a auth_log_cleanup entry before deleting it
 window=1W
+#
+# local
+#
+# Local task
+local=0
 
 [cleanup_chi_database_cache]
-# 
+#
 # type
-# 
+#
 # Task type
 type=cleanup_chi_database_cache
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the CHI cache database storage.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
-schedule=@every 10s
+schedule=@every 5m
 #
 # batch
 #
@@ -88,92 +98,85 @@ batch=1000
 #
 # How long a cleanup_chi_database_cache job can run
 timeout=10s
+#
+# local
+#
+# Local task
+local=0
 
 [cluster_check]
-# 
+#
 # type
-# 
+#
 # Task type
 type=cluster_check
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task that checks the health state of the cluster and attempts to resolve any detected conflicts.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [fingerbank_data_update]
-# 
+#
 # type
-# 
+#
 # Task type
 type=fingerbank_data_update
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task that controls updates of the local Fingerbank data from the cloud API.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 24h
-
-[inline_accounting_maintenance]
-# 
-# type
-# 
-# Task type
-type=inline_accounting_maintenance
-# 
-# status
-# 
-# If the task is enabled
-status=enabled
-# 
-# description
-# 
-# The description of task
-description=Task that controls the inline accounting maintenance (bandwidth checks).
-# 
-# schedule
-# 
-# The schedule of task
-schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [ip4log_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=ip4log_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup and rotation of IP entries in IPv4 tables.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -211,26 +214,31 @@ timeout=10s
 #
 # How long to keep a ip4log_cleanup entry before deleting it
 window=1W
+#
+# local
+#
+# Local task
+local=0
 
 [ip6log_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=ip6log_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup and rotation of IP entries in IPv6 tables.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -268,26 +276,31 @@ timeout=10s
 #
 # How long to keep a ip6log_cleanup entry before deleting it
 window=1M
+#
+# local
+#
+# Local task
+local=0
 
 [locationlog_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=locationlog_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the locationlog table. Entries older than the window will be removed from the table.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -305,26 +318,31 @@ timeout=10s
 #
 # How long to keep a locationlog_cleanup entry before deleting it
 window=1W
+#
+# local
+#
+# Local task
+local=0
 
 [node_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=node_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=disabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the actions made on inactive nodes (based on the last_seen attribute of the node).
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -342,136 +360,139 @@ unreg_window=0D
 #
 # Enable voip device cleanup
 voip=enabled
+#
+# local
+#
+# Local task
+local=0
 
 [nodes_maintenance]
-# 
+#
 # type
-# 
+#
 # Task type
 type=nodes_maintenance
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task to unregister nodes that have an unregistration date older than the current date and time.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [option82_query]
-# 
+#
 # type
-# 
+#
 # Task type
 type=option82_query
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task to query compatible switches for DHCP Option 82 switch MAC address.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 23h
+#
+# local
+#
+# Local task
+local=0
 
 [person_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=person_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=disabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task to delete users that do not own any device. Locally created users will only be deleted when their account expires.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
-
-[populate_ntlm_redis_cache]
-# 
-# type
-# 
-# Task type
-type=populate_ntlm_redis_cache
-# 
-# status
-# 
-# If the task is enabled
-status=disabled
-# 
-# description
-# 
-# The description of task
-description=Task to control the population of the Active Directory NTLM cache.
-# 
-# schedule
-# 
-# The schedule of task
-schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [provisioning_compliance_poll]
-# 
+#
 # type
-# 
+#
 # Task type
 type=provisioning_compliance_poll
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task that runs the polling enforcement on the provisioners.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 5m
+#
+# local
+#
+# Local task
+local=0
 
 [radius_audit_log_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=radius_audit_log_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the radius_audit_log table. Entries older than the window will be removed from the table.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -489,26 +510,31 @@ timeout=10s
 #
 # How long to keep a radius_audit_log_cleanup entry before deleting it
 window=1D
+#
+# local
+#
+# Local task
+local=0
 
 [dns_audit_log_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=dns_audit_log_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the dns_audit_log table. Entries older than the window will be removed from the table.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -526,26 +552,31 @@ timeout=10s
 #
 # How long to keep a dns_audit_log_cleanup entry before deleting it
 window=1h
+#
+# local
+#
+# Local task
+local=0
 
 [security_event_maintenance]
-# 
+#
 # type
-# 
+#
 # Task type
 type=security_event_maintenance
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task that controls the execution of delayed security_event.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -558,26 +589,31 @@ batch=1000
 #
 # How long a security_event_maintenance job can run
 timeout=10s
+#
+# local
+#
+# Local task
+local=0
 
 [switch_cache_lldpLocalPort_description]
-# 
+#
 # type
-# 
+#
 # Task type
 type=switch_cache_lldpLocalPort_description
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Cache switches LLDP local port descriptions
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 12h
 #
@@ -585,26 +621,31 @@ schedule=@every 12h
 #
 # Whether or not a switch range should be expanded to process each of its IPs
 process_switchranges=disabled
+#
+# local
+#
+# Local task
+local=0
 
 [certificates_check]
-# 
+#
 # type
-# 
+#
 # Task type
 type=certificates_check
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Check for SSL certificates validity
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 12h
 #
@@ -617,48 +658,85 @@ delay=30D
 #
 # SSL certificate(s) to be monitored
 certificates=/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt
+#
+# local
+#
+# Local task
+local=0
+
+[pki_certificates_check]
+#
+# type
+#
+# Task type
+type=pki_certificates_check
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Check for SSL certificates validity in packetfence pki
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 12h
+#
+# local
+#
+# Local task
+local=0
 
 [password_of_the_day]
-# 
+#
 # type
-# 
+#
 # Task type
 type=password_of_the_day
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Task to generate password of the day.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [acct_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=acct_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the accounting tables (radacct and radacct_log). Entries older than the window will be removed from the table.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -676,26 +754,31 @@ timeout=10s
 #
 # How long to keep a acct_cleanup entry before deleting it
 window=1D
+#
+# local
+#
+# Local task
+local=0
 
 [admin_api_audit_log_cleanup]
-# 
+#
 # type
-# 
+#
 # Task type
 type=admin_api_audit_log_cleanup
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the cleanup of the admin_api_audit_log table. Entries older than the window will be removed from the table.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1h
 #
@@ -713,26 +796,31 @@ timeout=10s
 #
 # How long to keep a admin_api_audit_log entry before deleting it
 window=6M
+#
+# local
+#
+# Local task
+local=0
 
 [bandwidth_maintenance]
-# 
+#
 # type
-# 
+#
 # Task type
 type=bandwidth_maintenance
-# 
+#
 # status
-# 
+#
 # If the task is enabled
 status=enabled
-# 
+#
 # description
-# 
+#
 # The description of task
 description=Controls the aggregation of the bandwidth accounting records.
-# 
+#
 # schedule
-# 
+#
 # The schedule of task
 schedule=@every 1m
 #
@@ -765,62 +853,83 @@ history_timeout=10s
 #
 # How long to keep a bandwidth_accounting_history entry before deleting it
 history_window=48h
-
-[bandwidth_maintenance_session]
-# 
-# type
-# 
-# Task type
-type=bandwidth_maintenance_session
-# 
-# status
-# 
-# If the task is enabled
-status=enabled
-# 
-# description
-# 
-# The description of task
-description=Controls the cleanup of the bandwidth accounting sessions.
-# 
-# schedule
-# 
-# The schedule of task
-schedule=@every 5m
 #
-# batch
+# session_batch
 #
 # How many session to clean up at a time
-batch=100
+session_batch=100
 #
-# timeout
+# session_timeout
 #
 # How long a session cleanup job can run
-timeout=5s
+session_timeout=5s
+#
+# session_window
+#
+# How long to keep a session open
+session_window=24h
+#
+# local
+#
+# Local task
+local=0
+
+[ubiquiti_ap_mac_to_ip]
+#
+# type
+#
+# Task type
+type=ubiquiti_ap_mac_to_ip
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Cache MAC/IP couple for Ubiquiti AP
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 12h
+#
+# local
+#
+# Local task
+local=0
+
+[purge_binary_logs]
+#
+# type
+#
+# Task type
+type=purge_binary_logs
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Controls the cleanup of the binary logs. Files older than the window will be removed.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1h
 #
 # window
 #
-# How long to keep a session open
-window=24h
+# How long to keep a binary log file before deleting it
+window=1h
+#
+# local
+#
+# Local task
+local=1
 
-[ubiquiti_ap_mac_to_ip]
-# 
-# type
-# 
-# Task type
-type=ubiquiti_ap_mac_to_ip
-# 
-# status
-# 
-# If the task is enabled
-status=enabled
-# 
-# description
-# 
-# The description of task
-description=Cache MAC/IP couple for Ubiquiti AP
-# 
-# schedule
-# 
-# The schedule of task
-schedule=@every 12h
