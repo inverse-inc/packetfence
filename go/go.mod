@@ -32,7 +32,7 @@ require (
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-redis/redis v0.0.0-20190325112110-a679e614427a
 	github.com/go-sql-driver/mysql v1.4.1
-	github.com/go-test/deep v1.0.5
+	github.com/go-test/deep v1.0.7
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang-collections/go-datastructures v0.0.0-20150211160725-59788d5eb259 // indirect
@@ -55,7 +55,8 @@ require (
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
-	github.com/inverse-inc/go-radius v0.0.0-20200310093817-85565fe93aa5
+	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
+	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae // indirect
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.11
@@ -64,9 +65,8 @@ require (
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.0
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
-	github.com/kr/pretty v0.1.0
+	github.com/kr/pretty v0.2.1
 	github.com/lucas-clemente/quic-go v0.11.0
-	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
 	github.com/mdlayher/ethernet v0.0.0-20170707213343-e72cf8343052
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
@@ -99,8 +99,8 @@ require (
 	go.etcd.io/bbolt v1.3.3 // indirect
 	go.uber.org/zap v1.13.0 // indirect
 	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	golang.org/x/text v0.3.2
+	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
+	golang.org/x/text v0.3.7
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/grpc v1.22.1
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

@@ -14,8 +14,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	//"github.com/davecgh/go-spew/spew"
 )
 

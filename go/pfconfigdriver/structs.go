@@ -65,6 +65,7 @@ type configStruct struct {
 		Parking       PfConfParking
 		Alerting      PfConfAlerting
 		ActiveActive  PfConfActiveActive
+		Services      PfConfServices
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -80,6 +81,7 @@ type configStruct struct {
 	}
 	UnifiedApiSystemUser UnifiedApiSystemUser
 	EAPConfiguration     EAPConfiguration
+	RolesChildren        RolesChildren
 }
 
 var Config configStruct
@@ -123,7 +125,6 @@ type PfConfFencing struct {
 	Range                 string   `json:"range"`
 	InterceptionProxyPort string   `json:"interception_proxy_port"`
 	Registration          string   `json:"registration"`
-	Whitelist             string   `json:"whitelist"`
 	ProxyPassthroughs     []string `json:"proxy_passthroughs"`
 	Passthroughs          []string `json:"passthroughs"`
 	WaitForRedirect       string   `json:"wait_for_redirect"`
@@ -152,6 +153,56 @@ type PfConfCaptivePortal struct {
 	RateLimiting                 string   `json:"rate_limiting"`
 	RateLimitingThreshold        string   `json:"rate_limiting_threshold"`
 	OtherDomainNames             []string `json:"other_domain_names"`
+}
+
+type PfConfServices struct {
+	StructConfig
+	PfconfigMethod       string `val:"hash_element"`
+	PfconfigNS           string `val:"config::Pf"`
+	PfconfigHashNS       string `val:"services"`
+	ApiFrontend          string `json:"api-frontend"`
+	GaleraAutofix        string `json:"galera-autofix"`
+	FingerbankCollector  string `json:"fingerbank-collector"`
+	HaproxyAdmin         string `json:"haproxy-admin"`
+	HaproxyDB            string `json:"haproxy-db"`
+	HaproxyPortal        string `json:"haproxy-portal"`
+	HttpdAAA             string `json:"httpd_aaa"`
+	HttpdAdmin           string `json:"httpd_admin"`
+	HttpdCollector       string `json:"httpd_collector"`
+	HttpdAdminDispatcher string `json:"httpd_admin_dispatcher"`
+	HttpdDispatcher      string `json:"httpd_dispatcher"`
+	HttpdPortal          string `json:"httpd_portal"`
+	HttpdProxy           string `json:"httpd_proxy"`
+	HttpdWebservices     string `json:"httpd_webservices"`
+	Iptables             string `json:"iptables"`
+	Keepalived           string `json:"keepalived"`
+	Netdata              string `json:"netdata"`
+	NetFlowAddress       string `json:"netflow_address"`
+	MysqlProbe           string `json:"mysql-probe"`
+	Pfacct               string `json:"pfacct"`
+	PfcertManager        string `json:"pfcertmanager"`
+	Pfdhcp               string `json:"pfdhcp"`
+	Pfdhcplistener       string `json:"pfdhcplistener"`
+	Pfdns                string `json:"pfdns"`
+	Pffilter             string `json:"pffilter"`
+	Pfipset              string `json:"pfipset"`
+	Pfcron               string `json:"pfcron"`
+	PfperlAPI            string `json:"pfperl-api"`
+	PfPKI                string `json:"pfpki"`
+	Pfqueue              string `json:"pfqueue"`
+	PfSSO                string `json:"pfsso"`
+	Pfstats              string `json:"pfstats"`
+	Radiusd              string `json:"radiusd"`
+	RadiusdAcct          string `json:"radiusd_acct"`
+	RadiusdAuth          string `json:"radiusd_auth"`
+	Radsniff             string `json:"radsniff"`
+	RedisCache           string `json:"redis_cache"`
+	RedisNtlmCache       string `json:"redis_ntlm_cache"`
+	RedisQueue           string `json:"redis_queue"`
+	Snmptrapd            string `json:"snmptrapd"`
+	TC                   string `json:"tc"`
+	TrackingConfig       string `json:"tracking-config"`
+	Winbindd             string `json:"winbindd"`
 }
 
 type PfConfWebservices struct {
@@ -353,6 +404,8 @@ type RessourseNetworkConf struct {
 	PoolBackend              string    `json:"pool_backend"`
 	Algorithm                string    `json:"algorithm"`
 	NetflowAccountingEnabled string    `json:"netflow_accounting_enabled"`
+	NatDNS                   string    `json:"nat_dns"`
+	ForceGatewayVIP          string    `json:"force_gateway_vip"`
 }
 
 type PfRoles struct {
@@ -369,6 +422,14 @@ type RolesConf struct {
 	PfconfigHashNS string `val:"-"`
 	Notes          string `json:"notes"`
 	MaxNodesPerPid string `json:"max_nodes_per_pid"`
+}
+
+type RolesChildren struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::roles_children"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string][]string
 }
 
 type ClusterName struct {
@@ -493,33 +554,35 @@ type ClusterSummary struct {
 
 type PfConfAdvanced struct {
 	StructConfig
-	PfconfigMethod                   string   `val:"hash_element"`
-	PfconfigNS                       string   `val:"config::Pf"`
-	PfconfigHashNS                   string   `val:"advanced"`
-	HashingCost                      string   `json:"hashing_cost"`
-	ScanOnAccounting                 string   `json:"scan_on_accounting"`
-	PffilterProcesses                string   `json:"pffilter_processes"`
-	UpdateIplogWithAccounting        string   `json:"update_iplog_with_accounting"`
-	AdminCspSecurityHeaders          string   `json:"admin_csp_security_headers"`
-	Multihost                        string   `json:"multihost"`
-	SsoOnAccessReevaluation          string   `json:"sso_on_access_reevaluation"`
-	DisablePfDomainAuth              string   `json:"disable_pf_domain_auth"`
-	TimingStatsLevel                 string   `json:"timing_stats_level"`
-	SsoOnDhcp                        string   `json:"sso_on_dhcp"`
-	Language                         string   `json:"language"`
-	StatsdListenPort                 string   `json:"statsd_listen_port"`
-	SsoOnAccounting                  string   `json:"sso_on_accounting"`
-	LocationlogCloseOnAccountingStop string   `json:"locationlog_close_on_accounting_stop"`
-	PortalCspSecurityHeaders         string   `json:"portal_csp_security_headers"`
-	HashPasswords                    string   `json:"hash_passwords"`
-	SourceToSendSmsWhenCreatingUsers string   `json:"source_to_send_sms_when_creating_users"`
-	ActiveDirectoryOsJoinCheckBypass string   `json:"active_directory_os_join_check_bypass"`
-	PfperlApiTimeout                 string   `json:"pfperl_api_timeout"`
-	LdapAttributes                   []string `json:"ldap_attributes"`
-	ApiInactivityTimeout             int      `json:"api_inactivity_timeout"`
-	ApiMaxExpiration                 int      `json:"api_max_expiration"`
-	NetFlowOnAllNetworks             string   `json:"netflow_on_all_networks"`
-	AccountingTimebucketSize         int      `json:"accounting_timebucket_size"`
+	PfconfigMethod                   string      `val:"hash_element"`
+	PfconfigNS                       string      `val:"config::Pf"`
+	PfconfigHashNS                   string      `val:"advanced"`
+	HashingCost                      string      `json:"hashing_cost"`
+	ScanOnAccounting                 string      `json:"scan_on_accounting"`
+	PffilterProcesses                string      `json:"pffilter_processes"`
+	UpdateIplogWithAccounting        string      `json:"update_iplog_with_accounting"`
+	AdminCspSecurityHeaders          string      `json:"admin_csp_security_headers"`
+	Multihost                        string      `json:"multihost"`
+	SsoOnAccessReevaluation          string      `json:"sso_on_access_reevaluation"`
+	DisablePfDomainAuth              string      `json:"disable_pf_domain_auth"`
+	TimingStatsLevel                 string      `json:"timing_stats_level"`
+	SsoOnDhcp                        string      `json:"sso_on_dhcp"`
+	Language                         string      `json:"language"`
+	StatsdListenPort                 string      `json:"statsd_listen_port"`
+	SsoOnAccounting                  string      `json:"sso_on_accounting"`
+	LocationlogCloseOnAccountingStop string      `json:"locationlog_close_on_accounting_stop"`
+	PortalCspSecurityHeaders         string      `json:"portal_csp_security_headers"`
+	HashPasswords                    string      `json:"hash_passwords"`
+	SourceToSendSmsWhenCreatingUsers string      `json:"source_to_send_sms_when_creating_users"`
+	ActiveDirectoryOsJoinCheckBypass string      `json:"active_directory_os_join_check_bypass"`
+	PfperlApiTimeout                 string      `json:"pfperl_api_timeout"`
+	LdapAttributes                   []string    `json:"ldap_attributes"`
+	ApiInactivityTimeout             int         `json:"api_inactivity_timeout"`
+	ApiMaxExpiration                 int         `json:"api_max_expiration"`
+	NetFlowOnAllNetworks             string      `json:"netflow_on_all_networks"`
+	AccountingTimebucketSize         int         `json:"accounting_timebucket_size"`
+	ZeroTrustNetworkStartingIP       string      `json:"zero_trust_network_starting_ip"`
+	ZeroTrustNetworkNetmask          json.Number `json:"zero_trust_network_netmask"`
 }
 
 type PfConfDns struct {
@@ -698,4 +761,12 @@ type NtlmRedisCachedDomains struct {
 	PfconfigNS              string `val:"resource::NtlmRedisCachedDomains"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 []string
+}
+
+type Cloud struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Cloud"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]interface{}
 }

@@ -2,9 +2,11 @@ package maint
 
 import (
 	"context"
+	"reflect"
+
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/robfig/cron/v3"
-	"reflect"
 )
 
 var CachedCronConfig = pfconfigdriver.NewCachedValue(reflect.TypeOf(pfconfigdriver.Cron{}))
@@ -14,16 +16,19 @@ type JobSetupConfig interface {
 	Schedule() cron.Schedule
 	ScheduleSpec() string
 	Name() string
+	ForceLocal() bool
 }
 
 var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 	"fingerbank_data_update":      NewFingerbankDataUpdate,
 	"certificates_check":          NewCertificatesCheck,
+	"pki_certificates_check":      NewPkiCertificatesCheck,
+	"file_logger":                 NewFileLogger,
 	"cleanup_chi_database_cache":  NewChiCleanup,
 	"bandwidth_maintenance":       NewBandwidthMaintenance,
-	"populate_ntlm_redis_cache":   NewPopulateNtlmRedisCache,
 	"ip4log_cleanup":              NewIp4logCleanup,
 	"ip6log_cleanup":              NewIp6logCleanup,
+	"purge_binary_logs":           MakeSingleWindowSqlJobSetupConfig(`PURGE BINARY LOGS BEFORE (NOW() - INTERVAL ? SECOND)`),
 	"admin_api_audit_log_cleanup": MakeWindowSqlJobSetupConfig(`DELETE FROM admin_api_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"auth_log_cleanup":            MakeWindowSqlJobSetupConfig(`DELETE FROM auth_log WHERE attempted_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
 	"dns_audit_log_cleanup":       MakeWindowSqlJobSetupConfig(`DELETE FROM dns_audit_log WHERE created_at < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`),
@@ -37,20 +42,6 @@ var builders = map[string]func(map[string]interface{}) JobSetupConfig{
 		`DELETE FROM radacct WHERE acctstarttime < DATE_SUB(?, INTERVAL ? SECOND) AND acctstoptime IS NOT NULL LIMIT ?`,
 		`DELETE FROM radacct_log WHERE timestamp < DATE_SUB(?, INTERVAL ? SECOND) LIMIT ?`,
 	),
-	"bandwidth_maintenance_session": MakeWindowSqlJobSetupConfig(
-		`
-UPDATE
-bandwidth_accounting RIGHT JOIN (
-    SELECT node_id, unique_session_id
-    FROM bandwidth_accounting as ba
-    GROUP BY node_id, unique_session_id
-    HAVING MAX(ba.last_updated) BETWEEN '0001-01-01 00:00:00' AND DATE_SUB(?, INTERVAL ? SECOND)
-    LIMIT ?
-    ) as old_sessions USING (node_id, unique_session_id)
-
-    SET last_updated = '0000-00-00 00:00:00';
-`,
-	),
 }
 
 func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
@@ -61,6 +52,19 @@ func GetMaintenanceConfig(ctx context.Context) map[string]interface{} {
 	}
 
 	return nil
+}
+
+func MergeArgs(a, b map[string]interface{}) map[string]interface{} {
+	newArgs := make(map[string]interface{})
+	for k, v := range a {
+		newArgs[k] = v
+	}
+
+	for k, v := range b {
+		newArgs[k] = v
+	}
+
+	return newArgs
 }
 
 func GetConfiguredJobs(maintConfig map[string]interface{}) []JobSetupConfig {
@@ -99,6 +103,7 @@ type Task struct {
 	Status          string `json:"status"`
 	Description     string `json:"description"`
 	ScheduleSpecStr string `json:"schedule"`
+	Local           string `json:"local"`
 }
 
 func SetupTask(config map[string]interface{}) Task {
@@ -107,6 +112,7 @@ func SetupTask(config map[string]interface{}) Task {
 		Status:          config["status"].(string),
 		Description:     config["description"].(string),
 		ScheduleSpecStr: config["schedule"].(string),
+		Local:           config["local"].(string),
 	}
 }
 
@@ -121,4 +127,8 @@ func (t *Task) ScheduleSpec() string {
 
 func (t *Task) Name() string {
 	return t.Type
+}
+
+func (t *Task) ForceLocal() bool {
+	return sharedutils.IsEnabled(t.Local)
 }

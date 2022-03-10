@@ -3,7 +3,7 @@ package firewallsso
 import (
 	"context"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"golang.org/x/crypto/ssh"
 )
 

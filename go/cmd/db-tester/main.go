@@ -10,7 +10,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/packetfence/go/mac"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 var rows = flag.Int("rows", 10000, "The amount of rows to insert")

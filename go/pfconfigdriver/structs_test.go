@@ -2,7 +2,7 @@ package pfconfigdriver
 
 import (
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"testing"
 	"time"
 )

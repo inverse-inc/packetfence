@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net"
 	"time"
 
@@ -10,18 +11,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/rfc2866"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/tryableonce"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
 const DefaultTimeDuration = 5 * time.Minute
-
-var successDBConnect = false
 
 type radiusRequest struct {
 	w          radius.ResponseWriter
@@ -34,23 +34,27 @@ type radiusRequest struct {
 
 type PfAcct struct {
 	RadiusStatements
-	Db              *sql.DB
-	TimeDuration    time.Duration
-	AllowedNetworks []net.IPNet
-	NetFlowPort     string
-	AllNetworks     bool
-	Management      pfconfigdriver.ManagementNetwork
-	AAAClient       *jsonrpc2.Client
-	LoggerCtx       context.Context
-	Dispatcher      *Dispatcher
-	SwitchInfoCache *cache.Cache
-	StatsdOnce      tryableonce.TryableOnce
-	StatsdAddress   string
-	StatsdOption    statsd.Option
-	StatsdClient    *statsd.Client
-	radiusRequests  []chan<- radiusRequest
-	localSecret     string
-	isProxied       bool
+	TimeDuration       time.Duration
+	Db                 *sql.DB
+	AllowedNetworks    []net.IPNet
+	NetFlowPort        string
+	NetFlowAddress     string
+	Management         pfconfigdriver.ManagementNetwork
+	AAAClient          *jsonrpc2.Client
+	LoggerCtx          context.Context
+	Dispatcher         *Dispatcher
+	SwitchInfoCache    *cache.Cache
+	NodeSessionCache   *cache.Cache
+	AcctSessionCache   *cache.Cache
+	StatsdAddress      string
+	StatsdOption       statsd.Option
+	StatsdClient       *statsd.Client
+	radiusRequests     []chan<- radiusRequest
+	localSecret        string
+	StatsdOnce         tryableonce.TryableOnce
+	isProxied          bool
+	radiusdAcctEnabled bool
+	AllNetworks        bool
 }
 
 func NewPfAcct() *PfAcct {
@@ -59,30 +63,29 @@ func NewPfAcct() *PfAcct {
 
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		}
-
+		logError(ctx, "Error: "+err.Error())
+		time.Sleep(time.Duration(5) * time.Second)
 		Database, err = db.DbFromConfig(ctx)
 	}
 
-	for !successDBConnect {
+	err = Database.Ping()
+	for err != nil {
+		time.Sleep(time.Duration(5) * time.Second)
 		err = Database.Ping()
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		} else {
-			successDBConnect = true
-		}
 	}
 
 	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
+	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
+	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
+
 	pfAcct.SetupConfig(ctx)
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
+	pfAcct.runPing()
 	return pfAcct
 }
 
@@ -130,14 +133,29 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 		pfAcct.TimeDuration = DefaultTimeDuration
 	}
 
+	keyPfConfServices := pfconfigdriver.PfConfServices{}
+	keyPfConfServices.PfconfigNS = "config::Pf"
+	keyPfConfServices.PfconfigHostnameOverlay = "yes"
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyPfConfServices)
+	if keyPfConfServices.NetFlowAddress != "" {
+		pfAcct.NetFlowAddress = keyPfConfServices.NetFlowAddress
+	} else {
+		pfAcct.NetFlowAddress = defaultNetFlowAddr
+	}
+
 	pfAcct.StatsdOption = statsd.Address("localhost:" + keyConfAdvanced.StatsdListenPort)
 	pfAcct.NetFlowPort = ports.PFAcctNetflow
 	pfconfigdriver.FetchDecodeSocket(ctx, &pfAcct.Management)
 
+	var servicesConf pfconfigdriver.PfConfServices
+	pfconfigdriver.FetchDecodeSocket(ctx, &servicesConf)
+	pfAcct.radiusdAcctEnabled = sharedutils.IsEnabled(servicesConf.RadiusdAcct)
+
 	localSecret := pfconfigdriver.LocalSecret{}
 	pfconfigdriver.FetchDecodeSocket(ctx, &localSecret)
 	pfAcct.localSecret = localSecret.Element
-	pfAcct.isProxied = isProxied()
+
+	pfAcct.isProxied = isProxied(pfAcct)
 }
 
 // Timing struct
@@ -162,8 +180,29 @@ func (pfAcct *PfAcct) NewTiming() *Timing {
 	return &Timing{timing: pfAcct.StatsdClient.NewTiming()}
 }
 
-func isProxied() bool {
-	return pfconfigdriver.GetClusterSummary(context.Background()).ClusterEnabled == 1
+func (pfAcct *PfAcct) DbPing() error {
+	if pfAcct.Db == nil {
+		return nil
+	}
+
+	return pfAcct.Db.Ping()
+}
+
+func (pfAcct *PfAcct) runPing() {
+	go func(pfAcct *PfAcct) {
+		for {
+			time.Sleep(60 * time.Second)
+			if err := pfAcct.DbPing(); err != nil {
+				logDebug(pfAcct.LoggerCtx, "Unable to ping DB: "+err.Error())
+			} else {
+				logDebug(pfAcct.LoggerCtx, "Pinged DB")
+			}
+		}
+	}(pfAcct)
+}
+
+func isProxied(pfAcct *PfAcct) bool {
+	return pfconfigdriver.GetClusterSummary(context.Background()).ClusterEnabled == 1 || pfAcct.radiusdAcctEnabled
 }
 
 // Send function to add pf prefix
@@ -173,4 +212,22 @@ func (t *Timing) Send(name string) {
 	}
 
 	t.timing.Send(name)
+}
+
+type AcctSession struct {
+	in_bytes  int64
+	out_bytes int64
+}
+
+func (pfAcct *PfAcct) SetAcctSession(node_id, unique_session uint64, session *AcctSession) {
+	key := fmt.Sprintf("%x:%x", node_id, unique_session)
+	pfAcct.AcctSessionCache.Set(key, session, cache.DefaultExpiration)
+}
+
+func (pfAcct *PfAcct) GetAcctSession(node_id, unique_session uint64) *AcctSession {
+	key := fmt.Sprintf("%x:%x", node_id, unique_session)
+	if s, found := pfAcct.AcctSessionCache.Get(key); found {
+		return s.(*AcctSession)
+	}
+	return nil
 }

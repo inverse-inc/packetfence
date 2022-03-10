@@ -16,14 +16,15 @@ import (
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
+	"github.com/inverse-inc/go-radius/inversedict"
 	"github.com/inverse-inc/go-radius/rfc2865"
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-radius/rfc2869"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 )
 
 const TRIGGER_TYPE_ACCOUNTING = "accounting"
@@ -134,6 +135,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
 	unique_session_id := h.accountingUniqueSessionId(r)
 	if err := h.InsertBandwidthAccounting(
+		status,
 		node_id,
 		switchInfo.TenantId,
 		mac.String(),
@@ -149,12 +151,12 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		h.CloseSession(node_id, unique_session_id)
 	}
 
-	h.sendRadiusAccounting(r)
-	h.handleTimeBalance(r, switchInfo)
+	h.sendRadiusAccounting(r, switchInfo)
+	h.handleTimeBalance(r, switchInfo, unique_session_id)
 	h.handleBandwidthBalance(r, switchInfo, in_bytes+out_bytes)
 }
 
-func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
+func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, unique_session uint64) {
 	timebalance := int64(rfc2866.AcctSessionTime_Get(r.Packet))
 	if timebalance == 0 {
 		return
@@ -164,12 +166,27 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
 	status := rfc2866.AcctStatusType_Get(r.Packet)
+	isUnreg, _ := h.IsUnreg(mac.String(), switchInfo.TenantId)
+	ns := h.getNodeSessionFromCache(unique_session)
 	if status == rfc2866.AcctStatusType_Value_Stop {
+		defer h.deleteNodeSessionFromCache(unique_session)
+		if isUnreg {
+			return
+		}
+
+		if ns != nil {
+			timebalance -= ns.timeBalance
+			if timebalance < 0 {
+				timebalance = 0
+			}
+		}
+
 		ok, err := h.NodeTimeBalanceSubtract(switchInfo.TenantId, mac, timebalance)
 		if err != nil {
 			logError(ctx, "NodeTimeBalanceSubtract: "+err.Error())
 			return
 		}
+
 		if ok {
 			if ok, err = h.IsNodeTimeBalanceZero(switchInfo.TenantId, mac); ok {
 				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
@@ -178,14 +195,36 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo) {
 			}
 		}
 	} else {
-		ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
-		if err != nil {
-			logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
+		if isUnreg {
+			if ns == nil {
+				h.setNodeSessionCache(unique_session, &nodeSession{timeBalance: -1})
+			} else {
+				ns.timeBalance = -1
+			}
 			return
 		}
-		if ok {
-			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
-				logError(ctx, "Notify trigger_security_event: "+err.Error())
+
+		if ns != nil {
+			if ns.timeBalance == -1 {
+				ns.timeBalance = timebalance
+			} else {
+				timebalance -= ns.timeBalance
+				if timebalance < 0 {
+					timebalance = 0
+				}
+			}
+		}
+
+		if timebalance > 0 {
+			ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
+			if err != nil {
+				logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
+				return
+			}
+			if ok {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+					logError(ctx, "Notify trigger_security_event: "+err.Error())
+				}
 			}
 		}
 	}
@@ -240,7 +279,7 @@ func (h *PfAcct) accountingUniqueSessionId(r *radius.Request) uint64 {
 	return hash.Sum64()
 }
 
-func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
+func (h *PfAcct) sendRadiusAccounting(r *radius.Request, switchInfo *SwitchInfo) {
 	ctx := r.Context()
 	attr := packetToMap(ctx, r.Packet)
 	attr["PF_HEADERS"] = map[string]string{
@@ -253,7 +292,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request) {
 		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
 
-	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, 1); err != nil {
+	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, switchInfo.TenantId); err != nil {
 		logError(ctx, err.Error())
 	}
 }
@@ -265,16 +304,20 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	var RADIUSinterfaces pfconfigdriver.RADIUSInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &RADIUSinterfaces)
 
-	var intRADIUS []*net.UDPConn
 	var ipRADIUS []string
-	for _, vi := range RADIUSinterfaces.Element {
-		for key, radiusint := range vi.(map[string]interface{}) {
-			if key == "ip" {
-				ipRADIUS = append(ipRADIUS, radiusint.(string))
+	if h.radiusdAcctEnabled {
+		ipRADIUS = []string{"127.0.0.1"}
+	} else {
+		for _, vi := range RADIUSinterfaces.Element {
+			for key, radiusint := range vi.(map[string]interface{}) {
+				if key == "ip" {
+					ipRADIUS = append(ipRADIUS, radiusint.(string))
+				}
 			}
 		}
-
 	}
+
+	var intRADIUS []*net.UDPConn
 
 	for _, adresse := range sharedutils.RemoveDuplicates(ipRADIUS) {
 
@@ -356,7 +399,21 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		return nil, nil, err
 	}
 
-	return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	packet, err := radius.Parse(raw, []byte(switchInfo.Secret))
+	if err != nil {
+		logError(h.LoggerCtx, "RADIUSSecret: "+err.Error())
+		return nil, nil, err
+	}
+
+	// If the request overrides the tenant ID, we create a copy of the switchInfo and return it with an updated tenant ID
+	if val := inversedict.PacketFenceTenantID_Get(packet); val != 0 {
+		switchInfo2 := *switchInfo
+		switchInfo2.TenantId = int(val)
+		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, &switchInfo2)), nil
+	} else {
+		return []byte(switchInfo.Secret), log.TranferLogContext(h.LoggerCtx, context.WithValue(ctx, switchInfoKey, switchInfo)), nil
+	}
+
 }
 
 type Error string
@@ -489,22 +546,30 @@ func logDebug(ctx context.Context, msg string) {
 }
 
 type RadiusStatements struct {
-	switchLookup                   *sql.Stmt
-	insertBandwidthAccounting      *sql.Stmt
-	softNodeTimeBalanceUpdate      *sql.Stmt
-	nodeTimeBalanceSubtract        *sql.Stmt
-	nodeTimeBalance                *sql.Stmt
-	isNodeTimeBalanceZero          *sql.Stmt
-	softNodeBandwidthBalanceUpdate *sql.Stmt
-	nodeBandwidthBalanceSubtract   *sql.Stmt
-	nodeBandwidthBalance           *sql.Stmt
-	isNodeBandwidthBalanceZero     *sql.Stmt
-	closeSession                   *sql.Stmt
+	switchLookup                    *sql.Stmt
+	insertBandwidthAccountingStart  *sql.Stmt
+	insertBandwidthAccountingUpdate *sql.Stmt
+	softNodeTimeBalanceUpdate       *sql.Stmt
+	nodeTimeBalanceSubtract         *sql.Stmt
+	nodeTimeBalance                 *sql.Stmt
+	isNodeTimeBalanceZero           *sql.Stmt
+	softNodeBandwidthBalanceUpdate  *sql.Stmt
+	nodeBandwidthBalanceSubtract    *sql.Stmt
+	nodeBandwidthBalance            *sql.Stmt
+	isNodeBandwidthBalanceZero      *sql.Stmt
+	isUnreg                         *sql.Stmt
+	closeSession                    *sql.Stmt
+}
+
+func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
+	var err error
+	if *stmt, err = db.Prepare(sql); err != nil {
+		panic(err)
+	}
 }
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
-	var err error
-	rs.switchLookup, err = db.Prepare(`
+	setupStmt(db, &rs.switchLookup, `
         SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
         UNION
           SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
@@ -514,95 +579,72 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
             WHERE INET_ATON(?) BETWEEN start_ip AND end_ip
             ORDER BY range_length LIMIT 1
         ) LIMIT 1;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.insertBandwidthAccounting, err = db.Prepare(`
+	setupStmt(db, &rs.insertBandwidthAccountingStart, `
         INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
             SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
                 SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
             ) AS y
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes), last_updated = NOW();
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
+	setupStmt(db, &rs.insertBandwidthAccountingUpdate, `
+        INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
+            SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
+                SELECT * FROM (
+                    SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes, COUNT(1) AS entries FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
+                ) AS sum_bytes WHERE in_bytes !=0 OR out_bytes != 0 OR entries = 0
+            ) AS y
+        ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes), last_updated = NOW();
+	`)
 
-	rs.softNodeTimeBalanceUpdate, err = db.Prepare(`
-        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance <= ?;
-    `)
+	setupStmt(db, &rs.softNodeTimeBalanceUpdate, `
+        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
+	`)
 
-	if err != nil {
-		panic(err)
-	}
+	setupStmt(db, &rs.softNodeBandwidthBalanceUpdate, `
+        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+	`)
 
-	rs.softNodeBandwidthBalanceUpdate, err = db.Prepare(`
-        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance <= ?;
-    `)
+	setupStmt(db, &rs.nodeTimeBalanceSubtract, `
+        UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+	`)
 
-	if err != nil {
-		panic(err)
-	}
+	setupStmt(db, &rs.isUnreg, `
+        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND status = 'unreg'
+	`)
 
-	rs.nodeTimeBalanceSubtract, err = db.Prepare(`
-        UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
-    `)
+	setupStmt(db, &rs.nodeBandwidthBalanceSubtract, `
+        UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeBandwidthBalanceSubtract, err = db.Prepare(`
-        UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
-    `)
-
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeTimeBalance, err = db.Prepare(`
+	setupStmt(db, &rs.nodeTimeBalance, `
         SELECT time_balance FROM node WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.nodeBandwidthBalance, err = db.Prepare(`
+	setupStmt(db, &rs.nodeBandwidthBalance, `
         SELECT bandwidth_balance FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.isNodeTimeBalanceZero, err = db.Prepare(`
+	setupStmt(db, &rs.isNodeTimeBalanceZero, `
         SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND time_balance = 0;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.isNodeBandwidthBalanceZero, err = db.Prepare(`
+	setupStmt(db, &rs.isNodeBandwidthBalanceZero, `
         SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance = 0;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
-
-	rs.closeSession, err = db.Prepare(`
+	setupStmt(db, &rs.closeSession, `
         UPDATE bandwidth_accounting SET last_updated = '0000-00-00 00:00:00' WHERE node_id = ? AND unique_session_id = ?;
-    `)
+	`)
 
-	if err != nil {
-		panic(err)
-	}
+}
+
+func (rs *RadiusStatements) IsUnreg(mac string, tenant int) (bool, error) {
+	found := 0
+	err := rs.isUnreg.QueryRow(tenant, mac).Scan(&found)
+	return found == 1, err
 }
 
 func (rs *RadiusStatements) CloseSession(node_id, unique_session_id uint64) (int64, error) {
@@ -704,19 +746,50 @@ func (h *PfAcct) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
 	return switchInfo, nil
 }
 
-func (rs *RadiusStatements) InsertBandwidthAccounting(node_id uint64, tenant_id int, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
-	_, err := rs.insertBandwidthAccounting.Exec(
-		node_id,
-		tenant_id,
-		mac,
-		unique_session,
-		bucket,
-		in_bytes,
-		out_bytes,
-		node_id,
-		unique_session,
-		bucket,
-	)
+func (h *PfAcct) updateTimeBalance(isUnreg bool, status rfc2866.AcctStatusType, timebalance int64, unique_session uint64) int64 {
+	ns := h.getNodeSessionFromCache(unique_session)
+	if ns == nil {
+	}
+
+	return timebalance
+}
+
+func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_id uint64, tenant_id int, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
+	var err error
+	if status == rfc2866.AcctStatusType_Value_Start {
+		h.SetAcctSession(node_id, unique_session, &AcctSession{in_bytes: in_bytes, out_bytes: out_bytes})
+		_, err = h.insertBandwidthAccountingStart.Exec(
+			node_id,
+			tenant_id,
+			mac,
+			unique_session,
+			bucket,
+			in_bytes,
+			out_bytes,
+			node_id,
+			unique_session,
+			bucket,
+		)
+	} else {
+		s := h.GetAcctSession(node_id, unique_session)
+		if s != nil && s.in_bytes == in_bytes && s.out_bytes == out_bytes {
+			return nil
+		}
+
+		h.SetAcctSession(node_id, unique_session, &AcctSession{in_bytes: in_bytes, out_bytes: out_bytes})
+		_, err = h.insertBandwidthAccountingUpdate.Exec(
+			node_id,
+			tenant_id,
+			mac,
+			unique_session,
+			bucket,
+			in_bytes,
+			out_bytes,
+			node_id,
+			unique_session,
+			bucket,
+		)
+	}
 	return err
 }
 
@@ -730,7 +803,8 @@ func init() {
 	}
 
 	var err error
-	if radiusDictionary, err = parser.ParseFile("dictionary"); err != nil {
+	if radiusDictionary, err = parser.ParseFile("/usr/local/pf/raddb/dictionary.pfacct"); err != nil {
 		panic(err)
 	}
+
 }

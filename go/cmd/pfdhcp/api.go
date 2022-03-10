@@ -16,9 +16,9 @@ import (
 	"github.com/gorilla/mux"
 	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 // Node struct
