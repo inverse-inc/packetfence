@@ -162,6 +162,8 @@ Depends: ${misc:Depends}, vlan,
  fuse,
 # Monit and monitoring scripts
  monit, uuid-runtime,
+# Docker runtime
+ docker-ce, docker-ce-cli, containerd.io,
 # Distribution specific
  ${packetfence:dist}
 Description: PacketFence network registration / worm mitigation system
