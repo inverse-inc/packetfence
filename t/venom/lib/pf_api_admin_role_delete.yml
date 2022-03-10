@@ -12,4 +12,4 @@ steps:
   url: 'config/admin_role/{{.input.id}}'
   status_code: 404
   assertion:
-    - result.pf_api_realm_action_json.message ShouldEqual "Item ({{.input.id}}) not found"
+    - result.pf_api_action_json.message ShouldEqual "Item ({{.input.id}}) not found"
