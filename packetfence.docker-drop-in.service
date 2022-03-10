@@ -4,7 +4,6 @@ Documentation=https://docs.docker.com
 After=network-online.target firewalld.service containerd.service
 Wants=network-online.target
 Requires=docker.socket containerd.service
-PartOf=packetfence-iptables.service
 
 [Service]
 Type=notify
