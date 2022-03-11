@@ -96,7 +96,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 
-	tokenBackend := aaa.NewMemTokenBackend(
+	tokenBackend := aaa.NewRedisTokenBackend(
 		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
 		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
 	)

@@ -24,22 +24,13 @@ func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
 }
 
 func (mtb *MemTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time) {
-	o, expiration, found := mtb.store.GetWithExpiration(token)
-	if found {
-		ti := o.(*TokenInfo)
-		if time.Now().Sub(ti.CreatedAt) > mtb.maxExpiration {
-			// Token has reached max expiration
-			return nil, time.Unix(0, 0)
+	if o, expiration, found := mtb.store.GetWithExpiration(token); found {
+		if ti, ok := o.(*TokenInfo); ok {
+			return ValidTokenExpiration(ti, expiration, mtb.maxExpiration)
 		}
-
-		if expiration.After(ti.CreatedAt.Add(mtb.maxExpiration)) {
-			expiration = ti.CreatedAt.Add(mtb.maxExpiration)
-		}
-
-		return ti, expiration
-	} else {
-		return nil, time.Unix(0, 0)
 	}
+
+	return nil, time.Unix(0, 0)
 }
 
 func (mtb *MemTokenBackend) AdminActionsForToken(token string) map[string]bool {

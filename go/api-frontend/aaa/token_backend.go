@@ -31,3 +31,16 @@ func (ti *TokenInfo) AdminActions() map[string]bool {
 
 	return adminRolesMap
 }
+
+func ValidTokenExpiration(ti *TokenInfo, expiration time.Time, max time.Duration) (*TokenInfo, time.Time) {
+	if time.Now().Sub(ti.CreatedAt) > max {
+		// Token has reached max expiration
+		return nil, time.Unix(0, 0)
+	}
+
+	if expiration.After(ti.CreatedAt.Add(max)) {
+		expiration = ti.CreatedAt.Add(max)
+	}
+
+	return ti, expiration
+}
