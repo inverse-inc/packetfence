@@ -195,11 +195,23 @@ const actions = {
       })
     })
   },
-  updateUser: ({ commit }, data) => {
+  updateUser: ({ commit, dispatch }, data) => {
+    deflateActions(data)
     commit('USER_REQUEST')
     return api.updateUser(data).then(response => {
-      commit('USER_REPLACED', data)
-      return response
+      if (data.expiration) { // has password
+        dispatch('updatePassword', Object.assign({ quiet: true }, data))
+          .then(() => {
+            commit('USER_REPLACED', data)
+            dispatch('refreshUser', data.pid)
+            return response
+          })
+      }
+      else { // no password
+        commit('USER_REPLACED', data)
+        dispatch('refreshUser', data.pid)
+        return response
+      }
     }).catch(err => {
       commit('USER_ERROR', err.response)
     })
