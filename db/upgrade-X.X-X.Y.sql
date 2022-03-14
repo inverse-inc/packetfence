@@ -557,6 +557,18 @@ ALTER TABLE pki_certs
 ALTER TABLE activation
     CONVERT TO CHARACTER SET utf8mb4;
 
+\! echo "altering action"
+ALTER TABLE action
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering auth_log"
+ALTER TABLE auth_log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering bandwidth_accounting"
+ALTER TABLE bandwidth_accounting
+    CONVERT TO CHARACTER SET utf8mb4;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
