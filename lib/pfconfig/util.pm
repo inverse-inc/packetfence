@@ -63,7 +63,7 @@ sub fetch_decode_socket {
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if(${proto} eq "tcp") {
         $socket = IO::Socket::INET->new(
-            PeerHost => "127.0.0.1",
+            PeerHost => ($ENV{PFCONFIG_TCP_HOST} // "127.0.0.1"),
             PeerPort => "44444",
             Proto => "tcp",
         );

@@ -74,7 +74,7 @@ sub get_socket {
     if($self->{proto} eq "tcp") {
         #TODO: make this configurable/dynamic
         $socket = IO::Socket::INET->new(
-            PeerHost => "127.0.0.1",
+            PeerHost => ($ENV{PFCONFIG_TCP_HOST} // "127.0.0.1"),
             PeerPort => "44444",
             Proto => "tcp",
         );

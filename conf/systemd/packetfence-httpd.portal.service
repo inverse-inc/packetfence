@@ -1,29 +1,16 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Captive Portal Apache HTTP Server 
-Documentation=man:httpd(8)
-Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-Type=notify
-ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.portal.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_portal' -e 'pf::services::manager::httpd_portal->new()->generateConfig()'
-ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND  -Drhel
-ExecReload=/bin/kill -USR1 ${MAINPID}
-ExecStop=/bin/kill -WINCH ${MAINPID}
-# We want systemd to give httpd some time to finish gracefully, but still want
-# it to kill httpd after TimeoutStopSec if something went wrong during the
-# graceful stop. Normally, Systemd sends SIGTERM signal right after the
-# ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
-# httpd time to finish.
-TimeoutStopSec=60
-KillMode=mixed
-KillSignal=SIGCONT
-PrivateTmp=true
+ExecStart=/usr/local/pf/sbin/httpd.portal-docker-wrapper
+ExecStop=/bin/bash -c "docker stop httpd.portal ; docker container rm httpd.portal -f ; echo Stopped"
+TimeoutStopSec=30
 Restart=on-failure
 Slice=packetfence.slice
 

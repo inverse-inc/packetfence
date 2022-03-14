@@ -43,8 +43,6 @@ sub additionalVars {
     my %vars = (
         captive_portal => $captive_portal,
         max_clients => $self->get_max_clients,
-        routedNets => $self->routedNets,
-        loadbalancersIp => $self->loadbalancersIp($captive_portal),
         vhost_management_network => $self->vhost_management_network,
         vhosts => $self->vhosts,
         logformat => isenabled($cluster_enabled) ? 'loadbalanced_combined' : 'combined',
@@ -60,17 +58,7 @@ Get the vhost for the managment network
 
 sub vhost_management_network {
     my ($self) = @_;
-    my $vhost;
-    if (defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
-        # Handling virtual IP
-        if (defined($management_network->{'Tvip'}) && $management_network->{'Tvip'} ne '') {
-            $vhost = $management_network->{'Tvip'};
-        }
-        else {
-            $vhost = $management_network->{'Tip'};
-        }
-    }
-    return $vhost;
+    return "127.0.0.1";
 }
 
 =head2 get_max_clients
@@ -94,16 +82,7 @@ Get vhosts
 
 sub vhosts {
     my ($self) = @_;
-    if ($cluster_enabled) {
-        return
-            [
-                uniq map {
-                    defined $_->{'Tvip'} && $_->{'Tvip'} ne '' ? $_->{'Tvip'} : $_->{'Tip'}
-                } @internal_nets, @portal_ints
-            ];
-    } else {
-        return ["127.0.0.1"];
-    }
+    return ["127.0.0.1"];
 }
 
 
@@ -116,17 +95,6 @@ Get the routed nets
 sub routedNets {
     my ($self) = @_;
     return join(" ", pf::config::util::get_routed_isolation_nets(), pf::config::util::get_routed_registration_nets() , pf::config::util::get_inline_nets());
-}
-
-=head2 loadbalancersIp
-
-Get the load balancers IP address
-
-=cut
-
-sub loadbalancersIp {
-    my ($self, $captive_portal) = @_;
-    return join(" ", split(/\n/, $captive_portal->{'loadbalancers_ip'}));
 }
 
 =head1 AUTHOR
