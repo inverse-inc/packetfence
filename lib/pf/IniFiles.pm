@@ -27,15 +27,19 @@ use Time::HiRes qw(stat time);
 use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
 our $PrettyName;
+our $tt = Template->new({ABSOLUTE => 1});
 
 =head2 new
 
 =cut
 
 sub new {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $class = ref($proto) || $proto;
-    return $class->SUPER::new(@args);
+    my $processed_file;
+    $tt->process($args{-file}, {ENV => \%ENV}, \$processed_file) || die "Can't process TT for $args{-file}: ".$tt->error;
+    $args{-file} = \$processed_file;
+    return $class->SUPER::new(%args);
 }
 
 =head2 DeleteSection ( $sect_name, $include_groupmembers )
