@@ -1,6 +1,6 @@
 #!/bin/bash
 
-args="--sig-proxy=true -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates -v/usr/local/pf/conf/:/usr/local/pf/conf/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/ -p 127.0.0.1:80:80 -p 127.0.0.1:443:443 --rm --name=httpd.portal --add-host=host.docker.internal:host-gateway --env PFCONFIG_PROTO=tcp --env PFCONFIG_TCP_HOST=host.docker.internal"
+args="--sig-proxy=true -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates -v/usr/local/pf/conf/:/usr/local/pf/conf/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/ -p 127.0.0.1:80:80 --rm --name=httpd.portal --add-host=host.docker.internal:host-gateway"
 
 mysql_sock=""
 
