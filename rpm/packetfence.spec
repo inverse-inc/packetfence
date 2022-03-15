@@ -862,6 +862,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
