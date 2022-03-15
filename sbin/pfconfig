@@ -118,11 +118,12 @@ unlink($socket_path);
 umask(0007);
 
 my $listner;
+my $config = $pfconfig::config::INI_CONFIG;
 
-if(pfconfig::config->new->get_proto eq "tcp") {
+if($config->get_proto eq "tcp") {
     $listner = IO::Socket::INET->new(
        LocalHost => '0.0.0.0',
-       LocalPort => '44444',
+       LocalPort => $config->section('general')->{tcp_port},
        Proto => 'tcp',
        Listen => 5,
        Reuse => 1
