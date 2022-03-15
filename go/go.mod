@@ -56,7 +56,7 @@ require (
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset v0.0.0-20190925174109-4d5749cc4aa6
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
-	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae // indirect
+	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.11
