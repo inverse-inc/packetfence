@@ -72,10 +72,9 @@ sub get_socket {
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if($self->{proto} eq "tcp") {
-        #TODO: make this configurable/dynamic
         $socket = IO::Socket::INET->new(
-            PeerHost => ($ENV{PFCONFIG_TCP_HOST} // "127.0.0.1"),
-            PeerPort => "44444",
+            PeerHost => $self->{tcp_host},
+            PeerPort => $self->{tcp_port},
             Proto => "tcp",
         );
         if(!$socket) {
@@ -103,8 +102,10 @@ sub init {
     my ($self) = @_;
     $self->{element_socket_method} = "override-me";
 
-	# TODO: better to store this on boot and reuse it instead of computing it each time
-	$self->{proto} = pfconfig::config->new->get_proto;
+    my $config = $pfconfig::config::INI_CONFIG;
+	$self->{proto} = $config->get_proto;
+    $self->{tcp_host} = $config->section('general')->{tcp_host};
+    $self->{tcp_port} = $config->section('general')->{tcp_port};
 }
 
 =head2 get_from_subcache

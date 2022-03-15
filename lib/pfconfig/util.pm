@@ -56,15 +56,15 @@ sub fetch_socket {
 sub fetch_decode_socket {
     my ($payload) = @_;
 
-	# TODO: better to store this on boot and reuse it instead of computing it each time
-	my $proto = pfconfig::config->new->get_proto();
+    my $config = $pfconfig::config::INI_CONFIG;
+	my $proto = $config->get_proto();
 
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if(${proto} eq "tcp") {
         $socket = IO::Socket::INET->new(
-            PeerHost => ($ENV{PFCONFIG_TCP_HOST} // "127.0.0.1"),
-            PeerPort => "44444",
+            PeerHost => $config->section('general')->{tcp_host},
+            PeerPort => $config->section('general')->{tcp_port},
             Proto => "tcp",
         );
     }
