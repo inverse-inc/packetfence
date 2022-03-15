@@ -158,6 +158,33 @@ schedule=@every 24h
 # Local task
 local=0
 
+[inline_accounting_maintenance]
+# 
+# type
+# 
+# Task type
+type=inline_accounting_maintenance
+# 
+# status
+# 
+# If the task is enabled
+status=enabled
+# 
+# description
+# 
+# The description of task
+description=Task that controls the inline accounting maintenance (bandwidth checks).
+# 
+# schedule
+# 
+# The schedule of task
+schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
+
 [ip4log_cleanup]
 #
 # type
