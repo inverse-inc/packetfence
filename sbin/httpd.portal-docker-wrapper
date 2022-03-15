@@ -1,0 +1,21 @@
+#!/bin/bash
+
+args="--sig-proxy=true -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates -v/usr/local/pf/conf/:/usr/local/pf/conf/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/ -p 127.0.0.1:80:80 -p 127.0.0.1:443:443 --rm --name=httpd.portal --add-host=host.docker.internal:host-gateway --env PFCONFIG_PROTO=tcp --env PFCONFIG_TCP_HOST=host.docker.internal"
+
+mysql_sock=""
+
+if [ -e /etc/debian_version ]; then
+  mysql_sock="/var/run/mysqld"
+else
+  mysql_sock="/var/lib/mysql"
+fi
+
+
+if [ -e $mysql_sock ]; then
+  args="$args -v $mysql_sock:/run/mysqld"
+fi
+
+cd /usr/local/pf/
+docker container rm -f httpd.portal
+
+docker run $args --name=httpd.portal $(docker build -q -f docker/httpd.portal/Dockerfile .)
