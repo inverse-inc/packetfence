@@ -447,6 +447,33 @@ schedule=@every 1m
 # Local task
 local=0
 
+[populate_ntlm_redis_cache]
+#
+# type
+#
+# Task type
+type=populate_ntlm_redis_cache
+#
+# status
+#
+# If the task is enabled
+status=disabled
+#
+# description
+#
+# The description of task
+description=Task to control the population of the Active Directory NTLM cache.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
+
 [provisioning_compliance_poll]
 #
 # type
