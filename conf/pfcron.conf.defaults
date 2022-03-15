@@ -718,33 +718,6 @@ certificates=/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.
 # Local task
 local=0
 
-[pki_certificates_check]
-#
-# type
-#
-# Task type
-type=pki_certificates_check
-#
-# status
-#
-# If the task is enabled
-status=enabled
-#
-# description
-#
-# The description of task
-description=Check for SSL certificates validity in packetfence pki
-#
-# schedule
-#
-# The schedule of task
-schedule=@every 12h
-#
-# local
-#
-# Local task
-local=0
-
 [password_of_the_day]
 #
 # type
