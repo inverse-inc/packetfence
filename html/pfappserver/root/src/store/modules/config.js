@@ -212,7 +212,7 @@ const api = {
     return apiCall({ url: 'config/syslog_parsers', method: 'get' })
   },
   getTenants () {
-    return apiCall({ url: 'tenants', method: 'get' })
+    return apiCall({ url: 'tenants', method: 'get', params: { limit: 1000 } })
   },
   getTrafficShapingPolicies () {
     return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
@@ -685,9 +685,19 @@ const getters = {
   },
   switchesList: state => {
     if (!state.switches) return []
-    return state.switches.map((item) => {
-      return { value: item.id, text: item.description }
-    })
+    return [...(new Set([state.switches]))]
+      .sort((a, b) => {
+        if (+a.id === 0) {
+          return 1
+        }
+        if (+b.id === 0) {
+          return -1
+        }
+        return a.description.localeCompare(b.description)
+      })
+      .map((item) => {
+        return { value: item.id, text: item.description }
+      })
   },
   tenantsList: state => {
     if (!state.tenants) return []
