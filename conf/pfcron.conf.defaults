@@ -927,36 +927,3 @@ schedule=@every 12h
 #
 # Local task
 local=0
-
-[purge_binary_logs]
-#
-# type
-#
-# Task type
-type=purge_binary_logs
-#
-# status
-#
-# If the task is enabled
-status=enabled
-#
-# description
-#
-# The description of task
-description=Controls the cleanup of the binary logs. Files older than the window will be removed.
-#
-# schedule
-#
-# The schedule of task
-schedule=@every 1h
-#
-# window
-#
-# How long to keep a binary log file before deleting it
-window=1h
-#
-# local
-#
-# Local task
-local=1
-
