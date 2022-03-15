@@ -8,6 +8,8 @@
 :INPUT DROP [0:0]
 # accept loopback stuff
 -A INPUT --in-interface lo --jump ACCEPT
+# accept packets from the docker containers as if they were on lo
+-A INPUT --in-interface docker0 --jump ACCEPT
 # accept anything related
 -A INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT
 # Accept Ping (easier troubleshooting)
@@ -251,4 +253,7 @@ COMMIT
 # Routing for the hidden domain network
 #
 %%domain_postrouting%%
+
+-A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE
+
 COMMIT
