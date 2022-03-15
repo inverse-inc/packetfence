@@ -23,6 +23,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupFilterInEduroamPreacct,
   BaseFormGroupToggleDisabledEnabled  as FormGroupLocalAuth,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNtlmRedisCache,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupProcessBandwidthAccounting,
   BaseFormGroupTextarea               as FormGroupRadiusAttributes,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNormalizeRadiusMachineAuthUsername,
   BaseFormGroupTextarea               as FormGroupUsernameAttributes,

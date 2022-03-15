@@ -34,27 +34,28 @@ type radiusRequest struct {
 
 type PfAcct struct {
 	RadiusStatements
-	TimeDuration       time.Duration
-	Db                 *sql.DB
-	AllowedNetworks    []net.IPNet
-	NetFlowPort        string
-	NetFlowAddress     string
-	Management         pfconfigdriver.ManagementNetwork
-	AAAClient          *jsonrpc2.Client
-	LoggerCtx          context.Context
-	Dispatcher         *Dispatcher
-	SwitchInfoCache    *cache.Cache
-	NodeSessionCache   *cache.Cache
-	AcctSessionCache   *cache.Cache
-	StatsdAddress      string
-	StatsdOption       statsd.Option
-	StatsdClient       *statsd.Client
-	radiusRequests     []chan<- radiusRequest
-	localSecret        string
-	StatsdOnce         tryableonce.TryableOnce
-	isProxied          bool
-	radiusdAcctEnabled bool
-	AllNetworks        bool
+	TimeDuration         time.Duration
+	Db                   *sql.DB
+	AllowedNetworks      []net.IPNet
+	NetFlowPort          string
+	NetFlowAddress       string
+	Management           pfconfigdriver.ManagementNetwork
+	AAAClient            *jsonrpc2.Client
+	LoggerCtx            context.Context
+	Dispatcher           *Dispatcher
+	SwitchInfoCache      *cache.Cache
+	NodeSessionCache     *cache.Cache
+	AcctSessionCache     *cache.Cache
+	StatsdAddress        string
+	StatsdOption         statsd.Option
+	StatsdClient         *statsd.Client
+	radiusRequests       []chan<- radiusRequest
+	localSecret          string
+	StatsdOnce           tryableonce.TryableOnce
+	isProxied            bool
+	radiusdAcctEnabled   bool
+	AllNetworks          bool
+	ProcessBandwidthAcct bool
 }
 
 func NewPfAcct() *PfAcct {
@@ -150,6 +151,9 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	var servicesConf pfconfigdriver.PfConfServices
 	pfconfigdriver.FetchDecodeSocket(ctx, &servicesConf)
 	pfAcct.radiusdAcctEnabled = sharedutils.IsEnabled(servicesConf.RadiusdAcct)
+	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
+	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
+	pfAcct.ProcessBandwidthAcct = sharedutils.IsEnabled(RadiusConfiguration.ProcessBandwidthAccounting)
 
 	localSecret := pfconfigdriver.LocalSecret{}
 	pfconfigdriver.FetchDecodeSocket(ctx, &localSecret)

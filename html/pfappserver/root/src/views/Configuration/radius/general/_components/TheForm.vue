@@ -62,6 +62,11 @@
       :text="$i18n.t('Enables a Redis driven cache for NTLM authentication.In order for this to work, you need to setup proper NT hash syncronization between your PacketFence server and your AD. Refer to the Administration guide for more details. Applying this requires a restart of radiusd.')"
     />
 
+    <form-group-process-bandwidth-accounting namespace="process_bandwidth_accounting"
+      :column-label="$i18n.t('Process Bandwidth Accounting')"
+      :text="$i18n.t('Enables processing of bandwidth accounting.')"
+    />
+
     <form-group-radius-attributes namespace="radius_attributes"
       :column-label="$i18n.t('RADIUS attributes')"
       :text="$i18n.t('List of RADIUS attributes that can be used in the sources configuration.')"
@@ -114,6 +119,7 @@ import {
   FormGroupNtlmRedisCache,
   FormGroupRadiusAttributes,
   FormGroupNormalizeRadiusMachineAuthUsername,
+  FormGroupProcessBandwidthAccounting,
   FormGroupUsernameAttributes
 } from './'
 
@@ -135,6 +141,7 @@ const components = {
   FormGroupNtlmRedisCache,
   FormGroupRadiusAttributes,
   FormGroupNormalizeRadiusMachineAuthUsername,
+  FormGroupProcessBandwidthAccounting,
   FormGroupUsernameAttributes
 }
 

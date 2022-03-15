@@ -1354,6 +1354,10 @@ username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Na
 forward_key_balanced=disabled
 # radius_configuration.local_auth
 local_auth=disabled
+# radius_configuration.process_bandwidth_accounting
+#
+# Process bandwidth accounting.
+process_bandwidth_accounting = disabled
 
 [dns_configuration]
 #
