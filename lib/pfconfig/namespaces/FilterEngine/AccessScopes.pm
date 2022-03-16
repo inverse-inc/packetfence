@@ -46,7 +46,7 @@ sub build {
     my $config   = $self->parentConfig;
     $config->init;
     my $file = $config->{file};
-    my $ini = pf::IniFiles->new(%{$config->{added_params}}, -file => $file, -allowempty => 1);
+    my $ini = pf::IniFiles->new(%{$config->{added_params}}, -file => $file, -allowempty => 1, -envsubst => 1);
     unless ($ini) {
         my $error_msg = join("\n", @pf::IniFiles::errors, "");
         get_logger->error($error_msg);

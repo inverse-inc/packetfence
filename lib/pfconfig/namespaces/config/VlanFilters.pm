@@ -31,7 +31,7 @@ sub init {
     $self->{file} = $vlan_filters_config_file;
     $self->{child_resources} = [ 'FilterEngine::VlanScopes'];
 
-    my $defaults = pf::IniFiles->new( -file => $vlan_filters_config_default_file );
+    my $defaults = pf::IniFiles->new( -file => $vlan_filters_config_default_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

@@ -33,7 +33,7 @@ sub init {
 sub build {
     my ($self) = @_;
     my $file = $self->{file};
-    my $ini = pf::IniFiles->new(-file => $file, -allowempty => 1);
+    my $ini = pf::IniFiles->new(-file => $file, -allowempty => 1, -envsubst => 1);
     unless ($ini) {
         my $error_msg = join("\n", @pf::IniFiles::errors, "");
         get_logger->error($error_msg);

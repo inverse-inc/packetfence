@@ -16,7 +16,6 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::IniFiles;
 use pf::log;
 use pf::file_paths qw($fingerbank_config_file $fingerbank_default_config_file);
 

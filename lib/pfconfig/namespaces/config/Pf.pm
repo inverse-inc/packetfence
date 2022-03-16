@@ -43,9 +43,9 @@ sub build {
 
     my %tmp_cfg;
 
-    my $pf_conf_defaults = pf::IniFiles->new( -file => $pf_default_file );
+    my $pf_conf_defaults = pf::IniFiles->new( -file => $pf_default_file, -envsubst => 1 );
 
-    tie %tmp_cfg, 'pf::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults );
+    tie %tmp_cfg, 'pf::IniFiles', ( -file => $self->{file}, -import => $pf_conf_defaults, -envsubst => 1 );
 
     # for pfcmd checkup
     $self->{_file_cfg} = {%tmp_cfg};
