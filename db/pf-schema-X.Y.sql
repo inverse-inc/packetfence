@@ -75,7 +75,7 @@ CREATE TABLE person (
   `source` varchar(255) default NULL,
   `psk` varchar(255) NULL DEFAULT NULL,
   `potd` enum('no','yes') NOT NULL DEFAULT 'no',
-  `otp` TEXT NULL DEFAULT NULL,
+  `otp` MEDIUMTEXT NULL DEFAULT NULL,
   PRIMARY KEY (`pid`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'; 
 
@@ -90,7 +90,7 @@ CREATE TABLE `node_category` (
   `notes` varchar(255) default NULL,
   `include_parent_acls` varchar(255) default NULL,
   `fingerbank_dynamic_access_list` varchar(255) default NULL,
-  `acls` TEXT NOT NULL default '',
+  `acls` MEDIUMTEXT NOT NULL default '',
   `inherit_vlan` varchar(50) default NULL,
   `inherit_role` varchar(50) default NULL,
   `inherit_web_auth_url` varchar(50) default NULL,
@@ -198,7 +198,7 @@ CREATE TABLE security_event (
   release_date datetime default "0000-00-00 00:00:00",
   status varchar(10) default "open",
   ticket_ref varchar(255) default NULL,
-  notes text,
+  notes MEDIUMTEXT,
   KEY security_event_id (security_event_id),
   KEY status (status),
   KEY uniq_mac_status_id (mac,status,security_event_id),
@@ -996,7 +996,7 @@ CREATE TABLE savedsearch (
   pid varchar(255) NOT NULL,
   namespace varchar(255) NOT NULL,
   name varchar(255) NOT NULL,
-  query text,
+  query MEDIUMTEXT,
   in_dashboard tinyint
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
 
@@ -1011,7 +1011,7 @@ CREATE TABLE wrix (
   `Service_Provider_Brand` varchar(64) NULL DEFAULT NULL,
   `Location_Type` varchar(64) NULL DEFAULT NULL,
   `Sub_Location_Type` varchar(64) NULL DEFAULT NULL,
-  `English_Location_Name` TEXT NULL DEFAULT NULL,
+  `English_Location_Name` MEDIUMTEXT NULL DEFAULT NULL,
   `Location_Address1` varchar(128) NULL DEFAULT NULL,
   `Location_Address2` varchar(128) NULL DEFAULT NULL,
   `English_Location_City` varchar(64) NULL DEFAULT NULL,
@@ -1114,7 +1114,7 @@ CREATE TABLE radius_audit_log (
   nas_ip_address varchar(255) NULL,
   nas_identifier varchar(255) NULL,
   auth_status varchar(255) NULL,
-  reason TEXT NULL,
+  reason MEDIUMTEXT NULL,
   auth_type varchar(255) NULL,
   eap_type varchar(255) NULL,
   role varchar(255) NULL,
@@ -1125,8 +1125,8 @@ CREATE TABLE radius_audit_log (
   is_phone char(1) NULL,
   pf_domain varchar(255) NULL,
   uuid varchar(255) NULL,
-  radius_request TEXT,
-  radius_reply TEXT,
+  radius_request MEDIUMTEXT,
+  radius_reply MEDIUMTEXT,
   request_time int(11) DEFAULT NULL,
   radius_ip varchar(45) NULL,
   KEY `created_at` (created_at),
@@ -1243,7 +1243,7 @@ CREATE TABLE `chi_cache` (
 --
 DROP FUNCTION IF EXISTS `FREERADIUS_DECODE`;
 DELIMITER ;;
-CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS text CHARSET latin1
+CREATE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS text CHARSET utf8mb4
     DETERMINISTIC
 BEGIN
     DECLARE result text;
@@ -1306,12 +1306,12 @@ CREATE TABLE `dns_audit_log` (
 CREATE TABLE `admin_api_audit_log` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-  `user_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
-  `action` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
-  `object_id` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
-  `url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
-  `method` varchar(10) COLLATE utf8mb4_bin DEFAULT NULL,
-  `request` mediumtext COLLATE utf8mb4_bin,
+  `user_name` varchar(255) DEFAULT NULL,
+  `action` varchar(255) DEFAULT NULL,
+  `object_id` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `method` varchar(10) DEFAULT NULL,
+  `request` MEDIUMTEXT,
   `status` smallint(5) NOT NULL,
    KEY `action` (`action`),
    KEY `user_name` (`user_name`),

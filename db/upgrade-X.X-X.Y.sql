@@ -43,6 +43,11 @@ END
 //
 
 DELIMITER ;
+
+ALTER DATABASE
+    CHARACTER SET = 'utf8mb4'
+    COLLATE = 'utf8mb4_bin';
+
 \! echo "Checking PacketFence schema version...";
 call ValidateVersion;
 
@@ -165,6 +170,16 @@ ALTER TABLE node
    ADD FOREIGN KEY `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 DROP TABLE tenant;
+
+\! echo "altering sms_carrier"
+ALTER TABLE sms_carrier
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+
+INSERT INTO sms_carrier
+    (name, email_pattern, created)
+  VALUES
+      ('RingRing', '%s@smsemail.be', now());
+
 
 --
 -- Trigger to insert old record from 'ip4log' in 'ip4log_history' before updating the current one
@@ -553,12 +568,22 @@ ALTER TABLE ip4log ADD INDEX IF NOT EXISTS ip4log_mac_start_time (mac, start_tim
 ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `csr` BOOLEAN DEFAULT FALSE AFTER scep;
 
-\! echo "altering activation"
-ALTER TABLE activation
+\! echo "altering security_event"
+ALTER TABLE security_event
+    DROP FOREIGN KEY `tenant_id_mac_fkey_node`,
     CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering node"
+ALTER TABLE node
+    DROP FOREIGN KEY `0_57`,
+   CONVERT TO CHARACTER SET utf8mb4;
 
 \! echo "altering action"
 ALTER TABLE action
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering activation"
+ALTER TABLE activation
     CONVERT TO CHARACTER SET utf8mb4;
 
 \! echo "altering auth_log"
@@ -568,6 +593,189 @@ ALTER TABLE auth_log
 \! echo "altering bandwidth_accounting"
 ALTER TABLE bandwidth_accounting
     CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering bandwidth_accounting_history"
+ALTER TABLE bandwidth_accounting_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering billing"
+ALTER TABLE billing
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering chi_cache"
+ALTER TABLE chi_cache
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering class"
+ALTER TABLE class
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dhcppool"
+ALTER TABLE dhcppool
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dhcp_option82"
+ALTER TABLE dhcp_option82
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dhcp_option82_history"
+ALTER TABLE dhcp_option82_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dns_audit_log"
+ALTER TABLE dns_audit_log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip4log"
+ALTER TABLE ip4log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip4log_archive"
+ALTER TABLE ip4log_archive
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip4log_history"
+ALTER TABLE ip4log_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip6log"
+ALTER TABLE ip6log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip6log_archive"
+ALTER TABLE ip6log_archive
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip6log_history"
+ALTER TABLE ip6log_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering keyed"
+ALTER TABLE keyed
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering key_value_storage"
+ALTER TABLE key_value_storage
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering locationlog"
+ALTER TABLE locationlog
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering locationlog_history"
+ALTER TABLE locationlog_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering node_category"
+ALTER TABLE node_category
+    MODIFY `acls` MEDIUMTEXT NOT NULL default '',
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering password"
+ALTER TABLE password
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering person"
+ALTER TABLE person
+    MODIFY `otp` MEDIUMTEXT NULL DEFAULT NULL,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pf_version"
+ALTER TABLE pf_version
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_cas"
+ALTER TABLE pki_cas
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_certs"
+ALTER TABLE pki_certs
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_revoked_certs"
+ALTER TABLE pki_revoked_certs
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radacct"
+ALTER TABLE radacct
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radacct_log"
+ALTER TABLE radacct_log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radius_audit_log"
+ALTER TABLE radius_audit_log
+    MODIFY reason MEDIUMTEXT NULL,
+    MODIFY radius_request MEDIUMTEXT,
+    MODIFY radius_reply MEDIUMTEXT,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radius_nas"
+ALTER TABLE radius_nas
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radreply"
+ALTER TABLE radreply
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering savedsearch"
+ALTER TABLE savedsearch
+    MODIFY query MEDIUMTEXT,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering scan"
+ALTER TABLE scan
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering user_preference"
+ALTER TABLE user_preference
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering wrix"
+ALTER TABLE wrix
+    MODIFY `English_Location_Name` MEDIUMTEXT NULL DEFAULT NULL,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+ALTER TABLE admin_api_audit_log
+    MODIFY `request` MEDIUMTEXT;
+
+ALTER TABLE node
+    ADD CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE security_event
+    MODIFY notes MEDIUMTEXT,
+    ADD CONSTRAINT `tenant_id_mac_fkey_node` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE OR REPLACE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS text CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+    DECLARE result text;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = str;
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    RETURN result;
+END /
+
+DELIMITER ;
+
+CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)
+    RETURNS DATETIME DETERMINISTIC
+        RETURN DATE_ADD(DATE(d), INTERVAL HOUR(d) HOUR);
+
+CREATE OR REPLACE FUNCTION ROUND_TO_MONTH (d DATETIME)
+    RETURNS DATETIME DETERMINISTIC
+        RETURN DATE_ADD(DATE(d),interval -DAY(d)+1 DAY);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
