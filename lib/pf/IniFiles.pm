@@ -38,9 +38,12 @@ sub new {
     my ($proto, %args) = @_;
     my $class = ref($proto) || $proto;
     if(exists($args{-envsubst}) && $args{-envsubst}) {
+        delete($args{-envsubst});
         my $processed_file;
         $tt->process($args{-file}, {ENV => \%ENV}, \$processed_file) || die "Can't process TT for $args{-file}: ".$tt->error;
         $args{-file} = \$processed_file;
+    } else {
+        delete($args{-envsubst});
     }
     return $class->SUPER::new(%args);
 }
