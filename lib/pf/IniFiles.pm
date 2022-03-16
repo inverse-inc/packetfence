@@ -21,6 +21,7 @@ use Config::IniFiles;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
+use Template;
 
 *errors = \@Config::IniFiles::errors;
 
