@@ -264,6 +264,7 @@ raddb/sites-enabled/
 html/captive-portal/content/node_modules/
 html/common/node_modules/
 public/
+dockertmp/
 
 # dynamic template for admin
 html/pfappserver/root/admin/v-index.tt
