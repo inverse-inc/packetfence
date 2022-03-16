@@ -58,14 +58,14 @@ sub remove {
 
 sub update_mysql_credentials {
     my ($self, $user, $password) = @_;
-    $self->config_file->setval('mysql', 'user', $user);
-    $self->config_file->setval('mysql', 'pass', $password);
+    $self->config_file->setval('mysql', 'user', $user) || $self->config_file->newval('mysql', 'user', $user);
+    $self->config_file->setval('mysql', 'pass', $password) || $self->config_file->newval('mysql', 'pass', $password);
     return ($self->config_file->RewriteConfig(), undef);
 }
 
 sub update_db_name {
     my ($self, $db) = @_;
-    $self->config_file->setval('mysql', 'db', $db);
+    $self->config_file->setval('mysql', 'db', $db) || $self->config_file->newval('mysql', 'db', $db);
     return ($self->config_file->RewriteConfig(), undef);
 }
 
