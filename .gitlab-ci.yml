@@ -211,7 +211,9 @@ variables:
 .build_img_container_job:
   stage: build_img
   dependencies: []
-  image: ${KANIKO_DEBUG_IMG}
+  image:
+    name: ${KANIKO_DEBUG_IMG}
+    entrypoint: [""]
   script:
     - ${CONTAINER_DIR}/kanikobuild
   tags:
