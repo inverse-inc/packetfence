@@ -58,7 +58,7 @@ Get the vhost for the managment network
 
 sub vhost_management_network {
     my ($self) = @_;
-    return "127.0.0.1";
+    return "0.0.0.0";
 }
 
 =head2 get_max_clients
@@ -82,20 +82,9 @@ Get vhosts
 
 sub vhosts {
     my ($self) = @_;
-    return ["127.0.0.1"];
+    return ["0.0.0.0"];
 }
 
-
-=head2 routedNets
-
-Get the routed nets
-
-=cut
-
-sub routedNets {
-    my ($self) = @_;
-    return join(" ", pf::config::util::get_routed_isolation_nets(), pf::config::util::get_routed_registration_nets() , pf::config::util::get_inline_nets());
-}
 
 =head1 AUTHOR
 
