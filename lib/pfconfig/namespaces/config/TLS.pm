@@ -32,7 +32,7 @@ sub init {
         'resource::eap_config'
     ];
 
-    my $defaults = Config::IniFiles->new( -file => $tls_default_config_file, -default => 'tls-common' );
+    my $defaults = pf::IniFiles->new( -file => $tls_default_config_file, -default => 'tls-common', -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

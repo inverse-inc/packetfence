@@ -27,7 +27,7 @@ sub init {
     my ($self) = @_;
     $self->{file} = $self_service_config_file;
     $self->{child_resources} = [ qw(resource::RolesReverseLookup) ];
-    my $defaults = Config::IniFiles->new( -file => $self_service_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $self_service_default_config_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

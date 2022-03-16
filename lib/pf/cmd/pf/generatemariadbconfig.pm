@@ -57,7 +57,7 @@ my %EventLoggers = %{pfconfig::namespaces::config::EventLoggers->new->build()};
 
 use pf::util;
 
-my $pf_conf = Config::IniFiles->new(-file => $pf_config_file, -import => Config::IniFiles->new(-file => $pf_default_file));
+my $pf_conf = pf::IniFiles->new(-file => $pf_config_file, -import => pf::IniFiles->new(-file => $pf_default_file, -envsubst => 1), -envsubst => 1);
 our $FORCE = $FALSE;
 
 =head2 _pf_config_val
