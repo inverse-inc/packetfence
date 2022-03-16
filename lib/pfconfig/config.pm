@@ -89,7 +89,7 @@ sub get_backend {
 
 sub get_proto {
 	my ( $self ) = @_;
-    return $ENV{PFCONFIG_PROTO} // $self->section("general")->{proto} || "unix";	
+    return $self->section("general")->{proto} || "unix";	
 }
 
 
