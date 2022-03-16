@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function base_args {
+  name="$1"
+  args="--sig-proxy=true --rm --name=$name"
+
+  mysql_sock=""
+  if [ -e /etc/debian_version ]; then
+    mysql_sock="/var/run/mysqld"
+  else
+    mysql_sock="/var/lib/mysql"
+  fi
+  args="$args -v $mysql_sock:/run/mysqld"
+
+  echo "$args"
+}
+
+function run {
+  name="$1"
+  args="$2"
+  docker container rm -f $name
+  echo "Running with args $args"
+  docker run $args --name=$name $(docker build -q -f docker/$name/Dockerfile .)
+}
