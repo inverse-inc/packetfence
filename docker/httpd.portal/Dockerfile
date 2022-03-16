@@ -2,6 +2,11 @@ FROM pfdebian:11.3
 
 WORKDIR /usr/local/pf/
 
+RUN mkdir -p /usr/local/pf/var/run
+RUN mkdir -p /usr/local/pf/var/tt_compile_cache
+
+RUN chown -R pf: /usr/local/pf/var
+
 COPY lib lib
 COPY html html
 
