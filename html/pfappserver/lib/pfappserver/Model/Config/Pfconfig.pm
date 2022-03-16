@@ -41,7 +41,7 @@ has config_file => (
 
 sub _build_config_file {
     my $file = $pfconfig::constants::CONFIG_FILE_PATH;
-    my $config = Config::IniFiles->new( -file => $file );
+    my $config = Config::IniFiles->new( -file => $file, -allowempty => 1 );
     return $config;
 }
 
