@@ -64,7 +64,7 @@
 
     <form-group-process-bandwidth-accounting namespace="process_bandwidth_accounting"
       :column-label="$i18n.t('Process Bandwidth Accounting')"
-      :text="$i18n.t('Enables processing of bandwidth accounting.')"
+      :text="$i18n.t('Enables processing of bandwidth accounting. Requires a restart of pfacct to be effective')"
     />
 
     <form-group-radius-attributes namespace="radius_attributes"
