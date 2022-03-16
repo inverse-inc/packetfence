@@ -25,7 +25,7 @@ use pf::log;
 use File::Slurp qw(read_file write_file);
 use pf::util;
 use pf::file_paths qw($cluster_config_file);
-use Config::IniFiles;
+use pf::IniFiles;
 use Sys::Hostname;
 use pf::constants qw($TRUE $FALSE);
 use pf::file_paths qw(
@@ -73,12 +73,12 @@ our $master_multi_zone = sub {
 
 =head2 cluster_ini_config
 
-Get the cluster.conf Config::IniFiles object
+Get the cluster.conf pf::IniFiles object
 
 =cut
 
 sub cluster_ini_config {
-    my $cfg = Config::IniFiles->new( -file => $cluster_config_file );
+    my $cfg = pf::IniFiles->new( -file => $cluster_config_file, -envsubst => 1 );
     return $cfg;
 }
 

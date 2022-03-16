@@ -78,7 +78,7 @@ my $_ui_conf_tie = undef;
 
 =item _ui_conf
 
-Load ui.conf into a Config::IniFiles tied hashref
+Load ui.conf into a pf::IniFiles tied hashref
 
 =cut
 
@@ -89,7 +89,7 @@ sub _ui_conf {
     unless (defined $_ui_conf_tie) {
         my %conf;
         tie %conf, 'pf::IniFiles', ( -file => $ui_config_file );
-        my @errors = @Config::IniFiles::errors;
+        my @errors = @pf::IniFiles::errors;
         if ( scalar(@errors) || !%conf ) {
             $logger->logdie("Error reading ui.conf: " . join( "\n", @errors ) . "\n" );
         }
