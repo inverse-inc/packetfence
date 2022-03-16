@@ -158,6 +158,7 @@ install: build
 	install -m0755 sbin/pfconfig $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0755 sbin/pfconfig-docker-wrapper $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/sbin
 	install -m0600 conf/pfconfig.conf.example $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf/pfconfig.conf
+	install -m0600 conf/pfconfig.conf.defaults $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/conf/pfconfig.conf.defaults
 	# packetfence-redis-cache
 	install -d -m0700 $(CURDIR)/debian/packetfence-redis-cache/lib/systemd/system
 	install -d -m2770 $(CURDIR)/debian/packetfence-redis-cache$(PREFIX)/$(NAME)/var/run
