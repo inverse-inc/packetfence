@@ -444,26 +444,68 @@ run_pipeline_if_necessary:
 # BUILD_IMG JOBS
 ########################################
 ### build_img_container jobs
+# devel
+# build_pfdebian_container_devel:
+#   extends:
+#     - .build_img_container_job
+#     - .build_img_container_devel_rules
+#   variables:
+#     IMAGE_NAME: "pfdebian"
+#     IMAGE_TAGS: "latest"
+
+# build_container_devel:
+#   extends:
+#     - .build_img_container_job
+#     - .build_img_container_devel_rules
+#   variables:
+#     IMAGE_TAGS: "latest"
+#   parallel:
+#     matrix:
+#       - IMAGE_NAME:
+#           - "pfconfig"
+#           - "httpd.portal"
+
+# branches and maintenance
 build_pfdebian_container_branches_and_maintenance:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
   variables:
     IMAGE_NAME: "pfdebian"
-    IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
 
 build_container_branches_and_maintenance:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
   variables:
-    IMAGE_TAG: ${CI_COMMIT_REF_SLUG}
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
           - "httpd.portal"
 
+# release
+# build_pfdebian_container_release:
+#   extends:
+#     - .build_img_container_job
+#     - .build_img_container_release_rules
+#   variables:
+#     IMAGE_NAME: "pfdebian"
+#     IMAGE_TAGS: ${CI_COMMIT_TAG}
+
+# build_container_release:
+#   extends:
+#     - .build_img_container_job
+#     - .build_img_container_release_rules
+#   variables:
+#     IMAGE_TAGS: ${CI_COMMIT_TAG}
+#   parallel:
+#     matrix:
+#       - IMAGE_NAME:
+#           - "pfconfig"
+#           - "httpd.portal"
 
 ### build_img_docker jobs
 build_img_docker_devel:

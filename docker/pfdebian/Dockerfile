@@ -7,7 +7,8 @@ RUN /bin/bash -c "echo 'exit 0' > /usr/bin/systemctl"
 RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
 
 ARG DOCKER_BUILD=yes
-RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/11.2 bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"
+ARG PF_VERSION
+RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"
 RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
 RUN apt-get update
 
