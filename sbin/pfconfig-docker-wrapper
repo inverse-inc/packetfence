@@ -7,6 +7,4 @@ name=pfconfig
 args=`base_args $name`
 args="$args -v/usr/local/pf/conf:/usr/local/pf/conf -p 44444:44444"
 
-cd /usr/local/pf/
-
-run pfconfig "$args"
+run $name "$args"
