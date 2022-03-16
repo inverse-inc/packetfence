@@ -1,0 +1,25 @@
+#! /busybox/sh
+# Taken from https://gitlab.com/Orange-OpenSource/gitlab-buildpkg
+# See https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+# set -euxo pipefail
+DIST=$(echo ${IMAGE_NAME} | cut -d: -f1)
+TAG=$(echo ${IMAGE_NAME} | cut -d: -f2)
+env | grep CI_
+
+echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+
+IMAGE_PATH="${CI_REGISTRY_IMAGE}/${IMAGE_NAME}"
+[ -d dockertmp ] || mkdir dockertmp
+if [ ! -f dockerfiles/${IMAGE_NAME} ]
+then
+	cp dockerfiles/${DIST} dockertmp/${IMAGE_NAME}
+else
+	cp dockerfiles/${IMAGE_NAME} dockertmp/${IMAGE_NAME}
+fi
+
+sed -i -e "s!\$TAG!$TAG!g" dockertmp/${IMAGE_NAME}
+sed -i -e "s!\$GITREPO!$GITREPO!g" dockertmp/${IMAGE_NAME}
+
+set -euo pipefail
+/kaniko/executor --context $CI_PROJECT_DIR --dockerfile dockertmp/${IMAGE_NAME} --destination ${IMAGE_PATH}
+
