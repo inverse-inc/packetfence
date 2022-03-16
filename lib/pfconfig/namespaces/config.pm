@@ -56,6 +56,7 @@ sub build {
 
     $self->{added_params}->{-file} = $self->{file};
     $self->{added_params}->{-allowempty} = 1;
+    $self->{added_params}->{-envsubst} = 1;
 
     tie %tmp_cfg, 'pf::IniFiles', %{$self->{added_params}} or $self->_parse_error();
 

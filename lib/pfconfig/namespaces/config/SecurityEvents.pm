@@ -30,7 +30,7 @@ sub init {
     $self->{file}            = $security_events_config_file;
     $self->{default_section} = "defaults";
     $self->{child_resources} = [ 'FilterEngine::SecurityEvent', 'resource::RolesReverseLookup' ];
-    my $defaults = pf::IniFiles->new(-file => $security_events_default_config_file);
+    my $defaults = pf::IniFiles->new(-file => $security_events_default_config_file, -envsubst => 1);
     $self->{added_params}{'-import'} = $defaults;
 }
 

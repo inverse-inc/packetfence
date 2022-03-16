@@ -28,7 +28,7 @@ use base 'pfconfig::namespaces::config';
 sub init {
     my ($self) = @_;
     $self->{file} = $cron_config_file;
-    my $defaults = pf::IniFiles->new(-file => $cron_default_config_file);
+    my $defaults = pf::IniFiles->new(-file => $cron_default_config_file, -envsubst => 1);
     $self->{added_params}{'-import'} = $defaults;
 }
 

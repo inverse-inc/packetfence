@@ -30,7 +30,7 @@ sub init {
     $self->{file}              = $report_config_file;
     $self->{expandable_params} = [ qw(searches columns order_fields base_conditions person_fields node_fields charts bindings formatting role_fields) ];
     
-    my $defaults = pf::IniFiles->new( -file => $report_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $report_default_config_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 }
 
