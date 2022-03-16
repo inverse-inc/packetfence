@@ -2,7 +2,7 @@
 
 function base_args {
   name="$1"
-  args="--sig-proxy=true --rm --name=$name"
+  args="--sig-proxy=true --rm --name=$name --add-host=host.docker.internal:host-gateway"
 
   mysql_sock=""
   if [ -e /etc/debian_version ]; then
@@ -18,6 +18,7 @@ function base_args {
 function run {
   name="$1"
   args="$2"
+  cd /usr/local/pf/
   docker container rm -f $name
   echo "Running with args $args"
   docker run $args --name=$name $(docker build -q -f docker/$name/Dockerfile .)
