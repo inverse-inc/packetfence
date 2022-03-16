@@ -11,42 +11,17 @@ SHELL=/bin/bash
 ifeq ($(CI), true)
  $(info CI environment detected)
  DEV_ENV=dev
- RESULT_DIR=$(CI_PROJECT_DIR)/results
 else
  $(info localdev environment detected)
  DEV_ENV=localdev
- CI_REGISTRY=FIXME
- CI_REGISTRY_USER=FIXME
- CI_REGISTRY_PASSWORD=FIXME
- CI_REGISTRY_IMAGE=FIXME
- CI_PROJECT_DIR=$(SRC_ROOT_DIR)
 endif
 
 #==============================================================================
 # Targets
 #==============================================================================
-.PHONY: install build pfdebian pfgo
+.PHONY: run_kaniko
 
-install:
+run_kaniko:
 	docker pull gcr.io/kaniko-project/executor:debug
+	docker container run --entrypoint '/busybox/sh' --rm --name "kaniko" --volume="$(SRC_ROOT_DIR)":/workspace -it gcr.io/kaniko-project/executor:debug
 
-# we expect to be inside a Kaniko image
-build:
-	# TODO hide this
-	IMAGE_NAME="$(IMAGE_NAME)" \
-	CI_REGISTRY="$(CI_REGISTRY)" \
-	CI_REGISTRY_USER="$(CI_REGISTRY_USER)" \
-	CI_REGISTRY_PASSWORD="$(CI_REGISTRY_PASSWORD)" \
-	CI_REGISTRY_IMAGE="$(CI_REGISTRY_IMAGE)" \
-	CI_PROJECT_DIR="$(CI_PROJECT_DIR)" \
-	./kanikobuild
-
-pfdebian:
-	make \
-	IMAGE_NAME=$@ \
-	build
-
-pfgo:
-	make \
-	IMAGE_NAME=$@ \
-	build \
