@@ -13,6 +13,11 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
+const (
+	charset   = "utf8mb4"
+	collation = "utf8mb4_bin"
+)
+
 func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
@@ -95,5 +100,6 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	Configuration.Net = proto
 	Configuration.Addr = host
 	Configuration.DBName = dbName
+	Configuration.Collation = collation
 	return Configuration.FormatDSN()
 }
