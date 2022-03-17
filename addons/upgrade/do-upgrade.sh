@@ -14,6 +14,7 @@ if is_rpm_based; then
     yum install packetfence-upgrade --enablerepo=packetfence
   fi
 else
+  apt update
   apt install packetfence-upgrade
 fi
 
