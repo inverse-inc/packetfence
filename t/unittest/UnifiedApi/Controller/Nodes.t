@@ -13,6 +13,7 @@ unit test for Nodes
 =cut
 
 use strict;
+use utf8;
 use warnings;
 #
 
@@ -29,13 +30,30 @@ use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 104;
+use Test::More tests => 107;
 use Test::Mojo;
 use Test::NoWarnings;
+use Utils;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
 $t->get_ok('/api/v1/nodes')
   ->status_is(200);
+
+{
+    my $test_mac = Utils::test_mac();
+    my $notes = "💩";
+    $t->post_ok(
+        '/api/v1/nodes' => json => {
+            mac => $test_mac,
+            notes => $notes,
+        }
+    );
+
+    $t->get_ok("/api/v1/node/$test_mac")
+        ->json_is(
+        '/item/notes' => $notes,
+    );
+}
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac ip4log.ip)], query => { op=> 'equals', field => 'ip4log.ip', value => '1.2.2.3'  }  })
   ->status_is(200);
