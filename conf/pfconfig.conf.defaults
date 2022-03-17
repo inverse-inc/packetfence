@@ -1,14 +1,14 @@
 # Copyright (C) Inverse inc.
 [general]
-proto=tcp
-backend=mysql
-tcp_host=host.docker.internal
-tcp_port=44444
+proto=[% ENV.env_or_default("PFCONFIG_PROTO", "tcp") %]
+backend=[% ENV.env_or_default("PFCONFIG_BACKEND", "mysql") %]
+tcp_host=[% ENV.env_or_default("PFCONFIG_TCP_HOST", "host.docker.internal") %]
+tcp_port=[% ENV.env_or_default("PFCONFIG_TCP_PORT", "44444") %]
 
 [mysql]
-host=localhost
-user=pf
-pass=packet
-db=pf
-port=3306
-table=keyed
+host=[% ENV.env_or_default("PFCONFIG_MYSQL_HOST", "localhost") %]
+user=[% ENV.env_or_default("PFCONFIG_MYSQL_USER", "pf") %]
+pass=[% ENV.env_or_default("PFCONFIG_MYSQL_PASS", "packet") %]
+db=[% ENV.env_or_default("PFCONFIG_MYSQL_DB", "pf") %]
+port=[% ENV.env_or_default("PFCONFIG_MYSQL_PORT", "3306") %]
+table=[% ENV.env_or_default("PFCONFIG_MYSQL_TABLE", "keyed") %]

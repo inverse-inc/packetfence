@@ -22,13 +22,17 @@ use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 use Template;
-
+use Template::Stash;
 *errors = \@Config::IniFiles::errors;
 
 use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
 our $PrettyName;
 our $tt = Template->new({ABSOLUTE => 1});
+$tt->context->define_vmethod('hash', 'env_or_default', sub {
+	exists($_[0]{$_[1]}) && $_[0]{$_[1]} ne '${'.$_[1].'}' ? $_[0]{$_[1]} : $_[2]; 
+});
+
 
 =head2 new
 
