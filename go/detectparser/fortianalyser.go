@@ -3,7 +3,7 @@ package detectparser
 import (
 	"regexp"
 
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 var fortiAnalyserRegexPattern1 = regexp.MustCompile(`\s+`)

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net"
 	"time"
 
@@ -10,19 +11,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/rfc2866"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/mac"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/mac"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
 	"github.com/inverse-inc/packetfence/go/tryableonce"
 	statsd "gopkg.in/alexcesaro/statsd.v2"
 )
 
 const DefaultTimeDuration = 5 * time.Minute
-
-var successDBConnect = false
 
 type radiusRequest struct {
 	w          radius.ResponseWriter
@@ -45,6 +44,8 @@ type PfAcct struct {
 	LoggerCtx          context.Context
 	Dispatcher         *Dispatcher
 	SwitchInfoCache    *cache.Cache
+	NodeSessionCache   *cache.Cache
+	AcctSessionCache   *cache.Cache
 	StatsdAddress      string
 	StatsdOption       statsd.Option
 	StatsdClient       *statsd.Client
@@ -62,24 +63,21 @@ func NewPfAcct() *PfAcct {
 
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		}
-
+		logError(ctx, "Error: "+err.Error())
+		time.Sleep(time.Duration(5) * time.Second)
 		Database, err = db.DbFromConfig(ctx)
 	}
 
-	for !successDBConnect {
+	err = Database.Ping()
+	for err != nil {
+		time.Sleep(time.Duration(5) * time.Second)
 		err = Database.Ping()
-		if err != nil {
-			time.Sleep(time.Duration(5) * time.Second)
-		} else {
-			successDBConnect = true
-		}
 	}
 
 	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
+	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
+	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.LoggerCtx = ctx
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 
@@ -87,6 +85,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
+	pfAcct.runPing()
 	return pfAcct
 }
 
@@ -181,6 +180,27 @@ func (pfAcct *PfAcct) NewTiming() *Timing {
 	return &Timing{timing: pfAcct.StatsdClient.NewTiming()}
 }
 
+func (pfAcct *PfAcct) DbPing() error {
+	if pfAcct.Db == nil {
+		return nil
+	}
+
+	return pfAcct.Db.Ping()
+}
+
+func (pfAcct *PfAcct) runPing() {
+	go func(pfAcct *PfAcct) {
+		for {
+			time.Sleep(60 * time.Second)
+			if err := pfAcct.DbPing(); err != nil {
+				logDebug(pfAcct.LoggerCtx, "Unable to ping DB: "+err.Error())
+			} else {
+				logDebug(pfAcct.LoggerCtx, "Pinged DB")
+			}
+		}
+	}(pfAcct)
+}
+
 func isProxied(pfAcct *PfAcct) bool {
 	return pfconfigdriver.GetClusterSummary(context.Background()).ClusterEnabled == 1 || pfAcct.radiusdAcctEnabled
 }
@@ -192,4 +212,22 @@ func (t *Timing) Send(name string) {
 	}
 
 	t.timing.Send(name)
+}
+
+type AcctSession struct {
+	in_bytes  int64
+	out_bytes int64
+}
+
+func (pfAcct *PfAcct) SetAcctSession(node_id, unique_session uint64, session *AcctSession) {
+	key := fmt.Sprintf("%x:%x", node_id, unique_session)
+	pfAcct.AcctSessionCache.Set(key, session, cache.DefaultExpiration)
+}
+
+func (pfAcct *PfAcct) GetAcctSession(node_id, unique_session uint64) *AcctSession {
+	key := fmt.Sprintf("%x:%x", node_id, unique_session)
+	if s, found := pfAcct.AcctSessionCache.Get(key); found {
+		return s.(*AcctSession)
+	}
+	return nil
 }

@@ -9,7 +9,7 @@ import (
 
 	//Import mysql as _
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"gopkg.in/alexcesaro/statsd.v2"
 )
 

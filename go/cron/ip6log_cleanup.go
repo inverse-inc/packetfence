@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type Ip6logCleanup struct {

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/jcuga/golongpoll"
 )
 

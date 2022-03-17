@@ -19,6 +19,11 @@ description=Task that controls the inline accounting maintenance (bandwidth chec
 # 
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [auth_log_cleanup]
 # 
@@ -56,6 +61,11 @@ timeout=10s
 #
 # How long to keep a auth_log_cleanup entry before deleting it
 window=1W
+#
+# local
+#
+# Local task
+local=0
 
 [cleanup_chi_database_cache]
 # 
@@ -88,6 +98,11 @@ batch=1000
 #
 # How long a cleanup_chi_database_cache job can run
 timeout=10s
+#
+# local
+#
+# Local task
+local=0
 
 [cluster_check]
 # 
@@ -110,6 +125,11 @@ description=Task that checks the health state of the cluster and attempts to res
 # 
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [fingerbank_data_update]
 # 
@@ -132,6 +152,11 @@ description=Task that controls updates of the local Fingerbank data from the clo
 # 
 # The schedule of task
 schedule=@every 24h
+#
+# local
+#
+# Local task
+local=0
 
 [ip4log_cleanup]
 # 
@@ -189,6 +214,11 @@ timeout=10s
 #
 # How long to keep a ip4log_cleanup entry before deleting it
 window=1W
+#
+# local
+#
+# Local task
+local=0
 
 [ip6log_cleanup]
 # 
@@ -246,6 +276,11 @@ timeout=10s
 #
 # How long to keep a ip6log_cleanup entry before deleting it
 window=1M
+#
+# local
+#
+# Local task
+local=0
 
 [locationlog_cleanup]
 # 
@@ -283,6 +318,11 @@ timeout=10s
 #
 # How long to keep a locationlog_cleanup entry before deleting it
 window=1W
+#
+# local
+#
+# Local task
+local=0
 
 [node_cleanup]
 # 
@@ -320,6 +360,11 @@ unreg_window=0D
 #
 # Enable voip device cleanup
 voip=enabled
+#
+# local
+#
+# Local task
+local=0
 
 [nodes_maintenance]
 # 
@@ -342,6 +387,11 @@ description=Task to unregister nodes that have an unregistration date older than
 # 
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [option82_query]
 # 
@@ -364,6 +414,11 @@ description=Task to query compatible switches for DHCP Option 82 switch MAC addr
 # 
 # The schedule of task
 schedule=@every 23h
+#
+# local
+#
+# Local task
+local=0
 
 [person_cleanup]
 # 
@@ -386,6 +441,11 @@ description=Task to delete users that do not own any device. Locally created use
 # 
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [populate_ntlm_redis_cache]
 # 
@@ -408,6 +468,11 @@ description=Task to control the population of the Active Directory NTLM cache.
 # 
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [provisioning_compliance_poll]
 # 
@@ -430,6 +495,11 @@ description=Task that runs the polling enforcement on the provisioners.
 # 
 # The schedule of task
 schedule=@every 5m
+#
+# local
+#
+# Local task
+local=0
 
 [radius_audit_log_cleanup]
 # 
@@ -467,6 +537,11 @@ timeout=10s
 #
 # How long to keep a radius_audit_log_cleanup entry before deleting it
 window=1D
+#
+# local
+#
+# Local task
+local=0
 
 [dns_audit_log_cleanup]
 # 
@@ -504,6 +579,11 @@ timeout=10s
 #
 # How long to keep a dns_audit_log_cleanup entry before deleting it
 window=1h
+#
+# local
+#
+# Local task
+local=0
 
 [security_event_maintenance]
 # 
@@ -536,6 +616,11 @@ batch=1000
 #
 # How long a security_event_maintenance job can run
 timeout=10s
+#
+# local
+#
+# Local task
+local=0
 
 [switch_cache_lldpLocalPort_description]
 # 
@@ -563,6 +648,11 @@ schedule=@every 12h
 #
 # Whether or not a switch range should be expanded to process each of its IPs
 process_switchranges=disabled
+#
+# local
+#
+# Local task
+local=0
 
 [certificates_check]
 # 
@@ -595,6 +685,11 @@ delay=30D
 #
 # SSL certificate(s) to be monitored
 certificates=/usr/local/pf/conf/ssl/server.pem,/usr/local/pf/raddb/certs/server.crt
+#
+# local
+#
+# Local task
+local=0
 
 [password_of_the_day]
 # 
@@ -617,6 +712,11 @@ description=Task to generate password of the day.
 # 
 # The schedule of task
 schedule=@every 1m
+#
+# local
+#
+# Local task
+local=0
 
 [acct_cleanup]
 # 
@@ -654,6 +754,11 @@ timeout=10s
 #
 # How long to keep a acct_cleanup entry before deleting it
 window=1D
+#
+# local
+#
+# Local task
+local=0
 
 [admin_api_audit_log_cleanup]
 # 
@@ -691,6 +796,11 @@ timeout=10s
 #
 # How long to keep a admin_api_audit_log entry before deleting it
 window=6M
+#
+# local
+#
+# Local task
+local=0
 
 [bandwidth_maintenance]
 # 
@@ -743,6 +853,11 @@ history_timeout=10s
 #
 # How long to keep a bandwidth_accounting_history entry before deleting it
 history_window=48h
+#
+# local
+#
+# Local task
+local=0
 
 [bandwidth_maintenance_session]
 # 
@@ -780,6 +895,11 @@ timeout=5s
 #
 # How long to keep a session open
 window=24h
+#
+# local
+#
+# Local task
+local=0
 
 [ubiquiti_ap_mac_to_ip]
 # 
@@ -802,3 +922,8 @@ description=Cache MAC/IP couple for Ubiquiti AP
 # 
 # The schedule of task
 schedule=@every 12h
+#
+# local
+#
+# Local task
+local=0

@@ -32,21 +32,6 @@ sub init {
     $self->{added_params}{'-import'} = $defaults;
 }
 
-our %TIME_ATTR = (
-    window => 1,
-    timeout => 1,
-    rotate_timeout => 1,
-    rotate_window => 1,
-    history_timeout=> 1,
-    history_window=> 1,
-);
-
-our %INT = (
-    batch => 1,
-    history_batch => 1,
-    rotate_batch => 1,
-);
-
 my %golangUnits = (
     "s" => 1,
     "m" => 60,
@@ -69,8 +54,12 @@ sub build_child {
     my $tmp_cfg = clone($self->{cfg});
     foreach my $task_data (values %$tmp_cfg) {
         foreach my $key (keys %$task_data) {
-            $task_data->{$key} = normalize_time($task_data->{$key}) + 0 if exists $TIME_ATTR{$key};
-            if (exists $INT{$key}) {
+            if ($key =~ /(window|timeout)$/ ) {
+                $task_data->{$key} = normalize_time($task_data->{$key});
+                next;
+            }
+
+            if ($key =~ /batch$/) {
                 $task_data->{$key} += 0;
             }
         }
@@ -82,6 +71,12 @@ sub build_child {
         }
 
         $task_data->{interval} = $interval;
+    }
+
+    my $bandwidth_maintenance = $tmp_cfg->{bandwidth_maintenance};
+    my $bandwidth_maintenance_session = $tmp_cfg->{bandwidth_maintenance_session};
+    for my $f (qw(batch timeout window)) {
+        $tmp_cfg->{bandwidth_maintenance}{"session_$f"} = $bandwidth_maintenance_session->{$f};
     }
 
     return $tmp_cfg;

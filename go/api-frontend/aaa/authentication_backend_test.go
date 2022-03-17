@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 func TestMemAuthenticationBackend(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"github.com/cevaris/ordered_map"
 	"github.com/google/uuid"
 	log "github.com/inconshreveable/log15"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 const RequestUuidKey = "request-uuid"

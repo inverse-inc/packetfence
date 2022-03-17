@@ -11,9 +11,9 @@ import (
 	"time"
 
 	log15 "github.com/inconshreveable/log15"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	radius "github.com/inverse-inc/go-radius"
 )
 
