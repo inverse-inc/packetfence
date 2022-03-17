@@ -361,6 +361,16 @@ unreg_window=0D
 # Enable voip device cleanup
 voip=enabled
 #
+# batch
+#
+# How many node entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a node_cleanup job can run
+timeout=10s
+#
 # local
 #
 # Local task
