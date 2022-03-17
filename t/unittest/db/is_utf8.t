@@ -23,7 +23,6 @@ BEGIN {
 }
 
 use Test2::Tools::Basic;
-use Test2::Plugin::NoWarnings echo => 1;
 use DBI;
 use pf::config qw(%Config);
 my $PF_DIR = '/usr/local/pf';
@@ -41,11 +40,12 @@ SELECT TABLE_NAME, COLUMN_NAME, CHARACTER_SET_NAME FROM information_schema.COLUM
 );
 
 my $columns = $dbh->selectall_arrayref($sql, { Slice => {} });
+ok(defined $columns, "Got results");
 for my $c (@$columns) {
     fail("$c->{TABLE_NAME}.$c->{COLUMN_NAME} is not 'utf8mb4' it is '$c->{CHARACTER_SET_NAME}'");
 }
 
-done_testing( scalar @$columns + 1 );
+done_testing( scalar @$columns + 1  );
 
 
 =head1 AUTHOR
