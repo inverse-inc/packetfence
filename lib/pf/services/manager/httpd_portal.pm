@@ -85,6 +85,11 @@ sub vhosts {
     return ["0.0.0.0"];
 }
 
+sub apache_version {
+    my ($self) = @_;
+    #Apache version in the Docker container is 2.4
+    return "2.4";
+}
 
 =head1 AUTHOR
 

@@ -271,27 +271,27 @@ pfacct_netflow=2056
 # database.host
 #
 # Server the MySQL server is running on.
-host=localhost
+host=[% ENV.env_or_default("PF_MYSQL_HOST", "localhost") %]
 #
 # database.port
 #
 # Port the MySQL server is running on.
-port=3306
+port=[% ENV.env_or_default("PF_MYSQL_PORT", "3306") %]
 #
 # database.db
 #
 # Name of the MySQL database used by PacketFence.
-db=pf
+db=[% ENV.env_or_default("PF_MYSQL_DB", "pf") %]
 #
 # database.user
 #
 # Username of the account with access to the MySQL database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
-user=pf
+user=[% ENV.env_or_default("PF_MYSQL_USER", "pf") %]
 #
 # database.pass
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
-pass=packet
+pass=[% ENV.env_or_default("PF_MYSQL_PASS", "packet") %]
 
 [database_advanced]
 #

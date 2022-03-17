@@ -129,6 +129,8 @@ PerlChildInitHandler Apache2::Resource
 #Apache will only expose environment variables to mod_perl that are defined here
 PerlSetEnv PFCONFIG_PROTO ${PFCONFIG_PROTO}
 PerlSetEnv PFCONFIG_TCP_HOST ${PFCONFIG_TCP_HOST}
+PerlSetEnv PFCONFIG_TCP_PORT ${PFCONFIG_TCP_PORT}
+PerlSetEnv REDIS_HOST_PORT ${REDIS_HOST_PORT}
 
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
