@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 35;
+use Test::More tests => 37;
 
 #This test will running last
 use Test::NoWarnings;
@@ -658,6 +658,34 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             [
                 'node.mac',
 "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+            ]
+        ],
+        'Return the columns'
+    );
+
+    is_deeply(
+        [ $sb->make_from( \%search_info ) ],
+        [ 200, ['node'] ],
+        'Return the joined tables'
+    );
+}
+
+{
+    my @f = qw(mac security_event.close_security_event_id security_event.open_security_event_id);
+
+    my %search_info = (
+        dal    => $dal,
+        fields => \@f,
+    );
+
+    is_deeply(
+        [ $sb->make_columns( \%search_info ) ],
+        [
+            200,
+            [
+                'node.mac',
+                \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_security_event_id`",
+                \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_security_event_id`",
             ]
         ],
         'Return the columns'

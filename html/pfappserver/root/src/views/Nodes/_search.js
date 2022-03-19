@@ -272,37 +272,37 @@ export const search = {
     {
       key: 'security_event.open_security_event_id',
       label: 'Security Event Open', // i18n defer
-      sortable: true,
+      sortable: false,
+      searchable: true,
       class: 'text-nowrap',
       formatter: (acl.$can.apply(null, ['read', 'security_events']))
         ? formatter.securityEventIdsToDescCsv
         : formatter.noAdminRolePermission
     },
-    /* TODO - #4166
     {
       key: 'security_event.open_count',
       label: 'Security Event Open Count', // i18n defer
-      sortable: true,
+      sortable: false,
+      searchable: true,
       class: 'text-nowrap'
     },
-    */
     {
       key: 'security_event.close_security_event_id',
       label: 'Security Event Closed', // i18n defer
-      sortable: true,
+      sortable: false,
+      searchable: true,
       class: 'text-nowrap',
       formatter: (acl.$can.apply(null, ['read', 'security_events']))
         ? formatter.securityEventIdsToDescCsv
         : formatter.noAdminRolePermission
     },
-    /* TODO - #4166
     {
       key: 'security_event.close_count',
       label: 'Security Event Closed Count', // i18n defer
-      sortable: true,
+      sortable: false,
+      searchable: true,
       class: 'text-nowrap'
-    }
-    */
+    },
     {
       key: 'buttons',
       class: 'col-no-overflow text-right p-0',
@@ -490,7 +490,6 @@ export const search = {
       types: [conditionType.SUBSTRING],
       icon: 'user-secret'
     },
-    /* TODO - #3400, #4166
     {
       value: 'security_event.open_security_event_id',
       text: 'Security Event Open', // i18n defer
@@ -499,7 +498,7 @@ export const search = {
     },
     {
       value: 'security_event.open_count',
-      text: 'Security Event Open Count [Issue #3400]', // i18n defer
+      text: 'Security Event Open Count', // i18n defer
       types: [conditionType.INTEGER],
       icon: 'exclamation-triangle'
     },
@@ -511,11 +510,10 @@ export const search = {
     },
     {
       value: 'security_event.close_count',
-      text: 'Security Event Close Count [Issue #3400]', // i18n defer
+      text: 'Security Event Close Count', // i18n defer
       types: [conditionType.INTEGER],
       icon: 'exclamation-circle'
     },
-    */
     {
       value: 'voip',
       text: 'VoIP', // i18n defer

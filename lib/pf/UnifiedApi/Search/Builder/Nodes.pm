@@ -124,11 +124,9 @@ our %ALLOWED_JOIN_FIELDS = (
         column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_count`",
     },
     'security_event.open_security_event_id' => {
-        namespace => 'security_event_open',
-        join_spec => \@SECURITY_EVENT_OPEN_JOIN,
+        namespace => 'security_event.open_security_event_id',
         rewrite_query => \&rewrite_security_event_open_security_event_id,
-        group_by => 1,
-        column_spec => \"GROUP_CONCAT(security_event_open.security_event_id) AS `security_event.open_security_event_id`"
+        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_security_event_id`",
     },
     'security_event.close_count' => {
         namespace => 'security_event_close',
@@ -137,10 +135,8 @@ our %ALLOWED_JOIN_FIELDS = (
     },
     'security_event.close_security_event_id' => {
         namespace => 'security_event_close',
-        join_spec => \@SECURITY_EVENT_CLOSED_JOIN,
         rewrite_query => \&rewrite_security_event_close_security_event_id,
-        group_by => 1,
-        column_spec => \"GROUP_CONCAT(security_event_close.security_event_id) AS `security_event.close_security_event_id`"
+        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_security_event_id`",
     },
     'mac' => {
         rewrite_query => \&rewrite_mac_query,
@@ -166,8 +162,39 @@ sub non_searchable {
 
 sub rewrite_security_event_open_security_event_id {
     my ($self, $s, $q) = @_;
-    $q->{field} = 'security_event_open.security_event_id';
-    return (200, $q);
+    return $self->rewrite_security_event_security_event_id_status($s, $q, 'open');
+}
+
+sub rewrite_security_event_close_security_event_id {
+    my ($self, $s, $q) = @_;
+    return $self->rewrite_security_event_security_event_id_status($s, $q, 'closed');
+}
+
+sub rewrite_security_event_security_event_id_status {
+    my ($self, $s, $q, $status) = @_;
+    my $op = $q->{op};
+    my $value = $q->{value};
+    if (!defined $value) {
+        return (422, { message => "value cannot be null for $q->{field} field" });
+    }
+
+    if ($op ne 'equals') {
+        return (422, { message => "$op is not valid for $q->{field} field" });
+    }
+
+    my ($sql, @bind) = pf::dal::security_event->select(
+        -from => 'security_event',
+        -columns => [\1],
+        -where => {
+            'security_event.mac' => { '=' => {-ident => 'node.mac'} },
+            'security_event.status' => $status,
+            'security_event.security_event_id' => {
+                 $pf::UnifiedApi::Search::OP_TO_SQL_OP{$op} => $value,
+            },
+        },
+    );
+
+    return (200, \["EXISTS ($sql)", @bind]);
 }
 
 our %SECURITY_EVENT_COUNTS_ALLOWED_OPS = (
@@ -184,7 +211,7 @@ sub rewrite_security_event_open_count {
     $self->rewrite_security_event_status_count($s, $q, 'open');
 }
 
-sub rewrite_security_event_closed_count {
+sub rewrite_security_event_close_count {
     my ($self, $s, $q) = @_;
     $self->rewrite_security_event_status_count($s, $q,'closed');
 }
@@ -201,7 +228,6 @@ sub rewrite_security_event_status_count {
         return (422, { message => "$op is not valid for $q->{field} field" });
     }
 
-    my $where = pf::UnifiedApi::Search::searchQueryToSqlAbstract($q);
     my ($sql, @bind) = pf::dal::security_event->select(
         -from => 'security_event',
         -columns => [\1],
