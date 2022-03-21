@@ -25,8 +25,8 @@ use pf::file_paths qw(
 our ($DBH, $LAST_CONNECT, $CONFIG);
 our $logger = get_logger();
 
-our $pf_default_config = pf::IniFiles->new(-file => $pf_default_file) or die "Cannot open $pf_default_file";
-our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+our $pf_default_config = pf::IniFiles->new(-file => $pf_default_file, -envsubst => 1) or die "Cannot open $pf_default_file";
+our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config, -envsubst => 1) or die "Cannot open $pf_config_file";
 ($CONFIG->{db},$CONFIG->{host},$CONFIG->{port},$CONFIG->{user},$CONFIG->{pass}) = @{sectionData($pf_config, "database")}{qw(db host port user pass)};
 
 sub CLONE {
