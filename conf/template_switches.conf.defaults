@@ -31,7 +31,7 @@ Tunnel-Medium-Type = 6
 Tunnel-Type = 13
 Tunnel-Private-Group-Id = $vlan
 EOT
-acceptRole=Aruba-User-Role = $role
+acceptRole=HP-User-Role = $role
 reject=Reply-Message = This node is not allowed to use this service
 disconnect= <<EOT
 Calling-Station-Id = ${macToEUI48($mac)}
