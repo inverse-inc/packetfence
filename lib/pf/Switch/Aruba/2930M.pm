@@ -33,6 +33,7 @@ use pf::util::radius qw(perform_coa perform_disconnect);
 sub description {'Aruba 2930M Series'}
 
 use pf::SwitchSupports qw(
+    RoleBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
 );
@@ -276,6 +277,19 @@ sub dot1xPortReauthenticate {
     my $logger = $self->logger;
 
     return;
+}
+
+
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Aruba-User-Role';
 }
 
 =head1 AUTHOR
