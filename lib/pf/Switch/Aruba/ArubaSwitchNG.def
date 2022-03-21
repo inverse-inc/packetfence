@@ -11,7 +11,7 @@ Tunnel-Private-Group-Id = $vlan
 EOT
 
 acceptRole = <<EOT
-Aruba-User-Role = $role
+HP-User-Role = $role
 EOT
 
 reject = <<EOT

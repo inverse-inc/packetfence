@@ -289,7 +289,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 sub returnRoleAttribute {
     my ($self) = @_;
 
-    return 'Aruba-User-Role';
+    return 'HP-User-Role';
 }
 
 =head1 AUTHOR
