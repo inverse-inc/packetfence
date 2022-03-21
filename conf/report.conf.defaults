@@ -196,7 +196,7 @@ person_fields=pid
 
 [Authentication::All]
 type=abstract
-description=All the authentications (RADIUS, portal) that have occured on the server.
+description=All the authentications (portal) that have occured on the server.
 # The table to search from
 base_table=auth_log
 # The columns to select
@@ -210,7 +210,7 @@ order_fields=-auth_log.attempted_at
 
 [Authentication::All Failures]
 type=abstract
-description=All failed authentications (RADIUS, portal) that have occured on the server.
+description=All failed authentications (portal) that have occured on the server.
 # The table to search from
 base_table=auth_log
 # The columns to select
@@ -225,7 +225,7 @@ charts=scatter|Attempted at
 
 [Authentication::All Successes]
 type=abstract
-description=All successful authentications (RADIUS, portal) that have occured on the server.
+description=All successful authentications (portal) that have occured on the server.
 # The table to search from
 base_table=auth_log
 # The columns to select
