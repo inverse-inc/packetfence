@@ -27,7 +27,7 @@ variables:
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
   KNK_REGISTRY: ghcr.io
-  KNK_REGISTRY_IMAGE: ${KNK_REGISTRY}/${KNK_REGISTRY_USER}
+  KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
@@ -93,13 +93,13 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
     - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
 
-# don't run if SIGN_PKG is equals to 'no'
+# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
 # run jobs on "devel" branch *or* vX.Y.Z tag (push, schedule and web)
 # run jobs on any branches/tags via "Run pipeline"
 # run jobs on any branches/tags via "Schedule"
 .devel_release_branches_and_maintenance_rules:
   rules:
-    - if: '$SIGN_PKG == "no"'
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
     - if: '$CI_COMMIT_TAG'
@@ -197,6 +197,34 @@ variables:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
+
+
+# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# run only jobs on "devel" branch (push, schedule and web)
+.deploy_devel_rules:
+  rules:
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
+
+# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# run jobs on any branches only via "Run pipeline", except:
+# - devel branch
+# - maintenance/X.Y branches
+.deploy_branches_rules:
+  rules:
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
+
+# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# run only on maintenance jobs (schedule and web, not on push)
+.deploy_maintenance_rules:
+  rules:
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
 
 ########################################    
 # JOBS
@@ -494,17 +522,21 @@ build_pfdebian_based_container_branches_and_maintenance:
       - IMAGE_NAME:
           - "pfconfig"
           - "httpd.portal"
-
-build_container_branches_and_maintenance:
-  extends:
-    - .build_img_container_job
-    - .build_img_container_branches_and_maintenance_rules
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
-  parallel:
-    matrix:
-      - IMAGE_NAME:
           - "api-frontend"
+
+# keep here because image will not rely on pfdebian
+# at some point
+#
+# build_container_branches_and_maintenance:
+#   extends:
+#     - .build_img_container_job
+#     - .build_img_container_branches_and_maintenance_rules
+#   variables:
+#     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+#   parallel:
+#     matrix:
+#       - IMAGE_NAME:
+#           - "api-frontend"
 
 # release
 # build_pfdebian_container_release:
@@ -880,14 +912,14 @@ configurator_deb11_pristine:
 deploy_devel_rpm:
   extends:
     - .deploy_rpm_job
-    - .devel_only_rules
+    - .deploy_devel_rules
   environment:
     name: pf-devel
 
 deploy_branches_rpm:
   extends:
     - .deploy_rpm_job
-    - .branches_only_rules
+    - .deploy_branches_rules
   environment:
     name: pf-branches
   variables:
@@ -903,7 +935,7 @@ deploy_release_rpm:
 deploy_maintenance_rpm:
   extends:
     - .deploy_rpm_maintenance_job
-    - .maintenance_only_rules
+    - .deploy_maintenance_rules
   environment:
     name: maintenance
 
@@ -911,7 +943,7 @@ deploy_maintenance_rpm:
 deploy_devel_deb:
   extends:
     - .deploy_deb_job
-    - .devel_only_rules
+    - .deploy_devel_rules
   environment:
     name: pf-devel
   variables:
@@ -920,7 +952,7 @@ deploy_devel_deb:
 deploy_branches_deb:
   extends:
     - .deploy_deb_job
-    - .branches_only_rules
+    - .deploy_branches_rules
   environment:
     name: pf-branches
   variables:
@@ -938,7 +970,7 @@ deploy_release_deb:
 deploy_maintenance_deb:
   extends:
     - .deploy_maintenance_deb_job
-    - .maintenance_only_rules
+    - .deploy_maintenance_rules
   environment:
     name: maintenance
   variables:
@@ -948,7 +980,7 @@ deploy_maintenance_deb:
 deploy_devel_pkg_friendly_names:
   extends:
     - .deploy_pkg_friendly_names
-    - .devel_only_rules
+    - .deploy_devel_rules
   environment:
     name: pf-devel
   variables:
@@ -960,7 +992,7 @@ deploy_devel_pkg_friendly_names:
 deploy_branches_pkg_friendly_names:
   extends:
     - .deploy_pkg_friendly_names
-    - .branches_only_rules
+    - .deploy_branches_rules
   environment:
     name: pf-branches
   variables:
@@ -983,7 +1015,7 @@ deploy_release_pkg_friendly_names:
 deploy_maintenance_pkg_friendly_names:
   extends:
     - .deploy_pkg_friendly_names
-    - .maintenance_only_rules
+    - .deploy_maintenance_rules
   variables:
     # Values are automatically generated by deploy-artifacts.sh script
     #PKG_DEST_NAME

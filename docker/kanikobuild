@@ -19,7 +19,7 @@ setup_vars() {
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
 
     # variables to pass during build
-    DOCKFILE_VARS='PF_VERSION GOVERSION KNK_REGISTRY IMAGE_TAG'
+    DOCKFILE_VARS='PF_VERSION GO_VERSION KNK_REGISTRY_URL IMAGE_TAG'
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
@@ -61,14 +61,14 @@ generate_destinations() {
 	for tag in ${TAGS}; do
 	    # just to handle case of first iteration
 	    if [ -z "$destinations" ]; then 
-		destinations="--destination ${KNK_REGISTRY_IMAGE}/${IMAGE_NAME}:${tag}"
+		destinations="--destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
 	    else
-		destinations="$destinations --destination ${KNK_REGISTRY_IMAGE}/${IMAGE_NAME}:${tag}"
+		destinations="$destinations --destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
 	    fi
 	done
     else
 	# Only one tag detected, using ${IMAGE_TAG} as tag
-	IMAGE_DEST="${KNK_REGISTRY_IMAGE}/${IMAGE_NAME}:${IMAGE_TAG}"
+	IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
 	destinations="--destination ${IMAGE_DEST}"
     fi
     echo "$destinations"
