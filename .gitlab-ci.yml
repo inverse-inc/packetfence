@@ -26,6 +26,8 @@ variables:
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
+  KNK_REGISTRY: ghcr.io
+  KNK_REGISTRY_IMAGE: ${KNK_REGISTRY}/${KNK_REGISTRY_USER}
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
@@ -474,6 +476,19 @@ build_pfdebian_container_branches_and_maintenance:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
 
+build_pfdebian_based_container_branches_and_maintenance:
+  extends:
+    - .build_img_container_job
+    - .build_img_container_branches_and_maintenance_rules
+  needs: ["build_pfdebian_container_branches_and_maintenance"]
+  variables:
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "pfconfig"
+          - "httpd.portal"
+
 build_container_branches_and_maintenance:
   extends:
     - .build_img_container_job
@@ -483,8 +498,7 @@ build_container_branches_and_maintenance:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "pfconfig"
-          - "httpd.portal"
+          - "api-frontend"
 
 # release
 # build_pfdebian_container_release:
