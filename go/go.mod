@@ -1,6 +1,6 @@
 module github.com/inverse-inc/packetfence/go
 
-go 1.17
+go 1.18
 
 require (
 	github.com/Azure/azure-sdk-for-go v40.6.0+incompatible
@@ -118,7 +118,6 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f // indirect
-	github.com/coreos/go-systemd/v22 v22.0.0 // indirect
 	github.com/dimchansky/utfbom v1.1.0 // indirect
 	github.com/evanphx/json-patch v4.9.0+incompatible // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
@@ -158,8 +157,6 @@ require (
 	github.com/tinylib/msgp v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	go.opencensus.io v0.22.3 // indirect
-	go.uber.org/atomic v1.6.0 // indirect
-	go.uber.org/multierr v1.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
