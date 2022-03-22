@@ -292,6 +292,11 @@ user=[% ENV.env_or_default("PF_MYSQL_USER", "pf") %]
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
 pass=[% ENV.env_or_default("PF_MYSQL_PASS", "packet") %]
+#
+# database.unix_socket
+#
+# Path to the database UNIX socket
+unix_socket=[% ENV.env_or_default("PF_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.sock") %]
 
 [database_advanced]
 #

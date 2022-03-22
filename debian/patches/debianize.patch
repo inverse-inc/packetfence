@@ -13,17 +13,6 @@ index 54b2113be5..c96aaba72c 100644
    delay 15
 diff --git a/conf/mariadb/mariadb.conf.tt.example b/conf/mariadb/mariadb.conf.tt.example
 index 96d07c8c77..c7193076dd 100644
---- a/conf/mariadb/mariadb.conf.tt.example
-+++ b/conf/mariadb/mariadb.conf.tt.example
-@@ -19,7 +19,7 @@ skip-networking
- bind-address=
- [% END %]
- port    = 3306
--socket    = /var/lib/mysql/mysql.sock
-+socket    = /var/run/mysqld/mysqld.sock
- skip-external-locking
- key_buffer_size = [% key_buffer_size %]M
- max_allowed_packet = [% max_allowed_packet %]M
 diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
 index d3a3cd9b63..fe284fcaa2 100644
 --- a/conf/monitoring/netdata.conf.example

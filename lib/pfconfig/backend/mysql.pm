@@ -55,7 +55,7 @@ sub _get_db {
     my $cfg    = pfconfig::config->new->section('mysql');
     my $db;
     eval {
-        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port}",
+        $db = DBI->connect( "DBI:mysql:database=$cfg->{db};host=$cfg->{host};port=$cfg->{port};mysql_socket=$cfg->{unix_socket}",
             $cfg->{user}, $cfg->{pass}, { 'RaiseError' => 1, mysql_auto_reconnect => 1 } );
     };
     if($@) {
