@@ -14,7 +14,7 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_switch_templates/createSwitchTemplate', params),
     getItem: params => $store.dispatch('$_switch_templates/getSwitchTemplate', params.id).then(item => {
       return (params.isClone)
-        ? { ...item, id: `${item.id}-${i18n.t('copy')}`, not_deletable: false }
+        ? { ...item, id: `${item.id}_${i18n.t('copy')}`, not_deletable: false }
         : item
     }),
     getItemOptions: params => $store.dispatch('$_switch_templates/options', params.id),
