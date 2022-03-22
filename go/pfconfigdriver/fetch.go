@@ -110,7 +110,10 @@ func connectSocket(ctx context.Context) net.Conn {
 			switch proto {
 			case "tcp":
 				//TODO: this should be configurable/dynamic
-				c, err = net.Dial("tcp", "127.0.0.1:44444")
+				host := sharedutils.EnvOrDefault("PFCONFIG_TCP_HOST", "127.0.0.1")
+				port := sharedutils.EnvOrDefault("PFCONFIG_TCP_PORT", "44444")
+				c, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port))
+				//c, err = net.Dial("tcp", "127.0.0.1:44444")
 			case "unix":
 				c, err = net.Dial("unix", getPfconfigSocketPath())
 			default:
