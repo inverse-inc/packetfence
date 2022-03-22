@@ -1,4 +1,6 @@
 include ../config.mk
+GO ?= go
+build_cmd = $(GO) build
 
 .PHONY: clean-caddy-src
 clean-caddy-src:
@@ -13,20 +15,20 @@ go-env:
 .PHONY: test
 test:
 	/usr/local/pf/t/pfconfig-test ;\
-	PFCONFIG_TESTING=y go test -count=1 ./...
+	PFCONFIG_TESTING=y $(GO) test -count=1 ./...
 
 CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))
 .PHONY: $(ALL_BINARIES)
 $(ALL_BINARIES):
 	cd cmd/$@ && \
-	go build && \
+	$(build_cmd) && \
 	mv $@ ../..
 
 ALL_BINARIES_RACE = $(patsubst cmd/%, %-race, $(CMDS))
 $(ALL_BINARIES_RACE):
 	cd cmd/$(@:-race=) && \
-	go build -o $@ -race && \
+	$(build_cmd) -o $@ -race && \
 	mv $@ ../..
 
 .PHONY: all
