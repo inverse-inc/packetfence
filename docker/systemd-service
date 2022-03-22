@@ -1,16 +1,13 @@
 #!/bin/bash
 
+PF_REGISTRY=julsemaan
+PF_VERSION=11.3
+
 function base_args {
   name="$1"
-  args="--sig-proxy=true --rm --name=$name --add-host=host.docker.internal:host-gateway"
+  args="--sig-proxy=true --rm --name=$name --add-host=host.docker.internal:host-gateway -e PF_MYSQL_UNIX_SOCKET=/run/mysqld/mysql.sock -e PFCONFIG_MYSQL_UNIX_SOCKET=/run/mysqld/mysql.sock"
 
-  mysql_sock=""
-  if [ -e /etc/debian_version ]; then
-    mysql_sock="/var/run/mysqld"
-  else
-    mysql_sock="/var/lib/mysql"
-  fi
-  args="$args -v $mysql_sock:/run/mysqld"
+  args="$args -v /var/lib/mysql:/run/mysqld"
 
   echo "$args"
 }
@@ -21,5 +18,5 @@ function run {
   cd /usr/local/pf/
   docker container rm -f $name
   echo "Running with args $args"
-  docker run $args --name=$name $(docker build -q -f docker/$name/Dockerfile .)
+  docker run $args --name=$name $(docker build --build-arg=KNK_REGISTRY_URL=$PF_REGISTRY --build-arg=IMAGE_TAG=$PF_VERSION -q -f docker/$name/Dockerfile .)
 }
