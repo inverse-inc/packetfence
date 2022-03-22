@@ -263,6 +263,7 @@ sub run_task {
     if ($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
+        STDOUT->autoflush(1);
         eval {
             srand();
             my $mask = POSIX::SigSet->new(POSIX::SIGCHLD());
