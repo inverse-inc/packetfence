@@ -1,18 +1,20 @@
 #! /busybox/sh
-# Taken from https://gitlab.com/Orange-OpenSource/gitlab-buildpkg
-# See https://vaneyckt.io/posts/safer_bash_scripts_with_set_euxo_pipefail/
+# Idea comes from https://gitlab.com/Orange-OpenSource/gitlab-buildpkg
 set -o nounset -o pipefail -o errexit
 
 ## All variables not defined and used later comes from environment
-# CI_PROJECT_DIR is equals to root of PF source tree (full path)
+# CI_PROJECT_DIR must be equal to root of PF source tree (full path)
 
 setup_vars() {
     DOCKFILE_PATH=$CI_PROJECT_DIR/docker/$IMAGE_NAME/Dockerfile
 
-    # collect variables needed inside Dockerfile
+    ### collect variables needed inside Dockerfile
+    # returns X.Y
     export PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' $CI_PROJECT_DIR/conf/pf-release)
-    export GOVERSION=$(cat $CI_PROJECT_DIR/config.mk | grep GOVERSION | cut -d ' ' -f 3)
+    # returns X.Y.Z without go prefix
+    export GO_VERSION=$(cat $CI_PROJECT_DIR/config.mk | grep GOVERSION | egrep -o "[0-9]+\.[0-9]+\.[0-9]+")
 
+    # IMAGE_TAG is used inside DockerFile to reference other image
     # only one tag can be used in Dockerfile
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
 
