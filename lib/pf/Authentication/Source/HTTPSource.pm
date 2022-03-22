@@ -224,7 +224,7 @@ sub match {
     }
 
     my $unregdate = $result->{'unregdate'};
-    if (defined $unregdate) {
+    if (!defined $access_duration && defined $unregdate) {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_UNREG_DATE, value => $unregdate});
     }
 
