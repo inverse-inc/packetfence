@@ -85,7 +85,7 @@ redis_class = pf::Redis
 # storage redis.server
 #
 # The redis server to connect to
-server = [% ENV.env_or_default("REDIS_HOST_PORT", "host.docker.internal:6379") %]
+server = [% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "host.docker.internal:6379") %]
 #
 # storage redis.prefix
 #
