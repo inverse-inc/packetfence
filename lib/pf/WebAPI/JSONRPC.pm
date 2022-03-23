@@ -131,6 +131,7 @@ sub handler {
     # Notify message defer until later
     $r->push_handlers(
         PerlCleanupHandler => sub {
+            STDOUT->autoflush(1);
             eval {$dispatch_to->$method(@args);};
             $logger->error($@) if $@;
         }
