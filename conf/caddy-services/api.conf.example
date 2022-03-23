@@ -17,6 +17,7 @@
   statsd {
     proto udp
     prefix api
+    #redirect host.docker.internal
   }
 
   cors /api/v1 {
@@ -39,39 +40,39 @@
   job-status
 
   # pfipset API access
-  proxy /api/v1/ipset/ [% ENV.env_or_default("PFHTTPD_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFHTTPD_HOST_PORT", "22223") %] {
+  proxy /api/v1/ipset/ host.docker.internal:22223 {
     transparent
   }
   
   # pfdhcp API access
-  proxy /api/v1/dhcp/ [% ENV.env_or_default("PFDHCP_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFDHCP_HOST_PORT", "22222") %] {
+  proxy /api/v1/dhcp/ host.docker.internal:22223
     transparent
   }
   
   # pfsso API access
-  proxy /api/v1/firewall_sso/ [% ENV.env_or_default("PFFIREWALL_SSO_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFFIREWALL_SSO_HOST_PORT", "8777") %] {
+  proxy /api/v1/firewall_sso/ host.docker.internal:8777 {
     transparent
   }
 
   # pfpki API access
-  proxy /api/v1/pki/ [% ENV.env_or_default("PFPKI_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFPKI_HOST_PORT", "22225") %] {
+  proxy /api/v1/pki/ host.docker.internal:22225 {
     transparent
   }
   
   # Everything else goes to the Perl API
-  proxy /api/v1/ [% ENV.env_or_default("PFPERL_API_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFPERL_API_HOST_PORT", "22224") %] {
+  proxy /api/v1/ host.docker.internal:22224 {
     transparent
     timeout 10m
   }
 
   # Everything else goes to the Perl API
-  proxy /api/v1.1/ [% ENV.env_or_default("PFPERL_API_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFPERL_API_HOST_PORT", "22224") %] {
+  proxy /api/v1.1/ host.docker.internal:22224 {
     transparent
     timeout 10m
   }
 
   # doh forward
-  proxy /dns-query http://[% ENV.env_or_default("PFDNS_TCP_HOST", "127.0.0.1") %]:[% ENV.env_or_default("PFDNS_HOST_PORT", "853") %] {
+  proxy /dns-query http://host.docker.internal:853 {
       transparent
   }
 
