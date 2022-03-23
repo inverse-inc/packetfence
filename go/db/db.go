@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -81,12 +80,7 @@ func ReturnURI(ctx context.Context, user, pass, host, dbName string) string {
 	proto := "tcp"
 	if host == "localhost" {
 		proto = "unix"
-		if _, err := os.Stat("/etc/debian_version"); err == nil {
-			host = "/var/run/mysqld/mysqld.sock"
-
-		} else {
-			host = "/var/lib/mysql/mysql.sock"
-		}
+		host = "/var/lib/mysql/mysql.sock"
 	}
 
 	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, dbName)

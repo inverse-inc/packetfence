@@ -251,12 +251,9 @@ export const setup = (props, context) => {
 
   // Make sure the database server is running
   $store.dispatch('services/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
-    // Fetch configuration
-    $store.dispatch('$_bases/getDatabase').then(_form => {
-      const { pass, ...database } = _form // strip pass
-      form.value = { ...form.value, ...database } // overload form except pass
-      initialValidation()
-    })
+    form.value.db = DEFAULT_DATABASE
+    form.value.user = DEFAULT_USERNAME
+    initialValidation()
   })
 
   const automaticConfiguration = ref(false)
