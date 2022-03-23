@@ -164,6 +164,10 @@ case "$1" in
           /usr/local/pf/bin/pfcmd generatemariadbconfig --force
           systemctl isolate packetfence-base.target
 
+          # Override the MySQL socket location to match our standard
+          printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
+          sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
+
           echo "Restarting rsyslog"
           systemctl restart rsyslog
 
