@@ -105,23 +105,6 @@ index 2b82108a0e..38b7e231b9 100644
  ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
  ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
  ExecReload=/bin/kill -USR2 $MAINPID
-diff --git a/conf/systemd/packetfence-httpd.aaa.service b/conf/systemd/packetfence-httpd.aaa.service
-index 68f5817993..ce13ab6c19 100644
---- a/conf/systemd/packetfence-httpd.aaa.service
-+++ b/conf/systemd/packetfence-httpd.aaa.service
-@@ -11,9 +11,9 @@ Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetf
- StartLimitBurst=3
- StartLimitInterval=10
- Type=notify
--ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
--ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Drhel
-+ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.aaa.pid
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
-+ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND  -Ddebian
- ExecReload=/bin/kill -USR1 ${MAINPID}
- PrivateTmp=true
- Restart=on-failure
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
 index 59bbf12796..e06af92d10 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
