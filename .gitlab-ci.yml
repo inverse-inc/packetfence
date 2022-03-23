@@ -27,7 +27,7 @@ variables:
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
   KNK_REGISTRY: ghcr.io
-  KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc
+  KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc/packetfence
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib

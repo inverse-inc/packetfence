@@ -29,6 +29,9 @@ SRC_DOCKERDIR = $(SRC_ROOTDIR)/docker
 # specific directory to build website artifacts
 SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
 
+# Containers
+KNK_REGISTRY = ghcr.io
+KNK_REGISTRY_URL = ${KNK_REGISTRY}/inverse-inc/packetfence
 #
 # Golang
 #
