@@ -23,6 +23,8 @@ use pf::log::trapper;
 use File::Basename qw(basename);
 use Carp;
 
+STDOUT->autoflush(1);
+
 Log::Log4perl->wrapper_register(__PACKAGE__);
 
 
