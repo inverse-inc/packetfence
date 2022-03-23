@@ -31,6 +31,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+* Only provide the unregdate action if access_duration is not defined for the local source. (#6925)
+* Clone switch template with correct ID (#6941)
+
 == Version 11.2.0 released on 2022-02-23
 
 === New Features
