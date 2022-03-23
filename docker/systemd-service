@@ -5,9 +5,9 @@ PF_VERSION=11.3
 
 function base_args {
   name="$1"
-  args="--sig-proxy=true --rm --name=$name --add-host=host.docker.internal:host-gateway -e PF_MYSQL_UNIX_SOCKET=/run/mysqld/mysql.sock -e PFCONFIG_MYSQL_UNIX_SOCKET=/run/mysqld/mysql.sock"
+  args="--sig-proxy=true --rm --name=$name --add-host=host.docker.internal:host-gateway"
 
-  args="$args -v /var/lib/mysql:/run/mysqld"
+  args="$args -v /var/lib/mysql:/var/lib/mysql"
 
   echo "$args"
 }
