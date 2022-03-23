@@ -56,7 +56,7 @@ func setup(c *caddy.Controller) error {
 					if !strings.Contains(address, ":") {
 						address = fmt.Sprintf("%s%s",address,":8125")
 					}
-					fmt.Println("Using configured statsd addresse and port: " + prefix)
+					fmt.Println("Using configured statsd addresse and port: " + address)
 				}
 			default:
 				return c.ArgErr()
