@@ -47,6 +47,93 @@ DELIMITER ;
 call ValidateVersion;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+ALTER TABLE security_event
+   DROP CONSTRAINT security_event_tenant_id,
+   DROP CONSTRAINT `tenant_id_mac_fkey_node`,
+   DROP tenant_id;
+
+ALTER TABLE ip4log
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`ip`),
+    DROP tenant_id;
+
+ALTER TABLE ip4log_history
+   DROP tenant_id;
+
+ALTER TABLE ip4log_archive
+   DROP tenant_id;
+
+ALTER TABLE ip6log
+   DROP tenant_id;
+
+ALTER TABLE ip6log_history
+   DROP tenant_id;
+
+ALTER TABLE ip6log_archive
+   DROP tenant_id;
+
+ALTER TABLE locationlog
+   DROP tenant_id;
+
+ALTER TABLE locationlog_history
+   DROP tenant_id;
+
+ALTER TABLE password
+   DROP tenant_id;
+
+ALTER TABLE bandwidth_accounting
+   DROP tenant_id;
+
+ALTER TABLE radius_nas
+   DROP tenant_id;
+
+ALTER TABLE radacct
+   DROP tenant_id;
+
+ALTER TABLE radacct_log
+   DROP tenant_id;
+
+ALTER TABLE radreply
+   DROP tenant_id;
+
+ALTER TABLE scan
+   DROP tenant_id;
+
+ALTER TABLE activation
+   DROP tenant_id;
+
+ALTER TABLE radius_audit_log
+   DROP tenant_id;
+
+ALTER TABLE auth_log
+   DROP tenant_id;
+
+ALTER TABLE user_preference
+   DROP tenant_id;
+
+ALTER TABLE dns_audit_log
+   DROP tenant_id;
+
+ALTER TABLE admin_api_audit_log
+   DROP tenant_id;
+
+ALTER TABLE bandwidth_accounting_history
+   DROP tenant_id;
+
+ALTER TABLE node
+   DROP PRIMARY KEY,
+   ADD PRIMARY KEY (`mac`),
+   DROP CONSTRAINT `0_57`,
+   DROP tenant_id;
+
+ALTER TABLE person
+   DROP PRIMARY KEY,
+   ADD PRIMARY KEY (`pid`),
+   DROP tenant_id;
+
+
+-- DROP TABLE tenant;
+
 INSERT INTO sms_carrier
     (name, email_pattern, created)
 VALUES
