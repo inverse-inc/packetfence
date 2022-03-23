@@ -118,16 +118,9 @@ sub create {
 
     my ( $status_msg, $result );
 
-    # Instantiate a DBI driver
-    my $dbDriver = DBI->install_driver("mysql");
-    if ( !$dbDriver ) {
-        $status_msg = ["Error in creating the database [_1]",$db];
-        $logger->warn($DBI::errstr);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
+    my $dbh = DBI->connect("dbi:mysql:mysql_socket=/var/lib/mysql/mysql.sock", $root_user, $root_password);
+    $result = $dbh->do("create database $db");
 
-    # Create the requested database
-    $result = $dbDriver->func('createdb', $db, 'localhost', $root_user, $root_password, 'admin');
     if ( !$result ) {
         $status_msg = ["Error in creating the database [_1]",$db];
         $logger->warn($DBI::errstr);
