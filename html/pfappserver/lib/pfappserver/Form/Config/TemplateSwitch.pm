@@ -32,6 +32,10 @@ has_field 'id' => (
     apply    => [
         {
             check   => \&check_id,
+            message => q[The id is invalid. Must only contain alphanumeric seperated by '::' ],
+        },
+        {
+            check   => \&check_module_name,
             message => 'Cannot be an existing Switch Module',
         }
     ],
@@ -45,9 +49,14 @@ has_field 'id' => (
     },
 );
 
+sub check_module_name {
+   my ($value, $field) = @_;
+   return !exists $pf::SwitchFactory::TYPE_TO_MODULE{$value} && !exists $pf::SwitchFactory::VENDORS{$value};
+}
+
 sub check_id {
    my ($value, $field) = @_;
-   return !exists $pf::SwitchFactory::TYPE_TO_MODULE{$value} && !exists $pf::SwitchFactory::VENDORS{$value} && $value =~ /^[0-9a-zA-Z_]+(::[0-9a-zA-Z_]+)*$/;
+   return $value =~ /^[0-9a-zA-Z_]+(::[0-9a-zA-Z_]+)*$/;
 }
 
 has_field 'description' => (
