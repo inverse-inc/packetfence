@@ -25,7 +25,7 @@ index d3a3cd9b63..fe284fcaa2 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 7bd9813ed1..64fda563d7 100644
+index f240829810..c7770e131f 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -443,7 +443,7 @@ radiusd=enabled
@@ -139,23 +139,6 @@ index 8399433b77..078e1c5e64 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  PrivateTmp=true
  Restart=on-failure
-diff --git a/conf/systemd/packetfence-httpd.webservices.service b/conf/systemd/packetfence-httpd.webservices.service
-index 2d7b8745b9..aaec7ea683 100644
---- a/conf/systemd/packetfence-httpd.webservices.service
-+++ b/conf/systemd/packetfence-httpd.webservices.service
-@@ -10,9 +10,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
- StartLimitBurst=3
- StartLimitInterval=10
- Type=notify
--ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
--ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Drhel
-+ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.webservices.pid
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_webservices' -e 'pf::services::manager::httpd_webservices->new()->generateConfig()'
-+ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND  -Ddebian
- ExecReload=/bin/kill -USR1 ${MAINPID}
- ExecStop=/bin/kill -WINCH ${MAINPID}
- # We want systemd to give httpd some time to finish gracefully, but still want
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
 index c147a89edd..4cc581ed51 100644
 --- a/conf/systemd/packetfence-iptables.service
