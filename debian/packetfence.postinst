@@ -107,12 +107,12 @@ case "$1" in
                     update-rc.d $service remove > /dev/null 2>&1
                 fi
             fi
-              if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-                  if [ -e "/lib/systemd/system/"$service".service" ] ; then
-                      systemctl stop $service
-                      systemctl disable $service
-                  fi
-              fi
+            if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+                if [ -e "/lib/systemd/system/"$service".service" ] ; then
+                    systemctl stop $service
+                    systemctl disable $service
+                fi
+            fi
 
         done
         set -e
@@ -135,7 +135,7 @@ case "$1" in
 
         # Start packetfence web administration
         if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
-            echo "This is an upgrade on a clustered system. We don't change the default systemd target."
+           echo "This is an upgrade on a clustered system. We don't change the default systemd target."
         else
             echo "Setting packetfence.target as the default systemd target."
            /bin/systemctl set-default packetfence.target
