@@ -32,8 +32,6 @@ use pf::file_paths qw(
     $config_version_file
 );
 
-our $host_id = hostname();
-
 our $multi_zone_enabled = sub {
     my $cfg = cluster_ini_config();
     return $FALSE unless($cfg);
@@ -70,6 +68,11 @@ our $master_multi_zone = sub {
     }
     return 'DEFAULT';
 }->();
+
+# Set a consistent host_id unless we're in a cluster
+# This is to prevent the pfconfig resource overlays for containers that keep having different hostnames
+# TODO: when we start working on the containerization in a cluster, we need to have hostname() replaced with the hostname of the physical machine in the cluster
+our $host_id = $cluster_enabled ? hostname() : '';
 
 =head2 cluster_ini_config
 
