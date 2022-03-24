@@ -4,8 +4,8 @@ all:
 	@echo "Use 'make vendor' to update external libraries, 'make dev' to generate the stylesheet and 'make dist' to commit the distribution version."
 
 vendor:
-	npm install
-	npm install -g grunt-cli
+	npm install --unsafe-perm
+	npm install --unsafe-perm -g grunt-cli
 
 dev:
 	grunt --stack dev
