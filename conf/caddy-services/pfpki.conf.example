@@ -1,5 +1,5 @@
 :22225 {
-  bind 127.0.0.1
+  bind host.docker.internal
   
   logger {
     level INFO
