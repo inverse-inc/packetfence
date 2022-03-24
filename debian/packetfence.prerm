@@ -32,12 +32,10 @@ case "$1" in
                 fi
             fi
         fi
-        if [ "${DOCKER_BUILD}" != "yes" ]; then
-          if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-              systemctl stop packetfence-haproxy-admin
-              systemctl set-default multi-user.target
-              systemctl isolate multi-user.target
-          fi
+        if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+            systemctl stop packetfence-haproxy-admin
+            systemctl set-default multi-user.target
+            systemctl isolate multi-user.target
         fi
     ;;
 

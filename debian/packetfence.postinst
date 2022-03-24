@@ -96,37 +96,33 @@ case "$1" in
         fi
 
         # managing services
-        if [ "${DOCKER_BUILD}" != "yes" ]; then
-          set +e
-          for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
+        set +e
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
 
-              if [ -e "/etc/init.d/"$service ] ; then
-                  invoke-rc.d $service stop  > /dev/null 2>&1
-                  if [ -e /etc/lsb-release ]; then
-                      update-rc.d -f $service remove > /dev/null 2>&1
-                  else
-                      update-rc.d $service remove > /dev/null 2>&1
+            if [ -e "/etc/init.d/"$service ] ; then
+                invoke-rc.d $service stop  > /dev/null 2>&1
+                if [ -e /etc/lsb-release ]; then
+                    update-rc.d -f $service remove > /dev/null 2>&1
+                else
+                    update-rc.d $service remove > /dev/null 2>&1
+                fi
+            fi
+              if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
+                  if [ -e "/lib/systemd/system/"$service".service" ] ; then
+                      systemctl stop $service
+                      systemctl disable $service
                   fi
               fi
-                if [ ${DIST} = "jessie" ] || [ ${DIST} = "stretch" ] || [ ${DIST} = "bullseye" ]; then
-                    if [ -e "/lib/systemd/system/"$service".service" ] ; then
-                        systemctl stop $service
-                        systemctl disable $service
-                    fi
-                fi
 
-          done
-          set -e
-        fi
+        done
+        set -e
 
 
         /sbin/ldconfig
-        if [ "${DOCKER_BUILD}" != "yes" ]; then
-          # Enabling ip forwarding
-          echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
-          echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
-          sysctl -p /etc/sysctl.d/99-ip_forward.conf
-        fi
+        # Enabling ip forwarding
+        echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
+        echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
+        sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
         if ! grep 'host.docker.internal' /etc/hosts > /dev/null; then
           echo "" >> /etc/hosts
@@ -137,72 +133,70 @@ case "$1" in
         #removing old cache
         rm -rf /usr/local/pf/var/cache/
 
-        if [ "${DOCKER_BUILD}" != "yes" ]; then
-          # Start packetfence web administration
-          if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
-              echo "This is an upgrade on a clustered system. We don't change the default systemd target."
-          else
-              echo "Setting packetfence.target as the default systemd target."
-             /bin/systemctl set-default packetfence.target
-          fi
-          echo "Restarting journald to enable persistent logging"
-          /bin/systemctl restart systemd-journald
-
-          #TODO: change this to an official repository
-          docker pull julsemaan/pfdebian:11.3
-          docker tag julsemaan/pfdebian:11.3 pfdebian:11.3
-
-          systemctl enable packetfence-mariadb
-          systemctl enable packetfence-redis-cache
-          systemctl enable packetfence-config
-          systemctl disable packetfence-iptables
-          systemctl enable packetfence-haproxy-admin
-          systemctl enable packetfence-tracking-config.path
-          systemctl daemon-reload
-          systemctl restart docker
-          systemctl start packetfence-config
-          /usr/local/pf/bin/pfcmd generatemariadbconfig --force
-          systemctl isolate packetfence-base.target
-
-          # Override the MySQL socket location to match our standard
-          printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
-          sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
-
-          echo "Restarting rsyslog"
-          systemctl restart rsyslog
-
-          perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-          set +e
-          /usr/local/pf/bin/pfcmd configreload
-          /usr/local/pf/bin/pfcmd fixpermissions
-          echo "Starting PacketFence Administration GUI..."
-          /bin/systemctl start packetfence-httpd.admin_dispatcher
-          /bin/systemctl start packetfence-haproxy-admin
-          systemctl enable packetfence-iptables
-          /usr/local/pf/bin/pfcmd service pf updatesystemd
-          if [ ${DIST} = "stretch" ]; then
-              set +e
-              /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
-              /usr/bin/mysql -uroot -e "flush privileges"
-              set -e
-          fi
-          if [ ${DIST} = "bullseye" ]; then
-              set +e
-              /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
-              set -e
-          fi
-
-          # Install the monitoring scripts signing key
-          echo "Install the monitoring scripts signing key"
-          gpg --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
-
-          # Remove the monit service from the multi-user target if its there
-          rm -f /etc/systemd/system/multi-user.target.wants/monit.service
-
-          echo Installation complete
-          echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
-          echo "* Please stop your iptables service if you don't have access to configurator."
+        # Start packetfence web administration
+        if [ `systemctl get-default` = "packetfence-cluster.target" ]; then
+            echo "This is an upgrade on a clustered system. We don't change the default systemd target."
+        else
+            echo "Setting packetfence.target as the default systemd target."
+           /bin/systemctl set-default packetfence.target
         fi
+        echo "Restarting journald to enable persistent logging"
+        /bin/systemctl restart systemd-journald
+
+        #TODO: change this to an official repository
+        docker pull julsemaan/pfdebian:11.3
+        docker tag julsemaan/pfdebian:11.3 pfdebian:11.3
+
+        systemctl enable packetfence-mariadb
+        systemctl enable packetfence-redis-cache
+        systemctl enable packetfence-config
+        systemctl disable packetfence-iptables
+        systemctl enable packetfence-haproxy-admin
+        systemctl enable packetfence-tracking-config.path
+        systemctl daemon-reload
+        systemctl restart docker
+        systemctl start packetfence-config
+        /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        systemctl isolate packetfence-base.target
+
+        # Override the MySQL socket location to match our standard
+        printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
+        sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
+
+        echo "Restarting rsyslog"
+        systemctl restart rsyslog
+
+        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+        set +e
+        /usr/local/pf/bin/pfcmd configreload
+        /usr/local/pf/bin/pfcmd fixpermissions
+        echo "Starting PacketFence Administration GUI..."
+        /bin/systemctl start packetfence-httpd.admin_dispatcher
+        /bin/systemctl start packetfence-haproxy-admin
+        systemctl enable packetfence-iptables
+        /usr/local/pf/bin/pfcmd service pf updatesystemd
+        if [ ${DIST} = "stretch" ]; then
+            set +e
+            /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
+            /usr/bin/mysql -uroot -e "flush privileges"
+            set -e
+        fi
+        if [ ${DIST} = "bullseye" ]; then
+            set +e
+            /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
+            set -e
+        fi
+
+        # Install the monitoring scripts signing key
+        echo "Install the monitoring scripts signing key"
+        gpg --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
+
+        # Remove the monit service from the multi-user target if its there
+        rm -f /etc/systemd/system/multi-user.target.wants/monit.service
+
+        echo Installation complete
+        echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
+        echo "* Please stop your iptables service if you don't have access to configurator."
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
