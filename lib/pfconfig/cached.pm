@@ -235,11 +235,15 @@ sub _get_from_socket {
 
     # it returns it as a sereal hash
     my $result;
-    if ( $response && $response ne "undef\n" ) {
+    if ( !$response ) {
+        die "Undefined or empty response from pfconfig";
+    }
+    elsif ( $response ne "undef\n" ) {
         eval { $result = sereal_decode_with_object($DECODER, $response); };
         if ($@) {
             print STDERR $@;
             print STDERR "$what $response";
+            die $@;
         }
         $LAST_TOUCH_CACHE = $result->{last_touch_cache};
         $RELOADED_TOUCH_CACHE = time;
