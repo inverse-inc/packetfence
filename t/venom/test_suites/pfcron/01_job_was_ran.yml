@@ -49,6 +49,8 @@ testcases:
     script: 'sqlite3 {{.fingerbank_upstream_db}} "SELECT COUNT(*) FROM pf_test"'
     assertions:
       - result.systemout ShouldEqualTrimSpace 1
+    retry: 5
+    delay: 10
 
 - name: teardown
   steps:
