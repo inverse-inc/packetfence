@@ -508,6 +508,7 @@ build_pfdebian_based_container_devel:
           - "api-frontend"
           - "pfcmd"
           - "pfqueue"
+          - "httpd.aaa"
 
 # branches and maintenance
 build_pfdebian_container_branches_and_maintenance:
@@ -533,6 +534,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "api-frontend"
           - "pfcmd"
           - "pfqueue"
+          - "httpd.aaa"
 
 
 # keep here because image will not rely on pfdebian
@@ -573,6 +575,7 @@ build_pfdebian_based_container_release:
           - "api-frontend"
           - "pfcmd"
           - "pfqueue"
+          - "httpd.aaa"
 
 ### build_img_docker jobs
 build_img_docker_devel:
