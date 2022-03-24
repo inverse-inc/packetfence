@@ -35,12 +35,12 @@ generate_knk_config() {
 generate_build_args() {
     local build_args=''
     for var in ${DOCKFILE_VARS}; do
-	# just to handle case of first iteration
-	if [ -z "$build_args" ]; then 
-	    build_args="--build-arg ${var}"
-	else
-	    build_args="$build_args --build-arg ${var}"
-	fi
+      # just to handle case of first iteration
+      if [ -z "$build_args" ]; then 
+        build_args="--build-arg ${var}"
+      else
+        build_args="$build_args --build-arg ${var}"
+      fi
     done
     echo "$build_args"
 
@@ -56,29 +56,29 @@ detect_multi_tags() {
 generate_destinations() {
     local destinations=''
     if detect_multi_tags; then
-	# Multi-tags detected, parsing ${IMAGE_TAGS}"
-	TAGS=$(echo $IMAGE_TAGS | tr ',' ' ')
-	for tag in ${TAGS}; do
-	    # just to handle case of first iteration
-	    if [ -z "$destinations" ]; then 
-		destinations="--destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
-	    else
-		destinations="$destinations --destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
-	    fi
-	done
+    # Multi-tags detected, parsing ${IMAGE_TAGS}"
+    TAGS=$(echo $IMAGE_TAGS | tr ',' ' ')
+    for tag in ${TAGS}; do
+      # just to handle case of first iteration
+      if [ -z "$destinations" ]; then 
+        destinations="--destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
+      else
+        destinations="$destinations --destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
+      fi
+    done
     else
-	# Only one tag detected, using ${IMAGE_TAG} as tag
-	IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
-	destinations="--destination ${IMAGE_DEST}"
+      # Only one tag detected, using ${IMAGE_TAG} as tag
+      IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+      destinations="--destination ${IMAGE_DEST}"
     fi
     echo "$destinations"
 }
 
 build_image() {
     /kaniko/executor --context $CI_PROJECT_DIR \
-		     --dockerfile ${DOCKFILE_PATH} \
-		     $(generate_destinations) \
-		     $(generate_build_args)
+         --dockerfile ${DOCKFILE_PATH} \
+         $(generate_destinations) \
+         $(generate_build_args)
 }
 
 setup_vars
