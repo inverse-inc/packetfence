@@ -204,20 +204,23 @@ sub _get_from_socket {
     %info = ( ( method => $method, key => $what, tenant_id => pf::config::tenant::get_tenant() ), %additionnal_info );
     $payload = $json->encode( \%info );
 
-    my $socket;
-
     my $failed_once = 0;
     my $times       = 0;
-
+    my $socket;
+    my $response;
     # we need the connection to the cachemaster
-    until ($socket) {
+    until ($socket && $response) {
         $socket = $self->get_socket();
         if ($socket) {
 
             # we want to show a success message if we failed at least once
             print "Connected to config service successfully for namespace $self->{_namespace}"
                 if $failed_once;
-            last;
+
+            $response = pfconfig::util::fetch_socket($socket, $payload);
+            if ( $response ) {
+                last;
+            }
         }
         my $message
             = "["
@@ -231,14 +234,9 @@ sub _get_from_socket {
         die("Cannot connect to service pfconfig!") if ( $times >= 600 );
     }
 
-    my $response = pfconfig::util::fetch_socket($socket, $payload);
-
     # it returns it as a sereal hash
     my $result;
-    if ( !$response ) {
-        die "Undefined or empty response from pfconfig";
-    }
-    elsif ( $response ne "undef\n" ) {
+    if ( $response ne "undef\n" ) {
         eval { $result = sereal_decode_with_object($DECODER, $response); };
         if ($@) {
             print STDERR $@;
