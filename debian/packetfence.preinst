@@ -64,21 +64,19 @@ case "$1" in
         usermod -aG pf mysql
         usermod -aG pf netdata
 
-        if [ "${DOCKER_BUILD}" != "yes" ]; then
-          # prevent conflicting mariadb service from starting 
-          /bin/systemctl mask mariadb
-          /bin/systemctl stop mariadb
-          # journald 
-          /usr/bin/install -d -g systemd-journal /var/log/journal
-          /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
-          echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
-          echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
-          echo "ForwardToWall=no" >> /etc/systemd/journald.conf
-          echo "SystemMaxUse=1G" >> /etc/systemd/journald.conf
-          echo "SystemKeepFree=1G" >> /etc/systemd/journald.conf
-          echo "Restarting journald to enable persistent logging"
-          /bin/systemctl restart systemd-journald
-        fi
+        # prevent conflicting mariadb service from starting 
+        /bin/systemctl mask mariadb
+        /bin/systemctl stop mariadb
+        # journald 
+        /usr/bin/install -d -g systemd-journal /var/log/journal
+        /bin/setfacl -R -nm g:adm:rx,d:g:adm:rx /var/log/journal
+        echo "RateLimitInterval=0" >> /etc/systemd/journald.conf
+        echo "RateLimitBurst=0" >> /etc/systemd/journald.conf
+        echo "ForwardToWall=no" >> /etc/systemd/journald.conf
+        echo "SystemMaxUse=1G" >> /etc/systemd/journald.conf
+        echo "SystemKeepFree=1G" >> /etc/systemd/journald.conf
+        echo "Restarting journald to enable persistent logging"
+        /bin/systemctl restart systemd-journald
 
         exit 0
     ;;
