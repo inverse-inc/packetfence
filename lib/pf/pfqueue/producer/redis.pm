@@ -25,6 +25,7 @@ use Digest::JHash qw(jhash);
 use pf::task;
 use pf::util::pfqueue qw(task_counter_id);
 use pf::constants::pfqueue qw($PFQUEUE_COUNTER $PFQUEUE_QUEUE_PREFIX);
+use pf::config::pfqueue;
 
 our $DEFAULT_EXPIRATION = 300;
 
@@ -49,7 +50,7 @@ The server of the redis client
 has server => (
     is       => 'rw',
     required => 1,
-    default  => sub { "127.0.0.1:6380" },
+    default  => sub { $ConfigPfqueue{producer}{redis_server} },
 );
 
 =head2 _build_redis

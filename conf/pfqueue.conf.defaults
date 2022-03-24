@@ -28,6 +28,12 @@ max_tasks=2000
 task_jitter=100
 
 #
+#Connection details of the queue producer
+#
+[producer]
+redis_server=[% ENV.env_or_default("REDIS_QUEUE_HOST_PORT", "host.docker.internal:6380") %]
+
+#
 #Connection details of the queue consumer
 #
 [consumer]
