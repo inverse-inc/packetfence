@@ -178,6 +178,10 @@ sub build_child {
         $Config{general}{timezone} = $tz;
     }
     my $webservices = $Config{'webservices'};
+    # The webservices should default to the unified API password if it's not defined in the configuration
+    $webservices->{user} = $self->{cache}->get_cache('resource::unified_api_system_user')->{user};
+    $webservices->{pass} = $self->{cache}->get_cache('resource::unified_api_system_user')->{pass};
+
     $webservices->{jsonrpcclient_args} = {
         username => $webservices->{'user'},
         password => $webservices->{'pass'},

@@ -1069,37 +1069,37 @@ voip=no
 # webservices.user
 #
 # username to use to connect to the webAPI
-user =
+user=[% ENV.env_or_default("PF_WEBSERVICES_USER", "") %]
 #
 # webservices.pass
 #
 # password of the username
-pass =
+pass=[% ENV.env_or_default("PF_WEBSERVICES_PASS", "") %]
 #
 # webservices.host
 #
 # host of the webAPI
-host=127.0.0.1
+host=[% ENV.env_or_default("PF_WEBSERVICES_HOST", "host.docker.internal") %]
 #
 # webservices.proto
 #
 # proto to use
-proto=http
+proto=[% ENV.env_or_default("PF_WEBSERVICES_PROTO", "https") %]
 #
 # webservices.port
 #
 # port to use
-port=9090
+port=[% ENV.env_or_default("PF_WEBSERVICES_PORT", "9090") %]
 #
 # webservices.aaa_port
 #
 # port to use for authentication
-aaa_port=7070
+aaa_port=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PORT", "9090") %]
 #
 # webservices.unifiedapi_port
 #
 # port to use for accessing the Unified API
-unifiedapi_port=9999
+unifiedapi_port=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_PORT", "9090") %]
 
 [active_active]
 #
