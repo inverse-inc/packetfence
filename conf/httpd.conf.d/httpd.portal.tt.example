@@ -126,17 +126,7 @@ PerlModule Apache2::Resource
 PerlSetEnv PERL_RLIMIT_AS 1024
 PerlChildInitHandler Apache2::Resource
 
-#Apache will only expose environment variables to mod_perl that are defined here
-PerlSetEnv PFCONFIG_PROTO ${PFCONFIG_PROTO}
-PerlSetEnv PFCONFIG_TCP_HOST ${PFCONFIG_TCP_HOST}
-PerlSetEnv PFCONFIG_TCP_PORT ${PFCONFIG_TCP_PORT}
-PerlSetEnv REDIS_HOST_PORT ${REDIS_HOST_PORT}
-PerlSetEnv PF_MYSQL_HOST ${PF_MYSQL_HOST}
-PerlSetEnv PF_MYSQL_PORT ${PF_MYSQL_PORT}
-PerlSetEnv PF_MYSQL_DB ${PF_MYSQL_DB}
-PerlSetEnv PF_MYSQL_USER ${PF_MYSQL_USER}
-PerlSetEnv PF_MYSQL_PASS ${PF_MYSQL_PASS}
-PerlSetEnv PF_MYSQL_UNIX_SOCKET ${PF_MYSQL_UNIX_SOCKET}
+[% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
 
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
