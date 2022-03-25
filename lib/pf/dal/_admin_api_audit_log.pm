@@ -24,9 +24,6 @@ use warnings;
 
 use base qw(pf::dal);
 
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -37,7 +34,6 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
-        tenant_id
         created_at
         user_name
         action
@@ -49,7 +45,6 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        tenant_id => '1',
         created_at => 'current_timestamp(6)',
         user_name => undef,
         action => undef,
@@ -61,7 +56,6 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
         created_at
         user_name
         action
@@ -77,12 +71,6 @@ BEGIN {
             type => 'BIGINT',
             is_auto_increment => 1,
             is_primary_key => 1,
-            is_nullable => 0,
-        },
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
             is_nullable => 0,
         },
         created_at => {
@@ -141,7 +129,6 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         admin_api_audit_log.id
-        admin_api_audit_log.tenant_id
         admin_api_audit_log.created_at
         admin_api_audit_log.user_name
         admin_api_audit_log.action

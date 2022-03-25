@@ -24,9 +24,6 @@ use warnings;
 
 use base qw(pf::dal);
 
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -37,7 +34,6 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
-        tenant_id
         username
         attribute
         op
@@ -45,7 +41,6 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        tenant_id => '1',
         username => '',
         attribute => '',
         op => ':=',
@@ -53,7 +48,6 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
         username
         attribute
         op
@@ -65,12 +59,6 @@ BEGIN {
             type => 'INT',
             is_auto_increment => 1,
             is_primary_key => 1,
-            is_nullable => 0,
-        },
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
             is_nullable => 0,
         },
         username => {
@@ -105,7 +93,6 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         radreply.id
-        radreply.tenant_id
         radreply.username
         radreply.attribute
         radreply.op
