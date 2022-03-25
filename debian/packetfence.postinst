@@ -144,8 +144,10 @@ case "$1" in
         /bin/systemctl restart systemd-journald
 
         #TODO: change this to an official repository
-        docker pull ghcr.io/inverse-inc/packetfence/pfdebian:feature-pfconfig-container
-        docker tag ghcr.io/inverse-inc/packetfence/pfdebian:feature-pfconfig-container local/pfdebian:11.3
+        for img in api-frontend pfdebian httpd.aaa httpd.portal pfconfig pfqueue; do
+          docker pull ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container
+          docker tag ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container local/$img:11.3
+        done
 
         systemctl enable packetfence-mariadb
         systemctl enable packetfence-redis-cache
