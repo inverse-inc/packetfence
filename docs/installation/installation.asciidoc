@@ -58,7 +58,7 @@ Newer versions of VMware Player handle VLAN trunking a lot better. With that in 
 
 The ISO edition of PacketFence allows you to install PacketFence on Debian 11 with minimal effort. Instead of manually installing Debian 11 and installing PacketFence after, this will perform both tasks and select the optimal parameters and best practices for installing the operating system.
 
-You can download the ISO here: https://www.packetfence.org/download.html#/iso
+You can download the ISO here: https://www.packetfence.org/download.html#/releases
 
 ==== Machine specifications
 
@@ -68,7 +68,7 @@ You will need a virtual machine or server with 12 GB of RAM dedicated to machine
 
 ==== Installing the ISO to a virtual machine
 
-Provision a virtual machine with the specifications above, mount the ISO in the CD/DVD drive of the machine and start it. 
+Provision a virtual machine with the specifications above, mount the ISO in the CD/DVD drive of the machine and start it.
 The installer will open and you will simply have to follow the instructions on screen to complete the installation.
 
 ==== Installing the ISO to a bare-metal server
