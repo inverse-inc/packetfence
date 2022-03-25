@@ -342,7 +342,7 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
-    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
+    $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
     parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
     parse_template( \%tags, "$conf_dir/radiusd/radiusd_loadbalancer.conf", "$install_dir/raddb/radiusd_loadbalancer.conf" );
@@ -359,7 +359,7 @@ sub generate_radiusd_restconf {
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
-    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
+    $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
     parse_template( \%tags, "$conf_dir/radiusd/rest.conf", "$install_dir/raddb/mods-enabled/rest" );
 }
