@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PF_REGISTRY=julsemaan
+PF_REGISTRY=local
 PF_VERSION=11.3
 
 function base_args {
