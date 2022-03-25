@@ -1096,6 +1096,11 @@ port=[% ENV.env_or_default("PF_WEBSERVICES_PORT", "9090") %]
 # port to use for authentication
 aaa_port=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PORT", "9090") %]
 #
+# webservices.aaa_port
+#
+# port to use for authentication
+aaa_proto=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PROTO", "http") %]
+#
 # webservices.unifiedapi_port
 #
 # port to use for accessing the Unified API
