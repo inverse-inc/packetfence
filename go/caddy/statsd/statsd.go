@@ -24,7 +24,7 @@ func setup(c *caddy.Controller) error {
 
 	proto := "udp"
 	var prefix string
-	address := "172.0.0.1:8125"
+	address := "127.0.0.1:8125"
 	for c.Next() {
 		for c.NextBlock() {
 			switch c.Val() {
