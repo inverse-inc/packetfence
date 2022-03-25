@@ -17,7 +17,7 @@
   statsd {
     proto udp
     prefix api
-    #redirect host.docker.internal
+    address host.docker.internal
   }
 
   cors /api/v1 {
@@ -45,7 +45,7 @@
   }
   
   # pfdhcp API access
-  proxy /api/v1/dhcp/ host.docker.internal:22223
+  proxy /api/v1/dhcp/ host.docker.internal:22223 {
     transparent
   }
   
