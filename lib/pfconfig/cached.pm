@@ -78,7 +78,7 @@ sub get_socket {
             Proto => "tcp",
         );
         if(!$socket) {
-            print STDERR "Can't connect to pfconfig: $!\n";
+            print STDERR "Can't connect to pfconfig on $self->{tcp_host}:$self->{tcp_port} : $!\n";
         }
     }
     else {
