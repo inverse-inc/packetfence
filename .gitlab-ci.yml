@@ -509,6 +509,7 @@ build_pfdebian_based_container_devel:
           - "pfcmd"
           - "pfqueue"
           - "httpd.aaa"
+          - "httpd.webservices"
 
 # branches and maintenance
 build_pfdebian_container_branches_and_maintenance:
@@ -535,6 +536,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "pfcmd"
           - "pfqueue"
           - "httpd.aaa"
+          - "httpd.webservices"
 
 
 # keep here because image will not rely on pfdebian
@@ -576,6 +578,7 @@ build_pfdebian_based_container_release:
           - "pfcmd"
           - "pfqueue"
           - "httpd.aaa"
+          - "httpd.webservices"
 
 ### build_img_docker jobs
 # EL8
