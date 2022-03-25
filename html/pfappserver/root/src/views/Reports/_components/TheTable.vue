@@ -59,17 +59,17 @@
         />
       </template>
       <template v-for="nodeField in nodeFields"
-        v-slot:[`cell(${nodeField})`]="{ field, value }">
+        v-slot:[`cell(${nodeField})`]="{ value }">
         <router-link :key="nodeField"
           :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
       </template>
       <template v-for="personField in personFields"
-        v-slot:[`cell(${personField})`]="{ field, value }">
+        v-slot:[`cell(${personField})`]="{ value }">
         <router-link :key="personField"
           :to="{ path: `/user/${value}` }">{{ value }}</router-link>
       </template>
       <template v-for="roleField in roleFields"
-        v-slot:[`cell(${roleField})`]="{ field, value }">
+        v-slot:[`cell(${roleField})`]="{ value }">
         <router-link :key="roleField"
           :to="{ path: `/configuration/role/${value}` }">{{ value }}</router-link>
       </template>

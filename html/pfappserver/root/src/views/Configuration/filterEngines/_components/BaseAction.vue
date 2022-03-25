@@ -69,6 +69,7 @@ const setup = (props, context) => {
     const { api_method } = inputValue.value || {}
     if (apiMethods.value)
       return apiMethods.value.find(a => a.value === api_method)
+    return undefined
   })
   const apiParametersPlaceholder = computed(() => {
     const { api_method } = inputValue.value || {}
@@ -76,6 +77,7 @@ const setup = (props, context) => {
       const { sibling: { api_parameters: { ['default']: placeholder } = {} } = {} } = apiMethods.value.find(a => a.value === api_method) || {}
       return placeholder
     }
+    return undefined
   })
 
   return {

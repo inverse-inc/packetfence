@@ -129,6 +129,7 @@ const setup = (props, context) => {
         }
       }
     }
+    return undefined
   })
 
   // meta `type` may contain sibling allowed_values for `value`

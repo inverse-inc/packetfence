@@ -141,7 +141,7 @@ const setup = (props, context) => {
         //break
 
       default:
-        return
+        return undefined
     }
   })
 

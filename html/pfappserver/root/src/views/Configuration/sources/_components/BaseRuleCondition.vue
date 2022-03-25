@@ -146,6 +146,7 @@ const setup = (props, context) => {
           console.error(`Unhandled pfComponentType '${component}' for pfFieldType '${type}'`)
       }
     }
+    return undefined
   })
 
   const valueBind = computed(() => {
@@ -157,6 +158,7 @@ const setup = (props, context) => {
       else // non-grouped
         return { options }
     }
+    return undefined
   })
 
   const doFocus = () => {

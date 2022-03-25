@@ -44,7 +44,7 @@ export const useItemTitleBadge = (props, context, form) => {
       const { 1: vlanFromId = null } = id.value.split('.')
       return `VLAN ${vlanFromId}`
     }
-    return // don't show
+    return undefined // don't show
   })
 }
 

@@ -224,8 +224,8 @@
             <template v-slot:empty>
               <base-table-empty :isLoading="isLoadingNodes" text="">{{ $t('No devices found') }}</base-table-empty>
             </template>
-            <template v-slot:table-caption v-if="nodes.length >= 1000" class="text-center">
-              <b-button variant="outline-primary mb-0" :to="{ name: 'nodeSearch', query: {
+            <template v-slot:table-caption v-if="nodes.length >= 1000">
+              <b-button block variant="primary mb-0" size="sm" :to="{ name: 'nodeSearch', query: {
                 query: JSON.stringify({
                   'op':'and',
                   'values':[

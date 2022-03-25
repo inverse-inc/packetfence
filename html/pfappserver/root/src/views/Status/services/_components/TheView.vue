@@ -72,7 +72,7 @@
           <template v-slot:empty>
             <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
           </template>
-          <template v-slot:cell(name)="service" class="align-items-center">
+          <template v-slot:cell(name)="service">
             <icon v-if="!service.item.alive && service.item.managed"
               name="exclamation-triangle" size="sm" class="text-danger mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is required with this configuration.', { name: service.item.name})"></icon>
             <icon v-if="service.item.alive && !service.item.managed"
@@ -84,7 +84,7 @@
               :name="service.item.name"
               :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)" />
           </template>
-          <template v-slot:cell(alive)="service" class="text-nowrap">
+          <template v-slot:cell(alive)="service">
             <toggle-service-alive :value="service.item.alive"
               :name="service.item.name"
               :disabled="![200, 'error'].includes(service.item.status)" />

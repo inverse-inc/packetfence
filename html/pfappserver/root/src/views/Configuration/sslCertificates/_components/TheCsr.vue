@@ -39,7 +39,7 @@
       <b-form-textarea v-else
         ref="csrRef" rows="6" max-rows="17" v-model="csr"/>
     </template>
-    <template v-slot:modal-footer class="text-right">
+    <template v-slot:modal-footer>
       <b-button class="mr-1" variant="secondary" @click="onHide">{{ $t('Close') }}</b-button>
       <b-button v-if="csr"
         class="mr-1" variant="primary" @click="onClipboard">{{ $t('Copy to clipboard') }}</b-button>

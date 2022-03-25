@@ -108,6 +108,7 @@ const setup = (props, context) => {
           console.error(`Unhandled pfComponentType '${component}' for pfFieldType '${type}'`)
       }
     }
+    return undefined
   })
 
   return {

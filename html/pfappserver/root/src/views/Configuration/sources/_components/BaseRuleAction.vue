@@ -145,6 +145,7 @@ const setup = (props, context) => {
         }
       }
     }
+    return undefined
   })
 
   const valueProps = ref({})

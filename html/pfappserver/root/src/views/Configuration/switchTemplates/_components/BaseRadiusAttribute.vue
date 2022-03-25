@@ -74,7 +74,7 @@ const setup = (props, context) => {
     else if (type.value)
       return BaseInput
     else
-      return // undefined
+      return undefined
   })
 
   const radiusAttributeType = computed(() => {
@@ -87,6 +87,7 @@ const setup = (props, context) => {
     const { allowed_values } = radiusAttributeType.value
     if (allowed_values)
       return allowed_values.map(({ name, value }) => ({ text: name, value: `${value}` }))
+    return undefined
   })
 
   const valuePlaceholder = computed(() => {

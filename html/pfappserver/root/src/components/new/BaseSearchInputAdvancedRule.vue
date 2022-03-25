@@ -111,6 +111,7 @@ const setup = (props, context) => {
     const index = fields.value.findIndex(field => value.value.field === field.value)
     if (index >= 0)
       return fields.value[index]
+    return undefined
   })
 
   const icon = computed(() => {
@@ -133,6 +134,7 @@ const setup = (props, context) => {
           return { value: operator, text: i18n.t(operator.replace(/_/g, ' ')) }
         })
     }
+    return undefined
   })
 
   const valueComponentIs = computed(() => {

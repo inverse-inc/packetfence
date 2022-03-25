@@ -280,7 +280,7 @@
               <b-row class="bg-light" align-v="center">
                 <b-col cols="10">{{ $t('Created') }} <em v-if="importProgress.dryRun">({{ $t('not commited') }})</em></b-col>
                 <b-col cols="2" class="text-right">
-                  <template v-if="importProgress.dryRun || importConfig.insertNew" size="lg">
+                  <template v-if="importProgress.dryRun || importConfig.insertNew">
                     {{ importProgress.insertCount }} <icon name="lock" class="ml-1"/>
                   </template>
                   <template v-else>{{ importProgress.insertCount }}</template>

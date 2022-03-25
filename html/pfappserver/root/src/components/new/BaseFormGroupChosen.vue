@@ -249,6 +249,7 @@ export const setup = (props, context) => {
     const { 0: { group } = {} } = options.value
     if (group)
       return 'group'
+    return undefined
   })
   const inputGroupValues = computed(() => {
     if (groupValues.value)
@@ -257,6 +258,7 @@ export const setup = (props, context) => {
     const { 0: { group } = {} } = options.value
     if (group)
       return 'options'
+    return undefined
   })
 
   const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)

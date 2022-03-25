@@ -19,7 +19,7 @@
           </b-form-group>
         </template>
       </component>
-      <template v-slot:[footerSlotName] class="justify-content-start">
+      <template v-slot:[footerSlotName]>
         <b-dropdown variant="link" class="float-right" :text="$t(currentLanguage.label)">
           <b-dropdown-item v-for="language in languages" :key="language.locale"
             :disabled="language.locale === $i18n.locale"
