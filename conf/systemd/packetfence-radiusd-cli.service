@@ -2,7 +2,7 @@
 [Unit]
 Description=PacketFence FreeRADIUS multi-protocol CLI authentication server
 Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
-Wants=packetfence-httpd.aaa.service 
+Wants=packetfence-httpd.aaa.service
 After=packetfence-httpd.aaa.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
@@ -12,9 +12,9 @@ Type=notify
 WatchdogSec=10
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -Cxm -lstdout 
-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n cli -fm 
+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/radius-cli-docker-wrapper
+ExecStop=/bin/bash -c "docker stop radius-cli ; docker container rm radius-cli -f ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 
