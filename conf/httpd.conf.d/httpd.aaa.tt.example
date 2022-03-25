@@ -117,6 +117,8 @@
   </IfModule>
 </IfDefine>
 
+[% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
+
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
@@ -131,7 +133,6 @@ SetEnvIf User-Agent netdata is_netdata
 PidFile [% install_dir %]/var/run/[% name %].pid
 
 Include [% install_dir %]/conf/httpd.conf.d/log.conf
-Include [% install_dir %]/lib/pf/web/apache-env-variables.inc
 
 ServerTokens  Prod
 ServerSignature  Off
