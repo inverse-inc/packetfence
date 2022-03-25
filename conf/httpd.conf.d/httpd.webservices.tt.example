@@ -117,6 +117,8 @@
   </IfModule>
 </IfDefine>
 
+[% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
+
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 PerlSwitches -I[% install_dir %]/html/pfappserver/lib
