@@ -10,9 +10,10 @@ module.exports = {
   rules: {
     'no-console': process.env.VUE_APP_DEBUG === 'true' ? 'off' : 'error',
     'no-debugger': process.env.VUE_APP_DEBUG === 'true' ? 'off' : 'error',
-    'no-unused-vars': ['warn', {'args': 'after-used', 'ignoreRestSiblings': true}]
+    'no-unused-vars': ['warn', {'args': 'after-used', 'ignoreRestSiblings': true}],
+    'vue/multi-word-component-names': 'off'
   },
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: '@babel/eslint-parser'
   }
 }

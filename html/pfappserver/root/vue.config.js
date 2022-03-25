@@ -9,8 +9,13 @@ module.exports = {
     extract: process.env.VUE_APP_DEBUG !== 'true',
     loaderOptions: {
       sass: {
-        includePaths: ['node_modules', 'src/styles'],
-        data: [
+        sassOptions: {
+          includePaths: [
+            'node_modules',
+            'src/styles'
+          ]
+        },
+        additionalData: [
           `@import "bootstrap/scss/functions";`,
           `@import "bootstrap/scss/mixins/border-radius";`,
           `@import "bootstrap/scss/mixins/box-shadow";`,
@@ -42,6 +47,7 @@ module.exports = {
         openAnalyzer: false
       }))
     }
+    config.resolve.fallback = { "path": require.resolve("path-browserify") }
     return {
       module: {
         rules: [
