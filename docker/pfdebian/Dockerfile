@@ -18,4 +18,5 @@ RUN rm -f /usr/local/fingerbank/db/fingerbank_*.db
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
+RUN ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 
