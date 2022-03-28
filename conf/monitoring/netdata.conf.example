@@ -36,7 +36,7 @@
 	# gaps on timers (deleteTimers) = no
 	# statsd server max TCP sockets = 256
 	# listen backlog = 4096
-	# default port = 8125
-	bind to = udp:host.docker.internal tcp:host.docker.internal
+	default port = 8125
+	bind to = udp:[::1],127.0.0.1,host.docker.internal tcp:[::1],127.0.0.1,host.docker.internal
 
 
