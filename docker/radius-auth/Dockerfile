@@ -51,7 +51,27 @@ RUN apt-get update \
     \
     && ln -s /etc/freeradius /etc/raddb
 
+RUN apt-get update
+RUN apt-get install -y aptitude wget gnupg
+
+RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/11.3 bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"
+RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
+RUN apt-get update
+
+RUN wget https://raw.githubusercontent.com/inverse-inc/packetfence/devel/addons/dev-helpers/debian/install-pf-dependencies.sh
+
+RUN chmod +x install-pf-dependencies.sh
+RUN ./install-pf-dependencies.sh
+RUN rm -f /usr/local/fingerbank/db/fingerbank_*.db
+
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
+WORKDIR /usr/local/pf/
+
+RUN mkdir -p /usr/local/pf/var/run
+
+RUN chown -R pf: /usr/local/pf/var
+
 EXPOSE 1812/udp 
-CMD ["/usr/sbin/freeradius","-d","/usr/local/pf/raddb","-n","auth","-fm"]
+ENTRYPOINT /usr/sbin/freeradius -d /usr/local/pf/raddb -n auth -fm
+#CMD ["/usr/sbin/freeradius","-d","/usr/local/pf/raddb","-n","auth","-fm"]

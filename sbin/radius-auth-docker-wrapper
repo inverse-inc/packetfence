@@ -5,6 +5,6 @@ source /usr/local/pf/docker/systemd-service
 name=radius-auth
 
 args=`base_args $name`
-args="$args --mount type=bind,source=/usr/local/pf/raddb/,target=/usr/local/pf/raddb/ -mount type=bind,source=/usr/local/pf/conf/certmanager/,target=/usr/local/pf/conf/certmanager/"
+args="$args --mount type=bind,source=/usr/local/pf/raddb/,target=/usr/local/pf/raddb/ --mount type=bind,source=/usr/local/pf/conf/,target=/usr/local/pf/conf/ --mount type=bind,source=/usr/local/pf/lib/,target=/usr/local/pf/lib/ -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock --mount type=bind,source=/usr/local/pf/bin/,target=/usr/local/pf/bin/"
 
 run $name "$args"
