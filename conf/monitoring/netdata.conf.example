@@ -37,6 +37,6 @@
 	# statsd server max TCP sockets = 256
 	# listen backlog = 4096
 	default port = 8125
-	bind to = udp:[::1],127.0.0.1,host.docker.internal tcp:[::1],127.0.0.1,host.docker.internal
+	bind to = udp:[::1] udp:127.0.0.1 udp:host.docker.internal tcp:[::1] tcp:127.0.0.1 tcp:host.docker.internal
 
 
