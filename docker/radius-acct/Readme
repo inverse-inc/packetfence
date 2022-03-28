@@ -1,1 +1,1 @@
-docker build . --build-arg=release=feature/PacketFence --build-arg=source=https://github.com/fdurand/freeradius-server.git -t radius-acct
+docker build . --no-cache --build-arg=release=feature/PacketFence --build-arg=source=https://github.com/fdurand/freeradius-server.git -t radius-acct

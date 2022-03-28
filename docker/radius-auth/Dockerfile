@@ -51,5 +51,7 @@ RUN apt-get update \
     \
     && ln -s /etc/freeradius /etc/raddb
 
+RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
+
 EXPOSE 1812/udp 
 CMD ["/usr/sbin/freeradius","-d","/usr/local/pf/raddb","-n","auth","-fm"]
