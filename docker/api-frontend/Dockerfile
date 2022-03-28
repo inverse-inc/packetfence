@@ -12,11 +12,6 @@ RUN cd /usr/local/pf/go/ &&  make pfhttpd
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 COPY ./lib/pf/util/combined_dictionary /usr/local/pf/lib/pf/util/combined_dictionary
-COPY ./raddb/dictionary /usr/local/pf/raddb/dictionary
-COPY ./raddb/dictionary.inverse /usr/local/pf/raddb/dictionary.inverse
-COPY ./raddb/dictionary.oauth2 /usr/local/pf/raddb/dictionary.oauth2
-COPY ./raddb/dictionary.pfacct /usr/local/pf/raddb/dictionary.pfacct
-COPY ./raddb/dictionary.ruckus /usr/local/pf/raddb/dictionary.ruckus
-COPY ./raddb/dictionary.xirrus /usr/local/pf/raddb/dictionary.xirrus
+COPY ./raddb/dictionary ./raddb/dictionary.inverse ./raddb/dictionary.oauth2 ./raddb/dictionary.pfacct ./raddb/dictionary.ruckus ./raddb/dictionary.xirrus /usr/local/pf/raddb/
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/api.conf -log-name api-frontend
