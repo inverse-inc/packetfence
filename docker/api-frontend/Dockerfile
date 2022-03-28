@@ -1,4 +1,6 @@
 ARG GO_VERSION
+ARG KNK_REGISTRY_URL
+ARG IMAGE_TAG
 FROM golang:${GO_VERSION}
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
@@ -7,8 +9,6 @@ COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
 RUN cd /usr/local/pf/go/ &&  make pfhttpd
 
-ARG KNK_REGISTRY
-ARG IMAGE_TAG
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 COPY ./lib/pf/util/combined_dictionary /usr/local/pf/lib/pf/util/combined_dictionary
