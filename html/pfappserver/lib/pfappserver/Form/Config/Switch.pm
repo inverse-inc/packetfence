@@ -51,14 +51,6 @@ has_field 'description' =>
    required => 0,
   );
 
-has_field 'TenantId' =>
-  (
-   type => 'Select',
-   label => 'Tenant ID',
-   options_method => \&options_tenant,
-   element_class => ['chzn-deselect'],
-  );
-
 has_field 'type' =>
   (
    type => 'Select',
@@ -645,17 +637,6 @@ sub options_wsTransport {
     my @transports = map { {label => uc($_), value =>  $_ } } qw/http https/;
 
     return ({label => '' ,value => '' }, @transports);
-}
-
-sub options_tenant {
-    my $self = shift;
-    my @tenants;
-    my ($status, $it) = pf::dal::tenant->search;
-    if (is_success($status)) {
-        @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{$it->all};
-    }
-
-    return @tenants;
 }
 
 =head2 validate
