@@ -71,5 +71,3 @@ WORKDIR /usr/local/pf/
 RUN mkdir -p /usr/local/pf/var/run
 
 RUN chown -R pf: /usr/local/pf/var
-
-ENTRYPOINT /usr/sbin/freeradius -d /usr/local/pf/raddb -n auth -fm
