@@ -172,10 +172,6 @@ func (s *Server) GetFingerprint() string {
 // authUser is responsible for validating the ssh user / password combination
 func (s *Server) authUser(c ssh.ConnMetadata, password []byte) (*ssh.Permissions, error) {
 	s.refreshUsersPfconfig()
-	// check if user authenication is enable and it not allow all
-	if s.users.Len() == 0 {
-		return nil, nil
-	}
 	// check the user exists and has matching password
 	n := c.User()
 	user, found := s.users.Get(n)
