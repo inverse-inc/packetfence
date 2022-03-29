@@ -1,0 +1,14 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence Connector Server
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+LimitNOFILE=infinity
+ExecStart=/usr/local/pf/sbin/pfconnector server --port 39999 --reverse
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target

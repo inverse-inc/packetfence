@@ -1,0 +1,15 @@
+# Copyright (C) Inverse inc.
+[Unit]
+Description=PacketFence Connector Client
+Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
+After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+
+[Service]
+LimitNOFILE=infinity
+# pfconnector (chisel) requires at least a remote to be defined when connecting so we define a dummy remote on port 33333
+ExecStart=/bin/bash -c "/usr/local/pf/sbin/pfconnector client --auth=local_connector:`cat /usr/local/pf/conf/unified_api_system_pass` 127.0.0.1:39999 R:33333:127.0.0.1:33333"
+Restart=on-failure
+Slice=packetfence.slice
+
+[Install]
+WantedBy=packetfence.target
