@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/chisel/share/ccrypto"
 	"github.com/jpillora/chisel/share/cio"
@@ -176,6 +177,7 @@ func (s *Server) authUser(c ssh.ConnMetadata, password []byte) (*ssh.Permissions
 	}
 	// check the user exists and has matching password
 	n := c.User()
+	s.refreshUsersPfconfig()
 	user, found := s.users.Get(n)
 	if !found || user.Pass != string(password) {
 		s.Debugf("Login failed for user: %s", n)
@@ -203,6 +205,20 @@ func (s *Server) AddUser(user, pass string, addrs ...string) error {
 		Addrs: authorizedAddrs,
 	})
 	return nil
+}
+
+var acceptAllAddrs = regexp.MustCompile("")
+var connectors = pfconfigdriver.Connectors{}
+
+func (s *Server) refreshUsersPfconfig() {
+	pfconfigdriver.FetchDecodeSocketCache(context.Background(), &connectors)
+	for connectorId, connector := range connectors.Element {
+		s.users.AddUser(&settings.User{
+			Name:  connectorId,
+			Pass:  connector.Secret,
+			Addrs: []*regexp.Regexp{acceptAllAddrs},
+		})
+	}
 }
 
 // DeleteUser removes a user from the server user index

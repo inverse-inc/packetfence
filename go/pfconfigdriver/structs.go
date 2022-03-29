@@ -818,3 +818,13 @@ type PfConfServicesURL struct {
 	PfdnsDoh              string `json:"pfdns-doh"`
 	Pfsso                 string `json:"pfsso"`
 }
+
+type Connectors struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"config::Connector"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 map[string]struct {
+		Secret string `json:"secret"`
+	}
+}
