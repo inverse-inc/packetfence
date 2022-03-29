@@ -30,6 +30,7 @@ use pf::config qw(
     $WIRED_MAC_AUTH
     $WIRED_802_1X
 );
+use pf::radius::constants qw(%NAS_port_type);
 use pf::SwitchSupports qw(
     RoleBasedEnforcement
     ExternalPortal
@@ -67,7 +68,11 @@ Parse the RADIUS request, overriding here to fetch the ifDesc using SNMP if it c
 sub parseRequest {
     my ($self, $radius_request) = @_;
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $self->SUPER::parseRequest($radius_request);
-    $ifDesc = $ifDesc || $self->findIfdescUsingSNMP($port);
+
+    # if NAS-Port-Type is defined and is not virtual or async, we do SNMP queries
+    if (defined($nas_port_type) && ($RADIUS::NAS_port_type{$nas_port_type} ne "Virtual" || $RADIUS::NAS_port_type{$nas_port_type} ne "Async")) {
+        $ifDesc = $ifDesc || $self->findIfdescUsingSNMP($port);
+    }
     return ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc);
 }
 
