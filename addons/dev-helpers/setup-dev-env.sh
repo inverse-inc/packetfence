@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset -o pipefail -o errexit
 
 die() {
     echo "$(basename $0): $@" >&2 ; exit 1
@@ -18,8 +19,8 @@ fi
 
 log_section "Stop services"
 systemctl stop packetfence-mariadb packetfence-redis-cache
-systemct stop packetfence-config
-/usr/local/pf/bin/pfcmd service pf restart
+systemctl stop packetfence-config
+/usr/local/pf/bin/pfcmd service pf stop
 
 log_section "Replace /usr/local/pf by git repository"
 mv /usr/local/pf /usr/local/pf-pkg
