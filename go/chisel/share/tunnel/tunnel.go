@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/armon/go-socks5"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jpillora/chisel/share/cio"
 	"github.com/jpillora/chisel/share/cnet"
 	"github.com/jpillora/chisel/share/settings"
@@ -144,7 +143,6 @@ func (t *Tunnel) activatingConnWait() <-chan struct{} {
 //BindRemotes converts the given remotes into proxies, and blocks
 //until the caller cancels the context or there is a proxy error.
 func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) error {
-	spew.Dump(remotes)
 	if len(remotes) == 0 {
 		return errors.New("no remotes")
 	}
