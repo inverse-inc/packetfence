@@ -229,7 +229,7 @@ sub _load_locationlog {
             "UNIX_TIMESTAMP(`locationlog`.`start_time`)|last_start_timestamp",
           ],
         -from => 'locationlog',
-        -where => { mac => $self->mac, tenant_id => $self->tenant_id },
+        -where => { mac => $self->mac },
         -no_auto_tenant_id => 1,
     );
     return $status, undef if is_error($status);
