@@ -264,6 +264,8 @@ binary-arch: build install
 	dh_installinit --name=packetfence-pfunified-api
 	dh_installinit --name=packetfence-pfstats
 	dh_installinit --name=packetfence-api-frontend
+	dh_installinit --name=packetfence-pfconnector-server
+	dh_installinit --name=packetfence-pfconnector-client
 	dh_installinit --no-start --name=packetfence-tracking-config
 
 	dh_installcron
