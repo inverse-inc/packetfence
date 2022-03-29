@@ -1104,7 +1104,7 @@ aaa_proto=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PROTO", "http") %]
 # webservices.unifiedapi_port
 #
 # port to use for accessing the Unified API
-unifiedapi_port=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_PORT", "9090") %]
+unifiedapi_port=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_PORT", "9999") %]
 
 [active_active]
 #
