@@ -54,6 +54,7 @@ sbin/pfstats
 sbin/pfacct
 sbin/pfcron
 sbin/galera-autofix
+sbin/mysql-probe
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
