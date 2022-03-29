@@ -1,41 +1,46 @@
-package pfconfig::namespaces::resource::unified_api_system_user;
+package pfconfig::namespaces::config::Connector;
 
 =head1 NAME
 
-pfconfig::namespaces::resource::unified_api_system_user
+pfconfig::namespaces::config::Connector
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::resource::unified_api_system_user
+pfconfig::namespaces::config::Connector
+
+This module creates the configuration hash associated to self_service.conf
 
 =cut
 
 use strict;
 use warnings;
 
-use base 'pfconfig::namespaces::resource';
+use pfconfig::namespaces::config;
+use pf::file_paths qw($connectors_config_file);
+use pf::util;
 
-use pf::file_paths qw($unified_api_system_pass_file);
-use File::Slurp qw(read_file);
+use base 'pfconfig::namespaces::config';
 
 sub init {
-    my ($self, $cluster_name) = @_;
-
-    $self->{child_resources} = ['config::Connector'];
-}
-
-sub build {
     my ($self) = @_;
-    my $pass = read_file($unified_api_system_pass_file);
-
-    return {
-        user => "system",
-        pass => $pass,
-    };
+    $self->{file} = $connectors_config_file;
+    $self->{cluster_servers} = $self->{cache}->get_cache('resource::cluster_servers');
+    $self->{unified_api_system_user} = $self->{cache}->get_cache('resource::unified_api_system_user');
 }
 
+sub build_child {
+    my ($self) = @_;
+
+    my %tmp_cfg = %{ $self->{cfg} };
+
+    $tmp_cfg{local_connector} = {
+        secret => $self->{unified_api_system_user}->{pass},
+    };
+
+    return \%tmp_cfg;
+}
 
 =head1 AUTHOR
 
@@ -69,3 +74,4 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+
