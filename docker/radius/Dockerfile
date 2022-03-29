@@ -72,6 +72,4 @@ RUN mkdir -p /usr/local/pf/var/run
 
 RUN chown -R pf: /usr/local/pf/var
 
-EXPOSE 1815/udp
-ENTRYPOINT /usr/sbin/freeradius -d /usr/local/pf/raddb -n cli -fm
-#CMD ["/usr/sbin/freeradius","-d","/usr/local/pf/raddb","-n","acct","-fm"]
+ENTRYPOINT /usr/sbin/freeradius -d /usr/local/pf/raddb -n auth -fm

@@ -1,1 +1,0 @@
-docker build . --no-cache --build-arg=release=feature/PacketFence --build-arg=source=https://github.com/fdurand/freeradius-server.git -t radius-auth
