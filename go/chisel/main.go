@@ -32,7 +32,7 @@ var help = `
 
 `
 
-func main() {
+func Run() {
 
 	version := flag.Bool("version", false, "")
 	v := flag.Bool("v", false, "")
