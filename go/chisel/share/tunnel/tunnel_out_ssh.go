@@ -79,7 +79,22 @@ func (t *Tunnel) handleSocks(src io.ReadWriteCloser) error {
 }
 
 func (t *Tunnel) handleTCP(l *cio.Logger, src io.ReadWriteCloser, hostPort string) error {
-	dst, err := net.Dial("tcp", hostPort)
+	laddrIP := ""
+	if t.Config.SrcIP != nil {
+		laddrIP = t.Config.SrcIP.String()
+	}
+	laddr, err := net.ResolveTCPAddr("tcp", laddrIP+":")
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	raddr, err := net.ResolveTCPAddr("tcp", hostPort)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	dst, err := net.DialTCP("tcp", laddr, raddr)
+	fmt.Println(err)
 	if err != nil {
 		return err
 	}

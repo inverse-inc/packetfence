@@ -42,6 +42,7 @@ type Config struct {
 	Headers          http.Header
 	TLS              TLSConfig
 	DialContext      func(ctx context.Context, network, addr string) (net.Conn, error)
+	SrcIP            string
 }
 
 //TLSConfig for a Client
@@ -181,6 +182,7 @@ func NewClient(c *Config) (*Client, error) {
 		Outbound:  hasReverse,
 		Socks:     hasReverse && hasSocks,
 		KeepAlive: client.config.KeepAlive,
+		SrcIP:     net.ParseIP(client.config.SrcIP),
 	})
 	return client, nil
 }

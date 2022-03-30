@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"sync"
 	"time"
@@ -25,6 +26,8 @@ type Config struct {
 	Outbound  bool
 	Socks     bool
 	KeepAlive time.Duration
+	// The source IP for the packets that come into the remote
+	SrcIP net.IP
 }
 
 //Tunnel represents an SSH tunnel with proxy capabilities.

@@ -2,6 +2,7 @@ package tunnel
 
 import (
 	"encoding/gob"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -16,6 +17,7 @@ func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort strin
 	conns := &udpConns{
 		Logger: l,
 		m:      map[string]*udpConn{},
+		srcIP:  t.Config.SrcIP,
 	}
 	defer conns.closeAll()
 	h := &udpHandler{
@@ -104,7 +106,8 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 type udpConns struct {
 	*cio.Logger
 	sync.Mutex
-	m map[string]*udpConn
+	srcIP net.IP
+	m     map[string]*udpConn
 }
 
 func (cs *udpConns) dial(id, addr string) (*udpConn, bool, error) {
@@ -112,7 +115,22 @@ func (cs *udpConns) dial(id, addr string) (*udpConn, bool, error) {
 	defer cs.Unlock()
 	conn, ok := cs.m[id]
 	if !ok {
-		c, err := net.Dial("udp", addr)
+		laddrIP := ""
+		if cs.srcIP != nil {
+			laddrIP = cs.srcIP.String()
+		}
+		laddr, err := net.ResolveUDPAddr("udp", laddrIP+":")
+		if err != nil {
+			fmt.Println(err)
+			return nil, false, err
+		}
+		raddr, err := net.ResolveUDPAddr("udp", addr)
+		if err != nil {
+			fmt.Println(err)
+			return nil, false, err
+		}
+
+		c, err := net.DialUDP("udp", laddr, raddr)
 		if err != nil {
 			return nil, false, err
 		}

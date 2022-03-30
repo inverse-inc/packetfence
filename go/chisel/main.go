@@ -400,6 +400,7 @@ func client(args []string) {
 	flags.StringVar(&config.TLS.Cert, "tls-cert", "", "")
 	flags.StringVar(&config.TLS.Key, "tls-key", "", "")
 	flags.Var(&headerFlags{config.Headers}, "header", "")
+	flags.StringVar(&config.SrcIP, "src-ip", "", "")
 	hostname := flags.String("hostname", "", "")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
