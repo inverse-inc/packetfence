@@ -510,6 +510,7 @@ build_pfdebian_based_container_devel:
           - "pfqueue"
           - "httpd.aaa"
           - "httpd.webservices"
+          - "radius"
 
 build_container_devel:
   extends:
@@ -548,6 +549,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "pfqueue"
           - "httpd.aaa"
           - "httpd.webservices"
+          - "radius"
 
 
 build_container_branches_and_maintenance:
@@ -587,6 +589,7 @@ build_pfdebian_based_container_release:
           - "pfqueue"
           - "httpd.aaa"
           - "httpd.webservices"
+          - "radius"
 
 build_container_release:
   extends:
