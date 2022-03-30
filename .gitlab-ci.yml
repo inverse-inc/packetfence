@@ -511,6 +511,9 @@ build_pfdebian_based_container_devel:
           - "httpd.aaa"
           - "httpd.webservices"
           - "radius"
+          - "radius-auth"
+          - "radius-acct"
+          - "radius-cli"
 
 build_container_devel:
   extends:
@@ -550,7 +553,9 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "httpd.aaa"
           - "httpd.webservices"
           - "radius"
-
+          - "radius-auth"
+          - "radius-acct"
+          - "radius-cli"
 
 build_container_branches_and_maintenance:
   extends:
@@ -590,6 +595,9 @@ build_pfdebian_based_container_release:
           - "httpd.aaa"
           - "httpd.webservices"
           - "radius"
+          - "radius-auth"
+          - "radius-acct"
+          - "radius-cli"
 
 build_container_release:
   extends:
