@@ -32,7 +32,6 @@ BEGIN {
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
-use pf::config::tenant;
 use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
@@ -180,12 +179,6 @@ while($RUNNING) {
             #use Data::Dumper;
             #print Dumper($query);
             $encoding = $query->{encoding};
-            my $tenant_id =  $query->{tenant_id};
-            if (defined $tenant_id) {
-                pf::config::tenant::set_tenant($tenant_id);
-            } else {
-                pf::config::tenant::reset_tenant();
-            }
 
             # we support hash namespaced queries
             # where

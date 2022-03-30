@@ -20,7 +20,6 @@ use pf::file_paths qw(
     $realm_default_config_file
 );
 extends 'pf::ConfigStore';
-with qw(pf::ConfigStore::Role::TenantID);
 
 sub configFile { $realm_config_file }
 
