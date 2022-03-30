@@ -29,7 +29,9 @@
     methods GET,OPTIONS,POST,DELETE,PUT,PATCH
   }
 
-  api-aaa
+  api-aaa {
+    no_auth /api/v1/pfconnector
+  }
   
   api
 
@@ -37,6 +39,11 @@
 
   # Job status access
   job-status
+
+  proxy /api/v1/pfconnector 127.0.0.1:22226 {
+    websocket
+    transparent
+  }
 
   # pfipset API access
   proxy /api/v1/ipset/ 127.0.0.1:22223 {
