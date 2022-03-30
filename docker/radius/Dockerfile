@@ -1,6 +1,7 @@
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+ARG from=debian:bullseye
+FROM ${from} as build
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -42,7 +43,8 @@ RUN make -j2 deb
 #
 #  Clean environment and run the server
 #
-FROM ${from}
+FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+
 COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
 RUN apt-get update \
