@@ -19,6 +19,7 @@ import (
 )
 
 var activeTunnels = map[string]*tunnel.Tunnel{}
+var apiPrefix = "/api/v1/pfconnector"
 
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,13 +42,13 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	//no proxy defined, provide access to health/version checks
 	switch r.URL.Path {
-	case "/health":
+	case apiPrefix + "/health":
 		w.Write([]byte("OK\n"))
 		return
-	case "/version":
+	case apiPrefix + "/version":
 		w.Write([]byte(chshare.BuildVersion))
 		return
-	case "/dynreverse":
+	case apiPrefix + "/dynreverse":
 		s.handleDynReverse(w, r)
 		return
 	}

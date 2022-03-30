@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 LimitNOFILE=infinity
-ExecStart=/usr/local/pf/sbin/pfconnector server --port 39999 --reverse
+ExecStart=/usr/local/pf/sbin/pfconnector server --host 127.0.0.1 --port 22226 --reverse
 Restart=on-failure
 Slice=packetfence.slice
 
