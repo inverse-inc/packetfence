@@ -37,8 +37,6 @@ use pf::util;
 use pf::cluster;
 use Template;
 use pf::authentication;
-use pf::dal::tenant;
-
 
 extends 'pf::services::manager';
 

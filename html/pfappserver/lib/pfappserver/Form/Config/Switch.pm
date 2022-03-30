@@ -34,7 +34,6 @@ use pf::error qw(is_success);
 use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
-use pf::dal::tenant;
 
 ## Definition
 has_field 'id' =>

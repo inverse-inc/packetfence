@@ -192,34 +192,6 @@ sub _get_redis_client {
     }
 }
 
-
-sub setTenant {
-    my ($self) = @_;
-    my $tenant_id;
-    my $dhcp = $self->{dhcp};
-    my $giaddr = $dhcp->{'giaddr'};
-    if ($giaddr ne '0.0.0.0') {
-        $tenant_id = findTenantForNetwork($giaddr);
-    }
-
-    if (!defined $tenant_id) {
-        $tenant_id = findTenantForNetwork($self->{interface_ip});
-    }
-
-    $tenant_id //= $DEFAULT_TENANT_ID;
-    pf::config::tenant::set_tenant($tenant_id);
-}
-
-sub findTenantForNetwork {
-    my ($ip) = @_;
-    my $network = lookupNetwork(\@NetworkLookup, $ip);
-    if (defined $network) {
-        return $network->{tenant_id};
-    }
-
-    return undef;
-}
-
 sub lookupNetwork {
     my ($networkLookup, $ipAddr) = @_;
     my $ip = NetAddr::IP->new($ipAddr);
@@ -246,7 +218,6 @@ sub process_packet {
         $logger->trace("The database is in readonly mode skipping processing the database");
         return;
     }
-    $self->setTenant();
 
     my $dhcp = $self->{dhcp};
 

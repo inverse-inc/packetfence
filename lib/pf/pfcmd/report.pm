@@ -90,7 +90,6 @@ BEGIN {
 use pf::config qw(%connection_type_explained %Config);
 use pf::db;
 use pf::util;
-use pf::config::tenant;
 use pf::config::util;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)

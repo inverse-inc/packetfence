@@ -283,7 +283,7 @@ sub build_jsonrpc_notification {
 
 sub _build_jsonrpc_data {
     my ($self, $function, $args, $id) = @_;
-    return $JSON->encode({method => $function, jsonrpc => '2.0', params => $args, tenant_id => pf::dal->get_tenant(), (defined $id ? (id => $id) : ()) });
+    return $JSON->encode({method => $function, jsonrpc => '2.0', params => $args, (defined $id ? (id => $id) : ()) });
 }
 
 sub BUILDARGS {

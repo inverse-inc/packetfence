@@ -24,7 +24,6 @@ use JSON::MaybeXS qw();
 }
 
 use Mojo::Base 'Mojolicious';
-use pf::dal;
 use pf::util qw(add_jitter);
 use pf::file_paths qw($log_conf_dir);
 use pf::SwitchFactory;
@@ -167,7 +166,6 @@ sub before_dispatch_cb {
             current_user => $headers->header('X-PacketFence-Username')
         }
     );
-    set_tenant_id($c);
     refresh_last_touch_cache();
 }
 
@@ -214,24 +212,6 @@ sub custom_startup_hook {
 
 }
 
-=head2 set_tenant_id
-
-Set the tenant ID to the one specified in the header, or reset it to the default one if there is none
-
-=cut
-
-sub set_tenant_id {
-    my ($c) = @_;
-    my $tenant_id = $c->req->headers->header('X-PacketFence-Tenant-Id');
-    if (defined $tenant_id) {
-        unless (pf::dal->set_tenant($tenant_id)) {
-            $c->render(json => { message => "Invalid tenant id provided $tenant_id"}, status => 404);
-        }
-    } else {
-        pf::dal->reset_tenant();
-    }
-}
-
 =head2 ReadonlyEndpoint
 
 ReadonlyEndpoint
@@ -268,7 +248,6 @@ sub setup_api_v1_crud_routes {
     my ($self, $root) = @_;
     $self->setup_api_v1_users_routes($root);
     $self->setup_api_v1_nodes_routes($root);
-    $self->setup_api_v1_tenants_routes($root);
     $self->setup_api_v1_locationlogs_routes($root);
     $self->setup_api_v1_dhcp_option82s_routes($root);
     $self->setup_api_v1_auth_logs_routes($root);
@@ -396,26 +375,6 @@ sub setup_api_v1_current_user_routes {
         }
     );
     return;
-}
-
-=head2 setup_api_v1_tenants_routes
-
-setup_api_v1_tenants_routes
-
-=cut
-
-sub setup_api_v1_tenants_routes {
-    my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_crud_routes(
-        $root,
-        "Tenants",
-        "/tenants",
-        "/tenant/#tenant_id",
-    );
-
-    $collection_route->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
-    return ($collection_route, $resource_route);
 }
 
 =head2 setup_api_v1_config_event_loggers_routes

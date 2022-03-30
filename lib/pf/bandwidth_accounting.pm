@@ -18,7 +18,6 @@ use pf::util qw(make_node_id);
 use pf::dal::bandwidth_accounting;
 use pf::dal::bandwidth_accounting_history;
 use pf::dal::node;
-use pf::dal::tenant;
 use pf::error qw(is_error is_success);
 use pf::log;
 use pf::config qw($ACCOUNTING_POLICY_BANDWIDTH %Config);
@@ -47,17 +46,7 @@ sub bandwidth_maintenance {
 
 sub trigger_bandwidth {
     my ($batch, $time) = @_;
-    my ($status, $iter) = pf::dal::tenant->search(
-        -with_class => undef,
-    );
-    if (is_error($status)) {
-        return;
-    }
-
-    while (my $t = $iter->next) {
-        local $pf::config::tenant::CURRENT_TENANT = $t->{id};
-        _trigger_bandwidth($batch, $time);
-    }
+    _trigger_bandwidth($batch, $time);
 }
 
 sub _trigger_bandwidth {
@@ -253,7 +242,6 @@ sub bandwidth_accounting_history_cleanup {
                 },
             },
             -limit => $batch,
-            -no_auto_tenant_id => 1,
         },
         $time_limit
     );
@@ -290,8 +278,7 @@ SQL
 
 sub node_has_bandwidth_accounting {
     my ($mac) = @_;
-    my $tenant_id = pf::config::tenant::get_tenant();
-    my $node_id = make_node_id($tenant_id, $mac);
+    my $node_id = make_node_id(1, $mac);
 
     my $sql = <<"SQL";
     select sum(c) as entries from (select count(1) as c from bandwidth_accounting where node_id=? union all select count(1) as c from bandwidth_accounting_history where node_id=?) x;
