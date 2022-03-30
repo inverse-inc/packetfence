@@ -1,1 +1,0 @@
-../docs/go/README.asciidoc
