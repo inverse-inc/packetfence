@@ -504,6 +504,7 @@ build_pfdebian_based_container_devel:
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
+          - "httpd.dispatcher"
           - "httpd.portal"
           - "api-frontend"
           - "pfcmd"
@@ -546,6 +547,7 @@ build_pfdebian_based_container_branches_and_maintenance:
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
+          - "httpd.dispatcher"
           - "httpd.portal"
           - "api-frontend"
           - "pfcmd"
@@ -588,6 +590,7 @@ build_pfdebian_based_container_release:
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
+          - "httpd.dispatcher"
           - "httpd.portal"
           - "api-frontend"
           - "pfcmd"
