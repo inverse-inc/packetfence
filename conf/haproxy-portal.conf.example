@@ -41,18 +41,18 @@ defaults
 backend proxy
     option httpclose
     option forwardfor
-    server 127.0.0.1 127.0.0.1:8888
+    server host.docker.internal host.docker.internal:8888
 
 backend static
     option httpclose
     option forwardfor
-    server 127.0.0.1 127.0.0.1:8889
+    server host.docker.internal host.docker.internal:8889
 
 backend pki
     option httpclose
     option forwardfor
     http-request set-path /api/v1%[path]
-    server 127.0.0.1 127.0.0.1:22225
+    server host.docker.internal host.docker.internal:22225
 
 
 %%http%%
