@@ -144,9 +144,15 @@ case "$1" in
         /bin/systemctl restart systemd-journald
 
         #TODO: change this to an official repository
-        for img in api-frontend pfdebian httpd.aaa httpd.portal httpd.webservices pfconfig pfqueue haproxy-portal; do
+        for img in api-frontend pfdebian httpd.aaa httpd.portal httpd.webservices pfconfig pfqueue haproxy-portal radius; do
           docker pull ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container
-          docker tag ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container local/$img:11.3
+          if [ $img = "radius" ]; then
+            for radius in radius-acct radius-auth radius-cli; do
+              docker tag ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container local/$radius:11.3
+            done
+          else
+              docker tag ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container local/$img:11.3
+          fi
         done
 
         systemctl enable packetfence-mariadb
