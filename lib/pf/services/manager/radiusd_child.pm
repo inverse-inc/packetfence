@@ -384,7 +384,7 @@ sub generate_radiusd_authconf {
         $tags{'virtual_server'} = "pf-remote";
     }
 
-    $tags{'listen_ips'} = [uniq @listen_ips];
+    $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     $tt->process("$conf_dir/radiusd/auth.conf", \%tags, "$install_dir/raddb/auth.conf") or die $tt->error();
@@ -405,7 +405,7 @@ sub generate_radiusd_acctconf {
         }
     }
 
-    $tags{'listen_ips'} = [uniq @listen_ips];
+    $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     $tt->process("$conf_dir/radiusd/acct.conf", \%tags, "$install_dir/raddb/acct.conf") or die $tt->error();
@@ -421,7 +421,7 @@ sub generate_radiusd_eduroamconf {
             my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
             $tags{'listen'} .= << "EOT";
 listen {
-    ipaddr = $ip
+    ipaddr = *
     port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
@@ -433,7 +433,7 @@ EOT
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
                 $tags{'listen'} .= <<"EOT";
 listen {
-    ipaddr = $ip
+    ipaddr = *
     port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
@@ -640,7 +640,7 @@ sub generate_radiusd_cliconf {
 
 $tags{'listen'} .= <<"EOT";
 listen {
-        ipaddr = $ip
+        ipaddr = *
         port = 1815
         type = auth
         virtual_server = packetfence-cli
@@ -657,7 +657,7 @@ EOT
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
                 $tags{'listen'} .= <<"EOT";
 listen {
-        ipaddr = $ip
+        ipaddr = *
         port = 1815
         type = auth
         virtual_server = packetfence-cli
