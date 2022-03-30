@@ -12,7 +12,7 @@ index 54b2113be5..c96aaba72c 100644
    quorum 1
    delay 15
 diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
-index 67f53141e2..0500679a43 100644
+index 355b70b9ee..57a7392932 100644
 --- a/conf/monitoring/netdata.conf.example
 +++ b/conf/monitoring/netdata.conf.example
 @@ -8,7 +8,7 @@
@@ -25,7 +25,7 @@ index 67f53141e2..0500679a43 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index b0b40043b4..79a16d4053 100644
+index 7c5b609c5f..24ca068916 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -443,7 +443,7 @@ radiusd=enabled
@@ -93,18 +93,18 @@ index 8045a372d3..7437d09bae 100644
  ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
  ExecReload=/bin/kill -USR2 $MAINPID
 diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index 2b82108a0e..38b7e231b9 100644
+index 74b556c24d..43d0c3546e 100644
 --- a/conf/systemd/packetfence-haproxy-portal.service
 +++ b/conf/systemd/packetfence-haproxy-portal.service
-@@ -7,7 +7,7 @@ Wants=packetfence-config.service
- Type=notify
+@@ -6,7 +6,7 @@ Wants=packetfence-config.service
+ [Service]
  StartLimitBurst=3
  StartLimitInterval=10
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
- ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
- ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
- ExecReload=/bin/kill -USR2 $MAINPID
+ ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
+ #ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
+ #ExecReload=/bin/kill -USR2 $MAINPID
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
 index 59bbf12796..e06af92d10 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
