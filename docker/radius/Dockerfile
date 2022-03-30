@@ -1,5 +1,6 @@
-ARG from=debian:bullseye
-FROM ${from} as build
+ARG KNK_REGISTRY_URL
+ARG IMAGE_TAG
+FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -50,21 +51,6 @@ RUN apt-get update \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb \
     \
     && ln -s /etc/freeradius /etc/raddb
-
-RUN apt-get update
-RUN apt-get install -y aptitude wget gnupg
-
-RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/11.3 bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"
-RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
-RUN apt-get update
-
-RUN wget https://raw.githubusercontent.com/inverse-inc/packetfence/devel/addons/dev-helpers/debian/install-pf-dependencies.sh
-
-RUN chmod +x install-pf-dependencies.sh
-RUN ./install-pf-dependencies.sh
-RUN rm -f /usr/local/fingerbank/db/fingerbank_*.db
-
-RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
 WORKDIR /usr/local/pf/
 
