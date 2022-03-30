@@ -55,11 +55,11 @@ prefix = /usr
 exec_prefix = /usr
 sysconfdir = /etc
 
-localstatedir = %%install_dir%%/var
+localstatedir = [% install_dir %]/var
 sbindir = /usr/sbin
-logdir = %%install_dir%%/logs
-raddbdir = %%install_dir%%/var/radiusd
-radacctdir = %%install_dir%%/logs/radacct
+logdir = [% install_dir %]/logs
+raddbdir = [% install_dir %]/var/radiusd
+radacctdir = [% install_dir %]/logs/radacct
 
 #
 #  name of the running server.  See also the "-n" command-line option.
@@ -75,11 +75,11 @@ run_dir = ${localstatedir}/run
 # Should likely be ${localstatedir}/lib/radiusd
 db_dir = ${raddbdir}
 
-rpc_user   = %%rpc_user%%
-rpc_pass   = "%%rpc_pass%%"
-rpc_port   = %%rpc_port%%
-rpc_host   = %%rpc_host%%
-rpc_proto  = %%rpc_proto%%
+rpc_user   = [% rpc_user %]
+rpc_pass   = "[% rpc_pass %]"
+rpc_port   = [% rpc_port %]
+rpc_host   = [% rpc_host %]
+rpc_proto  = [% rpc_proto %]
 #
 # libdir: Where to find the rlm_* modules.
 #

@@ -89,12 +89,12 @@ sql {
 
 	# Connection info:
 	#
-	server = "%%db_host%%"
-	port = %%db_port%%
-	login = "%%db_username%%"
-	password = "%%db_password%%"
+	server =  "[% db_host %]"
+	port = [% db_port %]
+	login =  "[% db_username %]"
+	password =  "[% db_password %]"
 
-	radius_db = "%%db_database%%"
+	radius_db =  "[% db_database %]"
 
 	# If you are using Oracle then use this instead
 #	radius_db = "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SID=your_sid)))"
@@ -267,12 +267,12 @@ sql pfguest {
         database = "mysql"
         driver = "rlm_sql_${database}"
 
-        server = "%%db_host%%"
-        port = %%db_port%%
-        login = "%%db_username%%"
-        password = "%%db_password%%"
+        server =  "[% db_host %]"
+        port = [% db_port %]
+        login =  "[% db_username %]"
+        password =  "[% db_password %]"
 
-        radius_db = "%%db_database%%"
+        radius_db =  "[% db_database %]"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
@@ -311,12 +311,12 @@ sql pfsponsor {
         database = "mysql"
         driver = "rlm_sql_${database}"
 
-        server = "%%db_host%%"
-        port = %%db_port%%
-        login = "%%db_username%%"
-        password = "%%db_password%%"
+        server =  "[% db_host %]"
+        port = [% db_port %]
+        login =  "[% db_username %]"
+        password =  "[% db_password %]"
 
-        radius_db = "%%db_database%%"
+        radius_db =  "[% db_database %]"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
@@ -355,12 +355,12 @@ sql pfsms {
         database = "mysql"
         driver = "rlm_sql_${database}"
 
-        server = "%%db_host%%"
-        port = %%db_port%%
-        login = "%%db_username%%"
-        password = "%%db_password%%"
+        server =  "[% db_host %]"
+        port = [% db_port %]
+        login =  "[% db_username %]"
+        password =  "[% db_password %]"
 
-        radius_db = "%%db_database%%"
+        radius_db =  "[% db_database %]"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
@@ -400,12 +400,12 @@ sql pflocal {
         database = "mysql"
         driver = "rlm_sql_${database}"
 
-        server = "%%db_host%%"
-        port = %%db_port%%
-        login = "%%db_username%%"
-        password = "%%db_password%%"
+        server =  "[% db_host %]"
+        port = [% db_port %]
+        login =  "[% db_username %]"
+        password =  "[% db_password %]"
 
-        radius_db = "%%db_database%%"
+        radius_db =  "[% db_database %]"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
@@ -441,13 +441,13 @@ sql sql_reject {
         database = "mysql"
         driver = "rlm_sql_${database}"
 
-        server = "%%db_host%%"
-        port = %%db_port%%
-        login = "%%db_username%%"
-        password = "%%db_password%%"
+        server =  "[% db_host %]"
+        port = [% db_port %]
+        login =  "[% db_username %]"
+        password =  "[% db_password %]"
 
 
-        radius_db = "%%db_database%%"
+        radius_db =  "[% db_database %]"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"
@@ -475,14 +475,14 @@ sql sql_degraded {
         database = "mysql"
         driver = "rlm_sql_${database}"
 
-        server = "%%db_host%%"
-        port = %%db_port%%
-        login = "%%db_username%%"
-        password = "%%db_password%%"
+        server =  "[% db_host %]"
+        port = [% db_port %]
+        login =  "[% db_username %]"
+        password =  "[% db_password %]"
 
 
         read_groups = no
-        radius_db = "%%db_database%%"
+        radius_db =  "[% db_database %]"
         acct_table1 = "radacct"
         acct_table2 = "radacct"
         postauth_table = "radpostauth"

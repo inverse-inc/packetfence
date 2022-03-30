@@ -1,11 +1,11 @@
 
-%%members%%
+[% members %]
 
 #  Put all of the servers into a pool.
 home_server_pool eduroam_pool.cluster {
         type = keyed-balance
 
-%%home_server%%
+[% home_server %]
 
 }
 
@@ -30,7 +30,7 @@ server eduroam.cluster {
             packetfence-set-realm-if-machine
             suffix
             ntdomain
-            %%local_realm%%
+            [% local_realm %]
             if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
                     update request {
                             NAS-IP-Address := "%{Packet-Src-IP-Address}"
