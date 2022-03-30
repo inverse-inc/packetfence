@@ -2,13 +2,15 @@ package chserver
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/chisel/share/cnet"
 	"github.com/jpillora/chisel/share/settings"
@@ -179,20 +181,22 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	connectorId := req.URL.Query().Get("connector_id")
 	if tun, ok := activeTunnels[connectorId]; ok {
-		// TODO: dynamically allocate a port
 		dynPort, err := freeport.GetFreePort()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, fmt.Sprintf("Unable to find available port: %s", err))
+			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to find available port: %s", err)})
 			return
 		}
 		to := req.URL.Query().Get("to")
-		remote, err := settings.DecodeRemote(fmt.Sprintf("R:%d:%s", dynPort, to))
+		remoteStr := fmt.Sprintf("R:%d:%s", dynPort, to)
+		remote, err := settings.DecodeRemote(remoteStr)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err))
+			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err)})
 			return
 		}
 
@@ -201,10 +205,10 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
 		}()
 
-		io.WriteString(w, fmt.Sprintf("Port is now bound to %d", dynPort))
+		json.NewEncoder(w).Encode(gin.H{"port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
-		io.WriteString(w, fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId))
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
 		return
 	}
 }
