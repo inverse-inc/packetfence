@@ -346,7 +346,7 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
-    $tt->process("$conf_dir/radiusd/radius.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
+    $tt->process("$conf_dir/radiusd/radiusd.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_loadbalancer.conf", \%tags, "$install_dir/raddb/radiusd_loadbalancer.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_cli.conf", \%tags, "$install_dir/raddb/radiusd_cli.conf") or die $tt->error();
 }
