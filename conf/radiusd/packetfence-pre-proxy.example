@@ -8,7 +8,7 @@
 #       in the proxy request.
 #
 DEFAULT
-    [% PacketFence-KeyBalanced %]
+    [% "PacketFence-KeyBalanced" %]
     PacketFence-RPC-Server                !* ANY,
     PacketFence-RPC-Port                  !* ANY,
     PacketFence-RPC-User                  !* ANY,
