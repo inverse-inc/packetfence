@@ -8,8 +8,8 @@ ARG DEBIAN_FRONTEND=noninteractive
 #
 #  Install build tools
 #
-RUN apt-get update
-RUN apt-get install -y devscripts equivs git quilt gcc
+RUN apt-get -qq update
+RUN apt-get -qq install -y devscripts equivs git quilt gcc
 
 #
 #  Create build directory
@@ -23,7 +23,7 @@ WORKDIR /usr/local/src/repositories
 ARG source=https://github.com/fdurand/freeradius-server.git
 ARG release=feature/PacketFence
 
-RUN git clone --depth 1 --single-branch --branch ${release} ${source}
+RUN git clonei -qq --depth 1 --single-branch --branch ${release} ${source}
 WORKDIR freeradius-server
 
 #
@@ -38,7 +38,7 @@ RUN git checkout ${release}; \
 #
 #  Build the server
 #
-RUN make -j2 deb
+RUN make -j2 deb >/dev/null || make -j2 deb
 
 #
 #  Clean environment and run the server
@@ -47,8 +47,8 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
-RUN apt-get update \
-    && apt-get install -y /tmp/*.deb \
+RUN apt-get -qq update \
+    && apt-get -qq install -y /tmp/*.deb \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb \
     \
