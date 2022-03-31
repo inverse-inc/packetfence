@@ -512,9 +512,6 @@ build_pfdebian_based_container_devel:
           - "httpd.aaa"
           - "httpd.webservices"
           - "radius"
-          - "radius-auth"
-          - "radius-acct"
-          - "radius-cli"
 
 build_container_devel:
   extends:
@@ -526,6 +523,20 @@ build_container_devel:
     matrix:
       - IMAGE_NAME:
           - "haproxy-portal"
+
+build_radius_based_container_devel:
+  extends:
+    - .build_img_container_job
+    - .build_img_container_devel_rules
+  needs: ["build_pfdebian_based_container_devel"]
+  variables:
+    IMAGE_TAGS: "latest"
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "radius-auth"
+          - "radius-acct"
+          - "radius-cli"
 
 # branches and maintenance
 build_pfdebian_container_branches_and_maintenance:
@@ -555,9 +566,6 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "httpd.aaa"
           - "httpd.webservices"
           - "radius"
-          - "radius-auth"
-          - "radius-acct"
-          - "radius-cli"
 
 build_container_branches_and_maintenance:
   extends:
@@ -569,6 +577,20 @@ build_container_branches_and_maintenance:
     matrix:
       - IMAGE_NAME:
           - "haproxy-portal"
+
+build_radius_based_container_branches_and_maintenance:
+  extends:
+    - .build_img_container_job
+    - .build_img_container_branches_and_maintenance_rules
+  needs: ["build_pfdebian_based_container_branches_and_maintenance"]
+  variables:
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "radius-auth"
+          - "radius-acct"
+          - "radius-cli"
 
 # release
 build_pfdebian_container_release:
@@ -598,9 +620,6 @@ build_pfdebian_based_container_release:
           - "httpd.aaa"
           - "httpd.webservices"
           - "radius"
-          - "radius-auth"
-          - "radius-acct"
-          - "radius-cli"
 
 build_container_release:
   extends:
@@ -612,6 +631,20 @@ build_container_release:
     matrix:
       - IMAGE_NAME:
           - "haproxy-portal"
+
+build_radius_based_container_release:
+  extends:
+    - .build_img_container_job
+    - .release_only_rules
+  needs: ["build_pfdebian_based_container_release"]
+  variables:
+    IMAGE_TAGS: ${CI_COMMIT_TAG}
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "radius-auth"
+          - "radius-acct"
+          - "radius-cli"
 
 ### build_img_docker jobs
 # EL8
