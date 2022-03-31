@@ -23,7 +23,7 @@ WORKDIR /usr/local/src/repositories
 ARG source=https://github.com/fdurand/freeradius-server.git
 ARG release=feature/PacketFence
 
-RUN git clonei -qq --depth 1 --single-branch --branch ${release} ${source}
+RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source}
 WORKDIR freeradius-server
 
 #
