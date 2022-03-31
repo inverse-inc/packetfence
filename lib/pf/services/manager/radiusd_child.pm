@@ -1116,9 +1116,9 @@ EOT
     $tt->process("$conf_dir/radiusd/proxy.conf.loadbalancer", \%tags, "$install_dir/raddb/proxy.conf.loadbalancer") or die $tt->error();
 
     if(isenabled($Config{radius_configuration}{forward_key_balanced})){
-       $tags{'PacketFence-KeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
+       $tags{'PacketFenceKeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
     } else {
-        $tags{'PacketFence-KeyBalanced'} = "";
+        $tags{'PacketFenceKeyBalanced'} = "";
     }
     $tt->process("$conf_dir/radiusd/packetfence-pre-proxy", \%tags, "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy") or die $tt->error();
 }
