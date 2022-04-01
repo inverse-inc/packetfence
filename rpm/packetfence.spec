@@ -867,6 +867,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radius-acct-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radius-auth-docker-wrapper
