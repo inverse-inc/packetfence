@@ -2,4 +2,9 @@ ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
 FROM ${KNK_REGISTRY_URL}/radius:${IMAGE_TAG}
 
-ENTRYPOINT /usr/sbin/freeradius -d /usr/local/pf/raddb -n acct -fm
+RUN apt-get update
+RUN apt-get install -y supervisor
+
+ADD docker/radius-acct/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+ENTRYPOINT ["/usr/bin/supervisord"]
