@@ -4,6 +4,8 @@ import (
 	"context"
 	"io"
 	"net"
+	"sync/atomic"
+	"time"
 
 	"github.com/jpillora/chisel/share/cio"
 	"github.com/jpillora/chisel/share/settings"
@@ -19,13 +21,14 @@ type sshTunnel interface {
 //Proxy is the inbound portion of a Tunnel
 type Proxy struct {
 	*cio.Logger
-	sshTun sshTunnel
-	id     int
-	count  int
-	remote *settings.Remote
-	dialer net.Dialer
-	tcp    *net.TCPListener
-	udp    *udpListener
+	sshTun     sshTunnel
+	id         int
+	count      int
+	remote     *settings.Remote
+	dialer     net.Dialer
+	tcp        *net.TCPListener
+	udp        *udpListener
+	aliveConns int64
 }
 
 //NewProxy creates a Proxy
@@ -94,6 +97,7 @@ func (p *Proxy) runStdio(ctx context.Context) error {
 }
 
 func (p *Proxy) runTCP(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
 	done := make(chan struct{})
 	//implements missing net.ListenContext
 	go func() {
@@ -103,29 +107,56 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 		case <-done:
 		}
 	}()
-	for {
-		src, err := p.tcp.Accept()
-		if err != nil {
-			select {
-			case <-ctx.Done():
-				//listener closed
-				err = nil
-			default:
-				p.Infof("Accept error: %s", err)
+	srcChan := make(chan net.Conn)
+	errChan := make(chan error)
+	go func() {
+		for {
+			src, err := p.tcp.Accept()
+			if err == nil {
+				srcChan <- src
+			} else {
+				select {
+				case <-ctx.Done():
+					//listener closed
+					err = nil
+				default:
+					p.Infof("Accept error: %s", err)
+				}
+				close(done)
+				errChan <- err
+				return
 			}
-			close(done)
-			return err
 		}
-		go p.pipeRemote(ctx, src)
+	}()
+	for {
+		select {
+		case err := <-errChan:
+			return err
+		case src := <-srcChan:
+			atomic.AddInt64(&p.aliveConns, 1)
+			go p.pipeRemote(ctx, src)
+		case <-time.After(60 * time.Second):
+			if p.remote.Dynamic {
+				if atomic.LoadInt64(&p.aliveConns) == 0 {
+					p.Infof("Closing due to inactivity timeout")
+					cancel()
+					p.tcp.Close()
+					return nil
+				}
+			}
+		}
 	}
 }
 
 func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
-	defer src.Close()
+	defer func() {
+		atomic.AddInt64(&p.aliveConns, -1)
+		src.Close()
+	}()
 	p.count++
 	cid := p.count
 	l := p.Fork("conn#%d", cid)
-	l.Debugf("Open")
+	l.Infof("Open")
 	sshConn := p.sshTun.getSSH(ctx)
 	if sshConn == nil {
 		l.Debugf("No remote connection")
@@ -140,5 +171,5 @@ func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
 	go ssh.DiscardRequests(reqs)
 	//then pipe
 	s, r := cio.Pipe(src, dst)
-	l.Debugf("Close (sent %s received %s)", sizestr.ToString(s), sizestr.ToString(r))
+	l.Infof("Close (sent %s received %s)", sizestr.ToString(s), sizestr.ToString(r))
 }

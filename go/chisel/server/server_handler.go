@@ -183,7 +183,18 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	connectorId := req.URL.Query().Get("connector_id")
+	payload := struct {
+		ConnectorID string `json:"connector_id"`
+		To          string `json:"to"`
+	}{}
+	err := json.NewDecoder(req.Body).Decode(&payload)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("Unable to decode JSON payload: %s", err)})
+		return
+	}
+
+	connectorId := payload.ConnectorID
 	if tun, ok := activeTunnels[connectorId]; ok {
 		dynPort, err := freeport.GetFreePort()
 		if err != nil {
@@ -191,9 +202,10 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to find available port: %s", err)})
 			return
 		}
-		to := req.URL.Query().Get("to")
+		to := payload.To
 		remoteStr := fmt.Sprintf("R:%d:%s", dynPort, to)
 		remote, err := settings.DecodeRemote(remoteStr)
+		remote.Dynamic = true
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err)})
