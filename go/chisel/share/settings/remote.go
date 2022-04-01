@@ -35,7 +35,7 @@ import (
 type Remote struct {
 	LocalHost, LocalPort, LocalProto    string
 	RemoteHost, RemotePort, RemoteProto string
-	Socks, Reverse, Stdio               bool
+	Dynamic, Socks, Reverse, Stdio      bool
 }
 
 const revPrefix = "R:"
