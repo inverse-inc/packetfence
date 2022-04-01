@@ -51,6 +51,7 @@ our %DISCONNECT_DISPATCH = (
 our %LOOKUP = (
     last_accounting => \&lookupLastAccounting,
     locationlog => \&lookupLocationlog,
+    time        => sub { time() },
 );
 
 sub lookupLocationlog {
