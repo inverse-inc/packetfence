@@ -65,12 +65,18 @@ func (u *udpListener) run(ctx context.Context) error {
 	//udp simply forwards packets
 	//and therefore only needs to listen
 	eg, ctx := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithCancel(ctx)
 	eg.Go(func() error {
 		return u.runInbound(ctx)
 	})
 	eg.Go(func() error {
 		return u.runOutbound(ctx)
 	})
+	if u.remote.Dynamic {
+		eg.Go(func() error {
+			return u.monitorInactivity(ctx, cancel)
+		})
+	}
 	if err := eg.Wait(); err != nil {
 		u.Debugf("listen: %s", err)
 		return err
@@ -186,4 +192,24 @@ func (u *udpListener) unsetUDPChan(sshConn ssh.Conn) {
 	u.outboundMut.Lock()
 	u.outbound = nil
 	u.outboundMut.Unlock()
+}
+
+func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) error {
+	previousRecv := atomic.LoadInt64(&u.recv)
+	previousSent := atomic.LoadInt64(&u.sent)
+	for {
+		time.Sleep(1 * time.Minute)
+		recv := atomic.LoadInt64(&u.recv)
+		sent := atomic.LoadInt64(&u.sent)
+		if previousRecv == recv && previousSent == sent {
+			u.Infof("Closing due to inactivity timeout")
+			u.inbound.Close()
+			u.outbound.c.Close()
+			cancel()
+			return nil
+		} else {
+			previousRecv = recv
+			previousSent = sent
+		}
+	}
 }
