@@ -277,6 +277,7 @@ So here is mini templating language to format values.
 ** locationlog.vlan
 ** locationlog.voip
 ** role
+** time
 
 * disconnect
 ** disconnectIp
@@ -302,6 +303,7 @@ So here is mini templating language to format values.
 ** locationlog.vlan
 ** locationlog.voip
 ** mac
+** time
 
 * voip
 ** switch._ExternalPortalEnforcement
@@ -355,6 +357,7 @@ So here is mini templating language to format values.
 ** switch._wsPwd
 ** switch._wsTransport
 ** switch._wsUser
+** time
 ** vlan
 
 * bounce
@@ -433,6 +436,7 @@ So here is mini templating language to format values.
 ** switch._wsPwd
 ** switch._wsTransport
 ** switch._wsUser
+** time
 
 ==== Available functions
 
