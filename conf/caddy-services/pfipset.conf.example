@@ -1,7 +1,5 @@
 # Copyright (C) Inverse inc.
-:22223 {
-  bind host.docker.internal 
-  
+0.0.0.0:22223 {
   pfconfigpool
   logger {
     level INFO

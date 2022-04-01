@@ -1,6 +1,4 @@
-:22225 {
-  bind host.docker.internal
-  
+0.0.0.0:22225 {
   logger {
     level INFO
   }
