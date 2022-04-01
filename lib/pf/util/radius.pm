@@ -103,11 +103,16 @@ sub perform_dynauth {
     $connection_info->{'nas_port'} ||= $default_port;
     $connection_info->{'timeout'} ||= $default_timeout;
 
+    #TODO: implement reverse forwards reuse here or in pfconnector
+    my $connector_conn = pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/pfconnector/dynreverse", {
+        to => $connection_info->{'nas_ip'} . ":" . $connection_info->{'nas_port'} . "/udp",
+        connector_id => "local_connector",
+    });
+
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
-        LocalAddr => $connection_info->{'LocalAddr'},
-        PeerAddr => $connection_info->{'nas_ip'},
-        PeerPort => $connection_info->{'nas_port'},
+        PeerAddr => "127.0.0.1",
+        PeerPort => $connector_conn->{port},
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
 
