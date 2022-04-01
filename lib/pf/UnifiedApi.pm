@@ -492,6 +492,7 @@ sub setup_api_v1_dns_audit_logs_routes {
         "/dns_audit_log/#dns_audit_log_id",
     );
 
+    $collection_route->register_sub_action({path => '', action => 'options', method => 'OPTIONS'});
     return ($collection_route, $resource_route);
 }
 

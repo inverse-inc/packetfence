@@ -31,20 +31,10 @@ use pf::pfcron::task::nodes_maintenance;
 use pf::dal::node;
 use pf::dal::person;
 use pf::dal::password;
-use pf::dal::tenant;
 use pf::dal::node;
 use pf::error qw(is_success);
 
 test_nodes_maintenance();
-my $tenant_id = new_test_tenant_id();
-if (pf::dal->set_tenant($tenant_id)) {
-    print "setting tenant $tenant_id\n";
-}
-test_nodes_maintenance();
-pf::dal->reset_tenant();
-cleanup_tenant($tenant_id);
-
-test_nodes_maintenance_multitenant();
 
 sub test_nodes_maintenance {
     my $test_mac1 = "ff:ff:ff:ff:ff:fd";
@@ -61,38 +51,6 @@ sub test_nodes_maintenance {
     run_task();
     test_status($test_mac1, 'unreg');
     test_status($test_mac2, 'reg');
-}
-
-sub test_nodes_maintenance_multitenant {
-    my $test_mac1 = "ff:ff:ff:ff:ff:fd";
-    my $test_mac2 = "ff:ff:ff:ff:ff:fc";
-    my @tenants;
-    for (1..2) {
-        my $tenant_id = new_test_tenant_id();
-        push @tenants, $tenant_id;
-        pf::dal->set_tenant($tenant_id);
-        pf::dal::node->remove_by_id(
-            {
-                mac => [$test_mac1, $test_mac2],
-            }
-        );
-    }
-
-    for my $tenant_id (@tenants) {
-        pf::dal->set_tenant($tenant_id);
-        create_node($test_mac1, status  => "reg",unregdate => \[ 'NOW() - INTERVAL ? MINUTE', 10 ]);
-        create_node($test_mac2, status  => "reg",unregdate => \[ 'NOW() + INTERVAL ? MINUTE', 10 ]);
-    }
-    pf::dal->reset_tenant();
-    run_task();
-    for my $tenant_id (@tenants) {
-        pf::dal->set_tenant($tenant_id);
-        test_status($test_mac1, 'unreg');
-        test_status($test_mac2, 'reg');
-    }
-    for my $tenant_id (@tenants) {
-        cleanup_tenant($tenant_id);
-    }
 }
 
 
@@ -133,22 +91,6 @@ sub create_node {
     ok( is_success($status), "Created test node $mac" );
 }
 
-sub cleanup_tenant {
-    my ($tenant_id) = @_;
-    pf::dal->set_tenant($tenant_id);
-    pf::dal::password->remove_items();
-    pf::dal::person->remove_items();
-    pf::dal::node->remove_items();
-    pf::dal::tenant->remove_items( id => $tenant_id);
-}
-
-sub new_test_tenant_id {
-    my $name = "test_${$}_" . int(rand($$));
-    my $tenant = pf::dal::tenant->new({name => $name});
-    $tenant->insert();
-    return $tenant->{id};
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -177,4 +119,3 @@ USA.
 =cut
 
 1;
-

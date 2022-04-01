@@ -49,7 +49,7 @@ Join the node_category table information in the node results
 =cut
 
 sub find_from_tables {
-    [-join => 'person', '=>{person.pid=password.pid,person.tenant_id=password.tenant_id}', qw(password =>{node_category.category_id=password.category} node_category)],
+    [-join => 'person', '=>{person.pid=password.pid}', qw(password =>{node_category.category_id=password.category} node_category)],
 }
 
 =head2 find_columns

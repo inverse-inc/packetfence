@@ -229,7 +229,7 @@ sub bulk_close_security_events {
             'security_event.status' => "open",
         },
         -columns => [qw(security_event.security_event_id security_event.mac node.pid)],
-        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class), '=>{security_event.tenant_id=node.tenant_id,security_event.mac=node.mac}', 'node'],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class), '=>{security_event.mac=node.mac}', 'node'],
         -with_class => undef,
     );
 
@@ -271,7 +271,7 @@ sub close_security_events {
             'security_event.status' => "open",
         },
         -columns => [qw(security_event.security_event_id security_event.mac)],
-        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class), '=>{security_event.tenant_id=node.tenant_id,security_event.mac=node.mac}', 'node'],
+        -from => [-join => qw(security_event <=>{security_event.security_event_id=class.security_event_id} class), '=>{security_event.mac=node.mac}', 'node'],
         -with_class => undef,
     );
 

@@ -33,7 +33,6 @@ use pf::radius::rpc;
 use pf::util::freeradius qw(clean_mac);
 use pf::util::statsd qw(called);
 use pf::StatsD::Timer;
-use pf::config::tenant;
 use multi_domain_constants;
 
 require 5.8.8;

@@ -197,9 +197,6 @@ sub call {
         $curl->pushopt(CURLOPT_HTTPHEADER, ["Authorization: Bearer ".$self->token]);
     }
 
-    my $tenant_id = ( defined($self->tenant_id) ) ? $self->tenant_id : $pf::config::tenant::CURRENT_TENANT;
-    $curl->pushopt(CURLOPT_HTTPHEADER, ["X-PacketFence-Tenant-Id: " . $tenant_id]);
-
     # Starts the actual request
     my $curl_return_code = $curl->perform;
 

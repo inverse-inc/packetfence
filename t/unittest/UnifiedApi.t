@@ -23,7 +23,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 50;
+use Test::More tests => 25;
 use Test::Mojo;
 
 #This test will running last
