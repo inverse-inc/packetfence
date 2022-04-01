@@ -45,6 +45,7 @@ use pf::radius_audit_log;
 use pf::node qw (node_view);
 use pf::util qw (clean_mac);
 use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
+use pf::factory::connector;
 
 my $default_port = '3799';
 my $default_timeout = 10;
@@ -103,11 +104,7 @@ sub perform_dynauth {
     $connection_info->{'nas_port'} ||= $default_port;
     $connection_info->{'timeout'} ||= $default_timeout;
 
-    #TODO: implement reverse forwards reuse here or in pfconnector
-    my $connector_conn = pf::api::unifiedapiclient->management_client->call("POST", "/api/v1/pfconnector/dynreverse", {
-        to => $connection_info->{'nas_ip'} . ":" . $connection_info->{'nas_port'} . "/udp",
-        connector_id => "local_connector",
-    });
+    my $connector_conn = pf::factory::connector->local_connector->dynreverse($connection_info->{'nas_ip'} . ":" . $connection_info->{'nas_port'} . "/udp");
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(

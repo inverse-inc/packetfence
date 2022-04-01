@@ -140,6 +140,8 @@ our (
     @ConfigOrderedRealm,
 #provisioning.conf
     %ConfigProvisioning,
+#provisioning.conf
+    %ConfigConnector,
 #domain.conf
     %ConfigDomain,
 #scan.conf
@@ -231,6 +233,7 @@ BEGIN {
         %ConfigRealm
         @ConfigOrderedRealm
         %ConfigProvisioning
+        %ConfigConnector
         %ConfigDomain
         $default_pid
         %ConfigScan
@@ -301,6 +304,8 @@ tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 
 tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
+
+tie %ConfigConnector, 'pfconfig::cached_hash', 'config::Connector';
 
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
 
