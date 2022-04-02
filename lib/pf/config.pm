@@ -426,6 +426,9 @@ my $cache_dns_enforcement_enabled;
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
 
+# Container specific
+Readonly our $CONTAINER_INT => 'host.docker.internal';
+
 =head1 SUBROUTINES
 
 =over
