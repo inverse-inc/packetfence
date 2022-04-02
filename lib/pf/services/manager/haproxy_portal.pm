@@ -110,7 +110,7 @@ EOT
 
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
-        bind $cluster_ip:80
+        bind $cluster_ip:80 transparent
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -134,7 +134,7 @@ EOT
         $bind_process
 
 frontend portal-https-$cluster_ip
-        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        bind $cluster_ip:443 transparent ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -234,7 +234,7 @@ EOT
 $tags{'http'} .= <<"EOT";
 
 frontend portal-http-$internal_portal_ip
-        bind $internal_portal_ip:80
+        bind $internal_portal_ip:80 transparent
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -258,7 +258,7 @@ EOT
         $bind_process
 
 frontend portal-https-$internal_portal_ip
-        bind $internal_portal_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        bind $internal_portal_ip:443 transparent ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src

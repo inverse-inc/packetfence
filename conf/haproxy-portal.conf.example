@@ -16,7 +16,7 @@ global
 	lua-load %%conf_dir%%/passthrough.lua
 
 listen stats
-  bind  %%management_ip%%:1025
+  bind  %%management_ip%%:1025 transparent
   mode http
   timeout connect 2s
   timeout check 2s
