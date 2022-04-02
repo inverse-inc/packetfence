@@ -79,3 +79,7 @@ RUN mkdir -p /usr/local/pf/var/run
 
 RUN chown -R pf: /usr/local/pf/var
 
+RUN mkdir -p /usr/local/pf/conf/certmanager
+
+RUN chown -R pf: /usr/local/pf/conf/certmanager
+
