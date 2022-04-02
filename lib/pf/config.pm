@@ -226,6 +226,7 @@ BEGIN {
         %ConfigCloud
         %ConfigFirewallSSO
         $OS
+        $CONTAINER_INT
         %Doc_Config
         %ConfigRealm
         @ConfigOrderedRealm
