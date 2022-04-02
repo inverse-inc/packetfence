@@ -28,6 +28,7 @@ use pf::config qw(
     @dhcplistener_ints
     $management_network
     @portal_ints
+    $CONTAINER_INT
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -76,13 +77,13 @@ sub generateConfig {
             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'vip'} || $cfg->{'ip'};
             $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
-            push @backend_ip, '127.0.0.1' if !@backend_ip;
+            push @backend_ip, $CONTAINER_INT if !@backend_ip;
             my $backend_ip_config = '';
             foreach my $back_ip ( @backend_ip ) {
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check inter 10s fastinter 2s
+        server $back_ip $back_ip:8080 check inter 10s fastinter 2s
 EOT
             }
 
@@ -93,8 +94,8 @@ EOT
             push @portal_ip, $cluster_ip;
             my @backend_ip = values %{pf::cluster::members_ips($interface)};
             if (!@backend_ip) {
-                push @backend_ip, '127.0.0.1';
-                push @portal_ip, '127.0.0.1';
+                push @backend_ip, $CONTAINER_INT;
+                push @portal_ip, $CONTAINER_INT;
             } else {
                 push @portal_ip, @backend_ip;
             }
@@ -103,7 +104,7 @@ EOT
                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
                 $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check inter 10s fastinter 2s
+        server $back_ip $back_ip:8080 check inter 10s fastinter 2s
 EOT
             }
 
