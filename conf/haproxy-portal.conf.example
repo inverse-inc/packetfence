@@ -5,7 +5,7 @@ global
 	group haproxy
 	daemon
 	pidfile %%var_dir%%/run/haproxy-portal.pid
-	log /dev/log local0
+	log stdout format raw local0
 	stats socket %%var_dir%%/run/haproxy-portal.stats level admin process 1
 	maxconn 4000
 	tune.ssl.default-dh-param 2048
