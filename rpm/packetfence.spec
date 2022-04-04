@@ -864,6 +864,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/api-frontend-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.aaa-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
