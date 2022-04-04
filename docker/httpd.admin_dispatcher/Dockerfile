@@ -13,6 +13,7 @@ RUN cd /usr/local/pf/go/ &&  make httpdispatcher
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
 COPY ./html /usr/local/pf/html
+COPY ./docs /usr/local/pf/docs
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
