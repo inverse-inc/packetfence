@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	chclient "github.com/jpillora/chisel/client"
 	chserver "github.com/jpillora/chisel/server"
 	chshare "github.com/jpillora/chisel/share"
@@ -396,7 +397,7 @@ func client(args []string) {
 	flags.DurationVar(&config.MaxRetryInterval, "max-retry-interval", 0, "")
 	flags.StringVar(&config.Proxy, "proxy", "", "")
 	flags.StringVar(&config.TLS.CA, "tls-ca", "", "")
-	flags.BoolVar(&config.TLS.SkipVerify, "tls-skip-verify", false, "")
+	flags.BoolVar(&config.TLS.SkipVerify, "tls-skip-verify", sharedutils.EnvOrDefault("TLS_SKIP_VERIFY", "false") == "true", "")
 	flags.StringVar(&config.TLS.Cert, "tls-cert", "", "")
 	flags.StringVar(&config.TLS.Key, "tls-key", "", "")
 	flags.Var(&headerFlags{config.Headers}, "header", "")
