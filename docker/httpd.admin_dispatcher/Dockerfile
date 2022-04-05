@@ -12,7 +12,10 @@ RUN cd /usr/local/pf/go/ &&  make httpdispatcher
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
+RUN apt update && apt install -y -q nodejs npm
 COPY ./html /usr/local/pf/html
+RUN cd /usr/local/pf/html/pfappserver/root && make vendor && make light-dist
+
 COPY ./docs /usr/local/pf/docs
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
