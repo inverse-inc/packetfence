@@ -78,6 +78,12 @@ COPY lib lib
 
 RUN mkdir -p /usr/local/pf/bin
 
+RUN mkdir -p /usr/local/pf/conf
+
+COPY ./conf/pf.conf.defaults /usr/local/pf/conf/pf.conf.defaults
+
+Copy ./conf/pf.conf /usr/local/pf/conf/pf.conf
+
 COPY ./bin/pflogger-packetfence /usr/local/pf/bin/pflogger-packetfence
 
 COPY ./bin/pflogger.pl /usr/local/pf/bin/pflogger.pl
