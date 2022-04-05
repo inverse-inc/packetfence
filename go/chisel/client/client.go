@@ -263,6 +263,7 @@ func (c *Client) Start(ctx context.Context) error {
 	if os.Getenv("FETCH_REMOTES_VIA_API") == "true" {
 		go func() {
 			for {
+				time.Sleep(5 * time.Second)
 				func() {
 					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds"))
 					if err != nil {
@@ -289,7 +290,6 @@ func (c *Client) Start(ctx context.Context) error {
 					}
 					c.tunnel.BindRemotes(ctx, remotes)
 				}()
-				time.Sleep(5 * time.Second)
 			}
 		}()
 	}
