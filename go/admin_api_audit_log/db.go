@@ -8,7 +8,6 @@ import (
 
 type AdminApiAuditLog struct {
 	ID        int64
-	TenantId  int
 	CreatedAt time.Time
 	UserName  string
 	Url       string
