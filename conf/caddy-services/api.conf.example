@@ -31,7 +31,7 @@
   }
 
   api-aaa {
-    no_auth /api/v1/pfconnector
+    no_auth /api/v1/pfconnector/tunnel
   }
   
   api
