@@ -16,6 +16,7 @@ git checkout feature/connector
 cp conf/systemd/packetfence-pfconnector-remote.service /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable packetfence-pfconnector-remote.service
+systemctl stop packetfence-pfconnector-remote.service
 
 cd go/
 make pfconnector
