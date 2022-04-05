@@ -84,22 +84,6 @@ func NewClient(c *Config) (*Client, error) {
 		return nil, err
 	}
 
-	if os.Getenv("FETCH_REMOTES_VIA_API") == "true" {
-		res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds"))
-		if err != nil {
-			return nil, fmt.Errorf("Unable to contact pfconnector API to obtain remote binds: %s", err)
-		}
-		defer res.Body.Close()
-		apiRemotes := struct {
-			Binds []string
-		}{}
-		err = json.NewDecoder(res.Body).Decode(&apiRemotes)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to parse remote binds from pfconnector API: %s", err)
-		}
-		c.Remotes = append(c.Remotes, apiRemotes.Binds...)
-	}
-
 	//swap to websockets scheme
 	u.Scheme = strings.Replace(u.Scheme, "http", "ws", 1)
 	//apply default port
@@ -275,6 +259,41 @@ func (c *Client) Start(ctx context.Context) error {
 		}
 		return c.tunnel.BindRemotes(ctx, clientInbound)
 	})
+
+	if os.Getenv("FETCH_REMOTES_VIA_API") == "true" {
+		go func() {
+			for {
+				func() {
+					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds"))
+					if err != nil {
+						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
+						return
+					}
+					defer res.Body.Close()
+					apiRemotes := struct {
+						Binds []string
+					}{}
+					err = json.NewDecoder(res.Body).Decode(&apiRemotes)
+					if err != nil {
+						fmt.Printf("Unable to parse remote binds from pfconnector API: %s", err)
+						return
+					}
+					remotes := []*settings.Remote{}
+					for _, remoteStr := range apiRemotes.Binds {
+						remote, err := settings.DecodeRemote(remoteStr)
+						if err != nil {
+							fmt.Printf("Unable to decode remote %s from API: %s", remoteStr, err)
+						} else {
+							remotes = append(remotes, remote)
+						}
+					}
+					c.tunnel.BindRemotes(ctx, remotes)
+				}()
+				time.Sleep(5 * time.Second)
+			}
+		}()
+	}
+
 	return nil
 }
 
