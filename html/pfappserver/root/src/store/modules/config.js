@@ -103,6 +103,9 @@ const api = {
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
   },
+  getConnectors () {
+    return apiCall({ url: 'config/connectors', method: 'get' })
+  },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
   },
@@ -305,6 +308,8 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     cloudsStatus: '',
     connectionProfiles: false,
     connectionProfilesStatus: '',
+    connectors: false,
+    connectorsStatus: '',
     domains: false,
     domainsStatus: '',
     eventLoggers: false,
@@ -494,6 +499,9 @@ const getters = {
   },
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
+  },
+  isLoadingConnectors: state => {
+    return state.connectorsStatus === types.LOADING
   },
   isLoadingSelfServices: state => {
     return state.selfServicesStatus === types.LOADING
@@ -1148,6 +1156,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.connectionProfiles)
+    }
+  },
+  getConnectors: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectors) {
+      return Promise.resolve(state.connectors)
+    }
+    if (!state.connectors) {
+      commit('CONNECTORS_REQUEST')
+      return api.getConnectors().then(response => {
+        commit('CONNECTORS_UPDATED', response.data.items)
+        return state.connectors
+      })
+    } else {
+      return Promise.resolve(state.connectors)
     }
   },
   getSelfServices: ({ state, getters, commit }) => {
@@ -1955,6 +1977,13 @@ const mutations = {
   CONNECTION_PROFILES_UPDATED: (state, connectionProfiles) => {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
+  },
+  CONNECTORS_REQUEST: (state) => {
+    state.connectorsStatus = types.LOADING
+  },
+  CONNECTORS_UPDATED: (state, connectors) => {
+    state.connectors = connectors
+    state.connectorsStatus = types.SUCCESS
   },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
