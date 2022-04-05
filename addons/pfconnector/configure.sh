@@ -37,3 +37,5 @@ echo "HOST=$connector_server" >> /etc/pfconnector-client.env
 if ! prompt "Should the pfconnector server TLS certificate be validated?"; then
   echo "TLS_SKIP_VERIFY=true" >> /etc/pfconnector-client.env
 fi
+
+echo "FETCH_REMOTES_VIA_API=true" >> /etc/pfconnector-client.env
