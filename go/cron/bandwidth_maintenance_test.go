@@ -16,7 +16,6 @@ func TestBandwidthMaintenanceNetFlow(t *testing.T) {
 			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -41,7 +40,6 @@ INSERT INTO bandwidth_accounting (
     SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_95
 )
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
@@ -101,7 +99,6 @@ func TestBandwidthMaintenanceAggregation(t *testing.T) {
 			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -126,7 +123,6 @@ INSERT INTO bandwidth_accounting (
     SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_95
 )
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
@@ -183,7 +179,6 @@ func TestBandwidthMaintenanceAggregation2(t *testing.T) {
 			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -208,7 +203,6 @@ INSERT INTO bandwidth_accounting (
     SELECT seq2 as session_id, DATE_SUB(NOW(), INTERVAL (seq2 * 4 + seq) * 15 MINUTE ) as time_bucket from seq_0_to_3 JOIN (SELECT seq as seq2 from seq_0_to_23) as x
 )
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
@@ -270,7 +264,6 @@ func TestBandwidthMaintenanceAggregationZeroIn(t *testing.T) {
 			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -295,7 +288,6 @@ INSERT INTO bandwidth_accounting (
     SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_95
 )
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
@@ -366,7 +358,6 @@ func TestBandwidthMaintenanceAggregationZeroOut(t *testing.T) {
 			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -391,7 +382,6 @@ INSERT INTO bandwidth_accounting (
     SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_95
 )
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
@@ -460,7 +450,6 @@ func TestBandwidthMaintenanceAggregationZero(t *testing.T) {
 			"TRUNCATE bandwidth_accounting_history",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -485,7 +474,6 @@ INSERT INTO bandwidth_accounting (
     SELECT seq as session_id, DATE_SUB(NOW(), INTERVAL seq * 15 MINUTE ) as time_bucket from seq_0_to_95
 )
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
@@ -562,7 +550,6 @@ func TestBandwidthMaintenanceSession(t *testing.T) {
 			"TRUNCATE bandwidth_accounting",
 			`
 INSERT INTO bandwidth_accounting (
-        tenant_id,
         node_id,
         unique_session_id,
         mac,
@@ -588,7 +575,6 @@ INSERT INTO bandwidth_accounting (
 )
 
 SELECT
-    1 AS tenant_id,
     node_id,
     session_id,
     mac,
