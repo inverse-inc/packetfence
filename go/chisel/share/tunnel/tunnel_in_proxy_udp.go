@@ -198,18 +198,29 @@ func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) erro
 	previousRecv := atomic.LoadInt64(&u.recv)
 	previousSent := atomic.LoadInt64(&u.sent)
 	for {
-		time.Sleep(1 * time.Minute)
-		recv := atomic.LoadInt64(&u.recv)
-		sent := atomic.LoadInt64(&u.sent)
-		if previousRecv == recv && previousSent == sent {
+		time.Sleep(INACTIVITY_CHECK_INTERVAL)
+		shouldReturn := func() bool {
+			u.remote.Lock()
+			defer u.remote.Unlock()
+			recv := atomic.LoadInt64(&u.recv)
+			sent := atomic.LoadInt64(&u.sent)
+
+			if time.Since(u.remote.LastTouched) > LAST_TOUCHED_TIMEOUT {
+				if previousRecv == recv && previousSent == sent {
+					return true
+				} else {
+					previousRecv = recv
+					previousSent = sent
+				}
+			}
+			return false
+		}()
+		if shouldReturn {
 			u.Infof("Closing due to inactivity timeout")
 			u.inbound.Close()
 			u.outbound.c.Close()
 			cancel()
 			return nil
-		} else {
-			previousRecv = recv
-			previousSent = sent
 		}
 	}
 }
