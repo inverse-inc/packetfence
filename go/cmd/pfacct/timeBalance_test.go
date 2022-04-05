@@ -21,7 +21,7 @@ func TestMacSesssion(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	if _, err := pfAcct.Db.Exec("INSERT INTO node (tenant_id, mac, time_balance, bandwidth_balance) VALUES (?, ?, ?, ?)", 1, mac.String(), 100, 100); err != nil {
+	if _, err := pfAcct.Db.Exec("INSERT INTO node (mac, time_balance, bandwidth_balance) VALUES (?, ?, ?)", mac.String(), 100, 100); err != nil {
 		t.Fatalf(err.Error())
 	}
 
@@ -44,7 +44,7 @@ func TestMacSesssion(t *testing.T) {
 		t.Fatalf("Invalid node session for mac '%s'", mac)
 	}
 
-	if updated, err := pfAcct.SoftNodeTimeBalanceUpdate(1, mac, 100); err != nil {
+	if updated, err := pfAcct.SoftNodeTimeBalanceUpdate(mac, 100); err != nil {
 		t.Fatalf(err.Error())
 	} else if !updated {
 		t.Fatalf("SoftNodeTimeBalanceUpdate failed for '%s'", mac)
