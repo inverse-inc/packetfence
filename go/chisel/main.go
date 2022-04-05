@@ -402,7 +402,7 @@ func client(args []string) {
 	flags.StringVar(&config.TLS.Key, "tls-key", "", "")
 	flags.Var(&headerFlags{config.Headers}, "header", "")
 	flags.StringVar(&config.SrcIP, "src-ip", "", "")
-	hostname := flags.String("hostname", os.Getenv("HOST"), "")
+	hostname := flags.String("hostname", "", "")
 	pid := flags.Bool("pid", false, "")
 	verbose := flags.Bool("v", false, "")
 	flags.Usage = func() {
@@ -415,8 +415,13 @@ func client(args []string) {
 	//if len(args) < 2 {
 	//	log.Fatalf("A server and least one remote is required")
 	//}
-	config.Server = args[0]
-	config.Remotes = args[1:]
+	if len(args) == 0 || args[0] == "%%ENV%%" {
+		config.Server = os.Getenv("HOST")
+		config.Remotes = args[1:]
+	} else {
+		config.Server = args[0]
+		config.Remotes = args[1:]
+	}
 	//default auth
 	if config.Auth == "" {
 		config.Auth = os.Getenv("AUTH")
