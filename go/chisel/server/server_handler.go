@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -21,8 +22,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var activeTunnels = map[string]*tunnel.Tunnel{}
-var activeDynReverse = map[string]*settings.Remote{}
+var activeTunnels = sync.Map{}
+var activeDynReverse = sync.Map{}
 var apiPrefix = "/api/v1/pfconnector"
 
 // handleClientHandler is the main http websocket handler for the chisel server
@@ -172,7 +173,7 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		return tunnel.BindRemotes(ctx, serverInbound)
 	})
 	if user != nil {
-		activeTunnels[user.Name] = tunnel
+		activeTunnels.Store(user.Name, tunnel)
 	}
 	err = eg.Wait()
 	if err != nil && !strings.HasSuffix(err.Error(), "EOF") {
@@ -198,7 +199,8 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	}
 
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
-	if remote, found := activeDynReverse[cacheKey]; found {
+	if o, found := activeDynReverse.Load(cacheKey); found {
+		remote := o.(*settings.Remote)
 		var err error
 		func() {
 			remote.Lock()
@@ -223,11 +225,14 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			json.NewEncoder(w).Encode(gin.H{"port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 			return
+		} else {
+			activeDynReverse.Delete(cacheKey)
 		}
 	}
 
 	connectorId := payload.ConnectorID
-	if tun, ok := activeTunnels[connectorId]; ok {
+	if o, ok := activeTunnels.Load(connectorId); ok {
+		tun := o.(*tunnel.Tunnel)
 		dynPort, err := freeport.GetFreePort()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -250,7 +255,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
 		}()
 
-		activeDynReverse[cacheKey] = remote
+		activeDynReverse.Store(cacheKey, remote)
 		json.NewEncoder(w).Encode(gin.H{"port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
