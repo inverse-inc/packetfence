@@ -39,7 +39,6 @@ $t->get_ok('/api/v1/radius_audit_logs' => json => { })
 
 #insert known data
 my %values = (
-    tenant_id                => '1',
     mac                      => '00:01:02:03:04:05',
     ip                       => 'test ip',
     computer_name            => 'test computer_name', 
