@@ -62,7 +62,7 @@ sub test_status {
         }
     );
 
-    is( $node->{status}, $node_status, "node is set to $node_status for tenant $node->{tenant_id}");
+    is( $node->{status}, $node_status, "node is set to $node_status $node->{mac}");
 
 }
 
