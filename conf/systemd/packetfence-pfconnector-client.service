@@ -6,6 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 LimitNOFILE=infinity
+Environment=/etc/pfconnector-client.env
 ExecStart=/bin/bash -c "/usr/local/pf/sbin/pfconnector client --auth=local_connector:`cat /usr/local/pf/conf/unified_api_system_pass` --tls-skip-verify https://127.0.0.1:9999/api/v1/pfconnector"
 Restart=on-failure
 Slice=packetfence.slice
