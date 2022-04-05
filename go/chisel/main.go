@@ -417,7 +417,9 @@ func client(args []string) {
 	//}
 	if len(args) == 0 || args[0] == "%%ENV%%" {
 		config.Server = os.Getenv("HOST")
-		config.Remotes = args[1:]
+		if len(args) > 1 {
+			config.Remotes = args[1:]
+		}
 	} else {
 		config.Server = args[0]
 		config.Remotes = args[1:]
