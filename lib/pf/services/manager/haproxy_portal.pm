@@ -56,13 +56,6 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
-    $tags{'bind-process'} = '';
-    my $bind_process = '';
-    if ($OS eq 'debian') {
-        $tags{'os_path'} = '/etc/haproxy/errors/';
-    } else {
-         $tags{'os_path'} = '/usr/share/haproxy/';
-    }
     my $cluster_ip;
     my $ip_cluster;
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
@@ -131,7 +124,6 @@ EOT
         http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 
 frontend portal-https-$cluster_ip
         bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
@@ -155,7 +147,6 @@ EOT
         http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 
 
 backend $cluster_ip-backend
@@ -200,7 +191,6 @@ frontend portal-http-$cluster_ipv6
         http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 
 frontend portal-https-$cluster_ipv6
         bind $cluster_ipv6:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
@@ -218,7 +208,6 @@ frontend portal-https-$cluster_ipv6
         http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 EOT
             }
 
@@ -255,7 +244,6 @@ EOT
         http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $ip_cluster-backend
-        $bind_process
 
 frontend portal-https-$internal_portal_ip
         bind $internal_portal_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
@@ -279,7 +267,6 @@ EOT
         http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $ip_cluster-backend
-        $bind_process
 EOT
     }
 
