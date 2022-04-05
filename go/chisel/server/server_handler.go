@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 	"sync/atomic"
@@ -21,6 +22,7 @@ import (
 )
 
 var activeTunnels = map[string]*tunnel.Tunnel{}
+var activeDynReverse = map[string]*settings.Remote{}
 var apiPrefix = "/api/v1/pfconnector"
 
 // handleClientHandler is the main http websocket handler for the chisel server
@@ -187,11 +189,35 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		ConnectorID string `json:"connector_id"`
 		To          string `json:"to"`
 	}{}
+
 	err := json.NewDecoder(req.Body).Decode(&payload)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("Unable to decode JSON payload: %s", err)})
 		return
+	}
+
+	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
+	if remote, found := activeDynReverse[cacheKey]; found {
+		var err error
+		switch remote.LocalProto {
+		case "tcp":
+			var c net.Listener
+			c, err = net.Listen(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
+			if c != nil {
+				c.Close()
+			}
+		case "udp":
+			var c net.PacketConn
+			c, err = net.ListenPacket(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
+			if c != nil {
+				c.Close()
+			}
+		}
+		if err != nil {
+			json.NewEncoder(w).Encode(gin.H{"port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
+			return
+		}
 	}
 
 	connectorId := payload.ConnectorID
@@ -217,6 +243,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
 		}()
 
+		activeDynReverse[cacheKey] = remote
 		json.NewEncoder(w).Encode(gin.H{"port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
