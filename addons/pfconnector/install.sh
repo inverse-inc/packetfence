@@ -26,4 +26,4 @@ cp addons/pfconnector/configure.sh /usr/local/bin/pfconnector-configure
 
 chmod +x /usr/local/bin/pfconnector*
 
-
+echo "Connector installation completed"
