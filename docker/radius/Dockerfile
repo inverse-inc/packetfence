@@ -24,7 +24,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 #  Install build tools
 #
 RUN apt-get -qq update
-RUN apt-get -qq install -y devscripts equivs git quilt gcc
+RUN apt-get -qq install -y devscripts equivs git quilt gcc libcollectdclient-dev
 
 #
 #  Create build directory
