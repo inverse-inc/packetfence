@@ -415,7 +415,7 @@ func client(args []string) {
 	//if len(args) < 2 {
 	//	log.Fatalf("A server and least one remote is required")
 	//}
-	if len(args) == 0 || args[0] == "%%ENV%%" {
+	if len(args) == 0 || args[0] == "ENV" {
 		config.Server = os.Getenv("HOST")
 		if len(args) > 1 {
 			config.Remotes = args[1:]
