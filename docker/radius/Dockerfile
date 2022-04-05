@@ -80,6 +80,8 @@ RUN mkdir -p /usr/local/pf/bin
 
 COPY ./bin/pflogger-packetfence /usr/local/pf/bin/pflogger-packetfence
 
+COPY ./bin/pflogger.pl /usr/local/pf/bin/pflogger.pl
+
 COPY ./config.mk /usr/local/pf/config.mk
 
 RUN mkdir -p /usr/local/pf/var/run
