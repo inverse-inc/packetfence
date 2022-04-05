@@ -6,7 +6,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 
 [Service]
 LimitNOFILE=infinity
-Environment=/etc/pfconnector-client.env
+EnvironmentFile=/etc/pfconnector-client.env
 ExecStart=/usr/local/bin/pfconnector client
 Restart=on-failure
 Slice=packetfence.slice
