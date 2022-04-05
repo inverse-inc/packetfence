@@ -251,7 +251,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		}
 
 		go func() {
-			// TODO: handle an error and implement inactivity timeout
+			// TODO: handle an error
 			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
 		}()
 
