@@ -38,12 +38,12 @@ is($client->next_id, 2);
 
 is_deeply(
     decode_json($client->build_jsonrpc_request("method", 1)),
-    {method => "method", jsonrpc=>"2.0", params=>1, id => 3, tenant_id => 1}
+    {method => "method", jsonrpc=>"2.0", params=>1, id => 3 }
 );
 
 is_deeply(
     decode_json($client->build_jsonrpc_notification("method", 1)),
-    {method => "method", jsonrpc=>"2.0", params=>1, tenant_id => 1}
+    {method => "method", jsonrpc=>"2.0", params=>1}
 );
 
 =head1 AUTHOR

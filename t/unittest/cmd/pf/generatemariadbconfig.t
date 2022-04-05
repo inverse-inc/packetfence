@@ -37,11 +37,11 @@ is_deeply(
         namespaces => [
             {
                 name => "admin_api_audit_log",
-                trigger => 'CREATE DEFINER=`root`@`localhost` TRIGGER log_event_admin_api_audit_log AFTER INSERT ON `admin_api_audit_log` FOR EACH ROW BEGIN SET @k = pf_logger( "admin_api_audit_log", "tenant_id", NEW.tenant_id, "created_at", NEW.created_at, "user_name", NEW.user_name, "action", NEW.action, "object_id", NEW.object_id, "url", NEW.url, "method", NEW.method, "request", NEW.request, "status", NEW.status); END;',
+                trigger => 'CREATE DEFINER=`root`@`localhost` TRIGGER log_event_admin_api_audit_log AFTER INSERT ON `admin_api_audit_log` FOR EACH ROW BEGIN SET @k = pf_logger( "admin_api_audit_log", "created_at", NEW.created_at, "user_name", NEW.user_name, "action", NEW.action, "object_id", NEW.object_id, "url", NEW.url, "method", NEW.method, "request", NEW.request, "status", NEW.status); END;',
             },
             {
                 name => "auth_log",
-                trigger => 'CREATE DEFINER=`root`@`localhost` TRIGGER log_event_auth_log AFTER INSERT ON `auth_log` FOR EACH ROW BEGIN SET @k = pf_logger( "auth_log", "tenant_id", NEW.tenant_id, "process_name", NEW.process_name, "mac", NEW.mac, "pid", NEW.pid, "status", NEW.status, "attempted_at", NEW.attempted_at, "completed_at", NEW.completed_at, "source", NEW.source, "profile", NEW.profile); END;',
+                trigger => 'CREATE DEFINER=`root`@`localhost` TRIGGER log_event_auth_log AFTER INSERT ON `auth_log` FOR EACH ROW BEGIN SET @k = pf_logger( "auth_log", "process_name", NEW.process_name, "mac", NEW.mac, "pid", NEW.pid, "status", NEW.status, "attempted_at", NEW.attempted_at, "completed_at", NEW.completed_at, "source", NEW.source, "profile", NEW.profile); END;',
             },
             {
                 name => "dhcp_option82",
