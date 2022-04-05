@@ -13,9 +13,9 @@ git clone https://github.com/inverse-inc/packetfence
 cd packetfence
 git checkout feature/connector
 
-cp conf/systemd/packetfence-pfconnector-client.service /etc/systemd/system/
+cp conf/systemd/packetfence-pfconnector-remote.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable packetfence-pfconnector-client.service
+systemctl enable packetfence-pfconnector-remote.service
 
 cd go/
 make pfconnector
