@@ -76,6 +76,10 @@ WORKDIR /usr/local/pf/
 
 COPY lib lib
 
+RUN mkdir -p /usr/local/pf/bin
+
+COPY ./bin/pflogger-packetfence /usr/local/pf/bin/pflogger-packetfence
+
 COPY ./config.mk /usr/local/pf/config.mk
 
 RUN mkdir -p /usr/local/pf/var/run
