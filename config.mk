@@ -32,7 +32,7 @@ SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
 # Golang
 #
 GOVERSION = go1.17.6
-PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron mysql-probe
+PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron mysql-probe pfconnector
 
 #
 # PF versions
