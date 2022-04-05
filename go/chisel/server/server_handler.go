@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/chisel/share/cnet"
@@ -55,6 +56,9 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/dynreverse":
 		s.handleDynReverse(w, r)
+		return
+	case apiPrefix + "/remote-binds":
+		s.handleRemoteBinds(w, r)
 		return
 	}
 	//missing :O
@@ -262,4 +266,23 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
 		return
 	}
+}
+
+func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
+	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &managementNetwork)
+
+	var managementIP string
+	if managementNetwork.Vip != "" {
+		managementIP = managementNetwork.Vip
+	} else {
+		managementIP = managementNetwork.Ip
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(gin.H{"binds": []string{
+		fmt.Sprintf("%s:80", managementIP),
+		fmt.Sprintf("%s:443", managementIP),
+		fmt.Sprintf("%s:1812/udp", managementIP),
+		fmt.Sprintf("%s:1813/udp", managementIP),
+	}})
 }
