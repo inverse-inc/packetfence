@@ -73,6 +73,8 @@ COPY --from=gobuild /usr/local/pf/go/pfcertmanager /usr/local/pf/sbin/pfcertmana
 
 WORKDIR /usr/local/pf/
 
+COPY lib lib
+
 COPY ./config.mk /usr/local/pf/config.mk
 
 RUN mkdir -p /usr/local/pf/var/run
