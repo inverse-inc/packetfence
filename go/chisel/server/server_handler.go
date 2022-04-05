@@ -200,20 +200,26 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
 	if remote, found := activeDynReverse[cacheKey]; found {
 		var err error
-		switch remote.LocalProto {
-		case "tcp":
-			var c net.Listener
-			c, err = net.Listen(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
-			if c != nil {
-				c.Close()
+		func() {
+			remote.Lock()
+			defer remote.Unlock()
+			remote.LastTouched = time.Now()
+
+			switch remote.LocalProto {
+			case "tcp":
+				var c net.Listener
+				c, err = net.Listen(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
+				if c != nil {
+					c.Close()
+				}
+			case "udp":
+				var c net.PacketConn
+				c, err = net.ListenPacket(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
+				if c != nil {
+					c.Close()
+				}
 			}
-		case "udp":
-			var c net.PacketConn
-			c, err = net.ListenPacket(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
-			if c != nil {
-				c.Close()
-			}
-		}
+		}()
 		if err != nil {
 			json.NewEncoder(w).Encode(gin.H{"port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 			return
@@ -232,6 +238,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		remoteStr := fmt.Sprintf("R:%d:%s", dynPort, to)
 		remote, err := settings.DecodeRemote(remoteStr)
 		remote.Dynamic = true
+		remote.LastTouched = time.Now()
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err)})

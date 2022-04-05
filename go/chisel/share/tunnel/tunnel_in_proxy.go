@@ -13,6 +13,9 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+const INACTIVITY_CHECK_INTERVAL = 60 * time.Second
+const LAST_TOUCHED_TIMEOUT = 10 * time.Second
+
 //sshTunnel exposes a subset of Tunnel to subtypes
 type sshTunnel interface {
 	getSSH(ctx context.Context) ssh.Conn
@@ -135,14 +138,25 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 		case src := <-srcChan:
 			atomic.AddInt64(&p.aliveConns, 1)
 			go p.pipeRemote(ctx, src)
-		case <-time.After(60 * time.Second):
-			if p.remote.Dynamic {
-				if atomic.LoadInt64(&p.aliveConns) == 0 {
-					p.Infof("Closing due to inactivity timeout")
-					cancel()
-					p.tcp.Close()
-					return nil
+		case <-time.After(INACTIVITY_CHECK_INTERVAL):
+			shouldReturn := func() bool {
+				p.remote.Lock()
+				defer p.remote.Unlock()
+
+				if p.remote.Dynamic {
+					if time.Since(p.remote.LastTouched) > LAST_TOUCHED_TIMEOUT {
+						if atomic.LoadInt64(&p.aliveConns) == 0 {
+							return true
+						}
+					}
 				}
+				return false
+			}()
+			if shouldReturn {
+				p.Infof("Closing due to inactivity timeout")
+				cancel()
+				p.tcp.Close()
+				return nil
 			}
 		}
 	}

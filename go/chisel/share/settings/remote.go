@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 // short-hand conversions (see remote_test)
@@ -33,6 +35,8 @@ import (
 //     remote 1.1.1.1:53/udp
 
 type Remote struct {
+	sync.Mutex
+	LastTouched                         time.Time
 	LocalHost, LocalPort, LocalProto    string
 	RemoteHost, RemotePort, RemoteProto string
 	Dynamic, Socks, Reverse, Stdio      bool
