@@ -182,7 +182,7 @@ func NewClient(c *Config) (*Client, error) {
 	client.tunnel = tunnel.New(tunnel.Config{
 		Logger:    client.Logger,
 		Inbound:   true, //client always accepts inbound
-		Outbound:  hasReverse,
+		Outbound:  true, //client always accepts outbound
 		Socks:     hasReverse && hasSocks,
 		KeepAlive: client.config.KeepAlive,
 		SrcIP:     net.ParseIP(client.config.SrcIP),
