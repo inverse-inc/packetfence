@@ -1,52 +1,34 @@
-package pfconfig::namespaces::config::Connector;
+package pfconfig::namespaces::resource::connectors_ordered;
 
 =head1 NAME
 
-pfconfig::namespaces::config::Connector
+pfconfig::namespaces::resource::connectors_ordered
 
 =cut
 
 =head1 DESCRIPTION
 
-pfconfig::namespaces::config::Connector
-
-This module creates the configuration hash associated to self_service.conf
+pfconfig::namespaces::resource::connectors_ordered
 
 =cut
 
 use strict;
 use warnings;
 
-use pfconfig::namespaces::config;
-use pf::file_paths qw($connectors_config_file);
-use pf::util;
+use pfconfig::namespaces::config::Connector;
 
-use base 'pfconfig::namespaces::config';
+use base 'pfconfig::namespaces::resource';
 
 sub init {
     my ($self) = @_;
-    $self->{file} = $connectors_config_file;
-    $self->{cluster_servers} = $self->{cache}->get_cache('resource::cluster_servers');
-    $self->{unified_api_system_user} = $self->{cache}->get_cache('resource::unified_api_system_user');
-    $self->{child_resources} = [
-        'resource::connectors_ordered',
-    ];
+    $self->{config_connector} = pfconfig::namespaces::config::Connector->new($self->{cache});
+    $self->{config_connector}->build();
 }
 
-sub build_child {
+sub build {
     my ($self) = @_;
 
-    my %tmp_cfg = %{ $self->{cfg} };
-
-    $tmp_cfg{local_connector} = {
-        secret => $self->{unified_api_system_user}->{pass},
-    };
-
-    for my $id (keys(%tmp_cfg)) {
-        $tmp_cfg{$id}{networks} = $tmp_cfg{$id}{networks} ? [split(/\n/, $tmp_cfg{$id}{networks})] : [];
-    }
-
-    return \%tmp_cfg;
+    return $self->{config_connector}->{ordered_sections};
 }
 
 =head1 AUTHOR
@@ -81,4 +63,5 @@ USA.
 # vim: set shiftwidth=4:
 # vim: set expandtab:
 # vim: set backspace=indent,eol,start:
+
 

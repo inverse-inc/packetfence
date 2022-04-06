@@ -17,6 +17,8 @@ use warnings;
 use pf::connector;
 use pf::config qw(%ConfigConnector);
 
+tie my @connectors_ordered, 'pfconfig::cached_array', 'resource::connectors_ordered';
+
 sub factory_for { 'pf::connector' }
 
 sub new {
@@ -39,6 +41,20 @@ sub new {
 sub local_connector {
     my ($class) = @_;
     return $class->new("local_connector");
+}
+
+sub for_ip {
+    my ($class, $ip) = @_;
+    $ip = NetAddr::IP->new($ip);
+    for my $connector_id (@connectors_ordered) {
+        for my $net (@{$ConfigConnector{$connector_id}{networks}}) {
+            $net = NetAddr::IP->new($net);
+            if($net->contains($ip)) {
+                return $class->new($connector_id);
+            }
+        }
+    } 
+    return $class->local_connector();
 }
 
 =head1 AUTHOR

@@ -4,6 +4,10 @@ use Moo;
 
 has id => (is => 'rw');
 
+has secret => (is => 'rw');
+
+has networks => (is => 'rw');
+
 sub dynreverse {
     my ($self, $to) = @_;
     #TODO: implement reverse forwards reuse here or in pfconnector
