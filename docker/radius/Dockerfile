@@ -80,7 +80,21 @@ RUN mkdir -p /usr/local/pf/bin
 
 RUN mkdir -p /usr/local/pf/conf
 
+# Minimal configuration files needed to start freeradius
+
 COPY ./conf/pf.conf.defaults /usr/local/pf/conf/pf.conf.defaults
+
+COPY ./conf/pf.conf /usr/local/pf/conf/pf.conf
+
+COPY ./conf/chi.conf.defaults /usr/local/pf/conf/chi.conf.defaults
+
+COPY ./conf/chi.conf /usr/local/pf/conf/chi.conf
+
+COPY ./conf/pfconfig.conf /usr/local/pf/conf/pfconfig.conf
+
+COPY ./conf/pfconfig.conf.defaults /usr/local/pf/conf/pfconfig.conf.defaults
+
+COPY ./conf/log.conf /usr/local/pf/conf/log.conf
 
 COPY ./bin/pflogger-packetfence /usr/local/pf/bin/pflogger-packetfence
 
