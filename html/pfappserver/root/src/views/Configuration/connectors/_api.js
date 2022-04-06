@@ -37,6 +37,11 @@ export default {
       return response.data
     })
   },
+  sort: data => {
+    return apiCall.patch('config/connectors/sort_items', data).then(response => {
+      return response
+    })
+  },
   delete: id => {
     return apiCall.delete(['config', 'connector', id])
   }

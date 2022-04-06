@@ -11,6 +11,7 @@ export const useStore = $store => {
     isLoading: computed(() => $store.getters['$_connectors/isLoading']),
     getList: () => $store.dispatch('$_connectors/all'),
     getListOptions: () => $store.dispatch('$_connectors/options'),
+    sortItems: params => $store.dispatch('$_connectors/sortConnectors', params.items),
     createItem: params => $store.dispatch('$_connectors/createConnector', params),
     getItem: params => $store.dispatch('$_connectors/getConnector', params.id).then(item => {
       return (params.isClone)
@@ -101,6 +102,19 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
       commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  sortConnectors: ({ commit }, data) => {
+    const params = {
+      items: data
+    }
+    commit('ITEM_REQUEST', types.LOADING)
+    return api.sort(params).then(response => {
+      commit('ITEM_SUCCESS')
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

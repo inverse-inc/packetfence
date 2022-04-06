@@ -72,5 +72,5 @@ export const useSearch = makeSearch('connectors', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id'
+  sortBy: null // use natural order (sortable)
 })
