@@ -7,8 +7,9 @@ WORKDIR /usr/local/pf/
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
-RUN cd /usr/local/pf/go/ &&  make pfhttpd
-RUN cd /usr/local/pf/go/ &&  make httpdispatcher
+RUN cd /usr/local/pf/go/ && \
+    make pfhttpd && \
+    make httpdispatcher
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
