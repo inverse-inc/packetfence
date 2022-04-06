@@ -7,17 +7,20 @@ WORKDIR /usr/local/pf/
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
-RUN cd /usr/local/pf/go/ &&  make pfhttpd
-RUN cd /usr/local/pf/go/ &&  make httpdispatcher
+RUN cd /usr/local/pf/go/ && \
+    make pfhttpd >/dev/null || make pfhttpd && \
+    make httpdispatcher
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
-RUN apt update && apt install -y -q nodejs npm
 COPY ./html /usr/local/pf/html
-RUN cd /usr/local/pf/html/pfappserver/root && make vendor && make light-dist
-
 COPY ./docs /usr/local/pf/docs
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
+RUN apt -qq update && \
+    apt install -y -qq nodejs npm && \
+    cd /usr/local/pf/html/pfappserver/root && \
+    make vendor >/dev/null && \
+    make light-dist >/dev/null
 ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf -log-name httpd.admin_dispatcher
