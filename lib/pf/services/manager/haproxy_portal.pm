@@ -68,23 +68,6 @@ sub generateConfig {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
         last if $i > 0;
-        # useless because backend_ip_config is not used inside this block
-#         if ($interface eq $management_network->tag('int')) {
-#             $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'vip'} || $cfg->{'ip'};
-#             $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
-#             my @backend_ip = values %{pf::cluster::members_ips($interface)};
-#             push @backend_ip, $CONTAINER_INT if !@backend_ip;
-#             my $backend_ip_config = '';
-#             foreach my $back_ip ( @backend_ip ) {
-#                 # cluster specific
-#                 next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
-
-#                 $backend_ip_config .= <<"EOT";
-#         server $back_ip $back_ip:8080 check inter 10s fastinter 2s
-# EOT
-#             }
-#
-        # }
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             $ip_cluster = $cluster_ip;
@@ -219,61 +202,6 @@ EOT
         $i++;
         }
     }
-    # $tags{'management_ip'}
-    #     = defined( $management_network->tag('vip') )
-    #     ? $management_network->tag('vip')
-    #     : $management_network->tag('ip');
-
-#     my $internal_portal_ip = $Config{captive_portal}{ip_address};
-#     if (scalar @portal_ip > 0) {
-# $tags{'http'} .= <<"EOT";
-# frontend portal-http-$internal_portal_ip
-#         bind $internal_portal_ip:80
-#         capture request header Host len 40
-#         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
-#         tcp-request connection track-sc1 src
-#         http-request lua.change_host
-#         acl host_exist var(req.host) -m found
-#         http-request set-header Host %[var(req.host)] if host_exist
-#         http-request lua.select
-#         acl action var(req.action) -m found
-# EOT
-#             if($rate_limiting) {
-#             $tags{'http'} .= <<"EOT";
-#         acl unflag_abuser src_clr_gpc0 --
-#         http-request allow if action unflag_abuser
-#         http-request deny if { src_get_gpc0 gt 0 }
-# EOT
-#             }
-#             $tags{'http'} .= <<"EOT";
-#         http-request add-header X-Forwarded-Proto http
-#         use_backend %[var(req.action)]
-#         default_backend $ip_cluster-backend
-
-# frontend portal-https-$internal_portal_ip
-#         bind $internal_portal_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-#         capture request header Host len 40
-#         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
-#         tcp-request connection track-sc1 src
-#         http-request lua.change_host
-#         acl host_exist var(req.host) -m found
-#         http-request set-header Host %[var(req.host)] if host_exist
-#         http-request lua.select
-#         acl action var(req.action) -m found
-# EOT
-#             if($rate_limiting) {
-#             $tags{'http'} .= <<"EOT";
-#         acl unflag_abuser src_clr_gpc0 --
-#         http-request allow if action unflag_abuser
-#         http-request deny if { src_get_gpc0 gt 0 }
-# EOT
-#             }
-#             $tags{'http'} .= <<"EOT";
-#         http-request add-header X-Forwarded-Proto https
-#         use_backend %[var(req.action)]
-#         default_backend $ip_cluster-backend
-# EOT
-#     }
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;
     parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
