@@ -218,7 +218,9 @@ func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) erro
 		if shouldReturn {
 			u.Infof("Closing due to inactivity timeout")
 			u.inbound.Close()
-			u.outbound.c.Close()
+			if u.outbound != nil && u.outbound.c != nil {
+				u.outbound.c.Close()
+			}
 			cancel()
 			return nil
 		}
