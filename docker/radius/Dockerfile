@@ -84,7 +84,7 @@ RUN mkdir -p /usr/local/pf/conf
 
 COPY ./conf/pf.conf.defaults /usr/local/pf/conf/pf.conf.defaults
 
-COPY ./conf/pf.conf.example /usr/local/pf/conf/pf.conf.example
+COPY ./conf/pf.conf.example /usr/local/pf/conf/pf.conf
 
 COPY ./conf/chi.conf.defaults /usr/local/pf/conf/chi.conf.defaults
 
