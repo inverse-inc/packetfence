@@ -42,14 +42,6 @@ func (mtb *MemTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Ti
 	}
 }
 
-func (mtb *MemTokenBackend) TenantIdForToken(token string) int {
-	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
-		return ti.Tenant.Id
-	} else {
-		return AccessNoTenants
-	}
-}
-
 func (mtb *MemTokenBackend) AdminActionsForToken(token string) map[string]bool {
 	if ti, _ := mtb.TokenInfoForToken(token); ti != nil {
 		return ti.AdminActions()

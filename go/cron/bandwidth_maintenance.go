@@ -145,7 +145,7 @@ END;
 }
 
 func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
-	j.ClientApi.Call(ctx, "bandwidth_trigger", map[string]interface{}{}, 1)
+	j.ClientApi.Call(ctx, "bandwidth_trigger", map[string]interface{}{})
 }
 
 func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, rounding_func, unit string, interval int) {

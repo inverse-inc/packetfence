@@ -81,8 +81,6 @@ func buildPfssoHandler(ctx context.Context) (*PfssoHandler, error) {
 	return pfsso, nil
 }
 
-const defaultTenantID = "1"
-
 // Parse the body of a pfsso request to extract a map[string]string of all the attributes that were sent
 // Return an error if the JSON payload cannot be decoded properly
 // Will also validate that the necessary fields are there in the payload and return an error if some are missing
@@ -96,15 +94,6 @@ func (h PfssoHandler) parseSsoRequest(ctx context.Context, r *http.Request) (map
 		return nil, 0, errors.New(msg)
 	}
 
-	tenant_id := r.Header.Get("X-PacketFence-Tenant-Id")
-	if tenant_id == "" {
-		tenant_id = defaultTenantID
-	} else if _, err := strconv.ParseInt(tenant_id, 10, 32); err != nil {
-		log.LoggerWContext(ctx).Warn(fmt.Sprintf("Can't parse X-PacketFence-Tenant-Id '%s' into an int (%s).", tenant_id, err))
-		tenant_id = defaultTenantID
-	}
-
-	info["tenant_id"] = tenant_id
 	timeout, err := strconv.ParseInt(info["timeout"], 10, 32)
 	if err != nil {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Can't parse timeout '%s' into an int (%s). Will not specify timeout for request.", info["timeout"], err))

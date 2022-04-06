@@ -5,15 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"regexp"
-	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/db"
 )
 
 var apiPrefix = "/api/v1"
@@ -25,53 +21,6 @@ type adminRoleMapping struct {
 	prefix     string
 	role       string
 	roleSuffix string
-}
-
-var multipleTenants = false
-var successMultipleTenants = false
-var successMultipleTenantsLock = sync.Mutex{}
-
-func init() {
-	successMultipleTenants = computeMultipleTenants()
-}
-
-func computeMultipleTenants() bool {
-	successMultipleTenantsLock.Lock()
-	defer func() {
-		successMultipleTenantsLock.Unlock()
-		if err := recover(); err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
-		}
-	}()
-
-	pfdb, err := db.DbFromConfig(context.Background())
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
-		return false
-	}
-	defer pfdb.Close()
-
-	res, err := pfdb.Query(`select count(1) from tenant`)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
-		return false
-	}
-	defer res.Close()
-
-	for res.Next() {
-		var count int
-		err := res.Scan(&count)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to connect to database to get multi-tenant status: %s \n", err)
-			return false
-		}
-		if count > 2 {
-			log.Logger().Info("Running in multi-tenant mode")
-			multipleTenants = true
-		}
-	}
-
-	return true
 }
 
 const ALLOW_ANY = "*"
@@ -185,19 +134,6 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policy/", role: "TRAFFIC_SHAPING"},
 }
 
-var allTenantsPaths = []string{
-	configApiPrefix + "/security_events",
-	configApiPrefix + "/security_event/",
-	configApiPrefix + "/base/guests_admin_registration",
-	configApiPrefix + "/admin_roles",
-}
-
-var multiTenantDenyPaths = []string{
-	apiPrefix + "/queues",
-	apiPrefix + "/services",
-	apiPrefix + "/service",
-}
-
 var methodSuffixMap = map[string]string{
 	"GET":     "_READ",
 	"OPTIONS": "_READ",
@@ -230,37 +166,12 @@ func (tam *TokenAuthorizationMiddleware) TokenFromBearerRequest(ctx context.Cont
 // It will extract the token out of the Authorization header and call the appropriate method
 func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.Context, r *http.Request) (bool, error) {
 
-	// If we were unable to get the multi-tenant status on init (because DB wasn't ready), then we try to find it here
-	if !successMultipleTenants {
-		log.LoggerWContext(ctx).Info("Multi-tenant status hasn't been initialized. Attempting to initialize it during this request.")
-		successMultipleTenants = computeMultipleTenants()
-	}
-
 	token := tam.TokenFromBearerRequest(ctx, r)
-	xptid := r.Header.Get("X-PacketFence-Tenant-Id")
 
 	tokenInfo, _ := tam.tokenBackend.TokenInfoForToken(token)
 
 	if tokenInfo == nil {
 		return false, errors.New(InvalidTokenInfoErr)
-	}
-
-	var tenantId int
-
-	if tokenInfo.Tenant.Id == AccessAllTenants && xptid == "" {
-		log.LoggerWContext(ctx).Debug("Token wasn't issued for a particular tenant and no X-PacketFence-Tenant-Id was provided. Request will use the default PacketFence tenant")
-	} else if xptid == "" {
-		log.LoggerWContext(ctx).Debug("Empty X-PacketFence-Tenant-Id, defaulting to token tenant ID")
-		tenantId = tokenInfo.Tenant.Id
-		r.Header.Set("X-PacketFence-Tenant-Id", strconv.Itoa(tenantId))
-	} else {
-		var err error
-		tenantId, err = strconv.Atoi(xptid)
-		if err != nil {
-			msg := fmt.Sprintf("Impossible to parse X-PacketFence-Tenant-Id %s into a valid number, error: %s", xptid, err)
-			log.LoggerWContext(ctx).Warn(msg)
-			return false, errors.New(msg)
-		}
 	}
 
 	roles := make([]string, len(tokenInfo.AdminRoles))
@@ -273,11 +184,11 @@ func (tam *TokenAuthorizationMiddleware) BearerRequestIsAuthorized(ctx context.C
 
 	r.Header.Set("X-PacketFence-Username", tokenInfo.Username)
 
-	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tenantId, tokenInfo)
+	return tam.IsAuthorized(ctx, r.Method, r.URL.Path, tokenInfo)
 }
 
 // Checks whether or not that request is authorized based on the path and method
-func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, tenantId int, tokenInfo *TokenInfo) (bool, error) {
+func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, method, path string, tokenInfo *TokenInfo) (bool, error) {
 	if tokenInfo == nil {
 		return false, errors.New(InvalidTokenInfoErr)
 	}
@@ -287,37 +198,8 @@ func (tam *TokenAuthorizationMiddleware) IsAuthorized(ctx context.Context, metho
 		return authAdminRoles, err
 	}
 
-	authTenant, err := tam.isAuthorizedTenantId(ctx, tenantId, tokenInfo.Tenant.Id)
-	if !authTenant || err != nil {
-		return authTenant, err
-	}
-
-	authConfig, err := tam.isAuthorizedMultiTenant(ctx, method, path, tokenInfo)
-	if !authConfig || err != nil {
-		return authConfig, err
-	}
-
 	// If we're here, then we passed all the tests above and we're good to go
 	return true, nil
-}
-
-func (tam *TokenAuthorizationMiddleware) isAuthorizedTenantId(ctx context.Context, requestTenantId, tokenTenantId int) (bool, error) {
-	// Token doesn't have access to any tenant
-	if tokenTenantId == AccessNoTenants {
-		return false, errors.New("Token is prohibited from accessing data from any tenant")
-	} else if tokenTenantId == AccessAllTenants {
-		return true, nil
-	} else if requestTenantId == tokenTenantId {
-		return true, nil
-	} else {
-		return false, errors.New(
-			fmt.Sprintf(
-				"Token is not allowed to access this tenant %d and only has access to tenant %d",
-				requestTenantId,
-				tokenTenantId,
-			),
-		)
-	}
 }
 
 func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Context, method, path string, roles map[string]bool) (bool, error) {
@@ -369,54 +251,6 @@ func (tam *TokenAuthorizationMiddleware) isAuthorizedAdminActions(ctx context.Co
 		msg := fmt.Sprintf("Unauthorized access, lacking the %s administrative role", adminRole)
 		log.LoggerWContext(ctx).Debug(msg)
 		return false, errors.New(msg)
-	}
-}
-
-func (tam *TokenAuthorizationMiddleware) isAuthorizedMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
-	authConfig, err := tam.isAuthorizedConfigNamespace(ctx, method, path, tokenInfo)
-	if !authConfig || err != nil {
-		return authConfig, err
-	}
-
-	authMultiTenant, err := tam.isAuthorizedPathMultiTenant(ctx, method, path, tokenInfo)
-	if !authMultiTenant || err != nil {
-		return authMultiTenant, err
-	}
-
-	return true, nil
-}
-
-func (tam *TokenAuthorizationMiddleware) isAuthorizedPathMultiTenant(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
-	if !tokenInfo.IsTenantMaster() {
-		for _, base := range multiTenantDenyPaths {
-			if strings.HasPrefix(path, base) {
-				return false, errors.New(fmt.Sprintf("Token is not allowed to access this namespace because it is scoped to a single tenant."))
-			}
-		}
-		return true, nil
-	} else {
-		return true, nil
-	}
-}
-
-func (tam *TokenAuthorizationMiddleware) isAuthorizedConfigNamespace(ctx context.Context, method string, path string, tokenInfo *TokenInfo) (bool, error) {
-	// If we're not hitting the config namespace, then there is no need to enforce anything below
-	if !configNamespaceRe.MatchString(path) {
-		return true, nil
-	}
-
-	if !tokenInfo.IsTenantMaster() {
-		if method == "GET" || method == "OPTIONS" {
-			for _, base := range allTenantsPaths {
-				if strings.HasPrefix(path, base) {
-					return true, nil
-				}
-			}
-		}
-
-		return false, errors.New(fmt.Sprintf("Token is not allowed to access the configuration namespace because it is scoped to a single tenant."))
-	} else {
-		return true, nil
 	}
 }
 

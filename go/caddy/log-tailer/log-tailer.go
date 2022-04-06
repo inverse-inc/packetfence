@@ -32,7 +32,6 @@ func init() {
 type PrettyTokenInfo struct {
 	AdminActions []string  `json:"admin_actions"`
 	AdminRoles   []string  `json:"admin_roles"`
-	TenantId     int       `json:"tenant_id"`
 	Username     string    `json:"username"`
 	ExpiresAt    time.Time `json:"expires_at"`
 }

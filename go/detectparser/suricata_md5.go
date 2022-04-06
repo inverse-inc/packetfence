@@ -82,7 +82,6 @@ func (s *SuricataMD5Parser) Parse(line string) ([]ApiCall, error) {
 				"tid", tid,
 				"type", "suricata_md5",
 			},
-			TenantID: s.TenantID,
 		},
 	}, nil
 }

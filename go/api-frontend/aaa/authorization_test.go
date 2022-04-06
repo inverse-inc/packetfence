@@ -2,7 +2,6 @@ package aaa
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -19,7 +18,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	var err error
 
 	// Test a valid GET
-	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
@@ -30,7 +29,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test the role suffix override
-	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes/network_graph", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes/network_graph", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
@@ -40,7 +39,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
 	}
 
-	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/current_user", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/current_user", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
@@ -51,7 +50,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a search POST
-	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes/search", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes/search", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
@@ -62,7 +61,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid GET with a parameter
-	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/node/00:11:22:33:44:55", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesRead": true,
 		},
@@ -73,7 +72,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid POST
-	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesCreate": true,
 		},
@@ -84,7 +83,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid PUT
-	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesUpdate": true,
 		},
@@ -95,7 +94,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid PATCH
-	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesUpdate": true,
 		},
@@ -106,7 +105,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test a valid DELETE
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
@@ -117,7 +116,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid GET
-	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
@@ -128,7 +127,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid POST
-	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "POST", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
@@ -139,7 +138,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid PUT
-	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PUT", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
@@ -150,7 +149,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid PATCH
-	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "PATCH", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
@@ -161,7 +160,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test an invalid DELETE
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"SystemRead": true,
 		},
@@ -172,7 +171,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test empty roles
-	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", 0, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "GET", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{},
 	})
 
@@ -181,11 +180,10 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid universal tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		Tenant: Tenant{Id: 0},
 	})
 
 	if !res {
@@ -193,41 +191,14 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 	}
 
 	// Test valid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
+	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", &TokenInfo{
 		AdminRoles: map[string]bool{
 			"NodesDelete": true,
 		},
-		Tenant: Tenant{Id: 1},
 	})
 
 	if !res {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
-	}
-
-	multipleTenants = true
-	// Test invalid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
-		AdminRoles: map[string]bool{
-			"NodesDelete": true,
-		},
-		Tenant: Tenant{Id: 2},
-	})
-	multipleTenants = false
-
-	if res {
-		t.Error("Request was authorized although it should haven't gone through, error:", err)
-	}
-
-	// Test invalid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/nodes", 1, &TokenInfo{
-		AdminRoles: map[string]bool{
-			"NodesDelete": true,
-		},
-		Tenant: Tenant{Id: -1},
-	})
-
-	if res {
-		t.Error("Request was authorized although it should haven't gone through, error:", err)
 	}
 
     _, err = m.isAuthorizedAdminActions(ctx, "GET", "/api/v1.1/reports", map[string]bool{"REPORTS_READ": true})
@@ -248,7 +219,7 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 
 	// Test inexistant token
 	req, _ := http.NewRequest("GET", "/api/v1/users", nil)
-	addBearerTokenToTestRequest(req, token, 0)
+	addBearerTokenToTestRequest(req, token)
 
 	res, err := m.BearerRequestIsAuthorized(ctx, req)
 
@@ -269,60 +240,36 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Authenticated request has failed instead of succeeding", err)
 	}
 
-	// Test valid token with scoped tenant ID without X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		Tenant: Tenant{Id: 1},
 	})
 
-	addBearerTokenToTestRequest(req, token, 1)
+	addBearerTokenToTestRequest(req, token)
 
 	res, err = m.BearerRequestIsAuthorized(ctx, req)
 
 	if !res {
 		t.Error("Authenticated request has failed instead of succeeding", err)
-	}
-
-	if req.Header.Get("X-PacketFence-Tenant-Id") != "1" {
-		t.Error("Request without X-PacketFence-Tenant-Id didn't get the header set to the token tenant ID")
 	}
 
 	if req.Header.Get("X-PacketFEnce-Admin-Roles") != "UsersRead" {
 		t.Error("Didn't set the admin roles header properly")
 	}
 
-	// Test valid token with scoped tenant ID with X-PacketFence-Tenant-Id header
 	backend.StoreTokenInfo(token, &TokenInfo{
 		AdminRoles: map[string]bool{
 			"UsersRead": true,
 		},
-		Tenant: Tenant{Id: 0},
 	})
 
-	addBearerTokenToTestRequest(req, token, 1)
+	addBearerTokenToTestRequest(req, token)
 
 	res, err = m.BearerRequestIsAuthorized(ctx, req)
 
 	if !res {
 		t.Error("Authenticated request has failed instead of succeeding", err)
-	}
-
-	// Test valid token with wrong scoped X-PacketFence-Tenant-Id
-	backend.StoreTokenInfo(token, &TokenInfo{
-		AdminRoles: map[string]bool{
-			"UsersRead": true,
-		},
-		Tenant: Tenant{Id: 1},
-	})
-
-	addBearerTokenToTestRequest(req, token, 2)
-
-	res, err = m.BearerRequestIsAuthorized(ctx, req)
-
-	if res {
-		t.Error("Unauthenticated request has succeeded instead of failing", err)
 	}
 
 	// Test valid token with invalid role
@@ -334,40 +281,11 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 		t.Error("Unauthenticated request has succeeded instead of failing", err)
 	}
 
-	// Test valid scoped tenant ID for configuration namespace
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
-		AdminRoles: map[string]bool{
-			"FirewallSSODelete": true,
-		},
-		Tenant: Tenant{Id: 0},
-	})
-
-	if !res {
-		t.Error("Request was unauthorized although it should have gone through, error:", err)
-	}
-
-	multipleTenants = true
-	// Test invalid scoped tenant ID
-	res, err = m.IsAuthorized(ctx, "DELETE", "/api/v1/config/firewall/1", 1, &TokenInfo{
-		AdminRoles: map[string]bool{
-			"FirewallSSODelete": true,
-		},
-		Tenant: Tenant{Id: 2},
-	})
-	multipleTenants = false
-
-	if res {
-		t.Error("Request was authorized although it should haven't gone through, error:", err)
-	}
 
 }
 
-func addBearerTokenToTestRequest(r *http.Request, token string, tenantId int) {
+func addBearerTokenToTestRequest(r *http.Request, token string) {
 	r.Header.Set("Authorization", "Bearer "+token)
-
-	if tenantId != 0 {
-		r.Header.Set("X-PacketFence-Tenant-Id", fmt.Sprintf("%d", tenantId))
-	}
 }
 
 func BenchmarkIsAuthorizedAdminActionsStatic(b *testing.B) {

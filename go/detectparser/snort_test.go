@@ -31,7 +31,6 @@ func TestSnortParse(t *testing.T) {
 							"detect":         "2221002",
 						},
 					},
-					TenantID: 1,
 				},
 			},
 		},

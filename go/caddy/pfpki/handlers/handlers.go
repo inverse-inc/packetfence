@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
@@ -111,16 +110,8 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 }
 
 func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information types.Info, body []byte, action string) *admin_api_audit_log.AdminApiAuditLog {
-	tenantId := 1
-	tenant := req.Header.Get("X-PacketFence-Tenant-Id")
-	if tenant != "" {
-		if val, err := strconv.ParseInt(tenant, 10, 32); err == nil {
-			tenantId = int(val)
-		}
-	}
 	vars := mux.Vars(req)
 	log := &admin_api_audit_log.AdminApiAuditLog{
-		TenantId: tenantId,
 		UserName: req.Header.Get("X-PacketFence-Username"),
 		Action:   action,
 		ObjectId: vars["id"],

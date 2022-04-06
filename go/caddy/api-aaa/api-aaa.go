@@ -31,7 +31,6 @@ func init() {
 type PrettyTokenInfo struct {
 	AdminActions []string   `json:"admin_actions"`
 	AdminRoles   []string   `json:"admin_roles"`
-	Tenant       aaa.Tenant `json:"tenant"`
 	Username     string     `json:"username"`
 	ExpiresAt    time.Time  `json:"expires_at"`
 }
@@ -44,13 +43,6 @@ type ApiAAAHandler struct {
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
 	noAuthPaths        map[string]bool
-}
-
-type Tenant struct {
-	name               string
-	portal_domain_name string
-	domain_name        string
-	id                 int
 }
 
 // Setup the api-aaa middleware
@@ -197,7 +189,6 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		prettyInfo := PrettyTokenInfo{
 			AdminActions: make([]string, len(info.AdminActions())),
 			AdminRoles:   make([]string, len(info.AdminRoles)),
-			Tenant:       info.Tenant,
 			Username:     info.Username,
 			ExpiresAt:    expiration,
 		}

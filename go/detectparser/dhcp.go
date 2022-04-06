@@ -39,7 +39,6 @@ func (s *DhcpParser) Parse(line string) ([]ApiCall, error) {
 						"mac", mac,
 						"ip", ip,
 					},
-					TenantID: s.TenantID,
 				},
 			}, nil
 		}

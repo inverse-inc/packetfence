@@ -19,7 +19,6 @@ import _ "github.com/go-sql-driver/mysql"
 //		ValidFrom:   time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC),
 //		Expiration:  time.Date(2038, 01, 01, 00, 00, 00, 00, time.UTC),
 //		AccessLevel: "Node Manager",
-//		TenantId:    1,
 //	})
 //
 //	auth, ti, err := dab.Authenticate(ctx, "bob", "garauge")
@@ -30,10 +29,6 @@ import _ "github.com/go-sql-driver/mysql"
 //
 //	if len(ti.AdminActions) != 4 {
 //		t.Error("Wrong count of admin roles for user")
-//	}
-//
-//	if ti.TenantId != 1 {
-//		t.Error("Wrong tenant ID for user")
 //	}
 //
 //	if err != nil {
@@ -47,7 +42,6 @@ import _ "github.com/go-sql-driver/mysql"
 //		ValidFrom:   time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC),
 //		Expiration:  time.Date(2000, 01, 01, 00, 00, 00, 00, time.UTC),
 //		AccessLevel: "Node Manager",
-//		TenantId:    1,
 //	})
 //
 //	auth, ti, err = dab.Authenticate(ctx, "bob", "garauge")
@@ -71,7 +65,6 @@ import _ "github.com/go-sql-driver/mysql"
 //		ValidFrom:   time.Date(2037, 12, 31, 0, 0, 0, 0, time.UTC),
 //		Expiration:  time.Date(2038, 01, 01, 00, 00, 00, 00, time.UTC),
 //		AccessLevel: "Node Manager",
-//		TenantId:    1,
 //	})
 //
 //	auth, ti, err = dab.Authenticate(ctx, "bob", "garauge")
@@ -95,7 +88,6 @@ import _ "github.com/go-sql-driver/mysql"
 //		ValidFrom:   time.Date(0, 0, 0, 0, 0, 0, 0, time.UTC),
 //		Expiration:  time.Date(2038, 01, 01, 00, 00, 00, 00, time.UTC),
 //		AccessLevel: "Node Manager",
-//		TenantId:    1,
 //	})
 //
 //	auth, _, err = dab.Authenticate(ctx, "bob", "garauge")
@@ -144,22 +136,13 @@ import _ "github.com/go-sql-driver/mysql"
 //		t.Error("Wrong amount of admin roles")
 //	}
 //
-//	if ti.TenantId != 0 {
-//		t.Error("Wrong tenant")
-//	}
-//
 //	// Test another tenant
 //	ti = dab.buildTokenInfo(ctx, &ApiUser{
 //		AccessLevel: "Node Manager",
-//		TenantId:    1,
 //	})
 //
 //	if len(ti.AdminActions) != 4 {
 //		t.Error("Wrong amount of admin roles")
-//	}
-//
-//	if ti.TenantId != 1 {
-//		t.Error("Wrong tenant")
 //	}
 //
 //	// Test having multiple roles

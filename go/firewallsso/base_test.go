@@ -17,7 +17,6 @@ var sampleInfo = map[string]string{
 	"mac":       "00:11:22:33:44:55",
 	"role":      "default",
 	"status":    "reg",
-	"tenant_id": "1",
 }
 
 func TestStart(t *testing.T) {
@@ -34,7 +33,6 @@ func TestStart(t *testing.T) {
 					Cidr: "192.168.0.0/24",
 				},
 			},
-			TenantID: 1,
 		},
 	}
 	mockfw.init(ctx)
@@ -56,19 +54,12 @@ func TestStart(t *testing.T) {
 		t.Error("SSO succeeded with invalid parameters")
 	}
 
-	// valid role, valid IP, invalid tenant
-	result, _ = ExecuteStart(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "default", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg", "tenant_id": "2"}, 0)
-	if result {
-		t.Error("SSO succeeded with invalid tenant")
-	}
-
 	mockfw = &MockFW{
 		FirewallSSO: FirewallSSO{
 			RoleBasedFirewallSSO: RoleBasedFirewallSSO{
 				Roles: []string{"default", "gaming"},
 			},
 			Networks: []*FirewallSSONetwork{},
-			TenantID: 1,
 		},
 	}
 	mockfw.init(ctx)
@@ -102,7 +93,6 @@ func TestStop(t *testing.T) {
 					Cidr: "192.168.0.0/24",
 				},
 			},
-			TenantID: 1,
 		},
 	}
 	mockfw.init(ctx)
@@ -115,7 +105,7 @@ func TestStop(t *testing.T) {
 	}
 
 	// invalid role, valid IP, so should do it because role doesn't matter in stop
-	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg", "tenant_id": "1"})
+	result, _ = ExecuteStop(ctx, mockfw, map[string]string{"ip": "172.20.0.1", "role": "no-sso-on-that", "mac": "00:11:22:33:44:55", "username": "lzammit", "status": "reg"})
 
 	if !result {
 		t.Error("SSO failed with invalid parameters")
@@ -163,21 +153,6 @@ func TestMatchesNetwork(t *testing.T) {
 			t.Error("Invalid IP address should pass MatchesNetwork if the FW doesn't define any network")
 		}
 	}
-}
-
-func TestMatchesTenant(t *testing.T) {
-	factory := NewFactory(ctx)
-
-	// Test firewall that has 1 or more network assigned to it
-	fw, err := factory.Instantiate(ctx, "test_tenant_1")
-	util.CheckTestError(t, err)
-
-	if err == nil {
-		if !fw.MatchesTenant(ctx, map[string]string{"tenant_id": "1"}) {
-			t.Error("Does not match tenant")
-		}
-	}
-
 }
 
 func TestMatchesRole(t *testing.T) {

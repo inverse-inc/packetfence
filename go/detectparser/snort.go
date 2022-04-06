@@ -39,7 +39,6 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 							"detect":         matches[2],
 						},
 					},
-					TenantID: s.TenantID,
 				},
 			}, nil
 		}
@@ -61,7 +60,6 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 							"detect": "PORTSCAN",
 						},
 					},
-					TenantID: s.TenantID,
 				},
 			}, nil
 		}
@@ -84,7 +82,6 @@ func (s *SnortParser) Parse(line string) ([]ApiCall, error) {
 							"detect": "PORTSCAN",
 						},
 					},
-					TenantID: s.TenantID,
 				},
 			}, nil
 		}

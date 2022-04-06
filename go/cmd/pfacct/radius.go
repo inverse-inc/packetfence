@@ -188,7 +188,7 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 
 		if ok {
 			if ok, err = h.IsNodeTimeBalanceZero(mac); ok {
-				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}); err != nil {
 					logError(ctx, "IsNodeTimeBalanceZero: "+err.Error())
 				}
 			}
@@ -221,7 +221,7 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 				return
 			}
 			if ok {
-				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}); err != nil {
 					logError(ctx, "Notify trigger_security_event: "+err.Error())
 				}
 			}
@@ -246,7 +246,7 @@ func (h *PfAcct) handleBandwidthBalance(r *radius.Request, switchInfo *SwitchInf
 		}
 		if ok {
 			if ok, err = h.IsNodeBandwidthBalanceZero(mac); ok {
-				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}, switchInfo.TenantId); err != nil {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}); err != nil {
 					logError(ctx, "IsNodeBandwidthBalanceZero: "+err.Error())
 				}
 			}
@@ -258,7 +258,7 @@ func (h *PfAcct) handleBandwidthBalance(r *radius.Request, switchInfo *SwitchInf
 			return
 		}
 		if ok {
-			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}, switchInfo.TenantId); err != nil {
+			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}); err != nil {
 				logError(ctx, "Notify trigger_security_event: "+err.Error())
 			}
 		}
@@ -291,7 +291,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request, switchInfo *SwitchInfo)
 		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
 
-	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, switchInfo.TenantId); err != nil {
+	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr); err != nil {
 		logError(ctx, err.Error())
 	}
 }

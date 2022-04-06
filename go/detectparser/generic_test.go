@@ -35,12 +35,10 @@ func TestGenericParse(t *testing.T) {
 				&PfqueueApiCall{
 					Method:   "modify_node",
 					Params:   []string{"1.2.3.4", "1.2.3.5", "aa:bb:cc:dd:ee:ff"},
-					TenantID: 1,
 				},
 				&PfqueueApiCall{
 					Method:   "security_event_log",
 					Params:   []string{"bob", "bob"},
-					TenantID: 1,
 				},
 			},
 		},
@@ -54,7 +52,6 @@ func TestGenericParse(t *testing.T) {
 				Actions: []string{"modify_node: $scrip, $dstip, $mac", "security_event_log: bob, bob"},
 			},
 		},
-		TenantID: 1,
 	})
 	RunParseTests(parser, parseTests, t)
 }

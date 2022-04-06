@@ -44,8 +44,6 @@ func SetHTTPClient(hc *http.Client) {
 	httpClient = hc
 }
 
-const UnsetTenantId = -1
-
 type Client struct {
 	Username string
 	Password string
@@ -93,7 +91,6 @@ func New(ctx context.Context, username, password, proto, host, port string) *Cli
 		Password: password,
 		Host:     host,
 		Port:     port,
-		tenantId: UnsetTenantId,
 		Proto:    proto,
 	}
 }
@@ -251,19 +248,7 @@ func (c *Client) buildRequest(ctx context.Context, method, path, body string) *h
 		r.Header.Set("Authorization", "Bearer "+c.token)
 	}
 
-	if c.tenantId != UnsetTenantId {
-		r.Header.Set("X-PacketFence-Tenant-Id", fmt.Sprintf("%d", c.tenantId))
-	}
-
 	return r
-}
-
-func (c *Client) SetTenantId(ctx context.Context, tenantId int) {
-	c.tenantId = tenantId
-}
-
-func (c *Client) ResetTenantId(ctx context.Context) {
-	c.tenantId = UnsetTenantId
 }
 
 func (c *Client) GetToken(ctx context.Context) string {
