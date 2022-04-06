@@ -694,6 +694,16 @@ netflow_address=127.0.0.1
 # Should mysql-probe be managed by PacketFence?
 mysql-probe=enabled
 
+# services.pfconnector-client
+#
+# Should pfconnector-client be managed by PacketFence?
+pfconnector-client=enabled
+
+# services.pfconnector-server
+#
+# Should pfconnector-server be managed by PacketFence?
+pfconnector-server=enabled
+
 [snmp_traps]
 #
 # snmp_traps.bounce_duration
