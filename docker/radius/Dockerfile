@@ -88,13 +88,13 @@ COPY ./conf/pf.conf /usr/local/pf/conf/pf.conf
 
 COPY ./conf/chi.conf.defaults /usr/local/pf/conf/chi.conf.defaults
 
-COPY ./conf/chi.conf /usr/local/pf/conf/chi.conf
+COPY ./conf/chi.conf.example /usr/local/pf/conf/chi.conf
 
-COPY ./conf/pfconfig.conf /usr/local/pf/conf/pfconfig.conf
+COPY ./conf/pfconfig.conf.example /usr/local/pf/conf/pfconfig.conf
 
 COPY ./conf/pfconfig.conf.defaults /usr/local/pf/conf/pfconfig.conf.defaults
 
-COPY ./conf/log.conf /usr/local/pf/conf/log.conf
+COPY ./conf/log.conf.example /usr/local/pf/conf/log.conf
 
 COPY ./bin/pflogger-packetfence /usr/local/pf/bin/pflogger-packetfence
 
