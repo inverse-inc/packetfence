@@ -29,7 +29,7 @@ run_kaniko:
 DOCKERFILE_DIRS = $(shell find -type f -name "Dockerfile" -printf "%P\n")
 CONTAINER_IMAGES = $(subst /Dockerfile,,$(DOCKERFILE_DIRS))
 
-.PHONY: $(CONTAINER_IMAGES)
+.PHONY: $(CONTAINER_IMAGES) pull_all
 
 # KNK_REGISTRY_USER and KNK_REGISTRY_PASSWORD values
 # are taken from environment
@@ -44,3 +44,9 @@ $(CONTAINER_IMAGES):
 			-e "KNK_REGISTRY_USER" -e "KNK_REGISTRY_PASSWORD" \
 			--volume="$(SRC_ROOT_DIR)":/workspace \
 			-it gcr.io/kaniko-project/executor:debug
+
+pull_all:
+	for img in $(CONTAINER_IMAGES); do \
+		docker pull ghcr.io/inverse-inc/packetfence/$$img:feature-pfconfig-container ; \
+		docker tag ghcr.io/inverse-inc/packetfence/$$img:feature-pfconfig-container local/$$img:11.3 ; \
+	done
