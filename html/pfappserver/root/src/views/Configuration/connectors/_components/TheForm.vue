@@ -20,7 +20,7 @@
     
       <form-group-networks namespace="networks"
         :column-label="$i18n.t('Networks')"
-        :text="$i18n.t('Networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration.')"
+        :text="$i18n.t('Outbound networks for which this connector should be used. When a network matches multiple connectors, a top-down match is performed based on their order in the configuration. This filtering only applies when PacketFence performs outbound traffic to a server or equipment via the connector, not when receiving inbound traffic.')"
       />
 
   </base-form>
