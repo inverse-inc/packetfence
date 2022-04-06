@@ -874,6 +874,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radius-auth-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radius-cli-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
