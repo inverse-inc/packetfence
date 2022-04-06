@@ -28,6 +28,7 @@ import makeSearch from '@/store/factory/search'
 import api from '../_api'
 export const useSearch = makeSearch('connectors', {
   api,
+  sortBy: null, // use natural order (sortable)
   columns: [
     {
       key: 'selected',
@@ -39,14 +40,12 @@ export const useSearch = makeSearch('connectors', {
       label: 'Identifier', // i18n defer
       required: true,
       searchable: true,
-      sortable: true,
       visible: true
     },
     {
       key: 'description',
       label: 'Description', // i18n defer
       searchable: true,
-      sortable: true,
       visible: true
     },
     {
@@ -58,7 +57,12 @@ export const useSearch = makeSearch('connectors', {
       key: 'not_deletable',
       required: true,
       visible: false
-    }
+    },
+    {
+      key: 'not_sortable',
+      required: true,
+      visible: false
+    },
   ],
   fields: [
     {
@@ -71,6 +75,5 @@ export const useSearch = makeSearch('connectors', {
       text: i18n.t('Description'),
       types: [conditionType.SUBSTRING]
     }
-  ],
-  sortBy: null // use natural order (sortable)
+  ]
 })
