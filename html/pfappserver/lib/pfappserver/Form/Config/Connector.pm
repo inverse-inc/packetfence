@@ -22,6 +22,22 @@ has_field 'id' =>
    required => 1,
   );
 
+has_field 'description' =>
+  (
+   type => 'Text',
+   required => 1,
+  );
+
+has_field 'networks' =>
+  (
+   type => 'Repeatable',
+  );
+
+has_field 'networks.contains' =>
+  (
+   type => 'Text',
+  );
+
 has_field 'secret' =>
   (
    type => 'Text',

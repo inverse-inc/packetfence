@@ -21,6 +21,14 @@ const schemaRole = yup.string().nullable().label(i18n.t('Role'))
 
 const schemaRoles = yup.array().ensure().of(schemaRole).label(i18n.t('Roles'))
 
+const schemaNetwork = yup.string().nullable()
+  .required(i18n.t('Network required.'))
+  .isCIDR()
+
+const schemaNetworks = yup.array().ensure()
+  .unique(i18n.t('Duplicate network.'))
+  .of(schemaNetwork)
+
 export default (props) => {
   const {
     id,
@@ -31,11 +39,9 @@ export default (props) => {
   return yup.object().shape({
     id: yup.string()
       .nullable()
-      .required(i18n.t('Name required.'))
-      .connectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name exists.')),
+      .required(i18n.t('Connector ID required.'))
+      .connectorIdentifierNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Connector ID exists.')),
     description: yup.string().nullable().label(i18n.t('Description')),
-    roles_allowed_to_unregister: schemaRoles,
-    device_registration_roles: schemaRoles,
-    device_registration_allowed_devices: schemaRoles
+    networks: schemaNetworks
   })
 }
