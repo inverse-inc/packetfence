@@ -104,7 +104,7 @@ sub perform_dynauth {
     $connection_info->{'nas_port'} ||= $default_port;
     $connection_info->{'timeout'} ||= $default_timeout;
 
-    my $connector_conn = pf::factory::connector->local_connector->dynreverse($connection_info->{'nas_ip'} . ":" . $connection_info->{'nas_port'} . "/udp");
+    my $connector_conn = pf::factory::connector->for_ip($connection_info->{'nas_ip'})->dynreverse($connection_info->{'nas_ip'} . ":" . $connection_info->{'nas_port'} . "/udp");
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
