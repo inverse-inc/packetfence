@@ -72,6 +72,9 @@ check program monitoring-httpd.portal with path "/bin/bash /usr/local/pf/addons/
     # must be failing for a minute before we act
     if status != 0 for 3 cycles then restart
     if 3 restarts within 10 cycles then alert
+[% FOREACH email IN EMAILS %]
+    noalert [% email %]
+[% END %]
 
 CHECK PROCESS packetfence-httpd.webservices MATCHING "pf/var/conf/httpd.conf.d/httpd.webservices"
     group PacketFence
