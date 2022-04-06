@@ -9,23 +9,19 @@
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew">{{ $t('New Connector') }}</b-button>
       </base-search>
-      <b-table ref="tableRef"
+      <base-table-sortable ref="tableRef"
         :busy="isLoading"
         :hover="items.length > 0"
         :items="items"
         :fields="visibleColumns"
-        :sort-by="sortBy"
-        :sort-desc="sortDesc"
-        @sort-changed="setSort"
-        @row-clicked="goToItem"
         class="mb-0"
         show-empty
-        no-local-sorting
-        sort-icon-left
-        fixed
+         fixed
         striped
         selectable
+        @row-clicked="goToItem"
         @row-selected="onRowSelected"
+        @items-sorted="onSorted"
       >
         <template v-slot:empty>
           <slot name="emptySearch" v-bind="{ isLoading }">
@@ -73,7 +69,7 @@
             >{{ $t('Clone') }}</b-button>
           </span>
         </template>
-      </b-table>
+      </base-table-sortable>
       <b-container fluid v-if="selected.length"
         class="mt-3 p-0">
         <b-dropdown variant="outline-primary" toggle-class="text-decoration-none">
@@ -92,7 +88,8 @@ import {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
-  BaseTableEmpty
+  BaseTableEmpty,
+  BaseTableSortable
 } from '@/components/new/'
 
 const components = {
@@ -100,7 +97,8 @@ const components = {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
-  BaseTableEmpty
+  BaseTableEmpty,
+  BaseTableSortable
 }
 
 import { ref, toRefs } from '@vue/composition-api'
@@ -123,7 +121,8 @@ const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
   const {
-    deleteItem
+    deleteItem,
+    sortItems
   } = useStore($store)
 
   const router = useRouter($router)
@@ -145,10 +144,17 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  const onSorted = _items => {
+    items.value = _items
+    sortItems({ items: items.value.map(item => item.id) })
+      .then(() => reSearch())
+  }
+
   return {
     useSearch,
     tableRef,
     onRemove,
+    onSorted,
     onBulkExport,
     ...router,
     ...selected,
