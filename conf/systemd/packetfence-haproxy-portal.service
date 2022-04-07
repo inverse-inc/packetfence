@@ -8,11 +8,8 @@ StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
-#ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
-#ExecReload=/bin/kill -USR2 $MAINPID
 ExecStop=/bin/bash -c "docker stop haproxy-portal ; docker container rm haproxy-portal -f ; echo Stopped"
 Restart=on-failure
-#Successexitstatus=143
 TimeoutStopSec=30
 Slice=packetfence.slice
 
