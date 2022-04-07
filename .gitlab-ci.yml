@@ -514,6 +514,7 @@ build_pfdebian_based_container_devel:
           - "httpd.webservices"
           - "radius"
           - "pfsso"
+          - "pfperl-api"
 
 build_container_devel:
   extends:
@@ -570,6 +571,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "httpd.webservices"
           - "radius"
           - "pfsso"
+          - "pfperl-api"
 
 build_container_branches_and_maintenance:
   extends:
@@ -626,6 +628,7 @@ build_pfdebian_based_container_release:
           - "httpd.webservices"
           - "radius"
           - "pfsso"
+          - "pfperl-api"
 
 build_container_release:
   extends:
