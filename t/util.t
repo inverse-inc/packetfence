@@ -26,13 +26,11 @@ BEGIN {
     @NODE_ID_TESTS = (
         {
             mac => "00:00:00:00:00:00",
-            tenant_id => 1,
-            node_id => (1 << 48),
+            node_id => (0 << 48),
         },
         {
             mac => "aa:00:00:00:00:ff",
-            tenant_id => 2,
-            node_id => (2 << 48) | 0xaa00000000ff,
+            node_id => (0 << 48) | 0xaa00000000ff,
         }
     );
     @MAC2DEC = (
@@ -406,16 +404,15 @@ for my $test (@MAC2DEC) {
 
     for my $test (@NODE_ID_TESTS) {
         my $node_id = $test->{node_id};
-        my $tenant_id = $test->{tenant_id};
         my $mac = $test->{mac};
         is(
-            make_node_id($tenant_id, $mac),
+            make_node_id(0, $mac),
             $node_id,
-            "Convert tenant_id mac ($tenant_id, $mac) to a node_id ($node_id)"
+            "Convert tenant_id mac (0, $mac) to a node_id ($node_id)"
         );
         
         my ($expect_tenant_id, $expected_mac) = split_node_id($node_id);
-        is($expect_tenant_id, $tenant_id, "split_node_id($node_id) tenant_id");
+        is($expect_tenant_id, 0, "split_node_id($node_id) tenant_id");
         is($expected_mac, $mac, "split_node_id($node_id) mac");
     }
 

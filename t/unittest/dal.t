@@ -73,7 +73,7 @@ is_deeply(
             'mac' => $test_mac,
         }
     },
-    "update_params_for_update adds tenant_id"
+    "update_params_for_update"
 );
 
 is_deeply(
@@ -103,7 +103,7 @@ is_deeply(
             'mac' => $test_mac,
         }
     },
-    "update_params_for_upsert adds tenant_id"
+    "update_params_for_upsert"
 );
 
 pf::dal::node->remove_by_id({mac => $test_mac});
