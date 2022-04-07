@@ -7,4 +7,4 @@ COPY ./html ./html
 COPY ./lib ./lib
 COPY ./sbin/pfperl-api ./sbin/pfperl-api
 RUN mkdir -p /usr/local/pf/var/run/ && chmod 0744 /usr/local/pf/var/run/
-ENTRYPOINT /usr/local/pf/sbin/pfperl-api prefork -m production -l http://127.0.0.1:22224 --pid-file /usr/local/pf/var/run/pfperl-api.pid 
+ENTRYPOINT /usr/local/pf/sbin/pfperl-api prefork -m production -l http://0.0.0.0:22224 --pid-file /usr/local/pf/var/run/pfperl-api.pid 
