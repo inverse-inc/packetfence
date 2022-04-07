@@ -108,7 +108,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	}
 
-	url, err := url.Parse("http://127.0.0.1:22224/api/v1/authentication/admin_authentication")
+	url, err := url.Parse("http://host.docker.internal:22224/api/v1/authentication/admin_authentication")
 	sharedutils.CheckError(err)
 	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 
