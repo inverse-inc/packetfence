@@ -123,9 +123,8 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+      FROM node n LEFT JOIN ip4log i USING (mac)
       WHERE
-        n.tenant_id = ? AND
           (
             (end_time != 0 AND end_time <= NOW()) OR
             i.ip IS NULL
@@ -151,9 +150,8 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
+      FROM node n LEFT JOIN ip4log i USING (mac)
       WHERE
-        n.tenant_id = ? AND
       (i.end_time = 0 OR i.end_time > NOW()) AND
         n.mac >= ?
         ORDER BY n.mac
@@ -175,8 +173,8 @@ sub report_db_prepare {
         last_dhcp,
         device_type AS os
       FROM node
-      WHERE tenant_id = ?
-        AND status = 'unreg'
+      WHERE
+        status = 'unreg'
         AND mac >= ?
       ORDER BY mac
       LIMIT ?
@@ -196,9 +194,9 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM node n LEFT JOIN ip4log i USING(tenant_id, mac)
-      WHERE n.tenant_id = ?
-        AND n.status = 'unreg'
+      FROM node n LEFT JOIN ip4log i USING(mac)
+      WHERE
+        n.status = 'unreg'
         AND (i.end_time = 0 OR i.end_time > NOW())
         AND mac >= ?
       ORDER BY mac
@@ -220,8 +218,8 @@ sub report_db_prepare {
         last_dhcp,
         device_type AS os
       FROM node
-      WHERE tenant_id = ?
-        AND status='reg'
+      WHERE
+        status='reg'
         AND mac >= ?
       ORDER BY mac
       LIMIT ?
@@ -241,9 +239,9 @@ sub report_db_prepare {
         last_arp,
         last_dhcp,
         device_type AS os
-      FROM node n LEFT JOIN ip4log i USING (tenant_id, mac)
-      WHERE n.tenant_id = ?
-        AND n.status = 'reg'
+      FROM node n LEFT JOIN ip4log i USING (mac)
+      WHERE
+        n.status = 'reg'
         AND (i.end_time = 0 or i.end_time > NOW())
         AND mac >= ?
       ORDER BY mac
@@ -254,8 +252,6 @@ sub report_db_prepare {
         SELECT device_type AS description, n.dhcp_fingerprint, COUNT(DISTINCT n.mac) AS count, ROUND(COUNT(DISTINCT n.mac)/(SELECT COUNT(1) FROM node) * 100, 1) AS percent
         FROM (node n, ip4log i)
         WHERE n.mac = i.mac
-          AND n.tenant_id = i.tenant_id
-          AND i.tenant_id = ?
           AND i.start_time BETWEEN ? AND ?
         GROUP BY device_type
         ORDER BY percent desc
@@ -269,8 +265,6 @@ sub report_db_prepare {
           ROUND(COUNT(1) / (SELECT COUNT(1) FROM node) * 100, 1) AS percent
         FROM (node n, ip4log i)
         WHERE n.mac = i.mac
-          AND n.tenant_id = i.tenant_id
-          AND i.tenant_id = ?
           AND (i.end_time = 0 OR i.end_time > NOW())
         GROUP BY device_type
         ORDER BY percent desc
@@ -283,7 +277,6 @@ sub report_db_prepare {
           COUNT(1) AS count,
           ROUND(COUNT(1) / (SELECT COUNT(1) FROM node) * 100, 1) AS percent
         FROM node n
-        WHERE n.tenant_id = ?
         GROUP BY device_type
         ORDER BY percent desc
     ]);
@@ -294,7 +287,6 @@ sub report_db_prepare {
         COUNT(1) AS count,
         ROUND(COUNT(1) / (SELECT COUNT(1) FROM node) * 100, 1) AS percent
       FROM node n
-      WHERE tenant_id = ?
       GROUP BY device_class
       ORDER BY percent DESC
     ]);
@@ -307,15 +299,13 @@ sub report_db_prepare {
           SELECT
             COUNT(1)
           FROM node, ip4log
-          WHERE node.tenant_id = ?
-            AND ip4log.mac = node.mac
-            AND ip4log.tenant_id = node.tenant_id
+          WHERE
+            ip4log.mac = node.mac
             AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
         ) * 100, 1) AS percent
       FROM (node n, ip4log i)
-      WHERE n.tenant_id = ?
-        AND i.mac = n.mac
-        AND i.tenant_id = n.tenant_id
+      WHERE
+        i.mac = n.mac
         AND (i.end_time = 0 OR i.end_time > NOW())
       GROUP BY device_class
       ORDER BY percent DESC
@@ -328,8 +318,8 @@ sub report_db_prepare {
         computername,
         user_agent
       FROM node
-      WHERE tenant_id = ?
-        AND device_type IS NULL
+      WHERE
+        device_type IS NULL
         AND dhcp_fingerprint != 0
       ORDER BY dhcp_fingerprint, mac
     ]);
@@ -341,11 +331,10 @@ sub report_db_prepare {
         computername,
         user_agent
       FROM node, ip4log
-      WHERE node.tenant_id = ?
-        AND device_type IS NULL
+      WHERE
+        device_type IS NULL
         AND dhcp_fingerprint != 0
         AND ip4log.mac = node.mac
-        AND ip4log.tenant_id = node.tenant_id
         AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       ORDER BY dhcp_fingerprint, mac
     ]);
@@ -355,8 +344,6 @@ sub report_db_prepare {
         FROM node, ip4log
         WHERE (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
           AND node.mac = ip4log.mac
-          AND node.tenant_id = ip4log.tenant_id
-          AND ip4log.tenant_id = ?
           AND ip4log.end_time BETWEEN ? AND ?
     ]);
 
@@ -364,17 +351,16 @@ sub report_db_prepare {
       SELECT
         *
       FROM node
-      WHERE tenant_id = ?
-        AND (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
+      WHERE 
+        (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
     ]);
 
     $report_statements->{'report_statics_active_sql'} = get_db_handle()->prepare(qq [
       SELECT
         *
       FROM node, ip4log
-      WHERE node.tenant_id = ?
-        AND ip4log.mac = node.mac
-        AND ip4log.tenant_id = node.tenant_id
+      WHERE
+        ip4log.mac = node.mac
         AND (dhcp_fingerprint = "" OR dhcp_fingerprint IS NULL)
         AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
     ]);
@@ -388,11 +374,11 @@ sub report_db_prepare {
         c.description AS security_event
       FROM security_event v
       LEFT JOIN node n
-        ON n.mac = v.mac AND n.tenant_id = v.tenant_id
+        ON n.mac = v.mac
       LEFT JOIN class c
         ON c.security_event_id = v.security_event_id
-      WHERE v.tenant_id = ?
-        AND v.status = "open"
+      WHERE
+        v.status = "open"
       ORDER BY n.pid
     ]);
 
@@ -405,13 +391,12 @@ sub report_db_prepare {
         c.description AS security_event
       FROM (security_event v, ip4log i)
       LEFT JOIN node n
-        ON n.mac = v.mac AND n.tenant_id = v.tenant_id
+        ON n.mac = v.mac
       LEFT JOIN class c
         ON c.security_event_id = v.security_event_id
-      WHERE v.tenant_id = ?
-        AND v.status="open"
+      WHERE
+        v.status="open"
         AND i.mac = n.mac
-        AND i.tenant_id = n.tenant_id
         AND (i.end_time = 0 or i.end_time > NOW())
       ORDER BY n.pid
     ]);
@@ -425,12 +410,12 @@ sub report_db_prepare {
             SELECT
               COUNT(DISTINCT mac)
             FROM locationlog
-            WHERE tenant_id = ?
-              AND start_time BETWEEN ? AND ?
+            WHERE
+              start_time BETWEEN ? AND ?
           ) * 100, 1) AS percent
         FROM locationlog
-        WHERE tenant_id = ?
-          AND start_time BETWEEN ? AND ?
+        WHERE
+           start_time BETWEEN ? AND ?
         GROUP BY connection_type
     ]);
 
@@ -441,14 +426,10 @@ sub report_db_prepare {
           ROUND(COUNT(1)/(
             SELECT
               COUNT(1) FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            WHERE locationlog.tenant_id = ?
+            INNER JOIN node USING (mac)
           ) * 100, 1) AS percent
         FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        WHERE locationlog.tenant_id = ?
+        INNER JOIN node USING (mac)
         GROUP BY connection_type
     ]);
 
@@ -460,20 +441,16 @@ sub report_db_prepare {
             SELECT
               COUNT(1)
             FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            INNER JOIN ip4log
-              ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+            INNER JOIN node USING (mac)
+            INNER JOIN ip4log USING (mac)
+            WHERE
+              (ip4log.end_time = 0 OR ip4log.end_time > NOW())
           ) * 100, 1) AS percent
         FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        INNER JOIN ip4log
-          ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
+        INNER JOIN node USING (mac)
+        INNER JOIN ip4log USING (mac)
+        WHERE
+           (ip4log.end_time = 0 OR ip4log.end_time > NOW())
         GROUP BY connection_type
     ]);
 
@@ -485,16 +462,14 @@ sub report_db_prepare {
             SELECT
               COUNT(1)
             FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND node.status = "reg"
+            INNER JOIN node USING (mac)
+            WHERE
+              node.status = "reg"
           ) * 100, 1) AS percent
         FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND node.status = "reg"
+        INNER JOIN node USING (mac)
+        WHERE
+          node.status = "reg"
         GROUP BY connection_type
     ]);
 
@@ -506,21 +481,17 @@ sub report_db_prepare {
             SELECT
               COUNT(1)
             FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            INNER JOIN ip4log
-              ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND node.status = "reg"
+            INNER JOIN node USING (mac)
+            INNER JOIN ip4log USING (mac)
+            WHERE
+              node.status = "reg"
               AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
           ) * 100, 1) AS percent
         FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        INNER JOIN ip4log
-          ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND node.status = "reg"
+        INNER JOIN node USING (mac)
+        INNER JOIN ip4log USING (mac)
+        WHERE
+          node.status = "reg"
           AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
         GROUP BY connection_type
     ]);
@@ -533,21 +504,17 @@ sub report_db_prepare {
           SELECT
             COUNT(DISTINCT locationlog.mac)
           FROM locationlog
-          INNER JOIN node
-            ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-          INNER JOIN ip4log
-            ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-          WHERE locationlog.tenant_id = ?
-            AND ssid != ""
+          INNER JOIN node USING (mac)
+          INNER JOIN ip4log USING (mac)
+          WHERE
+            ssid != ""
             AND ip4log.start_time BETWEEN ? AND ?
         ) * 100, 1) AS percent
         FROM locationlog
-        INNER JOIN node
-          ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        INNER JOIN ip4log
-          ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-       WHERE locationlog.tenant_id = ?
-        AND ssid != ""
+        INNER JOIN node USING (mac)
+        INNER JOIN ip4log USING (mac)
+       WHERE
+        ssid != ""
         AND ip4log.end_time BETWEEN ? AND ?
        GROUP BY ssid
        ORDER BY nodes
@@ -561,15 +528,12 @@ sub report_db_prepare {
             SELECT
               COUNT(1)
             FROM locationlog
-            INNER JOIN node
-              ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-            WHERE locationlog.tenant_id = ?
-              AND ssid != ""
+            INNER JOIN node USING (mac)
+            WHERE ssid != ""
           ) * 100, 1) AS percent
         FROM locationlog
-           INNER JOIN node ON node.mac=locationlog.mac AND node.tenant_id = locationlog.tenant_id
-        WHERE locationlog.tenant_id = ?
-          AND ssid != ""
+        INNER JOIN node USING (mac)
+        WHERE ssid != ""
         GROUP BY ssid
         ORDER BY nodes
     ]);
@@ -582,21 +546,17 @@ sub report_db_prepare {
           SELECT
             COUNT(1)
           FROM locationlog
-          INNER JOIN node
-            ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-          INNER JOIN ip4log
-            ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-          WHERE locationlog.tenant_id = ?
-            AND ssid != ""
+          INNER JOIN node USING (mac)
+          INNER JOIN ip4log USING (mac)
+          WHERE
+             ssid != ""
             AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
         ) * 100, 1) AS percent
       FROM locationlog
-      INNER JOIN node
-        ON node.mac = locationlog.mac AND node.tenant_id = locationlog.tenant_id
-      INNER JOIN ip4log
-        ON ip4log.mac = node.mac AND ip4log.tenant_id = node.tenant_id
-      WHERE locationlog.tenant_id = ?
-        AND ssid != ""
+      INNER JOIN node USING (mac)
+      INNER JOIN ip4log USING (mac)
+      WHERE
+        ssid != ""
         AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       GROUP BY ssid
       ORDER BY nodes
@@ -610,26 +570,24 @@ sub report_db_prepare {
         SUM(in_bytes) + SUM(out_bytes) AS bytes
       FROM (
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+        WHERE
+          time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
           AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
         UNION ALL
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+        WHERE
+          time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
           AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
       ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
+      LEFT JOIN node USING (mac)
       GROUP BY device_class
       ORDER BY bytes DESC
       LIMIT 25;
@@ -643,26 +601,24 @@ sub report_db_prepare {
         SUM(in_bytes) + SUM(out_bytes) AS bytes
       FROM (
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        WHERE
+          time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
           AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
         UNION ALL
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        WHERE
+          time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
           AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
       ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
+      LEFT JOIN node USING (mac)
       GROUP BY device_class
       ORDER BY bytes DESC
       LIMIT 25;
@@ -680,8 +636,8 @@ sub report_db_prepare {
           in_bytes,
           out_bytes
         FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+        WHERE
+          time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
           AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
         UNION ALL
         SELECT
@@ -689,8 +645,8 @@ sub report_db_prepare {
           in_bytes,
           out_bytes
         FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+        WHERE
+          time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
           AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
       ) `total`
       GROUP BY mac
@@ -710,8 +666,8 @@ sub report_db_prepare {
           in_bytes,
           out_bytes
         FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        WHERE
+          time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
           AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
         UNION ALL
         SELECT
@@ -719,8 +675,8 @@ sub report_db_prepare {
           in_bytes,
           out_bytes
         FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        WHERE
+          time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
           AND time_bucket <= DATE_SUB(NOW(),INTERVAL ? SECOND)
       ) `total`
       GROUP BY mac
@@ -736,26 +692,24 @@ sub report_db_prepare {
         SUM(in_bytes) + SUM(out_bytes) AS bytes
       FROM (
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+        WHERE
+          time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
           AND time_bucket <= LEAST(STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), DATE_SUB(NOW(), INTERVAL ? SECOND))
         UNION ALL
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
+        WHERE
+          time_bucket >= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
           AND time_bucket <= STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s')
       ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
+      LEFT JOIN node USING (mac)
       GROUP BY pid
       ORDER BY bytes DESC
       LIMIT 25;
@@ -769,26 +723,24 @@ sub report_db_prepare {
         SUM(in_bytes) + SUM(out_bytes) AS bytes
       FROM (
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        WHERE
+          time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
           AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
         UNION ALL
         SELECT
-          tenant_id,
           mac,
           in_bytes,
           out_bytes
         FROM bandwidth_accounting_history
-        WHERE tenant_id = ?
-          AND time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
+        WHERE
+          time_bucket >= DATE_SUB(NOW(),INTERVAL ? SECOND)
           AND time_bucket <= DATE_SUB(NOW(), INTERVAL ? SECOND)
       ) `total`
-      LEFT JOIN node USING (tenant_id, mac)
+      LEFT JOIN node USING (mac)
       GROUP BY pid
       ORDER BY bytes DESC
       LIMIT 25;
@@ -809,12 +761,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Reject'
+          WHERE
+            `auth_status` = 'Reject'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Reject'
+        WHERE
+          `auth_status` = 'Reject'
           AND `created_at` BETWEEN ? AND ?
           AND `mac` IS NOT NULL
         GROUP BY 1
@@ -832,12 +784,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Reject'
+          WHERE
+            `auth_status` = 'Reject'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Reject'
+        WHERE
+          `auth_status` = 'Reject'
           AND `created_at` BETWEEN ? AND ?
           AND `ssid` IS NOT NULL
         GROUP BY 1
@@ -855,12 +807,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Reject'
+          WHERE
+            `auth_status` = 'Reject'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Reject'
+        WHERE
+          `auth_status` = 'Reject'
           AND `created_at` BETWEEN ? AND ?
           AND `user_name` IS NOT NULL
         GROUP BY 1
@@ -878,12 +830,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Accept'
+          WHERE
+            `auth_status` = 'Accept'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Accept'
+        WHERE
+          `auth_status` = 'Accept'
           AND `created_at` BETWEEN ? AND ?
           AND `mac` IS NOT NULL
         GROUP BY 1
@@ -901,12 +853,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Accept'
+          WHERE
+            `auth_status` = 'Accept'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Accept'
+        WHERE
+          `auth_status` = 'Accept'
           AND `created_at` BETWEEN ? AND ?
           AND `ssid` IS NOT NULL
         GROUP BY 1
@@ -924,12 +876,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Accept'
+          WHERE
+            `auth_status` = 'Accept'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Accept'
+        WHERE
+          `auth_status` = 'Accept'
           AND `created_at` BETWEEN ? AND ?
           AND `user_name` IS NOT NULL
         GROUP BY 1
@@ -947,12 +899,12 @@ sub report_db_prepare {
           SELECT
             COUNT(1) AS `total`
           FROM `radius_audit_log`
-          WHERE `tenant_id` = ?
-            AND `auth_status` = 'Accept'
+          WHERE
+            `auth_status` = 'Accept'
             AND `created_at` BETWEEN ? AND ?
         ) `x`
-        WHERE `tenant_id` = ?
-          AND `auth_status` = 'Accept'
+        WHERE
+          `auth_status` = 'Accept'
           AND `created_at` BETWEEN ? AND ?
           AND `computer_name` IS NOT NULL
         GROUP BY 1
@@ -966,9 +918,8 @@ sub report_db_prepare {
 
 sub report_os {
     my ($start, $end) = @_;
-    my $tenant  = pf::config::tenant::get_tenant();
-    my @data    = db_data(REPORT, $report_statements, 'report_os_sql', $tenant, $start, $end);
-    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_sql', $tenant, $start, $end));
+    my @data    = db_data(REPORT, $report_statements, 'report_os_sql', $start, $end);
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_sql', $start, $end));
     my $total   = 0;
     my @return_data;
 
@@ -1001,9 +952,8 @@ sub report_os {
 }
 
 sub report_os_all {
-    my $tenant  = pf::config::tenant::get_tenant();
-    my @data    = db_data(REPORT, $report_statements, 'report_os_all_sql', $tenant);
-    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_all_sql', $tenant));
+    my @data    = db_data(REPORT, $report_statements, 'report_os_all_sql' );
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -1037,9 +987,8 @@ sub report_os_all {
 }
 
 sub report_os_active {
-    my $tenant  = pf::config::tenant::get_tenant();
-    my @data    = db_data(REPORT, $report_statements, 'report_os_active_sql', $tenant);
-    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_active_sql', $tenant));
+    my @data    = db_data(REPORT, $report_statements, 'report_os_active_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -1074,9 +1023,8 @@ sub report_os_active {
 }
 
 sub report_osclass_all {
-    my $tenant  = pf::config::tenant::get_tenant();
-    my @data    = db_data(REPORT, $report_statements, 'report_osclass_all_sql', $tenant);
-    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_all_sql', $tenant));
+    my @data    = db_data(REPORT, $report_statements, 'report_osclass_all_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -1111,9 +1059,8 @@ sub report_osclass_all {
 }
 
 sub report_osclass_active {
-    my $tenant  = pf::config::tenant::get_tenant();
-    my @data    = db_data(REPORT, $report_statements, 'report_osclass_active_sql', $tenant, $tenant);
-    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_active_sql', $tenant));
+    my @data    = db_data(REPORT, $report_statements, 'report_osclass_active_sql');
+    my $statics = scalar(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
     my $total   = 0;
     my @return_data;
 
@@ -1147,12 +1094,10 @@ sub report_osclass_active {
 
 sub report_active_all {
     my ($search_info) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     return db_data(
         REPORT,
         $report_statements,
         'report_active_all_sql',
-        $tenant,
         $search_info->{cursor} || "00:00:00:00:00:00",
         $search_info->{limit} || 100,
     );
@@ -1160,12 +1105,10 @@ sub report_active_all {
 
 sub report_inactive_all {
     my ($search_info) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     return db_data(
         REPORT,
         $report_statements,
         'report_inactive_all_sql',
-        $tenant,
         $search_info->{cursor} || "00:00:00:00:00:00",
         $search_info->{limit} || 100,
     );
@@ -1173,12 +1116,10 @@ sub report_inactive_all {
 
 sub report_unregistered_active {
     my ($search_info) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     return db_data(
         REPORT,
         $report_statements,
         'report_unregistered_active_sql',
-        $tenant,
         $search_info->{cursor} || "00:00:00:00:00:00",
         $search_info->{limit} || 100,
     );
@@ -1186,30 +1127,25 @@ sub report_unregistered_active {
 
 sub report_unregistered_all {
     my ($search_info) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     return db_data(
         REPORT,
         $report_statements,
         'report_unregistered_all_sql',
-        $tenant,
         $search_info->{cursor} || "00:00:00:00:00:00",
         $search_info->{limit} || 100,
     );
 }
 
 sub report_active_reg {
-    my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_registered_active_sql', $tenant);
+    return db_data(REPORT, $report_statements, 'report_registered_active_sql');
 }
 
 sub report_registered_all {
     my ($search_info) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     return db_data(
         REPORT,
         $report_statements,
         'report_registered_all_sql',
-        $tenant,
         $search_info->{cursor},
         $search_info->{limit},
     );
@@ -1217,40 +1153,33 @@ sub report_registered_all {
 
 sub report_registered_active {
     my ($search_info) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     return db_data(
         REPORT,
         $report_statements,
         'report_registered_active_sql',
-        $tenant,
         $search_info->{cursor} || "00:00:00:00:00:00",
         $search_info->{limit} || 100,
     );
 }
 
 sub report_opensecurity_events_all {
-    my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_opensecurity_events_all_sql', $tenant);
+    return db_data(REPORT, $report_statements, 'report_opensecurity_events_all_sql');
 }
 
 sub report_opensecurity_events_active {
-    my $tenant = pf::config::tenant::get_tenant();
-    return db_data(REPORT, $report_statements, 'report_opensecurity_events_active_sql', $tenant);
+    return db_data(REPORT, $report_statements, 'report_opensecurity_events_active_sql');
 }
 
 sub report_statics_all {
-    my $tenant = pf::config::tenant::get_tenant();
-    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql', $tenant));
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_all_sql'));
 }
 
 sub report_statics_active {
-    my $tenant = pf::config::tenant::get_tenant();
-    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql', $tenant));
+    return translate_connection_type(db_data(REPORT, $report_statements, 'report_statics_active_sql'));
 }
 
 sub report_unknownprints_all {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_unknownprints_all_sql', $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_unknownprints_all_sql');
     foreach my $datum (@data) {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
@@ -1258,8 +1187,7 @@ sub report_unknownprints_all {
 }
 
 sub report_unknownprints_active {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_unknownprints_active_sql', $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_unknownprints_active_sql');
     foreach my $datum (@data) {
         $datum->{'vendor'} = oui_to_vendor( $datum->{'mac'} );
     }
@@ -1268,8 +1196,7 @@ sub report_unknownprints_active {
 
 sub report_connectiontype {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_connectiontype_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_connectiontype_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
 
@@ -1291,8 +1218,7 @@ Reporting - Connections by connection type and user status for all nodes
 =cut
 
 sub report_connectiontype_all {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_connectiontype_all_sql', $tenant, $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_connectiontype_all_sql');
     my $total  = 0;
     my @return_data;
 
@@ -1314,8 +1240,7 @@ Reporting - Connections by connection type and user status for all active nodes
 =cut
 
 sub report_connectiontype_active {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_connectiontype_active_sql', $tenant, $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_connectiontype_active_sql');
     my $total  = 0;
     my @return_data;
 
@@ -1339,8 +1264,7 @@ Reporting - Connections by connection type and user status for all nodes (regist
 =cut
 
 sub report_connectiontypereg_all {
-    my $tenant  = pf::config::tenant::get_tenant();
-    my @data    = db_data(REPORT, $report_statements, 'report_connectiontypereg_all_sql', $tenant, $tenant);
+    my @data    = db_data(REPORT, $report_statements, 'report_connectiontypereg_all_sql');
     my $total   = 0;
     my @return_data;
 
@@ -1364,8 +1288,7 @@ Reporting - Connections by connection type and user status for all active nodes 
 =cut
 
 sub report_connectiontypereg_active {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_connectiontypereg_active_sql', $tenant, $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_connectiontypereg_active_sql');
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1382,8 +1305,7 @@ sub report_connectiontypereg_active {
 
 sub report_ssid {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_ssid_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_ssid_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1404,8 +1326,7 @@ Reporting - Connections by SSID for all nodes regardless of the status
 =cut
 
 sub report_ssid_all {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_ssid_all_sql', $tenant, $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_ssid_all_sql');
     my $total  = 0;
     my @return_data;
 
@@ -1429,8 +1350,7 @@ Reporting - Connections by SSID for all active nodes (reg/unreg)
 =cut
 
 sub report_ssid_active {
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_ssid_active_sql', $tenant, $tenant);
+    my @data   = db_data(REPORT, $report_statements, 'report_ssid_active_sql');
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1451,10 +1371,9 @@ Reporting - OS Class bandwidth usage for a specific period
 
 sub report_osclassbandwidth {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_sql', $start, $end, $bucket_size, $start, $end);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1493,10 +1412,9 @@ Sub that supports a range from now til $range window.
 
 sub _report_osclassbandwidth_with_range {
     my ($range) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_osclassbandwidth_with_range_sql', $range, $bucket_size, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1584,10 +1502,9 @@ Reporting - Node bandwidth usage for a specific period
 
 sub report_nodebandwidth {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_sql', $start, $end, $bucket_size, $start, $end);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1633,10 +1550,9 @@ Sub that supports a range from now til $range window.
 
 sub _report_nodebandwidth_with_range {
     my ($range) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_nodebandwidth_with_range_sql', $range, $bucket_size, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1724,10 +1640,9 @@ Reporting - User bandwidth usage for a specific period
 
 sub report_userbandwidth {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $tenant, $start, $end, $bucket_size, $tenant, $start, $end);
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_sql', $start, $end, $bucket_size, $start, $end);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1766,10 +1681,9 @@ Sub that supports a range from now til $range window.
 
 sub _report_userbandwidth_with_range {
     my ($range) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
     my $bucket_size = $Config{advanced}{accounting_timebucket_size};
 
-    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_with_range_sql', $tenant, $range, $bucket_size, $tenant, $range, $bucket_size);
+    my @data = db_data(REPORT, $report_statements, 'report_userbandwidth_with_range_sql', $range, $bucket_size, $range, $bucket_size);
     my $total_bytes = 0;
     my $total_bytes_in = 0;
     my $total_bytes_out = 0;
@@ -1858,8 +1772,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationfailures_by_mac {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_mac_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_mac_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1888,8 +1801,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationfailures_by_ssid {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_ssid_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_ssid_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1918,8 +1830,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationfailures_by_username {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_username_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationfailures_by_username_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1948,8 +1859,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationsuccesses_by_mac {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_mac_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_mac_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -1978,8 +1888,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationsuccesses_by_ssid {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_ssid_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_ssid_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -2008,8 +1917,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationsuccesses_by_username {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_username_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_username_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
@@ -2038,8 +1946,7 @@ Sub that supports a range from now til $range window.
 
 sub report_topauthenticationsuccesses_by_computername {
     my ($start, $end) = @_;
-    my $tenant = pf::config::tenant::get_tenant();
-    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_computername_sql', $tenant, $start, $end, $tenant, $start, $end);
+    my @data   = db_data(REPORT, $report_statements, 'report_topauthenticationsuccesses_by_computername_sql', $start, $end, $start, $end);
     my $total  = 0;
     my @return_data;
     foreach my $record (@data) {
