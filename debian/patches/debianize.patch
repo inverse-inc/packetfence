@@ -92,19 +92,6 @@ index 8045a372d3..7437d09bae 100644
  ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-db.conf -p /usr/local/pf/var/run/haproxy-db.pid
  ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_db' -e 'pf::services::manager::haproxy_db->new()->generateConfig()'
  ExecReload=/bin/kill -USR2 $MAINPID
-diff --git a/conf/systemd/packetfence-haproxy-portal.service b/conf/systemd/packetfence-haproxy-portal.service
-index 74b556c24d..43d0c3546e 100644
---- a/conf/systemd/packetfence-haproxy-portal.service
-+++ b/conf/systemd/packetfence-haproxy-portal.service
-@@ -6,7 +6,7 @@ Wants=packetfence-config.service
- [Service]
- StartLimitBurst=3
- StartLimitInterval=10
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
- ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
- #ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
- #ExecReload=/bin/kill -USR2 $MAINPID
 diff --git a/conf/systemd/packetfence-httpd.collector.service b/conf/systemd/packetfence-httpd.collector.service
 index 59bbf12796..e06af92d10 100644
 --- a/conf/systemd/packetfence-httpd.collector.service
