@@ -1532,7 +1532,7 @@ CREATE TABLE bandwidth_accounting (
     KEY bandwidth_source_type_time_bucket (source_type, time_bucket),
     KEY bandwidth_last_updated_source_type_time_bucket (last_updated, source_type, time_bucket),
     KEY bandwidth_node_id_unique_session_id_last_updated (node_id, unique_session_id, last_updated),
-    KEY bandwidth_accounting_id_mac_last_updated (mac, last_updated)
+    KEY bandwidth_accounting_mac_last_updated (mac, last_updated)
 );
 
 --
