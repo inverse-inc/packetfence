@@ -54,7 +54,7 @@ options_person_field
 sub options_person_field {
     return [
         map { { label => $_, value => $_ } }
-          grep { $_ ne 'pid' && $_ ne 'tenant_id' }
+          grep { $_ ne 'pid' }
           @{ pf::dal::person->table_field_names }
     ];
 }

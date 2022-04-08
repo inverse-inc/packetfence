@@ -379,13 +379,12 @@ for my $test (@tests) {
     my @sources = exists($test->{sources}) ? @{$test->{sources}} : ();
 
     my ($res, $msg) = pf::authentication::authenticate($test->{params}, @sources);
-    is($res, $test->{expected_auth}->[0], "Test $i authentication result is correct");
-    is($msg, $test->{expected_auth}->[1], "Test $i authentication message is correct");
+    is($res, $test->{expected_auth}[0], "Test $i authentication result is correct");
+    is($msg, $test->{expected_auth}[1], "Test $i authentication message is correct");
 
     my $result = pf::authentication::match2([@sources], $test->{params});
 
     is_deeply($result->{values}, $test->{expected_match}, "Test $i authentication match2 result is correct")
-
 
 }
 

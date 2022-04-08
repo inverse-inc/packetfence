@@ -113,14 +113,6 @@ The current token that was obtained by the login
 
 has token => (is => 'rw');
 
-=head2 tenant_id
-
-The tenant ID to send in the X-PacketFence-Tenant-Id header if any. When sent to undef (default value), it doesn't send it
-
-=cut
-
-has tenant_id => (is => 'rw', default => sub{undef});
-
 use constant REQUEST => 0;
 use constant RESPONSE => 2;
 use constant NOTIFICATION => 2;
@@ -308,17 +300,6 @@ sub url {
 sub build_json_rest_payload {
     my ($self,$args) = @_;
     return encode_json $args;
-}
-
-=head2 reset_tenant_id
-
-Resets the tenant ID of the client
-
-=cut
-
-sub reset_tenant_id {
-    my ($self) = @_;
-    $self->tenant_id(undef);
 }
 
 =head1 AUTHOR

@@ -60,7 +60,6 @@ use pf::security_event;
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use pfconfig::cached_array;
 
-tie our @NetworkLookup, 'pfconfig::cached_array', 'resource::network_lookup';
 
 has 'src_mac' => ('is' => 'ro');
 has 'dest_mac' => ('is' => 'ro');

@@ -47,7 +47,6 @@ use pf::dal::radius_nas;
 use pf::dal;
 use pf::util qw(valid_mac);
 use pf::error qw(is_error);
-use pf::constants qw($DEFAULT_TENANT_ID);
 use pf::cluster;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -171,7 +170,6 @@ sub additional_switches {
             {
                 id            => $_,
                 radiusSecret  => $local_secret,
-                TenantId      => 1,
                 type          => 'PacketFence'
             }
         } (values %{pf::cluster::members_ips($int)}, $cluster_ip);

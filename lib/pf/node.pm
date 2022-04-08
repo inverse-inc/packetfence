@@ -896,7 +896,6 @@ sub node_cleanup {
     }
 
     if ($unreg_time ne "0") {
-        local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
             my $voip = $row->{'voip'};

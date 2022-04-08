@@ -274,10 +274,6 @@ sub _update_from_actions {
         $data,$actions,$Actions::SET_BANDWIDTH_BALANCE,
         'bandwidth_balance',undef
     );
-    _update_field_for_action(
-        $data,$actions,$Actions::SET_TENANT_ID,
-        'tenant_id',undef
-    );
     my @values = grep { $_->{type} eq $Actions::SET_ROLE } @{$actions};
     if (scalar @values > 0) {
         my $role_id = nodecategory_lookup( $values[0]->{value} );
@@ -365,7 +361,6 @@ sub validate_password {
         -columns => [qw(password.pid|pid password.password|password), 'IFNULL(UNIX_TIMESTAMP(valid_from),0)|valid_from', 'IFNULL(UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")),0)|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
         -limit => 1,
-        -no_auto_tenant_id => 1,
     );
 
     my $temppass_record = $iter->next(undef);

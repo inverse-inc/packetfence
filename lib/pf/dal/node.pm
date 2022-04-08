@@ -155,7 +155,6 @@ sub _update_category_ids {
         -columns => [qw(category_id name)],
         -from => 'node_category',
         -where   => {name => { -in => \@names}},
-        -no_auto_tenant_id => 1,
     );
     return $status if is_error($status);
     my $lookup = $sth->fetchall_hashref('name');
@@ -230,7 +229,6 @@ sub _load_locationlog {
           ],
         -from => 'locationlog',
         -where => { mac => $self->mac },
-        -no_auto_tenant_id => 1,
     );
     return $status, undef if is_error($status);
     my $row = $sth->fetchrow_hashref;

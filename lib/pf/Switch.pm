@@ -167,7 +167,6 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
-        '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
