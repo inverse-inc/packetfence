@@ -27,6 +27,7 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
+<<<<<<< HEAD
     $self->{_scoped_by_tenant_id} = 1;
     $self->{child_resources} = [ "resource::RealmReverseLookup" ];
     $self->{ini} = pf::IniFiles->new(
@@ -34,38 +35,16 @@ sub init {
         -import     => pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1),
         -allowempty => 1,
     );
+=======
+    $self->{file}            = $realm_config_file;
+    $self->{added_params}{'-import'} = pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1);
+>>>>>>> 4d9efa7aa3... Remove tenant scoping
 }
 
-sub build {
+
+sub build_child {
     my ($self) = @_;
-    return {
-        map {
-            my $id = $_;
-            $id => $self->build_tenant_sections($id)
-        } $self->tenant_ids()
-    };
-}
-
-sub tenant_ids {
-    my ($self) = @_;
-    return $self->{ini}->Groups();
-}
-
-sub build_tenant_sections {
-    my ($self, $tenant_id) = @_;
-    return [
-        map {
-            my $section = $_;
-            my $name = $section;
-            $name =~ s/^\Q$tenant_id \E//;
-            $name = lc($name);
-        } $self->sections_for_tenant($tenant_id)
-    ];
-}
-
-sub sections_for_tenant {
-    my ($self, $tenant_id) = @_;
-    return $self->{ini}->GroupMembers($tenant_id);
+    return [@{$self->{ordered_sections}}];
 }
 
 =head1 AUTHOR

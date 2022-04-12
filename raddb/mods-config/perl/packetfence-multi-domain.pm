@@ -55,32 +55,27 @@ sub authorize {
     # For debugging purposes only
     #&log_request_attributes;
     
-    my $tenant_data = $multi_domain_constants::DATA->{$RAD_CONFIG{'PacketFence-Tenant-Id'}};
-    my %ConfigRealm = %{$tenant_data->{ConfigRealm}};
-    my @ConfigOrderedRealm = @{$tenant_data->{ConfigOrderedRealm}};
-    my %ConfigDomain = %{$tenant_data->{ConfigDomain}};
-
     # We try to find the realm that's configured in PacketFence
     my $realm_config;
     my $user_name = $RAD_REQUEST{'TLS-Client-Cert-Common-Name'} || $RAD_REQUEST{'User-Name'};
     if ($user_name =~ /^host\/([0-9a-zA-Z-_]+)\.(.*)$/) {
-        if (exists $ConfigRealm{lc($2)}) {
-            $realm_config = $ConfigRealm{lc($2)};
+        if (exists $multi_domain_constants::ConfigRealm{lc($2)}) {
+            $realm_config = $multi_domain_constants::ConfigRealm{lc($2)};
         }
     } elsif (defined $RAD_REQUEST{"Realm"}) {
-        if (exists $ConfigRealm{$RAD_REQUEST{"Realm"}}) {
-            $realm_config = $ConfigRealm{$RAD_REQUEST{"Realm"}};
+        if (exists $multi_domain_constants::ConfigRealm{$RAD_REQUEST{"Realm"}}) {
+            $realm_config = $multi_domain_constants::ConfigRealm{$RAD_REQUEST{"Realm"}};
         }
     }
 
-    if ( !defined($realm_config) && defined($ConfigRealm{"default"}) ) {
-        foreach my $key ( @ConfigOrderedRealm ) {
-            if (defined($ConfigRealm{$key}->{regex}) && $user_name =~ /$ConfigRealm{$key}->{regex}/) {
-                $realm_config = $ConfigRealm{$key};
+    if ( !defined($realm_config) && defined($multi_domain_constants::ConfigRealm{"default"}) ) {
+        foreach my $key ( @multi_domain_constants::ConfigOrderedRealm ) {
+            if (defined($multi_domain_constants::ConfigRealm{$key}->{regex}) && $user_name =~ /$multi_domain_constants::ConfigRealm{$key}->{regex}/) {
+                $realm_config = $multi_domain_constants::ConfigRealm{$key};
             }
         }
         unless (defined $realm_config) {
-            $realm_config = $ConfigRealm{"default"};
+            $realm_config = $multi_domain_constants::ConfigRealm{"default"};
         }
     }
 
@@ -91,7 +86,7 @@ sub authorize {
     if( defined($realm_config) && defined($realm_config->{domain}) ) {
         # We have found this realm in PacketFence. We use the domain associated with it for the authentication
         $RAD_REQUEST{"PacketFence-Domain"} = $realm_config->{domain};
-        $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $ConfigDomain{$realm_config->{domain}}->{ntlmv2_only} ? '--allow-mschapv2' : '';
+        $RAD_REQUEST{"PacketFence-NTLMv2-Only"} = $multi_domain_constants::ConfigDomain{$realm_config->{domain}}->{ntlmv2_only} ? '--allow-mschapv2' : '';
     }
 
 

@@ -1504,24 +1504,15 @@ EOT
 }
 
 sub generate_multi_domain_constants {
-    my $data = {};
-    my ($status, $iter) = pf::dal::tenant->search();
-    if (is_error($status)) {
-        die "Unable to fetch tenants to generate the multi-domain constants";
-    }
-    for my $tenant (@{$iter->all}) {
-        my $tenant_id = $tenant->id;
-        pf::config::tenant::set_tenant($tenant_id);
-        $data->{$tenant_id} = {
-            ConfigRealm => { %ConfigRealm }, 
-            ConfigOrderedRealm => [ @ConfigOrderedRealm ],
-            ConfigDomain => { %ConfigDomain }, 
-        };
-    }
     $Data::Dumper::Purity = 1;
-    my $content = "package multi_domain_constants;\n\n";
-    $content .= "our " . Dumper($data);
-    $content .= "our \$DATA = \$VAR1;\n";
+    my $content = q[
+package multi_domain_constants;
+our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
+];
+    $content .= Data::Dumper->Dump(
+        [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
+        ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
+    );
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
 }
