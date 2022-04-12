@@ -29,7 +29,6 @@ VlanMap = Y
 RoleMap = N
 VpnMap = N
 ExternalPortalEnforcement = N
-TenantId = 1
 
 mode = production
 macSearchesMaxNb = 30
