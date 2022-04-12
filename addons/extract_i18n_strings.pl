@@ -391,7 +391,6 @@ sub extract_modules {
            group_header => undef,
            user_header => undef,
            proxy_addresses => undef,
-           tenant_id => 1,
           });
         $attributes = $source->available_attributes();
 
