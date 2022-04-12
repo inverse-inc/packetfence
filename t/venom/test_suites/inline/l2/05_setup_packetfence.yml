@@ -35,7 +35,6 @@ testcases:
        "not_editable": false,
        "reg_network": null,
        "split_network": null,
-       "tenant_id": 1,
        "type": "inlinel2",
        "vip": null,
        "vlan": null,
@@ -74,7 +73,6 @@ testcases:
        "not_sortable": false,
        "pool_backend": "memory",
        "portal_fqdn": null,
-       "tenant_id": "1",
        "type": "inlinel2"
      }
     headers:

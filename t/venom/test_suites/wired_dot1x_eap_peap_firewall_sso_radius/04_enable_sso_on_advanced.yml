@@ -18,6 +18,5 @@ testcases:
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
       "Content-Type": "application/json"
-      "X-PacketFence-Tenant-Id": "1"
     assertions:
       - result.statuscode ShouldEqual 200

@@ -112,17 +112,6 @@ wireless_switch.description: wireless01
 linux02.tinyproxy.port: "8888"
 
 ################################################################################
-# global_config_multi_tenant test suite specific variables
-################################################################################
-# global tenant
-global_config_multi_tenant.global_tenant.id: 0
-
-global_config_multi_tenant.tenant.name: example
-global_config_multi_tenant.tenant.id: 2
-global_config_multi_tenant.tenant.domain_name: '{{.configurator.domain}}'
-global_config_multi_tenant.tenant.portal_domain_name: '{{.configurator.hostname}}.{{.configurator.domain}}'
-
-################################################################################
 # eap_peap test suites specific variables
 ################################################################################
 # AD user
@@ -569,23 +558,6 @@ pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint: 1,2,3,4
 pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor: test
 # need to be a network not already attached to PacketFence server
 pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
-
-################################################################################
-# pfdhcplistener_multi_tenant test suite specific variables
-################################################################################
-pfdhcplistener_multi_tenant.production_network.subnet: 172.21.2.0
-pfdhcplistener_multi_tenant.production_network.netmask: 255.255.255.0
-pfdhcplistener_multi_tenant.production_network.type: other
-# node11
-pfdhcplistener_multi_tenant.nodes.node11.mac: 33:33:33:33:33:33
-pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded: 33%3A33%3A33%3A33%3A33%3A33
-pfdhcplistener_multi_tenant.nodes.node11.first_ip: 172.21.2.192
-pfdhcplistener_multi_tenant.nodes.node11.second_ip: 172.21.2.193
-pfdhcplistener_multi_tenant.nodes.node11.hostname: node11
-pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint: 1,2,3,4
-pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
-# need to be a network not already attached to PacketFence server
-pfdhcplistener_multi_tenant.nodes.node11.dhcp_server: 10.10.10.1
 
 ################################################################################
 # fingerbank_proxy test suite specific variables
