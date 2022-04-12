@@ -161,6 +161,9 @@ sub list_control_overlayed_namespaces {
     my ($self) = @_;
     my $control_dir = $pfconfig::constants::CONTROL_FILE_DIR;
     my @modules;
+    if(! -d $pfconfig::constants::CONTROL_FILE_DIR) {
+        return @modules;
+    }
     find(
         {   wanted => sub {
                 my $module = $_;
