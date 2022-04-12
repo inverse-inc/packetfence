@@ -51,7 +51,6 @@ type Client struct {
 	Port     string
 	Proto    string
 	token    string
-	tenantId int
 
 	// When set to true, the URI log will be made in debug instead of info
 	URILogDebug bool
