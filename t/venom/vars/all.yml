@@ -546,20 +546,6 @@ wired_dot1x_eap_tls_pki.paths.clients_directory: /root/client_certificates
 wired_dot1x_eap_tls_pki.paths.per_client_directory: '{{.wired_dot1x_eap_tls_pki.paths.clients_directory}}/{{.wired_dot1x_eap_tls_pki.certs.user.cn}}'
 
 ################################################################################
-# pfdhcplistener_single_tenant test suite specific variables
-################################################################################
-# node10
-pfdhcplistener_single_tenant.nodes.node10.mac: 22:22:22:22:22:22
-pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded: 22%3A22%3A22%3A22%3A22%3A22
-pfdhcplistener_single_tenant.nodes.node10.first_ip: 172.20.20.192
-pfdhcplistener_single_tenant.nodes.node10.second_ip: 172.20.20.193
-pfdhcplistener_single_tenant.nodes.node10.hostname: node10
-pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint: 1,2,3,4
-pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor: test
-# need to be a network not already attached to PacketFence server
-pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
-
-################################################################################
 # fingerbank_proxy test suite specific variables
 ################################################################################
 fingerbank_proxy_test_wan_ip: 1.1.1.1
