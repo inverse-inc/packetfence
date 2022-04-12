@@ -224,7 +224,7 @@ sub schema {
     $root_user = quotemeta ($root_user);
     $root_password = quotemeta ($root_password);
     $db = quotemeta ($db);
-    my $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
+    my $mysql_cmd = "/usr/bin/mysql --socket=/var/lib/mysql/mysql.sock -u $root_user -p$root_password $db";
     my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
     eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => quotemeta("-p$root_password")) };
     if ( $@ || !defined($result) ) {
