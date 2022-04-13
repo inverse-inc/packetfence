@@ -72,20 +72,20 @@ sub generateConfig {
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             $ip_cluster = $cluster_ip;
             push @portal_ip, $cluster_ip;
-            my @backend_ip = values %{pf::cluster::members_ips($interface)};
-            if (!@backend_ip) {
-                push @backend_ip, $CONTAINER_INT;
-                push @portal_ip, $CONTAINER_INT;
+            my @backend_hosts = values %{pf::cluster::members_ips($interface)};
+            if (!@backend_hosts) {
+                push @backend_hosts, $Config{services_url}{httpd_portal};
             } else {
-                push @portal_ip, @backend_ip;
+                @backend_hosts = map {"$_:8080"} @backend_hosts;
+                push @portal_ip, @backend_hosts;
             }
-            my $backend_ip_config = '';
-            foreach my $back_ip ( @backend_ip ) {
+            my $backend_hosts_config = '';
+            foreach my $back ( @backend_hosts ) {
                 # cluster specific
-                next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
+                next if($back eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
-                $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:8080 check inter 10s fastinter 2s
+                $backend_hosts_config .= <<"EOT";
+        server $back $back check inter 10s fastinter 2s
 EOT
             }
 
@@ -155,7 +155,7 @@ EOT
 EOT
             }
             $tags{'http'} .= <<"EOT";
-$backend_ip_config
+$backend_hosts_config
 EOT
 
             # IPv6 handling
