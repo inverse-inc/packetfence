@@ -151,9 +151,9 @@ const setup = (props, context) => {
   const findActiveSections = (items, sections) => {
     if (items.constructor === Array) { // ignore Promises
       const { currentRoute: { name: currentName, path: currentPath, query: { query: currentQuery } = {} } = {} } = $router
-      for (let { name: sectionName, path, items } of items) {
-        if (items) {
-          if(findActiveSections(items, [sectionName, ...sections]))
+      for (let { name: sectionName, path, items: _items } of items) {
+        if (_items) {
+          if(findActiveSections(_items, [sectionName, ...sections]))
             break
         }
         else if (path && path instanceof Object) {
