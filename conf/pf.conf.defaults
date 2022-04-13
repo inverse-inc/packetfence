@@ -1412,4 +1412,6 @@ mailserver=
 
 [services_url]
 httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "host.docker.internal:8080") %]
-
+httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "host.docker.internal:8888") %]
+httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "host.docker.internal:8889") %]
+pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "host.docker.internal:22225") %]
