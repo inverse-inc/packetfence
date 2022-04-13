@@ -56,6 +56,9 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
+    $tags{'backend_proxy'} = $Config{services_url}{httpd_dispatcher};
+    $tags{'backend_static'} = $Config{services_url}{httpd_dispatcher_static};
+    $tags{'backend_pki'} = $Config{services_url}{pfpki};
     my $cluster_ip;
     my $ip_cluster;
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
