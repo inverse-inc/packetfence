@@ -210,23 +210,6 @@ index 14288f8464..363dbc4d7c 100644
  Restart=on-failure
  Slice=packetfence.slice
  
-diff --git a/conf/systemd/packetfence-radiusd-load_balancer.service b/conf/systemd/packetfence-radiusd-load_balancer.service
-index 565f08c0a4..fe773f5f1a 100644
---- a/conf/systemd/packetfence-radiusd-load_balancer.service
-+++ b/conf/systemd/packetfence-radiusd-load_balancer.service
-@@ -12,9 +12,9 @@ Type=notify
- WatchdogSec=10
- StartLimitBurst=3
- StartLimitInterval=10
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
--ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
--ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n load_balancer -fm 
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
-+ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -Cxm -lstdout
-+ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n load_balancer -fm
- Restart=on-failure
- Slice=packetfence.slice
- 
 diff --git a/conf/systemd/packetfence-redis_ntlm_cache.service b/conf/systemd/packetfence-redis_ntlm_cache.service
 index 04bcced7b5..8e735efcb0 100644
 --- a/conf/systemd/packetfence-redis_ntlm_cache.service
