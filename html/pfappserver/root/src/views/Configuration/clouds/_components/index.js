@@ -14,6 +14,7 @@ export {
   BaseFormButtonBar                   as FormButtonBar,
 
   BaseFormGroupInput                  as FormGroupIdentifier,
+  BaseFormGroupInput                  as FormGroupTenantId,
   BaseFormGroupInput                  as FormGroupClientId,
   BaseFormGroupInputPassword          as FormGroupClientSecret,
 

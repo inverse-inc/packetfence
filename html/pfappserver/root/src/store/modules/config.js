@@ -1122,7 +1122,7 @@ const actions = {
     }
     if (!state.clouds) {
       commit('CLOUDS_REQUEST')
-      return api.clouds().then(response => {
+      return api.getClouds().then(response => {
         commit('CLOUDS_UPDATED', response.data.items)
         return state.clouds
       })

@@ -29,6 +29,7 @@ export const schema = (props) => {
       .nullable()
       .required(i18n.t('Name required.'))
       .cloudIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Name already exists.')),
+    tenant_id: yup.string().nullable().label(i18n.t('Tenant ID')),
     client_id: yup.string().nullable().label(i18n.t('Client ID')),
     client_secret: yup.string().nullable().label(i18n.t('Client Secret'))
   })
