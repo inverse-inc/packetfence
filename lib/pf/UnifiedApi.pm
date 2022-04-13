@@ -167,6 +167,8 @@ sub before_dispatch_cb {
         }
     );
     set_tenant_id($c)
+    # Aggressive staleness for pfconfig when using pfperl-api
+    $pfconfig::constants::LAST_TOUCH_CACHE_STALENESS = 0;
 }
 
 sub setup_api_v1_routes {
