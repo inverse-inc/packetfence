@@ -536,6 +536,9 @@ INSERT INTO sms_carrier
 VALUES
     ('RingRing', '%s@smsemail.be', now());
 
+\! echo "Removing cached realm search for all users...";
+DELETE FROM user_preference WHERE id='roles::defaultSearch';
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
