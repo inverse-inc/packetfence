@@ -25,7 +25,7 @@ Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
 
 Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
 
-Readonly::Scalar our $LAST_TOUCH_CACHE_STALENESS => 5;
+our $LAST_TOUCH_CACHE_STALENESS = 5;
 
 =head1 AUTHOR
 
