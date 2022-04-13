@@ -64,7 +64,7 @@ sub ip2mac {
     my $mac;
 
     # TODO: Special case that need to be documented
-    if ($ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip) || any{ $_ eq $ip } portal_hosts) {
+    if ($ip eq "100.64.0.1" || $ip eq "127.0.0.1" || (ref($management_network) && $management_network->{'Tip'} eq $ip) || any{ $_ eq $ip } portal_hosts) {
         return ( pf::util::clean_mac("00:11:22:33:44:55") );
     }
 
