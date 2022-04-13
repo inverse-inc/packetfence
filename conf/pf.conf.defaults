@@ -1410,3 +1410,6 @@ subject_prefix=
 configurations=packetfence,os-checks
 mailserver=
 
+[services_url]
+httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "host.docker.internal:8080") %]
+
