@@ -65,11 +65,6 @@ export const filters = {
     text: i18n.t('Switch Port'),
     types: [pfFieldType.SUBSTRING]
   },
-  tenant: {
-    value: 'tenant',
-    text: i18n.t('Tenant'),
-    types: [pfFieldType.TENANT]
-  },
   time: {
     value: 'time',
     text: i18n.t('Time period'),

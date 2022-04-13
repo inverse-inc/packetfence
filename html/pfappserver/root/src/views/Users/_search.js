@@ -1,5 +1,4 @@
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
-import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import makeSearch from '@/store/factory/search'
 import api from './_api'
 
@@ -10,13 +9,6 @@ export const useSearch = makeSearch('users', {
       key: 'selected',
       thStyle: 'width: 40px;', tdClass: 'text-center',
       locked: true
-    },
-    {
-      key: 'tenant_id',
-      label: 'Tenant', // i18n defer
-      searchable: false,
-      sortable: true,
-      formatter: formatter.tenantId
     },
     {
       key: 'pid',
@@ -228,11 +220,6 @@ export const useSearch = makeSearch('users', {
     }
   ],
   fields: [
-    {
-      value: 'tenant_id',
-      text: 'Tenant', // i18n defer
-      types: [conditionType.TENANT]
-    },
     {
       value: 'pid',
       text: 'PID', // i18n defer

@@ -18,10 +18,6 @@
       :column-label="$i18n.t('Alert pipe')"
     />
 
-    <form-group-tenant-identifier namespace="tenant_id"
-      :column-label="$i18n.t('Tenant')"
-    />
-
     <form-group-rules namespace="rules"
       :column-label="$i18n.t('Rules')"
     />
@@ -38,7 +34,6 @@ import {
   FormGroupPath,
   FormGroupRules,
   FormGroupStatus,
-  FormGroupTenantIdentifier,
   FormGroupTest
 } from './'
 
@@ -49,7 +44,6 @@ const components = {
   FormGroupPath,
   FormGroupRules,
   FormGroupStatus,
-  FormGroupTenantIdentifier,
   FormGroupTest
 }
 

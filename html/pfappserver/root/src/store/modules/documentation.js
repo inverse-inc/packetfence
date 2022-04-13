@@ -180,8 +180,8 @@ const mutations = {
   SET_HASH: (state, hash) => {
     Vue.set(state, 'hash', hash)
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

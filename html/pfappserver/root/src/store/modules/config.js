@@ -169,8 +169,8 @@ const api = {
   getRadiusTlss () {
     return apiCall({ url: 'config/radiusd/tls_profiles', method: 'get' })
   },
-  getRealms (tenantId) {
-    return apiCall({ url: 'config/realms', method: 'get', headers: { 'X-PacketFence-Tenant-Id': tenantId } })
+  getRealms () {
+    return apiCall({ url: 'config/realms', method: 'get' })
   },
   getRemoteConnectionProfiles () {
     return apiCall({ url: 'config/remote_connection_profiles', method: 'get' })
@@ -213,9 +213,6 @@ const api = {
   },
   getSyslogParsers () {
     return apiCall({ url: 'config/syslog_parsers', method: 'get' })
-  },
-  getTenants () {
-    return apiCall({ url: 'tenants', method: 'get', params: { limit: 1000 } })
   },
   getTrafficShapingPolicies () {
     return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
@@ -379,8 +376,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     syslogForwardersStatus: '',
     syslogParsers: false,
     syslogParsersStatus: '',
-    tenants: false,
-    tenantsStatus: '',
     trafficShapingPolicies: false,
     trafficShapingPoliciesStatus: '',
     wrixLocations: false,
@@ -608,9 +603,6 @@ const getters = {
   isLoadingSyslogParsers: state => {
     return state.syslogParsersStatus === types.LOADING
   },
-  isLoadingTenants: state => {
-    return state.tenantsStatus === types.LOADING
-  },
   isLoadingTrafficShapingPolicies: state => {
     return state.trafficShapingPoliciesStatus === types.LOADING
   },
@@ -706,12 +698,6 @@ const getters = {
       .map((item) => {
         return { value: item.id, text: item.description }
       })
-  },
-  tenantsList: state => {
-    if (!state.tenants) return []
-    return state.tenants.map((item) => {
-      return { value: item.id, text: item.name }
-    })
   },
   securityEventsList: state => {
     return helpers.sortSecurityEvents(state.securityEvents).filter(securityEvent => securityEvent.enabled === 'Y').map((item) => {
@@ -1498,18 +1484,18 @@ const actions = {
       return Promise.resolve(state.radiusTlss)
     }
   },
-  getRealms: ({ state, getters, commit }, tenantId) => {
+  getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
-      return Promise.resolve(state.realms[tenantId])
+      return Promise.resolve(state.realms)
     }
-    if (!state.realms[tenantId]) {
-      commit('REALMS_REQUEST', tenantId)
-      return api.getRealms(tenantId).then(response => {
-        commit('REALMS_UPDATED', { tenantId, items: response.data.items })
-        return state.realms[tenantId]
+    if (!state.realms) {
+      commit('REALMS_REQUEST')
+      return api.getRealms().then(response => {
+        commit('REALMS_UPDATED', response.data.items)
+        return state.realms
       })
     } else {
-      return Promise.resolve(state.realms[tenantId])
+      return Promise.resolve(state.realms)
     }
   },
   resetRealms: ({ state, commit }) => {
@@ -1708,25 +1694,6 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.syslogParsers)
-    }
-  },
-  getTenants: ({ state, getters, commit }) => {
-    if (getters.isLoadingTenants) {
-      return Promise.resolve(state.tenants)
-    }
-    if (acl.$can('read', 'system')) {
-      if (!state.tenants) {
-        commit('TENANTS_REQUEST')
-        return api.getTenants().then(response => {
-          commit('TENANTS_UPDATED', response.data.items)
-          return state.tenants
-        })
-      } else {
-        return Promise.resolve(state.tenants)
-      }
-    } else {
-      commit('TENANTS_UPDATED', [])
-      return state.tenants
     }
   },
   getTrafficShapingPolicies: ({ state, getters, commit }) => {
@@ -2151,13 +2118,13 @@ const mutations = {
     state.radiusTlss = eaps
     state.radiusTlssStatus = types.SUCCESS
   },
-  REALMS_REQUEST: (state, tenantId) => {
-    if (!state.realms[tenantId])
-      Vue.set(state.realms, tenantId, [])
+  REALMS_REQUEST: (state) => {
+    if (!state.realms)
+      Vue.set(state, 'realms', [])
     state.realmsStatus = types.LOADING
   },
-  REALMS_UPDATED: (state, { tenantId, items }) => {
-    Vue.set(state.realms, tenantId, items)
+  REALMS_UPDATED: (state, items) => {
+    Vue.set(state, 'realms', items)
     state.realmsStatus = types.SUCCESS
   },
   REALMS_RESET: (state) => {
@@ -2257,13 +2224,6 @@ const mutations = {
     state.syslogParsers = syslogParsers
     state.syslogParsersStatus = types.SUCCESS
   },
-  TENANTS_REQUEST: (state) => {
-    state.tenantsStatus = types.LOADING
-  },
-  TENANTS_UPDATED: (state, tenants) => {
-    state.tenants = tenants
-    state.tenantsStatus = types.SUCCESS
-  },
   TRAFFIC_SHAPING_POLICIES_REQUEST: (state) => {
     state.trafficShapingPoliciesStatus = types.LOADING
   },
@@ -2278,8 +2238,8 @@ const mutations = {
     state.wrixLocations = wrixLocations
     state.wrixLocationsStatus = types.SUCCESS
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

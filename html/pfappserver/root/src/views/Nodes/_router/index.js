@@ -72,7 +72,7 @@ const route = {
         store.dispatch('$_nodes/exists', to.params.mac).then(() => {
           next()
         }).catch(() => { // `mac` does not exist
-          store.dispatch('notification/danger', { message: i18n.t('Node <code>{mac}</code> does not exist or is not available for this tenant.', to.params) })
+          store.dispatch('notification/danger', { message: i18n.t('Node <code>{mac}</code> does not exist.', to.params) })
           next({ name: 'nodeSearch' })
         })
       },

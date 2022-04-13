@@ -63,7 +63,6 @@ export {
   BaseFormGroupInput                      as FormGroupSnmpUserNameRead,
   BaseFormGroupChosenOne                  as FormGroupSnmpVersion,
   BaseFormGroupChosenOne                  as FormGroupSnmpVersionTrap,
-  BaseFormGroupChosenOne                  as FormGroupTenantIdentifier,
   BaseFormGroupType                       as FormGroupType,
   BaseFormGroupInput                      as FormGroupUplink,
   BaseFormGroupToggleStaticDynamicDefault as FormGroupUplinkDynamic,

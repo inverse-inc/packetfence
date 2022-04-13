@@ -10,11 +10,6 @@
       :disabled="!isNew && !isClone"
     />
 
-    <form-group-tenant-id namespace="tenant_id"
-      :column-label="$i18n.t('The tenant ID of the intune service')"
-      :text="$i18n.t('Define the tenant ID defined in the Azure admin portal.')"
-    />
-
     <form-group-client-id namespace="client_id"
       :column-label="$i18n.t('The client ID of the intune service')"
       :text="$i18n.t('Define the client ID defined in the Azure admin portal.')"
@@ -31,7 +26,6 @@
 import { BaseForm } from '@/components/new/'
 import {
   FormGroupIdentifier,
-  FormGroupTenantId,
   FormGroupClientId,
   FormGroupClientSecret,
 } from './'
@@ -40,7 +34,6 @@ const components = {
   BaseForm,
 
   FormGroupIdentifier,
-  FormGroupTenantId,
   FormGroupClientId,
   FormGroupClientSecret,
 }

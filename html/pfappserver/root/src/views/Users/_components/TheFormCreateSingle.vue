@@ -11,19 +11,7 @@
         :text="$t('Overwrite the username (PID) if it already exists.')"
       />
 
-      <!--- pid w/ domain_name -->
-      <form-group-pid v-if="domainName"
-        namespace="pid"
-        :column-label="$i18n.t('Username (PID)')"
-        :text="$t('The username to use for login to the captive portal. The tenants domain_name will be appended to the username.')"
-      >
-        <template v-slot:append>
-          <b-button disabled variant="link" v-b-tooltip.hover.top.d300 :title="$t('Domain Name will be appended.')">{{ domainName }}</b-button>
-        </template>
-      </form-group-pid>
-
-      <!-- pid wo/ domain_name -->
-      <form-group-pid v-else
+      <form-group-pid
         namespace="pid"
         :column-label="$i18n.t('Username (PID)')"
         :text="$t('The username to use for login to the captive portal.')"
@@ -275,11 +263,6 @@ const setup = (props, context) => {
     )
   )
 
-  const domainName = computed(() => {
-    const { domain_name = null } = $store.getters['session/tenantMask'] || {}
-    return domain_name
-  })
-
   const onClose = () => {
     $router.push({ name: 'users' })
   }
@@ -290,8 +273,6 @@ const setup = (props, context) => {
       return
     showPreviewModal.value = false
     const _form = form.value
-    if (domainName.value) // append domainName to pid when available (tenant)
-        _form.pid = `${_form.pid}@${domainName.value}`
     $store.dispatch('$_users/createUser', _form).then(() => {
       $store.dispatch('$_users/createPassword', Object.assign({ quiet: true }, _form)).then(() => {
         $store.commit('$_users/CREATED_USERS_REPLACED', [_form])
@@ -310,7 +291,6 @@ const setup = (props, context) => {
     schema,
     isLoading,
     isValid,
-    domainName,
     onClose,
     onCreate,
     onReset,

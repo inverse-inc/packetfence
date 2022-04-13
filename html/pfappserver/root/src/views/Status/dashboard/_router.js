@@ -29,7 +29,6 @@ export default [
         next()
     },
     meta: {
-      can: 'master tenant',
       isFailRoute: true
     }
   }

@@ -42,7 +42,7 @@ export default [
       store.dispatch('$_admin_api_audit_logs/getItem', to.params.id).then(() => {
         next()
       }).catch(() => { // `mac` does not exist
-        store.dispatch('notification/danger', { message: i18n.t('Admin Audit Log <code>{id}</code> does not exist or is not available for this tenant.', to.params) })
+        store.dispatch('notification/danger', { message: i18n.t('Admin Audit Log <code>{id}</code> does not exist.', to.params) })
         next({ name: 'admin_api_audit_logs' })
       })
     },

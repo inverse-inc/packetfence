@@ -21,11 +21,6 @@
           :column-label="$i18n.t('Description')"
         />
 
-        <form-group-tenant-identifier namespace="TenantId"
-          :column-label="$i18n.t('Tenant')"
-          :text="$i18n.t('The tenant associated to this switch entry. Single tenant deployments should never have to modify this value.')"
-        />
-
         <form-group-type namespace="type"
           :column-label="$i18n.t('Type')"
         />
@@ -418,7 +413,6 @@ import {
   FormGroupSnmpUserNameRead,
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
-  FormGroupTenantIdentifier,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,
@@ -488,7 +482,6 @@ const components = {
   FormGroupSnmpUserNameRead,
   FormGroupSnmpVersion,
   FormGroupSnmpVersionTrap,
-  FormGroupTenantIdentifier,
   FormGroupToggleAccessListMap,
   FormGroupToggleRoleMap,
   FormGroupToggleVpnMap,

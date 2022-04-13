@@ -344,11 +344,6 @@ export const importFields = [
 
 export const nodeFields = [
   {
-    key: 'tenant_id',
-    label: i18n.t('Tenant'),
-    sortable: true
-  },
-  {
     key: 'status',
     label: i18n.t('Status'),
     sortable: true,

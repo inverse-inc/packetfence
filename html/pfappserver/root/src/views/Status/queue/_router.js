@@ -6,7 +6,6 @@ export default [
     name: 'statusQueue',
     component: TheView,
     meta: {
-      can: 'master tenant',
       isFailRoute: true
     }
   }

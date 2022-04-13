@@ -12,7 +12,7 @@ export const useSearch = makeSearch('statusNetwork', {
     computername:         'Computer Name',
     device_class:         'Device Class',
     device_manufacturer:  'Device Manufacturer',
-    device_type:          'Debice Type',
+    device_type:          'Device Type',
     device_version:       'Device Version',
     'ip4log.ip':          'IPv4 Address',
     'locationlog.ssid':   'SSID',
@@ -23,11 +23,6 @@ export const useSearch = makeSearch('statusNetwork', {
     key, label, searchable: true
   })),
   fields: [
-    {
-      value: 'tenant_id',
-      text: 'Tenant', // i18n defer
-      types: [conditionType.INTEGER]
-    },
     {
       value: 'status',
       text: 'Status', // i18n defer

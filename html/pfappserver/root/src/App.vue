@@ -40,20 +40,6 @@
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
-          <b-nav-item-dropdown right v-if="tenant && tenant.id === 0">
-            <template v-slot:button-content>
-              <icon name="layer-group"></icon> {{ tenant_mask_name }}
-            </template>
-            <b-dropdown-header>{{ $t('Tenants') }}</b-dropdown-header>
-            <b-dropdown-item-button v-for="tenant in tenants" :key="tenant.id"
-              :active="+tenant_id_mask === +tenant.id"
-              :disabled="+tenant_id_mask === 0 && +tenant.id === 0"
-              @click="setTenantIdMask(tenant.id)"
-            >{{ tenant.name }}</b-dropdown-item-button>
-          </b-nav-item-dropdown>
-          <b-nav-text v-else-if="tenant">
-            <icon name="layer-group"></icon> {{ tenant.name }}
-          </b-nav-text>
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
@@ -166,24 +152,6 @@ const setup = (props, context) => {
     }
     return warnings
   })
-
-  const tenants = computed(() => $store.state.session.tenants)
-  const tenant = computed(() => $store.state.session.tenant)
-  const tenant_id_mask = computed(() => $store.getters['session/tenantIdMask'])
-  const tenant_mask_name = computed(() => {
-    const tenant = tenants.value.find(tenant => {
-      return +tenant.id === +tenant_id_mask.value
-    })
-    const { name } = tenant || {}
-    return name || i18n.t('Unknown')
-  })
-  const setTenantIdMask = (tenant_id) => {
-    if (tenant_id === tenant_id_mask.value)
-      $store.dispatch('session/setTenantIdMask', tenant.value.id) // reset to default
-    else
-      $store.dispatch('session/setTenantIdMask', tenant_id)
-    $router.push('/reset') // reset
-  }
 
   const apiOK = computed(() => $store.state.session.api)
   const chartsOK = computed(() => $store.state.session.charts)
@@ -330,13 +298,6 @@ const setup = (props, context) => {
     documentationViewerClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
-
-    // tenant
-    tenants,
-    tenant,
-    tenant_id_mask,
-    tenant_mask_name,
-    setTenantIdMask,
   }
 }
 
