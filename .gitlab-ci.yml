@@ -540,6 +540,7 @@ build_radius_based_container_devel:
           - "radius-auth"
           - "radius-acct"
           - "radius-cli"
+          - "radius-load-balancer"
 
 # branches and maintenance
 build_pfdebian_container_branches_and_maintenance:
@@ -597,6 +598,7 @@ build_radius_based_container_branches_and_maintenance:
           - "radius-auth"
           - "radius-acct"
           - "radius-cli"
+          - "radius-load-balancer"
 
 # release
 build_pfdebian_container_release:
@@ -654,6 +656,7 @@ build_radius_based_container_release:
           - "radius-auth"
           - "radius-acct"
           - "radius-cli"
+          - "radius-load-balancer"
 
 ### build_img_docker jobs
 # EL8

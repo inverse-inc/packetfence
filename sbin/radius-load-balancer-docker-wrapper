@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /usr/local/pf/docker/systemd-service
+
+name=radius-load-balancer
+
+args=`base_args $name`
+args="$args --env-file /usr/local/pf/docker/$name/localdev.env --mount type=bind,source=/usr/local/pf/conf/log.conf.d/,target=/usr/local/pf/conf/log.conf.d/ --mount type=bind,source=/usr/local/pf/raddb/,target=/usr/local/pf/raddb/ -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock --device /dev/fuse --cap-add=SYS_ADMIN --security-opt apparmor:unconfined -p 100.64.0.1:1812:1812/udp"
+
+run $name "$args"
