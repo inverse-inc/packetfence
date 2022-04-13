@@ -15,7 +15,7 @@ linelog {
 	#
 	#  If the filename is "syslog", then the log messages will
 	#  go to syslog.
-	filename = syslog
+	filename = stdout
 	#filename = ${logdir}/linelog
 
 	#
@@ -136,7 +136,7 @@ linelog log_accounting {
 	#
 	format = ""
 
-	filename = syslog
+	filename = stdout
 
 	permissions = 0600
 
