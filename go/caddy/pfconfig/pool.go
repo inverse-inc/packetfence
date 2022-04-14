@@ -69,6 +69,7 @@ func (h PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, err
 	id, err := pfconfigdriver.PfconfigPool.ReadLock(r.Context())
 	if err == nil {
 		defer pfconfigdriver.PfconfigPool.ReadUnlock(r.Context(), id)
+		pfconfigdriver.RefreshLastTouchCache(r.Context())
 
 		// We launch the refresh job once, the first time a request comes in
 		// This ensures that the pool will run with a context that represents a request (log level for instance)

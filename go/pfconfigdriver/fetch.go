@@ -432,3 +432,8 @@ func GetClusterSummary(ctx context.Context) ClusterSummary {
 
 	return *clusterSummary
 }
+
+func RefreshLastTouchCache(ctx context.Context) {
+	fqdn := &FQDN{}
+	FetchDecodeSocket(ctx, fqdn)
+}

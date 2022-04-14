@@ -791,3 +791,11 @@ type Cloud struct {
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 map[string]interface{}
 }
+
+type FQDN struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::fqdn"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 string
+}
