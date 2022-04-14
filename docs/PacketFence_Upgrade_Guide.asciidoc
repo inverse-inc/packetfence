@@ -280,8 +280,28 @@ NOTE: This step is optional
 
 In order to have Monit configuration upgraded, you need to:
 
-. <<PacketFence_Installation_Guide.asciidoc#_generateregenerate_the_monit_configuration,Regenerate Monit configuration>>
-. <<PacketFence_Installation_Guide.asciidoc#_enable_and_start_monit,Enable and start monit>> if you stopped it at beginning of upgrade
+. Regenerate Monit configuration
+
+.For PacketFence versions prior to v11.1.0
+[source,bash]
+----
+/usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
+----
+
+.For PacketFence versions v11.1.0 and later
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd generatemonitconfig
+----
+
+. Enable and start monit (if you stopped it at beginning of upgrade):
+
+[source,bash]
+----
+systemctl enable monit
+systemctl start monit
+----
+
 . Restart rsyslog:
 
 [source,bash]
@@ -1132,10 +1152,7 @@ In this procedure, the 3 nodes will be named A, B and C and they are in this ord
 
 ===== Backups
 
-First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using:
-
-* <<PacketFence_Upgrade_Guide.asciidoc#_database_backup,Database backup instructions>>
-* <<PacketFence_Upgrade_Guide.asciidoc#_packetfence_configurations_and_codebase_backup,PacketFence configurations and codebase backup instructions>>
+First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using <<PacketFence_Upgrade_Guide.asciidoc#_database_and_configurations_backup,database and configurations backup instructions>>
 
 ===== Disabling the auto-correction of configuration
 
