@@ -53,6 +53,7 @@ use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
 use Linux::Systemd::Daemon 'sd_ready';
+use pfconfig::refresh_last_touch_cache;
 
 
 # initialization
@@ -311,6 +312,7 @@ sub _run_task {
         pf::CHI::Request::clear_all();
         pf::dal->reset_tenant();
         pf::log::reset_log_context();
+        refresh_last_touch_cache();
         eval {
             #reload all cached configs before running the task
             $task->($consumer, $parameters);
