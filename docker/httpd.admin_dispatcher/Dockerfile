@@ -1,45 +1,26 @@
 ARG GO_VERSION
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM inverseinc/pfbuild-debian-bullseye:latest  
+FROM golang:${GO_VERSION}
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./config.mk /usr/local/pf/config.mk
-COPY ./html /usr/local/pf/html
-COPY ./docs /usr/local/pf/docs
-COPY ./src /usr/local/pf/src
-COPY ./config.mk /usr/local/pf/config.mk
-COPY ./Makefile /usr/local/pf/Makefile
 RUN cd /usr/local/pf/go/ && \
-    make pfhttpd
-RUN cd /usr/local/pf/html/pfappserver/root && \
-    make vendor  && \
-    make light-dist
-# Documentation
-RUN cd /usr/local/pf && \
-    make html 
-# install html
-RUN install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs && \
-    for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
-      install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs/; \
-    done
-# images
-RUN make DESTDIR=$(CURDIR)/debian/packetfence-doc images
-
-# html_install
-RUN install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root && \
-    for i in `find 'html/pfappserver/root/dist' -type f`; do \
-      install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
-    done
+    make pfhttpd >/dev/null || make pfhttpd && \
+    make httpdispatcher
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
+COPY ./html /usr/local/pf/html
+COPY ./docs /usr/local/pf/docs
 COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
-COPY --from=0 /usr/local/pf/html /usr/local/pf/html
-COPY --from=0 /usr/local/pf/docs /usr/local/pf/docs
-
+RUN apt -qq update && \
+    apt install -y -qq nodejs npm && \
+    cd /usr/local/pf/html/pfappserver/root && \
+    make vendor >/dev/null && \
+    make light-dist >/dev/null
 ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf -log-name httpd.admin_dispatcher
