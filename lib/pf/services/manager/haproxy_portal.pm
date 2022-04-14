@@ -56,9 +56,20 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
-    $tags{'backend_proxy'} = $Config{services_url}{httpd_dispatcher};
-    $tags{'backend_static'} = $Config{services_url}{httpd_dispatcher_static};
-    $tags{'backend_pki'} = $Config{services_url}{pfpki};
+
+    my %backend_tags = (
+        backend_proxy => "httpd_dispatcher",
+        backend_static => "httpd_dispatcher_static",
+        backend_pki => "pfpki",
+        backend_portal => "httpd_portal",
+    );
+    while(my ($tag, $conf_key) = each(%backend_tags)) {
+        my $u = URI->new($Config{services_url}{$conf_key});
+        die "services_url.$conf_key doesn't use the http scheme: $Config{services_url}{$conf_key}" if($u->scheme ne "http");
+
+        $tags{$tag} = $u->host . ":" . $u->port;
+    }
+
     my $cluster_ip;
     my $ip_cluster;
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
@@ -77,7 +88,8 @@ sub generateConfig {
             push @portal_ip, $cluster_ip;
             my @backend_hosts = values %{pf::cluster::members_ips($interface)};
             if (!@backend_hosts) {
-                push @backend_hosts, $Config{services_url}{httpd_portal};
+                my $portal_backend = URI->new($Config{services_url}{httpd_portal});
+                push @backend_hosts, $tags{backend_portal};
             } else {
                 @backend_hosts = map {"$_:8080"} @backend_hosts;
                 push @portal_ip, @backend_hosts;
