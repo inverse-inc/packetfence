@@ -701,7 +701,6 @@ var directives = []string{
 	"internal",
 	"pprof",
 	"expvar",
-	"push",
 	"datadog",    // github.com/payintech/caddy-datadog
 	"prometheus", // github.com/miekg/caddy-prometheus
 	"templates",
