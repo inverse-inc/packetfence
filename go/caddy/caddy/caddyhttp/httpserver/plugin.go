@@ -707,21 +707,18 @@ var directives = []string{
 	"templates",
 	"proxy",
 	"pubsub", // github.com/jung-kurt/caddy-pubsub
-	"fastcgi",
-	"cgi", // github.com/jung-kurt/caddy-cgi
+	"cgi",    // github.com/jung-kurt/caddy-cgi
 	"websocket",
 	"filebrowser", // github.com/filebrowser/caddy
 	"webdav",      // github.com/hacdias/caddy-webdav
-	"markdown",
-	"browse",
-	"mailout",   // github.com/SchumacherFM/mailout
-	"awses",     // github.com/miquella/caddy-awses
-	"awslambda", // github.com/coopernurse/caddy-awslambda
-	"grpc",      // github.com/pieterlouw/caddy-grpc
-	"gopkg",     // github.com/zikes/gopkg
-	"restic",    // github.com/restic/caddy
-	"wkd",       // github.com/emersion/caddy-wkd
-	"dyndns",    // github.com/linkonoid/caddy-dyndns
+	"mailout",     // github.com/SchumacherFM/mailout
+	"awses",       // github.com/miquella/caddy-awses
+	"awslambda",   // github.com/coopernurse/caddy-awslambda
+	"grpc",        // github.com/pieterlouw/caddy-grpc
+	"gopkg",       // github.com/zikes/gopkg
+	"restic",      // github.com/restic/caddy
+	"wkd",         // github.com/emersion/caddy-wkd
+	"dyndns",      // github.com/linkonoid/caddy-dyndns
 
 	// PACKETFENCE service implementations
 	"forwardproxy",
