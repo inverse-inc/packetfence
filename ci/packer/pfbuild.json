@@ -23,7 +23,8 @@
         "docker_tags": "{{env `DOCKER_TAGS`}}",
         "docker_user": "{{env `REGISTRY_USER`}}",
         "docker_password": "{{env `REGISTRY_PASSWORD`}}",
-        "docker_registry": "{{env `REGISTRY`}}"
+        "docker_registry": "{{env `REGISTRY`}}",
+        "docker_registry_url": "{{env `REGISTRY_URL`}}"
     },
     "builders": [
         {
@@ -102,7 +103,9 @@
         {
             "type": "shell",
             "inline": ["ci-build-pkg {{user `tmp_dir`}}"],
-            "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
+            "environment_vars": ["GITLAB_CI=true",
+                                 "PKG_BUILD_SUFFIX_MODE=none",
+                                 "CI_BUILDPKG_DEP_ONLY=yes",
                                  "CI_COMMIT_REF_NAME=fakebranch"
                                 ]
         },
@@ -142,7 +145,7 @@
                 "type": "docker-tag",
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-centos-8"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-centos-8",
+                "repository": "{{user `docker_registry_url`}}/{{user `builder_prefix`}}-centos-8",
                 "tags": "{{user `docker_tags`}}"
             },
             {
@@ -160,7 +163,7 @@
                 "type": "docker-tag",
                 "name": "set-tag",
                 "only": ["{{user `builder_prefix`}}-bullseye"],
-                "repository": "{{user `docker_user`}}/{{user `builder_prefix`}}-debian-bullseye",
+                "repository": "{{user `docker_registry_url`}}/{{user `builder_prefix`}}-debian-bullseye",
                 "tags": "{{user `docker_tags`}}"
             },
             {
