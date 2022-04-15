@@ -4,8 +4,9 @@ set -o nounset -o pipefail -o errexit
 configure_and_check() {
     GOVERSION=${GOVERSION:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
-    REGISTRY=${REGISTRY:-docker.io}
-    REGISTRY_USER=${REGISTRY_USER:-inverseinc}
+    REGISTRY=${REGISTRY:-ghcr.io}
+    REGISTRY_URL=${REGISTRY_URL:-${REGISTRY}/inverse-inc/packetfence}
+    REGISTRY_USER=${REGISTRY_USER:-}
     ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-1}
     ANSIBLE_CENTOS_GROUP=${ANSIBLE_CENTOS_GROUP:-common_centos}
     ANSIBLE_CENTOS8_GROUP=${ANSIBLE_CENTOS8_GROUP:-devel_centos8}
