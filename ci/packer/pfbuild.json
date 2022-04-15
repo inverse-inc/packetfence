@@ -102,7 +102,8 @@
         {
             "type": "shell",
             "inline": ["ci-build-pkg {{user `tmp_dir`}}"],
-            "environment_vars": ["CI_BUILDPKG_DEP_ONLY=yes",
+            "environment_vars": ["GITLAB_CI=true",
+                                 "CI_BUILDPKG_DEP_ONLY=yes",
                                  "CI_COMMIT_REF_NAME=fakebranch"
                                 ]
         },
