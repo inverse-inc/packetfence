@@ -31,7 +31,6 @@ export {
   BaseFormGroupInput                  as FormGroupNetflowAddress,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetdata,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfacct,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupPfcertmanager,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfcron,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfdhcp,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPfdhcplistener,

@@ -13414,10 +13414,6 @@ msgstr ""
 msgid "Should pfacct be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:100
-msgid "Should pfcertmanager be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:135
 msgid "Should pfcron be started? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -17670,10 +17666,6 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:89
 msgid "pfacct"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:99
-msgid "pfcertmanager"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:134

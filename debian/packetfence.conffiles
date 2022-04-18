@@ -74,6 +74,7 @@
 /usr/local/pf/conf/httpd.conf.d/log.conf
 /usr/local/pf/conf/radiusd/acct.conf
 /usr/local/pf/conf/radiusd/auth.conf
+/usr/local/pf/conf/radiusd/cert
 /usr/local/pf/conf/radiusd/cli.conf
 /usr/local/pf/conf/radiusd/eap.conf
 /usr/local/pf/conf/radiusd/eap_profiles.conf

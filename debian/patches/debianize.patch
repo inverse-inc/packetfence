@@ -167,19 +167,6 @@ index eea70993c2..3876e340cb 100644
  PermissionsStartOnly=true
  
  TimeoutSec=60
-diff --git a/conf/systemd/packetfence-pfcertmanager.service b/conf/systemd/packetfence-pfcertmanager.service
-index 398b0a7fa8..c849b11dba 100644
---- a/conf/systemd/packetfence-pfcertmanager.service
-+++ b/conf/systemd/packetfence-pfcertmanager.service
-@@ -11,7 +11,7 @@ StartLimitInterval=60
- Type=notify
- WatchdogSec=30s
- Environment=LOG_LEVEL=INFO
--ExecStartPre=-/usr/bin/umount -l /usr/local/pf/conf/certmanager
-+ExecStartPre=-/bin/umount -l /usr/local/pf/conf/certmanager
- ExecStart=/usr/local/pf/sbin/pfcertmanager
- Restart=on-failure
- Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-pfdns.service b/conf/systemd/packetfence-pfdns.service
 index 69b288b4c4..8e9543e5aa 100644
 --- a/conf/systemd/packetfence-pfdns.service
