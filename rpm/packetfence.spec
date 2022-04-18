@@ -51,7 +51,6 @@ Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
 Requires: redis
 Requires: freeradius >= 3.0.25, freeradius-mysql >= 3.0.25, freeradius-perl >= 3.0.25, freeradius-ldap >= 3.0.25, freeradius-utils >= 3.0.25, freeradius-redis >= 3.0.25, freeradius-rest >= 3.0.25
-Requires: fuse
 Requires: make
 Requires: net-tools
 Requires: sscep
