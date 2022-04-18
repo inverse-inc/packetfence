@@ -1533,7 +1533,6 @@ Generates the certificates files
 
 sub generate_radiusd_certificates {
     my ($self, $tt) = @_;
-    my $logger = get_logger;
     my %vars;
     my %cert;
     foreach my $key (keys %ConfigEAP) {
