@@ -405,7 +405,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-mysql-probe.service %{buildroot}%{_unitdir}/packetfence-mysql-probe.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfacct.service %{buildroot}%{_unitdir}/packetfence-pfacct.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfcertmanager.service %{buildroot}%{_unitdir}/packetfence-pfcertmanager.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
@@ -443,7 +442,6 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/addons/full-import
 %{__install} -d %{buildroot}/usr/local/pf/addons/functions
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
-%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/certmanager
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
@@ -854,7 +852,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcertmanager
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
@@ -886,7 +883,6 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
-%dir %attr(0770, pf pf) /usr/local/pf/conf/certmanager
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
@@ -1006,6 +1002,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/cert
+                        /usr/local/pf/conf/radiusd/cert.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster

@@ -122,6 +122,7 @@ sub _generateConfig {
     $self->generate_radiusd_ldap($tt);
     $self->generate_radiusd_mschap($tt);
     $self->generate_multi_domain_constants();
+    $self->generate_radiusd_certificates($tt);
 }
 
 
@@ -1522,6 +1523,54 @@ sub generate_multi_domain_constants {
     $content .= "our \$DATA = \$VAR1;\n";
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
+}
+
+=head2 generate_radiusd_certificates
+
+Generates the certificates files
+
+=cut
+
+sub generate_radiusd_certificates {
+    my ($self, $tt) = @_;
+    my $logger = get_logger;
+    my %vars;
+    my %cert;
+    foreach my $key (keys %ConfigEAP) {
+        foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
+                $cert{$key}{$tls}{cert} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{cert};
+                $cert{$key}{$tls}{key} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{key};
+                $cert{$key}{$tls}{ca} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{ca};
+            } else {
+                $cert{$key}{$tls}{cert} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{cert};
+                if (exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate}) {
+                    $cert{$key}{$tls}{cert} .= $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate};
+                }
+                $cert{$key}{$tls}{key} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{key};
+                $cert{$key}{$tls}{ca} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{ca};
+            }
+        }
+    }
+    foreach my $key (keys %ConfigEAP) {
+        foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
+                symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
+                symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
+            } else {
+               $vars{'cert'} = $cert{$key}{$tls}{cert};
+               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt") or die $tt->error();
+               $vars{'cert'} = "";
+               $vars{'key'} = $cert{$key}{$tls}{key};
+               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key") or die $tt->error();
+               $vars{'key'} = "";
+               $vars{'ca'} = $cert{$key}{$tls}{ca};
+               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem") or die $tt->error();
+               $vars{'ca'} = "";
+            }
+        }
+    }
 }
 
 =head1 AUTHOR

@@ -2,19 +2,6 @@ ARG from=debian:bullseye
 ARG GO_VERSION
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM golang:${GO_VERSION} as gobuild
-
-RUN mkdir -p /usr/local/pf/
-
-WORKDIR /usr/local/pf/
-
-COPY ./go /usr/local/pf/go
-
-COPY ./lib /usr/local/pf/lib
-
-COPY ./config.mk /usr/local/pf/config.mk
-
-RUN cd /usr/local/pf/go/ &&  make pfcertmanager
 
 FROM ${from} as build
 
@@ -70,8 +57,6 @@ RUN apt-get -qq update \
     \
     && ln -s /etc/freeradius /etc/raddb
 
-COPY --from=gobuild /usr/local/pf/go/pfcertmanager /usr/local/pf/sbin/pfcertmanager
-
 WORKDIR /usr/local/pf/
 
 COPY lib lib
@@ -105,8 +90,4 @@ COPY ./config.mk /usr/local/pf/config.mk
 RUN mkdir -p /usr/local/pf/var/run
 
 RUN chown -R pf: /usr/local/pf/var
-
-RUN mkdir -p /usr/local/pf/conf/certmanager
-
-RUN chown -R pf: /usr/local/pf/conf/certmanager
 

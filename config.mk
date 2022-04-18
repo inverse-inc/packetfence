@@ -36,7 +36,7 @@ KNK_REGISTRY_URL = ${KNK_REGISTRY}/inverse-inc/packetfence
 # Golang
 #
 GOVERSION = go1.17.6
-PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron mysql-probe
+PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe
 
 #
 # PF versions

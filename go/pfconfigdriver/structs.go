@@ -187,7 +187,6 @@ type PfConfServices struct {
 	NetFlowAddress       string `json:"netflow_address"`
 	MysqlProbe           string `json:"mysql-probe"`
 	Pfacct               string `json:"pfacct"`
-	PfcertManager        string `json:"pfcertmanager"`
 	Pfdhcp               string `json:"pfdhcp"`
 	Pfdhcplistener       string `json:"pfdhcplistener"`
 	Pfdns                string `json:"pfdns"`
