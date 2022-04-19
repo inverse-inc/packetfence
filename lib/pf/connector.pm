@@ -3,9 +3,8 @@ package pf::connector;
 use Moo;
 use URI;
 use pf::api::unifiedapiclient;
-use pf::config::pfqueue;
-use pf::pfqueue::consumer::redis;
 use POSIX::AtFork;
+use pf::config qw(%Config);
 
 has id => (is => 'rw');
 
@@ -14,18 +13,28 @@ has secret => (is => 'rw');
 has networks => (is => 'rw');
 
 my %connections;
+my $redis;
 sub CLONE {
     %connections = ();
+    $redis = undef;
 }
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
 
+sub connect_redis {
+    if($redis) {
+        return $redis;
+    }
+    else {
+        return pf::Redis->new(server => $Config{pfconnector}{redis_server});
+    }
+}
 
 sub connectorServerApiClient {
     my ($self) = @_;
     #TODO: get this out of redis_queue
-    my $redis = pf::pfqueue::consumer::redis->new({ %{$ConfigPfqueue{"consumer"}} })->redis;
-    if(my $server = $redis->get("pfconnector:activeTunnels:".$self->id)) {
+    my $redis = $self->connect_redis;
+    if(my $server = $redis->get($Config{pfconnector}{redis_tunnels_namespace}.$self->id)) {
         if(exists($connections{$server})) {
             return $connections{$server};
         }
