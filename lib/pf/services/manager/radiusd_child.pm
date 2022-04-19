@@ -1544,7 +1544,7 @@ sub generate_radiusd_certificates {
             } else {
                 $cert{$key}{$tls}{cert} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{cert};
                 if (exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate}) {
-                    $cert{$key}{$tls}{cert} .= $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate};
+                    $cert{$key}{$tls}{cert} .= "\n".$ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate};
                 }
                 $cert{$key}{$tls}{key} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{key};
                 $cert{$key}{$tls}{ca} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{ca};
