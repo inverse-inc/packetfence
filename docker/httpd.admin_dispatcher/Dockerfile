@@ -23,6 +23,10 @@ COPY addons/vagrant/inventory/group_vars/winservers/init_directory.yml /usr/loca
 RUN cd /usr/local/pf && \
     make html 
 # install html
+ARG NAME=pf
+ARG PREFIX=/usr/local
+ARG INSTALL=/usr/bin/install -c -D -m0644
+
 RUN install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs && \
     for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
       install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs/; \
