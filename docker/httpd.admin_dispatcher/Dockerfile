@@ -1,8 +1,7 @@
 ARG GO_VERSION
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-#FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
-FROM local/pfbuild-debian-bullseye:11.3
+FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
 COPY ./go /usr/local/pf/go
