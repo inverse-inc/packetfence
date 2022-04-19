@@ -250,14 +250,14 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		to := payload.To
 		remoteStr := fmt.Sprintf("R:%d:%s", dynPort, to)
 		remote, err := settings.DecodeRemote(remoteStr)
-		remote.Dynamic = true
-		remote.LastTouched = time.Now()
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err)})
 			return
 		}
 
+		remote.Dynamic = true
+		remote.LastTouched = time.Now()
 		go func() {
 			// TODO: handle an error
 			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
