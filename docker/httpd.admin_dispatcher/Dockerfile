@@ -18,6 +18,8 @@ RUN cd /usr/local/pf/html/pfappserver/root && \
     make vendor  && \
     make light-dist
 # Documentation
+COPY addons/vagrant/inventory/group_vars/winservers/domain_setup.yml /usr/local/pf/addons/vagrant/inventory/group_vars/winservers/domain_setup.yml
+COPY addons/vagrant/inventory/group_vars/winservers/init_directory.yml /usr/local/pf/addons/vagrant/inventory/group_vars/winservers/init_directory.yml
 RUN cd /usr/local/pf && \
     make html 
 # install html
