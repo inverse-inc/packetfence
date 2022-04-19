@@ -19,8 +19,11 @@ use pf::file_paths qw(
     $pfdetect_config_file
     $firewall_sso_config_file
     $network_config_file
+    $realm_config_file
 );
 use pf::IniFiles;
+
+my $tenant_id = 1;
 
 my @files = (
     {
@@ -45,6 +48,8 @@ for my $f (@files) {
     removeField($f->{file}, $f->{field});
 }
 
+removeTenantGroup($realm_config_file, $tenant_id);
+
 sub removeField {
     my ($file, $fieldName) = @_;
     my $ini = pf::IniFiles->new(
@@ -58,6 +63,36 @@ sub removeField {
         $i |= 1;
     }
 
+    if ($i) {
+        print "Updated $file\n";
+        $ini->RewriteConfig();
+    }
+}
+
+sub removeTenantGroup {
+    my ($file, $tenant) = @_;
+    my $ini = pf::IniFiles->new(
+        -file => $file,
+        -allowempty => 1,
+    );
+    my $i = 0;
+    for my $group ($ini->Groups()) {
+        if ($group ne $tenant) {
+            for my $sect ($ini->GroupMembers($group)) {
+                $ini->DeleteSection($sect);
+            }
+            $i |= 1;
+            next;
+        }
+
+        for my $sect ($ini->GroupMembers($group)) {
+            my $new_sect = $sect;
+            $new_sect =~ s/^\Q$tenant\E //;
+            $ini->RenameSection($sect, $new_sect);
+            $i |= 1;
+        }
+
+    }
     if ($i) {
         print "Updated $file\n";
         $ini->RewriteConfig();
