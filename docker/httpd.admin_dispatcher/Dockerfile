@@ -1,7 +1,8 @@
 ARG GO_VERSION
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
-FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
+#FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
+FROM local/pfbuild-debian-bullseye:11.3
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
 COPY ./go /usr/local/pf/go
@@ -27,12 +28,12 @@ ARG NAME=pf
 ARG PREFIX=/usr/local
 ARG INSTALL=/usr/bin/install -c -D -m0644
 
-RUN install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs && \
+RUN install -d -m0755 /usr/local/pf/debian/packetfence-doc/usr/local/pf/docs && \
     for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
-      install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs/; \
+      install -m0644 $$i /usr/local/pf/debian/packetfence-doc/usr/local/pf/docs/; \
     done
 # images
-RUN make DESTDIR=$(CURDIR)/debian/packetfence-doc images
+RUN make DESTDIR=/usr/local/pf/debian/packetfence-doc images
 
 # html_install
 RUN install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root && \
