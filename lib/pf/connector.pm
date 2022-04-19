@@ -27,10 +27,8 @@ sub connectorServerApiClient {
     my $redis = pf::pfqueue::consumer::redis->new({ %{$ConfigPfqueue{"consumer"}} })->redis;
     if(my $server = $redis->get("pfconnector:activeTunnels:".$self->id)) {
         if(exists($connections{$server})) {
-            print "from hash \n";
             return $connections{$server};
         }
-        #TODO: get connections to be reused
         my $uri = URI->new($server);
         $connections{$server} = pf::api::unifiedapiclient->new(proto => $uri->scheme, host => $uri->host, port => $uri->port);
         return $connections{$server};
