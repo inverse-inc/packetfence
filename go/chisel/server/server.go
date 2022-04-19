@@ -13,7 +13,6 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/redisclient"
 	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/chisel/share/ccrypto"
 	"github.com/jpillora/chisel/share/cio"
@@ -38,16 +37,17 @@ type Config struct {
 // Server respresent a chisel service
 type Server struct {
 	*cio.Logger
-	config       *Config
-	fingerprint  string
-	httpServer   *cnet.HTTPServer
-	reverseProxy *httputil.ReverseProxy
-	sessCount    int32
-	sessions     *settings.Users
-	sshConfig    *ssh.ServerConfig
-	users        *settings.UserIndex
-	listenProto  string
-	redis        *redis.Client
+	config                *Config
+	fingerprint           string
+	httpServer            *cnet.HTTPServer
+	reverseProxy          *httputil.ReverseProxy
+	sessCount             int32
+	sessions              *settings.Users
+	sshConfig             *ssh.ServerConfig
+	users                 *settings.UserIndex
+	listenProto           string
+	redis                 *redis.Client
+	redisTunnelsNamespace string
 }
 
 var upgrader = websocket.Upgrader{
@@ -237,9 +237,9 @@ func (s *Server) ResetUsers(users []*settings.User) {
 }
 
 func (s *Server) setupRedisClient(ctx context.Context) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Pfconnector)
 	var network string
-	if redisclient.Config.RedisArgs.Server[0] == '/' {
+	if pfconfigdriver.Config.PfConf.Pfconnector.RedisServer[0] == '/' {
 		network = "unix"
 	} else {
 		network = "tcp"
@@ -247,8 +247,10 @@ func (s *Server) setupRedisClient(ctx context.Context) {
 
 	//TODO: using this configuration isn't really the best since it points to redis_queue, redis_cache is probably better for this usage
 	s.redis = redis.NewClient(&redis.Options{
-		Addr:    redisclient.Config.RedisArgs.Server,
+		Addr:    pfconfigdriver.Config.PfConf.Pfconnector.RedisServer,
 		Network: network,
 	})
+
+	s.redisTunnelsNamespace = pfconfigdriver.Config.PfConf.Pfconnector.RedisTunnelsNamespace
 
 }

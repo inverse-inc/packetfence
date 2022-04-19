@@ -1385,6 +1385,10 @@ device_class_whitelist=
 # Comma delimited transitions using the following format: $PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.
 triggers=
 
+[pfconnector]
+redis_server=127.0.0.1:6379
+redis_tunnels_namespace=pfconnector:activeTunnels:
+
 [lets_encrypt]
 #
 # lets_encrypt.radius

@@ -66,6 +66,7 @@ type configStruct struct {
 		Alerting      PfConfAlerting
 		ActiveActive  PfConfActiveActive
 		Services      PfConfServices
+		Pfconnector   PfConfPfconnector
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -110,6 +111,15 @@ type PfConfPorts struct {
 	HttpdPortalModStatus string `json:"httpd_portal_modstatus"`
 	UnifiedAPI           string `json:"unifiedapi"`
 	PFAcctNetflow        string `json:"pfacct_netflow"`
+}
+
+type PfConfPfconnector struct {
+	StructConfig
+	PfconfigMethod        string `val:"hash_element"`
+	PfconfigNS            string `val:"config::Pf"`
+	PfconfigHashNS        string `val:"pfconnector"`
+	RedisServer           string `json:"redis_server"`
+	RedisTunnelsNamespace string `json:"redis_tunnels_namespace"`
 }
 
 type PfConfFencing struct {
