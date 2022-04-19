@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
@@ -55,7 +56,9 @@ func (s *Server) listener(host, port string) (net.Listener, error) {
 		l = tls.NewListener(l, tlsConf)
 	}
 	if err == nil {
-		s.Infof("Listening on %s://%s:%s%s", proto, host, port, extra)
+		listenURI := fmt.Sprintf("%s://%s:%s%s", proto, host, port, extra)
+		s.listenProto = proto
+		s.Infof("Listening on %s", listenURI)
 	}
 	return l, nil
 }
