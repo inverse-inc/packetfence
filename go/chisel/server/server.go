@@ -10,8 +10,10 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/redisclient"
 	chshare "github.com/jpillora/chisel/share"
 	"github.com/jpillora/chisel/share/ccrypto"
 	"github.com/jpillora/chisel/share/cio"
@@ -44,6 +46,8 @@ type Server struct {
 	sessions     *settings.Users
 	sshConfig    *ssh.ServerConfig
 	users        *settings.UserIndex
+	listenProto  string
+	redis        *redis.Client
 }
 
 var upgrader = websocket.Upgrader{
@@ -114,6 +118,7 @@ func NewServer(c *Config) (*Server, error) {
 	if c.Reverse {
 		server.Infof("Reverse tunnelling enabled")
 	}
+
 	return server, nil
 }
 
@@ -151,6 +156,9 @@ func (s *Server) StartContext(ctx context.Context, host, port string) error {
 		o.TrustProxy = true
 		h = requestlog.WrapWith(h, o)
 	}
+
+	s.setupRedisClient(ctx)
+
 	return s.httpServer.GoServe(ctx, l, h)
 }
 
@@ -226,4 +234,21 @@ func (s *Server) DeleteUser(user string) {
 // Use nil to remove all.
 func (s *Server) ResetUsers(users []*settings.User) {
 	s.users.Reset(users)
+}
+
+func (s *Server) setupRedisClient(ctx context.Context) {
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &redisclient.Config)
+	var network string
+	if redisclient.Config.RedisArgs.Server[0] == '/' {
+		network = "unix"
+	} else {
+		network = "tcp"
+	}
+
+	//TODO: using this configuration isn't really the best since it points to redis_queue, redis_cache is probably better for this usage
+	s.redis = redis.NewClient(&redis.Options{
+		Addr:    redisclient.Config.RedisArgs.Server,
+		Network: network,
+	})
+
 }

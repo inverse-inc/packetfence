@@ -178,6 +178,10 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	})
 	if user != nil {
 		activeTunnels.Store(user.Name, tunnel)
+		res := s.redis.Set(fmt.Sprintf("pfconnector:activeTunnels:%s", user.Name), fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String()), 0)
+		if res.Err() != nil {
+			l.Errorf("Unable to write tunnel info to Redis: %s", res.Err())
+		}
 	}
 	err = eg.Wait()
 	if err != nil && !strings.HasSuffix(err.Error(), "EOF") {
