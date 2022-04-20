@@ -207,6 +207,9 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	hostPort := strings.Split(req.Context().Value(http.LocalAddrContextKey).(net.Addr).String(), ":")
+	host := strings.Join(hostPort[0:len(hostPort)-1], ":")
+
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
 	if o, found := activeDynReverse.Load(cacheKey); found {
 		remote := o.(*settings.Remote)
@@ -232,7 +235,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			}
 		}()
 		if err != nil {
-			json.NewEncoder(w).Encode(gin.H{"port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
+			json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
 			return
 		} else {
 			activeDynReverse.Delete(cacheKey)
@@ -265,7 +268,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		}()
 
 		activeDynReverse.Store(cacheKey, remote)
-		json.NewEncoder(w).Encode(gin.H{"port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
+		json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
