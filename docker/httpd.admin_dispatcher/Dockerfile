@@ -21,24 +21,10 @@ RUN cd /usr/local/pf/html/pfappserver/root && \
 COPY addons/vagrant/inventory/group_vars/winservers/domain_setup.yml /usr/local/pf/addons/vagrant/inventory/group_vars/winservers/domain_setup.yml
 COPY addons/vagrant/inventory/group_vars/winservers/init_directory.yml /usr/local/pf/addons/vagrant/inventory/group_vars/winservers/init_directory.yml
 RUN cd /usr/local/pf && \
-    make html 
-# install html
-ARG NAME=pf
-ARG PREFIX=/usr/local
-ARG INSTALL=/usr/bin/install -c -D -m0644
-
-RUN install -d -m0755 /usr/local/pf/debian/packetfence-doc/usr/local/pf/docs && \
-    for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
-      install -m0644 $$i /usr/local/pf/debian/packetfence-doc/usr/local/pf/docs/; \
-    done
-# images
-RUN make DESTDIR=/usr/local/pf/debian/packetfence-doc images
+    make html
 
 # html_install
-RUN install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root && \
-    for i in `find 'html/pfappserver/root/dist' -type f`; do \
-      install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
-    done
+RUN make DESTDIR=/usr/local/pf/ html_install
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
