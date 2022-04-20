@@ -15,21 +15,20 @@ COPY ./Makefile /usr/local/pf/Makefile
 RUN cd /usr/local/pf/go/ && \
     make pfhttpd
 # build web admin
-RUN cd /usr/local/pf/html/pfappserver/root && \
+RUN cd /html/pfappserver/root && \
     make vendor  && \
     make light-dist
 # build and install html doc
 RUN cd /usr/local/pf && \
-    make html
+    make SRC_HTMLDIR=/html html
 # install all html/ files and directories
 RUN make SRC_HTMLDIR=/html DESTDIR=/usr/local/pf html_install
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
-COPY ./config.mk /usr/local/pf/config.mk
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 COPY --from=0 /usr/local/pf/go/httpdispatcher /usr/local/pf/sbin/httpdispatcher
-COPY --from=0 /usr/local/pf/html /usr/local/pf/html
+COPY --from=0 /html /usr/local/pf/html
 COPY --from=0 /usr/local/pf/docs /usr/local/pf/docs
 
 ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/httpadmindispatcher.conf -log-name httpd.admin_dispatcher
