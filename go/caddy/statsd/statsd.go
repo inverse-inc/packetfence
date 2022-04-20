@@ -54,7 +54,7 @@ func setup(c *caddy.Controller) error {
 				} else {
 					address = args[0]
 					if !strings.Contains(address, ":") {
-						address = fmt.Sprintf("%s%s",address,":8125")
+						address = fmt.Sprintf("%s%s", address, ":8125")
 					}
 					fmt.Println("Using configured statsd addresse and port: " + address)
 				}
@@ -64,7 +64,7 @@ func setup(c *caddy.Controller) error {
 		}
 	}
 
-	client, err := _statsd.New(_statsd.Prefix(prefix), _statsd.Network(proto),_statsd.Address(address))
+	client, err := _statsd.New(_statsd.Prefix(prefix), _statsd.Network(proto), _statsd.Address(address))
 	if err != nil {
 		fmt.Printf("Couldn't initialize statsd client (%s) \n", err)
 	}

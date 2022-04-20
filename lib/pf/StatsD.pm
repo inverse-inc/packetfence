@@ -31,8 +31,8 @@ our $VERSION = 1.000000;
 our @EXPORT = qw($statsd);
 our $statsd;
 
-our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
-our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config) or die "Cannot open $pf_config_file";
+our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file, -envsubst => 1) or die "Cannot open $pf_default_file";
+our $pf_config = pf::IniFiles->new( -file => $pf_config_file, -allowempty => 1, -import => $pf_default_config, -envsubst => 1) or die "Cannot open $pf_config_file";
 
 Readonly my $GRAPHITE_DELIMITER => ".";
 Readonly my $STATSD_DELIMITER   => ":";

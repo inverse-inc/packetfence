@@ -15,11 +15,31 @@ pf::services::manager::api_frontend
 use strict;
 use warnings;
 use Moo;
-use pf::cluster;
+use pf::config qw(%Config);
 
 extends 'pf::services::manager';
 
 has '+name' => ( default => sub { 'api-frontend' } );
+
+sub generateConfig {
+    my ($self) = @_;
+    my $tt = Template->new(ABSOLUTE => 1);
+    my $vars = {
+       env_dict => {
+           LOG_OUTPUT => 'stdout',
+           PFCONFIG_PROTO => 'tcp',
+           PFCONFIG_TCP_HOST => 'host.docker.internal',
+           PF_SERVICES_URL_PFPKI => $Config{services_url}{pfpki},
+           PF_SERVICES_URL_PFIPSET => $Config{services_url}{pfipset},
+           PF_SERVICES_URL_PFDHCP => $Config{services_url}{pfdhcp},
+           PF_SERVICES_URL_PFPERL_API => $Config{services_url}{'pfperl-api'},
+           PF_SERVICES_URL_PFDNS_DOH => $Config{services_url}{'pfdns-doh'},
+           PF_SERVICES_URL_PFSSO => $Config{services_url}{pfsso},
+           STATSD_ADDRESS => $Config{advanced}{statsd_listen_host}.":".$Config{advanced}{statsd_listen_port},
+       }, 
+    };
+    $tt->process("/usr/local/pf/docker/caddy-environment.template", $vars, "/usr/local/pf/var/conf/api-frontend.env") or die $tt->error();
+}
 
 =head1 AUTHOR
 

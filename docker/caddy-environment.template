@@ -1,0 +1,3 @@
+[% FOREACH env_entry IN env_dict %]
+[% env_entry.key %]=[% env_entry.value %]
+[% END %]
