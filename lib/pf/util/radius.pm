@@ -108,7 +108,7 @@ sub perform_dynauth {
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
-        PeerAddr => "127.0.0.1",
+        PeerAddr => $connector_conn->{host},
         PeerPort => $connector_conn->{port},
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
