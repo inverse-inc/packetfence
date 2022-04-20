@@ -6,12 +6,12 @@ RUN mkdir -p /usr/local/pf/ /html
 WORKDIR /usr/local/pf/
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
-COPY ./config.mk /usr/local/pf/config.mk
 COPY ./html /html
 COPY ./docs /usr/local/pf/docs
 COPY ./src /usr/local/pf/src
 COPY ./config.mk /usr/local/pf/config.mk
 COPY ./Makefile /usr/local/pf/Makefile
+COPY ./conf/pf-release /usr/local/pf/conf/pf-release
 RUN cd /usr/local/pf/go/ && \
     make pfhttpd
 # build web admin
