@@ -520,6 +520,7 @@ pfdeb_based_dev:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 img_dev:
   extends:
@@ -579,6 +580,7 @@ pfdeb_based_br_maint:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 img_br_maint:
   extends:
@@ -638,6 +640,7 @@ pfdeb_based_rel:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 img_rel:
   extends:
