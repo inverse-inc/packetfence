@@ -26,6 +26,7 @@ use base ('pf::Switch');
 use pf::config qw(
     $MAC
     $PORT
+    $WEBAUTH_WIRELESS
 );
 use pf::constants;
 use pf::Switch::constants;
@@ -139,6 +140,7 @@ sub parseExternalPortalRequest {
         client_ip               => defined($req->param('ga_cip')) ? $req->param('ga_cip') : $client_ip,
         ssid                    => $req->param('ga_ssid'),
         synchronize_locationlog => $TRUE,
+        connection_type         => $WEBAUTH_WIRELESS,
     );
     return \%params;
 }
