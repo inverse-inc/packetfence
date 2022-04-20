@@ -49,7 +49,7 @@ PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEAS
 PF_PATCH_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+\.\d+)/)' $(PF_RELEASE_PATH))
 
 # SRC HTML dirs
-SRC_HTMLDIR = html
+SRC_HTMLDIR = $(SRC_ROOT_DIR)/html
 SRC_HTML_CPDIR = $(SRC_HTMLDIR)/captive-portal
 SRC_HTML_COMMONDIR = $(SRC_HTMLDIR)/common
 SRC_HTML_PARKINGDIR = $(SRC_HTMLDIR)/parking
