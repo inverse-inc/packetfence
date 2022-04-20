@@ -5,8 +5,8 @@ source /usr/local/pf/docker/systemd-service
 name=api-frontend
 
 args=`base_args $name`
-args="$args --env-file /usr/local/pf/docker/api-frontend/api-frontend_localdev.env -v /usr/local/pf/conf:/usr/local/pf/conf -p 9999:9999"
+args="$args --env-file /usr/local/pf/var/conf/api-frontend.env -v /usr/local/pf/var/conf:/usr/local/pf/var/conf -v /usr/local/pf/conf:/usr/local/pf/conf -p 9999:9999"
 
 cd /usr/local/pf/
 
-run $name "$args"
+build_run $name "$args"

@@ -975,7 +975,8 @@ active_directory_os_join_check_bypass=disabled
 # advanced.statsd_listen_port
 #
 # The port where statsd listen
-statsd_listen_port = 8125
+statsd_listen_port = [% ENV.env_or_default("STATSD_LISTEN_PORT", "8125") %]
+statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "127.0.0.1") %]
 
 # advanced.pfperl_api_timeout
 #
@@ -1405,3 +1406,8 @@ httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://host.
 httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://host.docker.internal:8888") %]
 httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://host.docker.internal:8889") %]
 pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://host.docker.internal:22225") %]
+pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://host.docker.internal:22223") %]
+pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://host.docker.internal:22222") %]
+pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://host.docker.internal:22224") %]
+pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://host.docker.internal:853") %]
+pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://host.docker.internal:8777") %]
