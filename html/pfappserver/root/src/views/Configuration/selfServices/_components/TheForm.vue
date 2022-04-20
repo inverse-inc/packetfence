@@ -38,6 +38,12 @@
           :text="$i18n.t('List of OS which will be allowed to be register via the self service portal.')"
         />
       </base-form-tab>
+      <base-form-tab :title="$i18n.t('Dynamic Pre Shared Key')">
+        <form-group-dynamic-pre-shared-key namespace="dynamic_pre_shared_key"
+          :column-label="$i18n.t('Show the user pre shared key')"
+          :text="$i18n.t('Enable the view of the pre shared key of the user in the status page.')"
+        />
+      </base-form-tab>
     </b-tabs>
   </base-form>
 </template>
@@ -54,7 +60,8 @@ import {
   FormGroupDeviceRegistrationAccessDuration,
   FormGroupDeviceRegistrationAllowedDevices,
   FormGroupDeviceRegistrationRoles,
-  FormGroupRolesAllowedToUnregister
+  FormGroupRolesAllowedToUnregister,
+  FormGroupDynamicPreSharedKey
 } from './'
 
 const components = {
@@ -66,7 +73,8 @@ const components = {
   FormGroupDeviceRegistrationAccessDuration,
   FormGroupDeviceRegistrationAllowedDevices,
   FormGroupDeviceRegistrationRoles,
-  FormGroupRolesAllowedToUnregister
+  FormGroupRolesAllowedToUnregister,
+  FormGroupDynamicPreSharedKey
 }
 
 export const props = {

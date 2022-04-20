@@ -4,6 +4,7 @@ use namespace::autoclean;
 use pf::util;
 use pf::constants;
 use pf::config;
+use pf::config qw(%ConfigSelfService);
 use pf::node;
 use pf::person;
 use pf::web;
@@ -31,8 +32,18 @@ sub auto :Private {
     $c->session->{release_bypass} = $TRUE;
     $c->stash->{isDeviceRegEnable} = $c->forward(DeviceRegistration => "isDeviceRegEnabled");
     $c->stash->{stripeCustomerPortalEnabled} = $c->profile->stripeCustomerPortalEnabled;
+    $c->stash->{dynamicPreSharedKeyEnabled} = is_dpsk_enabled($c->profile);
     $c->forward('setupCurrentNodeInfo');
     return 1;
+}
+
+sub is_dpsk_enabled {
+    my ( $profile ) = @_;
+
+    if (exists $profile->{'_self_service'} && isenabled($ConfigSelfService{$profile->{'_self_service'}}{'dynamic_pre_shared_key'}) ) {
+        return $TRUE;
+    }
+    return $FALSE;
 }
 
 =head2 index
@@ -96,6 +107,18 @@ sub userIsAuthenticated : Private {
     $c->stash(
         nodes    => \@nodes,
     );
+    if (is_dpsk_enabled($c->profile)) {
+        my @provisioners = $c->profile->provisionerObjects();
+        unless(@provisioners){
+            return;
+        }
+
+        foreach my $provisioner (@provisioners) {
+            next unless $provisioner->isa("pf::provisioner::dpsk");
+            my $dpsk = $provisioner->generate_dpsk($pid);
+            $c->stash( psk => $dpsk);
+        }
+    }
 }
 
 sub setupCurrentNodeInfo : Private {

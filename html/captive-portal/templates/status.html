@@ -156,6 +156,16 @@
 </div>
 [%- END %]
 
+[% IF psk.defined %]
+<div class="u-padding">
+  <div class="o-media o-media--notice u-padding u-margin-bottom">
+    <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
+    <p class="o-media__body">[% i18n("Your psk key: ") %] [% psk %]</p>
+  </div>
+</div>
+[% END %]
+
+
 <div class="o-layout o-layout--center">
   <div class="o-layout__item u-padding u-1/1 u-2/3@tablet u-3/5@desktop">
     [% IF isDeviceRegEnable %]
