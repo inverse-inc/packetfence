@@ -515,6 +515,7 @@ build_pfdebian_based_container_devel:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 build_container_devel:
   extends:
@@ -573,6 +574,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 build_container_branches_and_maintenance:
   extends:
@@ -631,6 +633,7 @@ build_pfdebian_based_container_release:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 build_container_release:
   extends:
