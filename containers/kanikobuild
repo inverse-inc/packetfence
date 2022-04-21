@@ -6,7 +6,7 @@ set -o nounset -o pipefail -o errexit
 # CI_PROJECT_DIR must be equal to root of PF source tree (full path)
 
 setup_vars() {
-    DOCKFILE_PATH=$CI_PROJECT_DIR/docker/$IMAGE_NAME/Dockerfile
+    DOCKFILE_PATH=$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile
 
     ### collect variables needed inside Dockerfile
     # returns X.Y
