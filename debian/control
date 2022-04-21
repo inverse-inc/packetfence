@@ -25,7 +25,7 @@ Pre-Depends:  ca-certificates,
  libmariadbd-dev (>= 10.1)
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
- packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-doc (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
+ packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
