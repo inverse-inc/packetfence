@@ -53,11 +53,11 @@ install: build
 	# Install all except debian and t directory
 	# dir* to exclude directory itself
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
-	-not -path "addons/full-upgrade*" -type d`; do \
+	-not -path "addons/full-upgrade*" -not -path "html*" -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
-	-not -path "addons/full-upgrade/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
+	-not -path "addons/full-upgrade/*" -not -path "html/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	# packetfence-test package
@@ -138,7 +138,6 @@ install: build
 	#Sudoer
 	install -oroot -groot -d -m0750 $(CURDIR)/debian/packetfence/etc/sudoers.d
 	install -oroot -groot -m0440 $(CURDIR)/debian/packetfence.sudoers $(CURDIR)/debian/packetfence/etc/sudoers.d/packetfence
-	rm -fr $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/static/alt
 	#PacketFence Mariadb plugin
 	make src/mariadb_udf/pf_udf.so
 	install -D -m0755 src/mariadb_udf/pf_udf.so $(CURDIR)/debian/packetfence/$$(pkg-config mariadb --variable=plugindir)/pf_udf.so
@@ -169,33 +168,6 @@ install: build
 	# packetfence-tracking-config
 	install -m0644 $(CURDIR)/debian/packetfence-tracking-config.path $(CURDIR)/debian/packetfence/lib/systemd/system/packetfence-tracking-config.path
 
-	# Portal javascript/css
-	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css
-	rm -f $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/common/styles.css.map
-	make -C html/common/ vendor
-	make -C html/common light-dist
-	install -d -m0755 $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common
-	install -m0644 $(CURDIR)/html/common/styles.css $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
-	install -m0644 $(CURDIR)/html/common/styles.css.map $(CURDIR)/debian/packetfence-captive-portal-javascript$(PREFIX)/$(NAME)/html/common/
-	# Admin javascript/css
-	make -C html/pfappserver/root/ vendor
-	make -C html/pfappserver/root/ light-dist
-
-	# Documentation
-	make html
-	# install html
-	install -d -m0755 $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs
-	for i in `find "docs" "(" -name "*.html" -or -iname "*.js" ")" -type f`; do \
-		install -m0644 $$i $(CURDIR)/debian/packetfence-doc$(PREFIX)/$(NAME)/docs/; \
-	done
-	# images
-	make DESTDIR=$(CURDIR)/debian/packetfence-doc images
-
-	# html_install
-	install -d -m0755 $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/html/pfappserver/root
-	for i in `find 'html/pfappserver/root/dist' -type f`; do \
-		install -D -m0644 $$i $(CURDIR)/debian/packetfence-pfappserver-javascript$(PREFIX)/$(NAME)/$$i; \
-	done
 	# Golang binary
 	install -d -m0744 $(CURDIR)/debian/packetfence-golang-daemon$(PREFIX)/$(NAME)/sbin
 	make -C go all
@@ -275,9 +247,7 @@ binary-arch: build install
 	dh_link \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
-			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
-			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver \
-			/usr/local/pf/html/captive-portal/lib/captiveportal /usr/local/pf/lib/captiveportal
+			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 	dh_strip
 	dh_compress
 	# PERMISSIONS
