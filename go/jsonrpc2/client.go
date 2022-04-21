@@ -6,12 +6,13 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 var httpClient *http.Client = &http.Client{
@@ -84,7 +85,7 @@ func NewAAAClientFromConfig(ctx context.Context) *Client {
 	return &Client{
 		Username: webservices.User,
 		Password: webservices.Pass,
-		Proto:    webservices.Proto,
+		Proto:    webservices.AAAProto,
 		Host:     webservices.Host,
 		Port:     ports.AAA,
 	}
