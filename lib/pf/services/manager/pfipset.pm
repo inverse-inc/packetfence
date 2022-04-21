@@ -21,6 +21,7 @@ use pf::config qw(
 use pf::util;
 
 extends 'pf::services::manager';
+with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => ( default => sub { 'pfipset' } );
 

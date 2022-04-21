@@ -10,7 +10,8 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 Environment=LOG_LEVEL=INFO
-ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfipset.conf -log-name=pfipset
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfipset' -e 'pf::services::manager::pfipset->new()->generateConfig()'
+ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfpki.env | xargs) && /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfipset.conf -log-name=pfipset"
 Restart=on-failure
 Slice=packetfence.slice
 
