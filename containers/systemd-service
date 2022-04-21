@@ -5,7 +5,7 @@ PF_VERSION=11.3
 
 function base_args {
   name="$1"
-  args="--sig-proxy=true --rm --name=$name --add-host=host.docker.internal:host-gateway"
+  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway"
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"

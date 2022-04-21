@@ -124,9 +124,9 @@ case "$1" in
         echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
         sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
-        if ! grep 'host.docker.internal' /etc/hosts > /dev/null; then
+        if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
           echo "" >> /etc/hosts
-          echo "100.64.0.1 host.docker.internal" >> /etc/hosts
+          echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
         fi
  
         #Starting PacketFence.

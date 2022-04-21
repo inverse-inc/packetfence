@@ -1070,7 +1070,7 @@ pass=[% ENV.env_or_default("PF_WEBSERVICES_PASS", "") %]
 # webservices.host
 #
 # host of the webAPI
-host=[% ENV.env_or_default("PF_WEBSERVICES_HOST", "host.docker.internal") %]
+host=[% ENV.env_or_default("PF_WEBSERVICES_HOST", "containers-gateway.internal") %]
 #
 # webservices.proto
 #
@@ -1402,12 +1402,12 @@ configurations=packetfence,os-checks
 mailserver=
 
 [services_url]
-httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://host.docker.internal:8080") %]
-httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://host.docker.internal:8888") %]
-httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://host.docker.internal:8889") %]
-pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://host.docker.internal:22225") %]
-pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://host.docker.internal:22223") %]
-pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://host.docker.internal:22222") %]
-pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://host.docker.internal:22224") %]
-pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://host.docker.internal:853") %]
-pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://host.docker.internal:8777") %]
+httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://containers-gateway.internal:8080") %]
+httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://containers-gateway.internal:8888") %]
+httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://containers-gateway.internal:8889") %]
+pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://containers-gateway.internal:22225") %]
+pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://containers-gateway.internal:22223") %]
+pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://containers-gateway.internal:22222") %]
+pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://containers-gateway.internal:22224") %]
+pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
+pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]

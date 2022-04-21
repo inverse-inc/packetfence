@@ -2,7 +2,7 @@
 [general]
 proto=[% ENV.env_or_default("PFCONFIG_PROTO", "tcp") %]
 backend=[% ENV.env_or_default("PFCONFIG_BACKEND", "mysql") %]
-tcp_host=[% ENV.env_or_default("PFCONFIG_TCP_HOST", "host.docker.internal") %]
+tcp_host=[% ENV.env_or_default("PFCONFIG_TCP_HOST", "containers-gateway.internal") %]
 tcp_port=[% ENV.env_or_default("PFCONFIG_TCP_PORT", "44444") %]
 
 [mysql]
