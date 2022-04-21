@@ -9,4 +9,4 @@ args="$args --env-file /usr/local/pf/var/conf/api-frontend.env -v /usr/local/pf/
 
 cd /usr/local/pf/
 
-build_run $name "$args"
+run $name "$args"
