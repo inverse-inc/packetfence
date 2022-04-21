@@ -9,7 +9,8 @@ StartLimitBurst=3
 StartLimitInterval=60
 Type=notify
 Environment=LOG_LEVEL=INFO
-ExecStart=/usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfpki.conf -log-name=pfpki
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfpki' -e 'pf::services::manager::pfpki->new()->generateConfig()'
+ExecStart=/bin/bash -c "export $(cat /usr/local/pf/var/conf/pfpki.env | xargs) && /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/pfpki.conf -log-name=pfpki"
 Restart=on-failure
 Slice=packetfence.slice
 
