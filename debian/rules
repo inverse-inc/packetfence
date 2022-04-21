@@ -60,6 +60,10 @@ install: build
 	-not -path "addons/full-upgrade/*" -not -path "html/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
+
+	$(INSTALL) html/pfappserver/root/errors/502.json.http $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/errors/502.json.http
+	$(INSTALL) html/pfappserver/root/errors/503.json.http $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/errors/503.json.http
+
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
 
