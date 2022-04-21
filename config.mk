@@ -110,6 +110,7 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
 	-not -path "$(SRC_ROOT_DIR)/public" \
 	-not -path "$(SRC_RPMDIR)" \
+	-not -path "$(SRC_HTMLDIR)" \
 	-not -path "$(SRC_TESTDIR)" )
 
 # all directories and files to include in packetfence-test package

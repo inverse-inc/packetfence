@@ -449,7 +449,6 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
-%{__install} -d %{buildroot}/usr/local/pf/docs
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -1148,72 +1147,6 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
-# only mark all files under docs/ as documentation
-%docdir                 /usr/local/pf/docs
-# add all files and directories under docs in package
-/usr/local/pf/docs
-
-### html dir
-# %%dir will add only html dir, not subdirectories or files
-%dir                    /usr/local/pf/html
-
-# parking dir and files below
-                        /usr/local/pf/html/parking
-
-# common dir and files below
-                        /usr/local/pf/html/common
-%config(noreplace)      /usr/local/pf/html/common/styles.css
-%config(noreplace)      /usr/local/pf/html/common/styles.css.map
-%config(noreplace)      /usr/local/pf/html/common/styles-dark.css
-
-# captive portal
-%dir                    /usr/local/pf/html/captive-portal
-                        /usr/local/pf/html/captive-portal/Changes
-                        /usr/local/pf/html/captive-portal/Makefile.PL
-                        /usr/local/pf/html/captive-portal/README
-%config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
-                        /usr/local/pf/html/captive-portal/captiveportal.conf.example
-                        /usr/local/pf/html/captive-portal/content/countdown.min.js
-                        /usr/local/pf/html/captive-portal/content/guest-management.js
-                        /usr/local/pf/html/captive-portal/content/captiveportal.js
-                        /usr/local/pf/html/captive-portal/content/autosubmit.js
-                        /usr/local/pf/html/captive-portal/content/timerbar.js
-                        /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
-                        /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
-                        /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
-                        /usr/local/pf/html/captive-portal/content/billing/stripe.js
-                        /usr/local/pf/html/captive-portal/content/billing/authorizenet.js
-                        /usr/local/pf/html/captive-portal/content/provisioner/mobileconfig.js
-                        /usr/local/pf/html/captive-portal/content/provisioner/sepm.js
-                        /usr/local/pf/html/captive-portal/content/release.js
-                        /usr/local/pf/html/captive-portal/content/scan.js
-                        /usr/local/pf/html/captive-portal/content/status.js
-                        /usr/local/pf/html/captive-portal/content/waiting.js
-                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
-                        /usr/local/pf/html/captive-portal/content/sslinspection.js
-                        /usr/local/pf/html/captive-portal/content/images
-                        /usr/local/pf/html/captive-portal/lib
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Remediation.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Authentication.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Field/AUP.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Widget/Field/AUP.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
-                        /usr/local/pf/html/captive-portal/script
-                        /usr/local/pf/html/captive-portal/templates
-# pfappserver dir
-                        /usr/local/pf/html/pfappserver
-
 # lib dir
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
