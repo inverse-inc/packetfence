@@ -7,7 +7,7 @@
   statsd {
     proto udp
     prefix pfipset
-    address host.docker.internal
+    address {$STATSD_ADDRESS}
   }
   pfipset
 }
