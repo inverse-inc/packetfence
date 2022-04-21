@@ -45,6 +45,10 @@ END
 DELIMITER ;
 \! echo "Checking PacketFence schema version...";
 call ValidateVersion;
+
+\! /usr/local/pf/db/upgrade-tenant-11.2-12.0.pl;
+SOURCE /usr/local/pf/db/upgrade-tenant-11.2-12.0.sql;
+
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
 ALTER TABLE security_event
