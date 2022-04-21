@@ -11,15 +11,13 @@ setup_vars() {
     ### collect variables needed inside Dockerfile
     # returns X.Y
     export PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' $CI_PROJECT_DIR/conf/pf-release)
-    # returns X.Y.Z without go prefix
-    export GO_VERSION=$(cat $CI_PROJECT_DIR/config.mk | grep GOVERSION | egrep -o "[0-9]+\.[0-9]+\.[0-9]+")
 
     # IMAGE_TAG is used inside DockerFile to reference other image
     # only one tag can be used in Dockerfile
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
 
     # variables to pass during build
-    DOCKFILE_VARS='PF_VERSION GO_VERSION KNK_REGISTRY_URL IMAGE_TAG'
+    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG'
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
