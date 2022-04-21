@@ -20,8 +20,6 @@ Pre-Depends:  ca-certificates,
  fingerbank (>= 4.2.3), fingerbank (<< 5.0.0),
  fingerbank-collector (>= 1.3.23), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
- packetfence-pfappserver-javascript (>= ${source:Version}),
- packetfence-captive-portal-javascript (>= ${source:Version}),
  packetfence-perl (>= 1.2.1),
  netdata (= 1:1.10.0-1),
  libmariadbd-dev (>= 10.1)
@@ -175,11 +173,6 @@ Description: PacketFence network registration / worm mitigation system
  * remediation through a captive portal
  * registration-based and scheduled vulnerability scans.
 
-Package: packetfence-doc
-Architecture: all
-Description: documentation for packetfence
- The package packetfence-doc contains the documentation files needed for the admin gui
-
 Package: packetfence-test
 Architecture: all
 Description: Test suite for packetfence
@@ -230,15 +223,3 @@ Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: PacketFence Golang binary.
 Conflicts: packetfence (<= 8.0.1)
-
-Package: packetfence-captive-portal-javascript
-Architecture: any
-Depends: ${misc:Depends}
-Description: PacketFence captive portal javascript
-Conflicts: packetfence (<< 8.1.1)
-
-Package: packetfence-pfappserver-javascript
-Architecture: any
-Depends: ${misc:Depends}
-Description: PacketFence Admin javascript css
-Conflicts: packetfence (<< 8.1.1)

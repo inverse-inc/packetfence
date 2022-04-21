@@ -339,18 +339,6 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-# Portal javascript/css
-%{__make} -C html/common/ vendor
-%{__make} -C html/common light-dist
-
-# Admin javascript/css
-%{__make} -C html/pfappserver/root/ vendor
-%{__make} -C html/pfappserver/root/ light-dist
-
-
-# Build the HTML doc index for pfappserver
-%{__make} html
-
 # build pfcmd C wrapper
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
@@ -495,17 +483,11 @@ mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
-cp -r docs/images %{buildroot}/usr/local/pf/docs/
-cp docs/*.html %{buildroot}/usr/local/pf/docs/
-cp docs/*.js %{buildroot}/usr/local/pf/docs/
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
 # clean Golang binaries from build dir
 %{__make} -C go clean
-
-# install html directory
-%{__make} DESTDIR=%{buildroot} html_install
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
