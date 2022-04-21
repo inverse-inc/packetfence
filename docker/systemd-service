@@ -2,7 +2,6 @@
 
 PF_REGISTRY=local
 PF_VERSION=11.3
-GO_VERSION=1.17
 
 function base_args {
   name="$1"
@@ -22,7 +21,7 @@ function build_run {
   name="$1"
   args="$2"
   cd /usr/local/pf/
-  img=$(docker build --build-arg=KNK_REGISTRY_URL=$PF_REGISTRY --build-arg=IMAGE_TAG=$PF_VERSION --build-arg=GO_VERSION=$GO_VERSION -q -f docker/$name/Dockerfile .)
+  img=$(docker build --build-arg=KNK_REGISTRY_URL=$PF_REGISTRY --build-arg=IMAGE_TAG=$PF_VERSION -q -f docker/$name/Dockerfile .)
   run_img $img $name "$args"
 }
 

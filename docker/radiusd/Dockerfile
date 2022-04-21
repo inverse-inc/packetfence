@@ -1,5 +1,4 @@
 ARG from=debian:bullseye
-ARG GO_VERSION
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
 
