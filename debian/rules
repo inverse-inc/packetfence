@@ -133,7 +133,7 @@ install: build
 	install -m0600 $(CURDIR)/packetfence.rsyslog-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/rsyslog.service.d/packetfence.conf
 	install -m0600 $(CURDIR)/packetfence.monit-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/monit.service
 	install -d -m0755 $(CURDIR)/debian/packetfence/etc/docker
-	install -m0600 $(CURDIR)/docker/daemon.json  $(CURDIR)/debian/packetfence/etc/docker/daemon.json
+	install -m0600 $(CURDIR)/containers/daemon.json  $(CURDIR)/debian/packetfence/etc/docker/daemon.json
 	install -m0600 $(CURDIR)/packetfence.docker-drop-in.service  $(CURDIR)/debian/packetfence/etc/systemd/system/docker.service
 	install -d -m0755 $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/
 	install -m0644 -D $(CURDIR)/packetfence.journald $(CURDIR)/debian/packetfence/usr/lib/systemd/journald.conf.d/01-packetfence.conf

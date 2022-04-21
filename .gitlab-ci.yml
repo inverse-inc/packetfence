@@ -39,7 +39,7 @@ variables:
   ISODIR: $CIDIR/debian-installer
   VAGRANT_IMG_DIR: $CIDIR/packer/vagrant_img
   TESTDIR: t/venom
-  CONTAINER_DIR: docker
+  CONTAINER_DIR: containers
   UPLOAD_DIR: $CILIBDIR/upload
   SF_ZEN_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ZEN
   SF_ISO_REPO_URL: https://sourceforge.net/projects/packetfence/files/PacketFence%20ISO

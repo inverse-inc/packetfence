@@ -21,7 +21,7 @@ function build_run {
   name="$1"
   args="$2"
   cd /usr/local/pf/
-  img=$(docker build --build-arg=KNK_REGISTRY_URL=$PF_REGISTRY --build-arg=IMAGE_TAG=$PF_VERSION -q -f docker/$name/Dockerfile .)
+  img=$(docker build --build-arg=KNK_REGISTRY_URL=$PF_REGISTRY --build-arg=IMAGE_TAG=$PF_VERSION -q -f containers/$name/Dockerfile .)
   run_img $img $name "$args"
 }
 
