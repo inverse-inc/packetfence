@@ -144,7 +144,7 @@ case "$1" in
         /bin/systemctl restart systemd-journald
 
         #TODO: change this to an official repository
-        for img in api-frontend pfdebian httpd.aaa httpd.portal httpd.webservices pfconfig pfqueue haproxy-portal pfsso httpd.admin_dispatcher httpd.dispatcher radius-auth radius-acct radius-cli radius-load-balancer pfperl-api; do
+        for img in api-frontend pfdebian httpd.aaa httpd.portal httpd.webservices pfconfig pfqueue haproxy-portal pfsso httpd.admin_dispatcher httpd.dispatcher radiusd-auth radiusd-acct radiusd-cli radiusd-load-balancer pfperl-api; do
           docker pull ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container
           docker tag ghcr.io/inverse-inc/packetfence/$img:feature-pfconfig-container local/$img:11.3
         done

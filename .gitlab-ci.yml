@@ -512,7 +512,7 @@ build_pfdebian_based_container_devel:
           - "httpd.aaa"
           - "httpd.admin_dispatcher"
           - "httpd.webservices"
-          - "radius"
+          - "radiusd"
           - "pfsso"
           - "pfperl-api"
 
@@ -527,7 +527,7 @@ build_container_devel:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-build_radius_based_container_devel:
+build_radiusd_based_container_devel:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
@@ -537,10 +537,10 @@ build_radius_based_container_devel:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "radius-auth"
-          - "radius-acct"
-          - "radius-cli"
-          - "radius-load-balancer"
+          - "radiusd-auth"
+          - "radiusd-acct"
+          - "radiusd-cli"
+          - "radiusd-load-balancer"
 
 # branches and maintenance
 build_pfdebian_container_branches_and_maintenance:
@@ -570,7 +570,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "httpd.aaa"
           - "httpd.admin_dispatcher"
           - "httpd.webservices"
-          - "radius"
+          - "radiusd"
           - "pfsso"
           - "pfperl-api"
 
@@ -585,7 +585,7 @@ build_container_branches_and_maintenance:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-build_radius_based_container_branches_and_maintenance:
+build_radiusd_based_container_branches_and_maintenance:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
@@ -595,10 +595,10 @@ build_radius_based_container_branches_and_maintenance:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "radius-auth"
-          - "radius-acct"
-          - "radius-cli"
-          - "radius-load-balancer"
+          - "radiusd-auth"
+          - "radiusd-acct"
+          - "radiusd-cli"
+          - "radiusd-load-balancer"
 
 # release
 build_pfdebian_container_release:
@@ -628,7 +628,7 @@ build_pfdebian_based_container_release:
           - "httpd.aaa"
           - "httpd.admin_dispatcher"
           - "httpd.webservices"
-          - "radius"
+          - "radiusd"
           - "pfsso"
           - "pfperl-api"
 
@@ -643,7 +643,7 @@ build_container_release:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-build_radius_based_container_release:
+build_radiusd_based_container_release:
   extends:
     - .build_img_container_job
     - .release_only_rules
@@ -653,10 +653,10 @@ build_radius_based_container_release:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "radius-auth"
-          - "radius-acct"
-          - "radius-cli"
-          - "radius-load-balancer"
+          - "radiusd-auth"
+          - "radiusd-acct"
+          - "radiusd-cli"
+          - "radiusd-load-balancer"
 
 ### build_img_docker jobs
 # EL8
