@@ -221,6 +221,7 @@ type PfConfWebservices struct {
 	User           string `json:"user"`
 	Port           string `json:"port"`
 	AAAPort        string `json:"aaa_port"`
+	AAAProto       string `json:"aaa_proto"`
 	UnifiedAPIPort string `json:"unifiedapi_port"`
 	Host           string `json:"host"`
 }
