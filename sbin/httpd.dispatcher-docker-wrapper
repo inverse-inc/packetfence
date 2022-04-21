@@ -5,7 +5,7 @@ source /usr/local/pf/docker/systemd-service
 name=httpd.dispatcher
 
 args=`base_args $name`
-args="$args --env-file /usr/local/pf/docker/httpd.dispatcher/localdev.env -v /usr/local/pf/conf:/usr/local/pf/conf -p 8888:8888 -p 8889:8889 -p 5252:5252"
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 8888:8888 -p 8889:8889 -p 5252:5252"
 
 cd /usr/local/pf/
 
