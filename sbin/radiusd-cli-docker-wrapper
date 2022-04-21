@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /usr/local/pf/docker/systemd-service
+source /usr/local/pf/containers/systemd-service
 
 name=radiusd-cli
 
