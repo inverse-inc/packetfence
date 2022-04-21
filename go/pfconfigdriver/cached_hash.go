@@ -27,7 +27,7 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 	FetchDecodeSocketCache(ctx, &cc.ids)
 
 	if cc.Structs != nil {
-		for _, id := range cc.ids.Keys {
+		for _, id := range cc.ids.Response.Keys {
 			o, ok := cc.Structs[id]
 
 			if !ok {
@@ -48,7 +48,7 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 	if reload {
 		newObjects := make(map[string]PfconfigObject)
 
-		for _, id := range cc.ids.Keys {
+		for _, id := range cc.ids.Response.Keys {
 			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Adding object %s", id))
 
 			o, err := cc.New(ctx, id)

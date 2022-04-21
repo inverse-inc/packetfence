@@ -28,10 +28,16 @@ max_tasks=2000
 task_jitter=100
 
 #
+#Connection details of the queue producer
+#
+[producer]
+redis_server=[% ENV.env_or_default("REDIS_QUEUE_HOST_PORT", "containers-gateway.internal:6380") %]
+
+#
 #Connection details of the queue consumer
 #
 [consumer]
-redis_server=127.0.0.1:6380
+redis_server=[% ENV.env_or_default("REDIS_QUEUE_HOST_PORT", "containers-gateway.internal:6380") %]
 redis_reconnect=1
 redis_every=100
 

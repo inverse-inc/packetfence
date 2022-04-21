@@ -38,6 +38,7 @@ sub init {
         -file       => $realm_config_file,
         -import     => pf::IniFiles->new(-file => $realm_default_config_file),
         -allowempty => 1,
+        -envsubst => 1,
     );
 }
 

@@ -24,15 +24,19 @@ SRC_ADDONSDIR = $(SRC_ROOT_DIR)/addons
 SRC_FULL_IMPORTDIR = $(SRC_ADDONSDIR)/full-import
 SRC_FULL_UPGRADEDIR = $(SRC_ADDONSDIR)/full-upgrade
 SRC_FUNCTIONSDIR = $(SRC_ADDONSDIR)/functions
+SRC_DOCKERDIR = $(SRC_ROOTDIR)/docker
 
 # specific directory to build website artifacts
 SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
 
+# Containers
+KNK_REGISTRY = ghcr.io
+KNK_REGISTRY_URL = ${KNK_REGISTRY}/inverse-inc/packetfence
 #
 # Golang
 #
 GOVERSION = go1.17.6
-PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcertmanager pfcron mysql-probe pfconnector
+PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector
 
 #
 # PF versions
@@ -45,7 +49,7 @@ PF_MINOR_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+)./)' $(PF_RELEAS
 PF_PATCH_RELEASE=$(shell perl -ne 'print $$1 if (m/.*?(\d+\.\d+\.\d+)/)' $(PF_RELEASE_PATH))
 
 # SRC HTML dirs
-SRC_HTMLDIR = html
+SRC_HTMLDIR = $(SRC_ROOT_DIR)/html
 SRC_HTML_CPDIR = $(SRC_HTMLDIR)/captive-portal
 SRC_HTML_COMMONDIR = $(SRC_HTMLDIR)/common
 SRC_HTML_PARKINGDIR = $(SRC_HTMLDIR)/parking
@@ -106,6 +110,7 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
 	-not -path "$(SRC_ROOT_DIR)/public" \
 	-not -path "$(SRC_RPMDIR)" \
+	-not -path "$(SRC_HTMLDIR)" \
 	-not -path "$(SRC_TESTDIR)" )
 
 # all directories and files to include in packetfence-test package

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"testing"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/log"
@@ -14,13 +15,13 @@ import (
 var ctx = log.LoggerNewContext(context.Background())
 
 func TestFetchSocket(t *testing.T) {
-	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json"}`+"\n")
+	result := FetchSocket(ctx, `{"method":"element", "key":"resource::fqdn","encoding":"json","no_last_touch_cache":true}`+"\n")
 	expected := `{"element":"pf.pfdemo.org"}`
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
 	}
 
-	result = FetchSocket(ctx, `{"method":"element", "key":"vidange","encoding":"json"}`+"\n")
+	result = FetchSocket(ctx, `{"method":"element", "key":"vidange","encoding":"json","no_last_touch_cache":true}`+"\n")
 	expected = `{"error":"No valid element was found for query"}`
 	if string(result) != expected {
 		t.Errorf("Response payload isn't correct '%s' instead of '%s'", result, expected)
@@ -41,8 +42,8 @@ func TestFetchDecodeSocket(t *testing.T) {
 	FetchDecodeSocket(ctx, &sections)
 
 	generalFound := false
-	for i := range sections.Keys {
-		if sections.Keys[i] == "general" {
+	for i := range sections.Response.Keys {
+		if sections.Response.Keys[i] == "general" {
 			generalFound = true
 		}
 	}
@@ -130,6 +131,7 @@ func TestFetchDecodeSocketCache(t *testing.T) {
 
 	// Expire data in pfconfig
 	FetchSocket(ctx, `{"method":"expire", "encoding":"json", "namespace":"config::Pf"}`+"\n")
+	time.Sleep(time.Duration(globalMeta.getPhoneInAtLeast()+1) * time.Second)
 
 	// Load the resource while accepting the reusal of the data already populated in the resource
 	loaded, err = FetchDecodeSocketCache(ctx, &gen)

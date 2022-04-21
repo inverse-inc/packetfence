@@ -31,7 +31,6 @@ In order to access the configuration namespaces :
 use strict;
 use warnings;
 
-use Config::IniFiles;
 use JSON::MaybeXS;
 use List::MoreUtils qw(any firstval uniq);
 use Scalar::Util qw(refaddr reftype tainted blessed);
@@ -162,6 +161,9 @@ sub list_control_overlayed_namespaces {
     my ($self) = @_;
     my $control_dir = $pfconfig::constants::CONTROL_FILE_DIR;
     my @modules;
+    if(! -d $pfconfig::constants::CONTROL_FILE_DIR) {
+        return @modules;
+    }
     find(
         {   wanted => sub {
                 my $module = $_;
@@ -210,6 +212,7 @@ sub init_cache {
     $self->{cache} = pfconfig::config->new->get_backend;
     $self->{memory}       = {};
     $self->{memorized_at} = {};
+    $self->{last_touch_cache} = time;
 }
 
 =head2 touch_cache
@@ -226,6 +229,9 @@ sub touch_cache {
     my $filename = pfconfig::util::control_file_path($what);
     $filename = untaint_chain($filename);
     touch_file($filename);
+    $self->{last_touch_cache} = time;
+    $pfconfig::cached::LAST_TOUCH_CACHE = time;
+    $pfconfig::cached::RELOADED_TOUCH_CACHE = time;
 }
 
 =head2 get_cache
@@ -341,7 +347,12 @@ sub cache_resource {
         print STDERR $message . "\n";
         $logger->error($message);
     }
-    $self->touch_cache($what);
+    if($self->{pfconfig_server}) {
+        $self->touch_cache($what);
+    }
+    else {
+        pfconfig::util::socket_expire(namespace => $what, light => 1);
+    }
     $self->{memory}->{$what}       = $result;
     $self->{memorized_at}->{$what} = time;
 
@@ -432,7 +443,6 @@ sub expire {
                 $self->expire($child_resource, $light);
             }
         }
-
     }
 }
 

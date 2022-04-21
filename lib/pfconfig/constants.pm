@@ -25,6 +25,8 @@ Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
 
 Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
 
+our $LAST_TOUCH_CACHE_STALENESS = 5;
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

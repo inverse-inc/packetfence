@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=radiusd-load-balancer
+
+args=`base_args $name`
+args="$args -v /usr/local/pf/conf/log.conf.d/:/usr/local/pf/conf/log.conf.d/ -v /usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/ -v /usr/local/pf/raddb/:/usr/local/pf/raddb/ -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock -p 100.64.0.1:1812:1812/udp"
+
+run $name "$args"

@@ -11,11 +11,13 @@ import (
 type PfconfigObject interface {
 	GetLoadedAt() time.Time
 	SetLoadedAt(time.Time)
+	GetLastTouchCache() float64
 }
 
 // A basic StructConfig that contains the loaded at time which ensures FetchDecodeSocketCache will refresh the struct when needed
 // FetchDecodeSocket can be used by structs that don't include this one, but the pool uses FetchDecodeSocketCache so this struct should always be included in the pfconfig based structs
 type StructConfig struct {
+	LastTouchCache             float64 `json:"last_touch_cache"`
 	PfconfigLoadedAt           time.Time
 	PfconfigHostnameOverlay    string `val:"no"`
 	PfconfigClusterNameOverlay string `val:"no"`
@@ -31,11 +33,16 @@ func (ps *StructConfig) GetLoadedAt() time.Time {
 	return ps.PfconfigLoadedAt
 }
 
+func (ps *StructConfig) GetLastTouchCache() float64 {
+	return ps.LastTouchCache
+}
+
 // pfconfig replies with the «struct» nested in an element key of a hash
 // ex: {"element":{"data1":"value1", "data2":"value2"}}
 // The structs are built to receive the value of element, so in order to have 2 stage decoding, this serves as a receiver for the pfconfig payload which then gets decoded into the right type
 type PfconfigElementResponse struct {
-	Element *json.RawMessage
+	LastTouchCache float64 `json:"last_touch_cache"`
+	Element        *json.RawMessage
 }
 
 // To be combined with another struct in order to give it a Type attribute common in PF
@@ -190,7 +197,6 @@ type PfConfServices struct {
 	NetFlowAddress       string `json:"netflow_address"`
 	MysqlProbe           string `json:"mysql-probe"`
 	Pfacct               string `json:"pfacct"`
-	PfcertManager        string `json:"pfcertmanager"`
 	Pfdhcp               string `json:"pfdhcp"`
 	Pfdhcplistener       string `json:"pfdhcplistener"`
 	Pfdns                string `json:"pfdns"`
@@ -286,14 +292,28 @@ type PfconfigKeys struct {
 	PfconfigMethod string `val:"keys"`
 	PfconfigNS     string `val:"-"`
 	Keys           []string
+	Response       struct {
+		Keys           []string
+		LastTouchCache float64
+	}
 }
 
 type PfconfigKeysInt interface {
 	GetKeys() *[]string
+	GetResponse() interface{}
+	SetKeysFromResponse()
+}
+
+func (pk *PfconfigKeys) SetKeysFromResponse() {
+	pk.Keys = pk.Response.Keys
 }
 
 func (pk *PfconfigKeys) GetKeys() *[]string {
 	return &(pk.Keys)
+}
+
+func (pk *PfconfigKeys) GetResponse() interface{} {
+	return &pk.Response
 }
 
 type ListenInts struct {
@@ -789,4 +809,12 @@ type Connectors struct {
 	Element                 map[string]struct {
 		Secret string `json:"secret"`
 	}
+}
+
+type FQDN struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::fqdn"`
+	PfconfigDecodeInElement string `val:"yes"`
+	Element                 string
 }

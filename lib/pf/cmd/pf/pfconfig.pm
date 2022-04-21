@@ -30,7 +30,7 @@ use pfconfig::manager;
 use pfconfig::util;
 use pfconfig::cached;
 use Data::Dumper;
-use pf::constants::exit_code qw($EXIT_SUCCESS);
+use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::constants;
 use base qw(pf::base::cmd::action_cmd);
 

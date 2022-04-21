@@ -1,0 +1,15 @@
+# Copyright (C) Inverse inc.
+[general]
+proto=[% ENV.env_or_default("PFCONFIG_PROTO", "tcp") %]
+backend=[% ENV.env_or_default("PFCONFIG_BACKEND", "mysql") %]
+tcp_host=[% ENV.env_or_default("PFCONFIG_TCP_HOST", "containers-gateway.internal") %]
+tcp_port=[% ENV.env_or_default("PFCONFIG_TCP_PORT", "44444") %]
+
+[mysql]
+host=[% ENV.env_or_default("PFCONFIG_MYSQL_HOST", "localhost") %]
+user=[% ENV.env_or_default("PFCONFIG_MYSQL_USER", "pf") %]
+pass=[% ENV.env_or_default("PFCONFIG_MYSQL_PASS", "packet") %]
+db=[% ENV.env_or_default("PFCONFIG_MYSQL_DB", "pf") %]
+port=[% ENV.env_or_default("PFCONFIG_MYSQL_PORT", "3306") %]
+table=[% ENV.env_or_default("PFCONFIG_MYSQL_TABLE", "keyed") %]
+unix_socket=[% ENV.env_or_default("PFCONFIG_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.sock") %]

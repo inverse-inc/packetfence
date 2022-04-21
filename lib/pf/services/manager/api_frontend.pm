@@ -15,9 +15,9 @@ pf::services::manager::api_frontend
 use strict;
 use warnings;
 use Moo;
-use pf::cluster;
 
 extends 'pf::services::manager';
+with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => ( default => sub { 'api-frontend' } );
 

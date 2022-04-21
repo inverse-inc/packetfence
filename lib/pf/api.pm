@@ -133,6 +133,8 @@ sub event_add : Public {
 
 sub echo : Public {
     my ($class, @args) = @_;
+    require Data::Dumper;
+    pf::log::get_logger->info(Data::Dumper::Dumper(\@args));
     return @args;
 }
 

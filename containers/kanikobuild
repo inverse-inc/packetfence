@@ -1,0 +1,90 @@
+#! /busybox/sh
+# Idea comes from https://gitlab.com/Orange-OpenSource/gitlab-buildpkg
+set -o nounset -o pipefail -o errexit
+
+## All variables not defined and used later comes from environment
+# CI_PROJECT_DIR must be equal to root of PF source tree (full path)
+
+setup_vars() {
+    DOCKFILE_PATH=$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile
+
+    ### collect variables needed inside Dockerfile
+    # returns X.Y
+    export PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' $CI_PROJECT_DIR/conf/pf-release)
+
+    # IMAGE_TAG is used inside DockerFile to reference other image
+    # only one tag can be used in Dockerfile
+    export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
+
+    # variables to pass during build
+    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG'
+
+    echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
+}
+
+generate_knk_config() {
+    echo "{\"auths\":{\"$KNK_REGISTRY\":{\"username\":\"$KNK_REGISTRY_USER\",\"password\":\"$KNK_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+}
+
+# we don't pass value of variables as build args, only their names
+# values will be taken from environment
+# so all DOCKFILE_VARS need to be exported if they are not
+# already in the environment
+generate_build_args() {
+    local build_args=''
+    for var in ${DOCKFILE_VARS}; do
+      # just to handle case of first iteration
+      if [ -z "$build_args" ]; then 
+        build_args="--build-arg ${var}"
+      else
+        build_args="$build_args --build-arg ${var}"
+      fi
+    done
+    echo "$build_args"
+
+}
+
+detect_multi_tags() {
+    # hack to get number of commas, zero comma means there is only one tag
+    multi_tags=$(echo $IMAGE_TAGS|grep -o ','|wc -l)
+}
+
+# support multi-tags
+# https://github.com/GoogleContainerTools/kaniko/issues/217
+generate_destinations() {
+    local destinations=''
+    if detect_multi_tags; then
+    # Multi-tags detected, parsing ${IMAGE_TAGS}"
+    TAGS=$(echo $IMAGE_TAGS | tr ',' ' ')
+    for tag in ${TAGS}; do
+      # just to handle case of first iteration
+      if [ -z "$destinations" ]; then 
+        destinations="--destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
+      else
+        destinations="$destinations --destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
+      fi
+    done
+    else
+      # Only one tag detected, using ${IMAGE_TAG} as tag
+      IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+      destinations="--destination ${IMAGE_DEST}"
+    fi
+    echo "$destinations"
+}
+
+build_image() {
+    /kaniko/executor --context $CI_PROJECT_DIR \
+         --dockerfile ${DOCKFILE_PATH} \
+         --cache \
+         --cache-repo ${KNK_REGISTRY_URL}/cache \
+         $(generate_destinations) \
+         $(generate_build_args)
+}
+
+setup_vars
+generate_knk_config
+generate_build_args
+generate_destinations
+build_image
+
+

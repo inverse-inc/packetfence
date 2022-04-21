@@ -271,27 +271,32 @@ pfacct_netflow=2056
 # database.host
 #
 # Server the MySQL server is running on.
-host=localhost
+host=[% ENV.env_or_default("PF_MYSQL_HOST", "localhost") %]
 #
 # database.port
 #
 # Port the MySQL server is running on.
-port=3306
+port=[% ENV.env_or_default("PF_MYSQL_PORT", "3306") %]
 #
 # database.db
 #
 # Name of the MySQL database used by PacketFence.
-db=pf
+db=[% ENV.env_or_default("PF_MYSQL_DB", "pf") %]
 #
 # database.user
 #
 # Username of the account with access to the MySQL database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
-user=pf
+user=[% ENV.env_or_default("PF_MYSQL_USER", "pf") %]
 #
 # database.pass
 #
 # Password for the mysql database used by PacketFence. Changing this parameter after the initial configuration will *not* change it in the database it self, only in the configuration.
-pass=packet
+pass=[% ENV.env_or_default("PF_MYSQL_PASS", "packet") %]
+#
+# database.unix_socket
+#
+# Path to the database UNIX socket
+unix_socket=[% ENV.env_or_default("PF_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.sock") %]
 
 [database_advanced]
 #
@@ -651,16 +656,6 @@ pfacct=enabled
 # Location of the pfacct binary.
 pfacct_binary=/usr/local/pf/sbin/pfacct
 
-# services.pfcertmanager
-#
-# Should pfcertmanager be managed by PacketFence?
-pfcertmanager=enabled
-#
-# services.pfcertmanager_binary
-#
-# Location of the pfcertmanager binary.
-pfcertmanager_binary=/usr/local/pf/sbin/pfcertmanager
-
 #
 # services.api-frontend
 #
@@ -990,7 +985,8 @@ active_directory_os_join_check_bypass=disabled
 # advanced.statsd_listen_port
 #
 # The port where statsd listen
-statsd_listen_port = 8125
+statsd_listen_port = [% ENV.env_or_default("STATSD_LISTEN_PORT", "8125") %]
+statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "127.0.0.1") %]
 
 # advanced.pfperl_api_timeout
 #
@@ -1074,37 +1070,42 @@ voip=no
 # webservices.user
 #
 # username to use to connect to the webAPI
-user =
+user=[% ENV.env_or_default("PF_WEBSERVICES_USER", "") %]
 #
 # webservices.pass
 #
 # password of the username
-pass =
+pass=[% ENV.env_or_default("PF_WEBSERVICES_PASS", "") %]
 #
 # webservices.host
 #
 # host of the webAPI
-host=127.0.0.1
+host=[% ENV.env_or_default("PF_WEBSERVICES_HOST", "containers-gateway.internal") %]
 #
 # webservices.proto
 #
 # proto to use
-proto=http
+proto=[% ENV.env_or_default("PF_WEBSERVICES_PROTO", "https") %]
 #
 # webservices.port
 #
 # port to use
-port=9090
+port=[% ENV.env_or_default("PF_WEBSERVICES_PORT", "9090") %]
 #
 # webservices.aaa_port
 #
 # port to use for authentication
-aaa_port=7070
+aaa_port=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PORT", "7070") %]
+#
+# webservices.aaa_port
+#
+# port to use for authentication
+aaa_proto=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PROTO", "http") %]
 #
 # webservices.unifiedapi_port
 #
 # port to use for accessing the Unified API
-unifiedapi_port=9999
+unifiedapi_port=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_PORT", "9999") %]
 
 [active_active]
 #
@@ -1414,3 +1415,13 @@ subject_prefix=
 configurations=packetfence,os-checks
 mailserver=
 
+[services_url]
+httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://containers-gateway.internal:8080") %]
+httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://containers-gateway.internal:8888") %]
+httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://containers-gateway.internal:8889") %]
+pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://containers-gateway.internal:22225") %]
+pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://containers-gateway.internal:22223") %]
+pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://containers-gateway.internal:22222") %]
+pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://containers-gateway.internal:22224") %]
+pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
+pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]

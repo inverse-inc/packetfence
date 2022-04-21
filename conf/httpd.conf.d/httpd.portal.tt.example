@@ -126,6 +126,8 @@ PerlModule Apache2::Resource
 PerlSetEnv PERL_RLIMIT_AS 1024
 PerlChildInitHandler Apache2::Resource
 
+[% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
+
 PerlSwitches -I[% install_dir %]/lib
 PerlSwitches -I[% install_dir %]/lib_perl/lib/perl5
 # mod_perl handlers are virtually assigned to /perl/
@@ -192,7 +194,7 @@ PerlChildInitHandler pf::WebAPI::InitHandler->child_init
 Header set X-XSS-Protection "1; mode=block"
 Header always append X-Frame-Options SAMEORIGIN
 
-ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
+ErrorLog /dev/stderr
 
 #disable htaccess starting at web root
 <Directory />
@@ -210,8 +212,8 @@ NameVirtualHost [% vhost %]:80
 <VirtualHost [% vhost %]:80 > 
      ServerName   [% server_name %]
      DocumentRoot [% install_dir %]/html/captive-portal/lib
-     ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-     CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_netdata
+     ErrorLog /dev/stderr
+     CustomLog /dev/stdout  loadbalanced_combined env=!is_netdata
      Include [% var_dir %]/conf/captive-portal-common
      AllowEncodedSlashes on
      Alias       /static [% install_dir %]/html/captive-portal/root/static
@@ -304,8 +306,8 @@ NameVirtualHost [% vhost %]:80
     <VirtualHost [% vhost_management_network %]:[% ports.httpd_portal_modstatus %] >
         ServerName   [% server_name %]
         DocumentRoot [% install_dir%]/html/captive-portal/lib
-        ErrorLog "| /usr/bin/logger -thttpd_portal_err -plocal5.err"
-        CustomLog "| /usr/bin/logger -thttpd_portal -plocal5.info"  loadbalanced_combined env=!is_netdata
+        ErrorLog /dev/stderr
+        CustomLog /dev/stdout  loadbalanced_combined env=!is_netdata
 
         <Location  /modstatus >
             SetHandler server-status

@@ -12,7 +12,7 @@
         config directory = /usr/local/pf/var/conf/monitoring
         # Netdata is not designed to be exposed to potentially hostile networks
         # See https://github.com/firehol/netdata/issues/164
-	bind to = %%management_ip%%,127.0.0.1
+	bind to = %%management_ip%%,127.0.0.1,containers-gateway.internal
 
 [statsd]
 	# enabled = yes
@@ -36,7 +36,7 @@
 	# gaps on timers (deleteTimers) = no
 	# statsd server max TCP sockets = 256
 	# listen backlog = 4096
-	# default port = 8125
-	# bind to = udp:localhost tcp:localhost
+	default port = 8125
+	bind to = udp:[::1] udp:127.0.0.1 udp:containers-gateway.internal tcp:[::1] tcp:127.0.0.1 tcp:containers-gateway.internal
 
 

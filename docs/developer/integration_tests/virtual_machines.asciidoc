@@ -23,17 +23,10 @@ Several reboots are necessary before machine can be provisioned by
 Ansible. During initial Ansible provisioning, several reboots will
 occur too. It takes like 10 minutes to have a machine up and running.
 
-.Vagrant admin accounts:
-[source,yaml]
-----
-include::../../../addons/vagrant/inventory/group_vars/winservers/domain_setup.yml[]
-----
+You can find credentials of AD accounts (domain administrator and PacketFence user) in following files:
+* [filename]`$PF_ROOT/addons/vagrant/inventory/group_vars/winservers/domain_setup.yml`
+* [filename]`$PF_ROOT/addons/vagrant/inventory/group_vars/winservers/init_directory.yml`
 
-.PacketFence domain account:
-[source,yaml]
-----
-include::../../../addons/vagrant/inventory/group_vars/winservers/init_directory.yml[]
-----
 
 ===== Switch01
 

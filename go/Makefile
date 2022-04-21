@@ -15,7 +15,7 @@ go-env:
 .PHONY: test
 test:
 	/usr/local/pf/t/pfconfig-test ;\
-	PFCONFIG_TESTING=y $(GO) test -count=1 ./...
+	PFCONFIG_PROTO=unix PFCONFIG_TESTING=y $(GO) test -count=1 ./...
 
 CMDS = $(wildcard cmd/*)
 ALL_BINARIES = $(patsubst cmd/%, %, $(CMDS))

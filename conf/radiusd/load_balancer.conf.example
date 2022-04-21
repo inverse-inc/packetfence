@@ -1,16 +1,16 @@
 # Copyright (C) Inverse inc.
 
-pidfile = %%pid_file%%
+pidfile = [% pid_file %]
 
 $INCLUDE radiusd_loadbalancer.conf
 
-%%listen%%
+[% listen %]
 
-%%eduroam%%
+[% eduroam %]
 
 listen {
     type = control
-    socket = %%socket_file%%
+    socket =  [% socket_file %]
     mode = rw
 }
 
@@ -37,7 +37,7 @@ log {
 	#  The command-line option "-X" over-rides this option, and forces
 	#  logging to go to stdout.
 	#
-	destination = syslog
+	destination = stdout
 
 	#
 	#  Highlight important messages sent to stderr and stdout.

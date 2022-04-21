@@ -28,6 +28,7 @@ use pf::config qw(
     @dhcplistener_ints
     $management_network
     @portal_ints
+    $CONTAINER_INT
 );
 use pf::file_paths qw(
     $generated_conf_dir
@@ -55,61 +56,57 @@ sub generateConfig {
     $tags{'http'} = '';
     $tags{'var_dir'} = $var_dir;
     $tags{'conf_dir'} = $var_dir.'/conf';
-    $tags{'bind-process'} = '';
-    my $bind_process = '';
-    if ($OS eq 'debian') {
-        $tags{'os_path'} = '/etc/haproxy/errors/';
-    } else {
-         $tags{'os_path'} = '/usr/share/haproxy/';
+
+    my %backend_tags = (
+        backend_proxy => "httpd_dispatcher",
+        backend_static => "httpd_dispatcher_static",
+        backend_pki => "pfpki",
+        backend_portal => "httpd_portal",
+    );
+    while(my ($tag, $conf_key) = each(%backend_tags)) {
+        my $u = URI->new($Config{services_url}{$conf_key});
+        die "services_url.$conf_key doesn't use the http scheme: $Config{services_url}{$conf_key}" if($u->scheme ne "http");
+
+        $tags{$tag} = $u->host . ":" . $u->port;
     }
+
     my $cluster_ip;
     my $ip_cluster;
     my @ints = uniq(@listen_ints,@dhcplistener_ints,map { $_->{'Tint'} } @portal_ints);
     my @portal_ip;
     my $rate_limiting = isenabled($Config{captive_portal}{rate_limiting});
     my $rate_limiting_threshold = $Config{captive_portal}{rate_limiting_threshold};
+
+    my $i = 0;
     foreach my $interface ( @ints ) {
         my $cfg = $Config{"interface $interface"};
         next unless $cfg;
-        my $i = 0;
-        if ($interface eq $management_network->tag('int')) {
-            $tags{'active_active_ip'} = pf::cluster::management_cluster_ip() || $cfg->{'vip'} || $cfg->{'ip'};
-            $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
-            my @backend_ip = values %{pf::cluster::members_ips($interface)};
-            push @backend_ip, '127.0.0.1' if !@backend_ip;
-            my $backend_ip_config = '';
-            foreach my $back_ip ( @backend_ip ) {
-                next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
-
-                $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check inter 10s fastinter 2s
-EOT
-            }
-
-        }
+        last if $i > 0;
         if ($cfg->{'type'} =~ /internal/ || $cfg->{'type'} =~ /portal/) {
             my $cluster_ip = pf::cluster::cluster_ip($interface) || $cfg->{'vip'} || $cfg->{'ip'};
             $ip_cluster = $cluster_ip;
             push @portal_ip, $cluster_ip;
-            my @backend_ip = values %{pf::cluster::members_ips($interface)};
-            if (!@backend_ip) {
-                push @backend_ip, '127.0.0.1';
-                push @portal_ip, '127.0.0.1';
+            my @backend_hosts = values %{pf::cluster::members_ips($interface)};
+            if (!@backend_hosts) {
+                my $portal_backend = URI->new($Config{services_url}{httpd_portal});
+                push @backend_hosts, $tags{backend_portal};
             } else {
-                push @portal_ip, @backend_ip;
+                @backend_hosts = map {"$_:8080"} @backend_hosts;
+                push @portal_ip, @backend_hosts;
             }
-            my $backend_ip_config = '';
-            foreach my $back_ip ( @backend_ip ) {
-                next if($back_ip eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
+            my $backend_hosts_config = '';
+            foreach my $back ( @backend_hosts ) {
+                # cluster specific
+                next if($back eq $cfg->{ip} && isdisabled($Config{active_active}{portal_on_management}));
 
-                $backend_ip_config .= <<"EOT";
-        server $back_ip $back_ip:80 check inter 10s fastinter 2s
+                $backend_hosts_config .= <<"EOT";
+        server $back $back check inter 10s fastinter 2s
 EOT
             }
 
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
-        bind $cluster_ip:80
+        bind *:80
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -130,10 +127,9 @@ EOT
         http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 
 frontend portal-https-$cluster_ip
-        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        bind *:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -154,7 +150,6 @@ EOT
         http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 
 
 backend $cluster_ip-backend
@@ -175,7 +170,7 @@ EOT
 EOT
             }
             $tags{'http'} .= <<"EOT";
-$backend_ip_config
+$backend_hosts_config
 EOT
 
             # IPv6 handling
@@ -184,7 +179,7 @@ EOT
                 push @portal_ip, $cluster_ipv6;
                 $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ipv6
-        bind $cluster_ipv6:80
+        bind :::80
         capture request header Host len 40
         stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -199,10 +194,9 @@ frontend portal-http-$cluster_ipv6
         http-request add-header X-Forwarded-Proto http
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 
 frontend portal-https-$cluster_ipv6
-        bind $cluster_ipv6:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        bind :::443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         stick-table type ipv6 size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -217,69 +211,11 @@ frontend portal-https-$cluster_ipv6
         http-request add-header X-Forwarded-Proto https
         use_backend %[var(req.action)]
         default_backend $cluster_ip-backend
-        $bind_process
 EOT
             }
 
+        $i++;
         }
-    }
-    $tags{'management_ip'}
-        = defined( $management_network->tag('vip') )
-        ? $management_network->tag('vip')
-        : $management_network->tag('ip');
-
-    my $internal_portal_ip = $Config{captive_portal}{ip_address};
-    if (scalar @portal_ip > 0) {
-$tags{'http'} .= <<"EOT";
-
-frontend portal-http-$internal_portal_ip
-        bind $internal_portal_ip:80
-        capture request header Host len 40
-        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
-        tcp-request connection track-sc1 src
-        http-request lua.change_host
-        acl host_exist var(req.host) -m found
-        http-request set-header Host %[var(req.host)] if host_exist
-        http-request lua.select
-        acl action var(req.action) -m found
-EOT
-            if($rate_limiting) {
-            $tags{'http'} .= <<"EOT";
-        acl unflag_abuser src_clr_gpc0 --
-        http-request allow if action unflag_abuser
-        http-request deny if { src_get_gpc0 gt 0 }
-EOT
-            }
-            $tags{'http'} .= <<"EOT";
-        http-request add-header X-Forwarded-Proto http
-        use_backend %[var(req.action)]
-        default_backend $ip_cluster-backend
-        $bind_process
-
-frontend portal-https-$internal_portal_ip
-        bind $internal_portal_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-        capture request header Host len 40
-        stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
-        tcp-request connection track-sc1 src
-        http-request lua.change_host
-        acl host_exist var(req.host) -m found
-        http-request set-header Host %[var(req.host)] if host_exist
-        http-request lua.select
-        acl action var(req.action) -m found
-EOT
-            if($rate_limiting) {
-            $tags{'http'} .= <<"EOT";
-        acl unflag_abuser src_clr_gpc0 --
-        http-request allow if action unflag_abuser
-        http-request deny if { src_get_gpc0 gt 0 }
-EOT
-            }
-            $tags{'http'} .= <<"EOT";
-        http-request add-header X-Forwarded-Proto https
-        use_backend %[var(req.action)]
-        default_backend $ip_cluster-backend
-        $bind_process
-EOT
     }
 
     $tags{captiveportal_templates_path} = $captiveportal_templates_path;

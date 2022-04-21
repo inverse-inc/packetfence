@@ -1,7 +1,5 @@
 # Copyright (C) Inverse inc.
-:22223 {
-  bind 127.0.0.1
-  
+0.0.0.0:22223 {
   pfconfigpool
   logger {
     level INFO
@@ -9,6 +7,7 @@
   statsd {
     proto udp
     prefix pfipset
+    address {$STATSD_ADDRESS}
   }
   pfipset
 }

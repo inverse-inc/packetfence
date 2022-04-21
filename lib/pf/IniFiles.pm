@@ -21,21 +21,35 @@ use Config::IniFiles;
 use Symbol 'gensym','qualify_to_ref';   # For the 'any data type' hack
 use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
-
+use Template;
+use Template::Stash;
 *errors = \@Config::IniFiles::errors;
 
 use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
 our $PrettyName;
+our $tt = Template->new({ABSOLUTE => 1});
+$tt->context->define_vmethod('hash', 'env_or_default', sub {
+    # Apache variables that aren't undefined will appear as ${NAME_OF_VARIABLE} so we check that the key exists and doesn't equal to that value
+    exists($_[0]{$_[1]}) && $_[0]{$_[1]} ne '${'.$_[1].'}' && $_[0]{$_[1]} ne '' ? $_[0]{$_[1]} : $_[2]; 
+});
+
 
 =head2 new
 
 =cut
 
 sub new {
-    my ($proto, @args) = @_;
+    my ($proto, %args) = @_;
     my $class = ref($proto) || $proto;
-    return $class->SUPER::new(@args);
+    if(exists($args{-envsubst}) && $args{-envsubst}) {
+        my $processed_file;
+        $tt->process($args{-file}, {ENV => \%ENV}, \$processed_file) || die "Can't process TT for $args{-file}: ".$tt->error;
+        $args{-file} = \$processed_file;
+    }
+    delete($args{-envsubst});
+
+    return $class->SUPER::new(%args);
 }
 
 =head2 DeleteSection ( $sect_name, $include_groupmembers )

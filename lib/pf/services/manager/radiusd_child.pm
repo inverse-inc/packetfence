@@ -108,20 +108,21 @@ sub _generateConfig {
         ABSOLUTE => 1,
         FILTERS  => { escape_string => \&escape_freeradius_string },
     );
-    $self->generate_radiusd_mainconf();
+    $self->generate_radiusd_mainconf($tt);
     $self->generate_radiusd_authconf($tt);
     $self->generate_radiusd_acctconf($tt);
     $self->generate_radiusd_eapconf($tt);
-    $self->generate_radiusd_restconf();
-    $self->generate_radiusd_sqlconf();
+    $self->generate_radiusd_restconf($tt);
+    $self->generate_radiusd_sqlconf($tt);
     $self->generate_radiusd_sitesconf($tt);
-    $self->generate_radiusd_proxy();
+    $self->generate_radiusd_proxy($tt);
     $self->generate_radiusd_cluster($tt);
     $self->generate_radiusd_cliconf($tt);
     $self->generate_radiusd_eduroamconf($tt);
     $self->generate_radiusd_ldap($tt);
     $self->generate_radiusd_mschap($tt);
     $self->generate_multi_domain_constants();
+    $self->generate_radiusd_certificates($tt);
 }
 
 
@@ -327,11 +328,13 @@ EOT
 
 
 =head2 generate_radiusd_mainconf
+
 Generates the radiusd.conf configuration file
+
 =cut
 
 sub generate_radiusd_mainconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
 
     $tags{'template'}    = "$conf_dir/radiusd/radiusd.conf";
@@ -344,13 +347,13 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
 
-    parse_template( \%tags, "$conf_dir/radiusd/radiusd.conf", "$install_dir/raddb/radiusd.conf" );
-    parse_template( \%tags, "$conf_dir/radiusd/radiusd_loadbalancer.conf", "$install_dir/raddb/radiusd_loadbalancer.conf" );
-    parse_template( \%tags, "$conf_dir/radiusd/radiusd_cli.conf", "$install_dir/raddb/radiusd_cli.conf" );
+    $tt->process("$conf_dir/radiusd/radiusd.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
+    $tt->process("$conf_dir/radiusd/radiusd_loadbalancer.conf", \%tags, "$install_dir/raddb/radiusd_loadbalancer.conf") or die $tt->error();
+    $tt->process("$conf_dir/radiusd/radiusd_cli.conf", \%tags, "$install_dir/raddb/radiusd_cli.conf") or die $tt->error();
 }
 
 sub generate_radiusd_restconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
 
     $tags{'template'}    = "$conf_dir/radiusd/rest.conf";
@@ -359,9 +362,9 @@ sub generate_radiusd_restconf {
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
     $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
-    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
+    $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
-    parse_template( \%tags, "$conf_dir/radiusd/rest.conf", "$install_dir/raddb/mods-enabled/rest" );
+    $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
 }
 
 sub generate_radiusd_authconf {
@@ -384,7 +387,7 @@ sub generate_radiusd_authconf {
         $tags{'virtual_server'} = "pf-remote";
     }
 
-    $tags{'listen_ips'} = [uniq @listen_ips];
+    $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     $tt->process("$conf_dir/radiusd/auth.conf", \%tags, "$install_dir/raddb/auth.conf") or die $tt->error();
@@ -405,14 +408,14 @@ sub generate_radiusd_acctconf {
         }
     }
 
-    $tags{'listen_ips'} = [uniq @listen_ips];
+    $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd-acct.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd-acct.sock";
     $tt->process("$conf_dir/radiusd/acct.conf", \%tags, "$install_dir/raddb/acct.conf") or die $tt->error();
 }
 
 sub generate_radiusd_eduroamconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
@@ -421,7 +424,7 @@ sub generate_radiusd_eduroamconf {
             my $ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
             $tags{'listen'} .= << "EOT";
 listen {
-    ipaddr = $ip
+    ipaddr = *
     port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
@@ -433,7 +436,7 @@ EOT
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
                 $tags{'listen'} .= <<"EOT";
 listen {
-    ipaddr = $ip
+    ipaddr = *
     port =  $eduroam_authentication_source[0]{'auth_listening_port'}
     type = auth
     virtual_server = eduroam
@@ -444,7 +447,7 @@ EOT
         }
         $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
-        parse_template( \%tags, $tags{template}, "$install_dir/raddb/eduroam.conf" );
+        $tt->process("$conf_dir/radiusd/eduroam.conf", \%tags, "$install_dir/raddb/eduroam.conf") or die $tt->error();
 
         # Eduroam configuration
         %tags = ();
@@ -592,7 +595,7 @@ EOT
         else {
             $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
         }
-        parse_template( \%tags, "$conf_dir/radiusd/eduroam", "$install_dir/raddb/sites-available/eduroam" );
+        $tt->process("$conf_dir/radiusd/eduroam", \%tags, "$install_dir/raddb/sites-available/eduroam") or die $tt->error();
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
 
         %tags = ();
@@ -627,11 +630,11 @@ EOT
     }
     # Ensure raddb/clients.eduroam.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.eduroam.conf.inc";
-    parse_template( \%tags, "$conf_dir/radiusd/clients.eduroam.conf.inc", "$install_dir/raddb/clients.eduroam.conf.inc" );
+    $tt->process("$conf_dir/radiusd/clients.eduroam.conf.inc", \%tags, "$install_dir/raddb/clients.eduroam.conf.inc") or die $tt->error();
 }
 
 sub generate_radiusd_cliconf {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
     if (@cli_switches > 0) {
         $tags{'template'}    = "$conf_dir/radiusd/cli.conf";
@@ -640,7 +643,7 @@ sub generate_radiusd_cliconf {
 
 $tags{'listen'} .= <<"EOT";
 listen {
-        ipaddr = $ip
+        ipaddr = *
         port = 1815
         type = auth
         virtual_server = packetfence-cli
@@ -657,7 +660,7 @@ EOT
                 my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
                 $tags{'listen'} .= <<"EOT";
 listen {
-        ipaddr = $ip
+        ipaddr = *
         port = 1815
         type = auth
         virtual_server = packetfence-cli
@@ -668,7 +671,7 @@ EOT
         }
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
-        parse_template( \%tags, $tags{template}, "$install_dir/raddb/cli.conf" );
+	$tt->process("$conf_dir/radiusd/cli.conf", \%tags, "$install_dir/raddb/cli.conf") or die $tt->error();
     } else {
         my $file = $install_dir."/raddb/cli.conf";
         unlink($file);
@@ -696,6 +699,7 @@ Generates the sql.conf configuration file
 =cut
 
 sub generate_radiusd_sqlconf {
+   my ($self, $tt) = @_;
    my %tags;
    $tags{'template'}    = "$conf_dir/radiusd/sql.conf";
    $tags{'install_dir'} = $install_dir;
@@ -707,8 +711,7 @@ sub generate_radiusd_sqlconf {
    for my $k (qw(db_username db_password)) {
       $tags{$k} = escape_freeradius_string($tags{$k});
    }
-
-    parse_template( \%tags, "$conf_dir/radiusd/sql.conf", "$install_dir/raddb/mods-enabled/sql" );
+    $tt->process("$conf_dir/radiusd/sql.conf", \%tags, "$install_dir/raddb/mods-enabled/sql") or die $tt->error();
 }
 
 =head2 escape_freeradius_string
@@ -856,6 +859,7 @@ Generates the proxy.conf.inc configuration file
 =cut
 
 sub generate_radiusd_proxy {
+    my ($self, $tt) = @_;
     my %tags;
 
     $tags{'template'} = "$conf_dir/radiusd/proxy.conf.inc";
@@ -949,7 +953,7 @@ EOT
 EOT
         }
         # Generate Eduroam realms config
-    my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
+        my $eduroam_options = $pf::config::ConfigRealm{$realm}->{'eduroam_options'} || '';
         $tags{'eduroam_config'} .= <<"EOT";
 realm eduroam.$realm {
 $eduroam_options
@@ -1093,8 +1097,7 @@ EOT
     else {
         $tags{'pfacct'} = "# pfacct is not enabled";
     }
-
-    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.inc", "$install_dir/raddb/proxy.conf.inc" );
+    $tt->process("$conf_dir/radiusd/proxy.conf.inc", \%tags, "$install_dir/raddb/proxy.conf.inc") or die $tt->error();
 
     undef %tags;
     my $real_realm;
@@ -1111,15 +1114,14 @@ nostrip
 }
 EOT
     }
-    parse_template( \%tags, "$conf_dir/radiusd/proxy.conf.loadbalancer", "$install_dir/raddb/proxy.conf.loadbalancer" );
+    $tt->process("$conf_dir/radiusd/proxy.conf.loadbalancer", \%tags, "$install_dir/raddb/proxy.conf.loadbalancer") or die $tt->error();
 
     if(isenabled($Config{radius_configuration}{forward_key_balanced})){
-       $tags{'PacketFence-KeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
+       $tags{'PacketFenceKeyBalanced'} = "PacketFence-KeyBalanced                !* ANY,";
     } else {
-        $tags{'PacketFence-KeyBalanced'} = "";
+        $tags{'PacketFenceKeyBalanced'} = "";
     }
-
-    parse_template( \%tags, "$conf_dir/radiusd/packetfence-pre-proxy", "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy" );
+    $tt->process("$conf_dir/radiusd/packetfence-pre-proxy", \%tags, "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy") or die $tt->error();
 }
 
 =head2 generate_radiusd_cluster
@@ -1129,7 +1131,7 @@ Generates the load balancer configuration
 =cut
 
 sub generate_radiusd_cluster {
-    my ($self) = @_;
+    my ($self, $tt) = @_;
     my %tags;
 
     my $int = $management_network->{'Tint'};
@@ -1186,7 +1188,7 @@ EOT
 EOT
             $i++;
         }
-        parse_template( \%tags, "$conf_dir/radiusd/packetfence-cluster", "$install_dir/raddb/sites-enabled/packetfence-cluster" );
+        $tt->process("$conf_dir/radiusd/packetfence-cluster", \%tags, "$install_dir/raddb/sites-enabled/packetfence-cluster") or die $tt->error();
 
 
         # RADIUS eduroam cluster virtual server configuration
@@ -1252,7 +1254,7 @@ $tags{'local_realm'} = << "EOT";
                     }
 EOT
             }
-            parse_template( \%tags, "$conf_dir/radiusd/eduroam-cluster", "$install_dir/raddb/sites-enabled/eduroam-cluster" );
+            $tt->process("$conf_dir/radiusd/eduroam-cluster", \%tags, "$install_dir/raddb/sites-enabled/eduroam-cluster") or die $tt->error();
         } else {
             unlink($install_dir."/raddb/sites-enabled/eduroam-cluster");
         }
@@ -1315,8 +1317,7 @@ EOT
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }
-
-        parse_template( \%tags, $tags{'template'}, "$install_dir/raddb/load_balancer.conf");
+        $tt->process("$conf_dir/radiusd/load_balancer.conf", \%tags, "$install_dir/raddb/load_balancer.conf") or die $tt->error();
 
         
         push @radius_backend, $cluster_ip;
@@ -1349,7 +1350,7 @@ EOT
     }
     # Ensure raddb/clients.conf.inc exists. radiusd won't start otherwise.
     $tags{'template'} = "$conf_dir/radiusd/clients.conf.inc";
-    parse_template( \%tags, "$conf_dir/radiusd/clients.conf.inc", "$install_dir/raddb/clients.conf.inc" );
+    $tt->process("$conf_dir/radiusd/clients.conf.inc", \%tags, "$install_dir/raddb/clients.conf.inc") or die $tt->error();
 }
 
 =head2 generate_radiusd_mschap
@@ -1522,6 +1523,53 @@ sub generate_multi_domain_constants {
     $content .= "our \$DATA = \$VAR1;\n";
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
+}
+
+=head2 generate_radiusd_certificates
+
+Generates the certificates files
+
+=cut
+
+sub generate_radiusd_certificates {
+    my ($self, $tt) = @_;
+    my %vars;
+    my %cert;
+    foreach my $key (keys %ConfigEAP) {
+        foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
+                $cert{$key}{$tls}{cert} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{cert};
+                $cert{$key}{$tls}{key} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{key};
+                $cert{$key}{$tls}{ca} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{ca};
+            } else {
+                $cert{$key}{$tls}{cert} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{cert};
+                if (exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate}) {
+                    $cert{$key}{$tls}{cert} .= "\n".$ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{intermediate};
+                }
+                $cert{$key}{$tls}{key} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{key};
+                $cert{$key}{$tls}{ca} = $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{ca};
+            }
+        }
+    }
+    foreach my $key (keys %ConfigEAP) {
+        foreach my $tls (keys %{$ConfigEAP{$key}->{tls}}) {
+            if ( exists $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} && $ConfigEAP{$key}->{tls}->{$tls}->{certificate_profile}->{default} eq 'yes' ) {
+                symlink($cert{$key}{$tls}{cert}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt");
+                symlink($cert{$key}{$tls}{key}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key");
+                symlink($cert{$key}{$tls}{ca}, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem");
+            } else {
+               $vars{'cert'} = $cert{$key}{$tls}{cert};
+               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".crt") or die $tt->error();
+               $vars{'cert'} = "";
+               $vars{'key'} = $cert{$key}{$tls}{key};
+               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".key") or die $tt->error();
+               $vars{'key'} = "";
+               $vars{'ca'} = $cert{$key}{$tls}{ca};
+               $tt->process("$conf_dir/radiusd/cert", \%vars, "$install_dir/conf/ssl/radius_".$key."_".$tls.".pem") or die $tt->error();
+               $vars{'ca'} = "";
+            }
+        }
+    }
 }
 
 =head1 AUTHOR

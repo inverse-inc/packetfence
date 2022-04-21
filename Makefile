@@ -37,8 +37,8 @@ docs/%.html: docs/%.asciidoc
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
-		-a stylesdir=../html/pfappserver/root/dist/css \
-		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/dist/css/app*.css)) \
+		-a stylesdir=$(SRC_HTML_PFAPPDIR_ROOT)/dist/css \
+		-a stylesheet=$(notdir $(wildcard $(SRC_HTML_PFAPPDIR_ROOT)/dist/css/app*.css)) \
 		-a release_version=$(PF_PATCH_RELEASE) \
 		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \

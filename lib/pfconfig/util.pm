@@ -26,6 +26,7 @@ use pfconfig::constants;
 use IO::Socket::UNIX;
 use Sereal::Decoder;
 use Readonly;
+use JSON::MaybeXS qw(encode_json);
 
 our @EXPORT_OK = qw(
     is_type_inline
@@ -55,17 +56,43 @@ sub fetch_socket {
 sub fetch_decode_socket {
     my ($payload) = @_;
 
+    my $config = $pfconfig::config::INI_CONFIG;
+	my $proto = $config->get_proto();
+
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
-    $socket = IO::Socket::UNIX->new(
-        Type => SOCK_STREAM,
-        Peer => $socket_path,
-    );
+    if(${proto} eq "tcp") {
+        $socket = IO::Socket::INET->new(
+            PeerHost => $config->section('general')->{tcp_host},
+            PeerPort => $config->section('general')->{tcp_port},
+            Proto => "tcp",
+        );
+    }
+    else {
+		$socket = IO::Socket::UNIX->new(
+			Type => SOCK_STREAM,
+			Peer => $socket_path,
+		);
+    }
+	die "cannot connect to the server $!n" unless $socket;
 
     my $decoder = Sereal::Decoder->new;
     my $response = fetch_socket($socket, $payload);
     return $decoder->decode($response);
 
+}
+
+sub socket_expire {
+    my (%opts) = @_;
+    my $namespace = $opts{namespace} // "__all__";
+    my $light = $opts{light} // 0;
+    my $payload = {
+        method => "expire",
+        namespace => $namespace,
+        light => $light,
+    };
+    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload));
+    return $response->{status} eq "OK.";
 }
 
 sub parse_namespace {

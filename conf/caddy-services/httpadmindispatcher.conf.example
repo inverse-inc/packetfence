@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 :8890 {
-    logger {
+  logger {
     level INFO
   }
   httpdportalpreview

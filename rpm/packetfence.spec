@@ -51,7 +51,6 @@ Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
 Requires: redis
 Requires: freeradius >= 3.0.25, freeradius-mysql >= 3.0.25, freeradius-perl >= 3.0.25, freeradius-ldap >= 3.0.25, freeradius-utils >= 3.0.25, freeradius-redis >= 3.0.25, freeradius-rest >= 3.0.25
-Requires: fuse
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -340,18 +339,6 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO; do
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
 
-# Portal javascript/css
-%{__make} -C html/common/ vendor
-%{__make} -C html/common light-dist
-
-# Admin javascript/css
-%{__make} -C html/pfappserver/root/ vendor
-%{__make} -C html/pfappserver/root/ light-dist
-
-
-# Build the HTML doc index for pfappserver
-%{__make} html
-
 # build pfcmd C wrapper
 %{__make} bin/pfcmd
 # build ntlm_auth_wrapper
@@ -405,7 +392,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-mysql-probe.service %{buildroot}%{_unitdir}/packetfence-mysql-probe.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfacct.service %{buildroot}%{_unitdir}/packetfence-pfacct.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfcertmanager.service %{buildroot}%{_unitdir}/packetfence-pfcertmanager.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
@@ -445,7 +431,6 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/addons/full-import
 %{__install} -d %{buildroot}/usr/local/pf/addons/functions
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
-%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/certmanager
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
@@ -466,7 +451,6 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
-%{__install} -d %{buildroot}/usr/local/pf/docs
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -500,17 +484,11 @@ mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
-cp -r docs/images %{buildroot}/usr/local/pf/docs/
-cp docs/*.html %{buildroot}/usr/local/pf/docs/
-cp docs/*.js %{buildroot}/usr/local/pf/docs/
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
 # clean Golang binaries from build dir
 %{__make} -C go clean
-
-# install html directory
-%{__make} DESTDIR=%{buildroot} html_install
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
@@ -857,23 +835,37 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcertmanager
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
+%attr(0755, pf, pf)     /usr/local/pf/sbin/api-frontend-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.aaa-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-acct-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-auth-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-cli-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-load-balancer-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
+%config                 /usr/local/pf/conf/pfconfig.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
 %config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
-%dir %attr(0770, pf pf) /usr/local/pf/conf/certmanager
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
@@ -995,6 +987,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/cert
+                        /usr/local/pf/conf/radiusd/cert.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
@@ -1158,72 +1152,6 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
-# only mark all files under docs/ as documentation
-%docdir                 /usr/local/pf/docs
-# add all files and directories under docs in package
-/usr/local/pf/docs
-
-### html dir
-# %%dir will add only html dir, not subdirectories or files
-%dir                    /usr/local/pf/html
-
-# parking dir and files below
-                        /usr/local/pf/html/parking
-
-# common dir and files below
-                        /usr/local/pf/html/common
-%config(noreplace)      /usr/local/pf/html/common/styles.css
-%config(noreplace)      /usr/local/pf/html/common/styles.css.map
-%config(noreplace)      /usr/local/pf/html/common/styles-dark.css
-
-# captive portal
-%dir                    /usr/local/pf/html/captive-portal
-                        /usr/local/pf/html/captive-portal/Changes
-                        /usr/local/pf/html/captive-portal/Makefile.PL
-                        /usr/local/pf/html/captive-portal/README
-%config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
-                        /usr/local/pf/html/captive-portal/captiveportal.conf.example
-                        /usr/local/pf/html/captive-portal/content/countdown.min.js
-                        /usr/local/pf/html/captive-portal/content/guest-management.js
-                        /usr/local/pf/html/captive-portal/content/captiveportal.js
-                        /usr/local/pf/html/captive-portal/content/autosubmit.js
-                        /usr/local/pf/html/captive-portal/content/timerbar.js
-                        /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
-                        /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
-                        /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
-                        /usr/local/pf/html/captive-portal/content/billing/stripe.js
-                        /usr/local/pf/html/captive-portal/content/billing/authorizenet.js
-                        /usr/local/pf/html/captive-portal/content/provisioner/mobileconfig.js
-                        /usr/local/pf/html/captive-portal/content/provisioner/sepm.js
-                        /usr/local/pf/html/captive-portal/content/release.js
-                        /usr/local/pf/html/captive-portal/content/scan.js
-                        /usr/local/pf/html/captive-portal/content/status.js
-                        /usr/local/pf/html/captive-portal/content/waiting.js
-                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
-                        /usr/local/pf/html/captive-portal/content/sslinspection.js
-                        /usr/local/pf/html/captive-portal/content/images
-                        /usr/local/pf/html/captive-portal/lib
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Remediation.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Authentication.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Field/AUP.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Widget/Field/AUP.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
-                        /usr/local/pf/html/captive-portal/script
-                        /usr/local/pf/html/captive-portal/templates
-# pfappserver dir
-                        /usr/local/pf/html/pfappserver
-
 # lib dir
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig

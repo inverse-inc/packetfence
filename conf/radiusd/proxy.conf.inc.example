@@ -1,10 +1,10 @@
-%%eduroam%%
+[% eduroam %]
 
-%%config%%
+[% config %]
 
-%%eduroam_config%%
+[% eduroam_config %]
 
-%%radius_sources%%
+[% radius_sources %]
 
-%%pfacct%%
+[% pfacct %]
 

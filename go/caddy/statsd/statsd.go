@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/inverse-inc/go-utils/statsd"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -23,7 +24,7 @@ func setup(c *caddy.Controller) error {
 
 	proto := "udp"
 	var prefix string
-
+	address := "127.0.0.1:8125"
 	for c.Next() {
 		for c.NextBlock() {
 			switch c.Val() {
@@ -45,13 +46,25 @@ func setup(c *caddy.Controller) error {
 					prefix = args[0]
 					fmt.Println("Using configured prefix: " + prefix)
 				}
+			case "address":
+				args := c.RemainingArgs()
+
+				if len(args) != 1 {
+					return c.ArgErr()
+				} else {
+					address = args[0]
+					if !strings.Contains(address, ":") {
+						address = fmt.Sprintf("%s%s", address, ":8125")
+					}
+					fmt.Println("Using configured statsd addresse and port: " + address)
+				}
 			default:
 				return c.ArgErr()
 			}
 		}
 	}
 
-	client, err := _statsd.New(_statsd.Prefix(prefix), _statsd.Network(proto))
+	client, err := _statsd.New(_statsd.Prefix(prefix), _statsd.Network(proto), _statsd.Address(address))
 	if err != nil {
 		fmt.Printf("Couldn't initialize statsd client (%s) \n", err)
 	}

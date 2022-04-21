@@ -1,7 +1,5 @@
 # Copyright (C) Inverse inc.
-:8777 {
-  bind 127.0.0.1
-
+0.0.0.0:8777 {
   pfconfigpool
   logger {
     level INFO
@@ -9,6 +7,7 @@
   statsd {
     proto udp
     prefix pfsso
+    address {$STATSD_ADDRESS}
   }
   pfsso
 }

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=pfperl-api
+
+args=`base_args $name`
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf"
+args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
+args="$args --network=host"
+
+cd /usr/local/pf/
+
+run $name "$args"

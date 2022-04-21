@@ -14700,14 +14700,6 @@ msgstr ""
 "Faut-il démarrer pfacct? Garder activé sauf si vous savez ce que vous "
 "faites."
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:100
-msgid ""
-"Should pfcertmanager be started? Keep enabled unless you know what you're "
-"doing."
-msgstr ""
-"Faut-il démarrer pfcertmanager? Garder activé sauf si vous savez ce que vous"
-" faites."
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:135
 msgid ""
 "Should pfcron be started? Keep enabled unless you know what you're doing."
@@ -20005,10 +19997,6 @@ msgstr "En attente"
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:89
 msgid "pfacct"
 msgstr "pfacct"
-
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:99
-msgid "pfcertmanager"
-msgstr "pfcertmanager"
 
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:134
 msgid "pfcron"
