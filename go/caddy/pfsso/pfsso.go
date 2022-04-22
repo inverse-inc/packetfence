@@ -14,6 +14,7 @@ import (
 	"github.com/inverse-inc/go-utils/statsd"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -35,6 +36,7 @@ type PfssoHandler struct {
 	// The cache for the cached updates feature
 	updateCache *cache.Cache
 	firewalls   *firewallsso.FirewallsContainer
+	connectors  *connector.ConnectorsContainer
 }
 
 // Setup the pfsso middleware
@@ -65,6 +67,7 @@ func buildPfssoHandler(ctx context.Context) (*PfssoHandler, error) {
 
 	// Declare all pfconfig resources that will be necessary
 	pfsso.firewalls = firewallsso.NewFirewallsContainer(ctx)
+	pfsso.connectors = connector.NewConnectorsContainer(ctx)
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, pfsso.firewalls)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.Interfaces.ManagementNetwork)
 
@@ -131,7 +134,7 @@ func (h PfssoHandler) validateInfo(ctx context.Context, info map[string]string) 
 }
 
 // Spawn an async SSO request for a specific firewall
-func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, info map[string]string, f func(info map[string]string) (bool, error)) {
+func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.FirewallSSOInt, info map[string]string, f func(ctx context.Context, info map[string]string) (bool, error)) {
 	// Perform a copy of the information hash before spawning the goroutine
 	infoCopy := map[string]string{}
 	for k, v := range info {
@@ -140,7 +143,8 @@ func (h PfssoHandler) spawnSso(ctx context.Context, firewall firewallsso.Firewal
 
 	go func() {
 		defer panichandler.Standard(ctx)
-		sent, err := f(infoCopy)
+		ctx = connector.WithConnectorsContainer(ctx, h.connectors)
+		sent, err := f(ctx, infoCopy)
 		if err != nil {
 			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while sending SSO to %s: %s"+firewall.GetFirewallSSO(ctx).PfconfigHashNS, err))
 		}
@@ -216,7 +220,7 @@ func (h PfssoHandler) handleUpdate(w http.ResponseWriter, r *http.Request, p htt
 		if shouldStart {
 			//Creating a shallow copy here so the anonymous function has the right reference
 			firewall := firewall
-			h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
+			h.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {
 				return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 			})
 		} else {
@@ -244,7 +248,7 @@ func (h PfssoHandler) handleStart(w http.ResponseWriter, r *http.Request, p http
 	for _, firewall := range h.firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
-		h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
+		h.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {
 			return firewallsso.ExecuteStart(ctx, firewall, info, timeout)
 		})
 	}
@@ -276,7 +280,7 @@ func (h PfssoHandler) handleStop(w http.ResponseWriter, r *http.Request, p httpr
 	for _, firewall := range h.firewalls.All(ctx) {
 		//Creating a shallow copy here so the anonymous function has the right reference
 		firewall := firewall
-		h.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
+		h.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {
 			return firewallsso.ExecuteStop(ctx, firewall, info)
 		})
 	}

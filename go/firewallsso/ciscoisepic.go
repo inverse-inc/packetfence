@@ -19,7 +19,8 @@ func (fw *CiscoIsePic) Start(ctx context.Context, info map[string]string, timeou
 }
 
 func (fw *CiscoIsePic) getSyslog(ctx context.Context) (*syslog.Writer, error) {
-	writer, err := syslog.Dial("udp", fmt.Sprintf("%s:%s", fw.PfconfigHashNS, fw.Port), syslog.LOG_ERR|syslog.LOG_LOCAL5, "pfsso")
+	dst := fw.getDst(ctx, "udp", fw.PfconfigHashNS, fw.Port)
+	writer, err := syslog.Dial("udp", dst, syslog.LOG_ERR|syslog.LOG_LOCAL5, "pfsso")
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error connecting to CiscoIsePic: %s", err))

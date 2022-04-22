@@ -7,7 +7,6 @@ import (
 	"net"
 	"net/url"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/inverse-inc/go-utils/log"
@@ -75,6 +74,10 @@ func (c *Connector) DynReverse(ctx context.Context, to string) (DynReverseConnec
 		gin.H{"to": to, "connector_id": c.PfconfigHashNS},
 		&resp,
 	)
-	spew.Dump(resp)
+	if err != nil {
+		return DynReverseConnectionInfo{}, err
+	}
+
+	log.LoggerWContext(ctx).Info(resp.Message)
 	return resp, err
 }

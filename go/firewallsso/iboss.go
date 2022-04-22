@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"net/http"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type Iboss struct {
@@ -65,12 +66,12 @@ func (fw *Iboss) Stop(ctx context.Context, info map[string]string) (bool, error)
 // This builds the request for start+stop and is controlled by the action parameter
 // This will return an error if the request cannot be built
 func (fw *Iboss) getRequest(ctx context.Context, action string, info map[string]string) (*http.Request, error) {
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
 	req, err := http.NewRequest(
 		"GET",
 		fmt.Sprintf(
-			"http://%s:%s/nacAgent?action=%s&user=%s&dc=%s&key=%s&ip=%s&cn=%s&g=%s",
-			fw.PfconfigHashNS,
-			fw.Port,
+			"http://%s/nacAgent?action=%s&user=%s&dc=%s&key=%s&ip=%s&cn=%s&g=%s",
+			dst,
 			action,
 			info["username"],
 			fw.NacName,

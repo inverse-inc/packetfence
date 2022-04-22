@@ -3,6 +3,7 @@ package firewallsso
 import (
 	"context"
 	"fmt"
+
 	"github.com/inverse-inc/go-utils/log"
 	"golang.org/x/crypto/ssh"
 )
@@ -23,7 +24,8 @@ func (fw *BarracudaNG) getSshSession(ctx context.Context) (*ssh.Session, error) 
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	connection, err := ssh.Dial("tcp", fw.PfconfigHashNS+":"+fw.Port, sshConfig)
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
+	connection, err := ssh.Dial("tcp", dst, sshConfig)
 
 	if err != nil {
 		return nil, err
