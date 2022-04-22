@@ -44,7 +44,7 @@ sub connectorServerApiClient {
         return $connections{$server};
     }
     else {
-        return pf::api::unifiedapiclient->management_client;
+        return pf::api::unifiedapiclient->default_client;
     }
 }
 
