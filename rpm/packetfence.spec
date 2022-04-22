@@ -1147,6 +1147,12 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
+
+# html dir
+%dir                    /usr/local/pf/html
+%dir                    /usr/local/pf/html/pfappserver
+                        /usr/local/pf/html/pfappserver/root
+
 # lib dir
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
