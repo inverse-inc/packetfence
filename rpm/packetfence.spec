@@ -451,6 +451,8 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
+%{__install} -d %{buildroot}/usr/local/pf/html
+%{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -491,7 +493,7 @@ cp -r db %{buildroot}/usr/local/pf/
 %{__make} -C go clean
 
 # temp
-cp -r html %{buildroot}/usr/local/pf
+cp -r html/pfappserver/root %{buildroot}/usr/local/pf/html/pfappserver
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
