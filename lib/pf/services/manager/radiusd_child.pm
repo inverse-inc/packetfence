@@ -344,8 +344,8 @@ sub generate_radiusd_mainconf {
     $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
-    $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
-    $tags{'rpc_proto'} = $Config{webservices}{proto} || "http";
+    $tags{'rpc_host'} = $Config{webservices}{aaa_host} || "127.0.0.1";
+    $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
     $tt->process("$conf_dir/radiusd/radiusd.conf", \%tags, "$install_dir/raddb/radiusd.conf") or die $tt->error();
     $tt->process("$conf_dir/radiusd/radiusd_loadbalancer.conf", \%tags, "$install_dir/raddb/radiusd_loadbalancer.conf") or die $tt->error();
@@ -361,7 +361,7 @@ sub generate_radiusd_restconf {
     $tags{'rpc_pass'} = $Config{webservices}{pass} || "''";
     $tags{'rpc_user'} = $Config{webservices}{user} || "''";
     $tags{'rpc_port'} = $Config{webservices}{aaa_port} || "7070";
-    $tags{'rpc_host'} = $Config{webservices}{host} || "127.0.0.1";
+    $tags{'rpc_host'} = $Config{webservices}{aaa_host} || "127.0.0.1";
     $tags{'rpc_proto'} = $Config{webservices}{aaa_proto} || "http";
 
     $tt->process("$conf_dir/radiusd/rest.conf", \%tags, "$install_dir/raddb/mods-enabled/rest") or die $tt->error();
