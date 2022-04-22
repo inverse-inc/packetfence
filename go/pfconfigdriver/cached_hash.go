@@ -61,3 +61,7 @@ func (cc *CachedHash) Refresh(ctx context.Context) {
 		cc.Structs = newObjects
 	}
 }
+
+func (cc *CachedHash) Keys(ctx context.Context) []string {
+	return cc.ids.Keys
+}

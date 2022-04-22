@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"log/syslog"
 	"net/url"
 	"text/template"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type PaloAlto struct {
@@ -44,7 +45,8 @@ func (fw *PaloAlto) Start(ctx context.Context, info map[string]string, timeout i
 // This will always connect to port 514 and ignore the Port parameter
 // Returns an error if it can't connect but given its UDP, this should never fail
 func (fw *PaloAlto) getSyslog(ctx context.Context) (*syslog.Writer, error) {
-	writer, err := syslog.Dial("udp", fw.PfconfigHashNS+":514", syslog.LOG_ERR|syslog.LOG_LOCAL5, "pfsso")
+	dst := fw.getDst(ctx, "udp", fw.PfconfigHashNS, "514")
+	writer, err := syslog.Dial("udp", dst, syslog.LOG_ERR|syslog.LOG_LOCAL5, "pfsso")
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error connecting to PaloAlto: %s", err))
@@ -86,7 +88,8 @@ func (fw *PaloAlto) startSyslog(ctx context.Context, info map[string]string, tim
 // Send a start to the PaloAlto using the HTTP transport
 // Will return an error if it fails to get a valid reply from it
 func (fw *PaloAlto) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
-	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+dst+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.startHttpPayload(ctx, info, timeout)}})
 
 	if err != nil {
@@ -156,7 +159,8 @@ func (fw *PaloAlto) stopHttpPayload(ctx context.Context, info map[string]string)
 // Send an SSO stop using HTTP to the PaloAlto firewall
 // Returns an error if it fails to get a valid reply from the firewall
 func (fw *PaloAlto) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
-	resp, err := fw.getHttpClient(ctx).PostForm("https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
+	resp, err := fw.getHttpClient(ctx).PostForm("https://"+dst+"/api/?type=user-id&vsys=vsys"+fw.Vsys+"&action=set&key="+fw.Password,
 		url.Values{"cmd": {fw.stopHttpPayload(ctx, info)}})
 
 	if err != nil {

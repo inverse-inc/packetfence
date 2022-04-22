@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/gorilla/rpc/v2/json2"
 	"github.com/inverse-inc/go-utils/log"
-	"net/http"
 )
 
 type JSONRPC struct {
@@ -46,7 +47,8 @@ func (fw *JSONRPC) makeRpcRequest(ctx context.Context, action string, info map[s
 		return err
 	}
 
-	req, err := http.NewRequest("POST", "https://"+fw.PfconfigHashNS+":"+fw.Port, bytes.NewBuffer(body))
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
+	req, err := http.NewRequest("POST", "https://"+dst, bytes.NewBuffer(body))
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot create HTTP request for JSON-RPC call: %s", err))
 		return err

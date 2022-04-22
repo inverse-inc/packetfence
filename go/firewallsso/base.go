@@ -14,6 +14,7 @@ import (
 	radius "github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -252,6 +253,19 @@ func (rbf *RoleBasedFirewallSSO) MatchesRole(ctx context.Context, info map[strin
 func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 	ctx = log.AddToLogContext(ctx, "firewall-id", fw.PfconfigHashNS)
 	return log.LoggerWContext(ctx)
+}
+
+func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, toPort string) string {
+	if cc := connector.ConnectorsContainerFromContext(ctx); cc != nil {
+		c := cc.ForIP(ctx, net.ParseIP(toIP))
+		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
+		if err != nil {
+			panic(fmt.Sprintf("Unable to obtain dynreverse for %s on port %s", toIP, toPort))
+		}
+		return fmt.Sprintf("%s:%s", connInfo.Host, connInfo.Port)
+	} else {
+		return fmt.Sprintf("%s:%s", toIP, toPort)
+	}
 }
 
 // Execute an SSO Start request on the specified firewall

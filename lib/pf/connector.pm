@@ -26,7 +26,8 @@ sub connect_redis {
         return $redis;
     }
     else {
-        return pf::Redis->new(server => $Config{pfconnector}{redis_server});
+        $redis = pf::Redis->new(server => $Config{pfconnector}{redis_server});
+        return $redis;
     }
 }
 
@@ -43,7 +44,7 @@ sub connectorServerApiClient {
         return $connections{$server};
     }
     else {
-        return pf::api::unifiedapiclient->management_client;
+        return pf::api::unifiedapiclient->default_client;
     }
 }
 
