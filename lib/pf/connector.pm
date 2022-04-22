@@ -26,7 +26,8 @@ sub connect_redis {
         return $redis;
     }
     else {
-        return pf::Redis->new(server => $Config{pfconnector}{redis_server});
+        $redis = pf::Redis->new(server => $Config{pfconnector}{redis_server});
+        return $redis;
     }
 }
 
