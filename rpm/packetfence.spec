@@ -488,6 +488,9 @@ cp -r db %{buildroot}/usr/local/pf/
 # clean Golang binaries from build dir
 %{__make} -C go clean
 
+# temp
+cp -r html %{buildroot}/usr/local/pf
+
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
 cp -r NEWS.asciidoc %{buildroot}/usr/local/pf/
