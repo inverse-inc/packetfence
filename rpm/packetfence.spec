@@ -490,6 +490,9 @@ cp -r db %{buildroot}/usr/local/pf/
 # clean Golang binaries from build dir
 %{__make} -C go clean
 
+# temp
+cp -r html %{buildroot}/usr/local/pf
+
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
 cp -r NEWS.asciidoc %{buildroot}/usr/local/pf/
@@ -1152,6 +1155,12 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
+
+# html dir
+%dir                    /usr/local/pf/html
+%dir                    /usr/local/pf/html/pfappserver
+                        /usr/local/pf/html/pfappserver/root
+
 # lib dir
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
