@@ -188,29 +188,15 @@ devel: configurations conf/ssl/server.key conf/ssl/server.crt conf/local_secret 
 test:
 	cd t && ./smoke.t
 
-.PHONY: html_install
-
-# install -D will automatically create target directories
-# $$file in destination of install command contain relative path
-html_install:
+.PHONY: html_httpd.admin_dispatcher
+# Target to install only necessary files in httpd.admin_dispatcher image
+html_httpd.admin_dispatcher:
 	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
-	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
 	install -d -m0755 $(DESTDIR)$(HTML_COMMONDIR)
-	install -d -m0755 $(DESTDIR)$(HTML_CPDIR)
 	install -d -m0755 $(DESTDIR)$(HTML_PFAPPDIR)
-
-	@echo "install $(SRC_HTML_PARKINGDIR) files"
-	for file in $(parking_files); do \
-            install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
 
 	@echo "install $(SRC_HTML_COMMONDIR) dirs and files"
 	for file in $(common_files); do \
-	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
-
-	@echo "install $(SRC_HTML_CPDIR) dirs and files"
-	for file in $(cp_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 

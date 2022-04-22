@@ -23,9 +23,9 @@ RUN cd /html/pfappserver/root && \
 # in /usr/local/pf/docs
 RUN cd /usr/local/pf && \
     make SRC_HTMLDIR=/html html
-# install all html/ files and directories
+# install html/ files and directories
 # in /usr/local/pf/html
-RUN make SRC_HTMLDIR=/html html_install
+RUN make SRC_HTMLDIR=/html html_httpd.admin_dispatcher
 
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 WORKDIR /usr/local/pf/
