@@ -230,8 +230,10 @@ type PfConfWebservices struct {
 	Proto          string `json:"proto"`
 	User           string `json:"user"`
 	Port           string `json:"port"`
+	AAAHost        string `json:"aaa_host"`
 	AAAPort        string `json:"aaa_port"`
 	AAAProto       string `json:"aaa_proto"`
+	UnifiedAPIHost string `json:"unifiedapi_host"`
 	UnifiedAPIPort string `json:"unifiedapi_port"`
 	Host           string `json:"host"`
 }
