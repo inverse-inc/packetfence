@@ -30,7 +30,8 @@ func (fw *JuniperSRX) Start(ctx context.Context, info map[string]string, timeout
 // Will return an error if it fails to get a valid reply from it
 func (fw *JuniperSRX) startHttp(ctx context.Context, info map[string]string, timeout int) (bool, error) {
 
-	req, err := http.NewRequest("POST", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/userfw/v1/post-entry", bytes.NewBuffer([]byte(fw.startHttpPayload(ctx, info))))
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
+	req, err := http.NewRequest("POST", "https://"+dst+"/api/userfw/v1/post-entry", bytes.NewBuffer([]byte(fw.startHttpPayload(ctx, info))))
 	req.SetBasicAuth(fw.Username, fw.Password)
 	client := fw.getHttpClient(ctx)
 	resp, err := client.Do(req)
@@ -109,8 +110,8 @@ func (fw *JuniperSRX) Stop(ctx context.Context, info map[string]string) (bool, e
 // Send an SSO stop using HTTP to the JuniperSRX firewall
 // Returns an error if it fails to get a valid reply from the firewall
 func (fw *JuniperSRX) stopHttp(ctx context.Context, info map[string]string) (bool, error) {
-
-	req, err := http.NewRequest("POST", "https://"+fw.PfconfigHashNS+":"+fw.Port+"/api/userfw/v1/post-entry", bytes.NewBuffer([]byte(fw.stopHttpPayload(ctx, info))))
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, fw.Port)
+	req, err := http.NewRequest("POST", "https://"+dst+"/api/userfw/v1/post-entry", bytes.NewBuffer([]byte(fw.stopHttpPayload(ctx, info))))
 	req.SetBasicAuth(fw.Username, fw.Password)
 	client := fw.getHttpClient(ctx)
 	resp, err := client.Do(req)

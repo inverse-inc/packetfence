@@ -48,3 +48,17 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 	}
 	return cc.Get(ctx, "local_connector")
 }
+
+const connectorsContainerContextKey = "ConnectorsContainerContextKey"
+
+func ConnectorsContainerFromContext(ctx context.Context) *ConnectorsContainer {
+	if o := ctx.Value(connectorsContainerContextKey); o != nil {
+		return o.(*ConnectorsContainer)
+	} else {
+		return nil
+	}
+}
+
+func WithConnectorsContainer(ctx context.Context, cc *ConnectorsContainer) context.Context {
+	return context.WithValue(ctx, connectorsContainerContextKey, cc)
+}
