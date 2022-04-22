@@ -105,7 +105,7 @@ func NewFromConfig(ctx context.Context) *Client {
 	var apiUser pfconfigdriver.UnifiedApiSystemUser
 	pfconfigdriver.FetchDecodeSocket(ctx, &apiUser)
 
-	return New(ctx, apiUser.User, apiUser.Pass, "https", webservices.Host, webservices.UnifiedAPIPort)
+	return New(ctx, apiUser.User, apiUser.Pass, "https", webservices.UnifiedAPIHost, webservices.UnifiedAPIPort)
 }
 
 func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) UnifiedAPIError {
