@@ -219,13 +219,17 @@ html_httpd.admin_dispatcher:
 conf/git_commit_id:
 	git rev-parse HEAD > $@
 
+.PHONY: conf/build_id
+conf/build_id:
+	$(SRC_CIDIR)/lib/build/generate-build-id.sh
+
 .PHONY: rpm/.rpmmacros
 rpm/.rpmmacros:
 	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
-build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
+build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
 	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
 	# no need to build other packages if packetfence build failed
@@ -235,7 +239,7 @@ build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist-packetfe
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-upgrade.spec
 
 .PHONY: build_deb
-build_deb: conf/git_commit_id
+build_deb: conf/git_commit_id conf/build_id
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
 	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
 	ci-build-pkg $(SRC_DEBDIR)

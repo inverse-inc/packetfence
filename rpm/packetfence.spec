@@ -911,6 +911,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
+                        /usr/local/pf/conf/build_id
                         /usr/local/pf/conf/saml-sp-metadata.xml
 %dir                    /usr/local/pf/conf/I18N
 %dir                    /usr/local/pf/conf/I18N/api
