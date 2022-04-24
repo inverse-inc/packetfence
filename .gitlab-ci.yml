@@ -749,7 +749,6 @@ build_artifacts_pkg_devel_and_branches_centos_8:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .devel_and_branches_rules
-    - .publish_ppa_rules
 
 build_artifacts_pkg_devel_and_branches_debian_bullseye:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
@@ -757,7 +756,6 @@ build_artifacts_pkg_devel_and_branches_debian_bullseye:
     - .build_artifacts_pkg_job
     - .deb_script_job
     - .devel_and_branches_rules
-    - .publish_ppa_rules
 
 # build_artifacts_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
