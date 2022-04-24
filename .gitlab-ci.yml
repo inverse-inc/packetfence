@@ -485,7 +485,7 @@ run_pipeline_if_necessary:
 # BUILD_IMG_CONTAINER JOBS
 ########################################
 # devel
-pfdebian_devel:
+pfdeb_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
@@ -493,11 +493,11 @@ pfdebian_devel:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
 
-pfdebian_based_devel:
+pfdeb_based_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
-  needs: ["pfdebian_devel"]
+  needs: ["pfdeb_dev"]
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
@@ -516,7 +516,7 @@ pfdebian_based_devel:
           - "pfsso"
           - "pfperl-api"
 
-container_devel:
+img_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
@@ -527,11 +527,11 @@ container_devel:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-radiusd_based_devel:
+rad_based_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
-  needs: ["pfdebian_based_devel"]
+  needs: ["pfdeb_based_dev"]
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
@@ -543,7 +543,7 @@ radiusd_based_devel:
           - "radiusd-load-balancer"
 
 # branches and maintenance
-pfdebian_branches_and_maintenance:
+pfdeb_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
@@ -551,11 +551,11 @@ pfdebian_branches_and_maintenance:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
 
-pfdebian_based_branches_and_maintenance:
+pfdeb_based_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
-  needs: ["pfdebian_branches_and_maintenance"]
+  needs: ["pfdeb_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -574,7 +574,7 @@ pfdebian_based_branches_and_maintenance:
           - "pfsso"
           - "pfperl-api"
 
-container_branches_and_maintenance:
+img_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
@@ -585,11 +585,11 @@ container_branches_and_maintenance:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-radiusd_based_branches_and_maintenance:
+rad_based_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
-  needs: ["pfdebian_based_branches_and_maintenance"]
+  needs: ["pfdeb_based_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -601,7 +601,7 @@ radiusd_based_branches_and_maintenance:
           - "radiusd-load-balancer"
 
 # release
-pfdebian_release:
+pfdeb_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
@@ -609,11 +609,11 @@ pfdebian_release:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_TAG}
 
-pfdebian_based_release:
+pfdeb_based_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
-  needs: ["pfdebian_release"]
+  needs: ["pfdeb_rel"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
@@ -632,7 +632,7 @@ pfdebian_based_release:
           - "pfsso"
           - "pfperl-api"
 
-container_release:
+img_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
@@ -643,11 +643,11 @@ container_release:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-radiusd_based_release:
+rad_based_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
-  needs: ["pfdebian_based_release"]
+  needs: ["pfdeb_based_rel"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
