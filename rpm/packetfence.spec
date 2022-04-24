@@ -484,6 +484,7 @@ mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
+cp -r containers %{buildroot}/usr/local/pf
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
@@ -1184,6 +1185,10 @@ fi
 
 %dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
+
+# containers
+/usr/local/pf/containers
+%attr(0755, pf, pf)     /usr/local/pf/containers/*.sh
 
 %dir %attr(02755, pf, pf)     /usr/local/pf/logs
 # logfiles
