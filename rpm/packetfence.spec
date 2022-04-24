@@ -630,6 +630,9 @@ else
     /bin/systemctl set-default packetfence.target
 fi
 
+#get containers image and tag them locally
+/usr/local/pf/containers/manage-images.sh
+
 # Install the monitoring scripts signing key
 echo "Install the monitoring scripts signing key"
 gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
