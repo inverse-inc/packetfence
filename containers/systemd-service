@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PF_REGISTRY=local
-PF_VERSION=11.3
+LOCAL_REGISTRY=local
+source /usr/local/pf/conf/build_id
 
 function base_args {
   name="$1"
@@ -21,14 +21,14 @@ function build_run {
   name="$1"
   args="$2"
   cd /usr/local/pf/
-  img=$(docker build --build-arg=KNK_REGISTRY_URL=$PF_REGISTRY --build-arg=IMAGE_TAG=$PF_VERSION -q -f containers/$name/Dockerfile .)
+  img=$(docker build --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME -q -f containers/$name/Dockerfile .)
   run_img $img $name "$args"
 }
 
 function run {
   name="$1"
   args="$2"
-  img=$PF_REGISTRY/$name:$PF_VERSION
+  img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
   run_img $img $name "$args"
 }
 
