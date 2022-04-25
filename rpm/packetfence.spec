@@ -425,7 +425,7 @@ done
 %{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
 # override docker-ce unit file
-%{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/systemd/docker.service
+%{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/system/docker.service
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
@@ -794,11 +794,13 @@ fi
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
 %attr(0644, root, root) /etc/systemd/system/logrotate.service.d/override.conf
 %attr(0644, root, root) /etc/systemd/system/monit.service
+%attr(0644, root, root) /etc/systemd/system/docker.service
 
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
 %config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
+%config %attr(0644,root,root) %{_sysconfdir}/docker/daemon.json
 
 %dir                    /usr/local/pf
                         /usr/local/pf/Makefile
@@ -873,6 +875,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-auth-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-cli-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-load-balancer-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
