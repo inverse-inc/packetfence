@@ -5,6 +5,6 @@ source /usr/local/pf/containers/systemd-service
 name=radiusd-eduroam
 
 args=`base_args $name`
-args="$args -v /usr/local/pf/conf/log.conf.d/:/usr/local/pf/conf/log.conf.d/ -v /usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/ -v /usr/local/pf/raddb/:/usr/local/pf/raddb/ -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock -p 11812:11812/udp"
+args="$args -v /usr/local/pf/conf/log.conf.d/:/usr/local/pf/conf/log.conf.d/ -v /usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/ -v /usr/local/pf/raddb/:/usr/local/pf/raddb/ -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock -p $RADIUSD_LISTEN_PORT:$RADIUSD_LISTEN_PORT/udp"
 
 run $name "$args"

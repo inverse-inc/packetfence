@@ -123,6 +123,7 @@ sub _generateConfig {
     $self->generate_radiusd_mschap($tt);
     $self->generate_multi_domain_constants();
     $self->generate_radiusd_certificates($tt);
+    $self->generate_container_environments($tt);
 }
 
 
@@ -1570,6 +1571,38 @@ sub generate_radiusd_certificates {
             }
         }
     }
+}
+
+=head2 generate_container_environments
+
+Generate the environment variables for running the container
+
+=cut
+
+sub generate_container_environments {
+    my ($self, $tt) = @_;
+
+    my $port;
+    if ($self->name eq 'radiusd-eduroam') {
+        my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+        $port = $eduroam_authentication_source[0]{'auth_listening_port'};
+    }
+    if ($self->name eq 'radiusd-auth') {
+        $port = '1812';
+    }
+    if ($self->name eq 'radiusd-acct') {
+        $port = '1813';
+    }
+    if ($self->name eq 'radiusd-cli') {
+        $port = '1815';
+    }
+    my $vars = {
+       env_dict => {
+           RADIUSD_LISTEN_PORT => $port,
+       },
+    };
+    $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/".$self->name.".env") or die $tt->error();
+
 }
 
 =head1 AUTHOR
