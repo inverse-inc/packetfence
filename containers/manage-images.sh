@@ -15,7 +15,14 @@ source <(grep 'LOCAL_REGISTRY' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source ${PF_SRC_DIR}/conf/build_id
 
 configure_and_check() {
-    DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" -printf "%P\n")
+    # find all directories with Dockerfile
+    # excluding non necessary images
+    DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
+                           -not -path "*/go-build/*" \
+                           -not -path "*/pfdebian/*" \
+                           -not -path "*/radiusd/*" \
+                           -printf "%P\n")
+
     for file in ${DOCKERFILE_DIRS}; do
 	# remove /Dockerfile suffix
 	CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
@@ -29,8 +36,9 @@ configure_and_check() {
 
 pull_images() {
     for img in ${CONTAINERS_IMAGES}; do
-	docker pull ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
+	docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
     done
+    echo "Pull of images finished"
 }
 
 tag_images() {
