@@ -170,7 +170,7 @@ func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
 	p.count++
 	cid := p.count
 	l := p.Fork("conn#%d", cid)
-	l.Infof("Open")
+	l.Debugf("Open")
 	sshConn := p.sshTun.getSSH(ctx)
 	if sshConn == nil {
 		l.Debugf("No remote connection")
@@ -185,5 +185,5 @@ func (p *Proxy) pipeRemote(ctx context.Context, src io.ReadWriteCloser) {
 	go ssh.DiscardRequests(reqs)
 	//then pipe
 	s, r := cio.Pipe(src, dst)
-	l.Infof("Close (sent %s received %s)", sizestr.ToString(s), sizestr.ToString(r))
+	l.Debugf("Close (sent %s received %s)", sizestr.ToString(s), sizestr.ToString(r))
 }
