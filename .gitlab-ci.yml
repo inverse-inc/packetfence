@@ -11,6 +11,7 @@ before_script:
 ################################################################################
 stages:
   - check
+  - build_img_container
   - build_img
   - build_artifacts
   - sign
@@ -83,7 +84,7 @@ variables:
 
 # don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
 # run jobs on "devel" branch (push, schedule and web)
-# run jobs on any branches except maintenance/X.Y branches
+# run jobs on any branches except maintenance/X.Y branches (web,schedule)
 # don't run on tag
 # we used same kind of rules below but we add variable checks to add jobs to pipeline
 .devel_and_branches_rules:
@@ -92,11 +93,11 @@ variables:
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
     - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
 
 # don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
 # run jobs on "devel" branch *or* vX.Y.Z tag (push, schedule and web)
-# run jobs on any branches/tags via "Run pipeline"
-# run jobs on any branches/tags via "Schedule"
+# run jobs on any branches/tags (web,schedule)
 .devel_release_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
@@ -203,29 +204,30 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
 
 
-# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# don't run if DEPLOY_PKG is equals to 'no'
 # run only jobs on "devel" branch (push, schedule and web)
 .deploy_devel_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# don't run if DEPLOY_PKG is equals to 'no'
 # run jobs on any branches only via "Run pipeline", except:
 # - devel branch
 # - maintenance/X.Y branches
 .deploy_branches_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
 
-# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# don't run if DEPLOY_PKG is equals to 'no'
 # run only on maintenance jobs (schedule and web, not on push)
 .deploy_maintenance_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
@@ -249,7 +251,7 @@ variables:
     - shell
 
 .build_img_container_job:
-  stage: build_img
+  stage: build_img_container
   dependencies: []
   image:
     name: ${KANIKO_DEBUG_IMG}
@@ -481,25 +483,24 @@ run_pipeline_if_necessary:
     - .check_devel_branches_and_maintenance_rules
 
 ########################################
-# BUILD_IMG JOBS
+# BUILD_IMG_CONTAINER JOBS
 ########################################
-### build_img_container jobs
 # devel
-build_pfdebian_container_devel:
+pfdeb_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
   variables:
     IMAGE_NAME: "pfdebian"
-    IMAGE_TAGS: "latest"
+    IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
 
-build_pfdebian_based_container_devel:
+pfdeb_based_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
-  needs: ["build_pfdebian_container_devel"]
+  needs: ["pfdeb_dev"]
   variables:
-    IMAGE_TAGS: "latest"
+    IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
     matrix:
       - IMAGE_NAME:
@@ -517,24 +518,24 @@ build_pfdebian_based_container_devel:
           - "pfperl-api"
           - "pfconnector"
 
-build_container_devel:
+img_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
   variables:
-    IMAGE_TAGS: "latest"
+    IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
     matrix:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-build_radiusd_based_container_devel:
+rad_based_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
-  needs: ["build_pfdebian_based_container_devel"]
+  needs: ["pfdeb_based_dev"]
   variables:
-    IMAGE_TAGS: "latest"
+    IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
     matrix:
       - IMAGE_NAME:
@@ -544,7 +545,7 @@ build_radiusd_based_container_devel:
           - "radiusd-load-balancer"
 
 # branches and maintenance
-build_pfdebian_container_branches_and_maintenance:
+pfdeb_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
@@ -552,11 +553,11 @@ build_pfdebian_container_branches_and_maintenance:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
 
-build_pfdebian_based_container_branches_and_maintenance:
+pfdeb_based_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
-  needs: ["build_pfdebian_container_branches_and_maintenance"]
+  needs: ["pfdeb_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -576,7 +577,7 @@ build_pfdebian_based_container_branches_and_maintenance:
           - "pfperl-api"
           - "pfconnector"
 
-build_container_branches_and_maintenance:
+img_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
@@ -587,11 +588,11 @@ build_container_branches_and_maintenance:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-build_radiusd_based_container_branches_and_maintenance:
+rad_based_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
-  needs: ["build_pfdebian_based_container_branches_and_maintenance"]
+  needs: ["pfdeb_based_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -603,7 +604,7 @@ build_radiusd_based_container_branches_and_maintenance:
           - "radiusd-load-balancer"
 
 # release
-build_pfdebian_container_release:
+pfdeb_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
@@ -611,11 +612,11 @@ build_pfdebian_container_release:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_TAG}
 
-build_pfdebian_based_container_release:
+pfdeb_based_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
-  needs: ["build_pfdebian_container_release"]
+  needs: ["pfdeb_rel"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
@@ -635,7 +636,7 @@ build_pfdebian_based_container_release:
           - "pfperl-api"
           - "pfconnector"
 
-build_container_release:
+img_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
@@ -646,11 +647,11 @@ build_container_release:
       - IMAGE_NAME:
           - "haproxy-portal"
 
-build_radiusd_based_container_release:
+rad_based_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
-  needs: ["build_pfdebian_based_container_release"]
+  needs: ["pfdeb_based_rel"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
@@ -661,6 +662,9 @@ build_radiusd_based_container_release:
           - "radiusd-cli"
           - "radiusd-load-balancer"
 
+########################################
+# BUILD_IMG JOBS
+########################################
 ### build_img_docker jobs
 build_img_docker_devel:
   extends:
@@ -715,7 +719,6 @@ build_artifacts_pkg_devel_and_branches_centos_8:
     - .build_artifacts_pkg_job
     - .rpm_script_job
     - .devel_and_branches_rules
-    - .publish_ppa_rules
 
 build_artifacts_pkg_devel_and_branches_debian_bullseye:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
@@ -723,7 +726,6 @@ build_artifacts_pkg_devel_and_branches_debian_bullseye:
     - .build_artifacts_pkg_job
     - .deb_script_job
     - .devel_and_branches_rules
-    - .publish_ppa_rules
 
 # build_artifacts_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X

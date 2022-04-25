@@ -486,6 +486,7 @@ mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
+cp -r containers %{buildroot}/usr/local/pf
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
@@ -631,6 +632,9 @@ else
     echo "Setting packetfence.target as the default systemd target."
     /bin/systemctl set-default packetfence.target
 fi
+
+#get containers image and tag them locally
+/usr/local/pf/containers/manage-images.sh
 
 # Install the monitoring scripts signing key
 echo "Install the monitoring scripts signing key"
@@ -916,6 +920,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
+                        /usr/local/pf/conf/build_id
                         /usr/local/pf/conf/saml-sp-metadata.xml
 %dir                    /usr/local/pf/conf/I18N
 %dir                    /usr/local/pf/conf/I18N/api
@@ -1185,6 +1190,10 @@ fi
 
 %dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
+
+# containers
+/usr/local/pf/containers
+%attr(0755, pf, pf)     /usr/local/pf/containers/*.sh
 
 %dir %attr(02755, pf, pf)     /usr/local/pf/logs
 # logfiles
