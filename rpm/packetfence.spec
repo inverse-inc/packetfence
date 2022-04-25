@@ -292,6 +292,7 @@ Requires: monit, uuid
 # packetfence-release to have GPG key used to sign monitoring scripts
 Requires: packetfence-release >= 2.4.0
 Requires: gnupg2
+Requires: docker-ce docker-ce-cli containerd.io
 
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
@@ -423,6 +424,8 @@ done
 # systemd modules
 %{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
+# override docker-ce unit file
+%{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/systemd/docker.service
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
@@ -449,6 +452,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
+%{__install} -d %{buildroot}/etc/docker
 %{__install} -d %{buildroot}/usr/local/pf/html
 %{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
 touch %{buildroot}/usr/local/pf/var/cache_control
@@ -481,6 +485,7 @@ cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
 mv packetfence.sudoers %{buildroot}/etc/sudoers.d/packetfence
 mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
+mv containers/daemon.json %{buildroot}/etc/docker/daemon.json
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
@@ -614,6 +619,11 @@ fi
 echo "Disabling emergency error logging to the console"
 /usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 
+if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
+    echo "" >> /etc/hosts
+    echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
+fi
+
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
@@ -725,6 +735,9 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
+systemctl enable docker
+systemctl restart docker
+systemctl start packetfence-config
 echo "Starting PacketFence Administration GUI..."
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
 /bin/systemctl restart packetfence-haproxy-admin
