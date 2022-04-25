@@ -12,6 +12,9 @@ function base_args {
 
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
+    set -a
+    . /usr/local/pf/var/conf/$name.env
+    set +a
   fi
 
   echo "$args"

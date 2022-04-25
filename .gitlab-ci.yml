@@ -542,6 +542,7 @@ rad_based_dev:
           - "radiusd-acct"
           - "radiusd-cli"
           - "radiusd-load-balancer"
+          - "radiusd-eduroam"
 
 # branches and maintenance
 pfdeb_br_maint:
@@ -600,6 +601,7 @@ rad_based_br_maint:
           - "radiusd-acct"
           - "radiusd-cli"
           - "radiusd-load-balancer"
+          - "radiusd-eduroam"
 
 # release
 pfdeb_rel:
@@ -658,6 +660,7 @@ rad_based_rel:
           - "radiusd-acct"
           - "radiusd-cli"
           - "radiusd-load-balancer"
+          - "radiusd-eduroam"
 
 ########################################
 # BUILD_IMG JOBS
