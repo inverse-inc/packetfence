@@ -23,8 +23,8 @@ stages:
 # VARIABLES
 ################################################################################
 variables:
-  PFBUILD_CENTOS_8_IMG: inverseinc/pfbuild-centos-8
-  PFBUILD_DEB_BULLSEYE_IMG: inverseinc/pfbuild-debian-bullseye
+  PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
+  PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
