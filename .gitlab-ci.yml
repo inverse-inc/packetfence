@@ -84,7 +84,7 @@ variables:
 
 # don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
 # run jobs on "devel" branch (push, schedule and web)
-# run jobs on any branches except maintenance/X.Y branches
+# run jobs on any branches except maintenance/X.Y branches (web,schedule)
 # don't run on tag
 # we used same kind of rules below but we add variable checks to add jobs to pipeline
 .devel_and_branches_rules:
@@ -93,11 +93,11 @@ variables:
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
     - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
 
 # don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
 # run jobs on "devel" branch *or* vX.Y.Z tag (push, schedule and web)
-# run jobs on any branches/tags via "Run pipeline"
-# run jobs on any branches/tags via "Schedule"
+# run jobs on any branches/tags (web,schedule)
 .devel_release_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
@@ -204,29 +204,30 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
 
 
-# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# don't run if DEPLOY_PKG is equals to 'no'
 # run only jobs on "devel" branch (push, schedule and web)
 .deploy_devel_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# don't run if DEPLOY_PKG is equals to 'no'
 # run jobs on any branches only via "Run pipeline", except:
 # - devel branch
 # - maintenance/X.Y branches
 .deploy_branches_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
 
-# don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
+# don't run if DEPLOY_PKG is equals to 'no'
 # run only on maintenance jobs (schedule and web, not on push)
 .deploy_maintenance_rules:
   rules:
-    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+    - if: '$DEPLOY_PKG == "no"'
       when: never
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
