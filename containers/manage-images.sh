@@ -18,7 +18,6 @@ configure_and_check() {
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
-                           -not -path "*/go-build/*" \
                            -not -path "*/pfdebian/*" \
                            -not -path "*/radiusd/*" \
                            -printf "%P\n")
