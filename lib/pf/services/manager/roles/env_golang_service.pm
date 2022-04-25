@@ -39,7 +39,7 @@ before generateConfig => sub {
            STATSD_ADDRESS => $Config{advanced}{statsd_listen_host}.":".$Config{advanced}{statsd_listen_port},
        }, 
     };
-    $tt->process("/usr/local/pf/containers/caddy-environment.template", $vars, "/usr/local/pf/var/conf/".$self->name.".env") or die $tt->error();
+    $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/".$self->name.".env") or die $tt->error();
 };
 
 =head2 env_golang_service_service_env
