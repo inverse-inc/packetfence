@@ -641,9 +641,6 @@ else
     /bin/systemctl set-default packetfence.target
 fi
 
-#get containers image and tag them locally
-/usr/local/pf/containers/manage-images.sh
-
 # Install the monitoring scripts signing key
 echo "Install the monitoring scripts signing key"
 gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
@@ -737,6 +734,8 @@ rm -rf /usr/local/pf/var/cache/
 /usr/local/pf/bin/pfcmd configreload
 systemctl enable docker
 systemctl restart docker
+# get containers image and tag them locally
+/usr/local/pf/containers/manage-images.sh
 systemctl start packetfence-config
 echo "Starting PacketFence Administration GUI..."
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
