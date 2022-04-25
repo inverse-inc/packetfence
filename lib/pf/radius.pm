@@ -393,7 +393,6 @@ sub accounting {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request, $headers) = @_;
     my $logger = $self->logger;
-    local $pf::dal::node::TRIGGER_NODE_DISCOVERED = 1;
 
     my ( $switch_mac, $switch_ip, $source_ip, $stripped_user_name, $realm ) = $self->_parseRequest($radius_request);
 
