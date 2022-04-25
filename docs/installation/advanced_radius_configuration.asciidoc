@@ -37,7 +37,6 @@ be sure that the user password is define as a NTHASH or as clear text.
 
 [source,radius,numbered]
 ----
-pfcron
   ldap openldap {
     server = "ldap.acme.com"
     identity = "uid=admin,dc=acme,dc=com"
