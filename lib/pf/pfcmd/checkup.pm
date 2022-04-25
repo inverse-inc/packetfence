@@ -1015,6 +1015,14 @@ sub connection_profiles {
                         add_problem( $WARN, "Filter '$filter' is invalid for profile '$connection_profile': $message ");
                     }
                 }
+                next;
+            }
+
+            if ($key eq 'advanced_filter') {
+                my $advanced_filter = $data->{advanced_filter};
+                if ($advanced_filter =~ /tenant_id/) {
+                    add_problem( $FATAL, "advanced_filter '$advanced_filter' cannot be use a tenant_id as a condition" );
+                }
             }
         }
 
@@ -1278,16 +1286,53 @@ Validate Access Filters
 sub validate_access_filters {
     my $builder = pf::config::builder::filter_engine->new();
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
-       my $ini = $cs->configIniFile();
-       my ($errors, undef) = $builder->build($ini);
-       if ($errors) {
+        my $ini = $cs->configIniFile();
+        my ($errors, $engines) = $builder->build($ini);
+        if ($errors) {
             foreach my $err (@$errors) {
                 add_problem($WARN, "$f: $err->{rule}) $err->{message}");
             }
-       }
+
+            next;
+        }
+
+        for my $filter (map { @{$_->{filters}}} values %$engines) {
+            if (check_condition_tenant($filter->{condition})) {
+                my $answer = $filter->answer;
+                add_problem($FATAL, "$f: $answer->{_rule} has a tenant in it's condition [$answer->{condition}]");
+            }
+        }
+
     }
+
     return ;
 }
+
+sub check_condition_tenant {
+    my ($condition) = @_;
+    if ($condition->isa("pf::condition::key")) {
+        my $sub = $condition->condition;
+        if ($sub->isa("pf::condition::key")) {
+            return check_condition_tenant($sub);
+        }
+
+        my $key = $condition->key;
+        return $key eq 'tenant_id' || $key eq '_TenantId';
+    }
+
+    if (exists $condition->{conditions}) {
+        for my $c (@{$condition->{conditions}}) {
+            if (check_condition_tenant($c)) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    return 0;
+}
+
 
 =back
 
