@@ -18,14 +18,14 @@ endif::[]
 
 === Packer
 
-To build PacketFence, we use link:http://packer.io[Packer] to create link:https://hub.docker.com/u/inverseinc[Docker images] that are then used in a GitLab pipeline.
+To build PacketFence, we use link:http://packer.io[Packer] to create link:https://github.com/orgs/inverse-inc/packages[container images] that are then used in a GitLab pipeline.
 
 === Anatomy of Packer template
 
 PacketFence rely on link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-buildpkg images] to run GitLab pipeline with
 link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg-tools[gitlab-buildpkg-tools]. Packer
 template ([filename]`pfbuild.json`) use these images as base to build
-inverseinc Docker images.
+inverse-inc container images.
 
 ==== Custom build dependencies
 
@@ -40,24 +40,24 @@ installed in link:https://gitlab.com/Orange-OpenSource/gitlab-buildpkg/[gitlab-b
 
 ==== Build dependencies in packages specs
 
-Build dependencies need to be install in Docker images before starting build
+Build dependencies need to be install in container images before starting build
 process. We rely on [package]`gitlab-buildpkg-tools` to automatically install
 those dependencies based on packages specifications file. Consequently, all
 build requires need to be define in packages specifications file.
 
 ==== Golang environment
 
-We use Packer to set up a Golang environment in order to build Golang binaries in Docker images.
+We use Packer to set up a Golang environment in order to build Golang binaries in container images.
 
-We also set environment variables in Docker images, using `ENV` directives, to simplify usage of [command]`go` commands.
+We also set environment variables in container images, using `ENV` directives, to simplify usage of [command]`go` commands.
 
 ==== Clean up
 
-To make Docker images lightweight, we make a clean up at end of the process.
+To make container images lightweight, we make a clean up at end of the process.
 
-=== How to build Docker images ?
+=== How to build container images ?
 
-Docker images are built inside a GitLab pipeline.
+Container images are built inside a GitLab pipeline.
 
 ==== Prerequisites
 
@@ -70,13 +70,15 @@ Docker images are built inside a GitLab pipeline.
 
 Because we run build inside a GitLab pipeline, many environment variables can
 be set to change build behavior. A [filename]`Makefile` and a wrapper are provided to
-simplify creation of a new Docker images based on environment variables.
+simplify creation of a new container images based on environment variables.
 
 .Example usage of Makefile
 [source,bash]
 ----
-GOVERSION=go1.16.4 ACTIVE_BUILDS=pfbuild-bullseye PF_MINOR_RELEASE=11.0 \
-make -e -C ci/packer
+ DOCKER_TAGS=feature-pfconfig-container \
+REGISTRY_USER=InverseBot REGISTRY_PASSWORD=REDACTED \
+REGISTRY=ghcr.io REGISTRY_URL=${REGISTRY}/inverse-inc/packetfence \
+make -e -C ci/packer build_img_docker_pfbuild
 ----
 
 === Troubleshooting
