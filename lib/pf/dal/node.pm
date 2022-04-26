@@ -48,6 +48,7 @@ BEGIN {
     );
 }
 
+our $TRIGGER_NODE_DISCOVERED = undef;
 use Class::XSAccessor {
     accessors => \@CATEGORY_ACCESSORS,
 # The getters for current location log entries
@@ -105,7 +106,17 @@ sub after_create_hook {
     for my $a (@CATEGORY_ACCESSORS) {
         $self->$a(undef);    
     }
+    if (!$TRIGGER_NODE_DISCOVERED) {
+        return;
+    }
 
+    $self->_trigger_node_discovered();
+    return ;
+}
+
+
+sub _trigger_node_discovered {
+    my ($self) = @_;
     my $apiclient = pf::api::queue->new(queue => 'general');
     eval {
         $apiclient->notify_delayed($NODE_DISCOVERED_TRIGGER_DELAY, "trigger_security_event", mac => $self->{mac}, type => "internal", tid => "node_discovered");
@@ -113,7 +124,6 @@ sub after_create_hook {
     if ($@) {
         $self->logger->error("Error submitting to the queue: $@");
     }
-    return ;
 }
 
 =head2 _update_category_ids
