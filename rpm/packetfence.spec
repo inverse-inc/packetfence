@@ -613,7 +613,8 @@ if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print
     echo "Starting packetfence-config service early to avoid failures when running next commands"
     /bin/systemctl start packetfence-config
 else
-    echo "packetfence-config service will be started later"
+    echo "packetfence-config unit has been found"
+    echo "State of packetfence-config service: $(/bin/systemctl show -p ActiveState packetfence-config)"
 fi
 
 echo "Disabling emergency error logging to the console"
@@ -736,7 +737,8 @@ systemctl enable docker
 systemctl restart docker
 # get containers image and tag them locally
 /usr/local/pf/containers/manage-images.sh
-systemctl start packetfence-config
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd generatemariadbconfig --force
 echo "Starting PacketFence Administration GUI..."
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
 /bin/systemctl restart packetfence-haproxy-admin
