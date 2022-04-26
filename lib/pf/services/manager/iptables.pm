@@ -106,6 +106,9 @@ sub startAndCheck {
     while(1) {
         $self->_start() unless($self->isAlive());
         sleep 60;
+        if ($self->isAlive()) {
+            return;
+	}
     }
 }
 
