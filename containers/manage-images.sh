@@ -27,7 +27,7 @@ configure_and_check() {
 	CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
     done
     
-    echo "Images detected:"
+    echo "$(date) - Images detected:"
     for img in ${CONTAINERS_IMAGES}; do
 	echo "- $img"
     done
@@ -37,13 +37,14 @@ pull_images() {
     for img in ${CONTAINERS_IMAGES}; do
 	docker pull -q ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME}
     done
-    echo "Pull of images finished"
+    echo "$(date) - Pull of images finished"
 }
 
 tag_images() {
     for img in ${CONTAINERS_IMAGES}; do
 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:${TAG_OR_BRANCH_NAME}
     done
+    echo "$(date) - Tag of images finished"
 }
 
 configure_and_check
