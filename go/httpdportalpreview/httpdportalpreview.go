@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"golang.org/x/net/html"
 )
@@ -65,12 +64,9 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var portal pfconfigdriver.PfConfCaptivePortal
-	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
-
 	rp := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: "http",
-		Host:   portal.IpAddress,
+		Host:   "containers-gateway.internal:8080",
 	})
 
 	// It's not a file preview
