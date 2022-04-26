@@ -1,5 +1,5 @@
 diff --git a/conf/keepalived.conf.example b/conf/keepalived.conf.example
-index 54b2113be5..c96aaba72c 100644
+index f0fbe92328..367e4d9099 100644
 --- a/conf/keepalived.conf.example
 +++ b/conf/keepalived.conf.example
 @@ -9,7 +9,7 @@ global_defs {
@@ -12,7 +12,7 @@ index 54b2113be5..c96aaba72c 100644
    quorum 1
    delay 15
 diff --git a/conf/monitoring/netdata.conf.example b/conf/monitoring/netdata.conf.example
-index 355b70b9ee..57a7392932 100644
+index 64f5e73f3d..90319cfc09 100644
 --- a/conf/monitoring/netdata.conf.example
 +++ b/conf/monitoring/netdata.conf.example
 @@ -8,7 +8,7 @@
@@ -25,7 +25,7 @@ index 355b70b9ee..57a7392932 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 7c5b609c5f..24ca068916 100644
+index 549001655f..5e839ab01d 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -443,7 +443,7 @@ radiusd=enabled
@@ -127,20 +127,20 @@ index 8399433b77..078e1c5e64 100644
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index c147a89edd..4cc581ed51 100644
+index 1612683223..8753ed8571 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
 @@ -7,8 +7,8 @@ After=packetfence-base.target packetfence-config.service
  [Service]
  StartLimitBurst=3
  StartLimitInterval=10
--ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
+-ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_ping() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
 -ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
++ExecStart=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_ping() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
+ ExecStartPost=/usr/local/pf/containers/docker_iptables
  Slice=packetfence.slice
  
- [Install]
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
 index 5277b4103e..31525c5537 100644
 --- a/conf/systemd/packetfence-keepalived.service
