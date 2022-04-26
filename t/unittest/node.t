@@ -23,13 +23,38 @@ BEGIN {
 }
 
 use pf::node;
+use pf::constants::node qw($NODE_DISCOVERED_TRIGGER_DELAY);
 use pf::locationlog;
+use pf::security_event qw(security_event_view_last_closed);
 use Utils;
 use pf::constants::config qw($WIRELESS_802_1X);
-use Test::More tests => 17;
+use Test::More tests => 21;
 
 #This test will running last
 use Test::NoWarnings;
+
+{
+    no warnings qw(redefine);
+    local $pf::dal::node::TRIGGER_NODE_DISCOVERED = 1;
+    our $triggered = 0;
+    local *pf::dal::node::_trigger_node_discovered = sub {
+        $triggered = 1;
+    };
+    my $mac = Utils::test_mac();
+    ok (node_add_simple($mac), "$mac added");
+    ok ($triggered, "node discovered triggered for $mac");
+}
+
+{
+    no warnings qw(redefine);
+    our $triggered = 0;
+    local *pf::dal::node::_trigger_node_discovered = sub {
+        $triggered = 1;
+    };
+    my $mac = Utils::test_mac();
+    ok (node_add_simple($mac), "$mac added");
+    ok (!$triggered, "node discovered not triggered for $mac");
+}
 
 is ("reg",pf::node::_cleanup_status_value("reg"),"Expecting reg");
 
