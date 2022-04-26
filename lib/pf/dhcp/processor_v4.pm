@@ -240,6 +240,7 @@ Process a packet
 
 sub process_packet {
     my $timer = pf::StatsD::Timer->new();
+    local $pf::dal::node::TRIGGER_NODE_DISCOVERED = 1;
     my ( $self ) = @_;
     if (db_check_readonly()) {
         $logger->trace("The database is in readonly mode skipping processing the database");

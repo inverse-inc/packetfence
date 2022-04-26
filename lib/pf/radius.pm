@@ -110,6 +110,7 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 sub authorize {
     my $timer = pf::StatsD::Timer->new();
     my ($self, $radius_request) = @_;
+    local $pf::dal::node::TRIGGER_NODE_DISCOVERED = 1;
     my $logger = $self->logger;
     my ($do_auto_reg, %autoreg_node_defaults, $action);
 
