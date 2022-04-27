@@ -105,9 +105,6 @@ sub startAndCheck {
 
     while(1) {
         $self->_start() unless($self->isAlive());
-        if ($self->isAlive()) {
-            return;
-        }
         sleep 60;
     }
 }
@@ -151,7 +148,7 @@ sub isAlive {
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "0";
     my $rules_applied = pf_run( "sudo /sbin/iptables-save | grep -- \"-A input-management-if -p tcp -m tcp --dport 1443 -j ACCEPT\"",accepted_exit_status => [$_EXIT_CODE_EXISTS, 1]);
-    return ($pid && $rules_applied) ? 1 : 0;
+    return ($rules_applied) ? 1 : 0;
 }
 
 =head1 AUTHOR
