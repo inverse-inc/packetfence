@@ -17,7 +17,7 @@ use pf::log;
 use pf::api::jsonrpcclient;
 use pf::person qw(person_view);
 use pf::util qw(isenabled connection_type_to_str);
-use Scalar::Util qw(looks_like_number);
+use Scalar::Util qw(looks_like_number reftype);
 use pf::factory::condition::access_filter;
 use pf::filter_engine;
 use pf::filter;
