@@ -286,3 +286,5 @@ html/pfappserver/root/admin/v-index.tt
 
 # ignore the lib_perl/ directory for dependencies
 lib_perl/
+
+containers/.local_env

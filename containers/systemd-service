@@ -2,6 +2,7 @@
 
 LOCAL_REGISTRY=local
 source /usr/local/pf/conf/build_id
+source /usr/local/pf/containers/.local_env
 
 function base_args {
   name="$1"
@@ -17,11 +18,27 @@ function base_args {
   echo "$args"
 }
 
+function build_img {
+  img="$1"
+  PF_VERSION=$(sed 's/PacketFence \([0-9]*\.[0-9]*\)\.[0-9]*/\1/g' /usr/local/pf/conf/pf-release)
+  docker build --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME -q -f containers/$img/Dockerfile .
+}
+
+function build_base_images {
+  local name=""
+  for name in pfdebian; do
+    docker tag $(build_img $name) $LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  done
+}
+
 function build_run {
   name="$1"
   args="$2"
   cd /usr/local/pf/
-  img=$(docker build --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME -q -f containers/$name/Dockerfile .)
+
+  build_base_images
+
+  img=$(build_img $name)
   run_img $img $name "$args"
 }
 
@@ -29,7 +46,11 @@ function run {
   name="$1"
   args="$2"
   img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
-  run_img $img $name "$args"
+  if [ "$LOCAL_DEV" = "true" ]; then
+    build_run $name "$args" 
+  else
+    run_img $img $name "$args"
+  fi
 }
 
 function run_img {
