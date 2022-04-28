@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 26;
 use Test2::Tools::Compare qw(bag item end);
 use_ok('pf::security_event');
 
@@ -42,7 +42,6 @@ is($security_events[0], "1100009");
 
 # Will be able to match multiple security_events on the same trigger
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 1});
-is(@security_events, 2);
 Test2::Tools::Compare::is(
     \@security_events,
     bag {
@@ -54,9 +53,14 @@ Test2::Tools::Compare::is(
 # Will be able to match multiple security_events on the different triggers
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_detect_id => 2, device_id => 3});
 @security_events = sort(@security_events);
-is(@security_events, 2);
-is($security_events[0], "1100007");
-is($security_events[1], "1100008");
+Test2::Tools::Compare::is(
+    \@security_events,
+    bag {
+        item '1100007';
+        item '1100008';
+    },
+);
+
 
 # Will be able to match a mac trigger that uses a regex
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({mac => "12:34:56:78:90:12"});
@@ -99,6 +103,14 @@ is(@security_events, 0);
 is(@security_events, 1);
 is($security_events[0], "1100014");
 
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all(
+    {
+        last_internal_id => 'new_dhcp_info_from_production_network',
+        last_switch      => '172.16.8.30'
+    }
+);
+is(@security_events, 1);
+is($security_events[0], "1100018");
 
 #This test will running last
 use Test::NoWarnings;

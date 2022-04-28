@@ -77,9 +77,16 @@ sub instantiate {
             }
 
             ($type,$data) = $class->getData($sub_trigger);
-            my $subclass = $class->getModuleName($type);
-            my $condition = $subclass->new($data);
-            push @conditions, pf::condition::key->new(key => $data->{key}, condition => $condition);
+            if ($type eq 'switch_group') {
+                push @conditions, pf::condition::switch_group->new(
+                    key => $data->{key},
+                    condition => pf::condition::equals->new(value => $data->{value})
+                );
+            } else {
+                my $subclass = $class->getModuleName($type);
+                my $condition = $subclass->new($data);
+                push @conditions, pf::condition::key->new(key => $data->{key}, condition => $condition);
+            }
         }
         return pf::condition::all->new(conditions => \@conditions);
     }
