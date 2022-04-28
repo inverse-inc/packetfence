@@ -1082,6 +1082,11 @@ proto=[% ENV.env_or_default("PF_WEBSERVICES_PROTO", "https") %]
 # port to use
 port=[% ENV.env_or_default("PF_WEBSERVICES_PORT", "9090") %]
 #
+# webservices.aaa_host
+#
+# host to use for authentication
+aaa_host=[% ENV.env_or_default("PF_WEBSERVICES_AAA_HOST", "containers-gateway.internal") %]
+#
 # webservices.aaa_port
 #
 # port to use for authentication
@@ -1091,13 +1096,16 @@ aaa_port=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PORT", "7070") %]
 #
 # port to use for authentication
 aaa_proto=[% ENV.env_or_default("PF_WEBSERVICES_AAA_PROTO", "http") %]
-aaa_host=[% ENV.env_or_default("PF_WEBSERVICES_AAA_HOST", "containers-gateway.internal") %]
+#
+# webservices.unifiedapi_host
+#
+# host to use for accessing the Unified API
+unifiedapi_host=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_HOST", "containers-gateway.internal") %]
 #
 # webservices.unifiedapi_port
 #
 # port to use for accessing the Unified API
 unifiedapi_port=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_PORT", "9999") %]
-unifiedapi_host=[% ENV.env_or_default("PF_WEBSERVICES_UNIFIEDAPI_HOST", "containers-gateway.internal") %]
 
 [active_active]
 #
