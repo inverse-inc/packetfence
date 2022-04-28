@@ -7,7 +7,5 @@ name=haproxy-portal
 args=`base_args $name`
 args="$args -v/usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
 args+=" -p 80:80 -p 443:443 -p 1025:1025"
-#TODO: evaluate if we can preserve the source IP of the client when it's proxied via docker-proxy instead of having this service use the host's network interfaces
-args="$args --network=host"
 
 run $name "$args"
