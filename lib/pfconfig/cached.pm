@@ -103,7 +103,7 @@ sub init {
     $self->{element_socket_method} = "override-me";
 
     my $config = $pfconfig::config::INI_CONFIG;
-	$self->{proto} = $config->get_proto;
+    $self->{proto} = $config->get_proto;
     $self->{tcp_host} = $config->section('general')->{tcp_host};
     $self->{tcp_port} = $config->section('general')->{tcp_port};
 }
