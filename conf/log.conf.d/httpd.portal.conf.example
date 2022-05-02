@@ -17,7 +17,7 @@ log4perl.additivity.fingerbank = 0
 
 ### Categories ###
 log4perl.appender.HTTPD_PORTAL                                = Log::Log4perl::Appender::Screen
-log4perl.appender.HTTPD_PORTAL.stderr  = 0
+log4perl.appender.HTTPD_PORTAL.stderr                         = 0
 log4perl.appender.HTTPD_PORTAL.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.HTTPD_PORTAL.layout                         = PatternLayout
 
