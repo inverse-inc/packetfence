@@ -1,49 +1,53 @@
 <template>
   <div>
     <transition name="fade" mode="out-in">
-      <div v-if="advancedMode">
-        <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
-          <base-search-input-advanced
-            v-model="conditionAdvanced"
+      <div>
+        <slot name="header" v-bind="search" />
+        <div v-if="advancedMode">
+          <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
+            <base-search-input-advanced
+              v-model="conditionAdvanced"
+              :disabled="disabled || isLoading"
+              :fields="fields"
+              @search="onSearchAdvanced"
+            />
+            <b-container fluid class="text-right mt-3 px-0">
+              <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled || isLoading">{{ $t('Reset') }}</b-button>
+              <b-button-group>
+                <base-button-save-search
+                  class="ml-1"
+                  v-model="conditionAdvanced"
+                  :disabled="disabled || isLoading"
+                  :save-search-namespace="`${uuid}::advancedSearch`"
+                  :use-search="useSearch"
+                  @search="onSearchAdvanced"
+                  @load="onLoadAdvanced"
+                />
+                <b-button variant="primary" :disabled="disabled || isLoading" @click="advancedMode = false"
+                  v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
+                  <icon name="search-minus" />
+                </b-button>
+              </b-button-group>
+            </b-container>
+          </b-form>
+        </div>
+        <div class="d-flex" v-else>
+          <base-search-input-basic class="flex-grow-1" :key="hint"
+            v-model="conditionBasic"
             :disabled="disabled || isLoading"
-            :fields="fields"
-            @search="onSearchAdvanced"
-          />
-          <b-container fluid class="text-right mt-3 px-0">
-            <b-button class="ml-1" type="reset" variant="secondary" :disabled="disabled || isLoading">{{ $t('Reset') }}</b-button>
-            <b-button-group>
-              <base-button-save-search
-                class="ml-1"
-                v-model="conditionAdvanced"
-                :disabled="disabled || isLoading"
-                :save-search-namespace="`${uuid}::advancedSearch`"
-                :use-search="useSearch"
-                @search="onSearchAdvanced"
-                @load="onLoadAdvanced"
-              />
-              <b-button variant="primary" :disabled="disabled || isLoading" @click="advancedMode = false"
-                v-b-tooltip.hover.top.d300 :title="$t('Switch to basic search.')">
-                <icon name="search-minus" />
-              </b-button>
-            </b-button-group>
-          </b-container>
-        </b-form>
-      </div>
-      <div class="d-flex" v-else>
-        <base-search-input-basic class="flex-grow-1" :key="hint"
-          v-model="conditionBasic"
-          :disabled="disabled || isLoading"
-          :title="titleBasic"
-          :save-search-namespace="`${uuid}::basicSearch`"
-          :use-search="useSearch"
-          @reset="onSearchReset"
-          @search="onSearchBasic"
-        >
-          <b-button variant="primary" :disabled="disabled || isLoading" @click="advancedMode = true"
-            v-b-tooltip.hover.top.d300 :title="$t('Switch to advanced search.')">
-            <icon name="search-plus" />
-          </b-button>
-        </base-search-input-basic>
+            :title="titleBasic"
+            :save-search-namespace="`${uuid}::basicSearch`"
+            :use-search="useSearch"
+            @reset="onSearchReset"
+            @search="onSearchBasic"
+          >
+            <b-button variant="primary" :disabled="disabled || isLoading" @click="advancedMode = true"
+              v-b-tooltip.hover.top.d300 :title="$t('Switch to advanced search.')">
+              <icon name="search-plus" />
+            </b-button>
+          </base-search-input-basic>
+        </div>
+        <slot name="footer" v-bind="search" />
       </div>
     </transition>
     <b-row align-h="end">
@@ -298,6 +302,7 @@ const setup = (props, context) => {
     onLoadAdvanced,
     onSearchReset,
 
+    search,
     ...toRefs(search),
     columns
   }
