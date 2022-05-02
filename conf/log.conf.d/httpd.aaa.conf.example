@@ -23,7 +23,7 @@ log4perl.additivity.pf.dhcp = 0
 #
 ### General Fingerbank log facility configuration ###
 log4perl.appender.AAA_FINGERBANK                                = Log::Log4perl::Appender::Screen
-log4perl.appender.AAA_FINGERBANK.stderr  = 0
+log4perl.appender.AAA_FINGERBANK.stderr                         = 0
 log4perl.appender.AAA_FINGERBANK.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.AAA_FINGERBANK.layout                         = PatternLayout
 
