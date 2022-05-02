@@ -2,7 +2,10 @@
 
 LOCAL_REGISTRY=local
 source /usr/local/pf/conf/build_id
-source /usr/local/pf/containers/.local_env
+
+if [ -f /usr/local/pf/containers/.local_env ]; then
+  source /usr/local/pf/containers/.local_env
+fi
 
 function base_args {
   name="$1"
