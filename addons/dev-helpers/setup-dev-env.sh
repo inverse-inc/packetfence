@@ -73,6 +73,10 @@ echo LOCAL_DEV=true > containers/.local_env
 docker pull ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME
 docker tag ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME local/pfdebian:$TAG_OR_BRANCH_NAME
 
+log_section "Building base images for containers"
+source containers/systemd-service
+build_base_images
+
 log_section "Fix permissions and start unmanaged services"
 cd /usr/local/pf
 make permissions

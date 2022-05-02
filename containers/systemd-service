@@ -30,6 +30,7 @@ function build_img {
 function build_base_images {
   local name=""
   for name in pfdebian; do
+    echo "Building $name"
     docker tag $(build_img $name) $LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
   done
 }
