@@ -12,4 +12,4 @@ RUN chown -R pf: /usr/local/pf/var
 COPY lib lib
 COPY html html
 
-ENTRYPOINT /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND -Ddebian
+ENTRYPOINT /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.portal -DFOREGROUND

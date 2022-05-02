@@ -1,63 +1,59 @@
 #[% name %] apache configuration file
 
-#Debian Specific
-<IfDefine debian>
-  <IfModule !mod_perl.c>
-    LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
-  </IfModule>
-  <IfModule !mod_unixd.c>
-    LoadModule unixd_module /usr/lib/apache2/modules/mod_unixd.so
-  </IfModule>
-  <IfModule !mod_authz_core.c>
-    LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
-  </IfModule>
-  <IfModule !mod_authn_core.c>
-    LoadModule authn_core_module /usr/lib/apache2/modules/mod_authn_core.so
-  </IfModule>
-  <IfModule !mod_socache_shmcb.c>
-    LoadModule socache_shmcb_module /usr/lib/apache2/modules/mod_socache_shmcb.so
-  </IfModule>
-  <IfModule !prefork.c>
-    LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
-  </IfModule>
-  <IfModule !mod_log_config.c>
-    LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
-  </IfModule>
-  <IfModule !mod_logio.c>
-    LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
-  </IfModule>
-  <IfModule !mod_ssl.c>
-    LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
-  </IfModule>
-  <IfModule !mod_auth_basic.c>
-    LoadModule auth_basic_module /usr/lib/apache2/modules/mod_auth_basic.so
-  </IfModule>
-  <IfModule !mod_authn_file.c>
-    LoadModule authn_file_module /usr/lib/apache2/modules/mod_authn_file.so
-  </IfModule>
-  <IfModule !mod_authz_groupfile.c>
-    Loadmodule authz_groupfile_module /usr/lib/apache2/modules/mod_authz_groupfile.so
-  </IfModule>
-  <IfModule !mod_authz_user.c>
-    LoadModule authz_user_module /usr/lib/apache2/modules/mod_authz_user.so
-  </IfModule>
-  <IfModule !mod_authz_host.c>
-    LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
-  </IfModule>
-  <IfModule !mod_status.c>
-    LoadModule status_module /usr/lib/apache2/modules/mod_status.so
-  </IfModule>
-  <IfModule !mod_headers.c>
-    LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
-  </IfModule>
-  <IfModule !mod_setenvif.c>
-    LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
-  </IfModule>
-  <IfModule !mod_systemd.c>
-    LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
-  </IfModule>
-
-</IfDefine>
+<IfModule !mod_perl.c>
+  LoadModule perl_module /usr/lib/apache2/modules/mod_perl.so
+</IfModule>
+<IfModule !mod_unixd.c>
+  LoadModule unixd_module /usr/lib/apache2/modules/mod_unixd.so
+</IfModule>
+<IfModule !mod_authz_core.c>
+  LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+</IfModule>
+<IfModule !mod_authn_core.c>
+  LoadModule authn_core_module /usr/lib/apache2/modules/mod_authn_core.so
+</IfModule>
+<IfModule !mod_socache_shmcb.c>
+  LoadModule socache_shmcb_module /usr/lib/apache2/modules/mod_socache_shmcb.so
+</IfModule>
+<IfModule !prefork.c>
+  LoadModule mpm_prefork_module /usr/lib/apache2/modules/mod_mpm_prefork.so
+</IfModule>
+<IfModule !mod_log_config.c>
+  LoadModule log_config_module /usr/lib/apache2/modules/mod_log_config.so
+</IfModule>
+<IfModule !mod_logio.c>
+  LoadModule logio_module /usr/lib/apache2/modules/mod_logio.so
+</IfModule>
+<IfModule !mod_ssl.c>
+  LoadModule ssl_module /usr/lib/apache2/modules/mod_ssl.so
+</IfModule>
+<IfModule !mod_auth_basic.c>
+  LoadModule auth_basic_module /usr/lib/apache2/modules/mod_auth_basic.so
+</IfModule>
+<IfModule !mod_authn_file.c>
+  LoadModule authn_file_module /usr/lib/apache2/modules/mod_authn_file.so
+</IfModule>
+<IfModule !mod_authz_groupfile.c>
+  Loadmodule authz_groupfile_module /usr/lib/apache2/modules/mod_authz_groupfile.so
+</IfModule>
+<IfModule !mod_authz_user.c>
+  LoadModule authz_user_module /usr/lib/apache2/modules/mod_authz_user.so
+</IfModule>
+<IfModule !mod_authz_host.c>
+  LoadModule authz_host_module /usr/lib/apache2/modules/mod_authz_host.so
+</IfModule>
+<IfModule !mod_status.c>
+  LoadModule status_module /usr/lib/apache2/modules/mod_status.so
+</IfModule>
+<IfModule !mod_headers.c>
+  LoadModule headers_module /usr/lib/apache2/modules/mod_headers.so
+</IfModule>
+<IfModule !mod_setenvif.c>
+  LoadModule setenvif_module /usr/lib/apache2/modules/mod_setenvif.so
+</IfModule>
+<IfModule !mod_systemd.c>
+  LoadModule systemd_module     /usr/lib/apache2/modules/mod_systemd.so
+</IfModule>
 
 [% INSERT "/usr/local/pf/lib/pf/web/apache-env-variables.inc" %]
 
