@@ -13,8 +13,7 @@ log_section() {
 ## Is npm Installed
 if ! type npm 2> /dev/null ; then
   echo "Install npm before running this script"
-  echo "You can follow instructions here: https://github.com/nodesource/distributions#table-of-contents"
-  echo "TLDR; Currently, the nodejs version that should be used is 12.x which can be installed using: \`curl -fsSL https://rpm.nodesource.com/setup_12.x | bash -\`"
+  echo "Currently, the nodejs version that should be used is 12.x which can be installed using: \`dnf module install nodejs:12\`"
   exit 1
 fi
 
