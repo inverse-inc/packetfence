@@ -19,8 +19,6 @@ import (
 	"golang.org/x/text/message/catalog"
 )
 
-var successDBConnect = false
-
 // Register the plugin in caddy
 func init() {
 	caddy.RegisterPlugin("pfpki", caddy.Plugin{
@@ -60,6 +58,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	var Database *gorm.DB
 	var err error
 
+	var successDBConnect = false
 	for !successDBConnect {
 		Database, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
 		if err != nil {
