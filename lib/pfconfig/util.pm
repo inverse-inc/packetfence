@@ -57,7 +57,7 @@ sub fetch_decode_socket {
     my ($payload) = @_;
 
     my $config = $pfconfig::config::INI_CONFIG;
-	my $proto = $config->get_proto();
+    my $proto = $config->get_proto();
 
     my $socket;
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
@@ -69,12 +69,12 @@ sub fetch_decode_socket {
         );
     }
     else {
-		$socket = IO::Socket::UNIX->new(
-			Type => SOCK_STREAM,
-			Peer => $socket_path,
-		);
+        $socket = IO::Socket::UNIX->new(
+            Type => SOCK_STREAM,
+            Peer => $socket_path,
+        );
     }
-	die "cannot connect to the server $!n" unless $socket;
+    die "cannot connect to the server $!n" unless $socket;
 
     my $decoder = Sereal::Decoder->new;
     my $response = fetch_socket($socket, $payload);
