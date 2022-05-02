@@ -40,8 +40,6 @@ function build_run {
   args="$2"
   cd /usr/local/pf/
 
-  build_base_images
-
   img=$(build_img $name)
   run_img $img $name "$args"
 }
