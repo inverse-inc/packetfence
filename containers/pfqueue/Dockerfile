@@ -10,5 +10,3 @@ COPY lib lib
 COPY sbin/pfqueue sbin/pfqueue
 
 ENTRYPOINT /usr/local/pf/sbin/pfqueue
-
-

@@ -41,7 +41,6 @@ generate_build_args() {
       fi
     done
     echo "$build_args"
-
 }
 
 detect_multi_tags() {
@@ -86,5 +85,3 @@ generate_knk_config
 generate_build_args
 generate_destinations
 build_image
-
-

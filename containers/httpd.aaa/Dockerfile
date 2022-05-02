@@ -12,5 +12,3 @@ RUN chown -R pf: /usr/local/pf/var
 COPY lib lib
 
 ENTRYPOINT /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.aaa -DFOREGROUND -Ddebian
-
-

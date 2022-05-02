@@ -19,18 +19,18 @@ log4perl.additivity.pf.dhcp = 0
 
 ### Logging for pfqueue
 log4perl.appender.QUEUE_SYSLOG                                = Log::Log4perl::Appender::Screen
-log4perl.appender.QUEUE_SYSLOG.stderr  = 0
+log4perl.appender.QUEUE_SYSLOG.stderr                         = 0
 log4perl.appender.QUEUE_SYSLOG.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.QUEUE_SYSLOG.layout                         = PatternLayout
 
 ### General Fingerbank log facility configuration ###
 log4perl.appender.QUEUE_FINGERBANK                                = Log::Log4perl::Appender::Screen
-log4perl.appender.QUEUE_FINGERBANK.stderr  = 0
+log4perl.appender.QUEUE_FINGERBANK.stderr                         = 0
 log4perl.appender.QUEUE_FINGERBANK.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.QUEUE_FINGERBANK.layout                         = PatternLayout
 #
 ### DHCP processing log facility configuration ###
 log4perl.appender.QUEUE_DHCP                                = Log::Log4perl::Appender::Screen
-log4perl.appender.QUEUE_DHCP.stderr  = 0
+log4perl.appender.QUEUE_DHCP.stderr                         = 0
 log4perl.appender.QUEUE_DHCP.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.QUEUE_DHCP.layout                         = PatternLayout

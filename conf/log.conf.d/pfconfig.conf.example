@@ -6,6 +6,6 @@ log4perl.rootLogger = ERROR, PFCONFIG
 # Below, you can specify different categories (based on package names) for different logging levels
 #log4perl.category.pf.SNMP = WARN
 log4perl.appender.PFCONFIG                                = Log::Log4perl::Appender::Screen
-log4perl.appender.PFCONFIG.stderr  = 0
+log4perl.appender.PFCONFIG.stderr                         = 0
 log4perl.appender.PFCONFIG.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PFCONFIG.layout                         = PatternLayout

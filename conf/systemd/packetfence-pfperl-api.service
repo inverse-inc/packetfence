@@ -10,7 +10,6 @@ ExecStop=/bin/bash -c "docker stop pfperl-api ; docker container rm pfperl-api -
 Slice=packetfence.slice
 Restart=on-failure
 KillMode=process
-#User=pf
 
 [Install]
 WantedBy=packetfence.target

@@ -60,9 +60,8 @@ WORKDIR /usr/local/pf/
 
 COPY lib lib
 
-RUN mkdir -p /usr/local/pf/bin
-
-RUN mkdir -p /usr/local/pf/conf
+RUN mkdir -p /usr/local/pf/bin  && \
+    mkdir -p /usr/local/pf/conf
 
 # Minimal configuration files needed to start freeradius
 
@@ -86,7 +85,5 @@ COPY ./bin/pflogger.pl /usr/local/pf/bin/pflogger.pl
 
 COPY ./config.mk /usr/local/pf/config.mk
 
-RUN mkdir -p /usr/local/pf/var/run
-
-RUN chown -R pf: /usr/local/pf/var
-
+RUN mkdir -p /usr/local/pf/var/run && \
+    chown -R pf: /usr/local/pf/var
