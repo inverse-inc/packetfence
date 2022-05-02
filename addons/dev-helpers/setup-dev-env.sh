@@ -71,7 +71,7 @@ TAG_OR_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD | sed 's#/#-#g'`
 echo -n TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME > conf/build_id
 echo LOCAL_DEV=true > containers/.local_env
 
-for img in pfbuild-debian-bullseye pfdebian; do
+for img in pfbuild-debian-bullseye pfdebian radiusd; do
   docker pull ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME
   docker tag ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME local/pfdebian:$TAG_OR_BRANCH_NAME
 done
