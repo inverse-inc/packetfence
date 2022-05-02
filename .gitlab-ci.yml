@@ -672,7 +672,7 @@ build_img_docker_el8_devel:
     - .build_img_docker_job
     - .build_img_docker_devel_rules
   variables:
-    DOCKER_TAGS: latest,maintenance-99-9
+    DOCKER_TAGS: latest,devel,maintenance-99-9
     ACTIVE_BUILDS: 'pfbuild-centos-8'
 
 build_img_docker_el8_branches_and_maintenance:
@@ -703,7 +703,7 @@ build_img_docker_deb11_devel:
     - .build_img_docker_job
     - .build_img_docker_devel_rules
   variables:
-    DOCKER_TAGS: latest,maintenance-99-9
+    DOCKER_TAGS: latest,devel,maintenance-99-9
     ACTIVE_BUILDS: 'pfbuild-bullseye'
 
 build_img_docker_deb11_branches_and_maintenance:
