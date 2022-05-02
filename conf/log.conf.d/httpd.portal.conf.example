@@ -23,7 +23,7 @@ log4perl.appender.HTTPD_PORTAL.layout                         = PatternLayout
 
 ### General Catalyst (pfappserver) log facility configuration ###
 log4perl.appender.PORTAL_CATALYST                                = Log::Log4perl::Appender::Screen
-log4perl.appender.PORTAL_CATALYST.stderr  = 0
+log4perl.appender.PORTAL_CATALYST.stderr                         = 0
 log4perl.appender.PORTAL_CATALYST.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.PORTAL_CATALYST.layout                         = PatternLayout
 
