@@ -738,10 +738,7 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
-systemctl enable docker
-systemctl restart docker
-systemctl restart packetfence-config
-/usr/local/pf/bin/pfcmd generatemariadbconfig --force
+/usr/local/pf/bin/pfcmd generatemariadbconfig
 echo "Starting PacketFence Administration GUI..."
 /bin/systemctl restart packetfence-httpd.admin_dispatcher
 /bin/systemctl restart packetfence-haproxy-admin
