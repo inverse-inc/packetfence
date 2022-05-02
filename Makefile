@@ -37,8 +37,8 @@ docs/%.html: docs/%.asciidoc
 	asciidoctor \
 		-n \
 		-r ./docs/asciidoctor-html.rb \
-		-a stylesdir=../html/pfappserver/root/dist/css \
-		-a stylesheet=$(notdir $(wildcard ./html/pfappserver/root/dist/css/app*.css)) \
+		-a stylesdir=$(SRC_HTML_PFAPPDIR_ROOT)/dist/css \
+		-a stylesheet=$(notdir $(wildcard $(SRC_HTML_PFAPPDIR_ROOT)/dist/css/app*.css)) \
 		-a release_version=$(PF_PATCH_RELEASE) \
 		-a release_minor=$(PF_MINOR_RELEASE) \
 		-a release_month=`date +%B` \
@@ -188,29 +188,15 @@ devel: configurations conf/ssl/server.key conf/ssl/server.crt conf/local_secret 
 test:
 	cd t && ./smoke.t
 
-.PHONY: html_install
-
-# install -D will automatically create target directories
-# $$file in destination of install command contain relative path
-html_install:
+.PHONY: html_httpd.admin_dispatcher
+# Target to install only necessary files in httpd.admin_dispatcher image
+html_httpd.admin_dispatcher:
 	@echo "create directories under $(DESTDIR)$(HTMLDIR)"
-	install -d -m0755 $(DESTDIR)$(HTML_PARKINGDIR)
 	install -d -m0755 $(DESTDIR)$(HTML_COMMONDIR)
-	install -d -m0755 $(DESTDIR)$(HTML_CPDIR)
 	install -d -m0755 $(DESTDIR)$(HTML_PFAPPDIR)
-
-	@echo "install $(SRC_HTML_PARKINGDIR) files"
-	for file in $(parking_files); do \
-            install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
 
 	@echo "install $(SRC_HTML_COMMONDIR) dirs and files"
 	for file in $(common_files); do \
-	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
-	done
-
-	@echo "install $(SRC_HTML_CPDIR) dirs and files"
-	for file in $(cp_files); do \
 	    install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
 	done
 
@@ -233,13 +219,17 @@ html_install:
 conf/git_commit_id:
 	git rev-parse HEAD > $@
 
+.PHONY: conf/build_id
+conf/build_id:
+	$(SRC_CIDIR)/lib/build/generate-build-id.sh
+
 .PHONY: rpm/.rpmmacros
 rpm/.rpmmacros:
 	echo "%systemddir /usr/lib/systemd" > $(SRC_RPMDIR)/.rpmmacros
 	echo "%pf_minor_release $(PF_MINOR_RELEASE)" >> $(SRC_RPMDIR)/.rpmmacros
 
 .PHONY: build_rpm
-build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
+build_rpm: conf/git_commit_id conf/build_id rpm/.rpmmacros dist-packetfence-test dist-packetfence-export dist-packetfence-upgrade dist
 	cp $(SRC_RPMDIR)/.rpmmacros $(HOME)
 	ci-build-pkg $(SRC_RPMDIR)/packetfence.spec
 	# no need to build other packages if packetfence build failed
@@ -249,7 +239,7 @@ build_rpm: conf/git_commit_id rpm/.rpmmacros dist-packetfence-test dist-packetfe
 	ci-build-pkg $(SRC_RPMDIR)/packetfence-upgrade.spec
 
 .PHONY: build_deb
-build_deb: conf/git_commit_id
+build_deb: conf/git_commit_id conf/build_id
 	cp $(SRC_CIDIR)/debian/.devscripts $(HOME)
 	QUILT_PATCHES=$(SRC_DEBDIR)/patches quilt push
 	ci-build-pkg $(SRC_DEBDIR)

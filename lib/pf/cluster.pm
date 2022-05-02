@@ -32,7 +32,6 @@ use pf::file_paths qw(
 use pf::util;
 use pf::constants;
 use pf::constants::cluster qw(@FILES_TO_SYNC);
-use Config::IniFiles;
 use File::Slurp qw(read_file write_file);
 use Time::HiRes qw(time);
 use POSIX qw(ceil);

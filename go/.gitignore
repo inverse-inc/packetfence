@@ -4,7 +4,6 @@ pfdhcp
 pfstats
 pfdetect
 pfacct
-pfcertmanager
 pfcron
 galera-autofix
 mysql-probe
@@ -14,7 +13,6 @@ mysql-probe
 !pfstats/
 !pfdetect/
 !pfacct/
-!pfcertmanager/
 !pfcron/
 !galera-autofix/
 !mysql-probe/

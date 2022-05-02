@@ -7,8 +7,9 @@ After=packetfence-base.target packetfence-config.service
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
+ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_ping() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
 ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
+ExecStartPost=/usr/local/pf/containers/docker_iptables.sh
 Slice=packetfence.slice
 
 [Install]

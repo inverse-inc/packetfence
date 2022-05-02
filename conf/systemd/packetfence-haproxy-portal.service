@@ -4,15 +4,13 @@ Description=PacketFence HAProxy Load Balancer for the captive portal
 Wants=packetfence-config.service 
 
 [Service]
-Type=notify
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
-ExecStart=/usr/sbin/haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf -p /usr/local/pf/var/run/haproxy-portal.pid
-ExecReload=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::haproxy_portal' -e 'pf::services::manager::haproxy_portal->new()->generateConfig()'
-ExecReload=/bin/kill -USR2 $MAINPID
+ExecStart=/usr/local/pf/sbin/haproxy-portal-docker-wrapper
+ExecStop=/bin/bash -c "docker stop haproxy-portal ; docker container rm haproxy-portal -f ; echo Stopped"
 Restart=on-failure
-SuccessExitStatus=143
+TimeoutStopSec=30
 Slice=packetfence.slice
 
 [Install]

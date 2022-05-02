@@ -1,18 +1,18 @@
 
-%%members%%
+[% members %]
 
 #  Put all of the servers into a pool.
 home_server_pool pf_pool.cluster {
         type = keyed-balance
 
-%%home_server%%
+[% home_server %]
 
 }
 
 home_server_pool pfacct_pool.cluster {
         type = keyed-balance
 
-%%home_server%%
+[% home_server %]
 
 }
 
@@ -28,7 +28,7 @@ realm packetfence-cli {
 home_server_pool pfcli_pool.cluster {
         type = keyed-balance
 
-%%home_server_cli%%
+[% home_server_cli %]
 
 }
 

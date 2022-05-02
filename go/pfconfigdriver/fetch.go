@@ -95,6 +95,8 @@ func connectSocket(ctx context.Context) net.Conn {
 
 	timeoutChan := time.After(SocketTimeout)
 
+	proto := sharedutils.EnvOrDefault("PFCONFIG_PROTO", "tcp")
+
 	var c net.Conn
 	err := errors.New("Not yet connected")
 	for err != nil {
@@ -105,9 +107,18 @@ func connectSocket(ctx context.Context) net.Conn {
 			// We try to connect to the pfconfig socket
 			// If we fail, we will wait a second before leaving this scope
 			// Otherwise, we continue and the for loop will detect the connection is valid since err will be nil
-			c, err = net.Dial("unix", getPfconfigSocketPath())
+			switch proto {
+			case "tcp":
+				host := sharedutils.EnvOrDefault("PFCONFIG_TCP_HOST", "127.0.0.1")
+				port := sharedutils.EnvOrDefault("PFCONFIG_TCP_PORT", "44444")
+				c, err = net.Dial("tcp", fmt.Sprintf("%s:%s", host, port))
+			case "unix":
+				c, err = net.Dial("unix", getPfconfigSocketPath())
+			default:
+				panic("Unrecognized protocol for pfconfigdriver")
+			}
 			if err != nil {
-				log.LoggerWContext(ctx).Error("Cannot connect to pfconfig socket...")
+				log.LoggerWContext(ctx).Error("Cannot connect to pfconfig socket..." + err.Error())
 				time.Sleep(1 * time.Second)
 			}
 		}
@@ -317,22 +328,17 @@ func FindClusterName(ctx context.Context) string {
 func IsValid(ctx context.Context, o PfconfigObject) bool {
 	q := createQuery(ctx, o)
 	ns := q.basens
-	controlFile := "/usr/local/pf/var/control/" + ns + "-control"
 
-	stat, err := os.Stat(controlFile)
-
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Cannot stat %s. Will consider resource as invalid", controlFile))
+	if globalMeta.getLastTouchCache() == 0 {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration was never loaded. Considering %s as invalid do the initial load.", ns))
 		return false
-	} else {
-		controlTime := stat.ModTime()
-		if o.GetLoadedAt().Before(controlTime) {
-			log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
-			return false
-		} else {
-			return true
-		}
+	} else if float64(time.Now().UnixMicro()/1000000)-globalMeta.getReloadedTouchCache() > globalMeta.getPhoneInAtLeast() {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(globalMeta.getPhoneInAtLeast()), ns))
+	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= globalMeta.getLastTouchCache() {
+		return true
 	}
+	log.LoggerWContext(ctx).Debug(fmt.Sprintf("Resource is not valid anymore. Was loaded at %s", o.GetLoadedAt()))
+	return false
 }
 
 // Fetch and decode from the socket but only if the PfconfigObject is not valid anymore
@@ -357,7 +363,7 @@ func FetchKeys(ctx context.Context, name string) ([]string, error) {
 		return nil, err
 	}
 
-	return keys.Keys, nil
+	return keys.Response.Keys, nil
 }
 
 // Fetch and decode a namespace from pfconfig given a pfconfig compatible struct
@@ -378,15 +384,20 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 
 	if query.method == "keys" {
 		if cs, ok := o.(PfconfigKeysInt); ok {
-			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetKeys())
+			decodeInterface(ctx, query.encoding, jsonResponse, cs.GetResponse())
+			cs.SetKeysFromResponse()
+			globalMeta.setLastTouchCache(o.GetLastTouchCache())
 		} else {
 			panic("Wrong struct type for keys. Required PfconfigKeysInt")
 		}
 	} else if metadataFromField(ctx, o, "PfconfigArray") == "yes" || metadataFromField(ctx, o, "PfconfigDecodeInElement") == "yes" {
 		decodeInterface(ctx, query.encoding, jsonResponse, &o)
+		globalMeta.setLastTouchCache(o.GetLastTouchCache())
 	} else {
 		receiver := &PfconfigElementResponse{}
 		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
+		globalMeta.setLastTouchCache(receiver.LastTouchCache)
+
 		if receiver.Element != nil {
 			b, _ := receiver.Element.MarshalJSON()
 			decodeInterface(ctx, query.encoding, b, &o)
@@ -395,6 +406,7 @@ func FetchDecodeSocket(ctx context.Context, o PfconfigObject) error {
 		}
 	}
 
+	globalMeta.setReloadedTouchCache(float64(time.Now().UnixMicro() / 1000000))
 	o.SetLoadedAt(time.Now())
 
 	return nil
@@ -419,4 +431,9 @@ func GetClusterSummary(ctx context.Context) ClusterSummary {
 	decodeInterface(ctx, query.encoding, b, clusterSummary)
 
 	return *clusterSummary
+}
+
+func RefreshLastTouchCache(ctx context.Context) {
+	fqdn := &FQDN{}
+	FetchDecodeSocket(ctx, fqdn)
 }

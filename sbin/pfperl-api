@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use Mojolicious::Commands;
+use pf::log(service => 'pfperl-api');
 
 # Start command line interface for application
 Mojolicious::Commands->start_app('pf::UnifiedApi::custom');

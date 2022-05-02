@@ -100,11 +100,6 @@
       :text="$i18n.t(`The network address to listen to listen on. Do not change unless you know what you're doing.`)"
     />
 
-    <form-group-pfcertmanager namespace="pfcertmanager"
-      :column-label="$i18n.t('pfcertmanager')"
-      :text="$i18n.t(`Should pfcertmanager be started? Keep enabled unless you know what you're doing.`)"
-    />
-
     <form-group-pfdhcp namespace="pfdhcp"
       :column-label="$i18n.t('pfdhcp')"
       :text="$i18n.t('Should pfdhcp be managed by PacketFence?')"
@@ -253,7 +248,6 @@ import {
   FormGroupNetdata,
   FormGroupNetflowAddress,
   FormGroupPfacct,
-  FormGroupPfcertmanager,
   FormGroupPfcron,
   FormGroupPfdhcp,
   FormGroupPfdhcplistener,
@@ -303,7 +297,6 @@ const components = {
   FormGroupNetdata,
   FormGroupNetflowAddress,
   FormGroupPfacct,
-  FormGroupPfcertmanager,
   FormGroupPfcron,
   FormGroupPfdhcp,
   FormGroupPfdhcplistener,

@@ -117,15 +117,29 @@ unlink($socket_path);
 #Ensure that the file permissions of the socket is correct 0770
 umask(0007);
 
-my $listner = IO::Socket::UNIX->new(
-   Type   => SOCK_STREAM,
-   Local  => $socket_path,
-   Listen => SOMAXCONN,
-) or die("Can't create server socket: $!\n");
+my $listner;
+my $config = $pfconfig::config::INI_CONFIG;
+
+if($config->get_proto eq "tcp") {
+    $listner = IO::Socket::INET->new(
+       LocalHost => '0.0.0.0',
+       LocalPort => $config->section('general')->{tcp_port},
+       Proto => 'tcp',
+       Listen => 5,
+       Reuse => 1
+    ) or die("Can't create server socket: $!\n");
+} else {
+    $listner = IO::Socket::UNIX->new(
+       Type   => SOCK_STREAM,
+       Local  => $socket_path,
+       Listen => SOMAXCONN,
+    ) or die("Can't create server socket: $!\n");
+}
 
 umask(0);
 
 my $cache = pfconfig::manager->new;
+$cache->{pfconfig_server} = 1;
 $cache->preload_all();
 
 our %DISPATCH = (
@@ -213,7 +227,7 @@ sub expire {
         $logger->info("expiring $namespace");
         $cache->expire($namespace, $light);
     }
-    send_output({status => "OK."}, $socket);
+    send_output({status => "OK."}, $socket, $query);
 }
 
 sub get_from_cache {
@@ -229,7 +243,7 @@ sub get_element {
     my ($query, $socket) = @_;
     my $elem = get_from_cache_or_croak($query->{key}, $socket);
     return unless(defined($elem));
-    send_output({element => $elem}, $socket);
+    send_output({element => $elem}, $socket, $query);
 }
 
 sub get_hash_element {
@@ -254,7 +268,7 @@ sub get_hash_element {
     else{
         $elem = {element => $elem};
     }
-    send_output($elem, $socket);
+    send_output($elem, $socket, $query);
 }
 
 sub get_from_cache_or_croak {
@@ -279,7 +293,7 @@ sub get_keys {
     return unless(defined($elem));
 
     my @keys = keys(%{$elem});
-    send_output(\@keys, $socket);
+    send_output({keys => \@keys}, $socket, $query);
 }
 
 sub get_key_exists {
@@ -292,10 +306,10 @@ sub get_key_exists {
 
     my $key = $query->{search};
     if (any { $key eq $_ } @keys) {
-        send_output({result => 1}, $socket);
+        send_output({result => 1}, $socket, $query);
     }
     else {
-        send_output({result => 0}, $socket);
+        send_output({result => 0}, $socket, $query);
     }
 
 }
@@ -323,7 +337,7 @@ sub get_next_key {
 
         $next_key = $keys[$last_index+1];
     }
-    send_output({next_key => $next_key}, $socket);
+    send_output({next_key => $next_key}, $socket, $query);
 }
 
 sub get_array_element {
@@ -349,7 +363,7 @@ sub get_array_element {
         $elem = {element => $elem};
     }
 
-    send_output($elem, $socket);
+    send_output($elem, $socket, $query);
 
 }
 
@@ -358,10 +372,10 @@ sub get_array_index_exists {
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
 
     if(exists($$elem[$query->{index}])) {
-        send_output({result => 1}, $socket);
+        send_output({result => 1}, $socket, $query);
     }
     else{
-        send_output({result => 0}, $socket);
+        send_output({result => 0}, $socket, $query);
     }
 
 }
@@ -370,7 +384,7 @@ sub get_array_size {
     my ($query, $socket) = @_;
     my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
     my $size = @$elem;
-    send_output({size => $size}, $socket);
+    send_output({size => $size}, $socket, $query);
 }
 
 sub encode_output {
@@ -383,7 +397,10 @@ sub encode_output {
         my $json = JSON->new;
         $json->convert_blessed(1);
         my $result;
-        if(!defined($data)) {
+        if(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
+            return $json->encode({%$data, error => "No valid element was found for query"});
+        }
+        elsif(!defined($data)) {
             return $json->encode({error => "No valid element was found for query"});
         }
         eval {
@@ -400,7 +417,11 @@ sub encode_output {
 }
 
 sub send_output {
-    my ($data, $socket) = @_;
+    my ($data, $socket, $query) = @_;
+    # Gets added by default, client must request that this doesn't get added
+    unless ($query && $query->{no_last_touch_cache}) {
+        $data->{last_touch_cache} = $cache->{last_touch_cache};
+    }
     my $encoded_data = encode_output($data);
     my $bytes_to_send = length($encoded_data);
     my $bytes_sent  = send_data_with_length($socket,$encoded_data);

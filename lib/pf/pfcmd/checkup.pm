@@ -809,7 +809,7 @@ sub switches {
     my $defaults = pf::IniFiles->new(-file => $template_switches_default_config_file);
     my $ini = pf::IniFiles->new(-file => $template_switches_config_file, -allowempty => 1, -import => $defaults);
 
-    my @errors = @Config::IniFiles::errors;
+    my @errors = @pf::IniFiles::errors;
     if ( scalar(@errors) ) {
         add_problem( $FATAL, "switches.conf | Error reading switches.conf" );
     }

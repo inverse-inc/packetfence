@@ -97,7 +97,7 @@ sub connect {
 
     my $status_msg;
 
-    $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306", $user, $password );
+    $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306;mysql_socket=/var/lib/mysql/mysql.sock", $user, $password );
     if ( !$dbHandler ) {
         $status_msg = ["Error in connection to the database [_1] with user [_2]",$db,$user];
         $logger->warn("$DBI::errstr");
@@ -118,16 +118,9 @@ sub create {
 
     my ( $status_msg, $result );
 
-    # Instantiate a DBI driver
-    my $dbDriver = DBI->install_driver("mysql");
-    if ( !$dbDriver ) {
-        $status_msg = ["Error in creating the database [_1]",$db];
-        $logger->warn($DBI::errstr);
-        return ( $STATUS::INTERNAL_SERVER_ERROR, $status_msg );
-    }
+    my $dbh = DBI->connect("dbi:mysql:mysql_socket=/var/lib/mysql/mysql.sock", $root_user, $root_password);
+    $result = $dbh->do("create database $db");
 
-    # Create the requested database
-    $result = $dbDriver->func('createdb', $db, 'localhost', $root_user, $root_password, 'admin');
     if ( !$result ) {
         $status_msg = ["Error in creating the database [_1]",$db];
         $logger->warn($DBI::errstr);
@@ -231,7 +224,7 @@ sub schema {
     $root_user = quotemeta ($root_user);
     $root_password = quotemeta ($root_password);
     $db = quotemeta ($db);
-    my $mysql_cmd = "/usr/bin/mysql -u $root_user -p$root_password $db";
+    my $mysql_cmd = "/usr/bin/mysql --socket=/var/lib/mysql/mysql.sock -u $root_user -p$root_password $db";
     my $cmd = "$mysql_cmd < $install_dir/db/pf-schema.sql";
     eval { $result = pf_run($cmd, (accepted_exit_status => [ 0 ]), log_strip => quotemeta("-p$root_password")) };
     if ( $@ || !defined($result) ) {

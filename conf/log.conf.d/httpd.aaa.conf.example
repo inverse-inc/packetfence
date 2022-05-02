@@ -4,9 +4,8 @@ log4perl.rootLogger = INFO, HTTPD_AAA
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
-log4perl.appender.HTTPD_AAA                                = Log::Dispatch::Syslog
-log4perl.appender.HTTPD_AAA.ident                          = packetfence_httpd.aaa
-log4perl.appender.HTTPD_AAA.facility                       = local5
+log4perl.appender.HTTPD_AAA                                = Log::Log4perl::Appender::Screen
+log4perl.appender.HTTPD_AAA.stderr                         = 0
 log4perl.appender.HTTPD_AAA.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.HTTPD_AAA.layout                         = PatternLayout
 
@@ -23,15 +22,13 @@ log4perl.category.pf.dhcp = INFO, AAA_DHCP
 log4perl.additivity.pf.dhcp = 0
 #
 ### General Fingerbank log facility configuration ###
-log4perl.appender.AAA_FINGERBANK                                = Log::Dispatch::Syslog
-log4perl.appender.AAA_FINGERBANK.ident                          = fingerbank_httpd.aaa
-log4perl.appender.AAA_FINGERBANK.facility                       = local5
+log4perl.appender.AAA_FINGERBANK                                = Log::Log4perl::Appender::Screen
+log4perl.appender.AAA_FINGERBANK.stderr                         = 0
 log4perl.appender.AAA_FINGERBANK.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.AAA_FINGERBANK.layout                         = PatternLayout
 
 ### DHCP processing log facility configuration ###
-log4perl.appender.AAA_DHCP                                = Log::Dispatch::Syslog
-log4perl.appender.AAA_DHCP.ident                          = pfdhcplistener_httpd.aaa
-log4perl.appender.AAA_DHCP.facility                       = local5
+log4perl.appender.AAA_DHCP                                = Log::Log4perl::Appender::Screen
+log4perl.appender.AAA_DHCP.stderr                         = 0
 log4perl.appender.AAA_DHCP.layout.ConversionPattern       = %X{proc}(%X{tid}) %p: [mac:%X{mac}] %m (%M)%n
 log4perl.appender.AAA_DHCP.layout                         = PatternLayout

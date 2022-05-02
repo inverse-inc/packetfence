@@ -95,11 +95,6 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "pfacct"' ]
     },
     {
-        'description' => 'pfcertmanager general log',
-        'name'       => 'pfcertmanager.log',
-        'conditions' => [ '$programname == "pfcertmanager"' ]
-    },
-    {
         'description' => 'pfstats general log',
         'name'       => 'pfstats.log',
         'conditions' => [ '$programname == "pfstats"' ]

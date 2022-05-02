@@ -31,7 +31,7 @@ sub init {
     $self->{child_resources} = [ "resource::RealmReverseLookup" ];
     $self->{ini} = pf::IniFiles->new(
         -file       => $realm_config_file,
-        -import     => pf::IniFiles->new(-file => $realm_default_config_file),
+        -import     => pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1),
         -allowempty => 1,
     );
 }

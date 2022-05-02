@@ -226,6 +226,7 @@ BEGIN {
         %ConfigCloud
         %ConfigFirewallSSO
         $OS
+        $CONTAINER_INT
         %Doc_Config
         %ConfigRealm
         @ConfigOrderedRealm
@@ -425,6 +426,9 @@ my $cache_dns_enforcement_enabled;
 # Bandwdith accounting values
 our $BANDWIDTH_DIRECTION_RE = qr/IN|OUT|TOT/;
 our $BANDWIDTH_UNITS_RE = qr/B|KB|MB|GB|TB/;
+
+# Container specific
+Readonly our $CONTAINER_INT => 'containers-gateway.internal';
 
 =head1 SUBROUTINES
 

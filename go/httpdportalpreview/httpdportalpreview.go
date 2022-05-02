@@ -65,13 +65,18 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var portal pfconfigdriver.PfConfCaptivePortal
-	pfconfigdriver.FetchDecodeSocket(ctx, &portal)
+	var servicesURL pfconfigdriver.PfConfServicesURL
+	pfconfigdriver.FetchDecodeSocket(ctx, &servicesURL)
 
-	rp := httputil.NewSingleHostReverseProxy(&url.URL{
-		Scheme: "http",
-		Host:   portal.IpAddress,
-	})
+	u, err := url.Parse(servicesURL.HttpdPortal)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Unable to parse portal preview URL '%s'", servicesURL.HttpdPortal)))
+		return
+	}
+
+	rp := httputil.NewSingleHostReverseProxy(u)
 
 	// It's not a file preview
 	if previewStatic {

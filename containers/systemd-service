@@ -1,0 +1,66 @@
+#!/bin/bash
+
+LOCAL_REGISTRY=local
+source /usr/local/pf/conf/build_id
+
+if [ -f /usr/local/pf/containers/.local_env ]; then
+  source /usr/local/pf/containers/.local_env
+fi
+
+function base_args {
+  name="$1"
+  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway"
+
+  args="$args -v /var/lib/mysql:/var/lib/mysql"
+  args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
+
+  if [ -f /usr/local/pf/var/conf/$name.env ]; then
+    args="$args --env-file /usr/local/pf/var/conf/$name.env"
+  fi
+
+  echo "$args"
+}
+
+function build_img {
+  img="$1"
+  PF_VERSION=$(sed 's/PacketFence \([0-9]*\.[0-9]*\)\.[0-9]*/\1/g' /usr/local/pf/conf/pf-release)
+  docker build --build-arg=PF_VERSION=$PF_VERSION --build-arg=KNK_REGISTRY_URL=$LOCAL_REGISTRY --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME -q -f containers/$img/Dockerfile .
+}
+
+function build_base_images {
+  local name=""
+  for name in pfdebian; do
+    echo "Building $name"
+    docker tag $(build_img $name) $LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  done
+}
+
+function build_run {
+  name="$1"
+  args="$2"
+  cd /usr/local/pf/
+
+  img=$(build_img $name)
+  run_img $img $name "$args"
+}
+
+function run {
+  name="$1"
+  args="$2"
+  img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
+  if [ "$LOCAL_DEV" = "true" ]; then
+    build_run $name "$args" 
+  else
+    run_img $img $name "$args"
+  fi
+}
+
+function run_img {
+  img="$1"
+  name="$2"
+  args="$3"
+  cd /usr/local/pf/
+  docker container rm -f $name
+  echo "Running with args $args"
+  docker run $args --name=$name $img
+}

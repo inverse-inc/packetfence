@@ -78,11 +78,11 @@ $merger->set_behavior('PF_CHI_MERGE');
 
 our @CACHE_NAMESPACES = qw(configfiles httpd.portal switch.overlay ldap_auth fingerbank switch accounting clustering person_lookup route_int provisioning provisioning_distributed switch_distributed pfdhcp_api openvas_scans local_mac ntlm_cache_username_lookup trigger_security_event azure_ad mfa);
 
-our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file) or die "Cannot open $chi_defaults_config_file";
+our $chi_default_config = pf::IniFiles->new( -file => $chi_defaults_config_file, -envsubst => 1) or die "Cannot open $chi_defaults_config_file";
 
-our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1, -import => $chi_default_config) or die "Cannot open $chi_config_file";
+our $chi_config = pf::IniFiles->new( -file => $chi_config_file, -allowempty => 1, -import => $chi_default_config, -envsubst => 1) or die "Cannot open $chi_config_file";
 
-our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file) or die "Cannot open $pf_default_file";
+our $pf_default_config = pf::IniFiles->new( -file => $pf_default_file, -envsubst => 1) or die "Cannot open $pf_default_file";
 
 our $dbi_info;
 

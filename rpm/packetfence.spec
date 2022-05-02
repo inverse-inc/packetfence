@@ -51,7 +51,6 @@ Requires: mod_perl, mod_proxy_html
 requires: libapreq2, perl-libapreq2
 Requires: redis
 Requires: freeradius >= 3.0.25, freeradius-mysql >= 3.0.25, freeradius-perl >= 3.0.25, freeradius-ldap >= 3.0.25, freeradius-utils >= 3.0.25, freeradius-redis >= 3.0.25, freeradius-rest >= 3.0.25
-Requires: fuse
 Requires: make
 Requires: net-tools
 Requires: sscep
@@ -293,6 +292,7 @@ Requires: monit, uuid
 # packetfence-release to have GPG key used to sign monitoring scripts
 Requires: packetfence-release >= 2.4.0
 Requires: gnupg2
+Requires: docker-ce docker-ce-cli containerd.io
 
 #Requires: perl(Sereal::Encoder), perl(Sereal::Decoder), perl(Data::Serializer::Sereal) >= 1.04
 #
@@ -307,8 +307,8 @@ Requires: gnupg2
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.2.3, fingerbank < 5.0.0
-Requires: fingerbank-collector >= 1.3.23, fingerbank-collector < 2.0.0
+Requires: fingerbank >= 4.3.0, fingerbank < 5.0.0
+Requires: fingerbank-collector >= 1.4.0, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
 %description
@@ -339,18 +339,6 @@ for TRANSLATION in de en es fr he_IL it nl pl_PL pt_BR nb_NO; do
     /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
       --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
 done
-
-# Portal javascript/css
-%{__make} -C html/common/ vendor
-%{__make} -C html/common light-dist
-
-# Admin javascript/css
-%{__make} -C html/pfappserver/root/ vendor
-%{__make} -C html/pfappserver/root/ light-dist
-
-
-# Build the HTML doc index for pfappserver
-%{__make} html
 
 # build pfcmd C wrapper
 %{__make} bin/pfcmd
@@ -405,7 +393,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-mariadb.service %{buildroot}%{_unitdir}/packetfence-mariadb.service
 %{__install} -D -m0644 conf/systemd/packetfence-mysql-probe.service %{buildroot}%{_unitdir}/packetfence-mysql-probe.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfacct.service %{buildroot}%{_unitdir}/packetfence-pfacct.service
-%{__install} -D -m0644 conf/systemd/packetfence-pfcertmanager.service %{buildroot}%{_unitdir}/packetfence-pfcertmanager.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdetect.service %{buildroot}%{_unitdir}/packetfence-pfdetect.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcplistener.service %{buildroot}%{_unitdir}/packetfence-pfdhcplistener.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdns.service %{buildroot}%{_unitdir}/packetfence-pfdns.service
@@ -437,13 +424,14 @@ done
 # systemd modules
 %{__install} -D packetfence.modules-load %{buildroot}/etc/modules-load.d/packetfence.conf
 %{__install} -D packetfence.modprobe %{buildroot}/etc/modprobe.d/packetfence.conf
+# override docker-ce unit file
+%{__install} -D -m0644 packetfence.docker-drop-in.service %{buildroot}/etc/systemd/system/docker.service
 
 %{__install} -d %{buildroot}/usr/local/pf/addons
 %{__install} -d %{buildroot}/usr/local/pf/addons/AD
 %{__install} -d %{buildroot}/usr/local/pf/addons/full-import
 %{__install} -d %{buildroot}/usr/local/pf/addons/functions
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
-%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/certmanager
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
@@ -464,7 +452,9 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/var/control
 %{__install} -d %{buildroot}/etc/sudoers.d
 %{__install} -d %{buildroot}/etc/cron.d
-%{__install} -d %{buildroot}/usr/local/pf/docs
+%{__install} -d %{buildroot}/etc/docker
+%{__install} -d %{buildroot}/usr/local/pf/html
+%{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -495,20 +485,19 @@ cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
 mv packetfence.sudoers %{buildroot}/etc/sudoers.d/packetfence
 mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
+mv containers/daemon.json %{buildroot}/etc/docker/daemon.json
 cp -r ChangeLog %{buildroot}/usr/local/pf/
 cp -r COPYING %{buildroot}/usr/local/pf/
 cp -r db %{buildroot}/usr/local/pf/
-cp -r docs/images %{buildroot}/usr/local/pf/docs/
-cp docs/*.html %{buildroot}/usr/local/pf/docs/
-cp docs/*.js %{buildroot}/usr/local/pf/docs/
+cp -r containers %{buildroot}/usr/local/pf
 
 # install Golang binaries
 %{__make} -C go DESTDIR=%{buildroot} copy
 # clean Golang binaries from build dir
 %{__make} -C go clean
 
-# install html directory
-%{__make} DESTDIR=%{buildroot} html_install
+# temp
+cp -r html/pfappserver/root %{buildroot}/usr/local/pf/html/pfappserver
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
@@ -624,11 +613,17 @@ if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print
     echo "Starting packetfence-config service early to avoid failures when running next commands"
     /bin/systemctl start packetfence-config
 else
-    echo "packetfence-config service will be started later"
+    echo "packetfence-config unit has been found"
+    echo "State of packetfence-config service: $(/bin/systemctl show -p ActiveState packetfence-config)"
 fi
 
 echo "Disabling emergency error logging to the console"
 /usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
+
+if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
+    echo "" >> /etc/hosts
+    echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
+fi
 
 if [ "$1" = "2" ]; then
     /usr/local/pf/bin/pfcmd service pf updatesystemd
@@ -725,6 +720,11 @@ echo "Restarting rsyslogd"
 
 #Starting PacketFence.
 #removing old cache
+/bin/systemctl enable docker
+/bin/systemctl restart docker
+# get containers image and tag them locally
+/usr/local/pf/containers/manage-images.sh
+
 rm -rf /usr/local/pf/var/cache/
 /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
 /bin/systemctl disable firewalld
@@ -732,6 +732,7 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
+/usr/local/pf/bin/pfcmd generatemariadbconfig --force
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin_dispatcher
 /bin/systemctl enable packetfence-haproxy-admin
@@ -794,11 +795,13 @@ fi
 %attr(0644, root, root) /etc/systemd/system/rsyslog.service.d/packetfence.conf
 %attr(0644, root, root) /etc/systemd/system/logrotate.service.d/override.conf
 %attr(0644, root, root) /etc/systemd/system/monit.service
+%attr(0644, root, root) /etc/systemd/system/docker.service
 
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
 %config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
+%config %attr(0644,root,root) %{_sysconfdir}/docker/daemon.json
 
 %dir                    /usr/local/pf
                         /usr/local/pf/Makefile
@@ -854,23 +857,38 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
-%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcertmanager
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdhcp
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
+%attr(0755, pf, pf)     /usr/local/pf/sbin/api-frontend-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.aaa-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.portal-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.webservices-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfsso-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfqueue-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-acct-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-auth-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-cli-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-load-balancer-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
 %config(noreplace)      /usr/local/pf/conf/pfconfig.conf
+%config                 /usr/local/pf/conf/pfconfig.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
 %config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
-%dir %attr(0770, pf pf) /usr/local/pf/conf/certmanager
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
@@ -914,6 +932,7 @@ fi
 %config(noreplace)      /usr/local/pf/conf/floating_network_device.conf
 %config(noreplace)      /usr/local/pf/conf/guest-managers.conf
                         /usr/local/pf/conf/git_commit_id
+                        /usr/local/pf/conf/build_id
                         /usr/local/pf/conf/saml-sp-metadata.xml
 %dir                    /usr/local/pf/conf/I18N
 %dir                    /usr/local/pf/conf/I18N/api
@@ -990,6 +1009,8 @@ fi
                         /usr/local/pf/conf/radiusd/clients.conf.inc.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc
                         /usr/local/pf/conf/radiusd/clients.eduroam.conf.inc.example
+%config(noreplace)      /usr/local/pf/conf/radiusd/cert
+                        /usr/local/pf/conf/radiusd/cert.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/mschap.conf
                         /usr/local/pf/conf/radiusd/mschap.conf.example
 %config(noreplace)      /usr/local/pf/conf/radiusd/packetfence-cluster
@@ -1153,71 +1174,11 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
-# only mark all files under docs/ as documentation
-%docdir                 /usr/local/pf/docs
-# add all files and directories under docs in package
-/usr/local/pf/docs
 
-### html dir
-# %%dir will add only html dir, not subdirectories or files
+# html dir
 %dir                    /usr/local/pf/html
-
-# parking dir and files below
-                        /usr/local/pf/html/parking
-
-# common dir and files below
-                        /usr/local/pf/html/common
-%config(noreplace)      /usr/local/pf/html/common/styles.css
-%config(noreplace)      /usr/local/pf/html/common/styles.css.map
-%config(noreplace)      /usr/local/pf/html/common/styles-dark.css
-
-# captive portal
-%dir                    /usr/local/pf/html/captive-portal
-                        /usr/local/pf/html/captive-portal/Changes
-                        /usr/local/pf/html/captive-portal/Makefile.PL
-                        /usr/local/pf/html/captive-portal/README
-%config(noreplace)      /usr/local/pf/html/captive-portal/captiveportal.conf
-                        /usr/local/pf/html/captive-portal/captiveportal.conf.example
-                        /usr/local/pf/html/captive-portal/content/countdown.min.js
-                        /usr/local/pf/html/captive-portal/content/guest-management.js
-                        /usr/local/pf/html/captive-portal/content/captiveportal.js
-                        /usr/local/pf/html/captive-portal/content/autosubmit.js
-                        /usr/local/pf/html/captive-portal/content/timerbar.js
-                        /usr/local/pf/html/captive-portal/content/ChilliLibrary.js
-                        /usr/local/pf/html/captive-portal/content/shared_mdm_profile.mobileconfig
-                        /usr/local/pf/html/captive-portal/content/packetfence-windows-agent.exe
-                        /usr/local/pf/html/captive-portal/content/billing/stripe.js
-                        /usr/local/pf/html/captive-portal/content/billing/authorizenet.js
-                        /usr/local/pf/html/captive-portal/content/provisioner/mobileconfig.js
-                        /usr/local/pf/html/captive-portal/content/provisioner/sepm.js
-                        /usr/local/pf/html/captive-portal/content/release.js
-                        /usr/local/pf/html/captive-portal/content/scan.js
-                        /usr/local/pf/html/captive-portal/content/status.js
-                        /usr/local/pf/html/captive-portal/content/waiting.js
-                        /usr/local/pf/html/captive-portal/content/PacketFenceAgent.apk
-                        /usr/local/pf/html/captive-portal/content/sslinspection.js
-                        /usr/local/pf/html/captive-portal/content/images
-                        /usr/local/pf/html/captive-portal/lib
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Activate/Email.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Authenticate.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/DeviceRegistration.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Enabler.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Node/Manager.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Redirect.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Remediation.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Root.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/Status.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Controller/WirelessProfile.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Authentication.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Field/AUP.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Form/Widget/Field/AUP.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/Model/Portal/Session.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/HTML.pm
-%config(noreplace)      /usr/local/pf/html/captive-portal/lib/captiveportal/View/MobileConfig.pm
-                        /usr/local/pf/html/captive-portal/script
-                        /usr/local/pf/html/captive-portal/templates
-# pfappserver dir
-                        /usr/local/pf/html/pfappserver
+%dir                    /usr/local/pf/html/pfappserver
+                        /usr/local/pf/html/pfappserver/root
 
 # lib dir
                         /usr/local/pf/lib/
@@ -1241,6 +1202,10 @@ fi
 
 %dir                    /usr/local/pf/go
                         /usr/local/pf/go/*
+
+# containers
+/usr/local/pf/containers
+%attr(0755, pf, pf)     /usr/local/pf/containers/*.sh
 
 %dir %attr(02755, pf, pf)     /usr/local/pf/logs
 # logfiles

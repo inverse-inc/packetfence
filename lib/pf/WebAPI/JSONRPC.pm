@@ -24,6 +24,7 @@ use Apache2::Response;
 use Apache2::Const -compile =>
   qw(DONE OK DECLINED HTTP_UNAUTHORIZED HTTP_NOT_IMPLEMENTED HTTP_UNSUPPORTED_MEDIA_TYPE HTTP_PRECONDITION_FAILED HTTP_NO_CONTENT HTTP_NOT_FOUND SERVER_ERROR HTTP_OK HTTP_INTERNAL_SERVER_ERROR);
 use List::MoreUtils qw(any);
+use pfconfig::refresh_last_touch_cache;
 use base qw(Class::Accessor);
 __PACKAGE__->mk_accessors(qw(dispatch_to));
 
@@ -60,6 +61,7 @@ sub handler {
         );
     }
     pf::dal->reset_tenant();
+    refresh_last_touch_cache();
     my $ref_type = ref $data;
     unless ($ref_type && $ref_type eq 'HASH') {
         get_logger->error("Invalid request");
@@ -131,6 +133,7 @@ sub handler {
     # Notify message defer until later
     $r->push_handlers(
         PerlCleanupHandler => sub {
+            STDOUT->autoflush(1);
             eval {$dispatch_to->$method(@args);};
             $logger->error($@) if $@;
         }

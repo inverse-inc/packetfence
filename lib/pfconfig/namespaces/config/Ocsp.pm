@@ -32,7 +32,7 @@ sub init {
         'resource::eap_config'
     ];
 
-    my $defaults = Config::IniFiles->new( -file => $ocsp_default_config_file, -default => 'default' );
+    my $defaults = pf::IniFiles->new( -file => $ocsp_default_config_file, -default => 'default', -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 }
 

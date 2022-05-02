@@ -34,7 +34,7 @@ sub init {
         'resource::eap_config'
     ];
 
-    my $defaults = Config::IniFiles->new( -file => $ssl_default_config_file );
+    my $defaults = pf::IniFiles->new( -file => $ssl_default_config_file, -envsubst => 1 );
     $self->{added_params}->{'-import'} = $defaults;
 
 }

@@ -33,6 +33,7 @@ use MojoX::Log::Log4perl;
 use pf::UnifiedApi::Controller;
 use pf::UnifiedApi::Controller::Config::Switches;
 use pf::I18N::pfappserver;
+use pfconfig::refresh_last_touch_cache;
 our $MAX_REQUEST_HANDLED = 2000;
 our $REQUEST_HANDLED_JITTER = 500;
 
@@ -166,7 +167,8 @@ sub before_dispatch_cb {
             current_user => $headers->header('X-PacketFence-Username')
         }
     );
-    set_tenant_id($c)
+    set_tenant_id($c);
+    refresh_last_touch_cache();
 }
 
 sub setup_api_v1_routes {

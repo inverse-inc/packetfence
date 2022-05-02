@@ -23,6 +23,7 @@ conf/pf.conf
 conf/*.lock
 conf/*.lockonce
 conf/git_commit_id
+conf/build_id
 conf/log.conf.d/*.conf
 conf/nessus/
 conf/currently-at
@@ -264,6 +265,7 @@ raddb/sites-enabled/
 html/captive-portal/content/node_modules/
 html/common/node_modules/
 public/
+dockertmp/
 
 # dynamic template for admin
 html/pfappserver/root/admin/v-index.tt
@@ -284,3 +286,5 @@ html/pfappserver/root/admin/v-index.tt
 
 # ignore the lib_perl/ directory for dependencies
 lib_perl/
+
+containers/.local_env

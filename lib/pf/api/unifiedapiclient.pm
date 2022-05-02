@@ -70,7 +70,7 @@ default 127.0.0.1
 
 =cut
 
-has host => ( is => 'rw', default => sub {$Config{'webservices'}{'host'}} );
+has host => ( is => 'rw', default => sub {$Config{'webservices'}{'unifiedapi_host'}} );
 
 =head2 port
 

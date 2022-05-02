@@ -1,28 +1,36 @@
-package pf::services::manager::pfcertmanager;
+package pfconfig::refresh_last_touch_cache;
 
 =head1 NAME
 
-pf::services::manager::pfcertmanager -
-
-=head1 DESCRIPTION
-
-pf::services::manager::pfcertmanager
+pfconfig::refresh_last_touch_cache
 
 =cut
 
-use strict;
-use warnings;
-use pf::util;
-use Moo;
+=head1 DESCRIPTION
 
-extends 'pf::services::manager';
+pfconfig::refresh_last_touch_cache
 
-has '+name' => ( default => sub { 'pfcertmanager' } );
+Utilities function to refresh the last touch cache
 
-sub isManaged {
-    my ($self) = @_;
-    my $name = $self->name;
-    return 1;
+=cut
+
+
+use pfconfig::cached;
+use pfconfig::cached_scalar;
+
+BEGIN {
+    use Exporter ();
+    our ( @ISA, @EXPORT );
+    @ISA = qw(Exporter);
+    # Categorized by feature, pay attention when modifying
+    @EXPORT = qw(
+        refresh_last_touch_cache
+    );
+}
+
+sub refresh_last_touch_cache {
+    tie my $dummy, 'pfconfig::cached_scalar', 'resource::fqdn';
+    tied($dummy)->FETCH();
 }
 
 =head1 AUTHOR
@@ -53,3 +61,8 @@ USA.
 =cut
 
 1;
+
+# vim: set shiftwidth=4:
+# vim: set expandtab:
+# vim: set backspace=indent,eol,start:
+

@@ -17,6 +17,7 @@ use warnings;
 use Moo;
 
 extends 'pf::services::manager';
+with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => (default => sub { 'httpd.dispatcher' } );
 

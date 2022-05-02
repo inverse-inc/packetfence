@@ -20,6 +20,8 @@ use pf::IniFiles;
 use pf::util;
 use pf::log;
 
+our $INI_CONFIG = pfconfig::config->new();
+
 =head2 new
 
 Create a new pfconfig configuration object
@@ -44,7 +46,7 @@ sub init {
     my $file = $pfconfig::constants::CONFIG_FILE_PATH;
 
     my %cfg;
-    tie %cfg, 'pf::IniFiles', ( -file => $file );
+    tie %cfg, 'pf::IniFiles', ( -file => $file, -import => pf::IniFiles->new(-file => $file.'.defaults', -envsubst => 1), -envsubst => 1 );
 
     $self->{cfg} = \%cfg;
 }
@@ -83,6 +85,11 @@ sub get_backend {
     }
 
     $self->{cache} = $type->new();
+}
+
+sub get_proto {
+	my ( $self ) = @_;
+    return $self->section("general")->{proto} || "unix";	
 }
 
 

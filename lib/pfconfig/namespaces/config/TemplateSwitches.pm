@@ -30,8 +30,8 @@ sub init {
 sub build {
     my ($self) = @_;
     my $file = $self->{file};
-    my $defaults = pf::IniFiles->new(-file => $template_switches_default_config_file);
-    my $ini = pf::IniFiles->new(-file => $file, -allowempty => 1, -import => $defaults);
+    my $defaults = pf::IniFiles->new(-file => $template_switches_default_config_file, -envsubst => 1);
+    my $ini = pf::IniFiles->new(-file => $file, -allowempty => 1, -import => $defaults, -envsubst => 1);
     unless ($ini) {
         my $error_msg = join("\n", @pf::IniFiles::errors, "");
         get_logger->error($error_msg);

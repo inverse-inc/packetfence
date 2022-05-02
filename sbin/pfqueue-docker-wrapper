@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=pfqueue
+
+args=`base_args $name`
+args="$args -v/usr/local/pf/conf/:/usr/local/pf/conf/ --network=host"
+
+run $name "$args"
