@@ -14,17 +14,26 @@ log_section() {
 if ! type npm 2> /dev/null ; then
   echo "Install npm before running this script"
   echo "You can follow instructions here: https://github.com/nodesource/distributions#table-of-contents"
+  echo "TLDR; Currently, the nodejs version that should be used is 12.x which can be installed using: \`curl -fsSL https://rpm.nodesource.com/setup_12.x | bash -\`"
   exit 1
 fi
 
+log_section "Cleanup previous dev setup directories"
+rm -fr /usr/local/go
+rm -fr /usr/local/pf-pkg
+
 log_section "Stop services"
-systemctl stop packetfence-mariadb packetfence-redis-cache
-systemctl stop packetfence-config
-/usr/local/pf/bin/pfcmd service pf stop
+systemctl isolate multi-user
 
 log_section "Replace /usr/local/pf by git repository"
 mv /usr/local/pf /usr/local/pf-pkg
 git clone https://github.com/inverse-inc/packetfence /usr/local/pf
+
+cd /usr/local/pf/
+
+if ! [ -z "$BRANCH" ]; then
+        git checkout $BRANCH
+fi
 
 log_section "Create all necessary files"
 
@@ -39,14 +48,13 @@ mkdir /usr/local/pf/var/ssl_mutex
 cp /usr/local/pf-pkg/conf/pf.conf conf/
 cp /usr/local/pf-pkg/conf/pfconfig.conf conf/
 cp /usr/local/pf-pkg/conf/networks.conf conf/
-cp -r /usr/local/pf-pkg/conf/certmanager/ conf/
 # to keep iptables rule for vagrant management
 cp /usr/local/pf-pkg/conf/iptables.conf conf/
 
 log_section "Build web admin"
 cd /usr/local/pf/html/pfappserver/root/
 make vendor
-make dev
+npm run build-debug
 
 log_section "Build captive portal"
 cd /usr/local/pf/html/common
@@ -59,12 +67,24 @@ make go-env
 make all
 make copy
 
+log_section "Setup container files"
+cd /usr/local/pf
+TAG_OR_BRANCH_NAME=`git rev-parse --abbrev-ref HEAD | sed 's#/#-#g'`
+echo -n TAG_OR_BRANCH_NAME=$TAG_OR_BRANCH_NAME > conf/build_id
+echo LOCAL_DEV=true > containers/.local_env
+docker pull ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME
+docker tag ghcr.io/inverse-inc/packetfence/pfdebian:$TAG_OR_BRANCH_NAME local/pfdebian:$TAG_OR_BRANCH_NAME
+
 log_section "Fix permissions and start unmanaged services"
 cd /usr/local/pf
 make permissions
-systemctl start packetfence-mariadb
 systemctl start packetfence-config packetfence-redis-cache
-systemctl start rsyslog
+while ! /usr/local/pf/bin/pfcmd pfconfig get resource::fqdn 2>&1| grep last_touch_cache > /dev/null ; do
+        echo "Waiting for pfconfig to be online..."
+done
+echo "pfconfig is now online!"
+systemctl start packetfence-mariadb
+systemctl restart rsyslog
 
 log_section "Start all PF services"
 /usr/local/pf/bin/pfcmd service pf restart
