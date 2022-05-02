@@ -1,2 +1,2 @@
 # Copyright (C) Inverse inc.
-%%servers%%
+[% servers %]

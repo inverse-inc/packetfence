@@ -847,7 +847,7 @@ EOT
 
     }
     if ($ldap_config) {
-        parse_template( \%tags, "$conf_dir/radiusd/ldap_packetfence.conf", "$install_dir/raddb/mods-enabled/ldap_packetfence" );
+        $tt->process("$conf_dir/radiusd/ldap_packetfence.conf", \%tags, "$install_dir/raddb/mods-enabled/ldap_packetfence" ) or die $tt->error();
     } else {
         unlink("$install_dir/raddb/mods-enabled/ldap_packetfence");
     }
@@ -1368,7 +1368,7 @@ sub generate_radiusd_mschap {
 
     $tags{'statsd_port' } = "$Config{'advanced'}{'statsd_listen_port'}";
 
-    parse_template( \%tags, "$conf_dir/radiusd/mschap.conf", "$install_dir/raddb/mods-enabled/mschap" );
+    $tt->process("$conf_dir/radiusd/mschap.conf", \%tags, "$install_dir/raddb/mods-enabled/mschap" ) or die $tt->error();
 
 }
 
