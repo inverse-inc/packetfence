@@ -720,6 +720,11 @@ echo "Restarting rsyslogd"
 
 #Starting PacketFence.
 #removing old cache
+/bin/systemctl enable docker
+/bin/systemctl restart docker
+# get containers image and tag them locally
+/usr/local/pf/containers/manage-images.sh
+
 rm -rf /usr/local/pf/var/cache/
 /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
 /bin/systemctl disable firewalld
@@ -735,8 +740,6 @@ rm -rf /usr/local/pf/var/cache/
 /usr/local/pf/bin/pfcmd configreload
 systemctl enable docker
 systemctl restart docker
-# get containers image and tag them locally
-/usr/local/pf/containers/manage-images.sh
 systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd generatemariadbconfig --force
 echo "Starting PacketFence Administration GUI..."
