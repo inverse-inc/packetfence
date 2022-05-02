@@ -1,7 +1,6 @@
 FROM debian:11
 
-RUN apt-get update
-RUN apt-get install -y aptitude wget gnupg
+RUN apt-get update && apt-get install -y aptitude wget gnupg
 
 RUN /bin/bash -c "echo 'exit 0' > /usr/bin/systemctl"
 RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
