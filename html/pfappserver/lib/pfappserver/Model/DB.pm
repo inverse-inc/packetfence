@@ -97,7 +97,7 @@ sub connect {
 
     my $status_msg;
 
-    $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306;;mysql_socket=/var/lib/mysql/mysql.sock", $user, $password );
+    $dbHandler = DBI->connect( "dbi:mysql:dbname=$db;host=localhost;port=3306;mysql_socket=/var/lib/mysql/mysql.sock", $user, $password );
     if ( !$dbHandler ) {
         $status_msg = ["Error in connection to the database [_1] with user [_2]",$db,$user];
         $logger->warn("$DBI::errstr");
