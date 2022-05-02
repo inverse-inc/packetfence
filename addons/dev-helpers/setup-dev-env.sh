@@ -31,9 +31,8 @@ git clone https://github.com/inverse-inc/packetfence /usr/local/pf
 
 cd /usr/local/pf/
 
-if ! [ -z "$BRANCH" ]; then
-        git checkout $BRANCH
-fi
+BRANCH=${BRANCH:-devel}
+git checkout $BRANCH
 
 log_section "Create all necessary files"
 
