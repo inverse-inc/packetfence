@@ -129,11 +129,11 @@ if($config->get_proto eq "tcp") {
        Reuse => 1
     ) or die("Can't create server socket: $!\n");
 } else {
-	$listner = IO::Socket::UNIX->new(
-	   Type   => SOCK_STREAM,
-	   Local  => $socket_path,
-	   Listen => SOMAXCONN,
-	) or die("Can't create server socket: $!\n");
+    $listner = IO::Socket::UNIX->new(
+       Type   => SOCK_STREAM,
+       Local  => $socket_path,
+       Listen => SOMAXCONN,
+    ) or die("Can't create server socket: $!\n");
 }
 
 umask(0);
