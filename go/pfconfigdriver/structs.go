@@ -73,6 +73,7 @@ type configStruct struct {
 		Alerting      PfConfAlerting
 		ActiveActive  PfConfActiveActive
 		Services      PfConfServices
+		ServicesURL   PfConfServicesURL
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -800,4 +801,20 @@ type FQDN struct {
 	PfconfigNS              string `val:"resource::fqdn"`
 	PfconfigDecodeInElement string `val:"yes"`
 	Element                 string
+}
+
+type PfConfServicesURL struct {
+	StructConfig
+	PfconfigMethod        string `val:"hash_element"`
+	PfconfigNS            string `val:"config::Pf"`
+	PfconfigHashNS        string `val:"services_url"`
+	HttpdPortal           string `json:"httpd_portal"`
+	HttpdDispatcher       string `json:"httpd_dispatcher"`
+	HttpdDispatcherStatic string `json:"httpd_dispatcher_static"`
+	Pfpki                 string `json:"pfpki"`
+	Pfipset               string `json:"pfipset"`
+	Pfdhcp                string `json:"pfdhcp"`
+	PfperlApi             string `json:"pfperl-api"`
+	PfdnsDoh              string `json:"pfdns-doh"`
+	Pfsso                 string `json:"pfsso"`
 }
