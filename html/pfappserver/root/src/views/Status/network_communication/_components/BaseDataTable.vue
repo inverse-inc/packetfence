@@ -5,8 +5,8 @@
     </b-card-header>
     <b-table ref="tableRef"
       :busy="isLoading"
-      :hover="data.length > 0"
-      :items="data"
+      :hover="items.length > 0"
+      :items="items"
       :fields="visibleColumns"
       :sort-by="sortBy"
       :sort-desc="sortDesc"
@@ -81,12 +81,6 @@ const components = {
   BaseTableEmpty,
 }
 
-const props = {
-  data: {
-    type: Array
-  }
-}
-
 import { computed, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import i18n from '@/utils/locale'
@@ -94,14 +88,13 @@ import { useSearchData } from '../_composables/useCollection'
 
 const setup = (props) => {
 
-  const {
-    data
-  } = toRefs(props)
-
   const search = useSearchData()
+  const {
+    items,
+  } = toRefs(search)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, data, 'timestamp')
+  const selected = useBootstrapTableSelected(tableRef, items, 'timestamp')
 
   return {
     tableRef,
@@ -114,7 +107,6 @@ const setup = (props) => {
 export default {
   name: 'base-data-table',
   components,
-  props,
   setup
 }
 </script>

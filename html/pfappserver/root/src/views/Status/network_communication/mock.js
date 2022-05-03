@@ -35,7 +35,19 @@ export const port = (selected = []) => {
   if (selected.length > 0) {
     return selected[Math.floor(Math.random() * selected.length)]
   }
-  return Math.floor(Math.random() * 65536)
+  return (() => {
+    switch (Math.floor(Math.random() * 3)) {
+      case 0:
+        return 1 + Math.floor(Math.random() * 1024)
+        // break
+      case 1:
+        return 1025 + Math.floor(Math.random() * (49152 - 1024))
+        // break
+      case 2:
+        return 49153 + Math.floor(Math.random() * (65336 - 49152))
+        // break
+    }
+  })()
 }
 
 export const host = (selected = []) => {
