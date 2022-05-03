@@ -3,14 +3,14 @@
     <b-card-header>
       Hosts
     </b-card-header>
-    <pre>{{ {data} }}</pre>
+    <pre>{{ {items} }}</pre>
   </b-card>
 </template>
 <script>
 const components = {}
 
 const props = {
-  data: {
+  items: {
     type: Array
   }
 }

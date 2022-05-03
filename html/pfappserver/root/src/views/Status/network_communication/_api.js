@@ -9,27 +9,21 @@ import {
 
 export default {
 
-  search: data => {
-
-    console.log({ data })
-
+  search: params => {
+    const { limit, selectedDevices = [], selectedProtocols = [], selectedHosts = [], selectedCategories = [] } = params
     let timestamp = 1650564944000
-
-    const items = new Array(data.limit).fill(null).map((_, i) => {
+    const items = new Array(limit).fill(null).map((_, i) => {
       timestamp += Math.floor(Math.random() * 60 * 1E3)
-
       return {
         i,
         timestamp,
-        mac: mac(),
-        proto: proto(),
-        port: port(),
-        host: host(),
-        device_class: device_class()
+        mac: mac(selectedDevices),
+        proto: proto(selectedProtocols.map(p => p.split('/')[0])),
+        port: port(selectedProtocols.map(p => +p.split('/')[1])),
+        host: host(selectedHosts),
+        device_class: device_class(selectedCategories)
       }
     })
-
-
     return new Promise(resolve => resolve({ items }))
 
 /*

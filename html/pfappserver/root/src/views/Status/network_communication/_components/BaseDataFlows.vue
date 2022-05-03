@@ -10,7 +10,7 @@
 const components = {}
 
 const props = {
-  data: {
+  items: {
     type: Array
   }
 }
@@ -20,11 +20,11 @@ import { computed, ref, toRefs } from '@vue/composition-api'
 const setup = (props) => {
 
   const {
-    data
+    items
   } = toRefs(props)
 
   const uniqueDevices = computed(() => {
-    return data.value
+    return items.value
       .reduce((unique, item) => {
         unique[item.mac] = (unique[item.mac] || 0) + 1
         return unique
@@ -32,7 +32,7 @@ const setup = (props) => {
   })
 
   const uniqueProtocols = computed(() => {
-    return data.value
+    return items.value
       .reduce((unique, item) => {
         const protocol = `${item.proto}/${item.port}`
         unique[protocol] = (unique[protocol] || 0) + 1
@@ -41,7 +41,7 @@ const setup = (props) => {
   })
 
   const uniqueHosts = computed(() => {
-    return data.value
+    return items.value
       .reduce((unique, item) => {
         unique[item.host] = (unique[item.host] || 0) + 1
         return unique
@@ -49,7 +49,7 @@ const setup = (props) => {
   })
 
   const linkDeviceProtocol = computed(() => {
-    const assoc = data.value
+    const assoc = items.value
       .reduce((links, item) => {
         const { mac, proto, port } = item
         const protocol = `${proto}/${port}`
@@ -65,7 +65,7 @@ const setup = (props) => {
   })
 
   const linkProtocolHost = computed(() => {
-    const assoc = data.value
+    const assoc = items.value
       .reduce((links, item) => {
         const { host, proto, port } = item
         const protocol = `${proto}/${port}`
