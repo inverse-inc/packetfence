@@ -73,7 +73,7 @@ echo LOCAL_DEV=true > containers/.local_env
 
 for img in pfbuild-debian-bullseye pfdebian radiusd; do
   docker pull ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME
-  docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME local/pfdebian:$TAG_OR_BRANCH_NAME
+  docker tag ghcr.io/inverse-inc/packetfence/$img:$TAG_OR_BRANCH_NAME local/$img:$TAG_OR_BRANCH_NAME
 done
 
 log_section "Fix permissions and start unmanaged services"
