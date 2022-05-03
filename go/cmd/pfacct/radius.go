@@ -320,7 +320,8 @@ const (
 )
 
 func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, context.Context, error) {
-	ip := remoteAddr.(*net.UDPAddr).IP.String()
+	srcIpAddr := remoteAddr.(*net.UDPAddr).IP.String()
+	var nasIpAddr string
 	var err error
 	var macStr string
 	err = checkPacket(raw)
@@ -347,17 +348,15 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		}
 	}
 
-	if h.isProxied {
-		if attr, ok = attrs.Lookup(rfc2865.NASIPAddress_Type); ok {
-			if val, err := radius.IPAddr(attr); err == nil {
-				ip = val.String()
-			}
+	if attr, ok = attrs.Lookup(rfc2865.NASIPAddress_Type); ok {
+		if val, err := radius.IPAddr(attr); err == nil {
+			nasIpAddr = val.String()
 		}
 	}
 
-	switchInfo, err := h.SwitchLookup(macStr, ip)
+	switchInfo, err := h.SwitchLookup(macStr, srcIpAddr, nasIpAddr)
 	if err != nil {
-		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+ip+"' not found :"+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+srcIpAddr+"' not found :"+err.Error())
 		return nil, nil, err
 	}
 
@@ -530,15 +529,15 @@ func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.switchLookup, `
-        SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
-        UNION
-          SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
-        UNION
-        (
-            SELECT nasname, secret, tenant_id, unique_session_attributes from radius_nas
-            WHERE INET_ATON(?) BETWEEN start_ip AND end_ip
-            ORDER BY range_length LIMIT 1
-        ) LIMIT 1;
+		SELECT nasname, secret, tenant_id, unique_session_attributes
+		FROM (
+			SELECT nasname, secret, tenant_id, unique_session_attributes, 0 as o FROM radius_nas WHERE nasname = ?
+			UNION ALL
+			( SELECT nasname, secret, tenant_id, unique_session_attributes, 1 as o from radius_nas WHERE INET_ATON(?) BETWEEN start_ip AND end_ip order by range_length limit 1)
+			UNION ALL
+			( SELECT nasname, secret, tenant_id, unique_session_attributes , 2 as o from radius_nas WHERE INET_ATON(?) BETWEEN start_ip AND end_ip order by range_length limit 1)
+
+		) as x ORDER BY o LIMIT 1;
 	`)
 
 	setupStmt(db, &rs.insertBandwidthAccounting, `
@@ -666,14 +665,14 @@ type SwitchInfo struct {
 	RadiusAttributes db.CsvArray
 }
 
-func (h *PfAcct) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
-	key := mac + ":" + ip
+func (h *PfAcct) SwitchLookup(mac, srcIp, nasIp string) (*SwitchInfo, error) {
+	key := mac + ":" + srcIp + ":" + nasIp
 	if item, found := h.SwitchInfoCache.Get(key); found {
 		return item.(*SwitchInfo), nil
 	}
 
 	switchInfo := &SwitchInfo{}
-	err := h.switchLookup.QueryRow(mac, ip, ip).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.TenantId, &switchInfo.RadiusAttributes)
+	err := h.switchLookup.QueryRow(mac, srcIp, nasIp).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.TenantId, &switchInfo.RadiusAttributes)
 	if err != nil {
 		return nil, err
 	}
