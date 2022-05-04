@@ -197,6 +197,7 @@ sub _setup_session {
     $portalSession->setDestinationUrl($redirect_url) if (defined($redirect_url));
     $portalSession->setGrantUrl($grant_url) if (defined($grant_url));
     $portalSession->session->param('is_external_portal', $TRUE);
+    $portalSession->setClientMac($client_mac) if (defined($client_mac));
     if(defined($req)){
         my $params = $req->param // {};
         foreach my $key (keys %$params) {
