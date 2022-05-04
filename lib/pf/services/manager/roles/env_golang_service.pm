@@ -36,6 +36,7 @@ before generateConfig => sub {
            PF_SERVICES_URL_PFPERL_API => $Config{services_url}{'pfperl-api'},
            PF_SERVICES_URL_PFDNS_DOH => $Config{services_url}{'pfdns-doh'},
            PF_SERVICES_URL_PFSSO => $Config{services_url}{pfsso},
+           PF_SERVICES_URL_PFCONNECTOR_SERVER => $Config{services_url}{'pfconnector-server'},
            STATSD_ADDRESS => $Config{advanced}{statsd_listen_host}.":".$Config{advanced}{statsd_listen_port},
        }, 
     };

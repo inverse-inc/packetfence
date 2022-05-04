@@ -43,7 +43,7 @@
   # Job status access
   job-status
 
-  proxy /api/v1/pfconnector 127.0.0.1:22226 {
+  proxy /api/v1/pfconnector {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
     websocket
     transparent
   }
