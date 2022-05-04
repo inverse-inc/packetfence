@@ -117,7 +117,7 @@ sub _initialize {
     );
 
     my $client_mac = $self->{_client_mac};
-    $self->{_dummy_session} = (defined($client_mac) && $client_mac eq $DUMMY_MAC);
+    $self->{_dummy_session} = ($sid eq md5_hex($DUMMY_MAC));
 
     $self->session->param("_client_mac", $client_mac);
 
