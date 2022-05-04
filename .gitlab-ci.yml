@@ -114,13 +114,13 @@ variables:
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with build_img_container variable defined or build_img_container in commit message
+# run this job on maintenance branches if BUILD_IMG_CONTAINER is yes or on all other branches unless BUILD_IMG_DOCKER is no
 .build_img_container_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_CONTAINER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_container=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # only run this job on devel branch with build_img_docker variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
