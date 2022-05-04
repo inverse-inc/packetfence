@@ -361,8 +361,7 @@ sub action_log {
     #my $date = $security_event_info->{'start_date'};
     my $date = mysql_date();
 
-    $logger->info(
-        "$logfile $date: $description ($security_event_id) detected on node $mac ($ip)");
+    $logger->info("$date: $description ($security_event_id) detected on node $mac ($ip)");
 }
 
 sub action_reevaluate_access {
