@@ -361,15 +361,8 @@ sub action_log {
     #my $date = $security_event_info->{'start_date'};
     my $date = mysql_date();
 
-    my $logfile = $security_event_log;
     $logger->info(
         "$logfile $date: $description ($security_event_id) detected on node $mac ($ip)");
-    my $log_fh;
-    open( $log_fh, '>>', "$logfile" )
-        || $logger->logcroak("Unable to open $logfile for append: $!");
-    print {$log_fh}
-        "$date: $description ($security_event_id) detected on node $mac ($ip)\n";
-    close($log_fh);
 }
 
 sub action_reevaluate_access {
