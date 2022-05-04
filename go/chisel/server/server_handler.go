@@ -208,7 +208,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	}
 
 	hostPort := strings.Split(req.Context().Value(http.LocalAddrContextKey).(net.Addr).String(), ":")
-	host := sharedutils.EnvOrDefault("PFCONNECTOR_SERVER_HOST", strings.Join(hostPort[0:len(hostPort)-1], ":"))
+	host := sharedutils.EnvOrDefault("PFCONNECTOR_SERVER_DYN_REVERSE_HOST", strings.Join(hostPort[0:len(hostPort)-1], ":"))
 
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
 	if o, found := activeDynReverse.Load(cacheKey); found {
