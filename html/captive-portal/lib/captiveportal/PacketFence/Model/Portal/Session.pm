@@ -240,7 +240,11 @@ sub _build_clientMac {
         if ( $clientIP->type eq $pf::IPv6::TYPE ) {
             $mac = pf::ip6log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
         } else {
-            $mac = pf::ip4log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
+            if (defined($self->dispatcherSession->{_client_mac}) && $self->dispatcherSession->{_client_mac} ne "") {
+                $mac = $self->dispatcherSession->{_client_mac};
+            } else {
+                $mac = pf::ip4log::ip2mac( $clientIP->normalizedIP ) unless defined $mac;
+            }
         }
     }
 
