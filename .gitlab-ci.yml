@@ -11,8 +11,8 @@ before_script:
 ################################################################################
 stages:
   - check
-  - build_img_container
   - build_img
+  - build_img_container
   - build_artifacts
   - sign
   - publish
