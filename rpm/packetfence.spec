@@ -882,6 +882,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
