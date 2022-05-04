@@ -58,6 +58,7 @@ require (
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
+	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
 	github.com/lucas-clemente/quic-go v0.10.2
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
 	github.com/mdlayher/ethernet v0.0.0-20170707213343-e72cf8343052

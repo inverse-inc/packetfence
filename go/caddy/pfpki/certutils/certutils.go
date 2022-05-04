@@ -366,3 +366,118 @@ func ThumbprintSHA1(cert *x509.Certificate) string {
 	}
 	return strings.Join(hex, ":")
 }
+
+func MakeSubject(Subject pkix.Name, attributes map[string]string) pkix.Name {
+
+	for k, v := range attributes {
+		switch k {
+		case "Organization":
+			if len(v) > 0 {
+				Subject.Organization = []string{v}
+			}
+		case "OrganizationalUnit":
+			if len(v) > 0 {
+				Subject.OrganizationalUnit = []string{v}
+			}
+		case "Country":
+			if len(v) > 0 {
+				Subject.Country = []string{v}
+			}
+		case "State":
+			if len(v) > 0 {
+				Subject.Province = []string{v}
+			}
+		case "Locality":
+			if len(v) > 0 {
+				Subject.Locality = []string{v}
+			}
+		case "StreetAddress":
+			if len(v) > 0 {
+				Subject.StreetAddress = []string{v}
+			}
+		case "PostalCode":
+			if len(v) > 0 {
+				Subject.PostalCode = []string{v}
+			}
+		}
+	}
+	return Subject
+}
+
+func ForEachSAN(extension []byte, attributes map[string]string) (pkix.Extension, error) {
+	// RFC 5280, 4.2.1.6
+
+	// SubjectAltName ::= GeneralNames
+	//
+	// GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
+	//
+	// GeneralName ::= CHOICE {
+	//      otherName                       [0]     OtherName,
+	//      rfc822Name                      [1]     IA5String,
+	//      dNSName                         [2]     IA5String,
+	//      x400Address                     [3]     ORAddress,
+	//      directoryName                   [4]     Name,
+	//      ediPartyName                    [5]     EDIPartyName,
+	//      uniformResourceIdentifier       [6]     IA5String,
+	//      iPAddress                       [7]     OCTET STRING,
+	//      registeredID                    [8]     OBJECT IDENTIFIER }
+
+	var seq asn1.RawValue
+
+	extSubjectAltName := pkix.Extension{
+		Id:       asn1.ObjectIdentifier{2, 5, 29, 17},
+		Critical: false,
+		Value:    extension,
+	}
+
+	rest, err := asn1.Unmarshal(extension, &seq)
+	if err != nil {
+		return extSubjectAltName, err
+	} else if len(rest) != 0 {
+		return extSubjectAltName, errors.New("x509: trailing data after X.509 extension")
+	}
+	if !seq.IsCompound || seq.Tag != 16 || seq.Class != 0 {
+		return extSubjectAltName, asn1.StructuralError{Msg: "bad SAN sequence"}
+	}
+
+	rest = seq.Bytes
+	var rawValues []asn1.RawValue
+
+	found := false
+	for len(rest) > 0 {
+		var v asn1.RawValue
+		rest, err = asn1.Unmarshal(rest, &v)
+		if err != nil {
+			return extSubjectAltName, err
+		}
+		if v.Tag == 1 {
+			found = true
+		}
+		rawValues = append(rawValues, v)
+	}
+
+	if found {
+		return extSubjectAltName, nil
+	} else {
+		rawValues = append(rawValues, asn1.RawValue{
+			Class:      2,
+			IsCompound: false,
+			Tag:        1,
+			Bytes:      []byte(attributes["Mail"]),
+		})
+		RawValue, _ := asn1.Marshal(rawValues)
+		extSubjectAltName = pkix.Extension{
+			Id:       asn1.ObjectIdentifier{2, 5, 29, 17},
+			Critical: false,
+			Value:    RawValue,
+		}
+		return extSubjectAltName, nil
+	}
+}
+
+func CertName(crt *x509.Certificate) string {
+	if crt.Subject.CommonName != "" {
+		return crt.Subject.CommonName
+	}
+	return string(crt.Signature)
+}
