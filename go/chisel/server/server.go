@@ -245,7 +245,6 @@ func (s *Server) setupRedisClient(ctx context.Context) {
 		network = "tcp"
 	}
 
-	//TODO: using this configuration isn't really the best since it points to redis_queue, redis_cache is probably better for this usage
 	s.redis = redis.NewClient(&redis.Options{
 		Addr:    pfconfigdriver.Config.PfConf.Pfconnector.RedisServer,
 		Network: network,
