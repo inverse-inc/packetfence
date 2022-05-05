@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/go-utils/statsd"
@@ -295,7 +294,6 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		return 0, nil
 	} else {
 		_, noauth := h.noAuthPaths[r.URL.Path]
-		spew.Dump(r.URL.Path, noauth)
 		if noauth || h.HandleAAA(w, r) {
 			code, err := h.Next.ServeHTTP(w, r)
 
