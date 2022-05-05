@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
@@ -223,12 +224,19 @@ func server(args []string) {
 	}
 	go cos.GoStats()
 	ctx := cos.InterruptContext()
-	if err := s.StartContext(ctx, *host, *port); err != nil {
-		log.Fatal(err)
+	w := sync.WaitGroup{}
+	for _, h := range strings.Split(*host, ",") {
+		w.Add(1)
+		go func(h string) {
+			if err := s.StartContext(ctx, h, *port); err != nil {
+				log.Fatal(err)
+			}
+			if err := s.Wait(); err != nil {
+				log.Fatal(err)
+			}
+		}(h)
 	}
-	if err := s.Wait(); err != nil {
-		log.Fatal(err)
-	}
+	w.Wait()
 }
 
 type multiFlag struct {
