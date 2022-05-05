@@ -7,4 +7,4 @@ name=pfconnector-server
 args=`base_args $name`
 args="$args --network=host"
 
-run $name "$args" "/usr/local/pf/sbin/pfconnector server --host 100.64.0.1 --port 22226 --reverse"
+run $name "$args" "/usr/local/pf/sbin/pfconnector server --host 127.0.0.1 --port 22226 --reverse"
