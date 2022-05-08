@@ -13,7 +13,7 @@
     "@vue/composition-api": "^1.4.9",
     "axios": "0.26.1",
     "bootstrap": "4.6.1",
-    "bootstrap-vue": "2.21.2",
+    "bootstrap-vue": "2.22.0",
     "core-js": "3.21.1",
     "d3-force": "^2.1.1",
     "date-fns": "^1.30.1",
