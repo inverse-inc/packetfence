@@ -245,7 +245,7 @@ variables:
   script:
     - ${CHECKDIR}/run-pipeline-if-necessary.sh
   tags:
-    - docker-inverse
+    - docker
 
 .build_img_docker_job:
   stage: build_img
@@ -263,7 +263,7 @@ variables:
   script:
     - ${CONTAINER_DIR}/kanikobuild
   tags:
-    - docker-inverse
+    - docker
 
 .build_img_vagrant_devel_and_branches_job:
   stage: build_img
@@ -285,7 +285,7 @@ variables:
     paths:
       - result/*
   tags:
-    - docker-inverse
+    - docker
 
 .build_artifacts_website_job:
   stage: build_artifacts
@@ -297,7 +297,7 @@ variables:
     paths:
       - website/*
   tags:
-    - docker-inverse
+    - docker
 
 .build_artifacts_material_job:
   stage: build_artifacts
@@ -314,7 +314,7 @@ variables:
     - make material
     - ${RELEASEDIR}/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
   tags:
-    - docker-inverse
+    - docker
 
 .publish_job:
   stage: publish
