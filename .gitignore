@@ -38,6 +38,7 @@ conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
 conf/radiusd/radiusd_cli.conf
+conf/radiusd/cert
 conf/pfcron.conf
 conf/certmanager
 conf/mfa.conf
