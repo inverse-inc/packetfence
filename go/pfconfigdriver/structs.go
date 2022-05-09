@@ -838,3 +838,59 @@ type Connectors struct {
 		Secret string `json:"secret"`
 	}
 }
+
+type FingerbankSettingsUpstream struct {
+	StructConfig
+	PfconfigMethod    string      `val:"hash_element"`
+	PfconfigNS        string      `val:"config::FingerbankSettings"`
+	PfconfigHashNS    string      `val:"upstream"`
+	ApiKey            string      `json:"api_key"`
+	Host              string      `json:"host"`
+	Port              json.Number `json:"port"`
+	UseHttps          string      `json:"use_https"`
+	DbPath            string      `json:"db_path"`
+	SQLiteDbRetention string      `json:"sqlite_db_retention"`
+}
+
+type FingerbankSettingsCollector struct {
+	StructConfig
+	PfconfigMethod              string      `val:"hash_element"`
+	PfconfigNS                  string      `val:"config::FingerbankSettings"`
+	PfconfigHashNS              string      `val:"collector"`
+	Host                        string      `json:"host"`
+	Port                        json.Number `json:"port"`
+	UseHttps                    string      `json:"use_https"`
+	InactiveEndpointsExpiration json.Number `json:"inactive_endpoints_expiration"`
+	ArpLookup                   string      `json:"arp_lookup"`
+	QueryCacheTime              json.Number `json:"query_cache_time"`
+	DbPersistenceInterval       json.Number `json:"db_persistence_interval"`
+	ClusterResyncInterval       json.Number `json:"cluster_resync_interval"`
+	NetworkBehaviorAnalysis     string      `json:"network_behavior_analysis"`
+	AdditionalEnv               string      `json:"additional_env"`
+}
+
+type FingerbankSettingsQuery struct {
+	StructConfig
+	PfconfigMethod  string `val:"hash_element"`
+	PfconfigNS      string `val:"config::FingerbankSettings"`
+	PfconfigHashNS  string `val:"collector"`
+	RecordUnmatched string `json:"record_unmatched"`
+}
+
+type FingerbankSettingsProxy struct {
+	StructConfig
+	PfconfigMethod string      `val:"hash_element"`
+	PfconfigNS     string      `val:"config::FingerbankSettings"`
+	PfconfigHashNS string      `val:"collector"`
+	UseProxy       string      `json:"use_proxy"`
+	Host           string      `json:"host"`
+	Port           json.Number `json:"port"`
+	VerifySsl      string      `json:"verify_ssl"`
+}
+
+var FingerbankConf = struct {
+	Upstream  FingerbankSettingsUpstream
+	Collector FingerbankSettingsCollector
+	Query     FingerbankSettingsQuery
+	Proxy     FingerbankSettingsProxy
+}{}
