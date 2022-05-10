@@ -7,7 +7,9 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -41,6 +43,8 @@ func setup(c *caddy.Controller) error {
 	})
 
 	setupRadiusDictionary()
+
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, fbcollectorclient.DefaultClient)
 
 	return nil
 }

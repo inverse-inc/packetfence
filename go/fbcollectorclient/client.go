@@ -71,6 +71,8 @@ type ClientFromConfig struct {
 	conf pfconfigdriver.FingerbankSettings
 }
 
+var DefaultClient = FromConfig(context.Background())
+
 func FromConfig(ctx context.Context) *ClientFromConfig {
 	conf := pfconfigdriver.FingerbankSettings{}
 	pfconfigdriver.FetchDecodeSocketCache(ctx, &conf)
