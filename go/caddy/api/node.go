@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/sharedutils"
@@ -25,11 +26,21 @@ func (h APIHandler) nodeFingerbankCommunications(w http.ResponseWriter, r *http.
 
 	endpoints := map[string]common.CollectorEndpointCommunications{}
 
+	wg := sync.WaitGroup{}
+	l := sync.Mutex{}
 	for _, mac := range requestPayload.Nodes {
-		ed := common.CollectorEndpointCommunications{}
-		fbcollectorclient.DefaultClient.Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
-		endpoints[mac] = ed
+		wg.Add(1)
+		go func(mac string) {
+			ed := common.CollectorEndpointCommunications{}
+			fbcollectorclient.DefaultClient.Call(ctx, "GET", fmt.Sprintf("/endpoint_data/%s", mac), nil, &ed)
+			l.Lock()
+			defer l.Unlock()
+			endpoints[mac] = ed
+			wg.Done()
+		}(mac)
 	}
+
+	wg.Wait()
 
 	err = json.NewEncoder(w).Encode(gin.H{"items": endpoints})
 	sharedutils.CheckError(err)
