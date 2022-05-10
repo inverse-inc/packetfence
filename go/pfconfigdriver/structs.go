@@ -888,9 +888,15 @@ type FingerbankSettingsProxy struct {
 	VerifySsl      string      `json:"verify_ssl"`
 }
 
-var FingerbankConf = struct {
-	Upstream  FingerbankSettingsUpstream
-	Collector FingerbankSettingsCollector
-	Query     FingerbankSettingsQuery
-	Proxy     FingerbankSettingsProxy
-}{}
+type FingerbankSettings struct {
+	StructConfig
+	PfconfigMethod string `val:"element"`
+	PfconfigNS     string `val:"config::FingerbankSettings"`
+	PfconfigHashNS string `val:"collector"`
+	Upstream       FingerbankSettingsUpstream
+	Collector      FingerbankSettingsCollector
+	Query          FingerbankSettingsQuery
+	Proxy          FingerbankSettingsProxy
+}
+
+var FingerbankConf = FingerbankSettings{}
