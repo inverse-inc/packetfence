@@ -20,10 +20,9 @@ const props = {
   }
 }
 
-import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
+import { toRefs } from '@vue/composition-api'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
@@ -32,7 +31,7 @@ const setup = (props, context) => {
     visibleColumns
   } = toRefs(props)
 
-  const { emit, root: { $router } = {} } = context
+  const { root: { $router } = {} } = context
 
   const onBulkExport = () => {
     const filename = `${$router.currentRoute.path.slice(1).replace('/', '-')}-${(new Date()).toISOString()}.csv`

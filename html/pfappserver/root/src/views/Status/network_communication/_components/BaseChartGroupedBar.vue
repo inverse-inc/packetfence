@@ -52,11 +52,8 @@ const props = {
 import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import plotly, { config } from '@/utils/plotly'
-import {
-  colorsFull
-} from '../config'
 
-const setup = (props, context) => {
+const setup = (props) => {
 
   const {
     traces,

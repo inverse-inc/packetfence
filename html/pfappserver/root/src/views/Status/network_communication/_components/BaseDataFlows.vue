@@ -15,7 +15,7 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, toRefs } from '@vue/composition-api'
 
 const setup = (props) => {
 

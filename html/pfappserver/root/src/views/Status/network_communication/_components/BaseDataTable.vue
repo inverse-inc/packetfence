@@ -81,14 +81,13 @@ const components = {
   BaseTableEmpty,
 }
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
-import i18n from '@/utils/locale'
-import { useSearchData } from '../_composables/useCollection'
+import { useSearch } from '../_composables/useCollection'
 
-const setup = (props) => {
+const setup = () => {
 
-  const search = useSearchData()
+  const search = useSearch()
   const {
     items,
   } = toRefs(search)

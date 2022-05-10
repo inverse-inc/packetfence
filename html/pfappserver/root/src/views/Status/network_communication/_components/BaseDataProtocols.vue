@@ -61,7 +61,6 @@ const props = {
 
 import { computed, ref, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { useSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -74,8 +73,7 @@ const setup = (props, context) => {
     })
 
   const {
-    items,
-    isLoading
+    items
   } = toRefs(props)
 
   const uniqueProtocols = computed(() => {
@@ -97,7 +95,7 @@ const setup = (props, context) => {
   const uniqueProtocolPortsPerDevice = computed(() => {
     return items.value
       .reduce((unique, item) => {
-        const { proto, port, host, mac } = item
+        const { proto, port, mac } = item
         if (!(proto in unique))
           unique[proto] = {}
         if (!(port in unique[proto]))

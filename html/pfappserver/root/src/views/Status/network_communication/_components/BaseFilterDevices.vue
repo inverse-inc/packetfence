@@ -67,9 +67,7 @@ const props = {
   }
 }
 
-import { computed, nextTick, onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import { useBootstrapTableSelected } from '@/composables/useBootstrap'
-import i18n from '@/utils/locale'
+import { computed, ref, toRefs } from '@vue/composition-api'
 
 const setup = (props, context) => {
 

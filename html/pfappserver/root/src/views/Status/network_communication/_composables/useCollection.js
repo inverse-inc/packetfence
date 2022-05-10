@@ -23,30 +23,18 @@ export { useRouter } from '../_router'
 
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
+import { search as nodesSearch } from '@/views/Nodes/_search'
 import api from '../_api'
-export const useSearch = makeSearch('networkCommunication', {
-  api,
-  fields: [
-    {
-      value: 'id',
-      text: i18n.t('Name'),
-      types: [conditionType.SUBSTRING]
-    },
-    {
-      value: 'notes',
-      text: i18n.t('Description'),
-      types: [conditionType.SUBSTRING]
-    },
-    {
-      value: 'parent_id',
-      text: i18n.t('Parent Role'),
-      types: [conditionType.ROLE]
-    }
-  ],
-  sortBy: 'id'
+
+export const useNodesSearch = makeSearch('networkCommunicationNodes', {
+  ...nodesSearch,
+  useCursor: false,
+  limit: 1000,
+  sortBy: 'mac',
+  sortDesc: false,
 })
 
-export const useSearchData = makeSearch('networkCommunicationData', {
+export const useSearch = makeSearch('networkCommunication', {
   api,
   columns: [
     {

@@ -16,12 +16,6 @@
             <b-tabs small>
               <b-tab>
                 <template #title>
-                  {{ $i18n.t('Categories') }} <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
-                </template>
-                <base-filter-categories :items="items" v-model="selectedCategories" />
-              </b-tab>
-              <b-tab>
-                <template #title>
                   {{ $i18n.t('Devices') }} <b-badge v-if="selectedDevices.length" pill variant="primary" class="ml-1">{{ selectedDevices.length }}</b-badge>
                 </template>
                 <base-filter-devices :items="items" v-model="selectedDevices" />
@@ -47,7 +41,6 @@
 </template>
 
 <script>
-import BaseFilterCategories from './BaseFilterCategories'
 import BaseFilterDevices from './BaseFilterDevices'
 import BaseFilterHosts from './BaseFilterHosts'
 import BaseFilterProtocols from './BaseFilterProtocols'
@@ -55,7 +48,6 @@ import TheSearch from './TheSearch'
 import TheData from './TheData'
 
 const components = {
-  BaseFilterCategories,
   BaseFilterDevices,
   BaseFilterHosts,
   BaseFilterProtocols,
@@ -64,34 +56,11 @@ const components = {
   TheData,
 }
 
-import { createDebouncer } from 'promised-debounce'
-import { ref, toRefs, watch } from '@vue/composition-api'
-import api from '../_api'
-import {
-  mac,
-  proto,
-  port,
-  host,
-  device_class
-} from '../mock'
-import { useSearch } from '../_composables/useCollection'
+import { ref, toRefs } from '@vue/composition-api'
+import { useNodesSearch } from '../_composables/useCollection'
 
-const setup = (props, context) => {
-
-  const search = useSearch()
-  const {
-    reSearch
-  } = search
-  const {
-    fields,
-    items,
-    limit,
-    visibleColumns,
-    sortBy,
-    sortDesc,
-    lastQuery,
-  } = toRefs(search)
-
+const setup = () => {
+  const search = useNodesSearch()
   const selectedCategories = ref([])
   const selectedDevices = ref([])
   const selectedProtocols = ref([])
@@ -99,6 +68,7 @@ const setup = (props, context) => {
 
   return {
     ...toRefs(search),
+
     selectedCategories,
     selectedDevices,
     selectedProtocols,
