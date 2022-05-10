@@ -1,9 +1,13 @@
 package fbcollectorclient
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -27,6 +31,8 @@ type Client struct {
 	Host       string
 	Port       string
 	key        string
+
+	URILogDebug bool
 }
 
 func ProxyURL(ctx context.Context, conf pfconfigdriver.FingerbankSettingsProxy) *url.URL {
@@ -64,6 +70,73 @@ func New(ctx context.Context, key, proto, host, port string, proxy *url.URL) *Cl
 		Port:       port,
 		httpClient: httpClient,
 	}
+}
+
+func (c *Client) Call(ctx context.Context, method, path string, payload, decodeResponseIn interface{}) error {
+	var data []byte = nil
+	var err error
+	if payload != nil {
+		data, err = json.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("Unable to encode request payload: %s", err)
+		}
+	}
+
+	r := c.buildRequest(ctx, method, path, data)
+	resp, err := c.httpClient.Do(r)
+	defer c.ensureRequestComplete(ctx, resp)
+
+	if resp.StatusCode < 400 {
+		dec := json.NewDecoder(resp.Body)
+		err := dec.Decode(decodeResponseIn)
+		if err != nil {
+			return fmt.Errorf("Unable to decode JSON response: %s", err)
+		} else {
+			return nil
+		}
+
+	} else {
+		errRep := struct {
+			Error string
+		}{}
+		err := json.NewDecoder(resp.Body).Decode(&errRep)
+
+		if err != nil {
+			return fmt.Errorf("Error body doesn't follow the standard, couldn't extract the error message from it. Status code was %d", resp.StatusCode)
+		}
+
+		return fmt.Errorf("Error while querying collector: %s", errRep.Error)
+	}
+}
+
+func (c *Client) buildRequest(ctx context.Context, method, path string, body []byte) *http.Request {
+	uri := fmt.Sprintf("%s://%s:%s%s", c.Proto, c.Host, c.Port, path)
+
+	logFunc := log.LoggerWContext(ctx).Info
+	if c.URILogDebug {
+		logFunc = log.LoggerWContext(ctx).Debug
+	}
+	logFunc("Calling collector API on uri: " + uri)
+
+	bodyReader := bytes.NewReader(body)
+
+	r, err := http.NewRequest(method, uri, bodyReader)
+	sharedutils.CheckError(err)
+
+	if c.key != "" {
+		r.Header.Set("Authorization", "Token "+c.key)
+	}
+
+	return r
+}
+
+func (c *Client) ensureRequestComplete(ctx context.Context, resp *http.Response) {
+	if resp == nil {
+		return
+	}
+
+	defer resp.Body.Close()
+	io.Copy(ioutil.Discard, resp.Body)
 }
 
 type ClientFromConfig struct {
