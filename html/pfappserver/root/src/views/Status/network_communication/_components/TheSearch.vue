@@ -1,24 +1,19 @@
 <template>
-  <base-search :use-search="useSearch">
+  <base-search :use-search="useNodesSearch">
     <template v-slot:header>
       <p class="py-0 col-form-label text-left text-nowrap" v-text="'Condition'"></p>
     </template>
     <template v-slot:footer>
-      <b-row class="mt-3">
-        <b-col cols="4">
-          <p class="py-0 col-form-label text-left text-nowrap" v-text="'Group By'"></p>
-          <base-input-chosen-one v-model="groupBy"
-            :options="groupByOptions" />
-        </b-col>
-        <b-col cols="4">
-          <p class="py-0 col-form-label text-left text-nowrap" v-text="'Order By'"></p>
-          <base-input-chosen-one v-model="sortBy"
-            :options="sortByOptions" />
-        </b-col>
-        <b-col cols="4">
-          <p class="py-0 col-form-label text-left text-nowrap" v-text="'Sort'"></p>
-          <base-input-chosen-one v-model="sortDesc"
-            :options="sortDescOptions" />
+      <p class="py-0 col-form-label text-left text-nowrap mt-3" v-text="'Device Class'"></p>
+      <b-row>
+        <b-col cols="12" v-for="deviceClass in deviceClassList" :key="deviceClass.value"
+          @click="toggleDeviceClass(deviceClass)"
+        >
+          <icon v-if="selectedDeviceClasses.indexOf(deviceClass.text) > -1"
+            name="check-square" class="bg-white text-success mr-1" scale="1.125" />
+          <icon v-else
+            name="square" class="border border-1 border-gray bg-white text-light mr-1" scale="1.125" />
+          {{ deviceClass.text }}
         </b-col>
       </b-row>
     </template>
@@ -27,62 +22,68 @@
 
 <script>
 import {
-  BaseInputChosenOne,
   BaseSearch,
 } from '@/components/new/'
 
 const components = {
-  BaseInputChosenOne,
   BaseSearch
 }
 
-const props = {}
-
-import { ref, toRefs, watch } from '@vue/composition-api'
+import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { useSearch } from '../_composables/useCollection'
+import { useNodesSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
-  const search = useSearch()
+  const { root: { $store } = {} } = context
+
+  const search = useNodesSearch()
   const {
     reSearch
   } = search
   const {
-    items,
-    visibleColumns,
     sortBy,
     sortDesc
   } = toRefs(search)
 
-  const groupBy = ref('id')
-  const groupByOptions = ref(
-    search.columns
-      .filter(column => column.sortable)
-      .map(column => ({ text: i18n.t(column.label), value: column.key }))
-  )
+  const deviceClassList = ref([])
+  onMounted(() => {
+    $store.dispatch('$_fingerbank/devices').then(items => {
+      deviceClassList.value = items
+        .map(({ id: value, name: text}) => ({ text, value }))
+        .sort((a, b) => a.text.localeCompare(b.text))
+    })
+  })
 
-  const sortByOptions = ref(
-    search.columns
-      .filter(column => column.sortable)
-      .map(column => ({ text: i18n.t(column.label), value: column.key }))
-  )
+  const selectedDeviceClasses = ref([])
+  const toggleDeviceClass = deviceClass => {
+    const { text } = deviceClass
+    if (selectedDeviceClasses.value.indexOf(text) === -1) {
+      selectedDeviceClasses.value = [
+        ...selectedDeviceClasses.value.filter(selected => selected !== text),
+        text
+      ]
+    }
+    else {
+      selectedDeviceClasses.value = selectedDeviceClasses.value.filter(selected => selected !== text)
+    }
+  }
 
-  const sortDescOptions = ref([
-    { text: i18n.t('Ascending'), value: false },
-    { text: i18n.t('Descending'), value: true },
-  ])
-
-  watch([groupBy, sortBy, sortDesc], () => {
+  watch(selectedDeviceClasses, () => {
     search.requestInterceptor = request => {
-//      request.scope = scope.value
-      if (sortBy.value) {
-        // rewrite current request
-        request.query = { op: 'and', values: [
-          { op: 'or', values: [
-            { field: 'parent_id', op: 'equals', value: sortBy.value }
-          ] }
-        ] }
+      // override Node defaults
+      if (selectedDeviceClasses.value.length > 0) {
+        // request.query can be null
+        request.query = {
+          ...(request.query || { op: 'and', values: [] })
+        }
+        // push criteria
+        request.query.values.push({
+          op: 'or',
+          values: selectedDeviceClasses.value.map(deviceClass => ({
+            field: 'device_class', op: 'equals', value: deviceClass
+          }))
+        })
       }
       return request
     }
@@ -90,13 +91,12 @@ const setup = (props, context) => {
   }, { immediate: true })
 
   return {
-    groupBy,
-    groupByOptions,
-    sortByOptions,
-    sortDescOptions,
-    useSearch,
+    useNodesSearch,
 
     ...toRefs(search),
+    deviceClassList,
+    selectedDeviceClasses,
+    toggleDeviceClass,
   }
 }
 
@@ -104,7 +104,6 @@ const setup = (props, context) => {
 export default {
   name: 'the-search',
   components,
-  props,
   setup
 }
 </script>

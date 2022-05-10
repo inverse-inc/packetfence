@@ -76,8 +76,7 @@ const props = {
 }
 
 import { toRefs, watch } from '@vue/composition-api'
-import { useSearchData } from '../_composables/useCollection'
-import api from '../_api'
+import { useSearch } from '../_composables/useCollection'
 
 const setup = props => {
 
@@ -88,7 +87,7 @@ const setup = props => {
     selectedHosts,
   } = toRefs(props)
 
-  const search = useSearchData()
+  const search = useSearch()
   const {
     reSearch
   } = search

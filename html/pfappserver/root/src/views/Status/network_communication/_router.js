@@ -1,3 +1,6 @@
+import store from '@/store'
+import FingerbankStoreModule from '@/views/Configuration/fingerbank/_store'
+
 const TheView = () => import(/* webpackChunkName: "Status" */ './_components/TheView')
 
 export default [
@@ -7,6 +10,11 @@ export default [
     component: TheView,
     meta: {
       can: 'read nodes'
-    }
+    },
+    beforeEnter: (to, from, next) => {
+      if (!store.state.$_fingerbank)
+        store.registerModule('$_fingerbank', FingerbankStoreModule)
+      next()
+    },
   }
 ]
