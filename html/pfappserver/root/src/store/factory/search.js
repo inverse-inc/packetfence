@@ -28,6 +28,20 @@ export const useString = (searchString, columns) => {
   }
 }
 
+const reduceQuery = query => {
+  let { op, values = [], field } = query
+  if (field) { // ignore user defined criteria
+    return query
+  }
+  values = values
+    .map(value => reduceQuery(value))
+    .filter(value => value && Object.keys(value).length > 0)
+  if (values.length > 0) {
+    return { op, values }
+  }
+  return null // reduced
+}
+
 const factory = (uuid, options = {}) => {
   const id = `$_${toKebabCase(uuid, '_')}_search`
   return defineStore({
@@ -50,7 +64,7 @@ const factory = (uuid, options = {}) => {
         cursors: [],
         defaultCondition: () => ({ op: 'and', values: [
           { op: 'or', values: [
-            { field: 'id', op: 'not_equals', value: null }
+            // noop
           ] }
         ] }),
         requestInterceptor: request => request,
@@ -141,7 +155,7 @@ const factory = (uuid, options = {}) => {
       doReset() {
         this.isLoading = true
         const fields = this.useFields(this.columns).join(',')
-        const params = {
+        let params = {
           fields,
           sort: ((this.sortBy)
             ? ((this.sortDesc)
@@ -151,7 +165,10 @@ const factory = (uuid, options = {}) => {
             : undefined // use natural sort
           ),
           limit: this.limit,
-          cursor: this.useCursor(this.cursors, this.page, this.limit)
+          cursor: ((this.useCursor)
+            ? this.useCursor(this.cursors, this.page, this.limit)
+            : 0
+          )
         }
         if ('list' in this.api) { // has api.list
           this.$debouncer({
@@ -199,9 +216,9 @@ const factory = (uuid, options = {}) => {
       doSearch(query) {
         this.isLoading = true
         const fields = this.useFields(this.columns)
-        const _body = {
+        let _body = {
           fields,
-          query,
+          query: reduceQuery(query),
           sort: ((this.sortBy)
             ? ((this.sortDesc)
               ? [`${this.sortBy} DESC`]
@@ -210,7 +227,10 @@ const factory = (uuid, options = {}) => {
             : undefined // use natural sort
           ),
           limit: this.limit,
-          cursor: this.useCursor(this.cursors, this.page, this.limit)
+          cursor: ((this.useCursor)
+            ? this.useCursor(this.cursors, this.page, this.limit)
+            : 0
+          )
         }
         const body = this.requestInterceptor(_body)
         this.$debouncer({

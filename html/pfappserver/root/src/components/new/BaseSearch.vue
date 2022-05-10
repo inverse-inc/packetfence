@@ -54,7 +54,8 @@
       <b-col cols="auto" class="mr-auto my-3">
         <slot />
       </b-col>
-      <b-col cols="auto" class="my-3 align-self-end d-flex">
+      <b-col v-if="useCursor"
+        cols="auto" class="my-3 align-self-end d-flex">
         <base-search-input-limit
           :value="limit" @input="setLimit"
           size="md"
