@@ -66,7 +66,12 @@ function main {
   if [[ $noop == true ]]; then
     msg "NOOP: Only printing iptables rules to be eventually applied"
   fi
-  
+
+  while iptables -L DOCKER ; [ $? -ne 0 ];do
+    msg "Waiting for iptables to be ready"
+    sleep 5;
+  done
+
   # list currently running container IDs
   local containers=$(docker ps --format '{{.ID}}')
   if [[ ! -z "$containers" ]]; then
