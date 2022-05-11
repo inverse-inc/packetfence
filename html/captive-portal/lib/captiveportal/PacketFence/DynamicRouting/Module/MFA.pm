@@ -116,7 +116,8 @@ sub execute_child {
         }
     }
     else {
-        my $info = $mfa->redirect_info($self->username);
+        my $cookies = $self->app->request->cookies;
+        my $info = $mfa->redirect_info($self->username, $cookies->{CGISESSION_PF}->value);
         $self->show_mfa($info);
     }
 }

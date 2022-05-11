@@ -71,7 +71,11 @@ sub new {
     my $self = bless {}, $class;
 
     if (defined($argv{'client_mac'})) {
-        $self->_initialize($argv{'client_mac'});
+        if (defined($argv{'session_id'})) {
+            $self->_initialize($argv{'client_mac'},$argv{'session_id'});
+        } else {
+            $self->_initialize($argv{'client_mac'});
+        }
     } else {
         $self->_initialize() unless ($argv{'testing'});
     }
@@ -87,7 +91,7 @@ sub new {
 # run on every portal hit. We should profile then re-architect to store
 # in session expensive components to look for.
 sub _initialize {
-    my ($self,$mac) = @_;
+    my ($self,$mac,$session_id) = @_;
     my $logger = get_logger();
     my $cgi = new CGI;
     my $options;
@@ -96,8 +100,12 @@ sub _initialize {
     $self->{'_cgi'} = $cgi;
 
     my $md5_mac = defined($mac) ? md5_hex($mac) : undef;
-    my $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $md5_mac || md5_hex(word(8, 12));
-    $logger->debug("using session id '$sid'" );
+    my $sid;
+    if (defined($session_id)) {
+        $sid = $session_id;
+    } else {
+        $sid = $cgi->cookie(SESSION_ID) || $cgi->param(SESSION_ID) || $md5_mac || md5_hex(word(8, 12));
+    }
     my $session;
     $self->{'_session'} = $session = new CGI::Session( "driver:chi;id:static", $sid, { chi_class => 'pf::CHI', namespace => 'httpd.portal' } );
     $logger->error(CGI::Session->errstr()) unless $session;
@@ -115,6 +123,7 @@ sub _initialize {
     );
 
     my $client_mac = $self->{_client_mac};
+
     $self->{_dummy_session} = ($sid eq md5_hex($DUMMY_MAC));
 
     $self->session->param("_client_mac", $client_mac);
