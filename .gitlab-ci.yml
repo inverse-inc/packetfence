@@ -861,7 +861,6 @@ publish_ppa_devel_release_branches_and_maintenance::
     - sign_devel_release_branches_and_maintenance
   extends:
     - .publish_job
-    - .test_rules
     - .publish_ppa_rules
 
 ########################################
