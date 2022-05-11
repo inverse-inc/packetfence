@@ -159,7 +159,7 @@ sub _initialize {
             return $self->getGrantUrl;
         }
     );
-
+    $self->session->param("_session_id", $sid);
     $self->_initializeStash();
 }
 
