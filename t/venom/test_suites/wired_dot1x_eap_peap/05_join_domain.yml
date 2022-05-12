@@ -72,8 +72,8 @@ testcases:
       - result.bodyjson.message ShouldEqual Completed
       - result.bodyjson.progress ShouldEqual 100
       - result.bodyjson.status ShouldEqual 200
-    # wait two minutes before failing
-    retry: 8
+    # wait three minutes before failing
+    retry: 12
     delay: 15
 
 - name: test_join
