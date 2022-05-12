@@ -6,9 +6,9 @@ import (
 	"net"
 	"strings"
 
-	"github.com/jpillora/chisel/share/cio"
-	"github.com/jpillora/chisel/share/cnet"
-	"github.com/jpillora/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
+	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/jpillora/sizestr"
 	"golang.org/x/crypto/ssh"
 )

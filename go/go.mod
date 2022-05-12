@@ -42,7 +42,6 @@ require (
 	github.com/gorilla/schema v1.1.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
-	github.com/hanwen/go-fuse/v2 v2.0.3
 	github.com/hashicorp/go-syslog v1.0.0
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hpcloud/tail v1.0.0
@@ -120,7 +119,6 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f // indirect
-	github.com/coreos/go-systemd/v22 v22.0.0 // indirect
 	github.com/dimchansky/utfbom v1.1.0 // indirect
 	github.com/evanphx/json-patch v4.9.0+incompatible // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
@@ -135,7 +133,6 @@ require (
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/google/gopacket v1.1.19
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
@@ -144,7 +141,7 @@ require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
-	github.com/jpillora/chisel v1.7.7 // indirect
+	github.com/jpillora/chisel v1.7.7
 	github.com/jpillora/requestlog v1.0.0 // indirect
 	github.com/jpillora/sizestr v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
@@ -160,7 +157,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 // indirect
-	github.com/phayes/freeport v0.0.0-20220201140144-74d24b5ae9f5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -168,8 +164,6 @@ require (
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	go.opencensus.io v0.22.3 // indirect
-	go.uber.org/atomic v1.6.0 // indirect
-	go.uber.org/multierr v1.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
@@ -188,10 +182,10 @@ require (
 	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
+require github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
+
 replace github.com/inverse-inc/packetfence => ../
 
 replace github.com/inverse-inc/packetfence/go => ./
-
-replace github.com/jpillora/chisel => ./chisel
 
 replace github.com/inverse-inc/packetfence/go/caddy/caddy => ./go/caddy/caddy

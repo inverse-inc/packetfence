@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	chclient "github.com/jpillora/chisel/client"
-	chserver "github.com/jpillora/chisel/server"
+	chclient "github.com/inverse-inc/packetfence/go/chisel/client"
+	chserver "github.com/inverse-inc/packetfence/go/chisel/server"
 )
 
 const debug = true

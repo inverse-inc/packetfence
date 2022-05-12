@@ -1,6 +1,6 @@
 # Chisel
 
-[![GoDoc](https://godoc.org/github.com/jpillora/chisel?status.svg)](https://godoc.org/github.com/jpillora/chisel) [![CI](https://github.com/jpillora/chisel/workflows/CI/badge.svg)](https://github.com/jpillora/chisel/actions?workflow=CI)
+[![GoDoc](https://godoc.org/github.com/inverse-inc/packetfence/go/chisel?status.svg)](https://godoc.org/github.com/inverse-inc/packetfence/go/chisel) [![CI](https://github.com/inverse-inc/packetfence/go/chisel/workflows/CI/badge.svg)](https://github.com/inverse-inc/packetfence/go/chisel/actions?workflow=CI)
 
 Chisel is a fast TCP/UDP tunnel, transported over HTTP, secured via SSH. Single executable including both client and server. Written in Go (golang). Chisel is mainly useful for passing through firewalls, though it can also be used to provide a secure endpoint into your network.
 
@@ -35,9 +35,9 @@ Chisel is a fast TCP/UDP tunnel, transported over HTTP, secured via SSH. Single 
 
 ### Binaries
 
-[![Releases](https://img.shields.io/github/release/jpillora/chisel.svg)](https://github.com/jpillora/chisel/releases) [![Releases](https://img.shields.io/github/downloads/jpillora/chisel/total.svg)](https://github.com/jpillora/chisel/releases)
+[![Releases](https://img.shields.io/github/release/jpillora/chisel.svg)](https://github.com/inverse-inc/packetfence/go/chisel/releases) [![Releases](https://img.shields.io/github/downloads/jpillora/chisel/total.svg)](https://github.com/inverse-inc/packetfence/go/chisel/releases)
 
-See [the latest release](https://github.com/jpillora/chisel/releases/latest) or download and install it now with `curl https://i.jpillora.com/chisel! | bash`
+See [the latest release](https://github.com/inverse-inc/packetfence/go/chisel/releases/latest) or download and install it now with `curl https://i.jpillora.com/chisel! | bash`
 
 ### Docker
 
@@ -58,7 +58,7 @@ sudo dnf -y install chisel
 ### Source
 
 ```sh
-$ go install github.com/jpillora/chisel@latest -v
+$ go install github.com/inverse-inc/packetfence/go/chisel@latest -v
 ```
 
 ## Demo
@@ -99,7 +99,7 @@ $ chisel --help
     client - runs chisel in client mode
 
   Read more:
-    https://github.com/jpillora/chisel
+    https://github.com/inverse-inc/packetfence/go/chisel
 
 ```
 <!--/tmpl-->
@@ -194,7 +194,7 @@ $ chisel server --help
     X.Y.Z
 
   Read more:
-    https://github.com/jpillora/chisel
+    https://github.com/inverse-inc/packetfence/go/chisel
 
 ```
 <!--/tmpl-->
@@ -334,7 +334,7 @@ $ chisel client --help
     X.Y.Z
 
   Read more:
-    https://github.com/jpillora/chisel
+    https://github.com/inverse-inc/packetfence/go/chisel
 
 ```
 <!--/tmpl-->
@@ -389,9 +389,9 @@ Since WebSockets support is required:
 
 - http://golang.org/doc/code.html
 - http://golang.org/doc/effective_go.html
-- `github.com/jpillora/chisel/share` contains the shared package
-- `github.com/jpillora/chisel/server` contains the server package
-- `github.com/jpillora/chisel/client` contains the client package
+- `github.com/inverse-inc/packetfence/go/chisel/share` contains the shared package
+- `github.com/inverse-inc/packetfence/go/chisel/server` contains the server package
+- `github.com/inverse-inc/packetfence/go/chisel/client` contains the client package
 
 ## Changelog
 
@@ -406,4 +406,4 @@ Since WebSockets support is required:
 
 ## License
 
-[MIT](https://github.com/jpillora/chisel/blob/master/LICENSE) © Jaime Pillora
+[MIT](https://github.com/inverse-inc/packetfence/go/chisel/blob/master/LICENSE) © Jaime Pillora

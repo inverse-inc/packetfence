@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
-	chclient "github.com/jpillora/chisel/client"
-	chserver "github.com/jpillora/chisel/server"
-	chshare "github.com/jpillora/chisel/share"
-	"github.com/jpillora/chisel/share/cos"
+	chclient "github.com/inverse-inc/packetfence/go/chisel/client"
+	chserver "github.com/inverse-inc/packetfence/go/chisel/server"
+	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
+	"github.com/inverse-inc/packetfence/go/chisel/share/cos"
 )
 
 var help = `
@@ -30,7 +30,7 @@ var help = `
     client - runs chisel in client mode
 
   Read more:
-    https://github.com/jpillora/chisel
+    https://github.com/inverse-inc/packetfence/go/chisel
 
 `
 
@@ -83,7 +83,7 @@ var commonHelp = `
     ` + chshare.BuildVersion + ` (` + runtime.Version() + `)
 
   Read more:
-    https://github.com/jpillora/chisel
+    https://github.com/inverse-inc/packetfence/go/chisel
 
 `
 

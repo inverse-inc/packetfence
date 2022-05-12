@@ -1,4 +1,4 @@
-module github.com/jpillora/chisel
+module github.com/inverse-inc/packetfence/go/chisel
 
 go 1.13
 
@@ -21,4 +21,4 @@ require (
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 )
 
-replace github.com/jpillora/chisel => ./
+replace github.com/inverse-inc/packetfence/go/chisel => ./

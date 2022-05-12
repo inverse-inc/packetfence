@@ -11,7 +11,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/jpillora/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"golang.org/x/crypto/acme/autocert"
 )
 

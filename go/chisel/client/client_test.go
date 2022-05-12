@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jpillora/chisel/share/ccrypto"
+	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"golang.org/x/crypto/ssh"
 )
 
