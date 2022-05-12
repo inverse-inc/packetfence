@@ -36,7 +36,7 @@ fingerbank_port: 3000
 pfserver_api_inactivity_timeout.interval: 12
 pfserver_api_inactivity_timeout.unit: h
 pfserver_pffilter_processes: 1
-pfserver_pfperl_api_processes: 2
+pfserver_pfperl_api_processes: 8
 pfserver_pfqueue_workers: 2
 pfserver_haproxy_admin_server_timeout: 120s
 
