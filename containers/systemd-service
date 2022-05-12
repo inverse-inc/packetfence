@@ -38,20 +38,22 @@ function build_base_images {
 function build_run {
   name="$1"
   args="$2"
+  cmd="$3"
   cd /usr/local/pf/
 
   img=$(build_img $name)
-  run_img $img $name "$args"
+  run_img $img $name "$args" "$cmd"
 }
 
 function run {
   name="$1"
   args="$2"
+  cmd="$3"
   img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
   if [ "$LOCAL_DEV" = "true" ]; then
-    build_run $name "$args" 
+    build_run $name "$args" "$cmd"
   else
-    run_img $img $name "$args"
+    run_img $img $name "$args" "$cmd"
   fi
 }
 
@@ -59,8 +61,9 @@ function run_img {
   img="$1"
   name="$2"
   args="$3"
+  cmd="$4"
   cd /usr/local/pf/
   docker container rm -f $name
   echo "Running with args $args"
-  docker run $args --name=$name $img
+  docker run $args --name=$name $img $cmd
 }

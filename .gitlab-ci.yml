@@ -11,8 +11,8 @@ before_script:
 ################################################################################
 stages:
   - check
-  - build_img_container
   - build_img
+  - build_img_container
   - build_artifacts
   - sign
   - publish
@@ -114,24 +114,26 @@ variables:
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with build_img_container variable defined or build_img_container in commit message
+# run this job on maintenance branches if BUILD_IMG_CONTAINER is yes or on all other branches unless BUILD_IMG_DOCKER is no
 .build_img_container_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_CONTAINER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_container=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # only run this job on devel branch with build_img_docker variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
 
-# only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with build_img_docker variable defined or build_img_docker in commit message
+# run this job on maintenance branches if BUILD_IMG_DOCKER is yes or on all other branches unless BUILD_IMG_DOCKER is no
 .build_img_docker_branches_and_maintenance_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
+    - if: '$BUILD_IMG_DOCKER == "no"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # run jobs only when:
 # - on devel branch (push,web,schedule) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
@@ -520,6 +522,7 @@ pfdeb_based_dev:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 img_dev:
   extends:
@@ -579,6 +582,7 @@ pfdeb_based_br_maint:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 img_br_maint:
   extends:
@@ -638,6 +642,7 @@ pfdeb_based_rel:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
 
 img_rel:
   extends:

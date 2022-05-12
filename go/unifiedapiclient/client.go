@@ -51,6 +51,7 @@ type Client struct {
 	Password string
 	Host     string
 	Port     string
+	Proto    string
 	token    string
 	tenantId int
 
@@ -93,6 +94,7 @@ func New(ctx context.Context, username, password, proto, host, port string) *Cli
 		Host:     host,
 		Port:     port,
 		tenantId: UnsetTenantId,
+		Proto:    proto,
 	}
 }
 
@@ -103,7 +105,7 @@ func NewFromConfig(ctx context.Context) *Client {
 	var apiUser pfconfigdriver.UnifiedApiSystemUser
 	pfconfigdriver.FetchDecodeSocket(ctx, &apiUser)
 
-	return New(ctx, apiUser.User, apiUser.Pass, webservices.Proto, webservices.UnifiedAPIHost, webservices.UnifiedAPIPort)
+	return New(ctx, apiUser.User, apiUser.Pass, "https", webservices.UnifiedAPIHost, webservices.UnifiedAPIPort)
 }
 
 func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) UnifiedAPIError {
@@ -229,7 +231,7 @@ func (c *Client) login(ctx context.Context) UnifiedAPIError {
 }
 
 func (c *Client) buildRequest(ctx context.Context, method, path, body string) *http.Request {
-	uri := fmt.Sprintf("https://%s:%s%s", c.Host, c.Port, path)
+	uri := fmt.Sprintf("%s://%s:%s%s", c.Proto, c.Host, c.Port, path)
 
 	logFunc := log.LoggerWContext(ctx).Info
 	if c.URILogDebug {

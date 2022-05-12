@@ -43,7 +43,8 @@ func (fw *FamilyZone) startHttp(ctx context.Context, info map[string]string, tim
 	h.Write([]byte(s))
 	sha1Hash := hex.EncodeToString(h.Sum(nil))
 
-	resp, err := fw.getHttpClient(ctx).Get("https://" + fw.PfconfigHashNS + "/login/agent?deviceid=" + fw.DeviceID + "&mac=" + info["mac"] + "&ip=" + info["ip"] + "&username=" + strings.ToLower(info["username"]) + "&agent=PacketFence&hash=" + sha1Hash + "&salt=" + id.String())
+	dst := fw.getDst(ctx, "tcp", fw.PfconfigHashNS, "443")
+	resp, err := fw.getHttpClient(ctx).Get("https://" + dst + "/login/agent?deviceid=" + fw.DeviceID + "&mac=" + info["mac"] + "&ip=" + info["ip"] + "&username=" + strings.ToLower(info["username"]) + "&agent=PacketFence&hash=" + sha1Hash + "&salt=" + id.String())
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error contacting FamilyZone: %s", err))

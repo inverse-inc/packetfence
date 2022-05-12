@@ -694,6 +694,16 @@ netflow_address=127.0.0.1
 # Should mysql-probe be managed by PacketFence?
 mysql-probe=enabled
 
+# services.pfconnector-client
+#
+# Should pfconnector-client be managed by PacketFence?
+pfconnector-client=enabled
+
+# services.pfconnector-server
+#
+# Should pfconnector-server be managed by PacketFence?
+pfconnector-server=enabled
+
 [snmp_traps]
 #
 # snmp_traps.bounce_duration
@@ -1386,6 +1396,10 @@ device_class_whitelist=
 # Comma delimited transitions using the following format: $PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.
 triggers=
 
+[pfconnector]
+redis_server=127.0.0.1:6379
+redis_tunnels_namespace=pfconnector:activeTunnels:
+
 [lets_encrypt]
 #
 # lets_encrypt.radius
@@ -1421,3 +1435,5 @@ pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://containers-gatewa
 pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://containers-gateway.internal:22224") %]
 pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
 pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]
+pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
+

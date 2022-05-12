@@ -25,7 +25,8 @@ func (fw *FortiGate) Start(ctx context.Context, info map[string]string, timeout 
 	// Use the background context since we don't want the lib to use our context
 	ctx2, cancel := fw.RadiusContextWithTimeout()
 	defer cancel()
-	_, err := client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
+	dst := fw.getDst(ctx, "udp", fw.PfconfigHashNS, fw.Port)
+	_, err := client.Exchange(ctx2, p, dst)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
 		return false, err
@@ -56,7 +57,8 @@ func (fw *FortiGate) Stop(ctx context.Context, info map[string]string) (bool, er
 	// Use the background context since we don't want the lib to use our context
 	ctx2, cancel := fw.RadiusContextWithTimeout()
 	defer cancel()
-	_, err := client.Exchange(ctx2, p, fw.PfconfigHashNS+":"+fw.Port)
+	dst := fw.getDst(ctx, "udp", fw.PfconfigHashNS, fw.Port)
+	_, err := client.Exchange(ctx2, p, dst)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Couldn't SSO to the fortigate, got the following error: %s", err))
 		return false, err

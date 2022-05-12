@@ -419,6 +419,8 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfconnector-server.service %{buildroot}%{_unitdir}/packetfence-pfconnector-server.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -856,6 +858,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
@@ -879,6 +882,8 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
@@ -902,6 +907,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
+%config(noreplace)      /usr/local/pf/conf/connectors.conf
+                        /usr/local/pf/conf/connectors.conf.example
 %config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
                         /usr/local/pf/conf/network_behavior_policies.conf.example
 %config(noreplace)      /usr/local/pf/conf/cloud.conf

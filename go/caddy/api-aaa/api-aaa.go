@@ -43,6 +43,7 @@ type ApiAAAHandler struct {
 	webservicesBackend *aaa.MemAuthenticationBackend
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
+	noAuthPaths        map[string]bool
 }
 
 type Tenant struct {
@@ -57,7 +58,28 @@ type Tenant struct {
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
+	noAuthPaths := map[string]bool{}
+	for c.Next() {
+		for c.NextBlock() {
+			switch c.Val() {
+			case "no_auth":
+				args := c.RemainingArgs()
+
+				if len(args) != 1 {
+					return c.ArgErr()
+				} else {
+					path := args[0]
+					noAuthPaths[path] = true
+					fmt.Println("The following path will not be authenticated via the api-aaa module", path)
+				}
+			default:
+				return c.ArgErr()
+			}
+		}
+	}
+
 	apiAAA, err := buildApiAAAHandler(ctx)
+	apiAAA.noAuthPaths = noAuthPaths
 
 	if err != nil {
 		return err
@@ -271,7 +293,8 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil
 	} else {
-		if h.HandleAAA(w, r) {
+		_, noauth := h.noAuthPaths[r.URL.Path]
+		if noauth || h.HandleAAA(w, r) {
 			code, err := h.Next.ServeHTTP(w, r)
 
 			return code, err
