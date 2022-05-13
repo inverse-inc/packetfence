@@ -18,7 +18,7 @@ all:
       hosts:
         node01:
           box: debian/bullseye64
-          box_version: 11.20211230.1
+          box_version: 11.20220328.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
@@ -26,7 +26,7 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
         node02:
           box: debian/bullseye64
-          box_version: 11.20211230.1
+          box_version: 11.20220328.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node02']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node02']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
@@ -34,7 +34,7 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
         node03:
           box: debian/bullseye64
-          box_version: 11.20211230.1
+          box_version: 11.20220328.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['node03']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['node03']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
@@ -56,7 +56,7 @@ all:
       hosts:
         wireless01:
           box: debian/bullseye64
-          box_version: 11.20211230.1
+          box_version: 11.20220328.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['wireless01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['wireless01']['netmask'] }}"
           ansible_host: "{{ mgmt_ip }}"
@@ -72,7 +72,7 @@ all:
       hosts:
         linux01:
           box: debian/bullseye64
-          box_version: 11.20211230.1
+          box_version: 11.20220328.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['linux01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux01']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
@@ -81,7 +81,7 @@ all:
           memory: 512
         linux02:
           box: debian/bullseye64
-          box_version: 11.20211230.1
+          box_version: 11.20220328.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['linux02']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux02']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
@@ -138,7 +138,7 @@ all:
               memory: 12288
             deb11dev:
               box: debian/bullseye64
-              box_version: 11.20211230.1
+              box_version: 11.20220328.1
               mgmt_ip: "{{ users_vars[dict_name]['vms']['deb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
