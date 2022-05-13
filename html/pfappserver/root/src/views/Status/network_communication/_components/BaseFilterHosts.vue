@@ -20,7 +20,7 @@
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectInverse">{{ $i18n.t('Inverse') }}</b-btn>
 
-      <b-row v-for="item in splitItems" :key="item.host"
+      <b-row v-for="item in decoratedItems" :key="item.host"
         @click="onSelectItem(item)"
         align-h="end"
         align-v="center"
@@ -30,7 +30,10 @@
         v-b-tooltip.hover.left.d300 :title="`.${item.host}`"
         >
         <b-col cols="1" class="px-0 py-1 ml-3 text-center">
-          <template v-if="value.indexOf(item.host) > -1">
+          <template v-if="value.findIndex(v => RegExp(`\.${v}$`, 'i').test(item.host)) > -1">
+            <icon name="check-square" class="bg-white text-success" scale="1.125" style="opacity: 0.25;" />
+          </template>
+          <template v-else-if="value.indexOf(item.host) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
           <template v-else>
@@ -42,18 +45,15 @@
             <icon v-for="(icon, i) in item._tree" :key="i"
               v-bind="icon" />
           </div>
-          <text-highlight :queries="[filter]">{{ item.host.split('.')[0] }}</text-highlight>
+          <text-highlight :queries="[filter]">{{ item.host }}</text-highlight>
         </b-col>
         <b-col cols="auto mr-3">
-          <b-badge class="ml-1">{{ uniqueCategories[item.host] }} {{ $i18n.t('categories') }}</b-badge>
-          <b-badge class="ml-1">{{ uniqueDevices[item.host] }} {{ $i18n.t('devices') }}</b-badge>
-          <b-badge class="ml-1">{{ uniqueProtocols[item.host] }} {{ $i18n.t('protocols') }}</b-badge>
+          <b-badge v-if="item._num_devices"
+            class="ml-1">{{ item._num_devices }} {{ $i18n.t('devices') }}</b-badge>
+          <b-badge v-if="item._num_protocols"
+            class="ml-1">{{ item._num_protocols }} {{ $i18n.t('protocols') }}</b-badge>
         </b-col>
       </b-row>
-
-
-<pre>{{ {splitItems} }}</pre>
-
     </div>
   </b-card>
 </template>
@@ -70,120 +70,82 @@ const directives = {
 }
 
 const props = {
-  items: {
-    type: Array
-  },
   value: {
     type: Array
   }
 }
 
 import { computed, ref, toRefs } from '@vue/composition-api'
+import { decorateHost, splitHost, useHosts } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
   const {
-    items,
     value
   } = toRefs(props)
 
-  const { emit } = context
+  const { emit, root: { $store } = {} } = context
 
-  const uniqueItems = computed(() => {
-    return Object.values(items.value)
-      .reduce((unique, item) => {
-        if (unique.filter(u => u.host === item.host).length === 0) {
-          return [ ...unique, item ]
+  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
+  const hosts = computed(() => useHosts($store.state.$_fingerbank_communication.cache))
+
+  const items = computed(() => {
+    return Object.keys(hosts.value)
+      .map(item => {
+        const { tld, subdomain } = splitHost(item)
+        const host = decorateHost(item)
+        return { tld, subdomain, host }
+      })
+      .sort((a, b) => {
+        const { tld: tldA, subdomain: subdomainA } = a
+        const { tld: tldB, subdomain: subdomainB } = b
+        if (tldA !== tldB) {
+          return tldA.localeCompare(tldB)
         }
-        return unique
-      }, [])
-      .sort((a, b) => a.host.localeCompare(b.host))
+        return subdomainA.localeCompare(subdomainB)
+      })
   })
 
   const filter = ref('')
 
   const filteredItems = computed(() => {
     if (!filter.value) {
-      return uniqueItems.value
+      return items.value
     }
-    return uniqueItems.value
-      .filter(item => (item.host.toLowerCase().indexOf(filter.value.toLowerCase()) > -1))
+    return items.value
+      .filter(item => (item.host.indexOf(filter.value) > -1))
   })
 
-  const splitItems = computed(() => {
-    const flattened = filteredItems.value
-      .reduce((decompressed, item) => {
-        const hosts = item.host.split('.').reverse()
-        for (let i = 0; i < hosts.length; i++) {
-            let host = hosts.slice(0, i + 1).reverse().join('.')
-            if (decompressed.indexOf(host) == -1) {
-              decompressed.push(host)
-            }
+  const decoratedItems = computed(() => {
+    const decorated = []
+    let lastTld
+    for(let i = 0; i < filteredItems.value.length; i++) {
+      const item = filteredItems.value[i]
+      const { tld, subdomain, host } = item
+      const _num_devices = Object.keys(hosts.value[host].devices).length
+      const _num_protocols = Object.keys(hosts.value[host].protocols).length
+      if (lastTld !== tld) {
+        lastTld = tld
+        if (i > 0) {
+          decorated[decorated.length - 1]._tree[0].name = 'tree-last'
         }
-        return decompressed
-      }, [])
-      .sort((a, b) => {
-        let _a = a.split('.').reverse()
-        let _b = b.split('.').reverse()
-        for (let i = 0; i < Math.max(_a.length, _b.length); i++) {
-          if (i >= _a.length) {
-            return -1
-          }
-          if (i >= _b.length) {
-            return 1
-          }
-          if (_a[i] === _b[i]) {
-            continue
-          }
-          return _a[i].localeCompare(_b[i])
-        }
-      })
-
-    const depths = flattened.map(host => host.split('.').length - 1)
-    let minDepth = 99
-    const trees = Array(flattened.length).fill([])
-    for (let i = flattened.length - 1; i >= 0; i--) {
-      const depth = depths[i]
-      let last = false
-      if (minDepth > depth || depth > depths[i + 1]) {
-        minDepth = Math.min(minDepth, depth)
-        last = true
+        // push pseudo category
+        decorated.push({ host: tld })
       }
-      let tree = [
-        ...Array(minDepth).fill({}),
-        ...Array(depth - minDepth).fill({ pass: true }),
-        { last, node: true }
-      ]
-      trees[i] = tree.map(({last, node, pass}) => {
-        switch (true) {
-          case last:
-            return { last, pass, node, name: 'tree-last', class: 'nav-icon' }
-            // break
-          case node:
-            return { last, pass, node, name: 'tree-node', class: 'nav-icon' }
-            // break
-          case pass:
-            return { last, pass, node, name: 'tree-pass', class: 'nav-icon' }
-            // break
-          default: // empty
-            return { last, pass, node, name: 'tree-skip', class: 'nav-icon' }
-            // break
-        }
+      decorated.push({
+        ...item,
+        host,
+        _num_devices,
+        _num_protocols,
+        _tree: [
+          { name: 'tree-node', class: 'nav-icon' }
+        ]
       })
     }
-
-    return flattened.map((host, i) => {
-      const _depth = depths[i]
-      const _depthNext = depths[i + 1]
-      const _tree = trees[i]
-      const _children = (_depth < _depthNext)
-      return {
-        host,
-        _depth,
-        _children,
-        _tree
-      }
-    })
+    if (decorated.length > 0) {
+      decorated[decorated.length - 1]._tree[0].name = 'tree-last'
+    }
+    return decorated
   })
 
   const onSelectItem = item => {
@@ -198,7 +160,7 @@ const setup = (props, context) => {
 
   const onSelectAll = () => {
     let selected = value.value
-    splitItems.value.forEach((item) => {
+    decoratedItems.value.forEach((item) => {
       let i = selected.indexOf(item.host)
       if (i === -1) {
         selected = [ ...selected, item.host ]
@@ -209,7 +171,7 @@ const setup = (props, context) => {
 
   const onSelectNone = () => {
     let selected = value.value
-    splitItems.value.forEach((item) => {
+    decoratedItems.value.forEach((item) => {
       let i = selected.indexOf(item.host)
       if (i > -1) {
         selected = selected.filter((_, j) => j !== i)
@@ -220,7 +182,7 @@ const setup = (props, context) => {
 
   const onSelectInverse = () => {
     let selected = value.value
-    splitItems.value.forEach((item) => {
+    decoratedItems.value.forEach((item) => {
       let i = selected.indexOf(item.host)
       if (i > -1) {
         selected = selected.filter((_, j) => j !== i)
@@ -232,53 +194,14 @@ const setup = (props, context) => {
     emit('input', selected)
   }
 
-  const uniqueCategories = computed(() => {
-    const assoc = items.value.reduce((unique, item) => {
-      const { host, device_class } = item
-      unique[host] = [ ...unique[host] || [], device_class ]
-      return unique
-    }, {})
-    return Object.keys(assoc).reduce((unique, host) => {
-      return { ...unique, [host]: assoc[host].length }
-    }, {})
-  })
-
-  const uniqueDevices = computed(() => {
-    const assoc = items.value.reduce((unique, item) => {
-      const { host, mac } = item
-      unique[host] = [ ...unique[host] || [], mac ]
-      return unique
-    }, {})
-    return Object.keys(assoc).reduce((unique, host) => {
-      return { ...unique, [host]: assoc[host].length }
-    }, {})
-  })
-
-  const uniqueProtocols = computed(() => {
-    const assoc = items.value.reduce((unique, item) => {
-      const { host, proto, port } = item
-      const protocol = `${proto}/${port}`
-      unique[host] = [ ...unique[host] || [], protocol ]
-      return unique
-    }, {})
-    return Object.keys(assoc).reduce((unique, host) => {
-      return { ...unique, [host]: assoc[host].length }
-    }, {})
-  })
-
   return {
+    isLoading,
     filter,
-    filteredItems,
-    uniqueItems,
-splitItems,
+    decoratedItems,
     onSelectItem,
     onSelectAll,
     onSelectNone,
     onSelectInverse,
-
-    uniqueCategories,
-    uniqueDevices,
-    uniqueProtocols,
   }
 }
 

@@ -29,7 +29,7 @@ import api from '../_api'
 export const useNodesSearch = makeSearch('networkCommunicationNodes', {
   ...nodesSearch,
   useCursor: false,
-  limit: 1000,
+  limit: 100,
   sortBy: 'mac',
   sortDesc: false,
 })

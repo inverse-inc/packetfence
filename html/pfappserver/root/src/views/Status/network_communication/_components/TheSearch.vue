@@ -30,7 +30,6 @@ const components = {
 }
 
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import i18n from '@/utils/locale'
 import { useNodesSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
@@ -41,10 +40,6 @@ const setup = (props, context) => {
   const {
     reSearch
   } = search
-  const {
-    sortBy,
-    sortDesc
-  } = toRefs(search)
 
   const deviceClassList = ref([])
   onMounted(() => {
