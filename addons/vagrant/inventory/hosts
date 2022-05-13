@@ -116,8 +116,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 6144
+              cpus: 4
+              memory: 12288
             pfdeb11dev:
               box: inverse-inc/pfdeb11dev
               box_version: 11.0.20220114143906
@@ -125,8 +125,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 6144
+              cpus: 4
+              memory: 12288
             el8dev:
               box: generic/rhel8
               box_version: '3.6.4'
@@ -134,8 +134,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 6144
+              cpus: 4
+              memory: 12288
             deb11dev:
               box: debian/bullseye64
               box_version: 11.20211230.1
@@ -143,8 +143,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['deb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 6144
+              cpus: 4
+              memory: 12288
 
         localdev:
           hosts:
@@ -159,8 +159,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 6144
+              cpus: 4
+              memory: 12288
             pfdeb11localdev:
               box: inverse-inc/pfdeb11dev
               box_version: 11.0.20220114143906
@@ -168,8 +168,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 6144
+              cpus: 4
+              memory: 12288
 
         stable:
           hosts:
@@ -180,8 +180,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 8192
+              cpus: 4
+              memory: 12288
             # to test upgrades
             pfdeb9stable:
               box: inverse-inc/pfdeb9stable
@@ -189,8 +189,8 @@ all:
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
-              cpus: 2
-              memory: 8192
+              cpus: 4
+              memory: 12288
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20211018.1
@@ -198,8 +198,8 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
-              cpus: 2
-              memory: 8192
+              cpus: 4
+              memory: 12288
 
 
   vars:
