@@ -50,6 +50,7 @@ use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
 use Linux::Systemd::Daemon 'sd_ready';
+use POSIX 'WNOHANG';
 our $RUNNING = 1;
 
 ## All pfconfig objects implementing TO_JSON must be imported here
@@ -152,6 +153,7 @@ our %DISPATCH = (
     'array_size'         => \&get_array_size,
     'array_index_exists' => \&get_array_index_exists,
     'sleep'              => \&server_sleep,
+    'pull_expire'      => \&pull_expire,
 );
 
 Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
@@ -159,6 +161,9 @@ Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $encoding;
 
 while($RUNNING) {
+    # check for any child to reap
+    waitpid(-1, WNOHANG);
+
     # reset the encoding
     $encoding = undef;
 
@@ -432,6 +437,20 @@ sub server_sleep {
     my ($query, $socket) = @_;
     sleep 10;
 }
+
+sub pull_expire {
+    my ($query, $socket) = @_;
+    $logger->error("Forking to pull git conf");
+    send_output({status => "accepted"}, $socket, $query);
+    $logger->error("Response sent");
+    my $pid = fork();
+	if ($pid == 0) {
+	  sleep 3;
+      $logger->error("Completed pull_expire");
+	  exit;
+	}
+}
+
 
 
 =head2 normal_sighandler
