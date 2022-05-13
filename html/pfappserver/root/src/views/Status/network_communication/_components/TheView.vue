@@ -13,7 +13,7 @@
           </b-tabs>
         </b-col>
         <b-col cols="6">
-            <b-tabs small>
+            <b-tabs small lazy>
               <b-tab>
                 <template #title>
                   {{ $i18n.t('Devices') }} <b-badge v-if="selectedDevices.length" pill variant="primary" class="ml-1">{{ selectedDevices.length }}</b-badge>
@@ -56,11 +56,28 @@ const components = {
   TheData,
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useNodesSearch } from '../_composables/useCollection'
 
-const setup = () => {
+const setup = (props, context) => {
+
+ const { root: { $store } = {} } = context
+
   const search = useNodesSearch()
+  const {
+    items
+  } = toRefs(search)
+
+  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
+  const devices = computed(() => $store.getters['$_fingerbank_communication/devices'])
+  const protocols = computed(() => $store.getters['$_fingerbank_communication/protocols'])
+  const hosts = computed(() => $store.getters['$_fingerbank_communication/hosts'])
+
+  watch(items, () => {
+    const nodes = items.value.map(item => item.mac.replace(/[^0-9A-F]/gi, ''))
+    $store.dispatch('$_fingerbank_communication/get', { nodes })
+  }, { deep: true })
+
   const selectedCategories = ref([])
   const selectedDevices = ref([])
   const selectedProtocols = ref([])
@@ -73,6 +90,11 @@ const setup = () => {
     selectedDevices,
     selectedProtocols,
     selectedHosts,
+
+    isLoading,
+    devices,
+    protocols,
+    hosts,
   }
 }
 
