@@ -102,6 +102,7 @@ sub socket_pull_expire {
     my $light = $opts{light} // 0;
     my $payload = {
         method => "pull_expire",
+        light => $light,
         namespace => $namespace,
     };
     my $response = pfconfig::util::fetch_decode_socket(encode_json($payload));

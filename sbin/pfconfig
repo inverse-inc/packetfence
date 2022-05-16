@@ -451,7 +451,7 @@ sub pull_expire {
             $logger->error("Unable to update from git storage");
             exit;
         }
-        $res = pfconfig::util::socket_expire(namespace => $query->{namespace}, light => 1);
+        $res = pfconfig::util::socket_expire(namespace => $query->{namespace}, light => $query->{light});
         if(!$res) {
             $logger->error("Unable to expire via socket");
             exit;
