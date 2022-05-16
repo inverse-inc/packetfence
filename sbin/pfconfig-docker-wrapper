@@ -7,5 +7,6 @@ name=pfconfig
 args=`base_args $name`
 args="$args -v/usr/local/pf/conf:/usr/local/pf/conf -p 127.0.0.1:44444:44444 -p 100.64.0.1:44444:44444 -e PF_MYSQL_UNIX_SOCKET="
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
+args="$args -v/usr/local/pf/pfk8s-conf:/usr/local/pf/pfk8s-conf"
 
 run $name "$args"

@@ -51,6 +51,7 @@ use bytes;
 use pf::util::networking qw(send_data_with_length);
 use Linux::Systemd::Daemon 'sd_ready';
 use POSIX 'WNOHANG';
+use pfconfig::git_storage;
 our $RUNNING = 1;
 
 ## All pfconfig objects implementing TO_JSON must be imported here
@@ -153,7 +154,7 @@ our %DISPATCH = (
     'array_size'         => \&get_array_size,
     'array_index_exists' => \&get_array_index_exists,
     'sleep'              => \&server_sleep,
-    'pull_expire'      => \&pull_expire,
+    'pull_expire'        => \&pull_expire,
 );
 
 Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
@@ -445,9 +446,18 @@ sub pull_expire {
     $logger->error("Response sent");
     my $pid = fork();
 	if ($pid == 0) {
-	  sleep 3;
-      $logger->error("Completed pull_expire");
-	  exit;
+        my $res = pfconfig::git_storage->update();
+        if(!$res) {
+            $logger->error("Unable to update from git storage");
+            exit;
+        }
+        $res = pfconfig::util::socket_expire(namespace => $query->{namespace}, light => 1);
+        if(!$res) {
+            $logger->error("Unable to expire via socket");
+            exit;
+        }
+        $logger->info("Completed pull_expire");
+        exit;
 	}
 }
 

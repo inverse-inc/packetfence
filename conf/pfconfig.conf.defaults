@@ -5,6 +5,11 @@ backend=[% ENV.env_or_default("PFCONFIG_BACKEND", "mysql") %]
 tcp_host=[% ENV.env_or_default("PFCONFIG_TCP_HOST", "containers-gateway.internal") %]
 tcp_port=[% ENV.env_or_default("PFCONFIG_TCP_PORT", "44444") %]
 
+[git_storage]
+status=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_STATUS", "disabled") %]
+conf_directory=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_CONF_DIRECTORY", "") %]
+git_directory=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_GIT_DIRECTORY", "") %]
+
 [mysql]
 host=[% ENV.env_or_default("PFCONFIG_MYSQL_HOST", "localhost") %]
 user=[% ENV.env_or_default("PFCONFIG_MYSQL_USER", "pf") %]
