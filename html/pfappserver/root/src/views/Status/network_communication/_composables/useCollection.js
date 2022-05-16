@@ -21,7 +21,6 @@ export const useItemTitle = (props) => {
 
 export { useRouter } from '../_router'
 
-import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import { search as nodesSearch } from '@/views/Nodes/_search'
 import api from '../_api'
@@ -29,7 +28,7 @@ import api from '../_api'
 export const useNodesSearch = makeSearch('networkCommunicationNodes', {
   ...nodesSearch,
   useCursor: false,
-  limit: 100,
+  limit: 500,
   sortBy: 'mac',
   sortDesc: false,
 })
@@ -43,40 +42,8 @@ export const useSearch = makeSearch('networkCommunication', {
       locked: true
     },
     {
-      key: 'timestamp',
-      label: i18n.t('Timestamp'),
-      searchable: true,
-      required: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'device_class',
-      label: i18n.t('Category'),
-      searchable: true,
-      required: true,
-      sortable: true,
-      visible: true
-    },
-    {
       key: 'mac',
       label: i18n.t('Device'),
-      searchable: true,
-      required: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'proto',
-      label: i18n.t('Proto'),
-      searchable: true,
-      required: true,
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'port',
-      label: i18n.t('Port'),
       searchable: true,
       required: true,
       sortable: true,
@@ -91,28 +58,33 @@ export const useSearch = makeSearch('networkCommunication', {
       visible: true
     },
     {
+      key: 'proto',
+      label: i18n.t('Protocol'),
+      searchable: true,
+      required: true,
+      sortable: true
+    },
+    {
+      key: 'port',
+      label: i18n.t('Port'),
+      searchable: true,
+      required: true,
+      sortable: true
+    },
+    {
+      key: 'count',
+      label: i18n.t('Count'),
+      searchable: true,
+      required: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
     },
 
   ],
-  fields: [
-    {
-      value: 'id',
-      text: i18n.t('Name'),
-      types: [conditionType.SUBSTRING]
-    },
-    {
-      value: 'notes',
-      text: i18n.t('Description'),
-      types: [conditionType.SUBSTRING]
-    },
-    {
-      value: 'parent_id',
-      text: i18n.t('Parent Role'),
-      types: [conditionType.ROLE]
-    }
-  ],
-  sortBy: 'id'
+  sortBy: null // use natural order
 })

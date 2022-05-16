@@ -24,13 +24,13 @@
                 <template #title>
                   {{ $i18n.t('Protocols') }} <b-badge v-if="selectedProtocols.length" pill variant="primary" class="ml-1">{{ selectedProtocols.length }}</b-badge>
                 </template>
-                <base-filter-protocols :items="items" v-model="selectedProtocols" />
+                <base-filter-protocols />
               </b-tab>
               <b-tab>
                 <template #title>
                   {{ $i18n.t('Hosts') }} <b-badge v-if="selectedHosts.length" pill variant="primary" class="ml-1">{{ selectedHosts.length }}</b-badge>
                 </template>
-                <base-filter-hosts :items="items" v-model="selectedHosts" />
+                <base-filter-hosts />
               </b-tab>
             </b-tabs>
         </b-col>
@@ -56,6 +56,7 @@ const components = {
   TheData,
 }
 
+import { createDebouncer } from 'promised-debounce'
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useNodesSearch } from '../_composables/useCollection'
 
@@ -73,23 +74,33 @@ const setup = (props, context) => {
   const protocols = computed(() => $store.getters['$_fingerbank_communication/protocols'])
   const hosts = computed(() => $store.getters['$_fingerbank_communication/hosts'])
 
-  watch(items, () => {
-    const nodes = items.value.map(item => item.mac.replace(/[^0-9A-F]/gi, ''))
-    $store.dispatch('$_fingerbank_communication/get', { nodes })
-  }, { deep: true })
-
   const selectedCategories = ref([])
   const selectedDevices = ref([])
-  const selectedProtocols = ref([])
-  const selectedHosts = ref([])
+  const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
+  const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
+
+  let selectDebouncer = createDebouncer()
+
+  watch([items, selectedDevices], () => {
+    selectDebouncer({
+      handler: () => {
+        const nodes = ((selectedDevices.value.length > 0)
+          ? selectedDevices.value // selected
+          : items.value.map(item => item.mac) // all
+        )
+        $store.dispatch('$_fingerbank_communication/get', { nodes })
+      },
+      time: 1000
+    })
+  }, { deep: true })
 
   return {
     ...toRefs(search),
 
     selectedCategories,
     selectedDevices,
-    selectedProtocols,
     selectedHosts,
+    selectedProtocols,
 
     isLoading,
     devices,
