@@ -1,19 +1,19 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      Protocols
+      {{ $i18n.t('Protocols') }}
     </b-card-header>
     <b-tabs small lazy>
       <b-tab v-for="protocol in uniqueProtocols" :key="protocol.proto">
         <template #title>
-          {{ protocol.proto }} <b-badge pill variant="primary" class="ml-1">{{ protocol.num }}</b-badge>
+          {{ protocol.proto }} <b-badge pill variant="primary" class="ml-1">{{ protocol.count }}</b-badge>
         </template>
         <b-row>
           <b-col cols="6">
             <base-chart-grouped-bar
               :traces="perDeviceTraces(protocol.proto)"
               :isLoading="isLoading"
-              :title="$i18n.t('Per {proto} Device', protocol)"
+              :title="$i18n.t('Devices')"
               :settings="settings"
             />
           </b-col>
@@ -21,7 +21,7 @@
             <base-chart-grouped-bar
               :traces="perHostTraces(protocol.proto)"
               :isLoading="isLoading"
-              :title="$i18n.t('Per {proto} Host', protocol)"
+              :title="$i18n.t('Hosts')"
               :settings="settings"
             />
           </b-col>
@@ -33,7 +33,7 @@
               :color="color(protocol.proto)"
               :counts="counts(protocol.proto)"
               :isLoading="isLoading"
-              :title="$i18n.t('{proto} Ports', protocol)"
+              :title="$i18n.t('Ports')"
               :settings="settings"
             />
           </b-col>
@@ -50,21 +50,15 @@ const components = {
   BaseChartParallel,
 }
 
-const props = {
-  items: {
-    type: Array
-  },
-  isLoading: {
-    type: Boolean
-  }
-}
-
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
+
+  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
+  const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
 
   const settings = ref({})
   $store.dispatch('preferences/get', 'settings')
@@ -72,40 +66,20 @@ const setup = (props, context) => {
       settings.value = $store.state.preferences.cache['settings'] || {}
     })
 
-  const {
-    items
-  } = toRefs(props)
-
   const uniqueProtocols = computed(() => {
     const assoc = items.value
       .reduce((unique, item) => {
         unique[item.proto] = (unique[item.proto] || 0) + 1
         return unique
       }, {})
-      return Object.keys(assoc)
-        .sort((a,b) => a.localeCompare(b))
-        .map(proto => {
-          return {
-            proto,
-            num: assoc[proto]
-          }
-        })
-  })
-
-  const uniqueProtocolPortsPerDevice = computed(() => {
-    return items.value
-      .reduce((unique, item) => {
-        const { proto, port, mac } = item
-        if (!(proto in unique))
-          unique[proto] = {}
-        if (!(port in unique[proto]))
-          unique[proto][port] = {}
-        if (!(mac in unique[proto][port]))
-          unique[proto][port][mac] = 1
-        else
-          unique[proto][port][mac]++
-        return unique
-      }, {})
+    return Object.keys(assoc)
+      .sort((a,b) => a.localeCompare(b))
+      .map(proto => {
+        return {
+          proto,
+          count: assoc[proto]
+        }
+      })
   })
 
   const sortedItems = computed(() => {
@@ -159,7 +133,7 @@ const setup = (props, context) => {
   const counts = computed(() => {
     return proto => sortedItems.value
       .filter(item => item.proto === proto)
-      .map(() => 1)
+      .map(item => item.count)
   })
 
   const perDeviceTraces = computed(() => {
@@ -172,7 +146,12 @@ const setup = (props, context) => {
         .sort((a, b) => a.port - b.port)
         .map(port => {
           const x = distinctDevices
-          const y = distinctDevices.map(mac => items.filter(item => item.port === port && item.mac === mac).length)
+          const y = distinctDevices.map(mac => items.reduce((count, item) => {
+            if (item.port === port && item.mac === mac) {
+              count += item.count
+            }
+            return count
+          }, 0))
           const color = (() => {
             switch (true) {
               case (+port < 1024):
@@ -213,7 +192,12 @@ const setup = (props, context) => {
         .sort((a, b) => a.port - b.port)
         .map(port => {
           const x = distinctHosts
-          const y = distinctHosts.map(host => items.filter(item => item.port === port && item.host === host).length)
+          const y = distinctHosts.map(host => items.reduce((count, item) => {
+            if (item.port === port && item.host === host) {
+              count += item.count
+            }
+            return count
+          }, 0))
           const color = (() => {
             switch (true) {
               case (+port < 1024):
@@ -245,10 +229,10 @@ const setup = (props, context) => {
   })
 
   return {
+    isLoading,
     settings,
 
     uniqueProtocols,
-    uniqueProtocolPortsPerDevice,
 
     perDeviceTraces,
     perHostTraces,
@@ -256,7 +240,6 @@ const setup = (props, context) => {
     dimensions,
     color,
     counts,
-
   }
 }
 
@@ -265,7 +248,6 @@ const setup = (props, context) => {
 export default {
   name: 'base-data-protocols',
   components,
-  props,
   setup
 }
 </script>

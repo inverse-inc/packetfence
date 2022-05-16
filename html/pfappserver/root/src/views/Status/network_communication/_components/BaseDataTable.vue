@@ -81,24 +81,28 @@ const components = {
   BaseTableEmpty,
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useSearch } from '../_composables/useCollection'
 
-const setup = () => {
+const setup = (props, context) => {
+
+  const { root: { $store } = {} } = context
 
   const search = useSearch()
-  const {
-    items,
-  } = toRefs(search)
-
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items, 'timestamp')
+
+  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
+  const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
+  const selected = useBootstrapTableSelected(tableRef, items, 'id')
 
   return {
     tableRef,
     ...selected,
     ...toRefs(search),
+
+    isLoading,
+    items, // overload
   }
 }
 

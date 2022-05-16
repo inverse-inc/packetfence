@@ -25,15 +25,15 @@
         align-h="end"
         align-v="center"
         :class="{
-          'filter-selected': value.indexOf(item.host) > -1
+          'filter-selected': selectedHosts.indexOf(item.host) > -1
         }"
         v-b-tooltip.hover.left.d300 :title="`.${item.host}`"
         >
         <b-col cols="1" class="px-0 py-1 ml-3 text-center">
-          <template v-if="value.findIndex(v => RegExp(`\.${v}$`, 'i').test(item.host)) > -1">
+          <template v-if="selectedHosts.findIndex(v => RegExp(`\.${v}$`, 'i').test(item.host)) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" style="opacity: 0.25;" />
           </template>
-          <template v-else-if="value.indexOf(item.host) > -1">
+          <template v-else-if="selectedHosts.indexOf(item.host) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
           <template v-else>
@@ -69,25 +69,16 @@ const directives = {
   focus
 }
 
-const props = {
-  value: {
-    type: Array
-  }
-}
-
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import { decorateHost, splitHost, useHosts } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
-  const {
-    value
-  } = toRefs(props)
-
-  const { emit, root: { $store } = {} } = context
+  const { root: { $store } = {} } = context
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const hosts = computed(() => useHosts($store.state.$_fingerbank_communication.cache))
+  const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
 
   const items = computed(() => {
     return Object.keys(hosts.value)
@@ -97,8 +88,8 @@ const setup = (props, context) => {
         return { tld, subdomain, host }
       })
       .sort((a, b) => {
-        const { tld: tldA, subdomain: subdomainA } = a
-        const { tld: tldB, subdomain: subdomainB } = b
+        const { tld: tldA, subdomain: subdomainA = '' } = a
+        const { tld: tldB, subdomain: subdomainB = '' } = b
         if (tldA !== tldB) {
           return tldA.localeCompare(tldB)
         }
@@ -121,82 +112,56 @@ const setup = (props, context) => {
     let lastTld
     for(let i = 0; i < filteredItems.value.length; i++) {
       const item = filteredItems.value[i]
-      const { tld, subdomain, host } = item
+      const { tld, host } = item
       const _num_devices = Object.keys(hosts.value[host].devices).length
       const _num_protocols = Object.keys(hosts.value[host].protocols).length
       if (lastTld !== tld) {
         lastTld = tld
-        if (i > 0) {
+        if (i > 0 && '_tree' in decorated[decorated.length - 1]) {
           decorated[decorated.length - 1]._tree[0].name = 'tree-last'
         }
         // push pseudo category
         decorated.push({ host: tld })
       }
-      decorated.push({
-        ...item,
-        host,
-        _num_devices,
-        _num_protocols,
-        _tree: [
-          { name: 'tree-node', class: 'nav-icon' }
-        ]
-      })
+      if (host.indexOf(tld) > 0) {
+        decorated.push({
+          ...item,
+          host,
+          _num_devices,
+          _num_protocols,
+          _tree: [
+            { name: 'tree-node', class: 'nav-icon' }
+          ]
+        })
+      }
     }
-    if (decorated.length > 0) {
+    if (decorated.length > 0 && '_tree' in decorated[decorated.length - 1]) {
       decorated[decorated.length - 1]._tree[0].name = 'tree-last'
     }
     return decorated
   })
 
   const onSelectItem = item => {
-    const isSelected = value.value.findIndex(host => host === item.host)
-    if (isSelected > -1) { // remove
-      emit('input', [ ...value.value.filter(host => host !== value.value[isSelected]) ])
-    }
-    else { // insert
-      emit('input', [ ...value.value, item.host ])
-    }
+    $store.dispatch('$_fingerbank_communication/toggleHost', item.host)
   }
 
   const onSelectAll = () => {
-    let selected = value.value
-    decoratedItems.value.forEach((item) => {
-      let i = selected.indexOf(item.host)
-      if (i === -1) {
-        selected = [ ...selected, item.host ]
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/selectHosts', decoratedItems.value.map(item => item.host))
   }
 
   const onSelectNone = () => {
-    let selected = value.value
-    decoratedItems.value.forEach((item) => {
-      let i = selected.indexOf(item.host)
-      if (i > -1) {
-        selected = selected.filter((_, j) => j !== i)
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/deselectHosts', decoratedItems.value.map(item => item.host))
   }
 
   const onSelectInverse = () => {
-    let selected = value.value
-    decoratedItems.value.forEach((item) => {
-      let i = selected.indexOf(item.host)
-      if (i > -1) {
-        selected = selected.filter((_, j) => j !== i)
-      }
-      else {
-        selected = [ ...selected, item.host ]
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/invertHosts', decoratedItems.value.map(item => item.host))
   }
+
 
   return {
     isLoading,
     filter,
+    selectedHosts,
     decoratedItems,
     onSelectItem,
     onSelectAll,
@@ -210,7 +175,6 @@ export default {
   name: 'base-filter-hosts',
   components,
   directives,
-  props,
   setup
 }
 </script>

@@ -25,15 +25,15 @@
         align-h="end"
         align-v="center"
         :class="{
-          'filter-selected': value.indexOf(item.protocol) > -1
+          'filter-selected': selectedProtocols.indexOf(item.protocol) > -1
         }"
         v-b-tooltip.hover.left.d300 :title="item.protocol"
         >
         <b-col cols="1" class="px-0 py-1 ml-3 text-center">
-          <template v-if="value.findIndex(v => RegExp(`^${v}:`, 'i').test(item.protocol)) > -1">
+          <template v-if="selectedProtocols.findIndex(v => RegExp(`^${v}:`, 'i').test(item.protocol)) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" style="opacity: 0.25;" />
           </template>
-          <template v-else-if="value.indexOf(item.protocol) > -1">
+          <template v-else-if="selectedProtocols.indexOf(item.protocol) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
           <template v-else>
@@ -69,25 +69,16 @@ const directives = {
   focus
 }
 
-const props = {
-  value: {
-    type: Array
-  }
-}
-
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref } from '@vue/composition-api'
 import { decorateProtocol, splitProtocol, useProtocols } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
-  const {
-    value
-  } = toRefs(props)
-
-  const { emit, root: { $store } = {} } = context
+  const { root: { $store } = {} } = context
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const protocols = computed(() => useProtocols($store.state.$_fingerbank_communication.cache))
+  const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
 
   const items = computed(() => {
     return Object.keys(protocols.value)
@@ -147,54 +138,25 @@ const setup = (props, context) => {
   })
 
   const onSelectItem = item => {
-    const isSelected = value.value.findIndex(v => v === item.protocol)
-    if (isSelected > -1) { // remove
-      emit('input', [ ...value.value.filter(v => v !== value.value[isSelected]) ])
-    }
-    else { // insert
-      emit('input', [ ...value.value, item.protocol ])
-    }
+    $store.dispatch('$_fingerbank_communication/toggleProtocol', item.protocol)
   }
 
   const onSelectAll = () => {
-    let selected = value.value
-    decoratedItems.value.forEach((item) => {
-      let i = selected.indexOf(item.protocol)
-      if (i === -1) {
-        selected = [ ...selected, item.protocol ]
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/selectProtocols', decoratedItems.value.map(item => item.protocol))
   }
 
   const onSelectNone = () => {
-    let selected = value.value
-    decoratedItems.value.forEach((item) => {
-      let i = selected.indexOf(item.protocol)
-      if (i > -1) {
-        selected = selected.filter((_, j) => j !== i)
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/deselectProtocols', decoratedItems.value.map(item => item.protocol))
   }
 
   const onSelectInverse = () => {
-    let selected = value.value
-    decoratedItems.value.forEach((item) => {
-      let i = selected.indexOf(item.protocol)
-      if (i > -1) {
-        selected = selected.filter((_, j) => j !== i)
-      }
-      else {
-        selected = [ ...selected, item.protocol ]
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/invertProtocols', decoratedItems.value.map(item => item.protocol))
   }
 
   return {
     isLoading,
     filter,
+    selectedProtocols,
     decoratedItems,
     onSelectItem,
     onSelectAll,
@@ -208,7 +170,6 @@ export default {
   name: 'base-filter-protocols',
   components,
   directives,
-  props,
   setup
 }
 </script>
