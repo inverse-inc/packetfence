@@ -9,6 +9,7 @@ args="$args -v /usr/local/pf/var:/usr/local/pf/var -v /usr/local/pf/conf:/usr/lo
 args="$args -v /usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
 args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
+args="$args -v/usr/local/pf/pfk8s-conf:/usr/local/pf/pfk8s-conf"
 args="$args --network=host"
 
 run $name "$args"

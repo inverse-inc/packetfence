@@ -24,6 +24,35 @@ sub git_directory {
     return $proto->config->{git_directory};
 }
 
+sub commit_file {
+    my ($proto, $file) = @_;
+
+    get_logger->info("Pushing $file to git_storage");
+
+    # Strip the prefix of the directory
+    my $conf_directory = $proto->conf_directory;
+    $file =~ s|^$conf_directory||;
+    # Ensure there isn't a prefixing slash
+    $file = substr($file, 1) if($file =~ /^\//);
+
+    system("cd ".$proto->git_directory." && git pull");
+    if($? != 0) {
+        return (undef, "Unable to pull repository");
+    }
+
+    system("cp -a ".$proto->conf_directory."/".$file." ".$proto->git_directory."/".$file);
+    if($? != 0) {
+        return (undef, "Unable to copy $file into git repository");
+    }
+
+    system("cd ".$proto->git_directory." && git add ".$proto->git_directory."/".$file . " && git commit --allow-empty -m 'update $file' && git push");
+    if($? != 0) {
+        return (undef, "Unable to push repository. Please retry the change.");
+    }
+
+    return (1, "Updated $file in git storage");
+}
+
 sub update {
     my ($proto) = @_;
 
