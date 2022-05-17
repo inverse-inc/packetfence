@@ -1141,6 +1141,7 @@ sub generate_radiusd_cluster {
 
     if ($cluster_enabled) {
         my $cluster_ip = pf::cluster::management_cluster_ip();
+        my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
         my @radius_backend = values %{pf::cluster::members_ips($int)};
 
         # RADIUS PacketFence cluster virtual server configuration
@@ -1154,7 +1155,7 @@ $tags{'members'} .= <<"EOT";
 home_server pf$i.cluster {
         type = auth+acct
         ipaddr = $radius_back
-        src_ipaddr = $cluster_ip
+        src_ipaddr = $management_ip
         port = 1812
         secret = $local_secret
         response_window = 6
@@ -1167,7 +1168,7 @@ home_server pf$i.cluster {
 home_server pf$i.cli.cluster {
         type = auth
         ipaddr = $radius_back
-        src_ipaddr = $cluster_ip
+        src_ipaddr = $management_ip
         port = 1815
         secret = $local_secret
         response_window = 60
@@ -1204,7 +1205,7 @@ EOT
 home_server eduroam$i.cluster {
         type = auth
         ipaddr = $radius_back
-        src_ipaddr = $cluster_ip
+        src_ipaddr = $management_ip
         port = $listening_port
         secret = $local_secret
         response_window = 6
@@ -1270,23 +1271,23 @@ EOT
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
             $tags{'listen'} .= <<"EOT";
 listen {
-        ipaddr = $cluster_ip
-        port = 0
+        ipaddr = $management_ip
+        port = 1912
         type = auth
         virtual_server = pf.cluster
 }
 
 
 listen {
-        ipaddr = $cluster_ip
-        port = 0
+        ipaddr = $management_ip
+        port = 1913
         type = acct
         virtual_server = pf.cluster
 }
 
 listen {
-        ipaddr = $cluster_ip
-        port = 1815
+        ipaddr = $management_ip
+        port = 1915
         type = auth
         virtual_server = pfcli.cluster
 }
@@ -1305,7 +1306,7 @@ EOT
                 my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
                 $tags{'eduroam'} .= <<"EOT";
 listen {
-        ipaddr = $cluster_ip
+        ipaddr = $management_ip
         port = $listening_port
         type = auth
         virtual_server = eduroam.cluster
