@@ -189,6 +189,21 @@ EOT
 
 $tags{'http_admin'} .= <<"EOT";
 
+frontend admin-http-$mgmt_ip
+        bind $mgmt_ip:8443
+        errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
+        errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
+        capture request header Host len 40
+        http-request add-header X-Forwarded-Proto https
+        http-request lua.change_host
+        acl host_exist var(req.host) -m found
+        http-request set-header Host %[var(req.host)] if host_exist
+        acl url_api  path_beg /api
+        use_backend $mgmt_ip-api if url_api
+        http-request lua.admin
+        use_backend %[var(req.action)]
+        http-request redirect location /admin if { lua.redirect 1 }
+
 frontend admin-https-$mgmt_ip
         bind $mgmt_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http

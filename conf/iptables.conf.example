@@ -25,6 +25,7 @@
 -A input-management-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
 # Web Admin
 -A input-management-if --protocol tcp --match tcp --dport %%web_admin_port%% --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 8443 --jump ACCEPT
 # Webservices
 -A input-management-if --protocol tcp --match tcp --dport %%webservices_port%% --jump ACCEPT
 # AAA
