@@ -6,10 +6,10 @@
 const layout = {
   height: 800,
   margin: {
-    l: 50,
-    r: 50,
-    b: 100,
-    t: 100,
+    l: 100,
+    r: 100,
+    b: 50,
+    t: 50,
     pad: 0
   },
   font: {

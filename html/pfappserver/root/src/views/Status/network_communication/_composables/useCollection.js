@@ -84,7 +84,6 @@ export const useSearch = makeSearch('networkCommunication', {
       class: 'text-right p-0',
       locked: true
     },
-
   ],
   sortBy: null // use natural order
 })

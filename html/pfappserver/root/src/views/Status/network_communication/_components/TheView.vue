@@ -6,27 +6,27 @@
     <div class="card-body">
       <b-row>
         <b-col cols="6">
-          <b-tabs small>
+          <b-tabs small class="filters">
             <b-tab :title="$i18n.t('Search')" class="border-1 border-right border-bottom border-left px-3 pt-3">
               <the-search />
             </b-tab>
           </b-tabs>
         </b-col>
         <b-col cols="6">
-            <b-tabs small lazy>
-              <b-tab>
+            <b-tabs small class="filters" lazy>
+              <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
                   {{ $i18n.t('Devices') }} <b-badge v-if="selectedDevices.length" pill variant="primary" class="ml-1">{{ selectedDevices.length }}</b-badge>
                 </template>
                 <base-filter-devices :items="items" v-model="selectedDevices" />
               </b-tab>
-              <b-tab>
+              <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
                   {{ $i18n.t('Protocols') }} <b-badge v-if="selectedProtocols.length" pill variant="primary" class="ml-1">{{ selectedProtocols.length }}</b-badge>
                 </template>
                 <base-filter-protocols />
               </b-tab>
-              <b-tab>
+              <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
                   {{ $i18n.t('Hosts') }} <b-badge v-if="selectedHosts.length" pill variant="primary" class="ml-1">{{ selectedHosts.length }}</b-badge>
                 </template>
@@ -116,3 +116,17 @@ export default {
   setup
 }
 </script>
+
+<style lang="scss">
+.tabs.filters {
+  div[role="tabpanel"] {
+    height: 33vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    .card {
+      border: 0px !important;
+      box-shadow: 0px 0px 0px 0px !important;
+    }
+  }
+}
+</style>

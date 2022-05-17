@@ -71,6 +71,13 @@ const actions = {
         resolve(false)
       }
       else {
+        // deselect all subdomains
+        state.selectedHosts.forEach(selectedHost => {
+          if (RegExp(`.${host}$`, 'i').test(selectedHost)) {
+            commit('HOST_DESELECT', selectedHost)
+          }
+        })
+        // select host
         commit('HOST_SELECT', host)
         resolve(true)
       }
@@ -117,6 +124,13 @@ const actions = {
         resolve(false)
       }
       else {
+        // deselect all subdomains
+        state.selectedProtocols.forEach(selectedProtocol => {
+          if (RegExp(`^${protocol}:`, 'i').test(selectedProtocol)) {
+            commit('PROTOCOL_DESELECT', selectedProtocol)
+          }
+        })
+        // select host
         commit('PROTOCOL_SELECT', protocol)
         resolve(true)
       }

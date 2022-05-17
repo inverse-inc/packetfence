@@ -11,7 +11,7 @@
         </b-input-group>
       </b-form>
     </b-card-header>
-    <div class="card-body p-0 filtered-items">
+    <div class="p-0 filtered-items">
 
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>
@@ -26,9 +26,7 @@
         align-v="center"
         :class="{
           'filter-selected': selectedProtocols.indexOf(item.protocol) > -1
-        }"
-        v-b-tooltip.hover.left.d300 :title="item.protocol"
-        >
+        }">
         <b-col cols="1" class="px-0 py-1 ml-3 text-center">
           <template v-if="selectedProtocols.findIndex(v => RegExp(`^${v}:`, 'i').test(item.protocol)) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" style="opacity: 0.25;" />
@@ -142,11 +140,14 @@ const setup = (props, context) => {
   }
 
   const onSelectAll = () => {
-    $store.dispatch('$_fingerbank_communication/selectProtocols', decoratedItems.value.map(item => item.protocol))
+    $store.dispatch('$_fingerbank_communication/selectProtocols', decoratedItems.value
+      .filter(item => !item.port) // skip ports
+      .map(item => item.protocol)
+    )
   }
 
   const onSelectNone = () => {
-    $store.dispatch('$_fingerbank_communication/deselectProtocols', decoratedItems.value.map(item => item.protocol))
+    $store.dispatch('$_fingerbank_communication/deselectProtocols', selectedProtocols.value)
   }
 
   const onSelectInverse = () => {

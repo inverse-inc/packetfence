@@ -11,7 +11,7 @@
         </b-input-group>
       </b-form>
     </b-card-header>
-    <div class="card-body p-0 filtered-items">
+    <div class="p-0 filtered-items">
 
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>
@@ -26,9 +26,7 @@
         align-v="center"
         :class="{
           'filter-selected': selectedHosts.indexOf(item.host) > -1
-        }"
-        v-b-tooltip.hover.left.d300 :title="`.${item.host}`"
-        >
+        }">
         <b-col cols="1" class="px-0 py-1 ml-3 text-center">
           <template v-if="selectedHosts.findIndex(v => RegExp(`\.${v}$`, 'i').test(item.host)) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" style="opacity: 0.25;" />
@@ -83,15 +81,15 @@ const setup = (props, context) => {
   const items = computed(() => {
     return Object.keys(hosts.value)
       .map(item => {
-        const { tld, subdomain } = splitHost(item)
+        const { tld, domain, subdomain } = splitHost(item)
         const host = decorateHost(item)
-        return { tld, subdomain, host }
+        return { tld, domain, subdomain, host }
       })
       .sort((a, b) => {
-        const { tld: tldA, subdomain: subdomainA = '' } = a
-        const { tld: tldB, subdomain: subdomainB = '' } = b
-        if (tldA !== tldB) {
-          return tldA.localeCompare(tldB)
+        const { tld: tldA, domain: domainA = '', subdomain: subdomainA = '' } = a
+        const { tld: tldB, domain: domainB = '', subdomain: subdomainB = '' } = b
+        if (domainA !== domainB) {
+          return domainA.localeCompare(domainB)
         }
         return subdomainA.localeCompare(subdomainB)
       })
@@ -109,19 +107,23 @@ const setup = (props, context) => {
 
   const decoratedItems = computed(() => {
     const decorated = []
-    let lastTld
+    let lastHostName
     for(let i = 0; i < filteredItems.value.length; i++) {
       const item = filteredItems.value[i]
-      const { tld, host } = item
+      const { tld, domain, host } = item
       const _num_devices = Object.keys(hosts.value[host].devices).length
       const _num_protocols = Object.keys(hosts.value[host].protocols).length
-      if (lastTld !== tld) {
-        lastTld = tld
+      const hostName = ((domain) ? `${domain}.` : '') + tld
+      if (lastHostName !== hostName) {
+        lastHostName = hostName
         if (i > 0 && '_tree' in decorated[decorated.length - 1]) {
           decorated[decorated.length - 1]._tree[0].name = 'tree-last'
         }
         // push pseudo category
-        decorated.push({ host: tld })
+        decorated.push({ host: hostName })
+        if (host === hostName) { // no subdomains
+          continue
+        }
       }
       if (host.indexOf(tld) > 0) {
         decorated.push({
@@ -146,11 +148,14 @@ const setup = (props, context) => {
   }
 
   const onSelectAll = () => {
-    $store.dispatch('$_fingerbank_communication/selectHosts', decoratedItems.value.map(item => item.host))
+    $store.dispatch('$_fingerbank_communication/selectHosts', decoratedItems.value
+      .filter(item => !item.subdomain) // skip subdomains
+      .map(item => item.host)
+    )
   }
 
   const onSelectNone = () => {
-    $store.dispatch('$_fingerbank_communication/deselectHosts', decoratedItems.value.map(item => item.host))
+    $store.dispatch('$_fingerbank_communication/deselectHosts', selectedHosts.value)
   }
 
   const onSelectInverse = () => {
