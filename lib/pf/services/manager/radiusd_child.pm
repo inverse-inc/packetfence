@@ -1268,7 +1268,31 @@ EOT
         foreach my $interface ( uniq(@radius_ints) ) {
 
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
+            my $management_ip = defined($management_network->tag('vip')) ? $management_network->tag('vip') : $management_network->tag('ip');
             $tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $management_ip
+        port = 1912
+        type = auth
+        virtual_server = pf.cluster
+}
+
+
+listen {
+        ipaddr = $management_ip
+        port = 1913
+        type = acct
+        virtual_server = pf.cluster
+}
+
+listen {
+        ipaddr = $management_ip
+        port = 1915
+        type = auth
+        virtual_server = pfcli.cluster
+}
+
+
 listen {
         ipaddr = $cluster_ip
         port = 0
