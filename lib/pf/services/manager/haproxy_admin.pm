@@ -63,10 +63,6 @@ sub generateConfig {
     my $backend_static_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher_static'});
     $tags{backend_static} = $backend_static_uri->host . ":" . $backend_static_uri->port;
 
-    my $api_frontend_service_uri = URI->new($Config{services_url}{'api-frontend'});
-    my $api_frontend_service_host = $api_frontend_service_uri->host;
-    my $api_frontend_service_port = $api_frontend_service_uri->port;
-
     my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
@@ -79,7 +75,7 @@ sub generateConfig {
         } else {
             @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
         }
-        push @mgmt_backend_ip, $api_frontend_service_host if !@mgmt_backend_ip;
+        push @mgmt_backend_ip, URI->new($Config{services_url}{'api-frontend'})->host if !@mgmt_backend_ip;
 
         $tags{'management_ip'}
             = defined( $management_network->tag('vip') )
