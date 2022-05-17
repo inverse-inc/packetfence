@@ -1455,4 +1455,3 @@ pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.
 pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
 api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://containers-gateway.internal:9999") %]
 netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]
-
