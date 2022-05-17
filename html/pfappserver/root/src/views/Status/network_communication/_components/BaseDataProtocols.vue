@@ -9,6 +9,17 @@
           {{ protocol.proto }} <b-badge pill variant="primary" class="ml-1">{{ protocol.count }}</b-badge>
         </template>
         <b-row>
+          <b-col cols="12">
+            <base-chart-parallel
+              :dimensions="dimensions(protocol.proto)"
+              :color="color(protocol.proto)"
+              :counts="counts(protocol.proto)"
+              :isLoading="isLoading"
+              :settings="settings"
+            />
+          </b-col>
+        </b-row>
+        <b-row>
           <b-col cols="6">
             <base-chart-grouped-bar
               :traces="perDeviceTraces(protocol.proto)"
@@ -22,18 +33,6 @@
               :traces="perHostTraces(protocol.proto)"
               :isLoading="isLoading"
               :title="$i18n.t('Hosts')"
-              :settings="settings"
-            />
-          </b-col>
-        </b-row>
-        <b-row>
-          <b-col cols="12">
-            <base-chart-parallel
-              :dimensions="dimensions(protocol.proto)"
-              :color="color(protocol.proto)"
-              :counts="counts(protocol.proto)"
-              :isLoading="isLoading"
-              :title="$i18n.t('Ports')"
               :settings="settings"
             />
           </b-col>
@@ -97,7 +96,7 @@ const setup = (props, context) => {
           .map(item => item.mac)
       },
       {
-        label: i18n.t('{proto} Ports', { proto }),
+        label: i18n.t('Ports'),
         values: sortedItems.value
           .filter(item => item.proto === proto)
           .map(item => item.port)

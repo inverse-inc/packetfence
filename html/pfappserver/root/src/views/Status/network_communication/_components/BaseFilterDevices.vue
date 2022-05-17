@@ -11,7 +11,7 @@
         </b-input-group>
       </b-form>
     </b-card-header>
-    <div class="card-body p-0 filtered-items">
+    <div class="p-0 filtered-items">
 
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>

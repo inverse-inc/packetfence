@@ -35,17 +35,26 @@ export const splitHost = host => {
   if (reIpv4(_host) || reIpv6(_host)) {
     return { tld: _host, port }
   }
-  const [tld, ...subdomains] = _host.split('.').reverse()
-  return { tld, port, subdomain: subdomains.reverse().join('.') }
+  const [tld, domain, ...subdomains] = _host.split('.').reverse()
+  return { tld, port, domain, subdomain: subdomains.reverse().join('.') }
 }
 
 export const decorateHost = host => {
-  const { tld, subdomain, port } = splitHost(host)
-  const tldPort = tld + ((port) ? `:${port}`: '' )
-  if (subdomain) {
-    return `${subdomain}.${tldPort}`
+  const { tld, domain, subdomain, port } = splitHost(host)
+  let decorated = ''
+  if (port) {
+    decorated = `:${port}`
   }
-  return tldPort
+  if (tld) {
+    decorated = `${tld}${decorated}`
+  }
+  if (domain) {
+    decorated = `${domain}.${decorated}`
+  }
+  if (subdomain) {
+    decorated = `${subdomain}.${decorated}`
+  }
+  return decorated
 }
 
 export const useHosts = communication => {
