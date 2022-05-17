@@ -47,6 +47,8 @@ use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
+use pf::config::tenant;
+use pfconfig::git_storage;
 
 =head2 config_builder
 
@@ -321,9 +323,9 @@ sub cache_resource {
         $self->touch_cache($what);
     }
     else {
-        $pfconfig::cached::LAST_TOUCH_CACHE = 0;
-        $pfconfig::cached::RELOADED_TOUCH_CACHE = 0;
-        pfconfig::util::socket_expire(namespace => $what, light => 1);
+        if(!pfconfig::git_storage->is_enabled) {
+            pfconfig::util::socket_expire(namespace => $what, light => 1);
+        }
     }
     $self->{memory}->{$what}       = $result;
     $self->{memorized_at}->{$what} = time;
