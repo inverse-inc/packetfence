@@ -109,7 +109,7 @@ EOT
 
             $tags{'http'} .= <<"EOT";
 frontend portal-http-$cluster_ip
-        bind $cluster_ip:80
+        bind *:8080
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
@@ -133,7 +133,7 @@ EOT
         $bind_process
 
 frontend portal-https-$cluster_ip
-        bind $cluster_ip:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        bind *:443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         capture request header Host len 40
         stick-table type ip size 1m expire 10s store gpc0,http_req_rate(10s)
         tcp-request connection track-sc1 src
