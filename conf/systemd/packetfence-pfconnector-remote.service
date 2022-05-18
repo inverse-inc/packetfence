@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 [Unit]
-Description=PacketFence Connector Client
+Description=PacketFence Connector Client (Remote)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
@@ -9,7 +9,6 @@ LimitNOFILE=infinity
 EnvironmentFile=/etc/pfconnector-client.env
 ExecStart=/usr/local/bin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226
 Restart=on-failure
-Slice=packetfence.slice
 
 [Install]
-WantedBy=packetfence.target
+WantedBy=multi-user.target
