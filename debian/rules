@@ -253,6 +253,9 @@ binary-arch: build install
 	dh_link \
 			/usr/local/pf/raddb/sites-available/dynamic-clients /usr/local/pf/raddb/sites-enabled/dynamic-clients \
 			/usr/local/pf/raddb/sites-available/status /usr/local/pf/raddb/sites-enabled/status \
+			/usr/local/pf/raddb/mods-config/files/authorize /usr/local/pf/raddb/users \
+			/usr/local/pf/raddb/mods-config/preprocess/hints /usr/local/pf/raddb/hints \
+			/usr/local/pf/raddb/mods-config/preprocess/huntgroups /usr/local/pf/raddb/huntgroups \
 			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 	dh_strip
 	dh_compress
