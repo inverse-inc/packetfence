@@ -17,8 +17,13 @@ use Moo;
 use pf::cluster;
 
 extends 'pf::services::manager';
+with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => ( default => sub { 'pfcron' } );
+
+sub env_golang_service_service_env {
+  return { LOG_LEVEL => 'info' };
+}
 
 =head1 AUTHOR
 
