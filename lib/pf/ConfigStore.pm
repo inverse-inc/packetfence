@@ -694,6 +694,7 @@ sub commitGitStorage {
     my ($self) = @_;
     my ($res, $msg) = pfconfig::git_storage->commit_file($self->configFile);
     if(!$res) {
+        #TODO: rollback if this failed?
         return ($res, $msg);
     }
     
