@@ -1,5 +1,8 @@
 package pfconfig::git_storage;
 
+use strict;
+use warnings;
+
 use pfconfig::config;
 use pf::util qw(isenabled);
 use pf::log;
@@ -25,32 +28,61 @@ sub git_directory {
 }
 
 sub commit_file {
-    my ($proto, $file) = @_;
+    my ($proto, $src) = @_;
 
-    get_logger->info("Pushing $file to git_storage");
+    get_logger->info("Pushing $src to git_storage");
+
+    my $file = $src;
 
     # Strip the prefix of the directory
     my $conf_directory = $proto->conf_directory;
-    $file =~ s|^$conf_directory||;
+    if($src =~ /^$conf_directory/) {
+        $file = $src;
+        $file =~ s|^$conf_directory||;
+    }
+
     # Ensure there isn't a prefixing slash
     $file = substr($file, 1) if($file =~ /^\//);
 
-    system("cd ".$proto->git_directory." && git pull");
-    if($? != 0) {
-        return (undef, "Unable to pull repository");
+    my $tries = 0;
+    my $last_error;
+    my $success;
+	while(!$success && $tries <= 3) {
+        $tries ++;
+        system("cd ".$proto->git_directory." && git pull");
+        if($? != 0) {
+            $last_error = "Unable to pull repository";
+            sleep 3;
+            next;
+            #return (undef, "Unable to pull repository");
+        }
+
+        system("cp -a $src ".$proto->git_directory."/".$file);
+        if($? != 0) {
+            $last_error = "Unable to copy $src into git repository $file";
+            sleep 3;
+            next;
+            #return (undef, "Unable to copy $src into git repository $file");
+        }
+
+        system("cd ".$proto->git_directory." && git add ".$proto->git_directory."/".$file . " && git commit --allow-empty -m 'update $file' && git push");
+        if($? != 0) {
+            $last_error = "Unable to push repository. Please retry the change.";
+            sleep 3;
+            next;
+            #return (undef, "Unable to push repository. Please retry the change.");
+        }
+
+        $last_error = undef;
+        $success = 1;
     }
 
-    system("cp -a ".$proto->conf_directory."/".$file." ".$proto->git_directory."/".$file);
-    if($? != 0) {
-        return (undef, "Unable to copy $file into git repository");
+    if($last_error) {
+        return (undef, $last_error);
     }
-
-    system("cd ".$proto->git_directory." && git add ".$proto->git_directory."/".$file . " && git commit --allow-empty -m 'update $file' && git push");
-    if($? != 0) {
-        return (undef, "Unable to push repository. Please retry the change.");
+    else {
+        return (1, "Updated $file in git storage");
     }
-
-    return (1, "Updated $file in git storage");
 }
 
 sub update {
