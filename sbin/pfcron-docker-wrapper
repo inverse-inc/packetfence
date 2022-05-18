@@ -5,6 +5,5 @@ source /usr/local/pf/containers/systemd-service
 name=pfcron
 
 args=`base_args $name`
-args="$args -e LOG_LEVEL=INFO"
 
 run $name "$args"
