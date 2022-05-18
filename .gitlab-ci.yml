@@ -526,6 +526,7 @@ pfdeb_based_dev:
           - "pfperl-api"
           - "pfconnector"
           - "pfpki"
+          - "pfcron"
 
 img_dev:
   extends:
@@ -588,6 +589,7 @@ pfdeb_based_br_maint:
           - "pfperl-api"
           - "pfconnector"
           - "pfpki"
+          - "pfcron"
 
 img_br_maint:
   extends:
@@ -650,6 +652,7 @@ pfdeb_based_rel:
           - "pfperl-api"
           - "pfconnector"
           - "pfpki"
+          - "pfcron"
 
 img_rel:
   extends:
