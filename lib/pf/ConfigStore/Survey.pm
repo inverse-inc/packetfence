@@ -36,6 +36,7 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Survey configstore");
+    #TODO: build pfconfig resource and use it to account for async pfconfig commits in k8s
     pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
     return ($result, $error);
 }

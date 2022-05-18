@@ -34,6 +34,7 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Roles configstore");
+    #TODO: build pfconfig resource and use it to account for async pfconfig commits in k8s
     nodecategory_populate_from_config( \%pf::config::ConfigRoles );
     return ($result, $error);
 }

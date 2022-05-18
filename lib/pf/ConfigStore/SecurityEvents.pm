@@ -166,6 +166,7 @@ sub cleanupBeforeCommit {
 sub commit {
     my ( $self ) = @_;
     my ($result,$msg) = $self->SUPER::commit();
+    #TODO: build pfconfig resource and use it to account for async pfconfig commits in k8s
     pf::security_event_config::loadSecurityEventsIntoDb();
     return ($result,$msg);
 }
