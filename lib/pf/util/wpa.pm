@@ -5,6 +5,7 @@ use warnings;
 
 use List::Util qw(minstr maxstr);
 use pf::log;
+use Crypt::PBKDF2;
 use Digest::SHA qw(hmac_sha1);
 use bytes;
 
