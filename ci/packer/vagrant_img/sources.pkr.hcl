@@ -12,7 +12,7 @@ source "vagrant" "el-8" {
 source "vagrant" "debian-11" {
   communicator = "ssh"
   source_path = "debian/bullseye64"
-  box_version = "11.20211230.1"
+  box_version = "11.20220328.1"
   provider = "libvirt"
   output_dir = "${var.output_dir}"
   template = "templates/vagrantfile_template"

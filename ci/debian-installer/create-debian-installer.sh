@@ -8,7 +8,7 @@ function clean() {
   chmod a+rw $ISO_OUT
 }
 
-ISO_IN=${ISO_IN:-debian-11.2.0-amd64-netinst.iso}
+ISO_IN=${ISO_IN:-debian-11.3.0-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
 if ! [ -f $ISO_IN ]; then
