@@ -24,12 +24,14 @@ use pf::log;
 use pf::cluster;
 use pf::config qw($OS);
 use Readonly;
+use pfconfig::git_storage;
 
 use Crypt::OpenSSL::RSA;
 use Crypt::OpenSSL::X509;
 use Crypt::OpenSSL::PKCS10;
 
 use pf::file_paths qw(
+    $install_dir
     $server_cert
     $server_key
     $server_pem
@@ -280,6 +282,16 @@ sub install_file {
         return ($FALSE, $@);
     }
     else {
+        if(pfconfig::git_storage->is_enabled) {
+            get_logger->info("Synching $filename in git_storage");
+            my $stripped_fname = $filename;
+            $stripped_fname =~ s|^$install_dir||;
+            $stripped_fname =~ s|^/||;
+            my ($res, $msg) = pfconfig::git_storage->commit_file($filename, $stripped_fname);
+            if(!$res) {
+                return ($FALSE, $msg);
+            }
+        }
         if($cluster_enabled){
             get_logger->info("Synching $filename in cluster");
             my $failed = pf::cluster::sync_files([$filename]);
