@@ -61,7 +61,7 @@ sub commit_file {
             #return (undef, "Unable to copy $src into git repository $file");
         }
 
-        system("cd ".$proto->git_directory." && git add $unprefixed_dst && git commit --allow-empty -m 'update $unprefixed_dst' && git push");
+        system("cd ".$proto->git_directory." && git add -f $unprefixed_dst && git commit --allow-empty -m 'update $unprefixed_dst' && git push");
         if($? != 0) {
             $last_error = "Unable to push repository. Please retry the change.";
             sleep 3;
