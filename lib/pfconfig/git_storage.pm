@@ -84,32 +84,47 @@ sub commit_file {
 sub update {
     my ($proto) = @_;
 
-    if(!$proto->is_enabled) {
-        get_logger->error("git_storage isn't enabled. Refusing to update.");
-        return 0;
+    my $tries = 0;
+    my $last_error;
+    my $success;
+	while(!$success && $tries <= 3) {
+        $tries ++;
+        if(!$proto->is_enabled) {
+            get_logger->error("git_storage isn't enabled. Refusing to update.");
+            return 0;
+        }
+
+        system("cd ".$proto->git_directory." && git pull");
+        if($? != 0) {
+            $last_error = "Unable to pull repository";
+            sleep 3;
+            next;
+        }
+        system("cp -a ".$proto->git_directory."/conf/* ".$proto->conf_directory."/");
+        if($? != 0) {
+            $last_error = "Unable to copy conf/ repository files";
+            sleep 3;
+            next;
+        }
+
+        system("cp -a ".$proto->git_directory."/fingerbank/conf/* ".$proto->fingerbank_conf_directory."/");
+        if($? != 0) {
+            $last_error = "Unable to copy fingerbank/conf/ repository files";
+            sleep 3;
+            next;
+        }
+
+        $last_error = undef;
+        $success = 1;
     }
 
-    system("cd ".$proto->git_directory." && git pull");
-    if($? != 0) {
-        #TODO: implement retries
-        get_logger->error("Unable to pull repository");
+    if($last_error) {
+        get_logger->error($last_error);
         return 0;
     }
-    system("cp -a ".$proto->git_directory."/conf/* ".$proto->conf_directory."/");
-    if($? != 0) {
-        #TODO: implement retries
-        get_logger->error("Unable to copy conf/ repository files");
-        return 0;
+    else {
+        return 1;
     }
-
-    system("cp -a ".$proto->git_directory."/fingerbank/conf/* ".$proto->fingerbank_conf_directory."/");
-    if($? != 0) {
-        #TODO: implement retries
-        get_logger->error("Unable to copy fingerbank/conf/ repository files");
-        return 0;
-    }
-
-    return 1;
 }
 
 1;
