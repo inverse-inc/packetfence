@@ -690,9 +690,19 @@ sub commitPfconfig {
     return (1, undef);
 }
 
+sub gitStorageConfigFile {
+    my ($self) = @_;
+    # Strip the prefix of the directory
+    my $conf_directory = pfconfig::git_storage->conf_directory;
+	my $file = $self->configFile;
+	$file =~ s|^$conf_directory||;
+    $file =~ s|^/||;
+    return $file;
+}
+
 sub commitGitStorage {
     my ($self) = @_;
-    my ($res, $msg) = pfconfig::git_storage->commit_file($self->configFile);
+    my ($res, $msg) = pfconfig::git_storage->commit_file($self->configFile, $self->gitStorageConfigFile);
     if(!$res) {
         #TODO: rollback if this failed?
         return ($res, $msg);
