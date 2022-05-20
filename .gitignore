@@ -13,6 +13,7 @@ node_modules
 
 # Configuration not in git
 addons/stress-tester/plan.conf
+conf/connectors.conf
 conf/admin.conf
 conf/httpd.conf
 conf/wgorchestrator-auth.json
