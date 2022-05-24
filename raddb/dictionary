@@ -52,3 +52,4 @@ $INCLUDE    /usr/local/pf/raddb/dictionary.ruckus
 ATTRIBUTE       AD-Samaccountname       3003    string
 
 $INCLUDE /usr/local/pf/raddb/dictionary.oauth2
+$INCLUDE /usr/local/pf/raddb/dictionary.freeradius.evs5
