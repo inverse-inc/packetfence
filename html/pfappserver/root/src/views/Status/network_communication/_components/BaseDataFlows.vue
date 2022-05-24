@@ -3,91 +3,98 @@
     <b-card-header>
       Flows
     </b-card-header>
-    <pre>{{ {linkDeviceProtocol, linkProtocolHost, uniqueDevices, uniqueProtocols, uniqueHosts} }}</pre>
+    <base-chart-ringed ref="graphRef"
+      class="m-3"
+      :dimensions="dimensions"
+      :options="options"
+      :items="items"
+      :is-loading="isLoading" />
   </b-card>
 </template>
 <script>
-const components = {}
-
-const props = {
-  items: {
-    type: Array
-  }
+import BaseChartRinged from './BaseChartRinged'
+const components = {
+  BaseChartRinged
 }
 
-import { computed, toRefs } from '@vue/composition-api'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { createDebouncer } from 'promised-debounce'
+import { useSearch } from '../_composables/useCollection'
 
-const setup = (props) => {
+const setup = (props, context) => {
 
-  const {
-    items
-  } = toRefs(props)
+  const { refs, root: { $store } = {} } = context
 
-  const uniqueDevices = computed(() => {
-    return items.value
-      .reduce((unique, item) => {
-        unique[item.mac] = (unique[item.mac] || 0) + 1
-        return unique
-      }, {})
+  const search = useSearch()
+
+  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
+  const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
+
+  const dimensions = ref({
+    height: 100,
+    width: 100,
+    fit: 'max'
+  })
+  const options = ref({
+    miniMapHeight: undefined,
+    miniMapWidth: 200,
+    miniMapPosition: 'top-left',
+    minZoom: 0,
+    maxZoom: 4,
+    mouseWheelZoom: true,
+    padding: 25
   })
 
-  const uniqueProtocols = computed(() => {
-    return items.value
-      .reduce((unique, item) => {
-        const protocol = `${item.proto}/${item.port}`
-        unique[protocol] = (unique[protocol] || 0) + 1
-        return unique
-      }, {})
-  })
-
-  const uniqueHosts = computed(() => {
-    return items.value
-      .reduce((unique, item) => {
-        unique[item.host] = (unique[item.host] || 0) + 1
-        return unique
-      }, {})
-  })
-
-  const linkDeviceProtocol = computed(() => {
-    const assoc = items.value
-      .reduce((links, item) => {
-        const { mac, proto, port } = item
-        const protocol = `${proto}/${port}`
-        const key = `${mac}/${protocol}`
-        links[key] = {
-          mac,
-          protocol,
-          num: ((links[key]) ? links[key].num + 1 : 1)
+  const graphRef = ref(null)
+  let dimDebouncer
+  const setDimensions = () => {
+    if (!dimDebouncer)
+      dimDebouncer = createDebouncer()
+    dimDebouncer({
+      handler: () => {
+        // get width of svg container
+        const { graphRef: { $el: { offsetWidth: width = 0 } = {} } = {} } = refs
+        dimensions.value.width = width
+        if (dimensions.value.fit === 'max')
+          dimensions.value.height = width
+        else {
+          // get height of window document
+          const documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+          const { graphRef: { $el = {} } = {} } = refs
+          const { top } = $el.getBoundingClientRect()
+          const padding = 20 + 16 /* padding = 20, margin = 16 */
+          let height = documentHeight - top - padding
+          height = Math.max(height, width / 2) // minimum height of 1/2 width
+          dimensions.value.height = height
         }
-        return links
-      }, {})
-    return Object.values(assoc)
+      },
+      time: 100 // 100ms
+    })
+  }
+
+  onMounted(() => { // after DOM is ready
+    watch([
+      items,
+      () => dimensions.value.fit
+    ], () => {
+      nextTick(() => {
+        setDimensions()
+      })
+    }, { deep: true, immediate: true })
+
+    window.addEventListener('resize', setDimensions)
   })
 
-  const linkProtocolHost = computed(() => {
-    const assoc = items.value
-      .reduce((links, item) => {
-        const { host, proto, port } = item
-        const protocol = `${proto}/${port}`
-        const key = `${protocol}/${host}`
-        links[key] = {
-          host,
-          protocol,
-          num: ((links[key]) ? links[key].num + 1 : 1)
-        }
-        return links
-      }, {})
-    return Object.values(assoc)
-  })
+  onBeforeUnmount(() => window.removeEventListener('resize', setDimensions))
 
   return {
-    uniqueDevices,
-    uniqueProtocols,
-    uniqueHosts,
+    ...toRefs(search),
+    isLoading,
+    items, // overload
 
-    linkDeviceProtocol,
-    linkProtocolHost,
-
+    graphRef,
+    dimensions,
+    options,
   }
 }
 
@@ -95,7 +102,6 @@ const setup = (props) => {
 export default {
   name: 'base-data-flows',
   components,
-  props,
   setup
 }
 </script>

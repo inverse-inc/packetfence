@@ -62,14 +62,16 @@ export const useSearch = makeSearch('networkCommunication', {
       label: i18n.t('Protocol'),
       searchable: true,
       required: true,
-      sortable: true
+      sortable: true,
+      visible: true
     },
     {
       key: 'port',
       label: i18n.t('Port'),
       searchable: true,
       required: true,
-      sortable: true
+      sortable: true,
+      visible: true
     },
     {
       key: 'count',

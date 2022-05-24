@@ -24,7 +24,14 @@ const layout = {
   showlegend: false,
   xaxis: {
     tickangle: 90,
+    tickformat : ':04,2f',
+    fixedrange: true
   },
+  yaxis: {
+    fixedrange: true,
+    tickformat : ':04,2f'
+  },
+  hovermode: 'closest'
 }
 
 import {

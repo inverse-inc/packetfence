@@ -127,6 +127,15 @@ export default {
       border: 0px !important;
       box-shadow: 0px 0px 0px 0px !important;
     }
+    .filtered-items {
+      .row {
+        border-top: 1px solid rgb(222, 226, 230);
+        cursor: pointer;
+        &:nth-child(even) {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+      }
+    }
   }
 }
 </style>

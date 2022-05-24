@@ -1,7 +1,7 @@
 import { computed, ref, toRefs } from '@vue/composition-api'
 import d3 from '@/utils/d3'
+import { useViewBox } from '@/composables/useSvg'
 import useColor from './useColor'
-import { useViewBox } from './useSvg'
 
 const getAngleFromCoords = (x1, y1, x2, y2) => {
   const dx = x2 - x1
