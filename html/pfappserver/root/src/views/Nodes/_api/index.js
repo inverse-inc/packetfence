@@ -19,6 +19,11 @@ export default {
       return response.data
     })
   },
+  fingerbankCommunications: params => {
+    return apiCall.post('nodes/fingerbank_communications', params).then(response => {
+      return response.data.items
+    })
+  },
   node: body => {
     const get = body.quiet ? 'getQuiet' : 'get'
     return apiCall[get](['node', body.mac]).then(response => {
