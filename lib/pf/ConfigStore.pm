@@ -697,7 +697,7 @@ sub gitStorageConfigFile {
 	my $file = $self->configFile;
 	$file =~ s|^$conf_directory||;
     $file =~ s|^/||;
-    return $file;
+    return "conf/$file";
 }
 
 sub commitGitStorage {
