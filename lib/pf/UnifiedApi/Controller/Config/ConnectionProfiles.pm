@@ -476,10 +476,7 @@ sub _sync_files {
 
     if(pfconfig::git_storage->is_enabled) {
         for my $file (@files) {
-            my $git_storage_file = $file;
-            $git_storage_file =~ s|^$install_dir||g;
-            $git_storage_file =~ s|^/||;
-            my ($res, $msg) = pfconfig::git_storage->commit_file($file, $git_storage_file, push => 0);
+            my ($res, $msg) = pfconfig::git_storage->commit_file($file, $self->_strip_path_for_git_storage($file), push => 0);
             if(!$res) {
                 return { message => $msg, status => 500 };
             }
@@ -515,10 +512,7 @@ sub _sync_delete_files {
 
     if(pfconfig::git_storage->is_enabled) {
         for my $file (@files) {
-            my $git_storage_file = $file;
-            $git_storage_file =~ s|^$install_dir||g;
-            $git_storage_file =~ s|^/||;
-            my ($res, $msg) = pfconfig::git_storage->delete_file($git_storage_file, push => 0);
+            my ($res, $msg) = pfconfig::git_storage->delete_file($self->_strip_path_for_git_storage($file), push => 0);
             if(!$res) {
                 return { message => $msg, status => 500 };
             }
@@ -530,6 +524,13 @@ sub _sync_delete_files {
     }
 
     return undef;
+}
+
+sub _strip_path_for_git_storage {
+    my ($self, $path) = @_;
+    $path =~ s|^$install_dir||g;
+    $path =~ s|^/||;
+    return $path;
 }
 
 =head2 notDeletable
