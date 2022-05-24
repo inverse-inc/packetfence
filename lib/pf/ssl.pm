@@ -287,7 +287,8 @@ sub install_file {
             my $stripped_fname = $filename;
             $stripped_fname =~ s|^$install_dir||;
             $stripped_fname =~ s|^/||;
-            my ($res, $msg) = pfconfig::git_storage->commit_file($filename, $stripped_fname);
+            # Don't push the file here, let install_to_file push it
+            my ($res, $msg) = pfconfig::git_storage->commit_file($filename, $stripped_fname, push => 0);
             if(!$res) {
                 return ($FALSE, $msg);
             }
@@ -414,6 +415,13 @@ sub install_to_file {
         else {
             my $msg = "Failed installing file $file: $msg";
             get_logger->error($msg);
+            push @errors, $msg;
+        }
+    }
+
+    if(pfconfig::git_storage->is_enabled) {
+        my ($res, $msg) = pfconfig::git_storage->push();
+        if(!$res) {
             push @errors, $msg;
         }
     }

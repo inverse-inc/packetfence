@@ -33,9 +33,11 @@ sub git_directory {
 }
 
 sub commit_file {
-    my ($proto, $src, $dst) = @_;
+    my ($proto, $src, $dst, %opts) = @_;
 
     my $unprefixed_dst = $dst;
+
+    $opts{push} //= 1;
 
     $dst = $proto->git_directory . "/" . $dst;
     get_logger->info("Pushing $src to git_storage $dst");
@@ -61,12 +63,20 @@ sub commit_file {
             #return (undef, "Unable to copy $src into git repository $file");
         }
 
-        system("cd ".$proto->git_directory." && git add -f $unprefixed_dst && git commit --allow-empty -m 'update $unprefixed_dst' && git push");
+        system("cd ".$proto->git_directory." && git add -f $unprefixed_dst && git commit --allow-empty -m 'update $unprefixed_dst'");
         if($? != 0) {
             $last_error = "Unable to push repository. Please retry the change.";
             sleep 3;
             next;
             #return (undef, "Unable to push repository. Please retry the change.");
+        }
+
+        if($opts{push}) {
+            ($success, $last_error) = $proto->push();
+            if(!$success) {
+                sleep 3;
+                next;
+            }
         }
 
         $last_error = undef;
@@ -79,6 +89,17 @@ sub commit_file {
     else {
         return (1, "Updated $unprefixed_dst in git storage");
     }
+}
+
+sub push {
+    my ($proto) = @_;
+
+    system("cd ".$proto->git_directory." && git push");
+    if($? != 0) {
+        return (0, "Unable to push repository. Please retry the change.");
+    }
+
+    return (1, undef);
 }
 
 sub update {
