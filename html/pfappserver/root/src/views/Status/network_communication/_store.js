@@ -32,7 +32,7 @@ const getters = {
           if (
             (selectedHosts.length === 0 && selectedProtocols.length === 0)
             || (selectedHosts.length > 0 && selectedHosts.findIndex(selected => {
-              return selected.toLowerCase() === host.toLowerCase() || RegExp(`.${selected}$`, 'i').test(host)
+              return selected.toLowerCase() === host.toLowerCase() || RegExp(`.${selected}$`, 'i').test(host) || RegExp(`^${selected}:[0-9]{1,5}$`, 'i').test(host)
             }) > -1)
             || (selectedProtocols.length > 0 && selectedProtocols.findIndex(selected => {
               return selected.toLowerCase() === protocol.toLowerCase() || RegExp(`^${selected}:`, 'i').test(protocol)

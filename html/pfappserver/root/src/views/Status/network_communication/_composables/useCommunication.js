@@ -33,10 +33,10 @@ export const splitHost = host => {
   const [_host, port] = host.toLowerCase().split(':')
   // don't split IPv4 or IPv6
   if (reIpv4(_host) || reIpv6(_host)) {
-    return { tld: _host, port }
+    return { internalHost: true, tld: _host, port }
   }
   const [tld, domain, ...subdomains] = _host.split('.').reverse()
-  return { tld, port, domain, subdomain: subdomains.reverse().join('.') }
+  return { internalHost: false, tld, port, domain, subdomain: subdomains.reverse().join('.') }
 }
 
 export const decorateHost = host => {

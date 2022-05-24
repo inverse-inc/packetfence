@@ -3,8 +3,7 @@
     <b-col cols="12">
       <b-tabs lazy>
         <b-tab title="Flows">
-<pre>{{ {isLoading, items} }}</pre>
-          <base-data-flows v-bind="{ isLoading, items }" />
+          <base-data-flows />
         </b-tab>
         <b-tab title="Data">
           <base-data-table />

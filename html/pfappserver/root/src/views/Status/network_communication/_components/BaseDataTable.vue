@@ -55,6 +55,9 @@
           @input="setColumns"
         />
       </template>
+      <template #cell(mac)="{ value }">
+        <router-link :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
+      </template>
       <template #cell(buttons)>
         <span class="float-right text-nowrap text-right mr-3">
           <b-button variant="outline-primary">Action</b-button>

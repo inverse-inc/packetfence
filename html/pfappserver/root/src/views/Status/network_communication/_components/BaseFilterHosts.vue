@@ -86,8 +86,8 @@ const setup = (props, context) => {
         return { tld, domain, subdomain, host }
       })
       .sort((a, b) => {
-        const { tld: tldA, domain: domainA = '', subdomain: subdomainA = '' } = a
-        const { tld: tldB, domain: domainB = '', subdomain: subdomainB = '' } = b
+        const { domain: domainA = '', subdomain: subdomainA = '' } = a
+        const { domain: domainB = '', subdomain: subdomainB = '' } = b
         if (domainA !== domainB) {
           return domainA.localeCompare(domainB)
         }

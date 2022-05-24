@@ -330,8 +330,8 @@ const props = {
   }
 }
 
-import { computed, nextTick, onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import { useViewBox, useMiniMap } from '../_composables/useSvg'
+import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
+import { useViewBox, useMiniMap } from '@/composables/useSvg'
 import useColor from '../_composables/useColor'
 import useSimulation from '../_composables/useSimulation'
 import useTooltips from '../_composables/useTooltips'
