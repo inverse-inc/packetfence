@@ -35,8 +35,10 @@ use pf::file_paths qw(
     $captiveportal_profile_templates_path
     $captiveportal_default_profile_templates_path
     $captiveportal_templates_path
+    $install_dir
 );
 use pf::error qw(is_error);
+use pfconfig::git_storage;
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
@@ -461,13 +463,31 @@ sync_files
 
 sub _sync_files {
     my ($self, @files) = @_;
-    if (!$cluster_enabled || @files == 0) {
+    if (@files == 0) {
         return undef;
     }
 
-    my $failed = pf::cluster::sync_files(\@files);
-    if (@$failed){
-        return { message => "Failed to sync file on " . join(', ', @$failed) , status => 500};
+    if($cluster_enabled) {
+        my $failed = pf::cluster::sync_files(\@files);
+        if (@$failed){
+            return { message => "Failed to sync file on " . join(', ', @$failed) , status => 500};
+        }
+    }
+
+    if(pfconfig::git_storage->is_enabled) {
+        for my $file (@files) {
+            my $git_storage_file = $file;
+            $git_storage_file =~ s|^$install_dir||g;
+            $git_storage_file =~ s|^/||;
+            my ($res, $msg) = pfconfig::git_storage->commit_file($file, $git_storage_file, push => 0);
+            if(!$res) {
+                return { message => $msg, status => 500 };
+            }
+        }
+        my ($res, $msg) = pfconfig::git_storage->push();
+        if(!$res) {
+            return { message => $msg, status => 500 };
+        }
     }
 
     return undef;

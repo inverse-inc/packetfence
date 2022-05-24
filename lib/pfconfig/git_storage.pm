@@ -6,6 +6,7 @@ use warnings;
 use pfconfig::config;
 use pf::util qw(isenabled);
 use pf::log;
+use File::Basename;
 
 sub config {
     my ($proto) = @_;
@@ -50,6 +51,15 @@ sub commit_file {
         system("cd ".$proto->git_directory." && git pull");
         if($? != 0) {
             $last_error = "Unable to pull repository";
+            sleep 3;
+            next;
+            #return (undef, "Unable to pull repository");
+        }
+
+        my $basedir = dirname($dst);
+        system("mkdir -p $basedir");
+        if($? != 0) {
+            $last_error = "Unable to create directory for file $dst";
             sleep 3;
             next;
             #return (undef, "Unable to pull repository");
