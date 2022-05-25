@@ -24,8 +24,20 @@
       @mousedown.prevent="mouseDownSvg($event)"
       @mousewheel="mouseWheelSvg($event)"
     >
+      <!-- symbol definitions -->
       <defs v-once>
-        <!-- symbol definitions -->
+<!--
+        <filter x="0" y="0" width="1" height="1" id="label-white">
+          <feFlood flood-color="yellow" result="bg" />
+  <feComponentTransfer>
+    <feFuncA type="linear" slope="0.2"/>
+  </feComponentTransfer>
+          <feMerge>
+            <feMergeNode in="bg" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+-->
       </defs>
 
       <!-- background to capture node mouseout event -->
@@ -44,16 +56,26 @@
       <circle v-bind="svgDevicesRingProps" />
 
       <!-- flows -->
-      <path v-for="props in flows" :key="props.key" v-bind="props" />
+      <path v-for="flow in flows" :key="flow.key" v-bind="flow.props" v-on="flow.handlers" />
 
       <!-- outer hosts -->
-      <circle v-for="props in svgOuterHosts" :key="props.key" v-bind="props" />
+      <circle v-for="host in svgOuterHosts" :key="host.key" v-bind="host.props" v-on="host.handlers" />
+
+      <!-- outer hosts text -->
+      <text v-for="text in svgOuterHostsText" :key="text.key" v-bind="text.props" v-on="text.handlers">{{ text.text }}</text>
 
       <!-- inner hosts -->
-      <circle v-for="props in svgInnerHosts" :key="props.key" v-bind="props" />
+      <circle v-for="host in svgInnerHosts" :key="host.key" v-bind="host.props" v-on="host.handlers" />
+
+      <!-- inner hosts text -->
+      <text v-for="text in svgInnerHostsText" :key="text.key" v-bind="text.props" v-on="text.handlers">{{ text.text }}</text>
 
       <!-- devices -->
-      <circle v-for="props in svgDevices" :key="props.key" v-bind="props" />
+      <circle v-for="device in svgDevices" :key="device.key" v-bind="device.props" v-on="device.handlers"/>
+
+      <!-- devices text -->
+      <text v-for="text in svgDevicesText" :key="text.key" v-bind="text.props" v-on="text.handlers">{{ text.text }}</text>
+
 
       <!-- mini map -->
       <rect v-if="showMiniMap" class="innerMiniMap" v-bind="innerMiniMapProps" />
@@ -78,6 +100,7 @@
       </b-row>
     </div>
 
+<pre>{{ {svgDevicesText} }}</pre>
 <pre>{{ {assocInnerHostsCount, assocOuterHostsCount,
 innerHostsRingCircumference,
 outerHostsRingCircumference,
@@ -169,6 +192,9 @@ const setup = (props) => {
   const cx = computed(() => dimensions.value.width / 2)
   const cy = computed(() => dimensions.value.height / 2)
 
+  // make font size relative to dimensions
+  const fontSize = computed(() => dimensions.value.height / 200)
+
   const totalCount = computed(() => {
     return items.value.reduce((total, item) => {
       const { count } = item
@@ -176,7 +202,7 @@ const setup = (props) => {
     }, 0)
   })
 
-  const devicesRingScale = .3 // 30% height
+  const devicesRingScale = .25 // 25% height
   const devicesRingCircumference = computed(() => (Math.PI * dimensions.value.height * innerHostsRingScale))
   const devicesRingRadius = computed(() => (dimensions.value.height / 2) * devicesRingScale)
   const svgDevicesRingProps = computed(() => ({
@@ -184,7 +210,7 @@ const setup = (props) => {
     cy: cy.value,
     r: devicesRingRadius.value,
     fill: 'rgb(255, 255, 255, 1)',
-    stroke: 'rgb(0, 0, 0, 0.2)',
+    stroke: 'rgb(0, 0, 0, 0.1)',
     'stroke-width': 1,
   }))
   const assocDevicesCount = computed(() => {
@@ -211,21 +237,63 @@ const setup = (props) => {
       return { ...nodes, [node]: { node, size, angle, x ,y } }
     }, {})
   })
+  const deviceFocus = ref(false)
+  const deviceOver = (event, key) => {
+    deviceFocus.value = key
+  }
+  const deviceOut = (event, key) => {
+    deviceFocus.value = false
+  }
   const svgDevices = computed(() => {
-    return Object.values(devices.value).map(node => {
+    return Object.values(devices.value).map(device => {
+      const { node, size, x, y } = device
       return {
-        key: node.node,
-        r: node.size,
-        cx: node.x,
-        cy: node.y,
-        fill: 'rgb(192, 192, 192, 1)',
-        stroke: 'rgb(0, 0, 0, 0.2)',
-        'stroke-width': 1,
+        key: node,
+        props: {
+          class: 'device',
+          r: size,
+          cx: x,
+          cy: y,
+          fill: ((!deviceFocus.value || deviceFocus.value === node)
+            ? 'rgb(192, 192, 192, 1)'
+            : 'rgb(255, 255, 255, 1)'
+          ),
+          stroke: 'rgb(0, 0, 0, 0.2)',
+          'stroke-width': 1,
+        },
+        handlers: {
+          mouseover: event => deviceOver(event, node),
+          mouseout: event => deviceOut(event, node),
+        }
       }
     })
   })
+  const svgDevicesText = computed(() => {
+    return Object.values(devices.value)
+      .map(device => {
+        const { angle, node, size, x, y } = device
+        const opacity = ((!deviceFocus.value || deviceFocus.value === node) ? 1 : 0)
+        return {
+          key: `text-${node}`,
+          props: {
+            'font-size': `${fontSize.value}px`,
+            'stroke-width': `${fontSize.value / 100}`,
+            fill: `rgb(0, 0, 0, ${opacity})`,
+            transform: `rotate(${angle})`,
+            'transform-origin': '0% 50%', // left center
+            x, y
+          },
+          handlers: {
+            mouseover: event => deviceOver(event, node),
+            mouseout: event => deviceOut(event, node),
+          },
+          text: node
+        }
+      })
+      .filter(device => device)
+  })
 
-  const innerHostsRingScale = .6 // 60% height
+  const innerHostsRingScale = .5 // 50% height
   const innerHostsRingCircumference = computed(() => (Math.PI * dimensions.value.height * innerHostsRingScale))
   const innerHostsRingRadius = computed(() => (dimensions.value.height / 2) * innerHostsRingScale)
   const svgInnerHostsRingProps = computed(() => ({
@@ -233,7 +301,7 @@ const setup = (props) => {
     cy: cy.value,
     r: innerHostsRingRadius.value,
     fill: 'rgb(255, 255, 255, 1)',
-    stroke: 'rgb(0, 0, 0, 0.2)',
+    stroke: 'rgb(0, 0, 0, 0.1)',
     'stroke-width': 1,
   }))
   const assocInnerHostsCount = computed(() => {
@@ -262,21 +330,63 @@ const setup = (props) => {
       return { ...nodes, [node]: { node, size, angle, x ,y } }
     }, {})
   })
+  const innerHostFocus = ref(false)
+  const innerHostOver = (event, key) => {
+    innerHostFocus.value = key
+  }
+  const innerHostOut = (event, key) => {
+    innerHostFocus.value = false
+  }
   const svgInnerHosts = computed(() => {
-    return Object.values(innerHosts.value).map(node => {
+    return Object.values(innerHosts.value).map(host => {
+      const { node, size, x, y } = host
       return {
-        key: node.node,
-        r: node.size,
-        cx: node.x,
-        cy: node.y,
-        fill: 'rgb(192, 192, 192, 1)',
-        stroke: 'rgb(0, 0, 0, 0.2)',
-        'stroke-width': 1,
+        key: node,
+        props: {
+          class: 'host host-inner',
+          r: size,
+          cx: x,
+          cy: y,
+          fill: (((!innerHostFocus.value || innerHostFocus.value === node) && !outerHostFocus.value)
+            ? 'rgb(192, 192, 192, 1)'
+            : 'rgb(255, 255, 255, 1)'
+          ),
+          stroke: 'rgb(0, 0, 0, 0.2)',
+          'stroke-width': 1,
+        },
+        handlers: {
+          mouseover: event => innerHostOver(event, node),
+          mouseout: event => innerHostOut(event, node),
+        }
       }
     })
   })
+  const svgInnerHostsText = computed(() => {
+    return Object.values(innerHosts.value)
+      .map(host => {
+        const { angle, node, size, x, y } = host
+        const opacity = (((!innerHostFocus.value || innerHostFocus.value === node) && !outerHostFocus.value) ? 1 : 0)
+        return {
+          key: `text-${node}`,
+          props: {
+            'font-size': `${fontSize.value}px`,
+            'stroke-width': `${fontSize.value / 100}`,
+            fill: `rgb(0, 0, 0, ${opacity})`,
+            transform: `rotate(${angle})`,
+            'transform-origin': '0% 50%', // left center
+            x, y
+          },
+          handlers: {
+            mouseover: event => innerHostOver(event, node),
+            mouseout: event => innerHostOut(event, node),
+          },
+          text: node
+        }
+      })
+      .filter(host => host)
+  })
 
-  const outerHostsRingScale = .9 // 90% height
+  const outerHostsRingScale = .75 // 75% height
   const outerHostsRingCircumference = computed(() => (Math.PI * dimensions.value.height * outerHostsRingScale))
   const outerHostsRingRadius = computed(() => (dimensions.value.height / 2) * outerHostsRingScale)
   const svgOuterHostsRingProps = computed(() => ({
@@ -285,7 +395,7 @@ const setup = (props) => {
     r: outerHostsRingRadius.value,
     //fill: 'rgb(0, 0, 0, 0.05)',
     fill: 'rgb(255, 255, 255, 1)',
-    stroke: 'rgb(0, 0, 0, 0.2)',
+    stroke: 'rgb(0, 0, 0, 0.1)',
     'stroke-width': 1,
   }))
   const assocOuterHostsCount = computed(() => {
@@ -314,18 +424,60 @@ const setup = (props) => {
       return { ...nodes, [node]: { node, size, angle, x ,y } }
     }, {})
   })
+  const outerHostFocus = ref(false)
+  const outerHostOver = (event, key) => {
+    outerHostFocus.value = key
+  }
+  const outerHostOut = (event, key) => {
+    outerHostFocus.value = false
+  }
   const svgOuterHosts = computed(() => {
-    return Object.values(outerHosts.value).map(node => {
+    return Object.values(outerHosts.value).map(host => {
+      const { node, size, x, y } = host
       return {
-        key: node.node,
-        r: node.size,
-        cx: node.x,
-        cy: node.y,
-        fill: 'rgb(192, 192, 192, 1)',
-        stroke: 'rgb(0, 0, 0, 0.2)',
-        'stroke-width': 1,
+        key: node,
+        props: {
+          class: 'host host-outer',
+          r: size,
+          cx: x,
+          cy: y,
+          fill: (((!outerHostFocus.value || outerHostFocus.value === node) && !innerHostFocus.value)
+            ? 'rgb(192, 192, 192, 1)'
+            : 'rgb(255, 255, 255, 1)'
+          ),
+          stroke: 'rgb(0, 0, 0, 0.2)',
+          'stroke-width': 1,
+        },
+        handlers: {
+          mouseover: event => outerHostOver(event, node),
+          mouseout: event => outerHostOut(event, node),
+        }
       }
     })
+  })
+  const svgOuterHostsText = computed(() => {
+    return Object.values(outerHosts.value)
+      .map(host => {
+        const { angle, node, size, x, y } = host
+        const opacity = (((!outerHostFocus.value || outerHostFocus.value === node) && !innerHostFocus.value) ? 1 : 0)
+        return {
+          key: `text-${node}`,
+          props: {
+            'font-size': `${fontSize.value}px`,
+            'stroke-width': `${fontSize.value / 100}`,
+            fill: `rgb(0, 0, 0, ${opacity})`,
+            transform: `rotate(${angle})`,
+            'transform-origin': '0% 50%', // left center
+            x, y
+          },
+          handlers: {
+            mouseover: event => outerHostOver(event, node),
+            mouseout: event => outerHostOut(event, node),
+          },
+          text: node
+        }
+      })
+      .filter(host => host)
   })
 
   const scaleCount = (count, total, min = 1, max = 100) => {
@@ -362,19 +514,37 @@ const setup = (props) => {
             const { x: dx, y: dy, size: oSize } = outerHosts.value[host]
             const d = `M ${sx},${sy} C ${dx1},${dy1} ${dx2},${dy2} ${dx},${dy}`
             const maxSize = Math.min(iSize, oSize)
-            const strokeOpacity = scaleCount(count, totalCount.value, 0.25, 1)
+            const strokeOpacity = ((
+              (!deviceFocus.value || deviceFocus.value === mac)
+              && (!outerHostFocus.value || outerHostFocus.value === host)
+              && !innerHostFocus.value
+            )
+              ? scaleCount(count, totalCount.value, 0.25, 1)
+              : 0
+            )
             const strokeWidth = scaleCount(count, totalCount.value, 1, maxSize)
             const stroke = strokeProto(proto, strokeOpacity)
-            return { d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
+            return {
+              props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
+            }
           }
-          else if (host in innerHosts.value) {
+          if (host in innerHosts.value) {
             const { x: dx, y: dy, size: oSize } = innerHosts.value[host]
             const d = `M ${sx},${sy} C ${dx1},${dy1} ${dx2},${dy2} ${dx},${dy}`
             const maxSize = Math.min(iSize, oSize)
-            const strokeOpacity = scaleCount(count, totalCount.value, 0.25, 1)
+            const strokeOpacity = ((
+              (!deviceFocus.value || deviceFocus.value === mac)
+              && (!innerHostFocus.value || innerHostFocus.value === host)
+              && !outerHostFocus.value
+            )
+              ? scaleCount(count, totalCount.value, 0.25, 1)
+              : 0
+            )
             const strokeWidth = scaleCount(count, totalCount.value, 1, maxSize)
             const stroke = strokeProto(proto, strokeOpacity)
-            return { d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
+            return {
+              props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
+            }
           }
         }
         return null
@@ -415,8 +585,11 @@ const setup = (props) => {
     svgOuterHostsRingProps,
 
     svgDevices,
+svgDevicesText,
     svgInnerHosts,
+svgInnerHostsText,
     svgOuterHosts,
+svgOuterHostsText,
 
 
 
@@ -428,6 +601,7 @@ totalCount,
 innerHosts,
 outerHosts,
 flows,
+deviceFocus,
   }
 }
 
@@ -442,4 +616,19 @@ export default {
 
 <style lang="scss">
 @import './BaseChartRinged.scss';
+
+svg {
+  text {
+    // https://stackoverflow.com/a/62720107
+    transform-box: fill-box;
+    transition: fill .3s ease;
+  }
+  circle.device,
+  circle.host {
+    transition: fill .3s ease;
+  }
+  path.flow {
+    transition: stroke .3s ease;
+  }
+}
 </style>
