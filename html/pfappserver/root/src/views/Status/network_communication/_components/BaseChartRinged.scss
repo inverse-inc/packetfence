@@ -19,12 +19,8 @@
 
   text {
     font-family: "B612 Mono", "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-    font-size: 12px;
-    fill: var(--highlight-color);
     stroke: rgba(255, 255, 255, 1);
     stroke-alignment: outer;
-    stroke-width: 0.125;
-    transform-origin: center center;
   }
 
   .svgDrag {
