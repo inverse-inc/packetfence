@@ -7,6 +7,7 @@ use pfconfig::config;
 use pf::util qw(isenabled);
 use pf::log;
 use File::Basename;
+use List::MoreUtils qw(firstval);
 
 sub config {
     my ($proto) = @_;
@@ -16,11 +17,6 @@ sub config {
 sub is_enabled {
     my ($proto) = @_;
     return isenabled($proto->config->{status});
-}
-
-sub should_k8s_deploy {
-    my ($proto) = @_;
-    return isenabled($proto->config->{k8s_deploy});
 }
 
 sub conf_directory {
@@ -214,9 +210,56 @@ sub update {
     }
 }
 
-sub k8s_deploy {
-    my ($self) = @_;
+sub should_k8s_deploy {
+    my ($proto) = @_;
+    return isenabled($proto->config->{k8s_deploy});
+}
 
+sub k8s_deploy_label_selector {
+    my ($proto) = @_;
+    $proto->config->{k8s_deploy_label_selector};
+}
+
+sub k8s_deploy_container_name {
+    my ($proto) = @_;
+    $proto->config->{k8s_deploy_container_name};
+}
+
+sub k8s_deploy {
+    my ($proto, %opts) = @_;
+
+    my $pods_api = pf::k8s->env_build()->api_module("pf::k8s::pods");
+
+    my $deploy_ready = sub {
+        my ($pod) = @_;
+        my $container_spec = firstval { $_->{name} eq $proto->k8s_deploy_container_name } @{$pod->{spec}->{containers}};
+        get_logger->info("Calling expire on ".$pod->{status}->{podIP} . ":" . $container_spec->{ports}->[0]->{containerPort});
+        my $res;
+        eval {
+            $res = pfconfig::util::socket_pull_expire(%opts, tcp_host => $pod->{status}->{podIP}, tcp_port => $container_spec->{ports}->[0]->{containerPort});
+        };
+        if($@ || !$res) {
+            my $msg = "Unable to call pull_expire on pfconfig socket for pod ".$pod->{status}->{podIP}.": $@";
+            get_logger->error($msg);
+            return (undef, $msg);
+        }
+    };
+
+    my $deploy_not_ready = sub {
+        my ($pod) = @_;
+        get_logger->warn("Deleting ".$pod->{metadata}->{name}." to have it reload it's configuration");
+        my ($status, $res) = $pods_api->delete($pod->{metadata}->{name});
+        if($status) {
+            return ($status, $res)
+        }
+        else {
+            get_logger->error($res);
+            return ($status, $res);
+        }
+    };
+
+    my ($status, $res) = $pods_api->run_all_pods({labelSelector => $proto->k8s_deploy_label_selector}, $proto->k8s_deploy_container_name, $deploy_ready, $deploy_not_ready);
+    die "Unable to run the deploy via K8S: $res" unless($status);
 }
 
 1;

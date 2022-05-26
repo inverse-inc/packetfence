@@ -1,6 +1,7 @@
 package pf::k8s::pods;
 
 use Moo;
+use pf::constants qw($TRUE);
 
 extends "pf::k8s";
 
@@ -25,14 +26,17 @@ sub run_all_pods {
         for my $containerStatus (@{$pod->{status}->{containerStatuses}}) {
             if($containerStatus->{name} eq $container_name) {
                 if($containerStatus->{ready}) {
-                    $on_ready->($pod);
+                    my ($status, $res) = $on_ready->($pod);
+                    return ($status, $res) unless($status);
                 }
                 else {
-                    $on_not_ready->($pod);
+                    my ($status, $res) = $on_not_ready->($pod);
+                    return ($status, $res) unless($status);
                 }
             }
         }
     }
+    return ($TRUE);
 }
 
 1;

@@ -28,6 +28,7 @@ use Sereal::Decoder;
 use Readonly;
 use JSON::MaybeXS qw(encode_json);
 use pfconfig::config;
+use pf::k8s;
 
 our @EXPORT_OK = qw(
     is_type_inline
@@ -67,6 +68,7 @@ sub fetch_decode_socket {
             PeerHost => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
             PeerPort => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
             Proto => "tcp",
+            Timeout => ($opts{tcp_timeout} // 5),
         );
     }
     else {
@@ -105,7 +107,7 @@ sub socket_pull_expire {
         light => $light,
         namespace => $namespace,
     };
-    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload));
+    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts);
     return $response->{status} eq "accepted";
 }
 
