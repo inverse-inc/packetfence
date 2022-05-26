@@ -7,6 +7,7 @@ tcp_port=[% ENV.env_or_default("PFCONFIG_TCP_PORT", "44444") %]
 
 [git_storage]
 status=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_STATUS", "disabled") %]
+k8s_deploy=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_K8S_DEPLOY", "disabled") %]
 conf_directory=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_CONF_DIRECTORY", "") %]
 fingerbank_conf_directory=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_FINGERBANK_CONF_DIRECTORY", "") %]
 git_directory=[% ENV.env_or_default("PFCONFIG_GIT_STORAGE_GIT_DIRECTORY", "") %]

@@ -451,7 +451,12 @@ sub pull_expire {
             $logger->error("Unable to update from git storage");
             exit;
         }
-        $res = pfconfig::util::socket_expire(namespace => $query->{namespace}, light => $query->{light});
+        $res = pfconfig::util::socket_expire(
+            # Force the socket call to happen on the current pod when running in k8s
+            tcp_host => "127.0.0.1",
+            namespace => $query->{namespace}, 
+            light => $query->{light},
+        );
         if(!$res) {
             $logger->error("Unable to expire via socket");
             exit;

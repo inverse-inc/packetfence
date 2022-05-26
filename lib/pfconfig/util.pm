@@ -55,7 +55,7 @@ sub fetch_socket {
 }
 
 sub fetch_decode_socket {
-    my ($payload) = @_;
+    my ($payload, %opts) = @_;
 
     my $config = $pfconfig::config::INI_CONFIG;
     my $proto = $config->get_proto();
@@ -64,8 +64,8 @@ sub fetch_decode_socket {
     my $socket_path = $pfconfig::constants::SOCKET_PATH;
     if(${proto} eq "tcp") {
         $socket = IO::Socket::INET->new(
-            PeerHost => $config->section('general')->{tcp_host},
-            PeerPort => $config->section('general')->{tcp_port},
+            PeerHost => ($opts{tcp_host} // $config->section('general')->{tcp_host}),
+            PeerPort => ($opts{tcp_port} // $config->section('general')->{tcp_port}),
             Proto => "tcp",
         );
     }
@@ -92,7 +92,7 @@ sub socket_expire {
         namespace => $namespace,
         light => $light,
     };
-    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload));
+    my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts);
     return $response->{status} eq "OK.";
 }
 

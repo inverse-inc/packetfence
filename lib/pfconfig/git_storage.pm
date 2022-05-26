@@ -18,6 +18,11 @@ sub is_enabled {
     return isenabled($proto->config->{status});
 }
 
+sub should_k8s_deploy {
+    my ($proto) = @_;
+    return isenabled($proto->config->{k8s_deploy});
+}
+
 sub conf_directory {
     my ($proto) = @_;
     return $proto->config->{conf_directory};
@@ -207,6 +212,11 @@ sub update {
     else {
         return 1;
     }
+}
+
+sub k8s_deploy {
+    my ($self) = @_;
+
 }
 
 1;
