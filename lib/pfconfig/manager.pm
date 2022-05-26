@@ -355,7 +355,7 @@ sub is_valid {
         return 0;
     }
 
-    my $memory_timestamp = $self->{memorized_at}->{$what};
+    my $memory_timestamp = $self->{memorized_at}->{$what} // 0;
     $logger->trace(
         "Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what"
     );
