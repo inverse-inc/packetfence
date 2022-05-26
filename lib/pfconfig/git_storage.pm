@@ -8,6 +8,7 @@ use pf::util qw(isenabled);
 use pf::log;
 use File::Basename;
 use List::MoreUtils qw(firstval);
+use pf::k8s;
 
 sub config {
     my ($proto) = @_;
