@@ -8,7 +8,9 @@
       :dimensions="dimensions"
       :options="options"
       :items="items"
-      :is-loading="isLoading" />
+      :is-loading="isLoading"
+      @device="toggleDevice"
+      @host="toggleHost" />
   </b-card>
 </template>
 <script>
@@ -87,6 +89,14 @@ const setup = (props, context) => {
 
   onBeforeUnmount(() => window.removeEventListener('resize', setDimensions))
 
+  const toggleDevice = mac => {
+    console.log('toggleDevice', {mac})
+  }
+
+  const toggleHost = host => {
+    $store.dispatch('$_fingerbank_communication/toggleHost', host)
+  }
+
   return {
     ...toRefs(search),
     isLoading,
@@ -95,6 +105,9 @@ const setup = (props, context) => {
     graphRef,
     dimensions,
     options,
+
+    toggleDevice,
+    toggleHost,
   }
 }
 
