@@ -38,6 +38,11 @@ tmpdir=`mktemp -d`
 git clone -b $pf_ref https://github.com/inverse-inc/packetfence $tmpdir/packetfence
 git clone -b $fb_ref https://github.com/fingerbank/perl-client $tmpdir/fingerbank
 
+cd $tmpdir/packetfence
+make configurations
+make translation
+cd -
+
 cat <<EOT > add_files.txt
 conf/local_secret
 conf/unified_api_system_pass
@@ -66,15 +71,4 @@ for file in $files; do
     echo "$pristine_dir/$file not found. Ignoring it.."
   fi
 done
-
-cd $dst_dir
-
-find -type f -name '*.example' -print0 | while read -d $'\0' file; do cp -n $file "$(dirname $file)/$(basename $file .example)"; done
-
-for TRANSLATION in `ls conf/locale/` ; do
-  /usr/bin/msgfmt conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.po \
-    --output-file conf/locale/$TRANSLATION/LC_MESSAGES/packetfence.mo
-done
-
-cd -
 
