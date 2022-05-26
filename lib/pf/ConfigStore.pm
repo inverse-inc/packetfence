@@ -708,12 +708,7 @@ sub commitGitStorage {
         return ($res, $msg);
     }
     
-    ($res, $msg) = pfconfig::util::socket_pull_expire(namespace => $self->pfconfigNamespace, light => 1);
-    if(!$res) {
-        return ($res, $msg);
-    }
-
-    return (1, undef);
+    return pfconfig::git_storage->deploy(namespace => $self->pfconfigNamespace, light => 1);
 }
 
 sub commitCluster {

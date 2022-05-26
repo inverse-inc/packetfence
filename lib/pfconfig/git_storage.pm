@@ -212,6 +212,17 @@ sub update {
     }
 }
 
+sub deploy {
+    my ($proto, %opts) = @_;
+    
+    if($proto->should_k8s_deploy) {
+        $proto->k8s_deploy(%opts);
+    }
+    else {
+        return pfconfig::util::socket_pull_expire(%opts);
+    }
+}
+
 sub should_k8s_deploy {
     my ($proto) = @_;
     return isenabled($proto->config->{k8s_deploy});
