@@ -95,6 +95,7 @@ our @NODE_INFO_FIELDS = qw(
   node_info.pid
   node_info.machine_account
   node_info.category
+  node_info.category_id
   node_info.mac
   node_info.last_arp
   node_info.lastskip
