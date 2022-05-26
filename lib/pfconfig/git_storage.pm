@@ -9,6 +9,7 @@ use pf::log;
 use File::Basename;
 use List::MoreUtils qw(firstval);
 use pf::k8s;
+use pfconfig::util;
 
 sub config {
     my ($proto) = @_;
@@ -244,6 +245,7 @@ sub k8s_deploy {
             get_logger->error($msg);
             return (undef, $msg);
         }
+        return (1, undef);
     };
 
     my $deploy_not_ready = sub {

@@ -1,8 +1,9 @@
 package pf::k8s::pods;
 
-use Moo;
 use pf::constants qw($TRUE);
+use HTTP::Request::Common;
 
+use Moo;
 extends "pf::k8s";
 
 sub list {

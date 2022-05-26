@@ -9,6 +9,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::log;
 use URI;
 use LWP::UserAgent;
+use File::Slurp qw(read_file);
+
 use Moo;
 
 has ca_file => (is => 'rw');
