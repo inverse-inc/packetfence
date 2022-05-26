@@ -91,12 +91,12 @@ conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.p
 
 conf/ssl/server.crt: | conf/ssl/server.crt
 	openssl req -new -x509 -days 365 \
-	-out /usr/local/pf/conf/ssl/server.crt \
-	-key /usr/local/pf/conf/ssl/server.key \
-	-config /usr/local/pf/conf/openssl.cnf
+	-out conf/ssl/server.crt \
+	-key conf/ssl/server.key \
+	-config conf/openssl.cnf
 
 conf/ssl/server.key: | conf/ssl/server.key
-	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
+	openssl genrsa -out conf/ssl/server.key 2048
 
 conf/local_secret:
 	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
