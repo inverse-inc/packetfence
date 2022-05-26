@@ -80,7 +80,7 @@ export const useViewBox = (config, dimensions) => {
       // calculate mouse offset from 0,0
       const [ svgX, svgY ] = [ (offsetX / scale.value) + minX, (offsetY / scale.value) + minY ]
       // calculate mouse offset from center of current viewBox
-      const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
+      const [deltaCenterX, deltaCenterY] = [svgX - centerX.value, svgY - centerY.value]
       // handle zoom-in (-deltaY) and zoom-out (+deltaY)
       //  automatically match center of mouse pointer, so the
       //  x,y coord remains pinned at the mouse pointer after zoom.

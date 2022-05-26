@@ -35,7 +35,7 @@
             </b-tabs>
         </b-col>
       </b-row>
-      <the-data v-bind="{ selectedCategories, selectedDevices, selectedProtocols, selectedHosts }" />
+      <the-data />
     </div>
   </b-card>
 </template>

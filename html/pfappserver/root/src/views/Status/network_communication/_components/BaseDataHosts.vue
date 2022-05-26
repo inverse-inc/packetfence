@@ -91,7 +91,7 @@ const setup = (props, context) => {
     return tld => [
       {
         label: i18n.t('Devices'),
-textposition: 'right',
+        textposition: 'right',
         values: sortedItems.value
           .filter(item => item.tld === tld)
           .map(item => item.mac)
@@ -104,7 +104,7 @@ textposition: 'right',
       },
       {
         label: i18n.t('Protocols'),
-textposition: 'left',
+        textposition: 'left',
         values: sortedItems.value
           .filter(item => item.tld === tld)
           .map(item => item.protocol)

@@ -670,6 +670,6 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import './TheGraph.scss';
 </style>
