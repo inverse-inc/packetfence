@@ -13,7 +13,7 @@ type RedisTokenBackend struct {
 	inActivityTimeout time.Duration
 }
 
-func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration) *RedisTokenBackend {
+func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *RedisTokenBackend {
 	return &RedisTokenBackend{
 		redis: redis.NewClient(&redis.Options{
 			Addr:     "localhost:6379",
@@ -25,18 +25,12 @@ func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration)
 	}
 }
 
-const redisTokenPrefix = "api-frontend-session:"
-
 func (rtb *RedisTokenBackend) tokenKey(token string) string {
-	return redisTokenPrefix + token
+	return tokenKey(rtb, token)
 }
 
 func (rtb *RedisTokenBackend) AdminActionsForToken(token string) map[string]bool {
-	if ti, _ := rtb.TokenInfoForToken(token); ti != nil {
-		return ti.AdminActions()
-	}
-
-	return make(map[string]bool)
+	return AdminActionsForToken(rtb, token)
 }
 
 func (rtb *RedisTokenBackend) TenantIdForToken(token string) int {
@@ -70,13 +64,13 @@ func (rtb *RedisTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.
 
 	expiration := time.Now().Add(dur)
 
-	ti := &TokenInfo{}
-	err = json.Unmarshal([]byte(jsonStr), ti)
+	ti := TokenInfo{}
+	err = json.Unmarshal([]byte(jsonStr), &ti)
 	if err != nil {
 		return nil, time.Unix(0, 0)
 	}
 
-	return ValidTokenExpiration(ti, expiration, rtb.maxExpiration)
+	return ValidTokenExpiration(&ti, expiration, rtb.maxExpiration)
 }
 
 func (rtb *RedisTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {

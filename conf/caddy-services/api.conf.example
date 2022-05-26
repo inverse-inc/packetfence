@@ -34,6 +34,7 @@
 
   api-aaa {
     no_auth /api/v1/pfconnector/tunnel
+    session_backend db
   }
   
   api

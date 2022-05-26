@@ -8,7 +8,7 @@ import (
 )
 
 func TestRedisTokenBackend(t *testing.T) {
-	b := NewRedisTokenBackend(1*time.Second, 1*time.Second)
+	b := NewRedisTokenBackend(1*time.Second, 1*time.Second, []string{})
 	token := "my-beautiful-token"
 
 	if b.TokenIsValid(token) {

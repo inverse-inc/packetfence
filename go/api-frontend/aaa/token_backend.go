@@ -14,6 +14,20 @@ type TokenBackend interface {
 	TouchTokenInfo(token string)
 }
 
+const tokenPrefix = "api-frontend-session:"
+
+func tokenKey(tb TokenBackend, token string) string {
+	return tokenPrefix + token
+}
+
+func AdminActionsForToken(tb TokenBackend, token string) map[string]bool {
+	if ti, _ := tb.TokenInfoForToken(token); ti != nil {
+		return ti.AdminActions()
+	}
+
+	return make(map[string]bool)
+}
+
 type TokenInfo struct {
 	AdminRoles map[string]bool `json:"admin_roles" redis:"admin_roles"`
 	Username   string          `json:"username" redis:"username"`
@@ -43,4 +57,26 @@ func ValidTokenExpiration(ti *TokenInfo, expiration time.Time, max time.Duration
 	}
 
 	return ti, expiration
+}
+
+func MakeTokenBackend(args []string) TokenBackend {
+	switch args[0] {
+	case "db":
+		return NewDbTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args[1:],
+		)
+	case "redis":
+		return NewRedisTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args[1:],
+		)
+	}
+	return NewMemTokenBackend(
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+		args[1:],
+	)
 }
