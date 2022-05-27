@@ -267,6 +267,26 @@ sub get_cache {
     return $memory;
 }
 
+sub get_cache_ordered {
+    my ($self, $what) = @_;
+    
+    my $ordered_prefix = "ORDERED::";
+
+    my $memory = $self->{memory}{"$ordered_prefix$what"};
+
+    unless (defined($memory) && $self->is_valid($what)) {
+        $memory = $self->get_cache($what);
+
+        if(ref($memory) eq "HASH") {
+            $memory = $self->tie_ixhash_copied($memory);
+        }
+        
+        $self->{memory}{"$ordered_prefix$what"} = $memory;
+    }
+
+    return $memory;
+}
+
 =head2 post_process_element
 
 Post processes an element fetched from the cache backend
@@ -276,10 +296,6 @@ For now, it is used only to transform non-ordered hashes into ordered ones so fo
 
 sub post_process_element {
     my ($self, $what, $element) = @_;
-    if (ref($element) eq 'HASH') {
-        return $self->tie_ixhash_copied($element);
-    }
-
     return $element;
 }
 
@@ -295,7 +311,7 @@ sub tie_ixhash_copied {
     my @keys = keys(%$hash);
     @keys = sort(@keys);
     @copy{@keys} = @{$hash}{@keys};
-    return \%copy;
+    return tied(%copy);
 }
 
 =head2 cache_resource
@@ -307,6 +323,8 @@ Builds the resource associated to a namespace and then caches it in the L1 and L
 sub cache_resource {
     my ( $self, $what ) = @_;
     my $logger = get_logger;
+
+    $what = normalize_namespace_query($what);
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);

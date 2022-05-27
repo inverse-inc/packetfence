@@ -231,10 +231,15 @@ sub expire {
 }
 
 sub get_from_cache {
-    my ($what) = @_;
+    my ($what, $ordered) = @_;
     my $elem;
     # let's get the top namespace element
-    $elem = $cache->get_cache($what);
+    if($ordered) {
+        $elem = $cache->get_cache_ordered($what);
+    }
+    else {
+        $elem = $cache->get_cache($what);
+    }
 
     return $elem;
 }
@@ -251,12 +256,12 @@ sub get_hash_element {
 
     my @keys = split ';', $query->{key};
 
-    my $elem = get_from_cache_or_croak($keys[0], $socket);
+    my $elem = get_from_cache_or_croak($keys[0], $socket, 1);
     return unless(defined($elem));
 
     # if we want a subnamespace we handle it here
     if($keys[1]){
-        my $sub_elem = $elem->{$keys[1]};
+        my $sub_elem = $elem->FETCH($keys[1]);
         if(defined($sub_elem)){
             $elem = {element => $sub_elem};
         }
@@ -272,8 +277,8 @@ sub get_hash_element {
 }
 
 sub get_from_cache_or_croak {
-    my ($key, $socket) = @_;
-    my $elem = get_from_cache($key);
+    my ($key, $socket, $ordered) = @_;
+    my $elem = get_from_cache($key, $ordered);
 
     if(defined($elem)){
         return $elem;
@@ -289,20 +294,20 @@ sub get_from_cache_or_croak {
 sub get_keys {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    my $elem = get_from_cache_or_croak($query->{key}, $socket, 1);
     return unless(defined($elem));
 
-    my @keys = keys(%{$elem});
+    my @keys = $elem->Keys;
     send_output({keys => \@keys}, $socket, $query);
 }
 
 sub get_key_exists {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    my $elem = get_from_cache_or_croak($query->{key}, $socket, 1);
     return unless(defined($elem));
 
-    my @keys = keys(%{$elem});
+    my @keys = $elem->Keys;
 
     my $key = $query->{search};
     if (any { $key eq $_ } @keys) {
@@ -317,9 +322,9 @@ sub get_key_exists {
 sub get_next_key {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket, 1) || return;
 
-    my @keys = keys(%{$elem});
+    my @keys = $elem->Keys;
 
     my $last_key = $query->{last_key};
 
