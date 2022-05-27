@@ -16,6 +16,9 @@
 
 .svgContainer {
   position: relative;
+  * {
+    user-select: none;
+  }
 
   text {
     font-family: "B612 Mono", "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
