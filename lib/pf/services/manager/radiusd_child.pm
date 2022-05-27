@@ -1543,6 +1543,7 @@ our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
     );
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
+    chmod(0644, "$install_dir/raddb/mods-config/perl/multi_domain_constants.pm");
 }
 
 =head2 generate_radiusd_certificates
