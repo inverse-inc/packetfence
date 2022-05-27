@@ -225,7 +225,7 @@ func TestSpawnSso(t *testing.T) {
 	firewall, _ := factory.Instantiate(ctx, "testfw2")
 
 	for i := 0; i < 5; i++ {
-		pfsso.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
+		pfsso.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {
 			return firewallsso.ExecuteStart(ctx, firewall, info, 3600)
 		})
 	}
