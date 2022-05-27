@@ -46,7 +46,6 @@ make raddb/certs/server.crt
 make conf/unified_api_system_pass
 make configurations
 make translation
-touch conf/pf.conf
 cd -
 
 cd $tmpdir/fingerbank
@@ -59,4 +58,5 @@ cp -a $tmpdir/packetfence/raddb $dst_dir/
 
 mkdir $dst_dir/fingerbank
 cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
+touch $dst_dir/fingerbank/conf/fingerbank.conf
 
