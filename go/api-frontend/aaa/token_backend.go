@@ -60,6 +60,14 @@ func ValidTokenExpiration(ti *TokenInfo, expiration time.Time, max time.Duration
 }
 
 func MakeTokenBackend(args []string) TokenBackend {
+	if len(args) == 0 {
+		return NewMemTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args,
+		)
+	}
+
 	switch args[0] {
 	case "db":
 		return NewDbTokenBackend(
@@ -73,10 +81,12 @@ func MakeTokenBackend(args []string) TokenBackend {
 			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
 			args[1:],
 		)
+	default:
+		return NewMemTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args[1:],
+		)
 	}
-	return NewMemTokenBackend(
-		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-		args[1:],
-	)
+
 }

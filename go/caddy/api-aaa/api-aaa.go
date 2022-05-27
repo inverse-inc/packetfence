@@ -100,7 +100,12 @@ func setup(c *caddy.Controller) error {
 }
 
 func validateTokenArgs(args []string) ([]string, error) {
-	return args, nil
+	switch args[0] {
+	default:
+		return nil, fmt.Errorf("Invalid session_backend type '%s'", args[0])
+	case "mem", "redis", "db":
+		return args, nil
+	}
 }
 
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes
