@@ -1122,6 +1122,7 @@ EOT
         $tags{'PacketFenceKeyBalanced'} = "";
     }
     $tt->process("$conf_dir/radiusd/packetfence-pre-proxy", \%tags, "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy") or die $tt->error();
+    chmod(0644, "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy");
 }
 
 =head2 generate_radiusd_cluster
