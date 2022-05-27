@@ -46,6 +46,7 @@ make raddb/certs/server.crt
 make conf/unified_api_system_pass
 make configurations
 make translation
+touch conf/pf.conf
 cd -
 
 cd $tmpdir/fingerbank
