@@ -25,8 +25,8 @@ func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 	}
 }
 
-func ManualConnectDb(ctx context.Context, user, pass, host, dbName string) (*sql.DB, error) {
-	uri := ReturnURI(ctx, user, pass, host, dbName)
+func ManualConnectDb(ctx context.Context, user, pass, host, port, dbName string) (*sql.DB, error) {
+	uri := ReturnURI(ctx, user, pass, host, port, dbName)
 	return ConnectURI(ctx, uri)
 }
 
@@ -36,7 +36,7 @@ func DbLocalFromConfig(ctx context.Context) (*sql.DB, error) {
 
 	dbConfig := pfconfigdriver.Config.PfConf.Database
 
-	return ManualConnectDb(ctx, dbConfig.User, dbConfig.Pass, "localhost", dbConfig.Db)
+	return ManualConnectDb(ctx, dbConfig.User, dbConfig.Pass, "localhost", dbConfig.Port, dbConfig.Db)
 }
 
 func ConnectDb(ctx context.Context, dbName string) (*sql.DB, error) {
@@ -68,13 +68,14 @@ func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
 		DBName = dbConfig.Db
 	}
 
-	return ReturnURI(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, DBName)
+	return ReturnURI(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Port, DBName)
 }
 
-func ReturnURI(ctx context.Context, user, pass, host, dbName string) string {
+func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) string {
 	user = strings.TrimSpace(user)
 	pass = strings.TrimSpace(pass)
 	host = strings.TrimSpace(host)
+	port = strings.TrimSpace(port)
 	dbName = strings.TrimSpace(dbName)
 
 	proto := "tcp"
@@ -83,6 +84,6 @@ func ReturnURI(ctx context.Context, user, pass, host, dbName string) string {
 		host = "/var/lib/mysql/mysql.sock"
 	}
 
-	uri := fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, dbName)
+	uri := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, port, dbName)
 	return uri
 }
