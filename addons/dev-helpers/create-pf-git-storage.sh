@@ -50,10 +50,13 @@ make configurations
 make translation
 
 cat <<EOF > conf/pf.conf
+[advanced]
+configurator=disabled
+
 [interface virtualmgmt]
 ip=127.127.127.127
 mask=255.255.255.255
-type=management
+type=management,portal
 EOF
 
 cd -
