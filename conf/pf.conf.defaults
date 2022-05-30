@@ -1397,7 +1397,7 @@ device_class_whitelist=
 triggers=
 
 [pfconnector]
-redis_server=[% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "host.docker.internal:6379") %]
+redis_server=[% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "containers-gateway.internal:6379") %]
 redis_tunnels_namespace=pfconnector:activeTunnels:
 
 [lets_encrypt]
