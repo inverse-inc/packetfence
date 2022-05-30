@@ -10,6 +10,7 @@ const state = () => {
     cache: {}, // communication details
     message: '',
     status: '',
+    selectedDevices: [],
     selectedHosts: [],
     selectedProtocols: [],
   }
@@ -61,6 +62,59 @@ const actions = {
         commit('ERROR', err)
         reject(err)
       })
+    })
+  },
+  toggleDevice: ({ state, commit, dispatch }, device) => {
+    return new Promise(resolve => {
+      const i = state.selectedDevices.findIndex(selected => selected === device)
+      if (i > -1) {
+        commit('DEVICE_DESELECT', device)
+        dispatch('get', { nodes: state.selectedDevices })
+        resolve(false)
+      }
+      else {
+        // select device
+        commit('DEVICE_SELECT', device)
+        dispatch('get', { nodes: state.selectedDevices })
+        resolve(true)
+      }
+    })
+  },
+  deselectDevices: ({ state, commit, dispatch }, devices = []) => {
+    return new Promise(resolve => {
+      devices.forEach(device => {
+        if (state.selectedDevices.indexOf(device) > -1) {
+          commit('DEVICE_DESELECT', device)
+          dispatch('get', { nodes: state.selectedDevices })
+        }
+      })
+      resolve()
+    })
+  },
+  selectDevices: ({ state, commit, dispatch }, devices = []) => {
+    return new Promise(resolve => {
+      devices.forEach(device => {
+        if (state.selectedDevices.indexOf(device) === -1) {
+          commit('DEVICE_SELECT', device)
+          dispatch('get', { nodes: state.selectedDevices })
+        }
+      })
+      resolve()
+    })
+  },
+  invertDevices: ({ state, commit, dispatch }, devices = []) => {
+    return new Promise(resolve => {
+      devices.forEach(device => {
+        if (state.selectedDevices.indexOf(device) === -1) {
+          commit('DEVICE_SELECT', device)
+          dispatch('get', { nodes: state.selectedDevices })
+        }
+        else {
+          commit('DEVICE_DESELECT', device)
+          dispatch('get', { nodes: state.selectedDevices })
+        }
+      })
+      resolve()
     })
   },
   toggleHost: ({ state, commit }, host) => {
@@ -188,6 +242,12 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
+  },
+  DEVICE_DESELECT: (state, device) => {
+    state.selectedDevices = [ ...state.selectedDevices.filter(selected => selected !== device) ]
+  },
+  DEVICE_SELECT: (state, device) => {
+    state.selectedDevices.push(device)
   },
   HOST_DESELECT: (state, host) => {
     state.selectedHosts = [ ...state.selectedHosts.filter(selected => selected !== host) ]

@@ -89,8 +89,8 @@ const setup = (props, context) => {
 
   onBeforeUnmount(() => window.removeEventListener('resize', setDimensions))
 
-  const toggleDevice = mac => {
-    console.log('toggleDevice', {mac})
+  const toggleDevice = device => {
+    $store.dispatch('$_fingerbank_communication/toggleDevice', device)
   }
 
   const toggleHost = host => {

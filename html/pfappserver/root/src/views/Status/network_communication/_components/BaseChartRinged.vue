@@ -25,7 +25,17 @@
       @mousewheel="mouseWheelSvg($event)"
     >
       <!-- symbol definitions -->
-      <defs v-once>
+      <defs>
+
+        <!-- outer hosts text label paths -->
+        <path v-for="host in svgOuterHostsText" :key="host.path.key" v-bind="host.path.props" />
+
+        <!-- inner hosts text label paths -->
+        <path v-for="host in svgInnerHostsText" :key="host.path.key" v-bind="host.path.props" />
+
+        <!-- devices text label paths -->
+        <path v-for="host in svgDevicesText" :key="host.path.key" v-bind="host.path.props" />
+
       </defs>
 
       <!-- background to capture node mouseout event -->
@@ -49,21 +59,31 @@
       <!-- outer hosts -->
       <circle v-for="host in svgOuterHosts" :key="host.key" v-bind="host.props" v-on="host.handlers" />
 
-      <!-- outer hosts text -->
-      <text v-for="text in svgOuterHostsText" :key="text.key" v-bind="text.props" v-on="text.handlers">{{ text.text }}</text>
-
       <!-- inner hosts -->
       <circle v-for="host in svgInnerHosts" :key="host.key" v-bind="host.props" v-on="host.handlers" />
-
-      <!-- inner hosts text -->
-      <text v-for="text in svgInnerHostsText" :key="text.key" v-bind="text.props" v-on="text.handlers">{{ text.text }}</text>
 
       <!-- devices -->
       <circle v-for="device in svgDevices" :key="device.key" v-bind="device.props" v-on="device.handlers"/>
 
-      <!-- devices text -->
-      <text v-for="text in svgDevicesText" :key="text.key" v-bind="text.props" v-on="text.handlers">{{ text.text }}</text>
+      <!-- text labels -->
+      <text>
 
+        <!-- outer hosts -->
+        <textPath v-for="host in svgOuterHostsText" :key="host.textPath.key" v-bind="host.textPath.props" v-on="host.textPath.handlers">
+          <tspan v-for="tspan in host.textPath.tspan" :key="tspan.key" v-bind="tspan.props">{{ tspan.text }}</tspan>
+        </textPath>
+
+        <!-- inner hosts -->
+        <textPath v-for="host in svgInnerHostsText" :key="host.textPath.key" v-bind="host.textPath.props" v-on="host.textPath.handlers">
+          <tspan v-for="tspan in host.textPath.tspan" :key="tspan.key" v-bind="tspan.props">{{ tspan.text }}</tspan>
+        </textPath>
+
+        <!-- devices -->
+        <textPath v-for="device in svgDevicesText" :key="device.textPath.key" v-bind="device.textPath.props" v-on="device.textPath.handlers">
+          <tspan v-for="tspan in device.textPath.tspan" :key="tspan.key" v-bind="tspan.props">{{ tspan.text }}</tspan>
+        </textPath>
+
+      </text>
 
       <!-- mini map -->
       <rect v-if="showMiniMap" class="innerMiniMap" v-bind="innerMiniMapProps" />
@@ -125,7 +145,7 @@ const props = {
   },
 }
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
+import { computed, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useViewBox, useMiniMap } from '@/composables/useSvg'
 
 const setup = (props, context) => {
@@ -133,7 +153,6 @@ const setup = (props, context) => {
   const {
     options,
     dimensions,
-    isLoading,
     items
   } = toRefs(props)
 
@@ -204,7 +223,6 @@ const setup = (props, context) => {
   })
 
   const devicesRingScale = .25 // 25% height
-  const devicesRingCircumference = computed(() => (Math.PI * dimensions.value.height * innerHostsRingScale))
   const devicesRingRadius = computed(() => (dimensions.value.height / 2) * devicesRingScale)
   const svgDevicesRingProps = computed(() => ({
     cx: cx.value,
@@ -238,6 +256,7 @@ const setup = (props, context) => {
   })
   const deviceFocus = ref([])
   const deviceRingFocus = ref(false)
+  // eslint-disable-next-line no-unused-vars
   const deviceOver = (event, key) => {
     deviceFocus.value = [key]
     deviceRingFocus.value = true
@@ -248,6 +267,7 @@ const setup = (props, context) => {
       .filter(item => item.mac === key && !item.internalHost)
       .map(item => item.host)
   }
+  // eslint-disable-next-line no-unused-vars
   const deviceOut = (event, key) => {
     deviceFocus.value = []
     deviceRingFocus.value = false
@@ -288,31 +308,42 @@ const setup = (props, context) => {
   const svgDevicesText = computed(() => {
     return Object.values(devices.value)
       .map(device => {
-        const { angle, node, size, x, y } = device
+        const { angle, node, x: x1, y: y1 } = device
         const opacity = ((!deviceFocus.value.length || deviceFocus.value.indexOf(node) > -1) ? 1 : 0)
+        const id = `href-${node}`
+        const x2 = cx.value + (2 * devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
+        const y2 = cy.value + (2 * devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
-          key: `deviceText-${node}`,
-          props: {
-            'font-size': `${fontSize.value}px`,
-            'stroke-width': `${fontSize.value / 50}`,
-            fill: `rgb(0, 0, 0, ${opacity})`,
-            transform: `rotate(${angle})`,
-            'transform-origin': '0% 50%', // left center
-            x, y
+          path: {
+            key: `devicePath-${node}`,
+            props: {
+              id,
+              d: `M ${x1},${y1} ${x2},${y2} ${x2},${y2} ${x1},${y1}`
+            }
           },
-          handlers: {
-            mouseover: event => deviceOver(event, node),
-            mouseout: event => deviceOut(event, node),
-            mousedown: event => deviceDown(event, node)
-          },
-          text: node
+          textPath: {
+            key: `deviceTextPath-${node}`,
+            props: {
+              'xlink:href': `#${id}`,
+              'font-size': `${fontSize.value}px`,
+              'stroke-width': `${fontSize.value / 50}`,
+              fill: `rgb(0, 0, 0, ${opacity})`
+            },
+            handlers: {
+              mouseover: event => deviceOver(event, node),
+              mouseout: event => deviceOut(event, node),
+              mousedown: event => deviceDown(event, node)
+            },
+            tspan: [
+              { key: `deviceTextPath-${node}-0`, props: { x: '1em', dy: '-.25em' }, text: node }
+            ]
+          }
         }
       })
       .filter(device => device)
   })
 
   const innerHostsRingScale = .5 // 50% height
-  const innerHostsRingCircumference = computed(() => (Math.PI * dimensions.value.height * innerHostsRingScale))
   const innerHostsRingRadius = computed(() => (dimensions.value.height / 2) * innerHostsRingScale)
   const svgInnerHostsRingProps = computed(() => ({
     cx: cx.value,
@@ -348,6 +379,7 @@ const setup = (props, context) => {
   })
   const innerHostFocus = ref([])
   const innerHostRingFocus = ref(false)
+  // eslint-disable-next-line no-unused-vars
   const innerHostOver = (event, key) => {
     innerHostFocus.value = [key]
     innerHostRingFocus.value = true
@@ -355,6 +387,7 @@ const setup = (props, context) => {
       .filter(item => item.host === key)
       .map(item => item.mac)
   }
+  // eslint-disable-next-line no-unused-vars
   const innerHostOut = (event, key) => {
     innerHostFocus.value = []
     innerHostRingFocus.value = false
@@ -394,31 +427,44 @@ const setup = (props, context) => {
   const svgInnerHostsText = computed(() => {
     return Object.values(innerHosts.value)
       .map(host => {
-        const { angle, node, size, x, y } = host
+        const { angle, node, x: x1, y: y1 } = host
         const opacity = (((!innerHostFocus.value.length || innerHostFocus.value.indexOf(node) > -1) && !outerHostFocus.value.length) ? 1 : 0)
+        const id = `href-${node}`
+        const x2 = cx.value + (2 * innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
+        const y2 = cy.value + (2 * innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
-          key: `innerHostText-${node}`,
-          props: {
-            'font-size': `${fontSize.value}px`,
-            'stroke-width': `${fontSize.value / 50}`,
-            fill: `rgb(0, 0, 0, ${opacity})`,
-            transform: `rotate(${angle})`,
-            'transform-origin': '0% 50%', // left center
-            x, y
+          path: {
+            key: `innerHostPath-${node}`,
+            props: {
+              id,
+              d: `M ${x1},${y1} ${x2},${y2} ${x2},${y2} ${x1},${y1}`
+            }
           },
-          handlers: {
-            mouseover: event => innerHostOver(event, node),
-            mouseout: event => innerHostOut(event, node),
-            mousedown: event => innerHostDown(event, node)
-          },
-          text: node
+          textPath: {
+            key: `innerHostTextPath-${node}`,
+            props: {
+              'xlink:href': `#${id}`,
+              'font-size': `${fontSize.value}px`,
+              'stroke-width': `${fontSize.value / 50}`,
+              fill: `rgb(0, 0, 0, ${opacity})`
+            },
+            handlers: {
+              mouseover: event => innerHostOver(event, node),
+              mouseout: event => innerHostOut(event, node),
+              mousedown: event => innerHostDown(event, node)
+            },
+            tspan: [
+              { key: `innerHostTextPath-${node}-0`, props: { x: '1em', dy: '-.25em' }, text: node }
+            ]
+          }
         }
       })
       .filter(host => host)
+
+
   })
 
   const outerHostsRingScale = .75 // 75% height
-  const outerHostsRingCircumference = computed(() => (Math.PI * dimensions.value.height * outerHostsRingScale))
   const outerHostsRingRadius = computed(() => (dimensions.value.height / 2) * outerHostsRingScale)
   const svgOuterHostsRingProps = computed(() => ({
     cx: cx.value,
@@ -454,6 +500,7 @@ const setup = (props, context) => {
   })
   const outerHostFocus = ref([])
   const outerHostRingFocus = ref(false)
+  // eslint-disable-next-line no-unused-vars
   const outerHostOver = (event, key) => {
     outerHostFocus.value = [key]
     outerHostRingFocus.value = true
@@ -461,6 +508,7 @@ const setup = (props, context) => {
       .filter(item => item.host === key)
       .map(item => item.mac)
   }
+  // eslint-disable-next-line no-unused-vars
   const outerHostOut = (event, key) => {
     outerHostFocus.value = []
     outerHostRingFocus.value = false
@@ -500,24 +548,36 @@ const setup = (props, context) => {
   const svgOuterHostsText = computed(() => {
     return Object.values(outerHosts.value)
       .map(host => {
-        const { angle, node, size, x, y } = host
+        const { angle, node, x: x1, y: y1 } = host
         const opacity = (((!outerHostFocus.value.length || outerHostFocus.value.indexOf(node) > -1) && !innerHostFocus.value.length) ? 1 : 0)
+        const id = `href-${node}`
+        const x2 = cx.value + (2 * outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
+        const y2 = cy.value + (2 * outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
-          key: `outerHostText-${node}`,
-          props: {
-            'font-size': `${fontSize.value}px`,
-            'stroke-width': `${fontSize.value / 50}`,
-            fill: `rgb(0, 0, 0, ${opacity})`,
-            transform: `rotate(${angle})`,
-            'transform-origin': '0% 50%', // left center
-            x, y
+          path: {
+            key: `outerHostPath-${node}`,
+            props: {
+              id,
+              d: `M ${x1},${y1} ${x2},${y2} ${x2},${y2} ${x1},${y1}`
+            }
           },
-          handlers: {
-            mouseover: event => outerHostOver(event, node),
-            mouseout: event => outerHostOut(event, node),
-            mousedown: event => outerHostDown(event, node)
-          },
-          text: node
+          textPath: {
+            key: `outerHostTextPath-${node}`,
+            props: {
+              'xlink:href': `#${id}`,
+              'font-size': `${fontSize.value}px`,
+              'stroke-width': `${fontSize.value / 50}`,
+              fill: `rgb(0, 0, 0, ${opacity})`
+            },
+            handlers: {
+              mouseover: event => outerHostOver(event, node),
+              mouseout: event => outerHostOut(event, node),
+              mousedown: event => outerHostDown(event, node)
+            },
+            tspan: [
+              { key: `outerHostTextPath-${node}-0`, props: { x: '1em', dy: '-.25em' }, text: node }
+            ]
+          }
         }
       })
       .filter(host => host)
@@ -643,8 +703,6 @@ deviceRotation,
 
 assocInnerHostsCount,
 assocOuterHostsCount,
-innerHostsRingCircumference,
-outerHostsRingCircumference,
 totalCount,
 innerHosts,
 outerHosts,

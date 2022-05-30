@@ -24,10 +24,10 @@
         @click="onSelectItem(item)"
         align-v="center"
         :class="{
-          'filter-selected': value.indexOf(item.mac) > -1
+          'filter-selected': selectedDevices.indexOf(item.mac) > -1
         }">
         <b-col cols="1" class="px-3 py-1 ml-3 text-center">
-          <template v-if="value.indexOf(item.mac) > -1">
+          <template v-if="selectedDevices.indexOf(item.mac) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
           <template v-else>
@@ -38,9 +38,11 @@
           <text-highlight :queries="[filter]">{{ item.mac }}</text-highlight>
         </b-col>
         <b-col cols="auto mr-3">
+<!--
           <b-badge class="ml-1">{{ uniqueCategories[item.mac] }} {{ $i18n.t('categories') }}</b-badge>
           <b-badge class="ml-1">{{ uniqueProtocols[item.mac] }} {{ $i18n.t('protocols') }}</b-badge>
           <b-badge class="ml-1">{{ uniqueHosts[item.mac] }} {{ $i18n.t('hosts') }}</b-badge>
+-->
         </b-col>
       </b-row>
     </div>
@@ -58,28 +60,23 @@ const directives = {
   focus
 }
 
-const props = {
-  items: {
-    type: Array
-  },
-  value: {
-    type: Array
-  }
-}
-
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { useNodesSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
-  const {
-    items,
-    value
-  } = toRefs(props)
+  const { root: { $store } = {} } = context
 
-  const { emit } = context
+  const search = useNodesSearch()
+  const {
+    items
+  } = toRefs(search)
+
+
+  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices)
 
   const uniqueItems = computed(() => {
-    return Object.values(items.value)
+    return items.value
       .reduce((unique, item) => {
         if (unique.filter(u => u.mac === item.mac).length === 0) {
           return [ ...unique, item ]
@@ -88,6 +85,13 @@ const setup = (props, context) => {
       }, [])
       .sort((a, b) => a.mac.localeCompare(b.mac))
   })
+
+  watch([selectedDevices, uniqueItems], () => {
+    if (selectedDevices.value.length === 0 && uniqueItems.value.length > 0) {
+      $store.dispatch('$_fingerbank_communication/get', { nodes: uniqueItems.value.map(item => item.mac) })
+    }
+  }, { immediate: true })
+
 
   const filter = ref('')
 
@@ -99,53 +103,22 @@ const setup = (props, context) => {
       .filter(item => (item.mac.indexOf(filter.value) > -1))
   })
 
-
   const onSelectItem = item => {
-    const isSelected = value.value.findIndex(mac => mac === item.mac)
-    if (isSelected > -1) { // remove
-      emit('input', [ ...value.value.filter(mac => mac !== value.value[isSelected]) ])
-    }
-    else { // insert
-      emit('input', [ ...value.value, item.mac ])
-    }
+    $store.dispatch('$_fingerbank_communication/toggleDevice', item.mac)
   }
 
   const onSelectAll = () => {
-    let selected = value.value
-    filteredItems.value.forEach((item) => {
-      let i = selected.indexOf(item.mac)
-      if (i === -1) {
-        selected = [ ...selected, item.mac ]
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/selectDevices', filteredItems.value)
   }
 
   const onSelectNone = () => {
-    let selected = value.value
-    filteredItems.value.forEach((item) => {
-      let i = selected.indexOf(item.mac)
-      if (i > -1) {
-        selected = selected.filter((_, j) => j !== i)
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/deselectDevices', selectedDevices.value)
   }
 
   const onSelectInverse = () => {
-    let selected = value.value
-    filteredItems.value.forEach((item) => {
-      let i = selected.indexOf(item.mac)
-      if (i > -1) {
-        selected = selected.filter((_, j) => j !== i)
-      }
-      else {
-        selected = [ ...selected, item.mac ]
-      }
-    })
-    emit('input', selected)
+    $store.dispatch('$_fingerbank_communication/invertDevices', filteredItems.value.map(item => item.mac))
   }
-
+/*
   const uniqueCategories = computed(() => {
     const assoc = items.value.reduce((unique, item) => {
       const { mac, device_class } = item
@@ -179,19 +152,19 @@ const setup = (props, context) => {
       return { ...unique, [mac]: assoc[mac].length }
     }, {})
   })
+*/
 
   return {
     filter,
     filteredItems,
     uniqueItems,
+
+    selectedDevices,
+
     onSelectItem,
     onSelectAll,
     onSelectNone,
     onSelectInverse,
-
-    uniqueCategories,
-    uniqueProtocols,
-    uniqueHosts,
   }
 }
 
@@ -200,7 +173,6 @@ export default {
   name: 'base-filter-devices',
   components,
   directives,
-  props,
   setup
 }
 </script>
