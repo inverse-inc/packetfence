@@ -50,6 +50,8 @@ use pf::constants::user;
 use pf::config::tenant;
 use pfconfig::git_storage;
 
+my $ordered_prefix = "ORDERED::";
+
 =head2 config_builder
 
 Builds the object associated to a namespace
@@ -270,8 +272,6 @@ sub get_cache {
 sub get_cache_ordered {
     my ($self, $what) = @_;
     
-    my $ordered_prefix = "ORDERED::";
-
     my $memory = $self->{memory}{"$ordered_prefix$what"};
 
     unless (defined($memory) && $self->is_valid($what)) {
@@ -410,6 +410,7 @@ sub expire {
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
         delete $self->{memorized_at}->{$what};
+        delete $self->{memorized_at}->{"$ordered_prefix$what"};
         $self->touch_cache($what);
     }
     else {
