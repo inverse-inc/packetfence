@@ -18,7 +18,7 @@
                 <template #title>
                   {{ $i18n.t('Devices') }} <b-badge v-if="selectedDevices.length" pill variant="primary" class="ml-1">{{ selectedDevices.length }}</b-badge>
                 </template>
-                <base-filter-devices :items="items" v-model="selectedDevices" />
+                <base-filter-devices />
               </b-tab>
               <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
@@ -56,56 +56,20 @@ const components = {
   TheData,
 }
 
-import { createDebouncer } from 'promised-debounce'
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
-import { useNodesSearch } from '../_composables/useCollection'
+import { computed } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
- const { root: { $store } = {} } = context
+  const { root: { $store } = {} } = context
 
-  const search = useNodesSearch()
-  const {
-    items
-  } = toRefs(search)
-
-  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
-  const devices = computed(() => $store.getters['$_fingerbank_communication/devices'])
-  const protocols = computed(() => $store.getters['$_fingerbank_communication/protocols'])
-  const hosts = computed(() => $store.getters['$_fingerbank_communication/hosts'])
-
-  const selectedCategories = ref([])
-  const selectedDevices = ref([])
+  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices)
   const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
   const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
 
-  let selectDebouncer = createDebouncer()
-
-  watch([items, selectedDevices], () => {
-    selectDebouncer({
-      handler: () => {
-        const nodes = ((selectedDevices.value.length > 0)
-          ? selectedDevices.value // selected
-          : items.value.map(item => item.mac) // all
-        )
-        $store.dispatch('$_fingerbank_communication/get', { nodes })
-      },
-      time: 1000
-    })
-  }, { deep: true })
-
   return {
-    ...toRefs(search),
-
-    selectedCategories,
     selectedDevices,
     selectedHosts,
-    selectedProtocols,
-
-    isLoading,
-    devices,
-    protocols,
-    hosts,
+    selectedProtocols
   }
 }
 
