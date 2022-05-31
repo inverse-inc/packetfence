@@ -19,6 +19,12 @@ function base_args {
   args="$args -eFINGERBANK_UID=`id -u fingerbank` -e FINGERBANK_GID=`id -g fingerbank`"
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
 
+  # Check to mount /tmp dir
+  if [ -z ${PF_MOUNT_TMP} ]; then
+    args="$args -v /tmp:/tmp"
+  fi
+
+  # check to add env file
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
