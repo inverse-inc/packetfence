@@ -348,7 +348,7 @@ sub cache_resource {
         }
     }
     $self->{memory}->{$what}       = $result;
-    delete $self->{memory}->{"$ordered_prefix$what"}
+    delete $self->{memory}->{"$ordered_prefix$what"};
     $self->{memorized_at}->{$what} = time;
 
     return $result;
@@ -420,7 +420,7 @@ sub expire {
         $self->cache_resource($what);
     }
 
-    delete $self->{memory}->{"$ordered_prefix$what"}
+    delete $self->{memory}->{"$ordered_prefix$what"};
 
     unless($self->is_overlayed_namespace($what)){
         my $namespace = $self->get_namespace($what);
