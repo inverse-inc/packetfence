@@ -272,6 +272,8 @@ sub get_cache {
 sub get_cache_ordered {
     my ($self, $what) = @_;
     
+    $what = normalize_namespace_query($what);
+    
     my $memory = $self->{memory}{"$ordered_prefix$what"};
 
     unless (defined($memory) && $self->is_valid($what)) {
@@ -410,7 +412,6 @@ sub expire {
     if(defined($light) && $light){
         $logger->info("Light expiring resource : $what");
         delete $self->{memorized_at}->{$what};
-        delete $self->{memorized_at}->{"$ordered_prefix$what"};
         $self->touch_cache($what);
     }
     else {
