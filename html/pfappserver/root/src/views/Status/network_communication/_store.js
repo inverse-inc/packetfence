@@ -1,6 +1,7 @@
 /**
 * "$_fingerbank_communication" store module
 */
+import { createDebouncer } from 'promised-debounce'
 import api from '@/views/Nodes/_api'
 import { decorateDevice, decorateProtocol, splitHost, splitProtocol } from './_composables/useCommunication'
 
@@ -12,9 +13,11 @@ const state = () => {
     status: '',
     selectedDevices: [],
     selectedHosts: [],
-    selectedProtocols: [],
+    selectedProtocols: []
   }
 }
+
+let debouncer
 
 const getters = {
   isLoading: state => state.status === 'loading',
@@ -64,18 +67,27 @@ const actions = {
       })
     })
   },
+  getDebounced: ({ dispatch }, params) => {
+    if (!debouncer) {
+      debouncer = createDebouncer()
+    }
+    debouncer({
+      handler: () => dispatch('get', params),
+      time: 100 // 100ms
+    })
+  },
   toggleDevice: ({ state, commit, dispatch }, device) => {
     return new Promise(resolve => {
       const i = state.selectedDevices.findIndex(selected => selected === device)
       if (i > -1) {
         commit('DEVICE_DESELECT', device)
-        dispatch('get', { nodes: state.selectedDevices })
+        dispatch('getDebounced', { nodes: state.selectedDevices })
         resolve(false)
       }
       else {
         // select device
         commit('DEVICE_SELECT', device)
-        dispatch('get', { nodes: state.selectedDevices })
+        dispatch('getDebounced', { nodes: state.selectedDevices })
         resolve(true)
       }
     })
@@ -85,7 +97,7 @@ const actions = {
       devices.forEach(device => {
         if (state.selectedDevices.indexOf(device) > -1) {
           commit('DEVICE_DESELECT', device)
-          dispatch('get', { nodes: state.selectedDevices })
+          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
       })
       resolve()
@@ -96,7 +108,7 @@ const actions = {
       devices.forEach(device => {
         if (state.selectedDevices.indexOf(device) === -1) {
           commit('DEVICE_SELECT', device)
-          dispatch('get', { nodes: state.selectedDevices })
+          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
       })
       resolve()
@@ -107,11 +119,11 @@ const actions = {
       devices.forEach(device => {
         if (state.selectedDevices.indexOf(device) === -1) {
           commit('DEVICE_SELECT', device)
-          dispatch('get', { nodes: state.selectedDevices })
+          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
         else {
           commit('DEVICE_DESELECT', device)
-          dispatch('get', { nodes: state.selectedDevices })
+          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
       })
       resolve()
