@@ -25,6 +25,16 @@
       @mousewheel="mouseWheelSvg($event)"
     >
       <!-- symbol definitions -->
+      <defs v-once>
+        <linearGradient id="node-blur">
+          <stop offset="0%" stop-color="rgb(255, 255, 255)"/>
+          <stop offset="100%" stop-color="rgb(192, 192, 192)"/>
+        </linearGradient>
+        <linearGradient id="node-focus">
+          <stop offset="0%" stop-color="rgb(192, 192, 192)"/>
+          <stop offset="100%" stop-color="rgb(127, 127, 127)"/>
+        </linearGradient>
+      </defs>
       <defs>
 
         <!-- outer hosts text label paths -->
@@ -70,17 +80,17 @@
 
         <!-- outer hosts -->
         <textPath v-for="host in svgOuterHostsText" :key="host.textPath.key" v-bind="host.textPath.props" v-on="host.textPath.handlers">
-          <tspan v-for="tspan in host.textPath.tspan" :key="tspan.key" v-bind="tspan.props">{{ tspan.text }}</tspan>
+          <tspan v-for="tspan in host.textPath.tspan" :key="tspan.key" v-bind="tspan.props" v-html="tspan.text" />
         </textPath>
 
         <!-- inner hosts -->
         <textPath v-for="host in svgInnerHostsText" :key="host.textPath.key" v-bind="host.textPath.props" v-on="host.textPath.handlers">
-          <tspan v-for="tspan in host.textPath.tspan" :key="tspan.key" v-bind="tspan.props">{{ tspan.text }}</tspan>
+          <tspan v-for="tspan in host.textPath.tspan" :key="tspan.key" v-bind="tspan.props" v-html="tspan.text" />
         </textPath>
 
         <!-- devices -->
         <textPath v-for="device in svgDevicesText" :key="device.textPath.key" v-bind="device.textPath.props" v-on="device.textPath.handlers">
-          <tspan v-for="tspan in device.textPath.tspan" :key="tspan.key" v-bind="tspan.props">{{ tspan.text }}</tspan>
+          <tspan v-for="tspan in device.textPath.tspan" :key="tspan.key" v-bind="tspan.props" v-html="tspan.text" />
         </textPath>
 
       </text>
@@ -200,6 +210,15 @@ const setup = (props, context) => {
     }, 0)
   })
 
+  const alignTspan = tspans => {
+    const center = 0.25
+    const deltaY = 1.2
+    if (tspans.length > 0) {
+      tspans[0].props.dy = `${center - ((tspans.length - 1) * deltaY / 2)}em`
+    }
+    return tspans
+  }
+
   const deviceRotation = ref(0)
   const innerHostRotation = ref(0)
   const outerHostRotation = ref(0)
@@ -208,15 +227,15 @@ const setup = (props, context) => {
   onMounted(() => {
     rotationInterval = setInterval(() => {
       if (!deviceRingFocus.value) {
-        deviceRotation.value += 0.1
+        deviceRotation.value += 0.2
       }
       if (!innerHostRingFocus.value) {
-        innerHostRotation.value -= 0.05
+        innerHostRotation.value -= 0.1
       }
       if (!outerHostRingFocus.value) {
-        outerHostRotation.value -= 0.025
+        outerHostRotation.value -= 0.05
       }
-    }, 50)
+    }, 100)
   })
   onBeforeUnmount(() => {
     clearInterval(rotationInterval)
@@ -247,7 +266,7 @@ const setup = (props, context) => {
     const minSize = fontSize.value / 2
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
-      const angle = n * 360 / keys.length + deviceRotation.value
+      const angle = (n * 360 / keys.length + deviceRotation.value) % 360
       const x = cx.value + (devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
       const y = cy.value + (devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
       const size = scaleCount(assocDevicesCount.value[node], totalCount.value, minSize, maxSize)
@@ -284,7 +303,7 @@ const setup = (props, context) => {
       const { node, size, x, y } = device
       const isFocus = deviceFocus.value.indexOf(node) > -1
       const isBlur = deviceFocus.value.length && !isFocus
-      const fill = (isFocus) ? `rgb(255, 255, 255,  ${(isBlur) ? 0 : 1})` : `rgb(192, 192, 192, ${(isBlur) ? 0 : 1})`
+      const fill = (isBlur) ? 'rgb(0, 0, 0, 0)' : `url(#node-${(isFocus) ? 'focus' : 'blur' })`
       const stroke = `rgb(0, 0, 0, ${(isBlur) ? 0 : .2})`
       return {
         key: `device-${node}`,
@@ -308,9 +327,11 @@ const setup = (props, context) => {
   const svgDevicesText = computed(() => {
     return Object.values(devices.value)
       .map(device => {
-        const { angle, node, x: x1, y: y1 } = device
+        const { angle, node, size } = device
         const opacity = ((!deviceFocus.value.length || deviceFocus.value.indexOf(node) > -1) ? 1 : 0)
         const id = `href-${node}`
+        const x1 = cx.value + ((devicesRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
+        const y1 = cy.value + ((devicesRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
         const x2 = cx.value + (2 * devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
         const y2 = cy.value + (2 * devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
@@ -327,16 +348,56 @@ const setup = (props, context) => {
               'xlink:href': `#${id}`,
               'font-size': `${fontSize.value}px`,
               'stroke-width': `${fontSize.value / 50}`,
-              fill: `rgb(0, 0, 0, ${opacity})`
+              fill: `rgb(0, 0, 0, ${opacity})`,
+              ...((angle > 90 && angle < 270)
+                ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
+                : {}
+              )
             },
             handlers: {
               mouseover: event => deviceOver(event, node),
               mouseout: event => deviceOut(event, node),
               mousedown: event => deviceDown(event, node)
             },
-            tspan: [
-              { key: `deviceTextPath-${node}-0`, props: { x: '1em', dy: '-.25em' }, text: node }
-            ]
+            tspan: alignTspan([
+              {
+                key: `deviceTextPath-${node}-0`,
+                props: {
+                  x: '0em',
+                  dy: '0.25em'
+                },
+                text: node
+              },
+              ...((innerHostRingFocus.value || outerHostRingFocus.value)
+                ? Object.entries(
+                    [...innerHostFocus.value, ...outerHostFocus.value].reduce((assoc, host) => {
+                      items.value
+                        .filter(item => item.host === host && item.mac === node)
+                        .forEach((item, i) => {
+                          if (!(item.proto in assoc)) {
+                            assoc[item.proto] = []
+                          }
+                          assoc[item.proto].push(item)
+                        })
+                      return assoc
+                    }, {})
+                  )
+                  .reduce((lines, [proto, items], i) => {
+                    const text = `${proto}: ${items.map(item => `${item.port}<tspan fill="rgba(0, 0, 0, 0.5)">(${item.count})</tspan>`).join(', ')}`
+                    lines.push({
+                        key: `deviceTextPath-${node}-${i+1}`,
+                        props: {
+                          x: '0em',
+                          dy: '1.2em',
+                          fill: rgbProto(proto)
+                        },
+                        text
+                      })
+                    return lines
+                  }, [])
+                : []
+              )
+            ])
           }
         }
       })
@@ -370,7 +431,7 @@ const setup = (props, context) => {
     const minSize = fontSize.value / 2
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
-      const angle = n * 360 / keys.length + innerHostRotation.value
+      const angle = (n * 360 / keys.length + innerHostRotation.value) % 360
       const x = cx.value + (innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
       const y = cy.value + (innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
       const size = scaleCount(assocInnerHostsCount.value[node], totalCount.value, minSize, maxSize)
@@ -403,7 +464,7 @@ const setup = (props, context) => {
       const { node, size, x, y } = host
       const isFocus = innerHostFocus.value.indexOf(node) > -1
       const isBlur = (innerHostFocus.value.length && !isFocus) || outerHostFocus.value.length
-      const fill = (isFocus) ? `rgb(255, 255, 255,  ${(isBlur) ? 0 : 1})` : `rgb(192, 192, 192, ${(isBlur) ? 0 : 1})`
+      const fill = (isBlur) ? 'rgb(0, 0, 0, 0)' : `url(#node-${(isFocus) ? 'focus' : 'blur' })`
       const stroke = `rgb(0, 0, 0, ${(isBlur) ? 0 : .2})`
       return {
         key: `innerHost-${node}`,
@@ -427,9 +488,11 @@ const setup = (props, context) => {
   const svgInnerHostsText = computed(() => {
     return Object.values(innerHosts.value)
       .map(host => {
-        const { angle, node, x: x1, y: y1 } = host
+        const { angle, node, size } = host
         const opacity = (((!innerHostFocus.value.length || innerHostFocus.value.indexOf(node) > -1) && !outerHostFocus.value.length) ? 1 : 0)
         const id = `href-${node}`
+        const x1 = cx.value + ((innerHostsRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
+        const y1 = cy.value + ((innerHostsRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
         const x2 = cx.value + (2 * innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
         const y2 = cy.value + (2 * innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
@@ -446,16 +509,56 @@ const setup = (props, context) => {
               'xlink:href': `#${id}`,
               'font-size': `${fontSize.value}px`,
               'stroke-width': `${fontSize.value / 50}`,
-              fill: `rgb(0, 0, 0, ${opacity})`
+              fill: `rgb(0, 0, 0, ${opacity})`,
+              ...((angle > 90 && angle < 270)
+                ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
+                : {}
+              )
             },
             handlers: {
               mouseover: event => innerHostOver(event, node),
               mouseout: event => innerHostOut(event, node),
               mousedown: event => innerHostDown(event, node)
             },
-            tspan: [
-              { key: `innerHostTextPath-${node}-0`, props: { x: '1em', dy: '-.25em' }, text: node }
-            ]
+            tspan: alignTspan([
+              {
+                key: `innerHostTextPath-${node}-0`,
+                props: {
+                  x: '0em',
+                  dy: '0.25em'
+                },
+                text: node
+              },
+              ...((deviceRingFocus.value)
+                ? Object.entries(
+                    deviceFocus.value.reduce((assoc, mac) => {
+                      items.value
+                        .filter(item => item.mac === mac && item.host === node)
+                        .forEach((item, i) => {
+                          if (!(item.proto in assoc)) {
+                            assoc[item.proto] = []
+                          }
+                          assoc[item.proto].push(item)
+                        })
+                      return assoc
+                    }, {})
+                  )
+                  .reduce((lines, [proto, items], i) => {
+                    const text = `${proto}: ${items.map(item => `${item.port}<tspan fill="rgba(0, 0, 0, 0.5)">(${item.count})</tspan>`).join(', ')}`
+                    lines.push({
+                        key: `innerHostTextPath-${node}-${i+1}`,
+                        props: {
+                          x: '0em',
+                          dy: '1.2em',
+                          fill: rgbProto(proto)
+                        },
+                        text
+                      })
+                    return lines
+                  }, [])
+                : []
+              )
+            ])
           }
         }
       })
@@ -491,7 +594,7 @@ const setup = (props, context) => {
     const minSize = fontSize.value / 2
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
-      const angle = n * 360 / keys.length + outerHostRotation.value
+      const angle = (n * 360 / keys.length + outerHostRotation.value) % 360
       const x = cx.value + (outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
       const y = cy.value + (outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
       const size = scaleCount(assocOuterHostsCount.value[node], totalCount.value, minSize, maxSize)
@@ -524,7 +627,7 @@ const setup = (props, context) => {
       const { node, size, x, y } = host
       const isFocus = outerHostFocus.value.indexOf(node) > -1
       const isBlur = (outerHostFocus.value.length && !isFocus) || innerHostFocus.value.length
-      const fill = (isFocus) ? `rgb(255, 255, 255,  ${(isBlur) ? 0 : 1})` : `rgb(192, 192, 192, ${(isBlur) ? 0 : 1})`
+      const fill = (isBlur) ? 'rgb(0, 0, 0, 0)' : `url(#node-${(isFocus) ? 'focus' : 'blur' })`
       const stroke = `rgb(0, 0, 0, ${(isBlur) ? 0 : .2})`
       return {
         key: `outerHost-${node}`,
@@ -548,9 +651,11 @@ const setup = (props, context) => {
   const svgOuterHostsText = computed(() => {
     return Object.values(outerHosts.value)
       .map(host => {
-        const { angle, node, x: x1, y: y1 } = host
+        const { angle, node, size } = host
         const opacity = (((!outerHostFocus.value.length || outerHostFocus.value.indexOf(node) > -1) && !innerHostFocus.value.length) ? 1 : 0)
         const id = `href-${node}`
+        const x1 = cx.value + ((outerHostsRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
+        const y1 = cy.value + ((outerHostsRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
         const x2 = cx.value + (2 * outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
         const y2 = cy.value + (2 * outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
@@ -567,16 +672,56 @@ const setup = (props, context) => {
               'xlink:href': `#${id}`,
               'font-size': `${fontSize.value}px`,
               'stroke-width': `${fontSize.value / 50}`,
-              fill: `rgb(0, 0, 0, ${opacity})`
+              fill: `rgb(0, 0, 0, ${opacity})`,
+              ...((angle > 90 && angle < 270)
+                ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
+                : {}
+              )
             },
             handlers: {
               mouseover: event => outerHostOver(event, node),
               mouseout: event => outerHostOut(event, node),
               mousedown: event => outerHostDown(event, node)
             },
-            tspan: [
-              { key: `outerHostTextPath-${node}-0`, props: { x: '1em', dy: '-.25em' }, text: node }
-            ]
+            tspan: alignTspan([
+              {
+                key: `outerHostTextPath-${node}-0`,
+                props: {
+                  x: '0em',
+                  dy: '0.25em'
+                },
+                text: node
+              },
+              ...((deviceRingFocus.value)
+                ? Object.entries(
+                    deviceFocus.value.reduce((assoc, mac) => {
+                      items.value
+                        .filter(item => item.mac === mac && item.host === node)
+                        .forEach((item, i) => {
+                          if (!(item.proto in assoc)) {
+                            assoc[item.proto] = []
+                          }
+                          assoc[item.proto].push(item)
+                        })
+                      return assoc
+                    }, {})
+                  )
+                  .reduce((lines, [proto, items], i) => {
+                    const text = `${proto}: ${items.map(item => `${item.port}<tspan fill="rgba(0, 0, 0, 0.5)">(${item.count})</tspan>`).join(', ')}`
+                    lines.push({
+                        key: `outerHostTextPath-${node}-${i+1}`,
+                        props: {
+                          x: '0em',
+                          dy: '1.2em',
+                          fill: rgbProto(proto)
+                        },
+                        text
+                      })
+                    return lines
+                  }, [])
+                : []
+              )
+            ])
           }
         }
       })
@@ -589,13 +734,16 @@ const setup = (props, context) => {
     return l * (max - min) + min
   }
 
-  const strokeProto = (proto, opacity = 1) => {
+  const rgbProto = (proto, opacity = 1) => {
     switch (proto) {
       case 'TCP':
         return `rgb(0, 0, 255, ${opacity})`
         // break
       case 'UDP':
         return `rgb(255, 0, 0, ${opacity})`
+        // break
+      case 'UNKNOWN':
+        return `rgb(64, 64, 64, ${opacity})`
         // break
       default:
         return `rgb(0, 0, 0, ${opacity})`
@@ -628,7 +776,7 @@ const setup = (props, context) => {
               : 0
             )
             const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
-            const stroke = strokeProto(proto, strokeOpacity)
+            const stroke = rgbProto(proto, strokeOpacity)
             return {
               key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
             }
@@ -647,7 +795,7 @@ const setup = (props, context) => {
               : 0
             )
             const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
-            const stroke = strokeProto(proto, strokeOpacity)
+            const stroke = rgbProto(proto, strokeOpacity)
             return {
               key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
             }
@@ -738,6 +886,7 @@ svg {
   circle.device,
   circle.host {
     transition: fill .3s ease, stroke .3s ease;
+    cursor: pointer;
   }
   path.flow {
     transition: stroke .3s ease;
