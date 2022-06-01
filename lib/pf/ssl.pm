@@ -31,7 +31,6 @@ use Crypt::OpenSSL::X509;
 use Crypt::OpenSSL::PKCS10;
 
 use pf::file_paths qw(
-    $install_dir
     $server_cert
     $server_key
     $server_pem
@@ -284,9 +283,7 @@ sub install_file {
     else {
         if(pfconfig::git_storage->is_enabled) {
             get_logger->info("Synching $filename in git_storage");
-            my $stripped_fname = $filename;
-            $stripped_fname =~ s|^$install_dir||;
-            $stripped_fname =~ s|^/||;
+            my $stripped_fname = strip_path_for_git_storage($filename);
             # Don't push the file here, let install_to_file push it
             my ($res, $msg) = pfconfig::git_storage->commit_file($filename, $stripped_fname, push => 0);
             if(!$res) {

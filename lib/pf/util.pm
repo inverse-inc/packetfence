@@ -32,6 +32,7 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
+    $install_dir
     $conf_dir
     $oui_file
     $oui_url
@@ -115,6 +116,7 @@ BEGIN {
         split_pem
         resolve
         random_mac
+        strip_path_for_git_storage
     );
 }
 
@@ -1735,6 +1737,13 @@ sub resolve {
 
 sub random_mac {
     return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
+}
+
+sub strip_path_for_git_storage {
+    my ($path) = @_;
+    $path =~ s|^$install_dir||g;
+    $path =~ s|^/||;
+    return $path;
 }
 
 =back

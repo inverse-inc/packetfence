@@ -35,7 +35,6 @@ use pf::file_paths qw(
     $captiveportal_profile_templates_path
     $captiveportal_default_profile_templates_path
     $captiveportal_templates_path
-    $install_dir
 );
 use pf::error qw(is_error);
 use pfconfig::git_storage;
@@ -476,7 +475,7 @@ sub _sync_files {
 
     if(pfconfig::git_storage->is_enabled) {
         for my $file (@files) {
-            my ($res, $msg) = pfconfig::git_storage->commit_file($file, $self->_strip_path_for_git_storage($file), push => 0);
+            my ($res, $msg) = pfconfig::git_storage->commit_file($file, strip_path_for_git_storage($file), push => 0);
             if(!$res) {
                 return { message => $msg, status => 500 };
             }
@@ -512,7 +511,7 @@ sub _sync_delete_files {
 
     if(pfconfig::git_storage->is_enabled) {
         for my $file (@files) {
-            my ($res, $msg) = pfconfig::git_storage->delete_file($self->_strip_path_for_git_storage($file), push => 0);
+            my ($res, $msg) = pfconfig::git_storage->delete_file(strip_path_for_git_storage($file), push => 0);
             if(!$res) {
                 return { message => $msg, status => 500 };
             }
@@ -524,13 +523,6 @@ sub _sync_delete_files {
     }
 
     return undef;
-}
-
-sub _strip_path_for_git_storage {
-    my ($self, $path) = @_;
-    $path =~ s|^$install_dir||g;
-    $path =~ s|^/||;
-    return $path;
 }
 
 =head2 notDeletable
