@@ -27,7 +27,9 @@ func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 }
 
 func ManualConnectDb(ctx context.Context, user, pass, host, port, dbName string) (*sql.DB, error) {
-	uri := ReturnURI(ctx, user, pass, host, port, dbName)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Services)
+	services := pfconfigdriver.Config.PfConf.Services
+	uri := ReturnURI(ctx, user, pass, host, port, dbName, services.HaproxyDB)
 	return ConnectURI(ctx, uri)
 }
 
