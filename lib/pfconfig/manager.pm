@@ -269,6 +269,12 @@ sub get_cache {
     return $memory;
 }
 
+=head2 get_cache_ordered
+
+Same as get_cache but it will order all the keys when the resource is a hash
+
+=cut
+
 sub get_cache_ordered {
     my ($self, $what) = @_;
     

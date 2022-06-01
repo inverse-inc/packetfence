@@ -444,11 +444,16 @@ sub server_sleep {
     sleep 10;
 }
 
+=head2 pull_expire
+
+Launches a pull of the git storage and an expiration of the local pfconfig instance
+This happens async and the response will be sent after the process forks successfully
+
+=cut
+
 sub pull_expire {
     my ($query, $socket) = @_;
-    $logger->error("Forking to pull git conf");
-    send_output({status => "accepted"}, $socket, $query);
-    $logger->error("Response sent");
+    $logger->info("Forking to pull git conf");
     my $pid = fork();
 	if ($pid == 0) {
         my $res = pfconfig::git_storage->update();
@@ -469,6 +474,10 @@ sub pull_expire {
         $logger->info("Completed pull_expire");
         exit;
 	}
+    else {
+        send_output({status => "accepted"}, $socket, $query);
+        $logger->debug("Response sent");
+    }
 }
 
 
