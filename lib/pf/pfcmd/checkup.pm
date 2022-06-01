@@ -1215,26 +1215,6 @@ sub cluster {
         }
     }
 
-    _check_database_host_in_cluster();
-}
-
-
-sub _check_database_host_in_cluster {
-    require pf::ConfigStore::Pf;
-    require pfconfig::config;
-    my $cs = pf::ConfigStore::Pf->new();
-    my $db = $cs->readRaw("database");
-    my $host = $db->{host};
-    if ( !defined($host) || $host eq 'localhost' ) {
-        add_problem($FATAL, "In conf/pf.conf database.host should not be configured to 'localhost' in a cluster");
-    }
-
-    my $c = pfconfig::config->new();
-    $db = $c->section('mysql');
-    $host = $db->{host};
-    if ( !defined($host) || $host eq 'localhost' ) {
-        add_problem($FATAL, "In conf/pfconfig.conf mysql.host should not be configured to 'localhost' in a cluster");
-    }
 }
 
 =item valid_fingerbank_device_id
