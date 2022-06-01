@@ -533,6 +533,7 @@ img_dev:
   parallel:
     matrix:
       - IMAGE_NAME:
+          - "fingerbank-db"
           - "haproxy-portal"
 
 rad_based_dev:
@@ -593,6 +594,7 @@ img_br_maint:
   parallel:
     matrix:
       - IMAGE_NAME:
+          - "fingerbank-db"
           - "haproxy-portal"
 
 rad_based_br_maint:
