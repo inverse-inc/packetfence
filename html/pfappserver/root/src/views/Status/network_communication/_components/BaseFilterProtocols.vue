@@ -147,7 +147,7 @@ const setup = (props, context) => {
   }
 
   const onSelectNone = () => {
-    $store.dispatch('$_fingerbank_communication/deselectProtocols', selectedProtocols.value)
+    $store.dispatch('$_fingerbank_communication/deselectProtocols', decoratedItems.value.map(item => item.protocol))
   }
 
   const onSelectInverse = () => {

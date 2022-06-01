@@ -35,12 +35,35 @@
             </b-tabs>
         </b-col>
       </b-row>
+      <b-row class="mt-3">
+        <b-col cols="6">
+          <div class="d-flex justify-content-md-end">
+            <base-search-input-limit
+              :value="limit" @input="setLimit"
+              size="md"
+              :limits="limits"
+              :disabled="isLoading"
+            />
+            <base-search-input-page
+              :value="page" @input="setPage"
+              class="ml-3"
+              :limit="limit"
+              :total-rows="totalRows"
+              :disabled="isLoading"
+            />
+          </div>
+        </b-col>
+      </b-row>
       <the-data />
     </div>
   </b-card>
 </template>
 
 <script>
+import {
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
+} from '@/components/new/'
 import BaseFilterDevices from './BaseFilterDevices'
 import BaseFilterHosts from './BaseFilterHosts'
 import BaseFilterProtocols from './BaseFilterProtocols'
@@ -48,6 +71,9 @@ import TheSearch from './TheSearch'
 import TheData from './TheData'
 
 const components = {
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
+
   BaseFilterDevices,
   BaseFilterHosts,
   BaseFilterProtocols,
@@ -56,7 +82,9 @@ const components = {
   TheData,
 }
 
-import { computed } from '@vue/composition-api'
+import { computed, toRefs } from '@vue/composition-api'
+import { useNodesSearch } from '../_composables/useCollection'
+
 
 const setup = (props, context) => {
 
@@ -66,7 +94,11 @@ const setup = (props, context) => {
   const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
   const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
 
+  const search = useNodesSearch()
+
   return {
+  ...toRefs(search),
+
     selectedDevices,
     selectedHosts,
     selectedProtocols

@@ -108,11 +108,11 @@ const setup = (props, context) => {
   }
 
   const onSelectAll = () => {
-    $store.dispatch('$_fingerbank_communication/selectDevices', filteredItems.value)
+    $store.dispatch('$_fingerbank_communication/selectDevices', filteredItems.value.map(item => item.mac))
   }
 
   const onSelectNone = () => {
-    $store.dispatch('$_fingerbank_communication/deselectDevices', selectedDevices.value)
+    $store.dispatch('$_fingerbank_communication/deselectDevices', filteredItems.value.map(item => item.mac))
   }
 
   const onSelectInverse = () => {
