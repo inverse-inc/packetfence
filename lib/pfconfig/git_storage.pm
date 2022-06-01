@@ -1,5 +1,17 @@
 package pfconfig::git_storage;
 
+=head1 NAME
+
+pf::git_storage
+
+=cut
+
+=head1 DESCRIPTION
+
+Manage the git storage integration of pfconfig
+
+=cut
+
 use strict;
 use warnings;
 
@@ -35,6 +47,29 @@ sub git_directory {
     my ($proto) = @_;
     return $proto->config->{git_directory};
 }
+
+sub should_k8s_deploy {
+    my ($proto) = @_;
+    return isenabled($proto->config->{k8s_deploy});
+}
+
+sub k8s_deploy_label_selector {
+    my ($proto) = @_;
+    $proto->config->{k8s_deploy_label_selector};
+}
+
+sub k8s_deploy_container_name {
+    my ($proto) = @_;
+    $proto->config->{k8s_deploy_container_name};
+}
+
+=head2 commit_file
+
+Commits a file and optionally pushes the commit to the git repository.
+When passing (push => 0) as an argument, the push function must be called afterwards to publish this to the repository
+By default, this will push the commit
+
+=cut
 
 sub commit_file {
     my ($proto, $src, $dst, %opts) = @_;
@@ -100,6 +135,14 @@ sub commit_file {
     }
 }
 
+=head2 delete_file
+
+Deletes a file and optionally pushes the commit to the git repository.
+When passing (push => 0) as an argument, the push function must be called afterwards to publish this to the repository
+By default, this will push the commit
+
+=cut
+
 sub delete_file {
     my ($proto, $file, %opts) = @_;
 
@@ -144,6 +187,12 @@ sub delete_file {
     }
 }
 
+=head2 pull
+
+Pulls the git repository
+
+=cut
+
 sub pull {
     my ($proto) = @_;
     
@@ -155,6 +204,12 @@ sub pull {
     return (1, undef);
 }
 
+=head2 push
+
+Pushes the git repository
+
+=cut
+
 sub push {
     my ($proto) = @_;
 
@@ -165,6 +220,14 @@ sub push {
 
     return (1, undef);
 }
+
+=head2 update
+
+Updates this pfconfig configuration storage based on the content of the git storage
+This will place the PF configuration files and the Fingerbank configuration in place based on what is in git
+Any changes in the local directories that hasn't yet been pushed to git will be lost
+
+=cut
 
 sub update {
     my ($proto) = @_;
@@ -212,6 +275,14 @@ sub update {
     }
 }
 
+=head2 deploy
+
+Deploys the configuration that is in the git storage
+When running within k8s, this will deploy it to all pfconfig pods of a configured deployment
+When running outside of k8s, this will call the local instance on it's socket to get it to pull and expire its data
+
+=cut
+
 sub deploy {
     my ($proto, %opts) = @_;
     
@@ -223,20 +294,12 @@ sub deploy {
     }
 }
 
-sub should_k8s_deploy {
-    my ($proto) = @_;
-    return isenabled($proto->config->{k8s_deploy});
-}
+=head2 k8s_deploy
 
-sub k8s_deploy_label_selector {
-    my ($proto) = @_;
-    $proto->config->{k8s_deploy_label_selector};
-}
+Deploys the configuration that is in the git storage to all pods of a deployment
+It calls a pull expiration on the TCP socket of each pfconfig instance
 
-sub k8s_deploy_container_name {
-    my ($proto) = @_;
-    $proto->config->{k8s_deploy_container_name};
-}
+=cut
 
 sub k8s_deploy {
     my ($proto, %opts) = @_;
@@ -276,4 +339,32 @@ sub k8s_deploy {
     die "Unable to run the deploy via K8S: $res" unless($status);
 }
 
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2022 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
 1;
+
