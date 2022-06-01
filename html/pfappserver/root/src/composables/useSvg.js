@@ -71,7 +71,7 @@ export const useViewBox = (config, dimensions) => {
   }
 
   const mouseWheelSvg = event => {
-    if (config.value.mouseWheelZoom) {
+    if (event.ctrlKey && config.value.mouseWheelZoom) {
       event.preventDefault() // don't scroll
       const { minX, minY } = viewBox.value
       const _scale = scale.value
