@@ -462,7 +462,7 @@ sub pull_expire {
             exit;
         }
         $res = pfconfig::util::socket_expire(
-            # Force the socket call to happen on the current pod when running in k8s
+            # Force the socket call to happen on the local pfconfig instance regardless of the configuration
             tcp_host => "127.0.0.1",
             namespace => $query->{namespace}, 
             light => $query->{light},
