@@ -8,8 +8,6 @@ set -o nounset -o pipefail -o errexit
 setup_vars() {
     DOCKFILE_PATH=$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile
 
-    env
-
     ### collect variables needed inside Dockerfile
     # returns X.Y
     export PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' $CI_PROJECT_DIR/conf/pf-release)
