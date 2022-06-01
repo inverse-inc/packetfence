@@ -62,7 +62,8 @@ export const useHosts = communication => {
     const { all_hosts_cache = {} } = value
     const hosts_cache = Object.entries(all_hosts_cache)
     for (let i = 0; i < hosts_cache.length; i++) {
-      const [host, device_cache] = hosts_cache[i]
+      let [host, device_cache] = hosts_cache[i]
+      host = host.toLowerCase()
       if (host) {
         if (!(host in hosts)) {
           hosts[host] = { devices: {}, protocols: {} }

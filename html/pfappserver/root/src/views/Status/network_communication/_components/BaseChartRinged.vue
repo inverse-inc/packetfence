@@ -90,7 +90,7 @@
 
         <!-- devices -->
         <textPath v-for="device in svgDevicesText" :key="device.textPath.key" v-bind="device.textPath.props" v-on="device.textPath.handlers">
-          <tspan v-for="tspan in device.textPath.tspan" :key="tspan.key" v-bind="tspan.props" v-html="tspan.text" />
+          <tspan v-for="tspan in device.textPath.tspan" :key="tspan.key" v-bind="tspan.props" v-on="tspan.handlers" v-html="tspan.text" />
         </textPath>
 
       </text>
@@ -136,7 +136,7 @@ const defaults = { // default options
   minZoom: 0,
   maxZoom: 4,
   mouseWheelZoom: true,
-  padding: 25
+  padding: 25,
 }
 
 const props = {
@@ -212,7 +212,7 @@ const setup = (props, context) => {
 
   const alignTspan = tspans => {
     const center = 0.25
-    const deltaY = 1.2
+    const deltaY = 1
     if (tspans.length > 0) {
       tspans[0].props.dy = `${center - ((tspans.length - 1) * deltaY / 2)}em`
     }
@@ -240,6 +240,8 @@ const setup = (props, context) => {
   onBeforeUnmount(() => {
     clearInterval(rotationInterval)
   })
+
+  const hasRingFocus = computed(() => deviceRingFocus.value || innerHostRingFocus.value || outerHostRingFocus.value)
 
   const devicesRingScale = .25 // 25% height
   const devicesRingRadius = computed(() => (dimensions.value.height / 2) * devicesRingScale)
@@ -270,28 +272,41 @@ const setup = (props, context) => {
       const x = cx.value + (devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
       const y = cy.value + (devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
       const size = scaleCount(assocDevicesCount.value[node], totalCount.value, minSize, maxSize)
-      return { ...nodes, [node]: { node, size, angle, x ,y } }
+      const isFocus = deviceRingFocus.value && deviceFocus.value.indexOf(node) > -1
+      const isVisible = !hasRingFocus.value || deviceFocus.value.indexOf(node) > -1
+      return { ...nodes, [node]: { node, size, angle, x, y, isFocus, isVisible } }
     }, {})
   })
   const deviceFocus = ref([])
   const deviceRingFocus = ref(false)
+  let deviceMouseDebouncer
   // eslint-disable-next-line no-unused-vars
   const deviceOver = (event, key) => {
-    deviceFocus.value = [key]
-    deviceRingFocus.value = true
-    innerHostFocus.value = items.value
-      .filter(item => item.mac === key && item.internalHost)
-      .map(item => item.host)
-    outerHostFocus.value = items.value
-      .filter(item => item.mac === key && !item.internalHost)
-      .map(item => item.host)
+    if (deviceMouseDebouncer) {
+      clearTimeout(deviceMouseDebouncer)
+    }
+    deviceMouseDebouncer = setTimeout(() => {
+      deviceFocus.value = [key]
+      deviceRingFocus.value = true
+      innerHostFocus.value = items.value
+        .filter(item => item.mac === key && item.internalHost)
+        .map(item => item.host)
+      outerHostFocus.value = items.value
+        .filter(item => item.mac === key && !item.internalHost)
+        .map(item => item.host)
+    }, 50)
   }
   // eslint-disable-next-line no-unused-vars
   const deviceOut = (event, key) => {
-    deviceFocus.value = []
-    deviceRingFocus.value = false
-    innerHostFocus.value = []
-    outerHostFocus.value = []
+    if (deviceMouseDebouncer) {
+      clearTimeout(deviceMouseDebouncer)
+    }
+    deviceMouseDebouncer = setTimeout(() => {
+      deviceFocus.value = []
+      deviceRingFocus.value = false
+      innerHostFocus.value = []
+      outerHostFocus.value = []
+    }, 50)
   }
   const deviceDown = (event, key) => {
     if (event.which === 1) { // left-mouse click
@@ -300,11 +315,11 @@ const setup = (props, context) => {
   }
   const svgDevices = computed(() => {
     return Object.values(devices.value).map(device => {
-      const { node, size, x, y } = device
-      const isFocus = deviceFocus.value.indexOf(node) > -1
-      const isBlur = deviceFocus.value.length && !isFocus
-      const fill = (isBlur) ? 'rgb(0, 0, 0, 0)' : `url(#node-${(isFocus) ? 'focus' : 'blur' })`
-      const stroke = `rgb(0, 0, 0, ${(isBlur) ? 0 : .2})`
+      const { node, size, x, y, isFocus, isVisible } = device
+      const fill = (isVisible)
+        ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
+        : 'rgb(0, 0, 0, 0)'
+      const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
       return {
         key: `device-${node}`,
         props: {
@@ -327,13 +342,13 @@ const setup = (props, context) => {
   const svgDevicesText = computed(() => {
     return Object.values(devices.value)
       .map(device => {
-        const { angle, node, size } = device
-        const opacity = ((!deviceFocus.value.length || deviceFocus.value.indexOf(node) > -1) ? 1 : 0)
+        const { angle, node, size, isFocus, isVisible } = device
+        const opacity = (isVisible) ? 1 : 0
         const id = `href-${node}`
         const x1 = cx.value + ((devicesRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
         const y1 = cy.value + ((devicesRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
-        const x2 = cx.value + (2 * devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
-        const y2 = cy.value + (2 * devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
+        const x2 = cx.value + (10 * devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
+        const y2 = cy.value + (10 * devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
           path: {
             key: `devicePath-${node}`,
@@ -346,9 +361,10 @@ const setup = (props, context) => {
             key: `deviceTextPath-${node}`,
             props: {
               'xlink:href': `#${id}`,
+              fill: `rgb(0, 0, 0, ${opacity})`,
               'font-size': `${fontSize.value}px`,
               'stroke-width': `${fontSize.value / 50}`,
-              fill: `rgb(0, 0, 0, ${opacity})`,
+              stroke: `rgb(0, 0, 0, ${opacity})`,
               ...((angle > 90 && angle < 270)
                 ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
                 : {}
@@ -361,31 +377,33 @@ const setup = (props, context) => {
             },
             tspan: alignTspan([
               {
-                key: `deviceTextPath-${node}-0`,
+                key: `deviceTextPath-${node}`,
                 props: {
                   x: '0em',
                   dy: '0.25em'
                 },
                 text: node
               },
-              ...((innerHostRingFocus.value || outerHostRingFocus.value)
+              ...((isFocus)
                 ? Object.entries(
-                    [...innerHostFocus.value, ...outerHostFocus.value].reduce((assoc, host) => {
+                    deviceFocus.value.reduce((assoc, mac) => {
                       items.value
-                        .filter(item => item.host === host && item.mac === node)
-                        .forEach((item, i) => {
-                          if (!(item.proto in assoc)) {
-                            assoc[item.proto] = []
+                        .filter(item => item.mac === mac)
+                        .forEach(item => {
+                          const { proto, port, count } = item
+                          if (!(proto in assoc)) {
+                            assoc[proto] = {}
                           }
-                          assoc[item.proto].push(item)
+                          assoc[proto][port] = (assoc[proto][port] || 0) + count
                         })
                       return assoc
                     }, {})
                   )
-                  .reduce((lines, [proto, items], i) => {
-                    const text = `${proto}: ${items.map(item => `${item.port}<tspan fill="rgba(0, 0, 0, 0.5)">(${item.count})</tspan>`).join(', ')}`
-                    lines.push({
-                        key: `deviceTextPath-${node}-${i+1}`,
+                  .reduce((lines, [proto, ports]) => {
+                    Object.entries(ports).forEach(([port, count]) => {
+                      const text = `${proto}:${port}<tspan fill="rgba(0, 0, 0, 0.5)">(${count})</tspan>`
+                      lines.push({
+                        key: `deviceTextPath-${node}-${proto}-${port}`,
                         props: {
                           x: '0em',
                           dy: '1.2em',
@@ -393,6 +411,7 @@ const setup = (props, context) => {
                         },
                         text
                       })
+                    })
                     return lines
                   }, [])
                 : []
@@ -435,24 +454,37 @@ const setup = (props, context) => {
       const x = cx.value + (innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
       const y = cy.value + (innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
       const size = scaleCount(assocInnerHostsCount.value[node], totalCount.value, minSize, maxSize)
-      return { ...nodes, [node]: { node, size, angle, x ,y } }
+      const isFocus = innerHostRingFocus.value && innerHostFocus.value.indexOf(node) > -1
+      const isVisible = !hasRingFocus.value || ((deviceRingFocus.value || innerHostRingFocus.value) && innerHostFocus.value.indexOf(node) > -1)
+      return { ...nodes, [node]: { node, size, angle, x, y, isFocus, isVisible } }
     }, {})
   })
   const innerHostFocus = ref([])
   const innerHostRingFocus = ref(false)
+  let innerHostMouseDebouncer
   // eslint-disable-next-line no-unused-vars
   const innerHostOver = (event, key) => {
-    innerHostFocus.value = [key]
-    innerHostRingFocus.value = true
-    deviceFocus.value = items.value
-      .filter(item => item.host === key)
-      .map(item => item.mac)
+    if (innerHostMouseDebouncer) {
+      clearTimeout(innerHostMouseDebouncer)
+    }
+    innerHostMouseDebouncer = setTimeout(() => {
+      innerHostFocus.value = [key]
+      innerHostRingFocus.value = true
+      deviceFocus.value = items.value
+        .filter(item => item.host === key)
+        .map(item => item.mac)
+    }, 50)
   }
   // eslint-disable-next-line no-unused-vars
   const innerHostOut = (event, key) => {
-    innerHostFocus.value = []
-    innerHostRingFocus.value = false
-    deviceFocus.value = []
+    if (innerHostMouseDebouncer) {
+      clearTimeout(innerHostMouseDebouncer)
+    }
+    innerHostMouseDebouncer = setTimeout(() => {
+      innerHostFocus.value = []
+      innerHostRingFocus.value = false
+      deviceFocus.value = []
+    }, 50)
   }
   const innerHostDown = (event, key) => {
     if (event.which === 1) { // left-mouse click
@@ -461,11 +493,11 @@ const setup = (props, context) => {
   }
   const svgInnerHosts = computed(() => {
     return Object.values(innerHosts.value).map(host => {
-      const { node, size, x, y } = host
-      const isFocus = innerHostFocus.value.indexOf(node) > -1
-      const isBlur = (innerHostFocus.value.length && !isFocus) || outerHostFocus.value.length
-      const fill = (isBlur) ? 'rgb(0, 0, 0, 0)' : `url(#node-${(isFocus) ? 'focus' : 'blur' })`
-      const stroke = `rgb(0, 0, 0, ${(isBlur) ? 0 : .2})`
+      const { node, size, x, y, isFocus, isVisible } = host
+      const fill = (isVisible)
+        ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
+        : 'rgb(0, 0, 0, 0)'
+      const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
       return {
         key: `innerHost-${node}`,
         props: {
@@ -488,13 +520,13 @@ const setup = (props, context) => {
   const svgInnerHostsText = computed(() => {
     return Object.values(innerHosts.value)
       .map(host => {
-        const { angle, node, size } = host
-        const opacity = (((!innerHostFocus.value.length || innerHostFocus.value.indexOf(node) > -1) && !outerHostFocus.value.length) ? 1 : 0)
+        const { angle, node, size, isFocus, isVisible } = host
+        const opacity = (isVisible) ? 1 : 0
         const id = `href-${node}`
         const x1 = cx.value + ((innerHostsRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
         const y1 = cy.value + ((innerHostsRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
-        const x2 = cx.value + (2 * innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
-        const y2 = cy.value + (2 * innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
+        const x2 = cx.value + (10 * innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
+        const y2 = cy.value + (10 * innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
           path: {
             key: `innerHostPath-${node}`,
@@ -507,9 +539,10 @@ const setup = (props, context) => {
             key: `innerHostTextPath-${node}`,
             props: {
               'xlink:href': `#${id}`,
+              fill: `rgb(0, 0, 0, ${opacity})`,
               'font-size': `${fontSize.value}px`,
               'stroke-width': `${fontSize.value / 50}`,
-              fill: `rgb(0, 0, 0, ${opacity})`,
+              stroke: `rgb(0, 0, 0, ${opacity})`,
               ...((angle > 90 && angle < 270)
                 ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
                 : {}
@@ -522,31 +555,33 @@ const setup = (props, context) => {
             },
             tspan: alignTspan([
               {
-                key: `innerHostTextPath-${node}-0`,
+                key: `innerHostTextPath-${node}`,
                 props: {
                   x: '0em',
                   dy: '0.25em'
                 },
                 text: node
               },
-              ...((deviceRingFocus.value)
+              ...((isFocus)
                 ? Object.entries(
-                    deviceFocus.value.reduce((assoc, mac) => {
+                    innerHostFocus.value.reduce((assoc, host) => {
                       items.value
-                        .filter(item => item.mac === mac && item.host === node)
-                        .forEach((item, i) => {
-                          if (!(item.proto in assoc)) {
-                            assoc[item.proto] = []
+                        .filter(item => item.host === host)
+                        .forEach(item => {
+                          const { proto, port, count } = item
+                          if (!(proto in assoc)) {
+                            assoc[proto] = {}
                           }
-                          assoc[item.proto].push(item)
+                          assoc[proto][port] = (assoc[proto][port] || 0) + count
                         })
                       return assoc
                     }, {})
                   )
-                  .reduce((lines, [proto, items], i) => {
-                    const text = `${proto}: ${items.map(item => `${item.port}<tspan fill="rgba(0, 0, 0, 0.5)">(${item.count})</tspan>`).join(', ')}`
-                    lines.push({
-                        key: `innerHostTextPath-${node}-${i+1}`,
+                  .reduce((lines, [proto, ports]) => {
+                    Object.entries(ports).forEach(([port, count]) => {
+                      const text = `${proto}:${port}<tspan fill="rgba(0, 0, 0, 0.5)">(${count})</tspan>`
+                      lines.push({
+                        key: `innerHostTextPath-${node}-${proto}-${port}`,
                         props: {
                           x: '0em',
                           dy: '1.2em',
@@ -554,6 +589,7 @@ const setup = (props, context) => {
                         },
                         text
                       })
+                    })
                     return lines
                   }, [])
                 : []
@@ -598,24 +634,37 @@ const setup = (props, context) => {
       const x = cx.value + (outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
       const y = cy.value + (outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
       const size = scaleCount(assocOuterHostsCount.value[node], totalCount.value, minSize, maxSize)
-      return { ...nodes, [node]: { node, size, angle, x ,y } }
+      const isFocus = outerHostRingFocus.value && outerHostFocus.value.indexOf(node) > -1
+      const isVisible = !hasRingFocus.value || ((deviceRingFocus.value || outerHostRingFocus.value) && outerHostFocus.value.indexOf(node) > -1)
+      return { ...nodes, [node]: { node, size, angle, x, y, isFocus, isVisible } }
     }, {})
   })
   const outerHostFocus = ref([])
   const outerHostRingFocus = ref(false)
+  let outerHostMouseDebouncer
   // eslint-disable-next-line no-unused-vars
   const outerHostOver = (event, key) => {
-    outerHostFocus.value = [key]
-    outerHostRingFocus.value = true
-    deviceFocus.value = items.value
-      .filter(item => item.host === key)
-      .map(item => item.mac)
+    if (outerHostMouseDebouncer) {
+      clearTimeout(outerHostMouseDebouncer)
+    }
+    outerHostMouseDebouncer = setTimeout(() => {
+      outerHostFocus.value = [key]
+      outerHostRingFocus.value = true
+      deviceFocus.value = items.value
+        .filter(item => item.host === key)
+        .map(item => item.mac)
+    }, 50)
   }
   // eslint-disable-next-line no-unused-vars
   const outerHostOut = (event, key) => {
-    outerHostFocus.value = []
-    outerHostRingFocus.value = false
-    deviceFocus.value = []
+    if (outerHostMouseDebouncer) {
+      clearTimeout(outerHostMouseDebouncer)
+    }
+    outerHostMouseDebouncer = setTimeout(() => {
+      outerHostFocus.value = []
+      outerHostRingFocus.value = false
+      deviceFocus.value = []
+    }, 50)
   }
   const outerHostDown = (event, key) => {
     if (event.which === 1) { // left-mouse click
@@ -624,11 +673,11 @@ const setup = (props, context) => {
   }
   const svgOuterHosts = computed(() => {
     return Object.values(outerHosts.value).map(host => {
-      const { node, size, x, y } = host
-      const isFocus = outerHostFocus.value.indexOf(node) > -1
-      const isBlur = (outerHostFocus.value.length && !isFocus) || innerHostFocus.value.length
-      const fill = (isBlur) ? 'rgb(0, 0, 0, 0)' : `url(#node-${(isFocus) ? 'focus' : 'blur' })`
-      const stroke = `rgb(0, 0, 0, ${(isBlur) ? 0 : .2})`
+      const { node, size, x, y, isFocus, isVisible } = host
+      const fill = (isVisible)
+        ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
+        : 'rgb(0, 0, 0, 0)'
+      const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
       return {
         key: `outerHost-${node}`,
         props: {
@@ -651,13 +700,13 @@ const setup = (props, context) => {
   const svgOuterHostsText = computed(() => {
     return Object.values(outerHosts.value)
       .map(host => {
-        const { angle, node, size } = host
-        const opacity = (((!outerHostFocus.value.length || outerHostFocus.value.indexOf(node) > -1) && !innerHostFocus.value.length) ? 1 : 0)
+        const { angle, node, size, isFocus, isVisible } = host
+        const opacity = (isVisible) ? 1 : 0
         const id = `href-${node}`
         const x1 = cx.value + ((outerHostsRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
         const y1 = cy.value + ((outerHostsRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
-        const x2 = cx.value + (2 * outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
-        const y2 = cy.value + (2 * outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
+        const x2 = cx.value + (10 * outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
+        const y2 = cy.value + (10 * outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
         return {
           path: {
             key: `outerHostPath-${node}`,
@@ -670,9 +719,10 @@ const setup = (props, context) => {
             key: `outerHostTextPath-${node}`,
             props: {
               'xlink:href': `#${id}`,
-              'font-size': `${fontSize.value}px`,
-              'stroke-width': `${fontSize.value / 50}`,
               fill: `rgb(0, 0, 0, ${opacity})`,
+              'font-size': `${fontSize.value}px`,
+              stroke: `rgb(0, 0, 0, ${opacity})`,
+              'stroke-width': `${fontSize.value / 50}`,
               ...((angle > 90 && angle < 270)
                 ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
                 : {}
@@ -685,31 +735,33 @@ const setup = (props, context) => {
             },
             tspan: alignTspan([
               {
-                key: `outerHostTextPath-${node}-0`,
+                key: `outerHostTextPath-${node}`,
                 props: {
                   x: '0em',
                   dy: '0.25em'
                 },
                 text: node
               },
-              ...((deviceRingFocus.value)
+              ...((isFocus)
                 ? Object.entries(
-                    deviceFocus.value.reduce((assoc, mac) => {
+                    outerHostFocus.value.reduce((assoc, host) => {
                       items.value
-                        .filter(item => item.mac === mac && item.host === node)
-                        .forEach((item, i) => {
-                          if (!(item.proto in assoc)) {
-                            assoc[item.proto] = []
+                        .filter(item => item.host === host)
+                        .forEach(item => {
+                          const { proto, port, count } = item
+                          if (!(proto in assoc)) {
+                            assoc[proto] = {}
                           }
-                          assoc[item.proto].push(item)
+                          assoc[proto][port] = (assoc[proto][port] || 0) + count
                         })
                       return assoc
                     }, {})
                   )
-                  .reduce((lines, [proto, items], i) => {
-                    const text = `${proto}: ${items.map(item => `${item.port}<tspan fill="rgba(0, 0, 0, 0.5)">(${item.count})</tspan>`).join(', ')}`
-                    lines.push({
-                        key: `outerHostTextPath-${node}-${i+1}`,
+                  .reduce((lines, [proto, ports]) => {
+                    Object.entries(ports).forEach(([port, count]) => {
+                      const text = `${proto}:${port}<tspan fill="rgba(0, 0, 0, 0.5)">(${count})</tspan>`
+                      lines.push({
+                        key: `outerHostTextPath-${node}-${proto}-${port}`,
                         props: {
                           x: '0em',
                           dy: '1.2em',
@@ -717,6 +769,7 @@ const setup = (props, context) => {
                         },
                         text
                       })
+                    })
                     return lines
                   }, [])
                 : []
@@ -760,45 +813,36 @@ const setup = (props, context) => {
       .map(item => {
         const { mac, host, count, proto, port } = item
         const key = `flow-${mac}-${proto}-${port}-${host}`
-        if (mac in devices.value) {
-          const { x: sx, y: sy, size: iSize } = devices.value[mac]
-          if (host in outerHosts.value) {
-            const { x: dx, y: dy, size: oSize } = outerHosts.value[host]
-            const d = `M ${sx},${sy} C ${dx1},${dy1} ${dx2},${dy2} ${dx},${dy}`
-            const minSize = Math.min(iSize, oSize) / 5
-            const maxSize = Math.max(iSize, oSize) * 2
-            const strokeOpacity = ((
-              (!deviceFocus.value.length || deviceFocus.value.indexOf(mac) > -1)
-              && (!outerHostFocus.value.length || outerHostFocus.value.indexOf(host) > -1)
-              && !innerHostFocus.value.length
-            )
-              ? scaleCount(count, totalCount.value, 0.25, 1)
-              : 0
-            )
-            const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
-            const stroke = rgbProto(proto, strokeOpacity)
-            return {
-              key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
-            }
+        const isVisible = (
+          !(deviceRingFocus.value || innerHostRingFocus.value || outerHostRingFocus.value)
+          || (deviceRingFocus.value && deviceFocus.value.indexOf(mac) > -1)
+          || (innerHostRingFocus.value && innerHostFocus.value.indexOf(host) > -1)
+          || (outerHostRingFocus.value && outerHostFocus.value.indexOf(host) > -1)
+        )
+        const strokeOpacity = (isVisible)
+          ? scaleCount(count, totalCount.value, 0.25, 1)
+          : 0
+        const { x: sx, y: sy, size: iSize } = devices.value[mac]
+        if (host in outerHosts.value) {
+          const { x: dx, y: dy, size: oSize } = outerHosts.value[host]
+          const d = `M ${sx},${sy} C ${dx1},${dy1} ${dx2},${dy2} ${dx},${dy}`
+          const minSize = Math.min(iSize, oSize) / 5
+          const maxSize = Math.max(iSize, oSize) * 2
+          const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
+          const stroke = rgbProto(proto, strokeOpacity)
+          return {
+            key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
           }
-          if (host in innerHosts.value) {
-            const { x: dx, y: dy, size: oSize } = innerHosts.value[host]
-            const d = `M ${sx},${sy} C ${dx1},${dy1} ${dx2},${dy2} ${dx},${dy}`
-            const minSize = Math.min(iSize, oSize) / 5
-            const maxSize = Math.max(iSize, oSize) * 2
-            const strokeOpacity = ((
-              (!deviceFocus.value.length || deviceFocus.value.indexOf(mac) > -1)
-              && (!innerHostFocus.value.length || innerHostFocus.value.indexOf(host) > -1)
-              && !outerHostFocus.value.length
-            )
-              ? scaleCount(count, totalCount.value, 0.25, 1)
-              : 0
-            )
-            const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
-            const stroke = rgbProto(proto, strokeOpacity)
-            return {
-              key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
-            }
+        }
+        if (host in innerHosts.value) {
+          const { x: dx, y: dy, size: oSize } = innerHosts.value[host]
+          const d = `M ${sx},${sy} C ${dx1},${dy1} ${dx2},${dy2} ${dx},${dy}`
+          const minSize = Math.min(iSize, oSize) / 5
+          const maxSize = Math.max(iSize, oSize) * 2
+          const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
+          const stroke = rgbProto(proto, strokeOpacity)
+          return {
+            key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
           }
         }
         return null
