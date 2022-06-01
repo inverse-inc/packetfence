@@ -12,7 +12,6 @@
       </b-form>
     </b-card-header>
     <div class="p-0 filtered-items">
-
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
@@ -81,17 +80,31 @@ const setup = (props, context) => {
   const items = computed(() => {
     return Object.keys(hosts.value)
       .map(item => {
-        const { tld, domain, subdomain } = splitHost(item)
+        const { tld, domain, subdomain, internalHost } = splitHost(item)
         const host = decorateHost(item)
-        return { tld, domain, subdomain, host }
+        return { tld, domain, subdomain, host, internalHost }
       })
       .sort((a, b) => {
-        const { domain: domainA = '', subdomain: subdomainA = '' } = a
-        const { domain: domainB = '', subdomain: subdomainB = '' } = b
-        if (domainA !== domainB) {
-          return domainA.localeCompare(domainB)
+        if (a.internalHost !== b.internalHost) {
+          return b.internalHost - a.internalHost
         }
-        return subdomainA.localeCompare(subdomainB)
+        const hostsA = (a.internalHost)
+          ? a.host.split('.')
+          : a.host.split('.').reverse()
+        const hostsB = (b.internalHost)
+          ? b.host.split('.')
+          : b.host.split('.').reverse()
+        for (let h = 0; h <= Math.min(hostsA.length, hostsB.length); h++) {
+          if (hostsA.length <= h) {
+            return -1
+          }
+          if (hostsB.length <= h) {
+            return 1
+          }
+          if (hostsA[h] !== hostsB[h]) {
+            return hostsA[h].localeCompare(hostsB[h])
+          }
+        }
       })
   })
 
@@ -110,7 +123,8 @@ const setup = (props, context) => {
     let lastHostName
     for(let i = 0; i < filteredItems.value.length; i++) {
       const item = filteredItems.value[i]
-      const { tld, domain, host } = item
+      let { tld, domain, host } = item
+      host = host.toLowerCase()
       const _num_devices = Object.keys(hosts.value[host].devices).length
       const _num_protocols = Object.keys(hosts.value[host].protocols).length
       const hostName = ((domain) ? `${domain}.` : '') + tld
@@ -172,6 +186,8 @@ const setup = (props, context) => {
     onSelectAll,
     onSelectNone,
     onSelectInverse,
+
+items
   }
 }
 
