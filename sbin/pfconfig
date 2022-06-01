@@ -455,7 +455,7 @@ sub pull_expire {
     my ($query, $socket) = @_;
     $logger->info("Forking to pull git conf");
     my $pid = fork();
-	if ($pid == 0) {
+    if ($pid == 0) {
         my $res = pfconfig::git_storage->update();
         if(!$res) {
             $logger->error("Unable to update from git storage");
@@ -473,7 +473,7 @@ sub pull_expire {
         }
         $logger->info("Completed pull_expire");
         exit;
-	}
+    }
     else {
         send_output({status => "accepted"}, $socket, $query);
         $logger->debug("Response sent");
