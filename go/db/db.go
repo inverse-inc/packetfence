@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -27,9 +27,7 @@ func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
 }
 
 func ManualConnectDb(ctx context.Context, user, pass, host, port, dbName string) (*sql.DB, error) {
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Services)
-	services := pfconfigdriver.Config.PfConf.Services
-	uri := ReturnURI(ctx, user, pass, host, port, dbName, services.HaproxyDB)
+	uri := ReturnURI(ctx, user, pass, host, port, dbName)
 	return ConnectURI(ctx, uri)
 }
 
@@ -63,8 +61,6 @@ func ConnectURI(ctx context.Context, uri string) (*sql.DB, error) {
 func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Database)
 	dbConfig := pfconfigdriver.Config.PfConf.Database
-	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Services)
-	services := pfconfigdriver.Config.PfConf.Services
 
 	var DBName string
 	if len(dbName) > 0 {
@@ -73,10 +69,10 @@ func ReturnURIFromConfig(ctx context.Context, dbName ...string) string {
 		DBName = dbConfig.Db
 	}
 
-	return ReturnURI(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Port, DBName, services.HaproxyDB)
+	return ReturnURI(ctx, dbConfig.User, dbConfig.Pass, dbConfig.Host, dbConfig.Port, DBName)
 }
 
-func ReturnURI(ctx context.Context, user, pass, host, port, dbName, haproxydb string) string {
+func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) string {
 	user = strings.TrimSpace(user)
 	pass = strings.TrimSpace(pass)
 	host = strings.TrimSpace(host)
@@ -84,13 +80,20 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName, haproxydb st
 	dbName = strings.TrimSpace(dbName)
 
 	proto := "tcp"
-	if sharedutils.IsEnabled(haproxydb) {
-		if host == "localhost" {
-			proto = "unix"
-			host = "/var/lib/mysql/mysql.sock"
-		}
+
+	if host == "localhost" {
+		proto = "unix"
+		host = "/var/lib/mysql/mysql.sock"
+	} else {
+		host = host + ":" + port
 	}
 
-	uri := fmt.Sprintf("%s:%s@%s(%s:%s)/%s?parseTime=true&loc=Local", user, pass, proto, host, port, dbName)
-	return uri
+	Configuration := mysql.NewConfig()
+
+	Configuration.User = user
+	Configuration.Passwd = pass
+	Configuration.Net = proto
+	Configuration.Addr = host
+	Configuration.DBName = dbName
+	return Configuration.FormatDSN()
 }
