@@ -311,6 +311,7 @@ Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 Requires: fingerbank >= 4.3.1, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.0, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
+Requires: proxysql >= 2.4.1
 
 %description
 
