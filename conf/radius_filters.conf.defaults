@@ -1,3 +1,13 @@
+[pap-username-from-tunnel]
+merge_answer=yes
+status=enabled
+scopes=returnRadiusAccessAccept
+condition=connection_type == "Wireless-802.11-EAP" && connection_sub_type == "EAP-TTLS"
+description=papusername
+top_op=and
+radius_status=RLM_MODULE_OK
+answer.0=reply:User-Name = ${radius_request.User-Name}
+
 [EXAMPLE_Ethernet-EAP-Accept]
 status=disabled
 description=Return Access-Accept with VSA when the connection is Ethernet-EAP and when there is no security event
