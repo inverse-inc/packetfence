@@ -2,17 +2,17 @@
   <b-row class="mt-3">
     <b-col cols="12">
       <b-tabs lazy>
-        <b-tab title="Flows">
-          <base-data-flows />
-        </b-tab>
         <b-tab title="Data">
           <base-data-table />
         </b-tab>
-        <b-tab title="Protocols">
-          <base-data-protocols />
+        <b-tab title="Flows" active>
+          <base-data-flows />
         </b-tab>
         <b-tab title="Hosts">
           <base-data-hosts />
+        </b-tab>
+        <b-tab title="Protocols">
+          <base-data-protocols />
         </b-tab>
       </b-tabs>
     </b-col>

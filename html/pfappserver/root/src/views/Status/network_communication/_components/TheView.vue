@@ -22,36 +22,17 @@
               </b-tab>
               <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
-                  {{ $i18n.t('Protocols') }} <b-badge v-if="selectedProtocols.length" pill variant="primary" class="ml-1">{{ selectedProtocols.length }}</b-badge>
-                </template>
-                <base-filter-protocols />
-              </b-tab>
-              <b-tab class="border-1 border-right border-bottom border-left">
-                <template #title>
                   {{ $i18n.t('Hosts') }} <b-badge v-if="selectedHosts.length" pill variant="primary" class="ml-1">{{ selectedHosts.length }}</b-badge>
                 </template>
                 <base-filter-hosts />
               </b-tab>
+              <b-tab class="border-1 border-right border-bottom border-left">
+                <template #title>
+                  {{ $i18n.t('Protocols') }} <b-badge v-if="selectedProtocols.length" pill variant="primary" class="ml-1">{{ selectedProtocols.length }}</b-badge>
+                </template>
+                <base-filter-protocols />
+              </b-tab>
             </b-tabs>
-        </b-col>
-      </b-row>
-      <b-row class="mt-3">
-        <b-col cols="6">
-          <div class="d-flex justify-content-md-end">
-            <base-search-input-limit
-              :value="limit" @input="setLimit"
-              size="md"
-              :limits="limits"
-              :disabled="isLoading"
-            />
-            <base-search-input-page
-              :value="page" @input="setPage"
-              class="ml-3"
-              :limit="limit"
-              :total-rows="totalRows"
-              :disabled="isLoading"
-            />
-          </div>
         </b-col>
       </b-row>
       <the-data />
@@ -60,10 +41,6 @@
 </template>
 
 <script>
-import {
-  BaseSearchInputLimit,
-  BaseSearchInputPage,
-} from '@/components/new/'
 import BaseFilterDevices from './BaseFilterDevices'
 import BaseFilterHosts from './BaseFilterHosts'
 import BaseFilterProtocols from './BaseFilterProtocols'
@@ -71,9 +48,6 @@ import TheSearch from './TheSearch'
 import TheData from './TheData'
 
 const components = {
-  BaseSearchInputLimit,
-  BaseSearchInputPage,
-
   BaseFilterDevices,
   BaseFilterHosts,
   BaseFilterProtocols,
@@ -82,8 +56,7 @@ const components = {
   TheData,
 }
 
-import { computed, toRefs } from '@vue/composition-api'
-import { useNodesSearch } from '../_composables/useCollection'
+import { computed } from '@vue/composition-api'
 
 
 const setup = (props, context) => {
@@ -94,11 +67,7 @@ const setup = (props, context) => {
   const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
   const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
 
-  const search = useNodesSearch()
-
   return {
-  ...toRefs(search),
-
     selectedDevices,
     selectedHosts,
     selectedProtocols
@@ -116,7 +85,7 @@ export default {
 <style lang="scss">
 .tabs.filters {
   div[role="tabpanel"] {
-    height: 33vh;
+    height: 35vh;
     overflow-y: auto;
     overflow-x: hidden;
     .card {

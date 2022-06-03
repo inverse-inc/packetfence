@@ -6,7 +6,7 @@
     <template v-slot:footer>
       <p class="py-0 col-form-label text-left text-nowrap mt-3" v-text="'Device Class'"></p>
       <b-row>
-        <b-col cols="12" v-for="deviceClass in deviceClassList" :key="deviceClass.value"
+        <b-col cols="6" v-for="deviceClass in deviceClassList" :key="deviceClass.value"
           @click="toggleDeviceClass(deviceClass)"
         >
           <icon v-if="selectedDeviceClasses.indexOf(deviceClass.text) > -1"

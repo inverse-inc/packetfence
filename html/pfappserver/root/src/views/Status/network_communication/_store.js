@@ -48,6 +48,18 @@ const getters = {
       }
       return tabular
     }, [])
+  },
+  byMac: (state, getters) => {
+    return getters.tabular.reduce((devices, item) => {
+      const { mac, host, protocol, count } = item
+      if (!(mac in devices)) {
+        devices[mac] = { hosts: {}, protocols: { }}
+      }
+      devices[mac]['count'] = (devices[mac]['count'] || 0) + count
+      devices[mac]['hosts'][host] = (devices[mac]['hosts'][host] || 0) + count
+      devices[mac]['protocols'][protocol] = (devices[mac]['protocols'][protocol] || 0) + count
+      return devices
+    }, {})
   }
 }
 
@@ -244,10 +256,14 @@ const mutations = {
   },
   RESPONSE: (state, response) => {
     state.status = 'success'
-    state.cache = {
-//      ...state.cache,
-      ...response
-    }
+    // skip empty
+    state.cache = Object.entries(response).reduce((items, [device, data]) => {
+      const { all_hosts_cache = {} } = data
+      if (Object.values(all_hosts_cache).length > 0) {
+        items[device] = data
+      }
+      return items
+    }, {})
   },
   ERROR: (state, response) => {
     state.status = 'error'
