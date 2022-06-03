@@ -49,7 +49,7 @@ const getters = {
       return tabular
     }, [])
   },
-  byMac: (state, getters) => {
+  byDevice: (state, getters) => {
     return getters.tabular.reduce((devices, item) => {
       const { mac, host, protocol, count } = item
       if (!(mac in devices)) {

@@ -38,11 +38,10 @@
           <text-highlight :queries="[filter]">{{ item.mac }}</text-highlight>
         </b-col>
         <b-col cols="auto mr-3">
-<!--
-          <b-badge class="ml-1">{{ uniqueCategories[item.mac] }} {{ $i18n.t('categories') }}</b-badge>
-          <b-badge class="ml-1">{{ uniqueProtocols[item.mac] }} {{ $i18n.t('protocols') }}</b-badge>
-          <b-badge class="ml-1">{{ uniqueHosts[item.mac] }} {{ $i18n.t('hosts') }}</b-badge>
--->
+          <b-badge v-if="byDevice[item.mac]"
+            class="ml-1">{{ Object.keys(byDevice[item.mac].hosts).length }} {{ $i18n.t('hosts') }}</b-badge>
+          <b-badge v-if="byDevice[item.mac]"
+            class="ml-1">{{ Object.keys(byDevice[item.mac].protocols).length }} {{ $i18n.t('protocols') }}</b-badge>
         </b-col>
       </b-row>
     </div>
@@ -72,8 +71,8 @@ const setup = (props, context) => {
     items
   } = toRefs(search)
 
-
   const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices)
+  const byDevice = computed(() => $store.getters['$_fingerbank_communication/byDevice'])
 
   const uniqueItems = computed(() => {
     return items.value
@@ -118,41 +117,6 @@ const setup = (props, context) => {
   const onSelectInverse = () => {
     $store.dispatch('$_fingerbank_communication/invertDevices', filteredItems.value.map(item => item.mac))
   }
-/*
-  const uniqueCategories = computed(() => {
-    const assoc = items.value.reduce((unique, item) => {
-      const { mac, device_class } = item
-      unique[mac] = [ ...unique[mac] || [], device_class ]
-      return unique
-    }, {})
-    return Object.keys(assoc).reduce((unique, mac) => {
-      return { ...unique, [mac]: assoc[mac].length }
-    }, {})
-  })
-
-  const uniqueProtocols = computed(() => {
-    const assoc = items.value.reduce((unique, item) => {
-      const { mac, proto, port } = item
-      const protocol = `${proto}/${port}`
-      unique[mac] = [ ...unique[mac] || [], protocol ]
-      return unique
-    }, {})
-    return Object.keys(assoc).reduce((unique, mac) => {
-      return { ...unique, [mac]: assoc[mac].length }
-    }, {})
-  })
-
-  const uniqueHosts = computed(() => {
-    const assoc = items.value.reduce((unique, item) => {
-      const { mac, host } = item
-      unique[mac] = [ ...unique[mac] || [], host ]
-      return unique
-    }, {})
-    return Object.keys(assoc).reduce((unique, mac) => {
-      return { ...unique, [mac]: assoc[mac].length }
-    }, {})
-  })
-*/
 
   return {
     filter,
@@ -160,6 +124,7 @@ const setup = (props, context) => {
     uniqueItems,
 
     selectedDevices,
+    byDevice,
 
     onSelectItem,
     onSelectAll,

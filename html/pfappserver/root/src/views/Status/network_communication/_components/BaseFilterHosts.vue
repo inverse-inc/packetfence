@@ -113,7 +113,7 @@ const setup = (props, context) => {
           decorated[decorated.length - 1]._tree[0].name = 'tree-last'
         }
         // push pseudo category
-        decorated.push({ host: hostName })
+        decorated.push({ host: hostName, _num_devices, _num_protocols })
         if (host === hostName) { // no subdomains
           continue
         }

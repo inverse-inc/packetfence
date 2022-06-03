@@ -3,128 +3,70 @@
     <b-card-header>
       Flows
     </b-card-header>
-    <b-tabs small lazy>
-      <b-tab v-for="device in devices" :key="device.mac">
+    <b-tabs small v-model="tabIndex">
+      <b-tab lazy>
         <template #title>
-          {{ device.mac }} <b-badge pill variant="primary" class="ml-1">{{ device.count }}</b-badge>
+          {{ $i18n.t('All') }}
         </template>
       </b-tab>
+      <b-tab v-for="(devices, i) in collections" :key="`tab-${i}`"
+        lazy>
+        <template #title>
+          <span v-for="device of devices" :key="device.mac">
+            {{ device.mac }} <b-badge pill variant="primary" class="ml-1">{{ device.count }}</b-badge>
+          </span>
+        </template>
+      </b-tab>
+
+      <base-data-flow :devices="devices" />
     </b-tabs>
-    <base-chart-ringed ref="graphRef"
-      class="m-3"
-      :dimensions="dimensions"
-      :options="options"
-      :items="items"
-      :is-loading="isLoading"
-      @device="toggleDevice"
-      @host="toggleHost" />
   </b-card>
 </template>
 <script>
-import BaseChartRinged from './BaseChartRinged'
+import BaseDataFlow from './BaseDataFlow'
 const components = {
-  BaseChartRinged
+  BaseDataFlow
 }
 
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
-import { createDebouncer } from 'promised-debounce'
-import { useSearch } from '../_composables/useCollection'
-import { decorateDevice } from '../_composables/useCommunication'
+import { computed, ref, watch } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
-  const { refs, root: { $store } = {} } = context
-
-  const search = useSearch()
+  const { root: { $store } = {} } = context
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
-  const byMac = computed(() => $store.getters['$_fingerbank_communication/byMac'])
-  const devices = computed(() => Object.entries(byMac.value)
-    .map(([mac, data]) => ({ mac, ...data }))
-    .sort((a, b) => a.mac.localeCompare(b.mac))
-  )
-
-
-  const dimensions = ref({
-    height: 100,
-    width: 100,
-    fit: 'max'
+  const itemsByMacs = computed(() => {
+    return macs => items.value.filter(item => macs.indexOf(item.mac) > -1)
   })
-  const options = ref({
-    miniMapHeight: undefined,
-    miniMapWidth: 200,
-    miniMapPosition: 'top-left',
-    minZoom: 0,
-    maxZoom: 4,
-    mouseWheelZoom: true,
-    padding: 25
+  const byDevice = computed(() => $store.getters['$_fingerbank_communication/byDevice'])
+
+  const collections = ref([])
+  watch(byDevice, () => {
+    collections.value = Object.entries(byDevice.value)
+      .map(([mac, data]) => ({ mac, ...data }))
+      .sort((a, b) => a.mac.localeCompare(b.mac))
+      .map(item => ([ item ]))
   })
 
-  const graphRef = ref(null)
-  let dimDebouncer
-  const setDimensions = () => {
-    if (!dimDebouncer)
-      dimDebouncer = createDebouncer()
-    dimDebouncer({
-      handler: () => {
-        // get width of svg container
-        const { graphRef: { $el: { offsetWidth: width = 0 } = {} } = {} } = refs
-        dimensions.value.width = width
-        if (dimensions.value.fit === 'max')
-          dimensions.value.height = width
-        else {
-          // get height of window document
-          const documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
-          const { graphRef: { $el = {} } = {} } = refs
-          const { top } = $el.getBoundingClientRect()
-          const padding = 20 + 16 /* padding = 20, margin = 16 */
-          let height = documentHeight - top - padding
-          height = Math.max(height, width / 2) // minimum height of 1/2 width
-          dimensions.value.height = height
-        }
-      },
-      time: 100 // 100ms
-    })
-  }
+  const tabIndex = ref(0)
 
-  onMounted(() => { // after DOM is ready
-    watch([
-      items,
-      () => dimensions.value.fit
-    ], () => {
-      nextTick(() => {
-        setDimensions()
-      })
-    }, { deep: true, immediate: true })
-
-    window.addEventListener('resize', setDimensions)
+  const devices = computed(() => {
+    // idx 0: All
+    switch(tabIndex.value) {
+      case 0:
+        return Object.keys(byDevice.value).map(mac => ({ mac })) // all
+        // break
+      default:
+        return collections.value[tabIndex.value - 1]
+        // break
+    }
   })
-
-  onBeforeUnmount(() => window.removeEventListener('resize', setDimensions))
-
-  const toggleDevice = device => {
-    $store.dispatch('$_fingerbank_communication/toggleDevice', device)
-  }
-
-  const toggleHost = host => {
-    $store.dispatch('$_fingerbank_communication/toggleHost', host)
-  }
 
   return {
-    ...toRefs(search),
-    isLoading,
-    items, // overload
-    devices,
-
-    graphRef,
-    dimensions,
-    options,
-
-    toggleDevice,
-    toggleHost,
-
-byMac,
+    collections,
+    tabIndex,
+    devices
   }
 }
 
