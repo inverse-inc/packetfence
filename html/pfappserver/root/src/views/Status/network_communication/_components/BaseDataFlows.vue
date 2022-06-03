@@ -3,6 +3,13 @@
     <b-card-header>
       Flows
     </b-card-header>
+    <b-tabs small lazy>
+      <b-tab v-for="device in devices" :key="device.mac">
+        <template #title>
+          {{ device.mac }} <b-badge pill variant="primary" class="ml-1">{{ device.count }}</b-badge>
+        </template>
+      </b-tab>
+    </b-tabs>
     <base-chart-ringed ref="graphRef"
       class="m-3"
       :dimensions="dimensions"
@@ -22,6 +29,7 @@ const components = {
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
 import { useSearch } from '../_composables/useCollection'
+import { decorateDevice } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
@@ -31,6 +39,12 @@ const setup = (props, context) => {
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
+  const byMac = computed(() => $store.getters['$_fingerbank_communication/byMac'])
+  const devices = computed(() => Object.entries(byMac.value)
+    .map(([mac, data]) => ({ mac, ...data }))
+    .sort((a, b) => a.mac.localeCompare(b.mac))
+  )
+
 
   const dimensions = ref({
     height: 100,
@@ -101,6 +115,7 @@ const setup = (props, context) => {
     ...toRefs(search),
     isLoading,
     items, // overload
+    devices,
 
     graphRef,
     dimensions,
@@ -108,6 +123,8 @@ const setup = (props, context) => {
 
     toggleDevice,
     toggleHost,
+
+byMac,
   }
 }
 

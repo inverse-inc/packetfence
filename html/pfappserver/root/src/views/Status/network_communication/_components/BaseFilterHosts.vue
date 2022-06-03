@@ -67,7 +67,7 @@ const directives = {
 }
 
 import { computed, ref } from '@vue/composition-api'
-import { decorateHost, splitHost, useHosts } from '../_composables/useCommunication'
+import { decorateHost, splitHost, useHosts, sortHosts } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
@@ -80,32 +80,11 @@ const setup = (props, context) => {
   const items = computed(() => {
     return Object.keys(hosts.value)
       .map(item => {
-        const { tld, domain, subdomain, internalHost } = splitHost(item)
+        const { tld, domain, subdomain, internalHost, isIpv4, isIpv6 } = splitHost(item)
         const host = decorateHost(item)
-        return { tld, domain, subdomain, host, internalHost }
+        return { tld, domain, subdomain, host, internalHost, isIpv4, isIpv6 }
       })
-      .sort((a, b) => {
-        if (a.internalHost !== b.internalHost) {
-          return b.internalHost - a.internalHost
-        }
-        const hostsA = (a.internalHost)
-          ? a.host.split('.')
-          : a.host.split('.').reverse()
-        const hostsB = (b.internalHost)
-          ? b.host.split('.')
-          : b.host.split('.').reverse()
-        for (let h = 0; h <= Math.min(hostsA.length, hostsB.length); h++) {
-          if (hostsA.length <= h) {
-            return -1
-          }
-          if (hostsB.length <= h) {
-            return 1
-          }
-          if (hostsA[h] !== hostsB[h]) {
-            return hostsA[h].localeCompare(hostsB[h])
-          }
-        }
-      })
+      .sort(sortHosts)
   })
 
   const filter = ref('')

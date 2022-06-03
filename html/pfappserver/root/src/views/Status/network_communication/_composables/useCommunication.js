@@ -1,3 +1,4 @@
+import store from '@/store'
 import {
   reIpv4,
   reIpv6,
@@ -31,12 +32,41 @@ export const useDevices = communication => {
 export const splitHost = host => {
   // host may have port appended, discard
   const [_host, port] = host.toLowerCase().split(':')
+  // include packetfence domain in local hosts
+  const packetfenceDomain = store.state.$_bases.cache.general.domain.toLowerCase()
+  const internalHost = packetfenceDomain === _host || RegExp(`.${packetfenceDomain}$`, 'i').test(_host)
+  const isIpv4 = reIpv4(_host)
+  const isIpv6 = reIpv6(_host)
   // don't split IPv4 or IPv6
-  if (reIpv4(_host) || reIpv6(_host)) {
-    return { internalHost: true, tld: _host, port }
+  if (isIpv4 || isIpv6) {
+    return { internalHost: true, tld: _host, port, isIpv4, isIpv6 }
   }
   const [tld, domain, ...subdomains] = _host.split('.').reverse()
-  return { internalHost: false, tld, port, domain, subdomain: subdomains.reverse().join('.') }
+  return { internalHost, tld, port, domain, subdomain: subdomains.reverse().join('.') }
+}
+
+export const sortHosts = (a, b) => {
+  // internal hosts first
+  if (a.internalHost !== b.internalHost) {
+    return b.internalHost - a.internalHost
+  }
+  const hostsA = (a.internalHost && (a.isIpv4 || a.isIpv6))
+    ? a.host.split('.')
+    : a.host.split('.').reverse()
+  const hostsB = (b.internalHost && (b.isIpv4 || b.isIpv6))
+    ? b.host.split('.')
+    : b.host.split('.').reverse()
+  for (let h = 0; h <= Math.min(hostsA.length, hostsB.length); h++) {
+    if (hostsA.length <= h) {
+      return -1
+    }
+    if (hostsB.length <= h) {
+      return 1
+    }
+    if (hostsA[h] !== hostsB[h]) {
+      return `${hostsA[h]}`.localeCompare(`${hostsB[h]}`)
+    }
+  }
 }
 
 export const decorateHost = host => {

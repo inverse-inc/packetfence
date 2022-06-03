@@ -64,7 +64,7 @@
       <circle v-bind="svgDevicesRingProps" key="devicesRing" />
 
       <!-- flows -->
-      <path v-for="flow in flows" :key="flow.key" v-bind="flow.props" v-on="flow.handlers" />
+      <path v-for="flow in svgFlows" :key="flow.key" v-bind="flow.props" v-on="flow.handlers" />
 
       <!-- outer hosts -->
       <circle v-for="host in svgOuterHosts" :key="host.key" v-bind="host.props" v-on="host.handlers" />
@@ -269,12 +269,14 @@ const setup = (props, context) => {
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
       const angle = (n * 360 / keys.length + deviceRotation.value) % 360
-      const x = cx.value + (devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
-      const y = cy.value + (devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
+      const xTheta = Math.cos(angle * Math.PI / 180)
+      const yTheta = Math.sin(angle * Math.PI / 180)
+      const x = cx.value + (devicesRingRadius.value * xTheta)
+      const y = cy.value + (devicesRingRadius.value * yTheta)
       const size = scaleCount(assocDevicesCount.value[node], totalCount.value, minSize, maxSize)
       const isFocus = deviceRingFocus.value && deviceFocus.value.indexOf(node) > -1
       const isVisible = !hasRingFocus.value || deviceFocus.value.indexOf(node) > -1
-      return { ...nodes, [node]: { node, size, angle, x, y, isFocus, isVisible } }
+      return { ...nodes, [node]: { node, size, angle, x, y, xTheta, yTheta, isFocus, isVisible } }
     }, {})
   })
   const deviceFocus = ref([])
@@ -314,41 +316,43 @@ const setup = (props, context) => {
     }
   }
   const svgDevices = computed(() => {
-    return Object.values(devices.value).map(device => {
-      const { node, size, x, y, isFocus, isVisible } = device
-      const fill = (isVisible)
-        ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
-        : 'rgb(0, 0, 0, 0)'
-      const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
-      return {
-        key: `device-${node}`,
-        props: {
-          class: 'device',
-          r: size,
-          cx: x,
-          cy: y,
-          fill,
-          stroke,
-          'stroke-width': 1,
-        },
-        handlers: {
-          mouseover: event => deviceOver(event, node),
-          mouseout: event => deviceOut(event, node),
-          mousedown: event => deviceDown(event, node)
+    return Object.values(devices.value)
+      .sort((a,b) => b.size - a.size)
+      .map(device => {
+        const { node, size, x, y, isFocus, isVisible } = device
+        const fill = (isVisible)
+          ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
+          : 'rgb(0, 0, 0, 0)'
+        const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
+        return {
+          key: `device-${node}`,
+          props: {
+            class: 'device',
+            r: size,
+            cx: x,
+            cy: y,
+            fill,
+            stroke,
+            'stroke-width': 1,
+          },
+          handlers: {
+            mouseover: event => deviceOver(event, node),
+            mouseout: event => deviceOut(event, node),
+            mousedown: event => deviceDown(event, node)
+          }
         }
-      }
-    })
+      })
   })
   const svgDevicesText = computed(() => {
     return Object.values(devices.value)
       .map(device => {
-        const { angle, node, size, isFocus, isVisible } = device
+        const { angle, node, size, xTheta, yTheta, isFocus, isVisible } = device
         const opacity = (isVisible) ? 1 : 0
         const id = `href-${node}`
-        const x1 = cx.value + ((devicesRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
-        const y1 = cy.value + ((devicesRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
-        const x2 = cx.value + (10 * devicesRingRadius.value * Math.cos(angle * Math.PI / 180))
-        const y2 = cy.value + (10 * devicesRingRadius.value * Math.sin(angle * Math.PI / 180))
+        const x1 = cx.value + ((devicesRingRadius.value + size + fontSize.value) * xTheta)
+        const y1 = cy.value + ((devicesRingRadius.value + size + fontSize.value) * yTheta)
+        const x2 = cx.value + (10 * devicesRingRadius.value * xTheta)
+        const y2 = cy.value + (10 * devicesRingRadius.value * yTheta)
         return {
           path: {
             key: `devicePath-${node}`,
@@ -451,12 +455,14 @@ const setup = (props, context) => {
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
       const angle = (n * 360 / keys.length + innerHostRotation.value) % 360
-      const x = cx.value + (innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
-      const y = cy.value + (innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
+      const xTheta = Math.cos(angle * Math.PI / 180)
+      const yTheta = Math.sin(angle * Math.PI / 180)
+      const x = cx.value + (innerHostsRingRadius.value * xTheta)
+      const y = cy.value + (innerHostsRingRadius.value * yTheta)
       const size = scaleCount(assocInnerHostsCount.value[node], totalCount.value, minSize, maxSize)
       const isFocus = innerHostRingFocus.value && innerHostFocus.value.indexOf(node) > -1
       const isVisible = !hasRingFocus.value || ((deviceRingFocus.value || innerHostRingFocus.value) && innerHostFocus.value.indexOf(node) > -1)
-      return { ...nodes, [node]: { node, size, angle, x, y, isFocus, isVisible } }
+      return { ...nodes, [node]: { node, size, angle, x, y, xTheta, yTheta, isFocus, isVisible } }
     }, {})
   })
   const innerHostFocus = ref([])
@@ -492,41 +498,43 @@ const setup = (props, context) => {
     }
   }
   const svgInnerHosts = computed(() => {
-    return Object.values(innerHosts.value).map(host => {
-      const { node, size, x, y, isFocus, isVisible } = host
-      const fill = (isVisible)
-        ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
-        : 'rgb(0, 0, 0, 0)'
-      const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
-      return {
-        key: `innerHost-${node}`,
-        props: {
-          class: 'host host-inner',
-          r: size,
-          cx: x,
-          cy: y,
-          fill,
-          stroke,
-          'stroke-width': 1,
-        },
-        handlers: {
-          mouseover: event => innerHostOver(event, node),
-          mouseout: event => innerHostOut(event, node),
-          mousedown: event => innerHostDown(event, node)
+    return Object.values(innerHosts.value)
+      .sort((a,b) => b.size - a.size)
+      .map(host => {
+        const { node, size, x, y, isFocus, isVisible } = host
+        const fill = (isVisible)
+          ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
+          : 'rgb(0, 0, 0, 0)'
+        const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
+        return {
+          key: `innerHost-${node}`,
+          props: {
+            class: 'host host-inner',
+            r: size,
+            cx: x,
+            cy: y,
+            fill,
+            stroke,
+            'stroke-width': 1,
+          },
+          handlers: {
+            mouseover: event => innerHostOver(event, node),
+            mouseout: event => innerHostOut(event, node),
+            mousedown: event => innerHostDown(event, node)
+          }
         }
-      }
-    })
+      })
   })
   const svgInnerHostsText = computed(() => {
     return Object.values(innerHosts.value)
       .map(host => {
-        const { angle, node, size, isFocus, isVisible } = host
+        const { angle, node, size, xTheta, yTheta, isFocus, isVisible } = host
         const opacity = (isVisible) ? 1 : 0
         const id = `href-${node}`
-        const x1 = cx.value + ((innerHostsRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
-        const y1 = cy.value + ((innerHostsRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
-        const x2 = cx.value + (10 * innerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
-        const y2 = cy.value + (10 * innerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
+        const x1 = cx.value + ((innerHostsRingRadius.value + size + fontSize.value) * xTheta)
+        const y1 = cy.value + ((innerHostsRingRadius.value + size + fontSize.value) * yTheta)
+        const x2 = cx.value + (10 * innerHostsRingRadius.value * xTheta)
+        const y2 = cy.value + (10 * innerHostsRingRadius.value * yTheta)
         return {
           path: {
             key: `innerHostPath-${node}`,
@@ -631,12 +639,14 @@ const setup = (props, context) => {
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
       const angle = (n * 360 / keys.length + outerHostRotation.value) % 360
-      const x = cx.value + (outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
-      const y = cy.value + (outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
+      const xTheta = Math.cos(angle * Math.PI / 180)
+      const yTheta = Math.sin(angle * Math.PI / 180)
+      const x = cx.value + (outerHostsRingRadius.value * xTheta)
+      const y = cy.value + (outerHostsRingRadius.value * yTheta)
       const size = scaleCount(assocOuterHostsCount.value[node], totalCount.value, minSize, maxSize)
       const isFocus = outerHostRingFocus.value && outerHostFocus.value.indexOf(node) > -1
       const isVisible = !hasRingFocus.value || ((deviceRingFocus.value || outerHostRingFocus.value) && outerHostFocus.value.indexOf(node) > -1)
-      return { ...nodes, [node]: { node, size, angle, x, y, isFocus, isVisible } }
+      return { ...nodes, [node]: { node, size, angle, x, y, xTheta, yTheta, isFocus, isVisible } }
     }, {})
   })
   const outerHostFocus = ref([])
@@ -672,41 +682,43 @@ const setup = (props, context) => {
     }
   }
   const svgOuterHosts = computed(() => {
-    return Object.values(outerHosts.value).map(host => {
-      const { node, size, x, y, isFocus, isVisible } = host
-      const fill = (isVisible)
-        ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
-        : 'rgb(0, 0, 0, 0)'
-      const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
-      return {
-        key: `outerHost-${node}`,
-        props: {
-          class: 'host host-outer',
-          r: size,
-          cx: x,
-          cy: y,
-          fill,
-          stroke,
-          'stroke-width': 1,
-        },
-        handlers: {
-          mouseover: event => outerHostOver(event, node),
-          mouseout: event => outerHostOut(event, node),
-          mousedown: event => outerHostDown(event, node)
+    return Object.values(outerHosts.value)
+      .sort((a,b) => b.size - a.size)
+      .map(host => {
+        const { node, size, x, y, isFocus, isVisible } = host
+        const fill = (isVisible)
+          ? `url(#node-${(isFocus) ? 'focus' : 'blur' })`
+          : 'rgb(0, 0, 0, 0)'
+        const stroke = `rgb(0, 0, 0, ${(isVisible) ? .2 : 0})`
+        return {
+          key: `outerHost-${node}`,
+          props: {
+            class: 'host host-outer',
+            r: size,
+            cx: x,
+            cy: y,
+            fill,
+            stroke,
+            'stroke-width': 1,
+          },
+          handlers: {
+            mouseover: event => outerHostOver(event, node),
+            mouseout: event => outerHostOut(event, node),
+            mousedown: event => outerHostDown(event, node)
+          }
         }
-      }
-    })
+      })
   })
   const svgOuterHostsText = computed(() => {
     return Object.values(outerHosts.value)
       .map(host => {
-        const { angle, node, size, isFocus, isVisible } = host
+        const { angle, node, size, xTheta, yTheta, isFocus, isVisible } = host
         const opacity = (isVisible) ? 1 : 0
         const id = `href-${node}`
-        const x1 = cx.value + ((outerHostsRingRadius.value + size + fontSize.value) * Math.cos(angle * Math.PI / 180))
-        const y1 = cy.value + ((outerHostsRingRadius.value + size + fontSize.value) * Math.sin(angle * Math.PI / 180))
-        const x2 = cx.value + (10 * outerHostsRingRadius.value * Math.cos(angle * Math.PI / 180))
-        const y2 = cy.value + (10 * outerHostsRingRadius.value * Math.sin(angle * Math.PI / 180))
+        const x1 = cx.value + ((outerHostsRingRadius.value + size + fontSize.value) * xTheta)
+        const y1 = cy.value + ((outerHostsRingRadius.value + size + fontSize.value) * yTheta)
+        const x2 = cx.value + (10 * outerHostsRingRadius.value * xTheta)
+        const y2 = cy.value + (10 * outerHostsRingRadius.value * yTheta)
         return {
           path: {
             key: `outerHostPath-${node}`,
@@ -803,7 +815,7 @@ const setup = (props, context) => {
     }
   }
 
-  const flows = computed(() => {
+  const svgFlows = computed(() => {
     const dx1 = cx.value
     const dy1 = cy.value
     const dx2 = cx.value
@@ -891,15 +903,7 @@ const setup = (props, context) => {
     svgOuterHosts,
     svgOuterHostsText,
 
-deviceRotation,
-
-assocInnerHostsCount,
-assocOuterHostsCount,
-totalCount,
-innerHosts,
-outerHosts,
-flows,
-deviceFocus,
+    svgFlows,
   }
 }
 

@@ -1,4 +1,5 @@
 import store from '@/store'
+import BasesStoreModule from '@/views/Configuration/bases/_store'
 import FingerbankStoreModule from '@/views/Configuration/fingerbank/_store'
 import FingerbankCommunicationStoreModule from './_store'
 
@@ -13,11 +14,13 @@ export default [
       can: 'read nodes'
     },
     beforeEnter: (to, from, next) => {
+      if (!store.state.$_bases)
+        store.registerModule('$_bases', BasesStoreModule)
       if (!store.state.$_fingerbank)
         store.registerModule('$_fingerbank', FingerbankStoreModule)
       if (!store.state.$_fingerbank_communication)
         store.registerModule('$_fingerbank_communication', FingerbankCommunicationStoreModule)
-      next()
+      store.dispatch('$_bases/getGeneral').then(() => next())
     },
   }
 ]
