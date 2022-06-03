@@ -904,6 +904,11 @@ const setup = (props, context) => {
     svgOuterHostsText,
 
     svgFlows,
+
+
+    deviceRotation,
+    innerHostRotation,
+    outerHostRotation
   }
 }
 
@@ -926,18 +931,20 @@ html {
 @import './BaseChartRinged.scss';
 
 svg {
+  transition: height .3s linear, width .3s linear;
+
   text {
     // https://stackoverflow.com/a/62720107
     transform-box: fill-box;
-    transition: fill .3s ease;
+    transition: fill .3s linear;
   }
   circle.device,
   circle.host {
-    transition: fill .3s ease, stroke .3s ease;
+    transition: fill .3s linear, stroke .3s linear;
     cursor: pointer;
   }
   path.flow {
-    transition: stroke .3s ease;
+    transition: stroke .3s linear;
   }
 }
 </style>

@@ -33,8 +33,11 @@ export const splitHost = host => {
   // host may have port appended, discard
   const [_host, port] = host.toLowerCase().split(':')
   // include packetfence domain in local hosts
-  const packetfenceDomain = store.state.$_bases.cache.general.domain.toLowerCase()
-  const internalHost = packetfenceDomain === _host || RegExp(`.${packetfenceDomain}$`, 'i').test(_host)
+  let internalHost = false
+  if (store.state.$_bases.cache.general.domain) {
+    const packetfenceDomain = store.state.$_bases.cache.general.domain.toLowerCase()
+    internalHost = packetfenceDomain === _host || RegExp(`.${packetfenceDomain}$`, 'i').test(_host)
+  }
   const isIpv4 = reIpv4(_host)
   const isIpv6 = reIpv6(_host)
   // don't split IPv4 or IPv6
