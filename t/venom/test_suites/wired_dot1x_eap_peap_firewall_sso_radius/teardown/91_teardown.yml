@@ -1,0 +1,110 @@
+name: Teardown
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: unset_domain_on_builtin_realms
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/DEFAULT'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "domain": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/NULL'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "domain": null
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: delete_realms
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.ad_domain_upper}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.ad_dns_domain}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: delete_domain
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id_wired_dot1x_eap_peap_sso_radius}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+# it will be restarted when a new join will start
+- name: stop_packetfence_winbindd
+  steps:
+  - type: exec
+    script: systemctl stop packetfence-winbindd
+
+- name: delete_connection_profile
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/connection_profile/{{.dot1x_eap_peap.profiles.wired.id}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+- name: delete_sources
+  steps:
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_user.name}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+  - type: http
+    method: DELETE
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/source/{{.dot1x_eap_peap.sources.ad_machine.name}}'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
