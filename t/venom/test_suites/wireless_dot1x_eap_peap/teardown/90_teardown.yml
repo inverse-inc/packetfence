@@ -60,13 +60,19 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id_wireless_dot1x_eap_peap}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
       - result.statuscode ShouldEqual 200
+
+# it will be restarted when a new join will start
+- name: stop_packetfence_winbindd
+  steps:
+  - type: exec
+    script: systemctl stop packetfence-winbindd
 
 - name: delete_connection_profile
   steps:

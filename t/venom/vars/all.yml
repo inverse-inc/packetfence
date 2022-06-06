@@ -41,7 +41,11 @@ pfserver_pfqueue_workers: 8
 pfserver_haproxy_admin_server_timeout: 240s
 
 # ad variables
-ad_domain_id: example
+ad_domain_id_wired_dot1x_eap_peap: example1
+ad_domain_id_wired_dot1x_eap_peap_sso_https: example2
+ad_domain_id_wired_dot1x_eap_peap_sso_radius: example3
+ad_domain_id_wireless_dot1x_eap_peap: example4
+
 ad_domain_upper: EXAMPLE
 ad_dns_domain: example.lan
 ad_domain_admin_user: vagrant-domain
