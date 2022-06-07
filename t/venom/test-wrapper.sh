@@ -179,6 +179,7 @@ halt() {
 
 teardown() {
     log_section "Teardown"
+    halt
     delete_ansible_files
     destroy
 }
