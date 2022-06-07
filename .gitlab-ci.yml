@@ -397,7 +397,7 @@ variables:
 
 .test_script_job:
   variables:
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
+    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
     - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
   after_script:
