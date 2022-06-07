@@ -10,8 +10,6 @@ RUN cd /usr/local/pf/go/ && go mod download
 
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
-COPY ./html /usr/local/pf/html
-COPY ./src /usr/local/pf/src
 COPY ./config.mk /usr/local/pf/config.mk
 COPY ./Makefile /usr/local/pf/Makefile
 RUN cd /usr/local/pf/go/ && \
