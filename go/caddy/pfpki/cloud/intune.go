@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // Info struct
@@ -232,8 +233,10 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
 	if err != nil {
+		spew.Dump(err)
 		return err
 	}
+	spew.Dump(resp)
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
