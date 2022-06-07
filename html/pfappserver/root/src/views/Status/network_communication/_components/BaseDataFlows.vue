@@ -30,7 +30,6 @@
           </span>
         </template>
       </b-tab>
-
       <base-data-flow
         :animate="animate"
         :devices="devices"
@@ -54,11 +53,6 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
-  const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
-  const itemsByMacs = computed(() => {
-    return macs => items.value.filter(item => macs.indexOf(item.mac) > -1)
-  })
   const byDevice = computed(() => $store.getters['$_fingerbank_communication/byDevice'])
 
   const collections = ref([])

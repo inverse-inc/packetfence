@@ -1,5 +1,5 @@
 <template>
-  <div ref="svgContainer" :class="[ 'svgContainer', { [`highlight highlight-${highlight}`]: highlight } ]" key="svgContainer">
+  <div ref="svgContainer" class="svgContainer" key="svgContainer">
 
     <!-- SVG drag layer (for event capture only) -->
     <svg ref="svgDrag" class="svgDrag" key="svgDrag"
@@ -158,7 +158,7 @@ const props = {
   },
 }
 
-import { computed, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
+import { computed, onBeforeUnmount, ref, toRefs, watch } from '@vue/composition-api'
 import { useViewBox, useMiniMap } from '@/composables/useSvg'
 import { rgbaProto } from '../_composables/useCommunication'
 
@@ -200,8 +200,6 @@ const setup = (props, context) => {
     mouseMoveMiniMap
   } = useMiniMap(props, config, viewBox, scale, setCenter)
 
-  const highlight = ref(false)
-
   const cx = computed(() => dimensions.value.width / 2)
   const cy = computed(() => dimensions.value.height / 2)
 
@@ -229,21 +227,27 @@ const setup = (props, context) => {
   const outerHostRotation = ref(0)
 
   let rotationInterval
-  onMounted(() => {
-    rotationInterval = setInterval(() => {
-      if (animate.value) {
+  // scale interval w/ # of items
+  const rotationIntervalTimeout = computed(() => 5 * Math.pow(Math.log2(items.value.length), 2.1))
+  watch([items, animate], () => {
+    if (rotationInterval) {
+      clearInterval(rotationInterval)
+    }
+    const perInterval = (360 / 600) * rotationIntervalTimeout.value / 1E3
+    if (animate.value) {
+      rotationInterval = setInterval(() => {
         if (!deviceRingFocus.value) {
-          deviceRotation.value += 0.2
+          deviceRotation.value += perInterval * 2 // 0.2
         }
         if (!innerHostRingFocus.value) {
-          innerHostRotation.value -= 0.1
+          innerHostRotation.value -= perInterval // 0.1
         }
         if (!outerHostRingFocus.value) {
-          outerHostRotation.value -= 0.05
+          outerHostRotation.value -= perInterval / 2 // 0.05
         }
-      }
-    }, 100)
-  })
+      }, rotationIntervalTimeout.value)
+    }
+  }, { immediate: true })
   onBeforeUnmount(() => {
     clearInterval(rotationInterval)
   })
@@ -898,23 +902,17 @@ const setup = (props, context) => {
     mouseDownMiniMap,
     mouseMoveMiniMap,
 
-    // ...
-    highlight,
-
+    // SVG
     svgDevicesRingProps,
     svgDevices,
     svgDevicesText,
-
     svgInnerHostsRingProps,
     svgInnerHosts,
     svgInnerHostsText,
-
     svgOuterHostsRingProps,
     svgOuterHosts,
     svgOuterHostsText,
-
     svgFlows,
-
 
     deviceRotation,
     innerHostRotation,
