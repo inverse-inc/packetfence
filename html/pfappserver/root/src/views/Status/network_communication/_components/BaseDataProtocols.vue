@@ -51,6 +51,7 @@ const components = {
 
 import { computed, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { rgbaProto } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
@@ -114,18 +115,7 @@ const setup = (props, context) => {
     return proto => {
       return sortedItems.value
         .filter(item => item.proto === proto)
-        .map(item => {
-          switch (true) {
-            case (+item.port < 1024):
-              return 'rgb(40, 167, 69)' // success
-              // break
-            case (+item.port < 49152):
-                return 'rgb(255, 193, 7)' // warning
-              // break
-            default:
-              return 'rgb(220, 53, 69)' // danger
-          }
-        })
+        .map(item => rgbaProto(item.proto, item.port))
     }
   })
 
@@ -142,7 +132,7 @@ const setup = (props, context) => {
       const distinctDevices = [...new Set(items.map(item => item.mac))]
       const distinctPorts = [...new Set(items.map(item => item.port))]
       return distinctPorts
-        .sort((a, b) => a.port - b.port)
+        .sort((a, b) => b - a)
         .map(port => {
           const x = distinctDevices
           const y = distinctDevices.map(mac => items.reduce((count, item) => {
@@ -151,18 +141,7 @@ const setup = (props, context) => {
             }
             return count
           }, 0))
-          const color = (() => {
-            switch (true) {
-              case (+port < 1024):
-                return 'rgb(40, 167, 69)' // success
-                // break
-              case (+port < 49152):
-                  return 'rgb(255, 193, 7)' // warning
-                // break
-              default:
-                return 'rgb(220, 53, 69)' // danger
-            }
-          })()
+          const color = rgbaProto(proto, port)
           return {
             x,
             y,
@@ -188,7 +167,7 @@ const setup = (props, context) => {
       const distinctHosts = [...new Set(items.map(item => item.host))]
       const distinctPorts = [...new Set(items.map(item => item.port))]
       return distinctPorts
-        .sort((a, b) => a.port - b.port)
+        .sort((a, b) => b - a)
         .map(port => {
           const x = distinctHosts
           const y = distinctHosts.map(host => items.reduce((count, item) => {
@@ -197,18 +176,7 @@ const setup = (props, context) => {
             }
             return count
           }, 0))
-          const color = (() => {
-            switch (true) {
-              case (+port < 1024):
-                return 'rgb(40, 167, 69)' // success
-                // break
-              case (+port < 49152):
-                  return 'rgb(255, 193, 7)' // warning
-                // break
-              default:
-                return 'rgb(220, 53, 69)' // danger
-            }
-          })()
+          const color = rgbaProto(proto, port)
           return {
             x,
             y,

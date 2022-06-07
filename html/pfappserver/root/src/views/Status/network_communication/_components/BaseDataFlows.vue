@@ -1,7 +1,20 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      Flows
+      <b-row align-v="center">
+        <b-col cols="auto">
+          <h5 class="mb-0 d-inline">{{ $i18n.t('Flows') }}</h5>
+        </b-col>
+        <b-col cols="auto" class="ml-auto">
+          <base-input-toggle-false-true v-model="animate"
+            :column-label="$i18n.t('Animate')"
+            label-left :label-right="false"
+            :options="[
+            { value: false, label: $i18n.t('Animate') },
+            { value: true, label: $i18n.t('Animate'), color: 'var(--primary)' }
+          ]"/>
+        </b-col>
+      </b-row>
     </b-card-header>
     <b-tabs small v-model="tabIndex">
       <b-tab lazy>
@@ -18,14 +31,21 @@
         </template>
       </b-tab>
 
-      <base-data-flow :devices="devices" />
+      <base-data-flow
+        :animate="animate"
+        :devices="devices"
+        @device="toggleDevice" />
     </b-tabs>
   </b-card>
 </template>
 <script>
 import BaseDataFlow from './BaseDataFlow'
+import {
+  BaseInputToggleFalseTrue
+} from '@/components/new/'
 const components = {
-  BaseDataFlow
+  BaseDataFlow,
+  BaseInputToggleFalseTrue
 }
 
 import { computed, ref, watch } from '@vue/composition-api'
@@ -47,7 +67,7 @@ const setup = (props, context) => {
       .map(([mac, data]) => ({ mac, ...data }))
       .sort((a, b) => a.mac.localeCompare(b.mac))
       .map(item => ([ item ]))
-  })
+  }, { immediate: true })
 
   const tabIndex = ref(0)
 
@@ -63,10 +83,25 @@ const setup = (props, context) => {
     }
   })
 
+  const toggleDevice = mac => {
+    if (tabIndex.value === 0) {
+      // view specific device
+      tabIndex.value = collections.value.findIndex(devices => devices.map(device => device.mac).indexOf(mac) > -1) + 1
+    }
+    else {
+      // view all
+      tabIndex.value = 0
+    }
+  }
+
+  const animate = ref(false)
+
   return {
     collections,
     tabIndex,
-    devices
+    devices,
+    toggleDevice,
+    animate
   }
 }
 
