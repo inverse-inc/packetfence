@@ -140,6 +140,9 @@ const defaults = { // default options
 }
 
 const props = {
+  animate: {
+    type: Boolean
+  },
   dimensions: { // svg dimensions
     type: Object,
     required: true
@@ -157,10 +160,12 @@ const props = {
 
 import { computed, onBeforeUnmount, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useViewBox, useMiniMap } from '@/composables/useSvg'
+import { rgbaProto } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
   const {
+    animate,
     options,
     dimensions,
     items
@@ -226,14 +231,16 @@ const setup = (props, context) => {
   let rotationInterval
   onMounted(() => {
     rotationInterval = setInterval(() => {
-      if (!deviceRingFocus.value) {
-        deviceRotation.value += 0.2
-      }
-      if (!innerHostRingFocus.value) {
-        innerHostRotation.value -= 0.1
-      }
-      if (!outerHostRingFocus.value) {
-        outerHostRotation.value -= 0.05
+      if (animate.value) {
+        if (!deviceRingFocus.value) {
+          deviceRotation.value += 0.2
+        }
+        if (!innerHostRingFocus.value) {
+          innerHostRotation.value -= 0.1
+        }
+        if (!outerHostRingFocus.value) {
+          outerHostRotation.value -= 0.05
+        }
       }
     }, 100)
   })
@@ -312,6 +319,13 @@ const setup = (props, context) => {
   }
   const deviceDown = (event, key) => {
     if (event.which === 1) { // left-mouse click
+      if (deviceMouseDebouncer) {
+        clearTimeout(deviceMouseDebouncer)
+      }
+      deviceFocus.value = []
+      deviceRingFocus.value = false
+      innerHostFocus.value = []
+      outerHostFocus.value = []
       emit('device', key)
     }
   }
@@ -411,7 +425,7 @@ const setup = (props, context) => {
                         props: {
                           x: '0em',
                           dy: '1.2em',
-                          fill: rgbProto(proto)
+                          fill: rgbaProto(proto, port)
                         },
                         text
                       })
@@ -494,6 +508,12 @@ const setup = (props, context) => {
   }
   const innerHostDown = (event, key) => {
     if (event.which === 1) { // left-mouse click
+      if (innerHostMouseDebouncer) {
+        clearTimeout(innerHostMouseDebouncer)
+      }
+      innerHostFocus.value = []
+      innerHostRingFocus.value = false
+      deviceFocus.value = []
       emit('host', key)
     }
   }
@@ -593,7 +613,7 @@ const setup = (props, context) => {
                         props: {
                           x: '0em',
                           dy: '1.2em',
-                          fill: rgbProto(proto)
+                          fill: rgbaProto(proto, port)
                         },
                         text
                       })
@@ -678,6 +698,12 @@ const setup = (props, context) => {
   }
   const outerHostDown = (event, key) => {
     if (event.which === 1) { // left-mouse click
+      if (outerHostMouseDebouncer) {
+        clearTimeout(outerHostMouseDebouncer)
+      }
+      outerHostFocus.value = []
+      outerHostRingFocus.value = false
+      deviceFocus.value = []
       emit('host', key)
     }
   }
@@ -777,7 +803,7 @@ const setup = (props, context) => {
                         props: {
                           x: '0em',
                           dy: '1.2em',
-                          fill: rgbProto(proto)
+                          fill: rgbaProto(proto, port)
                         },
                         text
                       })
@@ -797,22 +823,6 @@ const setup = (props, context) => {
     const p = count / total // 0 to 1
     const l = Math.log10(p * 9 + 1) // 1 to 10 => 0 to 1
     return l * (max - min) + min
-  }
-
-  const rgbProto = (proto, opacity = 1) => {
-    switch (proto) {
-      case 'TCP':
-        return `rgb(0, 0, 255, ${opacity})`
-        // break
-      case 'UDP':
-        return `rgb(255, 0, 0, ${opacity})`
-        // break
-      case 'UNKNOWN':
-        return `rgb(64, 64, 64, ${opacity})`
-        // break
-      default:
-        return `rgb(0, 0, 0, ${opacity})`
-    }
   }
 
   const svgFlows = computed(() => {
@@ -841,7 +851,7 @@ const setup = (props, context) => {
           const minSize = Math.min(iSize, oSize) / 5
           const maxSize = Math.max(iSize, oSize) * 2
           const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
-          const stroke = rgbProto(proto, strokeOpacity)
+          const stroke = rgbaProto(proto, port, strokeOpacity)
           return {
             key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
           }
@@ -852,7 +862,7 @@ const setup = (props, context) => {
           const minSize = Math.min(iSize, oSize) / 5
           const maxSize = Math.max(iSize, oSize) * 2
           const strokeWidth = scaleCount(count, totalCount.value, minSize, maxSize)
-          const stroke = rgbProto(proto, strokeOpacity)
+          const stroke = rgbaProto(proto, port, strokeOpacity)
           return {
             key, props: { class: 'flow', d, fill: 'transparent', stroke, 'stroke-width': strokeWidth }
           }

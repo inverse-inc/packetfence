@@ -8,10 +8,11 @@ Plotly.register(fr)
 export default Plotly
 
 export const config = {
-  displayModeBar: true,
-  scrollZoom: true,
   displaylogo: false,
-  showLink: false,
+  displayModeBar: true,
+  responsive: true,
+  scrollZoom: true,
   showEditInChartStudio: true,
-  plotlyServerURL: "https://chart-studio.plotly.com"
+  showLink: false,
+  plotlyServerURL: 'https://chart-studio.plotly.com',
 }

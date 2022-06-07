@@ -51,6 +51,7 @@ const components = {
 
 import { computed, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { rgbaProto } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
@@ -116,7 +117,7 @@ const setup = (props, context) => {
     return tld => {
       return sortedItems.value
         .filter(item => item.tld === tld)
-        .map(() => 'rgb(40, 167, 69)')
+        .map(item => rgbaProto(item.proto, item.port))
     }
   })
 
@@ -133,7 +134,7 @@ const setup = (props, context) => {
       const distinctDevices = [...new Set(items.map(item => item.mac))]
       const distinctPorts = [...new Set(items.map(item => item.port))]
       return distinctPorts
-        .sort((a, b) => a.port - b.port)
+        .sort((a, b) => b - a)
         .map(port => {
           const x = distinctDevices
           const y = distinctDevices.map(mac => items.reduce((count, item) => {
@@ -168,7 +169,7 @@ const setup = (props, context) => {
       const distinctProtocols = [...new Set(items.map(item => item.protocol))]
       const distinctPorts = [...new Set(items.map(item => item.port))]
       return distinctPorts
-        .sort((a, b) => a.port - b.port)
+        .sort((a, b) => b - a)
         .map(port => {
           const x = distinctProtocols
           const y = distinctProtocols.map(protocol => items.reduce((count, item) => {

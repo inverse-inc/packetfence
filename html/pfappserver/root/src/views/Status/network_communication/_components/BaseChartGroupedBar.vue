@@ -9,8 +9,8 @@ const layout = {
   bargroupgap: 0,
   height: 800,
   margin: {
-    l: 25,
-    r: 25,
+    l: 50,
+    r: 50,
     b: 200,
     t: 100,
     pad: 0
@@ -25,13 +25,12 @@ const layout = {
   xaxis: {
     tickangle: 90,
     tickformat : ':04,2f',
-    fixedrange: true
   },
   yaxis: {
-    fixedrange: true,
     tickformat : ':04,2f'
   },
-  hovermode: 'closest'
+  hovermode: 'closest',
+  staticPlot: true
 }
 
 import {

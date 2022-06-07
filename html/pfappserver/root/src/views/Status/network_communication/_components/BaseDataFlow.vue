@@ -1,6 +1,7 @@
 <template>
   <base-chart-ringed ref="graphRef"
     class="m-3"
+    :animate="animate"
     :dimensions="dimensions"
     :options="options"
     :items="items"
@@ -15,6 +16,9 @@ const components = {
 }
 
 const props = {
+  animate: {
+    type: Boolean
+  },
   devices: {
     type: Array,
     default: () => ([])
@@ -32,7 +36,7 @@ const setup = (props, context) => {
     devices
   } = toRefs(props)
 
-  const { refs, root: { $store } = {} } = context
+  const { emit, refs, root: { $store } = {} } = context
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const tabular = computed(() => $store.getters['$_fingerbank_communication/tabular'])
@@ -99,7 +103,8 @@ const setup = (props, context) => {
   onBeforeUnmount(() => window.removeEventListener('resize', setDimensions))
 
   const toggleDevice = device => {
-    $store.dispatch('$_fingerbank_communication/toggleDevice', device)
+    //$store.dispatch('$_fingerbank_communication/toggleDevice', device)
+    emit('device', device)
   }
 
   const toggleHost = host => {
