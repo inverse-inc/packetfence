@@ -31,6 +31,7 @@ variables:
   CHECKDIR: ${CILIBDIR}/check
   BUILDDIR: ${CILIBDIR}/build
   RELEASEDIR: ${CILIBDIR}/release
+  TESTCIDIR: ${CILIBDIR}/test
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   ISODIR: $CIDIR/debian-installer
@@ -401,14 +402,7 @@ variables:
   script:
     - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
   after_script:
-    - >
-      if [ $CI_JOB_STATUS == 'success' ]; then
-        echo 'Passed tests, no need to keep VM'
-        MAKE_TARGET=clean make -e -C ${TESTDIR} ${CI_JOB_NAME}
-      else
-        echo 'Failed tests, shutdown VM to analyze issue'
-        MAKE_TARGET=halt make -e -C ${TESTDIR} ${CI_JOB_NAME}
-      fi
+    - ${TESTCIDIR}/clean-test-environment.sh
 
 
 ################################################################################
