@@ -9,4 +9,5 @@ steps:
     user: '{{.input.user}}'
     command: |
       cd '{{.venom_dir}}'  ; \
-      sudo '{{.venom_dir}}/venom-wrapper.sh' '{{.test_suites_dir}}/common/check_internet_access.yml'
+      sudo VENOM_COMMON_FLAGS='--output-dir={{.test_suite_results_dir}}/{{.venom.testcase}}' \
+      '{{.venom_dir}}/venom-wrapper.sh' '{{.test_suites_dir}}/common/check_internet_access.yml'
