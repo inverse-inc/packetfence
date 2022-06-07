@@ -8,7 +8,7 @@
         <template #title>
           {{ host.tld }} <b-badge pill variant="primary" class="ml-1">{{ host.count }}</b-badge>
         </template>
-        <b-row>
+        <b-row class="mt-3">
           <b-col cols="12">
             <base-chart-parallel
               :dimensions="dimensions(host.tld)"
@@ -16,10 +16,11 @@
               :counts="counts(host.tld)"
               :isLoading="isLoading"
               :settings="settings"
+              auto-height
             />
           </b-col>
         </b-row>
-        <b-row>
+        <b-row class="mt-3">
           <b-col cols="6">
             <base-chart-grouped-bar
               :traces="perDeviceTraces(host.tld)"
