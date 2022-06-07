@@ -1,7 +1,22 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      Data
+      <b-row align-v="center">
+        <b-col cols="auto">
+          <h5 class="mb-0 d-inline">{{ $i18n.t('Data') }}</h5>
+        </b-col>
+        <b-col cols="auto" class="d-flex ml-auto">
+          <b-form-select v-model="perPage"
+            :options="[10, 25, 50, 100, 250, 500, 1000].map(value => ({ text: value, value }))"
+            :disabled="isLoading"
+            class="mr-3"
+          />
+          <b-pagination v-model="currentPage"
+            :disabled="isLoading"
+            :total-rows="items.length"
+            class="mb-0" />
+        </b-col>
+      </b-row>
     </b-card-header>
     <b-table ref="tableRef"
       :busy="isLoading"
@@ -10,6 +25,8 @@
       :fields="visibleColumns"
       :sort-by="sortBy"
       :sort-desc="sortDesc"
+      :per-page="perPage"
+      :current-page="currentPage"
       @sort-changed="setSort"
       class="mb-0"
       show-empty
@@ -84,7 +101,7 @@ const components = {
   BaseTableEmpty,
 }
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useSearch } from '../_composables/useCollection'
 
@@ -99,6 +116,13 @@ const setup = (props, context) => {
   const items = computed(() => $store.getters['$_fingerbank_communication/tabular'])
   const selected = useBootstrapTableSelected(tableRef, items, 'id')
 
+  const perPage = ref(100)
+  const currentPage = ref(1)
+
+  watch([items, perPage], () => {
+    currentPage.value = 1
+  })
+
   return {
     tableRef,
     ...selected,
@@ -106,6 +130,9 @@ const setup = (props, context) => {
 
     isLoading,
     items, // overload
+
+    perPage,
+    currentPage,
   }
 }
 

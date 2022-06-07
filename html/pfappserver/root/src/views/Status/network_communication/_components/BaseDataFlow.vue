@@ -27,8 +27,6 @@ const props = {
 
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { createDebouncer } from 'promised-debounce'
-import { useSearch } from '../_composables/useCollection'
-import { decorateDevice } from '../_composables/useCommunication'
 
 const setup = (props, context) => {
 
@@ -83,8 +81,6 @@ const setup = (props, context) => {
       time: 100 // 100ms
     })
   }
-
-  const tabIndex = ref(0)
 
   onMounted(() => { // DOM is ready
     watch([

@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      {{ $i18n.t('Protocols') }}
+      <h5 class="mb-0 d-inline">{{ $i18n.t('Protocols') }}</h5>
     </b-card-header>
     <b-tabs small lazy>
       <b-tab v-for="protocol in uniqueProtocols" :key="protocol.proto">
