@@ -4,6 +4,21 @@ testcases:
   steps:
   - type: get_login_token
 
+- name: get_ad_domain_id
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domains'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      domain_id:
+        from: result.bodyjson.items.items0.id
+
 - name: unset_domain_on_builtin_realms
   steps:
   - type: http
@@ -60,7 +75,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.ad_domain_id_wireless_dot1x_eap_peap}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.get_ad_domain_id.domain_id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"

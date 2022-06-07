@@ -4,6 +4,21 @@ testcases:
   steps:
   - type: get_login_token
 
+- name: get_ad_domain_id
+  steps:
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domains'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+    vars:
+      domain_id:
+        from: result.bodyjson.items.items0.id
+
 - name: create_realms
   steps:
   - type: http
@@ -13,7 +28,7 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.ad_domain_id_wired_dot1x_eap_peap_sso_radius}}",
+        "domain": "{{.get_ad_domain_id.domain_id}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
@@ -45,7 +60,7 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.ad_domain_id_wired_dot1x_eap_peap_sso_radius}}",
+        "domain": "{{.get_ad_domain_id.domain_id}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
@@ -78,7 +93,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.ad_domain_id_wired_dot1x_eap_peap_sso_radius}}"
+        "domain": "{{.get_ad_domain_id.domain_id}}"
       }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
@@ -92,7 +107,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.ad_domain_id_wired_dot1x_eap_peap_sso_radius}}"
+        "domain": "{{.get_ad_domain_id.domain_id}}"
       }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
