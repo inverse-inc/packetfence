@@ -84,6 +84,7 @@ run() {
 start_vm() {
     local vm=$1
     local dotfile_path=$2
+    declare -p dotfile_path
     if [ -e "${dotfile_path}/machines/${vm}/libvirt/id" ]; then
         echo "Machine $vm already exists"
         machine_uuid=$(cat ${dotfile_path}/machines/${vm}/libvirt/id)
@@ -123,7 +124,11 @@ start_and_provision_other_vm() {
     log_subsection "Start and provision $vm_names"
 
     for vm in ${vm_names}; do
-        start_vm ${vm} ${VAGRANT_COMMON_DOTFILE_PATH}
+        if [ "$vm" = "node01" ] || [ "$vm" = "node03" ]; then
+            start_vm ${vm} ${VAGRANT_PF_DOTFILE_PATH}
+        else
+            start_vm ${vm} ${VAGRANT_COMMON_DOTFILE_PATH}
+        fi
     done
 }
 
@@ -195,8 +200,6 @@ destroy() {
         delete_dir_if_exists ${VAGRANT_COMMON_DOTFILE_PATH}
     else
         destroy_pf_vm
-        destroy_node01_vm
-        destroy_node03_vm
         delete_dir_if_exists ${VAGRANT_PF_DOTFILE_PATH}
     fi
 }
@@ -206,16 +209,6 @@ destroy() {
 destroy_pf_vm() {
     ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant destroy -f || true )
-}
-
-destroy_node01_vm() {
-    ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f node01 )
-}
-
-destroy_node03_vm() {
-    ( cd $VAGRANT_DIR ; \
-      VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant destroy -f node03 )
 }
 
 # using "|| true" as a workaround to unusual behavior
