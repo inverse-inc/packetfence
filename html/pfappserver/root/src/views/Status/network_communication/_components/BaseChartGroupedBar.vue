@@ -11,7 +11,7 @@ const layout = {
   margin: {
     l: 50,
     r: 50,
-    b: 200,
+    b: 250,
     t: 100,
     pad: 0
   },
