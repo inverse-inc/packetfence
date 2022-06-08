@@ -145,7 +145,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 			PreferServerCipherSuites: true,
 			InsecureSkipVerify:       true,
 			MinVersion:               tls.VersionTLS11,
-			MaxVersion:               tls.VersionTLS11,
+			MaxVersion:               tls.VersionTLS13,
 			Renegotiation:            tls.RenegotiateOnceAsClient,
 		},
 	}
