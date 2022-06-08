@@ -56,6 +56,7 @@ halt:
 	./test-wrapper.sh halt
 
 clean:
+	RESULT_DIR=$(RESULT_DIR) \
 	./test-wrapper.sh teardown
 
 ### Pristine images
