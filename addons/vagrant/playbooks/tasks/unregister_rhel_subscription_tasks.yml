@@ -6,7 +6,7 @@
   no_log: True
   register: unreg_rhel_sub_register_username
   retries: 3
-  delay: 1
+  delay: 10
   until: unreg_rhel_sub_register_username is successful
 
 - name: Get RHEL password using psonoci
@@ -16,7 +16,7 @@
   no_log: True
   register: unreg_rhel_sub_register_password
   retries: 3
-  delay: 1
+  delay: 10
   until: unreg_rhel_sub_register_password is successful
 
 # username and password are necessary to unregister system
@@ -28,5 +28,5 @@
     auto_attach: true
   register: unreg_rhel_sub_register_el
   retries: 3
-  delay: 1
+  delay: 10
   until: unreg_rhel_sub_register_el is successful
