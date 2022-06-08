@@ -6,28 +6,19 @@ Wants=packetfence-config.service
 
 [Service]
 Type=forking
-RuntimeDirectory=proxysql
-#PermissionsStartOnly=true
-#ExecStartPre=/usr/bin/mkdir -p /var/run/proxysql /var/run/proxysql
-#ExecStartPre=/usr/bin/chown -R proxysql: /var/run/proxysql/
+ExecStartPre=/usr/bin/mkdir -p /usr/local/pf/var/run/proxysql
+ExecStartPre=/usr/bin/chown -R pf: /usr/local/pf/var/run/proxysql/
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::proxysql' -e 'pf::services::manager::proxysql->new()->generateConfig()'
-ExecStart=/usr/bin/proxysql --idle-threads -c /usr/local/pf/var/conf/proxysql.cnf
-PIDFile=/usr/local/pf/var/run/proxysql.pid
+ExecStart=/usr/bin/proxysql --idle-threads -c /usr/local/pf/var/conf/proxysql.conf
+PIDFile=/usr/local/pf/var/run/proxysql/proxysql.pid
 #StandardError=null  # all output is in stderr
 SyslogIdentifier=proxysql
 Restart=on-failure
-User=proxysql
-Group=proxysql
-PermissionsStartOnly=true
+User=pf
+Group=pf
 UMask=0007
 LimitNOFILE=102400
 LimitCORE=1073741824
-ProtectHome=yes
-NoNewPrivileges=true
-CapabilityBoundingSet=CAP_SETGID CAP_SETUID CAP_SYS_RESOURCE
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_ALG
-ProtectSystem=full
-PrivateDevices=yes
 
 [Install]
 WantedBy=packetfence-cluster.target
