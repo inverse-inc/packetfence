@@ -178,7 +178,7 @@ export const decomposeTriggers = (triggers) => {
           }
           else if (category === triggerCategories.EVENT && type === 'internal') {
             // Extract network behavior policy name
-            let match = /(fingerbank_diff_score_too_low|fingerbank_blacklisted_ips_threshold_too_high|fingerbank_blacklisted_ports)_(.+)/.exec(value)
+            let match = /(fingerbank_diff_score_too_low|fingerbank_blacklisted_ips_threshold_too_high|fingerbank_blacklisted_ports|fingerbank_blacklisted_domain_names_threshold_too_high)_(.+)/.exec(value)
             if (match) {
               decomposed[category].typeValue.value = match[1]
               decomposed[category].typeValue.fingerbank_network_behavior_policy = match[2]
@@ -239,6 +239,7 @@ export const recomposeTriggers = (triggers = []) => {
 
 export const fingerbankNetworkBehaviorPolicyTypes = [
   'fingerbank_diff_score_too_low',
+  'fingerbank_blacklisted_domain_names_threshold_too_high',
   'fingerbank_blacklisted_ips_threshold_too_high',
   'fingerbank_blacklisted_ports'
 ]

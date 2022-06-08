@@ -137,6 +137,28 @@ has_field 'device_attributes_diff_threshold_overrides.contains' =>
     widget_wrapper => 'DynamicTableRow',
   );
 
+has_field 'watch_blacklisted_domain_names' => (
+   type            => 'Toggle',
+   checkbox_value  => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled',
+   required => 1,
+);
+
+has_field 'whitelisted_domain_names' =>
+  (
+   type => 'Text',
+  );
+
+has_field 'blacklisted_domain_names_window' => (
+   type => 'Duration',
+   with_time_only => 1,
+   default => {
+    interval => 10,
+    unit => 's',
+   },
+);
+
 has_block definition =>
   (
    render_list => [ qw(id description devices_included devices_excluded watch_blacklisted_ips whitelisted_ips blacklisted_ip_hosts_window blacklisted_ip_hosts_threshold watched_device_attributes device_attributes_diff_score) ],
