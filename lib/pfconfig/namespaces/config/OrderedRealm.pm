@@ -27,18 +27,8 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-<<<<<<< HEAD
-    $self->{_scoped_by_tenant_id} = 1;
-    $self->{child_resources} = [ "resource::RealmReverseLookup" ];
-    $self->{ini} = pf::IniFiles->new(
-        -file       => $realm_config_file,
-        -import     => pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1),
-        -allowempty => 1,
-    );
-=======
     $self->{file}            = $realm_config_file;
     $self->{added_params}{'-import'} = pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1);
->>>>>>> 4d9efa7aa3... Remove tenant scoping
 }
 
 
