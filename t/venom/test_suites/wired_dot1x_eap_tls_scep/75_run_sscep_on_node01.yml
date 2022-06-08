@@ -7,4 +7,5 @@ testcases:
         user: '{{.ssh_user}}'
         command:  |
           cd /usr/local/pf/t/venom ; \
-          sudo VENOM_COMMON_FLAGS='--format=tap --var pfserver_mgmt_ip={{.pfserver_mgmt_ip}}' /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/wired_dot1x_eap_tls/{{.venom.testcase}}.yml
+          sudo VENOM_COMMON_FLAGS='--output-dir={{.test_suite_results_dir}}/{{.venom.testcase}} --format=tap --var pfserver_mgmt_ip={{.pfserver_mgmt_ip}}' \
+          /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/wired_dot1x_eap_tls/{{.venom.testcase}}.yml

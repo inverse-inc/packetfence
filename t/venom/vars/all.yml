@@ -5,6 +5,7 @@
 # Variables assigned based on environment variables
 switch_test_suite_dir: /usr/local/pf/t/venom/switches
 nodes_test_suite_dir: /usr/local/pf/t/venom/test_suites/nodes
+test_suite_results_dir: /usr/local/pf/t/venom/results'
 
 # ssh executor variables
 ssh_user: vagrant
@@ -28,7 +29,6 @@ pfserver_pfqueue_workers: 8
 pfserver_haproxy_admin_server_timeout: 240s
 
 # ad variables
-ad_domain_id: example
 ad_domain_upper: EXAMPLE
 ad_dns_domain: example.lan
 ad_domain_admin_user: vagrant-domain
