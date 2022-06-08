@@ -45,6 +45,7 @@ Services managed by PacketFence:
   pfqueue                | PF queueing service
   pfsso                  | Firewall SSO daemon
   pfstats                | PF statistics daemon
+  proxysql               | proxysql daemon
   radiusd                | FreeRADIUS daemon
   radsniff               | radsniff daemon
   redis_ntlm_cache       | Redis for the NTLM cache

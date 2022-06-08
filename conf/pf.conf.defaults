@@ -703,6 +703,16 @@ pfconnector-client=enabled
 #
 # Should pfconnector-server be managed by PacketFence?
 pfconnector-server=enabled
+#
+# services.proxysql
+#
+# Should proxysql be started?
+proxysql=enabled
+#
+# services.proxysql_binary
+#
+# Location of the proxysql binary. Only necessary to change if you are not running the RPMed version.
+proxysql_binary=/usr/bin/proxysql
 
 [snmp_traps]
 #
