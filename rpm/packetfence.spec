@@ -424,6 +424,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-server.service %{buildroot}%{_unitdir}/packetfence-pfconnector-server.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
+%{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -890,6 +891,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
