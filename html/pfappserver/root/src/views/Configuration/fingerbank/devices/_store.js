@@ -39,7 +39,7 @@ export const actions = {
   devices: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'name'].join(',')
     }
     return api.list(params).then(response => {
       return response.items
