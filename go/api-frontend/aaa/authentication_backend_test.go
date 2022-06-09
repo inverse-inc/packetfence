@@ -32,14 +32,6 @@ func TestMemAuthenticationBackend(t *testing.T) {
 		t.Error("User doesn't have the right admin roles")
 	}
 
-	if tokenInfo.Tenant.Id != 0 {
-		t.Error("User doesn't have the right tenant ID")
-	}
-
-	if err != nil {
-		t.Error("There was an error while performing a valid authentication. error:", err)
-	}
-
 	// Valid user that was added
 	auth, tokenInfo, err = mab.Authenticate(ctx, "sylvie", "mannequine")
 
@@ -49,14 +41,6 @@ func TestMemAuthenticationBackend(t *testing.T) {
 
 	if !tokenInfo.AdminActions()["SYSTEM_READ"] {
 		t.Error("User doesn't have the right admin roles")
-	}
-
-	if tokenInfo.Tenant.Id != 0 {
-		t.Error("User doesn't have the right tenant ID")
-	}
-
-	if err != nil {
-		t.Error("There was an error while performing a valid authentication. error:", err)
 	}
 
 	// Invalid password

@@ -32,7 +32,6 @@ export const pfSearchConditionType = {
   ROLE:                    'role',
   SOURCE:                  'source',
   SWITCH_GROUP:            'switch_group',
-  TENANT:                  'tenant'
 }
 
 export const pfSearchConditionValue = {
@@ -145,10 +144,6 @@ pfConditionOperators[pfSearchConditionType.SOURCE] = {
   'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.SWITCH_GROUP] = {
-  'equals':                pfSearchConditionValue.SELECT,
-  'not_equals':            pfSearchConditionValue.SELECT
-}
-pfConditionOperators[pfSearchConditionType.TENANT] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -287,7 +282,7 @@ pfSearchConditionValues[pfSearchConditionType.DOMAIN] = (store) => {
   return store.getters['config/domainsList']
 }
 pfSearchConditionValues[pfSearchConditionType.REALM] = (store) => {
-  store.dispatch('config/getRealms', store.getters['session/tenantIdMask'])
+  store.dispatch('config/getRealms')
   return store.getters['config/realmsList']
 }
 pfSearchConditionValues[pfSearchConditionType.ROLE] = (store) => {
@@ -301,9 +296,6 @@ pfSearchConditionValues[pfSearchConditionType.SOURCE] = (store) => {
 pfSearchConditionValues[pfSearchConditionType.SWITCH_GROUP] = (store) => {
   store.dispatch('config/getSwitchGroups')
   return store.getters['config/switchGroupsList']
-}
-pfSearchConditionValues[pfSearchConditionType.TENANT] = (store) => {
-  return store.getters['session/tenantsList']
 }
 
 export const pfSearchConditionFormatter = {

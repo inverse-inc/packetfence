@@ -299,9 +299,9 @@ tie %ConfigCloud, 'pfconfig::cached_hash', 'config::Cloud';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
-tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
-tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
+tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
 

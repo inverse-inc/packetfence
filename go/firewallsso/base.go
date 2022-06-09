@@ -18,8 +18,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-const defaultTenantID = "1"
-
 var usernameFormatRegexps = map[string]*regexp.Regexp{
 	"stripped_username": regexp.MustCompile(`\$username`),
 	"realm":             regexp.MustCompile(`\$realm`),
@@ -37,7 +35,6 @@ type FirewallSSOInt interface {
 	GetFirewallSSO(ctx context.Context) *FirewallSSO
 	MatchesRole(ctx context.Context, info map[string]string) bool
 	MatchesNetwork(ctx context.Context, info map[string]string) bool
-	MatchesTenant(ctx context.Context, info map[string]string) bool
 	ShouldCacheUpdates(ctx context.Context) bool
 	GetCacheTimeout(ctx context.Context) int
 	FormatUsername(ctx context.Context, info map[string]string) string
@@ -60,7 +57,6 @@ type FirewallSSO struct {
 	CacheTimeout   string                `json:"cache_timeout"`
 	UsernameFormat string                `json:"username_format"`
 	DefaultRealm   string                `json:"default_realm"`
-	TenantID       int                   `json:"tenant_id"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
@@ -222,16 +218,6 @@ func (fw *FirewallSSO) MatchesNetwork(ctx context.Context, info map[string]strin
 	return false
 }
 
-func (fw *FirewallSSO) MatchesTenant(ctx context.Context, info map[string]string) bool {
-	tenant_id, found := info["tenant_id"]
-	if !found {
-		tenant_id = defaultTenantID
-	}
-
-	return tenant_id == strconv.Itoa(fw.TenantID)
-
-}
-
 // Struct to be combined with another one when the firewall SSO should only be for certain roles
 type RoleBasedFirewallSSO struct {
 	Roles []string `json:"categories"`
@@ -287,11 +273,6 @@ func ExecuteStart(ctx context.Context, fw FirewallSSOInt, info map[string]string
 		return false, nil
 	}
 
-	if !fw.MatchesTenant(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for tenant %s since it doesn't match the tenant", info["tenant_id"]))
-		return false, nil
-	}
-
 	// We change the username with the way it is expected given the format of this firewall
 	info["username"] = fw.FormatUsername(ctx, info)
 
@@ -313,11 +294,6 @@ func ExecuteStop(ctx context.Context, fw FirewallSSOInt, info map[string]string)
 
 	if !fw.MatchesNetwork(ctx, info) {
 		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for IP %s since it doesn't match any configured network", info["ip"]))
-		return false, nil
-	}
-
-	if !fw.MatchesTenant(ctx, info) {
-		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Not sending SSO for tenant %s since it doesn't match the tenant", info["tenant_id"]))
 		return false, nil
 	}
 

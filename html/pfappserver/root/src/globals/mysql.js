@@ -217,13 +217,6 @@ export const MysqlDatabase = {
     }
   },
   password: {
-    tenant_id: Object.assign(
-      MysqlLimits.int,
-      {
-        type: MysqlNumber,
-        default: 1
-      }
-    ),
     pid: {
       type: MysqlString,
       maxLength: 255
@@ -279,13 +272,6 @@ export const MysqlDatabase = {
     )
   },
   person: {
-    tenant_id: Object.assign(
-      MysqlLimits.int,
-      {
-        type: MysqlNumber,
-        default: 1
-      }
-    ),
     pid: {
       type: MysqlString,
       maxLength: 255

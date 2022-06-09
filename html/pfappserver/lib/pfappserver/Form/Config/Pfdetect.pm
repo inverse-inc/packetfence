@@ -58,14 +58,6 @@ has_field 'type' =>
    required => 1,
   );
 
-has_field 'tenant_id' =>
-  (
-   type => 'Tenant',
-   label => 'Tenant ID',
-   no_global => 1,
-   element_class => ['chzn-deselect'],
-  );
-
 has_block definition =>
   (
    render_list => [ qw(id type status path) ],

@@ -25,7 +25,6 @@ export {
   BaseFormGroupInput                  as FormGroupNetworks,
   BaseFormGroupInputPassword          as FormGroupPassword,
   BaseFormGroupInputNumber            as FormGroupPort,
-  BaseFormGroupChosenOne              as FormGroupTenantId,
   BaseFormGroupChosenOne              as FormGroupTransport,
   BaseFormGroupInput                  as FormGroupUsername,
   BaseFormGroupInput                  as FormGroupUsernameFormat,

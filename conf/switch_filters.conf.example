@@ -149,7 +149,6 @@
 #     All the attributes you can have in the RADIUS request (run FreeRADIUS in debug mode to see these attributes)
 # - for the locationlog
 #     id
-#     tenant_id
 #     mac
 #     switch
 #     port

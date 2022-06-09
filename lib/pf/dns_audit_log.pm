@@ -145,7 +145,6 @@ sub dns_audit_log_cleanup {
             },
         },
         -limit => $batch,
-        -no_auto_tenant_id => 1,
     );
     pf::dal::dns_audit_log->batch_remove(\%search, $time_limit);
     return;

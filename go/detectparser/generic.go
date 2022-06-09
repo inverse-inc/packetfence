@@ -74,7 +74,6 @@ func (s *GenericParser) Parse(line string) ([]ApiCall, error) {
 				&PfqueueApiCall{
 					Method:   action.MethodName,
 					Params:   s.SplitPattern.Split(paramsString, -1),
-					TenantID: s.TenantID,
 				},
 			)
 		}

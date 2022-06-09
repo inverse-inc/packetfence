@@ -126,11 +126,6 @@ export const pfActions = {
     text: 'Role from source', // i18n defer
     types: [fieldType.SELECTONE]
   },
-  set_tenant_id: {
-    value: 'set_tenant_id',
-    text: 'Tenant ID', // i18n defer
-    types: [fieldType.TENANT]
-  },
   set_time_balance: {
     value: 'set_time_balance',
     text: 'Time balance', // i18n defer

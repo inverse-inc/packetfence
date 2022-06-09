@@ -47,7 +47,6 @@ use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
-use pf::config::tenant;
 
 =head2 config_builder
 
@@ -61,7 +60,6 @@ sub config_builder {
     my $logger = get_logger;
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
-    $self->{scoped_by_tenant_id}{$namespace} = $elem->{_scoped_by_tenant_id};
     return $tmp;
 }
 
@@ -264,22 +262,7 @@ sub get_cache {
         }
     }
 
-    if (defined $memory && $self->is_tenant_scoped($what)) {
-        $memory = $memory->{pf::config::tenant::get_tenant()};
-    }
-
     return $memory;
-}
-
-=head2 is_tenant_scoped
-
-is_tenant_scoped
-
-=cut
-
-sub is_tenant_scoped {
-    my ($self, $key) = @_;
-    return $self->{scoped_by_tenant_id}{$key};
 }
 
 =head2 post_process_element
@@ -291,24 +274,11 @@ For now, it is used only to transform non-ordered hashes into ordered ones so fo
 
 sub post_process_element {
     my ($self, $what, $element) = @_;
-    if (!$self->is_tenant_scoped($what)) {
-        if (ref($element) eq 'HASH') {
-            return $self->tie_ixhash_copied($element);
-        }
-
-        return $element;
+    if (ref($element) eq 'HASH') {
+        return $self->tie_ixhash_copied($element);
     }
 
-    if (ref($element) ne 'HASH' ) {
-        return $element;
-    }
-
-    my %copy;
-    while (my ($k, $v) = each %$element) {
-        $copy{$k} = ref($v) eq 'HASH' ? $self->tie_ixhash_copied($v) : $v;
-    }
-
-    return \%copy;
+    return $element;
 }
 
 =head2 tie_ixhash_copied

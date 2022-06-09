@@ -24,9 +24,6 @@ use warnings;
 
 use base qw(pf::dal);
 
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -36,7 +33,6 @@ our @COLUMN_NAMES;
 
 BEGIN {
     @FIELD_NAMES = qw(
-        tenant_id
         pid
         firstname
         lastname
@@ -74,7 +70,6 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        tenant_id => '1',
         pid => '',
         firstname => undef,
         lastname => undef,
@@ -112,7 +107,6 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
         pid
         firstname
         lastname
@@ -150,12 +144,6 @@ BEGIN {
     );
 
     %FIELDS_META = (
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 1,
-            is_nullable => 0,
-        },
         pid => {
             type => 'VARCHAR',
             is_auto_increment => 0,
@@ -367,12 +355,10 @@ BEGIN {
     );
 
     @PRIMARY_KEYS = qw(
-        tenant_id
         pid
     );
 
     @COLUMN_NAMES = qw(
-        person.tenant_id
         person.pid
         person.firstname
         person.lastname

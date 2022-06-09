@@ -28,7 +28,6 @@ authorize {
 		}
 	}
 	packetfence-set-realm-if-machine
-	packetfence-set-tenant-id
 	#
 	#  Take a User-Name, and perform some checks on it, for spaces and other
 	#  invalid characters.  If the User-Name appears invalid, reject the
@@ -272,7 +271,6 @@ session {
 #  then update the inner-tunnel reply.
 post-auth {
 	[% oauth2_if_enabled %]
-	packetfence-set-tenant-id
 	PacketFence-NTCacheHash
 	if (ok) {
 		update {
@@ -329,7 +327,6 @@ post-auth {
 	Post-Auth-Type REJECT {
 		# Uncomment if you need to limit failed ntlm authentication (see packetfence-control-ntlm-failure too)
 		# packetfence-cache-ntlm-hit
-		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}
@@ -619,7 +616,6 @@ session {
 #  the ONLY safe way is to set "use_tunneled_reply = yes", and
 #  then update the inner-tunnel reply.
 post-auth {
-	packetfence-set-tenant-id
 	rest
 	update {
 		&request:User-Password := "******"
@@ -666,7 +662,6 @@ post-auth {
 	#  'edir_account_policy_check = yes' in the ldap module configuration
 	#
 	Post-Auth-Type REJECT {
-		packetfence-set-tenant-id
 		update {
 			&request:User-Password := "******"
 		}

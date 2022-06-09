@@ -52,7 +52,6 @@ func (s *FortiAnalyserParser) Parse(line string) ([]ApiCall, error) {
 					"detect": logid,
 				},
 			},
-			TenantID: s.TenantID,
 		},
 	}, nil
 }

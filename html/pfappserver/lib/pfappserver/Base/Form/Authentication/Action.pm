@@ -79,11 +79,6 @@ our %ACTION_FIELD_OPTIONS = (
         element_attr => {'data-placeholder' => 'Click to add an access right'},
         options_method => \&options_access_level,
     },
-    $Actions::SET_TENANT_ID => {
-        type          => 'Text',
-        do_label      => 0,
-        wrapper       => 0,
-    },
     $Actions::SET_ROLE => {
         type           => 'Select',
         do_label       => 0,

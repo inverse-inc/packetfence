@@ -51,7 +51,7 @@ sub available_attributes {
 sub authenticate {
    my ( $self, $username, $password ) = @_;
 
-   my $result = pf::password::validate_password($username, $password, 0, -no_auto_tenant_id => 1);
+   my $result = pf::password::validate_password($username, $password, 0);
 
    if ($result == $pf::password::AUTH_SUCCESS) {
      return ($TRUE, $AUTH_SUCCESS_MSG);
@@ -78,9 +78,9 @@ sub match {
 
     my $result;
     if ($params->{'username'}) {
-        $result = pf::password::view($params->{'username'}, -no_auto_tenant_id => 1);
+        $result = pf::password::view($params->{'username'});
     } elsif ($params->{'email'}) {
-        $result = pf::password::view_email($params->{'email'}, -no_auto_tenant_id => 1);
+        $result = pf::password::view_email($params->{'email'});
     }
 
     # User is defined in SQL source, let's build the actions and return that
@@ -146,8 +146,6 @@ sub match {
         push @actions, pf::Authentication::Action->new({type => $Actions::SET_BANDWIDTH_BALANCE, value => $bandwidth_balance});
 
     }
-
-    push @actions, pf::Authentication::Action->new({type => $Actions::SET_TENANT_ID, value => $result->{tenant_id}});
 
     return pf::Authentication::Rule->new(
         id => "default",

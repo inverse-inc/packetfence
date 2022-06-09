@@ -57,6 +57,7 @@ BEGIN {
         issuer_key_hash
         issuer_name_hash
         ocsp_url
+        serial_number
     );
 
     %DEFAULTS = (
@@ -83,6 +84,7 @@ BEGIN {
         issuer_key_hash => undef,
         issuer_name_hash => undef,
         ocsp_url => undef,
+        serial_number => '1',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -109,6 +111,7 @@ BEGIN {
         issuer_key_hash
         issuer_name_hash
         ocsp_url
+        serial_number
     );
 
     %FIELDS_META = (
@@ -119,19 +122,19 @@ BEGIN {
             is_nullable => 0,
         },
         created_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         updated_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         deleted_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -256,6 +259,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        serial_number => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -287,6 +296,7 @@ BEGIN {
         pki_cas.issuer_key_hash
         pki_cas.issuer_name_hash
         pki_cas.ocsp_url
+        pki_cas.serial_number
     );
 
 }

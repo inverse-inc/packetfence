@@ -59,6 +59,7 @@ BEGIN {
         ip_addresses
         revoked
         crl_reason
+        subject
     );
 
     %DEFAULTS = (
@@ -86,6 +87,7 @@ BEGIN {
         ip_addresses => undef,
         revoked => undef,
         crl_reason => undef,
+        subject => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -113,6 +115,7 @@ BEGIN {
         ip_addresses
         revoked
         crl_reason
+        subject
     );
 
     %FIELDS_META = (
@@ -123,19 +126,19 @@ BEGIN {
             is_nullable => 0,
         },
         created_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         updated_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         deleted_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -231,13 +234,13 @@ BEGIN {
             is_nullable => 1,
         },
         valid_until => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         date => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -268,6 +271,12 @@ BEGIN {
         },
         crl_reason => {
             type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        subject => {
+            type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -305,6 +314,7 @@ BEGIN {
         pki_revoked_certs.ip_addresses
         pki_revoked_certs.revoked
         pki_revoked_certs.crl_reason
+        pki_revoked_certs.subject
     );
 
 }

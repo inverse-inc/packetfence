@@ -17,7 +17,6 @@ export const ADMIN_ROLES_ACTIONS = [
   'set_access_duration',
   'set_bandwidth_balance',
   'set_role',
-  'set_tenant_id',
   'set_time_balance',
   'set_unreg_date',
   'trigger_radius_mfa',

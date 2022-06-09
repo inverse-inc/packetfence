@@ -23,7 +23,7 @@ use pf::util qw(clean_mac ip2int valid_ip);
 use pf::constants qw($ZERO_DATE);
 
 our @LOCATION_LOG_JOIN = (
-    "=>{locationlog.mac=node.mac,node.tenant_id=locationlog.tenant_id,locationlog.end_time='$ZERO_DATE'}",
+    "=>{locationlog.mac=node.mac,locationlog.end_time='$ZERO_DATE'}",
     "locationlog",
 );
 
@@ -33,10 +33,7 @@ our @IP4LOG_JOIN = (
         condition => {
             'ip4log.ip' => {
                 "=" => \
-"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
-            },
-            'ip4log.tenant_id' => {
-                -ident => 'node.tenant_id'
+"( SELECT `ip` FROM `ip4log` WHERE `mac` = `node`.`mac` ORDER BY `start_time` DESC LIMIT 1 )",
             },
         }
     },
@@ -49,7 +46,7 @@ our @IP6LOG_JOIN = (
         condition => {
             'ip6log.ip' => {
                 "=" => \
-"( SELECT `ip` FROM `ip6log` WHERE `mac` = `node`.`mac` AND `tenant_id` = `node`.`tenant_id`  ORDER BY `start_time` DESC LIMIT 1 )",
+"( SELECT `ip` FROM `ip6log` WHERE `mac` = `node`.`mac` ORDER BY `start_time` DESC LIMIT 1 )",
             }
         }
     },
@@ -69,7 +66,6 @@ our @SECURITY_EVENT_OPEN_JOIN = (
         operator  => '=>',
         condition => {
             'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
             'security_event_open.status' => { '=' => "open" },
         },
     },
@@ -81,7 +77,6 @@ our @SECURITY_EVENT_CLOSED_JOIN = (
         operator  => '=>',
         condition => {
             'node.mac' => { '=' => { -ident => '%2$s.mac' } },
-            'node.tenant_id' => { '=' => { -ident => '%2$s.tenant_id' } },
             'security_event_close.status' => { '=' => "closed" },
         },
     },
@@ -102,7 +97,7 @@ our %ALLOWED_JOIN_FIELDS = (
     'online' => {
         namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
-        column_spec   => "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+        column_spec   => "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
     },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
@@ -195,9 +190,9 @@ sub rewrite_security_event_close_count {
     return (200, $q);
 }
 
-our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
-our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
-our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by ba.last_updated DESC LIMIT 1)';
+our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
+our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
+our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by ba.last_updated DESC LIMIT 1)';
 our $UNKNOWN_QUERY = "NOT $NOT_UNKNOWN_QUERY";
 
 sub rewrite_online_query {

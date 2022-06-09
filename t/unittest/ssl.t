@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-pfconfig-tenant-scoped
+pf-ssl
 
 =cut
 
 =head1 DESCRIPTION
 
-unit test for pfconfig-tenant-scoped
+unit test for pf::ssl
 
 =cut
 

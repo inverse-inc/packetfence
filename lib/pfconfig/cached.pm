@@ -34,7 +34,6 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use pf::log;
 use pfconfig::util qw($undef_element normalize_namespace_query);
-use pf::config::tenant;
 use pfconfig::constants;
 use Sereal::Decoder qw(sereal_decode_with_object);
 use Time::HiRes qw(stat time);
@@ -118,13 +117,7 @@ It will return undef if it's not there or invalid
 
 sub get_from_subcache {
     my ( $self, $key ) = @_;
-    my $res;
-    if ($self->{_scoped_by_tenant_id}) {
-	my $tenant_id = pf::config::tenant::get_tenant();
-	$res = $self->{_subcache}{$tenant_id}{$key};
-    } else {
-	$res = $self->{_subcache}{$key};
-    }
+    my $res = $self->{_subcache}{$key};
 
     if ( defined( $res ) ) {
         my $valid = $self->is_valid();
@@ -149,12 +142,7 @@ Sets an element in the subcache so it can be reused across accesses
 sub set_in_subcache {
     my ($self, $key, $result) = @_;
     $self->{memorized_at} //= time;
-    if ($self->{_scoped_by_tenant_id}) {
-        my $tenant_id = pf::config::tenant::get_tenant();
-        $self->{_subcache}{$tenant_id}{$key} = $result;
-    } else {
-        $self->{_subcache}{$key} = $result;
-    }
+    $self->{_subcache}{$key} = $result;
 }
 
 =head2 compute_from_subcache
@@ -201,7 +189,7 @@ sub _get_from_socket {
     my $json = JSON->new->allow_nonref;
     my %info;
     my $payload;
-    %info = ( ( method => $method, key => $what, tenant_id => pf::config::tenant::get_tenant() ), %additionnal_info );
+    %info = ( ( method => $method, key => $what ), %additionnal_info );
     $payload = $json->encode( \%info );
 
     my $failed_once = 0;

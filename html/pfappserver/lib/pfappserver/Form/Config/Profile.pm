@@ -242,7 +242,6 @@ sub options_field_names {
           switch
           switch_group
           switch_mac
-          tenant_id
           time
           time_balance
           unregdate

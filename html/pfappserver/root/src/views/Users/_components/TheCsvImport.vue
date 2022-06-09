@@ -134,11 +134,6 @@ const setup = (props, context) => {
   const passwordOptions = ref(_passwordOptions)
   const tabIndex = ref(0)
 
-  const domainName = computed(() => {
-    const { domain_name = null } = $store.getters['session/tenantMask'] || {}
-    return domain_name
-  })
-
   const isLoading = ref(false)
   const createdUsers = ref({})
   const showPreviewModal = ref(false)
@@ -158,8 +153,6 @@ const setup = (props, context) => {
           }
           if (!('password' in merged)) // generate a unique password
             merged.password = password.generate(passwordOptions.value)
-          if (domainName.value) // append domainName to pid when available (tenant)
-            merged.pid = `${merged.pid}@${this.domainName}`
           return merged
         })
       }
@@ -221,7 +214,6 @@ const setup = (props, context) => {
     schema,
     passwordOptions,
 
-    domainName,
     isLoading,
     createdUsers,
     showPreviewModal,

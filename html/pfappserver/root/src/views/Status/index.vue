@@ -25,8 +25,7 @@ const setup = (props, context) => {
   const sections = computed(() => ([
     {
       name: i18n.t('Dashboard'),
-      path: '/status/dashboard',
-      can: 'master tenant'
+      path: '/status/dashboard'
     },
     {
       name: i18n.t('Network View'),
@@ -41,8 +40,7 @@ const setup = (props, context) => {
     },
     {
       name: i18n.t('Local Queue'),
-      path: '/status/queue',
-      can: 'master tenant'
+      path: '/status/queue'
     },
     ...((cluster.value.length > 1)
       ? [{

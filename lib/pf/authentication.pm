@@ -18,7 +18,6 @@ use pf::log;
 use pf::constants;
 use pf::config;
 use pf::config::util;
-use pf::tenant;
 
 use pf::Authentication::constants;
 use pf::Authentication::Action;
@@ -509,12 +508,10 @@ sub adminAuthentication {
         my $roles = $values->{$Actions::SET_ACCESS_LEVEL} // "NONE";
         $roles = [split /\s*,\s*/,$roles];
 
-        my $tenant_id = $values->{$Actions::SET_TENANT_ID} // 1;
-        $tenant_id = pf::tenant::tenant_view_by_id($tenant_id);
-
-        return ((all{ $_ ne 'NONE'} @$roles), $roles, $tenant_id);
+        return ((all{ $_ ne 'NONE'} @$roles), $roles);
     }
   }
+
   return $LOGIN_FAILURE;
 }
 

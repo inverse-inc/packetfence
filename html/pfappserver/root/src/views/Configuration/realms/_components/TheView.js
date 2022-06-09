@@ -18,9 +18,6 @@ const props = {
   id: {
     type: String
   },
-  tenantId: {
-    type: String
-  }
 }
 
 import * as collection from '../_composables/useCollection'

@@ -24,9 +24,6 @@ use warnings;
 
 use base qw(pf::dal);
 
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -37,7 +34,6 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
-        tenant_id
         mac
         ip
         type
@@ -46,7 +42,6 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        tenant_id => '1',
         mac => '',
         ip => '',
         type => undef,
@@ -55,7 +50,6 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
         mac
         ip
         type
@@ -68,12 +62,6 @@ BEGIN {
             type => 'BIGINT',
             is_auto_increment => 1,
             is_primary_key => 1,
-            is_nullable => 0,
-        },
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
             is_nullable => 0,
         },
         mac => {
@@ -114,7 +102,6 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         ip6log_archive.id
-        ip6log_archive.tenant_id
         ip6log_archive.mac
         ip6log_archive.ip
         ip6log_archive.type

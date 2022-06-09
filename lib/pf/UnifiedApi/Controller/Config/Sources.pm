@@ -210,7 +210,6 @@ sub form_parameters {
               set_access_level_action
               set_bandwidth_balance_action
               set_role_action
-              set_tenant_id_action
               set_time_balance_action
               set_unreg_date_action
               substring_operator

@@ -12,25 +12,6 @@ SET @MINOR_VERSION = 3;
 SET @VERSION_INT = @MAJOR_VERSION << 16 | @MINOR_VERSION << 8;
 
 --
--- Table structure for table `tenant`
---
-
-CREATE TABLE `tenant` (
-  id int NOT NULL AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL,
-  portal_domain_name VARCHAR(255),
-  domain_name VARCHAR(255),
-  PRIMARY KEY (id),
-  UNIQUE KEY tenant_name (`name`),
-  UNIQUE KEY tenant_portal_domain_name (`portal_domain_name`),
-  UNIQUE KEY tenant_domain_name (`domain_name`)
-);
-
-SET STATEMENT sql_mode='NO_AUTO_VALUE_ON_ZERO' FOR
-    INSERT INTO `tenant` VALUES (0, 'global', NULL, NULL);
-INSERT INTO `tenant` VALUES (1, 'default', NULL, NULL);
-
---
 -- Table structure for table `class`
 --
 
@@ -61,7 +42,6 @@ CREATE TABLE class (
 --
 
 CREATE TABLE person (
-  tenant_id int NOT NULL DEFAULT 1,
   pid varchar(255) NOT NULL,
   `firstname` varchar(255) default NULL,
   `lastname` varchar(255) default NULL,
@@ -96,8 +76,7 @@ CREATE TABLE person (
   `psk` varchar(255) NULL DEFAULT NULL,
   `potd` enum('no','yes') NOT NULL DEFAULT 'no',
   `otp` TEXT NULL DEFAULT NULL,
-  PRIMARY KEY (`tenant_id`, `pid`),
-  CONSTRAINT `person_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
+  PRIMARY KEY (`pid`)
 ) ENGINE=InnoDB;
 
 
@@ -155,7 +134,6 @@ INSERT INTO `node_category` (name,notes) VALUES ("REJECT","Reject role (Used to 
 --
 
 CREATE TABLE node (
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   pid varchar(255) NOT NULL default "default",
   category_id bigint default NULL,
@@ -187,16 +165,15 @@ CREATE TABLE node (
   machine_account varchar(255) default NULL,
   bypass_role_id int default NULL,
   last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
-  PRIMARY KEY (`tenant_id`, `mac`),
+  PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
   KEY `node_status` (`status`, `unregdate`),
   KEY `node_dhcpfingerprint` (`dhcp_fingerprint`),
   KEY `node_last_seen` (`last_seen`),
   KEY `node_bypass_role_id` (`bypass_role_id`),
-  CONSTRAINT `0_57` FOREIGN KEY (`tenant_id`, `pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`),
-  CONSTRAINT `node_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
+  CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` ( `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
 ) ENGINE=InnoDB;
 
 --
@@ -216,7 +193,6 @@ CREATE TABLE action (
 
 CREATE TABLE security_event (
   id BIGINT NOT NULL AUTO_INCREMENT,
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   security_event_id int(11) NOT NULL,
   start_date datetime NOT NULL,
@@ -228,9 +204,8 @@ CREATE TABLE security_event (
   KEY status (status),
   KEY uniq_mac_status_id (mac,status,security_event_id),
   KEY security_event_release_date (release_date),
-  CONSTRAINT `tenant_id_mac_fkey_node` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `mac_fkey_node` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `security_event_id_fkey_class` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `security_event_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`),
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
@@ -239,15 +214,13 @@ CREATE TABLE security_event (
 --
 
 CREATE TABLE ip4log (
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  PRIMARY KEY (`tenant_id`, `ip`),
-  KEY ip4log_tenant_id_mac_end_time (tenant_id,mac,end_time),
-  KEY ip4log_end_time (end_time),
-  CONSTRAINT `ip4log_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
+  PRIMARY KEY (`ip`),
+  KEY ip4log_mac_end_time (mac,end_time),
+  KEY ip4log_end_time (end_time)
 ) ENGINE=InnoDB;
 
 --
@@ -259,7 +232,7 @@ DELIMITER /
 CREATE TRIGGER ip4log_insert_in_ip4log_history_before_update_trigger BEFORE UPDATE ON ip4log
 FOR EACH ROW
 BEGIN
-  INSERT INTO ip4log_history SET tenant_id = OLD.tenant_id, ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
+  INSERT INTO ip4log_history SET ip = OLD.ip, mac = OLD.mac, start_time = OLD.start_time, end_time = CASE
     WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
     WHEN OLD.end_time > NOW() THEN NOW()
     ELSE OLD.end_time
@@ -273,7 +246,6 @@ DELIMITER ;
 
 CREATE TABLE ip4log_history (
   id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -289,7 +261,6 @@ CREATE TABLE ip4log_history (
 
 CREATE TABLE ip4log_archive (
   id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   start_time datetime NOT NULL,
@@ -303,16 +274,14 @@ CREATE TABLE ip4log_archive (
 --
 
 CREATE TABLE ip6log (
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   type varchar(32) DEFAULT NULL,
   start_time datetime NOT NULL,
   end_time datetime default "0000-00-00 00:00:00",
-  PRIMARY KEY (tenant_id, ip),
+  PRIMARY KEY (ip),
   KEY ip6log_mac_end_time (mac,end_time),
-  KEY ip6log_end_time (end_time),
-  CONSTRAINT `ip6log_tenant_id` FOREIGN KEY(`tenant_id`) REFERENCES `tenant` (`id`)
+  KEY ip6log_end_time (end_time)
 ) ENGINE=InnoDB;
 
 --
@@ -324,7 +293,7 @@ DELIMITER /
 CREATE TRIGGER ip6log_insert_in_ip6log_history_before_update_trigger BEFORE UPDATE ON ip6log
 FOR EACH ROW
 BEGIN
-  INSERT INTO ip6log_history SET tenant_id = OLD.tenant_id, ip = OLD.ip, mac = OLD.mac, type = OLD.type, start_time = OLD.start_time, end_time = CASE
+  INSERT INTO ip6log_history SET ip = OLD.ip, mac = OLD.mac, type = OLD.type, start_time = OLD.start_time, end_time = CASE
     WHEN OLD.end_time = '0000-00-00 00:00:00' THEN NOW()
     WHEN OLD.end_time > NOW() THEN NOW()
     ELSE OLD.end_time
@@ -338,7 +307,6 @@ DELIMITER ;
 
 CREATE TABLE ip6log_history (
   id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   type varchar(32) DEFAULT NULL,
@@ -355,7 +323,6 @@ CREATE TABLE ip6log_history (
 
 CREATE TABLE ip6log_archive (
   id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  tenant_id int NOT NULL DEFAULT 1,
   mac varchar(17) NOT NULL,
   ip varchar(45) NOT NULL,
   type varchar(32) DEFAULT NULL,
@@ -367,7 +334,6 @@ CREATE TABLE ip6log_archive (
 
 
 CREATE TABLE `locationlog` (
-  `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(20) NOT NULL default '',
@@ -387,18 +353,16 @@ CREATE TABLE `locationlog` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  PRIMARY KEY (`tenant_id`, `mac`),
+  PRIMARY KEY (`mac`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
-  KEY `locationlog_switch_ip_int` (`switch_ip_int`),
-  CONSTRAINT `locationlog_tenant_id` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`)
+  KEY `locationlog_switch_ip_int` (`switch_ip_int`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE `locationlog_history` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int NOT NULL DEFAULT 1,
   `mac` varchar(17) default NULL,
   `switch` varchar(17) NOT NULL default '',
   `port` varchar(20) NOT NULL default '',
@@ -418,7 +382,7 @@ CREATE TABLE `locationlog_history` (
   `session_id` VARCHAR(255) DEFAULT NULL,
   `ifDesc` VARCHAR(255) DEFAULT NULL,
   `voip` enum('no','yes') NOT NULL DEFAULT 'no',
-  KEY `locationlog_view_mac` (`tenant_id`, `mac`, `end_time`),
+  KEY `locationlog_view_mac` (`mac`, `end_time`),
   KEY `locationlog_end_time` ( `end_time`),
   KEY `locationlog_view_switchport` (`switch`,`port`,`end_time`,`vlan`),
   KEY `locationlog_ssid` (`ssid`),
@@ -433,7 +397,6 @@ BEGIN
     IF OLD.session_id <=> NEW.session_id THEN
         INSERT INTO locationlog_history
         SET
-            tenant_id = OLD.tenant_id,
             mac = OLD.mac,
             switch = OLD.switch,
             port = OLD.port,
@@ -466,7 +429,6 @@ DELIMITER ;
 --
 
 CREATE TABLE `password` (
-  `tenant_id` int NOT NULL DEFAULT 1,
   `pid` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `valid_from` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
@@ -477,7 +439,7 @@ CREATE TABLE `password` (
   `sponsor` tinyint(1) NOT NULL default 0,
   `unregdate` datetime NOT NULL default "0000-00-00 00:00:00",
   `login_remaining` int DEFAULT NULL,
-  PRIMARY KEY (tenant_id, pid),
+  PRIMARY KEY (pid),
   KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)
 ) ENGINE=InnoDB;
@@ -499,7 +461,7 @@ DELIMITER /
 CREATE TRIGGER password_delete_trigger AFTER DELETE ON person
 FOR EACH ROW
 BEGIN
-  DELETE FROM `password` WHERE pid = OLD.pid AND tenant_id = OLD.tenant_id;
+  DELETE FROM `password` WHERE pid = OLD.pid;
 END /
 DELIMITER ;
 
@@ -609,7 +571,6 @@ VALUES
 
 CREATE TABLE radius_nas (
   id int(10) NOT NULL auto_increment,
-  `tenant_id` int NOT NULL DEFAULT 1,
   nasname varchar(128) NOT NULL,
   shortname varchar(32),
   type varchar(30) default 'other',
@@ -632,7 +593,6 @@ CREATE TABLE radius_nas (
 
 CREATE TABLE radacct (
   `radacctid` bigint(21) NOT NULL AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL DEFAULT '1',
   `acctsessionid` varchar(64) NOT NULL DEFAULT '',
   `acctuniqueid` varchar(32) NOT NULL DEFAULT '',
   `username` varchar(64) NOT NULL DEFAULT '',
@@ -676,7 +636,6 @@ CREATE TABLE radacct (
 
 CREATE TABLE radacct_log (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int NOT NULL DEFAULT 1,
   acctsessionid varchar(64) NOT NULL default '',
   username varchar(64) NOT NULL default '',
   nasipaddress varchar(15) NOT NULL default '',
@@ -697,16 +656,15 @@ CREATE TABLE radacct_log (
 
 CREATE TABLE radreply (
   id int(11) unsigned NOT NULL auto_increment,
-  tenant_id int NOT NULL DEFAULT 1,
   username varchar(64) NOT NULL default '',
   attribute varchar(64) NOT NULL default '',
   op char(2) NOT NULL DEFAULT ':=',
   value varchar(253) NOT NULL default '',
   PRIMARY KEY (id),
-  KEY (`tenant_id`, `username`)
+  KEY (`username`)
 );
 
-INSERT INTO radreply (tenant_id, username, attribute, value, op) values ('1', '00:00:00:00:00:00','User-Name','*', '=*');
+INSERT INTO radreply (username, attribute, value, op) values ('00:00:00:00:00:00','User-Name','*', '=*');
 
 -- Adding RADIUS Updates Stored Procedure
 
@@ -737,8 +695,7 @@ CREATE PROCEDURE `acct_start` (
     IN `p_framedipaddress` varchar(15),
     IN `p_acctstatustype` varchar(25),
     IN `p_nasidentifier` varchar(64),
-    IN `p_calledstationssid` varchar(64),
-    IN `p_tenant_id` int(11) unsigned
+    IN `p_calledstationssid` varchar(64)
 )
 BEGIN
 
@@ -767,8 +724,7 @@ INSERT INTO `radacct`
             `connectinfo_start`,  `connectinfo_stop`,   `acctinputoctets`,
             `acctoutputoctets`,   `calledstationid`,    `callingstationid`,
             `acctterminatecause`, `servicetype`,        `framedprotocol`,
-            `framedipaddress`,    `nasidentifier`,      `calledstationssid`,
-            `tenant_id`
+            `framedipaddress`,    `nasidentifier`,      `calledstationssid`
            )
 VALUES
     (
@@ -779,18 +735,17 @@ VALUES
     `p_connectinfo_start`, `p_connectinfo_stop`, `p_acctinputoctets`,
     `p_acctoutputoctets`, `p_calledstationid`, `p_callingstationid`,
     `p_acctterminatecause`, `p_servicetype`, `p_framedprotocol`,
-    `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`,
-    `p_tenant_id`
+    `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`
     );
 
 
 
   INSERT INTO `radacct_log`
    (`acctsessionid`, `username`, `nasipaddress`,
-    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+    `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`)
   VALUES
    (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
-    `p_acctstarttime`, `p_acctstatustype`, `p_acctinputoctets`, `p_acctoutputoctets`, `p_acctsessiontime`, `p_acctuniqueid`, `p_tenant_id`);
+    `p_acctstarttime`, `p_acctstatustype`, `p_acctinputoctets`, `p_acctoutputoctets`, `p_acctsessiontime`, `p_acctuniqueid`);
 END /
 DELIMITER ;
 
@@ -820,8 +775,7 @@ CREATE PROCEDURE `acct_stop` (
   IN `p_acctterminatecause` varchar(12),
   IN `p_acctstatustype` varchar(25),
   IN `p_nasidentifier` varchar(64),
-  IN `p_calledstationssid` varchar(64),
-  IN `p_tenant_id` int(11) unsigned
+  IN `p_calledstationssid` varchar(64)
 )
 BEGIN
   DECLARE `Previous_Input_Octets` bigint(20) unsigned;
@@ -851,11 +805,11 @@ BEGIN
     # Create new record in the log table
     INSERT INTO `radacct_log`
      (`acctsessionid`, `username`, `nasipaddress`,
-      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`)
     VALUES
      (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
      `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
-     (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+     (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`);
   END IF;
 END /
 DELIMITER ;
@@ -885,8 +839,7 @@ CREATE PROCEDURE `acct_update`(
   IN `p_framedprotocol` varchar(32),
   IN `p_acctstatustype` varchar(25),
   IN `p_nasidentifier` varchar(64),
-  IN `p_calledstationssid` varchar(64),
-  IN `p_tenant_id` int(11) unsigned
+  IN `p_calledstationssid` varchar(64)
 )
 BEGIN
   DECLARE `Previous_Input_Octets` bigint(20) unsigned;
@@ -951,11 +904,11 @@ BEGIN
 
     INSERT INTO `radacct_log`
      (`acctsessionid`, `username`, `nasipaddress`,
-      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+      `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`)
     VALUES
      (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
       `p_timestamp`, `p_acctstatustype`, (`p_acctinputoctets` - `Previous_Input_Octets`), (`p_acctoutputoctets` - `Previous_Output_Octets`),
-      (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`, `p_tenant_id`);
+      (`p_acctsessiontime` - `Previous_Session_Time`), `p_acctuniqueid`);
 
   ELSE
       # If there is no open session for this, open one.
@@ -974,7 +927,7 @@ BEGIN
               `acctoutputoctets`,`calledstationid`,`callingstationid`,
               `servicetype`,`framedprotocol`,
               `framedipaddress`, `nasidentifier`,
-              `calledstationssid`, `tenant_id`
+              `calledstationssid`
              )
       VALUES
           (
@@ -985,16 +938,16 @@ BEGIN
               `p_connectinfo_start`,0,
               0,`p_calledstationid`,`p_callingstationid`,
               `p_servicetype`,`p_framedprotocol`,
-              `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`, `p_tenant_id`
+              `p_framedipaddress`, `p_nasidentifier`, `p_calledstationssid`
           );
 
       INSERT INTO `radacct_log`
        (`acctsessionid`, `username`, `nasipaddress`,
-        `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`, `tenant_id`)
+        `timestamp`, `acctstatustype`, `acctinputoctets`, `acctoutputoctets`, `acctsessiontime`, `acctuniqueid`)
       VALUES
        (`p_acctsessionid`, `p_username`, `p_nasipaddress`,
        `p_timestamp`, `p_acctstatustype`, 0, 0,
-       0, `p_acctuniqueid`, `p_tenant_id`);
+       0, `p_acctuniqueid`);
 
    END IF;
 END /
@@ -1006,7 +959,6 @@ DELIMITER ;
 
 CREATE TABLE scan (
   id varchar(20) NOT NULL,
-  `tenant_id` int NOT NULL DEFAULT 1,
   ip varchar(255) NOT NULL,
   mac varchar(17) NOT NULL,
   type varchar(255) NOT NULL,
@@ -1099,7 +1051,6 @@ CREATE TABLE wrix (
 
 CREATE TABLE activation (
   `code_id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int NOT NULL DEFAULT 1,
   `pid` varchar(255) default NULL,
   `mac` varchar(17) default NULL,
   `contact_info` varchar(255) NOT NULL, -- email or phone number were approbation request is sent
@@ -1140,7 +1091,6 @@ CREATE TABLE pf_version (`id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NO
 
 CREATE TABLE radius_audit_log (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int NOT NULL DEFAULT 1,
   created_at TIMESTAMP NOT NULL,
   mac char(17) NOT NULL,
   ip varchar(255) NULL,
@@ -1263,7 +1213,6 @@ DELIMITER ;
 
 CREATE TABLE auth_log (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int NOT NULL DEFAULT 1,
   `process_name` varchar(255) NOT NULL,
   `mac` varchar(17) NOT NULL,
   `pid` varchar(255) NOT NULL default "default",
@@ -1326,11 +1275,10 @@ CREATE TABLE key_value_storage (
 --
 
 CREATE TABLE user_preference (
-  tenant_id int NOT NULL DEFAULT 1,
   pid varchar(255) NOT NULL,
   id varchar(255) NOT NULL,
   value LONGBLOB,
-  PRIMARY KEY (`tenant_id`, `pid`, `id`)
+  PRIMARY KEY ( `pid`, `id`)
 ) ENGINE=InnoDB;
 
 --
@@ -1339,7 +1287,6 @@ CREATE TABLE user_preference (
 
 CREATE TABLE `dns_audit_log` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `ip` varchar(45) NOT NULL,
   `mac` char(17) NOT NULL,
@@ -1358,7 +1305,6 @@ CREATE TABLE `dns_audit_log` (
 
 CREATE TABLE `admin_api_audit_log` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `tenant_id` int(11) NOT NULL DEFAULT '1',
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
   `user_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `action` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
@@ -1579,7 +1525,6 @@ CREATE TABLE bandwidth_accounting (
     in_bytes BIGINT SIGNED NOT NULL,
     out_bytes BIGINT SIGNED NOT NULL,
     mac CHAR(17) NOT NULL,
-    tenant_id SMALLINT NOT NULL,
     last_updated DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
     PRIMARY KEY (node_id, time_bucket, unique_session_id),
@@ -1587,7 +1532,7 @@ CREATE TABLE bandwidth_accounting (
     KEY bandwidth_source_type_time_bucket (source_type, time_bucket),
     KEY bandwidth_last_updated_source_type_time_bucket (last_updated, source_type, time_bucket),
     KEY bandwidth_node_id_unique_session_id_last_updated (node_id, unique_session_id, last_updated),
-    KEY bandwidth_accounting_tenant_id_mac_last_updated (tenant_id, mac, last_updated)
+    KEY bandwidth_accounting_mac_last_updated (mac, last_updated)
 );
 
 --
@@ -1601,10 +1546,9 @@ CREATE TABLE bandwidth_accounting_history (
     out_bytes BIGINT SIGNED NOT NULL,
     total_bytes BIGINT SIGNED AS (in_bytes + out_bytes) VIRTUAL,
     mac CHAR(17) NOT NULL,
-    tenant_id SMALLINT NOT NULL,
     PRIMARY KEY (node_id, time_bucket),
     KEY bandwidth_aggregate_buckets (time_bucket, node_id, in_bytes, out_bytes),
-    KEY bandwidth_accounting_tenant_id_mac (tenant_id, mac)
+    KEY bandwidth_accounting_mac (mac)
 );
 
 CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)

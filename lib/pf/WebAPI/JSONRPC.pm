@@ -60,7 +60,6 @@ sub handler {
             $content_type,
         );
     }
-    pf::dal->reset_tenant();
     refresh_last_touch_cache();
     my $ref_type = ref $data;
     unless ($ref_type && $ref_type eq 'HASH') {
@@ -73,7 +72,7 @@ sub handler {
         );
     }
 
-    my ($method, $id, $jsonrpc, $tenant_id) = @{$data}{qw(method id jsonrpc tenant_id)};
+    my ($method, $id, $jsonrpc) = @{$data}{qw(method id jsonrpc)};
     unless (defined $method) {
         get_logger->error("Invalid request, no method defined");
         return $self->send_response(
@@ -82,9 +81,6 @@ sub handler {
             $self->make_error_object(undef, $JSONRPC_ERROR_CODE_INVALID_REQUEST, "Invalid request, no method defined\n"),
             $content_type,
         );
-    }
-    if (defined $tenant_id) {
-        pf::dal->set_tenant($tenant_id);
     }
 
     my $dispatch_to = $self->dispatch_to;

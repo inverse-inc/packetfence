@@ -1,39 +1,60 @@
-package pf::dal::tenant;
+#!/usr/bin/perl
 
 =head1 NAME
 
-pf::dal::tenant - pf::dal module to override for the table tenant
-
-=cut
+to-12-remove-tenant -
 
 =head1 DESCRIPTION
 
-pf::dal::tenant
-
-pf::dal implementation for the table tenant
+to-12-remove-tenant
 
 =cut
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
+my $tenant_id = $ENV{PF_TENANT_ID} ||  1;
+open(my $fh, ">", "/usr/local/pf/db/upgrade-tenant-11.2-12.0.sql");
 
-use base qw(pf::dal::_tenant);
-use pf::dal::person;
-use pf::error qw(is_error);
+my @tenant_tables = qw(
+activation
+admin_api_audit_log
+auth_log
+bandwidth_accounting
+bandwidth_accounting_history
+dns_audit_log
+ip4log
+ip4log_archive
+ip4log_history
+ip6log
+ip6log_archive
+ip6log_history
+locationlog
+locationlog_history
+node
+password
+person
+radacct
+radacct_log
+radius_audit_log
+radius_nas
+radreply
+scan
+security_event
+user_preference
+);
 
-sub after_create_hook {
-    my ($self) = @_;
-    my $status = pf::dal::person->create({
-        pid => "default",
-        notes => "Default User for tenant $self->{name}",
-        tenant_id => $self->{id},
-        -no_auto_tenant_id => 1,
-    });
-    if (is_error($status)) {
-        $self->logger->error("Unable to create default user for the tenant");
-    }
+for my $t (@tenant_tables) {
+    print $fh "DELETE FROM $t WHERE tenant_id != $tenant_id;\n";
 }
- 
+
+for my $t (qw( bandwidth_accounting bandwidth_accounting_history)) {
+    print $fh "UPDATE $t SET node_id = node_id & 0x0000ffffffffffff;\n";
+}
+
+close ($fh);
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -57,8 +78,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+
 USA.
 
 =cut
-
-1;

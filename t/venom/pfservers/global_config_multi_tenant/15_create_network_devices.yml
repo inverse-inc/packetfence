@@ -94,7 +94,6 @@ testcases:
         "registrationUrl": null,
         "registrationVlan": null,
         "ssid_trigger": null,
-        "TenantId": "{{.global_config_multi_tenant.tenant.id}}",
         "type": "Hostapd_template",
         "uplink": null,
         "uplink_dynamic": null,
@@ -122,7 +121,6 @@ testcases:
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
-      "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
       - result.statuscode ShouldEqual 201
 
@@ -139,13 +137,11 @@ testcases:
       {
         "id": "{{.cumulus_switch.id2}}",
         "group": "{{.cumulus_switch_group.id}}",
-        "TenantId": "{{.global_config_multi_tenant.tenant.id}}",
         "description": "{{.cumulus_switch.description}}"
       }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
-      "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
       - result.statuscode ShouldEqual 201
 
@@ -239,7 +235,6 @@ testcases:
         "registrationUrl": null,
         "registrationVlan": null,
         "ssid_trigger": null,
-        "TenantId": "{{.global_config_multi_tenant.tenant.id}}",
         "type": "Hostapd_template",
         "uplink": null,
         "uplink_dynamic": null,
@@ -263,7 +258,6 @@ testcases:
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
-      "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
       - result.statuscode ShouldEqual 201
 
@@ -277,12 +271,10 @@ testcases:
       {
         "id": "{{.wireless_switch.id2}}",
         "group": "{{.wireless_switch_group.id}}",
-        "TenantId": "{{.global_config_multi_tenant.tenant.id}}",
         "description": "{{.wireless_switch.description}}"
       }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
-      "X-PacketFence-Tenant-Id": "{{.global_config_multi_tenant.global_tenant.id}}"
     assertions:
       - result.statuscode ShouldEqual 201

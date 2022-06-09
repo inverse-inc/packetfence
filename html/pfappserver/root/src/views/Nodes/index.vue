@@ -16,7 +16,6 @@ const components = {
 }
 
 import { computed, onMounted, ref } from '@vue/composition-api'
-import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import network from '@/utils/network'
 const setup = (props, context) => {
@@ -58,7 +57,6 @@ const setup = (props, context) => {
     },
     {
       name: i18n.t('Switch Groups'),
-      can: 'master tenant',
       collapsable: true,
       loading: isLoadingSwitchGroups.value,
       items: switchGroupsMembers.value.map(switchGroup => {
@@ -92,19 +90,17 @@ const setup = (props, context) => {
   ]))
 
   onMounted(() => {
-    if (acl.$can('master', 'tenant')) {
-      $store.dispatch('config/getSwitches').then(switches => {
-        switchGroupsMembers.value = switches.reduce((groups, switche) => {
-          const { group = 'Default', id, description } = switche
-          const groupIndex = groups.findIndex(g => g.id === group)
-          if (groupIndex > -1)
-            groups[groupIndex].members.push({ id, description })
-          else
-            groups.push({ id: group, members: [{ id, description }] })
-          return groups
-        }, [])
-      })
-    }
+    $store.dispatch('config/getSwitches').then(switches => {
+      switchGroupsMembers.value = switches.reduce((groups, switche) => {
+        const { group = 'Default', id, description } = switche
+        const groupIndex = groups.findIndex(g => g.id === group)
+        if (groupIndex > -1)
+          groups[groupIndex].members.push({ id, description })
+        else
+          groups.push({ id: group, members: [{ id, description }] })
+        return groups
+      }, [])
+    })
   })
 
   return {

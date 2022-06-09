@@ -28,7 +28,6 @@ use pf::error qw(is_success is_error);
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
-use pf::config::tenant;
 use pf::dal::locationlog;
 use pf::client;
 use pf::constants::node qw(
@@ -172,7 +171,7 @@ sub _can_delete {
 #
 sub node_delete {
     my $timer = pf::StatsD::Timer->new({level => 6});
-    my ($mac, $tenant_id) = @_;
+    my ($mac) = @_;
     my $logger = get_logger();
 
     $mac = clean_mac($mac);
@@ -193,10 +192,6 @@ sub node_delete {
             mac => $mac,
         }
     );
-    if (defined $tenant_id) {
-        $options{-where}{tenant_id} = $tenant_id;
-        $options{-no_auto_tenant_id} = 1;
-    }
 
     my ($status, $count) = pf::dal::node->remove_items(%options);
     if (is_error($status)) {
@@ -764,7 +759,6 @@ called by pfcron daemon for the configured interval
 sub nodes_maintenance {
     my $timer = pf::StatsD::Timer->new;
     my $logger = get_logger();
-    local $pf::config::tenant::CURRENT_TENANT = $pf::config::tenant::CURRENT_TENANT;
 
     $logger->debug("nodes_maintenance called");
     my ( $status, $iter ) = pf::dal::node->search(
@@ -772,8 +766,7 @@ sub nodes_maintenance {
             status    => { "!=" => "unreg" },
             unregdate => [-and => { "!=" => $ZERO_DATE }, { "<"  => \['NOW()'] } ]
         },
-        -columns => ['mac', 'tenant_id'],
-        -no_auto_tenant_id => 1,
+        -columns => ['mac'],
         -with_class => undef,
     );
     if (is_error($status)) {
@@ -782,7 +775,6 @@ sub nodes_maintenance {
 
     while (my $row = $iter->next()) {
         my $currentMac = $row->{mac};
-        pf::dal->set_tenant($row->{tenant_id});
 
         my $apiclient = pf::client::getClient;
         my %security_event = (
@@ -842,8 +834,7 @@ sub node_expire_lastseen {
                 \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
             ]
         },
-        -columns => ['mac', 'tenant_id'],
-        -no_auto_tenant_id => 1,
+        -columns => ['mac'],
     );
     if (is_error($status)) {
         return;
@@ -867,8 +858,7 @@ sub node_unreg_lastseen {
                 \['unix_timestamp(last_seen) < (unix_timestamp(now()) - ?)', $time],
             ]
         },
-        -columns => ['mac', 'tenant_id'],
-        -no_auto_tenant_id => 1,
+        -columns => ['mac'],
     );
     if (is_error($status)) {
         return;
@@ -891,7 +881,6 @@ sub node_cleanup {
     if ($delete_time ne "0") {
         foreach my $row ( node_expire_lastseen($delete_time) ) {
             my $mac = $row->{'mac'};
-            my $tenant_id = $row->{'tenant_id'};
             my $voip = $row->{'voip'};
             if (isdisabled($include_voip) && defined $voip && $row->{'voip'} eq $VOIP) {
                 next;
@@ -899,25 +888,22 @@ sub node_cleanup {
 
             $logger->info("mac $mac not seen for $delete_time seconds, deleting");
             require pf::locationlog;
-            pf::locationlog::locationlog_update_end_mac($mac, $tenant_id);
-            node_delete($mac, $tenant_id);
+            pf::locationlog::locationlog_update_end_mac($mac);
+            node_delete($mac);
         }
     } else {
         $logger->debug("Not deleting because the window is 0");
     }
 
     if ($unreg_time ne "0") {
-        local $pf::dal::CURRENT_TENANT = $pf::dal::CURRENT_TENANT;
         foreach my $row ( node_unreg_lastseen($unreg_time) ) {
             my $mac = $row->{'mac'};
-            my $tenant_id = $row->{'tenant_id'};
             my $voip = $row->{'voip'};
             if (isdisabled($include_voip) && defined $voip && $row->{'voip'} eq $VOIP) {
                 next;
             }
 
             $logger->info("mac $mac not seen for $unreg_time seconds, unregistering");
-            pf::dal->set_tenant($tenant_id);
             node_deregister($mac);
             # not reevaluating access since the node is be inactive
         }

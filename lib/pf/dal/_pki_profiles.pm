@@ -63,6 +63,14 @@ BEGIN {
         scep_enabled
         scep_challenge_password
         scep_days_before_renewal
+        days_before_renewal
+        renewal_mail
+        days_before_renewal_mail
+        renewal_mail_subject
+        renewal_mail_from
+        renewal_mail_header
+        renewal_mail_footer
+        revoked_valid_until
         cloud_enabled
         cloud_service
     );
@@ -96,7 +104,15 @@ BEGIN {
         p12_mail_footer => undef,
         scep_enabled => undef,
         scep_challenge_password => undef,
-        scep_days_before_renewal => undef,
+        scep_days_before_renewal => '14',
+        days_before_renewal => '14',
+        renewal_mail => '1',
+        days_before_renewal_mail => '14',
+        renewal_mail_subject => 'Certificate expiration',
+        renewal_mail_from => undef,
+        renewal_mail_header => undef,
+        renewal_mail_footer => undef,
+        revoked_valid_until => '14',
         cloud_enabled => undef,
         cloud_service => undef,
     );
@@ -131,6 +147,14 @@ BEGIN {
         scep_enabled
         scep_challenge_password
         scep_days_before_renewal
+        days_before_renewal
+        renewal_mail
+        days_before_renewal_mail
+        renewal_mail_subject
+        renewal_mail_from
+        renewal_mail_header
+        renewal_mail_footer
+        revoked_valid_until
         cloud_enabled
         cloud_service
     );
@@ -143,19 +167,19 @@ BEGIN {
             is_nullable => 0,
         },
         created_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         updated_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         deleted_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -316,6 +340,54 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        days_before_renewal => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        renewal_mail => {
+            type => 'INT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        days_before_renewal_mail => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        renewal_mail_subject => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        renewal_mail_from => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        renewal_mail_header => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        renewal_mail_footer => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        revoked_valid_until => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         cloud_enabled => {
             type => 'INT',
             is_auto_increment => 0,
@@ -365,6 +437,14 @@ BEGIN {
         pki_profiles.scep_enabled
         pki_profiles.scep_challenge_password
         pki_profiles.scep_days_before_renewal
+        pki_profiles.days_before_renewal
+        pki_profiles.renewal_mail
+        pki_profiles.days_before_renewal_mail
+        pki_profiles.renewal_mail_subject
+        pki_profiles.renewal_mail_from
+        pki_profiles.renewal_mail_header
+        pki_profiles.renewal_mail_footer
+        pki_profiles.revoked_valid_until
         pki_profiles.cloud_enabled
         pki_profiles.cloud_service
     );

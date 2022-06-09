@@ -1649,14 +1649,14 @@ sub expand_ordered_array {
 sub make_node_id {
     my ($tenant_id, $mac) = @_;
     $mac =~ tr/://d; #A faster way to delete a character
-    return ($tenant_id << 48) | hex($mac);
+    return (0 << 48) | hex($mac);
 }
 
 sub split_node_id {
     my ($node_id) = @_;
     my $tenant_id = $node_id >> 48;
     my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
-    return ($tenant_id, $mac);
+    return (0, $mac);
 }
 
 =item os_detection -  check the os system

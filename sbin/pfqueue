@@ -310,7 +310,6 @@ sub _run_task {
     while (worker_should_run()) {
         $consumer = get_consumer($id) unless $consumer;
         pf::CHI::Request::clear_all();
-        pf::dal->reset_tenant();
         pf::log::reset_log_context();
         refresh_last_touch_cache();
         eval {

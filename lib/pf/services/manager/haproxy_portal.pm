@@ -228,7 +228,6 @@ EOT
     # Add any activation domain in the authentication sources
     push @portal_hosts, map { $_->{activation_domain} ? $_->{activation_domain} : () } @{getAllAuthenticationSources()};
     push @portal_hosts, @{$Config{captive_portal}->{other_domain_names}};
-    push @portal_hosts, map {$_->portal_domain_name ? $_->portal_domain_name : ()} @{pf::dal::tenant->search->all};
     push @portal_hosts, map { $NetworkConfig{$_}->{portal_fqdn} ? $NetworkConfig{$_}->{portal_fqdn} : () } keys %NetworkConfig;
 
     # Escape special chars for lua matches

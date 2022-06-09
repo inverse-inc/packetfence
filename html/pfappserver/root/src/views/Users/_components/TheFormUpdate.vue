@@ -453,10 +453,8 @@ const setup = (props, context) => {
 
   const onResetPassword = () => {
     const { password, login_remaining } = form.value
-    const { id: tenant_id } = $store.state.session.tenant
     const data = {
       pid: pid.value,
-      tenant_id,
       password,
       login_remaining
     }

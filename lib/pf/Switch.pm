@@ -167,7 +167,6 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
-        '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3661,18 +3660,6 @@ sub isMacInAddressTableAtIfIndex {
     $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
 
     return 0;
-}
-
-=item setCurrentTenant
-
-Set the current tenant in the DAL based on the tenant ID configured in the switch
-
-=cut
-
-sub setCurrentTenant {
-    my ($self, $radius_request) = @_;
-    my $tenant_id = $radius_request->{"PacketFence-Tenant-Id"} // $self->{_TenantId};
-    pf::dal->set_tenant($tenant_id);
 }
 
 =head2 getCiscoAvPairAttribute

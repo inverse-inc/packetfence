@@ -86,14 +86,12 @@ export const single = (props, form) => {
   )
 }
 
-export const multiple = (props, form, domainName) => {
+export const multiple = (props, form) => {
   const {
     quantity
   } = form || {}
 
-  const maxLength = (domainName)
-    ? mysqlDatabase.pid.maxLength - Math.floor(Math.log10(quantity || 1) + 1) - `@${domainName}`.length
-    : mysqlDatabase.pid.maxLength - Math.floor(Math.log10(quantity || 1) + 1)
+  const maxLength = mysqlDatabase.pid.maxLength - Math.floor(Math.log10(quantity || 1) + 1)
 
   return yup.object().shape(mysqlDatabaseSchema).concat(
     yup.object().shape({

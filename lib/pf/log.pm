@@ -18,7 +18,6 @@ use Log::Log4perl;
 use Log::Log4perl::Level;
 use Log::Log4perl::Layout::PatternLayout;
 use pf::file_paths qw($log_conf_dir $log_config_file);
-use pf::config::tenant;
 use pf::log::trapper;
 use File::Basename qw(basename);
 use Carp;
@@ -33,8 +32,6 @@ Log::Log4perl::Layout::PatternLayout::add_global_cspec('Z', sub {
     my $number = $Log::Log4perl::Level::SYSLOG{$priority};
     return "<$number>";
 });
-
-Log::Log4perl::Layout::PatternLayout::add_global_cspec('Y', \&pf::config::tenant::get_tenant );
 
 sub import {
     my ($self,%args) = @_;

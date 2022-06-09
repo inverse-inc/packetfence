@@ -19,15 +19,6 @@ export const useItemTitle = (props) => {
   })
 }
 
-export const useItemTitleBadge = (props, context) => {
-  const {
-    tenantId
-  } = toRefs(props)
-  const { root: { $store } = {} } = context
-  const { name: tenantName } = $store.state.session.tenants.find(tenant => +tenant.id === +tenantId.value)
-  return tenantName
-}
-
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
@@ -49,7 +40,6 @@ export const useSearch = makeSearch('realms', {
       label: 'Name', // i18n defer
       required: true,
       searchable: true,
-      sortable: true,
       visible: true
     },
     {
@@ -68,7 +58,6 @@ export const useSearch = makeSearch('realms', {
       key: 'domain',
       label: 'Domain', // i18n defer
       searchable: true,
-      sortable: true,
       visible: true
     },
     {
@@ -86,19 +75,16 @@ export const useSearch = makeSearch('realms', {
     {
       key: 'portal_strip_username',
       label: 'Strip Portal', // i18n defer
-      sortable: true,
       visible: true
     },
     {
       key: 'admin_strip_username',
       label: 'Strip Admin', // i18n defer
-      sortable: true,
       visible: true
     },
     {
       key: 'radius_strip_username',
       label: 'Strip RADIUS', // i18n defer
-      sortable: true,
       visible: true
     },
     {

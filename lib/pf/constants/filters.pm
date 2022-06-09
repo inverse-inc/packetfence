@@ -138,7 +138,6 @@ our @SWITCH_FIELDS = qw(
   switch._SNMPUserNameWrite
   switch._SNMPVersion
   switch._SNMPVersionTrap
-  switch._TenantId
   switch._UrlMap
   switch._VlanMap
   switch._VoIPEnabled

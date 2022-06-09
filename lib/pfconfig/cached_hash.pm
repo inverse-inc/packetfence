@@ -48,7 +48,6 @@ use IO::Socket::UNIX qw( SOCK_STREAM );
 use JSON::MaybeXS;
 use List::MoreUtils qw(first_index);
 use pf::log;
-use pf::config::tenant;
 use pfconfig::cached;
 our @ISA = ( 'Tie::StdHash', 'pfconfig::cached' );
 
@@ -63,7 +62,6 @@ sub TIEHASH {
     my $self = bless {}, $class;
     $self->init();
     $self->set_namespace($config);
-    $self->{"_scoped_by_tenant_id"} = $extra{tenant_id_scoped};
     $self->{"_control_file_path"} = pfconfig::util::control_file_path($self->{_namespace});
     $self->{element_socket_method} = "hash_element";
     return $self;
@@ -86,12 +84,7 @@ sub FETCH {
         return undef;
     }
 
-    if ($self->{_scoped_by_tenant_id}) {
-        my $tenant_id = pf::config::tenant::get_tenant();
-        if( defined $self->{_internal_elements}{$tenant_id}{$key}) {
-            return  $self->{_internal_elements}{$tenant_id}{$key}
-        }
-    } elsif (defined( $self->{_internal_elements}{$key} )) {
+    if (defined( $self->{_internal_elements}{$key} )) {
         return $self->{_internal_elements}{$key};
     }
 
@@ -165,12 +158,7 @@ Stores it without any saving capability
 sub STORE {
     my ( $self, $key, $value ) = @_;
     my $logger = $self->logger;
-    if ($self->{_scoped_by_tenant_id}) {
-        my $tenant_id = pf::config::tenant::get_tenant();
-        $self->{_internal_elements}{$tenant_id}{$key} = $value;
-    } else {
-        $self->{_internal_elements}{$key} = $value;
-    }
+    $self->{_internal_elements}{$key} = $value;
 }
 
 =head2 STORE

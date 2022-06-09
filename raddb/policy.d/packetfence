@@ -6,7 +6,6 @@ mac-addr-regexp = '([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^
 # If this fails, the mschap module will try to authenticate using ntlm_auth.
 
 packetfence-local-auth { 
-    packetfence-set-tenant-id
     # Disable ntlm_auth
     update control {
         &MS-CHAP-Use-NTLM-Auth := No
@@ -42,32 +41,6 @@ packetfence-set-realm-if-machine {
     }
 }
 
-#Update the PacketFence-Tenant-Id defaulting to the default tenant_id
-packetfence-set-tenant-id {
-    if(!NAS-IP-Address || NAS-IP-Address == "0.0.0.0"){
-        update request {
-            NAS-IP-Address := "%{Packet-Src-IP-Address}"
-        }
-    }
-    if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
-        if("%{request:Called-Station-Id}" =~ /^([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})[^0-9a-f]?([0-9a-f]{2})/i) {
-            update control {
-                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{tolower:%{1}:%{2}:%{3}:%{4}:%{5}:%{6}}'), 0)}"
-            }
-        }
-        if ( "%{%{control:PacketFence-Tenant-Id}:-0}" == "0") {
-            update control {
-                &PacketFence-Tenant-Id = "%{sql: SELECT IFNULL((SELECT tenant_id FROM radius_nas WHERE nasname = '%{NAS-IP-Address}'), 0)}"
-            }
-        }
-    }
-
-    if ( &control:PacketFence-Tenant-Id == 0 ) {
-        update control {
-            &PacketFence-Tenant-Id := "%{sql: SELECT IFNULL((SELECT tenant_id from radius_nas WHERE start_ip <= INET_ATON('%{NAS-IP-Address}') and INET_ATON('%{NAS-IP-Address}') <= end_ip order by range_length limit 1), 1)}"
-        }
-    }
-}
 ### END Local SQL authentication
 packetfence-switch-access { 
     if ( \
@@ -241,7 +214,6 @@ packetfence-nas-ip-address {
 }
 
 packetfence-degraded-auth {
-    packetfence-set-tenant-id
     # Disable ntlm_auth
     update control {
         &MS-CHAP-Use-NTLM-Auth := No

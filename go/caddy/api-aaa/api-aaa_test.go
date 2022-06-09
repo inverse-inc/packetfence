@@ -68,10 +68,6 @@ func TestApiAAATokenInfo(t *testing.T) {
 	err := json.Unmarshal(b, &respMap)
 	sharedutils.CheckError(err)
 
-	if respMap.Item.Tenant.Id != tokenInfo.Tenant.Id {
-		t.Error("Tenant ID is not the same in the token info response as it is in the backend")
-	}
-
 	for _, r := range respMap.Item.AdminRoles {
 		if _, ok := tokenInfo.AdminRoles[r]; !ok {
 			t.Errorf("Missing admin role %s in token info response", r)

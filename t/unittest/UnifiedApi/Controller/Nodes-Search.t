@@ -59,7 +59,6 @@ my $status = pf::dal::bandwidth_accounting->create({
     in_bytes => 100,
     out_bytes => 100,
     mac => $mac2,
-    tenant_id => 1,
 });
 
 $status = pf::dal::bandwidth_accounting->create({
@@ -70,7 +69,6 @@ $status = pf::dal::bandwidth_accounting->create({
     in_bytes => 100,
     out_bytes => 100,
     mac => $mac3,
-    tenant_id => 1,
     last_updated => '0000-00-00 00:00:00',
 });
 

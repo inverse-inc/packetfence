@@ -140,7 +140,7 @@ const setup = (props, context) => {
 
   const rootRef = ref(null)
   const form = ref({ ...defaults }) // dereferenced
-  const schema = computed(() => schemaFn(props, form.value, domainName.value))
+  const schema = computed(() => schemaFn(props, form.value))
   const isLoading = computed(() => $store.getters['$_users/isLoading'])
 
   const isValid = useDebouncedWatchHandler(
@@ -152,11 +152,6 @@ const setup = (props, context) => {
         .length === 0
     )
   )
-
-  const domainName = computed(() => {
-    const { domain_name = null } = $store.getters['session/tenantMask'] || {}
-    return domain_name
-  })
 
   const onClose = () => {
     $router.push({ name: 'users' })
@@ -176,9 +171,7 @@ const setup = (props, context) => {
     for (let i = 0; i < base.quantity; i++) {
       let _form = {
         ...base,
-        pid: (domainName.value) // has tenant?
-          ? `${base.prefix}${(i + 1)}@${domainName.value}`  // append domainName to pid
-          : `${base.prefix}${(i + 1)}`,
+        pid: `${base.prefix}${(i + 1)}`,
         password: password.generate(passwordOptions.value)
       }
       promises.push($store.dispatch('$_users/exists', _form.pid).then(() => {
@@ -221,7 +214,6 @@ const setup = (props, context) => {
     schema,
     isLoading,
     isValid,
-    domainName,
     onClose,
     onCreate,
     onReset,

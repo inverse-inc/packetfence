@@ -30,7 +30,7 @@ my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
 my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 
 #This is the first test
-$t->options_ok("/api/v1/tenants")
+$t->options_ok("/api/v1/dns_audit_logs")
   ->status_is(200)
   ->json_is(
     {
@@ -41,24 +41,33 @@ $t->options_ok("/api/v1/tenants")
                 default => undef,
                 required => $false,
             },
-            name => {
+            created_at => {
                 type => "string",
                 placeholder => undef,
                 default => undef,
                 required => $true,
             },
-            portal_domain_name => {
+            ip => {
                 type => "string",
                 placeholder => undef,
                 default => undef,
-                required => $false,
+                required => $true,
             },
-            domain_name => {
+            mac => {
                 type => "string",
                 placeholder => undef,
                 default => undef,
-                required => $false,
+                required => $true,
             },
+            ( map {
+                $_ => {
+                    type => "string",
+                    placeholder => undef,
+                    default => undef,
+                    required => $false,
+                },
+                } qw(qname qtype scope answer)
+            )
         },
         status => 200
     }

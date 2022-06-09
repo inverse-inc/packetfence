@@ -24,9 +24,6 @@ use warnings;
 
 use base qw(pf::dal);
 
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -42,7 +39,6 @@ BEGIN {
         out_bytes
         total_bytes
         mac
-        tenant_id
     );
 
     %DEFAULTS = (
@@ -52,7 +48,6 @@ BEGIN {
         out_bytes => '',
         total_bytes => undef,
         mac => '',
-        tenant_id => '',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -61,7 +56,6 @@ BEGIN {
         in_bytes
         out_bytes
         mac
-        tenant_id
     );
 
     %FIELDS_META = (
@@ -101,12 +95,6 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        tenant_id => {
-            type => 'SMALLINT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
-        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -121,7 +109,6 @@ BEGIN {
         bandwidth_accounting_history.out_bytes
         bandwidth_accounting_history.total_bytes
         bandwidth_accounting_history.mac
-        bandwidth_accounting_history.tenant_id
     );
 
 }

@@ -11,7 +11,6 @@ import (
 func TestLogAdd(t *testing.T) {
 	db := getGormDB(t)
 	log := AdminApiAuditLog{
-		TenantId: 1,
 		Method:   "POST",
 		Status:   200,
 	}

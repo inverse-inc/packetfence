@@ -14,13 +14,6 @@ export const useSearch = makeSearch('nodes', {
       locked: true
     },
     {
-      key: 'tenant_id',
-      label: 'Tenant', // i18n defer
-      searchable: false,
-      sortable: true,
-      formatter: formatter.tenantId
-    },
-    {
       key: 'status',
       label: 'Status', // i18n defer
       sortable: true,
@@ -317,12 +310,6 @@ export const useSearch = makeSearch('nodes', {
     }
   ],
   fields: [
-    {
-      value: 'tenant_id',
-      text: 'Tenant', // i18n defer
-      types: [conditionType.TENANT],
-      icon: 'layer-group'
-    },
     {
       value: 'status',
       text: 'Status', // i18n defer

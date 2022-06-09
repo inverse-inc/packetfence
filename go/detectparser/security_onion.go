@@ -42,7 +42,6 @@ func (s *SecurityOnionParser) Parse(line string) ([]ApiCall, error) {
 					"detect":         matches2[6],
 				},
 			},
-			TenantID: s.TenantID,
 		},
 	}, nil
 }

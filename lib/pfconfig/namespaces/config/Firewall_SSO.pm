@@ -35,7 +35,6 @@ sub build_child {
     while ( my ($key, $item) = each %tmp_cfg ) {
         $self->cleanup_after_read( $key, $item);
         $item->{networks} = [map { pfconfig::objects::NetAddr::IP->new($_) // () } @{$item->{networks}}];
-        $item->{tenant_id} += 0;
     }
 
     $self->roleReverseLookup(\%tmp_cfg, 'firewall_sso', qw(categories));

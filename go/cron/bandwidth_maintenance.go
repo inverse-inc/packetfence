@@ -96,25 +96,24 @@ BEGIN NOT ATOMIC
      node INNER JOIN
         (
             SELECT
-                tenant_id, mac, SUM(total_bytes) AS total_bytes
+                mac, SUM(total_bytes) AS total_bytes
                 FROM (
-                    SELECT node_id, tenant_id, mac, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                    SELECT node_id, mac, total_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
                 ) AS to_process_bandwidth_accounting_netflow GROUP BY node_id
         ) AS summarization
         SET node.bandwidth_balance = GREATEST(node.bandwidth_balance - total_bytes, 0)
         WHERE node.bandwidth_balance IS NOT NULL;
 
     INSERT INTO bandwidth_accounting_history
-    (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
+    (node_id, mac, time_bucket, in_bytes, out_bytes)
      SELECT
          node_id,
-         tenant_id,
          mac,
          new_time_bucket,
          sum(in_bytes) AS in_bytes,
          sum(out_bytes) AS out_bytes
         FROM (
-            SELECT node_id, tenant_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+            SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "net_flow" AND time_bucket < @end_bucket ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
         ) AS to_process_bandwidth_accounting_netflow
         GROUP BY node_id, new_time_bucket
         ON DUPLICATE KEY UPDATE
@@ -146,7 +145,7 @@ END;
 }
 
 func (j *BandwidthMaintenance) TriggerBandwidth(ctx context.Context) {
-	j.ClientApi.Call(ctx, "bandwidth_trigger", map[string]interface{}{}, 1)
+	j.ClientApi.Call(ctx, "bandwidth_trigger", map[string]interface{}{})
 }
 
 func (j *BandwidthMaintenance) BandwidthAggregation(ctx context.Context, rounding_func, unit string, interval int) {
@@ -162,11 +161,10 @@ BEGIN NOT ATOMIC
     SET @end_bucket = DATE_SUB(?, INTERVAL ? %s);
     START TRANSACTION;
     INSERT INTO bandwidth_accounting
-    (node_id, unique_session_id, tenant_id, mac, time_bucket, in_bytes, out_bytes, last_updated, source_type)
+    (node_id, unique_session_id, mac, time_bucket, in_bytes, out_bytes, last_updated, source_type)
      SELECT
          node_id,
          unique_session_id,
-         tenant_id,
          mac,
          new_time_bucket,
          sum(in_bytes) AS in_bytes,
@@ -177,7 +175,6 @@ BEGIN NOT ATOMIC
             SELECT
                 node_id,
                 unique_session_id,
-                tenant_id,
                 mac,
                 %s(time_bucket) as new_time_bucket,
                 in_bytes,
@@ -243,16 +240,15 @@ END;
     SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);
     START TRANSACTION;
 INSERT INTO bandwidth_accounting_history
-    (node_id, tenant_id, mac, time_bucket, in_bytes, out_bytes)
+    (node_id, mac, time_bucket, in_bytes, out_bytes)
      SELECT
          node_id,
-         tenant_id,
          mac,
          new_time_bucket,
          sum(in_bytes) AS in_bytes,
          sum(out_bytes) AS out_bytes
         FROM (
-            SELECT node_id, tenant_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE ) as to_delete_bandwidth_accounting_radius_to_history
+            SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE ) as to_delete_bandwidth_accounting_radius_to_history
         GROUP BY node_id, new_time_bucket
         HAVING SUM(in_bytes) != 0 OR sum(out_bytes) != 0
         ON DUPLICATE KEY UPDATE
@@ -296,16 +292,15 @@ BEGIN NOT ATOMIC
     SET @end_bucket = DATE_SUB(?, INTERVAL ? %s);
     START TRANSACTION;
     INSERT INTO bandwidth_accounting_history
-    (node_id, time_bucket, tenant_id, mac, in_bytes, out_bytes)
+    (node_id, time_bucket, mac, in_bytes, out_bytes)
      SELECT
          node_id,
          new_time_bucket,
-         tenant_id,
          mac,
          sum(in_bytes) AS in_bytes,
          sum(out_bytes) AS out_bytes
         FROM (
-        SELECT node_id, %s(time_bucket) as new_time_bucket, tenant_id, mac, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= @end_bucket AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history
+        SELECT node_id, %s(time_bucket) as new_time_bucket, mac, in_bytes, out_bytes FROM bandwidth_accounting_history WHERE time_bucket <= @end_bucket AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history
         GROUP BY node_id, new_time_bucket
         ON DUPLICATE KEY UPDATE
             in_bytes = in_bytes + VALUES(in_bytes),

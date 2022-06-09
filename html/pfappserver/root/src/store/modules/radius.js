@@ -71,8 +71,8 @@ const mutations = {
       state.message = message
     }
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

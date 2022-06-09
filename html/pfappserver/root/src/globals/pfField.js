@@ -56,7 +56,6 @@ export const pfFieldType = {
   SSID:                                'ssid',
   SWITCHE:                             'switche',
   SWITCH_GROUP:                        'switch_group',
-  TENANT:                              'tenant',
   TIME:                                'time',
   TIME_PERIOD:                         'time_period'
 }
@@ -99,7 +98,6 @@ export const pfFieldTypeComponent = {
   [pfFieldType.SSID]:                  pfComponentType.SELECTONE,
   [pfFieldType.SWITCHE]:               pfComponentType.SELECTONE,
   [pfFieldType.SWITCH_GROUP]:          pfComponentType.SELECTONE,
-  [pfFieldType.TENANT]:                pfComponentType.SELECTONE,
   [pfFieldType.TIME]:                  pfComponentType.TIME,
   [pfFieldType.TIME_BALANCE]:          pfComponentType.SELECTONE,
   [pfFieldType.TIME_PERIOD]:           pfComponentType.SUBSTRING,
@@ -284,7 +282,7 @@ export const pfFieldTypeValues = {
   },
 
   [pfFieldType.REALM]: () =>
-    store.dispatch('config/getRealms', store.getters['session/tenantIdMask']).then(() => store.getters['config/realmsList']),
+    store.dispatch('config/getRealms').then(() => store.getters['config/realmsList']),
 
   [pfFieldType.ROLE]: () =>
     store.dispatch('config/getRoles').then(items => [
@@ -321,9 +319,6 @@ export const pfFieldTypeValues = {
 
   [pfFieldType.SWITCH_GROUP]: () =>
     store.dispatch('config/getSwitchGroups').then(() => store.getters['config/switchGroupsList']),
-
-  [pfFieldType.TENANT]: () =>
-    store.dispatch('config/getTenants').then(() => store.getters['config/tenantsList']),
 
   [pfFieldType.TIME_BALANCE]: () =>
     [
