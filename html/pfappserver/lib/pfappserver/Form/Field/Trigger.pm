@@ -117,7 +117,7 @@ for my $trigger (@SUGGESTED_VALUES) {
         has_field $trigger => (
             type => 'SelectSuggested',
             options_method => sub {
-                return map { { label => $_, value => $_ } } keys %$value;
+                return map { { label => $value->{$_}, value => $_ } } keys %$value;
             },
             localize_labels => ($trigger eq $TRIGGER_TYPE_INTERNAL ? 1 : undef),
         );
