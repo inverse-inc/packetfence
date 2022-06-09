@@ -40,6 +40,7 @@ our @EXPORT_OK = qw(
 Readonly::Scalar our $TRIGGER_TYPE_ACCOUNTING => 'accounting';
 Readonly::Scalar our $TRIGGER_TYPE_CUSTOM => 'custom';
 Readonly::Scalar our $TRIGGER_TYPE_DETECT => 'detect';
+Readonly::Scalar our $TRIGGER_TYPE_FINGERBANK => 'fingerbank';
 Readonly::Scalar our $TRIGGER_TYPE_INTERNAL => 'internal';
 Readonly::Scalar our $TRIGGER_TYPE_MAC => 'mac';
 Readonly::Scalar our $TRIGGER_TYPE_NESSUS => 'nessus';
@@ -84,9 +85,9 @@ our $TRIGGER_MAP = {
     "new_dhcp_info_from_production_network" => "DHCP packet received from production network",
     "node_maintenance" => "Node maintenance",
     "fingerbank_diff_score_too_low" => "Fingerbank Collector detected a network behavior that doesn't match the known profile",
-    "fingerbank_blacklisted_domain_names_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
-    "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs",
-    "fingerbank_blacklisted_ports" => "Fingerbank Collector detected traffic to blacklisted ports",
+    "fingerbank_blacklisted_domain_names_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted domain names that exceeds the threshold",
+    "fingerbank_blacklisted_ips_threshold_too_high" => "Fingerbank Collector detected traffic to blacklisted IPs that exceeds the threshold",
+    "fingerbank_blacklisted_ports" => "Fingerbank Collector detected traffic to blacklisted ports that exceeds the threshold",
   },
   $TRIGGER_TYPE_PROVISIONER => {
     $TRIGGER_ID_PROVISIONER => "Check status",
@@ -95,6 +96,10 @@ our $TRIGGER_MAP = {
   $TRIGGER_TYPE_NEXPOSE_EVENT_STARTS_WITH => $NEXPOSE_CATEGORIES,
   $TRIGGER_TYPE_SWITCH => \%ConfigSwitchesList,
   $TRIGGER_TYPE_SWITCH_GROUP => \%ConfigSwitchesGroup,
+  $TRIGGER_TYPE_FINGERBANK => {
+    "blacklisted_ip_detected" => "Fingerbank Collector detected a communication to a blacklisted IP",
+    "blacklisted_domain_name_detected" => "Fingerbank Collector detected a communication to a blacklisted domain name",
+  },
 };
 
 =head1 AUTHOR

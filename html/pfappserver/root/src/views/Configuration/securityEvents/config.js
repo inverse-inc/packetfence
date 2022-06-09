@@ -56,6 +56,11 @@ export const triggerFields = {
     category: triggerCategories.PROFILING,
     types: [fieldType.OPTIONS]
   },
+  fingerbank: {
+    text: i18n.t('Fingerbank'),
+    category: triggerCategories.EVENT,
+    types: [fieldType.OPTIONS]
+  },
   internal: {
     text: i18n.t('Internal'),
     category: triggerCategories.EVENT,
