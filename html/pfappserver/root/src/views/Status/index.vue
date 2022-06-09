@@ -37,6 +37,12 @@ const setup = (props, context) => {
       name: i18n.t('Network Communication'),
       path: '/status/network_communication',
       saveSearchNamespace: 'networkCommunication',
+      can: 'read nodes',
+    },
+    {
+      name: i18n.t('Network Threats'),
+      path: '/status/network_threats',
+      saveSearchNamespace: 'networkThreats',
       can: 'read nodes'
     },
     {

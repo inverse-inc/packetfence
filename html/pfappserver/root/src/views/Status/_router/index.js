@@ -9,6 +9,7 @@ import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
 import NetworkCommunicationRoutes from '../network_communication/_router'
 import NetworkRoutes from '../network/_router'
+import NetworkThreatsRoutes from '../network_threats/_router'
 import ServicesRoutes from '../services/_router'
 
 const route = {
@@ -34,6 +35,7 @@ const route = {
     ...QueueRoutes,
     ...NetworkCommunicationRoutes,
     ...NetworkRoutes,
+    ...NetworkThreatsRoutes,
     ...ServicesRoutes,
   ]
 }
