@@ -159,6 +159,13 @@ has_field 'blacklisted_domain_names_window' => (
    },
 );
 
+has_field 'blacklisted_domain_names_threshold' =>
+  (
+   type => 'PosInteger',
+   default => 1,
+   required => 1,
+  );
+
 has_block definition =>
   (
    render_list => [ qw(id description devices_included devices_excluded watch_blacklisted_ips whitelisted_ips blacklisted_ip_hosts_window blacklisted_ip_hosts_threshold watched_device_attributes device_attributes_diff_score) ],

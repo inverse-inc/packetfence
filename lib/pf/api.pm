@@ -1352,9 +1352,24 @@ sub fingerbank_nba_webhook :Public :RestPath(/fingerbank/nba/webhook){
 
     my $mac = pf::util::clean_mac($args->{mac});
     for my $event (@{$args->{data}->{events}}) {
-        my $notes = "\nTriggered via Network Anomaly Detection policy '$args->{data}->{policy}'\n";
-        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event), 'type' => "internal", "notes" => $notes } );
-        pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event)."_".$args->{data}->{policy}, 'type' => "internal", "notes" => $notes } );
+        if($event->{type} eq "1") {
+            my $notes = "\nPolicy ID: $event->{policy_id}\n";
+            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event->{event_id}), 'type' => "internal", "notes" => $notes } );
+            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => "fingerbank_".lc($event->{event_id})."_".$event->{policy_id}, 'type' => "internal", "notes" => $notes } );
+        }
+        elsif($event->{type} eq "2") {
+            my $notes = "\n";
+            if($event->{policy_id}) {
+                $notes .= "Policy ID: $event->{policy_id}\n";
+            }
+            if($event->{peer}) {
+                $notes .= "Peer: $event->{peer}\n";
+            }
+            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => $event->{event_id}, 'type' => "fingerbank", "notes" => $notes } );
+        }
+        else {
+            $logger->error("Unknown event type received");
+        }
     }
     return "ok";
 }

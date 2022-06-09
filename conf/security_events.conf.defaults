@@ -284,9 +284,26 @@ enabled=Y
 [1300008]
 trigger=internal::fingerbank_blacklisted_ips_threshold_too_high,internal::fingerbank_blacklisted_ports
 actions=email_admin
-desc=Fingerbank detected blacklisted communication
+desc=Fingerbank detected blacklisted communication over the policy threshold
 enabled=Y
 
+[1300009]
+desc=Fingerbank detected communication to a blacklisted IP
+access_duration=12h
+enabled=Y
+trigger=fingerbank::blacklisted_ip_detected
+window=dynamic
+actions=
+grace=0
+
+[1300010]
+desc=Fingerbank detected communication to a blacklisted domain name
+access_duration=12h
+enabled=Y
+trigger=fingerbank::blacklisted_domain_name_detected
+window=dynamic
+actions=
+grace=0
 #
 # 1400000 - 1499999 Reserved for local security events
 #

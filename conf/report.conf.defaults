@@ -1346,7 +1346,7 @@ role_fields=role
 type=abstract
 description=List of closed security events on the network
 base_table=security_event
-columns=security_event.release_date "Release date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+columns=security_event.release_date "Release date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role", security_event.notes "Notes"
 joins= <<EOT
 =>{class.security_event_id=security_event.security_event_id} class|class
 =>{security_event.mac=node.mac} node|node
@@ -1362,7 +1362,7 @@ charts=scatter|Release date
 type=abstract
 description=List of open security events on the network
 base_table=security_event
-columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role"
+columns=security_event.start_date "Event date", class.description "Security Event Name", node.status "Node status", node.mac "MAC Address", node.computername "Computer Name", node.pid "Owner", node.device_class "Device Class", node_category.name "Role", security_event.notes "Notes"
 joins= <<EOT
 =>{class.security_event_id=security_event.security_event_id} class|class
 =>{security_event.mac=node.mac} node|node
