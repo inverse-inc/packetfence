@@ -35,6 +35,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Clone switch template with correct ID (#6941)
 * Add time to the available template switch variables (#6952)
 * Only trigger the node discover security event in the context of radius and pfdhcplistener (#4987)
+* Use TLS 1.2 to communicate with Intune servers (#7021)
 
 == Version 11.2.0 released on 2022-02-23
 
