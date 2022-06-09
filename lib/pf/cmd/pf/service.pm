@@ -108,7 +108,7 @@ sub parseArgs {
             if ($action eq 'status') {
                 @services = ($service);
             } else {
-                @services = ('haproxy-db','pf');
+                @services = ('proxysql','haproxy-db','pf');
             }
         }
         else {
