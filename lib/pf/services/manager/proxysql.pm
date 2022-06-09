@@ -67,7 +67,7 @@ sub generateConfig {
 EOT
     foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address= $mysql_back , port=3306 , hostgroup=10, max_connections=100, weight=$i },
+    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=100, weight=$i },
 EOT
     $i--;
     }
