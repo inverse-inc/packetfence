@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=proxysql
+
+args=`base_args $name`
+args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
+args+=" -p 6032:6032 -p 6033:6033 -p 6080:6080"
+
+run $name "$args"
