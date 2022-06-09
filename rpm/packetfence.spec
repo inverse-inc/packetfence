@@ -62,6 +62,7 @@ Requires: MariaDB-server >= 10.5.15, MariaDB-server < 10.6.0
 Requires: MariaDB-client >= 10.5.15, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
+Requires: jq
 
 Requires: perl(Net::SSLeay)
 Requires: perl(Data::Dump)
