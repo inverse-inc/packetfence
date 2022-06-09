@@ -139,13 +139,21 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{CipherSuites: []uint16{
+			tls.TLS_RSA_WITH_AES_128_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_128_CBC_SHA256,
+			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
 			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
 			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 		},
 			PreferServerCipherSuites: true,
 			InsecureSkipVerify:       true,
 			MinVersion:               tls.VersionTLS11,
-			MaxVersion:               tls.VersionTLS11,
+			MaxVersion:               tls.VersionTLS12,
 			Renegotiation:            tls.RenegotiateOnceAsClient,
 		},
 	}
