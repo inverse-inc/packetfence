@@ -81,7 +81,7 @@ const setup = (props) => {
         [...new Set(dimensions.value[1].values)].length,
         [...new Set(dimensions.value[2].values)].length
       )
-      const height = (14.4 * count) + t + b
+      const height = (10 * count) + t + b
       return {
         ...layout,
         height

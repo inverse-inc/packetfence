@@ -23,10 +23,12 @@ const layout = {
   autosize: true,
   showlegend: false,
   xaxis: {
+    autorange: true,
     tickangle: 90,
-    tickformat : ':04,2f',
+    tickformat : ':04,2f'
   },
   yaxis: {
+    autorange: true,
     tickformat : ':04,2f'
   },
   hovermode: 'closest',
