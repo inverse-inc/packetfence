@@ -6,6 +6,7 @@ import StatusStore from '../_store'
 import ClusterRoutes from '../cluster/_router'
 import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
+import NetworkThreatsRoutes from '../network_threats/_router'
 import NetworkRoutes from '../network/_router'
 import ServicesRoutes from '../services/_router'
 
@@ -30,6 +31,7 @@ const route = {
     ...DashboardRoutes,
     ...QueueRoutes,
     ...NetworkRoutes,
+    ...NetworkThreatsRoutes,
     ...ServicesRoutes,
   ]
 }
