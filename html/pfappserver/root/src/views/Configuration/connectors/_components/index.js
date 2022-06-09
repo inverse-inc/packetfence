@@ -1,13 +1,8 @@
 import { BaseViewCollectionItem } from '../../_components/new/'
 import {
   BaseFormButtonBar,
-  BaseFormGroupChosenMultiple,
   BaseFormGroupInput
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit,
-  BaseFormGroupOses
-} from '@/views/Configuration/_components/new/'
 import BaseFormGroupNetworks from './BaseFormGroupNetworks'
 import TheForm from './TheForm'
 import TheView from './TheView'

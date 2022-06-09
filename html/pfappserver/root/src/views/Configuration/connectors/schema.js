@@ -17,10 +17,6 @@ yup.addMethod(yup.string, 'connectorIdentifierNotExistsExcept', function (except
   })
 })
 
-const schemaRole = yup.string().nullable().label(i18n.t('Role'))
-
-const schemaRoles = yup.array().ensure().of(schemaRole).label(i18n.t('Roles'))
-
 const schemaNetwork = yup.string().nullable()
   .required(i18n.t('Network required.'))
   .isCIDR()
