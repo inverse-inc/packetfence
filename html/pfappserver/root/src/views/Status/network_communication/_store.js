@@ -67,16 +67,21 @@ const actions = {
   get: ({ commit }, params) => {
     let { nodes } = params
     return new Promise((resolve, reject) => {
-      commit('REQUEST')
-      api.fingerbankCommunications({
-        nodes: nodes.map(mac => mac.replace(/[^0-9A-F]/gi, ''))
-      }).then(response => {
-        commit('RESPONSE', response)
-        resolve(true)
-      }).catch(err => {
-        commit('ERROR', err)
-        reject(err)
-      })
+      if (!nodes.length) {
+        resolve(false)
+      }
+      else {
+        commit('REQUEST')
+        api.fingerbankCommunications({
+          nodes: nodes.map(mac => mac.replace(/[^0-9A-F]/gi, ''))
+        }).then(response => {
+          commit('RESPONSE', response)
+          resolve(true)
+        }).catch(err => {
+          commit('ERROR', err)
+          reject(err)
+        })
+      }
     })
   },
   getDebounced: ({ dispatch }, params) => {
@@ -109,9 +114,9 @@ const actions = {
       devices.forEach(device => {
         if (state.selectedDevices.indexOf(device) > -1) {
           commit('DEVICE_DESELECT', device)
-          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
       })
+      dispatch('getDebounced', { nodes: state.selectedDevices })
       resolve()
     })
   },
@@ -120,9 +125,9 @@ const actions = {
       devices.forEach(device => {
         if (state.selectedDevices.indexOf(device) === -1) {
           commit('DEVICE_SELECT', device)
-          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
       })
+      dispatch('getDebounced', { nodes: state.selectedDevices })
       resolve()
     })
   },
@@ -131,13 +136,12 @@ const actions = {
       devices.forEach(device => {
         if (state.selectedDevices.indexOf(device) === -1) {
           commit('DEVICE_SELECT', device)
-          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
         else {
           commit('DEVICE_DESELECT', device)
-          dispatch('getDebounced', { nodes: state.selectedDevices })
         }
       })
+      dispatch('getDebounced', { nodes: state.selectedDevices })
       resolve()
     })
   },

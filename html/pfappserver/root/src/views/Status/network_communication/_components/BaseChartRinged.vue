@@ -222,9 +222,9 @@ const setup = (props, context) => {
     return tspans
   }
 
-  const deviceRotation = ref(0)
-  const innerHostRotation = ref(0)
-  const outerHostRotation = ref(0)
+  const deviceRotation = ref(180)
+  const innerHostRotation = ref(-45)
+  const outerHostRotation = ref(45)
 
   let rotationInterval
   // scale interval w/ # of items
@@ -279,7 +279,7 @@ const setup = (props, context) => {
     const minSize = fontSize.value / 2
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
-      const angle = (n * 360 / keys.length + deviceRotation.value) % 360
+      const angle = (360 + (n * 360 / keys.length + deviceRotation.value)) % 360
       const xTheta = Math.cos(angle * Math.PI / 180)
       const yTheta = Math.sin(angle * Math.PI / 180)
       const x = cx.value + (devicesRingRadius.value * xTheta)
@@ -392,11 +392,6 @@ const setup = (props, context) => {
                 : {}
               )
             },
-            handlers: {
-              mouseover: event => deviceOver(event, node),
-              mouseout: event => deviceOut(event, node),
-              mousedown: event => deviceDown(event, node)
-            },
             tspan: alignTspan([
               {
                 key: `deviceTextPath-${node}`,
@@ -472,7 +467,7 @@ const setup = (props, context) => {
     const minSize = fontSize.value / 2
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
-      const angle = (n * 360 / keys.length + innerHostRotation.value) % 360
+      const angle = (360 + (n * 360 / keys.length + innerHostRotation.value)) % 360
       const xTheta = Math.cos(angle * Math.PI / 180)
       const yTheta = Math.sin(angle * Math.PI / 180)
       const x = cx.value + (innerHostsRingRadius.value * xTheta)
@@ -580,11 +575,6 @@ const setup = (props, context) => {
                 : {}
               )
             },
-            handlers: {
-              mouseover: event => innerHostOver(event, node),
-              mouseout: event => innerHostOut(event, node),
-              mousedown: event => innerHostDown(event, node)
-            },
             tspan: alignTspan([
               {
                 key: `innerHostTextPath-${node}`,
@@ -662,7 +652,7 @@ const setup = (props, context) => {
     const minSize = fontSize.value / 2
     const maxSize = fontSize.value * 5
     return keys.reduce((nodes, node, n) => {
-      const angle = (n * 360 / keys.length + outerHostRotation.value) % 360
+      const angle = (360 + (n * 360 / keys.length + outerHostRotation.value)) % 360
       const xTheta = Math.cos(angle * Math.PI / 180)
       const yTheta = Math.sin(angle * Math.PI / 180)
       const x = cx.value + (outerHostsRingRadius.value * xTheta)
@@ -769,11 +759,6 @@ const setup = (props, context) => {
                 ? { 'text-anchor': 'end', startOffset: '100%' } // flip text
                 : {}
               )
-            },
-            handlers: {
-              mouseover: event => outerHostOver(event, node),
-              mouseout: event => outerHostOut(event, node),
-              mousedown: event => outerHostDown(event, node)
             },
             tspan: alignTspan([
               {
