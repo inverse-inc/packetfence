@@ -29,9 +29,15 @@ defaults
         timeout connect 5000
         timeout client %%timeout%%
         timeout server %%timeout%%
-        errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
+        #errorfile 403 %%captiveportal_templates_path%%/rate-limiting.http
 
 %%management_ip_frontend%%
+
+frontend  docker
+    bind containers-gateway.internal:3306
+    mode tcp
+    option tcplog
+    default_backend             mysql
 
 frontend  main
     bind 127.0.0.1:3306
