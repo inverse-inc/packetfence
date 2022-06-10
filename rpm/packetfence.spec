@@ -547,6 +547,7 @@ rm -rf %{buildroot}
 %pre
 
 /usr/bin/systemctl --now mask mariadb
+/usr/bin/systemctl --now mask proxysql
 
 # Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
 /usr/bin/systemctl --now mask libvirtd
