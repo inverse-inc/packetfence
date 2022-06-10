@@ -71,6 +71,10 @@ const setup = (props, context) => {
   onMounted(() => {
     $store.dispatch('$_fingerbank/devices').then(_items => {
       items.value = _items
+        .map(item => {
+          const { id, name } = item
+          return { id, name, icon: devices[id].icon }
+        })
         .sort((a, b) => a.name.localeCompare(b.name))
     })
   })
