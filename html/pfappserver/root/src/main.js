@@ -141,6 +141,9 @@ import 'vue-awesome/icons/window-maximize'
 import pfIcons from '@/globals/pfIcons'
 Icon.register(pfIcons)
 
+import { icons as fingerbankIcons } from '@/views/Configuration/fingerbank/devices/config'
+Icon.register(fingerbankIcons)
+
 import { createPinia, PiniaVuePlugin } from 'pinia'
 import store from './store'
 import router from './router'
