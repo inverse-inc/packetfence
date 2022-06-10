@@ -5,10 +5,12 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Before=packetfence-httpd.portal.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfpki' -e 'pf::services::manager::pfpki->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfpki-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfpki ; docker container rm pfpki -f ; echo Stopped"
-TimeoutStopSec=60
+ExecStop=/bin/bash -c "docker stop pfpki ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 

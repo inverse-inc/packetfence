@@ -7,10 +7,13 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStart=/usr/local/pf/sbin/pfqueue-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfqueue ; docker container rm pfqueue -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop pfqueue ; echo Stopped"
 TimeoutStopSec=30
 Restart=on-failure
 Slice=packetfence.slice

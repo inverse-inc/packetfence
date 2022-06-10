@@ -5,10 +5,12 @@ After=network.target packetfence-redis-cache.service
 Wants=packetfence-redis-cache.service
 
 [Service]
+Type=notify
+NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStart=/usr/local/pf/sbin/pfconfig-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfconfig ; docker container rm pfconfig -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop pfconfig ; echo Stopped"
 Slice=packetfence-base.slice
 Restart=on-failure
 TimeoutStopSec=30

@@ -5,10 +5,13 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 LimitNOFILE=infinity
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfconnector-server-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfconnector-server ; docker container rm pfconnector-server -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop pfconnector-server ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 
