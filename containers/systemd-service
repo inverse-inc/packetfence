@@ -17,6 +17,8 @@ function base_args {
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
+  
+  args="$args -v /etc/timezone:/etc/timezone:ro -v /etc/localtime:/etc/localtime:ro"
 
   echo "$args"
 }
