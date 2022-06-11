@@ -1283,6 +1283,7 @@ fi
 %dir                    /usr/local/pf/var/redis_queue
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
+%dir                    /usr/local/pf/var/proxysql
 %config(noreplace)      /usr/local/pf/var/cache_control
                         %{mariadb_plugin_dir}/pf_udf.so
 
