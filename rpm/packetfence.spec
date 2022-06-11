@@ -449,6 +449,7 @@ done
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_queue
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_ntlm_cache
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/ssl_mutex
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/proxysql
 %{__install} -d %{buildroot}/usr/local/pf/var/conf
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/run
 %{__install} -d %{buildroot}/usr/local/pf/var/rrd 
