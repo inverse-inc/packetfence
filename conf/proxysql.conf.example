@@ -31,7 +31,7 @@
 #
 ########################################################################################
 
-datadir="/usr/local/pf/var/run/proxysql/"
+datadir="/usr/local/pf/var/proxysql/"
 errorlog="/usr/local/pf/logs/proxysql.log"
 
 admin_variables=
@@ -52,7 +52,7 @@ mysql_variables=
     default_query_timeout=36000000
     have_compress=true
     poll_timeout=2000
-    interfaces="0.0.0.0:6033;//usr/local/pf/var/run/proxysql.sock"
+    interfaces="0.0.0.0:6033;/usr/local/pf/var/proxysql/proxysql.sock"
     default_schema="information_schema"
     stacksize=1048576
     server_version="5.1.30"
