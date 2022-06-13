@@ -52,7 +52,7 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id', 'desc'].join(','),
+      fields: ['id', 'desc', 'priority'].join(','),
       limit: 100
     }
     return api.list(params).then(response => {

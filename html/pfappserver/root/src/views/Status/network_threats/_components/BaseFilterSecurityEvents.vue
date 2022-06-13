@@ -23,28 +23,28 @@
       <b-row v-for="item in filteredItems" :key="item.id"
         @click="onSelectItem(item)"
         align-v="center"
-        :class="{
-          'filter-selected': selectedSecurityEvents.indexOf(item.id) > -1
-        }">
-        <b-col cols="1" class="px-3 py-1 ml-3 text-center">
+        class="mx-1 mt-1 text-nowrap border border-1"
+        :class="(selectedSecurityEvents.indexOf(item.id) > -1) ? `border-${item._class}` : ''"
+      >
+        <b-col cols="1" class="px-3 py-3 text-center">
           <template v-if="selectedSecurityEvents.indexOf(item.id) > -1">
-            <icon name="check-square" class="bg-white text-success" scale="1.125" />
+            <icon name="check-square" :class="`bg-white text-${item._class}`" scale="1.125" />
           </template>
           <template v-else>
             <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
           </template>
         </b-col>
-        <b-col cols="auto mr-auto" class="px-3 py-1 mr-3">
+        <b-col cols="auto" class="px-3 py-3">
           <text-highlight :queries="[filter]">{{ item.desc }}</text-highlight>
         </b-col>
-        <b-col cols="auto mr-3">
 <!--
+        <b-col cols="auto">
           <b-badge v-if="byDevice[item.mac]"
             class="ml-1">{{ Object.keys(byDevice[item.mac].hosts).length }} {{ $i18n.t('hosts') }}</b-badge>
           <b-badge v-if="byDevice[item.mac]"
             class="ml-1">{{ Object.keys(byDevice[item.mac].protocols).length }} {{ $i18n.t('protocols') }}</b-badge>
--->
         </b-col>
+-->
       </b-row>
     </div>
   </b-card>
@@ -71,7 +71,21 @@ const setup = (props, context) => {
   const items = ref([])
   onMounted(() => {
     $store.dispatch('$_security_events/all').then(_items => {
-      items.value = _items.sort((a, b) => a.desc.localeCompare(b.desc))
+      items.value = _items
+        .sort((a, b) => a.desc.localeCompare(b.desc))
+        .map(item => {
+          switch(true) {
+            case item.priority < 3:
+              item._class = 'danger'
+              break
+            case item.priority < 6:
+              item._class = 'warning'
+              break
+            default:
+              item._class = 'success'
+          }
+          return item
+        })
     })
   })
 

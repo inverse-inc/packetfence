@@ -7,14 +7,20 @@
       <b-row>
         <b-col cols="6">
           <b-tabs small class="fixed">
-            <b-tab :title="$i18n.t('Categories')" class="border-1 border-right border-bottom border-left pb-1">
+            <b-tab class="border-1 border-right border-bottom border-left pb-1">
+              <template #title>
+                {{ $i18n.t('Categories') }} <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
+              </template>
               <base-filter-categories />
             </b-tab>
           </b-tabs>
         </b-col>
         <b-col cols="6">
           <b-tabs small class="fixed">
-            <b-tab :title="$i18n.t('Security Events')" class="border-1 border-right border-bottom border-left">
+            <b-tab class="border-1 border-right border-bottom border-left">
+              <template #title>
+                {{ $i18n.t('Security Events') }} <b-badge v-if="selectedSecurityEvents.length" pill variant="primary" class="ml-1">{{ selectedSecurityEvents.length }}</b-badge>
+              </template>
               <base-filter-security-events />
             </b-tab>
           </b-tabs>
@@ -35,9 +41,18 @@ const components = {
   BaseFilterSecurityEvents
 }
 
-const setup = () => {
+import { computed } from '@vue/composition-api'
+const setup = (props, context) => {
 
-  return {}
+    const { root: { $store } = {} } = context
+
+    const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories)
+    const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents)
+
+  return {
+    selectedCategories,
+    selectedSecurityEvents,
+  }
 }
 
 // @vue/component
