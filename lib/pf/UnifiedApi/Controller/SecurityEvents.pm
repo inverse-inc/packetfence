@@ -18,10 +18,13 @@ use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::security_event;
 use pf::fingerbank;
 use pf::error qw(is_error);
+use pf::UnifiedApi::Search::Builder::SecurityEvents;
 
 has dal => 'pf::dal::security_event';
 has url_param_name => 'security_event_id';
 has primary_key => 'id';
+
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::SecurityEvents';
 
 sub by_mac {
     my ($self) = @_;
