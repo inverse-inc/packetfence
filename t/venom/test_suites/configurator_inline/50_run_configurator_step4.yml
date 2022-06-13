@@ -55,16 +55,39 @@ testcases:
   - type: exec
     script: sleep 10
 
-- name: start_packetfence_and_fingerbank_service
+- name: start_pf_services
   steps:
   - type: http
     method: POST
     url: '{{.pfserver_webadmin_url}}/api/v1/configurator/service/pf/start'
     ignore_verify_ssl: true
+    body: >-
+      {
+        "async": true
+      }
     headers:
       "Content-Type": "application/json"
     assertions:
+      - result.statuscode ShouldEqual 202
+    vars:
+      task_id:
+        from: result.bodyjson.task_id
+
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/pfqueue/task/{{.start_pf_services.task_id}}/status/poll'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual Completed
+      - result.bodyjson.progress ShouldEqual 100
+      - result.bodyjson.status ShouldEqual 200
+    # wait three minutes before failing
+    retry: 12
+    delay: 15
 
 - name: disable_configurator
   steps:

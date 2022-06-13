@@ -17,6 +17,9 @@ Vagrant.configure("2") do |config|
   # use same private key on all machines
   config.ssh.insert_key = false
 
+  # Number of seconds to wait for establishing an SSH connection to the guest
+  config.ssh.connect_timeout = 60
+
   config.vm.provider "libvirt" do |vm|
     vm.default_prefix = DOMAIN_PREFIX
   end
