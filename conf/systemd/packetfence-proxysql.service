@@ -5,6 +5,7 @@ Before=packetfence-httpd.portal.service packetfence-api-frontend.service
 Wants=packetfence-config.service 
 
 [Service]
+ExecStartPre=/bin/rm -f /usr/local/pf/var/run/proxysql/proxysql.pid
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::proxysql' -e 'pf::services::manager::proxysql->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
 ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped"
