@@ -33,14 +33,38 @@ sub _search_by_mac {
     my ($self, $mac) = @_;
     my @security_events = pf::security_event::security_event_view_desc($mac);
     return $self->render(json => { items => \@security_events }) if scalar @security_events > 0 and defined($security_events[0]);
-    return $self->render(json => undef);
 }
 
 sub _search_by_id {
     my ($self, $id) = @_;
     my @security_event = pf::security_event::security_event_view($id);
     return $self->render(json => { items => [ $security_event[0] ] } ) if scalar @security_event > 0 and defined($security_event[0]);
-    return $self->render(json => undef);
+}
+
+sub _total_status {
+    my ($self, $status) = @_;
+    my ($status, $iter) = pf::dal::security_event->search(
+        -where => {
+            'status' => $status,
+        },
+        -columns => ['COUNT(DISTINCT mac)|count'],
+    );
+
+    if (is_error($status)) {
+        $self->render_error($status, "Cannot complete query");
+    }
+
+    return $self->render( json => { items => ($iter->all(undef) // []) });
+}
+
+sub total_open {
+    my ($self) = @_;
+    return $self->_total_status('open');
+}
+
+sub total_closed {
+    my ($self) = @_;
+    return $self->_total_status('closed');
 }
 
 =head1 AUTHOR
