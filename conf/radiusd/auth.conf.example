@@ -18,7 +18,7 @@ listen {
 [% FOREACH ip IN listen_ips %]
 listen {
         ipaddr = [% ip %]
-        port = 0
+        port = [% port %]
         type = auth
         virtual_server = [% virtual_server %]
 }
