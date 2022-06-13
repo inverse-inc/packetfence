@@ -44,18 +44,10 @@ sub _search_by_id {
 
 sub _total_status {
     my ($self, $status) = @_;
-    my ($status, $iter) = pf::dal::security_event->search(
-        -where => {
-            'status' => $status,
-        },
-        -columns => ['COUNT(DISTINCT mac)|count'],
+    return $self->_db_execute_response(
+        'SELECT COUNT(DISTINCT mac) as count from security_event where security_event.status = ?;',
+        $status
     );
-
-    if (is_error($status)) {
-        $self->render_error($status, "Cannot complete query");
-    }
-
-    return $self->render( json => { items => ($iter->all(undef) // []) });
 }
 
 sub total_open {
@@ -70,17 +62,26 @@ sub total_closed {
 
 sub _per_device_class_status {
     my ($self, $status) = @_;
-    my ($status, $sth) =  $self->dal->db_execute(
-        "SELECT node.device_class, COUNT(1) as count from security_event LEFT JOIN node on (node.mac=security_event.mac) WHERE security_event.status=? GROUP BY node.device_class;",
+    return $self->_db_execute_response(
+        'SELECT node.device_class, COUNT(1) as count from security_event LEFT JOIN node on (node.mac=security_event.mac) WHERE security_event.status=? GROUP BY node.device_class;',
         $status
     );
-    if (is_error($status)) {
-        return $self->render_error($status, "Cannot complete query");
-    }
+}
 
-    my $items = $sth->fetchall_arrayref({});
-    $self->finish;
-    return $self->render(json => { items => $items });
+sub _per_security_event_id_status {
+    my ($self, $status) = @_;
+    return $self->_db_execute_response(
+        'SELECT security_event_id, COUNT(1) as count FROM security_event WHERE security_event.status=? GROUP BY security_event.security_event_id;'
+        $status
+    );
+}
+
+sub per_security_event_id_closed {
+    return $self->_per_security_event_id_status('closed');
+}
+
+sub per_security_event_id_open {
+    return $self->_per_security_event_id_status('open');
 }
 
 sub per_device_class_open {
@@ -91,6 +92,22 @@ sub per_device_class_open {
 sub per_device_class_closed {
     my ($self) = @_;
     return $self->_per_device_class_status('closed');
+}
+
+sub _db_execute_response {
+    my ($self, $sql, @bind) = @_;
+    my ($status, $sth) =  $self->dal->db_execute(
+        $sql,
+        @bind
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, 'Cannot complete query');
+    }
+
+    my $items = $sth->fetchall_arrayref({});
+    $self->finish;
+    return $self->render(json => { items => $items });
 }
 
 =head1 AUTHOR
