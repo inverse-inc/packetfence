@@ -36,6 +36,8 @@ extends 'pf::services::manager';
 
 has '+name' => (default => sub { 'proxysql' } );
 
+has '+shouldCheckup' => ( default => sub { 0 }  );
+
 has 'proxysql_config_template' => (is => "rw" ,default => sub { "$conf_dir/proxysql.conf" });
 
 our $host_id = $pf::config::cluster::host_id;
