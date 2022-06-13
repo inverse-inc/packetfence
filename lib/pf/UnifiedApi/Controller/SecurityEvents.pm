@@ -17,6 +17,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::security_event;
 use pf::fingerbank;
+use pf::error qw(is_error);
 
 has dal => 'pf::dal::security_event';
 has url_param_name => 'security_event_id';
@@ -65,6 +66,31 @@ sub total_open {
 sub total_closed {
     my ($self) = @_;
     return $self->_total_status('closed');
+}
+
+sub _per_device_class_status {
+    my ($self, $status) = @_;
+    my ($status, $sth) =  $self->dal->db_execute(
+        "SELECT node.device_class, COUNT(1) as count from security_event LEFT JOIN node on (node.mac=security_event.mac) WHERE security_event.status=? GROUP BY node.device_class;",
+        $status
+    );
+    if (is_error($status)) {
+        return $self->render_error($status, "Cannot complete query");
+    }
+
+    my $items = $sth->fetchall_arrayref({});
+    $self->finish;
+    return $self->render(json => { items => $items });
+}
+
+sub per_device_class_open {
+    my ($self) = @_;
+    return $self->_per_device_class_status('open');
+}
+
+sub per_device_class_closed {
+    my ($self) = @_;
+    return $self->_per_device_class_status('closed');
 }
 
 =head1 AUTHOR
