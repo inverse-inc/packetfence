@@ -705,6 +705,16 @@ sub setup_api_v1_security_events_routes {
     );
 
     $collection_route->any(['GET'] => '/by_mac/#search')->to("SecurityEvents#by_mac")->name("api.v1.SecurityEvents.by_mac");
+    $collection_route->register_sub_actions({
+        method => 'GET',
+        actions => [
+        qw(
+            total_open
+            total_closed
+          )
+        ],
+        auditable => 1
+    });
     return ($collection_route, $resource_route);
 }
 
