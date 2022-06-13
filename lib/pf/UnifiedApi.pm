@@ -713,6 +713,8 @@ sub setup_api_v1_security_events_routes {
             total_closed
             per_device_class_open
             per_device_class_closed
+            per_security_event_id_open
+            per_security_event_id_closed
           )
         ],
     });
