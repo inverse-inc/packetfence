@@ -1,0 +1,15 @@
+---
+- name: stop, disable and mask apt-daily services and respective timers
+  systemd:
+    name: '{{ item }}'
+    state: 'stopped'
+    enabled: False
+    masked: True
+  loop: '{{ apt_services }}'
+  register: disable_apt_services_register
+  when: ansible_os_family == 'Debian'
+
+- name: apply systemd changes
+  systemd:
+    daemon_reload: True
+  when: disable_apt_services_register is changed
