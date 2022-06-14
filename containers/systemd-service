@@ -18,7 +18,7 @@ function base_args {
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
   
-  args="$args -v /etc/timezone:/etc/timezone:ro -v /etc/localtime:/etc/localtime:ro"
+  args="$args -v /etc/localtime:/etc/localtime:ro"
 
   echo "$args"
 }
