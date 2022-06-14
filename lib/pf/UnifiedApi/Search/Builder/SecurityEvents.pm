@@ -17,17 +17,13 @@ use warnings;
 use Moo;
 extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
-use pf::dal::locationlog;
-use pf::dal::radacct;
-use pf::util qw(clean_mac ip2int valid_ip);
-use pf::constants qw($ZERO_DATE);
 
 our @NODES_JOIN = (
     '=>{node.mac=security_event.mac}', 'node',
 );
 
 our %ALLOWED_JOIN_FIELDS = (
-    map_dal_fields_to_join_spec("pf::dal::locationlog", \@NODES_JOIN, undef, {}),
+    map_dal_fields_to_join_spec("pf::dal::node", \@NODES_JOIN, undef, {}),
 );
 
 sub map_dal_fields_to_join_spec {
