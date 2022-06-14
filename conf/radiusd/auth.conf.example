@@ -25,7 +25,7 @@ listen {
 
 listen {
         ipaddr = [% ip %]
-        port = 2083
+        port = [% radsec_port %]
         type = auth+acct
         proto = tcp
         virtual_server = packetfence
