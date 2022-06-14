@@ -12,7 +12,7 @@ args=`base_args $name`
 args="$args -v /usr/local/pf/conf/log.conf.d/:/usr/local/pf/conf/log.conf.d/"
 args="$args -v /usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/"
 args="$args -v /usr/local/pf/raddb/:/usr/local/pf/raddb/"
-args="$args -v /var/lib/mysql/mysql.sock:/run/mysqld/mysqld.sock"
+args="$args -v /var/lib/mysql/:/run/mysqld/"
 args="$args -p $RADIUSD_LISTEN_PORT:$RADIUSD_LISTEN_PORT/udp"
 
 run $name "$args"
