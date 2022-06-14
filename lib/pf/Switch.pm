@@ -198,13 +198,22 @@ sub connectRead {
     my $host = $self->{_ip};
     my $port = 161;
 
+    my $connect_ip = $host;
+    my $connect_port = $port;
+
+    if(isenabled($self->{_SNMPUseConnector})) {
+        my $connector_conn = pf::factory::connector->for_ip($host)->dynreverse("$host:$port/udp");
+        $connect_ip = $connector_conn->{host};
+        $connect_port = $connector_conn->{port};
+    }
+
     $logger->debug( "opening SNMP v"
             . $self->{_SNMPVersion}
             . " read connection to $self->{_id}" );
     if ( $self->{_SNMPVersion} eq '3' ) {
         ( $self->{_sessionRead}, $self->{_error} ) = Net::SNMP->session(
-            -hostname     => $host,
-            -port         => $port,
+            -hostname     => $connect_ip,
+            -port         => $connect_port,
             -version      => $self->{_SNMPVersion},
             -username     => $self->{_SNMPUserNameRead},
             -timeout      => 2,
@@ -217,8 +226,8 @@ sub connectRead {
         );
     } else {
         ( $self->{_sessionRead}, $self->{_error} ) = Net::SNMP->session(
-            -hostname     => $host,
-            -port         => $port,
+            -hostname  => $connect_ip,
+            -port      => $connect_port,
             -version   => $self->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
