@@ -23,7 +23,7 @@
       <b-row v-for="item in filteredItems" :key="item.id"
         @click="onSelectItem(item)"
         align-v="center"
-        class="mx-1 mt-1 text-nowrap border border-1"
+        class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
         :class="(selectedSecurityEvents.indexOf(item.id) > -1) ? `border-${item._class}` : ''"
       >
         <b-col cols="1" class="px-3 py-3 text-center">

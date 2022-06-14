@@ -23,7 +23,7 @@
       <b-row v-for="item in filteredItems" :key="item.id"
         @click="onSelectItem(item)"
         align-v="center"
-        class="mx-1 mt-1 text-nowrap border border-1 item"
+        class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
         :class="{
           'border-success': selectedCategories.indexOf(item.id) > -1
         }">
@@ -114,9 +114,3 @@ export default {
   setup
 }
 </script>
-
-<style lang="scss" scoped>
-  div.item {
-    cursor: pointer;
-  }
-</style>
