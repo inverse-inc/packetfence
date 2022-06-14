@@ -74,16 +74,18 @@ sub _per_device_class_status {
 sub _per_security_event_id_status {
     my ($self, $status) = @_;
     return $self->_db_execute_response(
-        'SELECT security_event_id, COUNT(1) as count FROM security_event WHERE security_event.status=? GROUP BY security_event.security_event_id;'
+        'SELECT security_event_id, COUNT(1) as count FROM security_event WHERE security_event.status=? GROUP BY security_event.security_event_id;',
         $status
     );
 }
 
 sub per_security_event_id_closed {
+    my ($self) = @_;
     return $self->_per_security_event_id_status('closed');
 }
 
 sub per_security_event_id_open {
+    my ($self) = @_;
     return $self->_per_security_event_id_status('open');
 }
 
