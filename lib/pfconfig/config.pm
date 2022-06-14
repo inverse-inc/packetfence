@@ -44,9 +44,9 @@ Init the pfconfig configuration object
 sub init {
     my ($self) = @_;
     my $file = $pfconfig::constants::CONFIG_FILE_PATH;
-
+    my $defaults = $pfconfig::constants::CONFIG_DEFAULTS_FILE_PATH;
     my %cfg;
-    tie %cfg, 'pf::IniFiles', ( -file => $file, -import => pf::IniFiles->new(-file => $file.'.defaults', -envsubst => 1), -envsubst => 1 );
+    tie %cfg, 'pf::IniFiles', ( -file => $file, -import => pf::IniFiles->new( -file => $defaults, -envsubst => 1), -envsubst => 1 );
 
     $self->{cfg} = \%cfg;
 }
