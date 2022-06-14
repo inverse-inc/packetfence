@@ -2,6 +2,9 @@
 [Unit]
 Description=PacketFence HAProxy Load Balancer for the captive portal
 Wants=packetfence-config.service 
+Before=packetfence-docker-iptables.service
+Requires=packetfence-docker-iptables.service
+PartOf=packetfence-docker-iptables.service
 
 [Service]
 StartLimitBurst=3
