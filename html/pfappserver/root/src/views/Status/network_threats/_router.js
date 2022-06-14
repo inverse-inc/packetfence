@@ -20,7 +20,7 @@ export default [
         store.registerModule('$_security_events', SecurityEventsStoreModule)
       if (!store.state.$_network_threats)
         store.registerModule('$_network_threats', NetworkThreatsStoreModule)
-      next()
+      store.dispatch('$_network_threats/stat').then(() => next())
     }
   }
 ]
