@@ -206,7 +206,7 @@
         />
 
         <form-group-radius-deauth-use-connector namespace="radiusDeauthUseConnector"
-          :column-label="$i18n.t('Use connector for deauth')"
+          :column-label="$i18n.t('Use Connector For Deauth')"
           :text="$i18n.t('Use the available PacketFence connectors to perform RADIUS deauth (access reevaluation). By default, a local connector is hosted on this server.')"
         />
 
@@ -242,7 +242,7 @@
       <base-form-tab :title="$i18n.t('SNMP')">
 
         <form-group-snmp-use-connector namespace="SNMPUseConnector"
-          :column-label="$i18n.t('Use connector')"
+          :column-label="$i18n.t('Use Connector')"
           :text="$i18n.t('Use the available PacketFence connectors to connect to this switch in SNMP. By default, a local connector is hosted on this server.')"
         />
 
