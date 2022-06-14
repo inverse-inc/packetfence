@@ -36,6 +36,11 @@
       :text="$i18n.t('Do you want to monitor this source?')"
     />
 
+    <form-group-use-connector namespace="use_connector"
+      :column-label="$i18n.t('Use Connector')"
+      :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server.')"
+    />
+
     <form-group-options namespace="options"
       :column-label="$i18n.t('Options')"
       :text="$i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart.')"
@@ -69,6 +74,7 @@ import {
   FormGroupRealms,
   FormGroupSecret,
   FormGroupTimeout,
+  FormGroupUseConnector,
 } from './'
 
 const components = {
@@ -85,6 +91,7 @@ const components = {
   FormGroupRealms,
   FormGroupSecret,
   FormGroupTimeout,
+  FormGroupUseConnector,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
