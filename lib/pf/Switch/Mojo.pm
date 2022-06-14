@@ -145,6 +145,7 @@ sub radiusDisconnect {
     try {
         my $locationlog = locationlog_view_open_mac($mac);
         my $connection_info = {
+            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
@@ -164,6 +165,7 @@ sub radiusDisconnect {
         };
 
         $connection_info = {
+            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),

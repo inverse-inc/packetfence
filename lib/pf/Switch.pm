@@ -2730,6 +2730,7 @@ sub radiusDisconnect {
     my $response;
     try {
         my $connection_info = {
+            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
@@ -3309,6 +3310,17 @@ sub shouldUseCoA {
     my ($self, $args) = @_;
     # Roles are configured and the user should have one
     return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap}) || isenabled($self->{_VpnMap})) && isenabled($self->{_useCoA}));
+}
+
+=item shouldUseConnectorForRadiusDeauth
+
+Check if switch should use CoA
+
+=cut
+
+sub shouldUseConnectorForRadiusDeauth {
+    my ($self) = @_;
+    return isenabled($self->{_radiusDeauthUseConnector});
 }
 
 =item getRelayAgentInfoOptRemoteIdSub
