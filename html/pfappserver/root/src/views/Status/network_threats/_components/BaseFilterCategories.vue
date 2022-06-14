@@ -32,8 +32,14 @@
             :class="(selectedCategories.indexOf(item.id) > -1) ? 'text-success' : 'text-secondary'"
             />
         </b-col>
-        <b-col cols="auto" class="p-3">
+        <b-col cols="auto" class="p-3 mr-auto">
           <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
+        </b-col>
+        <b-col cols="auto">
+          <b-badge v-if="item._open"
+            variant="danger" class="ml-1">{{ item._open }} {{ $i18n.t('open') }}</b-badge>
+          <b-badge v-if="item._closed"
+            variant="light" class="ml-1">{{ item._closed }} {{ $i18n.t('closed') }}</b-badge>
         </b-col>
       </b-row>
     </div>
@@ -58,25 +64,31 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories)
+  const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
+  const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
 
   const items = ref([])
   onMounted(() => {
     $store.dispatch('$_fingerbank/devices').then(_items => {
       items.value = _items
-        .map(item => {
-          const { id, name } = item
-          return { id, name, icon: devices[id].icon }
-        })
         .sort((a, b) => a.name.localeCompare(b.name))
     })
   })
 
+  const decoratedItems = computed(() => items.value.map(item => {
+      const { id, name } = item
+      const _open = perDeviceClassOpen.value[name] || 0
+      const _closed = perDeviceClassClosed.value[name] || 0
+      return { id, name, icon: devices[id].icon,
+        _open, _closed }
+  }))
+
   const filter = ref('')
   const filteredItems = computed(() => {
     if (!filter.value) {
-      return items.value
+      return decoratedItems.value
     }
-    return items.value
+    return decoratedItems.value
       .filter(item => item.name.toLowerCase().indexOf(filter.value.toLowerCase()) > -1)
   })
   const onSelectItem = item => {
