@@ -111,7 +111,7 @@ sub _db_execute_response {
     }
 
     my $items = $sth->fetchall_arrayref({});
-    $self->finish;
+    $sth->finish;
     return $self->render(json => { items => $items });
 }
 
