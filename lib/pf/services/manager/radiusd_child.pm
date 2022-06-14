@@ -392,6 +392,7 @@ sub generate_radiusd_authconf {
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
     $tags{'port'} = $self->{auth_port};
+    $tags{radsec_port} = $self->{radsec_port};
     $tt->process("$conf_dir/radiusd/auth.conf", \%tags, "$install_dir/raddb/auth.conf") or die $tt->error();
 }
 
@@ -1613,12 +1614,14 @@ sub generate_port {
     $self->{acct_port} = "1813";
     $self->{cli_port} = "1815";
     $self->{eduroam_port} = $eduport;
+    $self->{radsec_port} = "2083";
     if ($cluster_enabled) {
-        $self->{auth_port} = 1822;
+        $self->{auth_port} = "1822";
         $self->{eduroam_port} = $eduport + 10;
-        $self->{acct_port} = 1823;
-        $self->{cli_port} = 1825;
+        $self->{acct_port} = "1823";
+        $self->{cli_port} = "1825";
         $port = $port + 10;
+        $self->{radsec_port} = "2093";
     }
     return $port;
 }
