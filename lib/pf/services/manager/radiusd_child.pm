@@ -1270,12 +1270,9 @@ EOT
         $tags{'pid_file'} = "$var_dir/run/radiusd-load_balancer.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
-        foreach my $interface ( uniq(@radius_ints) ) {
-
-            my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
-            $tags{'listen'} .= <<"EOT";
+        $tags{'listen'} .= <<"EOT";
 listen {
-        ipaddr = $cluster_ip
+        ipaddr = 0.0.0.0
         port = 0
         type = auth
         virtual_server = pf.cluster
@@ -1283,21 +1280,20 @@ listen {
 
 
 listen {
-        ipaddr = $cluster_ip
+        ipaddr = 0.0.0.0
         port = 0
         type = acct
         virtual_server = pf.cluster
 }
 
 listen {
-        ipaddr = $cluster_ip
+        ipaddr = 0.0.0.0
         port = 1815
         type = auth
         virtual_server = pfcli.cluster
 }
 
 EOT
-        }
 
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
@@ -1305,18 +1301,13 @@ EOT
             my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
             $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
-EOT
-            foreach my $interface ( uniq(@radius_ints) ) {
-                my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
-                $tags{'eduroam'} .= <<"EOT";
 listen {
-        ipaddr = $cluster_ip
+        ipaddr = 0.0.0.0
         port = $self->{eduroam_port}
         type = auth
         virtual_server = eduroam.cluster
 }
 EOT
-            }
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }
