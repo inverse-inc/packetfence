@@ -5,9 +5,6 @@ Wants=packetfence-base.target packetfence-config.service packetfence-iptables.se
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
-Type=notify
-TimeoutStopSec=60
-NotifyAccess=all
 LimitNOFILE=infinity
 ExecStart=/usr/local/pf/sbin/pfconnector-client-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
