@@ -142,6 +142,7 @@ export {
   BaseFormGroupInput                        as FormGroupTimeout,
   BaseFormGroupInput                        as FormGroupTransactionKey,
   BaseFormGroupInput                        as FormGroupTwilioPhoneNumber,
+  BaseFormGroupToggle                       as FormGroupUseConnector,
   BaseFormGroupInputNumber                  as FormGroupUserGroupsCache,
   BaseFormGroupInput                        as FormGroupUserHeader,
   BaseFormGroupChosenOne                    as FormGroupUsernameAttribute,
