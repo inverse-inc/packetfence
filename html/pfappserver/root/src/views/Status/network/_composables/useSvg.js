@@ -12,10 +12,12 @@ export const useViewBox = (config, dimensions) => {
 
   const viewBox = computed(() => {
     const { height, width } = dimensions.value
-    if (!centerX.value && width) // initialize center (x)
+    if (!centerX.value && width) { // initialize center (x)
       centerX.value = width / 2
-    if (!centerY.value && height) // initialize center (y)
+    }
+    if (!centerY.value && height) { // initialize center (y)
       centerY.value = height / 2
+    }
     const widthScaled = width / scale.value
     const heightScaled = height / scale.value
     return {
@@ -80,7 +82,7 @@ export const useViewBox = (config, dimensions) => {
       // calculate mouse offset from 0,0
       const [ svgX, svgY ] = [ (offsetX / scale.value) + minX, (offsetY / scale.value) + minY ]
       // calculate mouse offset from center of current viewBox
-      const [deltaCenterX, deltaCenterY] = [svgX - centerX, svgY - centerY]
+      const [deltaCenterX, deltaCenterY] = [svgX - centerX.value, svgY - centerY.value]
       // handle zoom-in (-deltaY) and zoom-out (+deltaY)
       //  automatically match center of mouse pointer, so the
       //  x,y coord remains pinned at the mouse pointer after zoom.

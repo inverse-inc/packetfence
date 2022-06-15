@@ -107,8 +107,8 @@ const setup = (props, context) => {
   })
 
   const dimensions = ref({
-    height: 100,
-    width: 100,
+    height: 0,
+    width: 0,
     fit: 'min'
   })
   const layouts = ref(['radial', 'tree']) // available layouts

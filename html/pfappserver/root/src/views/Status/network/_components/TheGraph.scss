@@ -9,6 +9,11 @@
   --highlight-color: var(--color-black);
 }
 
+@keyframes dash {
+  from { stroke-dashoffset: 8; }
+  to { stroke-dashoffset: 0; }
+}
+
 @keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -80,8 +85,19 @@
   }
 
   .tt-link {
-    stroke: var(--highlight-color);
-    /*stroke-linecap: round;*/
+    stroke: rgba(128, 128, 128, 1);
+    animation: fadein 3s, dash 3s linear infinite;
+  }
+  marker#arrow {
+    fill: rgba(128, 128, 128, 1);
+  }
+  &.pinned {
+    .tt-link {
+      stroke: rgba(0, 123, 255, 1);
+    }
+    marker#arrow {
+      fill: rgba(0, 123, 255, 1);
+    }
   }
 
   .legend {
@@ -130,6 +146,32 @@
           font-size: 48px;
           line-height: 24px;
         }
+      }
+    }
+  }
+
+  .tooltips {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    min-width: 200px;
+    height: 100%;
+    &.tooltips-left {
+      left: 0;
+      & > .card {
+        border-right: 4px solid rgba(128, 128, 128, 1) !important;
+      }
+      &.tooltips-pinned > .card {
+        border-right: 4px solid rgba(0, 123, 255, 1) !important;
+      }
+    }
+    &.tooltips-right {
+      right: 0;
+      & > .card {
+        border-left: 4px solid rgba(128, 128, 128, 1) !important;
+      }
+      &.tooltips-pinned > .card {
+        border-left: 4px solid rgba(0, 123, 255, 1) !important;
       }
     }
   }
