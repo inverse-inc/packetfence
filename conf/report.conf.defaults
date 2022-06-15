@@ -849,29 +849,25 @@ type=sql
 description=Top active operating system classes
 columns=description,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM node, ip4log
     WHERE
       ip4log.mac = node.mac
       AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-  );
+  )
   SELECT
     IFNULL(device_class, 'Probable Static IP(s)') AS description,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM (node n, ip4log i)
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM (node n, ip4log i, total)
   WHERE
     i.mac = n.mac
     AND (i.end_time = 0 OR i.end_time > NOW())
   GROUP BY description
   ORDER BY percent DESC;
-END;
 EOT
-
 has_limit=disabled
 cursor_type=none
 charts=pie|description:count,bar|description:count
@@ -881,19 +877,16 @@ type=sql
 description=Top operating system classes
 columns=description,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-
-  SET @TOTAL = (
-    SELECT COUNT(1) FROM node
-  );
+  WITH total AS (
+    SELECT COUNT(1) as total FROM node
+  )
   SELECT
     IFNULL(device_class, 'Probable Static IP(s)') AS description,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM node n
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM node n, total
   GROUP BY description
   ORDER BY percent DESC;
-END;
 EOT
 
 has_limit=disabled
@@ -905,22 +898,19 @@ type=sql
 description=Top active operating systems
 columns=description,dhcp_fingerprint,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-
-  SET @TOTAL = (
-    SELECT COUNT(1) FROM node
-  );
+  WITH total AS (
+    SELECT COUNT(1) as total FROM node
+  )
   SELECT
     IFNULL(device_class, 'Probable Static IP(s)') AS description,
     n.dhcp_fingerprint,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM (node n, ip4log i)
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM (node n, ip4log i, total)
   WHERE n.mac = i.mac
     AND (i.end_time = 0 OR i.end_time > NOW())
   GROUP BY description
   ORDER BY percent desc;
-END;
 EOT
 
 has_limit=disabled
@@ -932,28 +922,25 @@ type=sql
 description=Top operating systems
 columns=description,dhcp_fingerprint,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET  @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM (node n, ip4log i)
   WHERE n.mac = i.mac
-    AND i.start_time BETWEEN @START_DATE AND @END_DATE
-  );
+    AND i.start_time BETWEEN ? AND ?
+  )
   SELECT
     IFNULL(device_class, 'Probable Static IP(s)') AS description,
     n.dhcp_fingerprint,
     COUNT(DISTINCT n.mac) AS count,
-    ROUND(COUNT(DISTINCT n.mac) / @TOTAL * 100, 1) AS percent
-  FROM (node n, ip4log i)
+    ROUND(COUNT(DISTINCT n.mac) / total.total * 100, 1) AS percent
+  FROM (node n, ip4log i, total)
   WHERE n.mac = i.mac
-    AND i.start_time BETWEEN @START_DATE AND @END_DATE
+    AND i.start_time BETWEEN ? AND ?
   GROUP BY description
   ORDER BY percent desc;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -1190,32 +1177,30 @@ type=sql
 description=Top roles of active registered nodes
 columns=role,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       AND node.status = 'reg'
-  );
+  )
   SELECT
     IFNULL(role, 'Unknown') AS role,
     COUNT(1) AS nodes,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
     WHERE
       (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       AND node.status = 'reg'
   GROUP BY role
   ORDER BY nodes DESC;
-END;
 EOT
-
 has_limit=disabled
 cursor_type=none
 charts=pie|role:nodes,bar|role:nodes
@@ -1226,33 +1211,31 @@ type=sql
 description=Active registered nodes of roles vs device class
 columns=role,device_class,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) AS total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       AND node.status = 'reg'
-  );
+  )
   SELECT
     IFNULL(role, 'Unknown') AS role,
     device_class,
     COUNT(1) AS nodes,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
   WHERE
     (ip4log.end_time = 0 OR ip4log.end_time > NOW())
     AND node.status = 'reg'
   GROUP BY role, device_class
   ORDER BY percent DESC;
-END;
 EOT
-
 has_limit=disabled
 cursor_type=none
 charts=parallel|device_class:role:nodes
@@ -1263,33 +1246,31 @@ type=sql
 description=Active registered nodes of roles vs device manufacturers
 columns=role,device_manufacturer,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) AS total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       AND node.status = 'reg'
-  );
+  )
   SELECT
     IFNULL(role, 'Unknown') AS role,
     IFNULL(device_manufacturer, 'Unknown') as device_manufacturer,
     COUNT(1) AS nodes,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
   WHERE
     (ip4log.end_time = 0 OR ip4log.end_time > NOW())
     AND node.status = 'reg'
   GROUP BY role, device_manufacturer
   ORDER BY percent DESC;
-END;
 EOT
-
 has_limit=disabled
 cursor_type=none
 charts=parallel|device_manufacturer:role:nodes
@@ -1300,17 +1281,16 @@ type=sql
 description=Active registered nodes of roles vs device types
 columns=role,device_type,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) AS total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       (ip4log.end_time = 0 OR ip4log.end_time > NOW())
       AND node.status = 'reg'
-  );
+  )
   SELECT
     IFNULL(role, 'Unknown') AS role,
     device_type,
@@ -1318,13 +1298,13 @@ BEGIN NOT ATOMIC
     ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
   WHERE
     (ip4log.end_time = 0 OR ip4log.end_time > NOW())
     AND node.status = 'reg'
   GROUP BY role, device_type
   ORDER BY percent DESC;
-END;
 EOT
 
 has_limit=disabled
@@ -1337,28 +1317,26 @@ type=sql
 description=Top roles of registered nodes
 columns=role,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) AS total
     FROM locationlog
     INNER JOIN node USING(mac)
     WHERE
       node.status = 'reg'
-  );
+  )
   SELECT
     IFNULL(role, 'Unknown') AS role,
     COUNT(1) AS nodes,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
-    INNER JOIN node USING(mac)
+    INNER JOIN node USING(mac),
+    total
   WHERE
     node.status = 'reg'
   GROUP BY role
   ORDER BY nodes DESC;
-END;
 EOT
-
 has_limit=disabled
 cursor_type=none
 charts=pie|role:nodes,bar|role:nodes
@@ -1457,30 +1435,29 @@ type=sql
 description=Active SSID's
 columns=ssid,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM locationlog
     INNER JOIN node USING (mac)
     INNER JOIN ip4log USING (mac)
     WHERE
       ssid != ""
       AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-  );
+  )
   SELECT
     ssid,
     COUNT(1) AS nodes,
-    ROUND( COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND( COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
   INNER JOIN node USING (mac)
-  INNER JOIN ip4log USING (mac)
+  INNER JOIN ip4log USING (mac),
+  total
   WHERE
     ssid != ""
     AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
   GROUP BY ssid
   ORDER BY percent DESC;
-END;
 EOT
 
 has_limit=disabled
@@ -1492,33 +1469,31 @@ type=sql
 description=All SSID's
 columns=ssid,nodes,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET  @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(DISTINCT locationlog.mac)
+      COUNT(DISTINCT locationlog.mac) as total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       ssid != ""
-      AND ip4log.start_time BETWEEN @START_DATE AND @END_DATE
-  );
+      AND ip4log.start_time BETWEEN ? AND ?
+  )
   SELECT
     ssid,
     COUNT(DISTINCT locationlog.mac) AS nodes,
-    ROUND( COUNT(DISTINCT locationlog.mac) / @TOTAL * 100, 1) AS percent
+    ROUND( COUNT(DISTINCT locationlog.mac) / total.total * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
   WHERE
   ssid != ""
-  AND ip4log.end_time BETWEEN @START_DATE AND @END_DATE
+  AND ip4log.end_time BETWEEN ? AND ?
   GROUP BY ssid
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
