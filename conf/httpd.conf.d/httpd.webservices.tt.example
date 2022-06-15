@@ -107,8 +107,8 @@ TraceEnable Off
 
 ErrorLog /dev/stderr
 
-User pf
-Group pf
+User root
+Group root
 
 Mutex posixsem default
 Mutex posixsem ssl-cache
