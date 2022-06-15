@@ -231,29 +231,26 @@ type=sql
 description=All failed authentications of sources vs profiles
 columns=profile,source,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM auth_log
+      COUNT(1) as total FROM auth_log
      WHERE status='failed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
-  );
+      AND completed_at >= ?
+      AND completed_at <= ?
+  )
   SELECT
     profile,
     source,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM auth_log
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM auth_log, total
   WHERE status='failed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
+      AND completed_at >= ?
+      AND completed_at <= ?
   GROUP BY profile, source
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -264,26 +261,23 @@ type=sql
 description=All failed authentications by connection profile
 columns=profile,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM auth_log
+      COUNT(1) as total FROM auth_log
      WHERE status='failed'
-      AND completed_at BETWEEN @START_DATE AND @END_DATE
-  );
+      AND completed_at BETWEEN ? AND ?
+  )
   SELECT
     profile,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM auth_log
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM auth_log, total
   WHERE status='failed'
-    AND completed_at BETWEEN @START_DATE AND @END_DATE
+    AND completed_at BETWEEN ? AND ?
   GROUP BY profile
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -294,26 +288,23 @@ type=sql
 description=All failed authentications by source
 columns=source,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM auth_log
+      COUNT(1) as total FROM auth_log
      WHERE status='failed'
-      AND completed_at BETWEEN @START_DATE AND @END_DATE
-  );
+      AND completed_at BETWEEN ? AND ?
+  )
   SELECT
     source,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM auth_log
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM auth_log, total
   WHERE status='failed'
-    AND completed_at BETWEEN @START_DATE AND @END_DATE
+    AND completed_at BETWEEN ? AND ?
   GROUP BY source
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -324,28 +315,25 @@ type=sql
 description=All successful authentications by connection profile
 columns=profile,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM auth_log
+      COUNT(1) as total FROM auth_log
      WHERE status='completed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
-  );
+      AND completed_at >= ?
+      AND completed_at <= ?
+  )
   SELECT
     profile,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM auth_log
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM auth_log, total
   WHERE status='completed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
+      AND completed_at >= ?
+      AND completed_at <= ?
   GROUP BY profile
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -356,28 +344,25 @@ type=sql
 description=All successful authentications by source
 columns=source,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM auth_log
+      COUNT(1) as total FROM auth_log
      WHERE status='completed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
-  );
+      AND completed_at >= ?
+      AND completed_at <= ?
+  )
   SELECT
     source,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM auth_log
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM auth_log, total
   WHERE status='completed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
+      AND completed_at >= ?
+      AND completed_at <= ?
   GROUP BY source
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -388,29 +373,26 @@ type=sql
 description=All successful authentications of sources vs profiles
 columns=profile,source,count,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM auth_log
+      COUNT(1) as total FROM auth_log
      WHERE status='completed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
-  );
+      AND completed_at >= ?
+      AND completed_at <= ?
+  )
   SELECT
     profile,
     source,
     COUNT(1) AS count,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
-  FROM auth_log
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
+  FROM auth_log, total
   WHERE status='completed'
-      AND completed_at >= @START_DATE
-      AND completed_at <= @END_DATE
+      AND completed_at >= ?
+      AND completed_at <= ?
   GROUP BY profile, source
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -421,28 +403,27 @@ type=sql
 description=All active connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-  );
+  )
   SELECT
     connection_type,
     COUNT(1) AS connections,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
   WHERE
     (ip4log.end_time = 0 OR ip4log.end_time > NOW())
   GROUP BY connection_type
   ORDER BY percent DESC;
-END;
 EOT
 has_limit=disabled
 cursor_type=none
@@ -453,21 +434,20 @@ type=sql
 description=All connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1) FROM locationlog
+      COUNT(1) as total FROM locationlog
     INNER JOIN node USING(mac)
-  );
+  )
   SELECT
     connection_type,
     COUNT(1) AS connections,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
-  INNER JOIN node USING(mac)
+  INNER JOIN node USING(mac),
+  total
   GROUP BY connection_type
   ORDER BY percent DESC;
-END;
 EOT
 has_limit=disabled
 cursor_type=none
@@ -478,28 +458,25 @@ type=sql
 description=Connection types by date range
 columns=connection_type,connection_type_orig,connections,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-  SET  @START_DATE = ?, @END_DATE = ?;
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(DISTINCT mac)
+      COUNT(DISTINCT mac) as total
     FROM locationlog
     WHERE
-      start_time BETWEEN @START_DATE AND @END_DATE
-  );
+      start_time BETWEEN ? AND ?
+  )
   SELECT
     connection_type,
     connection_type AS connection_type_orig,
     COUNT(DISTINCT mac) AS connections,
-    ROUND(COUNT(DISTINCT mac) / @TOTAL * 100, 1) AS percent
-  FROM locationlog
+    ROUND(COUNT(DISTINCT mac) / total.total * 100, 1) AS percent
+  FROM locationlog, total
   WHERE
-    start_time BETWEEN @START_DATE AND @END_DATE
+    start_time BETWEEN ? AND ?
   GROUP BY connection_type
   ORDER BY percent DESC;
-END;
 EOT
-bindings=start_date,end_date
+bindings=start_date,end_date,start_date,end_date
 has_date_range=enabled
 has_limit=disabled
 cursor_type=none
@@ -510,31 +487,29 @@ type=sql
 description=All active registered connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-
-  SET @TOTAL = (
+  WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM locationlog
     INNER JOIN node USING(mac)
     INNER JOIN ip4log USING(mac)
     WHERE
       node.status = "reg"
       AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
-  );
+  )
   SELECT
     connection_type,
     COUNT(1) AS connections,
-    ROUND(COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND(COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
     INNER JOIN node USING(mac)
-    INNER JOIN ip4log USING(mac)
+    INNER JOIN ip4log USING(mac),
+    total
   WHERE
     node.status = "reg"
     AND (ip4log.end_time = 0 OR ip4log.end_time > NOW())
   GROUP BY connection_type
   ORDER BY percent DESC;
-END;
 EOT
 
 has_limit=disabled
@@ -546,27 +521,25 @@ type=sql
 description=All registered connection types
 columns=connection_type,connections,percent
 sql= <<EOT
-BEGIN NOT ATOMIC
-
-  SET @TOTAL = (
+   WITH total AS (
     SELECT
-      COUNT(1)
+      COUNT(1) as total
     FROM locationlog
     INNER JOIN node USING(mac)
     WHERE
       node.status = "reg"
-  );
+  )
   SELECT
     connection_type,
     COUNT(1) AS connections,
-    ROUND( COUNT(1) / @TOTAL * 100, 1) AS percent
+    ROUND( COUNT(1) / total.total * 100, 1) AS percent
   FROM locationlog
-  INNER JOIN node USING(mac)
+  INNER JOIN node USING(mac),
+  total
   WHERE
     node.status = "reg"
   GROUP BY connection_type
   ORDER BY percent DESC;
-END;
 EOT
 
 has_limit=disabled
