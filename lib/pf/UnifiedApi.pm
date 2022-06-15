@@ -666,6 +666,11 @@ sub setup_api_v1_nodes_routes {
         action => 'bulk_delete',
     });
 
+    $collection_route->register_sub_actions({
+        method => 'GET',
+        actions => ['per_device_class'],
+    });
+
     return ( $collection_route, $resource_route );
 }
 
