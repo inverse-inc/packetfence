@@ -8,6 +8,8 @@ export default (props, config, nodes, links) => {
   } = toRefs(props)
 
   const simulation = ref(null)
+  const ticks = ref(0)
+  const isSimulating = computed(() => ticks.value < 25)
 
   const bounds = computed(() => {
     const { width, height } = dimensions.value
@@ -21,52 +23,49 @@ export default (props, config, nodes, links) => {
 
   const init = () => {
     simulation.value = d3
-      .forceSimulation(nodes.value)
+      .forceSimulation(nodes)
       .on('tick', tick)
-    force()
   }
 
   const start = () => {
     if (simulation.value) {
-      nextTick(() => {
-        simulation.value.restart()
-      })
+      simulation.value.restart()
+      ticks.value = 0
     }
   }
 
   const stop = () => {
-    if (simulation.value)
+    if (simulation.value) {
       simulation.value.stop()
+    }
   }
 
   const coords = ref([])
 
-  let tickDebouncer = false
   const tick = () => {
-    if (!tickDebouncer) {
-      tickDebouncer = setTimeout(() => {
-        tickDebouncer = false
-        const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = bounds.value
-        const { height = 0, width = 0 } = dimensions.value
-        if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
-          const xMult = (width - (2 * config.value.padding)) / (maxX - minX)
-          const yMult = (height - (2 * config.value.padding)) / (maxY - minY)
-          coords.value = nodes.value.map(node => {
-            const x = config.value.padding + (node.x - minX) * xMult
-            const y = config.value.padding + (node.y - minY) * yMult
-            return {
-              x: isNaN(x) ? 0 : x,
-              y: isNaN(y) ? 0 : y
-            }
-          })
+    ticks.value++
+    const { minX = 0, maxX = 0, minY = 0, maxY = 0 } = bounds.value
+    const { height = 0, width = 0 } = dimensions.value
+    if ((minX | maxX | minY | maxY) !== 0) { // not all zero's
+      const xMult = (width - (2 * config.value.padding)) / (maxX - minX)
+      const yMult = (height - (2 * config.value.padding)) / (maxY - minY)
+      coords.value = nodes.value.map(node => {
+        const x = config.value.padding + (node.x - minX) * xMult
+        const y = config.value.padding + (node.y - minY) * yMult
+        return {
+          x: isNaN(x) ? 0 : x,
+          y: isNaN(y) ? 0 : y
         }
-        else
-          coords.value = nodes.value.map(() => ({ x: 0, y: 0 })) // all zero's
-      }, 100)
+      })
+    }
+    else {
+      coords.value = nodes.value.map(() => ({ x: 0, y: 0 })) // all zero's
     }
   }
 
   const force = () => {
+    simulation.value.nodes(nodes.value) // push nodes to simulation
+
     /* `collide` force - prevents nodes from overlapping */
     simulation.value.force('collide', d3.forceCollide()
       .radius(_forceCollideRadius)
@@ -84,7 +83,7 @@ export default (props, config, nodes, links) => {
 
     switch (config.value.layout) {
       case 'radial':
-        simulation.value.velocityDecay(0.4) // default: 0.4
+        simulation.value.velocityDecay(0.7) // default: 0.4
         /* `radial` force - orient on circle of specified radius centered at x, y */
         /*
         simulation.value.force('radial', d3.forceRadial()
@@ -97,13 +96,14 @@ export default (props, config, nodes, links) => {
         break
 
       case 'tree':
-        simulation.value.velocityDecay(0.5) // default: 0.4
+        simulation.value.velocityDecay(0.7) // default: 0.4
         break
 
       default:
         throw new Error(`Unhandled layout ${config.value.layout}`)
     }
-    simulation.value.alpha(1)
+
+    simulation.value.alpha(5)
   }
 
   const _getCoordFromCoordAngle = (x1, y1, angle, length) => {
@@ -363,14 +363,16 @@ export default (props, config, nodes, links) => {
 
   watch(() => config.value.layout, (a, b) => {
     if (simulation.value && a !== b) {
-      stop()
-      init()
-      start()
+      nextTick(() => {
+        force()
+        start()
+      })
     }
   })
 
   return {
     simulation,
+    isSimulating,
     bounds,
     coords,
     init,

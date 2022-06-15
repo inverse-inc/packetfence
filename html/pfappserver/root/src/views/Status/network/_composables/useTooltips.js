@@ -1,15 +1,6 @@
-import { computed, ref, toRefs } from '@vue/composition-api'
-import d3 from '@/utils/d3'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { createDebouncer } from 'promised-debounce'
 import useColor from './useColor'
-import { useViewBox } from './useSvg'
-
-const getAngleFromCoords = (x1, y1, x2, y2) => {
-  const dx = x2 - x1
-  const dy = y2 - y1
-  let theta = Math.atan2(dy, dx)
-  theta *= 180 / Math.PI // radians to degrees
-  return (360 + theta) % 360
-}
 
 export default (props, config, bounds, viewBox, nodes, links) => {
 
@@ -18,34 +9,50 @@ export default (props, config, bounds, viewBox, nodes, links) => {
   } = toRefs(props)
 
   const {
-    centerX,
-    centerY
-  } = useViewBox(config, dimensions)
-
-  const {
     color
   } = useColor(props, config)
 
-  const localTooltips = ref([]) // private d3 tooltips
+  const tooltipsRef = ref(null) // component ref
+  const tooltipsRefBounds = ref(false)
+
+  let tooltipDebouncer
+  let closeLastObserver = false
+  watch(tooltipsRef, () => {
+    if (tooltipsRef.value) {
+      if (closeLastObserver) {
+        closeLastObserver() // disconnect
+      }
+      const observer = new MutationObserver(() => {
+        if (!tooltipDebouncer)
+          tooltipDebouncer = createDebouncer()
+        tooltipDebouncer({
+          handler: () => {
+            if (tooltipsRef.value) {
+              tooltipsRefBounds.value = tooltipsRef.value.getBoundingClientRect()
+            }
+          },
+          time: 250
+        })
+      })
+      closeLastObserver = () => observer.disconnect()
+      observer.observe(tooltipsRef.value, { attributes: true, characterData: true, childList: true, subtree: true })
+    }
+  })
+
+  const localTooltips = ref([]) // private tooltips
 
   const tooltips = computed(() => {
-    return localTooltips.value
+    return [...(new Set(localTooltips.value))] // dereferenced
       .filter(tooltip => !('fx' in tooltip || 'fy' in tooltip))
       .map(tooltipBounded => {
         const node = nodes.value.find(node => node.id === tooltipBounded.id)
         const nodeBounded = coordBounded(node)
-        const angle = getAngleFromCoords(nodeBounded.x, nodeBounded.y, tooltipBounded.x, tooltipBounded.y)
         return {
           node,
-          line: {
-            angle,
-            x1: nodeBounded.x,
-            y1: nodeBounded.y,
-            x2: tooltipBounded.x,
-            y2: tooltipBounded.y
-          }
+          ...nodeBounded
         }
       })
+      .sort((a, b) => (a.y - b.y)) // sort by `y`
   })
 
   const coordBounded = coord => {
@@ -63,19 +70,6 @@ export default (props, config, bounds, viewBox, nodes, links) => {
     return { x: 0, y: 0 }
   }
 
-  const tooltipAnchorAttrs = tooltip => {
-    let { line: { x2: x, y2: y } = {} } = tooltip
-    let style = [] // set styles
-    const { height: dHeight, width: dWidth } = dimensions.value
-    const { minX, minY, width: vWidth, height: vHeight } = viewBox.value
-    // scale coords to absolute offset from outer container (x: 0, y: 0)
-    let absoluteX = (x - minX) / vWidth * dWidth
-    let absoluteY = (y - minY) / vHeight * dHeight
-    style.push(`top: ${absoluteY}px`, `left: ${absoluteX}px`)
-    style = `${style.join('; ')};` // collapse
-    return { style }
-  }
-
   let highlight = ref(false) // mouseOver @ node
   let highlightNodeId = ref(false) // last highlighted node
 
@@ -83,9 +77,31 @@ export default (props, config, bounds, viewBox, nodes, links) => {
     return links.value.filter(link => { link.highlight })
   })
 
-  const mouseOverNode = node => {
-    const { width, height } = dimensions.value
-    _highlightNodeById(node.id) // highlight node
+  const tooltipsOther = computed(() => {
+    const { width, minX } = viewBox.value
+    return localTooltips.value.reduce((other, tooltip) => {
+      const { id, x = 0 } = tooltip
+      if (id === highlightNodeId.value) {
+        return other || (x <= minX + (width / 2))
+      }
+      return other
+    }, false)
+  })
+  const tooltipsPinned = ref(false)
+
+  const mouseDownNode = node => {
+    const { id = false } = node || {}
+    tooltipsPinned.value = (tooltipsPinned.value !== id) ? id : false
+    if (id) {
+      _mouseOverNode(node)
+    }
+    else {
+      mouseOutNode()
+    }
+  }
+
+  const _mouseOverNode = node => {
+    highlightNodeById(node.id) // highlight node
     highlight.value = (node.type === 'node') ? color(node) : 'none'
     // tooltips
     if (highlightNodeId.value !== node.id) {
@@ -103,81 +119,33 @@ export default (props, config, bounds, viewBox, nodes, links) => {
           return JSON.parse(JSON.stringify({ id: `${id}-fixed`, fx, fy }))
         })
       ]
-      // link force from tooltip to node (self)
-      let selfLinks = []
-      highlightedNodes.map(node => {
-        const { id } = node
-        selfLinks.push({ source: id, target: `${id}-fixed` })
-      })
-      // link force from tooltip to other nodes
-      let nodeLinks = []
-      highlightedNodes.map(node => {
-        const { id } = node
-        highlightedNodes.map(other => {
-          const { id: otherId } = other
-          if (otherId !== id) {
-            if (nodeLinks.filter(link =>
-              ([link.source, link.target].includes(id) && [link.source, link.target].includes(`${otherId}-fixed`))
-            ).length === 0) {
-              nodeLinks.push({ source: id, target: `${otherId}-fixed` })
-            }
-          }
-        })
-      })
-      // link force from tooltip to other tooltips
-      let tooltipLinks = []
-      highlightedNodes.map(node => {
-        const { id } = node
-        highlightedNodes.map(other => {
-          const { id: otherId } = other
-          if (otherId !== id) {
-            if (tooltipLinks.filter(link =>
-              ([link.source, link.target].includes(id) && [link.source, link.target].includes(otherId))
-            ).length === 0) {
-              tooltipLinks.push({ source: otherId, target: id })
-            }
-          }
-        })
-      })
-      d3.forceSimulation(localTooltips.value)
-        .alphaDecay(1 - Math.pow(0.001, 1 / 50)) // default: 1 - Math.pow(0.001, 1 / 300)
-        .velocityDecay(0.8) // default: 0.4
-        .force('x', d3.forceX() // force: tooltip w/ center x
-          .x(centerX.value)
-          .strength(0.5)
-        )
-        .force('y', d3.forceY() // force: tooltip w/ center y
-          .y(centerY.value)
-          .strength(0.5)
-        )
-        .force('selfLinks', d3.forceLink(selfLinks) // force: tooltip w/ node
-          .id((d) => d.id)
-          .distance(Math.min(width, height) / 8)
-          .strength(0.5)
-          .iterations(4)
-        )
-        .force('nodeLinks', d3.forceLink(nodeLinks) // force: tooltip w/ other nodes
-          .id((d) => d.id)
-          .distance(Math.min(width, height) / 2)
-          .strength(0.5)
-          .iterations(2)
-        )
-        .force('tooltipLinks', d3.forceLink(tooltipLinks) // force: tooltip w/ other tooltips
-          .id((d) => d.id)
-          .distance(Math.min(width, height) / 2)
-          .strength(0.5)
-          .iterations(8)
-        )
-        .restart()
     }
   }
 
+  let mouseOverNodeDebouncer
+  const mouseOverNode = node => {
+    if (tooltipsPinned.value && tooltipsPinned.value !== node.id) {
+      return
+    }
+    if (!mouseOverNodeDebouncer) {
+      mouseOverNodeDebouncer = createDebouncer()
+    }
+    mouseOverNodeDebouncer({
+      handler: () => {
+        _mouseOverNode(node)
+      },
+      time: 300
+    })
+  }
+
   const mouseOutNode = () => {
-    _unhighlightNodes()
-    _unhighlightLinks()
-    highlight.value = false
-    highlightNodeId.value = false
-    localTooltips.value = []
+    if (!tooltipsPinned.value) {
+      _unhighlightNodes()
+      _unhighlightLinks()
+      highlight.value = false
+      highlightNodeId.value = false
+      localTooltips.value = []
+    }
   }
 
   const _unhighlightNodes = () => {
@@ -188,7 +156,7 @@ export default (props, config, bounds, viewBox, nodes, links) => {
     links.value = links.value.map(link => ({ ...link, highlight: false }))
   }
 
-  const _highlightNodeById = id => {
+  const highlightNodeById = id => {
     _unhighlightNodes()
     _unhighlightLinks()
     // highlight all target nodes linked to this source node
@@ -216,15 +184,48 @@ export default (props, config, bounds, viewBox, nodes, links) => {
     }
   }
 
+  const tooltipsLines = computed(() => {
+    const { maxX = 0, maxY = 0 } = bounds.value
+    const { minX: viewBoxX, minY: viewBoxY, width, height } = viewBox.value
+    return tooltips.value
+      .map((tooltip, t) => {
+        if (tooltipsRef.value && t in tooltipsRef.value.childNodes) {
+          const tooltipBounds = tooltipsRef.value.childNodes[t].getBoundingClientRect()
+          let x = (tooltipBounds.x - tooltipsRefBounds.value.x) + tooltipBounds.width
+          let y = (tooltipBounds.y - tooltipsRefBounds.value.y) + (tooltipBounds.height / 2)
+          if (tooltipsOther.value) {
+            x = dimensions.value.width - x
+          }
+          const x1 = viewBoxX + (x / maxX * width)
+          const y1 = viewBoxY + (y / maxY * height)
+          if (!isNaN(x1) && !isNaN(y1)) {
+            return {
+              x1,
+              y1,
+              x2: tooltip.x,
+              y2: tooltip.y,
+            }
+          }
+        }
+        return false
+      })
+      .filter(tooltip => Object.keys(tooltip).length > 0)
+  })
+
   return {
+    tooltipsRef,
     coordBounded,
     localTooltips,
     tooltips,
-    tooltipAnchorAttrs,
+    tooltipsLines,
+    tooltipsOther,
+    tooltipsPinned,
     highlight,
+    highlightNodeById,
     highlightNodeId,
     highlightedLinks,
+    mouseDownNode,
     mouseOverNode,
-    mouseOutNode
+    mouseOutNode,
   }
 }

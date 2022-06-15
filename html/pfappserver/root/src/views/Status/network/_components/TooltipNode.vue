@@ -1,5 +1,6 @@
 <template>
-  <b-card no-body class="tooltip-node">
+  <b-card no-body
+    class="tooltip-node" :id="`tooltip-${id}`">
     <b-card-header class="p-2">
       <h5 class="mb-0 text-nowrap">{{ $t('Node') }}</h5>
       <p class="mb-0"><mac>{{ id }}</mac></p>
