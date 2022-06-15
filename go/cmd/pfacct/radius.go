@@ -125,9 +125,22 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	giga_in_bytes := int64(rfc2869.AcctInputGigawords_Get(r.Packet))
 	giga_out_bytes := int64(rfc2869.AcctOutputGigawords_Get(r.Packet))
 	unique_session_id := h.accountingUniqueSessionId(r)
-	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
-	if timestamp.IsZero() {
+	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
+	if err != nil {
 		timestamp = time.Now()
+	} else {
+		if timestamp.Before(time.Now().AddDate(0, 0, -1)) {
+			logError(
+				ctx,
+				fmt.Sprintf(
+					"[mac:%s, id:%d, timestamp:%s] skip packet timestamp is older than a day",
+					mac.String(),
+					unique_session_id,
+					timestamp.String(),
+				),
+			)
+			return
+		}
 	}
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
@@ -135,7 +148,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		ctx,
 		fmt.Sprintf(
 			"[mac:%s, id:%d, bucket:%s] in_bytes: (%d, %d), out_bytes: (%d, %d)",
-			mac,
+			mac.String(),
 			unique_session_id,
 			timestamp.String(),
 			in_bytes,
@@ -740,7 +753,7 @@ func (rs *RadiusStatements) InsertBandwidthAccounting(node_id uint64, tenant_id 
 	logInfo(
 		context.Background(),
 		fmt.Sprintf(
-			"Inserting Bandwidth node_id: %d, tenant_id: %d, mac: %s, unique_session: %s, bucket: %s, in_bytes: %d, out_bytes: %d",
+			"Inserting Bandwidth node_id: %d, tenant_id: %d, mac: %s, unique_session: %d, bucket: %s, in_bytes: %d, out_bytes: %d",
 			node_id, tenant_id, mac, unique_session, bucket, in_bytes, out_bytes,
 		),
 	)
