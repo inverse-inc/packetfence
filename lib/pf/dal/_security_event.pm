@@ -41,6 +41,7 @@ BEGIN {
         status
         ticket_ref
         notes
+        severity
     );
 
     %DEFAULTS = (
@@ -51,6 +52,7 @@ BEGIN {
         status => 'open',
         ticket_ref => undef,
         notes => undef,
+        severity => '0',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -61,6 +63,7 @@ BEGIN {
         status
         ticket_ref
         notes
+        severity
     );
 
     %FIELDS_META = (
@@ -112,6 +115,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        severity => {
+            type => 'SMALLINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -127,6 +136,7 @@ BEGIN {
         security_event.status
         security_event.ticket_ref
         security_event.notes
+        security_event.severity
     );
 
 }

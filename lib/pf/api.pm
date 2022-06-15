@@ -1365,7 +1365,7 @@ sub fingerbank_nba_webhook :Public :RestPath(/fingerbank/nba/webhook){
             if($event->{peer}) {
                 $notes .= "Peer: $event->{peer}\n";
             }
-            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => $event->{event_id}, 'type' => "fingerbank", "notes" => $notes } );
+            pf::security_event::security_event_trigger( { 'mac' => $mac, 'tid' => $event->{event_id}, 'type' => "fingerbank", "notes" => $notes, 'severity' => $event->{severity} } );
         }
         else {
             $logger->error("Unknown event type received");

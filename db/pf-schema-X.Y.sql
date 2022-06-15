@@ -199,6 +199,7 @@ CREATE TABLE security_event (
   status varchar(10) default "open",
   ticket_ref varchar(255) default NULL,
   notes MEDIUMTEXT,
+  severity smallint default 0, 
   KEY security_event_id (security_event_id),
   KEY status (status),
   KEY uniq_mac_status_id (mac,status,security_event_id),

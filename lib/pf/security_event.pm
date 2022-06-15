@@ -430,6 +430,8 @@ sub security_event_add {
         }
     }
 
+    my $class = $pf::security_event_config::SecurityEvent_Config{$security_event_id};
+
     # insert security_event into db
     my $status = pf::dal::security_event->create({
         mac          => $mac,
@@ -438,7 +440,9 @@ sub security_event_add {
         release_date => $data{release_date},
         status       => $data{status},
         ticket_ref   => $data{ticket_ref},
-        notes        => $data{notes}
+        notes        => $data{notes},
+        #TODO: change this with security_event.severity when removing the priority attribute
+        severity     => ($data{severity} ? $data{severity} : $class->{priority}),
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
