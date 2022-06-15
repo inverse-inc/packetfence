@@ -207,7 +207,7 @@ sub set_timezone {
         my $msg = "WARNING: The timezone is being changed from $lt to $tz on the system. It is advised to reboot the server so that all services start with the correct timezone.\n";
         print STDERR $msg;
         get_logger->warn($msg);
-        system("sudo timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
+        system("timedatectl set-timezone $tz") && die "Unable to set timezone on the system \n";
     }
 }
 
