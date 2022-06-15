@@ -2014,6 +2014,7 @@ sub setup_api_v1_fingerbank_routes {
     $route->register_sub_action({ action => "update_upstream_db", method => "POST"});
     $route->register_sub_action({ action => "account_info", method => "GET" });
     $route->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
+    $route->register_sub_action({ action => "all_devices", method => "GET" });
     my $upstream = $route->any("/upstream")->to(scope => "Upstream")->name( $route->name . ".Upstream");
     my $local_route = $route->any("/local")->to(scope => "Local")->name( $route->name . ".Local");
     my $all_route = $route->any("/all")->to(scope => "All")->name( $route->name . ".All");
