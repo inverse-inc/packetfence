@@ -1192,6 +1192,13 @@ sub update_data {
     return $data;
 }
 
+sub per_device_class {
+    my ($self) = @_;
+    return $self->_db_execute_response(
+        "SELECT device_class, COUNT(1) as count from node WHERE device_class IS NOT NULL GROUP BY device_class;"
+    );
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
