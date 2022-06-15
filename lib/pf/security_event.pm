@@ -303,7 +303,7 @@ sub security_event_view_top {
         },
         -columns => [qw(id mac security_event.security_event_id start_date release_date status ticket_ref notes)],
         -from => [-join => qw(security_event {security_event.security_event_id=class.security_event_id} class)],
-        -order_by => {-asc => 'priority'},
+        -order_by => {-desc => 'severity'},
         -limit => 1,
     });
 }
@@ -441,8 +441,7 @@ sub security_event_add {
         status       => $data{status},
         ticket_ref   => $data{ticket_ref},
         notes        => $data{notes},
-        #TODO: change this with security_event.severity when removing the priority attribute
-        severity     => ($data{severity} ? $data{severity} : $class->{priority}),
+        severity     => ($data{severity} ? $data{severity} : $class->{severity}),
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);

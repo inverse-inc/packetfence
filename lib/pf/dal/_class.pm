@@ -40,7 +40,6 @@ BEGIN {
         grace_period
         window
         vclose
-        priority
         template
         max_enable_url
         redirect_url
@@ -50,6 +49,7 @@ BEGIN {
         target_category
         delay_by
         external_command
+        severity
     );
 
     %DEFAULTS = (
@@ -60,7 +60,6 @@ BEGIN {
         grace_period => '',
         window => '0',
         vclose => undef,
-        priority => '',
         template => undef,
         max_enable_url => undef,
         redirect_url => undef,
@@ -70,6 +69,7 @@ BEGIN {
         target_category => undef,
         delay_by => '0',
         external_command => undef,
+        severity => '0',
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -80,7 +80,6 @@ BEGIN {
         grace_period
         window
         vclose
-        priority
         template
         max_enable_url
         redirect_url
@@ -90,6 +89,7 @@ BEGIN {
         target_category
         delay_by
         external_command
+        severity
     );
 
     %FIELDS_META = (
@@ -134,12 +134,6 @@ BEGIN {
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
-        },
-        priority => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
-            is_nullable => 0,
         },
         template => {
             type => 'VARCHAR',
@@ -195,6 +189,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        severity => {
+            type => 'SMALLINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -209,7 +209,6 @@ BEGIN {
         class.grace_period
         class.window
         class.vclose
-        class.priority
         class.template
         class.max_enable_url
         class.redirect_url
@@ -219,6 +218,7 @@ BEGIN {
         class.target_category
         class.delay_by
         class.external_command
+        class.severity
     );
 
 }

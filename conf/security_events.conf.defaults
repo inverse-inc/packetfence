@@ -6,7 +6,7 @@
 #
 
 [defaults]
-priority=4
+severity=1
 max_enable=3
 actions=email_admin
 auto_enable=Y
@@ -27,8 +27,6 @@ recipient_template_email=security_event-triggered
 
 [1100001]
 desc=Nessus Scan
-# On a Scan security event priority must be higher (lower number) than the special system scan security event (1200001)
-priority=4
 template=failed_scan
 max_enable=4
 button_text=Scan my computer again
@@ -40,8 +38,6 @@ vlan=registration
 
 [1100002]
 desc=OpenVAS scan
-# On a scan security event priority must be higher (lower number) than the special system scan security event (1200001)
-priority=4
 template=failed_scan
 max_enable=4
 button_text=Scan my computer again
@@ -79,6 +75,7 @@ enabled=N
 
 [1100006]
 desc=P2P Isolation (snort example)
+severity=3
 template=p2p
 trigger=suricata_event::ET P2P
 actions=reevaluate_access,email_admin
@@ -86,7 +83,6 @@ enabled=N
 
 [1100007]
 desc=Auto-register Device example
-priority=1
 trigger=DEVICE::3,DEVICE::6,DEVICE::7,DEVICE::8,DEVICE::10,DEVICE::12,DEVICE::13
 actions=autoreg
 enabled=N
@@ -148,7 +144,6 @@ enabled=Y
 #  1200000 - 120099 Reserved for required administration security events
 #
 [1200001]
-priority=9
 desc=System Scan
 # someone should always be able to try to scan its system again
 max_enable=0
@@ -162,7 +157,6 @@ auto_enable=Y
 vlan=registration
 
 [1200002]
-priority=9
 desc=Time Expiration
 max_enable=1
 grace=0
@@ -174,7 +168,6 @@ auto_enable=N
 vlan=registration
 
 [1200003]
-priority=9
 desc=Bandwidth Limit
 max_enable=1
 grace=0
@@ -186,7 +179,6 @@ auto_enable=N
 vlan=registration
 
 [1200004]
-priority=9
 desc=Post Reg System Scan 
 # someone should always be able to try to scan its system again
 max_enable=0
@@ -196,7 +188,6 @@ enabled=Y
 auto_enable=Y
 
 [1200005]
-priority=9
 desc=Pre Reg System Scan
 # someone should always be able to try to scan its system again
 max_enable=0
@@ -211,21 +202,19 @@ vlan=registration
 #
 [1300000]
 desc=Generic
-priority=8
 actions=reevaluate_access
 template=generic
 enabled=Y
 
 [1300001]
 desc=Spam
-priority=6
+severity=3
 actions=reevaluate_access
 template=spam
 enabled=Y
 
 [1300002]
 desc=Provisioning Enforcement
-priority=6
 actions=enforce_provisioning
 template=enforce_provisioning
 trigger=Provisioner::check
@@ -234,7 +223,6 @@ grace=15m
 delay_by=2m
 
 [1300003]
-priority=1
 desc=Parking security event
 max_enable=0
 grace=10m
@@ -245,7 +233,6 @@ vlan=registration
 trigger=Internal::parking_detected
 
 [1300004]
-priority=1
 trigger=internal::node_discovered
 actions=email_admin
 desc=Node discovered
@@ -254,9 +241,9 @@ auto_enable=N
 enabled=N
 
 [1300005]
-priority=1
 actions=email_user,email_admin,reevaluate_access
 desc=Lost or Stolen
+severity=4
 enabled=Y
 template=banned_devices
 auto_enable=N
@@ -264,7 +251,6 @@ user_mail_message=Your device [% mac %] as been declared as lost or stolen. Plea
 grace=0
 
 [1300006]
-priority=1
 trigger=internal::fingerbank_device_change
 window=
 desc=Fingerbank device class change
@@ -282,6 +268,7 @@ desc=Fingerbank profile anomaly
 enabled=Y
 
 [1300008]
+severity=3
 trigger=internal::fingerbank_blacklisted_ips_threshold_too_high,internal::fingerbank_blacklisted_ports
 actions=email_admin
 desc=Fingerbank detected blacklisted communication over the policy threshold
@@ -312,7 +299,7 @@ grace=0
 #
 [2000000]
 desc=Malware
-priority=4
+severity=3
 template=malware
 enabled=N
 actions=reevaluate_access,email_admin
@@ -320,7 +307,7 @@ trigger=suricata_event::ET MALWARE
 
 [2000032]
 desc=LSASS Exploit
-priority=4
+severity=3
 template=lsass
 redirect_url=/proxies/tools/stinger.exe
 enabled=N
@@ -328,7 +315,7 @@ trigger=Detect::2000032,Detect::2000033,Detect::2000046,Detect::2001286,Detect::
 
 [2002030]
 desc=IRC Trojan
-priority=3
+severity=3
 auto_enable=N
 template=trojan
 enabled=N
@@ -339,14 +326,14 @@ actions=reevaluate_access,email_admin
 # for BitTorrent clients.  These new signatures look for most of the "worm-like" scanning behaviors.
 [2002201]
 desc=Zotob (W32.Zotob and variants)
-priority=4
+severity=3
 template=zotob
 enabled=N
 trigger=Detect::2002201,Detect::2002203
 
 [2001904]
 desc=Telnet Scan
-priority=6
+severity=3
 template=scanning
 enabled=N
 auto_enable=N
@@ -354,7 +341,7 @@ trigger=Detect::2001904
 
 [2001972]
 desc=Remote Desktop Scan
-priority=6
+severity=3
 template=scanning
 enabled=N
 auto_enable=N
@@ -362,7 +349,7 @@ trigger=Detect::2001972
 
 [2001569]
 desc=NetBIOS Scan
-priority=6
+severity=3
 template=scanning
 enabled=N
 auto_enable=N
@@ -376,7 +363,6 @@ desc=Block all mobile devices
 template=banned_devices
 actions=email_admin,reevaluate_access
 enabled=N
-priority=10
 trigger=DEVICE::11
 
 [3000002]
@@ -384,7 +370,6 @@ desc=Block Apple iPod, iPhone or iPad
 template=banned_devices
 actions=reevaluate_access,email_admin
 enabled=N
-priority=10
 trigger=DEVICE::193
 
 [3000003]
@@ -392,7 +377,6 @@ desc=Block BlackBerries
 template=banned_devices
 actions=reevaluate_access,email_admin
 enabled=N
-priority=10
 trigger=DEVICE::192
 
 [3000004]
@@ -400,7 +384,6 @@ desc=Block PS3 and PSP
 template=banned_devices
 actions=reevaluate_access,email_admin
 enabled=N
-priority=10
 trigger=DEVICE::274
 
 [3000005]
@@ -408,7 +391,6 @@ desc=Block Slingbox
 template=banned_devices
 actions=reevaluate_access,email_admin
 enabled=N
-priority=10
 trigger=DEVICE::143
 
 [3000006]

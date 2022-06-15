@@ -25,7 +25,7 @@ use base qw(pf::base::cmd::config_store);
 
 our @FIELDS = qw(
   security_event_id desc enabled actions user_mail_message
-  vclose target_category priority whitelisted_roles
+  vclose target_category severity whitelisted_roles
   trigger auto_enable max_enable grace
   window_dynamic window delay_by template
   button_text vlan redirect_url external_command

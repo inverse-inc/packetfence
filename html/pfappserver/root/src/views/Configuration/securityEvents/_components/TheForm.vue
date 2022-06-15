@@ -17,9 +17,9 @@
       :column-label="$i18n.t('Description')"
     />
 
-    <form-group-priority namespace="priority"
-      :column-label="$i18n.t('Priority')"
-      :text="$i18n.t('When multiple violations are opened for an endpoint, the one with the lowest priority takes precedence.')"
+    <form-group-severity namespace="severity"
+      :column-label="$i18n.t('Severity')"
+      :text="$i18n.t('Range 0-5, with 5 being the highest severity.')"
     />
 
     <form-group-whitelisted-roles namespace="whitelisted_roles"
@@ -73,7 +73,7 @@ import {
   FormGroupEnabled,
   FormGroupGrace,
   FormGroupIdentifier,
-  FormGroupPriority,
+  FormGroupSeverity,
   FormGroupTriggers,
   FormGroupTriggersHeader,
   FormGroupWhitelistedRoles,
@@ -90,7 +90,7 @@ const components = {
   FormGroupEnabled,
   FormGroupGrace,
   FormGroupIdentifier,
-  FormGroupPriority,
+  FormGroupSeverity,
   FormGroupTriggers,
   FormGroupTriggersHeader,
   FormGroupWhitelistedRoles,
