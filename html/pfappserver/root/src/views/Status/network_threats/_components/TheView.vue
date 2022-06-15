@@ -95,6 +95,17 @@
             </template>
           </span>
         </template>
+        <template #cell(mac)="{ value }">
+          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
+        </template>
+        <template #cell(security_event_id)="{ value }">
+          <router-link :to="{ path: `/configuration/security_event/${value}` }">{{ securityEventMap[value] || '...' }}</router-link>
+        </template>
+        <template #cell(buttons)>
+          <span class="float-right text-nowrap text-right mr-3">
+            <b-button variant="outline-primary">Action</b-button>
+          </span>
+        </template>
       </b-table>
       <b-container fluid v-if="selected.length"
         class="mt-3 p-0">
@@ -176,11 +187,17 @@ const setup = (props, context) => {
       reSearch()
     }, { deep: true, immediate: true })
 
-  const deviceClassMap = ref([])
+  const deviceClassMap = ref({})
+  const securityEventMap = ref({})
   onMounted(() => {
     $store.dispatch('$_fingerbank/devices').then(items => {
       deviceClassMap.value = items.reduce((assoc, item) => {
         return { ...assoc, [item.id]: item.name }
+      }, {})
+    })
+    $store.dispatch('$_security_events/all').then(items => {
+      securityEventMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.desc }
       }, {})
     })
   })
@@ -209,7 +226,9 @@ const setup = (props, context) => {
     tableRef,
     ...selected,
     ...toRefs(search),
-    onBulkExport
+    onBulkExport,
+
+    securityEventMap
   }
 }
 
