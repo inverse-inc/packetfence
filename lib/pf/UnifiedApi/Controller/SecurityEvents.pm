@@ -99,22 +99,6 @@ sub per_device_class_closed {
     return $self->_per_device_class_status('closed');
 }
 
-sub _db_execute_response {
-    my ($self, $sql, @bind) = @_;
-    my ($status, $sth) =  $self->dal->db_execute(
-        $sql,
-        @bind
-    );
-
-    if (is_error($status)) {
-        return $self->render_error($status, 'Cannot complete query');
-    }
-
-    my $items = $sth->fetchall_arrayref({});
-    $sth->finish;
-    return $self->render(json => { items => $items });
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
