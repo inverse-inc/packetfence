@@ -95,6 +95,14 @@
             </template>
           </span>
         </template>
+        <template #cell(status)="{ value }">
+          <span v-b-tooltip.right.d300 :title="$t('open')" v-if="value === 'open'">
+            <icon name="circle" class="text-danger" />
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('closed')" v-else>
+            <icon name="circle" class="text-light" />
+          </span>
+        </template>
         <template #cell(mac)="{ value }">
           <router-link :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
         </template>
