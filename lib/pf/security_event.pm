@@ -676,6 +676,8 @@ sub security_event_trigger {
 
         $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
 
+        $data{severity} = $argv->{severity};
+
         $logger->info("calling security_event_add with security_event_id=$security_event_id mac=$mac release_date=$date (trigger ${type}::${tid})");
         security_event_add($mac, $security_event_id, %data);
         $addedSecurityEvent = 1;
