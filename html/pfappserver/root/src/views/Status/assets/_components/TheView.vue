@@ -1,35 +1,34 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="mb-0">
-        {{ $t('Network') }}
-      </h4>
+      <h4 class="d-inline" v-t="'Network Threats'"></h4>
     </b-card-header>
     <div class="card-body">
-      <base-search :use-search="useSearch" @basic="onTouch" @advanced="onTouch" @reset="onTouch">
-        <b-form inline>
-          <b-input-group class="mr-3">
-            <b-input-group-prepend is-text>
-              <base-input-toggle-false-true v-model="live.enabled"
-                :disabled="isLoading || !live.allowed" :label-right="false" class="inline" />
-            </b-input-group-prepend>
-            <b-dropdown variant="light" :text="$t('Live View')" :disabled="isLoading || !live.allowed">
-              <b-dropdown-item
-                :active="!live.enabled"
-                @click="live.enabled = false">{{ $t('Disable') }}</b-dropdown-item>
-              <b-dropdown-item v-for="timeout in live.options" :key="timeout"
-                :active="live.enabled === true && live.timeout === timeout"
-                @click="live.enabled = true; live.timeout = timeout"
-              >{{ $t('{duration} seconds', { duration: timeout / 1E3 }) }}</b-dropdown-item>
-            </b-dropdown>
-          </b-input-group>
-          <b-input-group class="mb-0 mr-3" :prepend="$t('Sort')">
-            <b-form-select v-model="options.sort" :options="fields" :disabled="isLoading" />
-            <b-form-select v-model="options.order" :options="['ASC', 'DESC']" :disabled="isLoading" />
-          </b-input-group>
-        </b-form>
-      </base-search>
-      <b-container fluid>
+      <b-row>
+        <b-col cols="6">
+          <b-tabs small class="fixed">
+            <b-tab class="border-1 border-right border-bottom border-left pb-1">
+              <template #title>
+                {{ $i18n.t('Categories') }} <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
+              </template>
+              <base-filter-categories v-model="selectedCategories" />
+            </b-tab>
+          </b-tabs>
+        </b-col>
+        <b-col cols="6">
+          <b-tabs small class="fixed">
+            <!--
+            <b-tab class="border-1 border-right border-bottom border-left">
+              <template #title>
+                {{ $i18n.t('Security Events') }} <b-badge v-if="selectedSecurityEvents.length" pill variant="primary" class="ml-1">{{ selectedSecurityEvents.length }}</b-badge>
+              </template>
+              <base-filter-security-events />
+            </b-tab>
+            -->
+          </b-tabs>
+        </b-col>
+      </b-row>
+      <b-container fluid class="mt-3">
         <b-row align-v="center">
           <b-form inline class="mb-3">
             <b-button-group class="mr-3" size="sm">
@@ -65,33 +64,61 @@
     </div>
   </b-card>
 </template>
-<script>
-import {
-  BaseInputToggleFalseTrue,
-  BaseSearch
-} from '@/components/new/'
-import TheGraph from '@/views/Nodes/network/_components/TheGraph'
 
+<script>
+import BaseFilterCategories from './BaseFilterCategories'
+import TheGraph from '@/views/Nodes/network/_components/TheGraph'
 const components = {
-  BaseInputToggleFalseTrue,
-  BaseSearch,
-  TheGraph
+  BaseFilterCategories,
+  TheGraph,
 }
 
-import { toRefs } from '@vue/composition-api'
-import { useSearch } from '@/views/Nodes/network/_search'
+import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { useSearch } from '../_search'
 import useGraph from '@/views/Nodes/network/_composables/useGraph'
 
 const setup = (props, context) => {
 
-  const { refs } = context
+  const { refs, root: { $store } = {} } = context
 
   const search = useSearch()
+  const {
+    doReset,
+    doSearch
+  } = search
 
   const graph = useGraph(search, refs)
 
+  const selectedCategories = ref([])
+
+  watch(selectedCategories, () => {
+    if (selectedCategories.value.length) {
+      doSearch({
+        op: 'and',
+        values: [
+          ...((selectedCategories.value.length)
+            ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
+            : []
+          ),
+        ]
+      })
+    }
+    else {
+      doReset()
+    }
+  }, { deep: true, immediate: true })
+
+  const deviceClassMap = ref({})
+  onMounted(() => {
+    $store.dispatch('$_fingerbank/devices').then(items => {
+      deviceClassMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.name }
+      }, {})
+    })
+  })
+
   return {
-    useSearch,
+    selectedCategories,
     ...toRefs(search),
     ...toRefs(graph),
   }
@@ -99,9 +126,23 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'the-search',
+  name: 'the-view',
   inheritAttrs: false,
   components,
   setup
 }
 </script>
+
+<style lang="scss" scoped>
+.tabs.fixed {
+  div[role="tabpanel"] {
+    height: 50vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    .card {
+      border: 0px !important;
+      box-shadow: 0px 0px 0px 0px !important;
+    }
+  }
+}
+</style>

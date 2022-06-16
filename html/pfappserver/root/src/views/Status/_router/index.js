@@ -3,6 +3,7 @@ import store from '@/store'
 import StatusView from '../'
 import StatusStore from '../_store'
 
+import AssetsRoutes from '../assets/_router'
 import ClusterRoutes from '../cluster/_router'
 import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
@@ -26,6 +27,7 @@ const route = {
     next()
   },
   children: [
+    ...AssetsRoutes,
     ...ClusterRoutes,
     ...DashboardRoutes,
     ...QueueRoutes,
