@@ -342,9 +342,9 @@ sub can_use_nba_endpoints {
     $self->render(status => 200, json => { result => \$result});
 }
 
-sub all_devices {
+sub all_device_classes {
     my ($self) = @_;
-    return $self->render(json => {items => fingerbank::Model::Device->all_device_class_ids()});
+    return $self->render(json => {items => [map{ $_->{_column_data} } @{fingerbank::Model::Device->all_device_classes}]});
 }
 
 =head1 AUTHOR
