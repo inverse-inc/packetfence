@@ -308,7 +308,7 @@ Requires: docker-ce docker-ce-cli containerd.io
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.3.0, fingerbank < 5.0.0
+Requires: fingerbank >= 4.3.1, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.0, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
