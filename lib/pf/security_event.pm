@@ -303,7 +303,7 @@ sub security_event_view_top {
         },
         -columns => [qw(id mac security_event.security_event_id start_date release_date status ticket_ref notes)],
         -from => [-join => qw(security_event {security_event.security_event_id=class.security_event_id} class)],
-        -order_by => {-desc => 'severity'},
+        -order_by => {-desc => 'security_event.severity'},
         -limit => 1,
     });
 }
