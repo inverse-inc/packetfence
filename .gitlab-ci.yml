@@ -527,6 +527,7 @@ pfdeb_based_dev:
           - "pfconnector"
           - "pfpki"
           - "pfcron"
+          - "haproxy-portal"
 
 img_dev:
   extends:
@@ -538,7 +539,6 @@ img_dev:
     matrix:
       - IMAGE_NAME:
           - "fingerbank-db"
-          - "haproxy-portal"
 
 rad_based_dev:
   extends:
@@ -590,6 +590,7 @@ pfdeb_based_br_maint:
           - "pfconnector"
           - "pfpki"
           - "pfcron"
+          - "haproxy-portal"
 
 img_br_maint:
   extends:
@@ -601,7 +602,6 @@ img_br_maint:
     matrix:
       - IMAGE_NAME:
           - "fingerbank-db"
-          - "haproxy-portal"
 
 rad_based_br_maint:
   extends:
@@ -652,18 +652,17 @@ pfdeb_based_rel:
           - "pfperl-api"
           - "pfconnector"
           - "pfpki"
-          - "pfcron"
-
-img_rel:
-  extends:
-    - .build_img_container_job
-    - .release_only_rules
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_TAG}
-  parallel:
-    matrix:
-      - IMAGE_NAME:
           - "haproxy-portal"
+
+#img_rel:
+#  extends:
+#    - .build_img_container_job
+#    - .release_only_rules
+#  variables:
+#    IMAGE_TAGS: ${CI_COMMIT_TAG}
+#  parallel:
+#    matrix:
+#      - IMAGE_NAME:
 
 rad_based_rel:
   extends:
