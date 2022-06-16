@@ -138,8 +138,8 @@ import 'vue-awesome/icons/user-secret'
 import 'vue-awesome/icons/wifi'
 import 'vue-awesome/icons/window-maximize'
 
-import pfIcons from '@/globals/pfIcons'
-Icon.register(pfIcons)
+import icons from '@/assets/icons'
+Icon.register(icons)
 
 import { icons as fingerbankIcons } from '@/views/Configuration/fingerbank/devices/config'
 Icon.register(fingerbankIcons)
