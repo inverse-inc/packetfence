@@ -932,3 +932,46 @@ window=1h
 #
 # Local task
 local=1
+
+[security_events_cleanup]
+#
+# type
+#
+# Task type
+type=security_events_cleanup
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Controls the cleanup of the security_event table. Entries older than the window will be removed from the table.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# batch
+#
+# How many security_events_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a security_events_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a security_events_cleanup entry before deleting it
+window=1M
+#
+# local
+#
+# Local task
+local=0
+

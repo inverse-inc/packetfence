@@ -61,6 +61,8 @@ pfcmd pfcron <task> [options...]
 
 =item radius_audit_log_cleanup
 
+=item security_event_cleanup
+
 =item security_event_maintenance
 
 =item switch_cache_lldpLocalPort_description
