@@ -84,7 +84,9 @@ const setup = (props, context) => {
 
   const decoratedItems = computed(() => items.value.map(item => {
       const { id, name } = item
-      const _count = perDeviceClass.value[name] || 0
+      const _count = (perDeviceClass.value && name in perDeviceClass.value)
+        ? perDeviceClass.value[name]
+        : 0
       return { id, name, icon: icons[id],
         _count }
   }))
@@ -98,6 +100,7 @@ const setup = (props, context) => {
       .filter(item => item.name.toLowerCase().indexOf(filter.value.toLowerCase()) > -1)
   })
   const onSelectItem = item => {
+console.log('onSelectItem', {item})
     const i = value.value.findIndex(selected => selected === item.id)
     if (i > -1) {
       emit('input', [ ...value.value.filter(selected => selected !== item.id) ])
@@ -107,28 +110,34 @@ const setup = (props, context) => {
     }
   }
   const onSelectAll = () => {
+    let input = value.value
     filteredItems.value.map(item => item.id).forEach(category => {
-      if (value.value.indexOf(category) === -1) {
-        emit('input', [ ...value.value, category ])
+      if (input.indexOf(category) === -1) {
+        input.push(category)
       }
     })
+    emit('input', input)
   }
   const onSelectNone = () => {
+    let input = value.value
     filteredItems.value.map(item => item.id).forEach(category => {
-      if (value.value.indexOf(category) > -1) {
-        emit('input', [ ...value.value.filter(selected => selected !== category) ])
+      if (input.indexOf(category) > -1) {
+        input = input.filter(selected => selected !== category)
       }
     })
+    emit('input', input)
   }
   const onSelectInverse = () => {
+    let input = value.value
     filteredItems.value.map(item => item.id).forEach(category => {
-      if (value.value.indexOf(category) === -1) {
-        emit('input', [ ...value.value, category ])
+      if (input.indexOf(category) === -1) {
+        input.push(category)
       }
       else {
-        emit('input', [ ...value.value.filter(selected => selected !== category) ])
+        input = input.filter(selected => selected !== category)
       }
     })
+    emit('input', input)
   }
 
   return {
