@@ -45,7 +45,7 @@
 
     <form-group-blacklisted-ip-hosts-threshold namespace="blacklisted_ip_hosts_threshold"
       :column-label="$i18n.t('Blacklisted IPs Threshold')"
-      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers an event.')"
+      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers the internal::fingerbank_blacklisted_ips_threshold_too_high security event.')"
     />
 
     <form-group-watch-blacklisted-domain-names namespace="watch_blacklisted_domain_names"
@@ -65,7 +65,7 @@
 
     <form-group-blacklisted-domain-names-threshold namespace="blacklisted_domain_names_threshold"
       :column-label="$i18n.t('Blacklisted Domain Names Threshold')"
-      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted domain names in the window defined above, then it triggers an event.')"
+      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted domain names in the window defined above, then it triggers the internal::fingerbank_blacklisted_domain_names_threshold_too_high security event.')"
     />
 
     <form-group-blacklisted-ports namespace="blacklisted_ports"
