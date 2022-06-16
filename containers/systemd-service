@@ -61,11 +61,9 @@ function run {
 
 function sdproxy() {
   SD_NOTIFY_PROXY=/usr/local/pf/bin/sdnotify-proxy
-  SD_SOCK=/tmp/$1.sock
-  CR_SOCK=/var/run/$1.sock
+  SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock
   WATCHDOG_USEC_D=10000000
-  echo "SDPROXY cli: $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$CR_SOCK --env NOTIFY_SOCKET=$CR_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}"
-  $SD_NOTIFY_PROXY $CR_SOCK /usr/bin/docker run --volume=$CR_SOCK:$CR_SOCK --env NOTIFY_SOCKET=$CR_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
+  $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
 }
 
 function run_img {
@@ -75,6 +73,6 @@ function run_img {
   cmd="$4"
   cd /usr/local/pf/
   docker container rm -f $name 1&2> /dev/null
-  #echo "Running with args $args"
+  echo "Running with args $args"
   sdproxy $name $args --name=$name $img $cmd
 }
