@@ -110,7 +110,7 @@ const setup = (props, context) => {
 
   const deviceClassMap = ref({})
   onMounted(() => {
-    $store.dispatch('$_fingerbank/devices').then(items => {
+    $store.dispatch('$_fingerbank/getClasses').then(items => {
       deviceClassMap.value = items.reduce((assoc, item) => {
         return { ...assoc, [item.id]: item.name }
       }, {})

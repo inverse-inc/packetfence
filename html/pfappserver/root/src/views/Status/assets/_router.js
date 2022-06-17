@@ -17,7 +17,7 @@ export default [
         store.registerModule('$_fingerbank', FingerbankStoreModule)
       if (!store.state.$_nodes)
         store.registerModule('$_nodes', NodesStoreModule)
-      next()
+      store.dispatch('$_fingerbank/getClasses').then(() => next())
     }
   }
 ]

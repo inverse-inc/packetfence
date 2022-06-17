@@ -60,7 +60,7 @@ const props = {
   }
 }
 
-import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import icons from '@/assets/icons/fingerbank'
 
 const setup = (props, context) => {
@@ -73,14 +73,8 @@ const setup = (props, context) => {
 
   const perDeviceClass = computed(() => $store.getters['$_nodes/perDeviceClass'])
 
-  const items = ref([])
-  onMounted(() => {
-    $store.dispatch('$_fingerbank/devices').then(_items => {
-      items.value = _items
-        .sort((a, b) => a.name.localeCompare(b.name))
-    })
-    $store.dispatch('$_nodes/getPerDeviceClass')
-  })
+  const items = computed(() => $store.state.$_fingerbank.classes
+    .sort((a, b) => a.name.localeCompare(b.name)))
 
   const decoratedItems = computed(() => items.value.map(item => {
       const { id, name } = item
@@ -100,7 +94,6 @@ const setup = (props, context) => {
       .filter(item => item.name.toLowerCase().indexOf(filter.value.toLowerCase()) > -1)
   })
   const onSelectItem = item => {
-console.log('onSelectItem', {item})
     const i = value.value.findIndex(selected => selected === item.id)
     if (i > -1) {
       emit('input', [ ...value.value.filter(selected => selected !== item.id) ])
