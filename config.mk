@@ -37,7 +37,7 @@ LOCAL_REGISTRY = local
 # Golang
 #
 GOVERSION = go1.17.6
-PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector
+PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector sdnotify-proxy
 
 #
 # PF versions
