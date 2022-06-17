@@ -5,12 +5,9 @@ Wants=packetfence-base.target packetfence-config.service
 After=packetfence-base.target packetfence-config.service
 
 [Service]
-Type=notify
-StartLimitBurst=3
-StartLimitInterval=10
-ExecStart=/usr/local/pf/sbin/pfcron
-Environment=LOG_LEVEL=INFO
-User=pf
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfcron' -e 'pf::services::manager::pfcron->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/pfcron-docker-wrapper
+ExecStop=/bin/bash -c "docker stop pfcron ; docker container rm pfcron -f ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 
