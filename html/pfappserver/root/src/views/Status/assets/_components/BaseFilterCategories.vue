@@ -24,9 +24,10 @@
         @click="onSelectItem(item)"
         align-v="center"
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
-        :class="{
-          'border-success': value.indexOf(item.id) > -1
-        }">
+        :class="(value.indexOf(item.id) > -1)
+          ? 'bg-hover-success border-success'
+          : 'bg-hover-secondary'
+        ">
         <b-col cols="auto" class="text-center">
           <icon :name="`fingerbank-${item.id}`" scale="1.5"
             :class="(value.indexOf(item.id) > -1) ? 'text-success' : 'text-secondary'"
@@ -37,7 +38,7 @@
         </b-col>
         <b-col cols="auto">
           <b-badge v-if="item._count"
-            variant="danger" class="ml-1">{{ item._count }} {{ $i18n.t('nodes') }}</b-badge>
+            class="ml-1">{{ item._count }} {{ $i18n.t('nodes') }}</b-badge>
         </b-col>
       </b-row>
     </div>
@@ -72,17 +73,18 @@ const setup = (props, context) => {
   const { emit, root: { $store } = {} } = context
 
   const perDeviceClass = computed(() => $store.getters['$_nodes/perDeviceClass'])
+  const perDeviceClassLowerCase = computed(() => $store.getters['$_nodes/perDeviceClassLowerCase'])
 
   const items = computed(() => $store.state.$_fingerbank.classes
     .sort((a, b) => a.name.localeCompare(b.name)))
 
   const decoratedItems = computed(() => items.value.map(item => {
-      const { id, name } = item
-      const _count = (perDeviceClass.value && name in perDeviceClass.value)
-        ? perDeviceClass.value[name]
-        : 0
-      return { id, name, icon: icons[id],
-        _count }
+    const { id, name } = item
+    const _count = (name.toLowerCase() in perDeviceClassLowerCase.value) // case insensitive
+      ? perDeviceClassLowerCase.value[name.toLowerCase()]
+      : 0
+    return { id, name, icon: icons[id],
+      _count }
   }))
 
   const filter = ref('')

@@ -1,7 +1,7 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4 class="d-inline" v-t="'Network Threats'"></h4>
+      <h4 class="d-inline" v-t="'Assets/Inventory'"></h4>
     </b-card-header>
     <div class="card-body">
       <b-row>

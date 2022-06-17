@@ -17,7 +17,10 @@ export default [
         store.registerModule('$_fingerbank', FingerbankStoreModule)
       if (!store.state.$_nodes)
         store.registerModule('$_nodes', NodesStoreModule)
-      store.dispatch('$_fingerbank/getClasses').then(() => next())
+      Promise.all([
+        store.dispatch('$_fingerbank/getClasses'),
+        store.dispatch('$_nodes/getPerDeviceClass')
+      ]).finally(() => next())
     }
   }
 ]
