@@ -265,7 +265,13 @@ export const search = {
     { op: 'or', values: [
       { field: 'last_seen', op: 'greater_than', value: '' }
     ] }
-  ] })
+    ]
+  }),
+  // search response items appended and wrapped
+  useItems: items => {
+    const { 0: { nodes = [] } = {} } = items
+    return nodes.filter(node => node.type === 'node')
+  }
 }
 
 export const useSearch = makeSearch('nodesNetwork', search)
