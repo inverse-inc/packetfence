@@ -49,6 +49,21 @@
               <b-button v-for="palette in Object.keys(palettes)" :key="palette" @click="options.palette = palette" :variant="(options.palette === palette) ? 'primary' : 'outline-primary'" :disabled="isLoading">{{ palette }}</b-button>
             </b-button-group>
           </b-form>
+          <b-col cols="auto" class="d-flex ml-auto">
+            <base-search-input-limit
+              :value="limit" @input="setLimit"
+              size="md"
+              :limits="limits"
+              :disabled="isLoading"
+            />
+            <base-search-input-page
+              :value="page" @input="setPage"
+              class="ml-3"
+              :limit="limit"
+              :total-rows="totalRows"
+              :disabled="isLoading"
+            />
+          </b-col>
         </b-row>
       </b-container>
       <the-graph ref="graphRef"
@@ -67,9 +82,15 @@
 
 <script>
 import BaseFilterCategories from './BaseFilterCategories'
+import {
+  BaseSearchInputLimit,
+  BaseSearchInputPage
+ } from '@/components/new/'
 import TheGraph from '@/views/Nodes/network/_components/TheGraph'
 const components = {
   BaseFilterCategories,
+  BaseSearchInputLimit,
+  BaseSearchInputPage,
   TheGraph,
 }
 
