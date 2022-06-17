@@ -71,7 +71,7 @@ ALTER TABLE ip4log_archive
 
 ALTER TABLE ip6log
    DROP CONSTRAINT `ip6log_tenant_id`,
-   DROP PRIMARY KEY,   
+   DROP PRIMARY KEY,
    ADD PRIMARY KEY (`ip`),
    DROP tenant_id;
 
@@ -83,7 +83,7 @@ ALTER TABLE ip6log_archive
 
 ALTER TABLE locationlog
    DROP CONSTRAINT `locationlog_tenant_id`,
-   DROP PRIMARY KEY,   
+   DROP PRIMARY KEY,
    ADD PRIMARY KEY (`mac`),
    DROP tenant_id;
 
@@ -542,6 +542,9 @@ VALUES
 
 \! echo "Removing cached realm search for all users...";
 DELETE FROM user_preference WHERE id='roles::defaultSearch';
+
+\! echo "Adding fingerbank device_class index on node...";
+ALTER TABLE node ADD INDEX IF NOT EXISTS device_class (device_class);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
