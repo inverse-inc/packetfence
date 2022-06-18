@@ -7,5 +7,5 @@ testcases:
         user: '{{.ssh_user}}'
         command: |
           cd /usr/local/pf/t/venom ; \
-          sudo VENOM_COMMON_FLAGS='--output-dir={{.test_suite_results_dir}}/{{.venom.testcase}}' \
+          sudo VENOM_COMMON_FLAGS="--output-dir={{.test_suite_results_dir}}/{{.venom.testcase}}" \
           /usr/local/pf/t/venom/venom-wrapper.sh {{.nodes_test_suite_dir}}/common/check_internet_access.yml
