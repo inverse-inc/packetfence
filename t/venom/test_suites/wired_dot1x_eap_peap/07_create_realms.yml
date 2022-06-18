@@ -28,7 +28,7 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.get_ad_domain_id.random_ad_domain_id}}",
+        "domain": "{{.get_ad_domain_id.domain_id}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
@@ -60,7 +60,7 @@ testcases:
     body: >-
       {
         "admin_strip_username": "enabled",
-        "domain": "{{.get_ad_domain_id.random_ad_domain_id}}",
+        "domain": "{{.get_ad_domain_id.domain_id}}",
         "eduroam_options": null,
         "eduroam_radius_acct": null,
         "eduroam_radius_acct_proxy_type": "load-balance",
@@ -93,7 +93,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.get_ad_domain_id.random_ad_domain_id}}"
+        "domain": "{{.get_ad_domain_id.domain_id}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
@@ -107,7 +107,7 @@ testcases:
     ignore_verify_ssl: true
     body: >-
       {
-        "domain": "{{.get_ad_domain_id.random_ad_domain_id}}"
+        "domain": "{{.get_ad_domain_id.domain_id}}"
       }
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
