@@ -75,7 +75,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.get_ad_domain_id.random_ad_domain_id}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/domain/{{.get_ad_domain_id.domain_id}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.json.result.token}}"
