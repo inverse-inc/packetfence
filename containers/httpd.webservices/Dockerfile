@@ -13,7 +13,9 @@ RUN mkdir -p /usr/local/pf/var/ssl_mutex
 RUN chown -R pf: /usr/local/pf/var
 
 COPY lib lib
+
 copy html html
+RUN chown -R pf: /usr/local/pf/html
 
 COPY containers/pf-apache-wrapper containers/pf-apache-wrapper
 RUN chmod +x containers/pf-apache-wrapper
