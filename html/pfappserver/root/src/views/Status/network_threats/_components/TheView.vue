@@ -165,15 +165,30 @@ const setup = (props, context) => {
       visibleColumns
     } = toRefs(search)
 
-    const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories)
-    const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents)
+    const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories.value)
+    const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents.value)
 
     const totalOpen = computed(() => $store.state.$_network_threats.totalOpen)
     const totalClosed = computed(() => $store.state.$_network_threats.totalClosed)
     const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
     const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
 
-    watch([selectedCategories, selectedSecurityEvents], () => {
+  const deviceClassMap = ref({})
+  const securityEventMap = ref({})
+  onMounted(() => {
+    $store.dispatch('$_fingerbank/getClasses').then(items => {
+      deviceClassMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.name }
+      }, {})
+    })
+    $store.dispatch('$_security_events/all').then(items => {
+      securityEventMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.desc }
+      }, {})
+    })
+  })
+
+  watch([selectedCategories, selectedSecurityEvents], () => {
       search.requestInterceptor = request => {
         if (selectedCategories.value.length || selectedSecurityEvents.value.length) {
           request.query = {
@@ -194,21 +209,6 @@ const setup = (props, context) => {
       }
       reSearch()
     }, { deep: true, immediate: true })
-
-  const deviceClassMap = ref({})
-  const securityEventMap = ref({})
-  onMounted(() => {
-    $store.dispatch('$_fingerbank/devices').then(items => {
-      deviceClassMap.value = items.reduce((assoc, item) => {
-        return { ...assoc, [item.id]: item.name }
-      }, {})
-    })
-    $store.dispatch('$_security_events/all').then(items => {
-      securityEventMap.value = items.reduce((assoc, item) => {
-        return { ...assoc, [item.id]: item.desc }
-      }, {})
-    })
-  })
 
   const tableRef = ref(null)
   let selected = useBootstrapTableSelected(tableRef, items, null)

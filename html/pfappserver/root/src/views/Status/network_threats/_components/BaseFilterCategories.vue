@@ -56,8 +56,8 @@ const directives = {
   focus
 }
 
-import { computed, onMounted, ref } from '@vue/composition-api'
-import { devices } from '@/views/Configuration/fingerbank/devices/config'
+import { computed, ref } from '@vue/composition-api'
+import icons from '@/assets/icons/fingerbank'
 
 const setup = (props, context) => {
 
@@ -67,23 +67,14 @@ const setup = (props, context) => {
   const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
   const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
 
-  const items = ref([])
-  onMounted(() => {
-    $store.dispatch('$_fingerbank/devices').then(_items => {
-      items.value = _items
-        .map(item => {
-          const { id, name } = item
-          return { id, name, icon: devices[id].icon }
-        })
-        .sort((a, b) => a.name.localeCompare(b.name))
-    })
-  })
+  const items = computed(() => $store.state.$_fingerbank.classes
+    .sort((a, b) => a.name.localeCompare(b.name)))
 
   const decoratedItems = computed(() => items.value.map(item => {
       const { id, name } = item
       const _open = perDeviceClassOpen.value[name] || 0
       const _closed = perDeviceClassClosed.value[name] || 0
-      return { id, name, icon: devices[id].icon,
+      return { id, name, icon: icons[id],
         _open, _closed }
   }))
 
