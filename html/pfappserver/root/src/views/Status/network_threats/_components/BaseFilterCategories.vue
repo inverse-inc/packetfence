@@ -63,7 +63,7 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories)
+  const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories.value)
   const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
   const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
 
