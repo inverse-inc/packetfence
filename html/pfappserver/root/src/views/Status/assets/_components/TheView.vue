@@ -97,6 +97,7 @@ const components = {
 import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useSearch } from '../_search'
 import useGraph from '@/views/Nodes/network/_composables/useGraph'
+import usePreference from '@/composables/usePreference'
 
 const setup = (props, context) => {
 
@@ -105,14 +106,16 @@ const setup = (props, context) => {
   const search = useSearch()
   const {
     doReset,
-    doSearch
+    doSearch,
+    setPage
   } = search
 
   const graph = useGraph(search, refs)
 
-  const selectedCategories = ref([])
+  const selectedCategories = usePreference('vizsec::filters', 'categories', [])
 
   watch(selectedCategories, () => {
+    setPage(1)
     if (selectedCategories.value.length) {
       doSearch({
         op: 'and',

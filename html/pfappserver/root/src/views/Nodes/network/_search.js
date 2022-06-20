@@ -267,10 +267,9 @@ export const search = {
     ] }
     ]
   }),
-  // search response items appended and wrapped
   useItems: items => {
-    const { 0: { nodes = [] } = {} } = items
-    return nodes.filter(node => node.type === 'node')
+    const { 0: { nodes = [] } = {} } = items // unwrap
+    return nodes.filter(node => node.type === 'node') // filter excess
   }
 }
 
