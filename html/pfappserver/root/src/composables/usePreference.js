@@ -5,7 +5,11 @@ import { ref, watch } from '@vue/composition-api'
 
 export default (id, key, defaultValue) => {
 
+<<<<<<< HEAD
   const preference = ref(defaultValue)
+=======
+  const preference = ref(undefined)
+>>>>>>> daf6c1dd44... feature(admin(js)): add preference composable
   let debouncer
 
   store.dispatch('preferences/get', id).then(value => {
