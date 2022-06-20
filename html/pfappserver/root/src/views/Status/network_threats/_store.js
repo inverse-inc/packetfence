@@ -2,6 +2,7 @@
 * "$_network_threats" store module
 */
 import { createDebouncer } from 'promised-debounce'
+import usePreference from '@/composables/usePreference'
 import nodesApi from '@/views/Nodes/_api'
 import securityEventsApi from './_api'
 
@@ -11,15 +12,15 @@ const state = () => {
     cache: {},
     message: '',
     status: '',
-    selectedCategories: [],
-    selectedSecurityEvents: [],
+    selectedCategories: usePreference('vizsec::filters', 'categories', []),
+    selectedSecurityEvents: usePreference('vizsec::filters', 'securityEvents', []),
 
     totalOpen: 0,
     totalClosed: 0,
     perDeviceClassOpen: false,
     perDeviceClassClosed: false,
-    perSecurityEventOpen: { 'foo': 13 },
-    perSecurityEventClosed: { 'foo': 12 },
+    perSecurityEventOpen: {},
+    perSecurityEventClosed: {},
   }
 }
 
@@ -96,7 +97,7 @@ const actions = {
   },
   toggleCategory: ({ state, commit }, category) => {
     return new Promise(resolve => {
-      const i = state.selectedCategories.findIndex(selected => selected === category)
+      const i = state.selectedCategories.value.findIndex(selected => selected === category)
       if (i > -1) {
         commit('CATEGORY_DESELECT', category)
         resolve(false)
@@ -111,7 +112,7 @@ const actions = {
   deselectCategories: ({ state, commit }, categories = []) => {
     return new Promise(resolve => {
       categories.forEach(category => {
-        if (state.selectedCategories.indexOf(category) > -1) {
+        if (state.selectedCategories.value.indexOf(category) > -1) {
           commit('CATEGORY_DESELECT', category)
         }
       })
@@ -121,7 +122,7 @@ const actions = {
   selectCategories: ({ state, commit }, categories = []) => {
     return new Promise(resolve => {
       categories.forEach(category => {
-        if (state.selectedCategories.indexOf(category) === -1) {
+        if (state.selectedCategories.value.indexOf(category) === -1) {
           commit('CATEGORY_SELECT', category)
         }
       })
@@ -131,7 +132,7 @@ const actions = {
   invertCategories: ({ state, commit }, categories = []) => {
     return new Promise(resolve => {
       categories.forEach(category => {
-        if (state.selectedCategories.indexOf(category) === -1) {
+        if (state.selectedCategories.value.indexOf(category) === -1) {
           commit('CATEGORY_SELECT', category)
         }
         else {
@@ -143,7 +144,7 @@ const actions = {
   },
   toggleSecurityEvent: ({ state, commit }, securityEvent) => {
     return new Promise(resolve => {
-      const i = state.selectedSecurityEvents.findIndex(selected => selected === securityEvent)
+      const i = state.selectedSecurityEvents.value.findIndex(selected => selected === securityEvent)
       if (i > -1) {
         commit('SECURITY_EVENT_DESELECT', securityEvent)
         resolve(false)
@@ -157,7 +158,7 @@ const actions = {
   deselectSecurityEvents: ({ state, commit }, securityEvents = []) => {
     return new Promise(resolve => {
       securityEvents.forEach(securityEvent => {
-        if (state.selectedSecurityEvents.indexOf(securityEvent) > -1) {
+        if (state.selectedSecurityEvents.value.indexOf(securityEvent) > -1) {
           commit('SECURITY_EVENT_DESELECT', securityEvent)
         }
       })
@@ -167,7 +168,7 @@ const actions = {
   selectSecurityEvents: ({ state, commit }, securityEvents = []) => {
     return new Promise(resolve => {
       securityEvents.forEach(securityEvent => {
-        if (state.selectedSecurityEvents.indexOf(securityEvent) === -1) {
+        if (state.selectedSecurityEvents.value.indexOf(securityEvent) === -1) {
           commit('SECURITY_EVENT_SELECT', securityEvent)
         }
       })
@@ -177,7 +178,7 @@ const actions = {
   invertSecurityEvents: ({ state, commit }, securityEvents = []) => {
     return new Promise(resolve => {
       securityEvents.forEach(securityEvent => {
-        if (state.selectedSecurityEvents.indexOf(securityEvent) === -1) {
+        if (state.selectedSecurityEvents.value.indexOf(securityEvent) === -1) {
           commit('SECURITY_EVENT_SELECT', securityEvent)
         }
         else {
@@ -212,16 +213,16 @@ const mutations = {
     }
   },
   CATEGORY_DESELECT: (state, category) => {
-    state.selectedCategories = [ ...state.selectedCategories.filter(selected => selected !== category) ]
+    state.selectedCategories.value = [ ...state.selectedCategories.value.filter(selected => selected !== category) ]
   },
   CATEGORY_SELECT: (state, category) => {
-    state.selectedCategories.push(category)
+    state.selectedCategories.value.push(category)
   },
   SECURITY_EVENT_DESELECT: (state, securityEvent) => {
-    state.selectedSecurityEvents = [ ...state.selectedSecurityEvents.filter(selected => selected !== securityEvent) ]
+    state.selectedSecurityEvents.value = [ ...state.selectedSecurityEvents.value.filter(selected => selected !== securityEvent) ]
   },
   SECURITY_EVENT_SELECT: (state, securityEvent) => {
-    state.selectedSecurityEvents.push(securityEvent)
+    state.selectedSecurityEvents.value.push(securityEvent)
   },
 
   TOTAL_OPEN: (state, count) => {

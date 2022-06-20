@@ -63,7 +63,7 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents)
+  const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents.value)
   const perSecurityEventOpen = computed(() => $store.getters['$_network_threats/perSecurityEventOpen'])
   const perSecurityEventClosed = computed(() => $store.getters['$_network_threats/perSecurityEventClosed'])
 
