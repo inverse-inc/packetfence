@@ -193,9 +193,12 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr) (r NodeInfo) 
 
 // ShuffleDNS return the dns list
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
-	if !sharedutils.IsEnabled(ConfNet.NatDNS) {
-		var excluded []string
-		return Shuffle(ConfNet.Dns, excluded)
+	matched, _ := regexp.MatchString(`inlinel[2-3]`, ConfNet.Type)
+	if matched {
+		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
+			var excluded []string
+			return Shuffle(ConfNet.Dns, excluded)
+		}
 	}
 	if ConfNet.ClusterIPs != "" {
 		if ConfNet.Dnsvip != "" {
