@@ -29,10 +29,10 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminActions []string   `json:"admin_actions"`
-	AdminRoles   []string   `json:"admin_roles"`
-	Username     string     `json:"username"`
-	ExpiresAt    time.Time  `json:"expires_at"`
+	AdminActions []string  `json:"admin_actions"`
+	AdminRoles   []string  `json:"admin_roles"`
+	Username     string    `json:"username"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {

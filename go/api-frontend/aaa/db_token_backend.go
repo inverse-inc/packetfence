@@ -1,10 +1,10 @@
 package aaa
 
 import (
-	"time"
-	"database/sql"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"time"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
@@ -18,14 +18,14 @@ type DbTokenBackend struct {
 
 func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *DbTokenBackend {
 	return &DbTokenBackend{
-		Db:              getDB(),
+		Db:                getDB(),
 		inActivityTimeout: expiration,
 		maxExpiration:     maxExpiration,
 	}
 }
 
 func timeToExpired(t time.Time) float64 {
-	return float64(t.UnixMicro())/1000000.0
+	return float64(t.UnixMicro()) / 1000000.0
 }
 
 const sqlInsert = "INSERT INTO chi_cache ( `key`, `value`, `expires_at`) VALUES ( ?, ?, ? ) ON DUPLICATE KEY UPDATE value=VALUES(value), expires_at=VALUES(expires_at);"
@@ -63,9 +63,9 @@ func (tb *DbTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time
 	data := []byte{}
 	expiresAt := float64(0)
 	row := tb.Db.QueryRow(
-			"SELECT value, expires_at FROM chi_cache WHERE `key` = ? AND expires_at >= ?",
-			tokenKey(tb, token),
-			expires,
+		"SELECT value, expires_at FROM chi_cache WHERE `key` = ? AND expires_at >= ?",
+		tokenKey(tb, token),
+		expires,
 	)
 
 	if err := row.Scan(&data, &expiresAt); err != nil {
@@ -78,7 +78,7 @@ func (tb *DbTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time
 		return nil, time.Unix(0, 0)
 	}
 
-	expiration := time.UnixMicro(int64(expiresAt * 1000000.0));
+	expiration := time.UnixMicro(int64(expiresAt * 1000000.0))
 
 	return ValidTokenExpiration(&ti, expiration, tb.maxExpiration)
 }
@@ -105,9 +105,9 @@ func (tb *DbTokenBackend) TokenIsValid(token string) bool {
 	count := 0
 	expired := timeToExpired(time.Now())
 	row := tb.Db.QueryRow(
-			"SELECT COUNT(*) FROM chi_cache WHERE `key` = ? AND expires_at >= ?",
-			tokenKey(tb, token),
-			expired,
+		"SELECT COUNT(*) FROM chi_cache WHERE `key` = ? AND expires_at >= ?",
+		tokenKey(tb, token),
+		expired,
 	)
 
 	if err := row.Scan(&count); err != nil {

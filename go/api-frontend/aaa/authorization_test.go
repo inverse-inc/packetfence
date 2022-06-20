@@ -201,7 +201,7 @@ func TestTokenAuthorizationMiddlewareIsAuthorized(t *testing.T) {
 		t.Error("Request was unauthorized although it should have gone through, error:", err)
 	}
 
-    _, err = m.isAuthorizedAdminActions(ctx, "GET", "/api/v1.1/reports", map[string]bool{"REPORTS_READ": true})
+	_, err = m.isAuthorizedAdminActions(ctx, "GET", "/api/v1.1/reports", map[string]bool{"REPORTS_READ": true})
 
 	if err != nil {
 		t.Error("Request was not authorized although it should have gone through, error:", err)
@@ -280,7 +280,6 @@ func TestTokenAuthorizationMiddlewareBearerRequestIsAuthorized(t *testing.T) {
 	if res {
 		t.Error("Unauthenticated request has succeeded instead of failing", err)
 	}
-
 
 }
 
