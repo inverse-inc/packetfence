@@ -29,10 +29,10 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminActions []string   `json:"admin_actions"`
-	AdminRoles   []string   `json:"admin_roles"`
-	Username     string     `json:"username"`
-	ExpiresAt    time.Time  `json:"expires_at"`
+	AdminActions []string  `json:"admin_actions"`
+	AdminRoles   []string  `json:"admin_roles"`
+	Username     string    `json:"username"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {
@@ -51,6 +51,8 @@ func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
 	noAuthPaths := map[string]bool{}
+	tokenBackendArgs := []string{}
+	var err error
 	for c.Next() {
 		for c.NextBlock() {
 			switch c.Val() {
@@ -64,13 +66,25 @@ func setup(c *caddy.Controller) error {
 					noAuthPaths[path] = true
 					fmt.Println("The following path will not be authenticated via the api-aaa module", path)
 				}
+			case "session_backend":
+				args := c.RemainingArgs()
+
+				if len(args) == 0 {
+					return c.ArgErr()
+				}
+
+				tokenBackendArgs, err = validateTokenArgs(args)
+				if err == nil {
+					return err
+				}
+
 			default:
 				return c.ArgErr()
 			}
 		}
 	}
 
-	apiAAA, err := buildApiAAAHandler(ctx)
+	apiAAA, err := buildApiAAAHandler(ctx, tokenBackendArgs)
 	apiAAA.noAuthPaths = noAuthPaths
 
 	if err != nil {
@@ -85,8 +99,17 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
+func validateTokenArgs(args []string) ([]string, error) {
+	switch args[0] {
+	default:
+		return nil, fmt.Errorf("Invalid session_backend type '%s'", args[0])
+	case "mem", "redis", "db":
+		return args, nil
+	}
+}
+
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes
-func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
+func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAHandler, error) {
 
 	apiAAA := ApiAAAHandler{}
 
@@ -96,10 +119,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 
-	tokenBackend := aaa.NewMemTokenBackend(
-		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-	)
+	tokenBackend := aaa.MakeTokenBackend(tokenBackendArgs)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user

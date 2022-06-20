@@ -15,7 +15,7 @@ import (
 )
 
 var ctx = log.LoggerNewContext(context.Background())
-var apiAAA, err = buildApiAAAHandler(ctx)
+var apiAAA, err = buildApiAAAHandler(ctx, []string{})
 
 func TestApiAAALogin(t *testing.T) {
 	req, _ := http.NewRequest(
