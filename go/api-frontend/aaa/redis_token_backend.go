@@ -33,14 +33,6 @@ func (rtb *RedisTokenBackend) AdminActionsForToken(token string) map[string]bool
 	return AdminActionsForToken(rtb, token)
 }
 
-func (rtb *RedisTokenBackend) TenantIdForToken(token string) int {
-	if ti, _ := rtb.TokenInfoForToken(token); ti != nil {
-		return ti.Tenant.Id
-	}
-
-	return AccessNoTenants
-}
-
 func (rtb *RedisTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time) {
 	ctx := context.Background()
 	key := rtb.tokenKey(token)

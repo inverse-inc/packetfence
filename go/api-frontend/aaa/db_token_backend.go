@@ -50,14 +50,6 @@ func getDB() *sql.DB {
 	return Database
 }
 
-func (tb *DbTokenBackend) TenantIdForToken(token string) int {
-	if ti, _ := tb.TokenInfoForToken(token); ti != nil {
-		return ti.Tenant.Id
-	}
-
-	return AccessNoTenants
-}
-
 func (tb *DbTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time) {
 	expires := timeToExpired(time.Now())
 	data := []byte{}
