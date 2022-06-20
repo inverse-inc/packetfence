@@ -20,7 +20,11 @@ export default [
         store.registerModule('$_security_events', SecurityEventsStoreModule)
       if (!store.state.$_network_threats)
         store.registerModule('$_network_threats', NetworkThreatsStoreModule)
-      store.dispatch('$_network_threats/stat').then(() => next())
+        Promise.all([
+          store.dispatch('$_fingerbank/getClasses'),
+//          store.dispatch('$_nodes/getPerDeviceClass'),
+          store.dispatch('$_network_threats/stat')
+        ]).finally(() => next())
     }
   }
 ]
