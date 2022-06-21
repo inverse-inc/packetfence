@@ -387,6 +387,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}%{_unitdir}/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
+%{__install} -D -m0644 conf/systemd/packetfence-docker-iptables.service %{buildroot}%{_unitdir}/packetfence-docker-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}%{_unitdir}/packetfence-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-ip6tables.service %{buildroot}%{_unitdir}/packetfence-ip6tables.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service

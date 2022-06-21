@@ -69,6 +69,12 @@ function main {
 
   while iptables -L DOCKER ; [ $? -ne 0 ];do
     msg "Waiting for iptables to be ready"
+    eval "${binary} -t filter -N DOCKER"
+    eval "${binary} -t nat -N DOCKER"
+    eval "${binary} -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER"
+    eval "${binary} -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER"
+    eval "${binary} -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE"
+    eval "${binary} -t nat -A DOCKER -i docker0 -j RETURN"
     sleep 5;
   done
 

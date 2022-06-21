@@ -25,7 +25,7 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index 549001655f..5e839ab01d 100644
+index 18f89f1957..faa39b1310 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -443,7 +443,7 @@ radiusd=enabled
@@ -67,10 +67,10 @@ index 549001655f..5e839ab01d 100644
  #
  # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-haproxy-admin.service b/conf/systemd/packetfence-haproxy-admin.service
-index 72d2f1fe13..252fee4592 100644
+index 1ae0237598..e38dc9706b 100644
 --- a/conf/systemd/packetfence-haproxy-admin.service
 +++ b/conf/systemd/packetfence-haproxy-admin.service
-@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-pfperl-api.
+@@ -11,7 +11,7 @@ PartOf=packetfence-docker-iptables.service
  Type=notify
  StartLimitBurst=3
  StartLimitInterval=10
@@ -127,7 +127,7 @@ index 8399433b77..078e1c5e64 100644
  PrivateTmp=true
  Restart=on-failure
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
-index d55627e6a0..ae0080253f 100644
+index a3ac735600..be76136201 100644
 --- a/conf/systemd/packetfence-iptables.service
 +++ b/conf/systemd/packetfence-iptables.service
 @@ -7,8 +7,8 @@ After=packetfence-base.target packetfence-config.service
@@ -138,9 +138,9 @@ index d55627e6a0..ae0080253f 100644
 -ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
 +ExecStart=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::iptables -e 'my $db ; while(!$db) { eval { $db = db_ping() } ; sleep 1 } ; pf::services::manager::iptables->new()->startAndCheck()'
 +ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::iptables' -e 'pf::services::manager::iptables->new()->_stop()'
- ExecStartPost=/usr/local/pf/containers/docker_iptables.sh
  Slice=packetfence.slice
  
+ [Install]
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
 index 5277b4103e..31525c5537 100644
 --- a/conf/systemd/packetfence-keepalived.service
@@ -181,10 +181,10 @@ index 69b288b4c4..8e9543e5aa 100644
  Restart=on-failure
  Slice=packetfence.slice
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
-index 14288f8464..363dbc4d7c 100644
+index 5c302445ed..a67fe6ce88 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
 +++ b/conf/systemd/packetfence-radiusd-eduroam.service
-@@ -11,9 +11,9 @@ Type=notify
+@@ -14,9 +14,9 @@ Type=notify
  WatchdogSec=10
  StartLimitBurst=3
  StartLimitInterval=10
