@@ -1,5 +1,4 @@
 {
-  "userns-remap": "pf",
   "default-address-pools": [
     {
       "base": "100.64.0.0/10",
