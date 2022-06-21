@@ -6,10 +6,13 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Before=packetfence-httpd.portal.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 LimitNOFILE=infinity
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::api_frontend' -e 'pf::services::manager::api_frontend->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/api-frontend-docker-wrapper
-ExecStop=/bin/bash -c "docker stop api-frontend ; docker container rm api-frontend -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 

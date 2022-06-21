@@ -5,8 +5,11 @@ After=packetfence-base.target
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 ExecStart=/usr/local/pf/sbin/pfperl-api-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfperl-api ; docker container rm pfperl-api -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop pfperl-api ; echo Stopped"
 Slice=packetfence.slice
 Restart=on-failure
 KillMode=process

@@ -6,10 +6,13 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 Before=packetfence-haproxy-admin.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 LimitNOFILE=8192
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_admin_dispatcher' -e 'pf::services::manager::httpd_admin_dispatcher->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
-ExecStop=/bin/bash -c "docker stop httpd.admin_dispatcher ; docker container rm httpd.admin_dispatcher -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop httpd.admin_dispatcher ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
 
