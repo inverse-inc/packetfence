@@ -19,8 +19,6 @@ export const useItemTitle = (props) => {
   })
 }
 
-export { useRouter } from '../_router'
-
 import makeSearch from '@/store/factory/search'
 import { search as nodesSearch } from '@/views/Nodes/_search'
 import api from '../_api'
