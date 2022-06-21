@@ -198,6 +198,14 @@ has_field 'shuffle',
    default => $META->get_attribute('shuffle')->default,
 );
 
+has_field 'use_connector',
+  (
+   type => 'Toggle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   default => $META->get_attribute('use_connector')->default,
+);
+
 has_field 'searchattributes' => (
     type           => 'Select',
     label          => 'Search Attributes',

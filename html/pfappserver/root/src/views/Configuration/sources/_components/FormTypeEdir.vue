@@ -85,6 +85,11 @@
       :text="$i18n.t('Randomly choose LDAP server to query.')"
     />
 
+    <form-group-use-connector namespace="use_connector"
+      :column-label="$i18n.t('Use Connector')"
+      :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server.')"
+    />
+
     <form-group-realms namespace="realms"
       :column-label="$i18n.t('Associated Realms')"
       :text="$i18n.t('Realms that will be associated with this source.')"
@@ -120,6 +125,7 @@ import {
   FormGroupScope,
   FormGroupSearchAttributes,
   FormGroupShuffle,
+  FormGroupUseConnector,
   FormGroupUsernameAttribute,
   FormGroupWriteTimeout,
 } from './'
@@ -145,6 +151,7 @@ const components = {
   FormGroupScope,
   FormGroupSearchAttributes,
   FormGroupShuffle,
+  FormGroupUseConnector,
   FormGroupUsernameAttribute,
   FormGroupWriteTimeout,
 }

@@ -33,6 +33,7 @@ has 'timeout' => (isa => 'Maybe[Int]', is => 'rw', default => 1);
 has 'secret' => (isa => 'Str', is => 'rw', required => 1);
 has 'monitor' => ( isa => 'Bool', is => 'rw', default => '1' );
 has 'options' => (isa => 'Str', is => 'rw', required => 1);
+has 'use_connector' => (isa => 'Bool', is => 'rw', default => 1);
 
 =head2 dynamic_routing_module
 
@@ -90,9 +91,15 @@ sub challenge {
 sub _send_radius_auth {
     my ($self, $username, $password, @attributes) = @_;
     my $logger = get_logger();
+    
+    my $host_port = "$self->{'host'}:$self->{'port'}";
+    if($self->use_connector) {
+        my $connector_conn = pf::factory::connector->for_ip($self->{'host'})->dynreverse("$self->{'host'}:$self->{'port'}/udp");
+        $host_port = $connector_conn->{host}.":".$connector_conn->{port};
+    }
 
     my $radius = Authen::Radius->new(
-        Host   => "$self->{'host'}:$self->{'port'}",
+        Host   => $host_port,
         Secret => $self->{'secret'},
         TimeOut => $self->{'timeout'},
     );
