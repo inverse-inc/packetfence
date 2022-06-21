@@ -104,12 +104,19 @@ sub perform_dynauth {
     $connection_info->{'nas_port'} ||= $default_port;
     $connection_info->{'timeout'} ||= $default_timeout;
 
-    my $connector_conn = pf::factory::connector->for_ip($connection_info->{'nas_ip'})->dynreverse($connection_info->{'nas_ip'} . ":" . $connection_info->{'nas_port'} . "/udp");
+    my $host = $connection_info->{'nas_ip'};
+    my $port = $connection_info->{'nas_port'};
+
+    if($connection_info->{useConnector}) {
+        my $connector_conn = pf::factory::connector->for_ip($host)->dynreverse("$host:$port/udp");
+        $host = $connector_conn->{host};
+        $port = $connector_conn->{port};
+    }
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
-        PeerAddr => $connector_conn->{host},
-        PeerPort => $connector_conn->{port},
+        PeerAddr => $host,
+        PeerPort => $port,
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
 

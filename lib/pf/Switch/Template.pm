@@ -261,6 +261,7 @@ sub handleDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $send_disconnect_to = $self->disconnectAddress($add_attributes_ref);
     my $connection_info = {
+        useConnector => $self->shouldUseConnectorForRadiusDeauth(),
         nas_ip => $send_disconnect_to,
         secret => $self->{'_radiusSecret'},
         LocalAddr => $self->deauth_source_ip($send_disconnect_to),
@@ -316,6 +317,7 @@ sub handleCoa {
     my ($self, $mac, $add_attributes_ref, $role) = @_;
     my $send_disconnect_to = $self->disconnectAddress($add_attributes_ref);
     my $connection_info = {
+        useConnector => $self->shouldUseConnectorForRadiusDeauth(),
         nas_ip => $send_disconnect_to,
         secret => $self->{'_radiusSecret'},
         LocalAddr => $self->deauth_source_ip($send_disconnect_to),
@@ -531,6 +533,7 @@ sub _bouncePortCoa {
 
     my $send_disconnect_to = $self->disconnectAddress({});
     my $connection_info = {
+        useConnector => $self->shouldUseConnectorForRadiusDeauth(),
         nas_ip => $send_disconnect_to,
         secret => $self->{'_radiusSecret'},
         LocalAddr => $self->deauth_source_ip($send_disconnect_to),

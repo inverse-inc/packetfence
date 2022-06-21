@@ -37,19 +37,9 @@
           :column-label="$i18n.t('Deauthentication Method')"
         />
 
-        <form-group-use-coa namespace="useCoA"
-          :column-label="$i18n.t('Use CoA')"
-          :text="$i18n.t('Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.')"
-        />
-
         <form-group-deauth-on-previous namespace="deauthOnPrevious"
           :column-label="$i18n.t('Deauth on previous switch')"
           :text="$i18n.t('This option parameter will allow you to do the deauthentication/CoA on the previous switch where the device was connected.')"
-        />
-
-        <form-group-cli-access namespace="cliAccess"
-          :column-label="$i18n.t('CLI/VPN Access Enabled')"
-          :text="$i18n.t('Allow this network equipment to use PacketFence as a RADIUS server for CLI or VPN access.')"
         />
 
         <form-group-external-portal-enforcement namespace="ExternalPortalEnforcement"
@@ -79,11 +69,6 @@
           :text="$i18n.t('Detect VoIP with the DHCP Fingerprint.')"
         />
 
-        <form-group-post-mfa-validation namespace="PostMfaValidation"
-          :column-label="$i18n.t('Post MFA Validation')"
-          :text="$i18n.t('Add an extra validation in the RADIUS flow to detect if the user successfully validate the MFA.')"
-        />
-
         <form-group-uplink-dynamic namespace="uplink_dynamic"
           v-show="supports(['WiredMacAuth', 'WiredDot1x'])"
           :column-label="$i18n.t('Dynamic Uplinks')"
@@ -96,23 +81,11 @@
           :text="$i18n.t('Comma-separated list of the switch uplinks.')"
         />
 
-        <form-group-controller-ip namespace="controllerIp"
-          v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
-          :column-label="$i18n.t('Controller IP Address')"
-          :text="$i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.')"
-        />
+        <div class="alert alert-warning">
+          <strong>{{ $i18n.t('Note:') }}</strong>
+          {{ $i18n.t('Some RADIUS related settings have been moved to the RADIUS tab') }}
+        </div>
 
-        <form-group-disconnect-port namespace="disconnectPort"
-          v-show="supports(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x'])"
-          :column-label="$i18n.t('Disconnect Port')"
-          :text="$i18n.t('For Disconnect request, if we have to send to another port.')"
-        />
-
-        <form-group-coa-port namespace="coaPort"
-          v-show="supports(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x'])"
-          :column-label="$i18n.t('CoA Port')"
-          :text="$i18n.t('For CoA request, if we have to send to another port.')"
-        />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Roles')">
 
@@ -231,8 +204,51 @@
           :column-label="$i18n.t('Secret Passphrase')"
         />
 
+        <form-group-use-coa namespace="useCoA"
+          :column-label="$i18n.t('Use CoA')"
+          :text="$i18n.t('Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.')"
+        />
+
+        <form-group-radius-deauth-use-connector namespace="radiusDeauthUseConnector"
+          :column-label="$i18n.t('Use Connector For Deauth')"
+          :text="$i18n.t('Use the available PacketFence connectors to perform RADIUS deauth (access reevaluation). By default, a local connector is hosted on this server.')"
+        />
+
+        <form-group-controller-ip namespace="controllerIp"
+          v-show="supports(['WirelessMacAuth', 'WirelessDot1x'])"
+          :column-label="$i18n.t('Controller IP Address')"
+          :text="$i18n.t('Use instead this IP address for de-authentication requests. Normally used for Wi-Fi only.')"
+        />
+
+        <form-group-disconnect-port namespace="disconnectPort"
+          v-show="supports(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x'])"
+          :column-label="$i18n.t('Disconnect Port')"
+          :text="$i18n.t('For Disconnect request, if we have to send to another port.')"
+        />
+
+        <form-group-coa-port namespace="coaPort"
+          v-show="supports(['WiredMacAuth', 'WiredDot1x', 'WirelessMacAuth', 'WirelessDot1x'])"
+          :column-label="$i18n.t('CoA Port')"
+          :text="$i18n.t('For CoA request, if we have to send to another port.')"
+        />
+
+        <form-group-post-mfa-validation namespace="PostMfaValidation"
+          :column-label="$i18n.t('Post MFA Validation')"
+          :text="$i18n.t('Add an extra validation in the RADIUS flow to detect if the user successfully validate the MFA.')"
+        />
+
+        <form-group-cli-access namespace="cliAccess"
+          :column-label="$i18n.t('CLI/VPN Access Enabled')"
+          :text="$i18n.t('Allow this network equipment to use PacketFence as a RADIUS server for CLI or VPN access.')"
+        />
+
       </base-form-tab>
       <base-form-tab :title="$i18n.t('SNMP')">
+
+        <form-group-snmp-use-connector namespace="SNMPUseConnector"
+          :column-label="$i18n.t('Use Connector')"
+          :text="$i18n.t('Use the available PacketFence connectors to connect to this switch in SNMP. By default, a local connector is hosted on this server.')"
+        />
 
         <form-group-snmp-version namespace="SNMPVersion"
           :column-label="$i18n.t('Version')"
@@ -386,6 +402,7 @@ import {
   FormGroupMacSearchesMaxNb,
   FormGroupMacSearchesSleepInterval,
   FormGroupMode,
+  FormGroupRadiusDeauthUseConnector,
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
@@ -408,6 +425,7 @@ import {
   FormGroupSnmpPrivProtocolRead,
   FormGroupSnmpPrivProtocolTrap,
   FormGroupSnmpPrivProtocolWrite,
+  FormGroupSnmpUseConnector,
   FormGroupSnmpUserNameTrap,
   FormGroupSnmpUserNameWrite,
   FormGroupSnmpUserNameRead,
@@ -455,6 +473,7 @@ const components = {
   FormGroupMacSearchesMaxNb,
   FormGroupMacSearchesSleepInterval,
   FormGroupMode,
+  FormGroupRadiusDeauthUseConnector,
   FormGroupRadiusSecret,
   FormGroupRoleMapAccessList,
   FormGroupRoleMapRole,
@@ -477,6 +496,7 @@ const components = {
   FormGroupSnmpPrivProtocolRead,
   FormGroupSnmpPrivProtocolTrap,
   FormGroupSnmpPrivProtocolWrite,
+  FormGroupSnmpUseConnector,
   FormGroupSnmpUserNameTrap,
   FormGroupSnmpUserNameWrite,
   FormGroupSnmpUserNameRead,

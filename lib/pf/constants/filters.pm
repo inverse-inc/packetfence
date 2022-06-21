@@ -114,7 +114,6 @@ our @NODE_INFO_FIELDS = qw(
 );
 
 our @SWITCH_FIELDS = qw(
-  switch._type
   switch._ExternalPortalEnforcement
   switch._RoleMap
   switch._SNMPAuthPasswordRead
@@ -133,6 +132,7 @@ our @SWITCH_FIELDS = qw(
   switch._SNMPPrivProtocolRead
   switch._SNMPPrivProtocolTrap
   switch._SNMPPrivProtocolWrite
+  switch._SNMPUseConnector
   switch._SNMPUserNameRead
   switch._SNMPUserNameTrap
   switch._SNMPUserNameWrite
@@ -155,9 +155,11 @@ our @SWITCH_FIELDS = qw(
   switch._macSearchesMaxNb
   switch._macSearchesSleepInterval
   switch._mode
+  switch._radiusDeauthUseConnector
   switch._roles
   switch._switchIp
   switch._switchMac
+  switch._type
   switch._uplink
   switch._useCoA
   switch._vlans

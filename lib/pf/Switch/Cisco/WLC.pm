@@ -501,6 +501,7 @@ sub radiusDisconnect {
     my $response;
     try {
         my $connection_info = {
+            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
@@ -554,6 +555,7 @@ sub radiusDisconnect {
         }
         else {
             $connection_info = {
+                useConnector => $self->shouldUseConnectorForRadiusDeauth(),
                 nas_ip => $send_disconnect_to,
                 secret => $self->{'_radiusSecret'},
                 LocalAddr => $self->deauth_source_ip($send_disconnect_to),

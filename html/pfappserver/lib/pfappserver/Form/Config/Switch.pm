@@ -89,6 +89,12 @@ has_field 'useCoA' =>
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
   );
 
+has_field 'radiusDeauthUseConnector' =>
+  (
+   type => 'Toggle',
+   default => 'Y',
+  );
+
 has_field 'deauthOnPrevious' =>
   (
    type => 'Toggle',
@@ -272,6 +278,12 @@ has_field macSearchesSleepInterval  =>
 has_block definition =>
   (
    render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+  );
+
+has_field 'SNMPUseConnector' =>
+  (
+   type => 'Toggle',
+   default => 'Y',
   );
 
   has_field 'SNMPVersion' =>
