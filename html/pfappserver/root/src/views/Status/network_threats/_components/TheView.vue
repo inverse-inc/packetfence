@@ -189,26 +189,26 @@ const setup = (props, context) => {
   })
 
   watch([selectedCategories, selectedSecurityEvents, deviceClassMap], () => {
+    if ((selectedCategories.value.length  &&  Object.keys(deviceClassMap.value).length) || selectedSecurityEvents.value.length) {
       search.requestInterceptor = request => {
-        if (selectedCategories.value.length || selectedSecurityEvents.value.length) {
-          request.query = {
-            op: 'and',
-            values: [
-              ...((selectedCategories.value.length && Object.keys(deviceClassMap.value).length)
-                ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'node.device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
-                : []
-              ),
-              ...((selectedSecurityEvents.value.length)
-                ? [{ op: 'or', values: selectedSecurityEvents.value.map(value => { return { field: 'security_event_id', op: 'equals', value }}) }]
-                : []
-              ),
-            ]
-          }
+        request.query = {
+          op: 'and',
+          values: [
+            ...((selectedCategories.value.length && Object.keys(deviceClassMap.value).length)
+              ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'node.device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
+              : []
+            ),
+            ...((selectedSecurityEvents.value.length)
+              ? [{ op: 'or', values: selectedSecurityEvents.value.map(value => { return { field: 'security_event_id', op: 'equals', value }}) }]
+              : []
+            ),
+          ]
         }
         return request
       }
       reSearch()
-    }, { deep: true, immediate: true })
+    }
+  }, { deep: true, immediate: true })
 
   const tableRef = ref(null)
   let selected = useBootstrapTableSelected(tableRef, items, null)
