@@ -94,6 +94,7 @@ sub _send_radius_auth {
     
     my $host_port = "$self->{'host'}:$self->{'port'}";
     if($self->use_connector) {
+        require pf::factory::connector;
         my $connector_conn = pf::factory::connector->for_ip($self->{'host'})->dynreverse("$self->{'host'}:$self->{'port'}/udp");
         $host_port = $connector_conn->{host}.":".$connector_conn->{port};
     }

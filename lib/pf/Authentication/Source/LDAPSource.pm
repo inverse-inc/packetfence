@@ -15,7 +15,6 @@ use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WR
 use pf::Authentication::Condition;
 use pf::CHI;
 use pf::util;
-use pf::factory::connector;
 use Readonly;
 
 use pf::LDAP;
@@ -261,6 +260,7 @@ sub _connect {
         }
 
         if($self->use_connector) {
+            require pf::factory::connector;
             my $connector_conn = pf::factory::connector->for_ip($LDAPServer)->dynreverse("$LDAPServer:$LDAPServerPort");
             $connection = pf::LDAP->new(
                 $connector_conn->{host},
