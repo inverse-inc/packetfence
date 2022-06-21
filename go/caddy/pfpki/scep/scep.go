@@ -8,7 +8,6 @@ import (
 	kitloglevel "github.com/go-kit/kit/log/level"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
@@ -70,7 +69,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
 			scepdepot.WithValidityDays(profile[0].Validity),
 			scepdepot.WithProfile(vars["id"]),
-			scepdepot.WithAttributes(certutils.ProfileAttributes(profile[0])),
+			scepdepot.WithAttributes(models.ProfileAttributes(profile[0])),
 			// Todo Support CA password
 			// scepdepot.WithCAPass(*flCAPass),
 		)
