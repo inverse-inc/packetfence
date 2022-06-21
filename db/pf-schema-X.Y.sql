@@ -220,6 +220,7 @@ CREATE TABLE ip4log (
   end_time datetime default "0000-00-00 00:00:00",
   PRIMARY KEY (`ip`),
   KEY ip4log_mac_end_time (mac,end_time),
+  KEY ip4log_mac_start_time (mac, start_time),
   KEY ip4log_end_time (end_time)
 ) ENGINE=InnoDB;
 

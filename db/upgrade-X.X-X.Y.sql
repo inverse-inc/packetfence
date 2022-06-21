@@ -544,7 +544,7 @@ VALUES
 DELETE FROM user_preference WHERE id='roles::defaultSearch';
 
 \! echo "Add index on ip4log"
-ALTER TABLE ip4log ADD INDEX mac_start_time (mac, start_time);
+ALTER TABLE ip4log ADD INDEX ip4log_mac_start_time (mac, start_time);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
