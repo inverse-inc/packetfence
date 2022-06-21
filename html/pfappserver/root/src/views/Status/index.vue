@@ -22,7 +22,8 @@ const setup = () => {
   const sections = computed(() => ([
     {
       name: i18n.t('Dashboard'),
-      path: '/status/dashboard'
+      path: '/status/dashboard',
+      can: 'master tenant'
     },
     {
       name: i18n.t('Assets'),
@@ -58,19 +59,7 @@ const setup = () => {
     {
       name: i18n.t('Local Queue'),
       path: '/status/queue'
-    },
-    ...((cluster.value.length > 1)
-      ? [{
-        name: i18n.t('Cluster'),
-        items: [
-          {
-            name: i18n.t('Services'),
-            path: '/status/cluster/services'
-          }
-        ]
-      }]
-      : []
-    )
+    }
   ]))
 
   return {
