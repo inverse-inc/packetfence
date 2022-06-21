@@ -47,6 +47,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
     RadiusVoip
+    RoleBasedEnforcement
 );
 
 sub isVoIPEnabled {
@@ -157,6 +158,17 @@ sub radiusDisconnect {
     pf::Switch::Meraki::MR_v2::radiusDisconnect(@_);
 }
 
+=item returnRoleAttribute
+
+What RADIUS Attribute (usually VSA) should the role returned into.
+
+=cut
+
+sub returnRoleAttribute {
+    my ($self) = @_;
+
+    return 'Filter-Id';
+}
 
 =head1 AUTHOR
 
