@@ -723,6 +723,49 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 	})
 }
 
+func SignCSR(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewCsrModel(pfpki)
+
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+
+		switch req.Method {
+
+		case "POST":
+			Information.Status = http.StatusCreated
+			body, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.New(); err != nil {
+				Error.Message = err.Error()
+				Error.Status = Information.Status
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SignCSR")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
 func manageAnswer(Information types.Info, Error types.Errors, pfpki *types.Handler, res http.ResponseWriter, req *http.Request, alog *admin_api_audit_log.AdminApiAuditLog) {
 	var err error
 
