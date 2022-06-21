@@ -158,7 +158,9 @@ const setup = (props, context) => {
 
     const search = useSearch()
     const {
-      reSearch
+      defaultCondition,
+      doSearch,
+      setPage
     } = search
     const {
       items,
@@ -189,24 +191,24 @@ const setup = (props, context) => {
   })
 
   watch([selectedCategories, selectedSecurityEvents, deviceClassMap], () => {
+    setPage(1)
     if ((selectedCategories.value.length  &&  Object.keys(deviceClassMap.value).length) || selectedSecurityEvents.value.length) {
-      search.requestInterceptor = request => {
-        request.query = {
-          op: 'and',
-          values: [
-            ...((selectedCategories.value.length && Object.keys(deviceClassMap.value).length)
-              ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'node.device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
-              : []
-            ),
-            ...((selectedSecurityEvents.value.length)
-              ? [{ op: 'or', values: selectedSecurityEvents.value.map(value => { return { field: 'security_event_id', op: 'equals', value }}) }]
-              : []
-            ),
-          ]
-        }
-        return request
-      }
-      reSearch()
+      doSearch({
+        op: 'and',
+        values: [
+          ...((selectedCategories.value.length && Object.keys(deviceClassMap.value).length)
+            ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'node.device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
+            : []
+          ),
+          ...((selectedSecurityEvents.value.length)
+            ? [{ op: 'or', values: selectedSecurityEvents.value.map(value => { return { field: 'security_event_id', op: 'equals', value }}) }]
+            : []
+          ),
+        ]
+      })
+    }
+    else {
+      doSearch(defaultCondition())
     }
   }, { deep: true, immediate: true })
 
