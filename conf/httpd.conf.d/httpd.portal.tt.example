@@ -176,7 +176,9 @@ TraceEnable Off
 ServerTokens Prod
 ServerSignature Off
 UseCanonicalName Off
-Timeout 5
+# Allow for 5 more seconds than the request_timeout of Catalyst since it must always be allowed to complete in order to catch the alarm it sets
+# See https://github.com/inverse-inc/packetfence/issues/7037 for details
+Timeout [% captive_portal.request_timeout + 5 %]
 KeepAlive Off
 
 MaxClients [% max_clients %]
