@@ -188,13 +188,13 @@ const setup = (props, context) => {
     })
   })
 
-  watch([selectedCategories, selectedSecurityEvents], () => {
+  watch([selectedCategories, selectedSecurityEvents, deviceClassMap], () => {
       search.requestInterceptor = request => {
         if (selectedCategories.value.length || selectedSecurityEvents.value.length) {
           request.query = {
             op: 'and',
             values: [
-              ...((selectedCategories.value.length)
+              ...((selectedCategories.value.length && Object.keys(deviceClassMap.value).length)
                 ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'node.device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
                 : []
               ),
