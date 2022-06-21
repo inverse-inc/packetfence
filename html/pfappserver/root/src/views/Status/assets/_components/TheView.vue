@@ -112,26 +112,6 @@ const setup = (props, context) => {
 
   const graph = useGraph(search, refs)
 
-  const selectedCategories = usePreference('vizsec::filters', 'categories', [])
-
-  watch(selectedCategories, () => {
-    setPage(1)
-    if (selectedCategories.value.length) {
-      doSearch({
-        op: 'and',
-        values: [
-          ...((selectedCategories.value.length)
-            ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
-            : []
-          ),
-        ]
-      })
-    }
-    else {
-      doReset()
-    }
-  }, { deep: true, immediate: true })
-
   const deviceClassMap = ref({})
   onMounted(() => {
     $store.dispatch('$_fingerbank/getClasses').then(items => {
@@ -140,6 +120,23 @@ const setup = (props, context) => {
       }, {})
     })
   })
+
+  const selectedCategories = usePreference('vizsec::filters', 'categories', [])
+
+  watch([selectedCategories, deviceClassMap], () => {
+    setPage(1)
+    if (selectedCategories.value.length) {
+      doSearch({
+        op: 'and',
+        values: [
+          { op: 'or', values: selectedCategories.value.map(value => { return { field: 'device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }
+        ]
+      })
+    }
+    else {
+      doReset()
+    }
+  }, { deep: true, immediate: true })
 
   return {
     selectedCategories,

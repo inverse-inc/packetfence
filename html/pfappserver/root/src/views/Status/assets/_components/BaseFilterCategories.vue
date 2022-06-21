@@ -57,7 +57,8 @@ const directives = {
 
 const props = {
   value: {
-    type: Array
+    type: Array,
+    default: () => ([])
   }
 }
 
