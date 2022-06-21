@@ -181,5 +181,10 @@ export default {
     return apiCall.put(['nodes', 'bulk_import'], body).then(response => {
       return response.data.items
     })
+  },
+  perDeviceClass: () => {
+    return apiCall.get('nodes/per_device_class').then(response => {
+      return response.data
+    })
   }
 }

@@ -5,7 +5,7 @@ import { ref, watch } from '@vue/composition-api'
 
 export default (id, key, defaultValue) => {
 
-  const preference = ref(undefined)
+  const preference = ref(defaultValue)
   let debouncer
 
   store.dispatch('preferences/get', id).then(value => {

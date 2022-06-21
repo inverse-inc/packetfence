@@ -5,7 +5,7 @@ import api from './_api'
 export const sortBy = 'last_seen'
 export const sortDesc = false
 
-export const useSearch = makeSearch('statusNetwork', {
+export const search = {
   api,
   columns: Object.entries({
     mac:                  'MAC Address',
@@ -265,5 +265,12 @@ export const useSearch = makeSearch('statusNetwork', {
     { op: 'or', values: [
       { field: 'last_seen', op: 'greater_than', value: '' }
     ] }
-  ] })
-})
+    ]
+  }),
+  useItems: items => {
+    const { 0: { nodes = [] } = {} } = items // unwrap
+    return nodes.filter(node => node.type === 'node') // filter excess
+  }
+}
+
+export const useSearch = makeSearch('nodesNetwork', search)

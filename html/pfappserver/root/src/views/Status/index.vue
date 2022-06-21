@@ -28,6 +28,12 @@ const setup = (props, context) => {
       path: '/status/dashboard'
     },
     {
+      name: i18n.t('Assets'),
+      path: '/status/assets',
+      saveSearchNamespace: 'assets',
+      can: 'read nodes'
+    },
+    {
       name: i18n.t('Network View'),
       path: '/status/network',
       saveSearchNamespace: 'network',

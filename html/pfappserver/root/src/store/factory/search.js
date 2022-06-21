@@ -59,6 +59,7 @@ const factory = (uuid, options = {}) => {
         useColumns,
         useFields,
         useString,
+        useItems: items => items,
         useCondition: condition => condition,
         useCursor: (cursors, page, limit) => {
           if (page - 1 in cursors) {
@@ -165,10 +166,10 @@ const factory = (uuid, options = {}) => {
                     this.cursors[this.page] = nextCursor
                   if (total_count) // endpoint returned a total count
                     this.totalRows = total_count
-                  else if (items.length === this.limit) // +1 to guarantee next
+                  else if (this.useItems(items).length === this.limit) // +1 to guarantee next
                     this.totalRows = (this.page * this.limit) + 1
                   else
-                    this.totalRows = (this.page * this.limit) - this.limit + items.length
+                    this.totalRows = (this.page * this.limit) - this.limit + this.useItems(items).length
                   this.lastQuery = null
                 })
                 .catch(() => {
@@ -224,10 +225,11 @@ const factory = (uuid, options = {}) => {
                   this.cursors[this.page] = nextCursor
                 if (total_count) // endpoint returned a total count
                   this.totalRows = total_count
-                else if (items.length === this.limit) // +1 to guarantee next
+                else if (this.useItems(items).length === this.limit) // +1 to guarantee next
                   this.totalRows = (this.page * this.limit) + 1
-                else
-                  this.totalRows = (this.page * this.limit) - this.limit + items.length
+                else {
+                  this.totalRows = (this.page * this.limit) - this.limit + this.useItems(items).length
+                }
                 this.lastQuery = query
               })
               .catch(() => {

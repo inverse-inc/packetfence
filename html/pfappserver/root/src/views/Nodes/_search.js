@@ -5,7 +5,7 @@ import acl from '@/utils/acl'
 import bytes from '@/utils/bytes'
 import api from './_api'
 
-export const useSearch = makeSearch('nodes', {
+export const search = {
   api,
   columns: [
     {
@@ -543,4 +543,6 @@ export const useSearch = makeSearch('nodes', {
       { field: 'mac', op: 'not_equals', value: null }
     ] }
   ] })
-})
+}
+
+export const useSearch = makeSearch('nodes', search)
