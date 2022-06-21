@@ -33,7 +33,7 @@ What RADIUS Attribute (usually VSA) should the role returned into.
 =cut
 
 sub returnRoleAttribute {
-    return 'Airespace-ACL-Name';
+    return 'Filter-Id';
 }
 
 =item deauthenticateMacDefault
