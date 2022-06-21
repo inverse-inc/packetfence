@@ -15,6 +15,7 @@ pfcmd service <service> [start|stop|restart|status|generateconfig|updatesystemd]
 Services managed by PacketFence:
 
   api-frontend           | Golang daemon providing API
+  docker-iptables        | PacketFence Docker iptables management
   fingerbank-collector   | Fingerprinting data collection daemon
   galera-autofix         | Automated recovery of Galera clusters
   haproxy-admin          | haproxy admin daemon

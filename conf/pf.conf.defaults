@@ -370,6 +370,12 @@ masterslave=OFF
 other_members=
 
 [services]
+#
+# services.docker-iptables
+#
+# Should the docker-iptables be started?
+docker-iptables=enabled
+#
 # services.pfipset
 #
 # Should pfipset be managed by PacketFence?
