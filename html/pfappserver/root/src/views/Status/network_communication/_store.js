@@ -2,6 +2,7 @@
 * "$_fingerbank_communication" store module
 */
 import { createDebouncer } from 'promised-debounce'
+import usePreference from '@/composables/usePreference'
 import api from '@/views/Nodes/_api'
 import { decorateDevice, decorateProtocol, splitHost, splitProtocol } from './_composables/useCommunication'
 
@@ -11,9 +12,9 @@ const state = () => {
     cache: {}, // communication details
     message: '',
     status: '',
-    selectedDevices: [],
-    selectedHosts: [],
-    selectedProtocols: []
+    selectedDevices: usePreference('vizsec::filters', 'devices', []),
+    selectedHosts: usePreference('vizsec::filters', 'hosts', []),
+    selectedProtocols: usePreference('vizsec::filters', 'protocols', [])
   }
 }
 
@@ -22,8 +23,8 @@ let debouncer
 const getters = {
   isLoading: state => state.status === 'loading',
   tabular: state => {
-    const selectedHosts = state.selectedHosts
-    const selectedProtocols = state.selectedProtocols
+    const selectedHosts = state.selectedHosts.value
+    const selectedProtocols = state.selectedProtocols.value
     return Object.entries(state.cache).reduce((tabular, [device, { all_hosts_cache = {} }]) => {
       const mac = decorateDevice(device)
       const hosts_cache = Object.entries(all_hosts_cache)
@@ -93,68 +94,63 @@ const actions = {
       time: 100 // 100ms
     })
   },
-  toggleDevice: ({ state, commit, dispatch }, device) => {
+  toggleDevice: ({ state, commit }, device) => {
     return new Promise(resolve => {
-      const i = state.selectedDevices.findIndex(selected => selected === device)
+      const i = state.selectedDevices.value.findIndex(selected => selected === device)
       if (i > -1) {
         commit('DEVICE_DESELECT', device)
-        dispatch('getDebounced', { nodes: state.selectedDevices })
         resolve(false)
       }
       else {
         // select device
         commit('DEVICE_SELECT', device)
-        dispatch('getDebounced', { nodes: state.selectedDevices })
         resolve(true)
       }
     })
   },
-  deselectDevices: ({ state, commit, dispatch }, devices = []) => {
+  deselectDevices: ({ state, commit }, devices = []) => {
     return new Promise(resolve => {
       devices.forEach(device => {
-        if (state.selectedDevices.indexOf(device) > -1) {
+        if (state.selectedDevices.value.indexOf(device) > -1) {
           commit('DEVICE_DESELECT', device)
         }
       })
-      dispatch('getDebounced', { nodes: state.selectedDevices })
       resolve()
     })
   },
-  selectDevices: ({ state, commit, dispatch }, devices = []) => {
+  selectDevices: ({ state, commit }, devices = []) => {
     return new Promise(resolve => {
       devices.forEach(device => {
-        if (state.selectedDevices.indexOf(device) === -1) {
+        if (state.selectedDevices.value.indexOf(device) === -1) {
           commit('DEVICE_SELECT', device)
         }
       })
-      dispatch('getDebounced', { nodes: state.selectedDevices })
       resolve()
     })
   },
-  invertDevices: ({ state, commit, dispatch }, devices = []) => {
+  invertDevices: ({ state, commit }, devices = []) => {
     return new Promise(resolve => {
       devices.forEach(device => {
-        if (state.selectedDevices.indexOf(device) === -1) {
+        if (state.selectedDevices.value.indexOf(device) === -1) {
           commit('DEVICE_SELECT', device)
         }
         else {
           commit('DEVICE_DESELECT', device)
         }
       })
-      dispatch('getDebounced', { nodes: state.selectedDevices })
       resolve()
     })
   },
   toggleHost: ({ state, commit }, host) => {
     return new Promise(resolve => {
-      const i = state.selectedHosts.findIndex(selected => selected === host)
+      const i = state.selectedHosts.value.findIndex(selected => selected === host)
       if (i > -1) {
         commit('HOST_DESELECT', host)
         resolve(false)
       }
       else {
         // deselect all subdomains
-        state.selectedHosts.forEach(selectedHost => {
+        state.selectedHosts.value.forEach(selectedHost => {
           if (RegExp(`.${host}$`, 'i').test(selectedHost)) {
             commit('HOST_DESELECT', selectedHost)
           }
@@ -168,7 +164,7 @@ const actions = {
   deselectHosts: ({ state, commit }, hosts = []) => {
     return new Promise(resolve => {
       hosts.forEach(host => {
-        if (state.selectedHosts.indexOf(host) > -1) {
+        if (state.selectedHosts.value.indexOf(host) > -1) {
           commit('HOST_DESELECT', host)
         }
       })
@@ -178,7 +174,7 @@ const actions = {
   selectHosts: ({ state, commit }, hosts = []) => {
     return new Promise(resolve => {
       hosts.forEach(host => {
-        if (state.selectedHosts.indexOf(host) === -1) {
+        if (state.selectedHosts.value.indexOf(host) === -1) {
           commit('HOST_SELECT', host)
         }
       })
@@ -188,7 +184,7 @@ const actions = {
   invertHosts: ({ state, commit }, hosts = []) => {
     return new Promise(resolve => {
       hosts.forEach(host => {
-        if (state.selectedHosts.indexOf(host) === -1) {
+        if (state.selectedHosts.value.indexOf(host) === -1) {
           commit('HOST_SELECT', host)
         }
         else {
@@ -200,14 +196,14 @@ const actions = {
   },
   toggleProtocol: ({ state, commit }, protocol) => {
     return new Promise(resolve => {
-      const i = state.selectedProtocols.findIndex(selected => selected === protocol)
+      const i = state.selectedProtocols.value.findIndex(selected => selected === protocol)
       if (i > -1) {
         commit('PROTOCOL_DESELECT', protocol)
         resolve(false)
       }
       else {
         // deselect all subdomains
-        state.selectedProtocols.forEach(selectedProtocol => {
+        state.selectedProtocols.value.forEach(selectedProtocol => {
           if (RegExp(`^${protocol}:`, 'i').test(selectedProtocol)) {
             commit('PROTOCOL_DESELECT', selectedProtocol)
           }
@@ -221,7 +217,7 @@ const actions = {
   deselectProtocols: ({ state, commit }, protocols = []) => {
     return new Promise(resolve => {
       protocols.forEach(protocol => {
-        if (state.selectedProtocols.indexOf(protocol) > -1) {
+        if (state.selectedProtocols.value.indexOf(protocol) > -1) {
           commit('PROTOCOL_DESELECT', protocol)
         }
       })
@@ -231,7 +227,7 @@ const actions = {
   selectProtocols: ({ state, commit }, protocols = []) => {
     return new Promise(resolve => {
       protocols.forEach(protocol => {
-        if (state.selectedProtocols.indexOf(protocol) === -1) {
+        if (state.selectedProtocols.value.indexOf(protocol) === -1) {
           commit('PROTOCOL_SELECT', protocol)
         }
       })
@@ -241,7 +237,7 @@ const actions = {
   invertProtocols: ({ state, commit }, protocols = []) => {
     return new Promise(resolve => {
       protocols.forEach(protocol => {
-        if (state.selectedProtocols.indexOf(protocol) === -1) {
+        if (state.selectedProtocols.value.indexOf(protocol) === -1) {
           commit('PROTOCOL_SELECT', protocol)
         }
         else {
@@ -276,22 +272,22 @@ const mutations = {
     }
   },
   DEVICE_DESELECT: (state, device) => {
-    state.selectedDevices = [ ...state.selectedDevices.filter(selected => selected !== device) ]
+    state.selectedDevices.value = [ ...state.selectedDevices.value.filter(selected => selected !== device) ]
   },
   DEVICE_SELECT: (state, device) => {
-    state.selectedDevices.push(device)
+    state.selectedDevices.value.push(device)
   },
   HOST_DESELECT: (state, host) => {
-    state.selectedHosts = [ ...state.selectedHosts.filter(selected => selected !== host) ]
+    state.selectedHosts.value = [ ...state.selectedHosts.value.filter(selected => selected !== host) ]
   },
   HOST_SELECT: (state, host) => {
-    state.selectedHosts.push(host)
+    state.selectedHosts.value.push(host)
   },
   PROTOCOL_DESELECT: (state, protocol) => {
-    state.selectedProtocols = [ ...state.selectedProtocols.filter(selected => selected !== protocol) ]
+    state.selectedProtocols.value = [ ...state.selectedProtocols.value.filter(selected => selected !== protocol) ]
   },
   PROTOCOL_SELECT: (state, protocol) => {
-    state.selectedProtocols.push(protocol)
+    state.selectedProtocols.value.push(protocol)
   },
 }
 

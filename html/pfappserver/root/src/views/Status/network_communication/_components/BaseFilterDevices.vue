@@ -59,7 +59,7 @@ const directives = {
   focus
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 import { useNodesSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
@@ -71,7 +71,7 @@ const setup = (props, context) => {
     items
   } = toRefs(search)
 
-  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices)
+  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices.value)
   const byDevice = computed(() => $store.getters['$_fingerbank_communication/byDevice'])
 
   const uniqueItems = computed(() => {
@@ -84,13 +84,6 @@ const setup = (props, context) => {
       }, [])
       .sort((a, b) => a.mac.localeCompare(b.mac))
   })
-
-  watch([selectedDevices, uniqueItems], () => {
-    if (selectedDevices.value.length === 0 && uniqueItems.value.length > 0) {
-      $store.dispatch('$_fingerbank_communication/get', { nodes: uniqueItems.value.map(item => item.mac) })
-    }
-  }, { immediate: true })
-
 
   const filter = ref('')
 

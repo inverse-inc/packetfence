@@ -75,7 +75,7 @@ const setup = (props, context) => {
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const hosts = computed(() => useHosts($store.state.$_fingerbank_communication.cache))
-  const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
+  const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts.value)
 
   const items = computed(() => {
     return Object.keys(hosts.value)

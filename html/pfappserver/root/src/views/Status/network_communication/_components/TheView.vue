@@ -63,9 +63,9 @@ const setup = (props, context) => {
 
   const { root: { $store } = {} } = context
 
-  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices)
-  const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts)
-  const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
+  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices.value)
+  const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts.value)
+  const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols.value)
 
   return {
     selectedDevices,

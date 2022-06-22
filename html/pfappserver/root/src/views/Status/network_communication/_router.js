@@ -20,7 +20,10 @@ export default [
         store.registerModule('$_fingerbank', FingerbankStoreModule)
       if (!store.state.$_fingerbank_communication)
         store.registerModule('$_fingerbank_communication', FingerbankCommunicationStoreModule)
-      store.dispatch('$_bases/getGeneral').then(() => next())
+      Promise.all([
+        store.dispatch('$_bases/getGeneral'),
+        store.dispatch('$_fingerbank/getClasses')
+      ]).then(() => next())
     },
   }
 ]

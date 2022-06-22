@@ -76,7 +76,7 @@ const setup = (props, context) => {
 
   const isLoading = computed(() => $store.getters['$_fingerbank_communication/isLoading'])
   const protocols = computed(() => useProtocols($store.state.$_fingerbank_communication.cache))
-  const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols)
+  const selectedProtocols = computed(() => $store.state.$_fingerbank_communication.selectedProtocols.value)
 
   const items = computed(() => {
     return Object.keys(protocols.value)

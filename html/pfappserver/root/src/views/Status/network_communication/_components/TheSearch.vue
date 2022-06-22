@@ -5,15 +5,14 @@
     </template>
     <template v-slot:footer>
       <p class="py-0 col-form-label text-left text-nowrap mt-3" v-text="'Device Class'"></p>
-      <b-row>
-        <b-col cols="6" v-for="deviceClass in deviceClassList" :key="deviceClass.value"
+      <b-row align-v="center">
+        <b-col cols="6" v-for="deviceClass in decoratedDeviceClasses" :key="deviceClass.id"
           @click="toggleDeviceClass(deviceClass)"
+          class="cursor-pointer my-1"
+          :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1) ? 'text-success' : 'text-muted'"
         >
-          <icon v-if="selectedDeviceClasses.indexOf(deviceClass.text) > -1"
-            name="check-square" class="bg-white text-success mr-1" scale="1.125" />
-          <icon v-else
-            name="square" class="border border-1 border-gray bg-white text-light mr-1" scale="1.125" />
-          {{ deviceClass.text }}
+          <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1" />
+          {{ deviceClass.name }}
         </b-col>
       </b-row>
     </template>
@@ -29,8 +28,10 @@ const components = {
   BaseSearch
 }
 
-import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, toRefs, watch } from '@vue/composition-api'
+import usePreference from '@/composables/usePreference'
 import { useNodesSearch } from '../_composables/useCollection'
+import icons from '@/assets/icons/fingerbank'
 
 const setup = (props, context) => {
 
@@ -40,29 +41,33 @@ const setup = (props, context) => {
   const {
     reSearch
   } = search
+  const {
+    items
+  } = toRefs(search)
 
-  const deviceClassList = ref([])
-  onMounted(() => {
-    $store.dispatch('$_fingerbank/devices').then(items => {
-      deviceClassList.value = items
-        .map(({ id: value, name: text}) => ({ text, value }))
-        .sort((a, b) => a.text.localeCompare(b.text))
-    })
-  })
+  const deviceClasses = computed(() => $store.state.$_fingerbank.classes
+    .sort((a, b) => a.name.localeCompare(b.name)))
 
-  const selectedDeviceClasses = ref([])
+  const decoratedDeviceClasses = computed(() => deviceClasses.value.map(item => {
+      const { id, name } = item
+      return { id, name, icon: icons[id] }
+  }))
+
+  const selectedDeviceClasses = usePreference('vizsec::filters', 'categories', [])
   const toggleDeviceClass = deviceClass => {
-    const { text } = deviceClass
-    if (selectedDeviceClasses.value.indexOf(text) === -1) {
+    const { id } = deviceClass
+    if (selectedDeviceClasses.value.indexOf(id) === -1) {
       selectedDeviceClasses.value = [
-        ...selectedDeviceClasses.value.filter(selected => selected !== text),
-        text
+        ...selectedDeviceClasses.value.filter(selected => selected !== id),
+        id
       ]
     }
     else {
-      selectedDeviceClasses.value = selectedDeviceClasses.value.filter(selected => selected !== text)
+      selectedDeviceClasses.value = selectedDeviceClasses.value.filter(selected => selected !== id)
     }
   }
+
+  const assocClassesById = computed(() => $store.getters['$_fingerbank/assocClassesById'])
 
   watch(selectedDeviceClasses, () => {
     search.requestInterceptor = request => {
@@ -75,8 +80,8 @@ const setup = (props, context) => {
         // push criteria
         request.query.values.push({
           op: 'or',
-          values: selectedDeviceClasses.value.map(deviceClass => ({
-            field: 'device_class', op: 'equals', value: deviceClass
+          values: selectedDeviceClasses.value.map(id => ({
+            field: 'device_class', op: 'equals', value: assocClassesById.value[id]
           }))
         })
       }
@@ -85,11 +90,32 @@ const setup = (props, context) => {
     reSearch()
   }, { immediate: true })
 
+  const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices.value)
+  const uniqueItems = computed(() => {
+    return items.value
+      .reduce((unique, item) => {
+        if (unique.filter(u => u.mac === item.mac).length === 0) {
+          return [ ...unique, item ]
+        }
+        return unique
+      }, [])
+      .sort((a, b) => a.mac.localeCompare(b.mac))
+  })
+
+  watch([selectedDevices, uniqueItems], () => {
+    if (selectedDevices.value.length === 0 && uniqueItems.value.length > 0) {
+      $store.dispatch('$_fingerbank_communication/getDebounced', { nodes: uniqueItems.value.map(item => item.mac) })
+    }
+    else {
+      $store.dispatch('$_fingerbank_communication/getDebounced', { nodes: selectedDevices.value })
+    }
+  }, { immediate: true })
+
   return {
     useNodesSearch,
 
     ...toRefs(search),
-    deviceClassList,
+    decoratedDeviceClasses,
     selectedDeviceClasses,
     toggleDeviceClass,
   }
