@@ -60,6 +60,8 @@ case "$1" in
             groupmod -g 6969 pf
             echo "create pf user"
         else
+                usermod -u 6969 pf
+                groupmod -g 6969 pf
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank,winbindd_priv
@@ -110,10 +112,12 @@ case "$1" in
         /bin/systemctl stop mariadb
 
         #Change the uid/gid
+        set +e
         id=$(/usr/bin/id -g pf)
-        find / -group $id -exec chgrp -h pf {} \;
+        find /usr/local/pf/ -group $id -exec chgrp -h pf {} \;
         id=$(/usr/bin/id -u pf)
-        find / -user $id -exec chown -h pf {} \;
+        find /usr/local/pf/ -user $id -exec chown -h pf {} \;
+        set -e
 
         usermod pf -a -G fingerbank,winbindd_priv
         usermod -aG pf mysql
