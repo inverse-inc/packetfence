@@ -18,7 +18,7 @@
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectNone">{{ $i18n.t('None') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
-        @click="onSelectInverse">{{ $i18n.t('Inverse') }}</b-btn>
+        @click="onSelectInverse">{{ $i18n.t('Invert') }}</b-btn>
 
       <b-row v-for="item in filteredItems" :key="item.mac"
         @click="onSelectItem(item)"
