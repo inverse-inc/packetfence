@@ -321,6 +321,8 @@ sub _build_profile_template {
             return "wireless-profile-tls.xml";
         } elsif ($eap_type == 25) {
             return "wireless-profile-peap.xml";
+        } elsif ($eap_type == 21) {
+            return "wireless-profile-ttls.xml";
         }
     } 
     return "wireless-profile-noeap.xml";
