@@ -162,10 +162,9 @@ type (
 
 	// CSR struct
 	CSR struct {
-		DB        gorm.DB         `gorm:"-"`
-		Ctx       context.Context `gorm:"-"`
-		Csr       string          `json:"csr"`
-		ProfileID uint            `json:"profile_id,string"`
+		DB  gorm.DB         `gorm:"-"`
+		Ctx context.Context `gorm:"-"`
+		Csr string          `json:"csr"`
 	}
 
 	// RevokedCert struct
@@ -1498,14 +1497,20 @@ func NewCsrModel(pfpki *types.Handler) *CSR {
 	return Csr
 }
 
-func (csr CSR) New() (types.Info, error) {
+func (csr CSR) New(params map[string]string) (types.Info, error) {
 	Information := types.Info{}
 	Information.Status = http.StatusUnprocessableEntity
 	// Find the profile
 	var prof Profile
-	if profDB := csr.DB.First(&prof, csr.ProfileID); profDB.Error != nil {
-		Information.Error = profDB.Error.Error()
-		return Information, errors.New(dbError)
+	if val, ok := params["id"]; ok {
+
+		if profDB := csr.DB.First(&prof, val); profDB.Error != nil {
+			Information.Error = profDB.Error.Error()
+			return Information, errors.New(dbError)
+		}
+	} else {
+		return Information, errors.New("Missing the profile id in the url")
+
 	}
 	attributes := ProfileAttributes(prof)
 	// Find the CA

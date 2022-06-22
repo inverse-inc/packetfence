@@ -724,7 +724,7 @@ func SignCSR(pfpki *types.Handler) http.Handler {
 		var auditLog *admin_api_audit_log.AdminApiAuditLog
 
 		Error := types.Errors{Status: 0}
-
+		vars := mux.Vars(req)
 		switch req.Method {
 
 		case "POST":
@@ -740,7 +740,7 @@ func SignCSR(pfpki *types.Handler) http.Handler {
 				Error.Status = http.StatusInternalServerError
 				break
 			}
-			if Information, err = o.New(); err != nil {
+			if Information, err = o.New(vars); err != nil {
 				Error.Message = err.Error()
 				Error.Status = Information.Status
 				break
