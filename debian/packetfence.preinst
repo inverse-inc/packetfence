@@ -56,6 +56,8 @@ case "$1" in
             else
                 useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf
             fi
+            usermod -u 6969 pf
+            groupmod -g 6969 pf
             echo "create pf user"
         else
                 echo "pf user already exist"
@@ -106,6 +108,12 @@ case "$1" in
         # prevent conflicting mariadb service from starting
         /bin/systemctl mask mariadb
         /bin/systemctl stop mariadb
+
+        #Change the uid/gid
+        id=$(/usr/bin/id -g pf)
+        find / -group $id -exec chgrp -h pf {} \;
+        id=$(/usr/bin/id -u pf)
+        find / -user $id -exec chown -h pf {} \;
 
         usermod pf -a -G fingerbank,winbindd_priv
         usermod -aG pf mysql
