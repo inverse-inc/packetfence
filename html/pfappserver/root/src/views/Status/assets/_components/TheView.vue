@@ -5,7 +5,7 @@
     </b-card-header>
     <div class="card-body">
       <b-row>
-        <b-col cols="6">
+        <b-col cols="12">
           <b-tabs small class="fixed">
             <b-tab class="border-1 border-right border-bottom border-left pb-1">
               <template #title>
@@ -13,18 +13,6 @@
               </template>
               <base-filter-categories v-model="selectedCategories" />
             </b-tab>
-          </b-tabs>
-        </b-col>
-        <b-col cols="6">
-          <b-tabs small class="fixed">
-            <!--
-            <b-tab class="border-1 border-right border-bottom border-left">
-              <template #title>
-                {{ $i18n.t('Security Events') }} <b-badge v-if="selectedSecurityEvents.length" pill variant="primary" class="ml-1">{{ selectedSecurityEvents.length }}</b-badge>
-              </template>
-              <base-filter-security-events />
-            </b-tab>
-            -->
           </b-tabs>
         </b-col>
       </b-row>
