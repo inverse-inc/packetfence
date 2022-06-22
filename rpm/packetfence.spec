@@ -586,27 +586,23 @@ if ! /usr/bin/id pf &>/dev/null; then
         echo "Creating pf user"
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf || \
                 ( echo Unexpected error adding user "pf" && exit )
-        /usr/sbin/usermod -u 6969 pf || \
-                ( echo Unexpected error modifying uid for user "pf" && exit )
-        /usr/sbin/groupmod -g 6969 pf || \
-                ( echo Unexpected error modifying gid for groupr "pf" && exit)
     else
         echo "Creating pf user member of pf group"
         /usr/sbin/useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf || \
                 ( echo Unexpected error adding user "pf" && exit )
-        /usr/sbin/usermod -u 6969 pf || \
-                ( echo Unexpected error modifying uid for user "pf" && exit )
-        /usr/sbin/groupmod -g 6969 pf || \
-                ( echo Unexpected error modifying gid for groupr "pf" && exit)
     fi
 fi
+/usr/sbin/usermod -u 6969 pf || \
+        ( echo Unexpected error modifying uid for user "pf" && exit )
+/usr/sbin/groupmod -g 6969 pf || \
+        ( echo Unexpected error modifying gid for groupr "pf" && exit)
 
 # Change all gid/uid
 if [ "$1" = "2"   ]; then
     id=$(/usr/bin/id -g pf)
-    /usr/bin/find / -group $id -exec chgrp -h pf {} \;
+    /usr/bin/find /usr/local/pf/ -group $id -exec chgrp -h pf {} \;
     id=$(/usr/bin/id -u pf)
-    find / -user $id -exec chown -h pf {} \;
+    /usr/bin/find /usr/local/pf/ -user $id -exec chown -h pf {} \;
 fi
 
 echo "Adding pf user to app groups"
