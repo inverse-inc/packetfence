@@ -18,6 +18,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -568,9 +569,14 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 		return nil, err
 	}
 
-	var ca CA
+	return c.FindSerial(profiledb[0])
+}
 
-	if CaDB := c.DB.First(&ca, profiledb[0].CaID).Find(&ca); CaDB.Error != nil {
+func (c CA) FindSerial(p Profile) (*big.Int, error) {
+
+	ca := &CA{}
+
+	if CaDB := c.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
 		c.DB.First(&ca)
 	}
 
@@ -585,6 +591,7 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 	}
 
 	return SerialNumber, nil
+
 }
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
@@ -1522,24 +1529,31 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 
 	// Read the CSR here
 	var err error
-	b, _ := pem.Decode([]byte(csr.Csr))
-	var certRequest *x509.CertificateRequest
 
-	if b == nil {
-		certRequest, err = x509.ParseCertificateRequest([]byte(csr.Csr))
-	} else {
-		certRequest, err = x509.ParseCertificateRequest(b.Bytes)
-	}
+	stringCSR := strings.Trim(csr.Csr, "-----BEGIN CERTIFICATE REQUEST-----")
+	stringCSR = strings.Trim(stringCSR, "-----END CERTIFICATE REQUEST-----")
+	byteCSR := []byte(stringCSR)
+
+	d := make([]byte, base64.StdEncoding.DecodedLen(len(byteCSR)))
+	n, err := base64.StdEncoding.Decode(d, byteCSR)
+
+	d = d[:n]
+
+	certRequest, err := x509.ParseCertificateRequest(d)
 
 	id, err := cryptoutil.GenerateSubjectKeyID(certRequest.PublicKey)
 	if err != nil {
 		return Information, err
 	}
 
-	serial, err := ca.Serial(prof.Name)
+	ca.DB = csr.DB
+
+	serial, err := ca.FindSerial(prof)
+
 	if err != nil {
 		return Information, err
 	}
+
 	Subject := certutils.MakeSubject(certRequest.Subject, attributes)
 	Subject.CommonName = certRequest.Subject.CommonName
 
