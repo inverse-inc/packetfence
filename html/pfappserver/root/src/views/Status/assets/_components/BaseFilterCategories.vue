@@ -73,7 +73,6 @@ const setup = (props, context) => {
 
   const { emit, root: { $store } = {} } = context
 
-  const perDeviceClass = computed(() => $store.getters['$_nodes/perDeviceClass'])
   const perDeviceClassLowerCase = computed(() => $store.getters['$_nodes/perDeviceClassLowerCase'])
 
   const items = computed(() => $store.state.$_fingerbank.classes
@@ -144,8 +143,6 @@ const setup = (props, context) => {
     onSelectAll,
     onSelectNone,
     onSelectInverse,
-
-    perDeviceClass,
   }
 }
 

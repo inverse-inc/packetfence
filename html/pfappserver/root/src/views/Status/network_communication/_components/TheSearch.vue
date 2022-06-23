@@ -14,8 +14,16 @@
           class="bg-hover-success cursor-pointer py-1"
           :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1) ? 'text-success' : 'text-muted'"
         >
-          <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1 mb-1" />
-          {{ deviceClass.name }}
+          <b-row align-v="center">
+            <b-col cols="auto">
+              <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1 mb-1" />
+              {{ deviceClass.name }}
+            </b-col>
+            <b-col v-if="deviceClass._count"
+              cols="auto" class="ml-auto">
+              <b-badge>{{ deviceClass._count }} {{ $i18n.t('nodes') }}</b-badge>
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
     </template>
@@ -51,9 +59,15 @@ const setup = (props, context) => {
   const deviceClasses = computed(() => $store.state.$_fingerbank.classes
     .sort((a, b) => a.name.localeCompare(b.name)))
 
+  const perDeviceClassLowerCase = computed(() => $store.getters['$_nodes/perDeviceClassLowerCase'])
+
   const decoratedDeviceClasses = computed(() => deviceClasses.value.map(item => {
-      const { id, name } = item
-      return { id, name, icon: icons[id] }
+    const { id, name } = item
+    const _count = (name.toLowerCase() in perDeviceClassLowerCase.value) // case insensitive
+      ? perDeviceClassLowerCase.value[name.toLowerCase()]
+      : 0
+    return { id, name, icon: icons[id],
+      _count }
   }))
 
   const selectedDeviceClasses = usePreference('vizsec::filters', 'categories', [])

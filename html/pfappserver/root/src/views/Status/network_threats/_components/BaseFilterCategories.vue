@@ -36,6 +36,8 @@
           <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
         </b-col>
         <b-col cols="auto">
+          <b-badge v-if="item._count"
+            class="ml-1">{{ item._count }} {{ $i18n.t('nodes') }}</b-badge>
           <b-badge v-if="item._open"
             variant="danger" class="ml-1">{{ item._open }} {{ $i18n.t('open') }}</b-badge>
           <b-badge v-if="item._closed"
@@ -64,6 +66,7 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories.value)
+  const perDeviceClassLowerCase = computed(() => $store.getters['$_nodes/perDeviceClassLowerCase'])
   const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
   const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
 
@@ -71,11 +74,14 @@ const setup = (props, context) => {
     .sort((a, b) => a.name.localeCompare(b.name)))
 
   const decoratedItems = computed(() => items.value.map(item => {
-      const { id, name } = item
-      const _open = perDeviceClassOpen.value[name] || 0
-      const _closed = perDeviceClassClosed.value[name] || 0
-      return { id, name, icon: icons[id],
-        _open, _closed }
+    const { id, name } = item
+    const _count = (name.toLowerCase() in perDeviceClassLowerCase.value) // case insensitive
+      ? perDeviceClassLowerCase.value[name.toLowerCase()]
+      : 0
+    const _open = perDeviceClassOpen.value[name] || 0
+    const _closed = perDeviceClassClosed.value[name] || 0
+    return { id, name, icon: icons[id],
+      _count, _open, _closed }
   }))
 
   const filter = ref('')
