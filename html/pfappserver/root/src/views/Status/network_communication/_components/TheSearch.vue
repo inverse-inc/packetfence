@@ -4,14 +4,17 @@
       <p class="py-0 col-form-label text-left text-nowrap" v-text="'Condition'"></p>
     </template>
     <template v-slot:footer>
-      <p class="py-0 col-form-label text-left text-nowrap mt-3" v-text="'Device Class'"></p>
+      <b-container class="mt-3 p-0">
+        <p class="d-inline py-0 col-form-label text-left text-nowrap" v-text="'Device Class'" />
+        <b-badge v-if="selectedDeviceClasses.length" pill variant="primary" class="ml-1">{{ selectedDeviceClasses.length }}</b-badge>
+      </b-container>
       <b-row align-v="center">
         <b-col cols="6" v-for="deviceClass in decoratedDeviceClasses" :key="deviceClass.id"
           @click="toggleDeviceClass(deviceClass)"
-          class="cursor-pointer my-1"
+          class="bg-hover-success cursor-pointer py-1"
           :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1) ? 'text-success' : 'text-muted'"
         >
-          <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1" />
+          <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1 mb-1" />
           {{ deviceClass.name }}
         </b-col>
       </b-row>
@@ -109,7 +112,7 @@ const setup = (props, context) => {
     else {
       $store.dispatch('$_fingerbank_communication/getDebounced', { nodes: selectedDevices.value })
     }
-  }, { immediate: true })
+  }, { deep: true, immediate: true })
 
   return {
     useNodesSearch,

@@ -37,7 +37,7 @@
             <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
           </template>
         </b-col>
-        <b-col cols="auto mr-auto" class="px-0 mr-3">
+        <b-col cols="auto mr-auto text-mono" class="px-0 mr-3">
           <div class="d-inline align-items-center mr-1">
             <icon v-for="(icon, i) in item._tree" :key="i"
               v-bind="icon" />
@@ -148,7 +148,7 @@ const setup = (props, context) => {
   }
 
   const onSelectNone = () => {
-    $store.dispatch('$_fingerbank_communication/deselectHosts', decoratedItems.value.map(item => item.host))
+    $store.dispatch('$_fingerbank_communication/deselectHosts', selectedHosts.value)
   }
 
   const onSelectInverse = () => {

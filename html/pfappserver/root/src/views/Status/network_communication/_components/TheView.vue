@@ -85,7 +85,7 @@ export default {
 <style lang="scss">
 .tabs.filters {
   div[role="tabpanel"] {
-    height: 35vh;
+    height: 45vh;
     overflow-y: auto;
     overflow-x: hidden;
     .card {

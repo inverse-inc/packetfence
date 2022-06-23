@@ -34,7 +34,7 @@
             <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
           </template>
         </b-col>
-        <b-col cols="auto mr-auto" class="px-3 py-1 mr-3">
+        <b-col cols="auto mr-auto text-mono" class="px-3 py-1 mr-3">
           <text-highlight :queries="[filter]">{{ item.mac }}</text-highlight>
         </b-col>
         <b-col cols="auto mr-3">
@@ -104,7 +104,7 @@ const setup = (props, context) => {
   }
 
   const onSelectNone = () => {
-    $store.dispatch('$_fingerbank_communication/deselectDevices', filteredItems.value.map(item => item.mac))
+    $store.dispatch('$_fingerbank_communication/deselectDevices', selectedDevices.value)
   }
 
   const onSelectInverse = () => {
