@@ -23,7 +23,7 @@ import makeSearch from '@/store/factory/search'
 import { search as nodesSearch } from '@/views/Nodes/_search'
 import api from '../_api'
 
-export const useNodesSearch = makeSearch('networkCommunicationNodes', {
+export const useNodesSearch = makeSearch('nodes', {
   ...nodesSearch,
   useCursor: false,
   limit: 500,
