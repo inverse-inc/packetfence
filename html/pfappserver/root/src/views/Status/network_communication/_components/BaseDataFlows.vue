@@ -48,6 +48,7 @@ const components = {
 }
 
 import { computed, ref, watch } from '@vue/composition-api'
+import usePreference from '@/composables/usePreference'
 
 const setup = (props, context) => {
 
@@ -88,7 +89,7 @@ const setup = (props, context) => {
     }
   }
 
-  const animate = ref(false)
+  const animate = usePreference('vizsec::settings', 'animate', false)
 
   return {
     collections,

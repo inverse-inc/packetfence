@@ -234,7 +234,7 @@ const setup = (props, context) => {
       clearInterval(rotationInterval)
     }
     const perInterval = (360 / 600) * rotationIntervalTimeout.value / 1E3
-    if (animate.value) {
+    if (items.value.length && animate.value) {
       rotationInterval = setInterval(() => {
         if (!deviceRingFocus.value) {
           deviceRotation.value += perInterval * 2 // 0.2
