@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"bytes"
@@ -26,6 +27,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/scep/cryptoutil"
 	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
@@ -1529,9 +1531,12 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 
 	// Read the CSR here
 	var err error
+	re := regexp.MustCompile(`(\s|\n)`)
 
 	stringCSR := strings.Trim(csr.Csr, "-----BEGIN CERTIFICATE REQUEST-----")
 	stringCSR = strings.Trim(stringCSR, "-----END CERTIFICATE REQUEST-----")
+	stringCSR = re.ReplaceAllString(stringCSR, "")
+
 	byteCSR := []byte(stringCSR)
 
 	d := make([]byte, base64.StdEncoding.DecodedLen(len(byteCSR)))
@@ -1634,13 +1639,16 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 		IPAddresses = append(IPAddresses, IP.String())
 	}
 
-	if err := c.DB.Create(&Cert{Cn: c.Cn, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributes["streetAddress"], Organisation: attributes["O"], OrganisationalUnit: attributes["OU"], Country: attributes["C"], State: attributes["ST"], Locality: attributes["L"], PostalCode: attributes["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String()}).Error; err != nil {
+	certif, err := x509.ParseCertificate(certByte)
+	name := certutils.CertName(certif)
+
+	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributes["streetAddress"], Organisation: attributes["O"], OrganisationalUnit: attributes["OU"], Country: attributes["C"], State: attributes["ST"], Locality: attributes["L"], PostalCode: attributes["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
 	}
 	var newcertdb []Cert
-	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("cn = ? AND profile_name = ?", c.Cn, prof.Name).First(&newcertdb)
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("subject = ? AND profile_name = ?", Subject.String(), prof.Name).First(&newcertdb)
 	Information.Entries = newcertdb
 	Information.Serial = serial.String()
 
