@@ -1,6 +1,8 @@
 package aaa
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -17,7 +19,7 @@ type TokenBackend interface {
 const tokenPrefix = "api-frontend-session:"
 
 func tokenKey(tb TokenBackend, token string) string {
-	return tokenPrefix + token
+	return tokenPrefix + fmt.Sprintf("%x", sha256.Sum256([]byte(token)))
 }
 
 func AdminActionsForToken(tb TokenBackend, token string) map[string]bool {
