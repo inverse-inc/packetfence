@@ -74,7 +74,7 @@ func setup(c *caddy.Controller) error {
 				}
 
 				tokenBackendArgs, err = validateTokenArgs(args)
-				if err == nil {
+				if err != nil {
 					return err
 				}
 
@@ -102,7 +102,9 @@ func setup(c *caddy.Controller) error {
 func validateTokenArgs(args []string) ([]string, error) {
 	switch args[0] {
 	default:
-		return nil, fmt.Errorf("Invalid session_backend type '%s'", args[0])
+		err := fmt.Errorf("Invalid session_backend type '%s'", args[0])
+		fmt.Println(err)
+		return nil, err
 	case "mem", "redis", "db":
 		return args, nil
 	}
