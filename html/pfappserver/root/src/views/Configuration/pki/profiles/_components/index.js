@@ -64,5 +64,7 @@ export {
   BaseFormGroupTextarea                   as FormGroupRenewalMailFooter,
   BaseFormGroupInputNumber                as FormGroupRevokedValidUntil,
   TheForm,
-  TheView
+  TheView,
+
+  BaseFormGroupTextarea                   as FormGroupCsr,
 }

@@ -36,7 +36,7 @@ const setup = (props, context) => {
     $store.dispatch('$_pkis/getCert', id.value).then(cert => {
       try {
         navigator.clipboard.writeText(cert.cert).then(() => {
-          $store.dispatch('notification/info', { message: i18n.t('<code>{cn}</code> certificate copied to clipboard', cert) })
+          $store.dispatch('notification/info', { message: i18n.t('<code>{cn}</code> certificate copied to clipboard.', cert) })
         }).catch(() => {
           $store.dispatch('notification/danger', { message: i18n.t('Could not copy <code>{cn}</code> certificate to clipboard.', cert) })
         })

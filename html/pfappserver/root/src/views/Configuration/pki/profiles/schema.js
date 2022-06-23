@@ -80,3 +80,10 @@ export default (props) => {
   })
 }
 
+export const csrSchema = () => {
+  return yup.object().shape({
+    csr: yup.string()
+      .nullable()
+      .required(i18n.t('CSR required.'))
+  })
+}

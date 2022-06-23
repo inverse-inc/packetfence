@@ -12,7 +12,15 @@ const beforeEnter = (to, from, next = () => {}) => {
 
 export const useRouter = $router => {
   return {
-    goToCollection: () => $router.push({ name: 'pkiCerts' }),
+    goToCollection: params => {
+      const { profile_id } = params
+      if (profile_id) {
+        $router.push({ name: 'pkiProfile', params: { id: profile_id } })
+      }
+      else {
+        $router.push({ name: 'pkiCerts' })
+      }
+    },
     goToItem: params => $router
       .push({ name: 'pkiCert', params: { ...params, id: params.ID } })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),

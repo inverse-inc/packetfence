@@ -81,6 +81,10 @@
               size="sm" variant="outline-primary" class="mr-1 text-nowrap"
               :disabled="!isServiceAlive" :to="{ name: 'newPkiCert', params: { profile_id: item.ID } }"
             >{{ $t('New Certificate') }}</b-button>
+            <b-button
+              size="sm" variant="outline-primary" class="mr-1 text-nowrap"
+              :disabled="!isServiceAlive" :to="{ name: 'csrPkiProfile', params: { id: item.ID } }"
+            >{{ $t('Sign CSR') }}</b-button>
           </span>
         </template>
         <template #cell(ca_name)="{ item }">
