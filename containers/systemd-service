@@ -17,7 +17,7 @@ function base_args {
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
-  
+
   args="$args -v /etc/localtime:/etc/localtime:ro"
 
   echo "$args"
@@ -74,5 +74,9 @@ function run_img {
   cd /usr/local/pf/
   docker container rm -f $name 1&2> /dev/null
   echo "Running with args $args"
-  sdproxy $name $args --name=$name $img $cmd
+  if ! [ -z $NOTIFY_SOCKET ]; then
+    sdproxy $name $args --name=$name $img $cmd
+  else
+   /usr/bin/docker run $args --name=$name $img $cmd
+  fi
 }
