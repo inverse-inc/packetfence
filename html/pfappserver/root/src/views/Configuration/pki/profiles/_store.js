@@ -100,6 +100,10 @@ export const actions = {
   signCsr: ({ commit, dispatch }, data) => {
     commit('PROFILE_REQUEST')
     return api.signCsr(data).then(item => {
+      // reset list
+      commit('PROFILE_LIST_RESET')
+      dispatch('allProfiles')
+      // update item
       commit('PROFILE_CSR_SIGNED', item)
       return item
     }).catch(err => {
@@ -132,7 +136,7 @@ export const mutations = {
       state.profileMessage = response.data.message
     }
   },
-  PROFILE_CSR_SIGNED: (state, item) => {
-    state.profileStatus - types.SUCCESS
+  PROFILE_CSR_SIGNED: (state) => {
+    state.profileStatus = types.SUCCESS
   }
 }
