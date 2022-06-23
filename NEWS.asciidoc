@@ -38,6 +38,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Add time to the available template switch variables (#6952)
 * Only trigger the node discover security event in the context of radius and pfdhcplistener (#4987)
 * Use TLS 1.2 to communicate with Intune servers (#7021)
+* Align Apache timeout with captive_portal.request_timeout (#7037)
 
 == Version 11.2.0 released on 2022-02-23
 
