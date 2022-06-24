@@ -159,6 +159,21 @@ our @SyslogInfo = (
 	 ]
     },
     {
+        'description' => 'MySQL probe log',
+        'name'       => 'mysql-probe.log',
+	 'conditions' => [ '$programname == "mysql-probe"' ]
+    },
+    {
+        'description' => 'galera-autofix log',
+        'name'       => 'galera-autofix.log',
+        'conditions' => [ '$programname contains "galera-autofix"' ]
+    },
+    {
+        'description' => 'ProxySQL log',
+        'name'       => 'proxysql.log',
+	 'conditions' => [ '$programname == "proxysql"' ]
+    },
+    {
         'description' => 'haproxy portal log',
         'name'       => 'haproxy_portal.log',
         'conditions' => [ '$programname == "haproxy-portal-docker-wrapper"' ]
@@ -166,12 +181,39 @@ our @SyslogInfo = (
     {
         'description' => 'haproxy DB log',
         'name'       => 'haproxy_db.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysq3l" or $msg contains "backend has no server available")' ],
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysq3l" or $msg contains "backend has no server available")' ]
     },
     {
         'description' => 'haproxy admin log',
         'name'       => 'haproxy_admin.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ],
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ]
+    },
+    {
+        'description' => 'haproxy admin log',
+        'name'       => 'haproxy_admin.log',
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ]
+    },
+    {
+        'description' => 'Firewall (iptables) log',
+        'name'       => 'firewall.log',
+        'conditions' => [
+            '$programname == "docker_iptables.sh"',
+	]
+    },
+    {
+        'description' => 'pfconnector client log',
+        'name'       => 'pfconnector-client.log',
+        'conditions' => [ '$programname == "pfconnector-client-docker-wrapper"' ]
+    },
+    {
+        'description' => 'pfconnector server log',
+        'name'       => 'pfconnector-server.log',
+        'conditions' => [ '$programname == "pfconnector-server-docker-wrapper"' ]
+    },
+    {
+        'description' => 'keepalived log',
+        'name'       => 'keepalived.log',
+        'conditions' => [ '$programname contains "Keepalived"' ]
     },
 );
 
