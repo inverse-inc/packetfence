@@ -22,7 +22,7 @@ our @SyslogInfo = (
     {
         'description' => 'Fingerbank log',
         'name'       => 'fingerbank.log',
-        'conditions' => [ '$programname contains "fingerbank"' ]
+	'conditions' => [ '$syslogtag contains "fingerbank"' ]
     },
     {
         'description' => 'httpd Apache requests log',
@@ -59,7 +59,7 @@ our @SyslogInfo = (
         'conditions' => [
             '$programname contains "packetfence"',
             '$programname == "pfqueue-docker-wrapper"',
-            '($programname == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
+            '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
             '$programname == "pfipset"',
             '$programname == "pfpki-docker-wrapper"',
         ]
