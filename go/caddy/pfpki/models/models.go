@@ -27,7 +27,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/scep/cryptoutil"
 	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
@@ -1639,10 +1638,12 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 		IPAddresses = append(IPAddresses, IP.String())
 	}
 
+	attributeMap := certutils.GetDNFromCert(Subject)
+
 	certif, err := x509.ParseCertificate(certByte)
 	name := certutils.CertName(certif)
 
-	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributes["streetAddress"], Organisation: attributes["O"], OrganisationalUnit: attributes["OU"], Country: attributes["C"], State: attributes["ST"], Locality: attributes["L"], PostalCode: attributes["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String()}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String()}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)
