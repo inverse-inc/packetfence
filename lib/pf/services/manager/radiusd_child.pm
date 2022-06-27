@@ -1145,7 +1145,7 @@ sub generate_radiusd_cluster {
     $tags{'home_server'} ='';
 
     if ($cluster_enabled) {
-        my $cluster_ip = pf::cluster::management_cluster_ip();
+        my $cluster_ip = isenabled($Config{active_active}{radius_proxy_with_vip}) ? pf::cluster::management_cluster_ip() : $management_network->{Tip};
         my @radius_backend = values %{pf::cluster::members_ips($int)};
 
         # RADIUS PacketFence cluster virtual server configuration

@@ -1204,6 +1204,12 @@ centralize_vips=disabled
 #
 # Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
 probe_mysql_from_haproxy_db=disabled
+#
+# active_active.radius_proxy_with_vip
+#
+# Proxy the RADIUS requests received on the RADIUS load balancer using the VIP
+# When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address
+radius_proxy_with_vip=enabled
 
 [parking]
 #

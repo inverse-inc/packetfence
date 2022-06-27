@@ -40,6 +40,11 @@
       :text="$i18n.t('Centralize the deauthentication to the management node of the cluster.')"
     />
 
+    <form-group-radius-proxy-with-vip namespace="radius_proxy_with_vip"
+      :column-label="$i18n.t('Proxy RADIUS using virtual IP')"
+      :text="$i18n.t('Proxy the RADIUS requests received on the RADIUS load balancer using the VIP. When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address')"
+    />
+
     <form-group-auth-on-management namespace="auth_on_management"
       :column-label="$i18n.t('RADIUS authentication on management')"
       :text="$i18n.t('Process RADIUS authentication requests on the management server (the current load balancer). Disabling it will make the management server only proxy requests to other servers. Useful if your load balancer cannot handle both tasks. Changing this requires to restart radiusd.')"
@@ -95,6 +100,7 @@ import {
   FormGroupGaleraReplicationPassword,
   FormGroupPassword,
   FormGroupPortalOnManagement,
+  FormGroupRadiusProxyWithVip,
   FormGroupVirtualRouterIdentifier,
   FormGroupVrrpUnicast,
   FormGroupProbeMysqlFromHaproxyDb
@@ -114,6 +120,7 @@ const components = {
   FormGroupGaleraReplicationPassword,
   FormGroupPassword,
   FormGroupPortalOnManagement,
+  FormGroupRadiusProxyWithVip,
   FormGroupVirtualRouterIdentifier,
   FormGroupVrrpUnicast,
   FormGroupProbeMysqlFromHaproxyDb
