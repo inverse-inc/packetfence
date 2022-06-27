@@ -1405,6 +1405,7 @@ CREATE TABLE `pki_certs` (
   `dns_names` varchar(255) DEFAULT NULL,
   `ip_addresses` varchar(255) DEFAULT NULL,
   `scep` BOOLEAN DEFAULT FALSE,
+  `csr` BOOLEAN DEFAULT FALSE,
   `alert` BOOLEAN DEFAULT FALSE,
   `subject` varchar(255) DEFAULT NULL,
   UNIQUE (`subject`),

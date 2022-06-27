@@ -158,6 +158,7 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
+		Csr                *bool           `json:"csr,omitempty" gorm:"default:false"`
 		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
 		Subject            string          `json:"-" gorm:"UNIQUE"`
 	}
@@ -1642,8 +1643,9 @@ func (csr CSR) New(params map[string]string) (types.Info, error) {
 
 	certif, err := x509.ParseCertificate(certByte)
 	name := certutils.CertName(certif)
+	notfalse := true
 
-	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String()}).Error; err != nil {
+	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String(), Csr: &notfalse}).Error; err != nil {
 		Information.Error = err.Error()
 		Information.Status = http.StatusConflict
 		return Information, errors.New(dbError)

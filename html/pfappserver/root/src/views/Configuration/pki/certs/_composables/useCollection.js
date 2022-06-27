@@ -108,6 +108,13 @@ export const useSearch = makeSearch('pkiCerts', {
       visible: true
     },
     {
+      key: 'csr',
+      label: 'CSR', // i18n defer
+      required: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true

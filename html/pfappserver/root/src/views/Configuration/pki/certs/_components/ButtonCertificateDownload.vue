@@ -1,5 +1,5 @@
 <template>
-  <b-button-group v-if="!isClone && !isNew && !isScep">
+  <b-button-group v-if="!isClone && !isNew && !isScep && !isCsr">
     <b-button size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click="onShowModal">{{ $t('Download') }}</b-button>
     <b-modal v-model="isShowModal"
       size="lg" centered cancel-disabled>
@@ -96,6 +96,10 @@ const setup = (props, context) => {
     const { scep } = cert.value
     return scep
   })
+  const isCsr = computed(() => {
+    const { csr } = cert.value
+    return csr
+  })
 
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const rootRef = ref(null)
@@ -142,6 +146,7 @@ const setup = (props, context) => {
     form,
     schema: ref(schema),
     isScep,
+    isCsr,
     isValid,
     isShowModal,
     onShowModal,

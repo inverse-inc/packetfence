@@ -79,9 +79,9 @@
             >{{ $t('Clone') }}</b-button>
             <button-certificate-copy
               :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
-            <button-certificate-download v-if="!item.scep"
+            <button-certificate-download v-if="!item.scep || !item.csr"
               :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
-            <button-certificate-email v-if="!item.scep"
+            <button-certificate-email v-if="!item.scep || !item.csr"
               :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
             <button-certificate-revoke
               :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" @change="reSearch" />
@@ -95,6 +95,9 @@
         </template>
         <template #cell(scep)="{ item }">
           <icon name="circle" :class="{ 'text-success': !!item.scep, 'text-danger': !item.scep }" />
+        </template>
+        <template #cell(csr)="{ item }">
+          <icon name="circle" :class="{ 'text-success': !!item.csr, 'text-danger': !item.csr }" />
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
