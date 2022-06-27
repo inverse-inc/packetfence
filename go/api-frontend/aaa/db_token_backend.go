@@ -122,8 +122,8 @@ func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	expired := timeToExpired(time.Now().Add(tb.inActivityTimeout))
 	_, err := tb.getDB().Exec(
 		"UPDATE chi_cache SET expires_at = ? WHERE `key` = ?",
-		tokenKey(tb, token),
 		expired,
+		tokenKey(tb, token),
 	)
 	if err != nil {
 		panic(err)
