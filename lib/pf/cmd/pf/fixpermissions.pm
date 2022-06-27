@@ -60,7 +60,7 @@ Fix the permissions on pf and fingerbank files
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file, $iptable_config_file);
+    _changeFilesToOwner('pf', @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file, $iptable_config_file);
     _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner('root',$pfcmd);
     chmod($PFCMD_MODE, $pfcmd);

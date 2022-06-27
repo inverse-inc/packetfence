@@ -53,11 +53,11 @@ export default [
         ]
       },
       {
-        name: 'mariadb_error.log',
+        name: 'mariadb.log',
         items: [
           {
             title: 'Number of events', // i18n defer
-            metric: 'packetfence.logs.mariadb_error_log',
+            metric: 'packetfence.logs.mariadb_log',
             mode: modes.COMBINED,
             library: libraries.DYGRAPH,
             cols: 12
