@@ -29,7 +29,9 @@ echo "Configuring connector with ID '$connector_id' and secret '$secret'"
 
 echo "AUTH=$connector_id:$secret" > /etc/pfconnector-client.env
 
-echo -n "Please enter the DNS name or IP address of the pfconnector server: "
+echo "Please enter the URL of the pfconnector server"
+echo "Usually looks like: https://packetfence.example:1443/api/v1/pfconnector/tunnel"
+echo -n "Enter URL: "
 read connector_server
 
 echo "HOST=$connector_server" >> /etc/pfconnector-client.env
