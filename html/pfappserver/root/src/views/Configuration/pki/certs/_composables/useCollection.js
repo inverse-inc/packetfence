@@ -155,6 +155,16 @@ export const useSearch = makeSearch('pkiCerts', {
       value: 'mail',
       text: i18n.t('Email'),
       types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'scep',
+      text: i18n.t('SCEP'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'csr',
+      text: i18n.t('CSR'),
+      types: [conditionType.SUBSTRING]
     }
   ],
   sortBy: 'id',
