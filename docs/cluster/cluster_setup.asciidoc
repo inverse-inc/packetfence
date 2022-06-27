@@ -178,11 +178,11 @@ for each server:
 In order for PacketFence to communicate properly with your MariaDB cluster, you need to change the following.
 This change only needs to be done on the first server of the cluster. It will be synchronized later.
 
-In `/usr/local/pf/conf/pf.conf` :
+Add the following to the bottom of [filename]`/usr/local/pf/conf/pf.conf` :
 
 ----
 [database]
-host=127.0.0.1
+host=100.64.0.1
 
 [active_active]
 # Change these 2 values by the credentials you've set when configuring MariaDB above
@@ -201,11 +201,11 @@ configurator=disabled
 galera-autofix=disabled
 ----
 
-Then, in [filename]`/usr/local/pf/conf/pfconfig.conf` :
+Then, add the following to the bottom of [filename]`/usr/local/pf/conf/pfconfig.conf` :
 
 ----
 [mysql]
-host=127.0.0.1
+host=100.64.0.1
 ----
 
 Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
@@ -391,13 +391,6 @@ systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd service httpd.webservices restart
 ----
 
-Make sure that each server is binding to it's own management address *and* the VIP address. If it's not, verify the [filename]`/usr/local/pf/conf/cluster.conf` management interface configuration.
-
-[source,bash]
-----
-netstat -nlp | grep 9090
-----
-
 ==== MariaDB sync (second and third servers)
 
 Ensure `packetfence-mariadb` is still stopped on the two servers that will be joined:
@@ -447,8 +440,7 @@ Before starting services on all servers, `galera-autofix` service need to be re-
 
 [source,bash]
 ----
-/usr/local/pf/sbin/pfperl-api get -M PATCH /api/v1/config/base/services -c '{"galera-autofix":"enabled"}' | python -m json.tool
-/usr/local/pf/bin/cluster/sync --as-master
+curl -X PATCH -d '{"galera-autofix":"enabled"}' localhost:22224/api/v1/config/base/services
 ----
 
 ==== Wrapping up
