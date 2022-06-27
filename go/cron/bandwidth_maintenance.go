@@ -276,54 +276,79 @@ func (j *BandwidthMaintenance) BandwidthAggregationTx(rounding_func, unit string
 var bandwidthAccountingRadiusToHistoryWindow = 24 * 60 * 60
 
 func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistory(ctx context.Context) {
-	sql := `
-BEGIN NOT ATOMIC
-   DECLARE EXIT HANDLER
-   FOR SQLEXCEPTION
-   BEGIN
-       ROLLBACK;
-    RESIGNAL;
-END;
-
-    SET @count = 0;
-    SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);
-    START TRANSACTION;
-INSERT INTO bandwidth_accounting_history
-    (node_id, mac, time_bucket, in_bytes, out_bytes)
-     SELECT
-         node_id,
-         mac,
-         new_time_bucket,
-         sum(in_bytes) AS in_bytes,
-         sum(out_bytes) AS out_bytes
-        FROM (
-            SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE ) as to_delete_bandwidth_accounting_radius_to_history
-        GROUP BY node_id, new_time_bucket
-        HAVING SUM(in_bytes) != 0 OR sum(out_bytes) != 0
-        ON DUPLICATE KEY UPDATE
-            in_bytes = in_bytes + VALUES(in_bytes),
-            out_bytes = out_bytes + VALUES(out_bytes)
-        ;
-
-DELETE bandwidth_accounting
-            FROM bandwidth_accounting RIGHT JOIN (
-                SELECT node_id, unique_session_id, mac, time_bucket FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
-            ) AS to_delete_bandwidth_accounting_radius_to_history USING (node_id, time_bucket, unique_session_id);
-        SET @count = ROW_COUNT();
-     COMMIT;
-    SELECT @count;
-END;
-`
-	BatchSqlCount(
+	BatchTx(
 		ctx,
 		"bandwidth_accounting_radius_to_history",
 		j.Timeout,
-		sql,
+		j.BandwidthAccountingRadiusToHistoryTx,
+	)
+}
+
+func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.Context, tx *sql.Tx) (int64, error) {
+	_, err := tx.ExecContext(
+		ctx,
+		"SET @end_bucket = DATE_SUB(?, INTERVAL ? SECOND);",
 		time.Now(),
 		bandwidthAccountingRadiusToHistoryWindow,
-		j.Batch,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = tx.ExecContext(
+		ctx,
+		`
+        INSERT INTO bandwidth_accounting_history
+            (node_id, mac, time_bucket, in_bytes, out_bytes)
+             SELECT
+                 node_id,
+                 mac,
+                 new_time_bucket,
+                 sum(in_bytes) AS in_bytes,
+                 sum(out_bytes) AS out_bytes
+                FROM (
+                    SELECT node_id, mac, ROUND_TO_HOUR(time_bucket) as new_time_bucket, in_bytes, out_bytes FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE ) as to_delete_bandwidth_accounting_radius_to_history
+                GROUP BY node_id, new_time_bucket
+                HAVING SUM(in_bytes) != 0 OR sum(out_bytes) != 0
+                ON DUPLICATE KEY UPDATE
+                    in_bytes = in_bytes + VALUES(in_bytes),
+                    out_bytes = out_bytes + VALUES(out_bytes)
+                ;`,
 		j.Batch,
 	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := tx.ExecContext(
+		ctx,
+		`
+        DELETE bandwidth_accounting
+                    FROM bandwidth_accounting RIGHT JOIN (
+                        SELECT node_id, unique_session_id, mac, time_bucket FROM bandwidth_accounting WHERE source_type = "radius" AND time_bucket < @end_bucket AND last_updated = "0000-00-00 00:00:00" ORDER BY node_id, unique_session_id, time_bucket LIMIT ? FOR UPDATE
+                    ) AS to_delete_bandwidth_accounting_radius_to_history USING (node_id, time_bucket, unique_session_id);`,
+		j.Batch,
+	)
+
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := res.RowsAffected()
+
+	if err != nil {
+		return 0, err
+	}
+
+	err = tx.Commit()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return rows, nil
 }
 
 func (j *BandwidthMaintenance) BandwidthHistoryAggregation(ctx context.Context, rounding_func, unit string, interval int) {
