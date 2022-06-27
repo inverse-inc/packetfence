@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
@@ -18,7 +19,6 @@ type DbTokenBackend struct {
 
 func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *DbTokenBackend {
 	return &DbTokenBackend{
-		Db:                getDB(),
 		inActivityTimeout: expiration,
 		maxExpiration:     maxExpiration,
 	}
@@ -30,7 +30,11 @@ func timeToExpired(t time.Time) float64 {
 
 const sqlInsert = "INSERT INTO chi_cache ( `key`, `value`, `expires_at`) VALUES ( ?, ?, ? ) ON DUPLICATE KEY UPDATE value=VALUES(value), expires_at=VALUES(expires_at);"
 
-func getDB() *sql.DB {
+func (tb *DbTokenBackend) getDB() *sql.DB {
+	if tb.Db != nil {
+		return tb.Db
+	}
+
 	var ctx = context.Background()
 	ctx = log.LoggerNewContext(ctx)
 
@@ -43,10 +47,12 @@ func getDB() *sql.DB {
 
 	err = Database.Ping()
 	for err != nil {
+		fmt.Println("Unable to connecto to DB. Retrying....")
 		time.Sleep(time.Duration(5) * time.Second)
 		err = Database.Ping()
 	}
 
+	tb.Db = Database
 	return Database
 }
 
@@ -54,7 +60,7 @@ func (tb *DbTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time
 	expires := timeToExpired(time.Now())
 	data := []byte{}
 	expiresAt := float64(0)
-	row := tb.Db.QueryRow(
+	row := tb.getDB().QueryRow(
 		"SELECT value, expires_at FROM chi_cache WHERE `key` = ? AND expires_at >= ?",
 		tokenKey(tb, token),
 		expires,
@@ -83,7 +89,7 @@ func (tb *DbTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
 	}
 
 	expired := timeToExpired(time.Now().Add(tb.inActivityTimeout))
-	_, err = tb.Db.Exec(
+	_, err = tb.getDB().Exec(
 		sqlInsert,
 		tokenKey(tb, token),
 		data,
@@ -96,7 +102,7 @@ func (tb *DbTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
 func (tb *DbTokenBackend) TokenIsValid(token string) bool {
 	count := 0
 	expired := timeToExpired(time.Now())
-	row := tb.Db.QueryRow(
+	row := tb.getDB().QueryRow(
 		"SELECT COUNT(*) FROM chi_cache WHERE `key` = ? AND expires_at >= ?",
 		tokenKey(tb, token),
 		expired,
@@ -111,7 +117,7 @@ func (tb *DbTokenBackend) TokenIsValid(token string) bool {
 
 func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	expired := timeToExpired(time.Now().Add(tb.inActivityTimeout))
-	_, _ = tb.Db.Exec(
+	_, _ = tb.getDB().Exec(
 		"UPDATE chi_cache WHERE `key` = ? SET expires_at = ?",
 		tokenKey(tb, token),
 		expired,
