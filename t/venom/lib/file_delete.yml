@@ -1,4 +1,4 @@
-executor: delete_file
+executor: file_delete
 input:
   file: "myfile.txt"
 steps:
