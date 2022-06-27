@@ -126,14 +126,27 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	giga_out_bytes := int64(rfc2869.AcctOutputGigawords_Get(r.Packet))
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
-	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
-	if timestamp.IsZero() {
+	unique_session_id := h.accountingUniqueSessionId(r)
+	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
+	if err != nil {
 		timestamp = time.Now()
+	} else {
+		if timestamp.Before(time.Now().AddDate(0, 0, -1)) {
+			logError(
+				ctx,
+				fmt.Sprintf(
+					"[mac:%s, id:%d, timestamp:%s] skip packet timestamp is older than a day",
+					mac.String(),
+					unique_session_id,
+					timestamp.String(),
+				),
+			)
+			return
+		}
 	}
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
-	unique_session_id := h.accountingUniqueSessionId(r)
 	if err := h.InsertBandwidthAccounting(
 		status,
 		node_id,
