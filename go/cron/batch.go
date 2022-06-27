@@ -11,6 +11,8 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 )
 
+type TxRunner func(ctx context.Context, tx *sql.Tx) (int64, error)
+
 func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) (int64, error) {
 	start := time.Now()
 	rows_affected := int64(0)
@@ -40,7 +42,7 @@ func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, ar
 	return rows_affected, nil
 }
 
-func BatchTx(ctx context.Context, name string, time_limit time.Duration, f func(context.Context, *sql.Tx) (int64, error)) {
+func BatchTx(ctx context.Context, name string, time_limit time.Duration, f TxRunner) {
 	start := time.Now()
 	rows_affected := int64(0)
 	i := 0
@@ -48,6 +50,7 @@ func BatchTx(ctx context.Context, name string, time_limit time.Duration, f func(
 		i++
 		rows, err := runTx(ctx, f)
 		if err != nil {
+			fmt.Printf("%s error: %s\n", name, err.Error())
 			log.LogError(ctx, name+" error: "+err.Error())
 			break
 		}
