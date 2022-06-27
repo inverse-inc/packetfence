@@ -1,0 +1,23 @@
+#!/bin/bash
+
+CONTAINER_PF_UID=`id -u pf`
+CONTAINER_PF_GID=`id -g pf`
+
+if [ -z "$PF_UID" ]; then
+  echo "PF_UID hasn't been provided in env"
+  exit 1
+fi
+
+if [ -z "$PF_GID" ]; then
+  echo "PF_GID hasn't been provided in env"
+  exit 1
+fi
+
+usermod -u $PF_UID pf
+groupmod -g $PF_GID pf
+
+find / -user $CONTAINER_PF_UID -exec chown -h pf {} \;
+find / -group $CONTAINER_PF_GID -exec chgrp -h pf {} \;
+
+eval $@
+

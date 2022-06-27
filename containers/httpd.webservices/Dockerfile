@@ -11,4 +11,7 @@ RUN chown -R pf: /usr/local/pf/var
 
 COPY lib lib
 
-ENTRYPOINT /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND
+COPY containers/pf-apache-wrapper containers/pf-apache-wrapper
+RUN chmod +x containers/pf-apache-wrapper
+
+ENTRYPOINT /usr/local/pf/containers/pf-apache-wrapper /usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.webservices -DFOREGROUND

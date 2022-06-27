@@ -13,6 +13,7 @@ function base_args {
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
+  args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
 
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
