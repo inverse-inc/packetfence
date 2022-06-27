@@ -352,19 +352,22 @@ func (j *BandwidthMaintenance) BandwidthAccountingRadiusToHistoryTx(ctx context.
 }
 
 func (j *BandwidthMaintenance) BandwidthHistoryAggregation(ctx context.Context, rounding_func, unit string, interval int) {
-	sql := fmt.Sprintf(
-		`
-BEGIN NOT ATOMIC
-    DECLARE EXIT HANDLER
-    FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-        RESIGNAL;
-    END;
+	BatchTx(
+		ctx,
+		"bandwidth_aggregation_history-"+unit,
+		j.Timeout,
+		TxRunner(j.BandwidthHistoryAggregationTx(rounding_func, unit, interval)),
+	)
+}
 
-    SET @count = 0;
-    SET @end_bucket = DATE_SUB(?, INTERVAL ? %s);
-    START TRANSACTION;
+func (j *BandwidthMaintenance) BandwidthHistoryAggregationTx(rounding_func, unit string, interval int) TxRunner {
+	sql1 := fmt.Sprintf(
+		`SET @end_bucket = DATE_SUB(?, INTERVAL ? %s);`,
+		unit,
+	)
+
+	sql2 := fmt.Sprintf(
+		`
     INSERT INTO bandwidth_accounting_history
     (node_id, time_bucket, mac, in_bytes, out_bytes)
      SELECT
@@ -379,29 +382,58 @@ BEGIN NOT ATOMIC
         ON DUPLICATE KEY UPDATE
             in_bytes = in_bytes + VALUES(in_bytes),
             out_bytes = out_bytes + VALUES(out_bytes)
-        ;
-
+        ;`,
+		rounding_func,
+		rounding_func,
+	)
+	sql3 := fmt.Sprintf(
+		`
     DELETE bandwidth_accounting_history
-        FROM bandwidth_accounting_history RIGHT JOIN (SELECT node_id, time_bucket FROM bandwidth_accounting_history WHERE time_bucket <= @end_bucket AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history USING (node_id, time_bucket);
-        SET @count = ROW_COUNT();
-        COMMIT;
-    SELECT @count;
-END;`,
-		unit,
-		rounding_func,
-		rounding_func,
+        FROM bandwidth_accounting_history RIGHT JOIN (SELECT node_id, time_bucket FROM bandwidth_accounting_history WHERE time_bucket <= @end_bucket AND time_bucket != %s(time_bucket) ORDER BY node_id, time_bucket LIMIT ? FOR UPDATE ) AS to_delete_bandwidth_aggregation_history USING (node_id, time_bucket);`,
 		rounding_func,
 	)
-	BatchSqlCount(
-		ctx,
-		"bandwidth_aggregation_history-"+unit,
-		j.Timeout,
-		sql,
-		time.Now(),
-		interval,
-		j.Batch,
-		j.Batch,
-	)
+
+	return TxRunner(func(ctx context.Context, tx *sql.Tx) (int64, error) {
+		_, err := tx.ExecContext(
+			ctx,
+			sql1,
+			time.Now(),
+			interval,
+		)
+		if err != nil {
+			return 0, err
+		}
+
+		_, err = tx.ExecContext(
+			ctx,
+			sql2,
+			j.Batch,
+		)
+		if err != nil {
+			return 0, err
+		}
+
+		res, err := tx.ExecContext(
+			ctx,
+			sql3,
+			j.Batch,
+		)
+		if err != nil {
+			return 0, err
+		}
+
+		rows, err := res.RowsAffected()
+		if err != nil {
+			return 0, err
+		}
+
+		err = tx.Commit()
+		if err != nil {
+			return 0, err
+		}
+
+		return rows, nil
+	})
 }
 
 func (j *BandwidthMaintenance) BandwidthAccountingHistoryCleanup(ctx context.Context) {
