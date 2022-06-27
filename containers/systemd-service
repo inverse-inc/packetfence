@@ -20,7 +20,7 @@ function base_args {
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
 
   # Check to mount /tmp dir
-  if [ -z ${PF_MOUNT_TMP} ]; then
+  if [ "${PF_MOUNT_TMP}" == "yes" ]; then
     args="$args -v /tmp:/tmp"
   fi
 
