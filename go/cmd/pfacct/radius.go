@@ -126,6 +126,7 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	giga_out_bytes := int64(rfc2869.AcctOutputGigawords_Get(r.Packet))
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
+	unique_session_id := h.accountingUniqueSessionId(r)
 	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
 	if err != nil {
 		timestamp = time.Now()
@@ -146,7 +147,6 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
-	unique_session_id := h.accountingUniqueSessionId(r)
 	if err := h.InsertBandwidthAccounting(
 		status,
 		node_id,
