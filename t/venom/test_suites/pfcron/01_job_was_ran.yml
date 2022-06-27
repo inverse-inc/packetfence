@@ -1,10 +1,18 @@
-name: Pfcron
+name: pfcron-prepare-service
 testcases:
-- name: setup_pfcron_and_mock_servers
+
+- name: prepare_mount_tmp
   steps:
   - type: exec
-    script: 'systemctl stop packetfence-pfcron'
+    script: 'echo PF_MOUNT_TMP=yes >> /usr/local/pf/containers/.local_env'
 
+- name: stop_pfcron_service
+  steps:
+  - type: pf_api_service_stop
+    service: pfcron
+
+- name: setup_pfcron_and_mock_servers
+  steps:
   - type: exec
     script: 'cp "{{.fingerbank_upstream_db}}" "{{.fingerbank_upstream_db}}.bak"'
 
@@ -14,60 +22,22 @@ testcases:
   - type: exec
     script: '{{.ini_cmd}} {{.fingerbank_conf_dir}}/fingerbank.conf add upstream host {{.fingerbank_host}} upstream port {{.fingerbank_port}} upstream use_https disabled'
 
-  - type: exec
-    script: '{{.pfserver_pfcmd}} configreload'
+- name: configreload
+  steps:
+  - type: pfcmd_run_command
+    command: 'configreload'
 
-  - type: exec
-    script: 'rm -f /tmp/pfcron-test.log'
-
+- name: fingerbank_prefork
+  steps:
   - type: exec
     script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.fingerbank_api_mock_pidfile}} -w 1 -s 1'
 
-  - type: exec
-    script: 'systemctl start packetfence-pfcron'
-
-- name: check_pfcron_run_correctly
+- name: remove_tmp_test_file
   steps:
+  - type: file_delete
+    file: '/tmp/pfcron-test.log'
 
-  - type: exec
-    script: 'sleep 6'
-
-  - type: exec
-    script: 'cat /tmp/pfcron-test.log'
-    assertions:
-      - result.systemout ShouldContainSubstring bob
-
-  - type: exec
-    script: 'sleep 6'
-
-  - type: exec
-    script: 'cat /tmp/pfcron-test.log'
-    assertions:
-      - result.systemout ShouldContainSubstring bobbob
-
-  - type: exec
-    script: 'sqlite3 {{.fingerbank_upstream_db}} "SELECT COUNT(*) FROM pf_test"'
-    assertions:
-      - result.systemout ShouldEqualTrimSpace 1
-    retry: 5
-    delay: 10
-
-- name: teardown
+- name: start_pfcron_service
   steps:
-  - type: exec
-    script: 'systemctl stop packetfence-pfcron'
-
-  - type: exec
-    script: 'cp "{{.pfserver_conf_dir}}/pfcron.conf.example" "{{.pfserver_conf_dir}}/pfcron.conf"'
-
-  - type: exec
-    script: 'mv "{{.fingerbank_conf_dir}}/fingerbank.conf.bak" "{{.fingerbank_conf_dir}}/fingerbank.conf"'
-
-  - type: exec
-    script: 'mv "{{.fingerbank_upstream_db}}.bak" "{{.fingerbank_upstream_db}}"'
-
-  - type: exec
-    script: '{{.pfserver_pfcmd}} configreload'
-
-  - type: exec
-    script: 'kill $(cat {{.fingerbank_api_mock_pidfile}})'
+  - type: pf_api_service_start
+    service: pfcron

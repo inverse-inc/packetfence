@@ -1,0 +1,31 @@
+name: check_pfcron_run_correctly
+testcases:
+
+- name: check_in_file
+  steps:
+
+  - type: sleep
+    time_to_sleep: '6'
+
+  - type: exec
+    script: 'cat /tmp/pfcron-test.log'
+    assertions:
+      - result.systemout ShouldContainSubstring bob
+
+  - type: sleep
+    time_to_sleep: '6'
+
+  - type: exec
+    script: 'cat /tmp/pfcron-test.log'
+    assertions:
+      - result.systemout ShouldContainSubstring bobbob
+
+- name: check_in_db
+  steps:
+
+  - type: exec
+    script: 'sqlite3 {{.fingerbank_upstream_db}} "SELECT COUNT(*) FROM pf_test"'
+    assertions:
+      - result.systemout ShouldEqualTrimSpace 1
+    retry: 5
+    delay: 10

@@ -1,0 +1,36 @@
+name: Pfcron_Teardown
+testcases:
+
+- name: stop_pfcron_service
+  steps:
+  - type: pf_api_service_stop
+    service: pfcron
+
+- name: copy_default_config
+  steps:
+  - type: exec
+    script: 'cp "{{.pfserver_conf_dir}}/pfcron.conf.example" "{{.pfserver_conf_dir}}/pfcron.conf"'
+
+  - type: exec
+    script: 'mv "{{.fingerbank_conf_dir}}/fingerbank.conf.bak" "{{.fingerbank_conf_dir}}/fingerbank.conf"'
+
+  - type: exec
+    script: 'mv "{{.fingerbank_upstream_db}}.bak" "{{.fingerbank_upstream_db}}"'
+
+- name: reload_config
+  steps:
+  - type: pfcmd_run_command
+    command: 'configreload'
+
+- name: kill_mock
+  steps:
+  - type: exec
+    script: 'kill $(cat {{.fingerbank_api_mock_pidfile}})'
+
+- name: remove_pf_mount_tmp
+  steps:
+  - type: exec
+    script: 'unset PF_MOUNT_TMP'
+
+  - type: exec
+    script: 'echo "" > /usr/local/pf/containers/.local_env'
