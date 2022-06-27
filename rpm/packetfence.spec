@@ -514,10 +514,6 @@ cp -r NEWS.old %{buildroot}/usr/local/pf/
 cp -r README.md %{buildroot}/usr/local/pf/
 cp -r README.network-devices %{buildroot}/usr/local/pf/
 cp -r UPGRADE.old %{buildroot}/usr/local/pf/
-# logfiles
-for LOG in %logfiles; do
-    touch %{buildroot}%logdir/$LOG
-done
 #start create symlinks
 curdir=`pwd`
 
@@ -659,15 +655,6 @@ gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
-#Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log redis_cache.log security_event.log httpd.admin.audit.log
-do
-if [ ! -e /usr/local/pf/logs/$fic_log ]; then
-  touch /usr/local/pf/logs/$fic_log
-  chown pf.pf /usr/local/pf/logs/$fic_log
-  chmod g+w /usr/local/pf/logs/$fic_log
-fi
-done
 
 #Make ssl certificate
 cd /usr/local/pf
@@ -1231,13 +1218,6 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/containers/*.sh
 
 %dir %attr(02755, pf, pf)     /usr/local/pf/logs
-# logfiles
-%ghost                  %logdir/packetfence.log
-%ghost                  %logdir/snmptrapd.log
-%ghost                  %logdir/security_event.log
-%ghost                  %logdir/httpd.admin.audit.log
-%ghost                  %logdir/pfdetect
-%ghost                  %logdir/pfcron
 %doc                    /usr/local/pf/NEWS.asciidoc
 %doc                    /usr/local/pf/NEWS.old
 %doc                    /usr/local/pf/README.md
