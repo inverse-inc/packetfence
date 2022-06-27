@@ -17,7 +17,7 @@
     su root pf
 }
 
-/usr/local/pf/logs/httpd.*.access /usr/local/pf/logs/httpd.*.error /usr/local/pf/logs/httpd.*.catalyst {
+/usr/local/pf/logs/httpd-requests {
     daily
     rotate 7
     missingok

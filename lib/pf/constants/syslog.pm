@@ -26,7 +26,7 @@ our @SyslogInfo = (
     },
     {
         'description' => 'httpd Apache requests log',
-        'name'       => 'httpd-requests.log',
+        'name'       => 'httpd-requests',
 	'conditions' => [
 	    '$programname contains "httpd_collector"',
 	    '$programname contains "httpd_proxy"',
