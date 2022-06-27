@@ -130,8 +130,12 @@ case "$1" in
             echo "Setting packetfence.target as the default systemd target."
            /bin/systemctl set-default packetfence.target
         fi
+
+	systemctl daemon-reload
         echo "Restarting journald to enable persistent logging"
         /bin/systemctl restart systemd-journald
+	echo "Restarting rsyslog"
+        systemctl restart rsyslog
 
 	# get containers image and tag them locally
 	/usr/local/pf/containers/manage-images.sh
@@ -142,7 +146,6 @@ case "$1" in
         systemctl disable packetfence-iptables
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
-        systemctl daemon-reload
         systemctl restart docker
         systemctl start packetfence-config
         /usr/local/pf/bin/pfcmd generatemariadbconfig --force
@@ -151,9 +154,6 @@ case "$1" in
         # Override the MySQL socket location to match our standard
         printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
         sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
-
-        echo "Restarting rsyslog"
-        systemctl restart rsyslog
 
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
         set +e
