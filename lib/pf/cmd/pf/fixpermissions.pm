@@ -64,7 +64,7 @@ sub action_all {
     _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner('root',$pfcmd);
     chmod($PFCMD_MODE, $pfcmd);
-    chmod(0664, @stored_config_files, $iptable_config_file);
+    chmod(0664, @stored_config_files, $iptable_config_file, $config_version_file);
     chmod($DIR_MODE, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
     find({ wanted => \&wanted,untaint => 1}, $log_dir);
