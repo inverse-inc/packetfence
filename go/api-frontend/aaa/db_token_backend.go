@@ -9,6 +9,7 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 type DbTokenBackend struct {
@@ -18,6 +19,7 @@ type DbTokenBackend struct {
 }
 
 func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *DbTokenBackend {
+	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.PfConf.Database)
 	return &DbTokenBackend{
 		inActivityTimeout: expiration,
 		maxExpiration:     maxExpiration,
@@ -41,13 +43,14 @@ func (tb *DbTokenBackend) getDB() *sql.DB {
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
 		//logError(ctx, "Error: "+err.Error())
+		fmt.Println("Unable to create DB connection from config. Retrying....", err)
 		time.Sleep(time.Duration(5) * time.Second)
 		Database, err = db.DbFromConfig(ctx)
 	}
 
 	err = Database.Ping()
 	for err != nil {
-		fmt.Println("Unable to connecto to DB. Retrying....")
+		fmt.Println("Unable to connect to DB. Retrying....", err)
 		time.Sleep(time.Duration(5) * time.Second)
 		err = Database.Ping()
 	}
@@ -117,11 +120,14 @@ func (tb *DbTokenBackend) TokenIsValid(token string) bool {
 
 func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	expired := timeToExpired(time.Now().Add(tb.inActivityTimeout))
-	_, _ = tb.getDB().Exec(
-		"UPDATE chi_cache WHERE `key` = ? SET expires_at = ?",
+	_, err := tb.getDB().Exec(
+		"UPDATE chi_cache SET expires_at = ? WHERE `key` = ?",
 		tokenKey(tb, token),
 		expired,
 	)
+	if err != nil {
+		panic(err)
+	}
 }
 
 var _ TokenBackend = (*DbTokenBackend)(nil)
