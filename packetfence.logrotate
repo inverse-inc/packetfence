@@ -17,7 +17,7 @@
     su root pf
 }
 
-/usr/local/pf/logs/httpd-requests {
+/usr/local/pf/logs/httpd.apache {
     daily
     rotate 7
     missingok

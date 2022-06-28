@@ -359,7 +359,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
-  fingerbank.log httpd-requests api-frontend.log
+  fingerbank.log httpd.apache api-frontend.log
   pfacct.log pfstats.log packetfence.log pfdhcp.log
   pfdns.log pfconfig.log pfdetect.log pffilter.log
   pfdhcplistener.log pfcron.log pfsso.log
