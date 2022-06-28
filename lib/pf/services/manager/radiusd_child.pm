@@ -1269,9 +1269,31 @@ EOT
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
         foreach my $interface ( uniq(@radius_ints) ) {
-
+			my $server_ip = $interface->{Tip};
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
         	$tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $server_ip
+        port = 0
+        type = auth
+        virtual_server = pf.cluster
+}
+
+
+listen {
+        ipaddr = $server_ip
+        port = 0
+        type = acct
+        virtual_server = pf.cluster
+}
+
+listen {
+        ipaddr = $server_ip
+        port = 1815
+        type = auth
+        virtual_server = pfcli.cluster
+}
+
 listen {
         ipaddr = $cluster_ip
         port = 0
@@ -1302,11 +1324,18 @@ EOT
             my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
             my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
             foreach my $interface ( uniq(@radius_ints) ) {
+				my $server_ip = $interface->{Tip};
                 my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
                 $tags{'eduroam'} .= <<"EOT";
 # Eduroam integration
 listen {
-        ipaddr = 0.0.0.0
+        ipaddr = $server_ip
+        port = $self->{eduroam_port}
+        type = auth
+        virtual_server = eduroam.cluster
+}
+listen {
+        ipaddr = $cluster_ip
         port = $self->{eduroam_port}
         type = auth
         virtual_server = eduroam.cluster
