@@ -30,7 +30,7 @@ testcases:
 - name: fingerbank_prefork
   steps:
   - type: exec
-    script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.fingerbank_api_mock_pidfile}} -w 1 -s 1'
+    script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.fingerbank_api_mock_pidfile}} -l "http://{{.fingerbank_host}}:{{.fingerbank_port}}" -w 1 -s 1'
 
 - name: remove_tmp_test_file
   steps:
