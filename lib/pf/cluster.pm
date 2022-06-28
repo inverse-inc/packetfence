@@ -789,6 +789,20 @@ sub getDBMaster {
     return $FALSE;
 }
 
+sub getMasterDB {
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_master})) {
+        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_master});
+    }
+    return $FALSE;
+}
+
+sub getReadDB {
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_read})) {
+        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_read});
+    }
+    return $FALSE;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
