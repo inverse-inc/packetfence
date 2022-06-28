@@ -37,9 +37,9 @@ errorlog="/usr/local/pf/logs/proxysql.log"
 admin_variables=
 {
     admin_credentials="admin:admin"
-    mysql_ifaces="0.0.0.0:6032"
+    mysql_ifaces="127.0.0.1:6032"
     refresh_interval=2000
-    web_enabled=true
+    web_enabled=false
     web_port=6080
     stats_credentials="stats:admin"
 }
