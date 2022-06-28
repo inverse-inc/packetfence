@@ -41,3 +41,13 @@ testcases:
   steps:
   - type: pf_api_service_start
     service: pfcron
+
+- name: start_pfqueue_service
+  steps:
+  - type: pf_api_service_start
+    service: pfqueue
+
+- name: start_httpd.webservices_service
+  steps:
+  - type: pf_api_service_start
+    service: httpd.webservices

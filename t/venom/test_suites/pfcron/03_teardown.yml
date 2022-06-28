@@ -34,3 +34,13 @@ testcases:
 
   - type: exec
     script: 'echo "" > /usr/local/pf/containers/.local_env'
+
+- name: restart_pfqueue_service
+  steps:
+  - type: pf_api_service_restart
+    service: pfqueue
+
+- name: restart_httpd.webservices_service
+  steps:
+  - type: pf_api_service_restart
+    service: httpd.webservices
