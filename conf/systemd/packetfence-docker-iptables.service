@@ -7,7 +7,9 @@ After=packetfence-base.target packetfence-config.service
 [Service]
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/usr/local/pf/containers/docker_iptables.sh
+# Currently a noop because it has been causing issues when containers would change IP address with each other after restarts
+ExecStart=/bin/true
+#ExecStart=/usr/local/pf/containers/docker_iptables.sh
 Slice=packetfence.slice
 
 [Install]
