@@ -1638,11 +1638,11 @@ sub generate_port {
     $self->{auth_port} = "1812";
     $self->{acct_port} = "1813";
     $self->{cli_port} = "1815";
-    $self->{eduroam_port} = $eduport;
+    $self->{eduroam_port} = $eduport || "11812";
     $self->{radsec_port} = "2083";
     if ($cluster_enabled) {
         $self->{auth_port} = "1822";
-        $self->{eduroam_port} = $eduport + 10;
+        $self->{eduroam_port} = $self->{eduroam_port} + 10;
         $self->{acct_port} = "1823";
         $self->{cli_port} = "1825";
         $port = $port + 10;
