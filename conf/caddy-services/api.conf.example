@@ -23,12 +23,12 @@
   }
 
   cors /api/v1 {
-    allowed_headers Authorization,Content-Type,X-PacketFence-Tenant-Id
+    allowed_headers Authorization,Content-Type
     methods GET,OPTIONS,POST,DELETE,PUT,PATCH
   }
 
   cors /api/v1.1 {
-    allowed_headers Authorization,Content-Type,X-PacketFence-Tenant-Id
+    allowed_headers Authorization,Content-Type
     methods GET,OPTIONS,POST,DELETE,PUT,PATCH
   }
 
