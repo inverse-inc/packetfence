@@ -71,7 +71,7 @@ EOT
         { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = 10, transaction_persistent = 0, active = 1 },
 EOT
 
-    my $i = 10;
+    my $i = 100;
     if (pf::cluster::getMasterDB()) {
         $tags{'geoDB'} = $TRUE;
         my @mysql_write_backend = pf::cluster::getMasterDB();
@@ -82,13 +82,15 @@ EOT
     { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=100, weight=$i },
 
 EOT
-
-	}
+        $i--;
+        }
+        $i = 100;
         foreach my $mysql_back (@mysql_read_backend) {
             $tags{'mysql_servers'} .= << "EOT";
     { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=100, weight=$i },
 
 EOT
+        $i--;
         }
     } else {
         my @mysql_backend;
