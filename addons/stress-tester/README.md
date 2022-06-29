@@ -10,6 +10,7 @@ You might want to use CPAN to install theses modules
 * Net::DHCP::Constants
 * Getopt::Long
 * IO::Socket::INET
+* Config::IniFiles
 
 ### Compiling someload
 
