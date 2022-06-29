@@ -592,18 +592,6 @@ if ! /usr/bin/id pf &>/dev/null; then
                 ( echo Unexpected error adding user "pf" && exit )
     fi
 fi
-/usr/sbin/usermod -u 6969 pf || \
-        ( echo Unexpected error modifying uid for user "pf" && exit )
-/usr/sbin/groupmod -g 6969 pf || \
-        ( echo Unexpected error modifying gid for groupr "pf" && exit)
-
-# Change all gid/uid
-if [ "$1" = "2"   ]; then
-    id=$(/usr/bin/id -g pf)
-    /usr/bin/find /usr/local/pf/ -group $id -exec chgrp -h pf {} \;
-    id=$(/usr/bin/id -u pf)
-    /usr/bin/find /usr/local/pf/ -user $id -exec chown -h pf {} \;
-fi
 
 echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf

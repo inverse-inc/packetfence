@@ -1640,12 +1640,12 @@ sub generate_port {
     $self->{eduroam_port} = $eduport || "11812";
     $self->{radsec_port} = "2083";
     if ($cluster_enabled) {
-        $self->{auth_port} = "1822";
+        $self->{auth_port} = $self->{auth_port} + 10;
         $self->{eduroam_port} = $self->{eduroam_port} + 10;
-        $self->{acct_port} = "1823";
-        $self->{cli_port} = "1825";
+        $self->{acct_port} = $self->{acct_port} + 10;
+        $self->{cli_port} = $self->{cli_port} + 10;
         $port = $port + 10;
-        $self->{radsec_port} = "2093";
+        $self->{radsec_port} = $self->{radsec_port} + 10;
     }
     return $port;
 }

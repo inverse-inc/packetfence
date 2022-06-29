@@ -56,12 +56,8 @@ case "$1" in
             else
                 useradd -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf -g pf
             fi
-            usermod -u 6969 pf
-            groupmod -g 6969 pf
             echo "create pf user"
         else
-                usermod -u 6969 pf
-                groupmod -g 6969 pf
                 echo "pf user already exist"
         fi
         usermod pf -a -G fingerbank,winbindd_priv
