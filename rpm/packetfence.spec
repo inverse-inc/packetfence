@@ -459,6 +459,7 @@ done
 %{__install} -d %{buildroot}/etc/docker
 %{__install} -d %{buildroot}/usr/local/pf/html
 %{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
+%{__install} -d %{buildroot}/usr/local/pf/html/captive-portal
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -501,7 +502,8 @@ cp -r containers %{buildroot}/usr/local/pf
 %{__make} -C go clean
 
 # temp
-cp -r html/pfappserver/root %{buildroot}/usr/local/pf/html/pfappserver
+cp -r html/pfappserver %{buildroot}/usr/local/pf/html
+cp -r html/captive-portal %{buildroot}/usr/local/pf/html
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
