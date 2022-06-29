@@ -11,6 +11,7 @@ You might want to use CPAN to install theses modules
 * Getopt::Long
 * IO::Socket::INET
 * Config::IniFiles
+* Log::Log4perl
 
 ### Compiling someload
 
