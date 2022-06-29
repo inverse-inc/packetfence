@@ -16,7 +16,7 @@ var shouldTestApi = flag.Bool("test-integration-api-frontend", false, "Should th
 func TestClientBuildRequest(t *testing.T) {
 	c := NewFromConfig(testCtx)
 
-	base := "https://127.0.0.1:9999"
+	base := "https://containers-gateway.internal:9999"
 	method := "POST"
 	path := "/api/v1/login"
 	body := `{"username": "test", "password": "test"}`
