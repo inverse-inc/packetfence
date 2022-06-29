@@ -838,7 +838,7 @@ sub expire : Public {
         pfconfig::util::socket_expire(light => $postdata{light});
     }
     else{
-        pfconfig::util::socket_expire(namespace => $what, light => $postdata{light});
+        pfconfig::util::socket_expire(namespace => $postdata{namespace}, light => $postdata{light});
     }
     # There are currently no errors returned
     return { error => 0 };
