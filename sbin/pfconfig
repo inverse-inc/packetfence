@@ -164,6 +164,7 @@ while($RUNNING) {
 
     my $socket;
     my $line;
+    my $query;
     eval {
         my $paddr = accept($socket,$listner);
         #Check if a signal was caught
@@ -175,7 +176,7 @@ while($RUNNING) {
 
             if($line eq "exit") {exit}
 
-            my $query = decode_json($line);
+            $query = decode_json($line);
             #use Data::Dumper;
             #print Dumper($query);
             $encoding = $query->{encoding};
@@ -196,7 +197,7 @@ while($RUNNING) {
     };
     if($@){
         print STDERR "$line : $@";
-        send_output(undef, $socket) if $socket;
+        send_output(undef, $socket, $query) if $socket;
     }
 }
 
@@ -390,11 +391,11 @@ sub encode_output {
         my $json = JSON->new;
         $json->convert_blessed(1);
         my $result;
-        if(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
-            return $json->encode({%$data, error => "No valid element was found for query"});
-        }
-        elsif(!defined($data)) {
+        if(!defined($data)) {
             return $json->encode({error => "No valid element was found for query"});
+        }
+        elsif(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
+            return $json->encode({%$data, error => "No valid element was found for query"});
         }
         eval {
             $result = $json->encode($data);
