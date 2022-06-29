@@ -45,7 +45,7 @@ install: build
 	dh_prep
 	dh_installdirs
 
-	#copying example files without example extention (.conf.example -> .conf)
+	#copying example files without example extension (.conf.example -> .conf)
 	for i in `find * -name "*.example" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*'`; do \
 		$(INSTALL) $$i "$(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$(dirname $$i)/$$(basename $$i .example)"; \
 	done
@@ -53,16 +53,13 @@ install: build
 	# Install all except debian and t directory
 	# dir* to exclude directory itself
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
-	-not -path "addons/full-upgrade*" -not -path "html*" -type d`; do \
+	-not -path "addons/full-upgrade*" -not -path "html/common*" -not -path "html/parking* -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
 	for i in `find * ! -path 'debian/*' ! -path 'debian' ! -path 'docs/*' ! -path 'docs' ! -path 't/*' ! -path 't' ! -path 'lib/pfconfig/*' ! -path 'lib/pfconfig' ! -path 'sbin/pfconfig*' \
-	-not -path "addons/full-upgrade/*" -not -path "html/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
+	-not -path "addons/full-upgrade/*" -not -path "html/common/*" -not -path "html/parking/*" ! -path 'conf/pfconfig.conf*' ! -path 'conf/redis_cache.conf*' ! -type d`; do \
 		$(INSTALL) $$i $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/$$i; \
 	done
-
-	$(INSTALL) html/pfappserver/root/errors/502.json.http $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/errors/502.json.http
-	$(INSTALL) html/pfappserver/root/errors/503.json.http $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/html/pfappserver/root/errors/503.json.http
 
 	# packetfence-test package
 	make DESTDIR=$(CURDIR)/debian/packetfence-test test_install
