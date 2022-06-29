@@ -423,6 +423,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-server.service %{buildroot}%{_unitdir}/packetfence-pfconnector-server.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
+%{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -448,6 +449,7 @@ done
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_queue
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_ntlm_cache
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/ssl_mutex
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/proxysql
 %{__install} -d %{buildroot}/usr/local/pf/var/conf
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/run
 %{__install} -d %{buildroot}/usr/local/pf/var/rrd 
@@ -546,6 +548,7 @@ rm -rf %{buildroot}
 %pre
 
 /usr/bin/systemctl --now mask mariadb
+/usr/bin/systemctl --now mask proxysql
 
 # Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
 /usr/bin/systemctl --now mask libvirtd
@@ -589,6 +592,7 @@ if ! /usr/bin/id pf &>/dev/null; then
                 ( echo Unexpected error adding user "pf" && exit )
     fi
 fi
+
 echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
@@ -889,6 +893,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
@@ -909,6 +914,8 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/proxysql.conf
+                        /usr/local/pf/conf/proxysql.conf.example
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
@@ -1278,6 +1285,7 @@ fi
 %dir                    /usr/local/pf/var/redis_queue
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
+%dir                    /usr/local/pf/var/proxysql
 %config(noreplace)      /usr/local/pf/var/cache_control
                         %{mariadb_plugin_dir}/pf_udf.so
 

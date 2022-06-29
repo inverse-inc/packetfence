@@ -71,6 +71,7 @@ sub managers {
 
 sub _isManaged {
     my ($self, $name) = @_;
+
     if ($name eq "auth") {
         if (isenabled($Config{services}{radiusd_auth})) {
             return $TRUE;

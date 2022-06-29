@@ -160,6 +160,11 @@
       :text="$i18n.t('Should pfstats be managed by PacketFence?')"
     />
 
+    <form-group-proxysql namespace="proxysql"
+      :column-label="$i18n.t('proxysql')"
+      :text="$i18n.t('Should proxysql be managed by PacketFence?')"
+    />
+
     <form-group-radiusd namespace="radiusd"
       :column-label="$i18n.t('radiusd')"
       :text="$i18n.t('Should radiusd be managed by PacketFence?')"
@@ -260,6 +265,7 @@ import {
   FormGroupPfqueue,
   FormGroupPfsso,
   FormGroupPfstats,
+  FormGroupProxysql,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,
   FormGroupRadiusdAuth,
@@ -309,6 +315,7 @@ const components = {
   FormGroupPfqueue,
   FormGroupPfsso,
   FormGroupPfstats,
+  FormGroupProxysql,
   FormGroupRadiusd,
   FormGroupRadiusdAcct,
   FormGroupRadiusdAuth,
