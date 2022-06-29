@@ -1191,7 +1191,8 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/pfappserver
                         /usr/local/pf/html/pfappserver/root
-
+/usr/local/pf/html/pfappserver/lib
+/usr/local/pf/html/captive-portal
 # lib dir
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
