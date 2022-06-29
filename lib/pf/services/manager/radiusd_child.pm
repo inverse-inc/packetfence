@@ -89,9 +89,8 @@ Executed once for ALL processes
 sub generateConfig {
     my ($self, $quick) = @_;
 
-	$self->_generateConfig();
-
-	return 1;
+    $self->_generateConfig();
+    return 1;
 }
 
 =head2 _generateConfig
@@ -672,7 +671,7 @@ EOT
         }
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
-	$tt->process("$conf_dir/radiusd/cli.conf", \%tags, "$install_dir/raddb/cli.conf") or die $tt->error();
+        $tt->process("$conf_dir/radiusd/cli.conf", \%tags, "$install_dir/raddb/cli.conf") or die $tt->error();
     } else {
         my $file = $install_dir."/raddb/cli.conf";
         unlink($file);
@@ -1269,9 +1268,9 @@ EOT
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
         foreach my $interface ( uniq(@radius_ints) ) {
-			my $server_ip = $interface->{Tip};
+            my $server_ip = $interface->{Tip};
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
-        	$tags{'listen'} .= <<"EOT";
+            $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = $server_ip
         port = 0
@@ -1317,14 +1316,14 @@ listen {
 }
 
 EOT
-		}
+        }
 
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
             my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
             my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
             foreach my $interface ( uniq(@radius_ints) ) {
-				my $server_ip = $interface->{Tip};
+                my $server_ip = $interface->{Tip};
                 my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
                 $tags{'eduroam'} .= <<"EOT";
 # Eduroam integration
@@ -1341,7 +1340,7 @@ listen {
         virtual_server = eduroam.cluster
 }
 EOT
-			}
+            }
         } else {
             $tags{'eduroam'} = "# Eduroam integration is not configured";
         }
@@ -1356,7 +1355,7 @@ EOT
 client $radius_back {
         ipaddr = $radius_back
         secret = $local_secret
-	port = $self->{eduroam_port}
+        port = $self->{eduroam_port}
         shortname = pf
 }
 EOT
