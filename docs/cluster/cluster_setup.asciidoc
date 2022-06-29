@@ -183,6 +183,7 @@ Add the following to the bottom of [filename]`/usr/local/pf/conf/pf.conf` :
 ----
 [database]
 host=100.64.0.1
+port=6033
 
 [active_active]
 # Change these 2 values by the credentials you've set when configuring MariaDB above
@@ -206,6 +207,7 @@ Then, add the following to the bottom of [filename]`/usr/local/pf/conf/pfconfig.
 ----
 [mysql]
 host=100.64.0.1
+port=6033
 ----
 
 Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
