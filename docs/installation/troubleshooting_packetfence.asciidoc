@@ -24,20 +24,9 @@ PacketFence provides a RADIUS auditing module which allows you to be aware of al
 
 === Log files
 
-Here are the most important PacketFence log files:
-
-[options="compact"]
-* `/usr/local/pf/logs/packetfence.log` — PacketFence Core Log
-* `/usr/local/pf/logs/httpd.portal.access` — Apache – Captive Portal Access Log
-* `/usr/local/pf/logs/httpd.portal.error` — Apache – Captive Portal Error Log
-* `/usr/local/pf/logs/httpd.admin.access` — Apache – Web Admin/Services Access Log
-* `/usr/local/pf/logs/httpd.admin.error` — Apache – Web Admin/Services Error Log
-* `/usr/local/pf/logs/httpd.webservices.access` — Apache – Webservices Access Log
-* `/usr/local/pf/logs/httpd.webservices.error` — Apache – Webservices Error Log
-* `/usr/local/pf/logs/httpd.aaa.access` — Apache – AAA Access Log
-* `/usr/local/pf/logs/httpd.aaa.error` — Apache – AAA Error Log
-
-There are other log files in [filename]`/usr/local/pf/logs/` that could be relevant depending on what issue you are experiencing. Make sure you take a look at them.
+Log files are located under [filename]`/usr/local/pf/logs`. Except
+[filename]`packetfence.log` which contains logs from different services, each
+service has its own log file. You can see full list of log files available when using _Audit -> Live logs_ menu in web admin.
 
 The main logging configuration file is [filename]`/usr/local/pf/conf/log.conf`. It contains the configuration for the `packetfence.log` file (`Log::Log4Perl`) and you normally don't need to modify it. The logging configuration files for every service are located under [filename]`/usr/local/pf/conf/log.conf.d/`.
 
