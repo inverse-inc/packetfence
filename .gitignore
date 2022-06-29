@@ -43,6 +43,7 @@ conf/radiusd/cert
 conf/pfcron.conf
 conf/certmanager
 conf/mfa.conf
+conf/proxysql.conf
 db/upgrade-tenant-11.2-12.0.sql
 bin/pfcmd
 bin/ntlm_auth_wrapper
@@ -60,6 +61,7 @@ sbin/pfcron
 sbin/galera-autofix
 sbin/mysql-probe
 sbin/pfconnector
+sbin/sdnotify-proxy
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules
