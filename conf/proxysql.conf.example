@@ -118,12 +118,19 @@ mysql_query_rules =
     {
         rule_id=200
         active=1
+        match_pattern=".*read_only.*"
+        destination_hostgroup=10
+        apply=1
+    },
+    {
+        rule_id=200
+        active=1
         match_pattern="^SELECT .*"
         destination_hostgroup=30
         apply=1
     },
     {
-        rule_id=300
+        rule_id=400
         active=1
         match_pattern=".*"
         destination_hostgroup=10
