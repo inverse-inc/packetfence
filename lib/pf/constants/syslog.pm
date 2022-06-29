@@ -25,7 +25,7 @@ our @SyslogInfo = (
 	'conditions' => [ '$syslogtag contains "fingerbank"' ]
     },
     {
-        'description' => 'httpd Apache requests log',
+        'description' => 'Apache logs',
         'name'       => 'httpd.apache',
 	'conditions' => [
 	    '$programname contains "httpd_collector"',
@@ -33,8 +33,8 @@ our @SyslogInfo = (
             '($programname == "httpd.aaa-docker-wrapper" and not $msg contains "httpd.aaa")',
             '($programname == "httpd.portal-docker-wrapper" and not $msg contains "httpd.portal")',
             '($programname == "httpd.webservices-docker-wrapper" and not $msg contains "httpd.webservices")',
-            '($programname == "httpd.dispatcher" and not $msg contains "httpd.dispatcher")',
-            '($programname == "httpd.admin_dispatcher" and not $msg contains "httpd.admin_dispatcher")',
+            '($programname == "httpd.dispatcher-docker-wrapper" and not $msg contains "httpd.dispatcher")',
+            '($programname == "httpd.admin_dispatcher-docker-wrapper" and not $msg contains "httpd.admin_dispatcher")',
             '$msg contains "api-frontend-access"',
         ]
     },
@@ -65,8 +65,9 @@ our @SyslogInfo = (
             '($programname == "httpd.aaa-docker-wrapper" and $msg contains "httpd.aaa")',
             '($programname == "httpd.portal-docker-wrapper" and $msg contains "httpd.portal")',
             '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
-            '($programname == "httpd.dispatcher" and $msg contains "httpd.dispatcher")',
-            '($programname == "httpd.admin_dispatcher" and $msg contains "httpd.admin_dispatcher")',
+            '($programname == "httpd.dispatcher-docker-wrapper" and $msg contains "httpd.dispatcher")',
+            '($programname == "httpd.admin_dispatcher-docker-wrapper" and $msg contains "httpd.admin_dispatcher")',
+	    '($programname == "pfperl-api-docker-wrapper" and $msg contains "pfperl-api")',
         ]
     },
     {
@@ -194,12 +195,7 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ]
     },
     {
-        'description' => 'haproxy admin log',
-        'name'       => 'haproxy_admin.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ]
-    },
-    {
-        'description' => 'Firewall (iptables) log',
+        'description' => 'Firewall log',
         'name'       => 'firewall.log',
         'conditions' => [
             '$programname == "docker_iptables.sh"',
