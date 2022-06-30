@@ -455,7 +455,8 @@ sub upsert {
         return $STATUS::BAD_REQUEST;
     }
     ($status, my $on_conflict) = $self->_on_conflict_data;
-    return $status if is_error($status);
+
+    return $status if is_error($status) || $status == $STATUS::NO_CONTENT;
     ($status, my $sth) = $self->do_upsert(
         -into => $self->table,
         -values   => $insert_data,
@@ -484,11 +485,13 @@ sub _on_conflict_data {
     my ($self) = @_;
     if ($self->__from_table) {
         my ($status, $data) = $self->_update_data;
-        if (is_error($status) || (keys  %$data) > 0 ) {
+        if (is_error($status) || (keys %$data) > 0) {
             return $status, $data;
         }
-        # If nothing was updated make sure that we use the default
+
+        return $STATUS::NO_CONTENT, undef;
     }
+
     return $self->_insert_data;
 }
 
