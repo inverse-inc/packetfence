@@ -601,19 +601,10 @@ enforcement=vlan
 type=internal
 ----
 
-In the general section you can notice the db_stack parameter, this one can take 2 values:
-
- mysql
- galera
-
-The mysql value means that you are using a master/slave db stack and you need to take care of not having multiples ip address in the db_master parameter (it can cause dead locks).
-The galera value means that you are running a galera cluster and the write db pool will be managed by proxysql. (multiples ip addres in the db_master parameter but proxysql will define one prefered)
-
-
 Note that in the DC1/DC2 CLUSTER sections we defined this 2 values:
 
  db_read=192.46.222.200,170.187.181.132,192.46.222.230
  db_master=192.46.222.200
 
 It means that proxysql will be configure to use 192.46.222.200,170.187.181.132,192.46.222.230 for all the read (be carefull, the order matter since 192.46.222.200 will be used in priority, so define the closest server from your DC)
-For db_master, you define which server will be use for all the write. It´s possible to define multiples one but take care that the order needs to be the same in each DC section.
+For db_master, you define which server will be use for all the write. Use only one single ip in this section since you can only do the write on a single server.

@@ -73,11 +73,11 @@ EOT
 
     my $i = 100;
     if (pf::cluster::getMasterDB()) {
-        $tags{'geoDB'} = $TRUE unless $pf::config::cluster::db_stack eq "galera";
+        $tags{'geoDB'} = $TRUE;
         my @mysql_write_backend = pf::cluster::getMasterDB();
         my @mysql_read_backend = pf::cluster::getReadDB();
 
-	foreach my $mysql_back (@mysql_write_backend) {
+        foreach my $mysql_back (@mysql_write_backend) {
             $tags{'mysql_servers'} .= << "EOT";
     { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
 
@@ -121,10 +121,7 @@ sub isManaged {
 
 =head1 AUTHOR
 
-=head1 AUTHOR
-
 Inverse inc. <info@inverse.ca>
-
 
 
 =head1 COPYRIGHT
