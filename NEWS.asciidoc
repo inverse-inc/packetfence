@@ -29,6 +29,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * Add support for Role Based Enforcement for Meraki wired devices (#7000)
 * Added proxysql to distribute database reads when using PacketFence in cluster
+* Sign a csr in PacketFence pki
 
 === Enhancements
 
