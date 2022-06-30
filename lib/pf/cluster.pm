@@ -789,12 +789,24 @@ sub getDBMaster {
     return $FALSE;
 }
 
+=head2 getMasterDB
+
+Return the db_master parameter from cluster.conf on a specific zone
+
+=cut
+
 sub getMasterDB {
     if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_master})) {
         return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_master});
     }
     return $FALSE;
 }
+
+=head2 getReadDB
+
+Return the db_read parameter from cluster.conf on a specific zone
+
+=cut
 
 sub getReadDB {
     if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_read})) {

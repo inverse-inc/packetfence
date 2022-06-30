@@ -48,7 +48,7 @@ tie our %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hos
 
 our $DB_Config;
 
-tie  %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
+tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -63,8 +63,8 @@ sub generateConfig {
     $tags{'mysql_servers'} = "";
 
     $tags{'monitor'} = << "EOT";
-        monitor_username="$DB_Config->{user}"
-        monitor_password="$DB_Config->{pass}"
+    monitor_username="$DB_Config->{user}"
+    monitor_password="$DB_Config->{pass}"
 EOT
 
     $tags{'mysql_users'} = << "EOT";
@@ -79,7 +79,7 @@ EOT
 
 	foreach my $mysql_back (@mysql_write_backend) {
             $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=100, weight=$i },
+    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
 
 EOT
         $i--;
@@ -87,7 +87,7 @@ EOT
         $i = 100;
         foreach my $mysql_back (@mysql_read_backend) {
             $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=100, weight=$i },
+    { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=1000, weight=$i },
 
 EOT
         $i--;
@@ -99,7 +99,7 @@ EOT
 
         foreach my $mysql_back (@mysql_backend) {
         $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=100, weight=$i },
+    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
 EOT
         $i--;
         }
