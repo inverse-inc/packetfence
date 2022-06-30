@@ -496,3 +496,114 @@ The replication MASTER_USER and MASTER_PASSWORD can be found in the main sites p
 At the end it you want to check the status of the slave server for debug purposes you can run the follwing command:
 
  SHOW SLAVE STATUS;
+
+=== Geo Distributed Database
+
+In the case you have a geo-distributed database, you can configure PacketFence to use a specific server for all the write and a group of server for all the read.
+
+==== Prepare the configuration
+
+First we assume that you have 3 mysql server, one is the master (192.46.222.200) and the 2 others are slaves (170.187.181.132 and 192.46.222.230)
+
+Next configure cluster.conf during the initial cluster setup, refer to the example below.
+
+----
+[general]
+multi_zone=enabled
+
+[DC1 CLUSTER]
+management_ip=192.168.1.10
+db_read=192.46.222.200,170.187.181.132,192.46.222.230
+db_master=192.46.222.200
+
+[DC1 CLUSTER interface ens192]
+ip=192.168.1.10
+mask=255.255.255.0
+type=management
+
+[DC1 CLUSTER interface ens224]
+ip=192.168.11.10
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf1-dc1.example.com]
+management_ip=192.168.1.11
+
+[DC1 pf1-dc1.example.com interface ens192]
+ip=192.168.1.11
+mask=255.255.255.0
+type=management
+
+[DC1 pf1-dc1.example.com interface ens224]
+ip=192.168.11.11
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf2-dc1.example.com]
+management_ip=192.168.1.12
+
+[DC1 pf2-dc1.example.com interface ens192]
+ip=192.168.1.12
+mask=255.255.255.0
+type=management
+
+[DC1 pf2-dc1.example.com interface ens224]
+ip=192.168.11.12
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf3-dc1.example.com]
+management_ip=192.168.1.13
+
+[DC1 pf3-dc1.example.com interface ens192]
+ip=192.168.1.13
+mask=255.255.255.0
+type=management
+
+[DC1 pf3-dc1.example.com interface ens224]
+ip=192.168.11.13
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC2 CLUSTER]
+management_ip=192.168.2.10
+db_read=192.46.222.230,170.187.181.132,192.46.222.200
+db_master=192.46.222.200
+
+[DC2 CLUSTER interface ens192]
+ip=192.168.2.10
+mask=255.255.255.0
+type=management
+
+[DC2 CLUSTER interface ens224]
+ip=192.168.22.10
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC2 pf1-dc2.example.com]
+management_ip=192.168.2.11
+
+[DC2 pf1-dc2.example.com interface ens192]
+ip=192.168.2.11
+mask=255.255.255.0
+type=management
+
+[DC2 pf1-dc2.example.com interface ens224]
+ip=192.168.22.11
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+----
+
+Note that in the DC1/DC2 CLUSTER sections we defined this 2 values:
+
+ db_read=192.46.222.200,170.187.181.132,192.46.222.230
+ db_master=192.46.222.200
+
+It means that proxysql will be configure to use 192.46.222.200,170.187.181.132,192.46.222.230 for all the read (be carefull, the order matter since 192.46.222.200 will be used in priority, so define the closest server from your DC)
+For db_master, you define which server will be use for all the write. It´s possible to define multiples one but take care that the order needs to be the same in each DC section.
