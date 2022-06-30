@@ -257,11 +257,11 @@ sub is_valid {
     my $memory_timestamp = $self->{memorized_at} // 0;
 
     if($LAST_TOUCH_CACHE == 0) {
-        $logger->info("Memory configuration was never loaded. Considering $what as invalid do the initial load.");
+        $logger->debug("Memory configuration was never loaded. Considering $what as invalid do the initial load.");
         return 0;
     }
     elsif ( (time - $RELOADED_TOUCH_CACHE) > $phone_in_at_least ) {
-        $logger->info("LAST_TOUCH_CACHE is more than $phone_in_at_least seconds old. Considering $what as invalid to reload it.");
+        $logger->debug("LAST_TOUCH_CACHE is more than $phone_in_at_least seconds old. Considering $what as invalid to reload it.");
         return 0;
     }
     elsif ( $memory_timestamp >= $LAST_TOUCH_CACHE ) {
@@ -269,7 +269,7 @@ sub is_valid {
         return 1;
     }
     else {
-        $logger->info("Memory configuration is not valid anymore for key $what in local cached object");
+        $logger->debug("Memory configuration is not valid anymore for key $what in local cached object");
         return 0;
     }
 }
