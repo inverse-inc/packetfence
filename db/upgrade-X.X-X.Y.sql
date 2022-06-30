@@ -546,6 +546,10 @@ DELETE FROM user_preference WHERE id='roles::defaultSearch';
 \! echo "Add index on ip4log"
 ALTER TABLE ip4log ADD INDEX IF NOT EXISTS ip4log_mac_start_time (mac, start_time);
 
+\! echo "altering pki_certs"
+ALTER TABLE pki_certs
+    ADD COLUMN IF NOT EXISTS `csr` BOOLEAN DEFAULT FALSE AFTER scep;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

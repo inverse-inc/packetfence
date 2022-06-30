@@ -155,11 +155,23 @@
           :text="$i18n.t('Number of days an old certificate is still valid after it has been revoked.')"
         />
       </base-form-tab>
+
+      <template #tabs-end v-if="!isNew && !isClone">
+        <div class="text-right mr-3 mb-1">
+          <b-button
+            size="sm" variant="outline-primary" class="mr-1 text-nowrap"
+            :disabled="!isServiceAlive" :to="{ name: 'newPkiCert', params: { profile_id: id } }"
+          >{{ $t('New Certificate') }}</b-button>
+          <b-button
+            size="sm" variant="outline-primary" class="text-nowrap"
+            :disabled="!isServiceAlive" :to="{ name: 'csrPkiProfile', params: { id } }"
+          >{{ $i18n.t('Sign CSR') }}</b-button>
+        </div>
+      </template>
     </b-tabs>
   </base-form>
 </template>
 <script>
-import { computed, toRefs } from '@vue/composition-api'
 import {
   BaseForm,
   BaseFormTab
@@ -270,13 +282,16 @@ export const props = {
   }
 }
 
+import { computed, toRefs } from '@vue/composition-api'
 import { keyTypes, keySizes } from '../../config'
 
-export const setup = (props) => {
+export const setup = (props, context) => {
 
   const {
     form
   } = toRefs(props)
+
+  const { root: { $store } = {} } = context
 
   const schema = computed(() => schemaFn(props))
 
@@ -289,9 +304,15 @@ export const setup = (props) => {
     return keySizes
   })
 
+  const isServiceAlive = computed(() => {
+    const { state: { services: { cache: { pfpki: { alive } = {} } = {} } = {} } = {} } = $store
+    return alive
+  })
+
   return {
     schema,
-    keySizeOptions
+    keySizeOptions,
+    isServiceAlive
   }
 }
 

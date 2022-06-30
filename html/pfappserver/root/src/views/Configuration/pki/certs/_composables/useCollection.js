@@ -108,6 +108,13 @@ export const useSearch = makeSearch('pkiCerts', {
       visible: true
     },
     {
+      key: 'csr',
+      label: 'CSR', // i18n defer
+      required: true,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'buttons',
       class: 'text-right p-0',
       locked: true
@@ -147,6 +154,16 @@ export const useSearch = makeSearch('pkiCerts', {
     {
       value: 'mail',
       text: i18n.t('Email'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'scep',
+      text: i18n.t('SCEP'),
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'csr',
+      text: i18n.t('CSR'),
       types: [conditionType.SUBSTRING]
     }
   ],

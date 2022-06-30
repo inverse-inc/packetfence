@@ -14,7 +14,8 @@ export const useStore = $store => {
     createItem: params => $store.dispatch('$_pkis/createProfile', recomposeProfile(params)),
     getItem: params => $store.dispatch('$_pkis/getProfile', params.id)
       .then(item => decomposeProfile(item)),
-    updateItem: params => $store.dispatch('$_pkis/updateProfile', recomposeProfile(params))
+    updateItem: params => $store.dispatch('$_pkis/updateProfile', recomposeProfile(params)),
+    signCsr: params => $store.dispatch('$_pkis/signCsr', params),
   }
 }
 
@@ -95,6 +96,20 @@ export const actions = {
       commit('PROFILE_ERROR', err.response)
       throw err
     })
+  },
+  signCsr: ({ commit, dispatch }, data) => {
+    commit('PROFILE_REQUEST')
+    return api.signCsr(data).then(item => {
+      // reset list
+      commit('PROFILE_LIST_RESET')
+      dispatch('allProfiles')
+      // update item
+      commit('PROFILE_CSR_SIGNED', item)
+      return item
+    }).catch(err => {
+      commit('PROFILE_ERROR', err.response)
+      throw err
+    })
   }
 }
 
@@ -120,5 +135,8 @@ export const mutations = {
     if (response && response.data) {
       state.profileMessage = response.data.message
     }
+  },
+  PROFILE_CSR_SIGNED: (state) => {
+    state.profileStatus = types.SUCCESS
   }
 }

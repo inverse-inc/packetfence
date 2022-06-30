@@ -58,6 +58,7 @@ require (
 	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
 	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
+	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
 	github.com/lucas-clemente/quic-go v0.10.2
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
 	github.com/mdlayher/ethernet v0.0.0-20170707213343-e72cf8343052
@@ -114,7 +115,6 @@ require (
 	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dimchansky/utfbom v1.1.0 // indirect
-	github.com/evanphx/json-patch v4.9.0+incompatible // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
@@ -148,19 +148,19 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/tinylib/msgp v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	go.opencensus.io v0.22.3 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	k8s.io/klog/v2 v2.2.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20200805222855-6aeccd4b50c6 // indirect
 	k8s.io/utils v0.0.0-20200729134348-d5654de09c73 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.0.1 // indirect
 	sigs.k8s.io/yaml v1.2.0 // indirect
@@ -177,7 +177,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
-	github.com/kylelemons/godebug v0.0.0-20170820004349-d65d576e9348 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect

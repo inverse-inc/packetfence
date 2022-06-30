@@ -103,6 +103,8 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	api.Handle("/pki/profiles/search", handlers.SearchProfile(PFPki)).Methods("POST")
 	// Profile by ID (GET: get, PATCH: update)
 	api.Handle("/pki/profile/{id}", handlers.GetProfileByID(PFPki)).Methods("GET", "PATCH")
+	// Sign a CSR
+	api.Handle("/pki/profile/{id}/sign_csr", handlers.SignCSR(PFPki)).Methods("POST")
 
 	// Certificates (GET: list, POST: create)
 	api.Handle("/pki/certs", handlers.GetSetCert(PFPki)).Methods("GET", "POST")

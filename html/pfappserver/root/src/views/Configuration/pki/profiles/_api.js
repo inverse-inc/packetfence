@@ -44,5 +44,12 @@ export default {
   },
   delete: id => {
     return apiCall.delete(['pki', 'profile', id])
+  },
+  signCsr: data => {
+    const { id, csr } = data
+    return apiCall.post(['pki', 'profile', id, 'sign_csr'], { csr }).then(response => {
+      const { data: { items: { 0: item = {} } = {} } = {} } = response
+      return item
+    })
   }
 }
