@@ -440,7 +440,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
-%{__install} -d -m2775 %{buildroot}%logdir
+%{__install} -d -m0750 %{buildroot}%logdir
 %{__install} -d %{buildroot}/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/cache
@@ -1217,7 +1217,7 @@ fi
 /usr/local/pf/containers
 %attr(0755, pf, pf)     /usr/local/pf/containers/*.sh
 
-%dir %attr(02755, pf, pf)     /usr/local/pf/logs
+%dir %attr(0750, root, pf)     /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS.asciidoc
 %doc                    /usr/local/pf/NEWS.old
 %doc                    /usr/local/pf/README.md
