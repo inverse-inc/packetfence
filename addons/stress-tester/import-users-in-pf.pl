@@ -24,9 +24,9 @@ while ( my $row = $csv->getline( $fh ) ) {
     my $pass = $row->[1];
     print "Processing $user/$pass\n";
     my @actions = (
-	pf::Authentication::Action->new(class => "authentication", type => "expiration", value => "2038-01-01 00:00:00"),
-	pf::Authentication::Action->new(class => "authentication", type => "set_unreg_date", value => "2038-01-01 00:00:00"),
-	pf::Authentication::Action->new(class => "authentication", type => "set_role", value => "default"),
+        pf::Authentication::Action->new(class => "authentication", type => "expiration", value => "2038-01-01 00:00:00"),
+        pf::Authentication::Action->new(class => "authentication", type => "set_unreg_date", value => "2038-01-01 00:00:00"),
+        pf::Authentication::Action->new(class => "authentication", type => "set_role", value => "default"),
     );
     pf::password::generate($user, \@actions, $pass, undef);
 }
