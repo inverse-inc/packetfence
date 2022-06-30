@@ -73,7 +73,7 @@ EOT
 
     my $i = 100;
     if (pf::cluster::getMasterDB()) {
-        $tags{'geoDB'} = $TRUE;
+        $tags{'geoDB'} = $TRUE unless $db_stack eq = "galera";
         my @mysql_write_backend = pf::cluster::getMasterDB();
         my @mysql_read_backend = pf::cluster::getReadDB();
 
