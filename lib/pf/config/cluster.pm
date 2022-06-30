@@ -47,7 +47,6 @@ our $db_stack = sub {
 
     return $stack;
 }->();
-}
 
 our $cluster_enabled = sub {
     return $TRUE if $multi_zone_enabled;
