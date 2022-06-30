@@ -44,7 +44,7 @@ our $db_stack = sub {
     my $cfg = cluster_ini_config();
     return $FALSE unless($cfg);
     my $stack = $cfg->val('general', 'db_stack');
-
+    return 'mysql' unless $stack;
     return $stack;
 }->();
 

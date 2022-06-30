@@ -510,6 +510,7 @@ Next configure cluster.conf during the initial cluster setup, refer to the examp
 ----
 [general]
 multi_zone=enabled
+db_stack=mysql
 
 [DC1 CLUSTER]
 management_ip=192.168.1.10
@@ -599,6 +600,15 @@ mask=255.255.255.0
 enforcement=vlan
 type=internal
 ----
+
+In the general section you can notice the db_stack parameter, this one can take 2 values:
+
+ mysql
+ galera
+
+The mysql value means that you are using a master/slave db stack and you need to take care of not having multiples ip address in the db_master parameter (it can cause dead locks).
+The galera value means that you are running a galera cluster and the write db pool will be managed by proxysql. (multiples ip addres in the db_master parameter but proxysql will define one prefered)
+
 
 Note that in the DC1/DC2 CLUSTER sections we defined this 2 values:
 
