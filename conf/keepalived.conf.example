@@ -9,7 +9,7 @@ global_defs {
 }
 
 vrrp_track_process radius_load_balancer {
-  process /usr/sbin/radiusd -d /usr/local/pf/raddb -n load_balancer -fm
+  process /usr/sbin/freeradius -d /usr/local/pf/raddb -n load_balancer -fm -lstdout
   full_command
   quorum 1
   delay 15
@@ -17,7 +17,7 @@ vrrp_track_process radius_load_balancer {
 
 vrrp_track_process haproxy_portal {
   # Entrypoint of haproxy-portal container
-  process haproxy -W -db -f /usr/local/pf/var/conf/haproxy-portal.conf
+  process haproxy -Ws -f /usr/local/pf/var/conf/haproxy-portal.conf
   full_command
   quorum 1
   delay 15
