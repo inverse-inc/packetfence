@@ -198,8 +198,10 @@ sub authorize {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
     $node_obj->_load_locationlog;
-    # update last_seen of MAC address as some activity from it has been seen
-    $node_obj->update_last_seen();
+    if ($status_code != $STATUS::CREATED) {
+        # update last_seen of MAC address as some activity from it has been seen
+        $node_obj->update_last_seen();
+    }
 
     #define the current connection value to instantiate the correct portal
     my $options = {};
@@ -891,8 +893,10 @@ sub vpn {
             $node_obj = pf::dal::node->new({"mac" => $mac});
         }
         $node_obj->_load_locationlog;
-        # update last_seen of MAC address as some activity from it has been seen
-        $node_obj->update_last_seen();
+        if ($status_code != $STATUS::CREATED) {
+            # update last_seen of MAC address as some activity from it has been seen
+            $node_obj->update_last_seen();
+        }
 
         if (defined($session_id)) {
             $node_obj->sessionid($session_id);
