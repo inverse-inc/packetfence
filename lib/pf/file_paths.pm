@@ -369,6 +369,7 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
   mysql-probe.log galera-autofix.log haproxy_portal.log
   haproxy_db.log haproxy_admin.log proxysql.log firewall.log
   pfconnector-client.log pfconnector-server.log keepalived.log
+  innobackup.log
 );
 
 @stored_config_files = (
