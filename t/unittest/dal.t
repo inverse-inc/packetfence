@@ -144,7 +144,7 @@ ok($node, "Reloading node from database");
 
 is($node->sessionid, $new_session, "Changes were saved into database");
 
-is($node->save(), 200, "Saved and unchanged");
+is($node->save(), 204, "Saved and unchanged");
 
 is($node->update(), 200, "Updated and unchanged");
 
