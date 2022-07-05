@@ -346,8 +346,7 @@ variables:
     paths:
       - results/*
   tags:
-    - inverse.ca
-    - shell
+    - venom-runner 
 
 .deploy_deb_job:
   stage: deploy
