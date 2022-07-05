@@ -4,6 +4,10 @@ This toolkit allows to generate DHCP, HTTP, RADIUS EAP-PEAP and RADIUS accountin
 
 ## Installation
 
+### Pre-requirements
+
+You will need libpcap devel (libpcap-dev on Debian), gcc and make installed
+
 ### Required Perl modules
 You might want to use CPAN to install theses modules
 * Net::DHCP::Packet
