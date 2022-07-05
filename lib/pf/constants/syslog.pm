@@ -25,16 +25,33 @@ our @SyslogInfo = (
 	'conditions' => [ '$syslogtag contains "fingerbank"' ]
     },
     {
+        'description' => 'PacketFence general log',
+        'name'       => 'packetfence.log',
+        'conditions' => [
+            '$programname contains "packetfence"',
+            '$programname == "pfqueue-docker-wrapper"',
+            '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
+            '$programname == "pfipset"',
+            '$programname == "pfpki-docker-wrapper"',
+            '($programname == "httpd.aaa-docker-wrapper" and $msg contains "httpd.aaa")',
+            '($programname == "httpd.portal-docker-wrapper" and $msg contains "httpd.portal")',
+            '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
+            '($programname == "httpd.dispatcher-docker-wrapper" and $msg contains "httpd.dispatcher")',
+            '($programname == "httpd.admin_dispatcher-docker-wrapper" and $msg contains "httpd.admin_dispatcher")',
+	    '($programname == "pfperl-api-docker-wrapper" and $msg contains "pfperl-api")',
+        ]
+    },
+    {
         'description' => 'Apache logs',
         'name'       => 'httpd.apache',
 	'conditions' => [
 	    '$programname contains "httpd_collector"',
 	    '$programname contains "httpd_proxy"',
-            '($programname == "httpd.aaa-docker-wrapper" and not $msg contains "httpd.aaa")',
-            '($programname == "httpd.portal-docker-wrapper" and not $msg contains "httpd.portal")',
-            '($programname == "httpd.webservices-docker-wrapper" and not $msg contains "httpd.webservices")',
-            '($programname == "httpd.dispatcher-docker-wrapper" and not $msg contains "httpd.dispatcher")',
-            '($programname == "httpd.admin_dispatcher-docker-wrapper" and not $msg contains "httpd.admin_dispatcher")',
+            '$programname == "httpd.aaa-docker-wrapper"',
+            '$programname == "httpd.portal-docker-wrapper"',
+            '$programname == "httpd.webservices-docker-wrapper"',
+            '$programname == "httpd.dispatcher-docker-wrapper"',
+            '$programname == "httpd.admin_dispatcher-docker-wrapper"',
             '$msg contains "api-frontend-access"',
         ]
     },
@@ -52,23 +69,6 @@ our @SyslogInfo = (
         'description' => 'pfstats general log',
         'name'       => 'pfstats.log',
         'conditions' => [ '$programname == "pfstats"' ]
-    },
-    {
-        'description' => 'PacketFence general log',
-        'name'       => 'packetfence.log',
-        'conditions' => [
-            '$programname contains "packetfence"',
-            '$programname == "pfqueue-docker-wrapper"',
-            '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
-            '$programname == "pfipset"',
-            '$programname == "pfpki-docker-wrapper"',
-            '($programname == "httpd.aaa-docker-wrapper" and $msg contains "httpd.aaa")',
-            '($programname == "httpd.portal-docker-wrapper" and $msg contains "httpd.portal")',
-            '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
-            '($programname == "httpd.dispatcher-docker-wrapper" and $msg contains "httpd.dispatcher")',
-            '($programname == "httpd.admin_dispatcher-docker-wrapper" and $msg contains "httpd.admin_dispatcher")',
-	    '($programname == "pfperl-api-docker-wrapper" and $msg contains "pfperl-api")',
-        ]
     },
     {
         'description' => 'pfdhcp general log',
