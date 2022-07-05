@@ -389,7 +389,7 @@ Then, reload the configuration and start the webservices on second and third ser
 ----
 systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload
-/usr/local/pf/bin/pfcmd service haproxy-db restart
+/usr/local/pf/bin/pfcmd service proxysql restart
 /usr/local/pf/bin/pfcmd service httpd.webservices restart
 ----
 
