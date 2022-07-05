@@ -1445,6 +1445,7 @@ mailserver=
 httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://containers-gateway.internal:8080") %]
 httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://containers-gateway.internal:8888") %]
 httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://containers-gateway.internal:8889") %]
+httpd_admin_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_ADMIN_DISPATCHER_STATIC", "http://containers-gateway.internal:8891") %]
 pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://containers-gateway.internal:22225") %]
 pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://containers-gateway.internal:22223") %]
 pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://containers-gateway.internal:22222") %]
@@ -1452,4 +1453,6 @@ pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://container
 pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
 pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]
 pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
+api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://containers-gateway.internal:9999") %]
+netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]
 

@@ -59,6 +59,10 @@ sub generateConfig {
     } else {
          $tags{'os_path'} = '/usr/share/haproxy/';
     }
+    
+    my $backend_static_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher_static'});
+    $tags{backend_static} = $backend_static_uri->host . ":" . $backend_static_uri->port;
+
     my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
@@ -71,7 +75,7 @@ sub generateConfig {
         } else {
             @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
         }
-        push @mgmt_backend_ip, '127.0.0.1' if !@mgmt_backend_ip;
+        push @mgmt_backend_ip, URI->new($Config{services_url}{'api-frontend'})->host if !@mgmt_backend_ip;
 
         $tags{'management_ip'}
             = defined( $management_network->tag('vip') )
@@ -83,6 +87,9 @@ sub generateConfig {
         my $mgmt_ip = $tags{'management_ip'};
         my $mgmt_backend_ip_config;
         my $mgmt_backend_ip_api_config;
+        my $netdata_service_uri = URI->new($Config{services_url}{netdata});
+        my $netdata_service_host = $netdata_service_uri->host;
+        my $netdata_service_port = $netdata_service_uri->port;
         my $mgmt_srv_netdata .= <<"EOT";
 
 backend 127.0.0.1-netdata
@@ -92,9 +99,9 @@ backend 127.0.0.1-netdata
         #errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         acl paramsquery query -m found
         http-request lua.admin
-        http-request set-header Host 127.0.0.1
-        http-request set-dst-port int(19999)
-        server service 127.0.0.1:19999
+        http-request set-header Host $netdata_service_host
+        http-request set-dst-port int($netdata_service_port)
+        server service $netdata_service_host:$netdata_service_port
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
 EOT
@@ -114,7 +121,7 @@ EOT
 EOT
             $check = 'backup';
 
-            if ($mgmt_back_ip ne '127.0.0.1') {
+            if ($mgmt_back_ip ne $netdata_service_host) {
                 $mgmt_srv_netdata .= <<"EOT";
 
 backend $mgmt_back_ip-netdata
@@ -155,7 +162,7 @@ backend api
 $mgmt_backend_ip_api_config
 
 frontend admin-https-$mgmt_cluster_ip
-        bind $mgmt_cluster_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
+        bind *:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
         capture request header Host len 40
@@ -163,7 +170,8 @@ frontend admin-https-$mgmt_cluster_ip
         http-request lua.change_host
         acl host_exist var(req.host) -m found
         http-request set-header Host %[var(req.host)] if host_exist
-        http-response set-header X-Frame-Options SAMEORIGIN
+        acl url_api  path_beg /api
+        use_backend api if url_api
         http-request lua.admin
         use_backend %[var(req.action)]
         http-request redirect location /admin if { lua.redirect 1 }
@@ -187,23 +195,6 @@ EOT
 
            if ($cluster_enabled) {
 
-$tags{'http_admin'} .= <<"EOT";
-
-frontend admin-https-$mgmt_ip
-        bind $mgmt_ip:1443 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
-        errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
-        errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
-        capture request header Host len 40
-        http-request add-header X-Forwarded-Proto https
-        http-request lua.change_host
-        acl host_exist var(req.host) -m found
-        http-request set-header Host %[var(req.host)] if host_exist
-        acl url_api  path_beg /api
-        use_backend $mgmt_ip-api if url_api
-        http-request lua.admin
-        use_backend %[var(req.action)]
-        http-request redirect location /admin if { lua.redirect 1 }
-EOT
             if (isenabled($Config{services}{httpd_admin})) {
         $tags{'http_admin'} .= <<"EOT";
         default_backend  $mgmt_cluster_ip-admin
@@ -270,6 +261,7 @@ frontend admin-https-all
 
 EOT
     }
+
         parse_template( \%tags, $self->haproxy_config_template, "$generated_conf_dir/".$self->name.".conf" );
 
     my $config_file = "passthrough_admin.lua";

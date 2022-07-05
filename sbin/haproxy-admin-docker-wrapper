@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=haproxy-admin
+
+args=`base_args $name`
+args="$args -v/usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
+args+=" -p 1443:1443 -p 1027:1027"
+
+run $name "$args"

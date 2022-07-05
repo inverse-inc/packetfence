@@ -5,7 +5,7 @@ global
 	group haproxy
 	daemon
 	pidfile %%var_dir%%/run/haproxy-admin.pid
-	log /dev/log local0
+	log stdout local0
 	stats socket %%var_dir%%/run/haproxy-admin.stats level admin process 1
 	maxconn 4000
 	tune.ssl.default-dh-param 2048
@@ -16,7 +16,7 @@ global
 	lua-load %%conf_dir%%/passthrough_admin.lua
 
 listen stats
-  bind  %%management_ip%%:1027
+  bind  *:1027
   mode http
   timeout connect 10s
   timeout client 1m
@@ -38,9 +38,8 @@ defaults
 
 backend static
     option httpclose
-    option http_proxy
     option forwardfor
-    http-request set-uri http://127.0.0.1:8891%[path]?%[query]
+    server static %%backend_static%%
 
 %%http_admin%%
 
