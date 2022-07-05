@@ -206,3 +206,6 @@ gtid_domain_id=[% server_id %]
 
 [mysqld_safe]
 syslog
+
+[mariabackup]
+socket    = /var/lib/mysql/mysql.sock
