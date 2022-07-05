@@ -175,7 +175,7 @@ our @SyslogInfo = (
     {
         'description' => 'galera-autofix log',
         'name'       => 'galera-autofix.log',
-        'conditions' => [ '$programname contains "galera-autofix"' ]
+        'conditions' => [ '$syslogtag contains "galera-autofix"' ]
     },
     {
         'description' => 'ProxySQL log',
