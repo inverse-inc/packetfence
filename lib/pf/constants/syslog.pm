@@ -190,12 +190,17 @@ our @SyslogInfo = (
     {
         'description' => 'haproxy DB log',
         'name'       => 'haproxy_db.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysq3l" or $msg contains "backend has no server available")' ]
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysql" or $msg contains "backend has no server available")' ]
     },
     {
         'description' => 'haproxy admin log',
         'name'       => 'haproxy_admin.log',
         'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ]
+    },
+    {
+        'description' => 'haproxy general log',
+        'name'       => 'haproxy.log',
+        'conditions' => [ '$programname == "haproxy"' ]
     },
     {
         'description' => 'Firewall log',
