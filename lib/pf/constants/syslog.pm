@@ -22,7 +22,10 @@ our @SyslogInfo = (
     {
         'description' => 'Fingerbank log',
         'name'       => 'fingerbank.log',
-	'conditions' => [ '$syslogtag contains "fingerbank"' ]
+	'conditions' => [
+            '$syslogtag contains "fingerbank"',
+            '$msg contains "[GIN]"',
+        ]
     },
     {
         'description' => 'PacketFence general log',
