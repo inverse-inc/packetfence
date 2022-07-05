@@ -63,6 +63,10 @@ sub generateConfig {
     my $backend_static_uri = URI->new($Config{services_url}{'httpd_admin_dispatcher_static'});
     $tags{backend_static} = $backend_static_uri->host . ":" . $backend_static_uri->port;
 
+    my $api_frontend_service_uri = URI->new($Config{services_url}{'api-frontend'});
+    my $api_frontend_service_host = $api_frontend_service_uri->host;
+    my $api_frontend_service_port = $api_frontend_service_uri->port;
+
     my $mgmt_cluster_ip;
     if ( $management_network && defined($management_network->{'Tip'}) && $management_network->{'Tip'} ne '') {
         my $mgmt_int = $management_network->tag('int');
@@ -75,7 +79,7 @@ sub generateConfig {
         } else {
             @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
         }
-        push @mgmt_backend_ip, URI->new($Config{services_url}{'api-frontend'})->host if !@mgmt_backend_ip;
+        push @mgmt_backend_ip, $api_frontend_service_host if !@mgmt_backend_ip;
 
         $tags{'management_ip'}
             = defined( $management_network->tag('vip') )
@@ -243,7 +247,7 @@ backend api
         option forwardfor
         errorfile 502 /usr/local/pf/html/pfappserver/root/errors/502.json.http
         errorfile 503 /usr/local/pf/html/pfappserver/root/errors/503.json.http
-        server 127.0.0.1 127.0.0.1:9999 weight 1 maxconn 100 check  ssl verify none
+        server $api_frontend_service_host $api_frontend_service_host:$api_frontend_service_port weight 1 maxconn 100 check  ssl verify none
 
 frontend admin-https-all
         bind :::1443 v4v6 ssl no-sslv3 crt /usr/local/pf/conf/ssl/server.pem
