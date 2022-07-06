@@ -499,23 +499,22 @@ At the end it you want to check the status of the slave server for debug purpose
 
 === Geo Distributed Database
 
-In the case you have a geo-distributed database, you can configure PacketFence to use a specific server for all the write and a group of server for all the read.
+You can configure PacketFence to use a specific server for all the writes and different server(s) for the reads. Using this design will allow you to deploy instances of PacketFence in availability zones that aren't close to each other. A PacketFence server should always have a read replica that is close to it (<5ms latency) but the primary server handling writes can have a higher latency (>100ms).
 
 ==== Prepare the configuration
 
-First we assume that you have 3 mysql server, one is the master (192.46.222.200) and the 2 others are slaves (170.187.181.132 and 192.46.222.230)
+First we assume that you have 2 MySQL servers, one is the primary (192.46.222.200) and the other is a replica (170.187.181.132). This guide doesn't cover setting up MySQL primary/replicas and we strongly suggest you rely on cloud providers to host the database since managing MySQL primary/replicas can be complex.
 
 Next configure cluster.conf during the initial cluster setup, refer to the example below.
 
 ----
 [general]
 multi_zone=enabled
-db_stack=mysql
 
 [DC1 CLUSTER]
 management_ip=192.168.1.10
-db_read=192.46.222.200,170.187.181.132,192.46.222.230
-db_master=192.46.222.200
+db_write=192.46.222.200
+db_read=192.46.222.200
 
 [DC1 CLUSTER interface ens192]
 ip=192.168.1.10
@@ -572,8 +571,8 @@ type=internal
 
 [DC2 CLUSTER]
 management_ip=192.168.2.10
-db_read=192.46.222.230,170.187.181.132,192.46.222.200
-db_master=192.46.222.200
+db_write=192.46.222.200
+db_read=170.187.181.132
 
 [DC2 CLUSTER interface ens192]
 ip=192.168.2.10
@@ -601,10 +600,7 @@ enforcement=vlan
 type=internal
 ----
 
-Note that in the DC1/DC2 CLUSTER sections we defined this 2 values:
+In this example, DC1 will send its read and writes to the primary database and DC2 will send its writes to the primary database and its reads to the replica located in DC2. You can have multiple comma-delimited read replicas defined in `db_read` which will be used in priority in the order they are defined. 
 
- db_read=192.46.222.200,170.187.181.132,192.46.222.230
- db_master=192.46.222.200
+Only a single `db_write` should be used, if redundancy is expected, use an external virtual IP or load balancer to handle fail-over in your external database.
 
-It means that proxysql will be configure to use 192.46.222.200,170.187.181.132,192.46.222.230 for all the read (be carefull, the order matter since 192.46.222.200 will be used in priority, so define the closest server from your DC)
-For db_master, you define which server will be use for all the write. Use only one single ip in this section since you can only do the write on a single server.
