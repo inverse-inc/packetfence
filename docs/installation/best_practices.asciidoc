@@ -24,7 +24,7 @@ IPTables is now entirely managed by PacketFence. However, if you need to perform
 
 === Log Rotations
 
-PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use `logrotate` to periodically rotate your logs. A working logrotate script is provided with the PacketFence package. This script is located inside logrotate directory, and it's configured to do a daily log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
+PacketFence can generate a lot of log entries in huge production environments. This is why we recommend to use `logrotate` to periodically rotate your logs. A working logrotate script is provided with the PacketFence package. This script is located inside the logrotate directory (`/etc/logrotate.d/`), and it's configured to do a daily log rotation and keeping old logs with compression. It has been added during PacketFence initial installation.
 
 === Large Registration Network
 
