@@ -33,6 +33,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Added ability to use the MariaDB database or Redis to store the api-frontend tokens
+
 === Bug Fixes
 
 * Only provide the unregdate action if access_duration is not defined for the local source. (#6925)
