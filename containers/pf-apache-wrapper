@@ -16,8 +16,14 @@ fi
 usermod -u $PF_UID pf
 groupmod -g $PF_GID pf
 
-find / -user $CONTAINER_PF_UID -exec chown -h pf {} \;
-find / -group $CONTAINER_PF_GID -exec chgrp -h pf {} \;
+function adjust_ids() {
+  dir="$1"
+  find $dir -user $CONTAINER_PF_UID -exec chown -h pf {} \;
+  find $dir -group $CONTAINER_PF_GID -exec chgrp -h pf {} \;
+}
+
+adjust_ids /usr/local/pf
+adjust_ids /usr/local/fingerbank
 
 eval $@
 
