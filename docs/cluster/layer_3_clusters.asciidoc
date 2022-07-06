@@ -600,7 +600,7 @@ enforcement=vlan
 type=internal
 ----
 
-In this example, DC1 will send its read and writes to the primary database and DC2 will send its writes to the primary database and its reads to the replica located in DC2. You can have multiple comma-delimited read replicas defined in `db_read` which will be used in priority in the order they are defined. 
+In this example, DC1 will send its reads and writes to the primary database and DC2 will send its writes to the primary database and its reads to the replica located in DC2. You can have multiple comma-delimited read replicas defined in `db_read` which will be used in priority in the order they are defined. 
 
 Only a single `db_write` should be used, if redundancy is expected, use an external virtual IP or load balancer to handle fail-over in your external database.
 
