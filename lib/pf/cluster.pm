@@ -795,15 +795,15 @@ sub getDBMaster {
     return $FALSE;
 }
 
-=head2 getMasterDB
+=head2 getWriteDB
 
-Return the db_master parameter from cluster.conf on a specific zone
+Return the db_write parameter from cluster.conf on a specific zone
 
 =cut
 
-sub getMasterDB {
-    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_master})) {
-        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_master});
+sub getWriteDB {
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_write})) {
+        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_write});
     }
     return $FALSE;
 }

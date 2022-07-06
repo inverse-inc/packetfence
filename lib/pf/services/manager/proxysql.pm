@@ -72,9 +72,9 @@ EOT
 EOT
 
     my $i = 100;
-    if (pf::cluster::getMasterDB()) {
+    if (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
-        my @mysql_write_backend = pf::cluster::getMasterDB();
+        my @mysql_write_backend = pf::cluster::getWriteDB();
         my @mysql_read_backend = pf::cluster::getReadDB();
 
         foreach my $mysql_back (@mysql_write_backend) {
