@@ -41,8 +41,8 @@ cp -r /usr/local/pf-pkg/lib_perl /usr/local/pf/
 cd /usr/local/pf
 make devel
 make conf/ssl/server.pem
-mkdir /usr/local/pf/var/ssl_mutex
-mkdir /usr/local/pf/logs
+mkdir -p /usr/local/pf/var/ssl_mutex
+mkdir -p /usr/local/pf/logs
 # to keep settings set up during configurator
 cp /usr/local/pf-pkg/conf/pf.conf conf/
 cp /usr/local/pf-pkg/conf/pfconfig.conf conf/
