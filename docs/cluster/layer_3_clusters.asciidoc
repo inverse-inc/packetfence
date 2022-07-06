@@ -503,7 +503,7 @@ You can configure PacketFence to use a specific server for all the writes and di
 
 ==== Prepare the configuration
 
-First we assume that you have 2 MySQL servers, one is the primary (192.46.222.200) and the other is a replica (170.187.181.132). This guide doesn't cover setting up MySQL primary/replicas and we strongly suggest you rely on cloud providers to host the database since managing MySQL primary/replicas can be complex.
+First we assume that you have 2 MySQL servers, one is the primary (192.46.222.200) and the other is a replica (170.187.181.132). This guide doesn't cover setting up MySQL primary/replicas and we strongly suggest you rely on cloud providers offering it as a service since managing MySQL primary/replicas can be complex.
 
 Next configure cluster.conf during the initial cluster setup, refer to the example below.
 
