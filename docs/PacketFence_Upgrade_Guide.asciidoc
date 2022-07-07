@@ -1856,18 +1856,7 @@ recommend you to set a value for this attribute.
 By doing this, `pfpki` will use email addresses defined in PKI templates to
 notify about next certificates expirations for certificates without emails.
 
-== Upgrading from a version prior to 12.0.0
-
-=== Automation of upgrades for standalone servers
-
-Upgrades are now automated for standalone servers starting from PacketFence 11.0.0.
-Follow instructions related to
-<<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automation
-of upgrades>>.
-
-=== Note for cluster upgrades
-
-If you use a cluster, their upgrade isn't yet automated so you will need to follow the instructions in this section to upgrade the configuration and database schema.
+== Upgrading from a version prior to X.Y.Z
 
 ==== Configuration upgrade
 
@@ -1884,17 +1873,16 @@ If you use a Syslog Forwarder to send log files to a remote Syslog server, you s
 /usr/local/pf/addons/upgrade/to-12.0-rename-log-files.pl
 ----
 
-==== Database schema
+=== Database schema
 
 Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the 11.2 schema to 12.0.
+An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
 
 To upgrade the database schema, run the following command:
 
 [source,bash]
 ----
-# Only run this for cluster upgrades
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-11.2-12.0.sql
+mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X-X.Y.sql
 ----
 
 === Log files names updated
@@ -1938,20 +1926,6 @@ The name of some log files have changed. You can find a list below:
 |haproxy.log
 |===
 
-
-== Upgrading from a version prior to X.Y.Z
-
-=== Database schema
-
-Changes have been made to the database schema. You will need to update it accordingly.
-An SQL upgrade script has been provided to upgrade the database from the X.X schema to X.Y.
-
-To upgrade the database schema, run the following command:
-
-[source,bash]
-----
-mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X-X.Y.sql
-----
 
 == Archived upgrade notes
 
