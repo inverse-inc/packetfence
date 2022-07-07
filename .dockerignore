@@ -3,3 +3,4 @@ html/pfappserver/root/node_modules
 lib_perl/
 logs/
 var/
+.git/
