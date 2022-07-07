@@ -111,7 +111,13 @@ Returns the @db_cluster_servers list without the servers that are disabled on th
 =cut
 
 sub db_enabled_servers {
-    my @enabled_servers = map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    my @enabled_servers;
+    if($zone_dbs_only) {
+        @enabled_servers = map { (-f node_disabled_file($_->{host})) ? () : $_ } @cluster_servers;
+    }    
+    else {
+        @enabled_servers = map { (-f node_disabled_file($_->{host})) ? () : $_ } @db_cluster_servers;
+    }
     my @non_slave_enabled_servers = map { (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode}) && ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$_->{host}})}{CLUSTER}{masterslavemode} eq 'SLAVE' ) ? () : $_ } @enabled_servers;
     return @non_slave_enabled_servers;
 }
@@ -785,6 +791,32 @@ Return the db master
 sub getDBMaster {
     if (defined(${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip})) {
         return ${pf::config::cluster::getClusterConfig(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{masterdb})}{CLUSTER}{management_ip};
+    }
+    return $FALSE;
+}
+
+=head2 getWriteDB
+
+Return the db_write parameter from cluster.conf on a specific zone
+
+=cut
+
+sub getWriteDB {
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_write})) {
+        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_write});
+    }
+    return $FALSE;
+}
+
+=head2 getReadDB
+
+Return the db_read parameter from cluster.conf on a specific zone
+
+=cut
+
+sub getReadDB {
+    if (defined(${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_read})) {
+        return split(',', ${pf::config::cluster::getClusterConfig($clusters_hostname_map{$host_id})}{CLUSTER}{db_read});
     }
     return $FALSE;
 }

@@ -1,4 +1,5 @@
 package pf::services::manager::proxysql;
+
 =head1 NAME
 
 pf::services::manager::proxysql add documentation
@@ -20,6 +21,7 @@ use List::MoreUtils qw(uniq);
 use pf::log;
 use pf::util;
 use pf::cluster;
+use pf::constants qw($TRUE $FALSE);
 use pf::config qw(
     %Config
     $management_network
@@ -46,7 +48,7 @@ tie our %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hos
 
 our $DB_Config;
 
-tie  %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
+tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
 sub generateConfig {
     my ($self,$quick) = @_;
@@ -57,25 +59,51 @@ sub generateConfig {
 
     my %tags;
     $tags{'template'} = $self->proxysql_config_template;
-
-    my $i = 10;
-    my @mysql_backend;
-
-    @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+    $tags{'geoDB'} = $FALSE;
+    $tags{'mysql_servers'} = "";
 
     $tags{'monitor'} = << "EOT";
-        monitor_username="$DB_Config->{user}"
-        monitor_password="$DB_Config->{pass}"
+    monitor_username="$DB_Config->{user}"
+    monitor_password="$DB_Config->{pass}"
 EOT
-    foreach my $mysql_back (@mysql_backend) {
-        $tags{'mysql_servers'} .= << "EOT";
-    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=100, weight=$i },
-EOT
-    $i--;
-    }
+
     $tags{'mysql_users'} = << "EOT";
         { username = "$DB_Config->{user}", password = "$DB_Config->{pass}", default_hostgroup = 10, transaction_persistent = 0, active = 1 },
 EOT
+
+    my $i = 100;
+    if (pf::cluster::getWriteDB()) {
+        $tags{'geoDB'} = $TRUE;
+        my @mysql_write_backend = pf::cluster::getWriteDB();
+        my @mysql_read_backend = pf::cluster::getReadDB();
+
+        foreach my $mysql_back (@mysql_write_backend) {
+            $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
+
+EOT
+        $i--;
+        }
+        $i = 100;
+        foreach my $mysql_back (@mysql_read_backend) {
+            $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=30, max_connections=1000, weight=$i },
+
+EOT
+        $i--;
+        }
+    } else {
+        my @mysql_backend;
+
+        @mysql_backend = map { $_->{management_ip} } pf::cluster::mysql_servers();
+
+        foreach my $mysql_back (@mysql_backend) {
+        $tags{'mysql_servers'} .= << "EOT";
+    { address="$mysql_back" , port=3306 , hostgroup=10, max_connections=1000, weight=$i },
+EOT
+        $i--;
+        }
+    }
     $tt->process($self->proxysql_config_template, \%tags, "$generated_conf_dir/".$self->name.".conf") or die $tt->error();
 
     return 1;
@@ -93,10 +121,7 @@ sub isManaged {
 
 =head1 AUTHOR
 
-=head1 AUTHOR
-
 Inverse inc. <info@inverse.ca>
-
 
 
 =head1 COPYRIGHT

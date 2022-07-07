@@ -70,7 +70,21 @@ mysql_variables=
     monitor_galera_healthcheck_interval=2000
     monitor_galera_healthcheck_timeout=800
 }
- 
+
+[% IF geoDB -%]
+
+mysql_replication_hostgroups =
+(
+  {
+    writer_hostgroup=10
+    reader_hostgroup=20
+    check_type="read_only"
+    comment="RW Split"
+  }
+)
+
+[% ELSE %]
+
 mysql_galera_hostgroups =
 (
     {
@@ -84,6 +98,8 @@ mysql_galera_hostgroups =
         active=1
     }
 )
+
+[% END %]
  
 mysql_servers =
 (
@@ -102,12 +118,19 @@ mysql_query_rules =
     {
         rule_id=200
         active=1
+        match_pattern=".*read_only.*"
+        destination_hostgroup=10
+        apply=1
+    },
+    {
+        rule_id=300
+        active=1
         match_pattern="^SELECT .*"
         destination_hostgroup=30
         apply=1
     },
     {
-        rule_id=300
+        rule_id=400
         active=1
         match_pattern=".*"
         destination_hostgroup=10

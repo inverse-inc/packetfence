@@ -528,6 +528,7 @@ pfdeb_based_dev:
           - "pfpki"
           - "pfcron"
           - "haproxy-portal"
+          - "haproxy-admin"
           - "proxysql"
 
 img_dev:
@@ -592,6 +593,7 @@ pfdeb_based_br_maint:
           - "pfpki"
           - "pfcron"
           - "haproxy-portal"
+          - "haproxy-admin"
           - "proxysql"
 
 img_br_maint:
@@ -655,6 +657,7 @@ pfdeb_based_rel:
           - "pfconnector"
           - "pfpki"
           - "haproxy-portal"
+          - "haproxy-admin"
           - "proxysql"
 
 #img_rel:

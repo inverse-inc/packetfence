@@ -130,7 +130,9 @@ stop iptables (called from systemd)
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-    getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
+    pf_run("sudo iptables -F");
+    pf_run("sudo iptables -F -t nat");
+    pf_run("sudo iptables -F -t mangle");
     return 1;
 }
 

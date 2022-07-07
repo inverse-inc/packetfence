@@ -877,6 +877,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-cli-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-load-balancer-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
