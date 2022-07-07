@@ -123,7 +123,7 @@ mysql_query_rules =
         apply=1
     },
     {
-        rule_id=200
+        rule_id=300
         active=1
         match_pattern="^SELECT .*"
         destination_hostgroup=30
