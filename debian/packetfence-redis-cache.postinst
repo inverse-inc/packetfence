@@ -22,9 +22,7 @@ DIST=$(lsb_release -c -s)
 case "$1" in
     configure)
 	export PACKETFENCE=/usr/local/pf
-	chmod 2775 -R $PACKETFENCE/logs
 	chmod 2775 -R $PACKETFENCE/var
-	chown pf:pf $PACKETFENCE/logs
 	chown pf:pf $PACKETFENCE/var
         if [ ${DIST} = "wheezy" ] || [ ${DIST} = "precise" ]; then
             update-rc.d packetfence-redis-cache defaults 60 || exit 0

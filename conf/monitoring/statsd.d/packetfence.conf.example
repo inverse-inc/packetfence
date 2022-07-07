@@ -163,15 +163,15 @@
     type = line
     dimension = pattern 'source.packetfence.radius_log.*' '' last 1 1
 
-[logs.mariadb_error_log]
-    name = packetfence.mariadb_error_log
-    title = mariadb_error.log file events
+[logs.mariadb_log]
+    name = packetfence.mariadb_log
+    title = mariadb.log file events
     family = packetfence
     context = chart.context
     units = Events
     priority = 91000
     type = line
-    dimension = pattern 'source.packetfence.mariadb_error_log.*' '' last 1 1
+    dimension = pattern 'source.packetfence.mariadb_log.*' '' last 1 1
 
 [logs.pfcron_log]
     name = packetfence.pfcron_log

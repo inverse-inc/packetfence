@@ -323,7 +323,7 @@ mysql -u root -p pf -h localhost
 ----
 
 If its not, make sure you check the MariaDB log
-([filename]`/usr/local/pf/logs/mariadb_error.log`)
+([filename]`/usr/local/pf/logs/mariadb.log`)
 
 ===== Sync nodes A and B
 
@@ -337,7 +337,7 @@ rm -fr /var/lib/mysql/*
 systemctl start packetfence-mariadb
 ----
 
-Should there be any issues during the sync, make sure you look into the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
+Should there be any issues during the sync, make sure you look into the MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`)
 
 Once both nodes have completely synced (try connecting to it using the MariaDB
 command line), then you can break the cluster election command you have

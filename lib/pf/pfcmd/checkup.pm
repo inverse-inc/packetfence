@@ -64,7 +64,6 @@ use pf::file_paths qw(
     $network_config_file
     $bin_dir
     $sbin_dir
-    $log_dir
     @log_files
     $generated_conf_dir
     $pfdetect_config_file
@@ -713,13 +712,14 @@ sub permissions {
         add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s $bin_dir/pfcmd" );
     }
 
-    # log owner must be pf otherwise apache or pf daemons won't start
     foreach my $log_file (@log_files) {
         # if log doesn't exist it is created correctly so no need to complain
-        next if (!-f $log_dir . '/' . $log_file);
+        next if (!-f $log_file);
+	# file not managed by rsyslog, permissions are different
+	next if ($log_file eq "/usr/local/pf/logs/innobackup.log");
 
-        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R $log_dir/" )
-            unless (getpwuid((stat($log_dir . '/' . $log_file))[4]) eq 'pf');
+        add_problem( $FATAL, "$log_file must be owned by group pf. Check rsyslog configuration" )
+            unless (getgrgid((stat($log_file))[5]) eq 'pf');
     }
 }
 
