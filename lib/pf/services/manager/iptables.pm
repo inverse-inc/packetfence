@@ -131,8 +131,14 @@ sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
     pf_run("sudo iptables -F");
-    pf_run("sudo iptables -F -t nat");
-    pf_run("sudo iptables -F -t mangle");
+    pf_run("sudo iptables -X");
+    pf_run("sudo iptables -t nat -F");
+    pf_run("sudo iptables -t nat -X");
+    pf_run("sudo iptables -t mangle -F");
+    pf_run("sudo iptables -t mangle -X");
+    pf_run("sudo iptables -P INPUT ACCEPT");
+    pf_run("sudo iptables -P FORWARD ACCEPT");
+    pf_run("sudo iptables -P OUTPUT ACCEPT");
     return 1;
 }
 
