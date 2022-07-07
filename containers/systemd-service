@@ -44,6 +44,9 @@ function build_run {
   cmd="$3"
   cd /usr/local/pf/
 
+  # In build_run, we don't wait for the service to start to tell systemd notify we've started since the build process can be long
+  systemd-notify --ready
+
   img=$(build_img $name)
   run_img $img $name "$args" "$cmd"
 }
