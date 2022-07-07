@@ -34,6 +34,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
  * Added ability to use the MariaDB database or Redis to store the api-frontend tokens
+ * Adjust logs for containerized and non-containerized services (#7043)
 
 === Bug Fixes
 
