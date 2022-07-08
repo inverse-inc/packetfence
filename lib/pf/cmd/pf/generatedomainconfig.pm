@@ -32,6 +32,7 @@ sub _run {
     pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart --ignore-checkup");
     pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd updatesystemd");
     pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd generateconfig");
+    pf::domain::restart_winbinds();
     return $EXIT_SUCCESS; 
 }
 
