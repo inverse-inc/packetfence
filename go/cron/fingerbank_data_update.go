@@ -5,6 +5,7 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
+	"github.com/davecgh/go-spew/spew"
 )
 
 func NewFingerbankDataUpdate(config map[string]interface{}) JobSetupConfig {
