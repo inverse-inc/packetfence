@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source /usr/local/pf/containers/systemd-service
+source /usr/local/pf/containers/setup-vars
 
 name=pfperl-api
 
@@ -9,5 +10,8 @@ args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/raddb/cert
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
 args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
 args="$args --network=host"
+args="$args -e HOST_OS"
+
+cd /usr/local/pf/
 
 run $name "$args"
