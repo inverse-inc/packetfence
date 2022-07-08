@@ -29,9 +29,9 @@ sub _run {
     pf::domain::generate_krb5_conf();
     pf::domain::generate_smb_conf();
     pf::domain::generate_resolv_conf();
-    pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart");
+    pf_run("sudo /usr/local/pf/bin/pfcmd service iptables restart --ignore-checkup");
     pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd updatesystemd");
-    pf::domain::restart_winbinds();
+    pf_run("sudo /usr/local/pf/bin/pfcmd service winbindd generateconfig");
     return $EXIT_SUCCESS; 
 }
 

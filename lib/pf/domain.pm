@@ -211,7 +211,7 @@ sub generate_krb5_conf {
 
     pf_run("/usr/bin/sudo touch /etc/krb5.conf");
     pf_run("/usr/bin/sudo /bin/chown pf.pf /etc/krb5.conf");
-    $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || $logger->error("Can't generate krb5 configuration : ".$template->error);
+    $template->process("/usr/local/pf/addons/AD/krb5.tt", $vars, "/etc/krb5.conf") || die("Can't generate krb5 configuration : ".$template->error);
 }
 
 =head2 generate_smb_conf
@@ -254,7 +254,7 @@ sub generate_resolv_conf {
         pf_run("/usr/bin/sudo touch /etc/netns/$domain/resolv.conf");
         pf_run("/usr/bin/sudo chown pf.pf /etc/netns/$domain/resolv.conf");
         my $fname = untaint_chain("/etc/netns/$domain/resolv.conf");
-        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || $logger->error("Can't generate resolv.conf for $domain : ".$template->error);
+        $template->process("/usr/local/pf/addons/AD/resolv.tt", \%vars, $fname) || die("Can't generate resolv.conf for $domain : ".$template->error);
     }
 }
 
@@ -266,7 +266,7 @@ Calls pfcmd to restart the winbind processes
 
 sub restart_winbinds {
     my $logger = get_logger();
-    pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd service winbindd restart");
+    pf_run("/usr/bin/sudo /usr/local/pf/bin/pfcmd service winbindd restart --ignore-checkup");
 }
 
 

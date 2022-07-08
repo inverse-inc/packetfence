@@ -1,4 +1,5 @@
 #!/bin/bash
+
 NS=$1
 BASE=$2
 
@@ -28,6 +29,7 @@ for dir in "${DIRS[@]}"; do
         mount -o rbind /$dir $BASE/$NS/$dir
     fi
 done
+
 
 ETC_FILES=$(find /etc -maxdepth 1 -type f|grep -v resolv.conf)
 echo "$ETC_FILES"|while read etc_file; do yes 2>/dev/null|cp $etc_file /$BASE/$NS$etc_file; done

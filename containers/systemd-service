@@ -24,6 +24,17 @@ function base_args {
   echo "$args"
 }
 
+function domain_args {
+  mkdir -p /chroots
+  args="-v /chroots:/chroots -v /etc/samba:/etc/samba"
+  args="$args -v /usr/local/pf/var/run:/usr/local/pf/var/run"
+  args="$args --mount type=bind,source=/etc/krb5.conf,target=/etc/krb5.conf"
+  args="$args --mount type=bind,source=/var/run/netns/,target=/var/run/netns/ --mount type=bind,source=/run/netns,target=/run/netns,bind-propagation=rshared"
+
+  echo $args
+}
+
+
 function build_img {
   img="$1"
   PF_VERSION=$(sed 's/PacketFence \([0-9]*\.[0-9]*\)\.[0-9]*/\1/g' /usr/local/pf/conf/pf-release)
