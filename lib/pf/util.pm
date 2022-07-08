@@ -110,6 +110,7 @@ BEGIN {
         expand_ordered_array
         make_node_id split_node_id
         os_detection
+        host_os_detection
         random_from_range
         extract
         ends_with
@@ -1661,7 +1662,7 @@ sub split_node_id {
     return (0, $mac);
 }
 
-=item os_detection -  check the os system
+=item os_detection -  check the os system inside container
 
 =cut
 
@@ -1671,6 +1672,19 @@ sub os_detection {
         return "debian";
     }elsif (-e '/etc/redhat-release') {
         return "rhel";
+    }
+}
+
+=item host_os_detection -  check the os system of the host
+
+=cut
+
+sub host_os_detection {
+    my $logger = get_logger();
+    if (defined($ENV{HOST_OS})) {
+        return $ENV{HOST_OS};
+    } else {
+        return os_detection;
     }
 }
 
