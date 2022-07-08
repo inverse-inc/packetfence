@@ -38,7 +38,7 @@ sub test_join {
     # Although a test_join will run relatively fast, it needs to run via pfqueue since pfperl-api is in a container and has to be restarted in order to be able to view the new netns namespaces
     # Once we get rid of the chroots/netns/samba design, this can go back to being a synchronous response
     my $client = pf::pfqueue::producer::redis->new();
-    my $task_id = $client->submit("general", domain => {%$data, operation => "test_join", domain => $self->id}, undef, status_update => 1);
+    my $task_id = $client->submit("general", domain => {operation => "test_join", domain => $self->id}, undef, status_update => 1);
     $self->render(
         json => {
             "task_id" => $task_id,

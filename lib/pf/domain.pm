@@ -63,7 +63,12 @@ sub test_join {
     my ($domain) = @_;
     my $chroot_path = chroot_path($domain);
     my ($status, $output) = run("/usr/bin/sudo /sbin/ip netns exec $domain /usr/sbin/chroot $chroot_path /usr/bin/net ads testjoin -s /etc/samba/$domain.conf 2>&1");
-    return ($status, $output);
+    if($status == 0) {
+        return undef, {message => $output, status => 200};
+    }
+    else {
+        return {message => $output, status => 400}, undef;
+    }
 }
 
 =head2 test_auth
