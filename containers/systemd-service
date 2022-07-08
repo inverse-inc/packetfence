@@ -26,10 +26,13 @@ function base_args {
 
 function domain_args {
   mkdir -p /chroots
+  # The line below will ensure the netns directories exist
+  ip netns add __DUMMY__ && ip netns delete __DUMMY__
+
   args="-v /chroots:/chroots -v /etc/samba:/etc/samba"
   args="$args -v /usr/local/pf/var/run:/usr/local/pf/var/run"
   args="$args --mount type=bind,source=/etc/krb5.conf,target=/etc/krb5.conf"
-  args="$args --mount type=bind,source=/var/run/netns/,target=/var/run/netns/ --mount type=bind,source=/run/netns,target=/run/netns,bind-propagation=rshared"
+  args="$args --mount type=bind,source=/var/run/netns,target=/var/run/netns,bind-propagation=rshared --mount type=bind,source=/run/netns,target=/run/netns,bind-propagation=rshared"
 
   echo $args
 }
