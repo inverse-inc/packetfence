@@ -25,6 +25,7 @@ our %OP_MAP = (
     join => \&pf::domain::join_domain,
     unjoin => \&pf::domain::unjoin_domain,
     rejoin => \&pf::domain::rejoin_domain,
+    test_join => \&pf::domain::test_join,
 );
 
 =head2 doTask
