@@ -27,6 +27,7 @@ func (j *FingerbankDataUpdate) Run() {
 	}
 	if !cluster.CallCluster(ctx, method, args) {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
+		spew.Dump(clientApi)
 		if _, err := clientApi.Call(ctx, method, args); err != nil {
 			log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 		}
