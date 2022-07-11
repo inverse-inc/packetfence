@@ -87,7 +87,7 @@ Taken from HTTP::Status and stripped. Subject to change.
 
 Readonly::Scalar our $OK                                => 200;
 Readonly::Scalar our $CREATED                           => 201;
-#Readonly::Scalar our $ACCEPTED                         => 202;
+Readonly::Scalar our $ACCEPTED                          => 202;
 #Readonly::Scalar our $NON_AUTHORITATIVE_INFORMATION    => 203;
 Readonly::Scalar our $NO_CONTENT                        => 204;
 #Readonly::Scalar our $RESET_CONTENT                    => 205;

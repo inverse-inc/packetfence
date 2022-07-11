@@ -804,12 +804,40 @@ finds a table record or creates it
 
 sub find_or_create {
     my ($proto, $args) = @_;
+    my ($status, $obj) = $proto->find_or_new($args);
+    if (is_error($status)) {
+        return $status, undef;
+    }
+
+    if ($status == $STATUS::ACCEPTED) {
+        $status =  $obj->save;
+        if (is_error($status)) {
+            return $status, undef;
+        }
+    }
+
+    return $status, $obj;
+}
+
+=head2 find_or_new
+
+finds a table record or return an unsaved node
+
+=cut
+
+sub find_or_new {
+    my ($proto, $args) = @_;
     my $obj = $proto->new($args);
     my ($status, $sth) = $proto->do_select(
         -columns => $proto->find_columns,
         -from => $proto->find_from_tables,
         -where => $obj->primary_keys_where_clause,
     );
+
+    if (is_error($status)) {
+        return $status, undef;
+    }
+
     if (is_success($status)) {
         my $row = $sth->fetchrow_hashref;
         $sth->finish;
@@ -818,11 +846,8 @@ sub find_or_create {
             return $STATUS::OK, $obj;
         }
     }
-    $status =  $obj->save;
-    if (is_error($status)) {
-        return $status, undef;
-    }
-    return $status, $obj;
+
+    return $STATUS::ACCEPTED, $obj;
 }
 
 =head2 to_hash_fields
