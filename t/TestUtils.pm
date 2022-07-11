@@ -114,20 +114,18 @@ and return all the normal files under
 
 my %exclusions = map { $_ => 1 } qw(
    /usr/local/pf/bin/pfcmd
-   /usr/local/pf/sbin/pfacct
-   /usr/local/pf/sbin/pfhttpd
-   /usr/local/pf/sbin/pfdns
-   /usr/local/pf/sbin/pfdhcp
-   /usr/local/pf/sbin/pfipset
-   /usr/local/pf/sbin/pfcron
-   /usr/local/pf/sbin/pfstats
-   /usr/local/pf/sbin/pfdetect
    /usr/local/pf/bin/ntlm_auth_wrapper
    /usr/local/pf/addons/sourcefire/pfdetect.pl
-   /usr/local/pf/sbin/galera-autofix
-   /usr/local/pf/sbin/mysql-probe
    /usr/local/pf/addons/packetfence-perl/find_dependencies.pl
 );
+
+sub include_file {
+    my ($f) = @_;
+    my $go_binary = $f;
+    $go_binary =~ s#/sbin/#/go/cmd/#;
+    my $r =  -f $f && !exists $exclusions{ $f } && $f !~ /docker-wrapper/ && !-d $go_binary;
+    return $r;
+}
 
 sub get_all_perl_binaries {
 
@@ -148,8 +146,7 @@ sub get_all_perl_binaries {
         wanted => sub {
             # add to list if it's a regular file
             my $name = $File::Find::name;
-            push(@list, $name) if ((-f $name) &&
-                (not exists $exclusions{ $name }) && $_ !~ /^\./ );
+            push(@list, $name) if include_file($name)
         }}, '/usr/local/pf/bin', '/usr/local/pf/sbin'
     );
 
