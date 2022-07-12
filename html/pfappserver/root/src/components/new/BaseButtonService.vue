@@ -180,10 +180,10 @@ const setup = (props, context) => {
   })
 
   const doStop = server => $store.dispatch('cluster/stopService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t('Service <code>{service}</code> killed.', { service: service.value }) })
+    $store.dispatch('notification/info', { url: server, message: i18n.t('Service <code>{service}</code> stopped.', { service: service.value }) })
     emit('stop', { server, id: service.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t('Failed to kill service <code>{service}</code>.  See the server error logs for more information.s', { service: service.value }) })
+    $store.dispatch('notification/danger', { url: server, message: i18n.t('Failed to stop service <code>{service}</code>.  See the server error logs for more information.s', { service: service.value }) })
   })
 
   const doEnableAll = () => $store.dispatch('cluster/enableServiceCluster', service.value).then(() => {
@@ -215,10 +215,10 @@ const setup = (props, context) => {
   })
 
   const doStopAll = () => $store.dispatch('cluster/stopServiceCluster', service.value).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> killed.', { service: service.value }) })
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> stopped.', { service: service.value }) })
     emit('stop', { id: service.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to kill service <code>{service}</code>.  See the server error logs for more information.s', { service: service.value }) })
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to stop service <code>{service}</code>.  See the server error logs for more information.s', { service: service.value }) })
   })
 
   return {
