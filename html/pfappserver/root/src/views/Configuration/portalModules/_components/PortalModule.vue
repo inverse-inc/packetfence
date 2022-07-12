@@ -173,10 +173,6 @@ export default {
   left: -.4rem;
 }
 
-.row-nowrap {
-  flex-wrap: nowrap;
-}
-
 .portal-module-col {
   padding-right: 0;
   padding-left: $portal-module-connector-margin;
