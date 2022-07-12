@@ -185,7 +185,7 @@ record CoA in the radius audit log
 
 sub record_coa {
     my ($connection_info, $radius_code, $attributes, $vsa, %return) = @_;
-    my $request = join(' =22=2C ', map { $_." =3D ".$attributes->{$_} } keys %{$attributes});
+    my $request = join(' =22=2C ', map { $_." =3D ".($attributes->{$_} // '') } keys %{$attributes});
     my $request_vsa = join(' =22=2C ', map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
     my $response = join(' =22=2C ', map { $_." =3D ".$return{$_} } keys %return);
     my $mac;
@@ -196,7 +196,7 @@ sub record_coa {
         $radius_audit_log{'node_status'} = $node->{'status'};
         $radius_audit_log{'user_name'} = $node->{'pid'};
         $radius_audit_log{'computer_name'} = $node->{'computername'};
-        $radius_audit_log{'is_phone'} = ( ($node->{'voip'} eq 'no') ? '0' : '1');
+        $radius_audit_log{'is_phone'} = ( (($node->{'voip'} // 'no') eq 'no') ? '0' : '1');
     }
 
     $radius_audit_log{'event_type'} = $radius_code;
