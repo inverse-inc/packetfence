@@ -2,25 +2,25 @@
   <b-dropdown ref="buttonRef"
     variant="outline-primary" toggle-class="text-decoration-none" no-flip>
     <template #button-content>
-      <slot name="default">{{ $t('{num} selected', { num: selectedItems.length }) }}</slot>
+      <slot name="default">{{ $i18n.t('{num} selected', { num: selectedItems.length }) }}</slot>
     </template>
     <b-dropdown-group v-if="isCluster"
       :header="$i18n.t('CLUSTER')">
-      <b-dropdown-item @click="doEnableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doDisableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doRestartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doStartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doStopCluster" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
+      <b-dropdown-item @click="doEnableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable All') }}</b-dropdown-item>
+      <b-dropdown-item @click="doDisableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable All') }}</b-dropdown-item>
+      <b-dropdown-item @click="doRestartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-dropdown-item>
+      <b-dropdown-item @click="doStartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start All') }}</b-dropdown-item>
+      <b-dropdown-item @click="doStopCluster" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $i18n.t('Stop All') }}</b-dropdown-item>
     </b-dropdown-group>
     <template v-for="(_, server) in servers">
       <b-dropdown-divider v-if="isCluster" :key="`divider-${server}`" />
       <b-dropdown-group :key="`group-${server}`"
         :header="server">
-        <b-dropdown-item @click="doEnableServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable') }}</b-dropdown-item>
-        <b-dropdown-item @click="doDisableServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable') }}</b-dropdown-item>
-        <b-dropdown-item @click="doRestartServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart') }}</b-dropdown-item>
-        <b-dropdown-item @click="doStartServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start') }}</b-dropdown-item>
-        <b-dropdown-item @click="doStopServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop') }}</b-dropdown-item>
+        <b-dropdown-item @click="doEnableServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable') }}</b-dropdown-item>
+        <b-dropdown-item @click="doDisableServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable') }}</b-dropdown-item>
+        <b-dropdown-item @click="doRestartServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart') }}</b-dropdown-item>
+        <b-dropdown-item @click="doStartServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start') }}</b-dropdown-item>
+        <b-dropdown-item @click="doStopServer(server)" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $i18n.t('Stop') }}</b-dropdown-item>
       </b-dropdown-group>
     </template>
   </b-dropdown>
@@ -44,7 +44,6 @@ const setup = (props, context) => {
   const buttonRef = ref(null)
 
   const onClick = event => {
-    event.stopPropagation()
     nextTick(() => {
       buttonRef.value.show() // keep open on click
     })

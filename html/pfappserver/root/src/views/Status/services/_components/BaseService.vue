@@ -3,19 +3,19 @@
     <b-container fluid class="px-0">
       <b-row class="row-nowrap mx-0" align-v="start">
         <b-col cols="7">
-          <b-row class="row-nowrap">
-            <b-col>{{ $t('Alive') }}</b-col>
+          <b-row class="row-nowrap" cols="2">
+            <b-col>{{ $i18n.t('Alive') }}</b-col>
             <b-col cols="auto" class="text-right ml-auto">
               <b-badge v-if="service.alive && service.pid" pill variant="success">{{ service.pid }}</b-badge>
               <icon v-else class="text-danger" name="circle"/>
             </b-col>
           </b-row>
-          <b-row class="row-nowrap">
-            <b-col>{{ $t('Enabled') }}</b-col>
+          <b-row class="row-nowrap" cols="2">
+            <b-col>{{ $i18n.t('Enabled') }}</b-col>
             <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
-          <b-row class="row-nowrap">
-            <b-col>{{ $t('Managed') }}</b-col>
+          <b-row class="row-nowrap" cols="2">
+            <b-col>{{ $i18n.t('Managed') }}</b-col>
             <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
         </b-col>
@@ -23,23 +23,23 @@
           <template>
             <b-button v-if="enable && !service.enabled"
               @click="doEnable(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-              <icon name="toggle-on" class="mr-1" /> {{ $t('Enable') }}
+              <icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable') }}
             </b-button>
             <b-button v-if="disable && service.enabled"
               @click="doDisable(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-              <icon name="toggle-off" class="mr-1" /> {{ $t('Disable') }}
+              <icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable') }}
             </b-button>
             <b-button v-if="restart && service.alive && service.pid && !isProtected "
               @click="doRestart(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-              <icon name="redo" class="mr-1" /> {{ $t('Restart') }}
+              <icon name="redo" class="mr-1" /> {{ $i18n.t('Restart') }}
             </b-button>
             <b-button v-if="start && !(service.alive && service.pid) && !isProtected "
               @click="doStart(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-              <icon name="play" class="mr-1" /> {{ $t('Start') }}
+              <icon name="play" class="mr-1" /> {{ $i18n.t('Start') }}
             </b-button>
             <b-button v-if="stop && service.alive && service.pid && !isProtected "
               @click="doStop(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-              <icon name="stop" class="mr-1" /> {{ $t('Stop') }}
+              <icon name="stop" class="mr-1" /> {{ $i18n.t('Stop') }}
             </b-button>
           </template>
         </b-col>
@@ -53,13 +53,13 @@
       <b-row v-if="!service.alive && service.managed"
         class="mt-2 mx-0">
         <b-col class="small text-danger">
-          {{ $t('Service {name} is required with this configuration.', { name: service.id }) }}
+          {{ $i18n.t('Service {name} is required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.alive && !service.managed"
         class="mt-2 mx-0">
         <b-col class="small text-danger">
-          {{ $t('Service {name} is not required with this configuration.', { name: service.id }) }}
+          {{ $i18n.t('Service {name} is not required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.message"

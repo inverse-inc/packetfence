@@ -21,7 +21,7 @@
         @row-selected="onRowSelected"
       >
         <template v-slot:empty>
-          <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
+          <base-table-empty :is-loading="isLoading">{{ $i18n.t('No Services found') }}</base-table-empty>
         </template>
         <template #head(selected)>
           <span @click.stop.prevent="onAllSelected">
@@ -39,9 +39,9 @@
             <b-col>
               <b-dropdown size="sm" variant="link" class="float-right">
                 <template #button-content>
-                  <icon class="ml-1" name="directions" /> {{ $t('API Redirect') }}
+                  <icon class="ml-1" name="directions" /> {{ $i18n.t('API Redirect') }}
                 </template>
-                  <b-dropdown-item @click="setApiServer()" :active="isApiServer(null)">{{ $t('None') }}</b-dropdown-item>
+                  <b-dropdown-item @click="setApiServer()" :active="isApiServer(null)">{{ $i18n.t('None') }}</b-dropdown-item>
                   <b-dropdown-item v-for="({ management_ip }, server) in apiServers" :key="server" @click="setApiServer(server)" :active="isApiServer(server)">
                     {{ server }} ({{ management_ip }})
                   </b-dropdown-item>
@@ -68,15 +68,15 @@
         </template>
         <template v-slot:cell(actions)="{ item: { service, isProtected, hasAlive, hasDead, hasDisabled, hasEnabled } }">
           <b-button v-if="hasDisabled"
-            class="m-1" variant="outline-primary" @click="doEnableAll(service)" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-button>
+            class="m-1" variant="outline-primary" @click="doEnableAll(service)" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable All') }}</b-button>
           <b-button v-if="hasEnabled"
-            class="m-1" variant="outline-primary" @click="doDisableAll(service)" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-button>
+            class="m-1" variant="outline-primary" @click="doDisableAll(service)" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable All') }}</b-button>
           <b-button v-if="hasAlive && !isProtected"
-            class="m-1" variant="outline-primary" @click="doRestartAll(service)" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-button>
+            class="m-1" variant="outline-primary" @click="doRestartAll(service)" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-button>
           <b-button v-if="hasDead && !isProtected"
-            class="m-1" variant="outline-primary" @click="doStartAll(service)" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-button>
+            class="m-1" variant="outline-primary" @click="doStartAll(service)" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start All') }}</b-button>
           <b-button v-if="hasAlive && !isProtected"
-            class="m-1" variant="outline-primary" @click="doStopAll(service)" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-button>
+            class="m-1" variant="outline-primary" @click="doStopAll(service)" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $i18n.t('Stop All') }}</b-button>
         </template>
         <template v-slot:cell()="{ item, value }">
           <base-service :id="item.service" :server="value.server" :key="`${value.server}-${item.service}`" lazy
