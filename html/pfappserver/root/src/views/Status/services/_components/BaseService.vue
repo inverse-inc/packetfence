@@ -69,7 +69,7 @@
         </b-col>
       </b-row>
     </b-container>
-    <template v-slot:overlay v-if="service.status && !['loading'].includes(service.status)">
+    <template v-slot:overlay v-if="service.status && service.status !== 'loading'">
       <b-row class="justify-content-md-center">
         <b-col cols="auto">
           <b-media class="text-gray text-uppercase font-weight-bold">
