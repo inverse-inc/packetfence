@@ -715,8 +715,8 @@ sub permissions {
     foreach my $log_file (@log_files) {
         # if log doesn't exist it is created correctly so no need to complain
         next if (!-f $log_file);
-	# file not managed by rsyslog, permissions are different
-	next if ($log_file eq "/usr/local/pf/logs/innobackup.log");
+        # file not managed by rsyslog, permissions are different
+        next if ($log_file eq "/usr/local/pf/logs/innobackup.log");
 
         add_problem( $FATAL, "$log_file must be owned by group pf. Check rsyslog configuration" )
             unless (getgrgid((stat($log_file))[5]) eq 'pf');

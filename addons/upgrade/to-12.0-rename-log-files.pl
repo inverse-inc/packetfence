@@ -51,7 +51,7 @@ for my $section ($ini->Sections()) {
             print "Renaming log files in section $section in file $syslog_config_file\n";
             $logs = [ map { exists($remap{$_}) ? $remap{$_} : $_ } @$logs ];
             $ini->setval($section, 'logs', join(',', @$logs));
-	    $i |= 1;
+            $i |= 1;
         }
     }
 }

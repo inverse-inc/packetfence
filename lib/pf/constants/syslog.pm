@@ -22,7 +22,7 @@ our @SyslogInfo = (
     {
         'description' => 'Fingerbank log',
         'name'       => 'fingerbank.log',
-	'conditions' => [
+        'conditions' => [
             '$syslogtag contains "fingerbank"',
             '$msg contains "[GIN]"',
         ]
@@ -41,15 +41,15 @@ our @SyslogInfo = (
             '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
             '($programname == "httpd.dispatcher-docker-wrapper" and $msg contains "httpd.dispatcher")',
             '($programname == "httpd.admin_dispatcher-docker-wrapper" and $msg contains "httpd.admin_dispatcher")',
-	    '($programname == "pfperl-api-docker-wrapper" and $msg contains "pfperl-api")',
+            '($programname == "pfperl-api-docker-wrapper" and $msg contains "pfperl-api")',
         ]
     },
     {
         'description' => 'Apache logs',
         'name'       => 'httpd.apache',
-	'conditions' => [
-	    '$programname contains "httpd_collector"',
-	    '$programname contains "httpd_proxy"',
+        'conditions' => [
+            '$programname contains "httpd_collector"',
+            '$programname contains "httpd_proxy"',
             '$programname == "httpd.aaa-docker-wrapper"',
             '$programname == "httpd.portal-docker-wrapper"',
             '$programname == "httpd.webservices-docker-wrapper"',
@@ -116,27 +116,27 @@ our @SyslogInfo = (
     {
         'description' => 'FreeRADIUS accounting server log',
         'name'       => 'radius-acct.log',
-	'conditions' => [ '$programname == "radiusd-acct-docker-wrapper"' ]
+        'conditions' => [ '$programname == "radiusd-acct-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS CLI server log',
-	'name'       => 'radius-cli.log',
-	'conditions' => [ '$programname == "radiusd-cli-docker-wrapper"' ]
+        'name'       => 'radius-cli.log',
+        'conditions' => [ '$programname == "radiusd-cli-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS eduroam server log',
-	'name'       => 'radius-eduroam.log',
-	'conditions' => [ '$programname == "radiusd-eduroam-docker-wrapper"' ]
+        'name'       => 'radius-eduroam.log',
+        'conditions' => [ '$programname == "radiusd-eduroam-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS load balancing server log (cluster only)',
         'name'       => 'radius-load_balancer.log',
-	'conditions' => [ '$programname == "radiusd-load-balancer-docker-wrapper"' ]
+        'conditions' => [ '$programname == "radiusd-load-balancer-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS authentication server log',
-	 'name'       => 'radius.log',
-	'conditions' => [ '$programname == "radiusd-auth-docker-wrapper"' ]
+         'name'       => 'radius.log',
+        'conditions' => [ '$programname == "radiusd-auth-docker-wrapper"' ]
 
     },
     {
@@ -162,15 +162,15 @@ our @SyslogInfo = (
     {
         'description' => 'MariaDB log',
         'name'       => 'mariadb.log',
-	 'conditions' => [
-	     '$programname contains "mysqld"',
-	     '$programname == "pf-mariadb"',
-	 ]
+         'conditions' => [
+             '$programname contains "mysqld"',
+             '$programname == "pf-mariadb"',
+         ]
     },
     {
         'description' => 'MySQL probe log',
         'name'       => 'mysql-probe.log',
-	 'conditions' => [ '$programname == "mysql-probe"' ]
+         'conditions' => [ '$programname == "mysql-probe"' ]
     },
     {
         'description' => 'galera-autofix log',
@@ -180,7 +180,7 @@ our @SyslogInfo = (
     {
         'description' => 'ProxySQL log',
         'name'       => 'proxysql.log',
-	 'conditions' => [ '$programname == "proxysql"' ]
+         'conditions' => [ '$programname == "proxysql"' ]
     },
     {
         'description' => 'haproxy portal log',
@@ -207,7 +207,7 @@ our @SyslogInfo = (
         'name'       => 'firewall.log',
         'conditions' => [
             '$programname == "docker_iptables.sh"',
-	]
+        ]
     },
     {
         'description' => 'pfconnector client log',
