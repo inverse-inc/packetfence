@@ -23,10 +23,10 @@
         @click="onSelectItem(item)"
         align-v="center"
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
-        :class="(selectedSecurityEvents.indexOf(item.id) > -1) ? 'border-success' : ''"
+        :class="(value.indexOf(item.id) > -1) ? 'border-success' : ''"
       >
         <b-col cols="1" class="px-3 py-3 text-center">
-          <template v-if="selectedSecurityEvents.indexOf(item.id) > -1">
+          <template v-if="value.indexOf(item.id) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
           <template v-else>
@@ -57,13 +57,23 @@ const directives = {
   focus
 }
 
-import { computed, onMounted, ref } from '@vue/composition-api'
+const props = {
+  value: {
+    type: Array,
+    default: () => ([])
+  }
+}
+
+import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+  const {
+    value
+  } = toRefs(props)
 
-  const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents.value)
+  const { emit, root: { $store } = {} } = context
+
   const perSecurityEventOpen = computed(() => $store.getters['$_network_threats/perSecurityEventOpen'])
   const perSecurityEventClosed = computed(() => $store.getters['$_network_threats/perSecurityEventClosed'])
 
@@ -92,24 +102,48 @@ const setup = (props, context) => {
       .filter(item => (item.desc.toLowerCase().indexOf(filter.value.toLowerCase()) > -1 || item.id.indexOf(filter.value) > -1))
   })
   const onSelectItem = item => {
-    $store.dispatch('$_network_threats/toggleSecurityEvent', item.id)
+    const i = value.value.findIndex(selected => selected === item.id)
+    if (i > -1) {
+      emit('input', [ ...value.value.filter(selected => selected !== item.id) ])
+    }
+    else {
+      emit('input', [ ...value.value, item.id ])
+    }
   }
   const onSelectAll = () => {
-    $store.dispatch('$_network_threats/selectSecurityEvents', filteredItems.value.map(item => item.id))
+    let input = value.value
+    filteredItems.value.map(item => item.id).forEach(securityEvent => {
+      if (input.indexOf(securityEvent) === -1) {
+        input.push(securityEvent)
+      }
+    })
+    emit('input', input)
   }
   const onSelectNone = () => {
-    $store.dispatch('$_network_threats/deselectSecurityEvents', filteredItems.value.map(item => item.id))
+    let input = value.value
+    filteredItems.value.map(item => item.id).forEach(securityEvent => {
+      if (input.indexOf(securityEvent) > -1) {
+        input = input.filter(selected => selected !== securityEvent)
+      }
+    })
+    emit('input', input)
   }
   const onSelectInverse = () => {
-    $store.dispatch('$_network_threats/invertSecurityEvents', filteredItems.value.map(item => item.id))
+    let input = value.value
+    filteredItems.value.map(item => item.id).forEach(securityEvent => {
+      if (input.indexOf(securityEvent) === -1) {
+        input.push(securityEvent)
+      }
+      else {
+        input = input.filter(selected => selected !== securityEvent)
+      }
+    })
+    emit('input', input)
   }
 
   return {
     filter,
     filteredItems,
-
-    selectedSecurityEvents,
-
     onSelectItem,
     onSelectAll,
     onSelectNone,
@@ -123,6 +157,7 @@ export default {
   inheritAttrs: false,
   components,
   directives,
+  props,
   setup
 }
 </script>

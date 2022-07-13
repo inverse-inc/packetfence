@@ -11,7 +11,7 @@
               <template #title>
                 {{ $i18n.t('Categories') }} <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
               </template>
-              <base-filter-categories />
+              <base-filter-categories v-model="selectedCategories" />
             </b-tab>
           </b-tabs>
         </b-col>
@@ -21,7 +21,7 @@
               <template #title>
                 {{ $i18n.t('Security Events') }} <b-badge v-if="selectedSecurityEvents.length" pill variant="primary" class="ml-1">{{ selectedSecurityEvents.length }}</b-badge>
               </template>
-              <base-filter-security-events />
+              <base-filter-security-events v-model="selectedSecurityEvents" />
             </b-tab>
           </b-tabs>
         </b-col>
@@ -150,6 +150,7 @@ import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
+import usePreference from '@/composables/usePreference'
 import { useSearch } from '../_search'
 
 const setup = (props, context) => {
@@ -167,8 +168,8 @@ const setup = (props, context) => {
       visibleColumns
     } = toRefs(search)
 
-    const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories.value)
-    const selectedSecurityEvents = computed(() => $store.state.$_network_threats.selectedSecurityEvents.value)
+    const selectedCategories = usePreference('vizsec::filters', 'categories', [])
+    const selectedSecurityEvents = usePreference('vizsec::filters', 'securityEvents', [])
 
     const totalOpen = computed(() => $store.state.$_network_threats.totalOpen)
     const totalClosed = computed(() => $store.state.$_network_threats.totalClosed)

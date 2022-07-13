@@ -25,11 +25,11 @@
         align-v="center"
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
         :class="{
-          'border-success': selectedCategories.indexOf(item.id) > -1
+          'border-success': value.indexOf(+item.id) > -1
         }">
         <b-col cols="auto" class="text-center">
           <icon :name="`fingerbank-${item.id}`" scale="1.5"
-            :class="(selectedCategories.indexOf(item.id) > -1) ? 'text-success' : 'text-secondary'"
+            :class="(value.indexOf(+item.id) > -1) ? 'text-success' : 'text-secondary'"
             />
         </b-col>
         <b-col cols="auto" class="p-3 mr-auto">
@@ -58,14 +58,24 @@ const directives = {
   focus
 }
 
-import { computed, ref } from '@vue/composition-api'
+const props = {
+  value: {
+    type: Array,
+    default: () => ([])
+  }
+}
+
+import { computed, ref, toRefs } from '@vue/composition-api'
 import icons from '@/assets/icons/fingerbank'
 
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+  const {
+    value
+  } = toRefs(props)
 
-  const selectedCategories = computed(() => $store.state.$_network_threats.selectedCategories.value)
+  const { emit, root: { $store } = {} } = context
+
   const perDeviceClassLowerCase = computed(() => $store.getters['$_nodes/perDeviceClassLowerCase'])
   const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
   const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
@@ -93,24 +103,48 @@ const setup = (props, context) => {
       .filter(item => item.name.toLowerCase().indexOf(filter.value.toLowerCase()) > -1)
   })
   const onSelectItem = item => {
-    $store.dispatch('$_network_threats/toggleCategory', item.id)
+    const i = value.value.findIndex(selected => selected === item.id)
+    if (i > -1) {
+      emit('input', [ ...value.value.filter(selected => selected !== item.id) ])
+    }
+    else {
+      emit('input', [ ...value.value, item.id ])
+    }
   }
   const onSelectAll = () => {
-    $store.dispatch('$_network_threats/selectCategories', filteredItems.value.map(item => item.id))
+    let input = value.value
+    filteredItems.value.map(item => item.id).forEach(category => {
+      if (input.indexOf(category) === -1) {
+        input.push(category)
+      }
+    })
+    emit('input', input)
   }
   const onSelectNone = () => {
-    $store.dispatch('$_network_threats/deselectCategories', filteredItems.value.map(item => item.id))
+    let input = value.value
+    filteredItems.value.map(item => item.id).forEach(category => {
+      if (input.indexOf(category) > -1) {
+        input = input.filter(selected => selected !== category)
+      }
+    })
+    emit('input', input)
   }
   const onSelectInverse = () => {
-    $store.dispatch('$_network_threats/invertCategories', filteredItems.value.map(item => item.id))
+    let input = value.value
+    filteredItems.value.map(item => item.id).forEach(category => {
+      if (input.indexOf(category) === -1) {
+        input.push(category)
+      }
+      else {
+        input = input.filter(selected => selected !== category)
+      }
+    })
+    emit('input', input)
   }
 
   return {
     filter,
     filteredItems,
-
-    selectedCategories,
-
     onSelectItem,
     onSelectAll,
     onSelectNone,
@@ -124,6 +158,7 @@ export default {
   inheritAttrs: false,
   components,
   directives,
+  props,
   setup
 }
 </script>

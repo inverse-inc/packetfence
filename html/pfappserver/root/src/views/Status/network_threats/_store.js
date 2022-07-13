@@ -2,7 +2,6 @@
 * "$_network_threats" store module
 */
 import { createDebouncer } from 'promised-debounce'
-import usePreference from '@/composables/usePreference'
 import nodesApi from '@/views/Nodes/_api'
 import securityEventsApi from './_api'
 
@@ -12,8 +11,6 @@ const state = () => {
     cache: {},
     message: '',
     status: '',
-    selectedCategories: usePreference('vizsec::filters', 'categories', []),
-    selectedSecurityEvents: usePreference('vizsec::filters', 'securityEvents', []),
 
     totalOpen: 0,
     totalClosed: 0,
@@ -95,99 +92,6 @@ const actions = {
       time: 100 // 100ms
     })
   },
-  toggleCategory: ({ state, commit }, category) => {
-    return new Promise(resolve => {
-      const i = state.selectedCategories.value.findIndex(selected => selected === category)
-      if (i > -1) {
-        commit('CATEGORY_DESELECT', category)
-        resolve(false)
-      }
-      else {
-        // select category
-        commit('CATEGORY_SELECT', category)
-        resolve(true)
-      }
-    })
-  },
-  deselectCategories: ({ state, commit }, categories = []) => {
-    return new Promise(resolve => {
-      categories.forEach(category => {
-        if (state.selectedCategories.value.indexOf(category) > -1) {
-          commit('CATEGORY_DESELECT', category)
-        }
-      })
-      resolve()
-    })
-  },
-  selectCategories: ({ state, commit }, categories = []) => {
-    return new Promise(resolve => {
-      categories.forEach(category => {
-        if (state.selectedCategories.value.indexOf(category) === -1) {
-          commit('CATEGORY_SELECT', category)
-        }
-      })
-      resolve()
-    })
-  },
-  invertCategories: ({ state, commit }, categories = []) => {
-    return new Promise(resolve => {
-      categories.forEach(category => {
-        if (state.selectedCategories.value.indexOf(category) === -1) {
-          commit('CATEGORY_SELECT', category)
-        }
-        else {
-          commit('CATEGORY_DESELECT', category)
-        }
-      })
-      resolve()
-    })
-  },
-  toggleSecurityEvent: ({ state, commit }, securityEvent) => {
-    return new Promise(resolve => {
-      const i = state.selectedSecurityEvents.value.findIndex(selected => selected === securityEvent)
-      if (i > -1) {
-        commit('SECURITY_EVENT_DESELECT', securityEvent)
-        resolve(false)
-      }
-      else {
-        commit('SECURITY_EVENT_SELECT', securityEvent)
-        resolve(true)
-      }
-    })
-  },
-  deselectSecurityEvents: ({ state, commit }, securityEvents = []) => {
-    return new Promise(resolve => {
-      securityEvents.forEach(securityEvent => {
-        if (state.selectedSecurityEvents.value.indexOf(securityEvent) > -1) {
-          commit('SECURITY_EVENT_DESELECT', securityEvent)
-        }
-      })
-      resolve()
-    })
-  },
-  selectSecurityEvents: ({ state, commit }, securityEvents = []) => {
-    return new Promise(resolve => {
-      securityEvents.forEach(securityEvent => {
-        if (state.selectedSecurityEvents.value.indexOf(securityEvent) === -1) {
-          commit('SECURITY_EVENT_SELECT', securityEvent)
-        }
-      })
-      resolve()
-    })
-  },
-  invertSecurityEvents: ({ state, commit }, securityEvents = []) => {
-    return new Promise(resolve => {
-      securityEvents.forEach(securityEvent => {
-        if (state.selectedSecurityEvents.value.indexOf(securityEvent) === -1) {
-          commit('SECURITY_EVENT_SELECT', securityEvent)
-        }
-        else {
-          commit('SECURITY_EVENT_DESELECT', securityEvent)
-        }
-      })
-      resolve()
-    })
-  },
 }
 
 const mutations = {
@@ -211,18 +115,6 @@ const mutations = {
     if (response && response.data) {
       state.message = response.data.message
     }
-  },
-  CATEGORY_DESELECT: (state, category) => {
-    state.selectedCategories.value = [ ...state.selectedCategories.value.filter(selected => selected !== category) ]
-  },
-  CATEGORY_SELECT: (state, category) => {
-    state.selectedCategories.value.push(category)
-  },
-  SECURITY_EVENT_DESELECT: (state, securityEvent) => {
-    state.selectedSecurityEvents.value = [ ...state.selectedSecurityEvents.value.filter(selected => selected !== securityEvent) ]
-  },
-  SECURITY_EVENT_SELECT: (state, securityEvent) => {
-    state.selectedSecurityEvents.value.push(securityEvent)
   },
 
   TOTAL_OPEN: (state, count) => {
