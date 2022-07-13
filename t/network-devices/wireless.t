@@ -91,6 +91,7 @@ $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
         'radiusSecret' => 'fake',
         'ip' => '127.0.0.1',
         'id' => '127.0.0.1',
+        'radiusDeauthUseConnector' => 'N',
     });
     # bogusly calling methods trying to generate warnings
     $networkdevice_object->deauthenticateMacDefault("aa:bb:cc:dd:ee:ff");
