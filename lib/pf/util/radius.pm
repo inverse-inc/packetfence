@@ -115,6 +115,7 @@ sub perform_dynauth {
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
+        LocalAddr => $connection_info->{'LocalAddr'},
         PeerAddr => $host,
         PeerPort => $port,
         Proto => 'udp',
