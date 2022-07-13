@@ -250,12 +250,12 @@ Save the pf::dal object in the database
 
 sub save {
     my ($self) = @_;
-    my $status = $self->pre_save;
+    my $status = $self->pre_save();
     if (is_error($status)) {
         return $status;
     }
 
-    return $self->upsert;
+    return $self->upsert();
 }
 
 sub create_or_update {
@@ -458,21 +458,47 @@ Perform an upsert of the pf::dal object
 
 sub upsert {
     my ($self) = @_;
-    my ($status, $insert_data) = $self->_insert_data;
-    return $status if is_error($status);
-    if (keys %$insert_data == 0 ) {
-        return $STATUS::BAD_REQUEST;
-    }
-    ($status, my $on_conflict) = $self->_on_conflict_data;
-
+    my ($status, $sql, @bind) = $self->upsert_sql();
     return $status if is_error($status) || $status == $STATUS::NO_CONTENT;
-    ($status, my $sth) = $self->do_upsert(
+
+    ($status, my $sth) = $self->db_execute($sql, @bind);
+    if (is_error($status)) {
+        return $status;
+    }
+
+    $status = $self->post_upsert($status, $sth);
+    $sth->finish;
+    return $status;
+}
+
+sub upsert_sql {
+    my ($self) = @_;
+    my ($status, $insert_data) = $self->_insert_data;
+    return $status, undef if is_error($status);
+    if (keys %$insert_data == 0 ) {
+        return $STATUS::BAD_REQUEST, undef;
+    }
+
+    ($status, my $on_conflict) = $self->_on_conflict_data;
+    return $status, undef if is_error($status) || $status == $STATUS::NO_CONTENT;
+    my $sqla          = $self->get_sql_abstract;
+    my @args = $self->update_params_for_upsert(
         -into => $self->table,
         -values   => $insert_data,
         -on_conflict => $on_conflict,
     );
-    return $status if is_error($status);
+    my ($stmt, @bind) = $sqla->upsert(@args);
 
+    return $status, $stmt, @bind;
+}
+
+sub save_sql_bind {
+    my ($self) = @_;
+    return $self->upsert_sql();
+}
+
+sub post_upsert {
+    my ($self, $status, $sth) = @_;
     my $rows = $sth->rows;
     $self->_save_old_data();
     if ($rows == 1) {
@@ -482,6 +508,11 @@ sub upsert {
     }
 
     return $status;
+}
+
+sub post_save {
+    my ($self, @args) = @_;
+    return $self->post_upsert(@args);
 }
 
 =head2 _on_conflict_data
