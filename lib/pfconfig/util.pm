@@ -87,6 +87,7 @@ sub fetch_decode_socket {
 
 sub socket_expire {
     my (%opts) = @_;
+    use Data::Dumper ; use pf::log ; get_logger->error("Calling socket_expire with", Dumper(\%opts));
     my $namespace = $opts{namespace} // "__all__";
     my $light = $opts{light} // 0;
     my $payload = {
@@ -95,6 +96,7 @@ sub socket_expire {
         light => $light,
     };
     my $response = pfconfig::util::fetch_decode_socket(encode_json($payload), %opts);
+    get_logger->error("Returned from fetch_decode_socket");
     return $response->{status} eq "OK.";
 }
 
