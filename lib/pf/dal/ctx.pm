@@ -20,7 +20,7 @@ my @DAL_OBJS;
 sub new {
     my ($proto) = @_;
     my $class = ref($proto) || $proto;
-    return bless({}, $class);
+    return bless({DAL_OBJS => [], CACHED_OBJECTS => {}}, $class);
 }
 
 sub begin {
@@ -32,11 +32,45 @@ sub begin {
 sub _clear {
     my ($self) = @_;
     @{$self->{DAL_OBJS}} = ();
+    $self->{CACHED_OBJECTS} = {};
 }
 
 sub add {
     my ($self, @dals) = @_;
-    push @{$self->{DAL_OBJS}}, @dals;
+    for my $dal (@dals) {
+        next if ($self->in_cache($dal, $dal));
+        $self->add_to_cache($dal);
+        push @{$self->{DAL_OBJS}}, @dals;
+    }
+}
+
+sub in_cache {
+    my ($self, $dal, $lookup) = @_;
+    my $cache = $self->{CACHED_OBJECTS};
+    my $dal_class = ref($dal) || $dal;
+    my $dal_sub_key = join(':', map {$lookup->{$_}} @{$dal->primary_keys});
+    return exists $cache->{$dal_class}{$dal_sub_key};
+}
+
+sub add_to_cache {
+    my ($self, $dal) = @_;
+    my $cache = $self->{CACHED_OBJECTS};
+    my $dal_class = ref($dal) || $dal;
+    my $dal_sub_key = join(':', map {$dal->{$_}} @{$dal->primary_keys});
+    $cache->{$dal_class}{$dal_sub_key} = $dal;
+    return;
+}
+
+sub get_from_cache {
+    my ($self, $dal, $lookup) = @_;
+    my $cache = $self->{CACHED_OBJECTS};
+    my $dal_class = ref($dal) || $dal;
+    my $dal_sub_key = join(':', map {$lookup->{$_}} @{$dal->primary_keys});
+    if (!exists $cache->{$dal_class}{$dal_sub_key}) {
+        return undef;
+    }
+
+    return $cache->{$dal_class}{$dal_sub_key};
 }
 
 sub flush {
@@ -79,7 +113,12 @@ sub flush {
 
 sub find {
     my ($self, $dal, $lookup) = @_;
-    my ($status, $obj) = $dal->find_or_new($lookup);
+    my $obj = $self->get_from_cache($dal, $lookup);
+    if (defined $obj) {
+        return $obj;
+    }
+
+    (my $status, $obj) = $dal->find_or_new($lookup);
     if (is_error($status)) {
         return undef;
     }
