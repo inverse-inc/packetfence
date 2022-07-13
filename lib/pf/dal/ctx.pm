@@ -41,14 +41,40 @@ sub add {
 
 sub flush {
     my ($self) = @_;
-    for my $dal (@{$self->{DAL_OBJS}}) {
-        my $status = $dal->save;
-        if (is_error($status)) {
-
-        }
+    my $dals = $self->{DAL_OBJS};
+    if (@$dals == 0) {
+        return;
     }
 
+    my @statements;
+    my @binds;
+    my @used_dals;
+    for my $dal (@$dals) {
+        my ($status, $sql, @bind) = $dal->save_sql_bind;
+        if (is_error($status)) {
+            next;
+        }
+
+        next if ($status == $STATUS::NO_CONTENT);
+        $sql =~ s/;\s*$//;
+        push @statements, $sql;
+        push @binds, @bind;
+        push @used_dals, @used_dals;
+    }
+
+    if (@statements == 0) {
+        return;
+    }
+
+    my $sql = join(';', @statements) . ';';
+    my ($status, $sth) = pf::dal->db_execute($sql, @binds);
+    for my $dal (@used_dals) {
+        $dal->post_save($status, $sth);
+    }
+
+    $sth->finish;
     $self->_clear;
+    return;
 }
 
 sub find {
