@@ -28,7 +28,8 @@ my %ignored_params = (
 );
 
 my @extra_files_to_export = (
-    $pf::file_paths::fingerbank_config_file
+    $pf::file_paths::fingerbank_config_file,
+    $pf::file_paths::report_config_file,
 );
 
 
