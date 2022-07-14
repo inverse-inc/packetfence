@@ -108,9 +108,10 @@
         <template #cell(security_event_id)="{ value }">
           <router-link :to="{ path: `/configuration/security_event/${value}` }">{{ securityEventMap[value] || '...' }}</router-link>
         </template>
-        <template #cell(buttons)>
+        <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right mr-3">
-            <b-button variant="outline-primary">Action</b-button>
+            <b-button v-if="item.status === 'open'"
+              size="sm" variant="outline-secondary" @click="onRelease(item.mac, item.id)">{{ $t('Release') }}</b-button>
           </span>
         </template>
       </b-table>
@@ -162,6 +163,7 @@ const setup = (props, context) => {
     const {
       defaultCondition,
       doSearch,
+      reSearch,
       setPage
     } = search
     const {
@@ -226,6 +228,14 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  const onRelease = (mac, security_event_id) => {
+    $store.dispatch('$_nodes/clearSecurityEventNode', { mac, security_event_id })
+      .then(() => {
+        $store.dispatch('$_network_threats/stat')
+        reSearch()
+      })
+  }
+
   return {
     selectedCategories,
     selectedSecurityEvents,
@@ -239,6 +249,7 @@ const setup = (props, context) => {
     ...selected,
     ...toRefs(search),
     onBulkExport,
+    onRelease,
 
     securityEventMap
   }
