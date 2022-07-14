@@ -13,14 +13,13 @@ pf::dal::ctx
 use strict;
 use warnings;
 use pf::error qw(is_error);
+use pf::dal::ctx::upsert;
 our $GLOBAL = __PACKAGE__->new;
-
-my @DAL_OBJS;
 
 sub new {
     my ($proto) = @_;
     my $class = ref($proto) || $proto;
-    return bless({DAL_OBJS => [], CACHED_OBJECTS => {}}, $class);
+    return bless({DAL_ACTIONS => [], CACHED_OBJECTS => {}}, $class);
 }
 
 sub begin {
@@ -31,16 +30,19 @@ sub begin {
 
 sub _clear {
     my ($self) = @_;
-    @{$self->{DAL_OBJS}} = ();
+    @{$self->{DAL_ACTIONS}} = ();
     $self->{CACHED_OBJECTS} = {};
 }
 
 sub add {
-    my ($self, @dals) = @_;
-    for my $dal (@dals) {
-        next if ($self->in_cache($dal, $dal));
-        $self->add_to_cache($dal);
-        push @{$self->{DAL_OBJS}}, @dals;
+    my ($self, @actions) = @_;
+    for my $action (@actions) {
+        if ($action->cacheable) {
+            my $dal = $action->dal;
+            next if ($self->in_cache($dal, $dal));
+            $self->add_to_cache($dal);
+        }
+        push @{$self->{DAL_ACTIONS}}, @actions;
     }
 }
 
@@ -75,16 +77,16 @@ sub get_from_cache {
 
 sub flush {
     my ($self) = @_;
-    my $dals = $self->{DAL_OBJS};
-    if (@$dals == 0) {
+    my $actions = $self->{DAL_ACTIONS};
+    if (@$actions == 0) {
         return;
     }
 
     my @statements;
     my @binds;
-    my @used_dals;
-    for my $dal (@$dals) {
-        my ($status, $sql, @bind) = $dal->save_sql_bind;
+    my @used_actions;
+    for my $action (@$actions) {
+        my ($status, $sql, @bind) = $action->sql_bind;
         if (is_error($status)) {
             next;
         }
@@ -93,7 +95,7 @@ sub flush {
         $sql =~ s/;\s*$//;
         push @statements, $sql;
         push @binds, @bind;
-        push @used_dals, @used_dals;
+        push @used_actions, $action;
     }
 
     if (@statements == 0) {
@@ -102,8 +104,8 @@ sub flush {
 
     my $sql = join(';', @statements) . ';';
     my ($status, $sth) = pf::dal->db_execute($sql, @binds);
-    for my $dal (@used_dals) {
-        $dal->post_save($status, $sth);
+    for my $action (@used_actions) {
+        $action->process($status, $sth);
     }
 
     $sth->finish;
@@ -123,7 +125,7 @@ sub find {
         return undef;
     }
 
-    $self->add($obj);
+    $self->add(pf::dal::ctx::upsert->new({dal => $obj}));
     return $obj;
 }
 
