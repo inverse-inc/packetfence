@@ -293,7 +293,6 @@ const setup = (props, context) => {
   const deviceFocus = ref([])
   const deviceRingFocus = ref(false)
   let deviceMouseDebouncer
-  // eslint-disable-next-line no-unused-vars
   const deviceOver = (event, key) => {
     if (deviceMouseDebouncer) {
       clearTimeout(deviceMouseDebouncer)
@@ -481,7 +480,6 @@ const setup = (props, context) => {
   const innerHostFocus = ref([])
   const innerHostRingFocus = ref(false)
   let innerHostMouseDebouncer
-  // eslint-disable-next-line no-unused-vars
   const innerHostOver = (event, key) => {
     if (innerHostMouseDebouncer) {
       clearTimeout(innerHostMouseDebouncer)
@@ -666,7 +664,6 @@ const setup = (props, context) => {
   const outerHostFocus = ref([])
   const outerHostRingFocus = ref(false)
   let outerHostMouseDebouncer
-  // eslint-disable-next-line no-unused-vars
   const outerHostOver = (event, key) => {
     if (outerHostMouseDebouncer) {
       clearTimeout(outerHostMouseDebouncer)

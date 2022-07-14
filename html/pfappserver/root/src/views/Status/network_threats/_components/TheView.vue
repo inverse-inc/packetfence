@@ -57,7 +57,6 @@
         class="mb-0"
         no-local-sorting
         no-provider-sorting
-        responsive
         selectable
         show-empty
         striped
@@ -104,7 +103,7 @@
           </span>
         </template>
         <template #cell(mac)="{ value }">
-          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
+          <node-dropdown :id="value" variant="link" class="px-0" dropup />
         </template>
         <template #cell(security_event_id)="{ value }">
           <router-link :to="{ path: `/configuration/security_event/${value}` }">{{ securityEventMap[value] || '...' }}</router-link>
@@ -137,13 +136,15 @@ import {
 } from '@/components/new/'
 import BaseFilterCategories from './BaseFilterCategories'
 import BaseFilterSecurityEvents from './BaseFilterSecurityEvents'
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 const components = {
   BaseFilterCategories,
   BaseFilterSecurityEvents,
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,
-  BaseTableEmpty
+  BaseTableEmpty,
+  NodeDropdown,
 }
 
 import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
