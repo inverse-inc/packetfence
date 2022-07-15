@@ -445,7 +445,7 @@ Before starting services on all servers, `galera-autofix` service need to be re-
 
 [source,bash]
 ----
-curl -X PATCH -d '{"galera-autofix":"enabled"}' localhost:22224/api/v1/config/base/services
+curl -X PATCH -d '{"galera-autofix":"enabled"}' localhost:22224/api/v1/config/base/services ; echo
 ----
 
 ==== Wrapping up
