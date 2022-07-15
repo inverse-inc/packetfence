@@ -28,6 +28,7 @@ use pf::error qw(is_success is_error);
 use pf::constants::parking qw($PARKING_SECURITY_EVENT_ID);
 use CHI::Memoize qw(memoized);
 use pf::dal::node;
+use pf::dal::ctx;
 use pf::dal::locationlog;
 use pf::client;
 use pf::constants::node qw(
@@ -79,6 +80,7 @@ BEGIN {
         node_defaults
         node_update_last_seen
         node_last_reg_non_inline_on_category
+        node_get_current
     );
 }
 
@@ -1302,6 +1304,11 @@ sub node_last_reg_non_inline_on_category {
     my $all = $iter->all();
     my $result = $all ? $all->[0] : undef;
     return $result;
+}
+
+sub node_get_current {
+    my ($mac) = @_;
+    return pf::dal::ctx::find_global("pf::dal::node", { mac => $mac });
 }
 
 =back
