@@ -3023,6 +3023,11 @@ sub synchronize_locationlog {
     locationlog_synchronize($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
 }
 
+sub synchronize_locationlog2 {
+    my ( $self, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+    locationlog_synchronize2($self->{_id},$self->{_ip},$self->{_switchMac}, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
+}
+
 
 =item extractVLAN
 
