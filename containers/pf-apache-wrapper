@@ -18,8 +18,9 @@ groupmod -g $PF_GID pf
 
 function adjust_ids() {
   dir="$1"
-  find $dir -user $CONTAINER_PF_UID -exec chown -h pf {} \;
-  find $dir -group $CONTAINER_PF_GID -exec chgrp -h pf {} \;
+  echo "Adjusting permissions for user pf in $dir"
+  find $dir -user $CONTAINER_PF_UID ! -path '*/lib_perl/*' ! -path '*/node_modules/*' -exec chown -h pf {} \;
+  find $dir -group $CONTAINER_PF_GID ! -path '*/lib_perl/*' ! -path '*/node_modules/*' -exec chgrp -h pf {} \;
 }
 
 adjust_ids /usr/local/pf
