@@ -432,13 +432,10 @@ systemctl unset-environment MARIADB_ARGS
 systemctl start packetfence-mariadb
 ----
 
-NOTE: You can check if the service is down with [command]`ps -edf | grep mysql`, this service can be a little long to stop and it is not recommended to do the next steps before it fully stops.
-
-Now, start `packetfence-mariadb` normally and restart `packetfence-iptables`:
+Now, restart `packetfence-iptables`:
 
 [source,bash]
 ----
-systemctl restart packetfence-mariadb
 systemctl restart packetfence-iptables
 ----
 
