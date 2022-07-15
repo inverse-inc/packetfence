@@ -17,6 +17,7 @@ use strict;
 use warnings;
 use pf::constants;
 use pf::log;
+use pf::dal::ctx;
 use pf::password;
 use DateTime;
 use DateTime::Format::MySQL;
@@ -28,19 +29,20 @@ BEGIN {
     our ( @ISA, @EXPORT );
     @ISA = qw(Exporter);
     @EXPORT = qw(
-        person_exist
-        person_delete
         person_add
-        person_view
+        person_cleanup
         person_count_all
-        person_view_all
-        person_view_simple
+        person_delete
+        person_exist
+        person_get_current
         person_modify
         person_nodes
         person_security_events
-        person_cleanup
         persons_without_nodes
         person_unassign_nodes
+        person_view
+        person_view_all
+        person_view_simple
         $PID_RE
     );
 }
@@ -375,6 +377,11 @@ sub person_cleanup {
         # We're all good for deletion
         person_delete($pid);
     }
+}
+
+sub person_get_current {
+    my ($pid) = @_;
+    return pf::dal::ctx::find_global("pf::dal::person", { pid => $pid });
 }
 
 =head1 AUTHOR
