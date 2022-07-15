@@ -636,7 +636,6 @@ if [ "$1" = "2" ]; then
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
-/usr/local/pf/bin/pfcmd fixpermissions
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
@@ -708,6 +707,8 @@ sed -i 's/\%.*$//g' /etc/resolv.conf
 echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
+
+/usr/local/pf/bin/pfcmd fixpermissions
 
 # reloading systemd unit files
 /bin/systemctl daemon-reload
