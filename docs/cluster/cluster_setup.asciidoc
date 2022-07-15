@@ -314,10 +314,9 @@ Start MariaDB forcing it to create a new cluster using configuration defined in 
 ----
 systemctl stop packetfence-mariadb
 /usr/local/pf/bin/pfcmd generatemariadbconfig
-/usr/local/pf/sbin/pf-mariadb --force-new-cluster
+systemctl set-environment MARIADB_ARGS=--force-new-cluster
+systemctl start packetfence-mariadb
 ----
-
-NOTE: This last command will not return until you break it, so leave it running in the background and open a new terminal to continue.
 
 Then, restart PacketFence to apply all your changes:
 
@@ -353,7 +352,7 @@ systemctl set-default packetfence-cluster
 
 WARNING: If you reboot any of the nodes you're joining, you will need to stop all the PacketFence services (`/usr/local/pf/bin/pfcmd service pf stop`) and restart the steps from here.
 
-WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`/usr/local/pf/sbin/pf-mariadb --force-new-cluster`)
+WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`systemctl set-environment MARIADB_ARGS=--force-new-cluster && systemctl restart packetfence-mariadb`)
 
 Now, you will need to integrate your *two other nodes* in your cluster.
 
@@ -424,7 +423,14 @@ In case you have some issues, ensure your MariaDB instance running with `--force
 
 ==== Starting the first server normally
 
-Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option, break the command.
+Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option and run:
+
+[source,bash]
+----
+systemctl stop packetfence-mariadb
+systemctl unset-environment MARIADB_ARGS
+systemctl start packetfence-mariadb
+----
 
 NOTE: You can check if the service is down with [command]`ps -edf | grep mysql`, this service can be a little long to stop and it is not recommended to do the next steps before it fully stops.
 
