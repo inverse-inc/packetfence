@@ -14,6 +14,7 @@ use strict;
 use warnings;
 use pf::error qw(is_error);
 use pf::dal::ctx::upsert;
+use pf::dal::ctx::update;
 our $GLOBAL = __PACKAGE__->new;
 
 sub new {
@@ -129,8 +130,22 @@ sub find {
     return $obj;
 }
 
+sub add_update {
+    my ($self, $dal, @args) = @_;
+    $self->add(
+        pf::dal::ctx::update->new({
+            dal => $dal,
+            args => [@args],
+        })
+    );
+}
+
 sub add_global {
     $GLOBAL->add(@_);
+}
+
+sub add_update_global {
+    $GLOBAL->add_update(@_);
 }
 
 sub find_global {
