@@ -28,7 +28,7 @@ use Template::Stash;
 use List::MoreUtils qw(all first_index uniq any none);
 use Scalar::Util qw(tainted reftype);
 our $PrettyName;
-our $tt = Template->new({ABSOLUTE => 1});
+our $tt = Template->new({ABSOLUTE => 1, CACHE_SIZE => 0});
 $tt->context->define_vmethod('hash', 'env_or_default', sub {
     # Apache variables that aren't undefined will appear as ${NAME_OF_VARIABLE} so we check that the key exists and doesn't equal to that value
     exists($_[0]{$_[1]}) && $_[0]{$_[1]} ne '${'.$_[1].'}' && $_[0]{$_[1]} ne '' ? $_[0]{$_[1]} : $_[2]; 
