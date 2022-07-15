@@ -111,6 +111,7 @@ See http://search.cpan.org/~byrne/SOAP-Lite/lib/SOAP/Lite.pm#IN/OUT,_OUT_PARAMET
 # scalar return without updating the clients.
 sub authorize {
     my $timer = pf::StatsD::Timer->new();
+    pf::dal::ctx::begin_global();
     my ($self, $radius_request) = @_;
     local $pf::dal::node::TRIGGER_NODE_DISCOVERED = 1;
     my $logger = $self->logger;
@@ -196,12 +197,13 @@ sub authorize {
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
-    my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
-    if (is_error($status_code)) {
+    my $node_obj = node_get_current();
+    if (!defined $node_obj) {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
+
     $node_obj->_load_locationlog;
-    if ($status_code != $STATUS::CREATED) {
+    if ($node_obj->__from_table) {
         # update last_seen of MAC address as some activity from it has been seen
         $node_obj->update_last_seen();
     }
@@ -210,7 +212,7 @@ sub authorize {
     my $options = {};
 
     # Handling machine auth detection
-    $self->_machine_auth_detection($user_name,\$node_obj,\$options);
+    $self->_machine_auth_detection($user_name,$node_obj,$options);
 
     if (defined($session_id)) {
         $node_obj->sessionid($session_id);
@@ -243,7 +245,7 @@ sub authorize {
             $logger->info("Username has been changed from '$user_name' to ".$args->{'user_name'});
     }
         $args->{'username'} = $args->{'user_name'};
-        $self->_machine_auth_detection($args->{'user_name'},\$node_obj,\$options);
+        $self->_machine_auth_detection($args->{'user_name'}, $node_obj, $options);
     }
     my $result = $role_obj->filterVlan('IsPhone',$args);
     # determine if we need to perform automatic registration
@@ -351,7 +353,7 @@ sub authorize {
 
     #closes old locationlog entries and create a new one if required
     #TODO: Better deal with INLINE RADIUS
-    $switch->synchronize_locationlog($port, $vlan, $mac,
+    $switch->synchronize_locationlog2($port, $vlan, $mac,
         $args->{'isPhone'} ? $VOIP : $NO_VOIP, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $args->{'user_role'}, $ifDesc
     ) if ( (!$role->{wasInline}) && ($vlan ne "-1") );
 
@@ -374,7 +376,7 @@ CLEANUP:
     if ($do_auto_reg) {
         pf::registration::finalize_node_registration($node_obj, {}, $options, $pf::constants::realm::RADIUS_CONTEXT);
     }
-    $status = $node_obj->save;
+
     if (is_error($status)) {
         $logger->error("Cannot save $mac error ($status)");
     }
@@ -384,6 +386,7 @@ CLEANUP:
     $switch->disconnectWrite();
 
 AUDIT:
+    pf::dal::ctx::flush_global();
     $args->{'time'} = time;
     push @$RAD_REPLY_REF, $self->_addRadiusAudit($args);
     return $RAD_REPLY_REF;
@@ -1399,8 +1402,8 @@ sub _machine_auth_detection {
     my $logger = get_logger;
     if ( defined($user_name) && $user_name =~ /^host\// ) {
         $logger->info("is doing machine auth with account '$user_name'.");
-        $$node_obj->machine_account($user_name);
-        $$options->{'machine_account'} = $user_name;
+        $node_obj->machine_account($user_name);
+        $options->{'machine_account'} = $user_name;
     }
 }
 
