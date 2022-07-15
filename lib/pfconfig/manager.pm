@@ -321,6 +321,8 @@ sub cache_resource {
         $self->touch_cache($what);
     }
     else {
+        $pfconfig::cached::LAST_TOUCH_CACHE = 0;
+        $pfconfig::cached::RELOADED_TOUCH_CACHE = 0;
         pfconfig::util::socket_expire(namespace => $what, light => 1);
     }
     $self->{memory}->{$what}       = $result;
