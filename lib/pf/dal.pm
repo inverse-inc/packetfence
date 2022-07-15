@@ -584,6 +584,35 @@ sub _update_data {
     return $STATUS::OK, \%data;
 }
 
+=head2 is_changed
+
+The value changed
+
+=cut
+
+sub is_changed {
+    my ($self) = @_;
+    my $updateable_fields = $self->_updateable_fields;
+    my $old_data = $self->__old_data;
+    my $logger = $self->logger;
+    my $changed = 0;
+    foreach my $field (@$updateable_fields) {
+        my $new_value = $self->{$field};
+        my $old_value = $old_data->{$field};
+        next if (!defined $new_value && !defined $old_value);
+        next if (defined $new_value && defined $old_value && $new_value eq $old_value);
+        if (is_error($self->validate_field($field, $new_value))) {
+            my $table = $self->table;
+            $logger->error("Skipping invalid value (" . ($new_value // "NULL" ) . ") in when updating field ${table}.${field}");
+            next;
+        }
+
+        $changed++;
+    }
+
+    return $changed;
+}
+
 =head2 validate_field
 
 Validate a field value
