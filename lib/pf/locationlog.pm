@@ -269,6 +269,24 @@ sub locationlog_insert_start {
     return (is_success($status));
 }
 
+sub locationlog_update_end_switchport_no_VoIP2 {
+    my ($switch, $ifIndex) = @_;
+    pf::dal::ctx::add_update_global(
+        "pf::dal::locationlog",
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port   => $ifIndex,
+            connection_type => { -like => 'Ethernet%'},
+            end_time => $ZERO_DATE,
+            voip   => { "!=" => "yes" },
+        },
+    );
+    return;
+}
+
 sub locationlog_update_end_switchport_no_VoIP {
     my ($switch, $ifIndex) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
@@ -287,6 +305,23 @@ sub locationlog_update_end_switchport_no_VoIP {
     return ($rows);
 }
 
+sub locationlog_update_end_switchport_only_VoIP2 {
+    my ($switch, $ifIndex) = @_;
+    pf::dal::ctx::add_update_global(
+        "pf::dal::locationlog",
+        -set => {
+            end_time => \'NOW()',
+        },
+        -where => {
+            switch => $switch,
+            port   => $ifIndex,
+            connection_type => { -like => 'Ethernet%'},
+            end_time => $ZERO_DATE,
+            voip   => { "!=" => "yes" },
+        },
+    );
+    return;
+}
 sub locationlog_update_end_switchport_only_VoIP {
     my ($switch, $ifIndex) = @_;
     my ($status, $rows) = pf::dal::locationlog->update_items(
@@ -412,6 +447,94 @@ sub locationlog_synchronize {
             or $logger->warn("Unable to insert a locationlog entry.");
     }
     return 1;
+}
+
+sub locationlog_synchronize2 {
+    my $timer = pf::StatsD::Timer->new({ sample_rate => 0.2 });
+    my ($switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+
+    $voip_status = $NO_VOIP if !defined $voip_status || $voip_status ne $VOIP; #Set the default voip status
+    my $logger = get_logger();
+    $logger->trace(sub {"sync locationlog with ifDesc " . ($ifDesc // "undef")});
+    $logger->trace("locationlog_synchronize2 called");
+
+    if ( defined($mac) ) {
+        $mac = lc($mac);
+        my $node = node_get_current($mac);
+        # grab current locationlog entry
+        my $locationlog = locationlog_get_current($mac);
+        if (defined($locationlog) && $locationlog->{end_time} eq $ZERO_DATE) {
+            _update_locationlog($locationlog, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip_status, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc);
+            $logger->trace("existing open locationlog entry");
+            if ($locationlog->is_changed && $locationlog->__from_table) {
+                #If the last connection was inline then make sure to clean ipset
+                if ( ( (str_to_connection_type($locationlog->{connection_type}) & $pf::config::INLINE) == $pf::config::INLINE ) && !($connection_type && ($connection_type & $pf::config::INLINE) == $pf::config::INLINE) ) {
+                    $logger->debug("Unmark node in ipset session since the connection type changed from inline to something else");
+                    my $inline = new pf::inline::custom();
+                    my $mark = $inline->{_technique}->get_mangle_mark_for_mac($mac);
+                    $inline->{_technique}->iptables_unmark_node($mac,$mark) if (defined($mark));
+                }
+            }
+        }
+    }
+
+    # if we are in a wired environment, close any conflicting switchport entry
+    # but paying attention to VoIP vs non-VoIP entries (we close the same type that we are asked to add)
+    if ($connection_type && ($connection_type & $WIRED) == $WIRED) {
+        my $floatingDeviceManager = new pf::floatingdevice::custom();
+        if( $floatingDeviceManager->portHasFloatingDevice($switch_ip, $ifIndex) ){
+            $logger->info("Not adding locationlog entry for mac $mac because it's plugged in a floating device enabled port");
+            return 1;
+        }
+
+        my @locationlog_switchport = locationlog_view_open_switchport($switch, $ifIndex, $voip_status);
+        if ( scalar(@locationlog_switchport) > 0) {
+            if ( (defined($vlan) && ($locationlog_switchport[0]->{vlan} ne $vlan)) # vlan changed
+                || (defined($mac) && (!defined($locationlog_switchport[0]->{mac})))
+                || (defined($locationlog_switchport[0]->{role}) && ($locationlog_switchport[0]->{role} ne $role) ) ) { # or Role changed
+
+                # close entries of same voip status
+                if ($voip_status eq $NO_VOIP) {
+                    locationlog_update_end_switchport_no_VoIP2($switch, $ifIndex);
+                } else {
+                    locationlog_update_end_switchport_only_VoIP2($switch, $ifIndex);
+                }
+            }
+        }
+    }
+
+    return 1;
+}
+
+sub _update_locationlog {
+    my ($locationlog, $switch, $switch_ip, $switch_mac, $ifIndex, $vlan, $mac, $voip, $connection_type, $connection_sub_type, $user_name, $ssid, $stripped_user_name, $realm, $role, $ifDesc) = @_;
+    my $logger = get_logger();
+    my $conn_type = connection_type_to_str($connection_type)
+        or $logger->info("Asked to insert a locationlog entry with connection type unknown.");
+    $user_name //= '';
+    $ssid //= '';
+    $locationlog->{switch} = $switch;
+    $locationlog->{switch_ip} = $switch_ip;
+    $locationlog->{switch_mac} = $switch_mac;
+    $locationlog->{port} = $ifIndex;
+    $locationlog->{vlan} = $vlan;
+    $locationlog->{role} = $role;
+    $locationlog->{connection_sub_type} = $connection_sub_type;
+    $locationlog->{connection_type} = $conn_type;
+    $locationlog->{dot1x_username} = $user_name;
+    $locationlog->{ssid} = $ssid;
+    $locationlog->{stripped_user_name} = $stripped_user_name;
+    $locationlog->{realm} = $realm;
+    $locationlog->{ifDesc} = $ifDesc;
+    $locationlog->{start_time} = \'NOW()';
+    $locationlog->{end_time} = $ZERO_DATE;
+    $locationlog->{voip} = $voip;
+    $locationlog->{mac} = lc($mac);
+}
+
+sub locationlog_get_current {
+    my ($mac) = @_;
+    return pf::dal::ctx::find_global("pf::dal::locationlog", { mac => $mac });
 }
 
 sub locationlog_cleanup {
