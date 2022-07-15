@@ -90,15 +90,16 @@ do the person create step of node registration
 sub do_person_create {
     my ($node, $info, $context) = @_;
     my $pid = $node->pid;
-    my ($status, $person) = pf::dal::person->find_or_create({"pid" => $pid});
-    if ($status == $STATUS::CREATED ) {
-        pf::lookup::person::async_lookup_person($pid, $node->{'source'}, $context);
-    }
+    my $person = person_get_current($pid);
     if ($person) {
         $person->source($node->{source});
         $person->portal($node->{portal});
-        $person->save;
     }
+
+#   Need to fix async
+#   if ($status == $STATUS::CREATED ) {
+#       pf::lookup::person::async_lookup_person($pid, $node->{'source'}, $context);
+#   }
 }
 
 =head2 do_security_event_scans
