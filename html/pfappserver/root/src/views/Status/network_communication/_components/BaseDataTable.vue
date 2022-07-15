@@ -73,7 +73,7 @@
         />
       </template>
       <template #cell(mac)="{ value }">
-        <router-link :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
+        <node-dropdown :id="value" variant="link" class="px-0" dropup />
       </template>
       <template #cell(buttons)>
         <span class="float-right text-nowrap text-right mr-3">
@@ -94,11 +94,13 @@ import {
   BaseSearchInputColumns,
   BaseTableEmpty,
 } from '@/components/new/'
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 
 const components = {
   BaseButtonBulkActions,
   BaseSearchInputColumns,
   BaseTableEmpty,
+  NodeDropdown,
 }
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
