@@ -105,7 +105,7 @@ const setup = (props, context) => {
     }
   }
   const onSelectAll = () => {
-    let input = value.value
+    let input = [ ...value.value ]
     filteredItems.value.map(item => item.id).forEach(category => {
       if (input.indexOf(category) === -1) {
         input.push(category)
@@ -114,7 +114,7 @@ const setup = (props, context) => {
     emit('input', input)
   }
   const onSelectNone = () => {
-    let input = value.value
+    let input = [ ...value.value ]
     filteredItems.value.map(item => item.id).forEach(category => {
       if (input.indexOf(category) > -1) {
         input = input.filter(selected => selected !== category)
@@ -123,7 +123,7 @@ const setup = (props, context) => {
     emit('input', input)
   }
   const onSelectInverse = () => {
-    let input = value.value
+    let input = [ ...value.value ]
     filteredItems.value.map(item => item.id).forEach(category => {
       if (input.indexOf(category) === -1) {
         input.push(category)
