@@ -152,7 +152,7 @@ function setup_mycnf() {
   cat <<EOT > setup_mycnf
 [client]
 user=root
-password=$1
+password="$(echo "$1" | sed 's/"/\\"/g')"
 EOT
 }
 
