@@ -34,8 +34,10 @@
             <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
           </template>
         </b-col>
-        <b-col cols="auto mr-auto text-mono" class="px-3 py-1 mr-3">
-          <text-highlight :queries="[filter]">{{ item.mac }}</text-highlight>
+        <b-col cols="auto mr-auto" class="px-3 py-1 mr-3">
+          <node-dropdown :id="item.mac" variant="link" class="px-0" dropup>
+            <text-highlight :queries="[filter]" class="text-mono">{{ item.mac }}</text-highlight>
+          </node-dropdown>
         </b-col>
         <b-col cols="auto mr-3">
           <b-badge v-if="byDevice[item.mac]"
@@ -49,8 +51,10 @@
 </template>
 
 <script>
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 import TextHighlight from 'vue-text-highlight'
 const components = {
+  NodeDropdown,
   TextHighlight
 }
 

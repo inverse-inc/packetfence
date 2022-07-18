@@ -6,7 +6,7 @@
           <base-data-table />
         </b-tab>
         <b-tab title="Flows" active>
-          <base-data-flows />
+          <base-data-flows :device="device" />
         </b-tab>
         <b-tab title="Hosts">
           <base-data-hosts />
@@ -32,6 +32,12 @@ const components = {
   BaseDataHosts,
 }
 
+const props = {
+  device: {
+    type: String
+  }
+}
+
 import { computed } from '@vue/composition-api'
 
 const setup = (props, context) => {
@@ -51,6 +57,7 @@ const setup = (props, context) => {
 export default {
   name: 'the-data',
   components,
+  props,
   setup
 }
 </script>

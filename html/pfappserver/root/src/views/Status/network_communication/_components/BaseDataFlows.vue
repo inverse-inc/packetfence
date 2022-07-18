@@ -47,10 +47,20 @@ const components = {
   BaseInputToggleFalseTrue
 }
 
-import { computed, ref, watch } from '@vue/composition-api'
+const props = {
+  device: {
+    type: String
+  }
+}
+
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import usePreference from '@/composables/usePreference'
 
 const setup = (props, context) => {
+
+  const {
+    device
+  } = toRefs(props)
 
   const { root: { $store } = {} } = context
 
@@ -89,6 +99,8 @@ const setup = (props, context) => {
     }
   }
 
+  watch(device, () => toggleDevice(device.value), { immediate: true })
+
   const animate = usePreference('vizsec::settings', 'animate', false)
 
   return {
@@ -104,6 +116,7 @@ const setup = (props, context) => {
 export default {
   name: 'base-data-flows',
   components,
+  props,
   setup
 }
 </script>

@@ -1,15 +1,44 @@
 <template>
   <b-dropdown v-bind="$attrs"
     @shown="isShown = true" @hidden="isShown = false"
+    @click.native.stop
     lazy>
     <template #button-content>
       <slot><mac v-text="id" /></slot>
     </template>
+    <b-dropdown-text class="text-mono">
+      {{ id }}
+    </b-dropdown-text>
+    <b-dropdown-divider />
     <b-dropdown-item v-if="isLoading">
       <icon class="position-absolute mt-1" name="circle-notch" spin />
       <span class="ml-4">{{ $t('Loading') }}</span>
     </b-dropdown-item>
     <template v-else>
+      <b-dropdown-form>
+        <b-row class="flex-nowrap">
+          <b-col cols="6" class="mr-auto text-nowrap">{{ $t('Status') }}</b-col>
+          <b-col cols="auto">
+            <b-badge v-if="node.status === 'reg'" pill variant="success">{{ $i18n.t('Reg') }}</b-badge>
+            <b-badge v-else pill variant="danger">{{ $i18n.t('Unreg') }}</b-badge>
+          </b-col>
+        </b-row>
+        <b-row class="flex-nowrap">
+          <b-col cols="6" class="mr-auto text-nowrap">{{ $t('Auto Reg') }}</b-col>
+          <b-col cols="auto">
+            <b-badge v-if="node.autoreg === 'yes'" pill variant="success">{{ $i18n.t('Yes') }}</b-badge>
+            <b-badge v-else pill variant="danger">{{ $i18n.t('No') }}</b-badge>
+          </b-col>
+        </b-row>
+        <b-row class="flex-nowrap">
+          <b-col cols="6" class="mr-auto text-nowrap">{{ $t('VOIP') }}</b-col>
+          <b-col cols="auto">
+            <b-badge v-if="node.voip === 'yes'" pill variant="success">{{ $i18n.t('Yes') }}</b-badge>
+            <b-badge v-else pill variant="danger">{{ $i18n.t('No') }}</b-badge>
+          </b-col>
+        </b-row>
+      </b-dropdown-form>
+      <b-dropdown-divider />
       <b-dropdown-form>
         <b-row v-if="node.device_class"
           class="flex-nowrap">
@@ -69,33 +98,13 @@
         </b-row>
       </b-dropdown-form>
       <b-dropdown-divider />
-      <b-dropdown-form>
-        <b-row class="flex-nowrap">
-          <b-col cols="6" class="mr-auto text-nowrap">{{ $t('Status') }}</b-col>
-          <b-col cols="auto">
-            <b-badge v-if="node.status === 'reg'" pill variant="success">{{ $i18n.t('Reg') }}</b-badge>
-            <b-badge v-else pill variant="danger">{{ $i18n.t('Unreg') }}</b-badge>
-          </b-col>
-        </b-row>
-        <b-row class="flex-nowrap">
-          <b-col cols="6" class="mr-auto text-nowrap">{{ $t('Auto Reg') }}</b-col>
-          <b-col cols="auto">
-            <b-badge v-if="node.autoreg === 'yes'" pill variant="success">{{ $i18n.t('Yes') }}</b-badge>
-            <b-badge v-else pill variant="danger">{{ $i18n.t('No') }}</b-badge>
-          </b-col>
-        </b-row>
-        <b-row class="flex-nowrap">
-          <b-col cols="6" class="mr-auto text-nowrap">{{ $t('VOIP') }}</b-col>
-          <b-col cols="auto">
-            <b-badge v-if="node.voip === 'yes'" pill variant="success">{{ $i18n.t('Yes') }}</b-badge>
-            <b-badge v-else pill variant="danger">{{ $i18n.t('No') }}</b-badge>
-          </b-col>
-        </b-row>
-      </b-dropdown-form>
-      <b-dropdown-divider />
+      <b-dropdown-item :to="{ path: `/status/network_communication/${id}` }">
+        <icon class="position-absolute mt-1" name="plus-circle" />
+        <span class="ml-4 pl-2">{{ $t('View Communication') }}</span>
+      </b-dropdown-item>
       <b-dropdown-item :to="{ path: `/node/${id}` }">
         <icon class="position-absolute mt-1" name="plus-circle" />
-        <span class="ml-4">{{ $t('View Node') }}</span>
+        <span class="ml-4 pl-2">{{ $t('View Node') }}</span>
       </b-dropdown-item>
     </template>
   </b-dropdown>

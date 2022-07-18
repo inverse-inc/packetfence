@@ -35,7 +35,7 @@
             </b-tabs>
         </b-col>
       </b-row>
-      <the-data />
+      <the-data :device="device" />
     </div>
   </b-card>
 </template>
@@ -56,12 +56,27 @@ const components = {
   TheData,
 }
 
-import { computed } from '@vue/composition-api'
+const props = {
+  device: {
+    type: String
+  }
+}
 
+import { computed, toRefs, watch } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
+  const {
+    device
+  } = toRefs(props)
+
   const { root: { $store } = {} } = context
+
+  watch(device, () => {
+    if (device.value) {
+      $store.dispatch('$_fingerbank_communication/selectDevices', [ device.value ])
+    }
+  }, { immediate: true })
 
   const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices.value)
   const selectedHosts = computed(() => $store.state.$_fingerbank_communication.selectedHosts.value)
@@ -78,6 +93,7 @@ const setup = (props, context) => {
 export default {
   name: 'the-view',
   components,
+  props,
   setup
 }
 </script>
@@ -92,13 +108,11 @@ export default {
       border: 0px !important;
       box-shadow: 0px 0px 0px 0px !important;
     }
-    .filtered-items {
-      .row {
-        border-top: 1px solid rgb(222, 226, 230);
-        cursor: pointer;
-        &:nth-child(even) {
-          background-color: rgba(0, 0, 0, 0.05);
-        }
+    .filtered-items > .row {
+      border-top: 1px solid rgb(222, 226, 230);
+      cursor: pointer;
+      &:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.05);
       }
     }
   }
