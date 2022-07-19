@@ -1550,7 +1550,6 @@ CREATE TABLE bandwidth_accounting_history (
     PRIMARY KEY (node_id, time_bucket),
     KEY bandwidth_aggregate_buckets (time_bucket, node_id, in_bytes, out_bytes),
     KEY bandwidth_accounting_mac (mac)
-);
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
 
 CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)

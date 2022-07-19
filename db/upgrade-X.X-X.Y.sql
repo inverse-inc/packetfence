@@ -154,20 +154,11 @@ ALTER TABLE node
    DROP tenant_id
 ;
 
-ALTER TABLE security_event
-  ADD FOREIGN KEY `mac_fkey_node` (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-
-
 ALTER TABLE person
    DROP CONSTRAINT `person_tenant_id`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
    DROP tenant_id;
-
-ALTER TABLE node
-   ADD FOREIGN KEY `node_category_key` (`category_id`) REFERENCES `node_category` (`category_id`),
-   ADD FOREIGN KEY `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 DROP TABLE tenant;
 
@@ -180,6 +171,41 @@ INSERT INTO sms_carrier
   VALUES
       ('RingRing', '%s@smsemail.be', now());
 
+--
+-- Trigger to archive dhcp_option82 entries to the history table after an update
+--
+
+DROP TRIGGER IF EXISTS dhcp_option82_after_update_trigger;
+DELIMITER /
+CREATE TRIGGER dhcp_option82_after_update_trigger AFTER UPDATE ON dhcp_option82
+FOR EACH ROW
+BEGIN
+    INSERT INTO dhcp_option82_history
+           (
+            created_at,
+            mac,
+            option82_switch,
+            switch_id,
+            port,
+            vlan,
+            circuit_id_string,
+            module,
+            host
+           )
+    VALUES
+           (
+            OLD.created_at,
+            OLD.mac,
+            OLD.option82_switch,
+            OLD.switch_id,
+            OLD.port,
+            OLD.vlan,
+            OLD.circuit_id_string,
+            OLD.module,
+            OLD.host
+           );
+END /
+DELIMITER ;
 
 --
 -- Trigger to insert old record from 'ip4log' in 'ip4log_history' before updating the current one
@@ -553,11 +579,6 @@ DELIMITER ;
 ALTER TABLE sms_carrier
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
-INSERT INTO sms_carrier
-    (name, email_pattern, created)
-VALUES
-    ('RingRing', '%s@smsemail.be', now());
-
 \! echo "Removing cached realm search for all users...";
 DELETE FROM user_preference WHERE id='roles::defaultSearch';
 
@@ -568,14 +589,8 @@ ALTER TABLE ip4log ADD INDEX IF NOT EXISTS ip4log_mac_start_time (mac, start_tim
 ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `csr` BOOLEAN DEFAULT FALSE AFTER scep;
 
-\! echo "altering security_event"
-ALTER TABLE security_event
-    DROP FOREIGN KEY `tenant_id_mac_fkey_node`,
-    CONVERT TO CHARACTER SET utf8mb4;
-
 \! echo "altering node"
 ALTER TABLE node
-    DROP FOREIGN KEY `0_57`,
    CONVERT TO CHARACTER SET utf8mb4;
 
 \! echo "altering action"
@@ -745,11 +760,16 @@ ALTER TABLE admin_api_audit_log
     MODIFY `request` MEDIUMTEXT;
 
 ALTER TABLE node
-    ADD CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` (`tenant_id`, `pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+   ADD FOREIGN KEY `node_category_key` (`category_id`) REFERENCES `node_category` (`category_id`),
+   ADD FOREIGN KEY `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 
 ALTER TABLE security_event
     MODIFY notes MEDIUMTEXT,
-    ADD CONSTRAINT `tenant_id_mac_fkey_node` FOREIGN KEY (`tenant_id`, `mac`) REFERENCES `node` (`tenant_id`, `mac`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `mac_fkey_node` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+DELIMITER /
 
 CREATE OR REPLACE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
     DETERMINISTIC
