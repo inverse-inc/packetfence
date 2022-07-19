@@ -219,7 +219,7 @@
               <span v-else>{{ node.item.status }}</span>
             </template>
             <template v-slot:cell(mac)="{ value }">
-              <node-dropdown :id="value" variant="link" class="px-0" dropup />
+              <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
             </template>
             <template v-slot:empty>
               <base-table-empty :isLoading="isLoadingNodes" text="">{{ $t('No devices found') }}</base-table-empty>

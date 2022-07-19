@@ -73,7 +73,7 @@
         />
       </template>
       <template #cell(mac)="{ value }">
-        <node-dropdown :id="value" variant="link" class="px-0" dropup />
+        <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
       </template>
       <template #cell(buttons)>
         <span class="float-right text-nowrap text-right mr-3">

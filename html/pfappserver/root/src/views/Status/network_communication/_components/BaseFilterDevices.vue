@@ -26,7 +26,7 @@
         :class="{
           'filter-selected': selectedDevices.indexOf(item.mac) > -1
         }">
-        <b-col cols="1" class="px-3 py-1 ml-3 text-center">
+        <b-col cols="1" class="px-0 py-1 ml-3 text-center">
           <template v-if="selectedDevices.indexOf(item.mac) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
@@ -34,8 +34,8 @@
             <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
           </template>
         </b-col>
-        <b-col cols="auto mr-auto" class="px-3 py-1 mr-3">
-          <node-dropdown :id="item.mac" variant="link" class="px-0" dropup>
+        <b-col cols="auto mr-auto" class="px-0 py-1 mr-3">
+          <node-dropdown :id="item.mac" variant="link" class="px-0" toggle-class="p-0" dropup>
             <text-highlight :queries="[filter]" class="text-mono">{{ item.mac }}</text-highlight>
           </node-dropdown>
         </b-col>

@@ -103,7 +103,7 @@
           </span>
         </template>
         <template #cell(mac)="{ value }">
-          <node-dropdown :id="value" variant="link" class="px-0" dropup />
+          <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
         </template>
         <template #cell(security_event_id)="{ value }">
           <router-link :to="{ path: `/configuration/security_event/${value}` }">{{ securityEventMap[value] || '...' }}</router-link>

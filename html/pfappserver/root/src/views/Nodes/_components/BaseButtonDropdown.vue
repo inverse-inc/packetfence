@@ -1,6 +1,7 @@
 <template>
   <b-dropdown v-bind="$attrs"
     @shown="isShown = true" @hidden="isShown = false"
+    toggle-class="p-0"
     @click.native.stop
     lazy>
     <template #button-content>
@@ -10,9 +11,9 @@
       {{ id }}
     </b-dropdown-text>
     <b-dropdown-divider />
-    <b-dropdown-item v-if="isLoading">
+    <b-dropdown-item v-if="isLoading" class="px-0">
       <icon class="position-absolute mt-1" name="circle-notch" spin />
-      <span class="ml-4">{{ $t('Loading') }}</span>
+      <span class="ml-4 pl-2">{{ $t('Loading') }}</span>
     </b-dropdown-item>
     <template v-else>
       <b-dropdown-form>
@@ -98,13 +99,13 @@
         </b-row>
       </b-dropdown-form>
       <b-dropdown-divider />
-      <b-dropdown-item :to="{ path: `/status/network_communication/${id}` }">
-        <icon class="position-absolute mt-1" name="plus-circle" />
-        <span class="ml-4 pl-2">{{ $t('View Communication') }}</span>
-      </b-dropdown-item>
-      <b-dropdown-item :to="{ path: `/node/${id}` }">
+      <b-dropdown-item :to="{ path: `/node/${id}` }" class="px-0">
         <icon class="position-absolute mt-1" name="plus-circle" />
         <span class="ml-4 pl-2">{{ $t('View Node') }}</span>
+      </b-dropdown-item>
+      <b-dropdown-item :to="{ path: `/status/network_communication/${id}` }" class="px-0">
+        <icon class="position-absolute mt-1" name="chart-line" />
+        <span class="ml-4 pl-2">{{ $t('View Communication') }}</span>
       </b-dropdown-item>
     </template>
   </b-dropdown>

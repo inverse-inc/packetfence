@@ -25,7 +25,7 @@
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
         :class="(value.indexOf(item.id) > -1) ? 'border-success' : ''"
       >
-        <b-col cols="1" class="px-3 py-3 text-center">
+        <b-col cols="1" class="px-0 py-3 text-center">
           <template v-if="value.indexOf(item.id) > -1">
             <icon name="check-square" class="bg-white text-success" scale="1.125" />
           </template>
@@ -33,7 +33,7 @@
             <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
           </template>
         </b-col>
-        <b-col cols="auto" class="px-3 py-3 mr-auto">
+        <b-col cols="auto" class="px-0 py-3 mr-auto">
           <text-highlight :queries="[filter]">{{ item.desc }}</text-highlight>
         </b-col>
         <b-col cols="auto">
