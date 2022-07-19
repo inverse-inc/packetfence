@@ -152,28 +152,16 @@ export const useProtocols = communication => {
 
 export const rgbaProto = (proto, port, opacity = 1) => {
   switch (proto) {
-    case 'TCP':
-      return `rgb(0, 255, 0, ${opacity})`
+    case 'TCP': // #28a745
+      return `rgb(40, 167, 69, ${opacity})`
       // break
-    case 'UDP':
-      return `rgb(0, 0, 255, ${opacity})`
+    case 'UDP': // #007bff
+      return `rgb(0, 123, 255, ${opacity})`
       // break
-    case 'UNKNOWN':
-      return `rgb(255, 0, 0, ${opacity})`
+    case 'UNKNOWN': // #dc3545
+      return `rgb(220, 53, 69, ${opacity})`
       // break
     default:
       return `rgb(0, 0, 0, ${opacity})`
   }
-  /*
-  switch (true) {
-    case (+item.port < 1024):
-      return 'rgb(40, 167, 69)' // success
-      // break
-    case (+item.port < 49152):
-        return 'rgb(255, 193, 7)' // warning
-      // break
-    default:
-      return 'rgb(220, 53, 69)' // danger
-  }
-  */
 }
