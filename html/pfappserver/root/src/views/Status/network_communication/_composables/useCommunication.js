@@ -3,6 +3,12 @@ import {
   reIpv4,
   reIpv6,
 } from '@/utils/regex'
+import {
+  COLOR_PROTO_DEFAULT,
+  COLOR_PROTO_TCP,
+  COLOR_PROTO_UDP,
+  COLOR_PROTO_UNKNOWN
+} from '../config'
 
 export const decorateDevice = d => {
   return `${d[0]}${d[1]}:${d[2]}${d[3]}:${d[4]}${d[5]}:${d[6]}${d[7]}:${d[8]}${d[9]}:${d[10]}${d[11]}`
@@ -153,15 +159,15 @@ export const useProtocols = communication => {
 export const rgbaProto = (proto, port, opacity = 1) => {
   switch (proto) {
     case 'TCP': // #28a745
-      return `rgb(40, 167, 69, ${opacity})`
+      return `rgb(${COLOR_PROTO_TCP}, ${opacity})`
       // break
     case 'UDP': // #007bff
-      return `rgb(0, 123, 255, ${opacity})`
+      return `rgb(${COLOR_PROTO_UDP}, ${opacity})`
       // break
     case 'UNKNOWN': // #dc3545
-      return `rgb(220, 53, 69, ${opacity})`
+      return `rgb(${COLOR_PROTO_UNKNOWN}, ${opacity})`
       // break
     default:
-      return `rgb(0, 0, 0, ${opacity})`
+      return `rgb(${COLOR_PROTO_DEFAULT}, ${opacity})`
   }
 }

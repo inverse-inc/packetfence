@@ -53,6 +53,8 @@ const components = {
 import { computed, ref } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import { rgbaProto } from '../_composables/useCommunication'
+import {  COLOR_MARKER_LINE } from '../config'
+
 
 const setup = (props, context) => {
 
@@ -152,7 +154,7 @@ const setup = (props, context) => {
             marker: {
               color,
               line: {
-                color: 'rgb(255, 255, 255)',
+                color: `rgb(${COLOR_MARKER_LINE})`,
                 width: 1
               }
             },
@@ -187,7 +189,7 @@ const setup = (props, context) => {
             marker: {
               color,
               line: {
-                color: 'rgb(255, 255, 255)',
+                color: `rgb(${COLOR_MARKER_LINE})`,
                 width: 1
               }
             },
