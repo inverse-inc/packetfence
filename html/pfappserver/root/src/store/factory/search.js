@@ -29,7 +29,7 @@ export const useString = (searchString, columns) => {
 }
 
 const reduceQuery = query => {
-  let { op, values = [], field } = query
+  let { op, values = [], field } = query || {}
   if (field) { // ignore user defined criteria
     return query
   }
