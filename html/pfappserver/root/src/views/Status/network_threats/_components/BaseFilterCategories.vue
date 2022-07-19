@@ -24,9 +24,10 @@
         @click="onSelectItem(item)"
         align-v="center"
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
-        :class="{
-          'border-success': value.indexOf(+item.id) > -1
-        }">
+        :class="(value.indexOf(+item.id) > -1)
+          ? 'bg-hover-success border-success'
+          : 'bg-hover-secondary'
+        ">
         <b-col cols="auto" class="text-center">
           <icon :name="`fingerbank-${item.id}`" scale="1.5"
             :class="(value.indexOf(+item.id) > -1) ? 'text-success' : 'text-secondary'"

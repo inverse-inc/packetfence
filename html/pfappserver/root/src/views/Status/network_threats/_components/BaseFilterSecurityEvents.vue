@@ -23,7 +23,10 @@
         @click="onSelectItem(item)"
         align-v="center"
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
-        :class="(value.indexOf(item.id) > -1) ? 'border-success' : ''"
+        :class="(value.indexOf(item.id) > -1)
+          ? 'bg-hover-success border-success'
+          : 'bg-hover-secondary'
+        "
       >
         <b-col cols="1" class="px-0 py-3 text-center">
           <template v-if="value.indexOf(item.id) > -1">

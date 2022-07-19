@@ -11,19 +11,24 @@
       <b-row align-v="center">
         <b-col cols="6" v-for="deviceClass in decoratedDeviceClasses" :key="deviceClass.id"
           @click="toggleDeviceClass(deviceClass)"
-          class="bg-hover-success cursor-pointer py-1"
-          :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1) ? 'text-success' : 'text-muted'"
-        >
-          <b-row align-v="center">
-            <b-col cols="auto">
-              <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1 mb-1" />
-              {{ deviceClass.name }}
-            </b-col>
-            <b-col v-if="deviceClass._count"
-              cols="auto" class="ml-auto">
-              <b-badge>{{ deviceClass._count }} {{ $i18n.t('nodes') }}</b-badge>
-            </b-col>
-          </b-row>
+          class="cursor-pointer p-1">
+          <div class="border border-1 p-1"
+            :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1)
+              ? 'bg-hover-success border-success'
+              : 'bg-hover-secondary'
+            ">
+            <b-row align-v="center">
+              <b-col cols="auto">
+                <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1 mb-1"
+                  :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1) ? 'text-success' : 'text-muted'" />
+                {{ deviceClass.name }}
+              </b-col>
+              <b-col v-if="deviceClass._count"
+                cols="auto" class="ml-auto">
+                <b-badge>{{ deviceClass._count }} {{ $i18n.t('nodes') }}</b-badge>
+              </b-col>
+            </b-row>
+          </div>
         </b-col>
       </b-row>
     </template>
