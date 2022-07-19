@@ -71,7 +71,7 @@ ALTER TABLE ip4log_archive
 
 ALTER TABLE ip6log
    DROP CONSTRAINT `ip6log_tenant_id`,
-   DROP PRIMARY KEY,   
+   DROP PRIMARY KEY,
    ADD PRIMARY KEY (`ip`),
    DROP tenant_id;
 
@@ -83,7 +83,7 @@ ALTER TABLE ip6log_archive
 
 ALTER TABLE locationlog
    DROP CONSTRAINT `locationlog_tenant_id`,
-   DROP PRIMARY KEY,   
+   DROP PRIMARY KEY,
    ADD PRIMARY KEY (`mac`),
    DROP tenant_id;
 
