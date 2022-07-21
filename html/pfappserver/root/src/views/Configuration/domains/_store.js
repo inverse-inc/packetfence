@@ -119,14 +119,14 @@ const actions = {
     })
   },
   testDomain: ({ state, commit }, id) => {
-    if (id in state.joins)
-      return Promise.resolve(state.joins[id])
     commit('TEST_REQUEST', id)
     return api.test(id).then(response => {
-      commit('TEST_SUCCESS', { id, response })
-      return state.joins[id]
+      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+        commit('TEST_SUCCESS', { id: id, response })
+        return state.joins[id]
+      })
     }).catch(error => {
-      commit('TEST_ERROR', { id, error })
+      commit('TEST_ERROR', { id: id, response: error })
       return state.joins[id]
     })
   },
@@ -208,7 +208,7 @@ const mutations = {
   TEST_ERROR: (state, data) => {
     Vue.set(state.joins[data.id], 'status', false)
     const { error: { response: { data: { message = null } = {} } = {} } = {} } = data
-    Vue.set(state.joins[data.id], 'message', message || data.error.message)
+    Vue.set(state.joins[data.id], 'message', message || data.response.message)
   },
   JOIN_REQUEST: (state, id) => {
     if (!(id in state.joins)) {

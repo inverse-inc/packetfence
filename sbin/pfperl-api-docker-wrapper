@@ -10,6 +10,5 @@ args="$args -v /usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
 args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
 args="$args --network=host"
-cd /usr/local/pf/
 
 run $name "$args"
