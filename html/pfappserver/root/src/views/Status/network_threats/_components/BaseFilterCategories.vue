@@ -33,7 +33,7 @@
             :class="(value.indexOf(+item.id) > -1) ? 'text-success' : 'text-secondary'"
             />
         </b-col>
-        <b-col cols="auto" class="p-3 mr-auto">
+        <b-col cols="auto" class="px-0 py-3 mr-auto">
           <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
         </b-col>
         <b-col cols="auto">

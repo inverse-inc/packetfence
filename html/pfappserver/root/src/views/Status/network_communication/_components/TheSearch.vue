@@ -4,10 +4,20 @@
       <p class="py-0 col-form-label text-left text-nowrap" v-text="'Condition'"></p>
     </template>
     <template v-slot:footer>
-      <b-container class="mt-3 p-0">
-        <p class="d-inline py-0 col-form-label text-left text-nowrap" v-text="'Device Class'" />
-        <b-badge v-if="selectedDeviceClasses.length" pill variant="primary" class="ml-1">{{ selectedDeviceClasses.length }}</b-badge>
-      </b-container>
+      <b-row class="mt-3 p-0">
+        <b-col cols="auto" class="mr-auto">
+          <p class="d-inline py-0 col-form-label text-left text-nowrap" v-text="'Device Class'" />
+          <b-badge v-if="selectedDeviceClasses.length" pill variant="primary" class="ml-1">{{ selectedDeviceClasses.length }}</b-badge>
+        </b-col>
+        <b-col cols="auto" class="text-right">
+          <b-btn variant="link" size="sm" class="text-secondary"
+            @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>
+          <b-btn variant="link" size="sm" class="text-secondary"
+            @click="onSelectNone">{{ $i18n.t('None') }}</b-btn>
+          <b-btn variant="link" size="sm" class="text-secondary"
+            @click="onSelectInverse">{{ $i18n.t('Invert') }}</b-btn>
+        </b-col>
+      </b-row>
       <b-row align-v="center">
         <b-col cols="6" v-for="deviceClass in decoratedDeviceClasses" :key="deviceClass.id"
           @click="toggleDeviceClass(deviceClass)"
@@ -133,6 +143,25 @@ const setup = (props, context) => {
     }
   }, { deep: true, immediate: true })
 
+  const onSelectAll = () => {
+    selectedDeviceClasses.value = deviceClasses.value.map(item => item.id)
+  }
+  const onSelectNone = () => {
+    selectedDeviceClasses.value = []
+  }
+  const onSelectInverse = () => {
+    let input = [ ...selectedDeviceClasses.value ]
+    deviceClasses.value.map(item => item.id).forEach(category => {
+      if (input.indexOf(category) === -1) {
+        input.push(category)
+      }
+      else {
+        input = input.filter(selected => selected !== category)
+      }
+    })
+    selectedDeviceClasses.value = input
+  }
+
   return {
     useNodesSearch,
 
@@ -140,6 +169,9 @@ const setup = (props, context) => {
     decoratedDeviceClasses,
     selectedDeviceClasses,
     toggleDeviceClass,
+    onSelectAll,
+    onSelectInverse,
+    onSelectNone,
   }
 }
 
