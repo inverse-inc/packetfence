@@ -80,6 +80,7 @@ sub _defaults {
     return {};
 }
 
+our $ER_WARN_DEPRECATED_SYNTAX = 1287;
 
 our %MYSQL_ERROR_TO_STATUS_CODES = (
     1062 => $STATUS::CONFLICT, #ER_DUP_ENTRY
@@ -138,6 +139,9 @@ sub db_execute {
         if ($warnings) {
             my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
             for my $w (@$warnings) {
+                if (skip_warning($w)) {
+                    next;
+                }
                 $logger->warn(join(": ", @$w));
             }
         }
@@ -146,6 +150,11 @@ sub db_execute {
         $attempts--;
     }
     return $status, undef, undef;
+}
+
+sub skip_warning {
+    my ($w) = @_;
+    return $w->[1] == $ER_WARN_DEPRECATED_SYNTAX;
 }
 
 sub mysql_error_to_status_code {
