@@ -83,7 +83,7 @@ export const useSearch = makeSearch('networkThreats', {
   defaultCondition: () => ({
     op: 'and', values: [
     { op: 'or', values: [
-      { field: 'mac', op: 'not_equals', value: null }
+      // noop
     ] }
   ] })
 })

@@ -7,14 +7,11 @@
       <b-row>
         <b-col cols="6">
           <b-tabs small class="fixed">
-            <b-tab class="border-1 border-right border-bottom border-left pb-1">
+            <b-tab class="border-1 border-right border-bottom border-left p-3">
               <template #title>
-                {{ $i18n.t('Categories') }}
-                <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
-                <base-icon-preference id="vizsec::filters"
-                  class="ml-1" />
+                {{ $i18n.t('Search') }}
               </template>
-              <base-filter-categories v-model="selectedCategories" />
+              <the-search :selected-security-events="selectedSecurityEvents" />
             </b-tab>
           </b-tabs>
         </b-col>
@@ -142,11 +139,10 @@ import {
   BaseSearchInputPage,
   BaseTableEmpty
 } from '@/components/new/'
-import BaseFilterCategories from './BaseFilterCategories'
 import BaseFilterSecurityEvents from './BaseFilterSecurityEvents'
+import TheSearch from './TheSearch'
 import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 const components = {
-  BaseFilterCategories,
   BaseFilterSecurityEvents,
   BaseIconPreference,
   BaseSearchInputColumns,
@@ -154,9 +150,10 @@ const components = {
   BaseSearchInputPage,
   BaseTableEmpty,
   NodeDropdown,
+  TheSearch,
 }
 
-import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -165,64 +162,23 @@ import { useSearch } from '../_search'
 
 const setup = (props, context) => {
 
-    const { root: { $router, $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
-    const search = useSearch()
-    const {
-      defaultCondition,
-      doSearch,
-      reSearch,
-      setPage
-    } = search
-    const {
-      items,
-      visibleColumns
-    } = toRefs(search)
+  const search = useSearch()
+  const {
+    reSearch,
+  } = search
+  const {
+    items,
+    visibleColumns
+  } = toRefs(search)
 
-    const selectedCategories = usePreference('vizsec::filters', 'categories', [])
-    const selectedSecurityEvents = usePreference('vizsec::filters', 'securityEvents', [])
+  const selectedSecurityEvents = usePreference('vizsec::filters', 'securityEvents', [])
 
-    const totalOpen = computed(() => $store.state.$_network_threats.totalOpen)
-    const totalClosed = computed(() => $store.state.$_network_threats.totalClosed)
-    const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
-    const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
-
-  const deviceClassMap = ref({})
-  const securityEventMap = ref({})
-  onMounted(() => {
-    $store.dispatch('$_fingerbank/getClasses').then(items => {
-      deviceClassMap.value = items.reduce((assoc, item) => {
-        return { ...assoc, [item.id]: item.name }
-      }, {})
-    })
-    $store.dispatch('$_security_events/all').then(items => {
-      securityEventMap.value = items.reduce((assoc, item) => {
-        return { ...assoc, [item.id]: item.desc }
-      }, {})
-    })
-  })
-
-  watch([selectedCategories, selectedSecurityEvents, deviceClassMap], () => {
-    setPage(1)
-    if ((selectedCategories.value.length && Object.keys(deviceClassMap.value).length) || selectedSecurityEvents.value.length) {
-      doSearch({
-        op: 'and',
-        values: [
-          ...((selectedCategories.value.length && Object.keys(deviceClassMap.value).length)
-            ? [{ op: 'or', values: selectedCategories.value.map(value => { return { field: 'node.device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }]
-            : []
-          ),
-          ...((selectedSecurityEvents.value.length)
-            ? [{ op: 'or', values: selectedSecurityEvents.value.map(value => { return { field: 'security_event_id', op: 'equals', value }}) }]
-            : []
-          ),
-        ]
-      })
-    }
-    else {
-      doSearch(defaultCondition())
-    }
-  }, { deep: true, immediate: true })
+  const totalOpen = computed(() => $store.state.$_network_threats.totalOpen)
+  const totalClosed = computed(() => $store.state.$_network_threats.totalClosed)
+  const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
+  const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
 
   const tableRef = ref(null)
   let selected = useBootstrapTableSelected(tableRef, items, null)
@@ -244,8 +200,16 @@ const setup = (props, context) => {
       })
   }
 
+  const securityEventMap = ref({})
+  onMounted(() => {
+    $store.dispatch('$_security_events/all').then(items => {
+      securityEventMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.desc }
+      }, {})
+    })
+  })
+
   return {
-    selectedCategories,
     selectedSecurityEvents,
 
     totalOpen,
