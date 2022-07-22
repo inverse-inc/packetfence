@@ -204,7 +204,7 @@ const setup = (props, context) => {
 
   watch([selectedCategories, selectedSecurityEvents, deviceClassMap], () => {
     setPage(1)
-    if ((selectedCategories.value.length  &&  Object.keys(deviceClassMap.value).length) || selectedSecurityEvents.value.length) {
+    if ((selectedCategories.value.length && Object.keys(deviceClassMap.value).length) || selectedSecurityEvents.value.length) {
       doSearch({
         op: 'and',
         values: [

@@ -50,7 +50,8 @@
         <slot name="footer" v-bind="search" />
       </div>
     </transition>
-    <b-row align-h="end">
+    <b-row v-if="!hideCursor"
+      align-h="end">
       <b-col cols="auto" class="mr-auto my-3">
         <slot />
       </b-col>
@@ -97,6 +98,9 @@ const props = {
     type: Function
   },
   disabled: {
+    type: Boolean
+  },
+  hideCursor: {
     type: Boolean
   }
 }

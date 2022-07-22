@@ -7,14 +7,11 @@
       <b-row>
         <b-col cols="12">
           <b-tabs small class="fixed">
-            <b-tab class="border-1 border-right border-bottom border-left pb-1">
+            <b-tab class="border-1 border-right border-bottom border-left p-3">
               <template #title>
-                {{ $i18n.t('Categories') }}
-                <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
-                <base-icon-preference id="vizsec::filters"
-                  class="ml-1" />
+                {{ $i18n.t('Search') }}
               </template>
-              <base-filter-categories v-model="selectedCategories" />
+              <the-search />
             </b-tab>
           </b-tabs>
         </b-col>
@@ -72,7 +69,7 @@
 </template>
 
 <script>
-import BaseFilterCategories from './BaseFilterCategories'
+import TheSearch from './TheSearch'
 import {
   BaseIconPreference,
   BaseSearchInputLimit,
@@ -80,61 +77,27 @@ import {
  } from '@/components/new/'
 import TheGraph from '@/views/Nodes/network/_components/TheGraph'
 const components = {
-  BaseFilterCategories,
   BaseIconPreference,
   BaseSearchInputLimit,
   BaseSearchInputPage,
   TheGraph,
+  TheSearch,
 }
 
-import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { toRefs } from '@vue/composition-api'
 import { useSearch } from '../_search'
 import useGraph from '@/views/Nodes/network/_composables/useGraph'
-import usePreference from '@/composables/usePreference'
 
 const setup = (props, context) => {
 
-  const { refs, root: { $store } = {} } = context
+  const { refs } = context
 
   const search = useSearch()
-  const {
-    doReset,
-    doSearch,
-    setPage
-  } = search
-
   const graph = useGraph(search, refs)
 
-  const deviceClassMap = ref({})
-  onMounted(() => {
-    $store.dispatch('$_fingerbank/getClasses').then(items => {
-      deviceClassMap.value = items.reduce((assoc, item) => {
-        return { ...assoc, [item.id]: item.name }
-      }, {})
-    })
-  })
-
-  const selectedCategories = usePreference('vizsec::filters', 'categories', [])
-
-  watch([selectedCategories, deviceClassMap], () => {
-    setPage(1)
-    if (selectedCategories.value.length) {
-      doSearch({
-        op: 'and',
-        values: [
-          { op: 'or', values: selectedCategories.value.map(value => { return { field: 'device_class', op: 'equals', value: deviceClassMap.value[value] || null }}) }
-        ]
-      })
-    }
-    else {
-      doReset()
-    }
-  }, { deep: true, immediate: true })
-
   return {
-    selectedCategories,
     ...toRefs(search),
-    ...toRefs(graph),
+    ...graph,
   }
 }
 

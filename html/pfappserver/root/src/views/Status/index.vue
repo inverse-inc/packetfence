@@ -30,7 +30,7 @@ const setup = (props, context) => {
     {
       name: i18n.t('Assets'),
       path: '/status/assets',
-      saveSearchNamespace: 'assets',
+      saveSearchNamespace: 'assetsNodesNetwork',
       can: 'read nodes'
     },
     {

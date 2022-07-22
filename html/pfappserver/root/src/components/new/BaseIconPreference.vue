@@ -1,5 +1,5 @@
 <template>
-  <icon name="save" v-bind="$atrrs"
+  <icon name="save" v-bind="$attrs"
     id="icon-preference" :class="className"
     v-b-tooltip.hover.right.d300 :title="$t(`User preference (${id}) stored in database.`)"
     />

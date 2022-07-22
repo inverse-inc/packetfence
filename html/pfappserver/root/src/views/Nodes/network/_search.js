@@ -263,7 +263,7 @@ export const search = {
   defaultCondition: () => ({
     op: 'and', values: [
     { op: 'or', values: [
-      { field: 'last_seen', op: 'greater_than', value: '' }
+      // noop
     ] }
     ]
   }),

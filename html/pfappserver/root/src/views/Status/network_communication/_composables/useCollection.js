@@ -1,25 +1,5 @@
-import { computed, toRefs } from '@vue/composition-api'
-import i18n from '@/utils/locale'
-
-export const useItemTitle = (props) => {
-  const {
-    id,
-    isClone,
-    isNew
-  } = toRefs(props)
-  return computed(() => {
-    switch (true) {
-      case !isNew.value && !isClone.value:
-        return i18n.t('Role <code>{id}</code>', { id: id.value })
-      case isClone.value:
-        return i18n.t('Clone Role <code>{id}</code>', { id: id.value })
-      default:
-        return i18n.t('New Role')
-    }
-  })
-}
-
 import makeSearch from '@/store/factory/search'
+import i18n from '@/utils/locale'
 import { search as nodesSearch } from '@/views/Nodes/_search'
 import api from '../_api'
 
