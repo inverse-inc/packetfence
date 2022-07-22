@@ -12,28 +12,25 @@
       </b-form>
     </b-card-header>
     <div class="p-0 filtered-items">
-
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectNone">{{ $i18n.t('None') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectInverse">{{ $i18n.t('Invert') }}</b-btn>
-
       <b-row v-for="item in filteredItems" :key="item.id"
         @click="onSelectItem(item)"
         align-v="center"
         class="mx-1 mt-1 text-nowrap border border-1 cursor-pointer"
-        :class="(value.indexOf(+item.id) > -1)
-          ? 'bg-hover-success border-success'
-          : 'bg-hover-secondary'
-        ">
+        :class="{
+          'border-success': value.indexOf(+item.id) > -1
+        }">
         <b-col cols="auto" class="text-center">
           <icon :name="`fingerbank-${item.id}`" scale="1.5"
             :class="(value.indexOf(+item.id) > -1) ? 'text-success' : 'text-secondary'"
             />
         </b-col>
-        <b-col cols="auto" class="px-0 py-3 mr-auto">
+        <b-col cols="auto" class="p-3 mr-auto">
           <text-highlight :queries="[filter]">{{ item.name }}</text-highlight>
         </b-col>
         <b-col cols="auto">

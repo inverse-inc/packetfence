@@ -9,7 +9,10 @@
           <b-tabs small class="fixed">
             <b-tab class="border-1 border-right border-bottom border-left pb-1">
               <template #title>
-                {{ $i18n.t('Categories') }} <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
+                {{ $i18n.t('Categories') }}
+                <b-badge v-if="selectedCategories.length" pill variant="primary" class="ml-1">{{ selectedCategories.length }}</b-badge>
+                <base-icon-preference id="vizsec::filters"
+                  class="ml-1" />
               </template>
               <base-filter-categories v-model="selectedCategories" />
             </b-tab>
@@ -19,7 +22,10 @@
           <b-tabs small class="fixed">
             <b-tab class="border-1 border-right border-bottom border-left">
               <template #title>
-                {{ $i18n.t('Security Events') }} <b-badge v-if="selectedSecurityEvents.length" pill variant="primary" class="ml-1">{{ selectedSecurityEvents.length }}</b-badge>
+                {{ $i18n.t('Security Events') }}
+                <b-badge v-if="selectedSecurityEvents.length" pill variant="primary" class="ml-1">{{ selectedSecurityEvents.length }}</b-badge>
+                <base-icon-preference id="vizsec::filters"
+                  class="ml-1" />
               </template>
               <base-filter-security-events v-model="selectedSecurityEvents" />
             </b-tab>
@@ -130,6 +136,7 @@
 
 <script>
 import {
+  BaseIconPreference,
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,
@@ -141,6 +148,7 @@ import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 const components = {
   BaseFilterCategories,
   BaseFilterSecurityEvents,
+  BaseIconPreference,
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,

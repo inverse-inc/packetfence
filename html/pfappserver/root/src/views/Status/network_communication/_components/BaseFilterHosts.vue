@@ -18,7 +18,6 @@
         @click="onSelectNone">{{ $i18n.t('None') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectInverse">{{ $i18n.t('Invert') }}</b-btn>
-
       <b-row v-for="item in decoratedItems" :key="item.host"
         @click="onSelectItem(item)"
         align-h="end"

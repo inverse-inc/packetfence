@@ -16,19 +16,28 @@
             <b-tabs small class="filters" lazy>
               <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
-                  {{ $i18n.t('Devices') }} <b-badge v-if="selectedDevices.length" pill variant="primary" class="ml-1">{{ selectedDevices.length }}</b-badge>
+                  {{ $i18n.t('Devices') }}
+                  <b-badge v-if="selectedDevices.length" pill variant="primary" class="ml-1">{{ selectedDevices.length }}</b-badge>
+                  <base-icon-preference id="vizsec::filters"
+                    class="ml-1" />
                 </template>
                 <base-filter-devices />
               </b-tab>
               <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
-                  {{ $i18n.t('Hosts') }} <b-badge v-if="selectedHosts.length" pill variant="primary" class="ml-1">{{ selectedHosts.length }}</b-badge>
+                  {{ $i18n.t('Hosts') }}
+                  <b-badge v-if="selectedHosts.length" pill variant="primary" class="ml-1">{{ selectedHosts.length }}</b-badge>
+                  <base-icon-preference id="vizsec::filters"
+                    class="ml-1" />
                 </template>
                 <base-filter-hosts />
               </b-tab>
               <b-tab class="border-1 border-right border-bottom border-left">
                 <template #title>
-                  {{ $i18n.t('Protocols') }} <b-badge v-if="selectedProtocols.length" pill variant="primary" class="ml-1">{{ selectedProtocols.length }}</b-badge>
+                  {{ $i18n.t('Protocols') }}
+                  <b-badge v-if="selectedProtocols.length" pill variant="primary" class="ml-1">{{ selectedProtocols.length }}</b-badge>
+                  <base-icon-preference id="vizsec::filters"
+                    class="ml-1" />
                 </template>
                 <base-filter-protocols />
               </b-tab>
@@ -41,6 +50,7 @@
 </template>
 
 <script>
+import { BaseIconPreference } from '@/components/new/'
 import BaseFilterDevices from './BaseFilterDevices'
 import BaseFilterHosts from './BaseFilterHosts'
 import BaseFilterProtocols from './BaseFilterProtocols'
@@ -51,6 +61,7 @@ const components = {
   BaseFilterDevices,
   BaseFilterHosts,
   BaseFilterProtocols,
+  BaseIconPreference,
 
   TheSearch,
   TheData,

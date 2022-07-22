@@ -12,14 +12,12 @@
       </b-form>
     </b-card-header>
     <div class="p-0 filtered-items">
-
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectAll">{{ $i18n.t('All') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectNone">{{ $i18n.t('None') }}</b-btn>
       <b-btn variant="link" size="sm" class="text-secondary"
         @click="onSelectInverse">{{ $i18n.t('Invert') }}</b-btn>
-
       <b-row v-for="item in filteredItems" :key="item.mac"
         @click="onSelectItem(item)"
         align-v="center"

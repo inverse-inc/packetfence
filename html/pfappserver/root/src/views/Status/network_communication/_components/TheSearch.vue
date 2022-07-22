@@ -8,6 +8,8 @@
         <b-col cols="auto" class="mr-auto">
           <p class="d-inline py-0 col-form-label text-left text-nowrap" v-text="'Device Class'" />
           <b-badge v-if="selectedDeviceClasses.length" pill variant="primary" class="ml-1">{{ selectedDeviceClasses.length }}</b-badge>
+          <base-icon-preference :id="preference"
+            class="ml-1" />
         </b-col>
         <b-col cols="auto" class="text-right">
           <b-btn variant="link" size="sm" class="text-secondary"
@@ -47,10 +49,11 @@
 
 <script>
 import {
+  BaseIconPreference,
   BaseSearch,
 } from '@/components/new/'
-
 const components = {
+  BaseIconPreference,
   BaseSearch
 }
 
@@ -58,6 +61,8 @@ import { computed, toRefs, watch } from '@vue/composition-api'
 import usePreference from '@/composables/usePreference'
 import { useNodesSearch } from '../_composables/useCollection'
 import icons from '@/assets/icons/fingerbank'
+
+const preference = 'vizsec::filters'
 
 const setup = (props, context) => {
 
@@ -85,7 +90,7 @@ const setup = (props, context) => {
       _count }
   }))
 
-  const selectedDeviceClasses = usePreference('vizsec::filters', 'categories', [])
+  const selectedDeviceClasses = usePreference(preference, 'categories', [])
   const toggleDeviceClass = deviceClass => {
     const { id } = deviceClass
     if (selectedDeviceClasses.value.indexOf(id) === -1) {
@@ -172,6 +177,7 @@ const setup = (props, context) => {
     onSelectAll,
     onSelectInverse,
     onSelectNone,
+    preference,
   }
 }
 
