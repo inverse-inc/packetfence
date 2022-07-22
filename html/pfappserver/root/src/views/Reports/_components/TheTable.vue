@@ -24,7 +24,7 @@
 
     <b-table ref="tableRef"
       :busy="isLoading"
-      :hover="items.length > 0"
+      :hover="(items || []).length > 0"
       :items="items"
       :fields="visibleColumns"
       class="mb-0"
@@ -60,8 +60,8 @@
       </template>
       <template v-for="nodeField in nodeFields"
         v-slot:[`cell(${nodeField})`]="{ value }">
-        <router-link :key="nodeField"
-          :to="{ path: `/node/${value}` }"><mac v-text="value" /></router-link>
+        <node-dropdown :key="nodeField" :id="value"
+          variant="link" class="px-0" toggle-class="p-0" dropup />
       </template>
       <template v-for="personField in personFields"
         v-slot:[`cell(${personField})`]="{ value }">
@@ -102,11 +102,13 @@ import {
   BaseSearchInputPage,
   BaseTableEmpty
 } from '@/components/new/'
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 const components = {
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,
-  BaseTableEmpty
+  BaseTableEmpty,
+  NodeDropdown
 }
 
 const props = {

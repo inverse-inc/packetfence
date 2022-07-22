@@ -578,7 +578,7 @@ sub setup_api_v1_users_routes {
             auditable => 1,
         }
     );
-    my ($sub_collection_route, $sub_resource_route) = 
+    my ($sub_collection_route, $sub_resource_route) =
       $self->setup_api_v1_std_crud_routes(
         $resource_route,
         "Users::Nodes",
@@ -666,6 +666,11 @@ sub setup_api_v1_nodes_routes {
         action => 'bulk_delete',
     });
 
+    $collection_route->register_sub_actions({
+        method => 'GET',
+        actions => ['per_device_class'],
+    });
+
     return ( $collection_route, $resource_route );
 }
 
@@ -705,6 +710,19 @@ sub setup_api_v1_security_events_routes {
     );
 
     $collection_route->any(['GET'] => '/by_mac/#search')->to("SecurityEvents#by_mac")->name("api.v1.SecurityEvents.by_mac");
+    $collection_route->register_sub_actions({
+        method => 'GET',
+        actions => [
+        qw(
+            total_open
+            total_closed
+            per_device_class_open
+            per_device_class_closed
+            per_security_event_id_open
+            per_security_event_id_closed
+          )
+        ],
+    });
     return ($collection_route, $resource_route);
 }
 
@@ -1928,7 +1946,7 @@ sub setup_api_v1_system_services_routes {
     my $resource_route = $root->under("/system_service/#system_service_id")->to("SystemServices#resource")->name("api.v1.Config.SystemServices.resource");
     $self->add_subroutes($resource_route, "SystemServices", "GET", qw(status));
     $self->add_subroutes($resource_route, "SystemServices", "POST", qw(start stop restart enable disable));
-    
+
     return ($resource_route);
 }
 
@@ -1946,7 +1964,7 @@ sub setup_api_v1_services_routes {
     my $resource_route = $root->under("/service/#service_id")->to("Services#resource")->name("api.v1.Config.Services.resource");
     $self->add_subroutes($resource_route, "Services", "GET", qw(status));
     $self->add_subroutes($resource_route, "Services", "POST", qw(start stop restart enable disable update_systemd));
-    
+
     my $cs_collection_route = $collection_route->any("/cluster_statuses")->to(controller => "Services::ClusterStatuses")->name("api.v1.Config.Services.ClusterStatuses");
     $cs_collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
     my $cs_resource_route = $root->under("/services/cluster_status/#server_id")->to("Services::ClusterStatuses#resource")->name("api.v1.Config.Services.ClusterStatuses.resource");
@@ -2009,6 +2027,7 @@ sub setup_api_v1_fingerbank_routes {
     $route->register_sub_action({ action => "update_upstream_db", method => "POST"});
     $route->register_sub_action({ action => "account_info", method => "GET" });
     $route->register_sub_action({ action => "can_use_nba_endpoints", method => "GET" });
+    $route->register_sub_action({ action => "all_device_classes", method => "GET" });
     my $upstream = $route->any("/upstream")->to(scope => "Upstream")->name( $route->name . ".Upstream");
     my $local_route = $route->any("/local")->to(scope => "Local")->name( $route->name . ".Local");
     my $all_route = $route->any("/all")->to(scope => "All")->name( $route->name . ".All");
@@ -2203,7 +2222,7 @@ sub setup_api_v1_config_filter_engines_routes {
 
 =head2 setup_api_v1_config_system_routes
 
-setup_api_v1_config_system_routes 
+setup_api_v1_config_system_routes
 
 =cut
 
@@ -2215,14 +2234,14 @@ sub setup_api_v1_config_system_routes {
     $root->any( ['PUT'] => "/system/gateway" )
       ->to(controller => "Config::System", action => "put_gateway")
       ->name("api.v1.System.put_gateway");
-    
+
     $root->any( ['GET'] => "/system/hostname" )
       ->to(controller => "Config::System", action => "get_hostname")
       ->name("api.v1.Config.System.get_hostname");
     $root->any( ['PUT'] => "/system/hostname" )
       ->to(controller => "Config::System", action => "put_hostname")
       ->name("api.v1.Config.System.put_hostname");
-    
+
     $root->any( ['GET'] => "/system/dns_servers" )
       ->to(controller => "Config::System", action => "get_dns_servers")
       ->name("api.v1.Config.System.get_dns_servers");

@@ -1,0 +1,19 @@
+.bg-hover:hover,
+.bg-hover-secondary:hover {
+  background-color: lighten($secondary, 60%);
+}
+.bg-hover-success:hover {
+  background-color: lighten($success, 50%);
+}
+.bg-hover-danger:hover {
+  background-color: lighten($danger, 50%);
+}
+.bg-hover-primary:hover {
+  background-color: lighten($primary, 50%);
+}
+.bg-hover-info:hover {
+  background-color: lighten($info, 50%);
+}
+.bg-hover-warning:hover {
+  background-color: lighten($warning, 50%);
+}

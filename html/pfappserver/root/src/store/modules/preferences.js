@@ -46,6 +46,9 @@ const api = {
 const types = {
   INITIALIZING: 'initializing',
   LOADING: 'loading',
+  READING: 'reading',
+  DELETING: 'deleting',
+  WRITING: 'writing',
   SUCCESS: 'success',
   ERROR: 'error'
 }
@@ -56,19 +59,23 @@ const initialState = () => {
     initialized: false,
     cache: {},
     message: '',
-    requestStatus: ''
+    requestStatus: '',
+    requestType: '',
+    currentId: false
   }
 }
 
 const getters = {
-  isInitializing: state => state.requestStatus === types.INITIALIZING,
-  isLoading: state => [types.INITIALIZING, types.LOADING].includes(state.requestStatus)
+  isLoading: state => [types.INITIALIZING, types.LOADING].includes(state.requestStatus) || [types.READING, types.WRITING, types.DELETING].includes(state.requestType),
+  isReading: state => state.requestType === types.READING,
+  isWriting: state => state.requestType === types.WRITING,
+  isReadingId: state => id => state.requestType === types.READING && state.currentId === id,
+  isWritingId: state => id => state.requestType === types.WRITING && state.currentId === id,
 }
 
 const actions = {
   init: ({ state, commit }) => {
     if (!state.initialized) {
-      commit('PREFERENCE_INITIALIZE')
       return api.allPreferences()
         .then(items => {
           items.forEach(item => {
@@ -76,7 +83,6 @@ const actions = {
               const { meta, ...value } = JSON.parse(_value)
             commit('PREFERENCE_UPDATED', { id, value: { meta, ...value } })
           })
-          commit('PREFERENCE_INITIALIZED')
         })
         .catch(error => commit('PREFERENCE_ERROR', error))
     }
@@ -87,6 +93,7 @@ const actions = {
       .then(() => state.cache)
   },
   get: ({ state, commit, dispatch }, id) => {
+    commit('PREFERENCE_READ', id)
     return Promise.resolve(dispatch('init'))
       .then(() => {
         if (!(id in state.cache))
@@ -101,6 +108,7 @@ const actions = {
       })
   },
   set: ({ state, commit, dispatch }, data) => {
+    commit('PREFERENCE_WRITE', data.id)
     return Promise.resolve(dispatch('init'))
       .then(() => {
         if (!(data.id in state.cache))
@@ -116,6 +124,7 @@ const actions = {
       })
   },
   delete: ({ state, commit, dispatch }, id) => {
+    commit('PREFERENCE_DELETE', id)
     return Promise.resolve(dispatch('init'))
       .then(() => {
         if (id in state.cache) {
@@ -132,6 +141,18 @@ const actions = {
 }
 
 const mutations = {
+  PREFERENCE_READ: (state, id) => {
+    state.requestType = types.READING
+    state.currentId = id
+  },
+  PREFERENCE_WRITE: (state, id) => {
+    state.requestType = types.WRITING
+    state.currentId = id
+  },
+  PREFERENCE_DELETE: (state, id) => {
+    state.requestType = types.DELETING
+    state.currentId = id
+  },
   PREFERENCE_INITIALIZE: state => {
     state.requestStatus = types.INITIALIZING
   },
@@ -148,15 +169,21 @@ const mutations = {
   },
   PREFERENCE_UPDATED: (state, data) => {
     state.requestStatus = types.SUCCESS
+    state.requestType = types.SUCCESS
+    state.currentId = false
     const { id, value } = data
     Vue.set(state.cache, id, value)
   },
   PREFERENCE_DELETED: (state, id) => {
     state.requestStatus = types.SUCCESS
+    state.requestType = types.SUCCESS
+    state.currentId = false
     Vue.delete(state.cache, id)
   },
   PREFERENCE_ERROR: (state, error) => {
     state.requestStatus = types.ERROR
+    state.requestType = types.ERROR
+    state.currentId = false
     const { response: { data: { message } = {} } = {} } = error
     if (message)
       state.message = message

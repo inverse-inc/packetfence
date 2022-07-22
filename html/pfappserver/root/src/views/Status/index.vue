@@ -28,11 +28,31 @@ const setup = (props, context) => {
       path: '/status/dashboard'
     },
     {
+      name: i18n.t('Assets'),
+      path: '/status/assets',
+      saveSearchNamespace: 'assets',
+      can: 'read nodes'
+    },
+    {
+      name: i18n.t('Network Threats'),
+      path: '/status/network_threats',
+      saveSearchNamespace: 'networkThreats',
+      can: 'read nodes'
+    },
+    {
+      name: i18n.t('Network Communication'),
+      path: '/status/network_communication',
+      saveSearchNamespace: 'nodes',
+      can: 'read nodes',
+    },
+    /*
+    {
       name: i18n.t('Network View'),
       path: '/status/network',
       saveSearchNamespace: 'network',
       can: 'read nodes'
     },
+    */
     {
       name: i18n.t('Services'),
       path: '/status/services',

@@ -17,10 +17,14 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::Crud';
 use pf::security_event;
 use pf::fingerbank;
+use pf::error qw(is_error);
+use pf::UnifiedApi::Search::Builder::SecurityEvents;
 
 has dal => 'pf::dal::security_event';
 has url_param_name => 'security_event_id';
 has primary_key => 'id';
+
+has 'search_builder_class' => 'pf::UnifiedApi::Search::Builder::SecurityEvents';
 
 sub by_mac {
     my ($self) = @_;
@@ -33,14 +37,66 @@ sub _search_by_mac {
     my ($self, $mac) = @_;
     my @security_events = pf::security_event::security_event_view_desc($mac);
     return $self->render(json => { items => \@security_events }) if scalar @security_events > 0 and defined($security_events[0]);
-    return $self->render(json => undef);
 }
 
 sub _search_by_id {
     my ($self, $id) = @_;
     my @security_event = pf::security_event::security_event_view($id);
     return $self->render(json => { items => [ $security_event[0] ] } ) if scalar @security_event > 0 and defined($security_event[0]);
-    return $self->render(json => undef);
+}
+
+sub _total_status {
+    my ($self, $status) = @_;
+    return $self->_db_execute_response(
+        'SELECT COUNT(DISTINCT mac) as count from security_event where security_event.status = ?;',
+        $status
+    );
+}
+
+sub total_open {
+    my ($self) = @_;
+    return $self->_total_status('open');
+}
+
+sub total_closed {
+    my ($self) = @_;
+    return $self->_total_status('closed');
+}
+
+sub _per_device_class_status {
+    my ($self, $status) = @_;
+    return $self->_db_execute_response(
+        'SELECT node.device_class, COUNT(1) as count from security_event LEFT JOIN node on (node.mac=security_event.mac) WHERE security_event.status=? GROUP BY node.device_class;',
+        $status
+    );
+}
+
+sub _per_security_event_id_status {
+    my ($self, $status) = @_;
+    return $self->_db_execute_response(
+        'SELECT security_event_id, COUNT(1) as count FROM security_event WHERE security_event.status=? GROUP BY security_event.security_event_id;',
+        $status
+    );
+}
+
+sub per_security_event_id_closed {
+    my ($self) = @_;
+    return $self->_per_security_event_id_status('closed');
+}
+
+sub per_security_event_id_open {
+    my ($self) = @_;
+    return $self->_per_security_event_id_status('open');
+}
+
+sub per_device_class_open {
+    my ($self) = @_;
+    return $self->_per_device_class_status('open');
+}
+
+sub per_device_class_closed {
+    my ($self) = @_;
+    return $self->_per_device_class_status('closed');
 }
 
 =head1 AUTHOR

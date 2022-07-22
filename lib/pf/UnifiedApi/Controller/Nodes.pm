@@ -752,7 +752,7 @@ network_graph_search_builder
 =cut
 
 sub network_graph_search_builder {
-    return pf::UnifiedApi::Search::Builder::NodesNetworkGraph->new(); 
+    return pf::UnifiedApi::Search::Builder::NodesNetworkGraph->new();
 }
 
 =head2 pf_network_graph_node
@@ -1112,6 +1112,20 @@ sub bulk_delete {
     return $self->render(status => 200, json => { items => $results });
 }
 
+sub per_device_class {
+    my ($self) = @_;
+    my ($status, $sth) = $self->dal->db_execute(
+        "SELECT device_class, COUNT(1) as count from node WHERE device_class IS NOT NULL GROUP BY device_class;"
+    );
+    if (is_error($status)) {
+        return $self->render_error($status, "Cannot complete query");
+    }
+
+    my $items = $sth->fetchall_arrayref({});
+    $sth->finish();
+    return $self->render(json => { items => $items });
+}
+
 sub do_remove {
     my ($self) = @_;
     return $self->_do_remove($self->build_item_lookup);
@@ -1176,6 +1190,13 @@ sub update_data {
 
     $self->ensure_person_exists($data);
     return $data;
+}
+
+sub per_device_class {
+    my ($self) = @_;
+    return $self->_db_execute_response(
+        "SELECT device_class, COUNT(1) as count from node WHERE device_class IS NOT NULL GROUP BY device_class;"
+    );
 }
 
 =head1 AUTHOR

@@ -32,13 +32,20 @@ const state = () => {
   return {
     nodes: {}, // nodes details
     nodeExists: {}, // node exists true|false
+    nodePerDeviceClass: [],
     message: '',
     nodeStatus: ''
   }
 }
 
 const getters = {
-  isLoading: state => state.nodeStatus === 'loading'
+  isLoading: state => state.nodeStatus === 'loading',
+  perDeviceClass: state => state.nodePerDeviceClass.reduce((assoc, item) => {
+    return { ...assoc, [item.device_class]: item.count }
+  }, {}),
+  perDeviceClassLowerCase: state => state.nodePerDeviceClass.reduce((assoc, item) => {
+    return { ...assoc, [item.device_class.toLowerCase()]: item.count }
+  }, {}),
 }
 
 const actions = {
@@ -413,6 +420,15 @@ const actions = {
     }).catch(err => {
       commit('NODE_ERROR', err.response)
     })
+  },
+  getPerDeviceClass: ({ commit }) => {
+    commit('NODE_REQUEST')
+    return api.perDeviceClass().then(response => {
+      commit('NODE_PER_DEVICE_CLASS', response.items)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
   }
 }
 
@@ -460,6 +476,9 @@ const mutations = {
   },
   NODE_NOT_EXISTS: (state, mac) => {
     Vue.set(state.nodeExists, mac, false)
+  },
+  NODE_PER_DEVICE_CLASS: (state, deviceClasses) => {
+    state.nodePerDeviceClass = deviceClasses
   }
 }
 

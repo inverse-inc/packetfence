@@ -24,6 +24,7 @@ export const state = () => {
   return {
     devices: {
       cache: {},
+      classes: [],
       message: '',
       status: ''
     }
@@ -32,7 +33,14 @@ export const state = () => {
 
 export const getters = {
   isDevicesWaiting: state => [types.LOADING, types.DELETING].includes(state.devices.status),
-  isDevicesLoading: state => state.devices.status === types.LOADING
+  isDevicesLoading: state => state.devices.status === types.LOADING,
+  assocClassesById: state => state.classes.reduce((assoc, { id, name }) => {
+    return { ...assoc, [id]: name }
+  }, {}),
+  assocClassesByName: state => state.classes.reduce((assoc, { id, name }) => {
+    return { ...assoc, [name]: id }
+  }, {}),
+
 }
 
 export const actions = {
@@ -43,6 +51,16 @@ export const actions = {
     }
     return api.list(params).then(response => {
       return response.items
+    })
+  },
+  getClasses: ({ state, commit }) => {
+    commit('DEVICE_REQUEST')
+    return api.classes().then(response => {
+      commit('DEVICE_CLASSES', response.items)
+      return state.classes
+    }).catch(err => {
+      commit('DEVICE_ERROR', err.response)
+      throw err
     })
   },
   getDevice: ({ state, commit }, id) => {
@@ -109,5 +127,9 @@ export const mutations = {
     if (response && response.data) {
       state.devices.message = response.data.message
     }
+  },
+  DEVICE_CLASSES: (state, classes) => {
+    state.devices.status = types.SUCCESS
+    state.classes = classes
   }
 }

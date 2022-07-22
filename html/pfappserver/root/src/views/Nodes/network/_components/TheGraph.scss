@@ -1,12 +1,6 @@
 :root { /* defaults */
-  --color-black: var(--dark);
-  --color-blue: var(--blue);
-  --color-red: var(--red);
-  --color-yellow: var(--yellow);
-  --color-green: var(--green);
-
   /* default highlight color */
-  --highlight-color: var(--color-black);
+  --highlight-color: var(--dark);
 }
 
 @keyframes dash {
@@ -128,16 +122,16 @@
         list-style-type: none;
         position: relative;
         &.blue::before {
-          color: var(--color-blue);
+          color: var(--blue);
         }
         &.red::before {
-          color: var(--color-red);
+          color: var(--red);
         }
         &.yellow::before {
-          color: var(--color-yellow);
+          color: var(--yellow);
         }
         &.green::before {
-          color: var(--color-green);
+          color: var(--green);
         }
         &::before {
           content: '\2022';
@@ -409,16 +403,16 @@
     fill: rgba(192, 192, 192, 1);
     stroke: rgba(128, 128, 128, 1);
     &.blue {
-      fill: var(--color-blue);
+      fill: var(--blue);
     }
     &.red {
-      fill: var(--color-red);
+      fill: var(--red);
     }
     &.yellow {
-      fill: var(--color-yellow);
+      fill: var(--yellow);
     }
     &.green {
-      fill: var(--color-green);
+      fill: var(--green);
     }
     &.highlight {
       fill: var(--highlight-color);

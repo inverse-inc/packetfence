@@ -39,6 +39,7 @@ import BaseFormGroupToggleNoYes from './BaseFormGroupToggleNoYes'
 import BaseFormGroupToggleNY from './BaseFormGroupToggleNY'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
+import BaseIconPreference from './BaseIconPreference'
 import BaseInput from './BaseInput'
 import BaseInputArray, { props as BaseInputArrayProps } from './BaseInputArray'
 import BaseInputChosenMultiple from './BaseInputChosenMultiple'
@@ -109,6 +110,9 @@ export {
   BaseFormGroupToggleNoYes,
   BaseFormGroupToggleNY,
   BaseFormGroupToggleOffOn,
+
+  // icons
+  BaseIconPreference,
 
   // form inputs
   BaseInput,
