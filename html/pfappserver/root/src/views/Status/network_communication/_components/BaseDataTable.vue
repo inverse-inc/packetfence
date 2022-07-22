@@ -75,11 +75,6 @@
       <template #cell(mac)="{ value }">
         <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
       </template>
-      <template #cell(buttons)>
-        <span class="float-right text-nowrap text-right mr-3">
-          <b-button variant="outline-primary">Action</b-button>
-        </span>
-      </template>
     </b-table>
       <b-container fluid v-if="selected.length"
         class="p-0">

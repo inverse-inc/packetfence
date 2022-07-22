@@ -81,6 +81,7 @@ export const useSearch = makeSearch('networkCommunication', {
     },
     {
       key: 'buttons',
+      thStyle: 'width: 40px;',
       class: 'text-right p-0',
       locked: true
     },
