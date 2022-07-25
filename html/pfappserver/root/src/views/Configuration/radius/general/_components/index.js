@@ -4,6 +4,7 @@ import {
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import { BaseViewResource } from '../../../_components/new/'
+import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -28,6 +29,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupNormalizeRadiusMachineAuthUsername,
   BaseFormGroupTextarea               as FormGroupUsernameAttributes,
 
+  AlertServices,
   BaseViewResource                    as BaseView,
   TheForm,
   TheView
