@@ -119,8 +119,8 @@ sub create {
     my ( $status_msg, $result );
 
     my $dbh = DBI->connect("dbi:mysql:mysql_socket=/var/lib/mysql/mysql.sock", $root_user, $root_password);
-    $result = $dbh->do("create database $db");
-
+    # Create the requested database
+    $result = $dbDriver->func('createdb', "$db DEFAULT CHARACTER SET = 'utf8mb4' ", 'localhost', $root_user, $root_password, 'admin');
     if ( !$result ) {
         $status_msg = ["Error in creating the database [_1]",$db];
         $logger->warn($DBI::errstr);

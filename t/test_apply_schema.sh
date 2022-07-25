@@ -40,24 +40,38 @@ else
     UPGRADE_SCRIPT=$(ls $PF_DIR/db/upgrade-[0-9]*sql | sort --version-sort -r | head -1)
 fi
 
-for db in $UPGRADED_DB $PRISTINE_DB;do
-    $MYSQL -e"DROP DATABASE IF EXISTS $db;"
-    if [ $? != "0" ];then
-        echo "Error dropping database $db"
-        exit 1;
-    fi
-    $MYSQL -e"CREATE DATABASE $db;"
-    if [ $? != "0" ];then
-        echo "Error creating database $db"
-        exit 1;
-    fi
-    echo "Created test db $db"
-done
+$MYSQL -e"DROP DATABASE IF EXISTS $UPGRADED_DB;"
+if [ $? != "0" ];then
+    echo "Error dropping database $UPGRADED_DB"
+    exit 1;
+fi
+
+$MYSQL -e"CREATE DATABASE $UPGRADED_DB DEFAULT CHARACTER SET latin1;"
+if [ $? != "0" ];then
+    echo "Error creating database $UPGRADED_DB"
+    exit 1;
+fi
+echo "Created test db $UPGRADED_DB"
+
+$MYSQL -e"DROP DATABASE IF EXISTS $PRISTINE_DB;"
+if [ $? != "0" ];then
+    echo "Error dropping database $PRISTINE_DB"
+    exit 1;
+fi
+
+$MYSQL -e"CREATE DATABASE $PRISTINE_DB DEFAULT CHARACTER SET utf8mb4;"
+if [ $? != "0" ];then
+    echo "Error creating database $PRISTINE_DB"
+    exit 1;
+fi
+echo "Created test db $PRISTINE_DB"
 
 
 echo "Applying last schema $LAST_SCHEMA"
 
 $MYSQL "$LAST_SCHEMA_ARGS" $UPGRADED_DB < "$LAST_SCHEMA"
+
+echo "Changing upgrade to utf8mb4"
 
 echo "Applying upgrade script $UPGRADE_SCRIPT"
 

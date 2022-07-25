@@ -43,6 +43,11 @@ END
 //
 
 DELIMITER ;
+
+ALTER DATABASE
+    CHARACTER SET = 'utf8mb4'
+    COLLATE = 'utf8mb4_bin';
+
 \! echo "Checking PacketFence schema version...";
 call ValidateVersion;
 
@@ -149,22 +154,58 @@ ALTER TABLE node
    DROP tenant_id
 ;
 
-ALTER TABLE security_event
-  ADD FOREIGN KEY `mac_fkey_node` (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-
-
 ALTER TABLE person
    DROP CONSTRAINT `person_tenant_id`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
    DROP tenant_id;
 
-ALTER TABLE node
-   ADD FOREIGN KEY `node_category_key` (`category_id`) REFERENCES `node_category` (`category_id`),
-   ADD FOREIGN KEY `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
-
 DROP TABLE tenant;
+
+\! echo "altering sms_carrier"
+ALTER TABLE sms_carrier
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+
+INSERT INTO sms_carrier
+    (name, email_pattern, created)
+  VALUES
+      ('RingRing', '%s@smsemail.be', now());
+
+--
+-- Trigger to archive dhcp_option82 entries to the history table after an update
+--
+
+DROP TRIGGER IF EXISTS dhcp_option82_after_update_trigger;
+DELIMITER /
+CREATE TRIGGER dhcp_option82_after_update_trigger AFTER UPDATE ON dhcp_option82
+FOR EACH ROW
+BEGIN
+    INSERT INTO dhcp_option82_history
+           (
+            created_at,
+            mac,
+            option82_switch,
+            switch_id,
+            port,
+            vlan,
+            circuit_id_string,
+            module,
+            host
+           )
+    VALUES
+           (
+            OLD.created_at,
+            OLD.mac,
+            OLD.option82_switch,
+            OLD.switch_id,
+            OLD.port,
+            OLD.vlan,
+            OLD.circuit_id_string,
+            OLD.module,
+            OLD.host
+           );
+END /
+DELIMITER ;
 
 --
 -- Trigger to insert old record from 'ip4log' in 'ip4log_history' before updating the current one
@@ -534,11 +575,9 @@ BEGIN
 END /
 DELIMITER ;
 
-
-INSERT INTO sms_carrier
-    (name, email_pattern, created)
-VALUES
-    ('RingRing', '%s@smsemail.be', now());
+\! echo "altering sms_carrier"
+ALTER TABLE sms_carrier
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
 \! echo "Removing cached realm search for all users...";
 DELETE FROM user_preference WHERE id='roles::defaultSearch';
@@ -549,6 +588,214 @@ ALTER TABLE ip4log ADD INDEX IF NOT EXISTS ip4log_mac_start_time (mac, start_tim
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `csr` BOOLEAN DEFAULT FALSE AFTER scep;
+
+\! echo "altering node"
+ALTER TABLE node
+   CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering action"
+ALTER TABLE action
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering activation"
+ALTER TABLE activation
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering auth_log"
+ALTER TABLE auth_log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering bandwidth_accounting"
+ALTER TABLE bandwidth_accounting
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering bandwidth_accounting_history"
+ALTER TABLE bandwidth_accounting_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering billing"
+ALTER TABLE billing
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering chi_cache"
+ALTER TABLE chi_cache
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering class"
+ALTER TABLE class
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dhcppool"
+ALTER TABLE dhcppool
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dhcp_option82"
+ALTER TABLE dhcp_option82
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dhcp_option82_history"
+ALTER TABLE dhcp_option82_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering dns_audit_log"
+ALTER TABLE dns_audit_log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip4log"
+ALTER TABLE ip4log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip4log_archive"
+ALTER TABLE ip4log_archive
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip4log_history"
+ALTER TABLE ip4log_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip6log"
+ALTER TABLE ip6log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip6log_archive"
+ALTER TABLE ip6log_archive
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering ip6log_history"
+ALTER TABLE ip6log_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering keyed"
+ALTER TABLE keyed
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering key_value_storage"
+ALTER TABLE key_value_storage
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering locationlog"
+ALTER TABLE locationlog
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering locationlog_history"
+ALTER TABLE locationlog_history
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering node_category"
+ALTER TABLE node_category
+    MODIFY `acls` MEDIUMTEXT NOT NULL default '',
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering password"
+ALTER TABLE password
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering person"
+ALTER TABLE person
+    MODIFY `otp` MEDIUMTEXT NULL DEFAULT NULL,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pf_version"
+ALTER TABLE pf_version
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_cas"
+ALTER TABLE pki_cas
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_certs"
+ALTER TABLE pki_certs
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_profiles"
+ALTER TABLE pki_profiles
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering pki_revoked_certs"
+ALTER TABLE pki_revoked_certs
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radacct"
+ALTER TABLE radacct
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radacct_log"
+ALTER TABLE radacct_log
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radius_audit_log"
+ALTER TABLE radius_audit_log
+    MODIFY reason MEDIUMTEXT NULL,
+    MODIFY radius_request MEDIUMTEXT,
+    MODIFY radius_reply MEDIUMTEXT,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radius_nas"
+ALTER TABLE radius_nas
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering radreply"
+ALTER TABLE radreply
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering savedsearch"
+ALTER TABLE savedsearch
+    MODIFY query MEDIUMTEXT,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering scan"
+ALTER TABLE scan
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering user_preference"
+ALTER TABLE user_preference
+    CONVERT TO CHARACTER SET utf8mb4;
+
+\! echo "altering wrix"
+ALTER TABLE wrix
+    MODIFY `English_Location_Name` MEDIUMTEXT NULL DEFAULT NULL,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+ALTER TABLE admin_api_audit_log
+    MODIFY `request` MEDIUMTEXT;
+
+ALTER TABLE node
+   ADD FOREIGN KEY `node_category_key` (`category_id`) REFERENCES `node_category` (`category_id`),
+   ADD FOREIGN KEY `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+ALTER TABLE security_event
+    MODIFY notes MEDIUMTEXT,
+    ADD CONSTRAINT `mac_fkey_node` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONVERT TO CHARACTER SET utf8mb4;
+
+DELIMITER /
+
+CREATE OR REPLACE FUNCTION `FREERADIUS_DECODE`(str text) RETURNS MEDIUMTEXT CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+    DECLARE result text;
+    DECLARE ind INT DEFAULT 0;
+
+    SET result = str;
+    WHILE ind <= 255 DO
+       SET result = REPLACE(result, CONCAT('=', LPAD(LOWER(HEX(ind)), 2, 0)), CHAR(ind));
+       SET result = REPLACE(result, CONCAT('=', LPAD(HEX(ind), 2, 0)), CHAR(ind));
+       SET ind = ind + 1;
+    END WHILE;
+
+    RETURN result;
+END /
+
+DELIMITER ;
+
+CREATE OR REPLACE FUNCTION ROUND_TO_HOUR (d DATETIME)
+    RETURNS DATETIME DETERMINISTIC
+        RETURN DATE_ADD(DATE(d), INTERVAL HOUR(d) HOUR);
+
+CREATE OR REPLACE FUNCTION ROUND_TO_MONTH (d DATETIME)
+    RETURNS DATETIME DETERMINISTIC
+        RETURN DATE_ADD(DATE(d),interval -DAY(d)+1 DAY);
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
