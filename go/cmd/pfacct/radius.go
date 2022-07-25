@@ -147,20 +147,24 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
-	if err := h.InsertBandwidthAccounting(
-		status,
-		node_id,
-		mac.String(),
-		unique_session_id,
-		timestamp,
-		in_bytes,
-		out_bytes,
-	); err != nil {
-		logError(ctx, "InsertBandwidthAccounting: "+err.Error())
-	}
+	unique_session_id := h.accountingUniqueSessionId(r)
+	if h.ProcessBandwidthAcct {
+		if err := h.InsertBandwidthAccounting(
+			status,
+			node_id,
+			mac.String(),
+			unique_session_id,
+			timestamp,
+			in_bytes,
+			out_bytes,
+		); err != nil {
+			logError(ctx, "InsertBandwidthAccounting: "+err.Error())
+		}
+		unique_session_id := h.accountingUniqueSessionId(r)
 
-	if status == rfc2866.AcctStatusType_Value_Stop {
-		h.CloseSession(node_id, unique_session_id)
+		if status == rfc2866.AcctStatusType_Value_Stop {
+			h.CloseSession(node_id, unique_session_id)
+		}
 	}
 
 	h.sendRadiusAccounting(r, switchInfo)
