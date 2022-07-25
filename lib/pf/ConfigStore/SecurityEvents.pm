@@ -20,6 +20,7 @@ use pf::file_paths qw(
 );
 use List::MoreUtils qw(uniq);
 use pf::security_event_config;
+use pfconfig::manager;
 
 extends 'pf::ConfigStore';
 
@@ -166,7 +167,7 @@ sub cleanupBeforeCommit {
 sub commit {
     my ( $self ) = @_;
     my ($result,$msg) = $self->SUPER::commit();
-    pf::security_event_config::loadSecurityEventsIntoDb();
+    pf::security_event_config::_loadSecurityEventsIntoDb(pfconfig::manager->new->get_namespace("config::SecurityEvents")->build());
     return ($result,$msg);
 }
 

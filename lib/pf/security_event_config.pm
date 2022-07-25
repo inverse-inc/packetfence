@@ -38,6 +38,11 @@ BEGIN {
 }
 
 sub loadSecurityEventsIntoDb {
+    _loadSecurityEventsIntoDb(\%SecurityEvent_Config);
+}
+
+sub _loadSecurityEventsIntoDb {
+    my ($config) = @_;
     my $logger = get_logger();
     unless(db_ping){
         $logger->error("Can't connect to db");
@@ -52,7 +57,7 @@ sub loadSecurityEventsIntoDb {
     }
 
     my @keys;
-    while(my ($security_event,$data) = each %SecurityEvent_Config) {
+    while(my ($security_event,$data) = each %{$config}) {
         # parse grace, try to understand trailing signs, and convert back to seconds
         my @time_values = qw(grace delay_by);
         push (@time_values,'window') if (defined $data->{'window'} && $data->{'window'} ne "dynamic");

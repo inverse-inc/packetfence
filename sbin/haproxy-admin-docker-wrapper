@@ -6,6 +6,7 @@ name=haproxy-admin
 
 args=`base_args $name`
 args="$args -v/usr/local/pf/conf/ssl/:/usr/local/pf/conf/ssl/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
+#TODO: bind only on management IP or 0.0.0.0 when unconfigured
 args+=" -p 1443:1443 -p 1027:1027"
 
 run $name "$args"

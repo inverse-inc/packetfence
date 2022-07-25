@@ -17,6 +17,7 @@ use Moo;
 use pf::file_paths qw($roles_config_file $roles_default_config_file);
 use pf::nodecategory;
 use pf::config;
+use pfconfig::manager;
 extends 'pf::ConfigStore';
 
 sub configFile { $roles_config_file };
@@ -34,7 +35,7 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Roles configstore");
-    nodecategory_populate_from_config( \%pf::config::ConfigRoles );
+    nodecategory_populate_from_config(pfconfig::manager->new->get_namespace("config::Roles")->build());
     return ($result, $error);
 }
 

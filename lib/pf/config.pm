@@ -870,6 +870,15 @@ sub configreload {
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
     load_configdata_into_db();
+
+    require pfconfig::git_storage;
+    if(pfconfig::git_storage->is_enabled) {
+        my ($res, $msg) = pfconfig::git_storage->deploy(light => 1);
+        if(!$res) {
+            die $msg;
+        }
+    }
+
     return ;
 }
 
