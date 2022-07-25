@@ -109,7 +109,7 @@ export {
   BaseFormGroupTextarea                     as FormGroupProxyAddresses,
   BaseFormGroupInput                        as FormGroupPublicClientKey,
   BaseFormGroupInput                        as FormGroupPublishableKey,
-  BaseFormGroupInput                        as FormGroupRadiusSecret,
+  BaseFormGroupInputPassword                as FormGroupRadiusSecret,
   BaseFormGroupInputNumber                  as FormGroupReadTimeout,
   BaseFormGroupChosenMultiple               as FormGroupRealms,
   BaseFormGroupInput                        as FormGroupRedirectUrl,
