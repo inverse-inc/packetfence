@@ -137,7 +137,7 @@ sub pfmailer {
     my $msg = MIME::Lite->new(
         To      => $to,
         Subject => $subject,
-        Data    => $data{message} . "\n",
+        Data    => $data{message} . "\r\n",
     );
     return send_mime_lite($msg);
 }

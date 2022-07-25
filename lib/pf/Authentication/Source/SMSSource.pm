@@ -118,7 +118,7 @@ sub sendSMS {
     my $msg = MIME::Lite->new(
         To          =>  $email,
         Subject     =>  "Network Activation",
-        Data        =>  $info->{message} . "\n",
+        Data        =>  $info->{message} . "\r\n",
     );
     return pf::config::util::send_mime_lite($msg);
 }
