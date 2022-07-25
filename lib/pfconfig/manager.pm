@@ -47,7 +47,6 @@ use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
-use pf::config::tenant;
 use pfconfig::git_storage;
 
 my $ordered_prefix = "ORDERED::";
