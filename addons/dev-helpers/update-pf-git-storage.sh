@@ -7,7 +7,7 @@ source /usr/local/pf/addons/functions/configuration.functions
 function exit_usage() {
   echo "------------------------------------------------------------------------------"
   echo "Usage:"
-  echo "create-pfconf-git.sh /path/to/conf-git-repo/ pf-ref fingerbank-perl-client-ref"
+  echo "update-pfconf-git.sh /path/to/conf-git-repo/ pf-ref fingerbank-perl-client-ref"
   echo "Example: update-pfconf-git.sh /usr/local/pf/pfk8s-conf devel master"
   exit 1
 }
