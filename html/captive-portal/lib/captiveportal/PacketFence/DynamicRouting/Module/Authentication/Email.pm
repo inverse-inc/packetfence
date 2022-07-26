@@ -79,8 +79,12 @@ sub do_email_registration {
     my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
     $self->update_person_from_fields(notes => $note);
 
+    my @additional_fields;
+    $info{additional_fields} = \@additional_fields;
     for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
-        $info{$key} = $request_fields->{$key};
+        my $value = $request_fields->{$key};
+        push @additional_fields, { label => $key, value => $value };
+        $info{$key} = $value;
     }
 
     $info{'firstname'} = $self->request_fields->{firstname};

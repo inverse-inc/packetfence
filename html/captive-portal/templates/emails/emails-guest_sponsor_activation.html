@@ -41,22 +41,23 @@
       display: block;
       margin: 13px 0;
     }
+
   </style>
   <!--[if mso]>
-        <noscript>
-        <xml>
-        <o:OfficeDocumentSettings>
-          <o:AllowPNG/>
-          <o:PixelsPerInch>96</o:PixelsPerInch>
-        </o:OfficeDocumentSettings>
-        </xml>
-        </noscript>
-        <![endif]-->
+    <noscript>
+    <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+    </xml>
+    </noscript>
+    <![endif]-->
   <!--[if lte mso 11]>
-        <style type="text/css">
-          .mj-outlook-group-fix { width:100% !important; }
-        </style>
-        <![endif]-->
+    <style type="text/css">
+      .mj-outlook-group-fix { width:100% !important; }
+    </style>
+    <![endif]-->
   <style type="text/css">
     @media only screen and (min-width:480px) {
       .mj-column-per-100 {
@@ -69,6 +70,7 @@
         max-width: 50%;
       }
     }
+
   </style>
   <style media="screen and (min-width:480px)">
     .moz-text-html .mj-column-per-100 {
@@ -80,6 +82,9 @@
       width: 50% !important;
       max-width: 50%;
     }
+
+  </style>
+  <style type="text/css">
   </style>
   <style type="text/css">
   </style>
@@ -205,7 +210,8 @@
                                     <p class="value" style="font-weight: 600; margin-top: 5px;">[% lastname %]</p> [% IF telephone %]<p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("Phone number") %]</p>
                                     <p class="value" style="font-weight: 600; margin-top: 5px;">[% telephone %]</p>[% END %] <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n("Email") %]</p>
                                     <p class="value" style="font-weight: 600; margin-top: 5px;">[% email %]</p> [% IF pid != email %]<p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">PID </p>
-                                    <p class="value" style="font-weight: 600; margin-top: 5px;">[% pid %]</p>[% END %]
+                                    <p class="value" style="font-weight: 600; margin-top: 5px;">[% pid %]</p>[% END %] [% FOREACH f IN additional_fields %] <p class="label" style="font-size: 10px; color: #333; text-transform: uppercase; margin-bottom: 0;">[% i18n(f.label) %]</p>
+                                    <p class="value" style="font-weight: 600; margin-top: 5px;">[% f.value %]</p> [% END %]
                                   </div>
                                 </td>
                               </tr>

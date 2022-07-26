@@ -193,9 +193,12 @@ sub do_sponsor_registration {
     foreach my $key (@auto_included) {
         $info{$key} = $request_fields->{$key};
     }
-
+    my @additional_fields;
+    $info{additional_fields} = \@additional_fields;
     for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
-        $info{$key} = $request_fields->{$key};
+        my $value = $request_fields->{$key};
+        push @additional_fields, { label => $key, value => $value };
+        $info{$key} = $value;
     }
 
     $info{'sponsor'} = $sponsor;
