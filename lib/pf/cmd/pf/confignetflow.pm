@@ -49,7 +49,7 @@ sub _run {
     }
 
     my $stderr = gensym;
-    my ($pid, $child_exit_status);;
+    my ($pid, $child_exit_status);
 
     system("/usr/sbin/dkms", "-q", "install", "-m", "ipt-netflow", "-v", $IPT_NETFLOW_VERSION);
     system("/sbin/modprobe", "ipt_NETFLOW");
