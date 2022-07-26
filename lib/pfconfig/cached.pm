@@ -231,7 +231,7 @@ sub _get_from_socket {
             print STDERR "$what $response";
             die $@;
         }
-        $LAST_TOUCH_CACHE = $result->{last_touch_cache};
+        $LAST_TOUCH_CACHE = $result->{last_touch_cache} // 0;
         $RELOADED_TOUCH_CACHE = time;
     }
     else {
