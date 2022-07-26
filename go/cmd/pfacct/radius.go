@@ -147,7 +147,6 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
-	unique_session_id := h.accountingUniqueSessionId(r)
 	if h.ProcessBandwidthAcct {
 		if err := h.InsertBandwidthAccounting(
 			status,
@@ -160,7 +159,6 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 		); err != nil {
 			logError(ctx, "InsertBandwidthAccounting: "+err.Error())
 		}
-		unique_session_id := h.accountingUniqueSessionId(r)
 
 		if status == rfc2866.AcctStatusType_Value_Stop {
 			h.CloseSession(node_id, unique_session_id)
