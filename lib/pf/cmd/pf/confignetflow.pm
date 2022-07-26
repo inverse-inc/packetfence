@@ -44,6 +44,7 @@ sub _run {
     my $logger = get_logger();
     if (!netflow_enabled() || isdisabled($Config{advanced}{netflow_kernel_module})) {
         $logger->info("netflow is disabled or the netflow kernel module is disabled");
+        system("/sbin/modprobe", "-r", "ipt_NETFLOW");
         return 0;
     }
 
