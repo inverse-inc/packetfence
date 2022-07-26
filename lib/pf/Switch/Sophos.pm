@@ -17,7 +17,7 @@ The pf::Switch::Sophos  module implements an object oriented interface to intera
 use strict;
 use warnings;
 
-use base ('pf::OpenVPN');
+use base ('pf::Switch::OpenVPN');
 
 =head1 METHODS
 
