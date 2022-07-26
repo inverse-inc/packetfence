@@ -23,7 +23,7 @@ use base ('pf::OpenVPN');
 
 =cut
 
-sub description { 'SophosVPN' }
+sub description { 'Sophos VPN' }
 
 =head1 AUTHOR
 
