@@ -2,11 +2,11 @@ package pf::Switch::Sophos;
 
 =head1 NAME
 
-pf::Switch::Shophos - Object oriented module to Sophos
+pf::Switch::Sophos - Object oriented module to Sophos
 
 =head1 SYNOPSIS
 
-The pf::Switch::Shophos  module implements an object oriented interface to interact with the Shophos
+The pf::Switch::Sophos  module implements an object oriented interface to interact with Sophos
 
 =head1 STATUS
 
@@ -16,7 +16,6 @@ The pf::Switch::Shophos  module implements an object oriented interface to inter
 
 use strict;
 use warnings;
-use List::Util qw/shuffle/;
 
 use base ('pf::OpenVPN');
 
@@ -24,35 +23,7 @@ use base ('pf::OpenVPN');
 
 =cut
 
-sub description { 'ShophosVPN' }
-
-use pf::SwitchSupports qw(
-    VPN
-);
-
-=item parseVPNRequest
-
-Redefinition of pf::Switch::parseVPNRequest due to specific attribute being used
-
-=cut
-
-sub parseVPNRequest {
-    my ( $self, $radius_request ) = @_;
-    my $logger = $self->logger;
-    # Generate a fake mac address
-    my $mac = join "", shuffle split //, $radius_request->{'User-Name'};
-    $mac = substr $sorted, 0, 6;
-    $mac = =~ s/(.)/sprintf '%02x', ord $1/seg;
-
-    my $user_name       = $self->parseRequestUsername($radius_request);
-    my $nas_port_type   = $radius_request->{'NAS-Port-Type'};
-    my $port            = $radius_request->{'NAS-Port'};
-    my $eap_type        = ( exists($radius_request->{'EAP-Type'}) ? $radius_request->{'EAP-Type'} : 0 );
-    my $nas_port_id     = ( defined($radius_request->{'NAS-Port-Id'}) ? $radius_request->{'NAS-Port-Id'} : undef );
-
-    return ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, undef, $nas_port_id);
-}
-
+sub description { 'SophosVPN' }
 
 =head1 AUTHOR
 
