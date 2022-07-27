@@ -198,7 +198,7 @@ sub do_sponsor_registration {
     for my $key ( grep { !exists $auto_included{$_} && exists $pf::person::ALLOWED_PROMPTABLE_FIELDS{$_} } @{$self->required_fields // []}) {
         my $value = $request_fields->{$key};
         next unless defined $value;
-        push @additional_fields, { label => $key, value => $value };
+        push @additional_fields, { label => ucfirst($key), value => $value };
         $info{$key} = $value;
     }
 
