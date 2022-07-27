@@ -101,5 +101,6 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	Configuration.Addr = host
 	Configuration.DBName = dbName
 	Configuration.Collation = collation
+	Configuration.ParseTime = true
 	return Configuration.FormatDSN()
 }
