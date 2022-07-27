@@ -39,7 +39,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Allow to enabled/disable processing bandwidth accounting (#6934)
 * Sophos VPN support
 * Automatically display mandatory fields in email/sponsor activation emails. (#7069)
-
+* Detect Cli-Access from Dell N1500 switch (#7070)
 
 === Bug Fixes
 
