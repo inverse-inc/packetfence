@@ -98,15 +98,8 @@ sub put_dns_servers {
 
 sub _get_hostname {
     my ($self) = @_;
-    my $hostnamectl = pf_run("hostnamectl");
-    my $static_hostname;
-    for my $line (split(/\n/, $hostnamectl)) {
-	if($line =~ /^\s*Static hostname:\s*([a-zA-Z0-9]+)/) {
-	    $static_hostname = $1;
-	    last;
-	}
-    }
-    return $static_hostname;
+    my $hostname = pf_run("hostnamectl --static");
+    return $hostname if defined($hostname);
 }
 
 sub get_hostname {
