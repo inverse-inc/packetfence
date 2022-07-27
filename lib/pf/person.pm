@@ -77,6 +77,8 @@ foreach my $field (@FIELDS){
     push @PROMPTABLE_FIELDS, $field;
 }
 
+our %ALLOWED_PROMPTABLE_FIELDS = map { $_ => 1 } @PROMPTABLE_FIELDS;
+
 =back
 
 =head1 SUBROUTINES

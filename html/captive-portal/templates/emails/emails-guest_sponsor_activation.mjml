@@ -39,6 +39,10 @@
             <p class="value">[% email %]</p>
             [% IF pid != email %]<p class="label">PID
             <p class="value">[% pid %]</p>[% END %]
+            [% FOREACH f IN additional_fields %]
+            <p class="label">[% i18n(f.label) %]</p>
+            <p class="value">[% f.value %]</p>
+            [% END %]
           </mj-text>
         </mj-column>
       </mj-section>
