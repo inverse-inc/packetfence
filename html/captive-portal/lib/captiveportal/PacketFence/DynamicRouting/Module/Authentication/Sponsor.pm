@@ -144,7 +144,7 @@ sub check_activation {
     }
 }
 
-my @auto_included = qw(firstname lastname telephone company);
+my @auto_included = qw(firstname lastname telephone);
 my %auto_included = map { $_ => 1 } @auto_included;
 
 =head2 do_sponsor_registration
@@ -195,7 +195,7 @@ sub do_sponsor_registration {
     }
     my @additional_fields;
     $info{additional_fields} = \@additional_fields;
-    foreach my $key (@pf::person::PROMPTABLE_FIELDS) {
+    for my $key ( grep { !exists $auto_included{$_} && exists $pf::person::ALLOWED_PROMPTABLE_FIELDS{$_} } @{$self->required_fields // []}) {
         my $value = $request_fields->{$key};
         next unless defined $value;
         push @additional_fields, { label => $key, value => $value };
