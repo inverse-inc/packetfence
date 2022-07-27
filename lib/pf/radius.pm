@@ -143,7 +143,7 @@ sub authorize {
 
     Log::Log4perl::MDC->put( 'mac', $mac );
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
     # switch-specific information retrieval
@@ -419,7 +419,7 @@ sub accounting {
     my $isUpdate = $acct_status_type  == $ACCOUNTING::INTERIM_UPDATE;
 
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
 
@@ -1277,7 +1277,7 @@ sub radius_filter {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
     # switch-specific information retrieval
