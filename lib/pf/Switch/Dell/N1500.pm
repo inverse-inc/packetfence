@@ -471,6 +471,25 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
+=item identifyConnectionType
+
+Determine Connection Type based on radius attributes
+
+=cut
+
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
+
+    my @require = qw(NAS-Port-Type);
+    my @found = grep {exists $radius_request->{$_}} @require;
+    if (@require != @found) {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
+        $connection->isMacAuth($FALSE);
+        $connection->transport("Virtual");
+    }
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
