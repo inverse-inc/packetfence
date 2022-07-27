@@ -34,10 +34,12 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
- * Added ability to use the MariaDB database or Redis to store the api-frontend tokens
- * Adjust logs for containerized and non-containerized services (#7043)
- * Allow to enabled/disable processing bandwidth accounting (#6934)
- * Sophos VPN support
+* Added ability to use the MariaDB database or Redis to store the api-frontend tokens
+* Adjust logs for containerized and non-containerized services (#7043)
+* Allow to enabled/disable processing bandwidth accounting (#6934)
+* Sophos VPN support
+* Automatically display mandatory fields in email/sponsor activation emails. (#7069)
+
 
 === Bug Fixes
 
