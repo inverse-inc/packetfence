@@ -81,8 +81,9 @@ sub do_email_registration {
 
     my @additional_fields;
     $info{additional_fields} = \@additional_fields;
-    for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
+    foreach my $key (@pf::person::PROMPTABLE_FIELDS) {
         my $value = $request_fields->{$key};
+        next unless defined $value;
         push @additional_fields, { label => $key, value => $value };
         $info{$key} = $value;
     }
