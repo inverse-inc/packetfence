@@ -57,6 +57,7 @@ const actions = {
     }
     return api.list(params).then(response => {
       return response.items
+        .filter(item => item.desc)
     })
   },
   options: ({ commit }, id) => {
