@@ -56,7 +56,7 @@ const types = {
 // Default values
 const initialState = () => {
   return {
-    initialized: false,
+    promise: false,
     cache: {},
     message: '',
     requestStatus: '',
@@ -75,8 +75,8 @@ const getters = {
 
 const actions = {
   init: ({ state, commit }) => {
-    if (!state.initialized) {
-      return api.allPreferences()
+    if (!state.promise) {
+      const promise = api.allPreferences()
         .then(items => {
           items.forEach(item => {
               const { id, value: _value = '{}' } = item
@@ -85,8 +85,10 @@ const actions = {
           })
         })
         .catch(error => commit('PREFERENCE_ERROR', error))
+      commit('PREFERENCE_INITIALIZE', promise)
+      return promise
     }
-    return Promise.resolve()
+    return state.promise
   },
   all: ({ state, dispatch }) => {
     return Promise.resolve(dispatch('init'))
@@ -153,12 +155,8 @@ const mutations = {
     state.requestType = types.DELETING
     state.currentId = id
   },
-  PREFERENCE_INITIALIZE: state => {
-    state.requestStatus = types.INITIALIZING
-  },
-  PREFERENCE_INITIALIZED: state => {
-    state.requestStatus = types.SUCCESS
-    state.initialized = true
+  PREFERENCE_INITIALIZE: (state, promise) => {
+    state.promise = promise
   },
   PREFERENCE_DECLARE: (state, id) => {
     Vue.set(state.cache, id, {})
