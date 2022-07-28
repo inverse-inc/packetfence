@@ -9,6 +9,10 @@ args=`base_args $name`
 args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/raddb/certs:/usr/local/pf/raddb/certs -v /usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
 args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
+# if directory doesn't exist on host, Docker will create it
+args="$args -v /etc/sysconfig/:/etc/sysconfig"
+args="$args -v /etc/network:/etc/network"
+args="$args -v /etc/resolv.conf:/etc/resolv.conf"
 args="$args --network=host"
 args="$args -e HOST_OS"
 
