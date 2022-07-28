@@ -4,7 +4,6 @@ import StatusView from '../'
 import StatusStore from '../_store'
 
 import AssetsRoutes from '../assets/_router'
-import ClusterRoutes from '../cluster/_router'
 import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
 import NetworkCommunicationRoutes from '../network_communication/_router'
@@ -29,7 +28,6 @@ const route = {
   },
   children: [
     ...AssetsRoutes,
-    ...ClusterRoutes,
     ...DashboardRoutes,
     ...QueueRoutes,
     ...NetworkCommunicationRoutes,
