@@ -47,6 +47,7 @@ BEGIN {
         locationlog_update_end_switchport_no_VoIP
         locationlog_update_end_switchport_only_VoIP
         locationlog_synchronize
+        locationlog_synchronize2
 
         locationlog_set_session
         locationlog_get_session
