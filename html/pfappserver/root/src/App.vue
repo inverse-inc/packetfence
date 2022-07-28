@@ -52,9 +52,6 @@
             <b-dropdown-item-button @click="checkup" :disabled="isPerfomingCheckup">
               {{ $t('Perform Checkup') }} <icon class="ml-2" name="circle-notch" spin v-if="isPerfomingCheckup"></icon>
             </b-dropdown-item-button>
-            <b-dropdown-item-button @click="fixPermissions" :disabled="isFixingPermissions">
-              {{ $t('Fix Permissions') }} <icon class="ml-2" name="circle-notch" spin v-if="isFixingPermissions"></icon>
-            </b-dropdown-item-button>
           </b-nav-item-dropdown>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
@@ -194,12 +191,6 @@ const setup = (props, context) => {
     })
   }
 
-  const fixPermissions = () => {
-    $store.dispatch('config/fixPermissions').then(data => {
-      $store.dispatch('notification/info', data.message)
-    })
-  }
-
   const setLanguage = lang => {
     $store.dispatch('session/setLanguage', { lang })
   }
@@ -283,7 +274,6 @@ const setup = (props, context) => {
     warnings,
     canRoute,
     checkup,
-    fixPermissions,
     apiOK,
     chartsOK,
     hostname,

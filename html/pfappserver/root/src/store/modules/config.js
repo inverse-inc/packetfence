@@ -220,9 +220,6 @@ const api = {
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
   },
-  postFixPermissions () {
-    return apiCall({ url: 'config/fix_permissions', method: 'post' })
-  },
   flattenCondition: (data) => {
     return apiCall.postQuiet('config/flatten_condition', data).then(response => {
       return response.data
@@ -315,7 +312,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     filterEnginesStatus: '',
     firewalls: false,
     firewallsStatus: '',
-    fixPermissionsStatus: '',
     floatingDevices: false,
     floatingDevicesStatus: '',
     interfaces: false,
@@ -512,9 +508,6 @@ const getters = {
   },
   isLoadingFirewalls: state => {
     return state.firewallsStatus === types.LOADING
-  },
-  isLoadingFixPermissions: state => {
-    return state.fixPermissionsStatus === types.LOADING
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
@@ -720,19 +713,6 @@ const actions = {
       return response.data.items
     }).catch((err) => {
       commit('CHECKUP_UPDATED', types.ERROR)
-      throw err
-    })
-  },
-  fixPermissions: ({ getters, commit }) => {
-    if (getters.isLoadingFixPermissions) {
-      return
-    }
-    commit('FIX_PERMISSIONS_UPDATED', types.LOADING)
-    return api.postFixPermissions().then(response => {
-      commit('FIX_PERMISSIONS_UPDATED', types.SUCCESS)
-      return response.data
-    }).catch((err) => {
-      commit('FIX_PERMISSIONS_UPDATED', types.ERROR)
       throw err
     })
   },
@@ -1985,9 +1965,6 @@ const mutations = {
   FIREWALLS_UPDATED: (state, firewalls) => {
     state.firewalls = firewalls
     state.firewallsStatus = types.SUCCESS
-  },
-  FIX_PERMISSIONS_UPDATED: (state, status) => {
-    state.fixPermissionsStatus = status
   },
   FLOATING_DEVICES_REQUEST: (state) => {
     state.floatingDevicesStatus = types.LOADING
