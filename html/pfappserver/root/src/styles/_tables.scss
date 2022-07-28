@@ -5,10 +5,14 @@
     outline: 0;
 }
 
-.table-no-overflow {
-  th > div:not(.dropdown), td {
+.table-overflow {
+  th > div:not(.dropdown), td:not(.col-no-overflow) {
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
+  }
+  th > td.col-no-overflow {
+    overflow: none;
     white-space: nowrap;
   }
   td > a.btn-link {

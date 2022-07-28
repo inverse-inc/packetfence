@@ -305,7 +305,7 @@ export const search = {
     */
     {
       key: 'buttons',
-      class: 'text-right p-0',
+      class: 'col-no-overflow text-right p-0',
       locked: true
     }
   ],
