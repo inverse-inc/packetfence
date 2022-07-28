@@ -1293,9 +1293,7 @@ fix_permissions
 
 sub fix_permissions {
     my ($self) = @_;
-    my $result = pf::util::fix_files_permissions();
-    chomp($result);
-    return $self->render(json => { message => $result });
+    return $self->render_error(410, "fix_permissions is deprecated");
 }
 
 sub bulk_import {
