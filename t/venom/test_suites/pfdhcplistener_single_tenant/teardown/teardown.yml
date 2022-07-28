@@ -1,0 +1,18 @@
+name: Teardown DHCP request of node10 in DB
+testcases:
+  - name: get_login_token
+    steps:
+    - type: get_login_token
+
+  - name: delete_node10_ip4log
+    steps:
+    - type: http
+      method: DELETE
+      url: '{{.pfserver_webadmin_url}}/api/v1/ip4log/{{.pfdhcplistener_single_tenant.nodes.node10.first_ip}}'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.get_login_token.result.token}}"
+        "Content-Type": "application/json"
+      assertions:
+      - result.statuscode ShouldEqual 200
+
