@@ -2,6 +2,7 @@
 * "radius" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import apiCall from '@/utils/api'
 
 const api = {
@@ -10,12 +11,6 @@ const api = {
       return response.data
     })
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

@@ -3,13 +3,8 @@
 *   pfMixinSearchable
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import apiCall from '@/utils/api'
-
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
 
 class SearchableApi {
   constructor (config, defaultSortKeys) {

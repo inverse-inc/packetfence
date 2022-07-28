@@ -3,21 +3,10 @@
 */
 import Vue from 'vue'
 import api from '../_api'
+import { types } from '@/store'
 import { blacklistedServices } from '@/store/modules/services'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
-
-const types = {
-  LOADING: 'loading',
-  ENABLING: 'enabling',
-  DISABLING: 'disabling',
-  RESTARTING: 'restarting',
-  STARTING: 'starting',
-  STOPPING: 'stopping',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
 
 const state = () => {
   return {

@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import i18n from '@/utils/locale'
 import api from './_api'
 
@@ -22,13 +23,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_connection_profiles/updateConnectionProfile', params),
     deleteItem: params => $store.dispatch('$_connection_profiles/deleteConnectionProfile', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

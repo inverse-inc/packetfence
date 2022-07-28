@@ -2,6 +2,7 @@
 * "$_domains" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import store from '@/store' // required for 'pfqueue'
 import api from './_api'
@@ -21,13 +22,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_domains/updateDomain', params),
     deleteItem: params => $store.dispatch('$_domains/deleteDomain', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

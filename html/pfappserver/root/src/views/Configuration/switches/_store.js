@@ -2,7 +2,7 @@
 * "$_switches" store module
 */
 import Vue from 'vue'
-import store from '@/store'
+import store, { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import api from './_api'
 
@@ -17,13 +17,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_switches/updateSwitch', params),
     deleteItem: params => $store.dispatch('$_switches/deleteSwitch', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

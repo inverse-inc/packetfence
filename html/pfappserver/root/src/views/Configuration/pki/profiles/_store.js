@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
-import store from '@/store'
+import store, { types } from '@/store'
 import api from './_api'
 import {
   decomposeProfile,
@@ -17,13 +17,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_pkis/updateProfile', recomposeProfile(params)),
     signCsr: params => $store.dispatch('$_pkis/signCsr', params),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

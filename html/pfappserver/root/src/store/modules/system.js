@@ -3,7 +3,7 @@
 */
 import Vue from 'vue'
 import i18n from '@/utils/locale'
-import store from '@/store'
+import store, { types } from '@/store'
 import apiCall from '@/utils/api'
 import acl from '@/utils/acl'
 
@@ -46,12 +46,6 @@ const api = {
       return response.data
     })
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

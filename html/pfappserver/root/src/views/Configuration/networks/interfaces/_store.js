@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import api from './_api'
 import { columns as columnsInterface } from './config'
 
@@ -19,13 +20,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_interfaces/updateInterface', params),
     deleteItem: params => $store.dispatch('$_interfaces/deleteInterface', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

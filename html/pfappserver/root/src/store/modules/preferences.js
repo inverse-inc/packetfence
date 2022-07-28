@@ -2,7 +2,7 @@
 * "preferences" store module
 */
 import Vue from 'vue'
-import store from '@/store' // required for 'system/version'
+import store, { types } from '@/store' // required for 'system/version'
 import apiCall from '@/utils/api'
 
 const getPreference = id => apiCall.getQuiet(['preference', id]).then(response => {
@@ -41,16 +41,6 @@ const api = {
           .then(() => ({ id, value: { meta, ...value } }))
       })
   }
-}
-
-const types = {
-  INITIALIZING: 'initializing',
-  LOADING: 'loading',
-  READING: 'reading',
-  DELETING: 'deleting',
-  WRITING: 'writing',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

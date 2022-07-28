@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
-import store from '@/store'
+import store, { types } from '@/store'
 import api from './_api'
 import {
   decomposeCa,
@@ -16,13 +16,6 @@ export const useStore = $store => {
       .then(item => decomposeCa(item)),
     updateItem: params => $store.dispatch('$_pkis/resignCa', recomposeCa(params)),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

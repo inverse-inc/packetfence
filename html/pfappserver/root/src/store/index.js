@@ -18,9 +18,20 @@ const debug = process.env.VUE_APP_DEBUG === 'true'
 Vue.config.devtools = debug
 
 export const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
+  DELETING:     'deleting',
+  DISABLING:    'disabling',
+  DRYRUN:       'dryrun',
+  ENABLING:     'enabling',
+  ERROR:        'error',
+  INITIALIZING: 'initializing',
+  LOADING:      'loading',
+  READING:      'reading',
+  REASSIGNING:  'reassigning',
+  RESTARTING:   'restarting',
+  STARTING:     'starting',
+  STOPPING:     'stopping',
+  SUCCESS:      'success',
+  WRITING:      'writing',
 }
 
 const store = new Vuex.Store({

@@ -2,6 +2,7 @@
  * "config" store module
  */
 import Vue from 'vue'
+import { types } from '@/store'
 import apiCall from '@/utils/api'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
@@ -237,13 +238,6 @@ const api = {
       throw err
     })
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 const initialState = () => { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.

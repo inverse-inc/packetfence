@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import i18n from '@/utils/locale'
 import api from './_api'
 
@@ -33,12 +34,6 @@ export const useStore = $store => {
       )
     }
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

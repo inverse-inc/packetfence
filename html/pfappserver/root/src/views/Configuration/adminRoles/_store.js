@@ -2,8 +2,8 @@
 * "$_admin_roles" store module
 */
 import Vue from 'vue'
-import store from '@/store'
 import { computed } from '@vue/composition-api'
+import store, { types } from '@/store'
 import i18n from '@/utils/locale'
 import api from './_api'
 
@@ -22,13 +22,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_admin_roles/updateAdminRole', params),
     deleteItem: params => $store.dispatch('$_admin_roles/deleteAdminRole', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

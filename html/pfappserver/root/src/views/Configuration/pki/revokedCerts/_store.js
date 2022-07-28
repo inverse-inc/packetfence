@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import api from './_api'
 
 export const useStore = $store => {
@@ -8,13 +9,6 @@ export const useStore = $store => {
     getList: () => $store.dispatch('$_pkis/allRevokedCerts'),
     getItem: params => $store.dispatch('$_pkis/getRevokedCert', params.id)
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

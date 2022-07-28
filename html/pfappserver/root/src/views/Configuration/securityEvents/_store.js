@@ -2,6 +2,7 @@
 * "$_security_events" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import api from './_api'
 import {
@@ -25,13 +26,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_security_events/updateSecurityEvent', params),
     deleteItem: params => $store.dispatch('$_security_events/deleteSecurityEvent', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values
