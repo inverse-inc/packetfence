@@ -171,12 +171,16 @@ export const useViewCollectionItem = (collection, props, context) => {
   const onSave = () => {
     isModified.value = true
     const closeAfter = actionKey.value
-    save().then(response => {
+    save().then(() => {
       if (closeAfter) // [CTRL] key pressed
         goToCollection({ actionKey: true, ...form.value })
       else {
-        form.value = { ...form.value, ...response } // merge form w/ newly inserted IDs
-        goToItem(form.value).then(() => init()) // re-init
+        // use getItem instead of save().then(response => {}) for cases where form <=> payload is decomposed/recomposed
+        getItem().then(item => { // merge form w/ newly inserted IDs
+          form.value = { ...form.value, ...item } // dereferenced
+        }).finally(() => {
+          goToItem(form.value).then(() => init()) // re-init
+        })
       }
     })
   }
