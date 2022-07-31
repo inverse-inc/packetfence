@@ -378,10 +378,6 @@ CLEANUP:
         pf::registration::finalize_node_registration($node_obj, {}, $options, $pf::constants::realm::RADIUS_CONTEXT);
     }
 
-    if (is_error($status)) {
-        $logger->error("Cannot save $mac error ($status)");
-    }
-
     # cleanup
     $switch->disconnectRead();
     $switch->disconnectWrite();
