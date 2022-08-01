@@ -212,7 +212,7 @@
           </b-row>
 
           <b-table :items="nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc"
-            class="pb-3" show-empty responsive sort-icon-left striped>
+            class="pb-3" show-empty sort-icon-left striped>
             <template v-slot:cell(status)="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
@@ -254,14 +254,14 @@
           </template>
 
           <b-table :items="securityEvents" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc"
-            class="pb-3" show-empty responsive sort-icon-left striped>
+            class="pb-3" show-empty sort-icon-left striped>
             <template v-slot:cell(status)="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
               <span v-else>{{ securityEvent.item.status }}</span>
             </template>
             <template v-slot:cell(mac)="securityEvent">
-              <b-button variant="link" :to="`../../node/${securityEvent.item.mac}`"><mac>{{ securityEvent.item.mac }}</mac></b-button>
+              <node-dropdown :id="securityEvent.item.mac" variant="link" class="px-0" toggle-class="p-0" dropup />
             </template>
             <template v-slot:cell(buttons)="securityEvent">
               <span class="float-right text-nowrap">
