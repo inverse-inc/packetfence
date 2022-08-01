@@ -115,7 +115,10 @@ sub authorize {
     my ($self, $radius_request) = @_;
     local $pf::dal::node::TRIGGER_NODE_DISCOVERED = 1;
     my $logger = $self->logger;
-    use Data::Dumper;$logger->info(Dumper($radius_request));
+    {
+        local $Data::Dumper::Indent = 0;
+        use Data::Dumper;$logger->info(Dumper($radius_request));
+    }
     my ($do_auto_reg, %autoreg_node_defaults, $action);
 
     my($switch_mac, $switch_ip,$source_ip,$stripped_user_name,$realm) = $self->_parseRequest($radius_request);
