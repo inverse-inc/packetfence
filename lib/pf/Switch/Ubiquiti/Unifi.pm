@@ -134,6 +134,8 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my @proxied_ip = split(',', $client_ip);
+    $client_ip = $proxied_ip[0];
 
     %params = (
         switch_id               => $req->param('ap'),
