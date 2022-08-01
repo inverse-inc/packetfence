@@ -140,7 +140,6 @@ sub sanity_check {
         );
     }
 
-    service_exists(@services);
     interfaces_defined();
     interfaces();
 
@@ -171,25 +170,6 @@ sub sanity_check {
     validate_access_filters();
 
     return @problems;
-}
-
-sub service_exists {
-    my (@services) = @_;
-
-    foreach my $service (@services) {
-        next if ($service eq 'pf');
-        my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /^(pfpki|pfipset|pfsso|httpd\.dispatcher|api-frontend|pfconnector-server|pfconnector-client)$/) {
-            $exe = "$sbin_dir/pfhttpd";
-        } elsif ($service =~ /httpd\.(.*)/) {
-            $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
-        } elsif ($service =~ /redis_(.*)/) {
-            $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
-        }
-        if ( !-e $exe ) {
-            add_problem( $WARN, "$exe for $service does not exist !" );
-        }
-    }
 }
 
 =item interfaces_defined
