@@ -133,6 +133,9 @@ sub parseExternalPortalRequest {
     # Using a hash to contain external portal parameters
     my %params = ();
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my @proxied_ip = split(',', $client_ip);
+    $client_ip = $proxied_ip[0];
+
     %params = (
         switch_id               => $req->param('ga_srvr'),
         client_mac              => clean_mac($req->param('ga_cmac')),
