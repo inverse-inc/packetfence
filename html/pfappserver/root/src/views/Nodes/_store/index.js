@@ -97,6 +97,20 @@ const actions = {
       }
       commit('NODE_REPLACED', node)
 
+      // search extra columns (eg: 'online')
+      const search = {
+        fields: ['online'],
+        query: { op: 'and', values: [{ field: 'mac', op: 'equals', value: mac }] },
+        limit: 1,
+        cursor: '0'
+      }
+      api.search(search).then(response => {
+        const { items: { 0: item } } = response
+        Object.keys(item).map(prop => {
+          commit('NODE_UPDATED', { mac, prop, data: item[prop] })
+        })
+      })
+
       // Fetch ip4log history
       let ip4 = {}
       api.ip4logOpen(mac).then(data => {
