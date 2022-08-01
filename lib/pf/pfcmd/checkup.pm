@@ -144,10 +144,6 @@ sub sanity_check {
     interfaces_defined();
     interfaces();
 
-    if ( isenabled($Config{'services'}{'radiusd'} ) ) {
-        freeradius();
-    }
-
     billing();
 
     database();
@@ -294,19 +290,6 @@ sub interfaces {
     }
 }
 
-
-=item freeradius
-
-Validation related to the FreeRADIUS daemon
-
-=cut
-
-sub freeradius {
-
-    if ( !-x $Config{'services'}{'radiusd_binary'} ) {
-        add_problem( $FATAL, "radiusd binary is not executable / does not exist!" );
-    }
-}
 
 =item fingerbank
 
