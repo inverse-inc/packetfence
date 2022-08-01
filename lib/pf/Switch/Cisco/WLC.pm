@@ -625,6 +625,8 @@ sub parseExternalPortalRequest {
     my $switch_id = $locationlog->{switch};
     my $client_mac = $locationlog->{mac};
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my @proxied_ip = split(',', $client_ip);
+    $client_ip = $proxied_ip[0];
 
     my $redirect_url;
     if ( defined($req->param('redirect')) ) {
