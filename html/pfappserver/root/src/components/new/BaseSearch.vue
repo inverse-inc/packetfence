@@ -6,7 +6,7 @@
         <div v-if="advancedMode">
           <b-form @submit.prevent="onSearchAdvanced" @reset.prevent="onSearchReset">
             <base-search-input-advanced
-              v-model="conditionAdvanced"
+              v-model="conditionAdvancedWrapped"
               :disabled="disabled || isLoading"
               :fields="fields"
               @search="onSearchAdvanced"
@@ -16,7 +16,7 @@
               <b-button-group>
                 <base-button-save-search
                   class="ml-1"
-                  v-model="conditionAdvanced"
+                  v-model="conditionAdvancedWrapped"
                   :disabled="disabled || isLoading"
                   :save-search-namespace="`${uuid}::advancedSearch`"
                   :use-search="useSearch"
@@ -105,7 +105,7 @@ const props = {
   }
 }
 
-import { onMounted, ref, toRefs, watch } from '@vue/composition-api'
+import { customRef, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { v4 as uuidv4 } from 'uuid'
 import { useQuery } from '@/router'
 import i18n from '@/utils/locale'
@@ -161,6 +161,20 @@ const setup = (props, context) => {
   const advancedMode = ref(false)
   const conditionBasic = ref(null)
   const conditionAdvanced = ref(defaultCondition()) // default
+  const conditionAdvancedWrapped = customRef((track, trigger) => ({
+    get() {
+      track()
+      const { op, values = [] } = conditionAdvanced.value
+      // filter padded values to getter
+      return { op, values: values.filter(({ values = [] }) => values.length > 0) }
+    },
+    set(newValue) {
+      const { op, values = [] } = newValue
+      // filter padded values from setter
+      conditionAdvanced.value = { op, values: values.filter(({ values = [] }) => values.length > 0) }
+      trigger()
+    }
+  }))
   const hint = ref(uuidv4())
 
   const query = useQuery()
@@ -302,6 +316,7 @@ const setup = (props, context) => {
     advancedMode,
     conditionBasic,
     conditionAdvanced,
+    conditionAdvancedWrapped,
     onSearchBasic,
     onSearchAdvanced,
     onLoadAdvanced,
