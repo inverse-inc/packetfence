@@ -201,7 +201,7 @@ sub authorize {
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\""
         . ( defined $ssid ? ", ssid => $ssid" : '' ) );
 
-    my $node_obj = node_get_current();
+    my $node_obj = node_get_current($mac);
     if (!defined $node_obj) {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
