@@ -386,7 +386,7 @@ export const useSearch = makeSearch('users', {
   defaultCondition: () => ({
     op: 'and', values: [
     { op: 'or', values: [
-      { field: 'pid', op: 'not_equals', value: null }
+      // noop
     ] }
   ] })
 })

@@ -1,5 +1,20 @@
 <template>
   <b-container fluid class="base-search-input-advanced px-0">
+    <template v-if="isNatural">
+      <b-container fluid class="rc px-0 py-1 bg-secondary">
+        <b-container fluid class="px-1">
+          <b-row class="bg-white rc align-items-center m-0 p-3">
+            {{ $i18n.t('No search criteria.') }}
+          </b-row>
+        </b-container>
+        </b-container>
+      <b-row class="mx-auto">
+        <b-col cols="1" />
+        <b-col cols="1" class="py-0 bg-secondary" style="min-width:60px;">
+          <div class="mx-auto text-center text-nowrap text-white font-weight-bold">{{ $t('...') }}</div>
+        </b-col>
+      </b-row>
+    </template>
     <b-container fluid v-for="(o, oIndex) in value.values" :key="oIndex"
       class="px-0"
     >
@@ -62,7 +77,7 @@ const props = {
   }
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
@@ -89,6 +104,11 @@ const setup = (props, context) => {
     if (disabled.value)
       return false
   }
+
+  const isNatural = computed(() => {
+    const { values = [] } = value.value
+    return values.length === 0
+  })
 
   const onAddInnerRule = (oIndex) => {
     let field = fields.value[0].value
@@ -124,6 +144,7 @@ const setup = (props, context) => {
     onDragStart,
     onDragEnd,
     onMove,
+    isNatural,
     onAddInnerRule,
     onAddOuterRule,
     onDeleteRule
