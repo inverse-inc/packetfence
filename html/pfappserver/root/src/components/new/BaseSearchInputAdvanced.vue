@@ -111,15 +111,20 @@ const setup = (props, context) => {
   })
 
   const onAddInnerRule = (oIndex) => {
+    let newValue = value.value
     let field = fields.value[0].value
     let op = null
-    // clone previous sibling `field` and `op` (if exists)
-    if (value.value.values[oIndex].values.length > 0) {
-      const lIndex = value.value.values[oIndex].values.length - 1
-      field = value.value.values[oIndex].values[lIndex].field
-      op = value.value.values[oIndex].values[lIndex].op
+    if (!(oIndex in newValue.values)) {
+      newValue.values[oIndex] = { op: 'or', values:[] }
     }
-    value.value.values[oIndex].values.push({ field, op, value: null })
+    // clone previous sibling `field` and `op` (if exists)
+    if (newValue.values[oIndex].values.length > 0) {
+      const lIndex = newValue.values[oIndex].values.length - 1
+      field = newValue.values[oIndex].values[lIndex].field
+      op = newValue.values[oIndex].values[lIndex].op
+    }
+    newValue.values[oIndex].values.push({ field, op, value: null })
+    emit('input', newValue)
   }
 
   const onAddOuterRule = () => {
@@ -131,12 +136,14 @@ const setup = (props, context) => {
   }
 
   const onDeleteRule = (oIndex, iIndex) => {
-    if (value.value.values[oIndex].values.length === 1) {
-      if (value.value.values.length > 1)
-        value.value.values.splice(oIndex, 1)
+    let newValue = value.value
+    if (newValue.values[oIndex].values.length === 1) {
+      if (newValue.values.length > 1)
+        newValue.values.splice(oIndex, 1)
     }
     else
-      value.value.values[oIndex].values.splice(iIndex, 1)
+      newValue.values[oIndex].values.splice(iIndex, 1)
+    emit('input', newValue)
   }
 
   return {
