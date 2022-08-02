@@ -256,7 +256,8 @@ binary-arch: build install
 			/usr/local/pf/raddb/mods-config/files/authorize /usr/local/pf/raddb/users \
 			/usr/local/pf/raddb/mods-config/preprocess/hints /usr/local/pf/raddb/hints \
 			/usr/local/pf/raddb/mods-config/preprocess/huntgroups /usr/local/pf/raddb/huntgroups \
-			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
+			/usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank \
+			/usr/local/pf/html/pfappserver/lib/pfappserver /usr/local/pf/lib/pfappserver
 	dh_strip
 	dh_compress
 	# PERMISSIONS
