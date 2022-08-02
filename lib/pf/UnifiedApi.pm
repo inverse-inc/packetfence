@@ -2278,6 +2278,7 @@ sub setup_api_v1_configurator_routes {
     $self->setup_api_v1_services_routes($root);
     $self->setup_api_v1_system_services_routes($root);
     $self->setup_api_v1_users_routes($root);
+    $self->setup_api_v1_cluster_routes($root);
     $self->setup_api_v1_system_summary_route($root);
     my $config = $root->under("/config")->name("api.v1.Configurator.Config");
     $self->setup_api_v1_config_bases_routes($config, 1);
