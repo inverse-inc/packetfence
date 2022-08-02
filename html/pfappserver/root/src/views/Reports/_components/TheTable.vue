@@ -30,7 +30,6 @@
       class="mb-0"
       no-local-sorting
       no-provider-sorting
-      responsive
       selectable
       show-empty
       striped

@@ -81,6 +81,7 @@ const actions = {
     })
   },
   getNode: ({ state, commit }, mac) => {
+console.log('getNode >>>', state.nodeStatus)
     /* Fix #5334, always fetch a fresh copy
     if (state.nodes[mac]) {
       return Promise.resolve(state.nodes[mac])
@@ -90,6 +91,7 @@ const actions = {
     let node = {}
 
     commit('NODE_REQUEST')
+console.log('getNode <<<', state.nodeStatus)
     return api.node({ quiet: true, mac }).then(data => {
       Object.assign(node, data)
       if (node.status === null) {
@@ -194,6 +196,8 @@ const actions = {
       })
 
       return state.nodes[mac]
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
     })
   },
   refreshNode: ({ state, commit, dispatch }, mac) => {

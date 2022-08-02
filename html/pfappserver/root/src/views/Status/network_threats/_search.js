@@ -1,3 +1,4 @@
+import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import makeSearch from '@/store/factory/search'
 import api from './_api'
 
@@ -77,6 +78,38 @@ export const useSearch = makeSearch('networkThreats', {
       class: 'text-right p-0',
       locked: true
     }
+  ],
+  fields: [
+    {
+      value: 'id',
+      text: 'Name', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'mac',
+      text: 'MAC Address', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'start_date',
+      text: 'Start Date', // i18n defer
+      types: [conditionType.DATETIME]
+    },
+    {
+      value: 'release_date',
+      text: 'Release Date', // i18n defer
+      types: [conditionType.DATETIME]
+    },
+    {
+      value: 'ticket_ref',
+      text: 'Ticket Ref', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'notes',
+      text: 'Notes', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
   ],
   sortBy: 'id',
   sortDesc: true

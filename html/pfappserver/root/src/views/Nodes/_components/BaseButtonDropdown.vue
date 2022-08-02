@@ -15,6 +15,10 @@
       <icon class="position-absolute mt-1" name="circle-notch" spin />
       <span class="ml-4 pl-2">{{ $i18n.t('Loading') }}</span>
     </b-dropdown-item>
+    <b-dropdown-item v-else-if="!isExists || !node" class="px-0">
+      <icon class="position-absolute mt-1" name="exclamation-circle" />
+      <span class="ml-4 pl-2">{{ $i18n.t('Node not found.') }}</span>
+    </b-dropdown-item>
     <template v-else>
       <b-dropdown-form>
         <b-row class="flex-nowrap">
@@ -144,6 +148,7 @@ const setup = (props, context) => {
     getItem
   } = useStore($store)
 
+  const isExists = ref(false)
   const isShown = ref(false)
   const node = ref({})
 
@@ -154,11 +159,16 @@ const setup = (props, context) => {
       getItem({ id: id.value })
         .then(item => {
           node.value = item
+          isExists.value = true
+        })
+        .catch(() => {
+          isExists.value = false
         })
     }
   })
 
   return {
+    isExists,
     isShown,
     isLoading,
     node
