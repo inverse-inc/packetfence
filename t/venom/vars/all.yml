@@ -38,7 +38,6 @@ pfserver_api_inactivity_timeout.unit: h
 pfserver_pffilter_processes: 1
 pfserver_pfperl_api_processes: 8
 pfserver_pfqueue_workers: 8
-pfserver_haproxy_admin_server_timeout: 240s
 
 # ad variables
 ad_domain_upper: EXAMPLE

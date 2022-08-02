@@ -29,8 +29,3 @@ testcases:
       [pfqueue]
       workers={{.pfserver_pfqueue_workers}}
       EOF
-
-- name: increase timeout of haproxy-admin service
-  steps:
-  - type: exec
-    script: "sed -i 's/timeout server 50000/timeout server {{.pfserver_haproxy_admin_server_timeout}}/' {{.pfserver_conf_dir}}/haproxy-admin.conf"
