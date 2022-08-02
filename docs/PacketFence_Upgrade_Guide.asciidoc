@@ -1885,6 +1885,13 @@ To upgrade the database schema, run the following command:
 mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X-X.Y.sql
 ----
 
+=== Fix permissions and checkups deprecated
+
+API calls used to fix permissions and to perform checkups from web admin have been deprecated.
+With the containerization of several services, it didn't make sense to keep them available.
+
+However, it's still possible to perform these commands on a PacketFence server using `pfcmd fixpermissions` and `pfcmd checkup`.
+
 === Log files names updated
 
 The name of some log files have changed. You can find a list below:
