@@ -536,13 +536,7 @@ export const search = {
     }
   ],
   sortBy: 'mac',
-  sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      // noop
-    ] }
-  ] })
+  sortDesc: true
 }
 
 export const useSearch = makeSearch('nodes', search)

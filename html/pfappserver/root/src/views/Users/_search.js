@@ -382,11 +382,5 @@ export const useSearch = makeSearch('users', {
     }
   ],
   sortBy: 'pid',
-  sortDesc: false,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      // noop
-    ] }
-  ] })
+  sortDesc: false
 })

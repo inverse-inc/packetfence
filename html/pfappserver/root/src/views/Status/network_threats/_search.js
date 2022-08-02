@@ -79,11 +79,5 @@ export const useSearch = makeSearch('networkThreats', {
     }
   ],
   sortBy: 'id',
-  sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      // noop
-    ] }
-  ] })
+  sortDesc: true
 })

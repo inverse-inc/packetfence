@@ -260,13 +260,6 @@ export const search = {
   limits: [10, 25, 50, 100, 250],
   sortBy,
   sortDesc,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      // noop
-    ] }
-    ]
-  }),
   useItems: items => {
     const { 0: { nodes = [] } = {} } = items // unwrap
     return nodes.filter(node => node.type === 'node') // filter excess
