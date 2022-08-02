@@ -192,7 +192,11 @@ const setup = (props, context) => {
         saveSearchLoaded = false
         try {
           const q = Object.keys(query.value).reduce((q, param) => {
-            q[param] = JSON.parse(query.value[param])
+            if (query.value[param]) {
+              q[param] = (query.value[param].constructor === String)
+                ? JSON.parse(query.value[param])
+                : query.value[param]
+            }
             return q
           }, {})
           const { conditionBasic: _conditionBasic, conditionAdvanced: _conditionAdvanced, ...value } = q
