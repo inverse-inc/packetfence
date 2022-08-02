@@ -93,14 +93,6 @@ const api = {
   }
 }
 
-export const blacklistedServices = [ // prevent start|stop|restart control on these services
-  'api-frontend',
-  'pf',
-  'pfperl-api',
-  'haproxy-admin',
-  'httpd.admin_dispatcher'
-]
-
 // Default values
 const initialState = () => {
   return {

@@ -5,7 +5,6 @@ import Vue from 'vue'
 import store from '@/store'
 import api from '../_api'
 import { types } from '@/store'
-import { blacklistedServices } from '@/store/modules/services'
 
 const STORAGE_CHARTS_KEY = 'dashboard-charts'
 

@@ -43,7 +43,7 @@ const setup = (props, context) => {
 
   const buttonRef = ref(null)
 
-  const onClick = event => {
+  const onClick = () => {
     nextTick(() => {
       buttonRef.value.show() // keep open on click
     })

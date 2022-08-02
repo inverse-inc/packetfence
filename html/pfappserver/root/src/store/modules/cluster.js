@@ -652,9 +652,8 @@ const mutations = {
     state.status = types.ERROR
     state.message = error
   },
-
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }
