@@ -11,6 +11,7 @@ export const ADMIN_ROLES_ACTIONS = [
   'create_multiple',
   'delete',
   'mark_as_sponsor',
+  'probe',
   'read',
   'read_sponsored',
   'set_access_level',
