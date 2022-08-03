@@ -4,17 +4,28 @@ ARG IMAGE_TAG
 
 FROM ${from} as build
 
+ENV MAKE=make
+ENV MAKEOPT="-j 1"
+ENV CURVER=2.4.2
+ENV PKG_RELEASE=debian11
+ENV PROXYSQL_BUILD_TYPE=clickhouse
+ENV CC=cc
+ENV CXX=g++
+
 ARG DEBIAN_FRONTEND=noninteractive
 
-LABEL vendor=proxysql\
-      com.proxysql.type=proxysql\
-      com.proxysql.os=debian11\
-      com.proxysql.interactive=false\
-      com.proxysql.config=simple\
-      com.proxysql.purpose=production
+#LABEL vendor=proxysql\
+#      com.proxysql.type=proxysql\
+#      com.proxysql.os=debian11\
+#      com.proxysql.interactive=false\
+#      com.proxysql.config=simple\
+#      com.proxysql.purpose=production
+
+# Install build dependencies
 
 RUN apt-get update && apt-get install -y \
         automake \
+        equivs \
         cmake \
         make \
         g++ \
@@ -39,8 +50,8 @@ RUN apt-get update && apt-get install -y \
 #
 #  Create build directory
 #
-RUN mkdir -p /usr/local/src/repositories
-WORKDIR /usr/local/src/repositories
+RUN mkdir -p /opt
+WORKDIR /opt
 
 #
 #  Shallow clone the proxysql source
@@ -48,12 +59,27 @@ WORKDIR /usr/local/src/repositories
 ARG source=https://github.com/fdurand/proxysql.git
 ARG release=sd_notify
 
+RUN mkdir -p /root/ctl
+
 RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source}
 WORKDIR proxysql
 
 #
 #  Build the server
 #
-RUN make clean && make && make install
+RUN cp -r docker/images/proxysql/deb-compliant/latest-package/ctl/* /root/ctl/
+RUN docker/images/proxysql/deb-compliant/entrypoint/entrypoint.bash
+
+#
+#  Clean environment and run the server
+#
+FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
+
+COPY --from=build /opt/proxysql/binaries/*.deb /tmp/
+
+RUN apt-get -qq update \
+    && apt-get -qq install -y /tmp/*.deb \
+    && apt-get clean \
+    && rm -r /var/lib/apt/lists/* /tmp/*.deb
 
 ENTRYPOINT ["proxysql", "-f", "-D", "/usr/local/pf/var/proxysql/", "-c", "/usr/local/pf/var/conf/proxysql.conf", "--initial", "--idle-threads"]
