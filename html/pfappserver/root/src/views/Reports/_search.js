@@ -13,15 +13,6 @@ export const useSearchFactory = (meta) => {
   return makeSearch(`reports::${id}`, {
     api: { ...rest },
     limit: +default_limit,
-    defaultCondition: () => ({
-      op: 'and', values: [
-        {
-          op: 'or', values: [
-            {/* BaseSearchInputAdvancedRule Array placeholder, stripped in requestInterceptor */ }
-          ]
-        }
-      ]
-    }),
     requestInterceptor: request => {
       const { has_date_range, start_date = '0000-00-00 00:00:00', end_date = '9999-12-31 23:59:59' } = meta.value
       if (request.query) {
