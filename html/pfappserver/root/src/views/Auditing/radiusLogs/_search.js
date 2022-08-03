@@ -469,11 +469,5 @@ export const useSearch = makeSearch('radiusLogs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'equals', value: null }
-    ] }
-  ] })
+  sortDesc: true
 })
