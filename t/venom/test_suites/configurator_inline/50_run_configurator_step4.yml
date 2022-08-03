@@ -85,9 +85,9 @@ testcases:
       - result.bodyjson.message ShouldEqual Completed
       - result.bodyjson.progress ShouldEqual 100
       - result.bodyjson.status ShouldEqual 200
-    # wait three minutes before failing
-    retry: 12
-    delay: 15
+    # wait 5 minutes before failing
+    retry: 5
+    delay: 60
 
 - name: disable_configurator
   steps:
@@ -104,3 +104,5 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Settings updated"
+    retry: 3
+    delay: 20
