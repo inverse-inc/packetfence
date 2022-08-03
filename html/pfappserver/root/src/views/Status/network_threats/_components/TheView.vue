@@ -114,7 +114,7 @@
         <template #cell(buttons)="{ item }">
           <span class="float-right text-nowrap text-right mr-3">
             <b-button v-if="item.status === 'open'"
-              size="sm" variant="outline-secondary" @click="onRelease(item.mac, item.id)">{{ $t('Release') }}</b-button>
+              size="sm" variant="outline-danger" @click="onRelease(item.mac, item.id)">{{ $t('Release Event') }}</b-button>
           </span>
         </template>
       </b-table>

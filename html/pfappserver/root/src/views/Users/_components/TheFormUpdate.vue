@@ -263,9 +263,12 @@
             <template v-slot:cell(mac)="securityEvent">
               <node-dropdown :id="securityEvent.item.mac" variant="link" class="px-0" toggle-class="p-0" dropup />
             </template>
+            <template #cell(security_event_id)="{ value }">
+              <router-link :to="{ path: `/configuration/security_event/${value}` }">{{ securityEventMap[value] || '...' }}</router-link>
+            </template>
             <template v-slot:cell(buttons)="securityEvent">
               <span class="float-right text-nowrap">
-                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoadingSecurityEvents" @click="onSecurityEventClose(securityEvent)">{{ $t('Close Event') }}</b-button>
+                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoadingSecurityEvents" @click="onSecurityEventClose(securityEvent)">{{ $t('Release Event') }}</b-button>
               </span>
             </template>
             <template v-slot:empty>
@@ -386,7 +389,7 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import {
   nodeFields as _nodeFields,
@@ -453,6 +456,14 @@ const setup = (props, context) => {
   const onSecurityEventCloseAll = () => {
     // TODO
   }
+  const securityEventMap = ref({})
+  onMounted(() => {
+    $store.dispatch('$_security_events/all').then(items => {
+      securityEventMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.desc }
+      }, {})
+    })
+  })
 
   const onResetPassword = () => {
     const { password, login_remaining } = form.value
@@ -512,6 +523,7 @@ const setup = (props, context) => {
     visibleNodeFields,
     onNodesUnassign,
 
+    securityEventMap,
     securityEvents,
     hasOpenSecurityEvents,
     isLoadingSecurityEvents,

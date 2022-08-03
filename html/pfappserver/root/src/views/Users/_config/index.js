@@ -585,22 +585,14 @@ export const securityEventFields = [
     sortable: true
   },
   {
-    key: 'security_event_id',
-    label: i18n.t('Event'),
-    required: true,
-    sortable: true,
-    formatter: (acl.$can('read', 'security_events'))
-      ? formatter.securityEventIdToDesc
-      : formatter.noAdminRolePermission
-  },
-  {
     key: 'mac',
     label: i18n.t('MAC'),
     sortable: true
   },
   {
-    key: 'notes',
-    label: i18n.t('Description'),
+    key: 'security_event_id',
+    label: i18n.t('Security Event'),
+    required: true,
     sortable: true
   },
   {
@@ -614,6 +606,15 @@ export const securityEventFields = [
     label: i18n.t('Release Date'),
     sortable: true,
     formatter: formatter.datetimeIgnoreZero
+  },
+  {
+    key: 'ticket_ref',
+    label: i18n.t('Ticket Ref'),
+    sortable: true
+  },
+  {
+    key: 'notes',
+    label: i18n.t('Notes')
   },
   {
     key: 'buttons',

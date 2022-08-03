@@ -185,13 +185,19 @@ export const locationLogFields = [
 
 export const securityEventFields = [
   {
+    key: 'status',
+    label: i18n.t('Status'),
+    sortable: true,
+    class: 'text-nowrap'
+  },
+  {
     key: 'description',
     label: i18n.t('Security Event'),
     sortable: true
   },
   {
     key: 'start_date',
-    label: i18n.t('Start Time'),
+    label: i18n.t('Start Date'),
     sortable: true,
     formatter: filters.shortDateTime,
     class: 'text-nowrap'
@@ -204,10 +210,13 @@ export const securityEventFields = [
     class: 'text-nowrap'
   },
   {
-    key: 'status',
-    label: i18n.t('Status'),
-    sortable: true,
-    class: 'text-nowrap'
+    key: 'ticket_ref',
+    label: i18n.t('Ticket Ref'),
+    sortable: true
+  },
+  {
+    key: 'notes',
+    label: i18n.t('Notes')
   },
   {
     key: 'buttons',

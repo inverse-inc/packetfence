@@ -2,6 +2,7 @@ import store from '@/store'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import UsersStoreModule from '../_store'
+import SecurityEventsStoreModule from '@/views/Configuration/securityEvents/_store'
 import TheView from '../'
 const TheSearch = () => import(/* webpackChunkName: "Users" */ '../_components/TheSearch')
 const ThePreview = () => import(/* webpackChunkName: "Users" */ '../_components/ThePreview')
@@ -81,6 +82,9 @@ const route = {
       },
       beforeEnter: (to, from, next) => {
         beforeEnter()
+        if (!store.state.$_security_events) {
+          store.registerModule('$_security_events', SecurityEventsStoreModule)
+        }
         store.dispatch('$_users/getUser', to.params.pid).then(() => {
           next()
         }).catch(() => { // `pid` does not exist

@@ -6,19 +6,19 @@
 
     <b-table v-if="node"
       :items="node.security_events" :fields="securityEventFields" :sort-by="securityEventSortBy" :sort-desc="securityEventSortDesc" responsive show-empty sort-icon-left striped>
-      <template v-slot:cell(description)="security_event">
-         <router-link v-if="securityEventDescription(security_event.item.security_event_id)"
-          :to="{ path: `/configuration/security_event/${security_event.item.security_event_id}` }">{{ securityEventDescription(security_event.item.security_event_id) }}</router-link>
+      <template v-slot:cell(description)="{ item }">
+         <router-link v-if="securityEventDescription(item.security_event_id)"
+          :to="{ path: `/configuration/security_event/${item.security_event_id}` }">{{ securityEventDescription(item.security_event_id) }}</router-link>
         <router-link v-else
           :to="{ path: '/configuration/security_events' }">{{ $i18n.t('Unknown') }}</router-link>
       </template>
-      <template v-slot:cell(status)="security_event">
-        <b-badge pill variant="success" v-if="security_event.item.status === 'open'">{{ $t('open') }}</b-badge>
-        <b-badge pill variant="danger" v-else-if="security_event.item.status === 'closed'">{{ $t('closed') }}</b-badge>
+      <template v-slot:cell(status)="{ item }">
+        <b-badge pill variant="success" v-if="item.status === 'open'">{{ $t('open') }}</b-badge>
+        <b-badge pill variant="danger" v-else-if="item.status === 'closed'">{{ $t('closed') }}</b-badge>
         <b-badge pill variant="warning" v-else>{{ $t('delayed') }}</b-badge>
       </template>
-      <template v-slot:cell(buttons)="security_event">
-        <b-button v-if="security_event.item.status === 'open'" size="sm" variant="outline-secondary" @click="onRelease(security_event.item.id)">{{ $t('Release') }}</b-button>
+      <template v-slot:cell(buttons)="{ item }">
+        <b-button v-if="item.status === 'open'" size="sm" variant="outline-danger" @click="onRelease(item.id)">{{ $t('Release Event') }}</b-button>
       </template>
       <template v-slot:empty>
         <base-table-empty :is-loading="isLoading" text="">{{ $t('No security events found') }}</base-table-empty>
