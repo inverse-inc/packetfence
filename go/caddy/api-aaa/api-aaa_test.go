@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,17 +12,18 @@ import (
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
 )
 
 var ctx = log.LoggerNewContext(context.Background())
-var apiAAA, err = buildApiAAAHandler(ctx)
+var apiAAA, err = buildApiAAAHandler(ctx, []string{})
 
 func TestApiAAALogin(t *testing.T) {
 	req, _ := http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(`{"username":"web", "password":"services"}`)),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass))),
 	)
 
 	recorder := httptest.NewRecorder()
@@ -34,7 +36,7 @@ func TestApiAAALogin(t *testing.T) {
 	req, _ = http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(`{"username":"web", "password":"badPwd"}`)),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"badPwd"}`, pfconfigdriver.Config.PfConf.Webservices.User))),
 	)
 
 	recorder = httptest.NewRecorder()
@@ -47,7 +49,7 @@ func TestApiAAALogin(t *testing.T) {
 }
 
 func TestApiAAATokenInfo(t *testing.T) {
-	_, token, _ := apiAAA.authentication.Login(ctx, "web", "services")
+	_, token, _ := apiAAA.authentication.Login(ctx, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	tokenInfo, _ := apiAAA.authorization.GetTokenInfo(ctx, token)
 
 	req, _ := http.NewRequest("GET", "/api/v1/token_info", nil)
@@ -68,17 +70,13 @@ func TestApiAAATokenInfo(t *testing.T) {
 	err := json.Unmarshal(b, &respMap)
 	sharedutils.CheckError(err)
 
-	if respMap.Item.Tenant.Id != tokenInfo.Tenant.Id {
-		t.Error("Tenant ID is not the same in the token info response as it is in the backend")
-	}
-
 	for _, r := range respMap.Item.AdminRoles {
 		if _, ok := tokenInfo.AdminRoles[r]; !ok {
 			t.Errorf("Missing admin role %s in token info response", r)
 		}
 	}
 
-	if respMap.Item.Username != "web" {
+	if respMap.Item.Username != pfconfigdriver.Config.PfConf.Webservices.User {
 		t.Error("Username in token info isn't valid:", respMap.Item.Username)
 	}
 }
@@ -89,7 +87,7 @@ func TestApiAAAHandleAAA(t *testing.T) {
 	req, _ := http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(`{"username":"web", "password":"services"}`)),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass))),
 	)
 
 	recorder := httptest.NewRecorder()
@@ -125,7 +123,7 @@ func TestApiAAAContentType(t *testing.T) {
 	req, _ := http.NewRequest(
 		"POST",
 		"/login",
-		bytes.NewBuffer([]byte(`{"username":"web", "password":"services"}`)),
+		bytes.NewBuffer([]byte(fmt.Sprintf(`{"username":"%s", "password":"%s"}`, pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass))),
 	)
 
 	recorder := httptest.NewRecorder()

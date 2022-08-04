@@ -28,6 +28,20 @@ export const useString = (searchString, columns) => {
   }
 }
 
+const reduceQuery = query => {
+  let { op, values = [], field } = query || {}
+  if (field) { // ignore user defined criteria
+    return query
+  }
+  values = values
+    .map(value => reduceQuery(value))
+    .filter(value => value && Object.keys(value).length > 0)
+  if (values.length > 0) {
+    return { op, values }
+  }
+  return null // reduced
+}
+
 const factory = (uuid, options = {}) => {
   const id = `$_${toKebabCase(uuid, '_')}_search`
   return defineStore({
@@ -50,7 +64,7 @@ const factory = (uuid, options = {}) => {
         cursors: [],
         defaultCondition: () => ({ op: 'and', values: [
           { op: 'or', values: [
-            { field: 'id', op: 'not_equals', value: null }
+            // noop
           ] }
         ] }),
         requestInterceptor: request => request,
@@ -59,6 +73,7 @@ const factory = (uuid, options = {}) => {
         useColumns,
         useFields,
         useString,
+        useItems: items => items,
         useCondition: condition => condition,
         useCursor: (cursors, page, limit) => {
           if (page - 1 in cursors) {
@@ -141,7 +156,7 @@ const factory = (uuid, options = {}) => {
       doReset() {
         this.isLoading = true
         const fields = this.useFields(this.columns).join(',')
-        const params = {
+        let params = {
           fields,
           sort: ((this.sortBy)
             ? ((this.sortDesc)
@@ -151,7 +166,10 @@ const factory = (uuid, options = {}) => {
             : undefined // use natural sort
           ),
           limit: this.limit,
-          cursor: this.useCursor(this.cursors, this.page, this.limit)
+          cursor: ((this.useCursor)
+            ? this.useCursor(this.cursors, this.page, this.limit)
+            : 0
+          )
         }
         if ('list' in this.api) { // has api.list
           this.$debouncer({
@@ -165,10 +183,10 @@ const factory = (uuid, options = {}) => {
                     this.cursors[this.page] = nextCursor
                   if (total_count) // endpoint returned a total count
                     this.totalRows = total_count
-                  else if (items.length === this.limit) // +1 to guarantee next
+                  else if (this.useItems(items).length === this.limit) // +1 to guarantee next
                     this.totalRows = (this.page * this.limit) + 1
                   else
-                    this.totalRows = (this.page * this.limit) - this.limit + items.length
+                    this.totalRows = (this.page * this.limit) - this.limit + this.useItems(items).length
                   this.lastQuery = null
                 })
                 .catch(() => {
@@ -199,9 +217,9 @@ const factory = (uuid, options = {}) => {
       doSearch(query) {
         this.isLoading = true
         const fields = this.useFields(this.columns)
-        const _body = {
+        let _body = {
           fields,
-          query,
+          query: reduceQuery(query),
           sort: ((this.sortBy)
             ? ((this.sortDesc)
               ? [`${this.sortBy} DESC`]
@@ -210,7 +228,10 @@ const factory = (uuid, options = {}) => {
             : undefined // use natural sort
           ),
           limit: this.limit,
-          cursor: this.useCursor(this.cursors, this.page, this.limit)
+          cursor: ((this.useCursor)
+            ? this.useCursor(this.cursors, this.page, this.limit)
+            : 0
+          )
         }
         const body = this.requestInterceptor(_body)
         this.$debouncer({
@@ -224,10 +245,11 @@ const factory = (uuid, options = {}) => {
                   this.cursors[this.page] = nextCursor
                 if (total_count) // endpoint returned a total count
                   this.totalRows = total_count
-                else if (items.length === this.limit) // +1 to guarantee next
+                else if (this.useItems(items).length === this.limit) // +1 to guarantee next
                   this.totalRows = (this.page * this.limit) + 1
-                else
-                  this.totalRows = (this.page * this.limit) - this.limit + items.length
+                else {
+                  this.totalRows = (this.page * this.limit) - this.limit + this.useItems(items).length
+                }
                 this.lastQuery = query
               })
               .catch(() => {

@@ -13,7 +13,6 @@ pf::Report::sql
 use strict;
 use warnings;
 use Moose;
-use pf::config::tenant;
 use pf::Report;
 use pf::error qw(is_error);
 use pf::util;
@@ -70,12 +69,7 @@ sub options_has_date_range {
 sub create_bind {
     my ($self, $infos) = @_;
     my @bind;
-    my $tenant_id = pf::config::tenant::get_tenant();
     for my $b (@{$self->bindings}) {
-        if ($b eq 'tenant_id') {
-            push @bind, $tenant_id;
-            next;
-        }
 
         if ($b eq 'limit') {
             push @bind, $infos->{sql_limit};

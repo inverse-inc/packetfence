@@ -23,9 +23,8 @@ use Sub::Name;
 use pf::log;
 use pf::error qw(is_error is_success);
 use pf::SQL::Abstract;
-use pf::config::tenant;
 use pf::dal::iterator;
-use pf::constants qw($TRUE $FALSE $DEFAULT_TENANT_ID);
+use pf::constants qw($TRUE $FALSE);
 
 use Class::XSAccessor {
     accessors => [qw(__from_table __old_data)],
@@ -81,6 +80,7 @@ sub _defaults {
     return {};
 }
 
+our $ER_WARN_DEPRECATED_SYNTAX = 1287;
 
 our %MYSQL_ERROR_TO_STATUS_CODES = (
     1062 => $STATUS::CONFLICT, #ER_DUP_ENTRY
@@ -139,6 +139,9 @@ sub db_execute {
         if ($warnings) {
             my $warnings = $dbh->selectall_arrayref('SHOW WARNINGS');
             for my $w (@$warnings) {
+                if (skip_warning($w)) {
+                    next;
+                }
                 $logger->warn(join(": ", @$w));
             }
         }
@@ -147,6 +150,11 @@ sub db_execute {
         $attempts--;
     }
     return $status, undef, undef;
+}
+
+sub skip_warning {
+    my ($w) = @_;
+    return $w->[1] == $ER_WARN_DEPRECATED_SYNTAX;
 }
 
 sub mysql_error_to_status_code {
@@ -376,7 +384,6 @@ sub insert {
     my ($status, $sth) = $self->do_insert(
         -into => $self->table,
         -values   => $insert_data,
-        -no_auto_tenant_id => $self->{-no_auto_tenant_id},
         @args,
     );
     return $status if is_error($status);
@@ -457,7 +464,8 @@ sub upsert {
         return $STATUS::BAD_REQUEST;
     }
     ($status, my $on_conflict) = $self->_on_conflict_data;
-    return $status if is_error($status);
+
+    return $status if is_error($status) || $status == $STATUS::NO_CONTENT;
     ($status, my $sth) = $self->do_upsert(
         -into => $self->table,
         -values   => $insert_data,
@@ -486,11 +494,13 @@ sub _on_conflict_data {
     my ($self) = @_;
     if ($self->__from_table) {
         my ($status, $data) = $self->_update_data;
-        if (is_error($status) || (keys  %$data) > 0 ) {
+        if (is_error($status) || (keys %$data) > 0) {
             return $status, $data;
         }
-        # If nothing was updated make sure that we use the default
+
+        return $STATUS::NO_CONTENT, undef;
     }
+
     return $self->_insert_data;
 }
 
@@ -896,57 +906,6 @@ sub merge {
     return ;
 }
 
-sub set_tenant {
-    my ($class, $tenant_id) = @_;
-
-    if(!defined($tenant_id)) {
-        get_logger->info("Undefined tenant ID specified, ignoring it and keeping current tenant");
-        return $FALSE;
-    }
-
-    if ($tenant_id == pf::config::tenant::get_tenant()) {
-        return $TRUE
-    }
-
-    if ($tenant_id < 0) {
-        get_logger->error("Cannot set a tenant id below 0");
-        return $FALSE;
-    }
-
-    if ($tenant_id > 1) {
-        my ($status, $count) = pf::dal->count(
-            -where => {
-                id => $tenant_id,
-            },
-            -from => 'tenant',
-        );
-
-        if (is_error($status)) {
-            get_logger->error("Problem looking up tenant ID ($tenant_id) in database");
-            return $FALSE;
-        }
-
-        if ($count == 0) {
-            get_logger->error("Invalid tenant ID ($tenant_id) specified, ignoring it and keeping current tenant");
-            return $FALSE;
-        }
-    }
-
-    get_logger->debug("Setting current tenant ID to $tenant_id");
-    pf::config::tenant::set_tenant($tenant_id);
-    return $TRUE;
-}
-
-=head2 reset_tenant
-
-reset_tenant
-
-=cut
-
-sub reset_tenant {
-    return pf::config::tenant::reset_tenant();
-}
-
 =head2 table
 
 table
@@ -956,11 +915,6 @@ table
 sub table {
     my ($self) = @_;
     return undef;
-}
-
-
-sub get_tenant {
-    return pf::config::tenant::get_tenant();
 }
 
 =head2 select
@@ -1245,9 +1199,6 @@ sub make_dal_finder {
     my @pkeys = @{$proto->primary_keys};
     my $i = -1;
     my %args = map { $i++; ($_ => "param_$i") } @pkeys;
-    if (exists $args{tenant_id}) {
-        $args{tenant_id} = pf::config::tenant::get_tenant();
-    }
     my %reverse = map { $args{$_} => $_ } keys %args;
     my $select_args = $proto->find_select_args(\%args);
     my @select_args = $proto->update_params_for_select(%$select_args);
@@ -1259,27 +1210,17 @@ sub make_dal_finder {
         my $col = $reverse{$b};
         $pos{$col} = $i;
     }
-    my $tenant_id_position;
-    my $pkey_position;
     my $pkey;
-    if (exists $args{tenant_id} && @pkeys == 2) {
-        $tenant_id_position = $pos{tenant_id};
-        ($pkey) = grep { $_ ne 'tenant_id' } @pkeys;
-        $pkey_position = $pos{$pkey};
-    } elsif (@pkeys == 1) {
+    if (@pkeys == 1) {
         $pkey = $pkeys[0];
-        $pkey_position = 0;
     }
 
-    if ($pkey) {
+    if (@pkeys == 1) {
         return subname "${class}::find" => sub {
             my ($proto, $ids) = @_;
-            my @bind;
-            if ($tenant_id_position) {
-                $bind[$tenant_id_position] = $proto->get_tenant();
-            }
-
-            $bind[$pkey_position] = exists $ids->{$pkey} ? $ids->{$pkey} : undef;
+            my @bind = (
+                (exists $ids->{$pkey} ? $ids->{$pkey} : undef)
+            );
             my ($status, $sth) = $proto->db_execute($sql, @bind);
             return $status, undef if is_error($status);
             my $row = $sth->fetchrow_hashref;
@@ -1298,11 +1239,7 @@ sub make_dal_finder {
         my @bind;
         for my $p (@pkeys) {
             my $i = $pos{$p};
-            if ($p eq 'tenant_id') {
-                $bind[$i] = $proto->get_tenant();
-            } else {
-                $bind[$i] = exists $ids->{$p} ? $ids->{$p} : undef;
-            }
+            $bind[$i] = exists $ids->{$p} ? $ids->{$p} : undef;
         }
 
         my ($status, $sth) = $proto->db_execute($sql, @bind);
@@ -1326,11 +1263,7 @@ sub make_sql_executor {
         for my $n (@bind_names) {
             my $indexes = $bind_pos{$n};
             my $val;
-            if ($n eq 'tenant_id') {
-                my $val = $proto->get_tenant();
-            } else {
-                $val = exists $args->{$n} ? $args->{$n} : undef;
-            }
+            $val = exists $args->{$n} ? $args->{$n} : undef;
 
             for my $i (@$indexes) {
                 $bind[$i] = $val;

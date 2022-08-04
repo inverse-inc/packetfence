@@ -134,7 +134,6 @@ sub authorize {
         goto AUDIT;
     }
 
-    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
@@ -144,7 +143,7 @@ sub authorize {
 
     Log::Log4perl::MDC->put( 'mac', $mac );
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
     # switch-specific information retrieval
@@ -199,8 +198,10 @@ sub authorize {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
     $node_obj->_load_locationlog;
-    # update last_seen of MAC address as some activity from it has been seen
-    $node_obj->update_last_seen();
+    if ($status_code != $STATUS::CREATED) {
+        # update last_seen of MAC address as some activity from it has been seen
+        $node_obj->update_last_seen();
+    }
 
     #define the current connection value to instantiate the correct portal
     my $options = {};
@@ -407,7 +408,6 @@ sub accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     # update last_seen of MAC address as some activity from it has been seen
@@ -419,7 +419,7 @@ sub accounting {
     my $isUpdate = $acct_status_type  == $ACCOUNTING::INTERIM_UPDATE;
 
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
 
@@ -500,7 +500,6 @@ sub update_locationlog_accounting {
         return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Switch is not managed by PacketFence" ) ];
     }
 
-    $switch->setCurrentTenant($radius_request);
     if ($switch->supportsRoamingAccounting()) {
         my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
         my $locationlog_mac = locationlog_last_entry_mac($mac);
@@ -894,8 +893,10 @@ sub vpn {
             $node_obj = pf::dal::node->new({"mac" => $mac});
         }
         $node_obj->_load_locationlog;
-        # update last_seen of MAC address as some activity from it has been seen
-        $node_obj->update_last_seen();
+        if ($status_code != $STATUS::CREATED) {
+            # update last_seen of MAC address as some activity from it has been seen
+            $node_obj->update_last_seen();
+        }
 
         if (defined($session_id)) {
             $node_obj->sessionid($session_id);
@@ -1265,7 +1266,6 @@ sub radius_filter {
         return [ $RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Switch is not managed by PacketFence") ];
     }
 
-    $switch->setCurrentTenant($radius_request);
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
@@ -1277,7 +1277,7 @@ sub radius_filter {
         $node_obj = pf::dal::node->new({"mac" => $mac});
     }
     my $connection = pf::Connection->new;
-    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch);
+    $connection->identifyType($nas_port_type, $eap_type, $mac, $user_name, $switch, $radius_request);
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
     # switch-specific information retrieval

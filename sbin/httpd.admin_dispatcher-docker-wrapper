@@ -7,4 +7,8 @@ name=httpd.admin_dispatcher
 args=`base_args $name`
 args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 8890:8890 -p 8891:8891"
 
+if ! [ -z "$HTML_PFAPPSERVER_ROOT_MOUNT" ]; then
+  args="$args -v $HTML_PFAPPSERVER_ROOT_MOUNT:/usr/local/pf/html/pfappserver/root"
+fi
+
 run $name "$args"

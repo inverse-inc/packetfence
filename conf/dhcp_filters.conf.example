@@ -128,7 +128,6 @@
 #                           'regdate' => '0000-00-00 00:00:00',
 #                           'last_dot1x_username' => '78f8829f119d',
 #                           'category_id' => undef,
-#                           'tenant_id' => '1',
 #                           'last_connection_type' => 'Wireless-802.11-NoEAP',
 #                           'machine_account' => undef,
 #                           'realm' => 'null',

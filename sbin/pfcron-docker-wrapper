@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=pfcron
+
+args=`base_args $name`
+
+run $name "$args"

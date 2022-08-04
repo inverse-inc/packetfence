@@ -21,6 +21,7 @@ use HTTP::Status qw(:constants is_error is_success);
 use List::MoreUtils qw(part any);
 use pfconfig::manager;
 use pf::freeradius;
+use pfconfig::manager;
 
 extends qw(pf::ConfigStore);
 
@@ -64,7 +65,7 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Switch configstore");
-    freeradius_populate_nas_config( \%pf::SwitchFactory::SwitchConfig );
+    freeradius_populate_nas_config(pfconfig::manager->new->get_namespace("config::Switch")->build());
     return ($result, $error);
 }
 

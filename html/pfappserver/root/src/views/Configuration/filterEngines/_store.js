@@ -2,9 +2,9 @@
 * "$_filter_engines" store module
 */
 import Vue from 'vue'
-import { computed } from '@vue/composition-api'
-import store from '@/store'
+import store, { types } from '@/store'
 import i18n from '@/utils/locale'
+import { computed } from '@vue/composition-api'
 import api, { apiFactory } from './_api'
 
 export const useStore = $store => {
@@ -32,13 +32,6 @@ export const useStore = $store => {
     },
     deleteItem: params => $store.dispatch('$_filter_engines/deleteFilterEngine', params),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

@@ -82,9 +82,9 @@ func (pf *pfdns) IP2Mac(ctx context.Context, ip string, ipVersion int) (string, 
 		err error
 	)
 	if ipVersion == 4 {
-		err = pf.IP4log.QueryRow(ip, 1).Scan(&mac)
+		err = pf.IP4log.QueryRow(ip).Scan(&mac)
 	} else {
-		err = pf.IP6log.QueryRow(ip, 1).Scan(&mac)
+		err = pf.IP6log.QueryRow(ip).Scan(&mac)
 	}
 
 	if err != nil {
@@ -97,7 +97,7 @@ func (pf *pfdns) IP2Mac(ctx context.Context, ip string, ipVersion int) (string, 
 func (pf *pfdns) HasSecurityEvents(ctx context.Context, mac string) bool {
 	securityEvent := false
 	var securityEventCount int
-	err := pf.SecurityEvent.QueryRow(mac, 1).Scan(&securityEventCount)
+	err := pf.SecurityEvent.QueryRow(mac).Scan(&securityEventCount)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("HasSecurityEvent %s %s\n", mac, err))
 	} else if securityEventCount != 0 {
@@ -166,7 +166,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	var status = "unreg"
 	var category string
-	err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
+	err = pf.Nodedb.QueryRow(mac).Scan(&status, &category)
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 	}
@@ -290,7 +290,7 @@ func (pf *pfdns) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 			case "dnsenforcement", "inline":
 				var status = "unreg"
 
-				err = pf.Nodedb.QueryRow(mac, 1).Scan(&status, &category)
+				err = pf.Nodedb.QueryRow(mac).Scan(&status, &category)
 				if err != nil {
 					log.LoggerWContext(ctx).Error(fmt.Sprintf("error getting node status %s %s\n", mac, err))
 				}
@@ -603,25 +603,25 @@ func (pf *pfdns) DbInit(ctx context.Context) error {
 	sharedutils.CheckError(err)
 	pf.Db = db
 
-	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
+	pf.IP4log, err = pf.Db.Prepare("select mac from ip4log where ip = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip4log prepared statement error: %s", err)
 		return err
 	}
 
-	pf.IP6log, err = pf.Db.Prepare("select mac from ip6log where ip = ? AND tenant_id = ?")
+	pf.IP6log, err = pf.Db.Prepare("select mac from ip6log where ip = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
 		return err
 	}
 
-	pf.Nodedb, err = pf.Db.Prepare("select node.status, IF(ISNULL(nc.name), '', nc.name) as category from node LEFT JOIN node_category as nc on node.category_id = nc.category_id where mac = ? AND tenant_id = ?")
+	pf.Nodedb, err = pf.Db.Prepare("select node.status, IF(ISNULL(nc.name), '', nc.name) as category from node LEFT JOIN node_category as nc on node.category_id = nc.category_id where mac = ?")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database nodedb prepared statement error: %s", err)
 		return err
 	}
 
-	pf.SecurityEvent, err = pf.Db.Prepare("Select count(*) from security_event, action where security_event.security_event_id=action.security_event_id and action.action='reevaluate_access' and mac=? and status='open' AND tenant_id = ?")
+	pf.SecurityEvent, err = pf.Db.Prepare("Select count(*) from security_event, action where security_event.security_event_id=action.security_event_id and action.action='reevaluate_access' and mac=? and status='open'")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database security_event prepared statement error: %s", err)
 		return err

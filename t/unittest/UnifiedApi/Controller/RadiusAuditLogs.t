@@ -24,7 +24,7 @@ BEGIN {
 }
 #run tests
 use pf::dal::radius_audit_log;
-use Test::More tests => 92;
+use Test::More tests => 90;
 use Test::Mojo;
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -39,7 +39,6 @@ $t->get_ok('/api/v1/radius_audit_logs' => json => { })
 
 #insert known data
 my %values = (
-    tenant_id                => '1',
     mac                      => '00:01:02:03:04:05',
     ip                       => 'test ip',
     computer_name            => 'test computer_name', 
@@ -81,7 +80,6 @@ $t->post_ok('/api/v1/radius_audit_logs' => json => \%values)
   ->status_is(201);
 
 $t->get_ok('/api/v1/radius_audit_logs' => json => { })
-  ->json_is('/items/0/tenant_id', $values{tenant_id})
   ->json_is('/items/0/mac', $values{mac})
   ->json_is('/items/0/ip', $values{ip})
   ->json_is('/items/0/computer_name', $values{computer_name})
@@ -125,7 +123,6 @@ my $id = $t->tx->res->json->{items}[0]{id};
 #run unittest, use $id
 $t->get_ok("/api/v1/radius_audit_log/$id")
   ->json_is('/item/id', $id)
-  ->json_is('/item/tenant_id', $values{tenant_id})
   ->json_is('/item/mac', $values{mac})
   ->json_is('/item/ip', $values{ip})
   ->json_is('/item/computer_name', $values{computer_name})

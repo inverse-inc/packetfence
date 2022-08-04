@@ -21,6 +21,7 @@
       @blur="onBlur"
     />
     <template v-slot:append>
+      <slot />
       <b-button v-if="!isLocked"
         ref="popoverButtonRef"
         class="input-group-text"

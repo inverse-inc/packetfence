@@ -23,6 +23,7 @@ sub init {
     my ($self, $cluster_name) = @_;
 
     $self->{cluster_name} = $cluster_name || "DEFAULT";
+    $self->{child_resources} = ['config::Connector'];
     $self->{cluster_resource} = pfconfig::namespaces::config::Cluster->new($self->{cache});
 }
 

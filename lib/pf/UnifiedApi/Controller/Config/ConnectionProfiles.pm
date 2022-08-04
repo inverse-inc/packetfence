@@ -37,6 +37,7 @@ use pf::file_paths qw(
     $captiveportal_templates_path
 );
 use pf::error qw(is_error);
+use pfconfig::git_storage;
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
@@ -461,13 +462,28 @@ sync_files
 
 sub _sync_files {
     my ($self, @files) = @_;
-    if (!$cluster_enabled || @files == 0) {
+    if (@files == 0) {
         return undef;
     }
 
-    my $failed = pf::cluster::sync_files(\@files);
-    if (@$failed){
-        return { message => "Failed to sync file on " . join(', ', @$failed) , status => 500};
+    if($cluster_enabled) {
+        my $failed = pf::cluster::sync_files(\@files);
+        if (@$failed){
+            return { message => "Failed to sync file on " . join(', ', @$failed) , status => 500};
+        }
+    }
+
+    if(pfconfig::git_storage->is_enabled) {
+        for my $file (@files) {
+            my ($res, $msg) = pfconfig::git_storage->commit_file($file, strip_path_for_git_storage($file), push => 0);
+            if(!$res) {
+                return { message => $msg, status => 500 };
+            }
+        }
+        my ($res, $msg) = pfconfig::git_storage->push();
+        if(!$res) {
+            return { message => $msg, status => 500 };
+        }
     }
 
     return undef;
@@ -481,14 +497,29 @@ _sync_delete_files
 
 sub _sync_delete_files {
     my ($self, @files) = @_;
-    if (!$cluster_enabled || @files == 0) {
+    if (@files == 0) {
         return undef;
     }
 
-    my $failed = pf::cluster::sync_file_deletes(\@files);
-    if (@$failed) {
-        my $id = $self->id;
-        return { message => "Failed to revert profile $id on " . join(', ', @$failed) , status => 500 };
+    if($cluster_enabled) {
+        my $failed = pf::cluster::sync_file_deletes(\@files);
+        if (@$failed) {
+            my $id = $self->id;
+            return { message => "Failed to revert profile $id on " . join(', ', @$failed) , status => 500 };
+        }
+    }
+
+    if(pfconfig::git_storage->is_enabled) {
+        for my $file (@files) {
+            my ($res, $msg) = pfconfig::git_storage->delete_file(strip_path_for_git_storage($file), push => 0);
+            if(!$res) {
+                return { message => $msg, status => 500 };
+            }
+        }
+        my ($res, $msg) = pfconfig::git_storage->push();
+        if(!$res) {
+            return { message => $msg, status => 500 };
+        }
     }
 
     return undef;

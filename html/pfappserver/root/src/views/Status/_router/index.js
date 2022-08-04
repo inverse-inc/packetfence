@@ -3,10 +3,12 @@ import store from '@/store'
 import StatusView from '../'
 import StatusStore from '../_store'
 
+import AssetsRoutes from '../assets/_router'
 import ClusterRoutes from '../cluster/_router'
 import DashboardRoutes from '../dashboard/_router'
 import QueueRoutes from '../queue/_router'
-import NetworkRoutes from '../network/_router'
+import NetworkCommunicationRoutes from '../network_communication/_router'
+import NetworkThreatsRoutes from '../network_threats/_router'
 import ServicesRoutes from '../services/_router'
 
 const route = {
@@ -15,7 +17,7 @@ const route = {
   redirect: '/status/dashboard',
   component: StatusView,
   meta: {
-    can: () => acl.can('master tenant') || acl.$some('read', ['system', 'services']), // has ACL for 1+ children
+    can: () => acl.$some('read', ['system', 'services']), // has ACL for 1+ children
     transitionDelay: 300 * 2 // See _transitions.scss => $slide-bottom-duration
   },
   beforeEnter: (to, from, next) => {
@@ -26,10 +28,12 @@ const route = {
     next()
   },
   children: [
+    ...AssetsRoutes,
     ...ClusterRoutes,
     ...DashboardRoutes,
     ...QueueRoutes,
-    ...NetworkRoutes,
+    ...NetworkCommunicationRoutes,
+    ...NetworkThreatsRoutes,
     ...ServicesRoutes,
   ]
 }

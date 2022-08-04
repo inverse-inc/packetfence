@@ -37,7 +37,7 @@ LOCAL_REGISTRY = local
 # Golang
 #
 GOVERSION = go1.17.6
-PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe
+PF_BINARIES = pfhttpd pfdhcp pfdns pfstats pfdetect galera-autofix pfacct pfcron mysql-probe pfconnector sdnotify-proxy
 
 #
 # PF versions
@@ -111,10 +111,8 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
 	-not -path "$(SRC_ROOT_DIR)/public" \
 	-not -path "$(SRC_RPMDIR)" \
-	-not -path "$(SRC_HTMLDIR_CPDIR)" \
 	-not -path "$(SRC_HTMLDIR_COMMONDIR)" \
 	-not -path "$(SRC_HTMLDIR_PARKINGDIR)" \
-	-not -path "$(SRC_HTMLDIR_PFAPPDIR)/lib" \
 	-not -path "$(SRC_TESTDIR)" )
 
 # all directories and files to include in packetfence-test package

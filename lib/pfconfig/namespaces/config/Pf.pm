@@ -179,8 +179,8 @@ sub build_child {
     }
     my $webservices = $Config{'webservices'};
     # The webservices should default to the unified API password if it's not defined in the configuration
-    $webservices->{user} = $self->{cache}->get_cache('resource::unified_api_system_user')->{user};
-    $webservices->{pass} = $self->{cache}->get_cache('resource::unified_api_system_user')->{pass};
+    $webservices->{user} = $self->{cache}->get_cache('resource::unified_api_system_user')->{user} unless($webservices->{user});
+    $webservices->{pass} = $self->{cache}->get_cache('resource::unified_api_system_user')->{pass} unless($webservices->{pass});
 
     $webservices->{jsonrpcclient_args} = {
         username => $webservices->{'user'},

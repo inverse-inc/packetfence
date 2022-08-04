@@ -267,12 +267,25 @@ Local *Exclusive Sources* and click on `New exclusive source` then `Eduroam`.
 
 The information to configure that source could be found on the Eduroam platform.
 
-==== Create the connection profile for local authentication
+In order to handle correctly external and internal students with your Eduroam source, you will need to:
+
+* define realms used by your internal students in `Local Realms` field
+* create a catchall rule which will assign a role (for example: eduroam) to external students
+* create two different connection profiles (see next sections)
+
+==== Create the connection profile to authenticate external students
 
 Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_.
 
-Create a connection profile named `Local and external Eduroam authentication` Check `Automatically register devices` then create a SSID filter `Eduroam`. Make sure to add the Active Directory source to match on the local users.
+Create a connection profile named `External Eduroam authentication` Check `Automatically register devices` then create a Realm filter `eduroam`. Make sure to add the previously created Eduroam source to match on the external users.
 
+==== Create the connection profile to authenticate internal students
+
+Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_.
+
+Create a connection profile named `Local Eduroam authentication` Check `Automatically register devices` then create a SSID filter `Eduroam`. Make sure to add the AD source to match on the local users.
+
+WARNING: This connection profile need to be **after** `External Eduroam authentication` connection profile. Otherwise, it will also match request for external students and this is not what we want.
 
 ==== Inbound authentication (TLRS to PF)
 
@@ -288,13 +301,7 @@ image::inbound-eduroam-authentication.png[scaledwidth="100%",alt="Inbound Eduroa
 
 First, you need to refer to the previous step `Configure the Eduroam source`.
 
-Once the source is configured, you will need to create a new connection profile.
-
-==== Create the connection profile for outbound authentication
-
-Go to _Configuration -> Policies and Access Control -> Connection Profiles -> New Connection Profile_.
-
-Create the Connection Profile named `External Eduroam authentication` Check `Automatically register devices` then create a REALM filter `Eduroam`. Next, make sure to add the Eduroam source previouly created.
+For this use case, there is no need to create a connection profile in PacketFence. FreeRADIUS will only perform a NTLM Auth and won't send RADIUS request to PacketFence API.
 
 === SAML Authentication
 

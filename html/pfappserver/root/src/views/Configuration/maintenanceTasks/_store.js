@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import api from './_api'
 
 export const useStore = $store => {
@@ -16,13 +17,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_maintenance_tasks/updateMaintenanceTask', params),
     deleteItem: params => $store.dispatch('$_maintenance_tasks/deleteMaintenanceTask', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

@@ -63,6 +63,14 @@ has_field 'monitor',
              help => 'Do you want to monitor this source?' },
    default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('monitor')->default,
 );
+has_field 'use_connector',
+  (
+   type => 'Toggle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('use_connector')->default,
+);
+
 has_field 'options',
   (
    type => 'TextArea',

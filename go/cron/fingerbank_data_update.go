@@ -25,9 +25,9 @@ func (j *FingerbankDataUpdate) Run() {
 		"email_admin", 0,
 		"fork_to_queue", 1,
 	}
-	if !cluster.CallCluster(ctx, method, args, 1) {
+	if !cluster.CallCluster(ctx, method, args) {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
-		if _, err := clientApi.Call(ctx, method, args, 1); err != nil {
+		if _, err := clientApi.Call(ctx, method, args); err != nil {
 			log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 		}
 	}

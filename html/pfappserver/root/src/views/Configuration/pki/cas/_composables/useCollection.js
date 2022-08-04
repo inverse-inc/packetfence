@@ -105,10 +105,5 @@ export const useSearch = makeSearch('pkiCas', {
       types: [conditionType.SUBSTRING]
     }
   ],
-  sortBy: 'id',
-  defaultCondition: () => ({ op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'ID', op: 'not_equals', value: null }
-    ] }
-  ] })
+  sortBy: 'id'
 })

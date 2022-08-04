@@ -62,7 +62,7 @@ import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
-import TenantsRoutes from '../tenants/_router'
+import ConnectorsRoutes from '../connectors/_router'
 
 import store from '@/store'
 import BasesStoreModule from '../bases/_store'
@@ -102,7 +102,6 @@ const route = {
     /**
      * Compliance
      */
-
     {
       path: 'compliance',
       component: ComplianceSection
@@ -176,7 +175,7 @@ const route = {
     ...DnsRoutes,
     ...AdminRolesRoutes,
     ...SslCertificatesRoutes,
-    ...TenantsRoutes
+    ...ConnectorsRoutes
   ]
 }
 

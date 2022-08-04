@@ -74,8 +74,8 @@ sub dsn_from_config {
 sub create_db {
     my ($dbh, $config) = @_;
     my $db = $config->{db};
-    $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db\n";;
-    $dbh->do("CREATE DATABASE $db;") or die "Cannot create database $db\n";
+    $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db: " . $dbh->errstr  . "\n";
+    $dbh->do("CREATE DATABASE $db DEFAULT CHARACTER SET = 'utf8mb4';") or die "Cannot create database $db: " . $dbh->errstr  . "\n";
 }
 
 sub load_standard_data {

@@ -11,7 +11,9 @@
 
 # this is only for the mysqld standalone daemon
 [mysqld]
-
+character-set-server = utf8mb4
+collation-server = utf8mb4_bin
+init-connect='SET NAMES utf8mb4'
 [% IF server_ip.length %]
 bind-address=[% server_ip %]
 [% ELSE %]
@@ -206,3 +208,6 @@ gtid_domain_id=[% server_id %]
 
 [mysqld_safe]
 syslog
+
+[mariabackup]
+socket    = /var/lib/mysql/mysql.sock

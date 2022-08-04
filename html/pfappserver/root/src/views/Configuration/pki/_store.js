@@ -1,6 +1,8 @@
 /**
 * "$_pkis" store module
 */
+import { types } from '@/store'
+
 import {
   state as stateCas,
   getters as gettersCas,
@@ -28,14 +30,6 @@ import {
   actions as actionsRevokedCerts,
   mutations as mutationsRevokedCerts
 } from './revokedCerts/_store'
-
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
 
 // Default values
 const state = () => {

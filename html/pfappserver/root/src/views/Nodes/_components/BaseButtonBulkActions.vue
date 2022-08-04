@@ -80,7 +80,6 @@
   </b-dropdown>
 </template>
 <script>
-
 const props = {
   selectedItems: {
     type: Array

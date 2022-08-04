@@ -3,6 +3,7 @@ import StoreModule from '../_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../../_components/TheTabsPkis')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
+const TheCsr = () => import(/* webpackChunkName: "Configuration" */ './_components/TheCsr')
 
 const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_pkis)
@@ -53,6 +54,18 @@ export default [
     name: 'clonePkiProfile',
     component: TheView,
     props: (route) => ({ id: String(route.params.id).toString(), isClone: true }),
+    beforeEnter: (to, from, next) => {
+      beforeEnter()
+      store.dispatch('$_pkis/getProfile', to.params.id).then(() => {
+        next()
+      })
+    }
+  },
+  {
+    path: 'pki/profile/:id/csr',
+    name: 'csrPkiProfile',
+    component: TheCsr,
+    props: (route) => ({ id: String(route.params.id).toString() }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_pkis/getProfile', to.params.id).then(() => {

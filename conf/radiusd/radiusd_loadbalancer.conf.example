@@ -324,8 +324,8 @@ security {
 	#  member.  This can allow for some finer-grained access
 	#  controls.
 	#
-	user = pf
-	group = pf
+	user = root
+	group = root
 
 	#  Core dumps are a bad thing.  This should only be set to
 	#  'yes' if you're debugging a problem with the server.

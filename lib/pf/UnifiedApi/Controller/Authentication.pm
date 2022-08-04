@@ -28,11 +28,10 @@ sub adminAuthentication {
         $self->render(status => $status, json => $json);
     }
 
-    my ($result, $roles, $tenant) = pf::authentication::adminAuthentication($json->{username}, $json->{password});
+    my ($result, $roles) = pf::authentication::adminAuthentication($json->{username}, $json->{password});
 
     if($result == $LOGIN_SUCCESS) {
-        $tenant->{'id'} = int($tenant->{'id'});
-        $self->render(status => 200, json => { result => $result+0, roles => $roles, tenant => $tenant });
+        $self->render(status => 200, json => { result => $result+0, roles => $roles});
     }
     else {
         $self->render(status => 401, json => { result => $result+0, message => "Authentication failed." })

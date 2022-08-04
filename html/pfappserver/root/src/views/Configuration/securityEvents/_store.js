@@ -2,6 +2,7 @@
 * "$_security_events" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import api from './_api'
 import {
@@ -27,13 +28,6 @@ export const useStore = $store => {
   }
 }
 
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
-
 // Default values
 const state = () => {
   return {
@@ -52,10 +46,12 @@ const actions = {
   all: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'desc', 'priority'].join(','),
+      limit: 100
     }
     return api.list(params).then(response => {
       return response.items
+        .filter(item => item.desc)
     })
   },
   options: ({ commit }, id) => {

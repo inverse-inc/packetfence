@@ -47,7 +47,6 @@ use pf::dal::radius_nas;
 use pf::dal;
 use pf::util qw(valid_mac);
 use pf::error qw(is_error);
-use pf::constants qw($DEFAULT_TENANT_ID);
 use pf::cluster;
 
 # The next two variables and the _prepare sub are required for database handling magic (see pf::db)
@@ -74,7 +73,6 @@ sub _delete_expired {
         -where => {
             config_timestamp => {"!=" => $timestamp},
         },
-        -no_auto_tenant_id => 1,
     );
     $logger->debug("emptying radius_nas table");
     if (is_error($status)) {
@@ -97,7 +95,7 @@ sub _insert_nas_bulk {
     my $sqla = pf::dal::radius_nas->get_sql_abstract;
     my ($sql, @bind) = $sqla->update_multi(
         'radius_nas',
-        [qw(tenant_id nasname shortname secret description config_timestamp start_ip end_ip range_length)],
+        [qw(nasname shortname secret description config_timestamp start_ip end_ip range_length)],
         \@rows
     );
     my ($status, $sth) = pf::dal::radius_nas->db_execute($sql, @bind);
@@ -172,7 +170,6 @@ sub additional_switches {
             {
                 id            => $_,
                 radiusSecret  => $local_secret,
-                TenantId      => 1,
                 type          => 'PacketFence'
             }
         } (values %{pf::cluster::members_ips($int)}, $cluster_ip);
@@ -245,7 +242,7 @@ sub _build_radius_nas_row {
             $range_length = $end_ip - $start_ip + 1;
         }
     }
-    [$data->{TenantId} // $DEFAULT_TENANT_ID, $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
+    [ $id, $id, $data->{radiusSecret}, $id . " (" . $data->{'type'} .")", $timestamp, $start_ip, $end_ip, $range_length]
 }
 
 =back

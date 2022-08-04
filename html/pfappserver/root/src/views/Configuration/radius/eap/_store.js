@@ -2,8 +2,9 @@
 * "$_radius_eap" store module
 */
 import Vue from 'vue'
-import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import i18n from '@/utils/locale'
+import { computed } from '@vue/composition-api'
 import api from './_api'
 
 export const useStore = $store => {
@@ -21,13 +22,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_radius_eap/updateRadiusEap', params),
     deleteItem: params => $store.dispatch('$_radius_eap/deleteRadiusEap', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

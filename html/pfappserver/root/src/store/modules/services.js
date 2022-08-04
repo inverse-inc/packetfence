@@ -2,7 +2,7 @@
 * "services" store module
 */
 import Vue from 'vue'
-import store from '@/store'
+import store, { types } from '@/store'
 import apiCall from '@/utils/api'
 
 const api = {
@@ -91,17 +91,6 @@ const api = {
     const post = quiet ? 'postQuiet' : 'post'
     return apiCall[post](['system_service', id, 'top'])
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  ENABLING: 'enabling',
-  DISABLING: 'disabling',
-  RESTARTING: 'restarting',
-  STARTING: 'starting',
-  STOPPING: 'stopping',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 export const blacklistedServices = [ // prevent start|stop|restart control on these services
@@ -352,8 +341,8 @@ const mutations = {
       state.message = response.data.message
     }
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

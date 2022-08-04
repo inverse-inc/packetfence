@@ -6,13 +6,18 @@ Documentation=man:apachectl(8)
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
 Before=packetfence-radiusd-auth.service packetfence-radiusd-acct.service packetfence-radiusd-cli.service
+Before=packetfence-docker-iptables.service
+Requires=packetfence-docker-iptables.service
+PartOf=packetfence-docker-iptables.service
 
 [Service]
+Type=notify
+NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_aaa' -e 'pf::services::manager::httpd_aaa->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/httpd.aaa-docker-wrapper
-ExecStop=/bin/bash -c "docker stop httpd.aaa ; docker container rm httpd.aaa -f ; echo Stopped"
+ExecStop=/bin/bash -c "docker stop httpd.aaa ; echo Stopped"
 TimeoutStopSec=30
 Restart=on-failure
 Slice=packetfence.slice

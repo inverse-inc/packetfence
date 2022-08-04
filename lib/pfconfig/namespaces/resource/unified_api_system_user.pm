@@ -20,6 +20,12 @@ use base 'pfconfig::namespaces::resource';
 use pf::file_paths qw($unified_api_system_pass_file);
 use File::Slurp qw(read_file);
 
+sub init {
+    my ($self, $cluster_name) = @_;
+
+    $self->{child_resources} = ['config::Connector'];
+}
+
 sub build {
     my ($self) = @_;
     my $pass = read_file($unified_api_system_pass_file);

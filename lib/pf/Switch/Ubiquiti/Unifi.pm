@@ -134,6 +134,8 @@ sub parseExternalPortalRequest {
     my %params = ();
 
     my $client_ip = defined($r->headers_in->{'X-Forwarded-For'}) ? $r->headers_in->{'X-Forwarded-For'} : $r->connection->remote_ip;
+    my @proxied_ip = split(',', $client_ip);
+    $client_ip = $proxied_ip[0];
 
     %params = (
         switch_id               => $req->param('ap'),
@@ -452,6 +454,7 @@ sub radiusDisconnect {
     try {
         my $locationlog = locationlog_view_open_mac($mac);
         my $connection_info = {
+            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),

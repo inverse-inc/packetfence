@@ -277,7 +277,7 @@ sub test_smtp {
     my $msg = MIME::Lite->new(
         To => $email,
         Subject => "PacketFence SMTP Test",
-        Data => "PacketFence SMTP Test successful!\n"
+        Data => "PacketFence SMTP Test successful!\r\n"
     );
 
     my $results = eval {

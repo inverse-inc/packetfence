@@ -212,14 +212,14 @@
           </b-row>
 
           <b-table :items="nodes" :fields="visibleNodeFields" :sortBy="nodeSortBy" :sortDesc="nodeSortDesc"
-            class="pb-3" show-empty responsive sort-icon-left striped>
+            class="pb-3" show-empty sort-icon-left striped>
             <template v-slot:cell(status)="node">
               <b-badge pill variant="success" v-if="node.item.status === 'reg'">{{ $t('registered') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="node.item.status === 'unreg'">{{ $t('unregistered') }}</b-badge>
               <span v-else>{{ node.item.status }}</span>
             </template>
-            <template v-slot:cell(mac)="node">
-              <b-button variant="link" :to="`../../node/${node.item.mac}`">{{ node.item.mac }}</b-button>
+            <template v-slot:cell(mac)="{ value }">
+              <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
             </template>
             <template v-slot:empty>
               <base-table-empty :isLoading="isLoadingNodes" text="">{{ $t('No devices found') }}</base-table-empty>
@@ -254,18 +254,21 @@
           </template>
 
           <b-table :items="securityEvents" :fields="securityEventFields" :sortBy="securityEventSortBy" :sortDesc="securityEventSortDesc"
-            class="pb-3" show-empty responsive sort-icon-left striped>
+            class="pb-3" show-empty sort-icon-left striped>
             <template v-slot:cell(status)="securityEvent">
               <b-badge pill variant="success" v-if="securityEvent.item.status === 'open'">{{ $t('open') }}</b-badge>
               <b-badge pill variant="secondary" v-else-if="securityEvent.item.status === 'closed'">{{ $t('closed') }}</b-badge>
               <span v-else>{{ securityEvent.item.status }}</span>
             </template>
             <template v-slot:cell(mac)="securityEvent">
-              <b-button variant="link" :to="`../../node/${securityEvent.item.mac}`"><mac>{{ securityEvent.item.mac }}</mac></b-button>
+              <node-dropdown :id="securityEvent.item.mac" variant="link" class="px-0" toggle-class="p-0" dropup />
+            </template>
+            <template #cell(security_event_id)="{ value }">
+              <router-link :to="{ path: `/configuration/security_event/${value}` }">{{ securityEventMap[value] || '...' }}</router-link>
             </template>
             <template v-slot:cell(buttons)="securityEvent">
               <span class="float-right text-nowrap">
-                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoadingSecurityEvents" @click="onSecurityEventClose(securityEvent)">{{ $t('Close Event') }}</b-button>
+                <b-button size="sm" v-if="securityEvent.item.status === 'open'" variant="outline-danger" :disabled="isLoadingSecurityEvents" @click="onSecurityEventClose(securityEvent)">{{ $t('Release Event') }}</b-button>
               </span>
             </template>
             <template v-slot:empty>
@@ -329,6 +332,7 @@ import {
   InputGroupExpiration,
   FormGroupActions
 } from './'
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 
 const components = {
   BaseForm,
@@ -375,6 +379,8 @@ const components = {
   FormGroupCustomField7,
   FormGroupCustomField8,
   FormGroupCustomField9,
+
+  NodeDropdown,
 }
 
 const props = {
@@ -383,7 +389,7 @@ const props = {
   }
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import {
   nodeFields as _nodeFields,
@@ -450,13 +456,19 @@ const setup = (props, context) => {
   const onSecurityEventCloseAll = () => {
     // TODO
   }
+  const securityEventMap = ref({})
+  onMounted(() => {
+    $store.dispatch('$_security_events/all').then(items => {
+      securityEventMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.desc }
+      }, {})
+    })
+  })
 
   const onResetPassword = () => {
     const { password, login_remaining } = form.value
-    const { id: tenant_id } = $store.state.session.tenant
     const data = {
       pid: pid.value,
-      tenant_id,
       password,
       login_remaining
     }
@@ -511,6 +523,7 @@ const setup = (props, context) => {
     visibleNodeFields,
     onNodesUnassign,
 
+    securityEventMap,
     securityEvents,
     hasOpenSecurityEvents,
     isLoadingSecurityEvents,

@@ -6,7 +6,7 @@ inventory__group_environment:
   PF_TEST_MGMT_INT: "{{ packetfence_install__mgmt_interface['id'] }}"
   PF_TEST_MGMT_IP: "{{ packetfence_install__mgmt_interface['ip'] }}"
   PF_TEST_MGMT_MASK: "{{ packetfence_install__mgmt_interface['mask'] }}"
-  PSONO_CI_SERVER_URL: 'https://psono.inverse.ca/server'
+  PSONO_CI_SERVER_URL: '{{ lookup("env","PSONO_CI_SERVER_URL")|default("https://psono.inverse.ca/server") }}'
   # lookup variables available to GitLab runner
   # defined in GitLab UI
   PSONO_CI_API_KEY_ID: '{{ lookup("env", "PSONO_CI_API_KEY_ID") }}'

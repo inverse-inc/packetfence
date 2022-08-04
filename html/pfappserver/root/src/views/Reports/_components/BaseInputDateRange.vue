@@ -21,8 +21,20 @@
       <base-input-group-date-time v-model="startDate"
         :placeholder="$i18n.t('Start')" :disabled="disabled" :min="minStartDate" :max="maxStartDate" class="mr-1" defer />
       <base-input-group-date-time v-model="endDate"
-        :placeholder="$i18n.t('End')" :disabled="disabled" :min="minEndDate" :max="maxEndDate" defer />
-      <b-btn v-if="hasDates"
+        :placeholder="$i18n.t('End')" :disabled="disabled || isLocked" :min="minEndDate" :max="maxEndDate" defer>
+        <b-button
+          class="input-group-text"
+          tabIndex="-1"
+          :disabled="disabled"
+          @click="onToggleLock"
+        >
+          <icon v-if="isLocked"
+            class="text-primary" name="step-forward" />
+          <icon v-else
+            name="step-forward" />
+        </b-button>
+      </base-input-group-date-time>
+      <b-btn v-if="hasDates && !isLocked"
         variant="link" @click="nextRange" v-b-tooltip.hover.bottom.d300 :title="$i18n.t('Next date range')">
           <icon name="chevron-right" />
       </b-btn>
@@ -51,7 +63,7 @@ const props = {
   }
 }
 
-import { computed, customRef, nextTick, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { format, parse, addSeconds, subSeconds, differenceInSeconds } from 'date-fns'
 import i18n from '@/utils/locale'
 import { duration2seconds } from '@/views/Configuration/accessDurations/config'
@@ -189,6 +201,32 @@ const setup = (props, context) => {
     })
   }
 
+  const timerLocked = 60
+  let intervalLocked
+  const isLocked = ref(false)
+  const onToggleLock = () => {
+    isLocked.value = !isLocked.value
+  }
+  const bumpEndDate = () => {
+    endDate.value = format(addSeconds(new Date(), timerLocked), 'YYYY-MM-DD HH:mm:ss')
+  }
+  watch(isLocked, () => {
+    if (intervalLocked) {
+      clearInterval(intervalLocked)
+    }
+    if (isLocked.value) {
+      bumpEndDate()
+      intervalLocked = setInterval(bumpEndDate, timerLocked * 1E3)
+    }
+  })
+  watch(() => value.value.end_date, () => {
+    const end = parse(endDate.value, 'YYYY-MM-DD HH:mm:ss')
+    const diff = Math.abs(differenceInSeconds(new Date(), end))
+    if (diff <= timerLocked) {
+      isLocked.value = true
+    }
+  }, { immediate: true })
+
   return {
     startDate,
     minStartDate,
@@ -203,7 +241,9 @@ const setup = (props, context) => {
     hasDates,
     hasDateLimit,
     previousRange,
-    nextRange
+    nextRange,
+    isLocked,
+    onToggleLock,
   }
 }
 

@@ -20,6 +20,7 @@ use pf::config qw(%ConfigSurvey);
 use pf::file_paths qw(
     $survey_config_file
 );
+use pfconfig::manager;
 extends 'pf::ConfigStore';
 
 sub configFile { $survey_config_file }
@@ -36,7 +37,7 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Survey configstore");
-    pf::Survey::reload_from_config( \%pf::config::ConfigSurvey );
+    pf::Survey::reload_from_config(pfconfig::manager->new->get_namespace("config::Survey")->build());
     return ($result, $error);
 }
 

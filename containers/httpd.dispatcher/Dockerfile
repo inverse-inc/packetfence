@@ -3,6 +3,11 @@ ARG IMAGE_TAG
 FROM ${KNK_REGISTRY_URL}/pfbuild-debian-bullseye:${IMAGE_TAG}
 RUN mkdir -p /usr/local/pf/
 WORKDIR /usr/local/pf/
+
+COPY go/go.mod /usr/local/pf/go/
+COPY go/go.sum /usr/local/pf/go/
+RUN cd /usr/local/pf/go/ && go mod download
+
 COPY ./go /usr/local/pf/go
 COPY ./lib /usr/local/pf/lib
 COPY ./html /usr/local/pf/html

@@ -47,3 +47,7 @@ clean-coredns-src:
 	find coredns/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
 	find coredns/ -type f -exec sed -i.bak "s'github.com/coredns/coredns'github.com/inverse-inc/packetfence/go/coredns'g" {} \; ; find . -name '*.bak' -delete
 	find coredns/ -name '*_test.go' -delete
+
+.PHONY: clean-chisel-src
+clean-chisel-src:
+	find chisel/ -type f -exec sed -i.bak "s'github.com/jpillora/chisel'github.com/inverse-inc/packetfence/go/chisel'g" {} \; ; find . -name '*.bak' -delete

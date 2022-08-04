@@ -13,6 +13,7 @@ node_modules
 
 # Configuration not in git
 addons/stress-tester/plan.conf
+conf/connectors.conf
 conf/admin.conf
 conf/httpd.conf
 conf/wgorchestrator-auth.json
@@ -38,9 +39,12 @@ conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
 conf/radiusd/tls.conf
 conf/radiusd/radiusd_cli.conf
+conf/radiusd/cert
 conf/pfcron.conf
 conf/certmanager
 conf/mfa.conf
+conf/proxysql.conf
+db/upgrade-tenant-11.2-12.0.sql
 bin/pfcmd
 bin/ntlm_auth_wrapper
 src/mariadb_udf/*.o
@@ -56,6 +60,8 @@ sbin/pfacct
 sbin/pfcron
 sbin/galera-autofix
 sbin/mysql-probe
+sbin/pfconnector
+sbin/sdnotify-proxy
 src/pfcmd
 !conf/nessus/remotescan.nessus
 conf/snort/emerging*.rules

@@ -5,12 +5,18 @@ Wants=packetfence-redis_queue.service
 After=packetfence-redis_queue.service
 Wants=packetfence-base.target packetfence-config.service packetfence-iptables.service
 After=packetfence-base.target packetfence-config.service packetfence-iptables.service
+Before=packetfence-docker-iptables.service
+Requires=packetfence-docker-iptables.service
+PartOf=packetfence-docker-iptables.service
 
 [Service]
+Type=notify
+TimeoutStopSec=60
+NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
-ExecStart=/usr/local/pf/sbin/pfqueue-docker-wrapper
-ExecStop=/bin/bash -c "docker stop pfqueue ; docker container rm pfqueue -f ; echo Stopped"
+ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfqueue' -e 'pf::services::manager::pfqueue->new()->generateConfig()'
+ExecStart=/usr/local/pf/sbin/pfqueue
 TimeoutStopSec=30
 Restart=on-failure
 Slice=packetfence.slice

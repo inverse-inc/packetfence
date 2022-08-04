@@ -24,9 +24,6 @@ use warnings;
 
 use base qw(pf::dal);
 
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;
@@ -37,7 +34,6 @@ our @COLUMN_NAMES;
 BEGIN {
     @FIELD_NAMES = qw(
         id
-        tenant_id
         process_name
         mac
         pid
@@ -49,7 +45,6 @@ BEGIN {
     );
 
     %DEFAULTS = (
-        tenant_id => '1',
         process_name => '',
         mac => '',
         pid => 'default',
@@ -61,7 +56,6 @@ BEGIN {
     );
 
     @INSERTABLE_FIELDS = qw(
-        tenant_id
         process_name
         mac
         pid
@@ -77,12 +71,6 @@ BEGIN {
             type => 'BIGINT',
             is_auto_increment => 1,
             is_primary_key => 1,
-            is_nullable => 0,
-        },
-        tenant_id => {
-            type => 'INT',
-            is_auto_increment => 0,
-            is_primary_key => 0,
             is_nullable => 0,
         },
         process_name => {
@@ -141,7 +129,6 @@ BEGIN {
 
     @COLUMN_NAMES = qw(
         auth_log.id
-        auth_log.tenant_id
         auth_log.process_name
         auth_log.mac
         auth_log.pid

@@ -60,14 +60,13 @@ Fix the permissions on pf and fingerbank files
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
-    _changeFilesToOwner('pf',@log_files, @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $log_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file, $iptable_config_file);
+    _changeFilesToOwner('pf', @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file, $iptable_config_file);
     _changePathToOwnerRecursive('pf', $html_dir);
     _changeFilesToOwner('root',$pfcmd);
     chmod($PFCMD_MODE, $pfcmd);
-    chmod(0664, @stored_config_files, $iptable_config_file);
-    chmod($DIR_MODE, $conf_dir, $var_dir, $log_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
+    chmod(0664, @stored_config_files, $iptable_config_file, $config_version_file);
+    chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
     _fingerbank();
-    find({ wanted => \&wanted,untaint => 1}, $log_dir);
     print "Fixed permissions.\n";
     return $EXIT_SUCCESS;
 }
@@ -162,12 +161,6 @@ sub _changePathToOwnerRecursive {
 
 sub _fingerbank {
     fingerbank::Util::fix_permissions();
-}
-
-sub wanted {
-    return if $File::Find::name eq $log_dir;
-    my $perm = -d $File::Find::name ? 02775 : 0664;
-    chmod $perm, untaint_chain($File::Find::name);
 }
 
 =head1 AUTHOR

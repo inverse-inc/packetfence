@@ -207,30 +207,6 @@ If a binding is needed more than once within the `sql`, it can either be defined
   has_date_range=enabled
   has_limit=enabled
 
-This can be improved as:
-
-  [many bindings]
-  type=sql
-  bindings=tenant_id,start_date,end_date,limit
-  sql= << EOT
-  BEGIN NOT ATOMIC
-    SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
-    SELECT
-      *
-    FROM tableA
-    JOIN tableB ON tableA.id = tableB.id
-      AND date BETWEEN @START_DATE AND @END_DATE
-    WHERE tenant_id = @TENANT_ID
-      AND date BETWEEN @START_DATE AND @END_DATE
-    LIMIT ?;
-  END;
-  EOT
-  default_limit=100
-  has_date_range=enabled
-  has_limit=enabled
-
-NOTE: MySQL LIMIT will not accept a variable (`LIMIT @LIMIT`). A best practice is to always pass limit as the last field in `bindings` and to simply consume it at the end of the script (`LIMIT ?`) as shown in the last example above.
-
 ==== Pagination
 
 Pagination is supported through the use of the `cursor_type`, `cursor_default`, `cursor_field`, `bindings` and `sql` attributes. Pagination supports the use of one to many columns. Special attention must be given to the order of the final result set in order to utilize the cursor properly. Symptoms of too few pages, or infinite loops through subsequent pages are signs of a mismatched cursor and/or query results order.
@@ -317,25 +293,6 @@ The `joins` and `sql` attribute support multi line block statements. All whitesp
     -- block
     -- statement
   EOT
-
-Heredoc supports multiple SQL statements. When running multiple statements they should be wrapped in `BEGIN NOT ATOMIC ... END;`, which is not required when using a single statement:
-
-  [multi statement example]
-  type=sql
-  sql= <<EOT
-  BEGIN NOT ATOMIC
-    -- consume bindings and SET friendly SQL variables (except LIMIT)
-    SET @TENANT_ID = ?, @START_DATE = ?, @END_DATE = ?;
-    SELECT
-      *
-    FROM tableA
-    WHERE tenant_id = @TENANT_ID
-      AND columnA BETWEEN @START_DATE AND @END_DATE
-    -- SQL LIMIT doesn't support SQL variables
-    LIMIT ?;
-  END;
-  EOT
-  bindings=tenant_id,start_date,end_date,limit
 
 ==== Troubleshooting
 

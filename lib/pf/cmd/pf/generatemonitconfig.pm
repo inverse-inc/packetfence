@@ -26,7 +26,7 @@ sub _run {
         $configurations .= ",active-active";
     }
     my $emails = $Config{monit}{alert_email_to} ? $Config{monit}{alert_email_to} : $Config{alerting}{emailaddr};
-    return system("/usr/local/pf/addons/monit/monit_build_configuration.pl", $emails, $Config{monit}{subject_prefix}, $configurations, $Config{monit}{mailserver});
+    return system("/usr/local/pf/addons/monit/monit_build_configuration.pl", $emails, $Config{monit}{subject_prefix}, $configurations, $Config{monit}{mailserver}, $Config{monit}{sender});
 }
 
 =head1 AUTHOR

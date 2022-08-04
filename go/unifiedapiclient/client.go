@@ -44,15 +44,13 @@ func SetHTTPClient(hc *http.Client) {
 	httpClient = hc
 }
 
-const UnsetTenantId = -1
-
 type Client struct {
 	Username string
 	Password string
 	Host     string
 	Port     string
+	Proto    string
 	token    string
-	tenantId int
 
 	// When set to true, the URI log will be made in debug instead of info
 	URILogDebug bool
@@ -92,7 +90,7 @@ func New(ctx context.Context, username, password, proto, host, port string) *Cli
 		Password: password,
 		Host:     host,
 		Port:     port,
-		tenantId: UnsetTenantId,
+		Proto:    proto,
 	}
 }
 
@@ -103,7 +101,7 @@ func NewFromConfig(ctx context.Context) *Client {
 	var apiUser pfconfigdriver.UnifiedApiSystemUser
 	pfconfigdriver.FetchDecodeSocket(ctx, &apiUser)
 
-	return New(ctx, apiUser.User, apiUser.Pass, webservices.Proto, webservices.UnifiedAPIHost, webservices.UnifiedAPIPort)
+	return New(ctx, apiUser.User, apiUser.Pass, "https", webservices.UnifiedAPIHost, webservices.UnifiedAPIPort)
 }
 
 func (c *Client) Call(ctx context.Context, method, path string, decodeResponseIn interface{}) UnifiedAPIError {
@@ -229,7 +227,7 @@ func (c *Client) login(ctx context.Context) UnifiedAPIError {
 }
 
 func (c *Client) buildRequest(ctx context.Context, method, path, body string) *http.Request {
-	uri := fmt.Sprintf("https://%s:%s%s", c.Host, c.Port, path)
+	uri := fmt.Sprintf("%s://%s:%s%s", c.Proto, c.Host, c.Port, path)
 
 	logFunc := log.LoggerWContext(ctx).Info
 	if c.URILogDebug {
@@ -249,19 +247,7 @@ func (c *Client) buildRequest(ctx context.Context, method, path, body string) *h
 		r.Header.Set("Authorization", "Bearer "+c.token)
 	}
 
-	if c.tenantId != UnsetTenantId {
-		r.Header.Set("X-PacketFence-Tenant-Id", fmt.Sprintf("%d", c.tenantId))
-	}
-
 	return r
-}
-
-func (c *Client) SetTenantId(ctx context.Context, tenantId int) {
-	c.tenantId = tenantId
-}
-
-func (c *Client) ResetTenantId(ctx context.Context) {
-	c.tenantId = UnsetTenantId
 }
 
 func (c *Client) GetToken(ctx context.Context) string {

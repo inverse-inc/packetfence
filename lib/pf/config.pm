@@ -140,6 +140,8 @@ our (
     @ConfigOrderedRealm,
 #provisioning.conf
     %ConfigProvisioning,
+#provisioning.conf
+    %ConfigConnector,
 #domain.conf
     %ConfigDomain,
 #scan.conf
@@ -231,6 +233,7 @@ BEGIN {
         %ConfigRealm
         @ConfigOrderedRealm
         %ConfigProvisioning
+        %ConfigConnector
         %ConfigDomain
         $default_pid
         %ConfigScan
@@ -296,11 +299,13 @@ tie %ConfigCloud, 'pfconfig::cached_hash', 'config::Cloud';
 
 tie %ConfigFirewallSSO, 'pfconfig::cached_hash', 'config::Firewall_SSO';
 
-tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm', tenant_id_scoped => 1;
+tie %ConfigRealm, 'pfconfig::cached_hash', 'config::Realm';
 
-tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm', tenant_id_scoped => 1;
+tie @ConfigOrderedRealm, 'pfconfig::cached_array', 'config::OrderedRealm';
 
 tie %ConfigProvisioning, 'pfconfig::cached_hash', 'config::Provisioning';
+
+tie %ConfigConnector, 'pfconfig::cached_hash', 'config::Connector';
 
 tie %ConfigScan, 'pfconfig::cached_hash', 'config::Scan';
 
@@ -865,6 +870,15 @@ sub configreload {
     my $manager = pfconfig::manager->new;
     $manager->expire_all;
     load_configdata_into_db();
+
+    require pfconfig::git_storage;
+    if(pfconfig::git_storage->is_enabled) {
+        my ($res, $msg) = pfconfig::git_storage->deploy(light => 1);
+        if(!$res) {
+            die $msg;
+        }
+    }
+
     return ;
 }
 

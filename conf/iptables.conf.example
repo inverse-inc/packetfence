@@ -62,10 +62,13 @@
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1812 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1822 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 1813 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1813 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1823 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 1815 --jump ACCEPT
 -A input-management-if --protocol udp --match udp --dport 1815 --jump ACCEPT
+-A input-management-if --protocol udp --match udp --dport 1825 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 2083 --jump ACCEPT
 # RADIUS (eduroam virtual-server)
 %%eduroam_radius_virtualserver%%

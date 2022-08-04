@@ -11,8 +11,8 @@ before_script:
 ################################################################################
 stages:
   - check
-  - build_img_container
   - build_img
+  - build_img_container
   - build_artifacts
   - sign
   - publish
@@ -35,6 +35,7 @@ variables:
   CHECKDIR: ${CILIBDIR}/check
   BUILDDIR: ${CILIBDIR}/build
   RELEASEDIR: ${CILIBDIR}/release
+  TESTCIDIR: ${CILIBDIR}/test
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   ISODIR: $CIDIR/debian-installer
@@ -114,24 +115,26 @@ variables:
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with build_img_container variable defined or build_img_container in commit message
+# run this job on maintenance branches if BUILD_IMG_CONTAINER is yes or on all other branches unless BUILD_IMG_DOCKER is no
 .build_img_container_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_CONTAINER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_container=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # only run this job on devel branch with build_img_docker variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
 
-# only run this job on branch different from devel (all branches, maintenance/X.Y branches included) with build_img_docker variable defined or build_img_docker in commit message
+# run this job on maintenance branches if BUILD_IMG_DOCKER is yes or on all other branches unless BUILD_IMG_DOCKER is no
 .build_img_docker_branches_and_maintenance_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule" && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ )'
+    - if: '$BUILD_IMG_DOCKER == "no"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # run jobs only when:
 # - on devel branch (push,web,schedule) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
@@ -170,10 +173,10 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run jobs only when:
-# - on all branches (maintenance/X.Y branches included) and devel with a schedule, with test variable defined or test=yes in commit message
+# - on all branches (maintenance/X.Y branches included) and devel with a schedule
 .check_devel_branches_and_maintenance_rules:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null'
 
 # run this job on:
 # - devel branch with BUILD_PF_IMG_ZEN variable defined or build_pf_img_zen=yes in commit message
@@ -245,7 +248,7 @@ variables:
   script:
     - ${CHECKDIR}/run-pipeline-if-necessary.sh
   tags:
-    - docker-inverse
+    - docker
 
 .build_img_docker_job:
   stage: build_img
@@ -263,7 +266,7 @@ variables:
   script:
     - ${CONTAINER_DIR}/kanikobuild
   tags:
-    - docker-inverse
+    - docker
 
 .build_img_vagrant_devel_and_branches_job:
   stage: build_img
@@ -285,7 +288,7 @@ variables:
     paths:
       - result/*
   tags:
-    - docker-inverse
+    - docker
 
 .build_artifacts_website_job:
   stage: build_artifacts
@@ -297,7 +300,7 @@ variables:
     paths:
       - website/*
   tags:
-    - docker-inverse
+    - docker
 
 .build_artifacts_material_job:
   stage: build_artifacts
@@ -314,7 +317,7 @@ variables:
     - make material
     - ${RELEASEDIR}/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
   tags:
-    - docker-inverse
+    - docker
 
 .publish_job:
   stage: publish
@@ -467,11 +470,12 @@ variables:
 
 .test_script_job:
   variables:
-    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common
+    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
     - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
   after_script:
-    - MAKE_TARGET=halt make -e -C ${TESTDIR} ${CI_JOB_NAME}
+    - ${TESTCIDIR}/clean-test-environment.sh
+
 
 ################################################################################
 # JOBS
@@ -520,6 +524,12 @@ pfdeb_based_dev:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
+          - "pfpki"
+          - "pfcron"
+          - "haproxy-portal"
+          - "haproxy-admin"
+          - "proxysql"
 
 img_dev:
   extends:
@@ -530,7 +540,7 @@ img_dev:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "haproxy-portal"
+          - "fingerbank-db"
 
 rad_based_dev:
   extends:
@@ -579,6 +589,12 @@ pfdeb_based_br_maint:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
+          - "pfconnector"
+          - "pfpki"
+          - "pfcron"
+          - "haproxy-portal"
+          - "haproxy-admin"
+          - "proxysql"
 
 img_br_maint:
   extends:
@@ -589,7 +605,7 @@ img_br_maint:
   parallel:
     matrix:
       - IMAGE_NAME:
-          - "haproxy-portal"
+          - "fingerbank-db"
 
 rad_based_br_maint:
   extends:
@@ -638,17 +654,21 @@ pfdeb_based_rel:
           - "radiusd"
           - "pfsso"
           - "pfperl-api"
-
-img_rel:
-  extends:
-    - .build_img_container_job
-    - .release_only_rules
-  variables:
-    IMAGE_TAGS: ${CI_COMMIT_TAG}
-  parallel:
-    matrix:
-      - IMAGE_NAME:
+          - "pfconnector"
+          - "pfpki"
           - "haproxy-portal"
+          - "haproxy-admin"
+          - "proxysql"
+
+#img_rel:
+#  extends:
+#    - .build_img_container_job
+#    - .release_only_rules
+#  variables:
+#    IMAGE_TAGS: ${CI_COMMIT_TAG}
+#  parallel:
+#    matrix:
+#      - IMAGE_NAME:
 
 rad_based_rel:
   extends:
@@ -861,7 +881,6 @@ publish_ppa_devel_release_branches_and_maintenance::
     - sign_devel_release_branches_and_maintenance
   extends:
     - .publish_job
-    - .test_rules
     - .publish_ppa_rules
 
 ########################################
@@ -870,7 +889,7 @@ publish_ppa_devel_release_branches_and_maintenance::
 ### development
 unit_tests_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -878,7 +897,7 @@ unit_tests_el8:
 
 dot1x_eap_peap_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -886,7 +905,7 @@ dot1x_eap_peap_el8:
 
 dot1x_eap_peap_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -894,7 +913,7 @@ dot1x_eap_peap_deb11:
 
 mac_auth_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -902,7 +921,7 @@ mac_auth_el8:
 
 mac_auth_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -910,7 +929,7 @@ mac_auth_deb11:
 
 dot1x_eap_tls_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -918,7 +937,7 @@ dot1x_eap_tls_el8:
 
 dot1x_eap_tls_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -926,7 +945,7 @@ dot1x_eap_tls_deb11:
 
 fingerbank_invalid_db_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -934,7 +953,7 @@ fingerbank_invalid_db_deb11:
 
 security_events_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -942,7 +961,7 @@ security_events_deb11:
 
 cli_login_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -950,7 +969,7 @@ cli_login_deb11:
 
 cli_login_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -958,7 +977,7 @@ cli_login_el8:
 
 external_integrations_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -966,7 +985,7 @@ external_integrations_deb11:
 
 captive_portal_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -974,7 +993,7 @@ captive_portal_el8:
 
 captive_portal_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_REF_SLUG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -982,7 +1001,7 @@ captive_portal_deb11:
 
 inline_deb11:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -990,7 +1009,7 @@ inline_deb11:
 
 inline_el8:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job

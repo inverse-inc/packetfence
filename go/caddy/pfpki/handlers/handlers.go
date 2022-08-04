@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
@@ -111,16 +110,8 @@ func GetSetCA(pfpki *types.Handler) http.Handler {
 }
 
 func makeAdminApiAuditLog(pfpki *types.Handler, req *http.Request, Information types.Info, body []byte, action string) *admin_api_audit_log.AdminApiAuditLog {
-	tenantId := 1
-	tenant := req.Header.Get("X-PacketFence-Tenant-Id")
-	if tenant != "" {
-		if val, err := strconv.ParseInt(tenant, 10, 32); err == nil {
-			tenantId = int(val)
-		}
-	}
 	vars := mux.Vars(req)
 	log := &admin_api_audit_log.AdminApiAuditLog{
-		TenantId: tenantId,
 		UserName: req.Header.Get("X-PacketFence-Username"),
 		Action:   action,
 		ObjectId: vars["id"],
@@ -712,6 +703,49 @@ func CheckRenewal(pfpki *types.Handler) http.Handler {
 				break
 			}
 			auditLog = makeAdminApiAuditLog(pfpki, req, Information, nil, "pfpki.CheckRenewal")
+
+		default:
+			err = errors.New("Method " + req.Method + " not supported")
+			Error.Message = err.Error()
+			Error.Status = http.StatusMethodNotAllowed
+			break
+		}
+		manageAnswer(Information, Error, pfpki, res, req, auditLog)
+	})
+}
+
+func SignCSR(pfpki *types.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+
+		o := models.NewCsrModel(pfpki)
+
+		var Information types.Info
+		var err error
+		var auditLog *admin_api_audit_log.AdminApiAuditLog
+
+		Error := types.Errors{Status: 0}
+		vars := mux.Vars(req)
+		switch req.Method {
+
+		case "POST":
+			Information.Status = http.StatusCreated
+			body, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if err = json.Unmarshal(body, &o); err != nil {
+				Error.Message = err.Error()
+				Error.Status = http.StatusInternalServerError
+				break
+			}
+			if Information, err = o.New(vars); err != nil {
+				Error.Message = err.Error()
+				Error.Status = Information.Status
+				break
+			}
+			auditLog = makeAdminApiAuditLog(pfpki, req, Information, body, "pfpki.SignCSR")
 
 		default:
 			err = errors.New("Method " + req.Method + " not supported")

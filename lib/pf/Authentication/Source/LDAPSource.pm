@@ -80,6 +80,7 @@ has 'client_cert_file' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
 has 'client_key_file' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
 has 'ca_file' => (isa => 'Maybe[Str]', is => 'rw', default => '');
 has 'verify' => ( isa => 'Str', is => 'rw', default => 'none');
+has 'use_connector' => (isa => 'Bool', is => 'rw', default => 1);
 
 our $logger = get_logger();
 
@@ -258,10 +259,22 @@ sub _connect {
           next TRYSERVER;
         }
 
-        $connection = pf::LDAP->new(
-            $LDAPServer,
-            %LDAPArgs,
-        );
+        if($self->use_connector) {
+            require pf::factory::connector;
+            my $connector_conn = pf::factory::connector->for_ip($LDAPServer)->dynreverse("$LDAPServer:$LDAPServerPort");
+            $connection = pf::LDAP->new(
+                $connector_conn->{host},
+                %LDAPArgs,
+                port => $connector_conn->{port},
+            );
+        } 
+        else {
+            $connection = pf::LDAP->new(
+                $LDAPServer,
+                %LDAPArgs,
+            );
+        }
+
 
         if (! defined($connection)) {
           $logger->warn("[$self->{'id'}] Unable to connect to $LDAPServer");

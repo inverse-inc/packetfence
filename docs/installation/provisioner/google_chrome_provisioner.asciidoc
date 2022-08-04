@@ -17,7 +17,7 @@ endif::[]
 ////
 
 
-=== Creating a service account JSON config
+==== Creating a service account JSON config
 
 In order to communicate with the Google API you must configure a service account, and download JSON security keys, and create a user to impersonate with the proper permissions.
 

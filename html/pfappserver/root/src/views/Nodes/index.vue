@@ -16,7 +16,6 @@ const components = {
 }
 
 import { computed, onMounted, ref } from '@vue/composition-api'
-import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import network from '@/utils/network'
 const setup = (props, context) => {
@@ -58,7 +57,6 @@ const setup = (props, context) => {
     },
     {
       name: i18n.t('Switch Groups'),
-      can: 'master tenant',
       collapsable: true,
       loading: isLoadingSwitchGroups.value,
       items: switchGroupsMembers.value.map(switchGroup => {
@@ -66,24 +64,24 @@ const setup = (props, context) => {
           name: switchGroup.id || i18n.t('Default'),
           collapsable: true,
           items: switchGroup.members.map(switchGroupMember => {
-            let query
+            let conditionAdvanced
             if ((/^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2})$/.exec(switchGroupMember.id))) { // CIDR
               const [start, end] = network.cidrToRange(switchGroupMember.id)
-              query = { query: JSON.stringify({ op: 'and', values: [
+              conditionAdvanced = { op: 'and', values: [
                 { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'greater_than_equals', value: start }] },
                 { op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'less_than_equals', value: end }] }
-              ] }) }
+              ] }
             }
             else if ((/^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/.exec(switchGroupMember.id))) { // IPv4
-              query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'equals', value: switchGroupMember.id }] }] }) }
+              conditionAdvanced = { op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch_ip', op: 'equals', value: switchGroupMember.id }] }] }
             }
             else { // non-CIDR
-              query = { query: JSON.stringify({ op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }) }
+              conditionAdvanced = { op: 'and', values: [{ op: 'or', values: [{ field: 'locationlog.switch', op: 'equals', value: switchGroupMember.id }] }] }
             }
             return {
               name: switchGroupMember.id,
               caption: switchGroupMember.description,
-              path: { name: 'nodeSearch', query }
+              path: { name: 'nodeSearch', query: { conditionAdvanced: JSON.stringify(conditionAdvanced) } }
             }
           })
         }
@@ -92,19 +90,17 @@ const setup = (props, context) => {
   ]))
 
   onMounted(() => {
-    if (acl.$can('master', 'tenant')) {
-      $store.dispatch('config/getSwitches').then(switches => {
-        switchGroupsMembers.value = switches.reduce((groups, switche) => {
-          const { group = 'Default', id, description } = switche
-          const groupIndex = groups.findIndex(g => g.id === group)
-          if (groupIndex > -1)
-            groups[groupIndex].members.push({ id, description })
-          else
-            groups.push({ id: group, members: [{ id, description }] })
-          return groups
-        }, [])
-      })
-    }
+    $store.dispatch('config/getSwitches').then(switches => {
+      switchGroupsMembers.value = switches.reduce((groups, switche) => {
+        const { group = 'Default', id, description } = switche
+        const groupIndex = groups.findIndex(g => g.id === group)
+        if (groupIndex > -1)
+          groups[groupIndex].members.push({ id, description })
+        else
+          groups.push({ id: group, members: [{ id, description }] })
+        return groups
+      }, [])
+    })
   })
 
   return {

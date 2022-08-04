@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"bytes"
@@ -18,6 +19,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -25,6 +27,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/inverse-inc/scep/cryptoutil"
 	"github.com/inverse-inc/scep/scep"
 	"github.com/knq/pemutil"
 
@@ -155,8 +158,16 @@ type (
 		DNSNames           string          `json:"dns_names,omitempty"`
 		IPAddresses        string          `json:"ip_addresses,omitempty"`
 		Scep               *bool           `json:"scep,omitempty" gorm:"default:false"`
+		Csr                *bool           `json:"csr,omitempty" gorm:"default:false"`
 		Alert              *bool           `json:"alert,omitempty" gorm:"default:false"`
 		Subject            string          `json:"-" gorm:"UNIQUE"`
+	}
+
+	// CSR struct
+	CSR struct {
+		DB  gorm.DB         `gorm:"-"`
+		Ctx context.Context `gorm:"-"`
+		Csr string          `json:"csr"`
 	}
 
 	// RevokedCert struct
@@ -560,9 +571,14 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 		return nil, err
 	}
 
-	var ca CA
+	return c.FindSerial(profiledb[0])
+}
 
-	if CaDB := c.DB.First(&ca, profiledb[0].CaID).Find(&ca); CaDB.Error != nil {
+func (c CA) FindSerial(p Profile) (*big.Int, error) {
+
+	ca := &CA{}
+
+	if CaDB := c.DB.First(&ca, p.CaID).Find(&ca); CaDB.Error != nil {
 		c.DB.First(&ca)
 	}
 
@@ -577,6 +593,7 @@ func (c CA) Serial(options ...string) (*big.Int, error) {
 	}
 
 	return SerialNumber, nil
+
 }
 
 func (c CA) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool, options ...string) (bool, error) {
@@ -1480,6 +1497,168 @@ func (c RevokedCert) Search(vars sql.Vars) (types.Info, error) {
 	return Information, nil
 }
 
+func NewCsrModel(pfpki *types.Handler) *CSR {
+	Csr := &CSR{}
+
+	Csr.DB = *pfpki.DB
+	Csr.Ctx = *pfpki.Ctx
+
+	return Csr
+}
+
+func (csr CSR) New(params map[string]string) (types.Info, error) {
+	Information := types.Info{}
+	Information.Status = http.StatusUnprocessableEntity
+	// Find the profile
+	var prof Profile
+	if val, ok := params["id"]; ok {
+
+		if profDB := csr.DB.First(&prof, val); profDB.Error != nil {
+			Information.Error = profDB.Error.Error()
+			return Information, errors.New(dbError)
+		}
+	} else {
+		return Information, errors.New("Missing the profile id in the url")
+
+	}
+	attributes := ProfileAttributes(prof)
+	// Find the CA
+	var ca CA
+	if CaDB := csr.DB.First(&ca, prof.CaID).Find(&ca); CaDB.Error != nil {
+		Information.Error = CaDB.Error.Error()
+		return Information, errors.New(dbError)
+	}
+
+	// Read the CSR here
+	var err error
+	re := regexp.MustCompile(`(\s|\n)`)
+
+	stringCSR := strings.Trim(csr.Csr, "-----BEGIN CERTIFICATE REQUEST-----")
+	stringCSR = strings.Trim(stringCSR, "-----END CERTIFICATE REQUEST-----")
+	stringCSR = re.ReplaceAllString(stringCSR, "")
+
+	byteCSR := []byte(stringCSR)
+
+	d := make([]byte, base64.StdEncoding.DecodedLen(len(byteCSR)))
+	n, err := base64.StdEncoding.Decode(d, byteCSR)
+
+	d = d[:n]
+
+	certRequest, err := x509.ParseCertificateRequest(d)
+
+	id, err := cryptoutil.GenerateSubjectKeyID(certRequest.PublicKey)
+	if err != nil {
+		return Information, err
+	}
+
+	ca.DB = csr.DB
+
+	serial, err := ca.FindSerial(prof)
+
+	if err != nil {
+		return Information, err
+	}
+
+	Subject := certutils.MakeSubject(certRequest.Subject, attributes)
+	Subject.CommonName = certRequest.Subject.CommonName
+
+	ExtKeyUsage := certutils.Extkeyusage(strings.Split(attributes["ExtendedKeyUsage"], "|"))
+	KeyUsage := x509.KeyUsage(certutils.Keyusage(strings.Split(attributes["KeyUsage"], "|")))
+
+	// create cert template
+	v, _ := strconv.Atoi(attributes["Digest"])
+	SignatureAlgorithm := x509.SignatureAlgorithm(v)
+
+	var ExtraExtensions []pkix.Extension
+
+	for _, v := range certRequest.Extensions {
+		if v.Id.String() != "2.5.29.37" {
+			if v.Id.String() == "2.5.29.17" {
+				ext, err := certutils.ForEachSAN(v.Value, attributes)
+				if err == nil {
+					ExtraExtensions = append(ExtraExtensions, ext)
+				}
+			} else {
+				ExtraExtensions = append(ExtraExtensions, v)
+			}
+		}
+
+	}
+
+	tmpl := &x509.Certificate{
+		SerialNumber:       serial,
+		Subject:            Subject,
+		NotBefore:          time.Now().Add(-600).UTC(),
+		NotAfter:           time.Now().AddDate(0, 0, prof.Validity).UTC(),
+		SubjectKeyId:       id,
+		KeyUsage:           KeyUsage,
+		ExtKeyUsage:        ExtKeyUsage,
+		SignatureAlgorithm: SignatureAlgorithm,
+		DNSNames:           certRequest.DNSNames,
+		EmailAddresses:     certRequest.EmailAddresses,
+		IPAddresses:        certRequest.IPAddresses,
+		URIs:               certRequest.URIs,
+		ExtraExtensions:    ExtraExtensions,
+	}
+
+	if len(attributes["OCSPUrl"]) > 0 {
+		tmpl.OCSPServer = []string{attributes["OCSPUrl"]}
+	}
+
+	if len(attributes["Mail"]) > 0 {
+		tmpl.EmailAddresses = []string{attributes["Mail"]}
+	}
+
+	// Load the certificates from the database
+	catls, err := tls.X509KeyPair([]byte(ca.Cert), []byte(ca.Key))
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+
+	cacert, err := x509.ParseCertificate(catls.Certificate[0])
+	if err != nil {
+		Information.Error = err.Error()
+		return Information, err
+	}
+	// Sign the certificate
+	certByte, err := x509.CreateCertificate(rand.Reader, tmpl, cacert, certRequest.PublicKey, catls.PrivateKey)
+
+	certBuff := new(bytes.Buffer)
+
+	// Public key
+	pem.Encode(certBuff, &pem.Block{Type: "CERTIFICATE", Bytes: certByte})
+
+	c := &Cert{}
+
+	c.DB = csr.DB
+	c.Ctx = csr.Ctx
+
+	var IPAddresses []string
+	for _, IP := range certRequest.IPAddresses {
+		IPAddresses = append(IPAddresses, IP.String())
+	}
+
+	attributeMap := certutils.GetDNFromCert(Subject)
+
+	certif, err := x509.ParseCertificate(certByte)
+	name := certutils.CertName(certif)
+	notfalse := true
+
+	if err := c.DB.Create(&Cert{Cn: name, Ca: ca, CaName: ca.Cn, ProfileName: prof.Name, SerialNumber: serial.String(), DNSNames: c.DNSNames, IPAddresses: strings.Join(IPAddresses, ","), Mail: strings.Join(certRequest.EmailAddresses, ","), StreetAddress: attributeMap["streetAddress"], Organisation: attributeMap["O"], OrganisationalUnit: attributeMap["OU"], Country: attributeMap["C"], State: attributeMap["ST"], Locality: attributeMap["L"], PostalCode: attributeMap["postalCode"], Profile: prof, Cert: certBuff.String(), ValidUntil: tmpl.NotAfter, Subject: Subject.String(), Csr: &notfalse}).Error; err != nil {
+		Information.Error = err.Error()
+		Information.Status = http.StatusConflict
+		return Information, errors.New(dbError)
+	}
+	var newcertdb []Cert
+	c.DB.Select("id, cn, mail, street_address, organisation, organisational_unit, country, state, locality, postal_code, cert, profile_id, profile_name, ca_name, ca_id, valid_until, serial_number, dns_names, ip_addresses").Where("subject = ? AND profile_name = ?", Subject.String(), prof.Name).First(&newcertdb)
+	Information.Entries = newcertdb
+	Information.Serial = serial.String()
+
+	return Information, nil
+
+}
+
 // EmailType strucure
 type EmailType struct {
 	Header   string
@@ -1655,4 +1834,57 @@ func (d *dictionary) Lookup(key string) (data string, ok bool) {
 	}
 
 	return "\x02" + d.Data[key], true
+}
+
+func ProfileAttributes(prof Profile) map[string]string {
+	var attributes map[string]string
+	attributes = make(map[string]string)
+
+	if len(prof.Organisation) > 0 {
+		attributes["Organization"] = prof.Organisation
+	}
+
+	if len(prof.OrganisationalUnit) > 0 {
+		attributes["OrganizationalUnit"] = prof.OrganisationalUnit
+	}
+
+	if len(prof.Country) > 0 {
+		attributes["Country"] = prof.Country
+	}
+
+	if len(prof.State) > 0 {
+		attributes["State"] = prof.State
+	}
+
+	if len(prof.Locality) > 0 {
+		attributes["Locality"] = prof.Locality
+	}
+
+	if len(prof.StreetAddress) > 0 {
+		attributes["StreetAddress"] = prof.StreetAddress
+	}
+
+	if len(prof.PostalCode) > 0 {
+		attributes["PostalCode"] = prof.PostalCode
+	}
+
+	if len(*prof.ExtendedKeyUsage) > 0 {
+		attributes["ExtendedKeyUsage"] = *prof.ExtendedKeyUsage
+	}
+	if len(*prof.KeyUsage) > 0 {
+		attributes["KeyUsage"] = *prof.KeyUsage
+	}
+
+	if len(prof.OCSPUrl) > 0 {
+		attributes["OCSPUrl"] = prof.OCSPUrl
+	}
+
+	if len(prof.Mail) > 0 {
+		attributes["Mail"] = prof.Mail
+	}
+	if len(prof.Digest.String()) > 0 {
+		val := strconv.Itoa(int(prof.Digest))
+		attributes["Digest"] = val
+	}
+	return attributes
 }

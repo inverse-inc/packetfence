@@ -19,7 +19,6 @@ use pf::log;
 use Readonly;
 use pf::accounting_events_history;
 use pf::config::pfcron qw(%ConfigCron);
-use pf::config::tenant;
 use pf::util qw(make_node_id);
 use pf::error qw(is_success);
 
@@ -162,7 +161,7 @@ sub acct_maintenance {
                         $history_added = $TRUE;
                         my @security_event = security_event_view_last_closed($cleanedMac,$security_event_id);
                         my $releaseDate = $security_event[0]{'release_date'};
-                        if (node_acct_maintenance_bw_exists($mac->{tenant_id}, $mac->{mac}, $direction, $interval, $releaseDate, $bwInBytes)) {
+                        if (node_acct_maintenance_bw_exists($mac->{mac}, $direction, $interval, $releaseDate, $bwInBytes)) {
                               security_event_trigger( { 'mac' => $cleanedMac, 'tid' => $acct_policy, 'type' => $TRIGGER_TYPE_ACCOUNTING } );
                         }
                     } else {
@@ -203,13 +202,11 @@ SQL
     my $date2 = $mac_grouping_dates{$interval};
     my $sql2 = <<"SQL";
 SELECT
-    tenant_id,
     mac,
     SUM($field) as $field FROM (
         SELECT 
             $date AS time_bucket,
             node_id,
-            tenant_id,
             mac,
             SUM($field) AS $field 
         FROM bandwidth_accounting
@@ -217,7 +214,6 @@ SELECT
         UNION ALL SELECT
             $date AS time_bucket,
             node_id,
-            tenant_id,
             mac,
             SUM($field) AS $field
         FROM bandwidth_accounting_history
@@ -495,7 +491,6 @@ sub _db_item {
     my ($status, $iter) = pf::dal::radacct->search(
         @args,
         -with_class => undef,
-        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return undef;
@@ -512,7 +507,6 @@ sub _db_items {
     my ($status, $iter) = pf::dal::radacct->search(
         @args,
         -with_class => undef,
-        -no_auto_tenant_id => 1,
     );
     if (is_error($status)) {
         return;
@@ -550,7 +544,6 @@ sub cleanup {
             acctstoptime => undef,
         },
         -limit => $batch,
-        -no_auto_tenant_id => 1,
     );
     pf::dal::radacct->batch_update(\%params, $time_limit);
 
@@ -563,7 +556,6 @@ sub cleanup {
             acctstoptime => { "!=", undef },
         },
         -limit => $batch,
-        -no_auto_tenant_id => 1,
     );
     pf::dal::radacct->batch_remove(\%params, $time_limit);
 
@@ -575,7 +567,6 @@ sub cleanup {
             },
         },
         -limit => $batch,
-        -no_auto_tenant_id => 1,
     );
     pf::dal::radacct_log->batch_remove(\%params, $time_limit);
     return;
@@ -586,9 +577,9 @@ sub node_acct_maintenance_bw {
     my $field = $direction_field{$direction};
     my $date = $grouping_dates{$interval};
     my $sql = <<"SQL";
-    select tenant_id, mac, SUM($field) as $field FROM (
-        SELECT $date AS time_bucket, node_id, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? GROUP BY $date, node_id
-        UNION ALL SELECT $date AS time_bucket, node_id, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? GROUP BY $date, node_id
+    select mac, SUM($field) as $field FROM (
+        SELECT $date AS time_bucket, node_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? GROUP BY $date, node_id
+        UNION ALL SELECT $date AS time_bucket, node_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? GROUP BY $date, node_id
     ) AS X GROUP BY time_bucket, node_id HAVING SUM($field) >= ?;
 SQL
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $releaseDate, $bytes);
@@ -602,14 +593,14 @@ SQL
 }
 
 sub node_acct_maintenance_bw_exists {
-    my ($tenant_id, $mac, $direction, $interval, $releaseDate, $bytes) = @_;
+    my ($mac, $direction, $interval, $releaseDate, $bytes) = @_;
     my $field = $direction_field{$direction};
     my $date = $grouping_dates{$interval};
-    my $node_id = make_node_id($tenant_id, $mac);
+    my $node_id = make_node_id($mac);
     my $sql = <<"SQL";
-    select tenant_id, mac FROM (
-        SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
-        UNION ALL SELECT $date AS time_bucket, tenant_id, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
+    select mac FROM (
+        SELECT $date AS time_bucket, mac, SUM($field) AS $field FROM bandwidth_accounting WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
+        UNION ALL SELECT $date AS time_bucket, mac, SUM($field) AS $field FROM bandwidth_accounting_history WHERE time_bucket >= ? AND node_id = ? GROUP BY $date
     ) AS X GROUP BY time_bucket HAVING SUM($field) >= ?;
 SQL
     my ($status, $sth) = pf::dal::bandwidth_accounting->db_execute($sql, $releaseDate, $node_id, $releaseDate, $node_id, $bytes);
@@ -624,9 +615,8 @@ SQL
 
 sub node_accounting_bw {
     my ($mac, $interval) = @_;
-    my $tenant_id = pf::config::tenant::get_tenant();
     my $date = $mac_grouping_dates{$interval};
-    my $node_id = make_node_id($tenant_id, $mac);
+    my $node_id = make_node_id($mac);
     my $sql = <<"SQL";
     select SUM(in_bytes) AS acctinput, SUM(out_bytes) AS acctoutput, SUM(total_bytes) AS accttotal FROM (
         SELECT IFNULL(SUM(in_bytes), 0) AS in_bytes, IFNULL(SUM(out_bytes), 0) AS out_bytes, IFNULL(SUM(total_bytes), 0) AS total_bytes  FROM bandwidth_accounting WHERE time_bucket >= $date AND node_id = ?

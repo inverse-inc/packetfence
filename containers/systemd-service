@@ -9,17 +9,34 @@ fi
 
 function base_args {
   name="$1"
-  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway"
+  args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
+  args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
 
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
     args="$args --env-file /usr/local/pf/var/conf/$name.env"
   fi
 
+  args="$args -v /etc/localtime:/etc/localtime:ro"
+
   echo "$args"
 }
+
+function domain_args {
+  mkdir -p /chroots
+  # The line below will ensure the netns directories exist
+  ip netns add __DUMMY__ && ip netns delete __DUMMY__
+
+  args="-v /chroots:/chroots -v /etc/samba:/etc/samba"
+  args="$args -v /usr/local/pf/var/run:/usr/local/pf/var/run"
+  args="$args --mount type=bind,source=/etc/krb5.conf,target=/etc/krb5.conf"
+  args="$args --mount type=bind,source=/var/run/netns,target=/var/run/netns,bind-propagation=rshared --mount type=bind,source=/run/netns,target=/run/netns,bind-propagation=rshared"
+
+  echo $args
+}
+
 
 function build_img {
   img="$1"
@@ -38,29 +55,46 @@ function build_base_images {
 function build_run {
   name="$1"
   args="$2"
+  cmd="$3"
   cd /usr/local/pf/
 
+  # In build_run, we don't wait for the service to start to tell systemd notify we've started since the build process can be long
+  systemd-notify --ready
+
   img=$(build_img $name)
-  run_img $img $name "$args"
+  run_img $img $name "$args" "$cmd"
 }
 
 function run {
   name="$1"
   args="$2"
+  cmd="$3"
   img=$LOCAL_REGISTRY/$name:$TAG_OR_BRANCH_NAME
   if [ "$LOCAL_DEV" = "true" ]; then
-    build_run $name "$args" 
+    build_run $name "$args" "$cmd"
   else
-    run_img $img $name "$args"
+    run_img $img $name "$args" "$cmd"
   fi
+}
+
+function sdproxy() {
+  SD_NOTIFY_PROXY=/usr/local/pf/sbin/sdnotify-proxy
+  SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock
+  WATCHDOG_USEC_D=10000000
+  $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
 }
 
 function run_img {
   img="$1"
   name="$2"
   args="$3"
+  cmd="$4"
   cd /usr/local/pf/
-  docker container rm -f $name
+  docker container rm -f $name 1&2> /dev/null
   echo "Running with args $args"
-  docker run $args --name=$name $img
+  if ! [ -z $NOTIFY_SOCKET ]; then
+    sdproxy $name $args --name=$name $img $cmd
+  else
+   /usr/bin/docker run $args --name=$name $img $cmd
+  fi
 }

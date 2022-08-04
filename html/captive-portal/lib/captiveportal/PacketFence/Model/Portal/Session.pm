@@ -28,7 +28,6 @@ use URI::Escape::XS qw(uri_escape uri_unescape);
 use HTML::Entities;
 use List::MoreUtils qw(any);
 use pf::constants::Portal::Session qw($DUMMY_MAC);
-use pf::dal::tenant;
 
 =head1 NAME
 
@@ -97,6 +96,10 @@ has redirectURL => (
     is       => 'rw',
 );
 
+has sessionID => (
+    is       => 'rw',
+);
+
 has dispatcherSession => (
     is      => 'rw',
     builder => '_build_dispatcherSession',
@@ -110,6 +113,7 @@ sub ACCEPT_CONTEXT {
     my $class = ref $self || $self;
     my $previous_model = $c->session->{$class};
     my $request       = $c->request;
+    my $session_id =  exists($request->{parameters}->{CGISESSION_PF}) ? $request->{parameters}->{CGISESSION_PF} : undef;
     my $r = $request->{'env'}->{'psgi.input'};
     return $previous_model if(defined($previous_model) && $previous_model->{options}->{in_uri_portal} && !($r->can('pnotes') && defined ($r->pnotes('last_uri') ) ) );
     my $model;
@@ -119,8 +123,6 @@ sub ACCEPT_CONTEXT {
     my $uri = $request->uri;
     my $options;
     my $mgmt_ip = $management_network->{'Tvip'} || $management_network->{'Tip'} if $management_network;
-
-    $self->setupTenant($c);
 
     if( $r->can('pnotes') && defined ( my $last_uri = $r->pnotes('last_uri') )) {
         $options = {
@@ -133,7 +135,6 @@ sub ACCEPT_CONTEXT {
         $options = {
             'portal' => $data->{portal},
         };
-        pf::dal->set_tenant($data->{tenant_id});
     } elsif ( $forwardedFor && ( $forwardedFor =~  '127.0.0.1') ) {
         if (defined($request->param('PORTAL'))) {
             $options = {
@@ -151,6 +152,7 @@ sub ACCEPT_CONTEXT {
         remoteAddress => $remoteAddress,
         forwardedFor  => $forwardedFor,
         options       => $options,
+        sessionID     => $session_id,
         @args,
     );
     $c->session->{$class} = $model;
@@ -262,9 +264,8 @@ sub _build_profile {
 sub _build_dispatcherSession {
     my ($self) = @_;
     my $logger = get_logger();
-
     # Restore with a dummy MAC since we don't care about what contains the session if it can't be restored from the session ID
-    my $portal_session = new pf::Portal::Session(client_mac => $DUMMY_MAC);
+    my $portal_session = new pf::Portal::Session(client_mac => $DUMMY_MAC, session_id => $self->sessionID);
 
     if($portal_session->{_dummy_session}) {
         $logger->debug("Ignoring dispatcher session as it wasn't restored from a valid session ID");
@@ -289,22 +290,6 @@ sub templateIncludePath {
     my ($self)  = @_;
     my $profile = $self->profile;
     return $profile->{_template_paths};
-}
-
-=head2 setupTenant
-
-Setup the current tenant
-
-=cut
-
-sub setupTenant {
-    my ($self, $c) = @_;
-    my $hostname = $c->request->uri->host;
-    $c->log->trace("Trying to find tenant for hostname $hostname");
-    if(my $tenant = pf::dal::tenant->search(-where => { portal_domain_name => $hostname })->next()) {
-        $c->log->debug("Found tenant for portal domain name $hostname");
-        pf::dal->set_tenant($tenant->id);
-    }
 }
 
 __PACKAGE__->meta->make_immutable unless $ENV{"PF_SKIP_MAKE_IMMUTABLE"};

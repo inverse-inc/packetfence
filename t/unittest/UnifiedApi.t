@@ -23,17 +23,12 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 50;
+use Test::More tests => 25;
 use Test::Mojo;
 
 #This test will running last
 use Test::NoWarnings;
 use pf::dal;
-use pf::dal::tenant;
-use pf::tenant qw(
-    tenant_add
-    tenant_view_by_name
-);
 
 my $t = Test::Mojo->new('pf::UnifiedApi::custom');
 
@@ -75,69 +70,6 @@ $t->delete_ok("/api/v1/user/$test_pid")
 $t->delete_ok("/api/v1/user/$test_pid")
   ->status_is(404);
 
-my $unused_tenant_id = get_unused_tenant_id();
-
-$t->get_ok('/api/v1/user/admin' => {'X-PacketFence-Tenant-Id' => $unused_tenant_id})
-  ->status_is(404)
-  ->json_like('/message' => qr/\Q$unused_tenant_id\E/);
-
-$t->get_ok('/api/v1/user/admin' => {'X-PacketFence-Tenant-Id' => 1})
-  ->status_is(200);
-
-my $tenant_name = "test_tenant_$$";
-
-$t->post_ok('/api/v1/tenants' => json => { name => "default" })
-   ->status_is(409);
-
-$t->post_ok('/api/v1/tenants' => json => { name => $tenant_name })
-  ->status_is(201)
-  ->header_like('Location' => qr#^/api/v1/tenant/#);
-
-my $location = $t->tx->res->headers->location;
-
-$t->get_ok($location)
-  ->status_is(200);
-
-my $tenant = $t->tx->res->json->{item};
-
-my $tenant_id = $tenant->{id};
-
-my $headers = {'X-PacketFence-Tenant-Id' => $tenant_id};
-
-$t->get_ok('/api/v1/user/default' => $headers)
-  ->status_is(200)
-  ->json_is('/item/tenant_id' => $tenant_id);
-
-$notes = "notes $tenant_id";
-
-$t->post_ok('/api/v1/users' => $headers => json => { pid => $test_pid })
-  ->status_is(201);
-
-$t->put_ok("/api/v1/user/$test_pid" => $headers => json => { notes => $notes })
-  ->status_is(200);
-
-$t->get_ok("/api/v1/user/$test_pid" => $headers)
-  ->status_is(200)
-  ->json_is('/item/pid' => $test_pid)
-  ->json_is('/item/notes' => $notes);
-
-$t->delete_ok("/api/v1/user/$test_pid" => $headers)
-  ->status_is(200);
-
-sub get_unused_tenant_id {
-    my $old_tentant_id = pf::dal->get_tenant;
-
-    my ($status, $iter) = pf::dal::tenant->search(
-        -columns => ["MAX(id)|max_id"],
-        -group_by => 'id',
-        -with_class => undef,
-    );
-
-    my $data = $iter->next;
-
-    return $data->{max_id} + $$ + int(rand($$));
-}
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
@@ -166,4 +98,3 @@ USA.
 =cut
 
 1;
-

@@ -164,7 +164,7 @@ const setup = () => {
         { name: i18n.t('DNS Configuration'), path: '/configuration/dns' },
         { name: i18n.t('Admin Access'), path: '/configuration/admin_roles' },
         { name: i18n.t('SSL Certificates'), path: '/configuration/certificates' },
-        { name: i18n.t('Tenants'), path: '/configuration/tenants' }
+        { name: i18n.t('Connectors'), path: '/configuration/connectors' }
       ]
     }
   ]))

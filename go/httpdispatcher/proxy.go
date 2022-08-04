@@ -65,9 +65,6 @@ type RFC7710bis struct {
 
 var passThrough *passthrough
 
-// TenantID constant
-const TenantID = 1
-
 var successDBConnect = false
 
 // NewProxy creates a new instance of proxy.
@@ -307,17 +304,17 @@ func (p *Proxy) Configure(ctx context.Context) {
 
 	p.Db = Database
 
-	p.IP4log, err = p.Db.Prepare("select mac from ip4log where ip = ? AND tenant_id = ?")
+	p.IP4log, err = p.Db.Prepare("select mac from ip4log where ip = ? ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database ip4log prepared statement error: %s", err)
 	}
 
-	p.IP6log, err = p.Db.Prepare("select mac from ip6log where ip = ? AND tenant_id = ?")
+	p.IP6log, err = p.Db.Prepare("select mac from ip6log where ip = ? ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "pfdns: database ip6log prepared statement error: %s", err)
 	}
 
-	p.ParkingSecurityEvent, err = p.Db.Prepare("Select count(*) from security_event where security_event.security_event_id='1300003' and mac=? and status='open' AND tenant_id = ?")
+	p.ParkingSecurityEvent, err = p.Db.Prepare("Select count(*) from security_event where security_event.security_event_id='1300003' and mac=? and status='open' ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: database security_event prepared statement error: %s", err)
 	}
@@ -534,7 +531,7 @@ func (p *passthrough) checkOtherDomains(ctx context.Context, e string) bool {
 func (p *Proxy) HasSecurityEvents(ctx context.Context, mac string) bool {
 	securityEvent := false
 	var securityEventCount int
-	err := p.ParkingSecurityEvent.QueryRowContext(ctx, mac, TenantID).Scan(&securityEventCount)
+	err := p.ParkingSecurityEvent.QueryRowContext(ctx, mac).Scan(&securityEventCount)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: HasSecurityEvent %s %s\n", mac, err)
 	} else if securityEventCount != 0 {
@@ -554,9 +551,9 @@ func (p *Proxy) IP2Mac(ctx context.Context, ip string) (string, error) {
 
 	if srcIP != nil {
 		if sharedutils.IsIPv4(srcIP) {
-			err = p.IP4log.QueryRowContext(ctx, ip, TenantID).Scan(&mac)
+			err = p.IP4log.QueryRowContext(ctx, ip).Scan(&mac)
 		} else {
-			err = p.IP6log.QueryRowContext(ctx, ip, TenantID).Scan(&mac)
+			err = p.IP6log.QueryRowContext(ctx, ip).Scan(&mac)
 		}
 	} else {
 		fmt.Fprintf(os.Stderr, "httpd.dispatcher: not able to fetch the source ip\n")

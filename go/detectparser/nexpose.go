@@ -38,7 +38,6 @@ func (s *NexposeParser) Parse(line string) ([]ApiCall, error) {
 						"nexpose_event": matches[5],
 					},
 				},
-				TenantID: s.TenantID,
 			},
 		}, nil
 	}

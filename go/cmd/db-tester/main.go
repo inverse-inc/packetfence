@@ -56,9 +56,8 @@ func main() {
 	   in_bytes BIGINT SIGNED NOT NULL,
 	   out_bytes BIGINT SIGNED NOT NULL,
 	   mac CHAR(17) NOT NULL,
-	   tenant_id SMALLINT NOT NULL,
 	*/
-	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, tenant_id, source_type) VALUES(?, ?, ?, ?, ?, ?, 1, "radius")`)
+	insertBandwidthAccounting, err := db.Prepare(`insert into bandwidth_accounting (node_id, unique_session_id, time_bucket, in_bytes, out_bytes, mac, source_type) VALUES(?, ?, ?, ?, ?, ?, "radius")`)
 	sharedutils.CheckError(err)
 
 	rowsPerEndpoint := *rows / *endpointsCount

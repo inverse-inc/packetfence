@@ -45,6 +45,9 @@ use pf::radius_audit_log;
 use pf::node qw (node_view);
 use pf::util qw (clean_mac);
 use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
+use pf::factory::connector;
+use pf::config::cluster qw($cluster_enabled);
+use pf::log;
 
 my $default_port = '3799';
 my $default_timeout = 10;
@@ -103,11 +106,27 @@ sub perform_dynauth {
     $connection_info->{'nas_port'} ||= $default_port;
     $connection_info->{'timeout'} ||= $default_timeout;
 
+    my $host = $connection_info->{'nas_ip'};
+    my $port = $connection_info->{'nas_port'};
+
+    if($connection_info->{useConnector}) {
+        my $connector = pf::factory::connector->for_ip($host);
+        # Skip using the local connector to do deauth if we're in a cluster since pfconnector will not use the VIP
+        if($cluster_enabled && $connector->id eq pf::factory::connector->local_connector->id) {
+            get_logger->debug("Not using local connector to perform deauth because this is a cluster");            
+        }
+        else {
+            my $connector_conn = $connector->dynreverse("$host:$port/udp");
+            $host = $connector_conn->{host};
+            $port = $connector_conn->{port};
+        }
+    }
+
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
     my $socket = IO::Socket::INET->new(
         LocalAddr => $connection_info->{'LocalAddr'},
-        PeerAddr => $connection_info->{'nas_ip'},
-        PeerPort => $connection_info->{'nas_port'},
+        PeerAddr => $host,
+        PeerPort => $port,
         Proto => 'udp',
     ) or die ("Couldn't create UDP connection: $@");
 
@@ -176,7 +195,7 @@ record CoA in the radius audit log
 
 sub record_coa {
     my ($connection_info, $radius_code, $attributes, $vsa, %return) = @_;
-    my $request = join(' =22=2C ', map { $_." =3D ".$attributes->{$_} } keys %{$attributes});
+    my $request = join(' =22=2C ', map { $_." =3D ".($attributes->{$_} // '') } keys %{$attributes});
     my $request_vsa = join(' =22=2C ', map { $_->{'attribute'}." =3D ".$_->{'value'} } @{$vsa});
     my $response = join(' =22=2C ', map { $_." =3D ".$return{$_} } keys %return);
     my $mac;
@@ -187,7 +206,7 @@ sub record_coa {
         $radius_audit_log{'node_status'} = $node->{'status'};
         $radius_audit_log{'user_name'} = $node->{'pid'};
         $radius_audit_log{'computer_name'} = $node->{'computername'};
-        $radius_audit_log{'is_phone'} = ( ($node->{'voip'} eq 'no') ? '0' : '1');
+        $radius_audit_log{'is_phone'} = ( (($node->{'voip'} // 'no') eq 'no') ? '0' : '1');
     }
 
     $radius_audit_log{'event_type'} = $radius_code;

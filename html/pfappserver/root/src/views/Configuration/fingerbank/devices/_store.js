@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import api from './_api'
 
 export const useStore = $store => {
@@ -12,18 +13,12 @@ export const useStore = $store => {
   }
 }
 
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
-
 // Default values
 export const state = () => {
   return {
     devices: {
       cache: {},
+      classes: [],
       message: '',
       status: ''
     }
@@ -32,17 +27,34 @@ export const state = () => {
 
 export const getters = {
   isDevicesWaiting: state => [types.LOADING, types.DELETING].includes(state.devices.status),
-  isDevicesLoading: state => state.devices.status === types.LOADING
+  isDevicesLoading: state => state.devices.status === types.LOADING,
+  assocClassesById: state => state.classes.reduce((assoc, { id, name }) => {
+    return { ...assoc, [id]: name }
+  }, {}),
+  assocClassesByName: state => state.classes.reduce((assoc, { id, name }) => {
+    return { ...assoc, [name]: id }
+  }, {}),
+
 }
 
 export const actions = {
   devices: () => {
     const params = {
       sort: 'id',
-      fields: ['id'].join(',')
+      fields: ['id', 'name'].join(',')
     }
     return api.list(params).then(response => {
       return response.items
+    })
+  },
+  getClasses: ({ state, commit }) => {
+    commit('DEVICE_REQUEST')
+    return api.classes().then(response => {
+      commit('DEVICE_CLASSES', response.items)
+      return state.classes
+    }).catch(err => {
+      commit('DEVICE_ERROR', err.response)
+      throw err
     })
   },
   getDevice: ({ state, commit }, id) => {
@@ -109,5 +121,9 @@ export const mutations = {
     if (response && response.data) {
       state.devices.message = response.data.message
     }
+  },
+  DEVICE_CLASSES: (state, classes) => {
+    state.devices.status = types.SUCCESS
+    state.classes = classes
   }
 }

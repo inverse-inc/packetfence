@@ -62,6 +62,7 @@ Requires: MariaDB-server >= 10.5.15, MariaDB-server < 10.6.0
 Requires: MariaDB-client >= 10.5.15, MariaDB-client < 10.6.0
 Requires: perl(DBD::mysql)
 Requires: perl(Sub::Exporter)
+Requires: jq
 
 Requires: perl(Net::SSLeay)
 Requires: perl(Data::Dump)
@@ -307,7 +308,7 @@ Requires: docker-ce docker-ce-cli containerd.io
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.3.0, fingerbank < 5.0.0
+Requires: fingerbank >= 4.3.1, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.0, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
@@ -386,6 +387,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}%{_unitdir}/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
+%{__install} -D -m0644 conf/systemd/packetfence-docker-iptables.service %{buildroot}%{_unitdir}/packetfence-docker-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}%{_unitdir}/packetfence-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-ip6tables.service %{buildroot}%{_unitdir}/packetfence-ip6tables.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfperl-api.service %{buildroot}%{_unitdir}/packetfence-pfperl-api.service
@@ -419,6 +421,9 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-netdata.service %{buildroot}%{_unitdir}/packetfence-netdata.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfstats.service %{buildroot}%{_unitdir}/packetfence-pfstats.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfpki.service %{buildroot}%{_unitdir}/packetfence-pfpki.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfconnector-server.service %{buildroot}%{_unitdir}/packetfence-pfconnector-server.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
+%{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -435,7 +440,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
-%{__install} -d -m2775 %{buildroot}%logdir
+%{__install} -d -m0750 %{buildroot}%logdir
 %{__install} -d %{buildroot}/usr/local/pf/raddb/sites-enabled
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/cache
@@ -444,6 +449,7 @@ done
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_queue
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/redis_ntlm_cache
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/ssl_mutex
+%{__install} -d -m2775 %{buildroot}/usr/local/pf/var/proxysql
 %{__install} -d %{buildroot}/usr/local/pf/var/conf
 %{__install} -d -m2775 %{buildroot}/usr/local/pf/var/run
 %{__install} -d %{buildroot}/usr/local/pf/var/rrd 
@@ -455,6 +461,7 @@ done
 %{__install} -d %{buildroot}/etc/docker
 %{__install} -d %{buildroot}/usr/local/pf/html
 %{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
+%{__install} -d %{buildroot}/usr/local/pf/html/captive-portal
 touch %{buildroot}/usr/local/pf/var/cache_control
 cp Makefile %{buildroot}/usr/local/pf/
 cp config.mk %{buildroot}/usr/local/pf/
@@ -497,7 +504,8 @@ cp -r containers %{buildroot}/usr/local/pf
 %{__make} -C go clean
 
 # temp
-cp -r html/pfappserver/root %{buildroot}/usr/local/pf/html/pfappserver
+cp -r html/pfappserver %{buildroot}/usr/local/pf/html
+cp -r html/captive-portal %{buildroot}/usr/local/pf/html
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
@@ -506,10 +514,6 @@ cp -r NEWS.old %{buildroot}/usr/local/pf/
 cp -r README.md %{buildroot}/usr/local/pf/
 cp -r README.network-devices %{buildroot}/usr/local/pf/
 cp -r UPGRADE.old %{buildroot}/usr/local/pf/
-# logfiles
-for LOG in %logfiles; do
-    touch %{buildroot}%logdir/$LOG
-done
 #start create symlinks
 curdir=`pwd`
 
@@ -542,6 +546,7 @@ rm -rf %{buildroot}
 %pre
 
 /usr/bin/systemctl --now mask mariadb
+/usr/bin/systemctl --now mask proxysql
 
 # Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
 /usr/bin/systemctl --now mask libvirtd
@@ -585,6 +590,7 @@ if ! /usr/bin/id pf &>/dev/null; then
                 ( echo Unexpected error adding user "pf" && exit )
     fi
 fi
+
 echo "Adding pf user to app groups"
 /usr/sbin/usermod -aG wbpriv,fingerbank,apache pf
 /usr/sbin/usermod -aG pf mysql 
@@ -630,7 +636,6 @@ if [ "$1" = "2" ]; then
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
-/usr/local/pf/bin/pfcmd fixpermissions
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
@@ -649,15 +654,6 @@ gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
-#Check if log files exist and create them with the correct owner
-for fic_log in packetfence.log redis_cache.log security_event.log httpd.admin.audit.log
-do
-if [ ! -e /usr/local/pf/logs/$fic_log ]; then
-  touch /usr/local/pf/logs/$fic_log
-  chown pf.pf /usr/local/pf/logs/$fic_log
-  chmod g+w /usr/local/pf/logs/$fic_log
-fi
-done
 
 #Make ssl certificate
 cd /usr/local/pf
@@ -712,6 +708,8 @@ echo "# ip forwarding enabled by packetfence" > /etc/sysctl.d/99-ip_forward.conf
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/99-ip_forward.conf
 sysctl -p /etc/sysctl.d/99-ip_forward.conf
 
+/usr/local/pf/bin/pfcmd fixpermissions
+
 # reloading systemd unit files
 /bin/systemctl daemon-reload
 
@@ -732,6 +730,7 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
+/bin/systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd generatemariadbconfig --force
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin_dispatcher
@@ -856,6 +855,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/node
 %attr(0755, pf, pf)     /usr/local/pf/sbin/galera-autofix
 %attr(0755, pf, pf)     /usr/local/pf/sbin/mysql-probe
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfacct
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfhttpd
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdetect
@@ -863,6 +863,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfdns
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
+%attr(0755, pf, pf)     /usr/local/pf/sbin/sdnotify-proxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/api-frontend-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.aaa-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
@@ -877,8 +878,15 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-cli-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-load-balancer-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/radiusd-eduroam-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-portal-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/haproxy-admin-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfperl-api-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-server-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfconnector-client-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfpki-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/pfcron-docker-wrapper
+%attr(0755, pf, pf)     /usr/local/pf/sbin/proxysql-docker-wrapper
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
@@ -899,9 +907,13 @@ fi
 %config(noreplace)      /usr/local/pf/conf/pfdhcp.conf
 %config(noreplace)      /usr/local/pf/conf/portal_modules.conf
 %config                 /usr/local/pf/conf/portal_modules.conf.defaults
+%config(noreplace)      /usr/local/pf/conf/proxysql.conf
+                        /usr/local/pf/conf/proxysql.conf.example
 %config(noreplace)      /usr/local/pf/conf/self_service.conf
 %config                 /usr/local/pf/conf/self_service.conf.defaults
                         /usr/local/pf/conf/self_service.conf.example
+%config(noreplace)      /usr/local/pf/conf/connectors.conf
+                        /usr/local/pf/conf/connectors.conf.example
 %config(noreplace)      /usr/local/pf/conf/network_behavior_policies.conf
                         /usr/local/pf/conf/network_behavior_policies.conf.example
 %config(noreplace)      /usr/local/pf/conf/cloud.conf
@@ -1179,7 +1191,8 @@ fi
 %dir                    /usr/local/pf/html
 %dir                    /usr/local/pf/html/pfappserver
                         /usr/local/pf/html/pfappserver/root
-
+/usr/local/pf/html/pfappserver/lib
+/usr/local/pf/html/captive-portal
 # lib dir
                         /usr/local/pf/lib/
 %dir                    /usr/local/pf/lib/pfconfig
@@ -1207,14 +1220,7 @@ fi
 /usr/local/pf/containers
 %attr(0755, pf, pf)     /usr/local/pf/containers/*.sh
 
-%dir %attr(02755, pf, pf)     /usr/local/pf/logs
-# logfiles
-%ghost                  %logdir/packetfence.log
-%ghost                  %logdir/snmptrapd.log
-%ghost                  %logdir/security_event.log
-%ghost                  %logdir/httpd.admin.audit.log
-%ghost                  %logdir/pfdetect
-%ghost                  %logdir/pfcron
+%dir %attr(0750, root, pf)     /usr/local/pf/logs
 %doc                    /usr/local/pf/NEWS.asciidoc
 %doc                    /usr/local/pf/NEWS.old
 %doc                    /usr/local/pf/README.md
@@ -1266,6 +1272,7 @@ fi
 %dir                    /usr/local/pf/var/redis_queue
 %dir                    /usr/local/pf/var/redis_ntlm_cache
 %dir                    /usr/local/pf/var/ssl_mutex
+%dir                    /usr/local/pf/var/proxysql
 %config(noreplace)      /usr/local/pf/var/cache_control
                         %{mariadb_plugin_dir}/pf_udf.so
 

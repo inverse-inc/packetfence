@@ -64,7 +64,6 @@ use pf::file_paths qw(
     $network_config_file
     $bin_dir
     $sbin_dir
-    $log_dir
     @log_files
     $generated_conf_dir
     $pfdetect_config_file
@@ -141,13 +140,8 @@ sub sanity_check {
         );
     }
 
-    service_exists(@services);
     interfaces_defined();
     interfaces();
-
-    if ( isenabled($Config{'services'}{'radiusd'} ) ) {
-        freeradius();
-    }
 
     billing();
 
@@ -176,25 +170,6 @@ sub sanity_check {
     validate_access_filters();
 
     return @problems;
-}
-
-sub service_exists {
-    my (@services) = @_;
-
-    foreach my $service (@services) {
-        next if ($service eq 'pf');
-        my $exe = ( $Config{'services'}{"${service}_binary"} || "$install_dir/sbin/$service" );
-        if ($service =~ /^(pfpki|pfipset|pfsso|httpd\.dispatcher|api-frontend)$/) {
-            $exe = "$sbin_dir/pfhttpd";
-        } elsif ($service =~ /httpd\.(.*)/) {
-            $exe = ( $Config{'services'}{"httpd_binary"} || "$install_dir/sbin/$service" );
-        } elsif ($service =~ /redis_(.*)/) {
-            $exe = ( $Config{'services'}{"redis_binary"} || "$install_dir/sbin/$service" );
-        }
-        if ( !-e $exe ) {
-            add_problem( $WARN, "$exe for $service does not exist !" );
-        }
-    }
 }
 
 =item interfaces_defined
@@ -295,19 +270,6 @@ sub interfaces {
     }
 }
 
-
-=item freeradius
-
-Validation related to the FreeRADIUS daemon
-
-=cut
-
-sub freeradius {
-
-    if ( !-x $Config{'services'}{'radiusd_binary'} ) {
-        add_problem( $FATAL, "radiusd binary is not executable / does not exist!" );
-    }
-}
 
 =item fingerbank
 
@@ -713,13 +675,14 @@ sub permissions {
         add_problem( $FATAL, "pfcmd needs setuid and setgid bit set to run properly. Fix with chmod ug+s $bin_dir/pfcmd" );
     }
 
-    # log owner must be pf otherwise apache or pf daemons won't start
     foreach my $log_file (@log_files) {
         # if log doesn't exist it is created correctly so no need to complain
-        next if (!-f $log_dir . '/' . $log_file);
+        next if (!-f $log_file);
+        # file not managed by rsyslog, permissions are different
+        next if ($log_file eq "/usr/local/pf/logs/innobackup.log");
 
-        add_problem( $FATAL, "$log_file must be owned by user pf. Fix with chown pf -R $log_dir/" )
-            unless (getpwuid((stat($log_dir . '/' . $log_file))[4]) eq 'pf');
+        add_problem( $FATAL, "$log_file must be owned by group pf. Check rsyslog configuration" )
+            unless (getgrgid((stat($log_file))[5]) eq 'pf');
     }
 }
 
@@ -1015,6 +978,14 @@ sub connection_profiles {
                         add_problem( $WARN, "Filter '$filter' is invalid for profile '$connection_profile': $message ");
                     }
                 }
+                next;
+            }
+
+            if ($key eq 'advanced_filter') {
+                my $advanced_filter = $data->{advanced_filter};
+                if ($advanced_filter =~ /tenant_id/) {
+                    add_problem( $FATAL, "advanced_filter '$advanced_filter' cannot be use a tenant_id as a condition" );
+                }
             }
         }
 
@@ -1278,16 +1249,53 @@ Validate Access Filters
 sub validate_access_filters {
     my $builder = pf::config::builder::filter_engine->new();
     while (my ($f, $cs) = each %pf::constants::filters::CONFIGSTORE_MAP) {
-       my $ini = $cs->configIniFile();
-       my ($errors, undef) = $builder->build($ini);
-       if ($errors) {
+        my $ini = $cs->configIniFile();
+        my ($errors, $engines) = $builder->build($ini);
+        if ($errors) {
             foreach my $err (@$errors) {
                 add_problem($WARN, "$f: $err->{rule}) $err->{message}");
             }
-       }
+
+            next;
+        }
+
+        for my $filter (map { @{$_->{filters}}} values %$engines) {
+            if (check_condition_tenant($filter->{condition})) {
+                my $answer = $filter->answer;
+                add_problem($FATAL, "$f: $answer->{_rule} has a tenant in it's condition [$answer->{condition}]");
+            }
+        }
+
     }
+
     return ;
 }
+
+sub check_condition_tenant {
+    my ($condition) = @_;
+    if ($condition->isa("pf::condition::key")) {
+        my $sub = $condition->condition;
+        if ($sub->isa("pf::condition::key")) {
+            return check_condition_tenant($sub);
+        }
+
+        my $key = $condition->key;
+        return $key eq 'tenant_id' || $key eq '_TenantId';
+    }
+
+    if (exists $condition->{conditions}) {
+        for my $c (@{$condition->{conditions}}) {
+            if (check_condition_tenant($c)) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    return 0;
+}
+
 
 =back
 

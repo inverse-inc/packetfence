@@ -32,13 +32,20 @@ const state = () => {
   return {
     nodes: {}, // nodes details
     nodeExists: {}, // node exists true|false
+    nodePerDeviceClass: [],
     message: '',
     nodeStatus: ''
   }
 }
 
 const getters = {
-  isLoading: state => state.nodeStatus === 'loading'
+  isLoading: state => state.nodeStatus === 'loading',
+  perDeviceClass: state => state.nodePerDeviceClass.reduce((assoc, item) => {
+    return { ...assoc, [item.device_class]: item.count }
+  }, {}),
+  perDeviceClassLowerCase: state => state.nodePerDeviceClass.reduce((assoc, item) => {
+    return { ...assoc, [item.device_class.toLowerCase()]: item.count }
+  }, {}),
 }
 
 const actions = {
@@ -79,9 +86,7 @@ const actions = {
       return Promise.resolve(state.nodes[mac])
     }
     */
-
     let node = {}
-
     commit('NODE_REQUEST')
     return api.node({ quiet: true, mac }).then(data => {
       Object.assign(node, data)
@@ -89,6 +94,20 @@ const actions = {
         node.status = 'unreg'
       }
       commit('NODE_REPLACED', node)
+
+      // search extra columns (eg: 'online')
+      const search = {
+        fields: ['online'],
+        query: { op: 'and', values: [{ field: 'mac', op: 'equals', value: mac }] },
+        limit: 1,
+        cursor: '0'
+      }
+      api.search(search).then(response => {
+        const { items: { 0: item } } = response
+        Object.keys(item).map(prop => {
+          commit('NODE_UPDATED', { mac, prop, data: item[prop] })
+        })
+      })
 
       // Fetch ip4log history
       let ip4 = {}
@@ -173,6 +192,8 @@ const actions = {
       })
 
       return state.nodes[mac]
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
     })
   },
   refreshNode: ({ state, commit, dispatch }, mac) => {
@@ -413,6 +434,15 @@ const actions = {
     }).catch(err => {
       commit('NODE_ERROR', err.response)
     })
+  },
+  getPerDeviceClass: ({ commit }) => {
+    commit('NODE_REQUEST')
+    return api.perDeviceClass().then(response => {
+      commit('NODE_PER_DEVICE_CLASS', response.items)
+      return response
+    }).catch(err => {
+      commit('NODE_ERROR', err.response)
+    })
   }
 }
 
@@ -460,6 +490,9 @@ const mutations = {
   },
   NODE_NOT_EXISTS: (state, mac) => {
     Vue.set(state.nodeExists, mac, false)
+  },
+  NODE_PER_DEVICE_CLASS: (state, deviceClasses) => {
+    state.nodePerDeviceClass = deviceClasses
   }
 }
 

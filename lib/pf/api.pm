@@ -835,10 +835,10 @@ sub expire : Public {
 
     my $all = $postdata{namespace} eq "__all__" ? 1 : 0;
     if($all){
-        pfconfig::manager->new->expire_all($postdata{light});
+        pfconfig::util::socket_expire(light => $postdata{light});
     }
     else{
-        pfconfig::manager->new->expire($postdata{namespace}, $postdata{light});
+        pfconfig::util::socket_expire(namespace => $postdata{namespace}, light => $postdata{light});
     }
     # There are currently no errors returned
     return { error => 0 };

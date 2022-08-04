@@ -248,7 +248,7 @@ sub get {
     my $result = {};
     my ($status, $return, $config);
     foreach my $interface_ref ( @interfaces ) {
-        next if ( $interface_ref->{name} eq "lo" );
+        next if ( $interface_ref->{name} eq "lo" || $interface_ref->{name} eq "docker0" || $interface_ref->{name} =~ /^veth/);
         $interface = $interface_ref->{name};
         ($status,$config) = $interface_model->read($interface);
         $config = {} unless is_success($status);

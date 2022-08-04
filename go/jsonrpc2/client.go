@@ -44,7 +44,6 @@ type JsonRPC2Request struct {
 	Method   string      `json:"method"`
 	JsonRPC  string      `json:"jsonrpc"`
 	Params   interface{} `json:"params"`
-	TenantId int         `json:"tenant_id"`
 	Id       uint        `json:"id,omitempty"`
 }
 
@@ -91,13 +90,12 @@ func NewAAAClientFromConfig(ctx context.Context) *Client {
 	}
 }
 
-func (c *Client) Call(ctx context.Context, method string, args interface{}, tenant_id int) (interface{}, error) {
+func (c *Client) Call(ctx context.Context, method string, args interface{} ) (interface{}, error) {
 	c.Id++
 	request := JsonRPC2Request{
 		Method:   method,
 		JsonRPC:  "2.0",
 		Params:   args,
-		TenantId: tenant_id,
 		Id:       c.Id,
 	}
 
@@ -129,12 +127,11 @@ func (c *Client) Call(ctx context.Context, method string, args interface{}, tena
 	return response.Result, nil
 }
 
-func (c *Client) Notify(ctx context.Context, method string, args interface{}, tenant_id int) error {
+func (c *Client) Notify(ctx context.Context, method string, args interface{} ) error {
 	request := JsonRPC2Request{
 		Method:   method,
 		JsonRPC:  "2.0",
 		Params:   args,
-		TenantId: tenant_id,
 		Id:       0,
 	}
 

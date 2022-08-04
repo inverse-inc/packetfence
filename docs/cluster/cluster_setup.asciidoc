@@ -178,11 +178,12 @@ for each server:
 In order for PacketFence to communicate properly with your MariaDB cluster, you need to change the following.
 This change only needs to be done on the first server of the cluster. It will be synchronized later.
 
-In `/usr/local/pf/conf/pf.conf` :
+Add the following to the bottom of [filename]`/usr/local/pf/conf/pf.conf` :
 
 ----
 [database]
-host=127.0.0.1
+host=100.64.0.1
+port=6033
 
 [active_active]
 # Change these 2 values by the credentials you've set when configuring MariaDB above
@@ -201,11 +202,12 @@ configurator=disabled
 galera-autofix=disabled
 ----
 
-Then, in [filename]`/usr/local/pf/conf/pfconfig.conf` :
+Then, add the following to the bottom of [filename]`/usr/local/pf/conf/pfconfig.conf` :
 
 ----
 [mysql]
-host=127.0.0.1
+host=100.64.0.1
+port=6033
 ----
 
 Now, restart `packetfence-config` and reload the configuration. You will see errors related to a cache write issue but you can safely ignore it for now. These appear because `packetfence-config` cannot connect to the database yet.
@@ -312,10 +314,9 @@ Start MariaDB forcing it to create a new cluster using configuration defined in 
 ----
 systemctl stop packetfence-mariadb
 /usr/local/pf/bin/pfcmd generatemariadbconfig
-/usr/local/pf/sbin/pf-mariadb --force-new-cluster
+systemctl set-environment MARIADB_ARGS=--force-new-cluster
+systemctl start packetfence-mariadb
 ----
-
-NOTE: This last command will not return until you break it, so leave it running in the background and open a new terminal to continue.
 
 Then, restart PacketFence to apply all your changes:
 
@@ -351,7 +352,7 @@ systemctl set-default packetfence-cluster
 
 WARNING: If you reboot any of the nodes you're joining, you will need to stop all the PacketFence services (`/usr/local/pf/bin/pfcmd service pf stop`) and restart the steps from here.
 
-WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`/usr/local/pf/sbin/pf-mariadb --force-new-cluster`)
+WARNING: If you reboot the management node (first server), you will need to stop `packetfence-mariadb` (`systemctl stop packetfence-mariadb`) and start it with the new cluster option so the servers can join (`systemctl set-environment MARIADB_ARGS=--force-new-cluster && systemctl restart packetfence-mariadb`)
 
 Now, you will need to integrate your *two other nodes* in your cluster.
 
@@ -387,15 +388,8 @@ Then, reload the configuration and start the webservices on second and third ser
 ----
 systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload
-/usr/local/pf/bin/pfcmd service haproxy-db restart
+/usr/local/pf/bin/pfcmd service proxysql restart
 /usr/local/pf/bin/pfcmd service httpd.webservices restart
-----
-
-Make sure that each server is binding to it's own management address *and* the VIP address. If it's not, verify the [filename]`/usr/local/pf/conf/cluster.conf` management interface configuration.
-
-[source,bash]
-----
-netstat -nlp | grep 9090
 ----
 
 ==== MariaDB sync (second and third servers)
@@ -429,15 +423,19 @@ In case you have some issues, ensure your MariaDB instance running with `--force
 
 ==== Starting the first server normally
 
-Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option, break the command.
-
-NOTE: You can check if the service is down with [command]`ps -edf | grep mysql`, this service can be a little long to stop and it is not recommended to do the next steps before it fully stops.
-
-Now, start `packetfence-mariadb` normally and restart `packetfence-iptables`:
+Once all servers are synced, go *on the first server* that should still be running with the `--force-new-cluster` option and run:
 
 [source,bash]
 ----
-systemctl restart packetfence-mariadb
+systemctl stop packetfence-mariadb
+systemctl unset-environment MARIADB_ARGS
+systemctl start packetfence-mariadb
+----
+
+Now, restart `packetfence-iptables`:
+
+[source,bash]
+----
 systemctl restart packetfence-iptables
 ----
 
@@ -447,8 +445,7 @@ Before starting services on all servers, `galera-autofix` service need to be re-
 
 [source,bash]
 ----
-/usr/local/pf/sbin/pfperl-api get -M PATCH /api/v1/config/base/services -c '{"galera-autofix":"enabled"}' | python -m json.tool
-/usr/local/pf/bin/cluster/sync --as-master
+curl -X PATCH -d '{"galera-autofix":"enabled"}' localhost:22224/api/v1/config/base/services ; echo
 ----
 
 ==== Wrapping up

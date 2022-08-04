@@ -27,71 +27,29 @@ use base 'pfconfig::namespaces::config';
 
 sub init {
     my ($self) = @_;
-    $self->{_scoped_by_tenant_id} = 1;
     $self->{child_resources} = [qw(
         resource::RealmReverseLookup
         config::OrderedRealm
-        config::OrderedRealmAll
-        config::RealmAll
     )];
-    $self->{ini} = pf::IniFiles->new(
-        -file       => $realm_config_file,
-        -import     => pf::IniFiles->new(-file => $realm_default_config_file),
-        -allowempty => 1,
-        -envsubst => 1,
-    );
+    $self->{file}            = $realm_config_file;
+    $self->{added_params}{'-import'} = pf::IniFiles->new(-file => $realm_default_config_file, -envsubst => 1);
+    $self->{added_params}{'-envsubst'} = 1;
 }
 
-sub build {
+sub build_child {
     my ($self) = @_;
-    return {
-        map {
-            my $id = $_;
-            $id => $self->build_tenant_sections($id)
-        } $self->tenant_ids()
-    };
-}
-
-sub tenant_ids {
-    my ($self) = @_;
-    return $self->{ini}->Groups();
-}
-
-sub build_tenant_sections {
-    my ($self, $tenant_id) = @_;
-    return {
-        map {
-            my $section = $_;
-            my $name = $section;
-            $name =~ s/^\Q$tenant_id \E//;
-            $name = lc($name);
-            $name => $self->get_params($section)
-        } $self->sections_for_tenant($tenant_id)
-    };
-}
-
-sub sections_for_tenant {
-    my ($self, $tenant_id) = @_;
-    return $self->{ini}->GroupMembers($tenant_id);
-}
-
-sub get_params {
-    my ($self, $section) = @_;
-    my $ini = $self->{ini};
-    my %data;
-    for my $param ($ini->Parameters($section)) {
-        $data{$param} = $ini->val($section, $param);
-    }
-
-    if (exists $data{domain}) {
-        my $domain = $data{domain};
-        if ($domain) {
-            push @{$self->{reverseLookup}{domain}{$domain}}, $section;
+    my %cfg = %{ $self->{cfg} };
+    $self->cleanup_whitespaces( \%cfg );
+    my %reverselookup;
+    $self->{reverselookup} = \%reverselookup;
+    while ( my ($k, $val) = each %cfg) {
+        $self->expand_list($val, qw(categories));
+        if (exists $val->{domain}) {
+            push @{$reverselookup{domain}{$val->{domain}}}, $k;
         }
     }
 
-    $self->expand_list(\%data, qw(categories));
-    return \%data;
+    return \%cfg;
 }
 
 =head1 AUTHOR

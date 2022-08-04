@@ -10,7 +10,7 @@
       fixed
       striped
       selectable
-      @row-clicked="goToItem({ ...$event, tenantId })"
+      @row-clicked="goToItem"
       @row-selected="onRowSelected"
       @items-sorted="onSorted"
     >
@@ -78,7 +78,7 @@
           >{{ $t('Delete') }}</base-button-confirm>
           <b-button
             size="sm" variant="outline-primary" class="mr-1"
-            @click.stop.prevent="goToClone({ ...item, tenantId })"
+            @click.stop.prevent="goToClone"
           >{{ $t('Clone') }}</b-button>
         </span>
       </template>
@@ -124,9 +124,6 @@ const props = {
   visibleColumns: {
     type: Array
   },
-  tenantId: {
-    type: [Number, String]
-  }
 }
 import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
@@ -163,8 +160,8 @@ const setup = (props, context) => {
   } = useStore($store)
 
   const onRemove = item => {
-    const { id, tenant_id: tenantId } = item
-    deleteItem({ id, tenantId })
+    const { id } = item
+    deleteItem({ id })
       .then(() => emit('reSearch'))
   }
 

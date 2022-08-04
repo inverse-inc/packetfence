@@ -161,7 +161,6 @@ Available actions
 
 Readonly::Scalar our $MARK_AS_SPONSOR => "mark_as_sponsor";
 Readonly::Scalar our $SET_ACCESS_LEVEL => "set_access_level";
-Readonly::Scalar our $SET_TENANT_ID => "set_tenant_id";
 Readonly::Scalar our $SET_ROLE => "set_role";
 Readonly::Scalar our $SET_ROLE_ON_NOT_FOUND => "set_role_on_not_found";
 Readonly::Scalar our $SET_ROLE_FROM_SOURCE => "set_role_from_source";
@@ -181,7 +180,7 @@ List of available actions
 
 Readonly::Hash our %ACTIONS => (
     $Rules::AUTH    => [ $SET_ROLE, $SET_ROLE_ON_NOT_FOUND, $SET_ROLE_FROM_SOURCE, $SET_ACCESS_DURATION, $SET_UNREG_DATE, $SET_TIME_BALANCE, $SET_BANDWIDTH_BALANCE, $TRIGGER_RADIUS_MFA, $TRIGGER_PORTAL_MFA ],
-    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR, $SET_TENANT_ID, $SET_ACCESS_DURATIONS ],
+    $Rules::ADMIN   => [ $SET_ACCESS_LEVEL, $MARK_AS_SPONSOR, $SET_ACCESS_DURATIONS ],
 );
 
 Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
@@ -196,7 +195,6 @@ Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
     $TRIGGER_PORTAL_MFA     => $Rules::AUTH,
 
     $SET_ACCESS_LEVEL       => $Rules::ADMIN,
-    $SET_TENANT_ID          => $Rules::ADMIN,
     $MARK_AS_SPONSOR        => $Rules::ADMIN,
     $SET_ACCESS_DURATIONS   => $Rules::ADMIN,
 );
@@ -204,7 +202,6 @@ Readonly::Hash our %ACTION_CLASS_TO_TYPE => (
 Readonly::Hash our %ALLOWED_ACTIONS => (
     $MARK_AS_SPONSOR  => {$MARK_AS_SPONSOR  => 1},
     $SET_ACCESS_LEVEL => {$SET_ACCESS_LEVEL => 1},
-    $SET_TENANT_ID    => {$SET_TENANT_ID => 1},
     $SET_ROLE         => {
         $SET_ROLE              => 1,
         $SET_ROLE_ON_NOT_FOUND => 1,
@@ -225,7 +222,6 @@ Readonly::Hash our %ALLOWED_ACTIONS => (
 Readonly::Hash our %MAPPED_ACTIONS => (
     $MARK_AS_SPONSOR        => $MARK_AS_SPONSOR,
     $SET_ACCESS_LEVEL       => $SET_ACCESS_LEVEL,
-    $SET_TENANT_ID          => $SET_TENANT_ID,
     $SET_ROLE               => $SET_ROLE,
     $SET_ROLE_ON_NOT_FOUND  => $SET_ROLE,
     $SET_ROLE_FROM_SOURCE   => $SET_ROLE_FROM_SOURCE,

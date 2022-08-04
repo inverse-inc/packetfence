@@ -129,11 +129,5 @@ export const useSearch = makeSearch('dhcpOption82Logs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'mac', op: 'equals', value: null }
-    ] }
-  ] })
+  sortDesc: true
 })

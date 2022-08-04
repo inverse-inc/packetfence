@@ -9,24 +9,19 @@
     <div class="card-body">
       <div class="alert alert-warning">{{ $t(`Any changes to the realms requires to restart radiusd-auth`) }}</div>
       <base-search :use-search="useSearch">
+        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Realm') }}</b-button>
         <base-button-service
           service="radiusd-auth" restart start stop
           class="ml-1" />
       </base-search>
-
-      <b-card v-for="(tenant, index) in tenantsRealms" :key="tenant.id"
-        :class="{ 'mt-3': index > 0 }">
-        <h4 class="mb-3">{{ tenant.name }}</h4>
-        <b-button variant="outline-primary" @click="goToNew({ tenantId: tenant.id })">{{ $t('New Realm') }}</b-button>
-        <the-table class="mt-3" :tenantId="tenant.id"
-          :isLoading="isLoading"
-          :items="tenant.items"
-          :columns="columns"
-          :visibleColumns="visibleColumns"
-          @reSearch="reSearch"
-          @setColumns="setColumns"
-        />
-      </b-card>
+      <the-table class="mt-3"
+        :isLoading="isLoading"
+        :items="items"
+        :columns="columns"
+        :visibleColumns="visibleColumns"
+        @reSearch="reSearch"
+        @setColumns="setColumns"
+      />
     </div>
   </b-card>
 </template>
@@ -51,35 +46,21 @@ const components = {
   TheTable
 }
 
-import { computed, toRefs } from '@vue/composition-api'
+import { toRefs } from '@vue/composition-api'
 import { useRouter, useSearch } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $router } = {} } = context
 
   const router = useRouter($router)
 
   const search = useSearch()
-  const {
-    items
-  } = toRefs(search)
-
-  const tenants = computed(() => ($store.state.session.tenant.id !== 0)
-    ? [$store.state.session.tenant] // single-tenant mode
-    : $store.state.session.tenants // multi-tenant mode
-  )
-  const tenantsRealms = computed(() => {
-    return tenants.value.map(tenant => {
-      return { ...tenant, items: items.value.filter(item => +item.tenant_id === +tenant.id ) }
-    })
-  })
 
   return {
     useSearch,
     ...router,
-    ...toRefs(search),
-    tenantsRealms
+    ...toRefs(search)
   }
 }
 

@@ -49,9 +49,9 @@
       :text="$i18n.t('The template to use for the signup')"
     />
 
-    <form-group-multi-source-identifiers namespace="multi_source_ids"
-      :column-label="$i18n.t('Authentication Sources')"
-      :text="$i18n.t('The sources to use in the module. If no sources are specified, all the sources of the connection profile will be used.')"
+    <form-group-actions namespace="actions"
+      :column-label="$i18n.t('Actions')"
+      :text="$i18n.t('If none are specified, the default ones of the module will be used.')"
     />
   </base-form>
 </template>
@@ -63,7 +63,7 @@ import {
   FormGroupCustomFields,
   FormGroupDescription,
   FormGroupFieldsToSave,
-  FormGroupMultiSourceIdentifiers,
+  FormGroupActions,
   FormGroupPidField,
   FormGroupSignupTemplate,
   FormGroupSourceIdentifier,
@@ -78,7 +78,7 @@ const components = {
   FormGroupCustomFields,
   FormGroupDescription,
   FormGroupFieldsToSave,
-  FormGroupMultiSourceIdentifiers,
+  FormGroupActions,
   FormGroupPidField,
   FormGroupSignupTemplate,
   FormGroupSourceIdentifier,

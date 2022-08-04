@@ -42,14 +42,12 @@ $t->get_ok('/api/v1/security_events' => json => { })
 
 #setup
 my $mac = Utils::test_mac();
-my $tenant_id = 1;
 my $security_event_id = 1300000; #'Generic' SecurityEvent
 my $dt_format = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M:%S');
 my $dt_start = DateTime->now(time_zone=>'local');
 my $dt_release = DateTime->now(time_zone=>'local')->add(seconds => 7200);
 
 #clear node, security_event will auto-insert
-#my $node_status = pf::node::node_delete($mac, $tenant_id);
 
 #insert known data (security_event)
 my %values = (

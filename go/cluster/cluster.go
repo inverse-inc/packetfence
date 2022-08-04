@@ -24,14 +24,14 @@ func (s *Server) IsDisabled() bool {
 	return !info.IsDir()
 }
 
-func CallCluster(ctx context.Context, method string, args interface{}, tenant_id int) bool {
+func CallCluster(ctx context.Context, method string, args interface{}) bool {
 	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
 		clientApi.Proto = "https"
 		for _, member := range servers {
 			clientApi.Host = member.ManagementIp
-			if _, err := clientApi.Call(ctx, method, args, tenant_id); err != nil {
+			if _, err := clientApi.Call(ctx, method, args); err != nil {
 				log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 			}
 		}
@@ -40,14 +40,14 @@ func CallCluster(ctx context.Context, method string, args interface{}, tenant_id
 	return cluster_mode
 }
 
-func NotifyCluster(ctx context.Context, method string, args interface{}, tenant_id int) bool {
+func NotifyCluster(ctx context.Context, method string, args interface{}) bool {
 	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
 		clientApi.Proto = "https"
 		for _, member := range servers {
 			clientApi.Host = member.ManagementIp
-			if err := clientApi.Notify(ctx, method, args, tenant_id); err != nil {
+			if err := clientApi.Notify(ctx, method, args); err != nil {
 				log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 			}
 		}

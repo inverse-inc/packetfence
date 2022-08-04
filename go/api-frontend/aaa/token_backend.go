@@ -1,6 +1,8 @@
 package aaa
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -8,40 +10,30 @@ import (
 
 type TokenBackend interface {
 	AdminActionsForToken(token string) map[string]bool
-	TenantIdForToken(token string) int
 	TokenInfoForToken(token string) (*TokenInfo, time.Time)
 	StoreTokenInfo(token string, ti *TokenInfo) error
 	TokenIsValid(token string) bool
 	TouchTokenInfo(token string)
 }
 
-const (
-	AccessAllTenants = 0
-	AccessNoTenants  = -1
-)
+const tokenPrefix = "api-frontend-session:"
+
+func tokenKey(tb TokenBackend, token string) string {
+	return tokenPrefix + fmt.Sprintf("%x", sha256.Sum256([]byte(token)))
+}
+
+func AdminActionsForToken(tb TokenBackend, token string) map[string]bool {
+	if ti, _ := tb.TokenInfoForToken(token); ti != nil {
+		return ti.AdminActions()
+	}
+
+	return make(map[string]bool)
+}
 
 type TokenInfo struct {
-	AdminRoles map[string]bool
-	Tenant     Tenant
-	Username   string
-	CreatedAt  time.Time
-}
-
-type Tenant struct {
-	Name             string `json:"name"`
-	PortalDomainName string `json:"portal_domain_name"`
-	DomainName       string `json:"domain_name"`
-	Id               int    `json:"id"`
-}
-
-func (ti *TokenInfo) IsTenantMaster() bool {
-	// If we're not in multi-tenant mode
-	// Or we're in multi-tenant mode and the current token is for the master tenant (tenant 0)
-	if !multipleTenants || (multipleTenants && ti.Tenant.Id == AccessAllTenants) {
-		return true
-	} else {
-		return false
-	}
+	AdminRoles map[string]bool `json:"admin_roles" redis:"admin_roles"`
+	Username   string          `json:"username" redis:"username"`
+	CreatedAt  time.Time       `json:"created_at" redis:"created_at"`
 }
 
 func (ti *TokenInfo) AdminActions() map[string]bool {
@@ -53,9 +45,50 @@ func (ti *TokenInfo) AdminActions() map[string]bool {
 		}
 	}
 
-	if ti.IsTenantMaster() {
-		adminRolesMap["TENANT_MASTER"] = true
+	return adminRolesMap
+}
+
+func ValidTokenExpiration(ti *TokenInfo, expiration time.Time, max time.Duration) (*TokenInfo, time.Time) {
+	if time.Now().Sub(ti.CreatedAt) > max {
+		// Token has reached max expiration
+		return nil, time.Unix(0, 0)
 	}
 
-	return adminRolesMap
+	if expiration.After(ti.CreatedAt.Add(max)) {
+		expiration = ti.CreatedAt.Add(max)
+	}
+
+	return ti, expiration
+}
+
+func MakeTokenBackend(args []string) TokenBackend {
+	if len(args) == 0 {
+		return NewMemTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args,
+		)
+	}
+
+	switch args[0] {
+	case "db":
+		return NewDbTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args[1:],
+		)
+	case "redis":
+		return NewRedisTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args[1:],
+		)
+	default:
+		return NewMemTokenBackend(
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
+			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
+			args[1:],
+		)
+	}
+
 }

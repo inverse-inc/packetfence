@@ -146,7 +146,7 @@ EOT
             $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
 
             $tags{'vrrp'} .= <<"EOT";
-  track_process {
+  track_script {
     $process_tracking
   }
   authentication {

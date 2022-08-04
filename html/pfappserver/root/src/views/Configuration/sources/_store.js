@@ -3,6 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
+import { types } from '@/store'
 import i18n from '@/utils/locale'
 import api from './_api'
 import {
@@ -27,13 +28,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_sources/updateAuthenticationSource', recomposeSource(params)),
     deleteItem: params => $store.dispatch('$_sources/deleteAuthenticationSource', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

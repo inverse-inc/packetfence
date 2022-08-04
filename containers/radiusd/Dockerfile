@@ -87,3 +87,6 @@ COPY ./config.mk /usr/local/pf/config.mk
 
 RUN mkdir -p /usr/local/pf/var/run && \
     chown -R pf: /usr/local/pf/var
+
+RUN sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
+

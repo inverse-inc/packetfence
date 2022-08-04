@@ -9,7 +9,9 @@
     503 /usr/local/pf/html/pfappserver/root/errors/503.json
   }
 
-  pfconfigpool
+  pfconfigpool {
+    dont_rlock /api/v1/pfconnector/tunnel
+  }
 
   logger {
     level INFO
@@ -21,16 +23,19 @@
   }
 
   cors /api/v1 {
-    allowed_headers Authorization,Content-Type,X-PacketFence-Tenant-Id
+    allowed_headers Authorization,Content-Type
     methods GET,OPTIONS,POST,DELETE,PUT,PATCH
   }
 
   cors /api/v1.1 {
-    allowed_headers Authorization,Content-Type,X-PacketFence-Tenant-Id
+    allowed_headers Authorization,Content-Type
     methods GET,OPTIONS,POST,DELETE,PUT,PATCH
   }
 
-  api-aaa
+  api-aaa {
+    no_auth /api/v1/pfconnector/tunnel
+    session_backend db
+  }
   
   api
 
@@ -38,6 +43,11 @@
 
   # Job status access
   job-status
+
+  proxy /api/v1/pfconnector {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
+    websocket
+    transparent
+  }
 
   # pfipset API access
   proxy /api/v1/ipset/ {$PF_SERVICES_URL_PFIPSET} {

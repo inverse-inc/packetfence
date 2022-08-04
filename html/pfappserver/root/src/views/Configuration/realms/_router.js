@@ -1,7 +1,6 @@
 import store from '@/store'
 import DomainsStoreModule from '../domains/_store'
 import RealmsStoreModule from './_store'
-import TenantsStoreModule from '../tenants/_store'
 
 export const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsDomains')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -10,10 +9,10 @@ export const useRouter = $router => {
   return {
     goToCollection: params => $router.push({ name: 'realms', params }),
     goToItem: params => $router
-      .push({ name: 'realm', params: { ...params, tenantId: params.tenantId.toString() } })
+      .push({ name: 'realm', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
-    goToClone: params => $router.push({ name: 'cloneRealm', params: { ...params, tenantId: params.tenantId.toString() } }),
-    goToNew: params => $router.push({ name: 'newRealm', params: { ...params, tenantId: params.tenantId.toString() } })
+    goToClone: params => $router.push({ name: 'cloneRealm', params }),
+    goToNew: params => $router.push({ name: 'newRealm', params })
   }
 }
 
@@ -22,8 +21,6 @@ export const beforeEnter = (to, from, next = () => {}) => {
     store.registerModule('$_domains', DomainsStoreModule)
   if (!store.state.$_realms)
     store.registerModule('$_realms', RealmsStoreModule)
-  if (!store.state.$_tenants)
-    store.registerModule('$_tenants', TenantsStoreModule)
   next()
 }
 
@@ -36,32 +33,32 @@ export default [
     beforeEnter
   },
   {
-    path: 'realms/:tenantId/new',
+    path: 'realms/new',
     name: 'newRealm',
     component: TheView,
-    props: (route) => ({ isNew: true, tenantId: route.params.tenantId }),
+    props: () => ({ isNew: true }),
     beforeEnter
   },
   {
-    path: 'realm/:tenantId/:id',
+    path: 'realm/:id',
     name: 'realm',
     component: TheView,
-    props: (route) => ({ tenantId: route.params.tenantId, id: route.params.id }),
+    props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
-        beforeEnter()
-      store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
+      beforeEnter()
+      store.dispatch('$_realms/getRealm', to.params.id).then(() => {
         next()
       })
     }
   },
   {
-    path: 'realm/:tenantId/:id/clone',
+    path: 'realm/:id/clone',
     name: 'cloneRealm',
     component: TheView,
-    props: (route) => ({ tenantId: route.params.tenantId, id: route.params.id, isClone: true }),
+    props: (route) => ({ id: route.params.id, isClone: true }),
     beforeEnter: (to, from, next) => {
-        beforeEnter()
-      store.dispatch('$_realms/getRealm', { id: to.params.id, tenantId: to.params.tenantId }).then(() => {
+      beforeEnter()
+      store.dispatch('$_realms/getRealm', to.params.id).then(() => {
         next()
       })
     }

@@ -126,6 +126,7 @@ sub build_child {
         my @management_ips;
         push @management_ips, $self->{management_network}->tag('vip') if(defined($self->{management_network}->tag('vip')));
         push @management_ips, $self->{management_network}->tag('ip') if(defined($self->{management_network}->tag('ip')));
+        push @management_ips, "100.64.0.1";
         foreach my $management_ip (@management_ips){
             $tmp_cfg{$management_ip} = {
                 type => 'PacketFence',

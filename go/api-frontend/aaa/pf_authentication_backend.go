@@ -23,7 +23,6 @@ type PfAuthenticationBackend struct {
 type PfAuthenticationReply struct {
 	Result int
 	Roles  []string
-	Tenant Tenant `json:"tenant"`
 }
 
 func NewPfAuthenticationBackend(ctx context.Context, url *url.URL, checkCert bool) *PfAuthenticationBackend {
@@ -89,5 +88,5 @@ func (pfab *PfAuthenticationBackend) buildTokenInfo(ctx context.Context, data *P
 		adminRolesMap[role] = true
 	}
 
-	return &TokenInfo{AdminRoles: adminRolesMap, Tenant: data.Tenant}
+	return &TokenInfo{AdminRoles: adminRolesMap}
 }

@@ -1,8 +1,4 @@
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
+import { types } from '@/store'
 
 export default class FileStore {
   constructor (blob, encoding) {

@@ -59,6 +59,5 @@ module.exports = {
         ]
       }
     }
-  },
-  runtimeCompiler: true
+  }
 }

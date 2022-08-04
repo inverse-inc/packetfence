@@ -35,7 +35,6 @@ func TestSecurityOnionParse(t *testing.T) {
 							"detect":         "2010140",
 						},
 					},
-					TenantID: 1,
 				},
 			},
 		},

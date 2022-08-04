@@ -155,6 +155,8 @@ NOTE: Make sure you are actually running the latest kernel prior to installing t
 
 ===== RHEL-based systems
 
+NOTE: On RHEL 8.x systems, as a preliminary step, you need to run: `rpm --import http://inverse.ca/downloads/GPG_PUBLIC_KEY` before installing `packetfence-release` package.
+
 In order to use the PacketFence repository:
 
 // subs=attributes allow to substitute {release_minor} in code block

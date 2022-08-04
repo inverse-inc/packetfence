@@ -130,7 +130,21 @@ stop iptables (called from systemd)
 sub _stop {
     my ($self) = @_;
     my $logger = get_logger();
-    getIptablesTechnique->iptables_restore( $install_dir . '/var/iptables.bak' );
+    pf_run("sudo iptables -F");
+    pf_run("sudo iptables -X");
+    pf_run("sudo iptables -t nat -F");
+    pf_run("sudo iptables -t nat -X");
+    pf_run("sudo iptables -t mangle -F");
+    pf_run("sudo iptables -t mangle -X");
+    pf_run("sudo iptables -P INPUT ACCEPT");
+    pf_run("sudo iptables -P FORWARD ACCEPT");
+    pf_run("sudo iptables -P OUTPUT ACCEPT");
+    pf_run("sudo iptables -t nat -N DOCKER");
+    pf_run("sudo iptables -t nat -A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER");
+    pf_run("sudo iptables -t nat -A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER");
+    pf_run("sudo iptables -t nat -A POSTROUTING -s 100.64.0.0/10 ! -o docker0 -j MASQUERADE");
+    pf_run("sudo iptables -t nat -A DOCKER -i docker0 -j RETURN");
+
     return 1;
 }
 

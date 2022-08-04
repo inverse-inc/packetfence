@@ -8,19 +8,18 @@ global_defs {
    router_id %%router_id%%
 }
 
-vrrp_track_process radius_load_balancer {
-  process /usr/sbin/radiusd -d /usr/local/pf/raddb -n load_balancer -fm
-  full_command
-  quorum 1
-  delay 15
+vrrp_script radius_load_balancer {
+  script "/usr/bin/systemctl -q is-active packetfence-radiusd-load_balancer"
+  interval 5
+  fall 2
+  rise 2
 }
 
-vrrp_track_process haproxy_portal {
-  # Entrypoint of haproxy-portal container
-  process haproxy -W -db -f /usr/local/pf/var/conf/haproxy-portal.conf
-  full_command
-  quorum 1
-  delay 15
+vrrp_script haproxy_portal {
+  script "/usr/bin/systemctl -q is-active packetfence-haproxy-portal"
+  interval 5
+  fall 2
+  rise 2
 }
 
 %%vrrp%%

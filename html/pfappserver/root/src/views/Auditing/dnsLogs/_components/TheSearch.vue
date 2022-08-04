@@ -58,7 +58,7 @@
           />
         </template>
         <template #cell(mac)="{ value }">
-          <router-link :to="{ path: `/node/${value}` }"><mac v-text="value"></mac></router-link>
+          <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
         </template>
         <template #cell(answer)="{ value }">
           <div v-html="value"></div>
@@ -83,11 +83,13 @@ import {
   BaseSearchInputColumns,
   BaseTableEmpty
 } from '@/components/new/'
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 
 const components = {
   BaseSearch,
   BaseSearchInputColumns,
-  BaseTableEmpty
+  BaseTableEmpty,
+  NodeDropdown,
 }
 
 import { ref, toRefs } from '@vue/composition-api'

@@ -21,7 +21,6 @@ use pf::CHI;
 use pf::CHI::Request;
 use pf::SwitchFactory();
 use pf::dal;
-use pf::constants qw($DEFAULT_TENANT_ID);
 use pfconfig::refresh_last_touch_cache;
 
 use Apache2::Const -compile => 'OK';
@@ -29,7 +28,6 @@ use Apache2::Const -compile => 'OK';
 sub handler {
     my $r = shift;
     pf::CHI::Request::clear_all();
-    pf::dal->reset_tenant();
     refresh_last_touch_cache();
     return Apache2::Const::OK;
 }

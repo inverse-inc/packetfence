@@ -109,6 +109,7 @@ import 'vue-awesome/icons/sort'
 import 'vue-awesome/icons/sort-numeric-up-alt'
 import 'vue-awesome/icons/sort-numeric-down'
 import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/step-forward'
 import 'vue-awesome/icons/step-backward'
 import 'vue-awesome/icons/regular/dot-circle'
 import 'vue-awesome/icons/regular/times-circle'
@@ -138,8 +139,8 @@ import 'vue-awesome/icons/user-secret'
 import 'vue-awesome/icons/wifi'
 import 'vue-awesome/icons/window-maximize'
 
-import pfIcons from '@/globals/pfIcons'
-Icon.register(pfIcons)
+import icons from '@/assets/icons'
+Icon.register(icons)
 
 import { createPinia, PiniaVuePlugin } from 'pinia'
 import store from './store'

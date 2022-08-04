@@ -116,7 +116,7 @@ sub execute_child {
         }
     }
     else {
-        my $info = $mfa->redirect_info($self->username);
+        my $info = $mfa->redirect_info($self->username, $self->app->session->{'captiveportal::Model::Portal::Session'}->{'dispatcherSession'}->{'_session_id'});
         $self->show_mfa($info);
     }
 }

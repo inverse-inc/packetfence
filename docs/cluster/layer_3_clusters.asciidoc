@@ -496,3 +496,111 @@ The replication MASTER_USER and MASTER_PASSWORD can be found in the main sites p
 At the end it you want to check the status of the slave server for debug purposes you can run the follwing command:
 
  SHOW SLAVE STATUS;
+
+=== Geo Distributed Database
+
+You can configure PacketFence to use a specific server for all the writes and different server(s) for the reads. Using this design will allow you to deploy instances of PacketFence in availability zones that aren't close to each other. A PacketFence server should always have a read replica that is close to it (<5ms latency) but the primary server handling writes can have a higher latency (>100ms).
+
+==== Prepare the configuration
+
+First we assume that you have 2 MySQL servers, one is the primary (192.46.222.200) and the other is a replica (170.187.181.132). This guide doesn't cover setting up MySQL primary/replicas and we strongly suggest you rely on cloud providers offering it as a service since managing MySQL primary/replicas can be complex.
+
+Next configure cluster.conf during the initial cluster setup, refer to the example below.
+
+----
+[general]
+multi_zone=enabled
+
+[DC1 CLUSTER]
+management_ip=192.168.1.10
+db_write=192.46.222.200
+db_read=192.46.222.200
+
+[DC1 CLUSTER interface ens192]
+ip=192.168.1.10
+mask=255.255.255.0
+type=management
+
+[DC1 CLUSTER interface ens224]
+ip=192.168.11.10
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf1-dc1.example.com]
+management_ip=192.168.1.11
+
+[DC1 pf1-dc1.example.com interface ens192]
+ip=192.168.1.11
+mask=255.255.255.0
+type=management
+
+[DC1 pf1-dc1.example.com interface ens224]
+ip=192.168.11.11
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf2-dc1.example.com]
+management_ip=192.168.1.12
+
+[DC1 pf2-dc1.example.com interface ens192]
+ip=192.168.1.12
+mask=255.255.255.0
+type=management
+
+[DC1 pf2-dc1.example.com interface ens224]
+ip=192.168.11.12
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC1 pf3-dc1.example.com]
+management_ip=192.168.1.13
+
+[DC1 pf3-dc1.example.com interface ens192]
+ip=192.168.1.13
+mask=255.255.255.0
+type=management
+
+[DC1 pf3-dc1.example.com interface ens224]
+ip=192.168.11.13
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC2 CLUSTER]
+management_ip=192.168.2.10
+db_write=192.46.222.200
+db_read=170.187.181.132
+
+[DC2 CLUSTER interface ens192]
+ip=192.168.2.10
+mask=255.255.255.0
+type=management
+
+[DC2 CLUSTER interface ens224]
+ip=192.168.22.10
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+
+[DC2 pf1-dc2.example.com]
+management_ip=192.168.2.11
+
+[DC2 pf1-dc2.example.com interface ens192]
+ip=192.168.2.11
+mask=255.255.255.0
+type=management
+
+[DC2 pf1-dc2.example.com interface ens224]
+ip=192.168.22.11
+mask=255.255.255.0
+enforcement=vlan
+type=internal
+----
+
+In this example, DC1 will send its reads and writes to the primary database and DC2 will send its writes to the primary database and its reads to the replica located in DC2. You can have multiple comma-delimited read replicas defined in `db_read` which will be used in priority in the order they are defined. 
+
+Only a single `db_write` should be used, if redundancy is expected, use an external virtual IP or load balancer to handle fail-over in your external database.
+

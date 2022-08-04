@@ -571,6 +571,22 @@ sub field_required {
     return ($dal->is_nullable($field) || $m->{is_auto_increment}) ? $self->json_false : $self->json_true;
 }
 
+sub _db_execute_response {
+    my ($self, $sql, @bind) = @_;
+    my ($status, $sth) =  $self->dal->db_execute(
+        $sql,
+        @bind
+    );
+
+    if (is_error($status)) {
+        return $self->render_error($status, 'Cannot complete query');
+    }
+
+    my $items = $sth->fetchall_arrayref({});
+    $sth->finish;
+    return $self->render(json => { items => $items });
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

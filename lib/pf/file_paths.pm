@@ -91,8 +91,6 @@ our (
     $roles_config_file,
     $roles_default_config_file,
     $dns_filters_config_file, $dns_filters_default_config_file,
-    $admin_audit_log,
-    $security_event_log,
     $portal_modules_config_file, $portal_modules_default_config_file,
     $captiveportal_templates_path,
     $captiveportal_profile_templates_path,
@@ -123,6 +121,7 @@ our (
     $fast_config_file, $fast_default_config_file,
     $cron_config_file, $cron_default_config_file,
     $mfa_config_file,
+    $connectors_config_file,
 );
 
 BEGIN {
@@ -189,8 +188,6 @@ BEGIN {
         $roles_config_file
         $roles_default_config_file
         $dns_filters_config_file $dns_filters_default_config_file
-        $admin_audit_log
-        $security_event_log
         $portal_modules_config_file $portal_modules_default_config_file
         $captiveportal_templates_path
         $captiveportal_profile_templates_path
@@ -221,6 +218,7 @@ BEGIN {
         $fast_config_file $fast_default_config_file
         $cron_config_file $cron_default_config_file
         $mfa_config_file
+        $connectors_config_file
     );
 }
 
@@ -328,8 +326,6 @@ $roles_config_file = catfile($conf_dir,"roles.conf");
 $roles_default_config_file = catfile($conf_dir,"roles.conf.defaults");
 $dns_filters_config_file = catfile($conf_dir,"dns_filters.conf");
 $dns_filters_default_config_file = catfile($conf_dir,"dns_filters.conf.defaults");
-$admin_audit_log = catfile($log_dir, "httpd.admin.audit.log");
-$security_event_log = catfile($log_dir, "security_event.log");
 $portal_modules_config_file = catfile($conf_dir,"portal_modules.conf");
 $portal_modules_default_config_file = catfile($conf_dir,"portal_modules.conf.defaults");
 $cron_config_file = catfile($conf_dir,"pfcron.conf");
@@ -359,16 +355,21 @@ $captiveportal_profile_templates_path = catdir ($install_dir,"html/captive-porta
 $captiveportal_default_profile_templates_path = catdir ($captiveportal_profile_templates_path,"default");
 
 $mfa_config_file = catdir($conf_dir,"mfa.conf");
+$connectors_config_file = catdir($conf_dir,"connectors.conf");
 
 @log_files = map {catfile($log_dir, $_)}
   qw(
-  httpd.admin.access httpd.admin.catalyst httpd.admin.error httpd.admin.log
-  httpd.portal.access httpd.admin.error httpd.portal.catalyst httpd.portal.log
-  httpd.proxy.access httpd.proxy.error httpd.proxy.log
-  httpd.proxy.reverse.access httpd.proxy.reverse.error
-  httpd.webservices.access httpd.webservices.error
-  packetfence.log pfdetect.log pfqueue.log
-  pfdhcplistener.log pfdns.log pfcron.log pfconfig.log httpd.admin.audit.log
+  fingerbank.log httpd.apache api-frontend.log
+  pfacct.log pfstats.log packetfence.log pfdhcp.log
+  pfdns.log pfconfig.log pfdetect.log pffilter.log
+  pfdhcplistener.log pfcron.log pfsso.log
+  radius-acct.log radius-eduroam.log radius-load_balancer.log
+  radius.log redis-cache.log redis_ntlm_cache.log
+  redis_queue.log redis_server.log mariadb.log
+  mysql-probe.log galera-autofix.log haproxy_portal.log
+  haproxy.log haproxy_db.log haproxy_admin.log proxysql.log
+  firewall.log pfconnector-client.log pfconnector-server.log keepalived.log
+  innobackup.log
 );
 
 @stored_config_files = (
@@ -401,6 +402,7 @@ $mfa_config_file = catdir($conf_dir,"mfa.conf");
     $cron_config_file,
     $domain_config_file,
     $mfa_config_file,
+    $connectors_config_file,
 );
 
 $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");

@@ -40,36 +40,9 @@
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item to="/logout">{{ $t('Log out') }}</b-dropdown-item>
           </b-nav-item-dropdown>
-          <b-nav-item-dropdown right v-if="tenant && tenant.id === 0">
-            <template v-slot:button-content>
-              <icon name="layer-group"></icon> {{ tenant_mask_name }}
-            </template>
-            <b-dropdown-header>{{ $t('Tenants') }}</b-dropdown-header>
-            <b-dropdown-item-button v-for="tenant in tenants" :key="tenant.id"
-              :active="+tenant_id_mask === +tenant.id"
-              :disabled="+tenant_id_mask === 0 && +tenant.id === 0"
-              @click="setTenantIdMask(tenant.id)"
-            >{{ tenant.name }}</b-dropdown-item-button>
-          </b-nav-item-dropdown>
-          <b-nav-text v-else-if="tenant">
-            <icon name="layer-group"></icon> {{ tenant.name }}
-          </b-nav-text>
           <b-nav-item @click="toggleDocumentationViewer" :active="showDocumentationViewer" v-b-tooltip.hover.bottom.d300 title="Alt + Shift + H">
             <icon name="question-circle"></icon>
           </b-nav-item>
-          <b-nav-item-dropdown right no-caret>
-            <template v-slot:button-content>
-              <icon-counter name="tools" v-model="isProcessing" variant="bg-dark">
-                <icon name="circle-notch" spin></icon>
-              </icon-counter>
-            </template>
-            <b-dropdown-item-button @click="checkup" :disabled="isPerfomingCheckup">
-              {{ $t('Perform Checkup') }} <icon class="ml-2" name="circle-notch" spin v-if="isPerfomingCheckup"></icon>
-            </b-dropdown-item-button>
-            <b-dropdown-item-button @click="fixPermissions" :disabled="isFixingPermissions">
-              {{ $t('Fix Permissions') }} <icon class="ml-2" name="circle-notch" spin v-if="isFixingPermissions"></icon>
-            </b-dropdown-item-button>
-          </b-nav-item-dropdown>
         </b-navbar-nav>
         <app-notifications :isAuthenticated="isAuthenticated || isConfiguratorActive" />
       </b-collapse>
@@ -145,9 +118,6 @@ const setup = (props, context) => {
 
   const isAuthenticated = computed(() => $store.getters['session/isAuthenticated'])
   const isConfiguratorActive = computed(() => $store.state.session.configuratorActive)
-  const isPerfomingCheckup = computed(() => $store.getters['config/isLoadingCheckup'])
-  const isFixingPermissions = computed(() => $store.getters['config/isLoadingFixPermissions'])
-  const isProcessing = computed(() => ((isPerfomingCheckup.value || isFixingPermissions.value) ? 1 : 0 ))
   const warnings = computed(() => {
     let warnings = []
     if ($store.getters['system/readonlyMode']) {
@@ -166,24 +136,6 @@ const setup = (props, context) => {
     }
     return warnings
   })
-
-  const tenants = computed(() => $store.state.session.tenants)
-  const tenant = computed(() => $store.state.session.tenant)
-  const tenant_id_mask = computed(() => $store.getters['session/tenantIdMask'])
-  const tenant_mask_name = computed(() => {
-    const tenant = tenants.value.find(tenant => {
-      return +tenant.id === +tenant_id_mask.value
-    })
-    const { name } = tenant || {}
-    return name || i18n.t('Unknown')
-  })
-  const setTenantIdMask = (tenant_id) => {
-    if (tenant_id === tenant_id_mask.value)
-      $store.dispatch('session/setTenantIdMask', tenant.value.id) // reset to default
-    else
-      $store.dispatch('session/setTenantIdMask', tenant_id)
-    $router.push('/reset') // reset
-  }
 
   const apiOK = computed(() => $store.state.session.api)
   const chartsOK = computed(() => $store.state.session.charts)
@@ -205,31 +157,6 @@ const setup = (props, context) => {
       return $can(verb, action)
     }
     return false
-  }
-
-  const checkup = () => {
-    $store.dispatch('config/checkup').then(items => {
-      items.forEach(item => {
-        let level
-        switch (item.severity) {
-          case 'WARNING':
-            level = 'warning'
-            break
-          case 'FATAL':
-            level = 'danger'
-            break
-          default:
-            level = 'info'
-        }
-        $store.dispatch(`notification/${level}`, item.message)
-      })
-    })
-  }
-
-  const fixPermissions = () => {
-    $store.dispatch('config/fixPermissions').then(data => {
-      $store.dispatch('notification/info', data.message)
-    })
   }
 
   const setLanguage = lang => {
@@ -309,13 +236,8 @@ const setup = (props, context) => {
     isDebug,
     isAuthenticated,
     isConfiguratorActive,
-    isPerfomingCheckup,
-    isFixingPermissions,
-    isProcessing,
     warnings,
     canRoute,
-    checkup,
-    fixPermissions,
     apiOK,
     chartsOK,
     hostname,
@@ -330,13 +252,6 @@ const setup = (props, context) => {
     documentationViewerClass,
     showDocumentationViewer,
     toggleDocumentationViewer,
-
-    // tenant
-    tenants,
-    tenant,
-    tenant_id_mask,
-    tenant_mask_name,
-    setTenantIdMask,
   }
 }
 

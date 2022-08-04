@@ -27,7 +27,6 @@ testcases:
        "id": "inlinel3",
        "isClone": false,
        "isNew": false,
-       "tenant_id": 1,
        "type": "none",
      }
     headers:

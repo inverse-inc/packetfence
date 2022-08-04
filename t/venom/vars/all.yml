@@ -36,12 +36,11 @@ fingerbank_port: 3000
 pfserver_api_inactivity_timeout.interval: 12
 pfserver_api_inactivity_timeout.unit: h
 pfserver_pffilter_processes: 1
-pfserver_pfperl_api_processes: 2
-pfserver_pfqueue_workers: 2
-pfserver_haproxy_admin_server_timeout: 120s
+pfserver_pfperl_api_processes: 8
+pfserver_pfqueue_workers: 8
+pfserver_haproxy_admin_server_timeout: 240s
 
 # ad variables
-ad_domain_id: example
 ad_domain_upper: EXAMPLE
 ad_dns_domain: example.lan
 ad_domain_admin_user: vagrant-domain
@@ -110,17 +109,6 @@ wireless_switch.description: wireless01
 
 # Tinyproxy on linux02
 linux02.tinyproxy.port: "8888"
-
-################################################################################
-# global_config_multi_tenant test suite specific variables
-################################################################################
-# global tenant
-global_config_multi_tenant.global_tenant.id: 0
-
-global_config_multi_tenant.tenant.name: example
-global_config_multi_tenant.tenant.id: 2
-global_config_multi_tenant.tenant.domain_name: '{{.configurator.domain}}'
-global_config_multi_tenant.tenant.portal_domain_name: '{{.configurator.hostname}}.{{.configurator.domain}}'
 
 ################################################################################
 # eap_peap test suites specific variables
@@ -555,37 +543,6 @@ wired_dot1x_eap_tls_pki.profiles.wired.unreg_on_acct_stop: enabled
 # Path to client certificates
 wired_dot1x_eap_tls_pki.paths.clients_directory: /root/client_certificates
 wired_dot1x_eap_tls_pki.paths.per_client_directory: '{{.wired_dot1x_eap_tls_pki.paths.clients_directory}}/{{.wired_dot1x_eap_tls_pki.certs.user.cn}}'
-
-################################################################################
-# pfdhcplistener_single_tenant test suite specific variables
-################################################################################
-# node10
-pfdhcplistener_single_tenant.nodes.node10.mac: 22:22:22:22:22:22
-pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded: 22%3A22%3A22%3A22%3A22%3A22
-pfdhcplistener_single_tenant.nodes.node10.first_ip: 172.20.20.192
-pfdhcplistener_single_tenant.nodes.node10.second_ip: 172.20.20.193
-pfdhcplistener_single_tenant.nodes.node10.hostname: node10
-pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint: 1,2,3,4
-pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor: test
-# need to be a network not already attached to PacketFence server
-pfdhcplistener_single_tenant.nodes.node10.dhcp_server: 10.10.10.1
-
-################################################################################
-# pfdhcplistener_multi_tenant test suite specific variables
-################################################################################
-pfdhcplistener_multi_tenant.production_network.subnet: 172.21.2.0
-pfdhcplistener_multi_tenant.production_network.netmask: 255.255.255.0
-pfdhcplistener_multi_tenant.production_network.type: other
-# node11
-pfdhcplistener_multi_tenant.nodes.node11.mac: 33:33:33:33:33:33
-pfdhcplistener_multi_tenant.nodes.node11.mac_url_encoded: 33%3A33%3A33%3A33%3A33%3A33
-pfdhcplistener_multi_tenant.nodes.node11.first_ip: 172.21.2.192
-pfdhcplistener_multi_tenant.nodes.node11.second_ip: 172.21.2.193
-pfdhcplistener_multi_tenant.nodes.node11.hostname: node11
-pfdhcplistener_multi_tenant.nodes.node11.dhcp_fingerprint: 1,2,3,4
-pfdhcplistener_multi_tenant.nodes.node11.dhcp_vendor: test
-# need to be a network not already attached to PacketFence server
-pfdhcplistener_multi_tenant.nodes.node11.dhcp_server: 10.10.10.1
 
 ################################################################################
 # fingerbank_proxy test suite specific variables

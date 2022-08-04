@@ -144,7 +144,7 @@ sub check_activation {
     }
 }
 
-my @auto_included = qw(firstname lastname telephone company);
+my @auto_included = qw(firstname lastname telephone);
 my %auto_included = map { $_ => 1 } @auto_included;
 
 =head2 do_sponsor_registration
@@ -193,9 +193,13 @@ sub do_sponsor_registration {
     foreach my $key (@auto_included) {
         $info{$key} = $request_fields->{$key};
     }
-
-    for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
-        $info{$key} = $request_fields->{$key};
+    my @additional_fields;
+    $info{additional_fields} = \@additional_fields;
+    for my $key ( grep { !exists $auto_included{$_} && exists $pf::person::ALLOWED_PROMPTABLE_FIELDS{$_} } @{$self->required_fields // []}) {
+        my $value = $request_fields->{$key};
+        next unless defined $value;
+        push @additional_fields, { label => ucfirst($key), value => $value };
+        $info{$key} = $value;
     }
 
     $info{'sponsor'} = $sponsor;

@@ -11,6 +11,8 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 )
 
+type TxRunner func(ctx context.Context, tx *sql.Tx) (int64, error)
+
 func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) (int64, error) {
 	start := time.Now()
 	rows_affected := int64(0)
@@ -38,6 +40,49 @@ func BatchStmt(ctx context.Context, time_limit time.Duration, stmt *sql.Stmt, ar
 	}
 
 	return rows_affected, nil
+}
+
+func BatchTx(ctx context.Context, name string, time_limit time.Duration, f TxRunner) {
+	start := time.Now()
+	rows_affected := int64(0)
+	i := 0
+	for {
+		i++
+		rows, err := runTx(ctx, f)
+		if err != nil {
+			fmt.Printf("%s error: %s\n", name, err.Error())
+			log.LogError(ctx, name+" error: "+err.Error())
+			break
+		}
+
+		if rows <= 0 {
+			break
+		}
+
+		rows_affected += rows
+		if time.Now().Sub(start) > time_limit {
+			break
+		}
+	}
+
+	if rows_affected > -1 {
+		log.LogInfo(ctx, fmt.Sprintf("%s called times %d and handled %d items", name, i, rows_affected))
+	}
+}
+
+func runTx(ctx context.Context, f func(context.Context, *sql.Tx) (int64, error)) (int64, error) {
+	db, err := getDb()
+	if err != nil {
+		return 0, err
+	}
+
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	defer tx.Rollback()
+	return f(ctx, tx)
 }
 
 func BatchStmtQueryWithCount(ctx context.Context, name string, time_limit time.Duration, stmt *sql.Stmt, args ...interface{}) int64 {

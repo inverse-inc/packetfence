@@ -32,7 +32,6 @@ BEGIN {
 }
 
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
-use pf::config::tenant;
 use JSON::MaybeXS;
 use pfconfig::manager;
 use Data::Dumper;
@@ -51,6 +50,8 @@ use Errno qw(EINTR EAGAIN);
 use bytes;
 use pf::util::networking qw(send_data_with_length);
 use Linux::Systemd::Daemon 'sd_ready';
+use POSIX 'WNOHANG';
+use pfconfig::git_storage;
 our $RUNNING = 1;
 
 ## All pfconfig objects implementing TO_JSON must be imported here
@@ -153,6 +154,7 @@ our %DISPATCH = (
     'array_size'         => \&get_array_size,
     'array_index_exists' => \&get_array_index_exists,
     'sleep'              => \&server_sleep,
+    'pull_expire'        => \&pull_expire,
 );
 
 Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
@@ -160,11 +162,15 @@ Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 my $encoding;
 
 while($RUNNING) {
+    # check for any child to reap
+    waitpid(-1, WNOHANG);
+
     # reset the encoding
     $encoding = undef;
 
     my $socket;
     my $line;
+    my $query;
     eval {
         my $paddr = accept($socket,$listner);
         #Check if a signal was caught
@@ -176,16 +182,10 @@ while($RUNNING) {
 
             if($line eq "exit") {exit}
 
-            my $query = decode_json($line);
+            $query = decode_json($line);
             #use Data::Dumper;
             #print Dumper($query);
             $encoding = $query->{encoding};
-            my $tenant_id =  $query->{tenant_id};
-            if (defined $tenant_id) {
-                pf::config::tenant::set_tenant($tenant_id);
-            } else {
-                pf::config::tenant::reset_tenant();
-            }
 
             # we support hash namespaced queries
             # where
@@ -203,7 +203,7 @@ while($RUNNING) {
     };
     if($@){
         print STDERR "$line : $@";
-        send_output(undef, $socket) if $socket;
+        send_output(undef, $socket, $query) if $socket;
     }
 }
 
@@ -231,10 +231,15 @@ sub expire {
 }
 
 sub get_from_cache {
-    my ($what) = @_;
+    my ($what, $ordered) = @_;
     my $elem;
     # let's get the top namespace element
-    $elem = $cache->get_cache($what);
+    if($ordered) {
+        $elem = $cache->get_cache_ordered($what);
+    }
+    else {
+        $elem = $cache->get_cache($what);
+    }
 
     return $elem;
 }
@@ -251,12 +256,12 @@ sub get_hash_element {
 
     my @keys = split ';', $query->{key};
 
-    my $elem = get_from_cache_or_croak($keys[0], $socket);
+    my $elem = get_from_cache_or_croak($keys[0], $socket, 1);
     return unless(defined($elem));
 
     # if we want a subnamespace we handle it here
     if($keys[1]){
-        my $sub_elem = $elem->{$keys[1]};
+        my $sub_elem = $elem->FETCH($keys[1]);
         if(defined($sub_elem)){
             $elem = {element => $sub_elem};
         }
@@ -272,8 +277,8 @@ sub get_hash_element {
 }
 
 sub get_from_cache_or_croak {
-    my ($key, $socket) = @_;
-    my $elem = get_from_cache($key);
+    my ($key, $socket, $ordered) = @_;
+    my $elem = get_from_cache($key, $ordered);
 
     if(defined($elem)){
         return $elem;
@@ -289,20 +294,20 @@ sub get_from_cache_or_croak {
 sub get_keys {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    my $elem = get_from_cache_or_croak($query->{key}, $socket, 1);
     return unless(defined($elem));
 
-    my @keys = keys(%{$elem});
+    my @keys = $elem->Keys;
     send_output({keys => \@keys}, $socket, $query);
 }
 
 sub get_key_exists {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket);
+    my $elem = get_from_cache_or_croak($query->{key}, $socket, 1);
     return unless(defined($elem));
 
-    my @keys = keys(%{$elem});
+    my @keys = $elem->Keys;
 
     my $key = $query->{search};
     if (any { $key eq $_ } @keys) {
@@ -317,9 +322,9 @@ sub get_key_exists {
 sub get_next_key {
     my ($query, $socket) = @_;
 
-    my $elem = get_from_cache_or_croak($query->{key}, $socket) || return;
+    my $elem = get_from_cache_or_croak($query->{key}, $socket, 1) || return;
 
-    my @keys = keys(%{$elem});
+    my @keys = $elem->Keys;
 
     my $last_key = $query->{last_key};
 
@@ -397,11 +402,11 @@ sub encode_output {
         my $json = JSON->new;
         $json->convert_blessed(1);
         my $result;
-        if(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
-            return $json->encode({%$data, error => "No valid element was found for query"});
-        }
-        elsif(!defined($data)) {
+        if(!defined($data)) {
             return $json->encode({error => "No valid element was found for query"});
+        }
+        elsif(scalar(keys(%$data)) == 1 && $data->{last_touch_cache}) {
+            return $json->encode({%$data, error => "No valid element was found for query"});
         }
         eval {
             $result = $json->encode($data);
@@ -438,6 +443,43 @@ sub server_sleep {
     my ($query, $socket) = @_;
     sleep 10;
 }
+
+=head2 pull_expire
+
+Launches a pull of the git storage and an expiration of the local pfconfig instance
+This happens async and the response will be sent after the process forks successfully
+
+=cut
+
+sub pull_expire {
+    my ($query, $socket) = @_;
+    $logger->info("Forking to pull git conf");
+    my $pid = fork();
+    if ($pid == 0) {
+        my $res = pfconfig::git_storage->update();
+        if(!$res) {
+            $logger->error("Unable to update from git storage");
+            exit;
+        }
+        $res = pfconfig::util::socket_expire(
+            # Force the socket call to happen on the local pfconfig instance regardless of the configuration
+            tcp_host => "127.0.0.1",
+            namespace => $query->{namespace}, 
+            light => $query->{light},
+        );
+        if(!$res) {
+            $logger->error("Unable to expire via socket");
+            exit;
+        }
+        $logger->info("Completed pull_expire");
+        exit;
+    }
+    else {
+        send_output({status => "accepted"}, $socket, $query);
+        $logger->debug("Response sent");
+    }
+}
+
 
 
 =head2 normal_sighandler

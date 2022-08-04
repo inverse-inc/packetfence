@@ -5,6 +5,7 @@
 /usr/local/pf/conf/chi.conf
 /usr/local/pf/conf/cluster.conf
 /usr/local/pf/conf/cloud.conf
+/usr/local/pf/conf/connectors.conf
 /usr/local/pf/conf/pfcron.conf
 /usr/local/pf/conf/dhcp_filters.conf
 /usr/local/pf/conf/dhcp_fingerprints.conf
@@ -34,6 +35,7 @@
 /usr/local/pf/conf/portal_modules.conf
 /usr/local/pf/conf/profiles.conf
 /usr/local/pf/conf/provisioning.conf
+/usr/local/pf/conf/proxysql.conf
 /usr/local/pf/conf/radius_filters.conf
 /usr/local/pf/conf/realm.conf
 /usr/local/pf/conf/redis_ntlm_cache.conf

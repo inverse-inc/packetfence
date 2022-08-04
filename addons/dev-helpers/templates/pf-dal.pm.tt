@@ -8,11 +8,6 @@
 
 use base qw(pf::dal);
 
-[%- IF HAS_TENANT_ID %]
-use Role::Tiny::With;
-with qw(pf::dal::roles::has_tenant_id);
-[% END -%]
-
 our @FIELD_NAMES;
 our @INSERTABLE_FIELDS;
 our @PRIMARY_KEYS;

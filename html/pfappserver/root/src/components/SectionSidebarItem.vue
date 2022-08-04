@@ -6,7 +6,7 @@
 <template>
   <div>
     <b-nav-item
-      active-class="active"
+      exact-active-class="active"
       v-if="visible"
       v-bind="$attrs"
       :to="item.path"

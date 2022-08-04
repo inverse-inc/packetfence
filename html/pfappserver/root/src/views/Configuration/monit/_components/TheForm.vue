@@ -14,6 +14,11 @@
       :text="$i18n.t('Whether or not monit should be enabled on this system. Enabling or disabling the service requires to run the following command: `/usr/local/pf/bin/pfcmd service pf updatesystemd`')"
     />
 
+    <form-group-sender namespace="sender"
+      :column-label="$i18n.t('Sender Email Address')"
+      :text="$i18n.t('Email address of the sender of the monit alerts. When left empty, the email address will be monit@$HOST.')"
+    />
+
     <form-group-alert-email-to namespace="alert_email_to"
       :column-label="$i18n.t('Alert Email To')"
       :text="$i18n.t('Comma-delimited list of emails addressed who should receive the monit alerts. When left empty, the emails defined in Alerting will receive the alerts.')"
@@ -42,6 +47,7 @@ import {
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupSender,
   FormGroupAlertEmailTo,
   FormGroupConfigurations,
   FormGroupMailserver,
@@ -52,6 +58,7 @@ import {
 const components = {
   BaseForm,
 
+  FormGroupSender,
   FormGroupAlertEmailTo,
   FormGroupConfigurations,
   FormGroupMailserver,

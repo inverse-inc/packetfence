@@ -20,6 +20,7 @@ configure_and_check() {
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
                            -not -path "*/pfdebian/*" \
                            -not -path "*/radiusd/*" \
+                           -not -path "*/pfconnector-*/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do
@@ -44,7 +45,17 @@ tag_images() {
     for img in ${CONTAINERS_IMAGES}; do
 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:${TAG_OR_BRANCH_NAME}
     done
+
+    # The pfconnector-server and pfconnector-client images point to the local pfconnector image
+  docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-server:${TAG_OR_BRANCH_NAME}
+  docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-client:${TAG_OR_BRANCH_NAME}
+
     echo "$(date) - Tag of images finished"
+}
+
+cleanup_images() {
+    # Remove all dangling images, images not referenced by any container are kept
+    docker image prune -f
 }
 
 configure_and_check
@@ -52,3 +63,5 @@ configure_and_check
 pull_images
 
 tag_images
+
+cleanup_images

@@ -15,6 +15,7 @@ Is the Base class for accessing pf::IniFiles
 =cut
 
 use Moo;
+use pfconfig::git_storage;
 use namespace::autoclean;
 use pf::IniFiles;
 use pf::log;
@@ -678,12 +679,35 @@ sub commitPfconfig {
         else {
             my $manager = pfconfig::manager->new;
             $manager->expire($self->pfconfigNamespace);
+            if(pfconfig::git_storage->is_enabled) {
+                return $self->commitGitStorage(); 
+            }
         }
     }
     else{
         get_logger->warn("Can't expire pfconfig in ".ref($self)." because the pfconfig namespace is not defined.");
     }
     return (1, undef);
+}
+
+sub gitStorageConfigFile {
+    my ($self) = @_;
+    # Strip the prefix of the directory
+    my $conf_directory = pfconfig::git_storage->conf_directory;
+    my $file = $self->configFile;
+    $file =~ s|^$conf_directory||;
+    $file =~ s|^/||;
+    return "conf/$file";
+}
+
+sub commitGitStorage {
+    my ($self) = @_;
+    my ($res, $msg) = pfconfig::git_storage->commit_file($self->configFile, $self->gitStorageConfigFile);
+    if(!$res) {
+        return ($res, $msg);
+    }
+    
+    return pfconfig::git_storage->deploy(namespace => $self->pfconfigNamespace, light => 1);
 }
 
 sub commitCluster {

@@ -29,11 +29,10 @@ func init() {
 }
 
 type PrettyTokenInfo struct {
-	AdminActions []string   `json:"admin_actions"`
-	AdminRoles   []string   `json:"admin_roles"`
-	Tenant       aaa.Tenant `json:"tenant"`
-	Username     string     `json:"username"`
-	ExpiresAt    time.Time  `json:"expires_at"`
+	AdminActions []string  `json:"admin_actions"`
+	AdminRoles   []string  `json:"admin_roles"`
+	Username     string    `json:"username"`
+	ExpiresAt    time.Time `json:"expires_at"`
 }
 
 type ApiAAAHandler struct {
@@ -43,13 +42,7 @@ type ApiAAAHandler struct {
 	webservicesBackend *aaa.MemAuthenticationBackend
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
-}
-
-type Tenant struct {
-	name               string
-	portal_domain_name string
-	domain_name        string
-	id                 int
+	noAuthPaths        map[string]bool
 }
 
 // Setup the api-aaa middleware
@@ -57,7 +50,42 @@ type Tenant struct {
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	apiAAA, err := buildApiAAAHandler(ctx)
+	noAuthPaths := map[string]bool{}
+	tokenBackendArgs := []string{}
+	var err error
+	for c.Next() {
+		for c.NextBlock() {
+			switch c.Val() {
+			case "no_auth":
+				args := c.RemainingArgs()
+
+				if len(args) != 1 {
+					return c.ArgErr()
+				} else {
+					path := args[0]
+					noAuthPaths[path] = true
+					fmt.Println("The following path will not be authenticated via the api-aaa module", path)
+				}
+			case "session_backend":
+				args := c.RemainingArgs()
+
+				if len(args) == 0 {
+					return c.ArgErr()
+				}
+
+				tokenBackendArgs, err = validateTokenArgs(args)
+				if err != nil {
+					return err
+				}
+
+			default:
+				return c.ArgErr()
+			}
+		}
+	}
+
+	apiAAA, err := buildApiAAAHandler(ctx, tokenBackendArgs)
+	apiAAA.noAuthPaths = noAuthPaths
 
 	if err != nil {
 		return err
@@ -71,8 +99,19 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
+func validateTokenArgs(args []string) ([]string, error) {
+	switch args[0] {
+	default:
+		err := fmt.Errorf("Invalid session_backend type '%s'", args[0])
+		fmt.Println(err)
+		return nil, err
+	case "mem", "redis", "db":
+		return args, nil
+	}
+}
+
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes
-func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
+func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAHandler, error) {
 
 	apiAAA := ApiAAAHandler{}
 
@@ -82,10 +121,7 @@ func buildApiAAAHandler(ctx context.Context) (ApiAAAHandler, error) {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 
-	tokenBackend := aaa.NewMemTokenBackend(
-		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-		time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-	)
+	tokenBackend := aaa.MakeTokenBackend(tokenBackendArgs)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
@@ -175,7 +211,6 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		prettyInfo := PrettyTokenInfo{
 			AdminActions: make([]string, len(info.AdminActions())),
 			AdminRoles:   make([]string, len(info.AdminRoles)),
-			Tenant:       info.Tenant,
 			Username:     info.Username,
 			ExpiresAt:    expiration,
 		}
@@ -271,7 +306,8 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		// TODO change me and wrap actions into something that handles server errors
 		return 0, nil
 	} else {
-		if h.HandleAAA(w, r) {
+		_, noauth := h.noAuthPaths[r.URL.Path]
+		if noauth || h.HandleAAA(w, r) {
 			code, err := h.Next.ServeHTTP(w, r)
 
 			return code, err

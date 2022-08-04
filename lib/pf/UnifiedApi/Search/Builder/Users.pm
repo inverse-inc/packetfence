@@ -18,7 +18,7 @@ use pf::dal::password;
 
 
 our @IP4LOG_JOIN =  (
-    '=>{person.pid=password.pid,person.tenant_id=password.tenant_id}',
+    '=>{person.pid=password.pid}',
     qw(password =>{node_category.category_id=password.category} node_category)
 );
 

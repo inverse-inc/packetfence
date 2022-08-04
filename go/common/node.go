@@ -36,7 +36,6 @@ type Node struct {
 	Regdate            string      `json:"regdate,omitempty"`
 	Sessionid          string      `json:"sessionid,omitempty"`
 	Status             string      `json:"status,omitempty"`
-	TenantId           string      `json:"tenant_id,omitempty"`
 	TimeBalance        string      `json:"time_balance,omitempty"`
 	Unregdate          string      `json:"unregdate,omitempty"`
 	UserAgent          string      `json:"user_agent,omitempty"`

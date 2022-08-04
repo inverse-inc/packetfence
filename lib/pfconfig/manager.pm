@@ -47,7 +47,9 @@ use List::MoreUtils qw(first_index);
 use Tie::IxHash;
 use pfconfig::config;
 use pf::constants::user;
-use pf::config::tenant;
+use pfconfig::git_storage;
+
+my $ordered_prefix = "ORDERED::";
 
 =head2 config_builder
 
@@ -61,7 +63,6 @@ sub config_builder {
     my $logger = get_logger;
     my $elem = $self->get_namespace($namespace);
     my $tmp  = $elem->build();
-    $self->{scoped_by_tenant_id}{$namespace} = $elem->{_scoped_by_tenant_id};
     return $tmp;
 }
 
@@ -264,22 +265,33 @@ sub get_cache {
         }
     }
 
-    if (defined $memory && $self->is_tenant_scoped($what)) {
-        $memory = $memory->{pf::config::tenant::get_tenant()};
-    }
-
     return $memory;
 }
 
-=head2 is_tenant_scoped
+=head2 get_cache_ordered
 
-is_tenant_scoped
+Same as get_cache but it will order all the keys when the resource is a hash
 
 =cut
 
-sub is_tenant_scoped {
-    my ($self, $key) = @_;
-    return $self->{scoped_by_tenant_id}{$key};
+sub get_cache_ordered {
+    my ($self, $what) = @_;
+    
+    $what = normalize_namespace_query($what);
+    
+    my $memory = $self->{memory}{"$ordered_prefix$what"};
+
+    unless (defined($memory) && $self->is_valid($what)) {
+        $memory = $self->get_cache($what);
+
+        if(ref($memory) eq "HASH") {
+            $memory = $self->tie_ixhash_copied($memory);
+        }
+        
+        $self->{memory}{"$ordered_prefix$what"} = $memory;
+    }
+
+    return $memory;
 }
 
 =head2 post_process_element
@@ -291,24 +303,7 @@ For now, it is used only to transform non-ordered hashes into ordered ones so fo
 
 sub post_process_element {
     my ($self, $what, $element) = @_;
-    if (!$self->is_tenant_scoped($what)) {
-        if (ref($element) eq 'HASH') {
-            return $self->tie_ixhash_copied($element);
-        }
-
-        return $element;
-    }
-
-    if (ref($element) ne 'HASH' ) {
-        return $element;
-    }
-
-    my %copy;
-    while (my ($k, $v) = each %$element) {
-        $copy{$k} = ref($v) eq 'HASH' ? $self->tie_ixhash_copied($v) : $v;
-    }
-
-    return \%copy;
+    return $element;
 }
 
 =head2 tie_ixhash_copied
@@ -323,7 +318,7 @@ sub tie_ixhash_copied {
     my @keys = keys(%$hash);
     @keys = sort(@keys);
     @copy{@keys} = @{$hash}{@keys};
-    return \%copy;
+    return tied(%copy);
 }
 
 =head2 cache_resource
@@ -335,6 +330,8 @@ Builds the resource associated to a namespace and then caches it in the L1 and L
 sub cache_resource {
     my ( $self, $what ) = @_;
     my $logger = get_logger;
+
+    $what = normalize_namespace_query($what);
 
     $logger->debug("loading $what from outside");
     my $result = $self->config_builder($what);
@@ -351,9 +348,12 @@ sub cache_resource {
         $self->touch_cache($what);
     }
     else {
-        pfconfig::util::socket_expire(namespace => $what, light => 1);
+        if(!pfconfig::git_storage->is_enabled) {
+            pfconfig::util::socket_expire(namespace => $what, light => 1);
+        }
     }
     $self->{memory}->{$what}       = $result;
+    delete $self->{memory}->{"$ordered_prefix$what"};
     $self->{memorized_at}->{$what} = time;
 
     return $result;
@@ -381,7 +381,7 @@ sub is_valid {
         return 0;
     }
 
-    my $memory_timestamp = $self->{memorized_at}->{$what};
+    my $memory_timestamp = $self->{memorized_at}->{$what} // 0;
     $logger->trace(
         "Control file has timestamp $file_timestamp and memory has timestamp $memory_timestamp for key $what"
     );
@@ -424,6 +424,8 @@ sub expire {
         $logger->info("Hard expiring resource : $what");
         $self->cache_resource($what);
     }
+
+    delete $self->{memory}->{"$ordered_prefix$what"};
 
     unless($self->is_overlayed_namespace($what)){
         my $namespace = $self->get_namespace($what);

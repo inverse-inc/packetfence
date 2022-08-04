@@ -32,7 +32,6 @@ case "$1" in
         chmod 2775 -R $PACKETFENCE/var
         find $PACKETFENCE/var/conf -type f -exec chmod 664 '{}' \;
         find $PACKETFENCE/var/conf -type d -exec chmod 775 '{}' \;
-        chmod 2775 -R $PACKETFENCE/logs
         chmod 0755 $PACKETFENCE/addons/*.pl
         chmod 0755 $PACKETFENCE/addons/*.sh
         chmod 0755 $PACKETFENCE/addons/upgrade/*.pl
@@ -42,7 +41,8 @@ case "$1" in
         chmod ug+s $PACKETFENCE/bin/pfcmd
 
         chown pf:pf $PACKETFENCE
-        find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -print0 | xargs -0 chown pf:pf
+        find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
+	chgrp pf $PACKETFENCE/logs
 
         # link to latest SQL schema
         if [ -h "$PACKETFENCE/db/pf-schema.sql" ]; then
@@ -51,15 +51,6 @@ case "$1" in
         cd $PACKETFENCE/db
         VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1)
         ln -f -s $VERSIONSQL ./pf-schema.sql
-
-        #Check if log files exist and create them with the correct owner
-        for fic_log in packetfence.log
-        do
-        if [ ! -e /usr/local/pf/logs/$fic_log ]; then
-            touch /usr/local/pf/logs/$fic_log
-            chown pf.pf /usr/local/pf/logs/$fic_log
-        fi
-        done
 
         #Make ssl certificate
         cd /usr/local/pf
@@ -97,7 +88,7 @@ case "$1" in
 
         # managing services
         set +e
-        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd; do
+        for service in apache2 snmptrapfmt freeradius apparmor haproxy keepalived redis-server smbd samba winbind nmbd mysql snmpd netdata collectd proxysql; do
 
             if [ -e "/etc/init.d/"$service ] ; then
                 invoke-rc.d $service stop  > /dev/null 2>&1
@@ -140,8 +131,12 @@ case "$1" in
             echo "Setting packetfence.target as the default systemd target."
            /bin/systemctl set-default packetfence.target
         fi
+
+	systemctl daemon-reload
         echo "Restarting journald to enable persistent logging"
         /bin/systemctl restart systemd-journald
+	echo "Restarting rsyslog"
+        systemctl restart rsyslog
 
 	# get containers image and tag them locally
 	/usr/local/pf/containers/manage-images.sh
@@ -152,18 +147,14 @@ case "$1" in
         systemctl disable packetfence-iptables
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
-        systemctl daemon-reload
         systemctl restart docker
-        systemctl start packetfence-config
+        systemctl restart packetfence-config
         /usr/local/pf/bin/pfcmd generatemariadbconfig --force
         systemctl isolate packetfence-base.target
 
         # Override the MySQL socket location to match our standard
         printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
         sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
-
-        echo "Restarting rsyslog"
-        systemctl restart rsyslog
 
         perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
         set +e

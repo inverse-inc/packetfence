@@ -74,10 +74,9 @@ SELECT
 
 FROM first_mac JOIN seq_0_to_49;
     ],
-'INSERT INTO node (tenant_id, mac) SELECT 1, mac FROM security_event_maintenance_test_mac_delay',
+'INSERT INTO node (mac) SELECT mac FROM security_event_maintenance_test_mac_delay',
         q[
 			INSERT INTO security_event (
-                tenant_id,
                 mac,
                 security_event_id,
                 start_date,
@@ -85,7 +84,6 @@ FROM first_mac JOIN seq_0_to_49;
                 status
             )
            SELECT
-            1,
             mac,
             '1100017',
             DATE_SUB(NOW(), INTERVAL 1 HOUR),
@@ -154,9 +152,8 @@ SELECT
     )) AS mac
 
 FROM first_mac JOIN seq_0_to_99;],
-'INSERT INTO node (tenant_id, mac) SELECT 1, mac FROM security_event_maintenance_test_mac_open',
+'INSERT INTO node (mac) SELECT mac FROM security_event_maintenance_test_mac_open',
         q[INSERT INTO security_event (
-                tenant_id,
                 mac,
                 security_event_id,
                 start_date,
@@ -164,7 +161,6 @@ FROM first_mac JOIN seq_0_to_99;],
                 status
             )
            SELECT
-            1,
             mac,
             '1100017',
             DATE_SUB(NOW(), INTERVAL 1 HOUR),
@@ -236,9 +232,8 @@ SELECT
 
 FROM first_mac JOIN seq_0_to_99;
             ],
-			'INSERT INTO node (tenant_id, mac) SELECT 1, mac FROM security_event_maintenance_test_mac_mixed',
+			'INSERT INTO node (mac) SELECT mac FROM security_event_maintenance_test_mac_mixed',
 			q[INSERT INTO security_event (
-                tenant_id,
                 mac,
                 security_event_id,
                 start_date,
@@ -246,7 +241,6 @@ FROM first_mac JOIN seq_0_to_99;
                 status
             )
            SELECT
-            1,
             mac,
             '1100017',
             DATE_SUB(NOW(), INTERVAL 1 HOUR),

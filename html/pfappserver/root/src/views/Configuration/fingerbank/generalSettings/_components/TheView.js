@@ -44,5 +44,3 @@ export default {
   props,
   render
 }
-
-

@@ -197,9 +197,7 @@ sub getPerUserVlan {
     my ($status, $res) = pf::dal->db_execute("
     SELECT vlan 
     FROM   locationlog 
-           JOIN node 
-             ON node.tenant_id = locationlog.tenant_id 
-                AND node.mac = locationlog.mac 
+           JOIN node USING (mac)
     WHERE  vlan IN ( $sql_vlans ) 
            AND node.status = 'reg' 
            AND pid = ? 
@@ -222,9 +220,7 @@ sub getPerUserVlan {
         ($status, $res) = pf::dal->db_execute("
         SELECT vlan 
         FROM   locationlog 
-               JOIN node 
-                 ON node.tenant_id = locationlog.tenant_id 
-                    AND node.mac = locationlog.mac 
+               JOIN node USING (mac)
         WHERE  vlan IN ( $sql_vlans ) 
                AND node.status != 'unreg' 
         ");

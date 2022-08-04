@@ -185,8 +185,8 @@ const mutations = {
       Vue.set(benchmarks[method], 'start', null)
     }
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

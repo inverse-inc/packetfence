@@ -1,6 +1,19 @@
 import * as yup from 'yup'
 import { parse, format, isValid, compareAsc } from 'date-fns'
-import i18n from '@/utils/locale'
+import i18n from './locale'
+import {
+  reAlphaNumeric,
+  reAlphaNumericHyphenUnderscoreDot,
+  reCommonName,
+  reEmail,
+  reDomain,
+  reIpv4,
+  reIpv6,
+  reFilename,
+  reMac,
+  reNumeric,
+  reStaticRoute,
+} from './regex'
 
 yup.setLocale({ // default validators
   mixed: {
@@ -85,19 +98,6 @@ yup.addMethod(yup.array, 'ifThenRestricts', function (message, ifIterFn, restric
 /**
  * yup.string
 **/
-const reAlphaNumeric = value => /^[a-zA-Z0-9]*$/.test(value)
-const reAlphaNumericHyphenUnderscoreDot = value => /^[a-zA-Z0-9-_.]*$/.test(value)
-const reCommonName = value => /^([A-Z]+|[A-Z]+[0-9A-Z_:]*[0-9A-Z]+)$/i.test(value)
-const reEmail = value => /(^$|^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$)/.test(value)
-const reDomain = value => /^((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9*]+\.)+[a-zA-Z]{2,}))$/.test(value)
-const reIpv4 = value => /^(([0-9]{1,3}.){3,3}[0-9]{1,3})$/i.test(value)
-const reIpv6 = value => /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/i.test(value)
-const reFilename = value => /^[^\\/?%*:|"<>]+$/.test(value)
-const reMac = value => /^([0-9a-fA-F]{2}[-:]?){5,}([0-9a-fA-F]){2}$/.test(value)
-const reNumeric = value => /^-?[0-9]*$/.test(value)
-// eslint-disable-next-line no-useless-escape
-const reStaticRoute = value => /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/?(\d+)?\s+?(via\s+(?:[0-9]{1,3}\.){3}[0-9]{1,3}\s+?)?dev\s+[a-z,0-9\.]+$/i.test(value)
-
 yup.addMethod(yup.string, 'in', function (ref, message) {
   return this.test({
     name: 'in',
@@ -158,7 +158,7 @@ yup.addMethod(yup.string, 'isCIDR', function (message) {
       const [ ipv4, network, ...extra ] = value.split('/')
       return (
         extra.length === 0 &&
-        +network > 0 && +network < 31 &&
+        +network >= 0 && +network <= 32 &&
         reIpv4(ipv4)
       )
     }

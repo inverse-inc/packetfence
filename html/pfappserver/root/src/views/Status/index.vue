@@ -25,15 +25,34 @@ const setup = (props, context) => {
   const sections = computed(() => ([
     {
       name: i18n.t('Dashboard'),
-      path: '/status/dashboard',
-      can: 'master tenant'
+      path: '/status/dashboard'
     },
+    {
+      name: i18n.t('Assets'),
+      path: '/status/assets',
+      saveSearchNamespace: 'assetsNodesNetwork',
+      can: 'read nodes'
+    },
+    {
+      name: i18n.t('Network Threats'),
+      path: '/status/network_threats',
+      saveSearchNamespace: 'networkThreats',
+      can: 'read nodes'
+    },
+    {
+      name: i18n.t('Network Communication'),
+      path: '/status/network_communication',
+      saveSearchNamespace: 'nodes',
+      can: 'read nodes',
+    },
+    /*
     {
       name: i18n.t('Network View'),
       path: '/status/network',
       saveSearchNamespace: 'network',
       can: 'read nodes'
     },
+    */
     {
       name: i18n.t('Services'),
       path: '/status/services',
@@ -41,8 +60,7 @@ const setup = (props, context) => {
     },
     {
       name: i18n.t('Local Queue'),
-      path: '/status/queue',
-      can: 'master tenant'
+      path: '/status/queue'
     },
     ...((cluster.value.length > 1)
       ? [{

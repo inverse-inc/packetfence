@@ -18,14 +18,14 @@ listen {
 [% FOREACH ip IN listen_ips %]
 listen {
         ipaddr = [% ip %]
-        port = 0
+        port = [% port %]
         type = auth
         virtual_server = [% virtual_server %]
 }
 
 listen {
         ipaddr = [% ip %]
-        port = 2083
+        port = [% radsec_port %]
         type = auth+acct
         proto = tcp
         virtual_server = packetfence

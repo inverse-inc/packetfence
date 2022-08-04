@@ -24,7 +24,6 @@ use Mojo::JSON qw(encode_json);
 use pf::util qw(expand_csv isenabled);
 use pf::error qw(is_error);
 use pf::error qw(is_error is_success);
-use pf::pfcmd::checkup ();
 use Data::UUID;
 use pf::pfqueue::status_updater::redis;
 use pf::UnifiedApi::Search::Builder::Config;
@@ -1282,7 +1281,7 @@ sub form_parameters {
 
 sub checkup {
     my ($self) = @_;
-    $self->render(json => { items => [pf::pfcmd::checkup::sanity_check()] });
+    return $self->render_error(410, "checkup is deprecated");
 }
 
 =head2 fix_permissions
@@ -1293,9 +1292,7 @@ fix_permissions
 
 sub fix_permissions {
     my ($self) = @_;
-    my $result = pf::util::fix_files_permissions();
-    chomp($result);
-    return $self->render(json => { message => $result });
+    return $self->render_error(410, "fix_permissions is deprecated");
 }
 
 sub bulk_import {

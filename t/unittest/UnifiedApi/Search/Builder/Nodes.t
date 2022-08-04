@@ -73,7 +73,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online",
+                "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online",
             ],
         ],
         'Return the columns'
@@ -86,7 +86,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             {
                 -and => [
-                    \["EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')"],
+                    \["EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')"],
                     {
                         -or => [
                             { 'node.mac' => { '=' => '00:00:00:00:00:01'} },
@@ -111,7 +111,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
                 {
                     "values" => [
                         {
-                            "field" => "tenant_id",
+                            "field" => "mac",
                             "op"    => "equals",
                             "value" => "1"
                         }
@@ -551,7 +551,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         ],
         [
             200,
-            [qw(node.tenant_id node.mac)],
+            [qw( node.mac)],
         ],
         "security_event.open_count Group by",
     )
@@ -659,7 +659,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-"CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac AND ba.tenant_id = node.tenant_id order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+"CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
             ]
         ],
         'Return the columns'

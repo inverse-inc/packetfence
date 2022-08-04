@@ -29,7 +29,6 @@ VlanMap = Y
 RoleMap = N
 VpnMap = N
 ExternalPortalEnforcement = N
-TenantId = 1
 
 mode = production
 macSearchesMaxNb = 30
@@ -50,6 +49,7 @@ cliEnablePwd =
 #
 
 # PacketFence -> Switch
+SNMPUseConnector=Y
 SNMPVersion = 1
 SNMPCommunityRead = public
 SNMPCommunityWrite = private
@@ -91,5 +91,6 @@ VoIPDHCPDetect=Y
 AccessListMap=N
 UrlMap=N
 useCoA=Y
+radiusDeauthUseConnector=Y
 VoIPLLDPDetect=Y
 PostMfaValidation=N

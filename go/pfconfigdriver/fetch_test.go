@@ -201,6 +201,8 @@ func TestCreateQuery(t *testing.T) {
 
 	// Test enabling the overlay on non-enabled struct
 	general.PfconfigHostnameOverlay = "yes"
+	clusterSummary = &ClusterSummary{ClusterEnabled: 1}
+	myClusterName = myHostname
 	query = createQuery(ctx, &general)
 	if query.ns != "config::Pf("+myHostname+");general" {
 		t.Error("Wrong namespace name out of createQuery", query.ns)

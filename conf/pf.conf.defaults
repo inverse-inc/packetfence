@@ -694,6 +694,26 @@ netflow_address=127.0.0.1
 # Should mysql-probe be managed by PacketFence?
 mysql-probe=enabled
 
+# services.pfconnector-client
+#
+# Should pfconnector-client be managed by PacketFence?
+pfconnector-client=enabled
+
+# services.pfconnector-server
+#
+# Should pfconnector-server be managed by PacketFence?
+pfconnector-server=enabled
+#
+# services.proxysql
+#
+# Should proxysql be started?
+proxysql=enabled
+#
+# services.proxysql_binary
+#
+# Location of the proxysql binary. Only necessary to change if you are not running the RPMed version.
+proxysql_binary=/usr/bin/proxysql
+
 [snmp_traps]
 #
 # snmp_traps.bounce_duration
@@ -1184,6 +1204,12 @@ centralize_vips=disabled
 #
 # Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers.
 probe_mysql_from_haproxy_db=disabled
+#
+# active_active.radius_proxy_with_vip
+#
+# Proxy the RADIUS requests received on the RADIUS load balancer using the VIP
+# When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address
+radius_proxy_with_vip=enabled
 
 [parking]
 #
@@ -1328,6 +1354,10 @@ username_attributes=PacketFence-UserNameAttribute,TLS-Client-Cert-Subject-Alt-Na
 forward_key_balanced=disabled
 # radius_configuration.local_auth
 local_auth=disabled
+# radius_configuration.process_bandwidth_accounting
+#
+# Process bandwidth accounting.
+process_bandwidth_accounting = disabled
 
 [dns_configuration]
 #
@@ -1386,6 +1416,10 @@ device_class_whitelist=
 # Comma delimited transitions using the following format: $PREVIOUS_DEVICE_CLASS_ID->$NEW_DEVICE_CLASS_ID where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in the Fingerbank database.
 triggers=
 
+[pfconnector]
+redis_server=[% ENV.env_or_default("REDIS_CACHE_HOST_PORT", "containers-gateway.internal:6379") %]
+redis_tunnels_namespace=pfconnector:activeTunnels:
+
 [lets_encrypt]
 #
 # lets_encrypt.radius
@@ -1410,14 +1444,19 @@ alert_email_to=
 subject_prefix=
 configurations=packetfence,os-checks
 mailserver=
+sender=monit@$HOST
 
 [services_url]
 httpd_portal=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_PORTAL", "http://containers-gateway.internal:8080") %]
 httpd_dispatcher=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER", "http://containers-gateway.internal:8888") %]
 httpd_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_DISPATCHER_STATIC", "http://containers-gateway.internal:8889") %]
+httpd_admin_dispatcher_static=[% ENV.env_or_default("PF_SERVICES_URL_HTTPD_ADMIN_DISPATCHER_STATIC", "http://containers-gateway.internal:8891") %]
 pfpki=[% ENV.env_or_default("PF_SERVICES_URL_PFPKI", "http://containers-gateway.internal:22225") %]
 pfipset=[% ENV.env_or_default("PF_SERVICES_URL_PFIPSET", "http://containers-gateway.internal:22223") %]
 pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://containers-gateway.internal:22222") %]
 pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://containers-gateway.internal:22224") %]
 pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
 pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]
+pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
+api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://containers-gateway.internal:9999") %]
+netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]

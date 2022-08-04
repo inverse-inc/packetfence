@@ -3,7 +3,6 @@ package scep
 import (
 	"net/http"
 	"os"
-	"strconv"
 
 	kitlog "github.com/go-kit/kit/log"
 	kitloglevel "github.com/go-kit/kit/log/level"
@@ -70,7 +69,7 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 			scepdepot.WithAllowRenewalDays(profile[0].SCEPDaysBeforeRenewal),
 			scepdepot.WithValidityDays(profile[0].Validity),
 			scepdepot.WithProfile(vars["id"]),
-			scepdepot.WithAttributes(ProfileAttributes(profile[0])),
+			scepdepot.WithAttributes(models.ProfileAttributes(profile[0])),
 			// Todo Support CA password
 			// scepdepot.WithCAPass(*flCAPass),
 		)
@@ -98,57 +97,4 @@ func ScepHandler(pfpki *types.Handler, w http.ResponseWriter, r *http.Request) {
 
 	h.ServeHTTP(w, r)
 
-}
-
-func ProfileAttributes(prof models.Profile) map[string]string {
-	var attributes map[string]string
-	attributes = make(map[string]string)
-
-	if len(prof.Organisation) > 0 {
-		attributes["Organization"] = prof.Organisation
-	}
-
-	if len(prof.OrganisationalUnit) > 0 {
-		attributes["OrganizationalUnit"] = prof.OrganisationalUnit
-	}
-
-	if len(prof.Country) > 0 {
-		attributes["Country"] = prof.Country
-	}
-
-	if len(prof.State) > 0 {
-		attributes["State"] = prof.State
-	}
-
-	if len(prof.Locality) > 0 {
-		attributes["Locality"] = prof.Locality
-	}
-
-	if len(prof.StreetAddress) > 0 {
-		attributes["StreetAddress"] = prof.StreetAddress
-	}
-
-	if len(prof.PostalCode) > 0 {
-		attributes["PostalCode"] = prof.PostalCode
-	}
-
-	if len(*prof.ExtendedKeyUsage) > 0 {
-		attributes["ExtendedKeyUsage"] = *prof.ExtendedKeyUsage
-	}
-	if len(*prof.KeyUsage) > 0 {
-		attributes["KeyUsage"] = *prof.KeyUsage
-	}
-
-	if len(prof.OCSPUrl) > 0 {
-		attributes["OCSPUrl"] = prof.OCSPUrl
-	}
-
-	if len(prof.Mail) > 0 {
-		attributes["Mail"] = prof.Mail
-	}
-	if len(prof.Digest.String()) > 0 {
-		val := strconv.Itoa(int(prof.Digest))
-		attributes["Digest"] = val
-	}
-	return attributes
 }

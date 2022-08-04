@@ -19,6 +19,11 @@ export default {
       return response.data
     })
   },
+  fingerbankCommunications: params => {
+    return apiCall.post('nodes/fingerbank_communications', params).then(response => {
+      return response.data.items
+    })
+  },
   node: body => {
     const get = body.quiet ? 'getQuiet' : 'get'
     return apiCall[get](['node', body.mac]).then(response => {
@@ -180,6 +185,11 @@ export default {
   bulkImport: body => {
     return apiCall.put(['nodes', 'bulk_import'], body).then(response => {
       return response.data.items
+    })
+  },
+  perDeviceClass: () => {
+    return apiCall.get('nodes/per_device_class').then(response => {
+      return response.data
     })
   }
 }

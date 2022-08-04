@@ -90,7 +90,6 @@ use pf::class qw(class_view);
 use pf::security_event qw(security_event_force_close);
 use pf::Connection::ProfileFactory;
 use pf::constants::scan qw($POST_SCAN_SECURITY_EVENT_ID $PRE_SCAN_SECURITY_EVENT_ID $SCAN_SECURITY_EVENT_ID);
-use pf::file_paths qw($security_event_log);
 
 our $logger = get_logger();
 

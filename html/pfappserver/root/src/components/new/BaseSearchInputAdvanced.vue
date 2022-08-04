@@ -1,5 +1,20 @@
 <template>
   <b-container fluid class="base-search-input-advanced px-0">
+    <template v-if="isNatural">
+      <b-container fluid class="rc px-0 py-1 bg-secondary">
+        <b-container fluid class="px-1">
+          <b-row class="bg-white rc align-items-center m-0 p-3">
+            {{ $i18n.t('No search criteria.') }}
+          </b-row>
+        </b-container>
+        </b-container>
+      <b-row class="mx-auto">
+        <b-col cols="1" />
+        <b-col cols="1" class="py-0 bg-secondary" style="min-width:60px;">
+          <div class="mx-auto text-center text-nowrap text-white font-weight-bold">...</div>
+        </b-col>
+      </b-row>
+    </template>
     <b-container fluid v-for="(o, oIndex) in value.values" :key="oIndex"
       class="px-0"
     >
@@ -62,7 +77,7 @@ const props = {
   }
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs } from '@vue/composition-api'
 
 const setup = (props, context) => {
 
@@ -90,16 +105,26 @@ const setup = (props, context) => {
       return false
   }
 
+  const isNatural = computed(() => {
+    const { values = [] } = value.value
+    return values.length === 0
+  })
+
   const onAddInnerRule = (oIndex) => {
+    let newValue = value.value
     let field = fields.value[0].value
     let op = null
-    // clone previous sibling `field` and `op` (if exists)
-    if (value.value.values[oIndex].values.length > 0) {
-      const lIndex = value.value.values[oIndex].values.length - 1
-      field = value.value.values[oIndex].values[lIndex].field
-      op = value.value.values[oIndex].values[lIndex].op
+    if (!(oIndex in newValue.values)) {
+      newValue.values[oIndex] = { op: 'or', values:[] }
     }
-    value.value.values[oIndex].values.push({ field, op, value: null })
+    // clone previous sibling `field` and `op` (if exists)
+    if (newValue.values[oIndex].values.length > 0) {
+      const lIndex = newValue.values[oIndex].values.length - 1
+      field = newValue.values[oIndex].values[lIndex].field
+      op = newValue.values[oIndex].values[lIndex].op
+    }
+    newValue.values[oIndex].values.push({ field, op, value: null })
+    emit('input', newValue)
   }
 
   const onAddOuterRule = () => {
@@ -111,12 +136,14 @@ const setup = (props, context) => {
   }
 
   const onDeleteRule = (oIndex, iIndex) => {
-    if (value.value.values[oIndex].values.length === 1) {
-      if (value.value.values.length > 1)
-        value.value.values.splice(oIndex, 1)
+    let newValue = value.value
+    if (newValue.values[oIndex].values.length === 1) {
+      if (newValue.values.length > 1)
+        newValue.values.splice(oIndex, 1)
     }
     else
-      value.value.values[oIndex].values.splice(iIndex, 1)
+      newValue.values[oIndex].values.splice(iIndex, 1)
+    emit('input', newValue)
   }
 
   return {
@@ -124,6 +151,7 @@ const setup = (props, context) => {
     onDragStart,
     onDragEnd,
     onMove,
+    isNatural,
     onAddInnerRule,
     onAddOuterRule,
     onDeleteRule

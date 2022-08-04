@@ -34,7 +34,6 @@ use pf::error qw(is_success);
 use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
-use pf::dal::tenant;
 
 ## Definition
 has_field 'id' =>
@@ -49,14 +48,6 @@ has_field 'description' =>
   (
    type => 'Text',
    required => 0,
-  );
-
-has_field 'TenantId' =>
-  (
-   type => 'Select',
-   label => 'Tenant ID',
-   options_method => \&options_tenant,
-   element_class => ['chzn-deselect'],
   );
 
 has_field 'type' =>
@@ -96,6 +87,12 @@ has_field 'useCoA' =>
    default => 'Y',
    tags => { after_element => \&help,
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
+  );
+
+has_field 'radiusDeauthUseConnector' =>
+  (
+   type => 'Toggle',
+   default => 'Y',
   );
 
 has_field 'deauthOnPrevious' =>
@@ -281,6 +278,12 @@ has_field macSearchesSleepInterval  =>
 has_block definition =>
   (
    render_list => [ qw(description type mode group deauthMethod useCoA deauthOnPrevious cliAccess ExternalPortalEnforcement VoIPEnabled VoIPLLDPDetect VoIPCDPDetect VoIPDHCPDetect PostMfaValidation uplink_dynamic uplink controllerIp disconnectPort coaPort) ],
+  );
+
+has_field 'SNMPUseConnector' =>
+  (
+   type => 'Toggle',
+   default => 'Y',
   );
 
   has_field 'SNMPVersion' =>
@@ -645,17 +648,6 @@ sub options_wsTransport {
     my @transports = map { {label => uc($_), value =>  $_ } } qw/http https/;
 
     return ({label => '' ,value => '' }, @transports);
-}
-
-sub options_tenant {
-    my $self = shift;
-    my @tenants;
-    my ($status, $it) = pf::dal::tenant->search;
-    if (is_success($status)) {
-        @tenants = map { $_->{id} != 0 ? ($_->{id} => $_->{name}) : () } @{$it->all};
-    }
-
-    return @tenants;
 }
 
 =head2 validate

@@ -115,11 +115,5 @@ export const useSearch = makeSearch('dnsLogs', {
     }
   ],
   sortBy: 'created_at',
-  sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'id', op: 'equals', value: null }
-    ] }
-  ] })
+  sortDesc: true
 })

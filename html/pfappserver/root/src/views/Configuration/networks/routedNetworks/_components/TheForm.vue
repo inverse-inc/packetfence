@@ -24,10 +24,6 @@
           :column-label="$i18n.t('Type')"
         />
 
-        <form-group-type namespace="tenant_id"
-          :column-label="$i18n.t('Tenant')"
-        />
-
         <form-group-nat-enabled v-show="isType('inlinel3')"
           namespace="nat_enabled"
           :column-label="$i18n.t('Enable NAT')"
@@ -166,7 +162,6 @@ import {
   FormGroupNextHop,
   FormGroupPoolBackend,
   FormGroupPortalFqdn,
-  FormGroupTenantIdentifier,
   FormGroupType
 } from './'
 
@@ -195,7 +190,6 @@ const components = {
   FormGroupNextHop,
   FormGroupPoolBackend,
   FormGroupPortalFqdn,
-  FormGroupTenantIdentifier,
   FormGroupType
 }
 

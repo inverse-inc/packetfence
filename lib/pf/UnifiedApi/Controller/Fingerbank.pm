@@ -18,6 +18,7 @@ use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::UnifiedApi::Search::Builder::Fingerbank;
 use List::MoreUtils qw(any);
 use fingerbank::API;
+use fingerbank::Model::Device;
 use pf::cluster;
 use pf::fingerbank;
 use pf::constants;
@@ -339,6 +340,11 @@ sub can_use_nba_endpoints {
     my $account = fingerbank::API->new_from_config->account_info;
     my $result = any { $_ eq "NBA" } split(/\s*,\s*/, $account->{roles});
     $self->render(status => 200, json => { result => \$result});
+}
+
+sub all_device_classes {
+    my ($self) = @_;
+    return $self->render(json => {items => [map{ $_->{_column_data} } @{fingerbank::Model::Device->all_device_classes}]});
 }
 
 =head1 AUTHOR

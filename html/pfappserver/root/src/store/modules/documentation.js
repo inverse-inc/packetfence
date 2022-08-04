@@ -2,6 +2,7 @@
 * "documentation" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import { documentationCall } from '@/utils/api'
 
 const api = {
@@ -15,12 +16,6 @@ const api = {
       return response.data
     })
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 const initialState = () => {
@@ -180,8 +175,8 @@ const mutations = {
   SET_HASH: (state, hash) => {
     Vue.set(state, 'hash', hash)
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

@@ -35,7 +35,6 @@ DEFAULT
     PacketFence-NasName                   !* ANY,
     PacketFence-Proxied-To                !* ANY,
     PacketFence-Authorization-Status      !* ANY,
-    PacketFence-Tenant-Id                 !* ANY,
     PacketFence-ShortName                 !* ANY,
     PacketFence-Proxied-From              !* ANY,
     PacketFence-UserName                  !* ANY,

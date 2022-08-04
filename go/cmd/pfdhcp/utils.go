@@ -193,9 +193,12 @@ func NodeInformation(ctx context.Context, target net.HardwareAddr) (r NodeInfo) 
 
 // ShuffleDNS return the dns list
 func ShuffleDNS(ConfNet pfconfigdriver.RessourseNetworkConf) (r []byte) {
-	if !sharedutils.IsEnabled(ConfNet.NatDNS) {
-		var excluded []string
-		return Shuffle(ConfNet.Dns, excluded)
+	matched, _ := regexp.MatchString(`inlinel[2-3]`, ConfNet.Type)
+	if matched {
+		if !sharedutils.IsEnabled(ConfNet.NatDNS) {
+			var excluded []string
+			return Shuffle(ConfNet.Dns, excluded)
+		}
 	}
 	if ConfNet.ClusterIPs != "" {
 		if ConfNet.Dnsvip != "" {
@@ -433,12 +436,12 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
 
-	MAC2IP, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) AND tenant_id = ? ORDER BY start_time DESC LIMIT 1")
+	MAC2IP, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE mac = ? AND (end_time = 0 OR ( end_time + INTERVAL 30 SECOND ) > NOW()) ORDER BY start_time DESC LIMIT 1")
 	if err != nil {
 		return err
 	}
 
-	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) AND tenant_id = ? ORDER BY start_time DESC")
+	IP2MAC, err := MySQLdatabase.Prepare("SELECT mac, ip, start_time, end_time FROM ip4log WHERE ip = ? AND (end_time = 0 OR end_time > NOW()) ORDER BY start_time DESC")
 	if err != nil {
 		return err
 	}
@@ -457,11 +460,11 @@ func MysqlUpdateIP4Log(mac string, ip string, duration time.Duration) error {
 		oldMAC string
 		oldIP  string
 	)
-	err = MAC2IP.QueryRow(mac, 1).Scan(&oldIP)
+	err = MAC2IP.QueryRow(mac).Scan(&oldIP)
 	if err != nil {
 		return err
 	}
-	err = IP2MAC.QueryRow(ip, 1).Scan(&oldMAC)
+	err = IP2MAC.QueryRow(ip).Scan(&oldMAC)
 	if err != nil {
 		return err
 	}

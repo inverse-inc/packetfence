@@ -58,7 +58,7 @@ tie my @cli_switches, 'pfconfig::cached_array', 'resource::cli_switches';
 
 extends 'pf::services::manager';
 
-has options => (is => 'rw');
+has 'options' => (is => 'rw');
 
 sub _build_executable {
     my ($self) = @_;
@@ -89,11 +89,8 @@ Executed once for ALL processes
 sub generateConfig {
     my ($self, $quick) = @_;
 
-    unless($CONFIG_GENERATED){
-        $self->_generateConfig();
-
-        $CONFIG_GENERATED = 1;
-    }
+    $self->_generateConfig();
+    return 1;
 }
 
 =head2 _generateConfig
@@ -108,6 +105,7 @@ sub _generateConfig {
         ABSOLUTE => 1,
         FILTERS  => { escape_string => \&escape_freeradius_string },
     );
+    $self->generate_container_environments($tt);
     $self->generate_radiusd_mainconf($tt);
     $self->generate_radiusd_authconf($tt);
     $self->generate_radiusd_acctconf($tt);
@@ -123,7 +121,6 @@ sub _generateConfig {
     $self->generate_radiusd_mschap($tt);
     $self->generate_multi_domain_constants();
     $self->generate_radiusd_certificates($tt);
-    $self->generate_container_environments($tt);
 }
 
 
@@ -391,6 +388,8 @@ sub generate_radiusd_authconf {
     $tags{'listen_ips'} = '*'; #[uniq @listen_ips];
     $tags{'pid_file'} = "$var_dir/run/radiusd.pid";
     $tags{'socket_file'} = "$var_dir/run/radiusd.sock";
+    $tags{'port'} = $self->{auth_port};
+    $tags{radsec_port} = $self->{radsec_port};
     $tt->process("$conf_dir/radiusd/auth.conf", \%tags, "$install_dir/raddb/auth.conf") or die $tt->error();
 }
 
@@ -426,7 +425,7 @@ sub generate_radiusd_eduroamconf {
             $tags{'listen'} .= << "EOT";
 listen {
     ipaddr = *
-    port =  $eduroam_authentication_source[0]{'auth_listening_port'}
+    port =  $self->{eduroam_port}
     type = auth
     virtual_server = eduroam
 }
@@ -438,7 +437,7 @@ EOT
                 $tags{'listen'} .= <<"EOT";
 listen {
     ipaddr = *
-    port =  $eduroam_authentication_source[0]{'auth_listening_port'}
+    port =  $self->{eduroam_port}
     type = auth
     virtual_server = eduroam
 }
@@ -645,7 +644,7 @@ sub generate_radiusd_cliconf {
 $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = *
-        port = 1815
+        port = $self->{cli_port}
         type = auth
         virtual_server = packetfence-cli
         limit {
@@ -662,7 +661,7 @@ EOT
                 $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = *
-        port = 1815
+        port = $self->{cli_port}
         type = auth
         virtual_server = packetfence-cli
 }
@@ -672,7 +671,7 @@ EOT
         }
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
-	$tt->process("$conf_dir/radiusd/cli.conf", \%tags, "$install_dir/raddb/cli.conf") or die $tt->error();
+        $tt->process("$conf_dir/radiusd/cli.conf", \%tags, "$install_dir/raddb/cli.conf") or die $tt->error();
     } else {
         my $file = $install_dir."/raddb/cli.conf";
         unlink($file);
@@ -1123,6 +1122,7 @@ EOT
         $tags{'PacketFenceKeyBalanced'} = "";
     }
     $tt->process("$conf_dir/radiusd/packetfence-pre-proxy", \%tags, "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy") or die $tt->error();
+    chmod(0644, "$install_dir/raddb/mods-config/attr_filter/packetfence-pre-proxy");
 }
 
 =head2 generate_radiusd_cluster
@@ -1143,7 +1143,7 @@ sub generate_radiusd_cluster {
     $tags{'home_server'} ='';
 
     if ($cluster_enabled) {
-        my $cluster_ip = pf::cluster::management_cluster_ip();
+        my $cluster_ip = isenabled($Config{active_active}{radius_proxy_with_vip}) ? pf::cluster::management_cluster_ip() : $management_network->{Tip};
         my @radius_backend = values %{pf::cluster::members_ips($int)};
 
         # RADIUS PacketFence cluster virtual server configuration
@@ -1158,7 +1158,7 @@ home_server pf$i.cluster {
         type = auth+acct
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
-        port = 1812
+        port = $self->{auth_port}
         secret = $local_secret
         response_window = 6
         status_check = status-server
@@ -1171,7 +1171,7 @@ home_server pf$i.cli.cluster {
         type = auth
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
-        port = 1815
+        port = $self->{cli_port}
         secret = $local_secret
         response_window = 60
         status_check = status-server
@@ -1269,9 +1269,31 @@ EOT
         $tags{'socket_file'} = "$var_dir/run/radiusd-load_balancer.sock";
 
         foreach my $interface ( uniq(@radius_ints) ) {
-
+            my $server_ip = $interface->{Tip};
             my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
             $tags{'listen'} .= <<"EOT";
+listen {
+        ipaddr = $server_ip
+        port = 0
+        type = auth
+        virtual_server = pf.cluster
+}
+
+
+listen {
+        ipaddr = $server_ip
+        port = 0
+        type = acct
+        virtual_server = pf.cluster
+}
+
+listen {
+        ipaddr = $server_ip
+        port = 1815
+        type = auth
+        virtual_server = pfcli.cluster
+}
+
 listen {
         ipaddr = $cluster_ip
         port = 0
@@ -1301,15 +1323,20 @@ EOT
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
             my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
             my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
-            $tags{'eduroam'} = <<"EOT";
-# Eduroam integration
-EOT
             foreach my $interface ( uniq(@radius_ints) ) {
+                my $server_ip = $interface->{Tip};
                 my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
                 $tags{'eduroam'} .= <<"EOT";
+# Eduroam integration
+listen {
+        ipaddr = $server_ip
+        port = $self->{eduroam_port}
+        type = auth
+        virtual_server = eduroam.cluster
+}
 listen {
         ipaddr = $cluster_ip
-        port = $listening_port
+        port = $self->{eduroam_port}
         type = auth
         virtual_server = eduroam.cluster
 }
@@ -1329,6 +1356,7 @@ EOT
 client $radius_back {
         ipaddr = $radius_back
         secret = $local_secret
+        port = $self->{eduroam_port}
         shortname = pf
 }
 EOT
@@ -1504,26 +1532,18 @@ EOT
 }
 
 sub generate_multi_domain_constants {
-    my $data = {};
-    my ($status, $iter) = pf::dal::tenant->search();
-    if (is_error($status)) {
-        die "Unable to fetch tenants to generate the multi-domain constants";
-    }
-    for my $tenant (@{$iter->all}) {
-        my $tenant_id = $tenant->id;
-        pf::config::tenant::set_tenant($tenant_id);
-        $data->{$tenant_id} = {
-            ConfigRealm => { %ConfigRealm }, 
-            ConfigOrderedRealm => [ @ConfigOrderedRealm ],
-            ConfigDomain => { %ConfigDomain }, 
-        };
-    }
     $Data::Dumper::Purity = 1;
-    my $content = "package multi_domain_constants;\n\n";
-    $content .= "our " . Dumper($data);
-    $content .= "our \$DATA = \$VAR1;\n";
+    my $content = q[
+package multi_domain_constants;
+our (%ConfigRealm, @ConfigOrderedRealm, %ConfigDomain);
+];
+    $content .= Data::Dumper->Dump(
+        [\%pf::config::ConfigRealm, \@pf::config::ConfigOrderedRealm, \%pf::config::ConfigDomain],
+        ['*ConfigRealm', '*ConfigOrderedRealm', '*ConfigDomain']
+    );
     $content .= "1;\n";
     write_file("$install_dir/raddb/mods-config/perl/multi_domain_constants.pm", $content);
+    chmod(0644, "$install_dir/raddb/mods-config/perl/multi_domain_constants.pm");
 }
 
 =head2 generate_radiusd_certificates
@@ -1596,6 +1616,7 @@ sub generate_container_environments {
     if ($self->name eq 'radiusd-cli') {
         $port = '1815';
     }
+    $port = $self->generate_port($port);
     my $vars = {
        env_dict => {
            RADIUSD_LISTEN_PORT => $port,
@@ -1603,6 +1624,32 @@ sub generate_container_environments {
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/".$self->name.".env") or die $tt->error();
 
+}
+
+=head2 generate_port
+
+Generate the radius listening port
+
+=cut
+
+sub generate_port {
+    my ($self, $port) = @_;
+    my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
+    my $eduport = $eduroam_authentication_source[0]{'auth_listening_port'};
+    $self->{auth_port} = "1812";
+    $self->{acct_port} = "1813";
+    $self->{cli_port} = "1815";
+    $self->{eduroam_port} = $eduport || "11812";
+    $self->{radsec_port} = "2083";
+    if ($cluster_enabled) {
+        $self->{auth_port} = $self->{auth_port} + 10;
+        $self->{eduroam_port} = $self->{eduroam_port} + 10;
+        $self->{acct_port} = $self->{acct_port} + 10;
+        $self->{cli_port} = $self->{cli_port} + 10;
+        $port = $port + 10;
+        $self->{radsec_port} = $self->{radsec_port} + 10;
+    }
+    return $port;
 }
 
 =head1 AUTHOR

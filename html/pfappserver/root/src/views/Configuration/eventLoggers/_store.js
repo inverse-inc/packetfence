@@ -2,6 +2,7 @@
 * "$_event_loggers" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import api from './_api'
@@ -21,14 +22,6 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_event_loggers/updateEventLogger', params),
     deleteItem: params => $store.dispatch('$_event_loggers/deleteEventLogger', params.id),
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DRYRUN: 'dryrun',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

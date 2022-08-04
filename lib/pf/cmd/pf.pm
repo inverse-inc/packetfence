@@ -21,6 +21,7 @@ pfcmd <command> [options]
   fingerbank                  | Fingerbank related commands
   fixpermissions              | fix permissions on pf tree
   floatingnetworkdeviceconfig | query/modify floating network devices configuration parameters
+  generatedockeriptables      | generate and apply the rules for docker images
   generatedomainconfig        | generate the domain configuration
   generatemariadbconfig       | generate the MariaDB configuration
   generatemonitconfig         | generate the monit configuration
@@ -42,7 +43,6 @@ pfcmd <command> [options]
   version                     | output version information
   security_event              | manipulate security events
   security_eventconfig        | query/modify security_events.conf configuration parameters
-  tenant                      | manipulate tenants
 
 Please view "pfcmd help <command>" for details on each option
 

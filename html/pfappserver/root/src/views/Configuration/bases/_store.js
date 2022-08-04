@@ -3,14 +3,7 @@
 */
 import Vue from 'vue'
 import api from './_api'
-import store from '@/store'
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
-}
+import store, { types } from '@/store'
 
 // Default values
 const state = () => {

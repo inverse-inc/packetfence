@@ -74,14 +74,14 @@ pfcmd.help:
 configurations: SHELL:=/bin/bash
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
-	touch /usr/local/pf/conf/pf.conf
+	touch conf/pf.conf
 
 .PHONY: configurations_force
 
 configurations_hard: SHELL:=/bin/bash
 configurations_hard:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
-	touch /usr/local/pf/conf/pf.conf
+	touch conf/pf.conf
 
 # server certs and keys
 # the | in the prerequisites ensure the target is not created if it already exists
@@ -91,18 +91,18 @@ conf/ssl/server.pem: | conf/ssl/server.key conf/ssl/server.crt conf/ssl/server.p
 
 conf/ssl/server.crt: | conf/ssl/server.crt
 	openssl req -new -x509 -days 365 \
-	-out /usr/local/pf/conf/ssl/server.crt \
-	-key /usr/local/pf/conf/ssl/server.key \
-	-config /usr/local/pf/conf/openssl.cnf
+	-out conf/ssl/server.crt \
+	-key conf/ssl/server.key \
+	-config conf/openssl.cnf
 
 conf/ssl/server.key: | conf/ssl/server.key
-	openssl genrsa -out /usr/local/pf/conf/ssl/server.key 2048
+	openssl genrsa -out conf/ssl/server.key 2048
 
 conf/local_secret:
-	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/local_secret
+	date +%s | sha256sum | base64 | head -c 32 > conf/local_secret
 
 conf/unified_api_system_pass:
-	date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
+	date +%s | sha256sum | base64 | head -c 32 > conf/unified_api_system_pass
 
 bin/pfcmd: src/pfcmd.c
 	$(CC) -O2 -g -std=c99  -Wall $< -o $@

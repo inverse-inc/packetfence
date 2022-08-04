@@ -66,7 +66,6 @@ func TestParseSsoRequest(t *testing.T) {
 	// Valid payload with timeout
 	b := bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`))
 	r, _ := http.NewRequest("POST", "/", b)
-	r.Header.Add("X-PacketFence-Tenant-Id", "1")
 	info, timeout, err := pfsso.parseSsoRequest(ctx, r)
 
 	if err != nil {
@@ -82,7 +81,7 @@ func TestParseSsoRequest(t *testing.T) {
 		t.Errorf("Expected timeout %d but got %d", expected, timeout)
 	}
 
-	infoExpected := map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default", "timeout": "86400", "tenant_id": "1"}
+	infoExpected := map[string]string{"ip": "1.2.3.4", "mac": "00:11:22:33:44:55", "username": "lzammit", "role": "default", "timeout": "86400"}
 	for k, expectedV := range infoExpected {
 		if v, ok := info[k]; ok {
 			if v != expectedV {
@@ -225,7 +224,7 @@ func TestSpawnSso(t *testing.T) {
 	firewall, _ := factory.Instantiate(ctx, "testfw2")
 
 	for i := 0; i < 5; i++ {
-		pfsso.spawnSso(ctx, firewall, info, func(info map[string]string) (bool, error) {
+		pfsso.spawnSso(ctx, firewall, info, func(ctx context.Context, info map[string]string) (bool, error) {
 			return firewallsso.ExecuteStart(ctx, firewall, info, 3600)
 		})
 	}

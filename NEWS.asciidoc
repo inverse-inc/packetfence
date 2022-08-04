@@ -27,7 +27,20 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+* Add support for Role Based Enforcement for Meraki wired devices (#7000)
+* Added proxysql to distribute database reads when using PacketFence in cluster
+* Sign a csr in PacketFence pki
+* Added support to split database read and writes to different MySQL servers (#7055)
+
 === Enhancements
+
+* Added ability to use the MariaDB database or Redis to store the api-frontend tokens
+* Adjust logs for containerized and non-containerized services (#7043)
+* Allow to enabled/disable processing bandwidth accounting (#6934)
+* Sophos VPN support
+* Automatically display mandatory fields in email/sponsor activation emails. (#7069)
+* Detect Cli-Access from Dell N1500 switch (#7070)
+* Deprecate /api/v1/config/fixpermissions and /api/v1/config/checkup
 
 === Bug Fixes
 
@@ -35,6 +48,11 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Clone switch template with correct ID (#6941)
 * Add time to the available template switch variables (#6952)
 * Only trigger the node discover security event in the context of radius and pfdhcplistener (#4987)
+* Use TLS 1.2 to communicate with Intune servers (#7021)
+* Align Apache timeout with captive_portal.request_timeout (#7037)
+* Return VIP in DHCP request if `dns_on_vip_only` is enabled (#7035)
+* Replace LF by CRLF at end of mails sent by PacketFence (SMS email has "Bare Line Feed Characters" Status code: 550 5.6.11  #5380)
+* The User-Name value in an EAP-TTLS PAP reply will always be the identity of the inner tunnel (#7017)
 
 == Version 11.2.0 released on 2022-02-23
 

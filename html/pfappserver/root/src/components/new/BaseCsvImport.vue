@@ -530,8 +530,8 @@ const setup = (props, context) => {
     return staticMapping.value
       .map(staticMap => useField(_fieldsAssociated.value[staticMap.key]))
   })
-  const staticMappingComponentIs = computed(() => _staticMappingField.value.map(({ is }) => is))
-  const staticMappingComponentProps = computed(() => _staticMappingField.value.map(({ is, validator, ...props }) => props))
+  const staticMappingComponentIs = computed(() => _staticMappingField.value.map(({ is } = {}) => is))
+  const staticMappingComponentProps = computed(() => _staticMappingField.value.map(({ is, validator, ...props } = {}) => props))
   const addStaticMapping = () => {
     const key = staticMappingSelect.value
     if (reservedMapping.value.includes(key))
@@ -542,7 +542,7 @@ const setup = (props, context) => {
   }
   const staticMappingComponentValidator = computed(() => staticMapping.value
     .map(staticMap => {
-      const { validator } = _fieldsAssociated.value[staticMap.key]
+      const { validator = yup.string().nullable() } = _fieldsAssociated.value[staticMap.key]
       return validator // field validator
         .concat(yup.string().nullable().required(i18n.t('Value required.'))) // always required
     })

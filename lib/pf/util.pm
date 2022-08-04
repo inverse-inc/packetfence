@@ -32,6 +32,7 @@ use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any);
 use Try::Tiny;
 use pf::file_paths qw(
+    $install_dir
     $conf_dir
     $oui_file
     $oui_url
@@ -109,12 +110,14 @@ BEGIN {
         expand_ordered_array
         make_node_id split_node_id
         os_detection
+        host_os_detection
         random_from_range
         extract
         ends_with
         split_pem
         resolve
         random_mac
+        strip_path_for_git_storage
     );
 }
 
@@ -1649,17 +1652,17 @@ sub expand_ordered_array {
 sub make_node_id {
     my ($tenant_id, $mac) = @_;
     $mac =~ tr/://d; #A faster way to delete a character
-    return ($tenant_id << 48) | hex($mac);
+    return (0 << 48) | hex($mac);
 }
 
 sub split_node_id {
     my ($node_id) = @_;
     my $tenant_id = $node_id >> 48;
     my $mac = clean_mac(sprintf("%012x",$node_id & 0x0000FFFFFFFFFFFF));
-    return ($tenant_id, $mac);
+    return (0, $mac);
 }
 
-=item os_detection -  check the os system
+=item os_detection -  check the os system inside container
 
 =cut
 
@@ -1669,6 +1672,19 @@ sub os_detection {
         return "debian";
     }elsif (-e '/etc/redhat-release') {
         return "rhel";
+    }
+}
+
+=item host_os_detection -  check the os system of the host
+
+=cut
+
+sub host_os_detection {
+    my $logger = get_logger();
+    if (defined($ENV{HOST_OS})) {
+        return $ENV{HOST_OS};
+    } else {
+        return os_detection;
     }
 }
 
@@ -1735,6 +1751,13 @@ sub resolve {
 
 sub random_mac {
     return clean_mac(unpack("h*", pack("S", int(rand(65536)))) . unpack("h*", pack("N", $$ + rand(2147352576))));
+}
+
+sub strip_path_for_git_storage {
+    my ($path) = @_;
+    $path =~ s|^$install_dir||g;
+    $path =~ s|^/||;
+    return $path;
 }
 
 =back

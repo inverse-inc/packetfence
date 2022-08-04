@@ -126,29 +126,43 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	giga_out_bytes := int64(rfc2869.AcctOutputGigawords_Get(r.Packet))
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
-	timestamp := rfc2869.EventTimestamp_Get(r.Packet)
-	if timestamp.IsZero() {
+	unique_session_id := h.accountingUniqueSessionId(r)
+	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
+	if err != nil {
 		timestamp = time.Now()
+	} else {
+		if timestamp.Before(time.Now().AddDate(0, 0, -1)) {
+			logError(
+				ctx,
+				fmt.Sprintf(
+					"[mac:%s, id:%d, timestamp:%s] skip packet timestamp is older than a day",
+					mac.String(),
+					unique_session_id,
+					timestamp.String(),
+				),
+			)
+			return
+		}
 	}
 
 	timestamp = timestamp.Truncate(h.TimeDuration)
 	node_id := mac.NodeId(uint16(switchInfo.TenantId))
-	unique_session_id := h.accountingUniqueSessionId(r)
-	if err := h.InsertBandwidthAccounting(
-		status,
-		node_id,
-		switchInfo.TenantId,
-		mac.String(),
-		unique_session_id,
-		timestamp,
-		in_bytes,
-		out_bytes,
-	); err != nil {
-		logError(ctx, "InsertBandwidthAccounting: "+err.Error())
-	}
+	if h.ProcessBandwidthAcct {
+		if err := h.InsertBandwidthAccounting(
+			status,
+			node_id,
+			mac.String(),
+			unique_session_id,
+			timestamp,
+			in_bytes,
+			out_bytes,
+		); err != nil {
+			logError(ctx, "InsertBandwidthAccounting: "+err.Error())
+		}
 
-	if status == rfc2866.AcctStatusType_Value_Stop {
-		h.CloseSession(node_id, unique_session_id)
+		if status == rfc2866.AcctStatusType_Value_Stop {
+			h.CloseSession(node_id, unique_session_id)
+		}
 	}
 
 	h.sendRadiusAccounting(r, switchInfo)
@@ -166,7 +180,7 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 	callingStation := rfc2865.CallingStationID_GetString(r.Packet)
 	mac, _ := mac.NewFromString(callingStation)
 	status := rfc2866.AcctStatusType_Get(r.Packet)
-	isUnreg, _ := h.IsUnreg(mac.String(), switchInfo.TenantId)
+	isUnreg, _ := h.IsUnreg(mac.String())
 	ns := h.getNodeSessionFromCache(unique_session)
 	if status == rfc2866.AcctStatusType_Value_Stop {
 		defer h.deleteNodeSessionFromCache(unique_session)
@@ -181,15 +195,15 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 			}
 		}
 
-		ok, err := h.NodeTimeBalanceSubtract(switchInfo.TenantId, mac, timebalance)
+		ok, err := h.NodeTimeBalanceSubtract(mac, timebalance)
 		if err != nil {
 			logError(ctx, "NodeTimeBalanceSubtract: "+err.Error())
 			return
 		}
 
 		if ok {
-			if ok, err = h.IsNodeTimeBalanceZero(switchInfo.TenantId, mac); ok {
-				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+			if ok, err = h.IsNodeTimeBalanceZero(mac); ok {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}); err != nil {
 					logError(ctx, "IsNodeTimeBalanceZero: "+err.Error())
 				}
 			}
@@ -216,13 +230,13 @@ func (h *PfAcct) handleTimeBalance(r *radius.Request, switchInfo *SwitchInfo, un
 		}
 
 		if timebalance > 0 {
-			ok, err := h.SoftNodeTimeBalanceUpdate(switchInfo.TenantId, mac, timebalance)
+			ok, err := h.SoftNodeTimeBalanceUpdate(mac, timebalance)
 			if err != nil {
 				logError(ctx, "SoftNodeTimeBalanceUpdate: "+err.Error())
 				return
 			}
 			if ok {
-				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}, switchInfo.TenantId); err != nil {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_TIME}); err != nil {
 					logError(ctx, "Notify trigger_security_event: "+err.Error())
 				}
 			}
@@ -240,26 +254,26 @@ func (h *PfAcct) handleBandwidthBalance(r *radius.Request, switchInfo *SwitchInf
 	mac, _ := mac.NewFromString(callingStation)
 	status := rfc2866.AcctStatusType_Get(r.Packet)
 	if status == rfc2866.AcctStatusType_Value_Stop {
-		ok, err := h.NodeBandwidthBalanceSubtract(switchInfo.TenantId, mac, balance)
+		ok, err := h.NodeBandwidthBalanceSubtract(mac, balance)
 		if err != nil {
 			logError(ctx, "NodeBandwidthBalanceSubtract: "+err.Error())
 			return
 		}
 		if ok {
-			if ok, err = h.IsNodeBandwidthBalanceZero(switchInfo.TenantId, mac); ok {
-				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}, switchInfo.TenantId); err != nil {
+			if ok, err = h.IsNodeBandwidthBalanceZero(mac); ok {
+				if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}); err != nil {
 					logError(ctx, "IsNodeBandwidthBalanceZero: "+err.Error())
 				}
 			}
 		}
 	} else {
-		ok, err := h.SoftNodeBandwidthBalanceUpdate(switchInfo.TenantId, mac, balance)
+		ok, err := h.SoftNodeBandwidthBalanceUpdate(mac, balance)
 		if err != nil {
 			logError(ctx, "SoftNodeBandwidthBalanceUpdate: "+err.Error())
 			return
 		}
 		if ok {
-			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}, switchInfo.TenantId); err != nil {
+			if err := h.AAAClient.Notify(ctx, "trigger_security_event", []interface{}{"type", TRIGGER_TYPE_ACCOUNTING, "mac", mac.String(), "tid", ACCOUNTING_POLICY_BANDWIDTH}); err != nil {
 				logError(ctx, "Notify trigger_security_event: "+err.Error())
 			}
 		}
@@ -292,7 +306,7 @@ func (h *PfAcct) sendRadiusAccounting(r *radius.Request, switchInfo *SwitchInfo)
 		logWarn(ctx, fmt.Sprintf("Empty NAS-IP-Address, using the source IP address of the packet (%s)", attr["NAS-IP-Address"]))
 	}
 
-	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr, switchInfo.TenantId); err != nil {
+	if _, err := h.AAAClient.Call(ctx, "radius_accounting", attr); err != nil {
 		logError(ctx, err.Error())
 	}
 }
@@ -321,7 +335,12 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 
 	for _, adresse := range sharedutils.RemoveDuplicates(ipRADIUS) {
 
-		addr, err := net.ResolveUDPAddr("udp4", adresse+":1813")
+		port := "1813"
+		if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
+			port = "1823"
+		}
+
+		addr, err := net.ResolveUDPAddr("udp4", adresse+":"+port)
 		if err != nil {
 			panic(err)
 		}
@@ -358,7 +377,8 @@ const (
 )
 
 func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []byte) ([]byte, context.Context, error) {
-	ip := remoteAddr.(*net.UDPAddr).IP.String()
+	srcIpAddr := remoteAddr.(*net.UDPAddr).IP.String()
+	var nasIpAddr string
 	var err error
 	var macStr string
 	err = checkPacket(raw)
@@ -385,17 +405,15 @@ func (h *PfAcct) RADIUSSecret(ctx context.Context, remoteAddr net.Addr, raw []by
 		}
 	}
 
-	if h.isProxied {
-		if attr, ok = attrs.Lookup(rfc2865.NASIPAddress_Type); ok {
-			if val, err := radius.IPAddr(attr); err == nil {
-				ip = val.String()
-			}
+	if attr, ok = attrs.Lookup(rfc2865.NASIPAddress_Type); ok {
+		if val, err := radius.IPAddr(attr); err == nil {
+			nasIpAddr = val.String()
 		}
 	}
 
-	switchInfo, err := h.SwitchLookup(macStr, ip)
+	switchInfo, err := h.SwitchLookup(macStr, srcIpAddr, nasIpAddr)
 	if err != nil {
-		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+ip+"' not found :"+err.Error())
+		logError(h.LoggerCtx, "RADIUSSecret: Switch '"+srcIpAddr+"' not found :"+err.Error())
 		return nil, nil, err
 	}
 
@@ -570,28 +588,28 @@ func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
 
 func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.switchLookup, `
-        SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
-        UNION
-          SELECT nasname, secret, tenant_id, unique_session_attributes FROM radius_nas WHERE nasname = ?
-        UNION
-        (
-            SELECT nasname, secret, tenant_id, unique_session_attributes from radius_nas
-            WHERE INET_ATON(?) BETWEEN start_ip AND end_ip
-            ORDER BY range_length LIMIT 1
-        ) LIMIT 1;
+		SELECT nasname, secret, unique_session_attributes
+		FROM (
+			SELECT nasname, secret, unique_session_attributes, 0 as o FROM radius_nas WHERE nasname = ?
+			UNION ALL
+			( SELECT nasname, secret, unique_session_attributes, 1 as o from radius_nas WHERE INET_ATON(?) BETWEEN start_ip AND end_ip order by range_length limit 1)
+			UNION ALL
+			( SELECT nasname, secret, unique_session_attributes , 2 as o from radius_nas WHERE INET_ATON(?) BETWEEN start_ip AND end_ip order by range_length limit 1)
+
+		) as x ORDER BY o LIMIT 1;
 	`)
 
 	setupStmt(db, &rs.insertBandwidthAccountingStart, `
-        INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
-            SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
+        INSERT INTO bandwidth_accounting (node_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
+            SELECT ? as node_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
                 SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
             ) AS y
         ON DUPLICATE KEY UPDATE in_bytes = VALUES(in_bytes), out_bytes = VALUES(out_bytes), last_updated = NOW();
 	`)
 
 	setupStmt(db, &rs.insertBandwidthAccountingUpdate, `
-        INSERT INTO bandwidth_accounting (node_id, tenant_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
-            SELECT ? as node_id, ? AS tenant_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
+        INSERT INTO bandwidth_accounting (node_id, mac, unique_session_id, time_bucket, in_bytes, out_bytes, source_type)
+            SELECT ? as node_id, ? AS mac, ? AS unique_session_id, ? AS time_bucket, in_bytes, out_bytes, "radius" FROM (
                 SELECT * FROM (
                     SELECT GREATEST(? - IFNULL(SUM(in_bytes), 0), 0) AS in_bytes, GREATEST(? - IFNULL(SUM(out_bytes), 0), 0) AS out_bytes, COUNT(1) AS entries FROM bandwidth_accounting WHERE node_id = ? AND unique_session_id = ? AND time_bucket != ?
                 ) AS sum_bytes WHERE in_bytes !=0 OR out_bytes != 0 OR entries = 0
@@ -600,39 +618,39 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	`)
 
 	setupStmt(db, &rs.softNodeTimeBalanceUpdate, `
-        UPDATE node set time_balance = 0 WHERE tenant_id = ? AND mac = ? AND time_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
+        UPDATE node set time_balance = 0 WHERE mac = ? AND time_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate);
 	`)
 
 	setupStmt(db, &rs.softNodeBandwidthBalanceUpdate, `
-        UPDATE node set bandwidth_balance = 0 WHERE tenant_id = ? AND mac = ? AND bandwidth_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+        UPDATE node set bandwidth_balance = 0 WHERE mac = ? AND bandwidth_balance <= ? AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
 	setupStmt(db, &rs.nodeTimeBalanceSubtract, `
-        UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+        UPDATE node set time_balance = GREATEST(CAST(time_balance AS SIGNED) - ?, 0) WHERE mac = ? AND time_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
 	setupStmt(db, &rs.isUnreg, `
-        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND status = 'unreg'
+        SELECT 1 FROM node WHERE mac = ? AND status = 'unreg'
 	`)
 
 	setupStmt(db, &rs.nodeBandwidthBalanceSubtract, `
-        UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
+        UPDATE node set bandwidth_balance = GREATEST(CAST(bandwidth_balance AS SIGNED) - ?, 0) WHERE mac = ? AND bandwidth_balance IS NOT NULL AND (status = "reg" || DATE_SUB(NOW(), INTERVAL 5 MINUTE) > regdate );
 	`)
 
 	setupStmt(db, &rs.nodeTimeBalance, `
-        SELECT time_balance FROM node WHERE tenant_id = ? AND mac = ? AND time_balance IS NOT NULL;
+        SELECT time_balance FROM node WHERE mac = ? AND time_balance IS NOT NULL;
 	`)
 
 	setupStmt(db, &rs.nodeBandwidthBalance, `
-        SELECT bandwidth_balance FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance IS NOT NULL;
+        SELECT bandwidth_balance FROM node WHERE mac = ? AND bandwidth_balance IS NOT NULL;
 	`)
 
 	setupStmt(db, &rs.isNodeTimeBalanceZero, `
-        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND time_balance = 0;
+        SELECT 1 FROM node WHERE mac = ? AND time_balance = 0;
 	`)
 
 	setupStmt(db, &rs.isNodeBandwidthBalanceZero, `
-        SELECT 1 FROM node WHERE tenant_id = ? AND mac = ? AND bandwidth_balance = 0;
+        SELECT 1 FROM node WHERE mac = ? AND bandwidth_balance = 0;
 	`)
 
 	setupStmt(db, &rs.closeSession, `
@@ -641,9 +659,9 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 
 }
 
-func (rs *RadiusStatements) IsUnreg(mac string, tenant int) (bool, error) {
+func (rs *RadiusStatements) IsUnreg(mac string) (bool, error) {
 	found := 0
-	err := rs.isUnreg.QueryRow(tenant, mac).Scan(&found)
+	err := rs.isUnreg.QueryRow(mac).Scan(&found)
 	return found == 1, err
 }
 
@@ -656,14 +674,14 @@ func (rs *RadiusStatements) CloseSession(node_id, unique_session_id uint64) (int
 	return result.RowsAffected()
 }
 
-func (rs *RadiusStatements) IsNodeTimeBalanceZero(tenant_id int, mac mac.Mac) (bool, error) {
+func (rs *RadiusStatements) IsNodeTimeBalanceZero(mac mac.Mac) (bool, error) {
 	found := 0
-	err := rs.isNodeTimeBalanceZero.QueryRow(tenant_id, mac).Scan(&found)
+	err := rs.isNodeTimeBalanceZero.QueryRow(mac).Scan(&found)
 	return found == 1, err
 }
 
-func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
-	result, err := rs.softNodeTimeBalanceUpdate.Exec(tenant_id, mac.String(), balance)
+func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.softNodeTimeBalanceUpdate.Exec(mac.String(), balance)
 	if err != nil {
 		return false, err
 	}
@@ -675,8 +693,8 @@ func (rs *RadiusStatements) SoftNodeTimeBalanceUpdate(tenant_id int, mac mac.Mac
 	return true, nil
 }
 
-func (rs *RadiusStatements) NodeTimeBalanceSubtract(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
-	result, err := rs.nodeTimeBalanceSubtract.Exec(balance, tenant_id, mac.String())
+func (rs *RadiusStatements) NodeTimeBalanceSubtract(mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.nodeTimeBalanceSubtract.Exec(balance, mac.String())
 	if err != nil {
 		return false, err
 	}
@@ -688,14 +706,14 @@ func (rs *RadiusStatements) NodeTimeBalanceSubtract(tenant_id int, mac mac.Mac, 
 	return true, nil
 }
 
-func (rs *RadiusStatements) IsNodeBandwidthBalanceZero(tenant_id int, mac mac.Mac) (bool, error) {
+func (rs *RadiusStatements) IsNodeBandwidthBalanceZero(mac mac.Mac) (bool, error) {
 	found := 0
-	err := rs.isNodeBandwidthBalanceZero.QueryRow(tenant_id, mac).Scan(&found)
+	err := rs.isNodeBandwidthBalanceZero.QueryRow(mac).Scan(&found)
 	return found == 1, err
 }
 
-func (rs *RadiusStatements) SoftNodeBandwidthBalanceUpdate(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
-	result, err := rs.softNodeBandwidthBalanceUpdate.Exec(tenant_id, mac.String(), balance)
+func (rs *RadiusStatements) SoftNodeBandwidthBalanceUpdate(mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.softNodeBandwidthBalanceUpdate.Exec(mac.String(), balance)
 	if err != nil {
 		return false, err
 	}
@@ -707,8 +725,8 @@ func (rs *RadiusStatements) SoftNodeBandwidthBalanceUpdate(tenant_id int, mac ma
 	return true, nil
 }
 
-func (rs *RadiusStatements) NodeBandwidthBalanceSubtract(tenant_id int, mac mac.Mac, balance int64) (bool, error) {
-	result, err := rs.nodeBandwidthBalanceSubtract.Exec(balance, tenant_id, mac.String())
+func (rs *RadiusStatements) NodeBandwidthBalanceSubtract(mac mac.Mac, balance int64) (bool, error) {
+	result, err := rs.nodeBandwidthBalanceSubtract.Exec(balance, mac.String())
 	if err != nil {
 		return false, err
 	}
@@ -726,14 +744,14 @@ type SwitchInfo struct {
 	RadiusAttributes db.CsvArray
 }
 
-func (h *PfAcct) SwitchLookup(mac, ip string) (*SwitchInfo, error) {
-	key := mac + ":" + ip
+func (h *PfAcct) SwitchLookup(mac, srcIp, nasIp string) (*SwitchInfo, error) {
+	key := mac + ":" + srcIp + ":" + nasIp
 	if item, found := h.SwitchInfoCache.Get(key); found {
 		return item.(*SwitchInfo), nil
 	}
 
 	switchInfo := &SwitchInfo{}
-	err := h.switchLookup.QueryRow(mac, ip, ip).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.TenantId, &switchInfo.RadiusAttributes)
+	err := h.switchLookup.QueryRow(mac, srcIp, nasIp).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.RadiusAttributes)
 	if err != nil {
 		return nil, err
 	}
@@ -754,13 +772,12 @@ func (h *PfAcct) updateTimeBalance(isUnreg bool, status rfc2866.AcctStatusType, 
 	return timebalance
 }
 
-func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_id uint64, tenant_id int, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
+func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_id uint64, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
 	var err error
 	if status == rfc2866.AcctStatusType_Value_Start {
 		h.SetAcctSession(node_id, unique_session, &AcctSession{in_bytes: in_bytes, out_bytes: out_bytes})
 		_, err = h.insertBandwidthAccountingStart.Exec(
 			node_id,
-			tenant_id,
 			mac,
 			unique_session,
 			bucket,
@@ -779,7 +796,6 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 		h.SetAcctSession(node_id, unique_session, &AcctSession{in_bytes: in_bytes, out_bytes: out_bytes})
 		_, err = h.insertBandwidthAccountingUpdate.Exec(
 			node_id,
-			tenant_id,
 			mac,
 			unique_session,
 			bucket,

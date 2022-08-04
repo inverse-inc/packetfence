@@ -41,33 +41,18 @@ export const importFields = [
     value: 'type',
     text: i18n.t('Type'),
     types: [fieldType.SUBSTRING],
-    required: false,
-    /*
-    validators: {
-      [i18n.t('Switch type does not exist.')]: switchTypeExists
-    }
-    */
+    required: false
   },
   {
     value: 'mode',
     text: i18n.t('Mode'),
     types: [fieldType.SUBSTRING],
-    required: false,
-    /*
-    validators: {
-      [i18n.t('Switch mode does not exist.')]: switchModeExists
-    }
-    */
+    required: false
   },
   {
     value: 'group',
     text: i18n.t('Switch Group'),
     types: [fieldType.SUBSTRING],
-    required: false,
-    /*
-    validators: {
-      [i18n.t('Switch group does not exist.')]: switchGroupExists
-    }
-    */
+    required: false
   }
 ]

@@ -752,7 +752,7 @@ network_graph_search_builder
 =cut
 
 sub network_graph_search_builder {
-    return pf::UnifiedApi::Search::Builder::NodesNetworkGraph->new(); 
+    return pf::UnifiedApi::Search::Builder::NodesNetworkGraph->new();
 }
 
 =head2 pf_network_graph_node
@@ -1176,6 +1176,13 @@ sub update_data {
 
     $self->ensure_person_exists($data);
     return $data;
+}
+
+sub per_device_class {
+    my ($self) = @_;
+    return $self->_db_execute_response(
+        "SELECT device_class, COUNT(1) as count from node WHERE device_class IS NOT NULL GROUP BY device_class;"
+    );
 }
 
 =head1 AUTHOR

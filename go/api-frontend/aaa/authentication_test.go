@@ -11,7 +11,7 @@ import (
 func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	backend := NewMemTokenBackend(1*time.Second, 1*time.Second)
+	backend := NewMemTokenBackend(1*time.Second, 1*time.Second, []string{})
 	tam := NewTokenAuthenticationMiddleware(backend)
 	token := "t-to-the-o-to-the-ken"
 
@@ -41,7 +41,7 @@ func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 	}
 
 	// Test token expiration extension and max expiration
-	backend = NewMemTokenBackend(1*time.Second, 5*time.Second)
+	backend = NewMemTokenBackend(1*time.Second, 5*time.Second, []string{})
 	tam = NewTokenAuthenticationMiddleware(backend)
 
 	backend.StoreTokenInfo(token, &TokenInfo{})
@@ -88,7 +88,7 @@ func TestTokenAuthenticationMiddlewareIsAuthenticated(t *testing.T) {
 func TestTokenAuthenticationMiddlewareLogin(t *testing.T) {
 	ctx := log.LoggerNewContext(context.Background())
 
-	backend := NewMemTokenBackend(1*time.Second, 1*time.Second)
+	backend := NewMemTokenBackend(1*time.Second, 1*time.Second, []string{})
 	tam := NewTokenAuthenticationMiddleware(backend)
 
 	tam.AddAuthenticationBackend(NewMemAuthenticationBackend(

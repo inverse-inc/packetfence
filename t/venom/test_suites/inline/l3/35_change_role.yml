@@ -15,8 +15,7 @@ testcases:
        "id": "{{.inline_l3.node.macaddress}}",
        "category": "guest",
        "category_id": 2,
-       "mac": "{{.inline_l3.node.macaddress}}",
-       "tenant_id": 1
+       "mac": "{{.inline_l3.node.macaddress}}"
      }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"

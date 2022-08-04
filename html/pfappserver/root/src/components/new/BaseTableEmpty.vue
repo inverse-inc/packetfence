@@ -1,6 +1,6 @@
 <template>
-    <b-container class="my-5">
-        <b-row class="justify-content-md-center text-secondary">
+    <b-container class="d-flex align-items-center justify-content-md-center">
+        <b-row class="py-5 justify-content-md-center text-secondary">
             <b-col cols="12" md="auto">
                 <icon v-if="isLoading" name="circle-notch" scale="1.5" spin></icon>
                 <b-media v-else>
@@ -27,6 +27,9 @@ const props = {
     icon: {
       type: String,
       default: 'search'
+    },
+    height: {
+      type: String
     }
 }
 

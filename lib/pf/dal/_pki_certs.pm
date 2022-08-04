@@ -57,6 +57,9 @@ BEGIN {
         serial_number
         dns_names
         ip_addresses
+        scep
+        alert
+        subject
     );
 
     %DEFAULTS = (
@@ -82,6 +85,9 @@ BEGIN {
         serial_number => undef,
         dns_names => undef,
         ip_addresses => undef,
+        scep => '0',
+        alert => '0',
+        subject => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -107,6 +113,9 @@ BEGIN {
         serial_number
         dns_names
         ip_addresses
+        scep
+        alert
+        subject
     );
 
     %FIELDS_META = (
@@ -117,19 +126,19 @@ BEGIN {
             is_nullable => 0,
         },
         created_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         updated_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         deleted_at => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -225,13 +234,13 @@ BEGIN {
             is_nullable => 1,
         },
         valid_until => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         date => {
-            type => 'TIMESTAMP',
+            type => 'DATETIME',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -249,6 +258,24 @@ BEGIN {
             is_nullable => 1,
         },
         ip_addresses => {
+            type => 'VARCHAR',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        scep => {
+            type => 'TINYINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        alert => {
+            type => 'TINYINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
+        subject => {
             type => 'VARCHAR',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -285,6 +312,9 @@ BEGIN {
         pki_certs.serial_number
         pki_certs.dns_names
         pki_certs.ip_addresses
+        pki_certs.scep
+        pki_certs.alert
+        pki_certs.subject
     );
 
 }

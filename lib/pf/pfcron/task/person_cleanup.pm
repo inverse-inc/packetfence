@@ -16,8 +16,6 @@ use strict;
 use warnings;
 use Moose;
 use pf::person;
-use pf::dal::tenant;
-use pf::config::tenant;
 use pf::error qw(is_error);
 extends qw(pf::pfcron::task);
 
@@ -28,17 +26,7 @@ run the person cleanup task
 =cut
 
 sub run {
-    my ($status, $iter) = pf::dal::tenant->search(
-        -with_class => undef,
-    );
-    if (is_error($status)) {
-        return;
-    }
-
-    while (my $t = $iter->next) {
-        local $pf::config::tenant::CURRENT_TENANT = $t->{id};
-        person_cleanup();
-    }
+    person_cleanup();
 }
 
 =head1 AUTHOR

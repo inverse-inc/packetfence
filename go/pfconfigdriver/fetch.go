@@ -284,7 +284,7 @@ func createQuery(ctx context.Context, o PfconfigObject) Query {
 
 	query.basens = metadataFromField(ctx, o, "PfconfigNS")
 
-	if metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.basens) {
+	if GetClusterSummary(ctx).ClusterEnabled == 1 && metadataFromField(ctx, o, "PfconfigHostnameOverlay") == "yes" && !nsHasOverlayRe.MatchString(query.basens) {
 		query.basens = query.basens + "(" + myHostname + ")"
 	}
 

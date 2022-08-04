@@ -16,7 +16,7 @@ set mailserver [% ALERTING_CONF.smtpserver %]
 [% END %]
 
 set mail-format {
-    from: monit@$HOST
+    from: [% SENDER %]
     subject: [% SUBJECT_IDENTIFIER %] | Monit Alert -- $EVENT on resource '$SERVICE'
     message:
 Date:        $DATE

@@ -235,6 +235,7 @@ Moose class.
 
 use Moose;
 use pf::log;
+use pf::util;
 
 =head1 METHODS
 
@@ -250,12 +251,7 @@ sub _checkOs {
     # Default to undef
     my $os;
 
-    # RedHat and derivatives
-    $os = "RHEL" if ( -e "/etc/redhat-release" );
-    # Debian and derivatives
-    $os = "Debian" if ( -e "/etc/debian_version" );
-
-    return $os;
+    return ucfirst(host_os_detection());
 }
 
 =head2 getSystem
@@ -305,11 +301,11 @@ use pf::log;
 requires qw(writeNetworkConfigs);
 
 
-package pfappserver::Model::Config::System::RHEL;
+package pfappserver::Model::Config::System::Rhel;
 
 =head3 NAME
 
-pfappserver::Model::Config::System::RHEL
+pfappserver::Model::Config::System::Rhel
 
 =head3 DESCRIPTION
 

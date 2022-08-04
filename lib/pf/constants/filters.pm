@@ -95,6 +95,7 @@ our @NODE_INFO_FIELDS = qw(
   node_info.pid
   node_info.machine_account
   node_info.category
+  node_info.category_id
   node_info.mac
   node_info.last_arp
   node_info.lastskip
@@ -113,7 +114,6 @@ our @NODE_INFO_FIELDS = qw(
 );
 
 our @SWITCH_FIELDS = qw(
-  switch._type
   switch._ExternalPortalEnforcement
   switch._RoleMap
   switch._SNMPAuthPasswordRead
@@ -132,12 +132,12 @@ our @SWITCH_FIELDS = qw(
   switch._SNMPPrivProtocolRead
   switch._SNMPPrivProtocolTrap
   switch._SNMPPrivProtocolWrite
+  switch._SNMPUseConnector
   switch._SNMPUserNameRead
   switch._SNMPUserNameTrap
   switch._SNMPUserNameWrite
   switch._SNMPVersion
   switch._SNMPVersionTrap
-  switch._TenantId
   switch._UrlMap
   switch._VlanMap
   switch._VoIPEnabled
@@ -155,9 +155,11 @@ our @SWITCH_FIELDS = qw(
   switch._macSearchesMaxNb
   switch._macSearchesSleepInterval
   switch._mode
+  switch._radiusDeauthUseConnector
   switch._roles
   switch._switchIp
   switch._switchMac
+  switch._type
   switch._uplink
   switch._useCoA
   switch._vlans

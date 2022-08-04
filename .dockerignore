@@ -1,4 +1,6 @@
 # Directories we don't need to send to the build context
+html/pfappserver/root/node_modules
 lib_perl/
 logs/
 var/
+.git/

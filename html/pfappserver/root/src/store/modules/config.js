@@ -2,6 +2,7 @@
  * "config" store module
  */
 import Vue from 'vue'
+import { types } from '@/store'
 import apiCall from '@/utils/api'
 import duration from '@/utils/duration'
 import i18n from '@/utils/locale'
@@ -94,14 +95,14 @@ const api = {
   getBillingTiers () {
     return apiCall({ url: 'config/billing_tiers', method: 'get' })
   },
-  getCheckup () {
-    return apiCall({ url: 'config/checkup', method: 'get' })
-  },
   getClouds () {
     return apiCall({ url: 'config/clouds', method: 'get' })
   },
   getConnectionProfiles () {
     return apiCall({ url: 'config/connection_profiles', method: 'get' })
+  },
+  getConnectors () {
+    return apiCall({ url: 'config/connectors', method: 'get' })
   },
   getDomains () {
     return apiCall({ url: 'config/domains', method: 'get' })
@@ -166,8 +167,8 @@ const api = {
   getRadiusTlss () {
     return apiCall({ url: 'config/radiusd/tls_profiles', method: 'get' })
   },
-  getRealms (tenantId) {
-    return apiCall({ url: 'config/realms', method: 'get', headers: { 'X-PacketFence-Tenant-Id': tenantId } })
+  getRealms () {
+    return apiCall({ url: 'config/realms', method: 'get' })
   },
   getRemoteConnectionProfiles () {
     return apiCall({ url: 'config/remote_connection_profiles', method: 'get' })
@@ -211,17 +212,11 @@ const api = {
   getSyslogParsers () {
     return apiCall({ url: 'config/syslog_parsers', method: 'get' })
   },
-  getTenants () {
-    return apiCall({ url: 'tenants', method: 'get', params: { limit: 1000 } })
-  },
   getTrafficShapingPolicies () {
     return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
   },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
-  },
-  postFixPermissions () {
-    return apiCall({ url: 'config/fix_permissions', method: 'post' })
   },
   flattenCondition: (data) => {
     return apiCall.postQuiet('config/flatten_condition', data).then(response => {
@@ -237,13 +232,6 @@ const api = {
       throw err
     })
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  DELETING: 'deleting',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 const initialState = () => { // set intitial states to `false` (not `[]` or `{}`) to avoid infinite loop when response is empty.
@@ -300,11 +288,12 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     baseWebServicesStatus: '',
     billingTiers: false,
     billingTiersStatus: '',
-    checkupStatus: '',
     clouds: false,
     cloudsStatus: '',
     connectionProfiles: false,
     connectionProfilesStatus: '',
+    connectors: false,
+    connectorsStatus: '',
     domains: false,
     domainsStatus: '',
     eventLoggers: false,
@@ -313,7 +302,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     filterEnginesStatus: '',
     firewalls: false,
     firewallsStatus: '',
-    fixPermissionsStatus: '',
     floatingDevices: false,
     floatingDevicesStatus: '',
     interfaces: false,
@@ -374,8 +362,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     syslogForwardersStatus: '',
     syslogParsers: false,
     syslogParsersStatus: '',
-    tenants: false,
-    tenantsStatus: '',
     trafficShapingPolicies: false,
     trafficShapingPoliciesStatus: '',
     wrixLocations: false,
@@ -486,14 +472,14 @@ const getters = {
   isLoadingBillingTiers: state => {
     return state.billingTiersStatus === types.LOADING
   },
-  isLoadingCheckup: state => {
-    return state.checkupStatus === types.LOADING
-  },
   isLoadingClouds: state => {
     return state.cloudsStatus === types.LOADING
   },
   isLoadingConnectionProfiles: state => {
     return state.connectionProfilesStatus === types.LOADING
+  },
+  isLoadingConnectors: state => {
+    return state.connectorsStatus === types.LOADING
   },
   isLoadingSelfServices: state => {
     return state.selfServicesStatus === types.LOADING
@@ -509,9 +495,6 @@ const getters = {
   },
   isLoadingFirewalls: state => {
     return state.firewallsStatus === types.LOADING
-  },
-  isLoadingFixPermissions: state => {
-    return state.fixPermissionsStatus === types.LOADING
   },
   isLoadingFloatingDevices: state => {
     return state.floatingDevicesStatus === types.LOADING
@@ -599,9 +582,6 @@ const getters = {
   },
   isLoadingSyslogParsers: state => {
     return state.syslogParsersStatus === types.LOADING
-  },
-  isLoadingTenants: state => {
-    return state.tenantsStatus === types.LOADING
   },
   isLoadingTrafficShapingPolicies: state => {
     return state.trafficShapingPoliciesStatus === types.LOADING
@@ -699,12 +679,6 @@ const getters = {
         return { value: item.id, text: item.description }
       })
   },
-  tenantsList: state => {
-    if (!state.tenants) return []
-    return state.tenants.map((item) => {
-      return { value: item.id, text: item.name }
-    })
-  },
   securityEventsList: state => {
     return helpers.sortSecurityEvents(state.securityEvents).filter(securityEvent => securityEvent.enabled === 'Y').map((item) => {
       return { value: item.id, text: item.desc }
@@ -716,32 +690,6 @@ const getters = {
 }
 
 const actions = {
-  checkup: ({ getters, commit }) => {
-    if (getters.isLoadingCheckup) {
-      return
-    }
-    commit('CHECKUP_UPDATED', types.LOADING)
-    return api.getCheckup().then(response => {
-      commit('CHECKUP_UPDATED', types.SUCCESS)
-      return response.data.items
-    }).catch((err) => {
-      commit('CHECKUP_UPDATED', types.ERROR)
-      throw err
-    })
-  },
-  fixPermissions: ({ getters, commit }) => {
-    if (getters.isLoadingFixPermissions) {
-      return
-    }
-    commit('FIX_PERMISSIONS_UPDATED', types.LOADING)
-    return api.postFixPermissions().then(response => {
-      commit('FIX_PERMISSIONS_UPDATED', types.SUCCESS)
-      return response.data
-    }).catch((err) => {
-      commit('FIX_PERMISSIONS_UPDATED', types.ERROR)
-      throw err
-    })
-  },
   getAdminRoles: ({ state, getters, commit }) => {
     if (getters.isLoadingAdminRoles) {
       return Promise.resolve(state.adminRoles)
@@ -1128,7 +1076,7 @@ const actions = {
     }
     if (!state.clouds) {
       commit('CLOUDS_REQUEST')
-      return api.clouds().then(response => {
+      return api.getClouds().then(response => {
         commit('CLOUDS_UPDATED', response.data.items)
         return state.clouds
       })
@@ -1148,6 +1096,20 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.connectionProfiles)
+    }
+  },
+  getConnectors: ({ state, getters, commit }) => {
+    if (getters.isLoadingConnectors) {
+      return Promise.resolve(state.connectors)
+    }
+    if (!state.connectors) {
+      commit('CONNECTORS_REQUEST')
+      return api.getConnectors().then(response => {
+        commit('CONNECTORS_UPDATED', response.data.items)
+        return state.connectors
+      })
+    } else {
+      return Promise.resolve(state.connectors)
     }
   },
   getSelfServices: ({ state, getters, commit }) => {
@@ -1476,18 +1438,18 @@ const actions = {
       return Promise.resolve(state.radiusTlss)
     }
   },
-  getRealms: ({ state, getters, commit }, tenantId) => {
+  getRealms: ({ state, getters, commit }) => {
     if (getters.isLoadingRealms) {
-      return Promise.resolve(state.realms[tenantId])
+      return Promise.resolve(state.realms)
     }
-    if (!state.realms[tenantId]) {
-      commit('REALMS_REQUEST', tenantId)
-      return api.getRealms(tenantId).then(response => {
-        commit('REALMS_UPDATED', { tenantId, items: response.data.items })
-        return state.realms[tenantId]
+    if (!state.realms) {
+      commit('REALMS_REQUEST')
+      return api.getRealms().then(response => {
+        commit('REALMS_UPDATED', response.data.items)
+        return state.realms
       })
     } else {
-      return Promise.resolve(state.realms[tenantId])
+      return Promise.resolve(state.realms)
     }
   },
   resetRealms: ({ state, commit }) => {
@@ -1686,25 +1648,6 @@ const actions = {
       })
     } else {
       return Promise.resolve(state.syslogParsers)
-    }
-  },
-  getTenants: ({ state, getters, commit }) => {
-    if (getters.isLoadingTenants) {
-      return Promise.resolve(state.tenants)
-    }
-    if (acl.$can('read', 'system')) {
-      if (!state.tenants) {
-        commit('TENANTS_REQUEST')
-        return api.getTenants().then(response => {
-          commit('TENANTS_UPDATED', response.data.items)
-          return state.tenants
-        })
-      } else {
-        return Promise.resolve(state.tenants)
-      }
-    } else {
-      commit('TENANTS_UPDATED', [])
-      return state.tenants
     }
   },
   getTrafficShapingPolicies: ({ state, getters, commit }) => {
@@ -1939,9 +1882,6 @@ const mutations = {
     state.billingTiers = billingTiers
     state.billingTiersStatus = types.SUCCESS
   },
-  CHECKUP_UPDATED: (state, status) => {
-    state.checkupStatus = status
-  },
   CLOUDS_REQUEST: (state) => {
     state.cloudsStatus = types.LOADING
   },
@@ -1955,6 +1895,13 @@ const mutations = {
   CONNECTION_PROFILES_UPDATED: (state, connectionProfiles) => {
     state.connectionProfiles = connectionProfiles
     state.connectionProfilesStatus = types.SUCCESS
+  },
+  CONNECTORS_REQUEST: (state) => {
+    state.connectorsStatus = types.LOADING
+  },
+  CONNECTORS_UPDATED: (state, connectors) => {
+    state.connectors = connectors
+    state.connectorsStatus = types.SUCCESS
   },
   DOMAINS_REQUEST: (state) => {
     state.domainsStatus = types.LOADING
@@ -1989,9 +1936,6 @@ const mutations = {
   FIREWALLS_UPDATED: (state, firewalls) => {
     state.firewalls = firewalls
     state.firewallsStatus = types.SUCCESS
-  },
-  FIX_PERMISSIONS_UPDATED: (state, status) => {
-    state.fixPermissionsStatus = status
   },
   FLOATING_DEVICES_REQUEST: (state) => {
     state.floatingDevicesStatus = types.LOADING
@@ -2122,13 +2066,13 @@ const mutations = {
     state.radiusTlss = eaps
     state.radiusTlssStatus = types.SUCCESS
   },
-  REALMS_REQUEST: (state, tenantId) => {
-    if (!state.realms[tenantId])
-      Vue.set(state.realms, tenantId, [])
+  REALMS_REQUEST: (state) => {
+    if (!state.realms)
+      Vue.set(state, 'realms', [])
     state.realmsStatus = types.LOADING
   },
-  REALMS_UPDATED: (state, { tenantId, items }) => {
-    Vue.set(state.realms, tenantId, items)
+  REALMS_UPDATED: (state, items) => {
+    Vue.set(state, 'realms', items)
     state.realmsStatus = types.SUCCESS
   },
   REALMS_RESET: (state) => {
@@ -2228,13 +2172,6 @@ const mutations = {
     state.syslogParsers = syslogParsers
     state.syslogParsersStatus = types.SUCCESS
   },
-  TENANTS_REQUEST: (state) => {
-    state.tenantsStatus = types.LOADING
-  },
-  TENANTS_UPDATED: (state, tenants) => {
-    state.tenants = tenants
-    state.tenantsStatus = types.SUCCESS
-  },
   TRAFFIC_SHAPING_POLICIES_REQUEST: (state) => {
     state.trafficShapingPoliciesStatus = types.LOADING
   },
@@ -2249,8 +2186,8 @@ const mutations = {
     state.wrixLocations = wrixLocations
     state.wrixLocationsStatus = types.SUCCESS
   },
-  // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {
+    // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
 }

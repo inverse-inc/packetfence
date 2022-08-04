@@ -33,7 +33,7 @@ Important variables:
   * `wsrep_last_committed`: Sequence number of the most recently committed transaction. You can identify the most advanced node with this value.
   * `wsrep_local_state_comment`: Current sync state of the cluster. A healthy state is 'Synced'. Refer to the Galera cluster documentation for the meaning of the other values this can have.
 
-In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb_error.log`)
+In order for the cluster to be considered healthy, all nodes must be listed under `wsrep_incoming_addresses` and `wsrep_local_state_comment` must be `Synced`. Otherwise look in the MariaDB log ([filename]`/usr/local/pf/logs/mariadb.log`)
 
 === Automatic clustering resolution service: galera-autofix
 
@@ -123,7 +123,7 @@ systemctl start packetfence-mariadb
 You should then see `/var/lib/mysql` be populated again with the data and once
 MariaDB becomes available again on the server, it means the sync has
 completed. In case of issues, look in the MariaDB log file
-(`/usr/local/pf/logs/mariadb_error.log`)
+(`/usr/local/pf/logs/mariadb.log`)
 
 WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 

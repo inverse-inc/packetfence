@@ -30,6 +30,10 @@ sub importConfigFile { $fingerbank_default_config_file }
 
 sub pfconfigNamespace {'config::FingerbankSettings'}
 
+sub gitStorageConfigFile {
+    return "fingerbank/conf/fingerbank.conf";
+}
+
 =head2 remove
 
 Delete an existing item

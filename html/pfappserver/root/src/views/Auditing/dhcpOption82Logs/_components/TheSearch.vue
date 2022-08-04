@@ -57,8 +57,8 @@
             @input="setColumns"
           />
         </template>
-        <template #cell(mac)="data">
-          <router-link :to="{ path: `/node/${data.value}` }"><mac v-text="data.value"></mac></router-link>
+        <template #cell(mac)="{ value }">
+          <node-dropdown :id="value" variant="link" class="px-0" toggle-class="p-0" dropup />
         </template>
       </b-table>
       <b-container fluid v-if="selected.length"
@@ -79,11 +79,13 @@ import {
   BaseSearchInputColumns,
   BaseTableEmpty
 } from '@/components/new/'
+import NodeDropdown from '@/views/Nodes/_components/BaseButtonDropdown'
 
 const components = {
   BaseSearch,
   BaseSearchInputColumns,
-  BaseTableEmpty
+  BaseTableEmpty,
+  NodeDropdown,
 }
 
 import { ref, toRefs } from '@vue/composition-api'

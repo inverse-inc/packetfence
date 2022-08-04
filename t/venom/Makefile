@@ -16,7 +16,7 @@ ifeq ($(CI), true)
  RESULT_DIR=$(CI_PROJECT_DIR)/results
 else
  $(info localdev environment detected)
- MAKE_TARGET=run_w_clean
+ MAKE_TARGET=run
  DEV_ENV=localdev
  RESULT_DIR=$(SRC_ROOT_DIR)/results
 endif
@@ -24,21 +24,11 @@ endif
 #==============================================================================
 # Targets
 #==============================================================================
-.PHONY: install run run_w_clean halt clean
+.PHONY: install run halt clean
 install:
 	./install-venom.sh
 
-run: clean
-	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
-	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
-	RESULT_DIR=$(RESULT_DIR) \
-	PF_VM_NAMES="$(PF_VM_NAMES)" \
-	CLUSTER_NAME="$(CLUSTER_NAME)" \
-	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
-	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
-	./test-wrapper.sh run
-
-run_w_clean:
+run:
 	CI_PIPELINE_ID=$(CI_PIPELINE_ID) \
 	PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
 	RESULT_DIR=$(RESULT_DIR) \
@@ -66,6 +56,7 @@ halt:
 	./test-wrapper.sh halt
 
 clean:
+	RESULT_DIR=$(RESULT_DIR) \
 	./test-wrapper.sh teardown
 
 ### Pristine images

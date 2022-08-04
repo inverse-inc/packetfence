@@ -26,7 +26,6 @@ type ApiUser struct {
 	ValidFrom   time.Time
 	Expiration  time.Time
 	AccessLevel string
-	TenantId    int
 }
 
 func NewDbAuthenticationBackend(ctx context.Context, db *sql.DB, tableName string) *DbAuthenticationBackend {
@@ -39,13 +38,13 @@ func NewDbAuthenticationBackend(ctx context.Context, db *sql.DB, tableName strin
 }
 
 func (dab *DbAuthenticationBackend) SetUser(ctx context.Context, apiUser *ApiUser) error {
-	query := fmt.Sprintf("replace into %s (username, password, valid_from, expiration, access_level, tenant_id) values(?, ?, ?, ?, ?, ?)", dab.tableName)
+	query := fmt.Sprintf("replace into %s (username, password, valid_from, expiration, access_level) values(?, ?, ?, ?, ?)", dab.tableName)
 
 	bcryptBytes, err := bcrypt.GenerateFromPassword([]byte(apiUser.Password), bcrypt.DefaultCost)
 	sharedutils.CheckError(err)
 	apiUser.Password = string(bcryptBytes)
 
-	_, err = dab.db.Query(query, apiUser.Username, apiUser.Password, apiUser.ValidFrom, apiUser.Expiration, apiUser.AccessLevel, apiUser.TenantId)
+	_, err = dab.db.Query(query, apiUser.Username, apiUser.Password, apiUser.ValidFrom, apiUser.Expiration, apiUser.AccessLevel)
 
 	if err != nil {
 		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while setting user %s", err))
@@ -68,7 +67,7 @@ func (dab *DbAuthenticationBackend) Authenticate(ctx context.Context, username, 
 	defer rows.Close()
 	for rows.Next() {
 		apiUser := ApiUser{}
-		err := rows.Scan(&apiUser.Username, &apiUser.Password, &apiUser.ValidFrom, &apiUser.Expiration, &apiUser.AccessLevel, &apiUser.TenantId)
+		err := rows.Scan(&apiUser.Username, &apiUser.Password, &apiUser.ValidFrom, &apiUser.Expiration, &apiUser.AccessLevel)
 		sharedutils.CheckError(err)
 
 		if err := bcrypt.CompareHashAndPassword([]byte(apiUser.Password), []byte(password)); err != nil {
@@ -92,21 +91,5 @@ func (dab *DbAuthenticationBackend) buildTokenInfo(ctx context.Context, apiUser 
 		adminRolesMap[role] = true
 	}
 
-	query := fmt.Sprintf("select * from tenant where id = ?")
-
-	tenantid := apiUser.TenantId
-
-	rows, err := dab.db.Query(query, tenantid)
-
-	if err != nil {
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error while executing authentication query %s", err))
-	}
-
-	defer rows.Close()
-	tenant := Tenant{}
-
-	err = rows.Scan(&tenant.Id, &tenant.Name, &tenant.PortalDomainName, &tenant.DomainName)
-	sharedutils.CheckError(err)
-
-	return &TokenInfo{AdminRoles: adminRolesMap, Tenant: tenant}
+	return &TokenInfo{AdminRoles: adminRolesMap}
 }

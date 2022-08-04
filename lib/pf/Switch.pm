@@ -141,6 +141,7 @@ sub new {
         '_SNMPUserNameWrite'            => undef,
         '_SNMPVersion'                  => 1,
         '_SNMPVersionTrap'              => 1,
+        '_SNMPUseConnector'             => 'enabled',
         '_cliEnablePwd'                 => undef,
         '_cliPwd'                       => undef,
         '_cliUser'                      => undef,
@@ -160,6 +161,7 @@ sub new {
         '_inlineTrigger'                => undef,
         '_deauthMethod'                 => undef,
         '_useCoA'                       => 'enabled',
+        '_radiusDeauthUseConnector'     => 'enabled',
         '_switchIp'                     => undef,
         '_ip'                           => undef,
         '_switchMac'                    => undef,
@@ -167,7 +169,6 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
-        '_TenantId'                     => $DEFAULT_TENANT_ID,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -193,12 +194,26 @@ sub connectRead {
     if ( defined( $self->{_sessionRead} ) ) {
         return 1;
     }
+
+    my $host = $self->{_ip};
+    my $port = 161;
+
+    my $connect_ip = $host;
+    my $connect_port = $port;
+
+    if(isenabled($self->{_SNMPUseConnector})) {
+        my $connector_conn = pf::factory::connector->for_ip($host)->dynreverse("$host:$port/udp");
+        $connect_ip = $connector_conn->{host};
+        $connect_port = $connector_conn->{port};
+    }
+
     $logger->debug( "opening SNMP v"
             . $self->{_SNMPVersion}
             . " read connection to $self->{_id}" );
     if ( $self->{_SNMPVersion} eq '3' ) {
         ( $self->{_sessionRead}, $self->{_error} ) = Net::SNMP->session(
-            -hostname     => $self->{_ip},
+            -hostname     => $connect_ip,
+            -port         => $connect_port,
             -version      => $self->{_SNMPVersion},
             -username     => $self->{_SNMPUserNameRead},
             -timeout      => 2,
@@ -211,7 +226,8 @@ sub connectRead {
         );
     } else {
         ( $self->{_sessionRead}, $self->{_error} ) = Net::SNMP->session(
-            -hostname  => $self->{_ip},
+            -hostname  => $connect_ip,
+            -port      => $connect_port,
             -version   => $self->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
@@ -319,11 +335,20 @@ sub connectWriteTo {
     return 1 if ( defined( $self->{$sessionKey} ) );
     $port ||= 161;
 
+    my $connect_ip = $ip;
+    my $connect_port = $port;
+
+    if(isenabled($self->{_SNMPUseConnector})) {
+        my $connector_conn = pf::factory::connector->for_ip($ip)->dynreverse("$ip:$port/udp");
+        $connect_ip = $connector_conn->{host};
+        $connect_port = $connector_conn->{port};
+    }
+
     $logger->debug( "opening SNMP v" . $self->{_SNMPVersion} . " write connection to $ip" );
     if ( $self->{_SNMPVersion} eq '3' ) {
         ( $self->{$sessionKey}, $self->{_error} ) = Net::SNMP->session(
-            -hostname     => $ip,
-            -port         => $port,
+            -hostname     => $connect_ip,
+            -port         => $connect_port,
             -version      => $self->{_SNMPVersion},
             -timeout      => 2,
             -retries      => 1,
@@ -336,8 +361,8 @@ sub connectWriteTo {
         );
     } else {
         ( $self->{$sessionKey}, $self->{_error} ) = Net::SNMP->session(
-            -hostname  => $ip,
-            -port      => $port,
+            -hostname     => $connect_ip,
+            -port         => $connect_port,
             -version   => $self->{_SNMPVersion},
             -timeout   => 2,
             -retries   => 1,
@@ -2705,6 +2730,7 @@ sub radiusDisconnect {
     my $response;
     try {
         my $connection_info = {
+            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
             nas_ip => $send_disconnect_to,
             secret => $self->{'_radiusSecret'},
             LocalAddr => $self->deauth_source_ip($send_disconnect_to),
@@ -3286,6 +3312,17 @@ sub shouldUseCoA {
     return (defined($args->{role}) && (isenabled($self->{_RoleMap}) || isenabled($self->{_UrlMap}) || isenabled($self->{_VpnMap})) && isenabled($self->{_useCoA}));
 }
 
+=item shouldUseConnectorForRadiusDeauth
+
+Check if switch should use CoA
+
+=cut
+
+sub shouldUseConnectorForRadiusDeauth {
+    my ($self) = @_;
+    return isenabled($self->{_radiusDeauthUseConnector});
+}
+
 =item getRelayAgentInfoOptRemoteIdSub
 
 Return the RelayAgentInfoOptRemoteIdSub to match with switch mac in dhcp option 82.
@@ -3661,18 +3698,6 @@ sub isMacInAddressTableAtIfIndex {
     $logger->warn("isMacInAddressTableAtIfIndex is not supported or implemented for this switch");
 
     return 0;
-}
-
-=item setCurrentTenant
-
-Set the current tenant in the DAL based on the tenant ID configured in the switch
-
-=cut
-
-sub setCurrentTenant {
-    my ($self, $radius_request) = @_;
-    my $tenant_id = $radius_request->{"PacketFence-Tenant-Id"} // $self->{_TenantId};
-    pf::dal->set_tenant($tenant_id);
 }
 
 =head2 getCiscoAvPairAttribute

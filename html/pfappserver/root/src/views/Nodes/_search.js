@@ -5,20 +5,13 @@ import acl from '@/utils/acl'
 import bytes from '@/utils/bytes'
 import api from './_api'
 
-export const useSearch = makeSearch('nodes', {
+export const search = {
   api,
   columns: [
     {
       key: 'selected',
       thStyle: 'width: 40px;', tdClass: 'text-center',
       locked: true
-    },
-    {
-      key: 'tenant_id',
-      label: 'Tenant', // i18n defer
-      searchable: false,
-      sortable: true,
-      formatter: formatter.tenantId
     },
     {
       key: 'status',
@@ -312,17 +305,11 @@ export const useSearch = makeSearch('nodes', {
     */
     {
       key: 'buttons',
-      class: 'text-right p-0',
+      class: 'col-no-overflow text-right p-0',
       locked: true
     }
   ],
   fields: [
-    {
-      value: 'tenant_id',
-      text: 'Tenant', // i18n defer
-      types: [conditionType.TENANT],
-      icon: 'layer-group'
-    },
     {
       value: 'status',
       text: 'Status', // i18n defer
@@ -549,11 +536,7 @@ export const useSearch = makeSearch('nodes', {
     }
   ],
   sortBy: 'mac',
-  sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'mac', op: 'not_equals', value: null }
-    ] }
-  ] })
-})
+  sortDesc: true
+}
+
+export const useSearch = makeSearch('nodes', search)

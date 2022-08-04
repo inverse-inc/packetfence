@@ -19,7 +19,6 @@ use pfappserver::Model::Enforcement;
 use pfappserver::Form::Interface::Create;
 use pf::UnifiedApi::Controller::Config;
 use pf::error qw(is_success);
-use Sys::Hostname;
 use pf::util;
 use File::Slurp qw(read_file write_file);
 
@@ -97,9 +96,15 @@ sub put_dns_servers {
     }
 }
 
+sub _get_hostname {
+    my ($self) = @_;
+    my $hostname = pf_run("hostnamectl --static");
+    return $hostname if defined($hostname);
+}
+
 sub get_hostname {
     my ($self) = @_;
-    $self->render(json => {item => hostname}, status => 200);
+    $self->render(json => {item => $self->_get_hostname}, status => 200);
 }
 
 sub put_hostname {
@@ -107,7 +112,7 @@ sub put_hostname {
     my $hostname = $self->get_json ? $self->get_json->{hostname} : undef;
     if($hostname) {
         pf_run("sudo hostnamectl set-hostname $hostname");
-        my $new_hostname = pf_run("hostname");
+        my $new_hostname = $self->_get_hostname();
         chomp($new_hostname);
         if($new_hostname eq $hostname) {
             $self->render(json => {message => "Changed hostname to: $hostname"}, status => 200);

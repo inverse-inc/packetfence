@@ -45,7 +45,7 @@ sub execute_child {
 
 sub required_fields_child {['email_instructions']}
 
-my @auto_included = qw(firstname lastname telephone company);
+my @auto_included = qw(firstname lastname);
 my %auto_included = map { $_ => 1 } @auto_included;
 
 =head2 do_email_registration
@@ -79,8 +79,13 @@ sub do_email_registration {
     my $note = 'email activation. Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
     $self->update_person_from_fields(notes => $note);
 
-    for my $key ( grep { !exists $auto_included{$_} } @{$self->required_fields // []}) {
-        $info{$key} = $request_fields->{$key};
+    my @additional_fields;
+    $info{additional_fields} = \@additional_fields;
+    for my $key ( grep { !exists $auto_included{$_} && exists $pf::person::ALLOWED_PROMPTABLE_FIELDS{$_} } @{$self->required_fields // []}) {
+        my $value = $request_fields->{$key};
+        next unless defined $value;
+        push @additional_fields, { label => ucfirst($key), value => $value };
+        $info{$key} = $value;
     }
 
     $info{'firstname'} = $self->request_fields->{firstname};

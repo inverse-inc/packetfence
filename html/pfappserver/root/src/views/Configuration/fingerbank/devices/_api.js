@@ -6,6 +6,11 @@ export default {
       return response.data
     })
   },
+  classes: () => {
+    return apiCall.get('fingerbank/all_device_classes').then(response => {
+      return response.data
+    })
+  },
   search: body => {
     const { scope, ...rest } = body
     if (scope)

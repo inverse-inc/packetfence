@@ -24,6 +24,9 @@ BEGIN {
     use File::Temp;
     ($fh, $filename) = File::Temp::tempfile( UNLINK => 1 );
     $pf::file_paths::pf_config_file = $filename;
+
+    use pf::ConfigStore::Pf;
+    pf::ConfigStore::Pf->new->commit;
 }
 
 use List::MoreUtils qw(any);
@@ -67,6 +70,7 @@ $cs->commit();
 
 END {
     truncate $pf::file_paths::pf_config_file, 0;
+    $cs->commit();
 }
 
 =head1 AUTHOR

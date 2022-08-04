@@ -1,5 +1,5 @@
 <template>
-  <b-button v-if="!isClone && !isNew && !isScep"
+  <b-button v-if="!isClone && !isNew && !isScep && !isCsr"
     size="sm" variant="outline-primary" :disabled="disabled || isLoading" @click.stop.prevent="onEmail">{{ $t('Email') }}</b-button>
 </template>
 <script>
@@ -57,7 +57,10 @@ const setup = (props, context) => {
     const { scep } = cert.value
     return scep
   })
-
+  const isCsr = computed(() => {
+    const { csr } = cert.value
+    return csr
+  })
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const onEmail = () => {
     const { ID, cn, mail } = cert.value
@@ -71,6 +74,7 @@ const setup = (props, context) => {
   return {
     isLoading,
     isScep,
+    isCsr,
     onEmail
   }
 }

@@ -2,6 +2,7 @@
 * "$_reports" store module
 */
 import Vue from 'vue'
+import { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import api from '../_api'
 
@@ -13,12 +14,6 @@ export const useStore = $store => {
     getItem: params => $store.dispatch('$_reports/getReport', params.id),
     getItemOptions: params => $store.dispatch('$_reports/options', params.id)
   }
-}
-
-const types = {
-  LOADING: 'loading',
-  SUCCESS: 'success',
-  ERROR: 'error'
 }
 
 // Default values

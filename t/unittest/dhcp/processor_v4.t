@@ -33,18 +33,18 @@ is_deeply(
 );
 
 @testNetworkLookup = (
-    [NetAddr::IP->new('192.168.1.0/24'), { tenant_id => 1 }],
-    [NetAddr::IP->new('192.168.2.0/24'), { tenant_id => 2 }],
+    [NetAddr::IP->new('192.168.1.0/24'), {  }],
+    [NetAddr::IP->new('192.168.2.0/24'), {  }],
 );
 
 is_deeply(
     pf::dhcp::processor_v4::lookupNetwork(\@testNetworkLookup, '192.168.1.1'),
-    {tenant_id => 1},
+    {},
 );
 
 is_deeply(
     pf::dhcp::processor_v4::lookupNetwork(\@testNetworkLookup, '192.168.2.1'),
-    {tenant_id => 2},
+    {},
 );
 
 is_deeply(

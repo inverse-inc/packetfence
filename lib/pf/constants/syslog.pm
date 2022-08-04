@@ -22,72 +22,46 @@ our @SyslogInfo = (
     {
         'description' => 'Fingerbank log',
         'name'       => 'fingerbank.log',
-        'conditions' => [ '$syslogtag contains "fingerbank"' ]
+        'conditions' => [
+            '$syslogtag contains "fingerbank"',
+            '$msg contains "[GIN]"',
+        ]
     },
     {
-        'description' => 'httpd.aaa Apache error log',
-        'name'       => 'httpd.aaa.error',
-        'conditions' => [ '$programname contains "httpd_aaa_err"' ]
+        'description' => 'PacketFence general log',
+        'name'       => 'packetfence.log',
+        'conditions' => [
+            '$programname contains "packetfence"',
+            '$programname == "pfqueue-docker-wrapper"',
+            '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
+            '$programname == "pfipset"',
+            '$programname == "pfpki-docker-wrapper"',
+            '($programname == "httpd.aaa-docker-wrapper" and $msg contains "httpd.aaa")',
+            '($programname == "httpd.portal-docker-wrapper" and $msg contains "httpd.portal")',
+            '($programname == "httpd.webservices-docker-wrapper" and $msg contains "httpd.webservices")',
+            '($programname == "httpd.dispatcher-docker-wrapper" and $msg contains "httpd.dispatcher")',
+            '($programname == "httpd.admin_dispatcher-docker-wrapper" and $msg contains "httpd.admin_dispatcher")',
+            '($programname == "pfperl-api-docker-wrapper" and $msg contains "pfperl-api")',
+        ]
     },
     {
-        'description' => 'httpd.aaa Apache access log',
-        'name'       => 'httpd.aaa.access',
-        'conditions' => [ '$programname contains "httpd_aaa"' ]
-    },
-    {
-        'description' => 'httpd.collector Apache error log',
-        'name'       => 'httpd.collector.error',
-        'conditions' => [ '$syslogtag contains "httpd_collector_err"' ]
-    },
-    {
-        'description' => 'httpd.collector general log',
-        'name'       => 'httpd.collector.log',
-        'conditions' => [ '$syslogtag contains "httpd_collector"' ]
-    },
-    {
-        'description' => 'httpd.portal Apache error log',
-        'name'       => 'httpd.portal.error',
-        'conditions' => [ '$syslogtag contains "httpd_portal_err"' ]
-    },
-    {
-        'description' => 'httpd.portal Apache access log',
-        'name'       => 'httpd.portal.access',
-        'conditions' => [ '$syslogtag contains "httpd_portal"' ]
-    },
-    {
-        'description' => 'httpd.portal Catalyst log',
-        'name'       => 'httpd.portal.catalyst',
-        'conditions' => [ '$syslogtag contains "portal_catalyst"' ]
-    },
-    {
-        'description' => 'httpd.proxy Apache error log',
-        'name'       => 'httpd.proxy.error',
-        'conditions' => [ '$syslogtag contains "httpd_proxy_err"' ]
-    },
-    {
-        'description' => 'httpd.proxy Apache access log',
-        'name'       => 'httpd.proxy.access',
-        'conditions' => [ '$syslogtag contains "httpd_proxy"' ]
-    },
-    {
-        'description' => 'httpd.webservices Apache error log',
-        'name'       => 'httpd.webservices.error',
-        'conditions' => [ '$programname contains "httpd_webservices_err"' ]
-    },
-    {
-        'description' => 'httpd.webservices Apache access log',
-        'name'       => 'httpd.webservices.access',
-        'conditions' => [ '$programname contains "httpd_webservices"' ]
-    },
-    {
-        'description' => 'api-frontend access log',
-        'name'      => 'httpd.api-frontend.access',
-        'conditions' => [ '$msg contains "api-frontend-access"' ],
+        'description' => 'Apache logs',
+        'name'       => 'httpd.apache',
+        'conditions' => [
+            '$programname contains "httpd_collector"',
+            '$programname contains "httpd_proxy"',
+            '$programname == "httpd.aaa-docker-wrapper"',
+            '$programname == "httpd.portal-docker-wrapper"',
+            '$programname == "httpd.webservices-docker-wrapper"',
+            '$programname == "httpd.dispatcher-docker-wrapper"',
+            '$programname == "httpd.admin_dispatcher-docker-wrapper"',
+            '$msg contains "api-frontend-access"',
+        ]
     },
     {
         'description' => 'api-frontend general log',
         'name'      => 'api-frontend.log',
-        'conditions' => [ '$programname == "api-frontend"' ],
+        'conditions' => [ '$programname == "api-frontend-docker-wrapper"' ],
     },
     {
         'description' => 'pfacct general log',
@@ -100,17 +74,6 @@ our @SyslogInfo = (
         'conditions' => [ '$programname == "pfstats"' ]
     },
     {
-        'description' => 'PacketFence general log',
-        'name'       => 'packetfence.log',
-        'conditions' => [
-            '$syslogtag contains "packetfence"',
-            '$programname == "pfqueue"',
-            '($programname == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
-            '$programname == "pfipset"',
-            '$programname == "pfpki"',
-        ]
-    },
-    {
         'description' => 'pfdhcp general log',
         'name'       => 'pfdhcp.log',
         'conditions' => [ '$programname == "pfdhcp"' ]
@@ -118,7 +81,7 @@ our @SyslogInfo = (
     {
         'description' => 'pfconfig general log',
         'name'       => 'pfconfig.log',
-        'conditions' => [ '$programname == "pfconfig"' ]
+        'conditions' => [ '$programname == "pfconfig-docker-wrapper"' ]
     },
     {
         'description' => 'pfdetect general log',
@@ -128,7 +91,7 @@ our @SyslogInfo = (
     {
         'description' => 'pfdhcplistener general log',
         'name'       => 'pfdhcplistener.log',
-        'conditions' => [ '$syslogtag contains "pfdhcplistener"' ]
+        'conditions' => [ '$programname == "pfdhcplistener"' ]
     },
     {
         'description' => 'pfdns general log',
@@ -143,61 +106,53 @@ our @SyslogInfo = (
     {
         'description' => 'pfcron general log',
         'name'       => 'pfcron.log',
-        'conditions' => [ '$programname == "pfcron"' ]
+        'conditions' => [ '$programname == "pfcron-docker-wrapper"' ]
     },
     {
         'description' => 'pfsso general log',
         'name'       => 'pfsso.log',
-        'conditions' => [ '$programname == "pfsso"' ]
+        'conditions' => [ '$programname == "pfsso-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS accounting server log',
         'name'       => 'radius-acct.log',
-        'conditions' => [
-'$programname contains "radius" and $syslogfacility-text == "local2"',
-            '$syslogtag contains "acct" and $syslogfacility-text == "local2"'
-        ]
+        'conditions' => [ '$programname == "radiusd-acct-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS CLI server log',
         'name'       => 'radius-cli.log',
-        'conditions' =>
-          [ '$syslogtag contains "cli" and $syslogfacility-text == "local3"' ]
+        'conditions' => [ '$programname == "radiusd-cli-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS eduroam server log',
         'name'       => 'radius-eduroam.log',
-        'conditions' => [ '$syslogtag contains "eduroam" ' ]
+        'conditions' => [ '$programname == "radiusd-eduroam-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS load balancing server log (cluster only)',
         'name'       => 'radius-load_balancer.log',
-        'conditions' => [
-'$syslogtag contains "load_balancer" and $syslogfacility-text == "local5"'
-        ]
+        'conditions' => [ '$programname == "radiusd-load-balancer-docker-wrapper"' ]
     },
     {
         'description' => 'FreeRADIUS authentication server log',
-        'name'       => 'radius.log',
-        'conditions' => [
-            '$syslogtag contains "auth" and $syslogfacility-text == "local1"',
-'$programname contains "radius" and $syslogfacility-text == "local1"'
-        ]
+         'name'       => 'radius.log',
+        'conditions' => [ '$programname == "radiusd-auth-docker-wrapper"' ]
+
     },
     {
         'description' => 'Redis global cache logs',
         'name'       => 'redis_cache.log',
-        'conditions' => [ '$syslogtag contains "redis-cache"' ]
+        'conditions' => [ '$programname == "redis-cache"' ]
     },
     {
         'description' => 'Redis NTLM cache logs',
         'name'       => 'redis_ntlm_cache.log',
-        'conditions' => [ '$syslogtag contains "redis-ntlm-cache"' ]
+        'conditions' => [ '$programname == "redis-ntlm-cache"' ]
     },
     {
         'description' => 'Redis queue logs',
         'name'       => 'redis_queue.log',
-        'conditions' => [ '$syslogtag contains "redis-queue"' ]
+        'conditions' => [ '$programname == "redis-queue"' ]
     },
     {
         'description' => 'Redis server logs',
@@ -206,23 +161,68 @@ our @SyslogInfo = (
     },
     {
         'description' => 'MariaDB log',
-        'name'       => 'mariadb_error.log',
-        'conditions' => [ '$syslogtag contains "mysqld"' ],
+        'name'       => 'mariadb.log',
+         'conditions' => [
+             '$programname contains "mysqld"',
+             '$programname == "pf-mariadb"',
+         ]
+    },
+    {
+        'description' => 'MySQL probe log',
+        'name'       => 'mysql-probe.log',
+         'conditions' => [ '$programname == "mysql-probe"' ]
+    },
+    {
+        'description' => 'galera-autofix log',
+        'name'       => 'galera-autofix.log',
+        'conditions' => [ '$syslogtag contains "galera-autofix"' ]
+    },
+    {
+        'description' => 'ProxySQL log',
+        'name'       => 'proxysql.log',
+         'conditions' => [ '$programname == "proxysql"' ]
     },
     {
         'description' => 'haproxy portal log',
         'name'       => 'haproxy_portal.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "portal-http" or $msg contains "backend has no server available")' ],
-    },
-    {
-        'description' => 'haproxy DB log',
-        'name'       => 'haproxy_db.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysql" or $msg contains "backend has no server available")' ],
+        'conditions' => [ '$programname == "haproxy-portal-docker-wrapper"' ]
     },
     {
         'description' => 'haproxy admin log',
         'name'       => 'haproxy_admin.log',
-        'conditions' => [ '$programname == "haproxy" and ($msg contains "admin-https" or $msg contains "backend has no server available")' ],
+        'conditions' => [ '$programname == "haproxy-admin-docker-wrapper"' ]
+    },
+    {
+        'description' => 'haproxy DB log',
+        'name'       => 'haproxy_db.log',
+        'conditions' => [ '$programname == "haproxy" and ($msg contains "mysql" or $msg contains "backend has no server available")' ]
+    },
+    {
+        'description' => 'haproxy general log',
+        'name'       => 'haproxy.log',
+        'conditions' => [ '$programname == "haproxy"' ]
+    },
+    {
+        'description' => 'Firewall log',
+        'name'       => 'firewall.log',
+        'conditions' => [
+            '$programname == "docker_iptables.sh"',
+        ]
+    },
+    {
+        'description' => 'pfconnector client log',
+        'name'       => 'pfconnector-client.log',
+        'conditions' => [ '$programname == "pfconnector-client-docker-wrapper"' ]
+    },
+    {
+        'description' => 'pfconnector server log',
+        'name'       => 'pfconnector-server.log',
+        'conditions' => [ '$programname == "pfconnector-server-docker-wrapper"' ]
+    },
+    {
+        'description' => 'keepalived log',
+        'name'       => 'keepalived.log',
+        'conditions' => [ '$programname contains "Keepalived"' ]
     },
 );
 

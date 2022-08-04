@@ -43,7 +43,6 @@ sub cleanup {
             },
         },
         -limit => $batch,
-        -no_auto_tenant_id => 1,
     );
 
     $class->batch_remove(\%search, $time_limit);
