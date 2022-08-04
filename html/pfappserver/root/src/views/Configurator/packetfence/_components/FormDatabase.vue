@@ -250,7 +250,7 @@ export const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_bases/isLoading'])
 
   // Make sure the database server is running
-  $store.dispatch('services/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
+  $store.dispatch('cluster/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
     form.value.db = DEFAULT_DATABASE
     form.value.user = DEFAULT_USERNAME
     initialValidation()
