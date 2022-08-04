@@ -31,7 +31,7 @@
             ">
             <b-row align-v="center">
               <b-col cols="auto">
-                <icon :name="`fingerbank-${deviceClass.id}`" class="mr-1 mb-1"
+                <icon :name="`fingerbank-${deviceClass.id}`" class="mx-1 mb-1"
                   :class="(selectedDeviceClasses.indexOf(deviceClass.id) > -1) ? 'text-success' : 'text-muted'" />
                 {{ deviceClass.name }}
               </b-col>
