@@ -11,7 +11,7 @@
       <b-row class="mx-auto">
         <b-col cols="1" />
         <b-col cols="1" class="py-0 bg-secondary" style="min-width:60px;">
-          <div class="mx-auto text-center text-nowrap text-white font-weight-bold">{{ $t('...') }}</div>
+          <div class="mx-auto text-center text-nowrap text-white font-weight-bold">...</div>
         </b-col>
       </b-row>
     </template>
