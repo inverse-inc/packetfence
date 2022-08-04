@@ -53,8 +53,15 @@ tag_images() {
     echo "$(date) - Tag of images finished"
 }
 
+cleanup_images() {
+    # Remove all dangling images, images not referenced by any container are kept
+    docker image prune -f
+}
+
 configure_and_check
 
 pull_images
 
 tag_images
+
+cleanup_images
