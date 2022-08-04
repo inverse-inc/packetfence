@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint --report-unused-disable-directives",
+    "lint": "vue-cli-service lint --report-unused-disable-directives=error",
     "build-debug": "env VUE_APP_DEBUG=true vue-cli-service build --mode development",
     "build-report": "vue-cli-service build --report"
   },
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
-    "@babel/eslint-parser": "^7.18.9  ",
+    "@babel/eslint-parser": "^7.18.9",
     "@babel/polyfill": "^7.11.5",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
