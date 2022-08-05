@@ -73,7 +73,7 @@ const setup = (props, context) => {
   const onClose = () => $router.push({ name: 'switch_groups' })
 
   const onCloseFile = index => {
-    const { [index]: { file } = {} } = files.value
+    const file = files.value[index]
     file.close()
     files.value.splice(index, 1)
   }

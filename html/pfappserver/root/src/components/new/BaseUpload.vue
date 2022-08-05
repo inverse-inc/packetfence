@@ -133,7 +133,7 @@ const setup = (props, context) => {
   const files = ref([])
   watch(files, () => {
     if (files.value.length) {
-      emit('files', files.value.map(file => ({ ...file, ...{ storeName: storeNameFromFile(file), close: () => closeFile(file) } })))
+      emit('files', files.value.map(file => ({ ...file, storeName: storeNameFromFile(file), close: () => closeFile(file) })))
       setTimeout(() => { // $nextTick fails
         emit('focus', files.value.length - 1)
       }, 300)
