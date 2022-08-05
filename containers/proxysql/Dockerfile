@@ -14,13 +14,6 @@ ENV CXX=g++
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-#LABEL vendor=proxysql\
-#      com.proxysql.type=proxysql\
-#      com.proxysql.os=debian11\
-#      com.proxysql.interactive=false\
-#      com.proxysql.config=simple\
-#      com.proxysql.purpose=production
-
 # Install build dependencies
 
 RUN apt-get update && apt-get install -y \
