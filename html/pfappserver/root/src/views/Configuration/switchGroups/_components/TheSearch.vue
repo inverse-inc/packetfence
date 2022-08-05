@@ -5,7 +5,8 @@
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
-        <b-button variant="outline-primary" @click="goToNew">{{ $t('New Switch Group') }}</b-button>
+        <b-button variant="outline-primary" class="mr-1" @click="goToNew">{{ $t('New Switch Group') }}</b-button>
+        <b-button variant="outline-primary" class="mr-1" :to="{ name: 'importSwitchGroup' }">{{ $t('Import CSV') }}</b-button>
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
