@@ -15,6 +15,8 @@ source <(grep 'LOCAL_REGISTRY' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source ${PF_SRC_DIR}/conf/build_id
 
 configure_and_check() {
+    # yes=default
+    CLEANUP_IMAGES=${CLEANUP_IMAGES:-yes}
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
@@ -47,15 +49,24 @@ tag_images() {
     done
 
     # The pfconnector-server and pfconnector-client images point to the local pfconnector image
-  docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-server:${TAG_OR_BRANCH_NAME}
-  docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-client:${TAG_OR_BRANCH_NAME}
+    docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-server:${TAG_OR_BRANCH_NAME}
+    docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-client:${TAG_OR_BRANCH_NAME}
 
     echo "$(date) - Tag of images finished"
 }
 
 cleanup_images() {
-    # Remove all dangling images, images not referenced by any container are kept
-    docker image prune -f
+    if [ "$CLEANUP_IMAGES" = "yes" ]; then
+        # ID of images which doesn't match TAG_OR_BRANCH_NAME store in conf/build_id
+        # uniq to remove duplicated ID due to local and remote tags
+        PREVIOUS_IMAGES=$(docker images --format "{{.ID}}: {{.Tag}}" \
+                              | grep -v ${TAG_OR_BRANCH_NAME} \
+                              | cut -d ':' -f 1 | uniq)
+        # -f is necessary because images are tagged locally and remotely (registry)
+        docker rmi ${PREVIOUS_IMAGES} -f
+    else
+        echo "Cleanup of Docker images disabled"
+    fi
 }
 
 configure_and_check
