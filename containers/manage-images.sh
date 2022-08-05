@@ -69,7 +69,20 @@ cleanup_images() {
     fi
 }
 
+check_running_containers() {
+    RUNNING_CONTAINERS=$(docker container ls -q)
+    if [ -z "$RUNNING_CONTAINERS" ]; then
+        echo "All containers are stopped"
+    else
+        echo "Some containers are still running: you should restart at end of process"
+        echo "List of running containers:"
+        docker container ls
+    fi
+}
+
 configure_and_check
+
+check_running_containers
 
 pull_images
 
