@@ -1,0 +1,31 @@
+# tested on Extreme Cloud IQ Controller (Pilot) - version v10
+# Login-LAT-Port is defined using a RADIUS filter
+description = Extreme Cloud Controller
+radiusDisconnect = coaOrDisconnect
+
+acceptVlan = <<EOT
+Tunnel-Medium-Type = 6
+Tunnel-Type = 13
+Tunnel-Private-Group-Id = $vlan
+EOT
+
+acceptRole = <<EOT
+Filter-Id = $role
+EOT
+
+reject = <<EOT
+Reply-Message = This node is not allowed to use this service
+EOT
+
+disconnect = <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT
+
+coa = <<EOT
+Calling-Station-Id = ${macToEUI48($mac)}
+NAS-IP-Address = $disconnectIp
+EOT            
+
+cliAuthorizeRead=Service-Type=Administrative
+cliAuthorizeWrite=Service-Type=Administrative
