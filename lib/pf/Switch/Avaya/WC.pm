@@ -116,10 +116,10 @@ sub deauthenticateMacDefault {
     );
 
     if (defined($result)) {
-        $logger->debug("deauthenticatation successful");
+        $logger->debug("deauthentication successful");
         return $TRUE;
     } else {
-        $logger->warn("deauthenticatation failed with " . $self->{_sessionWrite}->error());
+        $logger->warn("deauthentication failed with " . $self->{_sessionWrite}->error());
         return;
     }
 }
