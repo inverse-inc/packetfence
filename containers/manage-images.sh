@@ -59,11 +59,17 @@ cleanup_images() {
     if [ "$CLEANUP_IMAGES" = "yes" ]; then
         # ID of images which doesn't match TAG_OR_BRANCH_NAME store in conf/build_id
         # uniq to remove duplicated ID due to local and remote tags
+        # || true is to handle first installation case: no images and grep exit with 1
         PREVIOUS_IMAGES=$(docker images --format "{{.ID}}: {{.Tag}}" \
-                              | grep -v ${TAG_OR_BRANCH_NAME} \
+                              | { grep -v "${TAG_OR_BRANCH_NAME}" || true; } \
                               | cut -d ':' -f 1 | uniq)
-        # -f is necessary because images are tagged locally and remotely (registry)
-        docker rmi ${PREVIOUS_IMAGES} -f
+
+        if [ -z "$PREVIOUS_IMAGES" ]; then
+            echo "Nothing to cleanup"
+        else
+            # -f is necessary because images are tagged locally and remotely (registry)
+            docker rmi ${PREVIOUS_IMAGES} -f
+        fi
     else
         echo "Cleanup of Docker images disabled"
     fi
