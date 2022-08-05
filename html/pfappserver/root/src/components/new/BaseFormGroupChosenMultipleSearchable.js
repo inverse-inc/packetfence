@@ -33,6 +33,7 @@ export const setup = (props, context) => {
     label,
     lookup,
     trackBy,
+    groupValues,
     options: optionsPromise,
     optionsLimit
   } = toRefs(metaProps)
@@ -85,7 +86,7 @@ export const setup = (props, context) => {
     return valueCopy
   })
 
-  const inputPlaceholder = useOptionsValue(options, trackBy, label, placeholder, isFocus, isLoading)
+  const inputPlaceholder = useOptionsValue(options, trackBy, label, groupValues, placeholder, isFocus, isLoading)
 
   return {
     // useInput

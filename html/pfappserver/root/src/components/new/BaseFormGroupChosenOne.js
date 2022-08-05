@@ -20,6 +20,7 @@ export const setup = (props, context) => {
   const {
     label,
     trackBy,
+    groupValues,
     options: optionsPromise,
     placeholder
   } = toRefs(metaProps)
@@ -41,7 +42,7 @@ export const setup = (props, context) => {
       return { [label.value]: _value, [trackBy.value]: _value }
   })
 
-  const inputPlaceholder = useOptionsValue(options, trackBy, label, placeholder)
+  const inputPlaceholder = useOptionsValue(options, trackBy, label, groupValues, placeholder)
 
   const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [trackBy.value]: trackedValue } = value

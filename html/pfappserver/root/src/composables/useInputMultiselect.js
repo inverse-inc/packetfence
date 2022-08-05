@@ -549,8 +549,16 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
 
 // backend specifies `placeholder` in meta using `trackBy`, not `label`
 //  use options to remap `trackBy` to `label`.
-export const useOptionsValue = (options, trackBy, label, value, isFocus, isLoading) => computed(() => {
-  const _options = unref(options)
+export const useOptionsValue = (options, trackBy, label, groupValues, value, isFocus, isLoading) => computed(() => {
+  let _options
+  if (groupValues.value) {
+    _options = unref(options).reduce((options, group) => {
+      return [...options, ...group[groupValues.value] ]
+    }, [])
+  }
+  else {
+    _options = unref(options)
+  }
   const optionsIndex = _options.findIndex(option => {
     const { [trackBy.value]: trackedValue } = option
     return `${trackedValue}` === `${value.value}`

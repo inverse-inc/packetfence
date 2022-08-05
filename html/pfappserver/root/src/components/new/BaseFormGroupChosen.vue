@@ -261,7 +261,7 @@ export const setup = (props, context) => {
     return undefined
   })
 
-  const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)
+  const singleLabel = useOptionsValue(options, trackBy, label, groupValues, value, isFocus)
 
   const multipleLabels = computed(() => {
     let _options = options.value

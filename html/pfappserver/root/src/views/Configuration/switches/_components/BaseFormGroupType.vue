@@ -9,7 +9,7 @@
   >
     <b-input-group class="text-nowrap">
 
-      <base-input-chosen-one :namespace="namespace"/>
+      <base-input-chosen-one group-label="group" group-values="options" :namespace="namespace"/>
 
       <b-button v-if="switchTemplateId"
         variant="outline-primary" class="ml-2"

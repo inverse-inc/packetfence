@@ -19,6 +19,13 @@ export const useSearch = makeSearch('users', {
       visible: true
     },
     {
+      key: 'source',
+      label: 'Source', // i18n defer
+      searchable: false,
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'title',
       label: 'Title', // i18n defer
       searchable: false,
@@ -129,12 +136,6 @@ export const useSearch = makeSearch('users', {
     {
       key: 'psk',
       label: 'PSK', // i18n defer
-      searchable: false,
-      sortable: true
-    },
-    {
-      key: 'source',
-      label: 'Source', // i18n defer
       searchable: false,
       sortable: true
     },

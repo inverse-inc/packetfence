@@ -33,6 +33,7 @@ export const setup = (props, context) => {
     label,
     lookup,
     trackBy,
+    groupValues,
     options: optionsPromise,
     optionsLimit
   } = toRefs(metaProps)
@@ -58,7 +59,7 @@ export const setup = (props, context) => {
     showEmpty
   } = useSingleValueLookupOptions(value, onInput, lookup, options, optionsLimit, trackBy, label)
 
-  const singleLabel = useOptionsValue(inputOptions, trackBy, label, value, isFocus, isLoading)
+  const singleLabel = useOptionsValue(inputOptions, trackBy, label, groupValues, value, isFocus, isLoading)
 
   const inputValueWrapper = computed(() => {
     const _value = unref(value)
@@ -72,7 +73,7 @@ export const setup = (props, context) => {
     }
   })
 
-  const inputPlaceholder = useOptionsValue(inputOptions, trackBy, label, placeholder, isFocus, isLoading)
+  const inputPlaceholder = useOptionsValue(inputOptions, trackBy, label, groupValues, placeholder, isFocus, isLoading)
 
   const onInputWrapper = useEventFnWrapper(onInput, value => {
     const { [unref(trackBy)]: trackedValue } = value

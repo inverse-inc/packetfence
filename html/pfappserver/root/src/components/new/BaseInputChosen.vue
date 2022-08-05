@@ -208,7 +208,7 @@ export const setup = (props, context) => {
     validFeedback
   } = useInputValidator(metaProps, value)
 
-  const singleLabel = useOptionsValue(options, trackBy, label, value, isFocus)
+  const singleLabel = useOptionsValue(options, trackBy, label, groupValues, value, isFocus)
 
   // inspect options first item for group(ing)
   const inputGroupLabel = computed(() => {
