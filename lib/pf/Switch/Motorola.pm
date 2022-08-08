@@ -142,7 +142,7 @@ sub deauthenticateMacDefault {
         return 1;
     }
 
-    if ($self->getVersion() =~ /^5/) {
+    if ($self->getVersion() =~ /^[5-9](.*)/) {
         #Fetching the acct-session-id, mandatory for Motorola
         my $acctsessionid = node_accounting_current_sessionid($mac);
 
