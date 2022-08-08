@@ -53,9 +53,10 @@ ARG source=https://github.com/inverse-inc/proxysql.git
 ARG release=feature/sd_notify_v2.4.2
 
 RUN mkdir -p /root/ctl
-
+ARG COMMIT_ID=67f866745d8537519725b1bec37e1483959d2176
 RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source}
 WORKDIR proxysql
+RUN git checkout $COMMIT_ID
 
 #
 #  Build the server
