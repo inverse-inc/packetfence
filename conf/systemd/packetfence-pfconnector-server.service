@@ -8,6 +8,7 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
+KillMode=none
 LimitNOFILE=infinity
 ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::pfconnector_server' -e 'pf::services::manager::pfconnector_server->new()->generateConfig()'
 ExecStart=/usr/local/pf/sbin/pfconnector-server-docker-wrapper

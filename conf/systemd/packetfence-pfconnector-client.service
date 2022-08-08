@@ -8,6 +8,7 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
+KillMode=none
 LimitNOFILE=infinity
 ExecStart=/usr/local/pf/sbin/pfconnector-client-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"

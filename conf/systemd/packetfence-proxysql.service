@@ -8,6 +8,7 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
+KillMode=none
 Type=notify
 NotifyAccess=all
 ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh

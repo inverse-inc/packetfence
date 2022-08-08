@@ -11,6 +11,7 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
+KillMode=none
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
