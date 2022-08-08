@@ -2,7 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <b-button-close @click="onClose" v-b-tooltip.hover.left.d300 :title="$t('Close')"><icon name="times"></icon></b-button-close>
-      <h4 class="mb-0" v-t="'Import Switches'"></h4>
+      <h4 class="mb-0" v-t="'Import Switch Groups'"></h4>
     </b-card-header>
     <div class="card-body p-0">
       <b-tabs ref="tabs" v-model="tabIndex" card pills>
@@ -70,7 +70,7 @@ const setup = (props, context) => {
   const tabIndex = ref(0)
   const isLoading = ref(false)
 
-  const onClose = () => $router.push({ name: 'switches' })
+  const onClose = () => $router.push({ name: 'switch_groups' })
 
   const onCloseFile = index => {
     const file = files.value[index]
@@ -80,7 +80,7 @@ const setup = (props, context) => {
 
   const importPromise = payload => {
     isLoading.value = true
-    return $store.dispatch('$_switches/bulkImportAsync', payload)
+    return $store.dispatch('$_switch_groups/bulkImportAsync', payload)
       .then(response => response.items)
       .finally(() => isLoading.value = false)
   }

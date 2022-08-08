@@ -4,6 +4,7 @@ import SwitchesStoreModule from '../switches/_store'
 import SwitchGroupsStoreModule from './_store'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworkDevices')
+const TheCsvImport = () => import(/* webpackChunkName: "Import" */ './_components/TheCsvImport')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
 export const useRouter = $router => {
@@ -33,6 +34,12 @@ export default [
     name: 'switch_groups',
     component: TheTabs,
     props: () => ({ tab: 'switch_groups' }),
+    beforeEnter
+  },
+  {
+    path: 'switch_groups/import',
+    name: 'importSwitchGroup',
+    component: TheCsvImport,
     beforeEnter
   },
   {

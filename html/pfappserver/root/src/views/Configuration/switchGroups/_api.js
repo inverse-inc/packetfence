@@ -16,6 +16,9 @@ export default {
       return response.data
     })
   },
+  bulkImportAsync: body => {
+    return apiCall.postQuiet('config/switch_groups/bulk_import', { ...body, async: true })
+  },
   create: data => {
     return apiCall.post('config/switch_groups', data).then(response => {
       return response.data

@@ -3,7 +3,7 @@
 */
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
-import { types } from '@/store'
+import store, { types } from '@/store'
 import api from './_api'
 
 export const useStore = $store => {
@@ -122,6 +122,18 @@ const actions = {
       commit('ITEM_ERROR', err.response)
       throw err
     })
+  },
+  bulkImportAsync: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    return api.bulkImportAsync(data).then(response => {
+      const { data: { task_id } = {} } = response
+      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+        commit('ITEM_BULK_SUCCESS', response.items)
+        return response
+      })
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+    })
   }
 }
 
@@ -133,6 +145,14 @@ const mutations = {
   ITEM_REPLACED: (state, data) => {
     state.itemStatus = types.SUCCESS
     Vue.set(state.cache, data.id, JSON.parse(JSON.stringify(data)))
+  },
+  ITEM_BULK_SUCCESS: (state, response) => {
+    state.itemStatus = 'success'
+    response.forEach(item => {
+      if (item.status === 200 && item.item.id in state.cache) {
+        Vue.set(state.cache, item.item.id, null)
+      }
+    })
   },
   ITEM_UPDATED: (state, params) => {
     state.itemStatus = types.SUCCESS
