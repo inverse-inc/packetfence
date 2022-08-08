@@ -142,16 +142,17 @@ sub deauthenticateMacDefault {
         return 1;
     }
 
-    if ($self->getVersion() =~ /^[5-9](.*)/) {
-        #Fetching the acct-session-id, mandatory for Motorola
-        my $acctsessionid = node_accounting_current_sessionid($mac);
+    if ($self->getVersion() =~ /(^\d+)/) {
+        if ($1 >= "5") {
+            #Fetching the acct-session-id, mandatory for Motorola
+            my $acctsessionid = node_accounting_current_sessionid($mac);
 
-        $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
-        return $self->radiusDisconnect( $mac, { 'Acct-Session-Id' => $acctsessionid } );
-    } else {
-        $logger->debug("deauthenticate $mac using SNMP deauth method");
-        return $self->_deauthenticateMacSNMP($mac);
+            $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+            return $self->radiusDisconnect( $mac, { 'Acct-Session-Id' => $acctsessionid } );
+        }
     }
+    $logger->debug("deauthenticate $mac using SNMP deauth method");
+    return $self->_deauthenticateMacSNMP($mac);
 }
 
 =item _deauthenticateMacSNMP
