@@ -232,7 +232,7 @@ backend $mgmt_cluster_ip-portal
         http-request set-header Host $portal_preview_ip
         http-request add-header X-Forwarded-For-Packetfence 127.0.0.1
         http-request set-dst-port int(8890)
-        server service 0.0.0.0:0
+        server service 100.64.0.1:0
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
 
