@@ -49,8 +49,8 @@ WORKDIR /opt
 #
 #  Shallow clone the proxysql source
 #
-ARG source=https://github.com/fdurand/proxysql.git
-ARG release=sd_notify
+ARG source=https://github.com/inverse-inc/proxysql.git
+ARG release=feature/sd_notify_v2.4.2
 
 RUN mkdir -p /root/ctl
 
