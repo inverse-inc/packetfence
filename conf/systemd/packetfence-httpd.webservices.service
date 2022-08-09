@@ -10,7 +10,6 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
-
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
