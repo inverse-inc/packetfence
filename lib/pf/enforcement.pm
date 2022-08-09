@@ -173,7 +173,13 @@ sub _vlan_reevaluation {
 
     if (isenabled($switch->{_deauthOnPrevious})) {
         $locationlog_entry = locationlog_last_entry_previous_switch($mac,$switch);
-        $switch = pf::SwitchFactory->instantiate( { switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
+        if ($locationlog_entry) {
+            $switch = pf::SwitchFactory->instantiate( { switch_mac => $locationlog_entry->{'switch_mac'}, switch_ip => $locationlog_entry->{'switch_ip'} } );
+            if ( !$switch ) {
+                $logger->error("Can't instantiate switch (".$locationlog_entry->{'switch_ip'}.")! Check your configuration!");
+                return $FALSE;
+            }
+        }
     }
 
     my $sync = $opts{sync};
