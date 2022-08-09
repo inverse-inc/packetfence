@@ -57,13 +57,11 @@
 </template>
 
 <script>
-import {
-  BaseInput,
-  BaseInputChosenOne,
-  BaseInputGroupDateTime,
-  BaseInputGroupMultiplier,
-  BaseInputNumber
-} from '@/components/new/'
+import BaseInput from './BaseInput'
+import BaseInputChosenOne from './BaseInputChosenOne'
+import BaseInputGroupDateTime from './BaseInputGroupDateTime'
+import BaseInputGroupMultiplier from './BaseInputGroupMultiplier'
+import BaseInputNumber from './BaseInputNumber'
 
 const props = {
   value: {

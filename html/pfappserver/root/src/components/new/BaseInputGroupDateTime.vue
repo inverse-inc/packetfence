@@ -74,7 +74,7 @@
   </base-input-group>
 </template>
 <script>
-import { BaseInputGroup } from '@/components/new'
+import BaseInputGroup from './BaseInputGroup'
 
 const components = {
   BaseInputGroup
