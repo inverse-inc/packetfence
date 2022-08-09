@@ -14,7 +14,8 @@ if [ -z "$PF_GID" ]; then
 fi
 
 echo "Changing UID of user pf"
-usermod -u $PF_UID pf
+usermod -u $PF_UID -d /dev/null pf
+usermod -d /usr/local/pf pf
 
 echo "Changing GID of user pf"
 groupmod -g $PF_GID pf
