@@ -13,7 +13,7 @@
     "@vue/composition-api": "^1.7.0",
     "autoprefixer": "10.4.7",
     "axios": "0.27.2",
-    "bootstrap": "4.6.1",
+    "bootstrap": "4.6.2",
     "bootstrap-vue": "2.22.0",
     "core-js": "3.23.5",
     "d3-force": "^3.0.0",
