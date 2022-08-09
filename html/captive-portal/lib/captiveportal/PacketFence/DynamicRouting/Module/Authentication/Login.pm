@@ -70,7 +70,6 @@ sub sources_classes {
         "pf::Authentication::Source::HTTPSource",
         "pf::Authentication::Source::RADIUSSource",
         "pf::Authentication::Source::PotdSource",
-        "pf::Authentication::Source::AuthorizationSource",
         "pf::Authentication::Source::AzureADSource",
     ];
 }
