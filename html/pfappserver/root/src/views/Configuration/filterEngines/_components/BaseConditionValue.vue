@@ -74,10 +74,8 @@ import {
   BaseInputGroupTextarea,
   BaseInputChosenOne
 } from '@/components/new/'
-import BaseConditionOperator from './BaseConditionOperator'
 
 const components = {
-  BaseConditionOperator,
   BaseInput,
   BaseInputGroupTextarea,
   BaseInputChosenOne
