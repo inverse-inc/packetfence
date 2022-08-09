@@ -13,7 +13,10 @@ if [ -z "$PF_GID" ]; then
   exit 1
 fi
 
+echo "Changing UID of user pf"
 usermod -u $PF_UID pf
+
+echo "Changing GID of user pf"
 groupmod -g $PF_GID pf
 
 function adjust_ids() {
