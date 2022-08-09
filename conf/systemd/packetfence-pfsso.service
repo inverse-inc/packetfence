@@ -19,6 +19,7 @@ ExecStart=/usr/local/pf/sbin/pfsso-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfsso ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/pfsso-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence.target

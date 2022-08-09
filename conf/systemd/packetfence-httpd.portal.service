@@ -19,6 +19,7 @@ ExecStop=/bin/bash -c "docker stop httpd.portal ; echo Stopped"
 TimeoutStopSec=60
 Restart=on-failure
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/httpd.portal-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence.target

@@ -19,6 +19,7 @@ ExecStart=/usr/local/pf/sbin/httpd.admin_dispatcher-docker-wrapper
 ExecStop=/bin/bash -c "docker stop httpd.admin_dispatcher ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/httpd.admin_dispatcher-systemd-notify.sock.pid
 
 [Install]
 WantedBy=packetfence.target

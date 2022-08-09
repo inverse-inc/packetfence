@@ -14,6 +14,7 @@ ExecStart=/usr/local/pf/sbin/pfconnector-client-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/pfconnector-client-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence.target
