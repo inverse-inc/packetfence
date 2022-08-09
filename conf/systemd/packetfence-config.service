@@ -5,7 +5,7 @@ After=network.target packetfence-redis-cache.service
 Wants=packetfence-redis-cache.service
 
 [Service]
-KillMode=none
+
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
