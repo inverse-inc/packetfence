@@ -730,7 +730,7 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
-/bin/systemctl restart packetfence-config
+/bin/systemctl start packetfence-config
 /usr/local/pf/bin/pfcmd generatemariadbconfig --force
 /bin/systemctl isolate packetfence-base
 /bin/systemctl enable packetfence-httpd.admin_dispatcher
