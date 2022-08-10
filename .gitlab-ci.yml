@@ -24,7 +24,7 @@ stages:
 # VARIABLES
 ################################################################################
 variables:
-  BUILD_PFAPPSERVER_VUE: yes
+  BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
