@@ -609,6 +609,16 @@ fi
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
+# Stop packetfence-config during upgrade process to ensure
+# it is started with latest code
+if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" == "active" ]; then
+    echo "Upgrade: packetfence-config has been started during preinstallation (packetfence-base.target)"
+    echo "Stopping packetfence-config to ensure proper upgrade"
+    /bin/systemctl stop packetfence-config
+else
+    echo "First installation: packetfence-config will be started later in the process"
+fi
+
 echo "Disabling emergency error logging to the console"
 /usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 

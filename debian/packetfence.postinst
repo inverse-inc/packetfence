@@ -57,6 +57,16 @@ case "$1" in
         make conf/ssl/server.pem
         chown pf $PACKETFENCE/conf/ssl/server.key
 
+        # Stop packetfence-config during upgrade process to ensure
+        # it is started with latest code
+        if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" == "active" ]; then
+            echo "Upgrade: packetfence-config has been started during preinstallation (packetfence-base.target)"
+            echo "Stopping packetfence-config to ensure proper upgrade"
+            /bin/systemctl stop packetfence-config
+        else
+            echo "First installation: packetfence-config will be started later in the process"
+        fi
+
         echo "Disabling emergency error logging to the console"
         /bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 
