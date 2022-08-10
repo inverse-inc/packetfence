@@ -609,20 +609,6 @@ fi
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
-# Handle 9.2 migration from several RPM to one package
-# At this stage, packetfence-config unit file is "not-found" by systemd
-# daemon-reload is necessary to take new unit file into account
-# Restart of service is necessary to avoid long wait and failures of next commands
-if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print $2}')" == "not-found" ]; then
-    echo "Systemd need a reload to take new packetfence-config unit file into account"
-    /bin/systemctl daemon-reload
-    echo "Starting packetfence-config service early to avoid failures when running next commands"
-    /bin/systemctl start packetfence-config
-else
-    echo "packetfence-config unit has been found"
-    echo "State of packetfence-config service: $(/bin/systemctl show -p ActiveState packetfence-config)"
-fi
-
 echo "Disabling emergency error logging to the console"
 /usr/bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 
