@@ -81,7 +81,7 @@ const actions = {
         throw new Error(data.error.message)
       }
       return data.item
-    }).catch(error => {
+    }).catch(() => {
       return new Promise(resolve => {
         setTimeout(() => {
           resolve(dispatch('pollTaskStatus', id))
