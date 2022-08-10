@@ -7,7 +7,7 @@
     <b-tabs>
       <base-form-tab :title="$i18n.t('General')" active>
         <form-group-identifier v-if="!isNew && !isClone"
-          namespace="ID"
+          namespace="id"
           :column-label="$i18n.t('Identifier')"
           :disabled="!isNew && !isClone"
         />

@@ -73,7 +73,7 @@
             <b-button
               size="sm" variant="outline-primary" class="mr-1"
               :disabled="!isServiceAlive"
-              @click.stop.prevent="goToClone({ id: item.ID, ...item })"
+              @click.stop.prevent="goToClone(useTableColumnsItems)"
             >{{ $t('Clone') }}</b-button>
             <b-button
               size="sm" variant="outline-primary" class="mr-1 text-nowrap"
@@ -82,7 +82,7 @@
             >{{ $t('Copy Certificate') }}</b-button>
             <b-button
               size="sm" variant="outline-primary" class="mr-1 text-nowrap"
-              :disabled="!isServiceAlive" :to="{ name: 'newPkiProfile', params: { ca_id: item.ID } }"
+              :disabled="!isServiceAlive" :to="{ name: 'newPkiProfile', params: { ca_id: item.id } }"
             >{{ $t('New Template') }}</b-button>
           </span>
         </template>
@@ -148,13 +148,13 @@ const setup = (props, context) => {
   const router = useRouter($router)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items, 'ID')
+  const selected = useBootstrapTableSelected(tableRef, items)
   const {
     selectedItems
   } = selected
 
   const onClipboard = item => {
-    $store.dispatch('$_pkis/getCa', item.ID).then(ca => {
+    $store.dispatch('$_pkis/getCa', item.id).then(ca => {
       try {
         navigator.clipboard.writeText(ca.cert).then(() => {
           $store.dispatch('notification/info', { message: i18n.t('<code>{cn}</code> certificate copied to clipboard', ca) })

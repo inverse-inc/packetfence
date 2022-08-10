@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import api from './_api'
@@ -121,15 +120,11 @@ export const mutations = {
   },
   CERT_LIST_REPLACED: (state, items) => {
     state.certStatus = types.SUCCESS
-    state.certListCache = items.map(item => {
-      const { ID, ca_id } = item
-      return { ...item, ID: `${ID}`, ca_id: `${ca_id}` }
-    })
+    state.certListCache = items
   },
   CERT_ITEM_REPLACED: (state, data) => {
     state.certStatus = types.SUCCESS
-    const { ID, ca_id } = data
-    Vue.set(state.certItemCache, data.ID, { ...data, ID: `${ID}`, ca_id: `${ca_id}` })
+    state.certItemCache[data.id] = data
     store.dispatch('config/resetPkiCerts')
   },
   CERT_ITEM_EMAILED: (state) => {

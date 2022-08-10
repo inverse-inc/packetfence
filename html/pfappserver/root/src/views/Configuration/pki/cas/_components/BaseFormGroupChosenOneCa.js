@@ -9,7 +9,7 @@ export const props = {
   options: {
     type: Promise,
     default: () => store.dispatch('$_pkis/allCas').then(cas => {
-      return cas.map(ca => ({ value: ca.ID.toString(), text: ca.cn }))
+      return cas.map(ca => ({ value: ca.id.toString(), text: ca.cn }))
     })
   }
 }

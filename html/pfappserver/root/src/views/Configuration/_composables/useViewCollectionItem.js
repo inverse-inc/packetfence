@@ -36,6 +36,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     useItemTitleBadge = () => {},
     useRouter: _useRouter = () => {},
     useStore: _useStore = () => {},
+    useResponse = response => response, // store responses merged into form
   } = collection
 
   // merge props w/ params in useRouter method
@@ -171,16 +172,12 @@ export const useViewCollectionItem = (collection, props, context) => {
   const onSave = () => {
     isModified.value = true
     const closeAfter = actionKey.value
-    save().then(() => {
+    save().then(response => {
       if (closeAfter) // [CTRL] key pressed
         goToCollection({ actionKey: true, ...form.value })
       else {
-        // use getItem instead of save().then(response => {}) for cases where form <=> payload is decomposed/recomposed
-        getItem().then(item => { // merge form w/ newly inserted IDs
-          form.value = { ...form.value, ...item } // dereferenced
-        }).finally(() => {
-          goToItem(form.value).then(() => init()) // re-init
-        })
+        form.value = { ...form.value, ...useResponse(response) }
+        goToItem(form.value).then(() => init()) // re-init
       }
     })
   }

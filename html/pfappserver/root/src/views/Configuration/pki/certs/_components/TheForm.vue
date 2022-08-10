@@ -6,7 +6,7 @@
     :isReadonly="!isNew && !isClone"
   >
     <form-group-identifier v-if="!isNew && !isClone"
-      namespace="ID"
+      namespace="id"
       :column-label="$i18n.t('Identifier')"
     />
     <form-group-profile-identifier namespace="profile_id"

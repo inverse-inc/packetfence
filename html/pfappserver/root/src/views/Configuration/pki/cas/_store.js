@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import api from './_api'
@@ -105,7 +104,7 @@ export const mutations = {
   },
   CA_ITEM_REPLACED: (state, data) => {
     state.caStatus = types.SUCCESS
-    Vue.set(state.caItemCache, data.ID, data)
+    state.caItemCache[data.id] = data
     store.dispatch('config/resetPkiCas')
   },
   CA_ERROR: (state, response) => {

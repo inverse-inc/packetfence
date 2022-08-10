@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import api from './_api'
@@ -70,7 +69,7 @@ export const mutations = {
   },
   REVOKED_CERT_ITEM_REPLACED: (state, data) => {
     state.revokedCertStatus = types.SUCCESS
-    Vue.set(state.revokedCertItemCache, data.ID, data)
+    state.revokedCertItemCache[data.id] = data
   },
   REVOKED_CERT_ERROR: (state, response) => {
     state.revokedCertStatus = types.ERROR

@@ -63,8 +63,8 @@ const setup = (props, context) => {
   })
   const isLoading = computed(() => $store.getters['$_pkis/isLoading'])
   const onEmail = () => {
-    const { ID, cn, mail } = cert.value
-    $store.dispatch('$_pkis/emailCert', ID).then(() => {
+    const { id, cn, mail } = cert.value
+    $store.dispatch('$_pkis/emailCert', id).then(() => {
       $store.dispatch('notification/info', { message: i18n.t('Certificate <code>{cn}</code> emailed to <code>{mail}</code>.', { cn, mail }) })
     }).catch(e => {
       $store.dispatch('notification/danger', { message: i18n.t('Could not email certificate <code>{cn}</code> to <code>{mail}</code>: ', { cn, mail }) + e })

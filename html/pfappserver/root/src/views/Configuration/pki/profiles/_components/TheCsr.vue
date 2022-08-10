@@ -93,7 +93,7 @@ const setup = (props, context) => {
     )
   )
 
-  const onClose = () => goToItem({ ID: id.value })
+  const onClose = () => goToItem({ id: id.value })
 
   const onSign = () => {
     signCsr({ id: id.value, csr: form.value.csr }).then(response => {

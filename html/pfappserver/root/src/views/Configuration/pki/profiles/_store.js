@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import store, { types } from '@/store'
 import api from './_api'
@@ -120,7 +119,7 @@ export const mutations = {
   },
   PROFILE_ITEM_REPLACED: (state, data) => {
     state.profileStatus = types.SUCCESS
-    Vue.set(state.profileItemCache, data.ID, data)
+    state.profileItemCache[data.id] = data
     store.dispatch('config/resetPkiProfiles')
   },
   PROFILE_ERROR: (state, response) => {

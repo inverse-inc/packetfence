@@ -10,7 +10,7 @@ yup.addMethod(yup.string, 'pkiCaCnNotExistsExcept', function (exceptId = '', mes
     test: (value) => {
       if (!value || value.toLowerCase() === exceptId.toLowerCase()) return true
       return store.dispatch('config/getPkiCas').then((response) => {
-        return response.filter(ca => ca.ID !== +exceptId && ca.cn.toLowerCase() === value.toLowerCase()).length === 0
+        return response.filter(ca => ca.id !== +exceptId && ca.cn.toLowerCase() === value.toLowerCase()).length === 0
       }).catch(() => {
         return true
       })

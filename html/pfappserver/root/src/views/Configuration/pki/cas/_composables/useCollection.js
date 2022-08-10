@@ -33,6 +33,8 @@ export const useItemConfirmSave = props => {
   return computed(() => !(isNew.value || isClone.value))
 }
 
+export { recomposeGorm as useResponse } from '../../config'
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'
@@ -49,7 +51,7 @@ export const useSearch = makeSearch('pkiCas', {
       locked: true
     },
     {
-      key: 'ID',
+      key: 'id',
       label: 'Identifier', // i18n defer
       required: true,
       searchable: true,
@@ -85,7 +87,7 @@ export const useSearch = makeSearch('pkiCas', {
   ],
   fields: [
     {
-      value: 'ID',
+      value: 'id',
       text: i18n.t('Identifier'),
       types: [conditionType.SUBSTRING]
     },

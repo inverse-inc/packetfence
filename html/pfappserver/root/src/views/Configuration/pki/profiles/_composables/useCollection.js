@@ -42,6 +42,7 @@ export const useItemTitle = (props) => {
     }
   })
 }
+export { recomposeGorm as useResponse } from '../../config'
 
 export { useRouter } from '../_router'
 
@@ -59,7 +60,7 @@ export const useSearch = makeSearch('pkiProfiles', {
       locked: true
     },
     {
-      key: 'ID',
+      key: 'id',
       label: 'Identifier', // i18n defer
       required: true,
       searchable: true,
@@ -91,7 +92,7 @@ export const useSearch = makeSearch('pkiProfiles', {
   ],
   fields: [
     {
-      value: 'ID',
+      value: 'id',
       text: i18n.t('Identifier'),
       types: [conditionType.SUBSTRING]
     },

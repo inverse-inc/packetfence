@@ -12,7 +12,7 @@ export const props = {
       if (!store.state.$_pkis)
         store.registerModule('$_pkis', StoreModule)
       return store.dispatch('$_pkis/allProfiles').then(profiles => {
-        return profiles.map(profile => ({ text: `${profile.ca_name} - ${profile.name}`, value: profile.ID }))
+        return profiles.map(profile => ({ text: `${profile.ca_name} - ${profile.name}`, value: profile.id }))
       })
     }
   }

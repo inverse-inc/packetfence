@@ -51,7 +51,7 @@ export const useSearch = makeSearch('pkiCerts', {
       locked: true
     },
     {
-      key: 'ID',
+      key: 'id',
       label: 'Identifier', // i18n defer
       required: true,
       searchable: true,
@@ -122,7 +122,7 @@ export const useSearch = makeSearch('pkiCerts', {
   ],
   fields: [
     {
-      value: 'ID',
+      value: 'id',
       text: i18n.t('Identifier'),
       types: [conditionType.SUBSTRING]
     },

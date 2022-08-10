@@ -7,7 +7,7 @@
       <base-search :use-search="useSearch" :disabled="!isServiceAlive">
         <b-dropdown :text="$t('New Certificate')" variant="outline-primary" :disabled="!isServiceAlive || profiles.length === 0">
           <b-dropdown-header>{{ $t('Choose Certificate Authority - Template') }}</b-dropdown-header>
-          <b-dropdown-item v-for="profile in profilesSorted" :key="profile.ID" :to="{ name: 'newPkiCert', params: { profile_id: profile.ID } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
+          <b-dropdown-item v-for="profile in profilesSorted" :key="profile.id" :to="{ name: 'newPkiCert', params: { profile_id: profile.id } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
         </b-dropdown>
         <base-button-service
           service="pfpki" restart start stop
@@ -75,16 +75,16 @@
             <b-button
               size="sm" variant="outline-primary" class="my-1 mr-1"
               :disabled="!isServiceAlive"
-              @click.stop.prevent="goToClone({ id: item.ID, ...item })"
+              @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
             <button-certificate-copy
-              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
             <button-certificate-download v-if="!item.scep || !item.csr"
-              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
             <button-certificate-email v-if="!item.scep || !item.csr"
-              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" />
             <button-certificate-revoke
-              :disabled="!isServiceAlive" :id="item.ID" class="my-1 mr-1" @change="reSearch" />
+              :disabled="!isServiceAlive" :id="item.id" class="my-1 mr-1" @change="reSearch" />
           </span>
         </template>
         <template #cell(ca_name)="{ item }">
@@ -181,7 +181,7 @@ const setup = (props, context) => {
   const router = useRouter($router)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items, 'ID')
+  const selected = useBootstrapTableSelected(tableRef, items)
   const {
     selectedItems
   } = selected

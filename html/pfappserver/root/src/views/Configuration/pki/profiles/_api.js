@@ -1,15 +1,17 @@
 import apiCall from '@/utils/api'
+import { recomposeGorm } from '../config'
 
 export default {
   list: params => {
     return apiCall.getQuiet('pki/profiles', { params }).then(response => {
       const { data: { items = [] } = {} } = response
-      return { items }
+      return { items: items.map(item => recomposeGorm(item)) }
     })
   },
   search: params => {
     return apiCall.postQuiet('pki/profiles/search', params).then(response => {
-      return response.data
+      const { data: { items = [] }, ...rest } = response
+      return { items: items.map(item => recomposeGorm(item)), ...rest }
     })
   },
   create: data => {
@@ -20,14 +22,14 @@ export default {
         throw error
       } else {
         const { data: { items: { 0: item = {} } = {} } = {} } = response
-        return item
+        return recomposeGorm(item)
       }
     })
   },
   item: id => {
     return apiCall.get(['pki', 'profile', id]).then(response => {
       const { data: { items: { 0: item = {} } = {} } = {} } = response
-      return item
+      return recomposeGorm(item)
     })
   },
   update: data => {
@@ -38,7 +40,7 @@ export default {
         throw error
       } else {
         const { data: { items: { 0: item = {} } = {} } = {} } = response
-        return item
+        return recomposeGorm(item)
       }
     })
   },
@@ -49,7 +51,7 @@ export default {
     const { id, csr } = data
     return apiCall.post(['pki', 'profile', id, 'sign_csr'], { csr }).then(response => {
       const { data: { items: { 0: item = {} } = {} } = {} } = response
-      return item
+      return recomposeGorm(item)
     })
   }
 }

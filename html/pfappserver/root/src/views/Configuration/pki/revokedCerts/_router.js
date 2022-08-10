@@ -14,7 +14,7 @@ export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'pkiRevokedCerts' }),
     goToItem: params => $router
-      .push({ name: 'pkiRevokedCert', params: { ...params, id: params.ID } })
+      .push({ name: 'pkiRevokedCert', params })
   }
 }
 

@@ -14,7 +14,7 @@ export const useRouter = $router => {
   return {
     goToCollection: () => $router.push({ name: 'pkiCas' }),
     goToItem: params => $router
-      .push({ name: 'pkiCa', params: { ...params, id: params.ID } })
+      .push({ name: 'pkiCa', params })
       .catch(e => { if (e.name !== "NavigationDuplicated") throw e }),
     goToClone: params => $router.push({ name: 'clonePkiCa', params }),
     goToNew: params => $router.push({ name: 'newPkiCa', params })

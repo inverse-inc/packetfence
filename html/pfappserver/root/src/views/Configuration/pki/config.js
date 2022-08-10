@@ -71,3 +71,9 @@ export const revokeReasons = [
   { value: '9', text: 'PrivilegeWithdrawn' },
   { value: '10', text: 'AACompromise' }
 ]
+
+export const recomposeGorm = item => {
+  // strip golang gorm decoration, ID => id
+  const { ID, CreatedAt, DeletedAt, UpdatedAt, DB, Ctx, ...rest } = item
+  return { id: `${ID}`, ...rest }
+}

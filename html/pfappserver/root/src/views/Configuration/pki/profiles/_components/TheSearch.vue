@@ -7,7 +7,7 @@
       <base-search :use-search="useSearch" :disabled="!isServiceAlive">
         <b-dropdown :text="$t('New Template')" variant="outline-primary" :disabled="!isServiceAlive || cas.length === 0">
           <b-dropdown-header>{{ $t('Choose Certificate Authority') }}</b-dropdown-header>
-          <b-dropdown-item v-for="ca in casSorted" :key="ca.ID" :to="{ name: 'newPkiProfile', params: { ca_id: ca.ID } }">{{ ca.cn }}</b-dropdown-item>
+          <b-dropdown-item v-for="ca in casSorted" :key="ca.id" :to="{ name: 'newPkiProfile', params: { ca_id: ca.id } }">{{ ca.cn }}</b-dropdown-item>
         </b-dropdown>
         <base-button-service :disabled="isLoading"
           service="pfpki" restart start stop
@@ -75,15 +75,15 @@
             <b-button
               size="sm" variant="outline-primary" class="mr-1"
               :disabled="!isServiceAlive"
-              @click.stop.prevent="goToClone({ id: item.ID, ...item })"
+              @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
             <b-button
               size="sm" variant="outline-primary" class="mr-1 text-nowrap"
-              :disabled="!isServiceAlive" :to="{ name: 'newPkiCert', params: { profile_id: item.ID } }"
+              :disabled="!isServiceAlive" :to="{ name: 'newPkiCert', params: { profile_id: item.id } }"
             >{{ $t('New Certificate') }}</b-button>
             <b-button
               size="sm" variant="outline-primary" class="mr-1 text-nowrap"
-              :disabled="!isServiceAlive" :to="{ name: 'csrPkiProfile', params: { id: item.ID } }"
+              :disabled="!isServiceAlive" :to="{ name: 'csrPkiProfile', params: { id: item.id } }"
             >{{ $t('Sign CSR') }}</b-button>
           </span>
         </template>
@@ -158,7 +158,7 @@ const setup = (props, context) => {
   const router = useRouter($router)
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, items, 'ID')
+  const selected = useBootstrapTableSelected(tableRef, items)
   const {
     selectedItems
   } = selected
