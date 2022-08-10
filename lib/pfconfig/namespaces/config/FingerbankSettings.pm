@@ -33,6 +33,9 @@ sub build_child {
     my ($self) = @_;
     my %hash = %{$self->{cfg}};
 
+    # Default the port to 0 so that the Golang pfconfigdriver can always parse it as a number
+    $hash{proxy}{port} ||= 0;
+
     return \%hash;
 }
 

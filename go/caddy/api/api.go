@@ -2,12 +2,15 @@ package api
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
-	"net/http"
 )
 
 // Register the plugin in caddy
@@ -41,6 +44,8 @@ func setup(c *caddy.Controller) error {
 
 	setupRadiusDictionary()
 
+	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, fbcollectorclient.DefaultClient)
+
 	return nil
 }
 
@@ -48,7 +53,11 @@ func setup(c *caddy.Controller) error {
 func buildHandler(ctx context.Context) (APIHandler, error) {
 	apiHandler := APIHandler{}
 	router := httprouter.New()
+
 	router.POST("/api/v1/radius_attributes", apiHandler.searchRadiusAttributes)
+
+	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
+
 	apiHandler.router = router
 	return apiHandler, nil
 }
