@@ -12,7 +12,7 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index b8c324772a..5199c9f164 100644
+index ca7945e30c..e3961f796e 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -443,7 +443,7 @@ radiusd=enabled
@@ -154,6 +154,23 @@ index 69b288b4c4..8e9543e5aa 100644
  ExecStart=/usr/local/pf/sbin/pfdns -conf=/usr/local/pf/var/conf/pfdns.conf
  Restart=on-failure
  Slice=packetfence.slice
+diff --git a/conf/systemd/packetfence-radiusd-auth.service b/conf/systemd/packetfence-radiusd-auth.service
+index ff346c2b69..b5a3c931bb 100644
+--- a/conf/systemd/packetfence-radiusd-auth.service
++++ b/conf/systemd/packetfence-radiusd-auth.service
+@@ -12,9 +12,9 @@ Type=notify
+ WatchdogSec=10
+ StartLimitBurst=3
+ StartLimitInterval=10
+-ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
+-ExecStartPre=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -Cxm -lstdout 
+-ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n auth -fm 
++ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::radiusd' -e 'pf::services::manager::radiusd->new()->generateConfig()'
++ExecStartPre=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -Cxm -lstdout
++ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n auth -fm
+ Restart=on-failure
+ Slice=packetfence.slice
+ 
 diff --git a/conf/systemd/packetfence-radiusd-eduroam.service b/conf/systemd/packetfence-radiusd-eduroam.service
 index 5c302445ed..a67fe6ce88 100644
 --- a/conf/systemd/packetfence-radiusd-eduroam.service
