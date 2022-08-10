@@ -17,7 +17,6 @@ require (
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dnstap/golang-dnstap v0.2.2
-	github.com/dustin/go-humanize v1.0.0
 	github.com/farsightsec/golang-framestream v0.3.0
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
@@ -45,7 +44,7 @@ require (
 	github.com/infobloxopen/go-trees v0.0.0-20190313150506-2af4e13f9062
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
-	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
+	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/inverse-inc/scep v0.0.0-20220616202131-aafda39f7dd7
 	github.com/jcuga/golongpoll v1.1.0
