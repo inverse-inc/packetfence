@@ -611,7 +611,7 @@ echo "Adding PacketFence config startup script"
 
 # Stop packetfence-config during upgrade process to ensure
 # it is started with latest code
-if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" == "active" ]; then
+if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" = "active" ]; then
     echo "Upgrade: packetfence-config has been started during preinstallation (packetfence-base.target)"
     echo "Stopping packetfence-config to ensure proper upgrade"
     /bin/systemctl stop packetfence-config
@@ -723,15 +723,17 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl disable packetfence-iptables
 /bin/systemctl start packetfence-config
 /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+# only packetfence-config is running after this command
 /bin/systemctl isolate packetfence-base
+
 /bin/systemctl enable packetfence-httpd.admin_dispatcher
 /bin/systemctl enable packetfence-haproxy-admin
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
 echo "Starting PacketFence Administration GUI..."
-/bin/systemctl restart packetfence-httpd.admin_dispatcher
-/bin/systemctl restart packetfence-haproxy-admin
+/bin/systemctl start packetfence-httpd.admin_dispatcher
+/bin/systemctl start packetfence-haproxy-admin
 
 /usr/local/pf/bin/pfcmd service pf updatesystemd
 

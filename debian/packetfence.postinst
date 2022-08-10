@@ -59,7 +59,7 @@ case "$1" in
 
         # Stop packetfence-config during upgrade process to ensure
         # it is started with latest code
-        if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" == "active" ]; then
+        if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" = "active" ]; then
             echo "Upgrade: packetfence-config has been started during preinstallation (packetfence-base.target)"
             echo "Stopping packetfence-config to ensure proper upgrade"
             /bin/systemctl stop packetfence-config
@@ -160,6 +160,7 @@ case "$1" in
         systemctl enable packetfence-tracking-config.path
         systemctl start packetfence-config
         /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        # only packetfence-config is running after this command
         systemctl isolate packetfence-base.target
 
         # Override the MySQL socket location to match our standard
