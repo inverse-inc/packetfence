@@ -330,10 +330,10 @@ func IsValid(ctx context.Context, o PfconfigObject) bool {
 	ns := q.basens
 
 	if globalMeta.getLastTouchCache() == 0 {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration was never loaded. Considering %s as invalid do the initial load.", ns))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Memory configuration was never loaded. Considering %s as invalid do the initial load.", ns))
 		return false
 	} else if float64(time.Now().UnixMicro()/1000000)-globalMeta.getReloadedTouchCache() > globalMeta.getPhoneInAtLeast() {
-		log.LoggerWContext(ctx).Info(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(globalMeta.getPhoneInAtLeast()), ns))
+		log.LoggerWContext(ctx).Debug(fmt.Sprintf("Memory configuration is more than %d seconds old. Considering %s as invalid do reload it.", int(globalMeta.getPhoneInAtLeast()), ns))
 	} else if float64(o.GetLoadedAt().UnixMicro()/1000000) >= globalMeta.getLastTouchCache() {
 		return true
 	}
