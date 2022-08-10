@@ -95,62 +95,64 @@ export const useInputValidator = (props, value, recursive = false) => {
       }
     }
 
-    let validateDebouncer
-    watch(
-      [value, localValidator],
-      () => {
-        const schema = unref(localValidator)
-        const thisPromise = ++lastPromise
+    let validateDebouncerEarly
+    let validateDebouncerLate
+    const validate = () => {
+      const schema = unref(localValidator)
+      const thisPromise = ++lastPromise
 
-        if (!validateDebouncer)
-          validateDebouncer = createDebouncer()
-        validateDebouncer({
-          handler: () => {
-            let validationPromise
-            if (namespace.value) { // use namespace/path
-              // yup throws an exception when a path is not defined in the schema
-              //  https://github.com/jquense/yup/issues/599
-              try {
-                validationPromise = schema.validateAt(path.value, form.value, { recursive, abortEarly: !recursive })
-              } catch (e) { // path not defined in schema
-                validationPromise = true
-              }
+      const handler = () => {
+        let validationPromise
+        if (namespace.value) { // use namespace/path
+          // yup throws an exception when a path is not defined in the schema
+          //  https://github.com/jquense/yup/issues/599
+          try {
+            validationPromise = schema.validateAt(path.value, form.value, { recursive, abortEarly: !recursive })
+          } catch (e) { // path not defined in schema
+            validationPromise = true
+          }
+        }
+        else
+          validationPromise = schema.validate(value.value, { recursive, abortEarly: !recursive }) // use value
+
+        Promise.resolve(validationPromise).then(() => { // valid
+          if (unref(validFeedback) !== undefined)
+            setState(thisPromise, true, unref(validFeedback), null)
+          else
+            setState(thisPromise, null, null, null)
+
+        }).catch(ValidationError => { // invalid
+          const { inner = [], message } = ValidationError
+          let _schema = schema
+          if (recursive && namespace.value) {
+            _schema = yup.reach(schema, path.value) // use namespace/path
+          }
+          try {
+            const { meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
+            if (metaInvalidFeedback) { // mask messages
+              setState(thisPromise, false, null, metaInvalidFeedback)
+              return
             }
-            else
-              validationPromise = schema.validate(value.value, { recursive, abortEarly: !recursive }) // use value
-
-            Promise.resolve(validationPromise).then(() => { // valid
-              if (unref(validFeedback) !== undefined)
-                setState(thisPromise, true, unref(validFeedback), null)
-              else
-                setState(thisPromise, null, null, null)
-
-            }).catch(ValidationError => { // invalid
-              const { inner = [], message } = ValidationError
-              let _schema = schema
-              if (recursive && namespace.value) {
-                _schema = yup.reach(schema, path.value) // use namespace/path
-              }
-              try {
-                const { meta: { invalidFeedback: metaInvalidFeedback } = {} } = _schema.describe()
-                if (metaInvalidFeedback) { // mask messages
-                  setState(thisPromise, false, null, metaInvalidFeedback)
-                  return
-                }
-              } catch(e) {/* noop */}
-              if (recursive && inner.length) { // concatenate messages
-                const uniqueInner = [...(new Set(inner.map(({ message }) => message)))] // unique
-                setState(thisPromise, false, null, uniqueInner.join(' '))
-                return
-              }
-              setState(thisPromise, false, null, message)
-            })
-          },
-          time: 300
+          } catch(e) {/* noop */}
+          if (recursive && inner.length) { // concatenate messages
+            const uniqueInner = [...(new Set(inner.map(({ message }) => message)))] // unique
+            setState(thisPromise, false, null, uniqueInner.join(' '))
+            return
+          }
+          setState(thisPromise, false, null, message)
         })
-      },
-      { deep: true, immediate: true }
-    )
+      }
+
+      if (!validateDebouncerEarly)
+        validateDebouncerEarly = createDebouncer()
+      validateDebouncerEarly({ handler, time: 100 }) // 100ms
+
+      if (!validateDebouncerLate)
+        validateDebouncerLate = createDebouncer()
+      validateDebouncerLate({ handler, time: 3000 }) // 3s
+    }
+
+    watch([value, localValidator], validate, { deep: true, immediate: true })
 
     watch(() => store.state.session.apiErrors[namespace.value], apiError => {
       localApiFeedback.value = apiError
