@@ -32,6 +32,8 @@ export {
   BaseFormGroupInput                              as FormGroupCsrLocality,
   BaseFormGroupInput                              as FormGroupCsrOrganizationName,
   BaseFormGroupInput                              as FormGroupCsrCommonName,
+  BaseFormGroupInput                              as FormGroupCsrDnsNames,
+  BaseFormGroupInput                              as FormGroupCsrIpAddresses,
 
   AlertServices,
   TheCsr,

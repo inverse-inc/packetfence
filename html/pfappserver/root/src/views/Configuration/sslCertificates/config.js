@@ -19,3 +19,28 @@ export const strings = {
 }
 
 export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name', 'subject_alt_name']
+
+export const recomposeSubject = subject => {
+  const o = {}
+  subject.split(',').forEach(item => {
+    const [k, v] = item.trim().split('=')
+    switch (k) {
+      case 'C':
+        o.country = v
+        break
+      case 'ST':
+        o.state = v
+        break
+      case 'L':
+        o.locality = v
+        break
+      case 'O':
+        o.organization_name = v
+        break
+      case 'CN':
+        o.common_name = v
+        break
+    }
+  })
+  return o
+}

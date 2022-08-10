@@ -34,6 +34,17 @@
           <form-group-csr-common-name namespace="common_name"
             :column-label="$t('Common Name')"
           />
+
+          <form-group-csr-dns-names namespace="dns_names"
+            :column-label="$i18n.t('DNS Names')"
+            :text="$i18n.t('List of domains separated by a comma.')"
+          />
+
+          <form-group-csr-ip-addresses namespace="ip_addresses"
+            :column-label="$i18n.t('IP Addresses')"
+            :text="$i18n.t('List of IP Addresses separated by a comma.')"
+          />
+
         </base-form>
       </b-form>
       <b-form-textarea v-else
@@ -57,7 +68,9 @@ import {
   FormGroupCsrState,
   FormGroupCsrLocality,
   FormGroupCsrOrganizationName,
-  FormGroupCsrCommonName
+  FormGroupCsrCommonName,
+  FormGroupCsrDnsNames,
+  FormGroupCsrIpAddresses,
 } from './'
 
 const components = {
@@ -66,7 +79,9 @@ const components = {
   FormGroupCsrState,
   FormGroupCsrLocality,
   FormGroupCsrOrganizationName,
-  FormGroupCsrCommonName
+  FormGroupCsrCommonName,
+  FormGroupCsrDnsNames,
+  FormGroupCsrIpAddresses,
 }
 
 import { useCsr as setup, useCsrProps as props } from '../_composables/useCsr'

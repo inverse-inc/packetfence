@@ -1,8 +1,9 @@
-import { computed, customRef, ref, toRefs } from '@vue/composition-api'
+import { computed, customRef, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
+import { recomposeSubject } from '../config'
 
 const defaults = () => ({ // use function to avoid reactive poisoning of defaults
   country: undefined,
@@ -24,6 +25,9 @@ const useCsrProps = {
   id: {
     type: String
   },
+  certificate: {
+    type: Object
+  },
   value: { // v-model: show/hide
     type: Boolean
   }
@@ -35,6 +39,7 @@ const useCsr = (props, context) => {
 
   const {
     id,
+    certificate,
     value,
   } = toRefs(props)
 
@@ -43,6 +48,11 @@ const useCsr = (props, context) => {
   const csrRef = ref(null)
 
   const form = ref(defaults())
+  watch(certificate, () => {
+    const { Subject = '' } = certificate.value
+    form.value = { ...form.value, ...recomposeSubject(Subject) }
+  }, { immediate: true })
+
   const formRef = ref(null)
   useEventJail(formRef)
   const isLoading = computed(() => $store.getters['$_certificates/isLoading'])
@@ -73,7 +83,8 @@ const useCsr = (props, context) => {
   }))
 
   const reset = () => {
-    form.value = defaults() // reset form when shown/hidden
+    const { Subject = '' } = certificate.value
+    form.value = { ...defaults(), ...recomposeSubject(Subject) } // reset form when shown/hidden
     csr.value = undefined
   }
 

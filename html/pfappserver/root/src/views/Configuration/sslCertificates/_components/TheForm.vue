@@ -173,6 +173,7 @@
       <the-csr
         v-model="isShowCsr"
         :id="id"
+        :certificate="certificateLocale"
         @hidden="doHideCsr"
       />
     </b-tabs>
