@@ -41,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Automatically display mandatory fields in email/sponsor activation emails. (#7069)
 * Detect Cli-Access from Dell N1500 switch (#7070)
 * Deprecate /api/v1/config/fixpermissions and /api/v1/config/checkup
+* Update monit email (#7012)
 
 === Bug Fixes
 
