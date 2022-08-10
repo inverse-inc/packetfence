@@ -17,6 +17,14 @@ source ${PF_SRC_DIR}/conf/build_id
 configure_and_check() {
     # yes=default
     CLEANUP_IMAGES=${CLEANUP_IMAGES:-yes}
+
+    # ID of images which doesn't match TAG_OR_BRANCH_NAME store in conf/build_id
+    # uniq to remove duplicated ID due to local and remote tags
+    # || true is to handle first installation case: no images and grep exit with 1
+    PREVIOUS_IMAGES=$(docker images --format "{{.ID}}: {{.Tag}}" \
+                          | { grep -v "${TAG_OR_BRANCH_NAME}" || true; } \
+                          | cut -d ':' -f 1 | uniq)
+
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
@@ -57,38 +65,25 @@ tag_images() {
 
 cleanup_images() {
     if [ "$CLEANUP_IMAGES" = "yes" ]; then
-        # ID of images which doesn't match TAG_OR_BRANCH_NAME store in conf/build_id
-        # uniq to remove duplicated ID due to local and remote tags
-        # || true is to handle first installation case: no images and grep exit with 1
-        PREVIOUS_IMAGES=$(docker images --format "{{.ID}}: {{.Tag}}" \
-                              | { grep -v "${TAG_OR_BRANCH_NAME}" || true; } \
-                              | cut -d ':' -f 1 | uniq)
-
         if [ -z "$PREVIOUS_IMAGES" ]; then
-            echo "Nothing to cleanup"
+            echo "$(date) - Nothing to cleanup"
         else
-            # -f is necessary because images are tagged locally and remotely (registry)
-            docker rmi ${PREVIOUS_IMAGES} -f
+            if delete_images; then
+                echo "$(date) - Previous images cleaned"
+            else
+                echo "$(date) - Cleanup has failed"
+            fi
         fi
     else
-        echo "Cleanup of Docker images disabled"
+        echo "$(date) - Cleanup of Docker images disabled"
     fi
 }
 
-check_running_containers() {
-    RUNNING_CONTAINERS=$(docker container ls -q)
-    if [ -z "$RUNNING_CONTAINERS" ]; then
-        echo "All containers are stopped"
-    else
-        echo "Some containers are still running: you should restart at end of process"
-        echo "List of running containers:"
-        docker container ls
-    fi
+delete_images() {
+    docker rmi ${PREVIOUS_IMAGES} -f > /dev/null 2>&1
 }
 
 configure_and_check
-
-check_running_containers
 
 pull_images
 

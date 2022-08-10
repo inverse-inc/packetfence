@@ -616,7 +616,7 @@ if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{pri
     echo "Stopping packetfence-config to ensure proper upgrade"
     /bin/systemctl stop packetfence-config
 else
-    echo "First installation: packetfence-config will be started later in the process"
+    echo "First installation or downgrade: packetfence-config will be started later in the process"
 fi
 
 echo "Disabling emergency error logging to the console"
