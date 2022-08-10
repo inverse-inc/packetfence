@@ -1458,7 +1458,7 @@ func (c RevokedCert) GetByID(params map[string]string) (types.Info, error) {
 func (c RevokedCert) Paginated(vars sql.Vars) (types.Info, error) {
 	Information := types.Info{}
 	var count int
-	c.DB.Model(&Cert{}).Count(&count)
+	c.DB.Model(&RevokedCert{}).Count(&count)
 	Information.TotalCount = count
 	Information.PrevCursor = vars.Cursor
 	Information.NextCursor = vars.Cursor + vars.Limit
@@ -1469,7 +1469,12 @@ func (c RevokedCert) Paginated(vars sql.Vars) (types.Info, error) {
 			return Information, err
 		}
 		var revokedcertdb []RevokedCert
-		c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
+		result := c.DB.Select(sql.Select).Order(sql.Order).Offset(sql.Offset).Limit(sql.Limit).Find(&revokedcertdb)
+		if result.Error != nil {
+			Information.Error = result.Error.Error()
+			return Information, err
+		}
+
 		Information.Entries = revokedcertdb
 	}
 
