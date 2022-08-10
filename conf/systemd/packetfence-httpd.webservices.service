@@ -10,7 +10,6 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
-KillMode=none
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
@@ -22,6 +21,7 @@ TimeoutStartSec=300
 TimeoutStopSec=30
 Restart=on-failure
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/httpd.webservices-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence.target

@@ -9,7 +9,6 @@ Requires=packetfence-docker-iptables.service
 PartOf=packetfence-docker-iptables.service
 
 [Service]
-KillMode=none
 Type=notify
 TimeoutStopSec=60
 NotifyAccess=all
@@ -19,6 +18,7 @@ ExecStart=/usr/local/pf/sbin/api-frontend-docker-wrapper
 ExecStop=/bin/bash -c "docker stop api-frontend ; echo Stopped"
 Restart=on-failure
 Slice=packetfence.slice
+PIDFile=/usr/local/pf/var/run/api-frontend-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence.target

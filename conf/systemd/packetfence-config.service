@@ -5,7 +5,6 @@ After=network.target packetfence-redis-cache.service
 Wants=packetfence-redis-cache.service
 
 [Service]
-KillMode=none
 Type=notify
 NotifyAccess=all
 StartLimitBurst=3
@@ -15,6 +14,7 @@ ExecStop=/bin/bash -c "docker stop pfconfig ; echo Stopped"
 Slice=packetfence-base.slice
 Restart=on-failure
 TimeoutStopSec=30
+PIDFile=/usr/local/pf/var/run/pfconfig-systemd-notify.pid
 
 [Install]
 WantedBy=packetfence-base.target
