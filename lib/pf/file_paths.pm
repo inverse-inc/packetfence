@@ -409,7 +409,7 @@ $pffilter_socket_path = catfile($var_dir, "run/pffilter.sock");
 
 $cache_control_file = catfile($var_dir, "cache_control");
 
-$config_version_file = catfile($var_dir, "config_version");
+$config_version_file = catfile($var_dir, "conf/config_version");
 
 $maintenance_file = catfile($var_dir,"maintenance-mode");
 
