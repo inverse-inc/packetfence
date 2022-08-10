@@ -17,7 +17,7 @@ setup_vars() {
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
 
     # variables to pass during build
-    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY'
+    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE'
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
