@@ -13,10 +13,9 @@ const pollTaskStatus = (id) => {
       delete retries[id]
     return response.data
   }).catch(error => {
-    if (error.response) { // The request was made and a response with a status code was received
+    if (error.response && error.code !== 'ERR_NETWORK') { // The request was made and a response with a status code was received
       throw error
     }
-//  else if (error.request) { // the request was made but no response was received (no connection)
     else {
       if (!(id in retries))
         retries[id] = 0
@@ -83,13 +82,6 @@ const actions = {
       return data.item
     }).catch(error => {
       throw error
-      /*
-      return new Promise(resolve => {
-        setTimeout(() => {
-          resolve(dispatch('pollTaskStatus', id))
-        }, 3000)
-      })
-      */
     })
   }
 }
