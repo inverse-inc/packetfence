@@ -38,10 +38,10 @@
           :text="$i18n.t('List of OS which will be allowed to be register via the self service portal.')"
         />
       </base-form-tab>
-      <base-form-tab :title="$i18n.t('Dynamic Pre Shared Key')">
+      <base-form-tab :title="$i18n.t('DPSK')">
         <form-group-dynamic-pre-shared-key namespace="dynamic_pre_shared_key"
-          :column-label="$i18n.t('Show the user pre shared key')"
-          :text="$i18n.t('Enable the view of the pre shared key of the user in the status page.')"
+          :column-label="$i18n.t('Show the user WPA pre-shared key')"
+          :text="$i18n.t('Will display the WPA pre-shared key on the status page when a DPSK provisioner is configured.')"
         />
       </base-form-tab>
     </b-tabs>

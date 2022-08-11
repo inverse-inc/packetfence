@@ -84,7 +84,6 @@ has_field 'device_registration_allowed_devices' =>
 has_field 'dynamic_pre_shared_key',
   (
    type => 'Toggle',
-   label => 'Enable PSK',
    checkbox_value => 'enabled',
    unchecked_value => 'disabled',
    default => 'disabled',
