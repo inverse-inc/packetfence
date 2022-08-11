@@ -13,15 +13,17 @@ const pollTaskStatus = (id) => {
       delete retries[id]
     return response.data
   }).catch(error => {
-    if (error.response) // The request was made and a response with a status code was received
-      throw(error)
-    else if (error.request) { // the request was made but no response was received (no connection)
+    if (error.response) { // The request was made and a response with a status code was received
+      throw error
+    }
+//  else if (error.request) { // the request was made but no response was received (no connection)
+    else {
       if (!(id in retries))
         retries[id] = 0
       else
         retries[id]++
       if (retries[id] > 10) // give up after N retries
-        throw(error)
+        throw error
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
           pollTaskStatus(id)
@@ -30,8 +32,6 @@ const pollTaskStatus = (id) => {
         }, 1000)
       })
     }
-    else
-      throw(error)
   })
 }
 
@@ -81,12 +81,15 @@ const actions = {
         throw new Error(data.error.message)
       }
       return data.item
-    }).catch(() => {
+    }).catch(error => {
+      throw error
+      /*
       return new Promise(resolve => {
         setTimeout(() => {
           resolve(dispatch('pollTaskStatus', id))
         }, 3000)
       })
+      */
     })
   }
 }
