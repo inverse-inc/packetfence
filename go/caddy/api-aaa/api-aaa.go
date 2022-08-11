@@ -132,6 +132,8 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 		)
 		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
 		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
+	} else {
+		panic("Unable to setup the system user authentication backend")
 	}
 
 	// Backend for the pf.conf webservices user
