@@ -3,7 +3,7 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
 import yup from '@/utils/yup'
-import { recomposeSubject } from '../config'
+import { recomposeRDNSequence, recomposeSAN } from '../config'
 
 const defaults = () => ({ // use function to avoid reactive poisoning of defaults
   country: undefined,
@@ -49,8 +49,8 @@ const useCsr = (props, context) => {
 
   const form = ref(defaults())
   watch(certificate, () => {
-    const { Subject = '' } = certificate.value
-    form.value = { ...form.value, ...recomposeSubject(Subject) }
+    const { Subject = '', ['Subject Alternative Names']: SubjectAlternativeNames = [] } = certificate.value
+    form.value = { ...form.value, ...recomposeRDNSequence(Subject), ...recomposeSAN(SubjectAlternativeNames) }
   }, { immediate: true })
 
   const formRef = ref(null)
@@ -83,8 +83,8 @@ const useCsr = (props, context) => {
   }))
 
   const reset = () => {
-    const { Subject = '' } = certificate.value
-    form.value = { ...defaults(), ...recomposeSubject(Subject) } // reset form when shown/hidden
+    const { Subject = '', ['Subject Alternative Names']: SubjectAlternativeNames = [] } = certificate.value
+    form.value = { ...defaults(), ...recomposeRDNSequence(Subject), ...recomposeSAN(SubjectAlternativeNames) } // reset form when shown/hidden
     csr.value = undefined
   }
 

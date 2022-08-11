@@ -20,7 +20,7 @@ export const strings = {
 
 export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name', 'subject_alt_name']
 
-export const recomposeSubject = subject => {
+export const recomposeRDNSequence = (subject = '') => {
   const o = {}
   subject.split(',').forEach(item => {
     const [k, v] = item.trim().split('=')
@@ -41,6 +41,26 @@ export const recomposeSubject = subject => {
         o.common_name = v
         break
     }
+  })
+  return o
+}
+
+export const recomposeSAN = (sans = []) => {
+  const o = {}
+  sans.forEach(san => {
+    const [k, v] = san.split(':', 2)
+    switch (k) {
+      case 'DNS':
+        o.dns_names = ('dns_names' in o)
+          ? [...o.dns_names.split(','), v].join(',')
+          : v
+        break
+      case 'IP':
+        o.ip_addresses = ('ip_addresses' in o)
+          ? [...o.ip_addresses.split(','), v].join(',')
+          : v
+        break
+      }
   })
   return o
 }
