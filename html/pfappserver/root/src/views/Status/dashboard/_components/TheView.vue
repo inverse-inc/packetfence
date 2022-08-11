@@ -2,7 +2,7 @@
     <b-container class="my-3" fluid>
       <b-alert variant="danger" :show="chartsError" fade>
         <h4 class="alert-heading" v-t="'Error'"></h4>
-        <p>{{ $t('The charts of the dasboard are currently not available.') }}</p>
+        <p>{{ $t('The charts on the dashboard are currently not available.') }}</p>
         <base-button-service v-can:read="'services'"
           service="netdata" restart start stop class="mr-1" />
       </b-alert>
