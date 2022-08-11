@@ -18,13 +18,6 @@ configure_and_check() {
     # yes=default
     CLEANUP_IMAGES=${CLEANUP_IMAGES:-yes}
 
-    # ID of images which doesn't match TAG_OR_BRANCH_NAME store in conf/build_id
-    # uniq to remove duplicated ID due to local and remote tags
-    # || true is to handle first installation case: no images and grep exit with 1
-    PREVIOUS_IMAGES=$(docker images --format "{{.ID}}: {{.Tag}}" \
-                          | { grep -v "${TAG_OR_BRANCH_NAME}" || true; } \
-                          | cut -d ':' -f 1 | uniq)
-
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
@@ -65,14 +58,10 @@ tag_images() {
 
 cleanup_images() {
     if [ "$CLEANUP_IMAGES" = "yes" ]; then
-        if [ -z "$PREVIOUS_IMAGES" ]; then
-            echo "$(date) - Nothing to cleanup"
+        if delete_images; then
+            echo "$(date) - Previous images cleaned"
         else
-            if delete_images; then
-                echo "$(date) - Previous images cleaned"
-            else
-                echo "$(date) - Cleanup has failed"
-            fi
+            echo "$(date) - Cleanup has failed"
         fi
     else
         echo "$(date) - Cleanup of Docker images disabled"
@@ -80,7 +69,8 @@ cleanup_images() {
 }
 
 delete_images() {
-    docker rmi ${PREVIOUS_IMAGES} -f > /dev/null 2>&1
+    # Remove all dangling images, images not referenced by any container are kept
+    docker image prune -f > /dev/null 2>&1
 }
 
 configure_and_check
