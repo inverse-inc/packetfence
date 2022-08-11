@@ -32,6 +32,16 @@
       />
       <template v-slot:prepend>
         <slot name="prepend"></slot>
+        <b-button v-if="inputPlaceholder && !inputValue"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+          v-b-tooltip.hover.left.d300 :title="$t('A default value is provided if this field is not defined.')"
+        >
+          <icon ref="icon-default"
+            name="sort-size-down" scale="0.75"
+          />
+        </b-button>
       </template>
       <template v-slot:append>
         <slot name="append"></slot>

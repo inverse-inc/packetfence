@@ -123,8 +123,18 @@
           </b-media>
         </template>
       </multiselect>
-      <template v-slot:prepend v-if="$slots.prepend">
-        <slot name="prepend"></slot>
+      <template v-slot:prepend>
+        <slot  v-if="$slots.prepend" name="prepend"></slot>
+        <b-button v-if="inputPlaceholder && isEmpty"
+          class="input-group-text"
+          :disabled="true"
+          tabIndex="-1"
+          v-b-tooltip.hover.left.d300 :title="$t('A default value is provided if this field is not defined.')"
+        >
+          <icon ref="icon-default"
+            name="sort-size-down" scale="0.75"
+          />
+        </b-button>
       </template>
       <template v-slot:append v-if="$slots.append || isLocked">
         <slot name="append"></slot>
