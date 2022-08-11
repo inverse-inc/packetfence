@@ -362,7 +362,7 @@ sub validate_password {
             'password.pid' => $pid,
             'person.potd' => $allow_potd ? 'yes' : ['no', undef],
         },
-        -columns => [qw(password.pid|pid password.password|password), 'IFNULL(UNIX_TIMESTAMP(valid_from),0)|valid_from', 'IFNULL(UNIX_TIMESTAMP(DATE_FORMAT(expiration,"%Y-%m-%d 23:59:59")),0)|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
+        -columns => [qw(password.pid|pid password.password|password), 'IFNULL(UNIX_TIMESTAMP(valid_from),0)|valid_from', 'IFNULL(UNIX_TIMESTAMP(expiration),0)|expiration', qw(password.access_duration|access_duration password.category|category person.potd|potd)],
         #To avoid a join
         -limit => 1,
         -no_auto_tenant_id => 1,
@@ -376,7 +376,6 @@ sub validate_password {
     }
 
     if ( _check_password( $password, $temppass_record->{'password'}) ) {
-
         # password is valid but not yet valid
         # valid_from is in unix timestamp format so an int comparison is enough
         my $valid_from = $temppass_record->{'valid_from'};
