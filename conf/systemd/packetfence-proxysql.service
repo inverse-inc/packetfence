@@ -16,6 +16,7 @@ ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-
 ExecStart=/usr/local/pf/sbin/proxysql-docker-wrapper
 ExecStop=/bin/bash -c "docker stop proxysql ; docker container rm proxysql -f ; echo Stopped"
 TimeoutStopSec=60
+Restart=on-failure
 
 [Install]
 WantedBy=packetfence-cluster.target
