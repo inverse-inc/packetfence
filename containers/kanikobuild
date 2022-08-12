@@ -17,7 +17,7 @@ setup_vars() {
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
 
     # variables to pass during build
-    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE'
+    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE CI_COMMIT_SHA'
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
@@ -71,6 +71,10 @@ generate_destinations() {
     echo "$destinations"
 }
 
+generate_sha() {
+    echo "${CI_COMMIT_SHA}" > /kaniko/
+}
+
 build_image() {
     /kaniko/executor --context $CI_PROJECT_DIR \
          --dockerfile ${DOCKFILE_PATH} \
@@ -84,4 +88,5 @@ setup_vars
 generate_knk_config
 generate_build_args
 generate_destinations
+generate_sha
 build_image
