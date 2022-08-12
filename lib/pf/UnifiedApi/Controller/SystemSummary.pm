@@ -18,6 +18,7 @@ use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
 use Fcntl qw(SEEK_SET);
+use pf::UnifiedApi::Controller::Config::System;
 
 sub get {
     my ($self) = @_;
@@ -26,7 +27,7 @@ sub get {
            readonly_mode => db_check_readonly() ? $self->json_true : $self->json_false,
            is_inline_configured => is_inline_configured() ? $self->json_true : $self->json_false,
            version => pf::version::version_get_current(),
-           hostname => $host_id,
+           hostname => pf::UnifiedApi::Controller::Config::System::_get_hostname,
            uptime(),
            db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
         }
