@@ -17,11 +17,11 @@ const pollTaskStatus = ({ task_id, headers }) => {
       throw error
     }
     else {
-      if (!(id in retries))
-        retries[id] = 0
+      if (!(task_id in retries))
+        retries[task_id] = 0
       else
-        retries[id]++
-      if (retries[id] > 10) // give up after N retries
+        retries[task_id]++
+      if (retries[task_id] > 10) // give up after N retries
         throw error
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
