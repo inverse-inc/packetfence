@@ -161,7 +161,7 @@ sub isAlive {
     my $result;
     my $pid = $self->pid;
     my $_EXIT_CODE_EXISTS = "0";
-    my $rules_applied = pf_run( "sudo /sbin/iptables-save | grep -- \"-A input-management-if -p tcp -m tcp --dport 1443 -j ACCEPT\"",accepted_exit_status => [$_EXIT_CODE_EXISTS, 1]);
+    my $rules_applied = pf_run( "sudo iptables -S | grep -- \"-A input-management-if -p tcp -m tcp --dport 1443 -j ACCEPT\"",accepted_exit_status => [$_EXIT_CODE_EXISTS, 1]);
     return ($rules_applied) ? 1 : 0;
 }
 

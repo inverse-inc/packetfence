@@ -134,7 +134,7 @@ sub isAlive {
     my @listen_interfaces = map {$_->tag("int")} @internal_nets, $management_network;
 
     my @interfaces = keys %{{map {($_ => 1)} (@ints, @listen_interfaces)}};
-    if (-f "$install_dir/var/tc_applied") {
+    if (-f "$install_dir/var/run/tc_applied") {
         return $TRUE;
     } else {
         return $FALSE;
@@ -178,8 +178,8 @@ sub manageTrafficShaping {
             }
             close $fh;
         }
-        if (-f "$install_dir/var/tc_applied") {
-           unlink("$install_dir/var/tc_applied");
+        if (-f "$install_dir/var/run/tc_applied") {
+           unlink("$install_dir/var/run/tc_applied");
         }
     } else {
         open (my $fh, "+>$install_dir/var/traffic_shaping.bak");
@@ -273,7 +273,7 @@ sub manageTrafficShaping {
         }
         close $fa;
         close $fh;
-        touch_file("$install_dir/var/tc_applied");
+        touch_file("$install_dir/var/run/tc_applied");
     }
 }
 
