@@ -9,6 +9,7 @@ Type=notify
 NotifyAccess=all
 StartLimitBurst=3
 StartLimitInterval=10
+ExecStartPre=/usr/local/pf/containers/docker-minimal-rules.sh
 ExecStart=/usr/local/pf/sbin/pfconfig-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconfig ; echo Stopped"
 Slice=packetfence-base.slice
