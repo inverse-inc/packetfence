@@ -61,7 +61,7 @@ cleanup_images() {
         if delete_images; then
             echo "$(date) - Previous images cleaned"
         else
-            echo "$(date) - Cleanup has failed"
+            echo "$(date) - Cleanup of outdated docker images has failed"
         fi
     else
         echo "$(date) - Cleanup of Docker images disabled"
