@@ -15,7 +15,7 @@ extends 'captiveportal::DynamicRouting::Module::Authentication::Login';
 with 'captiveportal::Role::FieldValidation';
 with 'captiveportal::Role::MultiSource';
 
-has '+username' => (is => 'rw');
+has '+username' => (is => 'rw', trigger => sub{});
 
 =head2 _build_required_fields
 
@@ -47,6 +47,7 @@ sub execute_child {
                 $self->prompt_fields();
             }
         } else {
+            $self->_username_set($self->username);
             $self->authenticate($self->username);
         }
     }
