@@ -121,6 +121,7 @@ import { computed, toRefs, watch } from '@vue/composition-api'
 import { protectedServices } from '@/store/modules/cluster'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
+import { localeStrings } from '../config'
 
 const setup = (props, context) => {
 
@@ -155,38 +156,38 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
 
   const doEnable = () => $store.dispatch('cluster/enableService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t('Service <code>{service}</code> enabled.', { service: id.value }) })
+    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('enable', { server, id: id.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: server.value, message: i18n.t('Failed to enable service <code>{service}</code>. See the server error logs for more information.', { service: id.value }) })
+    $store.dispatch('notification/danger', { url: server.value, message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${id.value}</code>` }) })
   })
 
   const doDisable = () => $store.dispatch('cluster/disableService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t('Service <code>{service}</code> disabled.', { service: id.value }) })
+    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('disable', { server, id: id.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: server.value, message: i18n.t('Failed to disable service <code>{service}</code>. See the server error logs for more information.', { service: id.value }) })
+    $store.dispatch('notification/danger', { url: server.value, message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${id.value}</code>` }) })
   })
 
   const doRestart = () => $store.dispatch('cluster/restartService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t('Service <code>{service}</code> restarted.', { service: id.value }) })
+    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('restart', { server, id: id.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: server.value, message: i18n.t('Failed to restart service <code>{service}</code>.  See the server error logs for more information.', { service: id.value }) })
+    $store.dispatch('notification/danger', { url: server.value, message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${id.value}</code>` }) })
   })
 
   const doStart = () => $store.dispatch('cluster/startService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t('Service <code>{service}</code> started.', { service: id.value }) })
+    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('start', { server, id: id.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: server.value, message: i18n.t('Failed to start service <code>{service}</code>.  See the server error logs for more information.', { service: id.value }) })
+    $store.dispatch('notification/danger', { url: server.value, message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${id.value}</code>` }) })
   })
 
   const doStop = () => $store.dispatch('cluster/stopService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t('Service <code>{service}</code> killed.', { service: id.value }) })
+    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('stop', { server, id: id.value })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: server.value, message: i18n.t('Failed to kill service <code>{service}</code>.  See the server error logs for more information.s', { service: id.value }) })
+    $store.dispatch('notification/danger', { url: server.value, message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: `<code>${id.value}</code>` }) })
   })
 
   return {

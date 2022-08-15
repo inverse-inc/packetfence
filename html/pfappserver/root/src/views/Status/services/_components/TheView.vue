@@ -108,6 +108,7 @@ const components = {
 import { computed, customRef, onMounted, ref } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import i18n from '@/utils/locale'
+import { localeStrings } from '../config'
 
 const setup = (props, context) => {
 
@@ -158,33 +159,33 @@ const setup = (props, context) => {
   })
 
   const doEnableAll = service => $store.dispatch('cluster/enableServiceCluster', service).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> enabled.', { service: service }) })
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${service}</code>` }) })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to enable service <code>{service}</code>. See the server error logs for more information.', { service: service }) })
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${service}</code>` }) })
   })
 
   const doDisableAll = service => $store.dispatch('cluster/disableServiceCluster', service).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> disabled.', { service: service }) })
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${service}</code>` }) })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to disable service <code>{service}</code>. See the server error logs for more information.', { service: service }) })
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${service}</code>` }) })
   })
 
   const doRestartAll = service => $store.dispatch('cluster/restartServiceCluster', service).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> restarted.', { service: service }) })
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service}</code>` }) })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to restart service <code>{service}</code>.  See the server error logs for more information.', { service: service }) })
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${service}</code>` }) })
   })
 
   const doStartAll = service => $store.dispatch('cluster/startServiceCluster', service).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> started.', { service: service }) })
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${service}</code>` }) })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to start service <code>{service}</code>.  See the server error logs for more information.', { service: service }) })
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${service}</code>` }) })
   })
 
   const doStopAll = service => $store.dispatch('cluster/stopServiceCluster', service).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Service <code>{service}</code> killed.', { service: service }) })
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${service}</code>` }) })
   }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t('Failed to kill service <code>{service}</code>.  See the server error logs for more information.s', { service: service }) })
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: `<code>${service}</code>` }) })
   })
 
   const tableRef = ref(null)

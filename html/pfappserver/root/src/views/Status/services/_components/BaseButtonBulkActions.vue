@@ -38,6 +38,7 @@ const props = {
 
 import { computed, nextTick, ref, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { localeStrings } from '../config'
 
 const setup = (props, context) => {
 
@@ -52,10 +53,11 @@ const setup = (props, context) => {
   const {
     selectedItems
   } = toRefs(props)
+  const selectedItemsCsv = computed(() => selectedItems.value.map(({ service }) => `<code>${service}</code>`).join(', '))
 
   const { root: { $store } = {} } = context
 
-  const isCluster = computed(() => $store.getters['cluster/isCluster'])
+  const isCluster = computed(() => true /*$store.getters['cluster/isCluster']*/)
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
   const servers = computed(() => $store.state.cluster.servers)
 
@@ -63,7 +65,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/disableServiceCluster', service).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Services disabled.') })
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -71,7 +75,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/enableServiceCluster', service).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Services enabled.') })
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -79,7 +85,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/restartServiceCluster', service).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Services restarted.') })
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -87,7 +95,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/startServiceCluster', service).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Services started.') })
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -95,7 +105,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/stopServiceCluster', service).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t('Services stopped.') })
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -103,7 +115,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/disableService', { server, id: service }).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: server, message: i18n.t('Services disabled.') })
+      $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -111,7 +125,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/enableService', { server, id: service }).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: server, message: i18n.t('Services enabled.') })
+      $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -119,7 +135,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/restartService', { server, id: service }).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: server, message: i18n.t('Services restarted.') })
+      $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -127,7 +145,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/startService', { server, id: service }).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: server, message: i18n.t('Services started.') })
+      $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
@@ -135,7 +155,9 @@ const setup = (props, context) => {
     Promise.all(
       selectedItems.value.map(({ service }) => $store.dispatch('cluster/stopService', { server, id: service }).catch(e => e))
     ).then(() => {
-      $store.dispatch('notification/info', { url: server, message: i18n.t('Services stopped.') })
+      $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: selectedItemsCsv.value }) })
+    }).catch(() => {
+      $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: selectedItemsCsv.value }) })
     })
   }
 
