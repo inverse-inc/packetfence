@@ -1158,6 +1158,11 @@ gateway_on_vip_only=disabled
 # Centralize the deauthentication to the management node of the cluster.
 centralized_deauth=enabled
 #
+# active_active.use_vip_for_deauth
+#
+# Use the virtual IP as the source IP during deauthentication
+use_vip_for_deauth=enabled
+#
 # active_active.portal_on_management
 #
 # Process captive portal requests on the management server (the current load balancer).

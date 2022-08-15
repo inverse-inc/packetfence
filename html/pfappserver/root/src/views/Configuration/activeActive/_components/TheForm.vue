@@ -40,6 +40,11 @@
       :text="$i18n.t('Centralize the deauthentication to the management node of the cluster.')"
     />
 
+    <form-group-use-vip-for-deauth namespace="use_vip_for_deauth"
+      :column-label="$i18n.t('Use virtual IP for access reevaluation')"
+      :text="$i18n.t('Use the virtual IP as the source IP during access reevaluation.')"
+    />
+
     <form-group-radius-proxy-with-vip namespace="radius_proxy_with_vip"
       :column-label="$i18n.t('Proxy RADIUS using virtual IP')"
       :text="$i18n.t('Proxy the RADIUS requests received on the RADIUS load balancer using the VIP. When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address')"
@@ -101,6 +106,7 @@ import {
   FormGroupPassword,
   FormGroupPortalOnManagement,
   FormGroupRadiusProxyWithVip,
+  FormGroupUseVipForDeauth,
   FormGroupVirtualRouterIdentifier,
   FormGroupVrrpUnicast,
   FormGroupProbeMysqlFromHaproxyDb
@@ -121,6 +127,7 @@ const components = {
   FormGroupPassword,
   FormGroupPortalOnManagement,
   FormGroupRadiusProxyWithVip,
+  FormGroupUseVipForDeauth,
   FormGroupVirtualRouterIdentifier,
   FormGroupVrrpUnicast,
   FormGroupProbeMysqlFromHaproxyDb

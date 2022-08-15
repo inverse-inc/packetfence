@@ -26,6 +26,7 @@ export {
   BaseFormGroupInputPassword          as FormGroupPassword,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPortalOnManagement,
   BaseFormGroupToggleDisabledEnabled  as FormGroupRadiusProxyWithVip,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupUseVipForDeauth,
   BaseFormGroupInput                  as FormGroupVirtualRouterIdentifier,
   BaseFormGroupToggleDisabledEnabled  as FormGroupVrrpUnicast,
   BaseFormGroupToggleDisabledEnabled  as FormGroupProbeMysqlFromHaproxyDb,

@@ -3173,7 +3173,9 @@ sub deauth_source_ip {
                            );
     if (defined($Config{ 'interface ' . $int })) {
         if($cluster_enabled){
-            return isenabled($Config{active_active}{centralized_deauth}) ? pf::cluster::cluster_ip($int) : pf::cluster::current_server->{"interface $int"}->{ip};
+            return (isenabled($Config{active_active}{centralized_deauth}) && isenabled($Config{active_active}{use_vip_for_deauth})) ? 
+                pf::cluster::cluster_ip($int) : 
+                pf::cluster::current_server->{"interface $int"}->{ip};
         }
         else {
             return $Config{ 'interface ' . $int }{'vip'} || $Config{ 'interface ' . $int }{'ip'}
