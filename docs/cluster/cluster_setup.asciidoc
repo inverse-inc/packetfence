@@ -454,6 +454,7 @@ Now restart PacketFence *on all servers*:
 
 [source,bash]
 ----
+/usr/local/pf/bin/pfcmd service pf updatesystemd
 /usr/local/pf/bin/pfcmd service pf restart
 ----
 
