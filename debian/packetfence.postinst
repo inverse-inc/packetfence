@@ -147,8 +147,9 @@ case "$1" in
         systemctl disable packetfence-iptables
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
+        systemctl stop packetfence-config
         systemctl restart docker
-        systemctl restart packetfence-config
+        systemctl start packetfence-config
         /usr/local/pf/bin/pfcmd generatemariadbconfig --force
         systemctl isolate packetfence-base.target
 
