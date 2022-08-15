@@ -287,7 +287,8 @@ const actions = {
               resolve()
             }
           }
-          if (state.servers[server].services[id].enabled) {
+          const { [server]: { services: { [id]: { enabled = false } = {} } = {} } = {} } = state.servers
+          if (enabled) {
             dispatch('disableService', { server, id })
              .catch(err => reject(err))
              .then(() => next())
@@ -326,7 +327,8 @@ const actions = {
               resolve()
             }
           }
-          if (!state.servers[server].services[id].enabled) {
+          const { [server]: { services: { [id]: { enabled = false } = {} } = {} } = {} } = state.servers
+          if (!enabled) {
             dispatch('enableService', { server, id })
              .catch(err => reject(err))
              .then(() => next())
@@ -365,13 +367,14 @@ const actions = {
               resolve()
             }
           }
-         if (state.servers[server].services[id].alive && state.servers[server].services[id].pid) {
+          const { [server]: { services: { [id]: { alive = false, pid = false } = {} } = {} } = {} } = state.servers
+          if (alive && pid) {
             dispatch('restartService', { server, id })
              .catch(err => reject(err))
               .then(() => next())
           }
           else {
-            next()
+             next()
           }
         }
         async()
@@ -404,7 +407,8 @@ const actions = {
               resolve()
             }
           }
-          if (!(state.servers[server].services[id].alive && state.servers[server].services[id].pid)) {
+          const { [server]: { services: { [id]: { alive = false, pid = false } = {} } = {} } = {} } = state.servers
+          if (!(alive && pid)) {
             dispatch('startService', { server, id })
              .catch(err => reject(err))
              .then(() => next())
@@ -443,7 +447,8 @@ const actions = {
               resolve()
             }
           }
-          if (state.servers[server].services[id].alive && state.servers[server].services[id].pid) {
+          const { [server]: { services: { [id]: { alive = false, pid = false } = {} } = {} } = {} } = state.servers
+          if (alive && pid) {
             dispatch('stopService', { server, id })
              .catch(err => reject(err))
              .then(() => next())
