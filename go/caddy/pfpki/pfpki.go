@@ -2,6 +2,7 @@ package pfpki
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -62,6 +63,7 @@ func buildPfpkiHandler(ctx context.Context) (types.Handler, error) {
 	for !successDBConnect {
 		Database, err = gorm.Open("mysql", db.ReturnURIFromConfig(ctx))
 		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
 			time.Sleep(time.Duration(5) * time.Second)
 		} else {
 			successDBConnect = true
