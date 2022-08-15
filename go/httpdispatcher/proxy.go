@@ -287,6 +287,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 	Database, err := db.DbFromConfig(ctx)
 	for err != nil {
 		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
 			time.Sleep(time.Duration(5) * time.Second)
 		}
 
@@ -296,6 +297,7 @@ func (p *Proxy) Configure(ctx context.Context) {
 	for !successDBConnect {
 		err = Database.Ping()
 		if err != nil {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Failed to connect to the database: %s", err))
 			time.Sleep(time.Duration(5) * time.Second)
 		} else {
 			successDBConnect = true
