@@ -141,12 +141,8 @@ const setup = (props, context) => {
 
   onMounted(() => $store.dispatch('cluster/getServiceCluster', 'pfpki'))
   const isServiceAlive = computed(() => {
-    const { state: { system: { summary: { hostname } = {} } = {} } = {} } = $store
-    if (hostname) {
-      const { state: { cluster: { servers: { [hostname] : { services: { pfpki: { alive } = {} } = {} } = {} } = {} } = {} } = {} } = $store
-      return alive
-    }
-    return false
+    const { pfpki: { hasAlive = false } = {} } = $store.getters['cluster/servicesByServer']
+    return hasAlive
   })
   watch(isServiceAlive, () => {
     if (isServiceAlive.value)
