@@ -75,7 +75,7 @@ sub generateConfig {
         $mgmt_cluster_ip = pf::cluster::cluster_ip($mgmt_int) || $mgmt_cfg->{'vip'} || $mgmt_cfg->{'ip'};
         my @mgmt_backend_ip;
         if ($cluster_enabled) {
-            @mgmt_backend_ip = map { $_->{'management_ip'} } pf::cluster::config_enabled_servers;
+            @mgmt_backend_ip = map { $_->{'management_ip'} } pf::cluster::config_enabled_servers_reorder;
         } else {
             @mgmt_backend_ip = values %{pf::cluster::members_ips($mgmt_int)};
         }

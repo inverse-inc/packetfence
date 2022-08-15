@@ -272,6 +272,15 @@ sub reg_cluster_index {
    }
 }
 
+=head2 config_enabled_servers_reorder
+
+Return the config_enabled_servers configuration starting with the current host_id
+
+=cut
+
+sub config_enabled_servers_reorder {
+    return (current_server(), grep { $_->{host} ne $host_id } config_enabled_servers);
+}
 
 =head2 mysql_servers
 
