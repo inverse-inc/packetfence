@@ -1188,15 +1188,15 @@ sub _check_database_host_in_cluster {
     my $cs = pf::ConfigStore::Pf->new();
     my $db = $cs->readRaw("database");
     my $host = $db->{host};
-    if ( !defined($host) || $host eq 'localhost' ) {
-        add_problem($FATAL, "In conf/pf.conf database.host should not be configured to 'localhost' in a cluster");
+    if ( !defined($host) || $host eq 'localhost' || $host eq '127.0.0.1' ) {
+        add_problem($FATAL, "In conf/pf.conf database.host should not be configured to 'localhost' or '127.0.0.1' in a cluster. The right value for pointing to proxysql or haproxy-db is '100.64.0.1'");
     }
 
     my $c = pfconfig::config->new();
     $db = $c->section('mysql');
     $host = $db->{host};
-    if ( !defined($host) || $host eq 'localhost' ) {
-        add_problem($FATAL, "In conf/pfconfig.conf mysql.host should not be configured to 'localhost' in a cluster");
+    if ( !defined($host) || $host eq 'localhost' || $host eq '127.0.0.1' ) {
+        add_problem($FATAL, "In conf/pfconfig.conf mysql.host should not be configured to 'localhost' or '127.0.0.1' in a cluster. The right value for pointing to proxysql or haproxy-db is '100.64.0.1'");
     }
 }
 
