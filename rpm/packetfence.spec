@@ -627,6 +627,11 @@ if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
     echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
 fi
 
+# Run actions only on upgrade
+if [ "$1" = "2" ]; then
+    perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
+fi
+
 /usr/bin/mkdir -p /var/log/journal/
 echo "Restarting journald to enable persistent logging"
 /bin/systemctl restart systemd-journald
