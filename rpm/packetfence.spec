@@ -609,18 +609,14 @@ fi
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
-# Handle 9.2 migration from several RPM to one package
-# At this stage, packetfence-config unit file is "not-found" by systemd
-# daemon-reload is necessary to take new unit file into account
-# Restart of service is necessary to avoid long wait and failures of next commands
-if [ "$(/bin/systemctl show -p LoadState packetfence-config | awk -F '=' '{print $2}')" == "not-found" ]; then
-    echo "Systemd need a reload to take new packetfence-config unit file into account"
-    /bin/systemctl daemon-reload
-    echo "Starting packetfence-config service early to avoid failures when running next commands"
-    /bin/systemctl start packetfence-config
+# Stop packetfence-config during upgrade process to ensure
+# it is started with latest code
+if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" = "active" ]; then
+    echo "Upgrade: packetfence-config has been started during preinstallation (packetfence-base.target)"
+    echo "Stopping packetfence-config to ensure proper upgrade"
+    /bin/systemctl stop packetfence-config
 else
-    echo "packetfence-config unit has been found"
-    echo "State of packetfence-config service: $(/bin/systemctl show -p ActiveState packetfence-config)"
+    echo "First installation or downgrade: packetfence-config will be started later in the process"
 fi
 
 echo "Disabling emergency error logging to the console"
@@ -631,8 +627,8 @@ if ! grep 'containers-gateway.internal' /etc/hosts > /dev/null; then
     echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
 fi
 
+# Run actions only on upgrade
 if [ "$1" = "2" ]; then
-    /usr/local/pf/bin/pfcmd service pf updatesystemd
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
 fi
 
@@ -730,17 +726,21 @@ rm -rf /usr/local/pf/var/cache/
 /bin/systemctl enable packetfence-redis-cache
 /bin/systemctl enable packetfence-config
 /bin/systemctl disable packetfence-iptables
-/bin/systemctl restart packetfence-config
+/bin/systemctl start packetfence-config
 /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+# only packetfence-config is running after this command
 /bin/systemctl isolate packetfence-base
+
 /bin/systemctl enable packetfence-httpd.admin_dispatcher
 /bin/systemctl enable packetfence-haproxy-admin
 /bin/systemctl enable packetfence-iptables
 /bin/systemctl enable packetfence-tracking-config.path
 /usr/local/pf/bin/pfcmd configreload
 echo "Starting PacketFence Administration GUI..."
-/bin/systemctl restart packetfence-httpd.admin_dispatcher
-/bin/systemctl restart packetfence-haproxy-admin
+/bin/systemctl start packetfence-httpd.admin_dispatcher
+/bin/systemctl start packetfence-haproxy-admin
+
+/usr/local/pf/bin/pfcmd service pf updatesystemd
 
 # Empty root password in order to allow other user to connect as root.
 /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"

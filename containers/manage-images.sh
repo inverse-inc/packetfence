@@ -15,6 +15,9 @@ source <(grep 'LOCAL_REGISTRY' ${PF_SRC_DIR}/config.mk | tr -d ' ')
 source ${PF_SRC_DIR}/conf/build_id
 
 configure_and_check() {
+    # yes=default
+    CLEANUP_IMAGES=${CLEANUP_IMAGES:-yes}
+
     # find all directories with Dockerfile
     # excluding non necessary images
     DOCKERFILE_DIRS=$(find ${SCRIPT_DIR} -type f -name "Dockerfile" \
@@ -47,15 +50,27 @@ tag_images() {
     done
 
     # The pfconnector-server and pfconnector-client images point to the local pfconnector image
-  docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-server:${TAG_OR_BRANCH_NAME}
-  docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-client:${TAG_OR_BRANCH_NAME}
+    docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-server:${TAG_OR_BRANCH_NAME}
+    docker tag ${LOCAL_REGISTRY}/pfconnector:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/pfconnector-client:${TAG_OR_BRANCH_NAME}
 
     echo "$(date) - Tag of images finished"
 }
 
 cleanup_images() {
+    if [ "$CLEANUP_IMAGES" = "yes" ]; then
+        if delete_images; then
+            echo "$(date) - Previous images cleaned"
+        else
+            echo "$(date) - Cleanup of outdated docker images has failed"
+        fi
+    else
+        echo "$(date) - Cleanup of Docker images disabled"
+    fi
+}
+
+delete_images() {
     # Remove all dangling images, images not referenced by any container are kept
-    docker image prune -f
+    docker image prune -f > /dev/null 2>&1
 }
 
 configure_and_check

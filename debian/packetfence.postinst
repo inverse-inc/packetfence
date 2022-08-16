@@ -57,6 +57,16 @@ case "$1" in
         make conf/ssl/server.pem
         chown pf $PACKETFENCE/conf/ssl/server.key
 
+        # Stop packetfence-config during upgrade process to ensure
+        # it is started with latest code
+        if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" = "active" ]; then
+            echo "Upgrade: packetfence-config has been started during preinstallation (packetfence-base.target)"
+            echo "Stopping packetfence-config to ensure proper upgrade"
+            /bin/systemctl stop packetfence-config
+        else
+            echo "First installation or downgrade: packetfence-config will be started later in the process"
+        fi
+
         echo "Disabling emergency error logging to the console"
         /bin/sed -i 's/^\*.emerg/#*.emerg/g' /etc/rsyslog.conf
 
@@ -119,6 +129,8 @@ case "$1" in
           echo "" >> /etc/hosts
           echo "100.64.0.1 containers-gateway.internal" >> /etc/hosts
         fi
+
+        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
  
         #Starting PacketFence.
         #removing old cache
@@ -138,6 +150,7 @@ case "$1" in
 	echo "Restarting rsyslog"
         systemctl restart rsyslog
 
+        systemctl restart docker
 	# get containers image and tag them locally
 	/usr/local/pf/containers/manage-images.sh
 
@@ -147,17 +160,15 @@ case "$1" in
         systemctl disable packetfence-iptables
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
-        systemctl stop packetfence-config
-        systemctl restart docker
         systemctl start packetfence-config
         /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        # only packetfence-config is running after this command
         systemctl isolate packetfence-base.target
 
         # Override the MySQL socket location to match our standard
         printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
         sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
 
-        perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
         set +e
         /usr/local/pf/bin/pfcmd configreload
         /usr/local/pf/bin/pfcmd fixpermissions
