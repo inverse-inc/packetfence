@@ -24,7 +24,7 @@ endif::[]
 * The servers are located within the following latency limits (requirement for Galera cluster)
  * For smaller deployments, 75ms of latency can be tolerated between the cluster nodes
  * For larger deployments, 50ms of latency can be tolerated between the cluster nodes
- * PacketFence does support external MySQL primary/replicas to allow deployments which are geo distributed (see 'Geo Distributed Database' in this document for details)
+// * PacketFence does support external MySQL primary/replicas to allow deployments which are geo distributed (see 'Geo Distributed Database' in this document for details)
 
 NOTE: Appended to this guide is a glossary on specialized terms used in this document.
 
