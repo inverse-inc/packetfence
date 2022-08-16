@@ -53,7 +53,7 @@ testcases:
         "cliTransport": null,
         "cliUser": null,
         "coaPort": null,
-        "controllerIp": null,
+        "controllerIp": "{{.switch01_mgmt_ip}}",
         "deauthMethod": null,
         "defaultAccessList": null,
         "defaultRole": null,
@@ -203,7 +203,7 @@ testcases:
         "cliTransport": null,
         "cliUser": null,
         "coaPort": null,
-        "controllerIp": null,
+        "controllerIp": "{{.wireless01_mgmt_ip}}",
         "deauthMethod": null,
         "defaultAccessList": null,
         "defaultRole": null,
@@ -279,6 +279,42 @@ testcases:
     body: >-
       {
         "id": "{{.wireless_switch.id1}}",
+        "group": "{{.wireless_switch_group.id}}",
+        "description": "{{.wireless_switch.description}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_wired_switch_by_mac
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "44:38:39:00:00:12",
+        "group": "{{.cumulus_switch_group.id}}",
+        "description": "{{.cumulus_switch.description}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_wireless_switch_by_mac
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "02:00:00:00:00:00",
         "group": "{{.wireless_switch_group.id}}",
         "description": "{{.wireless_switch.description}}"
       }
