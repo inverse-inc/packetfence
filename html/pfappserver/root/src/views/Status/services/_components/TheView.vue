@@ -14,7 +14,6 @@
         class="mb-0"
         show-empty
         responsive
-        fixed
         sort-icon-left
         striped
         selectable
@@ -123,13 +122,14 @@ const setup = (props, context) => {
     return [
       {
         key: 'selected',
-        thStyle: 'width: 40px;', tdClass: 'text-center',
+        thStyle: 'min-width: 40px; width: 40px;', tdClass: 'text-center',
         locked: true,
         stickyColumn: true,
 
       },
       {
         key: 'service',
+        tdClass: 'text-nowrap',
         label: i18n.t('Service'),
         sortable: true,
         visible: true,
