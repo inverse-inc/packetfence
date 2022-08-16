@@ -29,11 +29,14 @@ sub get {
            version => pf::version::version_get_current(),
            hostname => pf::UnifiedApi::Controller::Config::System::_get_hostname,
            uptime(),
+           git_commit_id(),
            db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
         }
     );
 
 }
+
+our $GIT_COMMIT_ID_FILE = '/usr/local/pf/conf/git_commit_id';
 
 my $UPTIME_FH;
 open ($UPTIME_FH, '<', "/proc/uptime");
@@ -53,6 +56,28 @@ sub uptime {
     my $uptime_info = <$UPTIME_FH>;
     my ($uptime, $idle) = $uptime_info =~ /(\d+(?:\.\d+)?) ((\d+(?:\.\d+)?))/;
     return (uptime => $uptime)
+}
+
+=head2 git_commit_id
+
+git_commit_id
+
+=cut
+
+sub git_commit_id {
+    my ($self, $ctx, $args) = @_;
+    my $id = undef;
+    if ( -f $GIT_COMMIT_ID_FILE) {
+        if (open(my $fh, $GIT_COMMIT_ID_FILE)) {
+            {
+                local $/ = undef;
+                $id = <$fh>;
+            }
+            chomp($id);
+        }
+    }
+
+    return (git_commit_id => $id);
 }
 
 =head1 AUTHOR
