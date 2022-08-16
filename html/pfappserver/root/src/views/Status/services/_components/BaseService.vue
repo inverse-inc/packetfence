@@ -1,22 +1,17 @@
 <template>
   <b-overlay :show="service.status && !['success', 'error'].includes(service.status)" variant="white">
     <b-container fluid class="px-0">
-      <b-row class="row-nowrap mx-0" align-v="start">
+      <b-row class="row-nowrap mx-0" align-v="center">
         <b-col cols="7">
-          <b-row class="row-nowrap" cols="2">
-            <b-col>{{ $i18n.t('Alive') }}</b-col>
-            <b-col cols="auto" class="text-right ml-auto">
-              <b-badge v-if="service.alive && service.pid" pill variant="success">{{ service.pid }}</b-badge>
-              <icon v-else class="text-danger" name="circle"/>
-            </b-col>
+          <b-row class="row-nowrap py-1" cols="2"
+            v-b-tooltip.hover.left.d300 :title="$t('PID: {pid}', service)"
+          >
+            <b-col cols="6" class="text-nowrap">{{ $i18n.t('Alive') }}</b-col>
+            <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.alive && service.pid) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
-          <b-row class="row-nowrap" cols="2">
-            <b-col>{{ $i18n.t('Enabled') }}</b-col>
+          <b-row class="row-nowrap py-1" cols="2">
+            <b-col cols="6" class="text-nowrap">{{ $i18n.t('Enabled') }}</b-col>
             <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
-          </b-row>
-          <b-row class="row-nowrap" cols="2">
-            <b-col>{{ $i18n.t('Managed') }}</b-col>
-            <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.managed) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
         </b-col>
         <b-col cols="5" class="text-wrap" v-if="isAllowed">
