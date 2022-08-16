@@ -124,13 +124,16 @@ const setup = (props, context) => {
       {
         key: 'selected',
         thStyle: 'width: 40px;', tdClass: 'text-center',
-        locked: true
+        locked: true,
+        stickyColumn: true,
+
       },
       {
         key: 'service',
         label: i18n.t('Service'),
         sortable: true,
-        visible: true
+        visible: true,
+        stickyColumn: true,
       },
       ...servers.value.map(server => ({
         key: server,
