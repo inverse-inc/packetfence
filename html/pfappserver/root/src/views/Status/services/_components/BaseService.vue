@@ -41,25 +41,25 @@
       </b-row>
       <b-row v-if="isProtected"
         class="mt-2 mx-0">
-        <b-col class="small text-secondary">
+        <b-col class="small text-secondary text-wrap">
           {{ $i18n.t('This service can not be managed since it is required for this page to function.') }}
         </b-col>
       </b-row>
       <b-row v-if="!service.alive && service.managed"
         class="mt-2 mx-0">
-        <b-col class="small text-danger">
+        <b-col class="small text-danger text-wrap">
           {{ $i18n.t('Service {name} is required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.alive && !service.managed"
         class="mt-2 mx-0">
-        <b-col class="small text-danger">
+        <b-col class="small text-danger text-wrap">
           {{ $i18n.t('Service {name} is not required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.message"
         class="mt-2 mx-0">
-        <b-col class="small text-danger">
+        <b-col class="small text-danger text-wrap">
           {{ service.message }}
         </b-col>
       </b-row>
