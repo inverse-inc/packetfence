@@ -46,8 +46,6 @@ sub search {
     return $self->handle_search($search_info_or_error);
 }
 
-my $GENERATOR = Data::UUID->new;
-
 sub handle_search {
     my ($self, $search_info) = @_;
     my ($status, $response) = $self->search_builder->search($search_info);
@@ -1322,10 +1320,6 @@ sub bulk_import {
         my $results = $self->do_bulk_import($data);
         return $self->render(json => { items => $results });
     }
-}
-
-sub task_id {
-    "ApiTask:" . $GENERATOR->create_str
 }
 
 sub do_bulk_import {

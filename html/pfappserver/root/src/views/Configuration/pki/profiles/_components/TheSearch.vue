@@ -120,7 +120,7 @@ const components = {
   BaseTableEmpty
 }
 
-import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -139,9 +139,10 @@ const setup = (props, context) => {
 
   const { root: { $router, $store } = {} } = context
 
+  onMounted(() => $store.dispatch('cluster/getServiceCluster', 'pfpki'))
   const isServiceAlive = computed(() => {
-    const { state: { services: { cache: { pfpki: { alive } = {} } = {} } = {} } = {} } = $store
-    return alive
+    const { pfpki: { hasAlive = false } = {} } = $store.getters['cluster/servicesByServer']
+    return hasAlive
   })
   watch(isServiceAlive, () => {
     if (isServiceAlive.value)

@@ -305,8 +305,8 @@ export const setup = (props, context) => {
   })
 
   const isServiceAlive = computed(() => {
-    const { state: { services: { cache: { pfpki: { alive } = {} } = {} } = {} } = {} } = $store
-    return alive
+    const { pfpki: { hasAlive = false } = {} } = $store.getters['cluster/servicesByServer']
+    return hasAlive
   })
 
   return {

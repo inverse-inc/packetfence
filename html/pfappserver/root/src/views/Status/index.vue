@@ -17,15 +17,13 @@ const components = {
 
 import { computed } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-const setup = (props, context) => {
+const setup = () => {
 
-  const { root: { $store } = {} } = context
-
-  const cluster = computed(() => $store.state.$_status.cluster || [])
   const sections = computed(() => ([
     {
       name: i18n.t('Dashboard'),
-      path: '/status/dashboard'
+      path: '/status/dashboard',
+      can: 'master tenant'
     },
     {
       name: i18n.t('Assets'),
@@ -61,19 +59,7 @@ const setup = (props, context) => {
     {
       name: i18n.t('Local Queue'),
       path: '/status/queue'
-    },
-    ...((cluster.value.length > 1)
-      ? [{
-        name: i18n.t('Cluster'),
-        items: [
-          {
-            name: i18n.t('Services'),
-            path: '/status/cluster/services'
-          }
-        ]
-      }]
-      : []
-    )
+    }
   ]))
 
   return {

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import config from './modules/config'
+import cluster from './modules/cluster'
 import documentation from './modules/documentation'
 import lookup from './modules/lookup'
 import notification from './modules/notification'
@@ -8,7 +9,6 @@ import performance from './modules/performance'
 import pfqueue from './modules/pfqueue'
 import preferences from './modules/preferences'
 import radius from './modules/radius'
-import services from './modules/services'
 import session from './modules/session'
 import system from './modules/system'
 
@@ -37,6 +37,7 @@ export const types = {
 const store = new Vuex.Store({
   modules: {
     config,
+    cluster,
     documentation,
     lookup,
     notification,
@@ -44,7 +45,6 @@ const store = new Vuex.Store({
     pfqueue,
     preferences,
     radius,
-    services,
     session,
     system
   },

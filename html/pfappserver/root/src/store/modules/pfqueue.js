@@ -7,25 +7,25 @@ import apiCall from '@/utils/api'
 
 const retries = {} // global retry counter
 
-const pollTaskStatus = (id) => {
-  return apiCall.getQuiet(`pfqueue/task/${id}/status/poll`).then(response => {
-    if (id in retries)
-      delete retries[id]
+const pollTaskStatus = ({ task_id, headers }) => {
+  return apiCall.getQuiet(`pfqueue/task/${task_id}/status/poll`, { headers }).then(response => {
+    if (task_id in retries)
+      delete retries[task_id]
     return response.data
   }).catch(error => {
     if (error.response && error.code !== 'ERR_NETWORK') { // The request was made and a response with a status code was received
       throw error
     }
     else {
-      if (!(id in retries))
-        retries[id] = 0
+      if (!(task_id in retries))
+        retries[task_id] = 0
       else
-        retries[id]++
-      if (retries[id] > 10) // give up after N retries
+        retries[task_id]++
+      if (retries[task_id] > 10) // give up after N retries
         throw error
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
-          pollTaskStatus(id)
+          pollTaskStatus({ task_id, headers })
             .then(resolve)
             .catch(reject)
         }, 1000)
@@ -71,10 +71,10 @@ const actions = {
       })
     })
   },
-  pollTaskStatus: ({ dispatch }, id) => {
-    return api.pollTaskStatus(id).then(data => { // 'poll' returns immediately, or timeout after 15s
+  pollTaskStatus: ({ dispatch }, { task_id, headers }) => {
+    return api.pollTaskStatus({ task_id, headers }).then(data => { // 'poll' returns immediately, or timeout after 15s
       if ('status' in data && data.status.toString() === '202') { // 202: in progress
-        return dispatch('pollTaskStatus', id) // recurse
+        return dispatch('pollTaskStatus', { task_id, headers }) // recurse
       }
       if ('error' in data) {
         throw new Error(data.error.message)

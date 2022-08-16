@@ -63,16 +63,18 @@ Object.assign(apiCall, {
       url: _encodeURL(url)
     })
   },
-  getQuiet (url) {
+  getQuiet (url, config) {
     return this.request({
       method: 'get',
       url: _encodeURL(url),
+      ...config,
       transformResponse: [data => {
         let jsonData
         try {
           jsonData = JSON.parse(data)
         } catch (e) {
-          jsonData = {}
+          // response likely a non-JSON error
+          jsonData = { message: data }
         }
         return Object.assign({ quiet: true }, jsonData)
       }]
@@ -109,11 +111,12 @@ Object.assign(apiCall, {
       }]
     })
   },
-  postQuiet (url, data) {
+  postQuiet(url, data, config) {
     return this.request({
       method: 'post',
       url: _encodeURL(url),
       data,
+      ...config,
       transformResponse: [data => {
         let jsonData
         try {
@@ -147,9 +150,9 @@ Object.assign(apiCall, {
  * Intercept requests
  */
 
- apiCall.interceptors.request.use((request) => {
+apiCall.interceptors.request.use(request => {
   const apiServer = localStorage.getItem('X-PacketFence-Server') || null
-  if (apiServer) {
+  if (apiServer && !('X-PacketFence-Server' in request.headers)) {
     request.headers['X-PacketFence-Server'] = apiServer
   }
   return request

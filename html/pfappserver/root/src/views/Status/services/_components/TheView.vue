@@ -1,200 +1,246 @@
 <template>
-  <div>
-    <b-card no-body>
-      <b-card-header>
-        <h4 class="d-inline mb-0" v-t="'Protected Services'"></h4>
-        <p class="mt-3 mb-0" v-t="'These services can not be managed since they are required in order for this page to function.'"></p>
-      </b-card-header>
-      <div class="card-body">
-        <b-table
-          :fields="fields"
-          :items="protectedServices"
-          :sort-by="sortBy"
-          :sort-desc="sortDesc"
-          :hover="protectedServices.length > 0"
-          show-empty
-          responsive
-          fixed
-          sort-icon-left
-          striped
-        >
-          <template v-slot:empty>
-            <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
-          </template>
-          <template v-slot:cell(enabled)="service">
-            <toggle-service-enabled :value="service.item.enabled"
-              :name="service.item.name"
-              :disabled="true" />
-          </template>
-          <template v-slot:cell(alive)="service">
-            <toggle-service-alive :value="service.item.alive"
-              :name="service.item.name"
-              :disabled="true" />
-          </template>
-          <template v-slot:cell(pid)="service">
-            <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
-            <span v-else-if="service.item.alive">{{ service.item.pid }}</span>
-          </template>
-        </b-table>
-      </div>
-    </b-card>
-
-    <b-card no-body class="mt-3">
-      <b-card-header>
-        <h4 class="d-inline mb-0" v-t="'Manageable Services'"></h4>
-      </b-card-header>
-      <div class="card-body">
-        <b-row align-h="start" align-v="start" class="mb-3">
-          <b-col cols="auto">
-            <b-button variant="outline-danger" @click="stopAllServices($event)" class="mr-1" :disabled="isLoading">
-              <span class="text-nowrap align-items-center"><icon :name="(isStopping) ? 'circle-notch' : 'square'" class="mr-2" :spin="isStopping"></icon> {{ $t('Stop All') }}</span>
-            </b-button>
-            <b-button variant="outline-success" @click="startAllServices($event)" class="mr-1" :disabled="isLoading">
-              <span class="text-nowrap align-items-center"><icon :name="(isStarting) ? 'circle-notch' : 'play'" class="mr-2" :spin="isStarting"></icon> {{ $t('Start All') }}</span>
-            </b-button>
-            <b-button variant="outline-warning" @click="restartAllServices($event)" class="mr-1" :disabled="isLoading">
-              <span class="text-nowrap align-items-center"><icon :name="(isRestarting) ? 'circle-notch' : 'sync'" class="mr-2" :spin="isRestarting"></icon> {{ $t('Restart All') }}</span>
-            </b-button>
-          </b-col>
-        </b-row>
-        <b-table
-          :fields="fields"
-          :items="manageableServices"
-          :sort-by="sortBy"
-          :sort-desc="sortDesc"
-          :hover="manageableServices.length > 0"
-          show-empty
-          responsive
-          fixed
-          sort-icon-left
-          striped
-        >
-          <template v-slot:empty>
-            <base-table-empty :is-loading="isLoading">{{ $t('No Services found') }}</base-table-empty>
-          </template>
-          <template v-slot:cell(name)="service">
-            <icon v-if="!service.item.alive && service.item.managed"
-              name="exclamation-triangle" size="sm" class="text-danger mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is required with this configuration.', { name: service.item.name})"></icon>
-            <icon v-if="service.item.alive && !service.item.managed"
-              name="exclamation-triangle" size="sm" class="text-success mr-1" v-b-tooltip.hover.top.d300 :title="$t('Service {name} is not required with this configuration.', { name: service.item.name})"></icon>
-            {{ service.item.name }}
-          </template>
-          <template v-slot:cell(enabled)="service">
-            <toggle-service-enabled :value="service.item.enabled"
-              :name="service.item.name"
-              :disabled="![200, 'error'].includes(service.item.status) || !('enabled' in service.item)" />
-          </template>
-          <template v-slot:cell(alive)="service">
-            <toggle-service-alive :value="service.item.alive"
-              :name="service.item.name"
-              :disabled="![200, 'error'].includes(service.item.status)" />
-          </template>
-          <template v-slot:cell(pid)="service">
-            <icon v-if="![200, 'error'].includes(service.item.status)" name="circle-notch" spin></icon>
-            <span v-else-if="service.item.alive">{{ service.item.pid }}</span>
-          </template>
-        </b-table>
-      </div>
-    </b-card>
-  </div>
+  <b-card no-body>
+    <b-card-header>
+      <h4 class="d-inline mb-0" v-t="'Services'"></h4>
+    </b-card-header>
+    <div class="card-body">
+      <b-table ref="tableRef"
+        :busy="isLoading"
+        :hover="serviceItems.length > 0"
+        :items="serviceItems"
+        :fields="serviceFields"
+        :sort-by="'service'"
+        :sort-desc="false"
+        class="mb-0"
+        show-empty
+        responsive
+        sort-icon-left
+        striped
+        selectable
+        @row-selected="onRowSelected"
+      >
+        <template v-slot:empty>
+          <base-table-empty :is-loading="isLoading">{{ $i18n.t('No Services found') }}</base-table-empty>
+        </template>
+        <template #head(selected)>
+          <span @click.stop.prevent="onAllSelected">
+            <template v-if="selected.length > 0">
+              <icon name="check-square" class="bg-white text-success" scale="1.125" />
+            </template>
+            <template v-else>
+              <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
+            </template>
+          </span>
+        </template>
+        <template #head(actions)>
+          <b-row class="align-items-center">
+            <b-col cols="auto" class="mr-auto">CLUSTER</b-col>
+            <b-col>
+              <b-dropdown size="sm" variant="link" class="float-right">
+                <template #button-content>
+                  <icon class="ml-1" name="directions" /> {{ $i18n.t('API Redirect') }}
+                </template>
+                  <b-dropdown-item @click="setApiServer()" :active="isApiServer(null)">{{ $i18n.t('None') }}</b-dropdown-item>
+                  <b-dropdown-item v-for="({ management_ip }, server) in apiServers" :key="server" @click="setApiServer(server)" :active="isApiServer(server)">
+                    {{ server }} ({{ management_ip }})
+                  </b-dropdown-item>
+              </b-dropdown>
+            </b-col>
+          </b-row>
+        </template>
+        <template #top-row v-if="selected.length">
+        <base-button-bulk-actions
+          :selectedItems="selectedItems" :visibleColumns="serviceFields" class="my-3" />
+        </template>
+        <template #cell(selected)="{ index, rowSelected }">
+          <span @click.stop="onItemSelected(index)">
+            <template v-if="rowSelected">
+              <icon name="check-square" class="bg-white text-success" scale="1.125" />
+            </template>
+            <template v-else>
+              <icon name="square" class="border border-1 border-gray bg-white text-light" scale="1.125" />
+            </template>
+          </span>
+        </template>
+        <template v-slot:cell(service)="{ value }">
+          {{ value }}
+        </template>
+        <template v-slot:cell(actions)="{ item: { service, isProtected, hasAlive, hasDead, hasDisabled, hasEnabled } }">
+          <b-button v-if="hasDisabled"
+            class="m-1" variant="outline-primary" @click="doEnableAll(service)" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable All') }}</b-button>
+          <b-button v-if="hasEnabled"
+            class="m-1" variant="outline-primary" @click="doDisableAll(service)" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable All') }}</b-button>
+          <b-button v-if="hasAlive && !isProtected"
+            class="m-1" variant="outline-primary" @click="doRestartAll(service)" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-button>
+          <b-button v-if="hasDead && !isProtected"
+            class="m-1" variant="outline-primary" @click="doStartAll(service)" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start All') }}</b-button>
+          <b-button v-if="hasAlive && !isProtected"
+            class="m-1" variant="outline-primary" @click="doStopAll(service)" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $i18n.t('Stop All') }}</b-button>
+        </template>
+        <template v-slot:cell()="{ item, value }">
+          <base-service :id="item.service" :server="value.server" :key="`${value.server}-${item.service}`" lazy
+            enable disable restart start stop />
+        </template>
+      </b-table>
+      <b-container fluid v-if="selected.length"
+        class="p-0">
+        <base-button-bulk-actions
+          :selectedItems="selectedItems" :visibleColumns="serviceFields" class="m-3" />
+      </b-container>
+    </div>
+  </b-card>
 </template>
 
 <script>
 import {
   BaseTableEmpty
 } from '@/components/new/'
-import ToggleServiceAlive from './ToggleServiceAlive'
-import ToggleServiceEnabled from './ToggleServiceEnabled'
+import BaseButtonBulkActions from './BaseButtonBulkActions'
+import BaseService from './BaseService'
 
 const components = {
-  BaseTableEmpty,
-  ToggleServiceAlive,
-  ToggleServiceEnabled
+  BaseButtonBulkActions,
+  BaseService,
+  BaseTableEmpty
 }
 
-import { computed, ref } from '@vue/composition-api'
+import { computed, customRef, onMounted, ref } from '@vue/composition-api'
+import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import i18n from '@/utils/locale'
+import { localeStrings } from '../config'
 
 const setup = (props, context) => {
 
-  const { root: { $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
-  const fields = computed(() => ([
-    {
-      key: 'name',
-      label: i18n.t('Service'),
-      sortable: true,
-      visible: true
+  onMounted(() => $store.dispatch('cluster/getConfig', true))
+  const isCluster = computed(() => $store.getters['cluster/isCluster'])
+  const isLoading = computed(() => $store.getters['cluster/isLoading'])
+  const servers = computed(() => Object.keys($store.state.cluster.servers))
+  const services = computed(() => $store.getters['cluster/servicesByServer'])
+  const serviceFields = computed(() => {
+    return [
+      {
+        key: 'selected',
+        thStyle: 'min-width: 40px; width: 40px;', tdClass: 'text-center',
+        locked: true,
+        stickyColumn: true,
+
+      },
+      {
+        key: 'service',
+        tdClass: 'text-nowrap',
+        label: i18n.t('Service'),
+        sortable: true,
+        visible: true,
+        stickyColumn: true,
+      },
+      ...servers.value.map(server => ({
+        key: server,
+        label: server,
+        visible: true,
+        tdClass: 'px-0'
+      })),
+      ...((isCluster.value)
+        ? [ { key: 'actions', label: 'CLUSTER', visible: true } ]
+        : []
+      )
+    ]
+  })
+
+  const serviceItems = computed(() => {
+    return Object.keys(services.value).map(service => {
+      const { servers, ...rest } = services.value[service]
+      return {
+        service,
+        ...rest,
+        ...Object.keys(services.value[service].servers).reduce((servers, server) => {
+          return { ...servers, [server]: { server, ...services.value[service].servers[server] } }
+        }, {})
+      }
+    })
+  })
+
+  const doEnableAll = service => $store.dispatch('cluster/enableServiceCluster', service).then(() => {
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${service}</code>` }) })
+  }).catch(() => {
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${service}</code>` }) })
+  })
+
+  const doDisableAll = service => $store.dispatch('cluster/disableServiceCluster', service).then(() => {
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${service}</code>` }) })
+  }).catch(() => {
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${service}</code>` }) })
+  })
+
+  const doRestartAll = service => $store.dispatch('cluster/restartServiceCluster', service).then(() => {
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service}</code>` }) })
+  }).catch(() => {
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${service}</code>` }) })
+  })
+
+  const doStartAll = service => $store.dispatch('cluster/startServiceCluster', service).then(() => {
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${service}</code>` }) })
+  }).catch(() => {
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${service}</code>` }) })
+  })
+
+  const doStopAll = service => $store.dispatch('cluster/stopServiceCluster', service).then(() => {
+    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${service}</code>` }) })
+  }).catch(() => {
+    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: `<code>${service}</code>` }) })
+  })
+
+  const tableRef = ref(null)
+  const selected = useBootstrapTableSelected(tableRef, serviceItems, 'service')
+
+  const apiServer = customRef((track, trigger) => ({
+    get() {
+      track()
+      return localStorage.getItem('X-PacketFence-Server') || null
     },
-    {
-      key: 'enabled',
-      label: i18n.t('Enabled'),
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'alive',
-      label: i18n.t('Running'),
-      sortable: true,
-      visible: true
-    },
-    {
-      key: 'pid',
-      label: i18n.t('PID'),
-      sortable: true,
-      visible: true
+    set(newValue) {
+      localStorage.setItem('X-PacketFence-Server', newValue)
+      $router.go() // reload
+      trigger()
     }
-  ]))
-  const sortBy = ref('name')
-  const sortDesc = ref(false)
-
-  const blacklistedServices = computed(() => $store.getters[`$_status/blacklistedServices`])
-  const isLoading = computed(() => $store.getters[`$_status/isServicesLoading`])
-  const isStopping = computed(() => $store.getters[`$_status/isServicesStopping`])
-  const isStarting = computed(() => $store.getters[`$_status/isServicesStarting`])
-  const isRestarting = computed(() => $store.getters[`$_status/isServicesRestarting`])
-  const manageableServices = computed(() => $store.state['$_status'].services.filter(service => !(blacklistedServices.value.includes(service.name))))
-  const protectedServices = computed(() => $store.state['$_status'].services.filter(service => blacklistedServices.value.includes(service.name)))
-
-  $store.dispatch(`$_status/getServices`)
-
-  const stopAllServices = () => {
-    $store.dispatch('notification/info', { message: i18n.t('Stopping all services.') })
-    $store.dispatch(`$_status/stopAllServices`).then(() => {
-      $store.dispatch('notification/info', { message: i18n.t('All services stopped.') })
-    })
+  }))
+  const apiServers = computed(() => $store.state.cluster.servers)
+  const isApiServer = host => {
+    const { [host]: { management_ip: _apiServer = null } = {} } = $store.state.cluster.servers
+    return _apiServer === host
   }
-  const startAllServices = () => {
-    $store.dispatch('notification/info', { message: i18n.t('Starting all services.') })
-    $store.dispatch(`$_status/startAllServices`).then(() => {
-      $store.dispatch('notification/info', { message: i18n.t('All services started.') })
-    })
-  }
-  const restartAllServices = () => {
-    $store.dispatch('notification/info', { message: i18n.t('Restarting all services.') })
-    $store.dispatch(`$_status/restartAllServices`).then(() => {
-      $store.dispatch('notification/info', { message: i18n.t('All services restarted.') })
-    })
-  }
-  const isBlacklisted = service => {
-    return blacklistedServices.value.includes(service.name)
+  const setApiServer = (host = null) => {
+    if (host) {
+      const { [host]: { management_ip: _apiServer } = {} } = $store.state.cluster.servers
+    if (_apiServer) {
+        apiServer.value = _apiServer
+        return
+      }
+    }
+    apiServer.value = null
   }
 
   return {
-    fields,
-    sortBy,
-    sortDesc,
-    blacklistedServices,
+    serviceFields,
+    serviceItems,
+    servers,
+    services,
+    isCluster,
     isLoading,
-    isStopping,
-    isStarting,
-    isRestarting,
-    manageableServices,
-    protectedServices,
-    stopAllServices,
-    startAllServices,
-    restartAllServices,
-    isBlacklisted
+    doEnableAll,
+    doDisableAll,
+    doRestartAll,
+    doStartAll,
+    doStopAll,
+
+    tableRef,
+    ...selected,
+
+    apiServer,
+    apiServers,
+    isApiServer,
+    setApiServer,
   }
 }
 
