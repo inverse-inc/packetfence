@@ -16,8 +16,11 @@ setup_vars() {
     # only one tag can be used in Dockerfile
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
 
+    # only used for pfdebian build
+    export PKGS_TO_EXCLUDE="packetfence|freeradius"
+
     # variables to pass during build
-    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE'
+    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE PKGS_TO_EXCLUDE'
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
