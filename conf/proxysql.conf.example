@@ -124,7 +124,7 @@ mysql_query_rules =
         apply=1
     },
     {
-        rule_id=200
+        rule_id=201
         active=1
         match_pattern="show status like.*"
         destination_hostgroup=30
