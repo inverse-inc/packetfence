@@ -1,4 +1,13 @@
 ---
+- hosts: wireless
+  name: Disable APT services
+  become: True
+  gather_facts: True
+
+  tasks:
+    - import_tasks: ../tasks/disable_apt_services.yml
+      tags: apt_services
+
 - name: Install packetfence development packages
   hosts: wireless
   become: True
