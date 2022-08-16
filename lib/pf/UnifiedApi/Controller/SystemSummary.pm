@@ -17,6 +17,8 @@ use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
+use pf::util qw(pf_run);
+use pf::file_paths qw($git_commit_id_file $install_dir);
 use Fcntl qw(SEEK_SET);
 use pf::UnifiedApi::Controller::Config::System;
 
@@ -35,8 +37,6 @@ sub get {
     );
 
 }
-
-our $GIT_COMMIT_ID_FILE = '/usr/local/pf/conf/git_commit_id';
 
 my $UPTIME_FH;
 open ($UPTIME_FH, '<', "/proc/uptime");
@@ -67,14 +67,18 @@ git_commit_id
 sub git_commit_id {
     my ($self, $ctx, $args) = @_;
     my $id = undef;
-    if ( -f $GIT_COMMIT_ID_FILE) {
-        if (open(my $fh, $GIT_COMMIT_ID_FILE)) {
+    if (-f $git_commit_id_file) {
+        if (open(my $fh, $git_commit_id_file)) {
             {
                 local $/ = undef;
                 $id = <$fh>;
             }
+
             chomp($id);
         }
+    } elsif (-d "$install_dir/.git") {
+        $id = pf_run("git -C $install_dir log -n1 --format=%H");
+        chomp($id);
     }
 
     return (git_commit_id => $id);

@@ -122,6 +122,7 @@ our (
     $cron_config_file, $cron_default_config_file,
     $mfa_config_file,
     $connectors_config_file,
+    $git_commit_id_file,
 );
 
 BEGIN {
@@ -219,6 +220,7 @@ BEGIN {
         $cron_config_file $cron_default_config_file
         $mfa_config_file
         $connectors_config_file
+        $git_commit_id_file
     );
 }
 
@@ -414,6 +416,8 @@ $config_version_file = catfile($var_dir, "conf/config_version");
 $maintenance_file = catfile($var_dir,"maintenance-mode");
 
 $pf_admin_i18n_dir = catfile($html_dir , 'pfappserver/lib/pfappserver/I18N');
+
+$git_commit_id_file = catfile($conf_dir, 'git_commit_id');
 
 =head1 AUTHOR
 
