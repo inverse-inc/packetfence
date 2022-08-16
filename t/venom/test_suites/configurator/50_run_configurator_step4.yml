@@ -73,25 +73,6 @@ testcases:
       - result.bodyjson.message ShouldEqual Completed
       - result.bodyjson.progress ShouldEqual 100
       - result.bodyjson.status ShouldEqual 200
-    # wait five minutes before failing
-    retry: 5
+    # wait ten minutes before failing
+    retry: 10
     delay: 60
-
-
-- name: disable_configurator
-  steps:
-  - type: http
-    method: PATCH
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/config/base/advanced'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "configurator": "disabled"
-      }
-    headers:
-      "Content-Type": "application/json"      
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Settings updated"
-    retry: 3
-    delay: 20
