@@ -56,7 +56,8 @@ mysql_variables=
     default_schema="information_schema"
     stacksize=1048576
     server_version="5.1.30"
-    connect_timeout_server=10000
+    connect_timeout_server=50
+    connect_timeout_server_max=100
     monitor_history=60000
     monitor_connect_interval=200000
     monitor_ping_interval=200000
@@ -118,8 +119,15 @@ mysql_query_rules =
     {
         rule_id=200
         active=1
-        match_pattern=".*read_only.*"
-        destination_hostgroup=10
+        match_pattern="SELECT @@global.read_only"
+        destination_hostgroup=30
+        apply=1
+    },
+    {
+        rule_id=201
+        active=1
+        match_pattern="show status like.*"
+        destination_hostgroup=30
         apply=1
     },
     {
