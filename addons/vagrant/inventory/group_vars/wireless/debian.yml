@@ -1,0 +1,6 @@
+---
+apt_services:
+  - apt-daily.timer  
+  - apt-daily.service
+  - apt-daily-upgrade.timer
+  - apt-daily-upgrade.service
