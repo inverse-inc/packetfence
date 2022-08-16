@@ -60,6 +60,9 @@
         <div class="py-1 pl-3" v-show="version">
           <b-form-text v-t="'Packetfence Version'"/> {{ version }}
         </div>
+        <div class="py-1 pl-3" v-show="gitCommitId">
+          <b-form-text v-t="'GIT Commit ID'"/> <b-link :href="`https://github.com/inverse-inc/packetfence/commit/${gitCommitId}`" target="_blank">{{ gitCommitId }}</b-link>
+        </div>
         <div class="py-1 pl-3" v-show="hostname">
           <b-form-text v-t="'Server Hostname'"/> {{ hostname }}
         </div>
@@ -139,6 +142,7 @@ const setup = (props, context) => {
 
   const apiOK = computed(() => $store.state.session.api)
   const chartsOK = computed(() => $store.state.session.charts)
+  const gitCommitId = computed(() => $store.getters['system/git_commit_id'])
   const hostname = computed(() => $store.getters['system/hostname'])
   const username = computed(() => $store.state.session.username)
   const version = computed(() => $store.getters['system/version'])
@@ -240,6 +244,7 @@ const setup = (props, context) => {
     canRoute,
     apiOK,
     chartsOK,
+    gitCommitId,
     hostname,
     username,
     version,

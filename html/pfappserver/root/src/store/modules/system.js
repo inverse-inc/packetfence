@@ -66,7 +66,8 @@ const getters = {
   isLoading: state => state.requestStatus === types.LOADING,
   readonlyMode: state => state.summary.readonly_mode,
   version: state => state.summary.version,
-  gateway: state => state.gateway
+  gateway: state => state.gateway,
+  git_commit_id: state => state.summary.git_commit_id,
 }
 
 const actions = {
