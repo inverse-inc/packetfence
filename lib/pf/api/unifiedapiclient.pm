@@ -238,7 +238,7 @@ Perform a login and record the token
 
 sub login {
     my ($self) = @_;
-    my $token = $self->call("POST", $pf::constants::api::LOGIN_PATH, {username => $self->username, password => $self->password})->{token};
+    my $token = $self->call("POST", $pf::constants::api::LOGIN_PATH, {username => $self->username, password => $self->password}, 1)->{token};
     $self->token($token);
 }
 
