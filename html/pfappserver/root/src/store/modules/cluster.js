@@ -178,13 +178,20 @@ const getters = {
           [id]: {
             servers: {
                ...((id in sorted) ? sorted[id].servers : {} ),
-              [server]: service
+              [server]: {
+                ...service,
+                isDisabling: service.status === types.DISABLING,
+                isEnabling: service.status === types.ENABLING,
+                isRestarting: service.status === types.RESTARTING,
+                isStarting: service.status === types.STARTING,
+                isStopping: service.status === types.STOPPING,
+              }
             },
             hasAlive: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.alive && service.pid) > -1,
             hasDead: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !(service.alive || service.pid)) > -1,
             hasEnabled: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.enabled) > -1,
             hasDisabled: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !service.enabled) > -1,
-            isProtected: !!protectedServices.find(listed => listed === id)
+            isProtected: !!protectedServices.find(listed => listed === id),
           }
         }
       }, sorted)

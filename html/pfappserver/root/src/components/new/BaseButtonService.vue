@@ -13,8 +13,18 @@
         <template v-else v-for="(service, server) in servers">
           <icon v-if="service.status === 'loading'" :key="`icon-${server}`"
             name="circle-notch" spin class="text-primary fa-overlap mr-1" />
-           <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
+          <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
             name="exclamation-triangle" class="text-danger fa-overlap mr-1" />
+          <icon v-else-if="service.isDisabling" :key="`icon-${server}`"
+            name="toggle-off" class="text-white fa-overlap mr-1" />
+          <icon v-else-if="service.isEnabling" :key="`icon-${server}`"
+            name="toggle-on" class="text-white fa-overlap mr-1" />
+          <icon v-else-if="service.isRestarting" :key="`icon-${server}`"
+            name="redo" class="text-white fa-overlap mr-1" />
+          <icon v-else-if="service.isStarting" :key="`icon-${server}`"
+            name="play" class="text-white fa-overlap mr-1" />
+          <icon v-else-if="service.isStopping" :key="`icon-${server}`"
+            name="stop" class="text-white fa-overlap mr-1" />
           <icon v-else :key="`icon-${server}`"
             name="circle" :class="(service.alive && service.pid) ? 'text-success' : 'text-danger'" class="fa-overlap mr-1" />
         </template>
@@ -48,7 +58,6 @@
       </b-dropdown-group>
     </template>
   </b-dropdown>
-
 </template>
 <script>
 import BaseService from '@/views/Status/services/_components/BaseService'
