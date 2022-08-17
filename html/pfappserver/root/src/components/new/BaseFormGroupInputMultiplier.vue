@@ -4,9 +4,18 @@
     :class="{
       'mb-0': !columnLabel
     }"
-    :state="inputState"
-    :labelCols="labelCols"
+    :content-cols="contentCols"
+    :content-cols-sm="contentColsSm"
+    :content-cols-md="contentColsMd"
+    :content-cols-lg="contentColsLg"
+    :content-cols-xl="contentColsXl"
     :label="columnLabel"
+    :label-cols="labelCols"
+    :label-cols-sm="labelColsSm"
+    :label-cols-md="labelColsMd"
+    :label-cols-lg="labelColsLg"
+    :label-cols-xl="labelColsXl"
+    :state="inputState"
   >
     <b-input-group
       class="base-input-group"

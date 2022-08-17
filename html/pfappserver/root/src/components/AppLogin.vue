@@ -3,19 +3,19 @@
     <component :is="modal?'b-modal':'b-card'" v-model="showModal"
       static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
       <template v-slot:[headerSlotName]>
-        <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expires soon'"></h4>
-        <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'"></h4>
+        <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expires soon'" />
+        <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'" />
       </template>
       <component :is="modal?'div':'b-card-body'">
         <b-alert :variant="message.level" :show="!!message.text" fade>
           {{ message.text }}
         </b-alert>
         <template v-if="sessionTime == false">
-          <b-form-group :label="$t('Username')" label-for="username" label-cols="4">
-            <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal" :disabled="isLoading"></b-form-input>
+          <b-form-group :label="$t('Username')" label-for="username" label-cols="4" label-cols-md="4">
+            <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal" :disabled="isLoading" />
           </b-form-group>
-          <b-form-group :label="$t('Password')" label-for="password" label-cols="4">
-            <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" :disabled="isLoading" required></b-form-input>
+          <b-form-group :label="$t('Password')" label-for="password" label-cols="4" label-cols-md="4">
+            <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" :disabled="isLoading" required />
           </b-form-group>
         </template>
       </component>
@@ -28,7 +28,7 @@
         </b-dropdown>
         <template v-if="sessionTime">
           <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
-          <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'"></b-button>
+          <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
         </template>
         <template v-else>
           <b-link variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>

@@ -4,8 +4,17 @@
     :class="{
       'mb-0': !columnLabel
     }"
-    :labelCols="labelCols"
+    :content-cols="contentCols"
+    :content-cols-sm="contentColsSm"
+    :content-cols-md="contentColsMd"
+    :content-cols-lg="contentColsLg"
+    :content-cols-xl="contentColsXl"
     :label="columnLabel"
+    :label-cols="labelCols"
+    :label-cols-sm="labelColsSm"
+    :label-cols-md="labelColsMd"
+    :label-cols-lg="labelColsLg"
+    :label-cols-xl="labelColsXl"
   >
       <b-row no-gutters class="border-bottom">
         <b-col cols="3">

@@ -1,8 +1,17 @@
 <template>
   <base-form-group
     class="base-form-group-condition"
-    :label-cols="labelCols"
     :column-label="columnLabel"
+    :content-cols="contentCols"
+    :content-cols-sm="contentColsSm"
+    :content-cols-md="contentColsMd"
+    :content-cols-lg="contentColsLg"
+    :content-cols-xl="contentColsXl"
+    :label-cols="labelCols"
+    :label-cols-sm="labelColsSm"
+    :label-cols-md="labelColsMd"
+    :label-cols-lg="labelColsLg"
+    :label-cols-xl="labelColsXl"
     :text="text"
     :disabled="isLocked"
     :state="inputState"

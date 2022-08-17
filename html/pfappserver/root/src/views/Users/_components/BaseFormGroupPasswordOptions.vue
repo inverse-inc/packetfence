@@ -1,8 +1,17 @@
 <template>
   <base-form-group
     class="base-form-group-password-options"
-    :label-cols="labelCols"
     :column-label="columnLabel"
+    :content-cols="contentCols"
+    :content-cols-sm="contentColsSm"
+    :content-cols-md="contentColsMd"
+    :content-cols-lg="contentColsLg"
+    :content-cols-xl="contentColsXl"
+    :label-cols="labelCols"
+    :label-cols-sm="labelColsSm"
+    :label-cols-md="labelColsMd"
+    :label-cols-lg="labelColsLg"
+    :label-cols-xl="labelColsXl"
     :text="text"
     :disabled="isLocked"
     :state="inputState"
@@ -21,7 +30,7 @@
           :options="[
             { value: false, label: 'ABC' },
             { value: true, label: 'ABC', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include uppercase characters')"
           :disabled="isLocked" :readonly="readonly"
@@ -30,7 +39,7 @@
           :options="[
             { value: false, label: 'abc' },
             { value: true, label: 'abc', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include lowercase characters')"
           :disabled="isLocked" :readonly="readonly"
@@ -39,7 +48,7 @@
           :options="[
             { value: false, label: '123' },
             { value: true, label: '123', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include digits')"
           :disabled="isLocked" :readonly="readonly"
@@ -50,7 +59,7 @@
           :options="[
             { value: false, label: '!@#' },
             { value: true, label: '!@#', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include special characters')"
           :disabled="isLocked" :readonly="readonly"
@@ -59,7 +68,7 @@
           :options="[
             { value: false, label: '({&lt;' },
             { value: true, label: '({&lt;', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include brackets/parenthesis')"
           :disabled="isLocked" :readonly="readonly"
@@ -68,7 +77,7 @@
           :options="[
             { value: false, label: 'äæ±' },
             { value: true, label: 'äæ±', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include accentuated characters')"
           :disabled="isLocked" :readonly="readonly"
@@ -77,7 +86,7 @@
           :options="[
             { value: false, label: '0Oo' },
             { value: true, label: '0Oo', color: 'var(--primary)' }
-          ]" 
+          ]"
           label-right
           :text="$t('Include ambiguous characters')"
           :disabled="isLocked" :readonly="readonly"
@@ -112,7 +121,7 @@ export const props = {
   ...useInputMetaProps,
   ...useInputValidatorProps,
   ...useInputValueProps,
-  
+
   // overload defaults
   min: {
     type: String,

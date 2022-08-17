@@ -191,7 +191,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   // remove bootstrap background color
   .b-table-top-row {
     background: none !important;
