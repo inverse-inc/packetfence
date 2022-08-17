@@ -11,10 +11,10 @@
           {{ message.text }}
         </b-alert>
         <template v-if="sessionTime == false">
-          <b-form-group :label="$t('Username')" label-for="username" label-cols="4" label-cols-md="4">
+          <b-form-group :label="$t('Username')" label-for="username" label-cols="4" label-cols-md="4" content-cols content-cols-md>
             <b-form-input id="username" type="text" autocomplete="username" v-model="username" v-focus required :readonly="modal" :disabled="isLoading" />
           </b-form-group>
-          <b-form-group :label="$t('Password')" label-for="password" label-cols="4" label-cols-md="4">
+          <b-form-group :label="$t('Password')" label-for="password" label-cols="4" label-cols-md="4" content-cols content-cols-md>
             <b-form-input id="password" type="password" autocomplete="current-password" v-model="password" :disabled="isLoading" required />
           </b-form-group>
         </template>
