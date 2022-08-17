@@ -1186,7 +1186,7 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
-%attr(0755)             /usr/local/pf/db/upgrade-tenant-11.2-12.0.pl
+%attr(0755, pf, pf)     /usr/local/pf/db/upgrade-tenant-11.2-12.0.pl
 
 # html dir
 %dir                    /usr/local/pf/html
