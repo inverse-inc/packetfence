@@ -210,8 +210,8 @@ image::Intune-6-Copy-Client-Secret.png[scaledwidth="100%",alt="Copy-Client-Secre
 Next you have to add API permissions, click on "API permissions" -> "Add a Permissions":
 
  Intune -> "Application permissions" and select "scep_challenge_provider"
- ActiveDirectory Graph -> "Application permissions" and select "Application.Read.All", "Application.ReadWrite.All", "Application.ReadWrite.OwnedBy"
- ActiveDirectory Graph -> "Delegated permissions" and select "User.Read"
+ Microsoft Graph -> "Application permissions" and select "Application.Read.All"
+ Microsoft Graph -> "Delegated permissions" and select "User.Read"
 
 For more details about permissions https://techcommunity.microsoft.com/t5/intune-customer-success/support-tip-intune-service-discovery-api-endpoint-will-require/ba-p/2428040
 
