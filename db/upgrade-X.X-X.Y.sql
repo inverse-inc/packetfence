@@ -797,6 +797,15 @@ CREATE OR REPLACE FUNCTION ROUND_TO_MONTH (d DATETIME)
     RETURNS DATETIME DETERMINISTIC
         RETURN DATE_ADD(DATE(d),interval -DAY(d)+1 DAY);
 
+\! echo "Removing priority column from security event classes";
+ALTER TABLE class DROP COLUMN priority;
+
+\! echo "Adding severity to security event classes";
+ALTER TABLE class ADD COLUMN severity smallint default 0;
+
+\! echo "Adding severity to security events";
+ALTER TABLE security_event ADD COLUMN severity smallint default 0;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

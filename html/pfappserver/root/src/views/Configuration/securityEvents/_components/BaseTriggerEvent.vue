@@ -129,7 +129,7 @@ const setup = (props, context) => {
   const fingerbankNetworkBehaviorPolicies = computed(() => {
     return $store.dispatch('$_network_behavior_policies/all')
       .then(policies => {
-        return policies.map(policy => ({ text: policy.description, value: policy.id }))
+        return [{description: "Any policy", id: "all"}].concat(policies).map(policy => ({ text: policy.description, value: policy.id }))
       })
   })
   const hasFingerbankNetworkBehaviorPolicy = computed(() => {

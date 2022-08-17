@@ -45,7 +45,27 @@
 
     <form-group-blacklisted-ip-hosts-threshold namespace="blacklisted_ip_hosts_threshold"
       :column-label="$i18n.t('Blacklisted IPs Threshold')"
-      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers an event.')"
+      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted IPs in the window defined above, then it triggers the internal::fingerbank_blacklisted_ips_threshold_too_high security event.')"
+    />
+
+    <form-group-watch-blacklisted-domain-names namespace="watch_blacklisted_domain_names"
+      :column-label="$i18n.t('Monitor for blacklisted domain names')"
+      :text="$i18n.t('Whether or not the policy should check if the endpoints are communicating with blacklisted domain names.')"
+    />
+
+    <form-group-whitelisted-domain-names namespace="whitelisted_domain_names"
+      :column-label="$i18n.t('Whitelisted Domain Names')"
+      :text="$i18n.t('Comma delimited list of regular expressions (Golang format) to ignore when checking against the blacklisted domain names list.')"
+    />
+
+    <form-group-blacklisted-domain-names-window namespace="blacklisted_domain_names_window"
+      :column-label="$i18n.t('Blacklisted Domain Names Window')"
+      :text="$i18n.t('The window to consider when counting the amount of blacklisted domain names the endpoint has communicated with.')"
+    />
+
+    <form-group-blacklisted-domain-names-threshold namespace="blacklisted_domain_names_threshold"
+      :column-label="$i18n.t('Blacklisted Domain Names Threshold')"
+      :text="$i18n.t('If an endpoint talks with more than this amount of blacklisted domain names in the window defined above, then it triggers the internal::fingerbank_blacklisted_domain_names_threshold_too_high security event.')"
     />
 
     <form-group-blacklisted-ports namespace="blacklisted_ports"
@@ -93,6 +113,8 @@ import {
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupBlacklistedDomainNamesThreshold,
+  FormGroupBlacklistedDomainNamesWindow,
   FormGroupBlacklistedIpHostsThreshold,
   FormGroupBlacklistedIpHostsWindow,
   FormGroupBlacklistedPorts,
@@ -104,8 +126,10 @@ import {
   FormGroupDevicesIncluded,
   FormGroupIdentifier,
   FormGroupStatus,
+  FormGroupWatchBlacklistedDomainNames,
   FormGroupWatchBlacklistedIps,
   FormGroupWatchedDeviceAttributes,
+  FormGroupWhitelistedDomainNames,
   FormGroupWhitelistedIps
 } from './'
 
@@ -113,6 +137,8 @@ const components = {
   BaseForm,
   BaseFormGroup,
 
+  FormGroupBlacklistedDomainNamesThreshold,
+  FormGroupBlacklistedDomainNamesWindow,
   FormGroupBlacklistedIpHostsThreshold,
   FormGroupBlacklistedIpHostsWindow,
   FormGroupBlacklistedPorts,
@@ -124,8 +150,10 @@ const components = {
   FormGroupDevicesIncluded,
   FormGroupIdentifier,
   FormGroupStatus,
+  FormGroupWatchBlacklistedDomainNames,
   FormGroupWatchBlacklistedIps,
   FormGroupWatchedDeviceAttributes,
+  FormGroupWhitelistedDomainNames,
   FormGroupWhitelistedIps
 }
 

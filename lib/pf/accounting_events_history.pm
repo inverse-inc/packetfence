@@ -19,6 +19,7 @@ use pf::Redis;
 use Sort::Naturally qw(nsort);
 use JSON::MaybeXS;
 use pf::log;
+use pf::CHI;
 
 my $UUID_GENERATOR = Data::UUID->new;
 
@@ -44,7 +45,7 @@ The server of the redis client
 has server => (
     is       => 'rw',
     required => 1,
-    default  => sub { "127.0.0.1:6379" },
+    default  => sub { pf::CHI::get_redis_config()->{server} },
 );
 
 =head2 prefix

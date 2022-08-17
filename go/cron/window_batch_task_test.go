@@ -332,3 +332,47 @@ func TestAcctCleanup(t *testing.T) {
 		},
 	)
 }
+
+func TestSecurityEventsCleanup(t *testing.T) {
+
+	testWindowSqlCleanup(
+		t,
+		"security_events_cleanup",
+		map[string]interface{}{
+			"timeout": 10.0,
+			"batch":   100.0,
+			"window":  float64(12 * 60 * 60),
+		},
+		[]string{
+			"DELETE FROM security_event",
+			`delete from node where mac="00:11:22:33:44:55"`,
+			`insert into node(mac) values("00:11:22:33:44:55")`,
+			`
+     INSERT INTO security_event (mac, status, release_date) VALUES
+				( "00:11:22:33:44:55", "closed", DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( "00:11:22:33:44:55", "closed", DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( "00:11:22:33:44:55", "closed", DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( "00:11:22:33:44:55", "closed", DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( "00:11:22:33:44:55", "closed", DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( "00:11:22:33:44:55", "closed", DATE_SUB(NOW(), INTERVAL 1 DAY) ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() ),
+        ( "00:11:22:33:44:55", "closed", NOW() )
+            `,
+		},
+		0,
+		[]sqlCountTest{
+			sqlCountTest{
+				name:          "security_event entries left",
+				sql:           ` SELECT COUNT(*) FROM security_event `,
+				expectedCount: 8,
+			},
+		},
+		[]string{"DELETE FROM security_event"},
+	)
+}

@@ -79,7 +79,7 @@ sub _loadSecurityEventsIntoDb {
             $data->{'grace'},
             $data->{'window'},
             $data->{'vclose'},
-            $data->{'priority'},
+            $data->{'severity'},
             $data->{'template'},
             $data->{'max_enable_url'},
             $data->{'redirect_url'},

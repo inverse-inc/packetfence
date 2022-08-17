@@ -21,6 +21,8 @@ export {
   BaseViewCollectionItem                              as BaseView,
   BaseFormButtonBar                                   as FormButtonBar,
 
+  BaseFormGroupInputNumber                            as FormGroupBlacklistedDomainNamesThreshold,
+  BaseFormGroupIntervalUnit                           as FormGroupBlacklistedDomainNamesWindow,
   BaseFormGroupInputNumber                            as FormGroupBlacklistedIpHostsThreshold,
   BaseFormGroupIntervalUnit                           as FormGroupBlacklistedIpHostsWindow,
   BaseFormGroupInput                                  as FormGroupBlacklistedPorts,
@@ -32,9 +34,12 @@ export {
   BaseFormGroupDevices                                as FormGroupDevicesIncluded,
   BaseFormGroupInput                                  as FormGroupIdentifier,
   BaseFormGroupToggleDisabledEnabled                  as FormGroupStatus,
+  BaseFormGroupToggleDisabledEnabled                  as FormGroupWatchBlacklistedDomainNames,
   BaseFormGroupToggleDisabledEnabled                  as FormGroupWatchBlacklistedIps,
   BaseFormGroupChosenMultiple                         as FormGroupWatchedDeviceAttributes,
+  BaseFormGroupInput                                  as FormGroupWhitelistedDomainNames,
   BaseFormGroupInput                                  as FormGroupWhitelistedIps,
+
 
   AlertServices,
   TheForm,

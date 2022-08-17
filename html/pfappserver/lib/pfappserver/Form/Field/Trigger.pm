@@ -101,7 +101,7 @@ for my $trigger (keys %pf::factory::condition::security_event::TRIGGER_TYPE_TO_C
         has_field $trigger => (
             type => 'Select',
             options_method => sub {
-                return map { { label => $_, value => $_ } } keys %$value;
+                return map { { label => $value->{$_}, value => $_ } } keys %$value;
             },
         );
     } else {
@@ -117,7 +117,7 @@ for my $trigger (@SUGGESTED_VALUES) {
         has_field $trigger => (
             type => 'SelectSuggested',
             options_method => sub {
-                return map { { label => $_, value => $_ } } keys %$value;
+                return map { { label => $value->{$_}, value => $_ } } keys %$value;
             },
             localize_labels => ($trigger eq $TRIGGER_TYPE_INTERNAL ? 1 : undef),
         );

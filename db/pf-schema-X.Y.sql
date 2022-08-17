@@ -23,7 +23,6 @@ CREATE TABLE class (
   grace_period int(11) NOT NULL,
   window varchar(255) NOT NULL default 0,
   vclose int(11),
-  priority int(11) NOT NULL,
   template varchar(255),
   max_enable_url varchar(255),
   redirect_url varchar(255),
@@ -33,6 +32,7 @@ CREATE TABLE class (
   target_category varchar(255),
   delay_by int(11) NOT NULL default 0,
   external_command varchar(255) DEFAULT NULL,
+  severity smallint default 0, 
   PRIMARY KEY (security_event_id),
   KEY password_target_category (target_category)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'; 
@@ -199,6 +199,7 @@ CREATE TABLE security_event (
   status varchar(10) default "open",
   ticket_ref varchar(255) default NULL,
   notes MEDIUMTEXT,
+  severity smallint default 0, 
   KEY security_event_id (security_event_id),
   KEY status (status),
   KEY uniq_mac_status_id (mac,status,security_event_id),

@@ -61,7 +61,7 @@ sub class_view_all {
 sub class_add {
     my $logger = get_logger();
     my %values;
-    @values{qw(security_event_id description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
+    @values{qw(security_event_id description auto_enable max_enables grace_period window vclose severity template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
     my $status = pf::dal::class->create(\%values);
     if ($status == $STATUS::CONFLICT) {
         return (2);
@@ -89,7 +89,7 @@ sub class_merge {
         return (0);
     }
     my %values;
-    @values{qw(security_event_id description auto_enable max_enables grace_period window vclose priority template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
+    @values{qw(security_event_id description auto_enable max_enables grace_period window vclose severity template max_enable_url redirect_url button_text enabled vlan target_category delay_by external_command)} = @_;
     my $item = pf::dal::class->new(\%values);
     my $status = $item->save();
 

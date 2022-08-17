@@ -303,7 +303,7 @@ sub security_event_view_top {
         },
         -columns => [qw(id mac security_event.security_event_id start_date release_date status ticket_ref notes)],
         -from => [-join => qw(security_event {security_event.security_event_id=class.security_event_id} class)],
-        -order_by => {-asc => 'priority'},
+        -order_by => {-desc => 'security_event.severity'},
         -limit => 1,
     });
 }
@@ -430,6 +430,8 @@ sub security_event_add {
         }
     }
 
+    my $class = $pf::security_event_config::SecurityEvent_Config{$security_event_id};
+
     # insert security_event into db
     my $status = pf::dal::security_event->create({
         mac          => $mac,
@@ -438,7 +440,8 @@ sub security_event_add {
         release_date => $data{release_date},
         status       => $data{status},
         ticket_ref   => $data{ticket_ref},
-        notes        => $data{notes}
+        notes        => $data{notes},
+        severity     => ($data{severity} ? $data{severity} : $class->{severity}),
     });
     if (is_success($status)) {
         my $last_id = get_db_handle->last_insert_id(undef,undef,undef,undef);
@@ -672,6 +675,8 @@ sub security_event_trigger {
         $data{'release_date'} = $date;
 
         $data{'notes'} = $argv->{'notes'} if defined($argv->{'notes'});
+
+        $data{severity} = $argv->{severity};
 
         $logger->info("calling security_event_add with security_event_id=$security_event_id mac=$mac release_date=$date (trigger ${type}::${tid})");
         security_event_add($mac, $security_event_id, %data);

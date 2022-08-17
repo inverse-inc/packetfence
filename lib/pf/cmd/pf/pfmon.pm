@@ -51,6 +51,8 @@ pfcmd pfmon <task> [options...]
 
 =item dns_audit_log_cleanup
 
+=item security_event_cleanup
+
 =item security_event_maintenance
 
 =item switch_cache_lldpLocalPort_description

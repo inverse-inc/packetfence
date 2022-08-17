@@ -160,15 +160,13 @@ has_field 'target_category' =>
    tags => { after_element => \&help,
              help => 'When selecting the <strong>role</strong> action, triggering the security event will change the node to this role.' },
   );
-has_field 'priority' =>
+has_field 'severity' =>
   (
    type => 'IntRange',
-   label => 'Priority',
-   range_start => 1,
-   range_end => 10,
-   tags => { after_element => \&help,
-             help => 'Range 1-10, with 1 the higest priority and 10 the lowest. Higher priority security events will be addressed first if a host has more than one.' },
+   range_start => 0,
+   range_end => 5,
   );
+
 has_field 'whitelisted_roles' =>
   (
    type => 'Select',
