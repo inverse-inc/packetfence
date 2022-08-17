@@ -81,8 +81,10 @@ const PROVIDER_NAME_AND_VERSION_NAME = "PacketFence"
 
 const intuneAppId = "0000000a-0000-0000-c000-000000000000"
 const intuneResourceUrl = "https://api.manage.microsoft.com/"
-const graphApiVersion = "1.6"
-const graphResourceUrl = "https://graph.windows.net/"
+const aadGraphApiVersion = "1.6"
+const aadGraphResourceUrl = "https://graph.windows.net/"
+const msGraphApiVersion = "v1.0"
+const msGraphResourceUrl = "https://graph.microsoft.com/"
 
 func NewIntuneCloud(ctx context.Context, name string) (Cloud, error) {
 
@@ -124,7 +126,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 	id, err := uuid.NewUUID()
 	cl.TransactionID = id.String()
 
-	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
+	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, msGraphResourceUrl)
 
 	err = spt.Refresh()
 
@@ -135,7 +137,8 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		Bearer = "Bearer " + token.AccessToken
 	}
 
-	graphRequest := graphResourceUrl + cl.TenantID + "/servicePrincipalsByAppId/" + intuneAppId + "/serviceEndpoints?api-version=" + graphApiVersion
+	graphRequest := msGraphResourceUrl + msGraphApiVersion + "/servicePrincipals/appId=" + intuneAppId + "/endpoints"
+
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{CipherSuites: []uint16{
@@ -161,10 +164,31 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 	client := &http.Client{Transport: tr}
 	cl.Client = client
 
-	req, err := http.NewRequest("GET", graphRequest, nil)
+	var aadGraphFailed bool
+
+	var req *http.Request
+	req, err = http.NewRequest("GET", graphRequest, nil)
 	if err != nil {
-		log.Print(err)
-		os.Exit(1)
+		aadGraphFailed = true
+	}
+
+	if aadGraphFailed {
+		spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, aadGraphResourceUrl)
+
+		err = spt.Refresh()
+
+		if err == nil {
+			token = spt.Token()
+			Bearer = "Bearer " + token.AccessToken
+		}
+		graphRequest := aadGraphResourceUrl + cl.TenantID + "/servicePrincipalsByAppId/" + intuneAppId + "/serviceEndpoints?api-version=" + aadGraphApiVersion
+		client := &http.Client{Transport: tr}
+		cl.Client = client
+		req, err = http.NewRequest("GET", graphRequest, nil)
+		if err != nil {
+			log.Print(err)
+			os.Exit(1)
+		}
 	}
 
 	req.Header.Set("Authorization", Bearer)
@@ -195,15 +219,8 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
-					if a == "serviceName" {
+					if a == "providerName" && !aadGraphFailed || a == "serviceName" && aadGraphFailed {
 						if b == VALIDATION_SERVICE_NAME {
-							apiEndpoint.OdataType = n.(map[string]interface{})["odata.type"].(string)
-							apiEndpoint.ObjectId = n.(map[string]interface{})["objectId"].(string)
-							apiEndpoint.ResourceId = n.(map[string]interface{})["resourceId"].(string)
-							apiEndpoint.ObjectType = n.(map[string]interface{})["objectType"].(string)
-							apiEndpoint.Capability = n.(map[string]interface{})["capability"].(string)
-							apiEndpoint.ServiceId = n.(map[string]interface{})["serviceId"].(string)
-							apiEndpoint.ServiceName = n.(map[string]interface{})["serviceName"].(string)
 							apiEndpoint.Uri = n.(map[string]interface{})["uri"].(string)
 						}
 					}
