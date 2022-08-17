@@ -82,10 +82,11 @@ function run {
 }
 
 function sdproxy() {
-  SD_NOTIFY_PROXY=/usr/local/pf/sbin/sdnotify-proxy
+  SD_NOTIFY_PROXY=/usr/local/pf/sbin/systemd-docker
   SD_SOCK=/usr/local/pf/var/run/$1-systemd-notify.sock
+  PID_FILE=/usr/local/pf/var/run/$1-systemd-notify.pid
   WATCHDOG_USEC_D=10000000
-  $SD_NOTIFY_PROXY $SD_SOCK /usr/bin/docker run --volume=$SD_SOCK:$SD_SOCK --env NOTIFY_SOCKET=$SD_SOCK --env WATCHDOG_USEC=$WATCHDOG_USEC_D ${@:2}
+  $SD_NOTIFY_PROXY -p=$PID_FILE -n run --volume=$SD_SOCK:$SD_SOCK ${@:2}
 }
 
 function run_img {
