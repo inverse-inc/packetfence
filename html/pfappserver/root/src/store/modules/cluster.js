@@ -9,7 +9,7 @@ import i18n from '@/utils/locale'
 const api = (state, server = store.state.system.hostname) => {
   let headers = {}
 
-  if (server && state.config) { // is cluster
+  if (server && state.cluster) { // is cluster
     const { servers: { [server]: { management_ip } = {} } = {} } = state
     if (management_ip) {
       headers['X-PacketFence-Server'] = management_ip
@@ -18,23 +18,12 @@ const api = (state, server = store.state.system.hostname) => {
 
   return {
     config: () => {
-      return apiCall.get('cluster/config').then(response => {
-        const { data: { item, item: { CLUSTER = {} } = {} } = {} } = response
-        if (Object.keys(CLUSTER).length) {
-          // is cluster
-          return item
-        }
-        // no cluster
-        return store.dispatch('system/getHostname').then(host => {
-          return {
-            "CLUSTER": false,
-            [host]: { host, management_ip: "127.0.0.1" }
-          }
-        })
+      return apiCall.get('cluster/servers').then(response => {
+        return response.data.items
       })
     },
     services: () => {
-      if (state.config) { // is cluster
+      if (state.cluster) { // is cluster
         return apiCall.getQuiet(`services/cluster_status/${server}`).then(response => {
           return response.data.item.services
         })
@@ -170,7 +159,7 @@ export const protectedServices = [ // prevent start|stop|restart control on thes
 // Default values
 const initialState = () => {
   return {
-    config: false,
+    cluster: false,
     servers: {},
     message: '',
     status: ''
@@ -206,19 +195,32 @@ const getters = {
 const actions = {
   getConfig: ({ state, commit, dispatch }, withServices) => {
     commit('CONFIG_REQUEST')
-    return api(state).config().then(item => {
-      commit('CONFIG_SUCCESS', item)
-      const { CLUSTER, ...servers } = item
-      if (withServices) {
-        let promises = []
-        Object.keys(servers).map(server => {
-          promises.push(dispatch('getServices', server))
-        })
-        return Promise.all(promises).then(() => {
-         return state.config
+    return api(state).config().then(items => {
+      if (items.length) {
+        // is cluster
+        commit('CONFIG_IS_CLUSTER')
+      }
+      else {
+        // no cluster
+        items = store.dispatch('system/getHostname').then(host => {
+          return [
+            { host, management_ip: "127.0.0.1" }
+          ]
         })
       }
-      return state.config
+      return Promise.resolve(items).then(items => {
+        commit('CONFIG_SUCCESS', items)
+        if (withServices) {
+          let promises = []
+          items.map(server => {
+            promises.push(dispatch('getServices', server.host))
+          })
+          return Promise.all(promises).then(() => {
+           return state.cluster
+          })
+        }
+        return state.cluster
+      })
     }).catch(err => {
       const { response } = err
       commit('CONFIG_ERROR', response)
@@ -512,11 +514,12 @@ const mutations = {
   CONFIG_REQUEST: state => {
     state.status = types.LOADING
   },
-  CONFIG_SUCCESS: (state, item) => {
-    const { CLUSTER, ...servers } = item
-    state.config = CLUSTER
-    Object.keys(servers).map(server => {
-      Vue.set(state.servers, server, { services: {}, ...state.servers[server], ...item[server] })
+  CONFIG_IS_CLUSTER: state => {
+    state.cluster = true
+  },
+  CONFIG_SUCCESS: (state, items) => {
+    items.map(server => {
+      Vue.set(state.servers, server.host, { services: {}, ...state.servers[server.host], ...server })
     })
     state.status = types.SUCCESS
     state.message = ''
