@@ -54,6 +54,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Return VIP in DHCP request if `dns_on_vip_only` is enabled (#7035)
 * Replace LF by CRLF at end of mails sent by PacketFence (SMS email has "Bare Line Feed Characters" Status code: 550 5.6.11  #5380)
 * The User-Name value in an EAP-TTLS PAP reply will always be the identity of the inner tunnel (#7017)
+* Multiline entries in "Role by access list" are returned as a string (#6791)
+* Respect the time of the expiration date of the password. (#7003)
+* Monitoring scripting key is not installed correctly when performing an ISO installation (#6965)
 
 == Version 11.2.0 released on 2022-02-23
 
