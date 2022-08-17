@@ -397,9 +397,9 @@ d-i grub-installer/with_other_os boolean true
 
 # Due notably to potential USB sticks, the location of the primary drive can
 # not be determined safely in general, so this needs to be specified:
-d-i grub-installer/bootdev  string /dev/sda
+# d-i grub-installer/bootdev  string /dev/sda
 # To install to the primary device (assuming it is not a USB stick):
-#d-i grub-installer/bootdev  string default
+d-i grub-installer/bootdev  string default
 
 # Alternatively, if you want to install to a location other than the UEFI
 # parition/boot record, uncomment and edit these lines:
