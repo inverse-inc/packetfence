@@ -20,7 +20,7 @@ type DbTokenBackend struct {
 	Db                *sql.DB
 }
 
-func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *DbTokenBackend {
+func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
 	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.PfConf.Database)
 	return &DbTokenBackend{
 		inActivityTimeout: expiration,
@@ -150,8 +150,8 @@ func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
-var _ TokenBackend = (*DbTokenBackend)(nil)
-
 func (tb *DbTokenBackend) AdminActionsForToken(token string) map[string]bool {
 	return AdminActionsForToken(tb, token)
 }
+
+var _ TokenBackend = (*DbTokenBackend)(nil)

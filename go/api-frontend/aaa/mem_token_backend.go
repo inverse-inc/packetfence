@@ -11,7 +11,7 @@ type MemTokenBackend struct {
 	maxExpiration time.Duration
 }
 
-func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *MemTokenBackend {
+func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
 	return &MemTokenBackend{
 		store:         cache.New(expiration, 10*time.Minute),
 		maxExpiration: maxExpiration,

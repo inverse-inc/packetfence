@@ -13,7 +13,7 @@ type RedisTokenBackend struct {
 	inActivityTimeout time.Duration
 }
 
-func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *RedisTokenBackend {
+func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
 	return &RedisTokenBackend{
 		redis: redis.NewClient(&redis.Options{
 			Addr:     "localhost:6379",
