@@ -14,6 +14,7 @@ type TokenBackend interface {
 	StoreTokenInfo(token string, ti *TokenInfo) error
 	TokenIsValid(token string) bool
 	TouchTokenInfo(token string)
+	Type() string
 }
 
 const tokenPrefix = "api-frontend-session:"
@@ -59,36 +60,4 @@ func ValidTokenExpiration(ti *TokenInfo, expiration time.Time, max time.Duration
 	}
 
 	return ti, expiration
-}
-
-func MakeTokenBackend(args []string) TokenBackend {
-	if len(args) == 0 {
-		return NewMemTokenBackend(
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-			args,
-		)
-	}
-
-	switch args[0] {
-	case "db":
-		return NewDbTokenBackend(
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-			args[1:],
-		)
-	case "redis":
-		return NewRedisTokenBackend(
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-			args[1:],
-		)
-	default:
-		return NewMemTokenBackend(
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiInactivityTimeout)*time.Second,
-			time.Duration(pfconfigdriver.Config.PfConf.Advanced.ApiMaxExpiration)*time.Second,
-			args[1:],
-		)
-	}
-
 }

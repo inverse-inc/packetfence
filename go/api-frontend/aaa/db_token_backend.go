@@ -20,7 +20,7 @@ type DbTokenBackend struct {
 	Db                *sql.DB
 }
 
-func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *DbTokenBackend {
+func NewDbTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
 	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.PfConf.Database)
 	return &DbTokenBackend{
 		inActivityTimeout: expiration,
@@ -33,6 +33,10 @@ func timeToExpired(t time.Time) float64 {
 }
 
 const sqlInsert = "INSERT INTO chi_cache ( `key`, `value`, `expires_at`) VALUES ( ?, ?, ? ) ON DUPLICATE KEY UPDATE value=VALUES(value), expires_at=VALUES(expires_at);"
+
+func (tb *DbTokenBackend) Type() string {
+	return "db"
+}
 
 func (tb *DbTokenBackend) getDB() (*sql.DB, error) {
 	tb.Lock()
@@ -150,8 +154,8 @@ func (tb *DbTokenBackend) TouchTokenInfo(token string) {
 	}
 }
 
-var _ TokenBackend = (*DbTokenBackend)(nil)
-
 func (tb *DbTokenBackend) AdminActionsForToken(token string) map[string]bool {
 	return AdminActionsForToken(tb, token)
 }
+
+var _ TokenBackend = (*DbTokenBackend)(nil)
