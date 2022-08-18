@@ -15,16 +15,20 @@
             name="circle-notch" spin class="text-primary fa-overlap mr-1" />
           <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
             name="exclamation-triangle" class="text-danger fa-overlap mr-1" />
-          <icon v-else-if="service.isDisabling" :key="`icon-${server}`"
-            name="toggle-off" class="text-white fa-overlap mr-1" />
-          <icon v-else-if="service.isEnabling" :key="`icon-${server}`"
-            name="toggle-on" class="text-white fa-overlap mr-1" />
-          <icon v-else-if="service.isRestarting" :key="`icon-${server}`"
-            name="redo" class="text-white fa-overlap mr-1" />
-          <icon v-else-if="service.isStarting" :key="`icon-${server}`"
-            name="play" class="text-white fa-overlap mr-1" />
-          <icon v-else-if="service.isStopping" :key="`icon-${server}`"
-            name="stop" class="text-white fa-overlap mr-1" />
+          <icon v-else-if="service.isDisabling || service.isEnabling || service.isRestarting || service.isStarting || service.isStopping"  :key="`icon-${server}`"
+            class="fa-overlap mr-1">
+            <icon name="circle" class="text-white" />
+            <icon v-if="service.isDisabling"
+              name="toggle-off" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isEnabling"
+              name="toggle-on" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isRestarting"
+              name="redo" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isStarting"
+              name="play" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isStopping"
+              name="stop" class="text-primary" scale="0.5" />
+          </icon>
           <icon v-else :key="`icon-${server}`"
             name="circle" :class="(service.alive && service.pid) ? 'text-success' : 'text-danger'" class="fa-overlap mr-1" />
         </template>
