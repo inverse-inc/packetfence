@@ -1,6 +1,8 @@
 package aaa
 
 import (
+	"errors"
+	"github.com/inverse-inc/go-utils/log"
 	"time"
 )
 
@@ -21,6 +23,7 @@ func (tb *MultiTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.T
 			return token, t
 		}
 	}
+
 	return nil, time.Unix(0, 0)
 }
 
@@ -30,8 +33,14 @@ func (tb *MultiTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
 		err := b.StoreTokenInfo(token, ti)
 		if err != nil {
 			errs = append(errs, err)
+			log.Logger().Error("Unable to store in a backend: " + err.Error())
 		}
 	}
+
+	if len(errs) == len(tb.backends) {
+		return errors.New("No store available")
+	}
+
 	return nil
 }
 
@@ -41,6 +50,7 @@ func (tb *MultiTokenBackend) TokenIsValid(token string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 

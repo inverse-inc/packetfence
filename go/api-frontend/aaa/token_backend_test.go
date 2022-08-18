@@ -8,14 +8,29 @@ import (
 )
 
 func TestTokenBackend(t *testing.T) {
+	timeout := 1 * time.Second
+	expiration := 1 * time.Second
 	for _, test := range []struct {
 		name string
 		b    TokenBackend
 	}{
-		{"MemTokenBackend", NewMemTokenBackend(1*time.Second, 1*time.Second, []string{})},
-		{"RedisTokenBackend", NewRedisTokenBackend(1*time.Second, 1*time.Second, []string{})},
-		{"DbTokenBackend", NewDbTokenBackend(1*time.Second, 1*time.Second, []string{})},
-		{"MultiTokenBackend BlackHole+MemTokenBackend", NewMultiTokenBackend(NewBlackhole(), NewMemTokenBackend(1*time.Second, 1*time.Second, []string{}))},
+		{"MemTokenBackend", NewMemTokenBackend(timeout, expiration, []string{})},
+		{"RedisTokenBackend", NewRedisTokenBackend(timeout, expiration, []string{})},
+		{"DbTokenBackend", NewDbTokenBackend(timeout, expiration, []string{})},
+		{
+			"MultiTokenBackend BlackHole+MemTokenBackend",
+			NewMultiTokenBackend(
+				NewBlackhole(),
+				NewMemTokenBackend(timeout, expiration, []string{}),
+			),
+		},
+		{
+			"MultiTokenBackend DbTokenBackend+MemTokenBackend",
+			NewMultiTokenBackend(
+				NewDbTokenBackend(timeout, expiration, []string{}),
+				NewMemTokenBackend(timeout, expiration, []string{}),
+			),
+		},
 	} {
 		b := test.b
 		t.Run(test.name, func(t *testing.T) {
@@ -48,7 +63,7 @@ func TestTokenBackend(t *testing.T) {
 			}
 
 			// Test the expiration
-			time.Sleep(1 * time.Second)
+			time.Sleep(expiration * 2)
 
 			if b.TokenIsValid(token) {
 				t.Error("Non existing token is invalid")
