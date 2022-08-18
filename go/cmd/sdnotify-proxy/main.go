@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
@@ -57,6 +58,8 @@ func newProxy(src, dst string) (*unixProxy, error) {
 	}, nil
 }
 
+var mainPIDRegex = regexp.MustCompile(`MAINPID=\d+`)
+
 func (p *unixProxy) run(cancel chan struct{}) {
 	msgs := make(chan []byte)
 
@@ -65,6 +68,7 @@ func (p *unixProxy) run(cancel chan struct{}) {
 	for {
 		select {
 		case msg := <-msgs:
+			msg = mainPIDRegex.ReplaceAll(msg, []byte(fmt.Sprintf("MAINPID=%d", os.Getppid())))
 			p.remote.Write(msg)
 
 		case <-cancel:
@@ -146,4 +150,3 @@ func main() {
 		}
 	}
 }
-
