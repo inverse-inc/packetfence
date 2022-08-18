@@ -18,6 +18,10 @@ func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration, a
 	}
 }
 
+func (tb *MemTokenBackend) Type() string {
+	return "mem"
+}
+
 func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
 	_, found := mtb.store.Get(token)
 	return found
@@ -52,3 +56,5 @@ func (mtb *MemTokenBackend) TouchTokenInfo(token string) {
 		mtb.store.SetDefault(token, ti)
 	}
 }
+
+var _ TokenBackend = (*MemTokenBackend)(nil)

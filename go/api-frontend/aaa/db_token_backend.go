@@ -34,6 +34,10 @@ func timeToExpired(t time.Time) float64 {
 
 const sqlInsert = "INSERT INTO chi_cache ( `key`, `value`, `expires_at`) VALUES ( ?, ?, ? ) ON DUPLICATE KEY UPDATE value=VALUES(value), expires_at=VALUES(expires_at);"
 
+func (tb *DbTokenBackend) Type() string {
+	return "db"
+}
+
 func (tb *DbTokenBackend) getDB() (*sql.DB, error) {
 	tb.Lock()
 	defer tb.Unlock()

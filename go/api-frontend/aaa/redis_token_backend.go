@@ -25,6 +25,10 @@ func NewRedisTokenBackend(expiration time.Duration, maxExpiration time.Duration,
 	}
 }
 
+func (tb *RedisTokenBackend) Type() string {
+	return "redis"
+}
+
 func (rtb *RedisTokenBackend) tokenKey(token string) string {
 	return tokenKey(rtb, token)
 }

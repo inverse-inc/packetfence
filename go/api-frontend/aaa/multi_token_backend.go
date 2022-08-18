@@ -2,6 +2,7 @@ package aaa
 
 import (
 	"errors"
+	"fmt"
 	"github.com/inverse-inc/go-utils/log"
 	"time"
 )
@@ -14,6 +15,10 @@ func NewMultiTokenBackend(backends ...TokenBackend) TokenBackend {
 	return &MultiTokenBackend{
 		backends: append([]TokenBackend{}, backends...),
 	}
+}
+
+func (tb *MultiTokenBackend) Type() string {
+	return "multi"
 }
 
 func (tb *MultiTokenBackend) TokenInfoForToken(token string) (*TokenInfo, time.Time) {
@@ -33,7 +38,7 @@ func (tb *MultiTokenBackend) StoreTokenInfo(token string, ti *TokenInfo) error {
 		err := b.StoreTokenInfo(token, ti)
 		if err != nil {
 			errs = append(errs, err)
-			log.Logger().Error("Unable to store in a backend: " + err.Error())
+			log.Logger().Warn(fmt.Sprintf("Unable to store in a backend %s: %s", b.Type(), err.Error()))
 		}
 	}
 

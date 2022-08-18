@@ -63,7 +63,7 @@ func TestTokenBackend(t *testing.T) {
 			}
 
 			// Test the expiration
-			time.Sleep(expiration * 2)
+			time.Sleep(expiration + 100*time.Millisecond)
 
 			if b.TokenIsValid(token) {
 				t.Error("Non existing token is invalid")
@@ -100,6 +100,10 @@ func (tb *Blackhole) TokenIsValid(token string) bool {
 }
 
 func (tb *Blackhole) TouchTokenInfo(token string) {
+}
+
+func (tb *Blackhole) Type() string {
+	return "blackhole"
 }
 
 func (tb *Blackhole) AdminActionsForToken(token string) map[string]bool {
