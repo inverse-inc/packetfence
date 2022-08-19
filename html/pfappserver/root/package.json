@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@vue/composition-api": "^1.7.0",
-    "autoprefixer": "10.4.5",
+    "autoprefixer": "10.4.8",
     "axios": "0.27.2",
     "bootstrap": "4.6.1",
     "bootstrap-vue": "2.22.0",
