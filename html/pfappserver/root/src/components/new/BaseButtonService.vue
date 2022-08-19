@@ -50,14 +50,18 @@
         @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
     </b-dropdown-group>
 
+
+<pre>{{ {servers} }}</pre>
+
+
     <template v-for="(service, server) in servers">
       <b-dropdown-divider v-if="isCluster" :key="`divider-${server}`" />
       <b-dropdown-group :key="`group-${server}`">
-       <template v-slot:header>
+       <template v-slot:header v-if="server">
          {{ server }}
         </template>
         <b-dropdown-form style="width: 400px;">
-          <base-service :id="service.id" :server="server" v-bind="{ enable, disable, restart, start, stop }" />
+          <base-service :id="service.id" :server="server" v-bind="{ acl, enable, disable, restart, start, stop }" />
         </b-dropdown-form>
       </b-dropdown-group>
     </template>
