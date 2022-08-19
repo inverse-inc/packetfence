@@ -3,8 +3,9 @@ package aaa
 import (
 	"errors"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
 	"time"
+
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type MultiTokenBackend struct {
@@ -61,7 +62,7 @@ func (tb *MultiTokenBackend) TokenIsValid(token string) bool {
 
 func (tb *MultiTokenBackend) TouchTokenInfo(token string) {
 	for _, b := range tb.backends {
-		b.TokenIsValid(token)
+		b.TouchTokenInfo(token)
 	}
 }
 
