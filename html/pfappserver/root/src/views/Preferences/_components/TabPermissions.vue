@@ -35,7 +35,7 @@ const setup = (props, context) => {
   const { root: { $store } = {} } = context
 
   const aclContext = computed(() => $store.getters['session/aclContext'])
-  const aclContextAssociated = computed(() => aclContext.value
+  const aclContextAssociated = computed(() => [...new Set(aclContext.value)]
     .sort((a, b) => a.localeCompare(b))
     .reduce((associated, role) => {
       const [ suffix, ...prefixes ] = role.split('_').reverse()
