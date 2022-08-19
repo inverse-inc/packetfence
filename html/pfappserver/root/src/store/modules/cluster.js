@@ -471,7 +471,7 @@ const actions = {
     })
   },
 
-  restartSystemService: ({ state, commit }, { server, id }) => {
+  restartSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEM_SERVICE_RESTARTING', { server, id })
     return api(state, server).restartSystem(id).then(response => {
       commit('SYSTEM_SERVICE_RESTARTED', { server, id, response })
@@ -482,7 +482,7 @@ const actions = {
       throw err
     })
   },
-  startSystemService: ({ state, commit }, { server, id }) => {
+  startSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEM_SERVICE_STARTING', { server, id })
     return api(state, server).startSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STARTED', { server, id, response })
@@ -493,7 +493,7 @@ const actions = {
       throw err
     })
   },
-  stopSystemService: ({ state, commit }, { server, id }) => {
+  stopSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEM_SERVICE_STOPPING', { server, id })
     return api(state, server).stopSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STOPPED', { server, id, response })
@@ -504,7 +504,7 @@ const actions = {
       throw err
     })
   },
-  updateSystemd: ({ state, commit }, { server, id }) => {
+  updateSystemd: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEMD_REQUEST', { server, id })
     return api(state, server).updateSystemd(id).then(response => {
       commit('SYSTEMD_SUCCESS', { server, id, response })
