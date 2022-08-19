@@ -104,6 +104,7 @@
             "type": "shell",
             "inline": ["ci-build-pkg {{user `tmp_dir`}}"],
             "environment_vars": ["GITLAB_CI=true",
+                                 "PKG_BUILD_SUFFIX_MODE=none",
                                  "CI_BUILDPKG_DEP_ONLY=yes",
                                  "CI_COMMIT_REF_NAME=fakebranch"
                                 ]
