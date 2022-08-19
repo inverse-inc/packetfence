@@ -2,7 +2,7 @@
   <div class="o-layout__item">
     <div class="o-media o-media--notice u-padding u-margin-bottom">
       <div class="o-media__img">[% flashIcon(level='notice', size='tiny') %]</div>
-      <p class="o-media__body">[% message %]</p>
+      <p class="o-media__body">[% i18n_format("Email activation code has been verified. Access granted until : %s", unregdate) %]</p>
     </div>
   </div>
 </div>

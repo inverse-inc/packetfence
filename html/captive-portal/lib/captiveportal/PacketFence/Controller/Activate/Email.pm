@@ -84,7 +84,7 @@ sub code : Path : Args(2) {
             $c->stash(
                 title => "Access granted",
                 template => "activation/email.html",
-                message => "Email activation code has been verified. Access granted until : $unregdate",
+                unregdate => $unregdate,
             );
             $c->detach();
         }
