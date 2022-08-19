@@ -55,11 +55,11 @@ sub unreg :Local :Args(1) {
             $c->response->redirect("/status");
             $c->detach;
         } else {
-            $self->showError($c,"Not allowed to deregister $mac");
+            $self->showError($c, "Not allowed to deregister %s", $mac);
         }
 
     } else {
-        $self->showError($c,"Not logged in or node ID $mac is not known");
+        $self->showError($c, "Not logged in or node ID %s is not known", $mac);
     }
 }
 

@@ -260,7 +260,7 @@ sub doSponsorRegistration : Private {
                 get_logger->info("Extending duration to $unregdate and assigning role with ID $category_id");
                 my ($status, $status_msg) = node_register($node_mac, $activation_record->{pid}, unregdate => $unregdate, category_id => $category_id);
                 if(!$status) {
-                    $self->showError($c, "Unable to register the device: $status_msg");
+                    $self->showError($c, "Unable to register the device: %s", $status_msg);
                     $c->detach();
                 }
                 pf::enforcement::reevaluate_access($node_mac, "manage_register")

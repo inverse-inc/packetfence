@@ -28,10 +28,10 @@ use pf::web;
 BEGIN { extends 'Catalyst::Controller'; }
 
 sub showError {
-    my ( $self, $c, $error ) = @_;
+    my ( $self, $c, $error, @args ) = @_;
     my $text_message;
-    if ( ref($error) ) {
-        $text_message = i18n_format(@$error);
+    if ( @args ) {
+        $text_message = i18n_format($error, @args);
     } else {
         $text_message = i18n($error);
     }
