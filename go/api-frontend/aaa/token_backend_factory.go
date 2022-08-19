@@ -1,8 +1,9 @@
 package aaa
 
 import (
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 var factories = map[string]func(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend{
@@ -33,7 +34,7 @@ func MakeTokenBackend(args []string) TokenBackend {
 	}
 
 	if len(backends) == 1 {
-		return backends[1]
+		return backends[0]
 	}
 
 	return NewMultiTokenBackend(backends...)
