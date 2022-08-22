@@ -44,6 +44,8 @@ case "$1" in
         find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
 	chgrp pf $PACKETFENCE/logs
 
+        touch $PACKETFENCE/var/run/pkg_install_in_progress
+
         # link to latest SQL schema
         if [ -h "$PACKETFENCE/db/pf-schema.sql" ]; then
             rm $PACKETFENCE/db/pf-schema.sql
@@ -199,6 +201,8 @@ case "$1" in
         echo Installation complete
         echo "* Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
         echo "* Please stop your iptables service if you don't have access to configurator."
+        
+        rm -f $PACKETFENCE/var/run/pkg_install_in_progress
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

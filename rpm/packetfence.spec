@@ -545,6 +545,8 @@ rm -rf %{buildroot}
 #==============================================================================
 %pre
 
+touch /usr/local/pf/var/run/pkg_install_in_progress
+
 /usr/bin/systemctl --now mask mariadb
 /usr/bin/systemctl --now mask proxysql
 
@@ -748,6 +750,8 @@ echo "Starting PacketFence Administration GUI..."
 echo Installation complete
 echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
 echo "  * Please stop your iptables service if you don't have access to configurator."
+
+rm -f /usr/local/pf/var/run/pkg_install_in_progress
 
 #==============================================================================
 # Pre uninstallation
