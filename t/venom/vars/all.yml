@@ -621,9 +621,9 @@ inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 #################################################################################
 # HTTPS Firewall SSO
 firewall_sso.https.host: '{{.pfserver_mgmt_ip}}'
-firewall_sso.https.port_config: 8080
-firewall_sso.https.port_http: 8081
-firewall_sso.https.port_https: 8082
+firewall_sso.https.port_config: 8180
+firewall_sso.https.port_http: 8181
+firewall_sso.https.port_https: 8182
 firewall_sso.https.transport: http
 firewall_sso.https.password: secret
 firewall_sso.https.type: PaloAlto
@@ -633,9 +633,9 @@ smocker_dir: /opt/smocker
 
 # RADIUS Firewall SSO
 firewall_sso.radius.api_host: '{{.pfserver_mgmt_ip}}'
-firewall_sso.radius.api_port: 8083
+firewall_sso.radius.api_port: 8183
 firewall_sso.radius.radius_host: '127.0.0.1'
-firewall_sso.radius.radius_port: 8084
+firewall_sso.radius.radius_port: 8184
 firewall_sso.radius.radius_secret: secret
 firewall_sso.radius.radius_user_name: foo
 firewall_sso.radius.radius_user_password: bar
