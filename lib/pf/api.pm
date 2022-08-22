@@ -21,6 +21,7 @@ use threads::shared;
 use pf::log();
 use Module::Load qw();
 use pf::authentication();
+use pf::activation();
 use pf::Authentication::constants;
 use pf::config();
 use pf::config::util();
@@ -151,6 +152,11 @@ sub radius_authorize : Public {
     }
 
     return $return;
+}
+
+sub send_activation_email : Public {
+    my ($self, $type, $activation_code, $template, %info) = @_;
+    return pf::activation::send_email($type, $activation_code, $template, %info);
 }
 
 sub radius_filter : Public {
