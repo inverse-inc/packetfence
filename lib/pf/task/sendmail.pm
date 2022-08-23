@@ -30,7 +30,7 @@ Sendmail
 
 sub doTask {
     my ($self, $args) = @_;
-    pf::config::util::send_email(@$args);
+    pf::config::util::send_email_now(@$args);
     return undef, undef;
 }
 

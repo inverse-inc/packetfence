@@ -79,7 +79,7 @@ sub pfmailer {
         return $self->render_error(422, "Missing required fields", \@errors);
     }
 
-    pf::config::util::pfmailer(%$data);
+    pf::config::util::pfmailer_now(%$data);
     return $self->render(status => 200, json => {});
 }
 

@@ -156,7 +156,7 @@ sub radius_authorize : Public {
 
 sub send_activation_email : Queue {
     my ($self, $type, $activation_code, $template, %info) = @_;
-    return pf::activation::send_email($type, $activation_code, $template, %info);
+    return pf::activation::send_email_now($type, $activation_code, $template, %info);
 }
 
 sub radius_filter : Public {
@@ -1888,6 +1888,27 @@ sub bandwidth_trigger :Public {
     my ($class, $args) = @_;
     pf::bandwidth_accounting::trigger_bandwidth();
     return $pf::config::TRUE;
+}
+
+=head2 pfmailer
+
+pfmailer
+
+=cut
+
+sub pfmailer : Queue {
+    my ($class, %data) = @_;
+    return pf::config::util::pfmailer_now(%data);
+}
+
+sub send_email : Queue {
+    my ($class, $template, $email, $subject, $data, $tmpoptions) = @_;
+    return pf::config::util::send_email_now($template, $email, $subject, $data, $tmpoptions);
+}
+
+sub send_mime_lite : Queue {
+    my ($class, $mime, @args) = @_;
+    return pf::config::util::send_mime_lite($mime, @args);
 }
 
 =head1 AUTHOR
