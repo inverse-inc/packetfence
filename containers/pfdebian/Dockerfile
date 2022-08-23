@@ -8,6 +8,11 @@ RUN /bin/bash -c "echo 'exit 0' > /bin/systemctl"
 ARG DOCKER_BUILD=yes
 ARG PF_VERSION
 ARG PKGS_TO_EXCLUDE
+
+# This is to ensure a cache miss when there is a change in the dependencies
+COPY debian/control /tmp/
+COPY rpm/packetfence.spec /tmp/
+
 RUN /bin/bash -c "echo 'deb http://inverse.ca/downloads/PacketFence/debian/${PF_VERSION} bullseye bullseye' > /etc/apt/sources.list.d/packetfence_deps.list"
 RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
 RUN apt-get update
