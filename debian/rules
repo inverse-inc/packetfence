@@ -360,6 +360,8 @@ binary-arch: build install
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/eapol_test/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/bin/cluster/*
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/db/*.pl
+	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/db/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/sbin/*
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/containers/*.sh
 	dh_fixperms -X$(NAME)/bin -X$(NAME)/sbin -X$(NAME)/addons
