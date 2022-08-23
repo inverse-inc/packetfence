@@ -28,16 +28,6 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/44:38:39:00:00:12'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
 - name: delete_switch_group
   steps:
   - type: http
@@ -55,16 +45,6 @@ testcases:
   - type: http
     method: DELETE
     url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/{{.wireless_switch.id1}}'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-
-  - type: http
-    method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/switch/44:38:39:00:00:12'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
