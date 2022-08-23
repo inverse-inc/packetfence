@@ -41,6 +41,7 @@ use pf::Connection::ProfileFactory;
 use pf::web::guest::constants;
 use pf::web qw(i18n);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
+use pf::api::queue;
 
 =head1 CONSTANTS
 
@@ -509,6 +510,13 @@ sub send_email {
     return $result;
 }
 
+sub queue_send_email {
+    my ($type, $activation_code, $template, %info) = @_;
+    my $client = pf::api::queue->new(queue => 'priority');
+    $client->notify( send_activation_email => ($type, $activation_code, $template, %info));
+    return 1;
+}
+
 sub create_and_send_activation_code {
     my ($mac, $pid, $pending_addr, $template, $type, $portal, %info) = @_;
 
@@ -527,7 +535,7 @@ sub create_and_send_activation_code {
 
     my $activation_code = create(\%args);
     if (defined($activation_code)) {
-      unless (send_email($type, $activation_code, $template, %info)) {
+      unless (queue_send_email($type, $activation_code, $template, %info)) {
         ($success, $err) = ($FALSE, $GUEST::ERROR_CONFIRMATION_EMAIL);
       }
     }

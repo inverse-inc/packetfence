@@ -154,7 +154,7 @@ sub radius_authorize : Public {
     return $return;
 }
 
-sub send_activation_email : Public {
+sub send_activation_email : Queue {
     my ($self, $type, $activation_code, $template, %info) = @_;
     return pf::activation::send_email($type, $activation_code, $template, %info);
 }
