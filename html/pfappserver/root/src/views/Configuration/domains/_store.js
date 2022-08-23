@@ -115,7 +115,8 @@ const actions = {
   testDomain: ({ state, commit }, id) => {
     commit('TEST_REQUEST', id)
     return api.test(id).then(response => {
-      return store.dispatch('pfqueue/pollTaskStatus', response.task_id).then(response => {
+      const { task_id } = response
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('TEST_SUCCESS', { id: id, response })
         return state.joins[id]
       })
