@@ -34,7 +34,7 @@ function initPage() {
         var s = i.next("span");
         if (!i.checked) {
             s.addClassName("disabled");
-        }       
+        }
     });
 
     var initialTab = $$("ul.tab a[name='"+initialTabName+"']");
@@ -61,7 +61,7 @@ function onClickTab(event) {
         d.removeClassName("active");
     });
 
-    this.up("li").addClassName("active");  
+    this.up("li").addClassName("active");
 
     $$("div.tab").each(function(d) {
         d.removeClassName("active");
