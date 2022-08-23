@@ -3,6 +3,7 @@
     @shown="isShown = true" @hidden="isShown = false"
     toggle-class="p-0"
     @click.native.stop
+    @dblclick.native.stop="goToView"
     lazy>
     <template #button-content>
       <slot><mac v-text="id" /></slot>
@@ -141,7 +142,7 @@ const setup = (props, context) => {
     id
   } = toRefs(props)
 
-  const { root: { $store } = {} } = context
+  const { root: { $router, $store } = {} } = context
 
   const {
     isLoading,
@@ -167,11 +168,16 @@ const setup = (props, context) => {
     }
   })
 
+  const goToView = () => {
+    $router.push(`/node/${id.value}`)
+  }
+
   return {
     isExists,
     isShown,
     isLoading,
-    node
+    node,
+    goToView,
   }
 }
 
