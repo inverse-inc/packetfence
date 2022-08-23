@@ -295,7 +295,7 @@ captive_portal.profiles.locales3: de_DE
 captive_portal.profiles.locales4: it_IT
 
 # URL
-captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-portal'
+captive_portal.reg.url: 'https://{{.configurator.hostname}}.{{.configurator.domain}}/captive-portal'
 
 ################################################################################
 # wired_dot1x_eap_tls_manual test suite specific variables
