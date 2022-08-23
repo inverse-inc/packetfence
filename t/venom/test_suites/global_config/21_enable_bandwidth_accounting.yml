@@ -1,0 +1,12 @@
+name: Enable bandwidth accounting
+testcases:
+- name: enable_bandwidth_accounting
+  steps:
+  - type: pf_api_config_action
+    id: 'base/radius_configuration'
+    method: PATCH
+    body: >-
+      {
+          "process_bandwidth_accounting": "enabled"
+      }
+
