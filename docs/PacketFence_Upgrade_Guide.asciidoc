@@ -1889,8 +1889,8 @@ mysql -u root -p pf -v < /usr/local/pf/db/upgrade-X.X-X.Y.sql
 
 Tracking the bandwidth accounting information is now disabled by default.
 If you rely on bandwidth reports, security events or online/offline then enable it by doing the following.
-Go to Configuration > System Configuration > RADIUS > General
-Then enable 'Record accounting in SQL tables'
+Go to _Configuration -> System Configuration -> RADIUS -> General_
+Then enable 'Process Bandwidth Accounting'. `pfacct` service needs to be restarted to apply changes.
 
 === Fix permissions and checkups deprecated
 
