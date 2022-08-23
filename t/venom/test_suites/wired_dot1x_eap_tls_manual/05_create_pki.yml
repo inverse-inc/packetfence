@@ -57,7 +57,7 @@ testcases:
 
 - name: wired_radius_extract_certificates
   steps:
-    - type: extract_certificates
+    - type: extract_certificates_radius
       cn: "{{.wired_dot1x_eap_tls_manual.certs.radius.cn}}"
       cn_ca: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
       cert_path: "/usr/local/pf/raddb/certs"
@@ -99,7 +99,7 @@ testcases:
 
 - name: wired_http_extract_certificates
   steps:
-    - type: extract_certificates
+    - type: extract_certificates_http
       cn: "{{.wired_dot1x_eap_tls_manual.certs.http.cn}}"
       cn_ca: "{{.wired_dot1x_eap_tls_manual.certs.ca.cn}}"
       cert_path: "/usr/local/pf/conf/ssl"
