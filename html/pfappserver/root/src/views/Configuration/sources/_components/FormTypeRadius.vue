@@ -41,6 +41,11 @@
       :text="$i18n.t('Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server. Using remote connectors is only supported on a standalone instance at the moment.')"
     />
 
+    <form-group-nas-ip-address namespace="nas_ip_address"
+      :column-label="$i18n.t('NAS IP Address')"
+      :text="$i18n.t('Which NAS IP Address to use when communicating with the RADIUS server. Leaving this empty will make the source use the management IP of the server (management VIP in a cluster).')"
+    />
+
     <form-group-options namespace="options"
       :column-label="$i18n.t('Options')"
       :text="$i18n.t('Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart.')"
@@ -69,6 +74,7 @@ import {
   FormGroupHost,
   FormGroupIdentifier,
   FormGroupMonitor,
+  FormGroupNasIpAddress,
   FormGroupOptions,
   FormGroupPort,
   FormGroupRealms,
@@ -86,6 +92,7 @@ const components = {
   FormGroupHost,
   FormGroupIdentifier,
   FormGroupMonitor,
+  FormGroupNasIpAddress,
   FormGroupOptions,
   FormGroupPort,
   FormGroupRealms,

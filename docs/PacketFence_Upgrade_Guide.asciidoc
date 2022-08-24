@@ -1899,6 +1899,12 @@ With the containerization of several services, it didn't make sense to keep them
 
 However, it's still possible to perform these commands on a PacketFence server using `pfcmd fixpermissions` and `pfcmd checkup`.
 
+=== Change of behavior for the RADIUS source NAS-IP-Address
+
+NOTE: This applies to administrators that have a RADIUS authentication source configured in PacketFence. If you are using PacketFence as a RADIUS server but do not have any RADIUS authentication source configured, this section does not apply to you.
+
+RADIUS authentication sources previously used the source IP of the packet in the NAS-IP-Address field when communicating with the RADIUS server. This behavior has been deprecated in favor of using the management IP address (or VIP in a cluster) in the NAS-IP-Address. If you do need to use another value in the NAS-IP-Address attribute, it is configurable in the RADIUS authentication source directly.
+
 === Log files names updated
 
 The name of some log files have changed. You can find a list below:
