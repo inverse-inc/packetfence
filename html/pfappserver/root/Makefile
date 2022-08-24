@@ -9,7 +9,7 @@ vendor:
 	npm install --unsafe-perm
 
 dev:
-	npm run build
+	npm run build-debug
 
 dist:
 	npm run build
