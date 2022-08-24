@@ -222,16 +222,16 @@ sub _vlan_reevaluation {
             if ($cluster_deauth) {
                 if ($sync) {
                     my $client = pf::api::jsonrpcclient->new;
-                    $client->call( 'ReAssignVlan', $args );
+                    $client->call( 'ReAssignVlan_in_queue', $args );
                 } else {
                     $client->notify( 'ReAssignVlan_in_queue', $args );
                 }
             } else {
                 if ($sync) {
                     my $client = pf::api::jsonrpcclient->new;
-                    $client->call( 'ReAssignVlan', $args );
+                    $client->call( 'ReAssignVlan_in_queue', $args );
                 } else {
-                    $client->notify( 'ReAssignVlan', $args );
+                    $client->notify( 'ReAssignVlan_in_queue', $args );
                 }
             }
         } elsif ( $conn_type & ($WIRELESS | $WEBAUTH | $VIRTUAL) ) {
@@ -239,16 +239,16 @@ sub _vlan_reevaluation {
             if ($cluster_deauth) {
                 if ($sync) {
                     my $client = pf::api::jsonrpcclient->new;
-                    $client->call( 'desAssociate', $args );
+                    $client->call( 'desAssociate_in_queue', $args );
                 } else {
                     $client->notify( 'desAssociate_in_queue', $args );
                 }
             } else {
                 if ($sync) {
                     my $client = pf::api::jsonrpcclient->new;
-                    $client->call( 'desAssociate', $args );
+                    $client->call( 'desAssociate_in_queue', $args );
                 } else {
-                    $client->notify( 'desAssociate', $args );
+                    $client->notify( 'desAssociate_in_queue', $args );
                 }
             }
         } else {
