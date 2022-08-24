@@ -9,4 +9,6 @@ RUN mkdir -p /usr/local/pf/var/run/
 COPY lib lib
 COPY sbin/pfqueue sbin/pfqueue
 
+COPY html/captive-portal/templates html/captive-portal/templates
+
 ENTRYPOINT /usr/local/pf/sbin/pfqueue
