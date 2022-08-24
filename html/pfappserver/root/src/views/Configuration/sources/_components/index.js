@@ -93,6 +93,7 @@ export {
   BaseFormGroupInput                        as FormGroupMerchantIdentifier,
   BaseFormGroupTextarea                     as FormGroupMessage,
   BaseFormGroupToggle                       as FormGroupMonitor,
+  BaseFormGroupInput                        as FormGroupNasIpAddress,
   BaseFormGroupTextarea                     as FormGroupOptions,
   BaseFormGroupActiveDirectoryPasswordTest  as FormGroupPassword,
   BaseFormGroupInput                        as FormGroupPasswordEmailUpdate,
