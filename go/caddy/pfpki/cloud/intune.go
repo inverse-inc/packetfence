@@ -164,15 +164,15 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 	client := &http.Client{Transport: tr}
 	cl.Client = client
 
-	var aadGraphFailed bool
+	var msGraphFailed bool
 
 	var req *http.Request
 	req, err = http.NewRequest("GET", graphRequest, nil)
 	if err != nil {
-		aadGraphFailed = true
+		msGraphFailed = true
 	}
 
-	if aadGraphFailed {
+	if msGraphFailed {
 		spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, aadGraphResourceUrl)
 
 		err = spt.Refresh()
@@ -219,7 +219,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
-					if a == "providerName" && !aadGraphFailed || a == "serviceName" && aadGraphFailed {
+					if a == "providerName" && !msGraphFailed || a == "serviceName" && aadGraphFailed {
 						if b == VALIDATION_SERVICE_NAME {
 							apiEndpoint.Uri = n.(map[string]interface{})["uri"].(string)
 						}
