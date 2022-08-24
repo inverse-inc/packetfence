@@ -219,7 +219,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
-					if a == "providerName" && !msGraphFailed || a == "serviceName" && aadGraphFailed {
+					if a == "providerName" && !msGraphFailed || a == "serviceName" && msGraphFailed {
 						if b == VALIDATION_SERVICE_NAME {
 							apiEndpoint.Uri = n.(map[string]interface{})["uri"].(string)
 						}
