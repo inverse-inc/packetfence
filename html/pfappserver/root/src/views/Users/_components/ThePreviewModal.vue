@@ -1,19 +1,32 @@
 <template>
-  <b-modal v-model="show" size="lg" :title="$t('The following users have been created')"
+  <b-modal v-model="show" size="lg" :title="$t('Create Users')"
     centered no-close-on-backdrop no-close-on-esc lazy scrollable
   >
-    <b-table
+    <template v-slot:modal-header v-if="isLoading">
+      <h4>{{ $i18n.t('Creating Users') }}</h4>
+    </template>
+    <template v-slot:modal-header v-else>
+      <h4>{{ $i18n.t('The following users have been created') }}</h4>
+    </template>
+    <div v-if="progress < 100" class="text-small">
+      {{ Math.round(progress) }}%
+      <b-progress :max="100" height="4px">
+        <b-progress-bar :value="progress" :precision="2" variant="success" :show-value="false"></b-progress-bar>
+        <b-progress-bar :value="100 - progress" :precision="2" variant="light" :show-value="false" style="opacity: 0.2"></b-progress-bar>
+      </b-progress>
+    </div>
+    <b-table v-else
       :items="users"
       :fields="visibleUsersFields"
       :sortBy="usersSortBy"
       :sortDesc="usersSortDesc"
       show-empty responsive striped>
-        <template v-slot:empty>
-          <slot name="emptySearch" v-bind="{ isLoading }">
-            <base-table-empty :is-loading="isLoading">{{ $t('No users created') }}</base-table-empty>
-          </slot>
-        </template>
-      </b-table>
+      <template v-slot:empty>
+        <slot name="emptySearch" v-bind="{ isLoading }">
+        <base-table-empty :is-loading="isLoading">{{ $t('No users created') }}</base-table-empty>
+        </slot>
+      </template>
+    </b-table>
     <template v-slot:modal-footer>
       <div class="w-100">
         <b-button :disabled="isLoading" variant="primary" class="float-right" @click="goToPreview">{{ $i18n.t('Preview') }}</b-button>
@@ -34,6 +47,12 @@ const components = {
 const props = {
   value: {
     type: Boolean
+  },
+  quantity: {
+    type: [String, Number]
+  },
+  completed: {
+    type: [String, Number]
   }
 }
 
@@ -42,10 +61,14 @@ import i18n from '@/utils/locale'
 const setup = (props, context) => {
 
   const {
-    value
+    value,
+    quantity,
+    completed,
   } = toRefs(props)
 
   const { emit, root: { $store, $router } = {} } = context
+
+  const progress = computed(() => +completed.value / +quantity.value * 100)
 
   const emailSubject = ref('')
   const emailFrom = ref('')
@@ -110,11 +133,12 @@ const setup = (props, context) => {
     usersFields,
     visibleUsersFields,
     isLoading,
+    progress,
     users,
     usersTemplates,
 
     show,
-    goToPreview
+    goToPreview,
   }
 }
 

@@ -77,7 +77,7 @@
         </div>
       </div>
     </base-form>
-    <the-preview-modal v-model="showPreviewModal" />
+    <the-preview-modal v-model="showPreviewModal" :quantity="form.quantity" :completed="completed" />
   </b-form>
 </template>
 <script>
@@ -158,10 +158,12 @@ const setup = (props, context) => {
   }
 
   const showPreviewModal = ref(false)
+  const completed = ref(0)
   const onCreate = () => {
     if (!isValid.value)
       return
     showPreviewModal.value = false
+    completed.value = 0
     const base = {
       ...form.value,
       quiet: true
@@ -176,20 +178,25 @@ const setup = (props, context) => {
       }
       promises.push($store.dispatch('$_users/exists', _form.pid).then(() => {
         // user exists
-        $store.dispatch('$_users/updateUser', _form).then(() => {
+        return $store.dispatch('$_users/updateUser', _form).then(() => {
+          completed.value += 0.5
           return $store.dispatch('$_users/updatePassword', _form).then(() => {
             createdUsers.value.push(_form)
+            completed.value += 0.5
           })
         })
       }).catch(() => {
         // user not exist
-        $store.dispatch('$_users/createUser', _form).then(() => {
+        return $store.dispatch('$_users/createUser', _form).then(() => {
+          completed.value += 0.5
           return $store.dispatch('$_users/createPassword', _form).then(() => {
             createdUsers.value.push(_form)
+            completed.value += 0.5
           })
         })
       }))
     }
+    showPreviewModal.value = true
     Promise.all(promises).then(values => {
       $store.dispatch('notification/info', {
         message: i18n.t('{quantity} users created', { quantity: values.length }),
@@ -198,7 +205,6 @@ const setup = (props, context) => {
         failed: null
       })
       $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
-      showPreviewModal.value = true
     })
   }
 
@@ -218,7 +224,8 @@ const setup = (props, context) => {
     onCreate,
     onReset,
     showPreviewModal,
-    passwordOptions
+    passwordOptions,
+    completed
   }
 }
 
