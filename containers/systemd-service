@@ -12,6 +12,7 @@ function base_args {
   args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
+  args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
   args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
