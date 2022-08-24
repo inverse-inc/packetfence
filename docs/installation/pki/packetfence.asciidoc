@@ -215,6 +215,8 @@ Next you have to add API permissions, click on "API permissions" -> "Add a Permi
 
 For more details about permissions https://techcommunity.microsoft.com/t5/intune-customer-success/support-tip-intune-service-discovery-api-endpoint-will-require/ba-p/2428040
 
+Previous versions used Azure Active Directory Graph which is now deprecated and will stop working after December 2022, if you have granted those permissions you can remove them and add the Microsoft Graph Application.Read.All one instead.
+
 image::Intune-7-API-Permissions.png[scaledwidth="100%",alt="API-Permissions"]
 
 Last step is to "Grant admin", just click on "Grant admin consent for ..." and click *Yes*
