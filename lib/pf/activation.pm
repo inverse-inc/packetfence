@@ -41,6 +41,7 @@ use pf::Connection::ProfileFactory;
 use pf::web::guest::constants;
 use pf::web qw(i18n);
 use pf::constants::Connection::Profile qw($DEFAULT_PROFILE);
+use pf::api::queue;
 
 =head1 CONSTANTS
 
@@ -474,7 +475,15 @@ Send an email with the activation code
 
 =cut
 
+
 sub send_email {
+    my ($type, $activation_code, $template, %info) = @_;
+    my $client = pf::api::queue->new(queue => 'priority');
+    $client->notify( send_activation_email => ($type, $activation_code, $template, %info));
+    return 1;
+}
+
+sub send_email_now {
     my ($type, $activation_code, $template, %info) = @_;
     my $logger = get_logger();
     my $lang = $info{lang};
@@ -504,7 +513,7 @@ sub send_email {
     );
 
     utf8::decode($info{'subject'});
-    my $result = pf::config::util::send_email($template, $info{'contact_info'}, $info{'subject'}, \%info, \%TmplOptions);
+    my $result = pf::config::util::send_email_now($template, $info{'contact_info'}, $info{'subject'}, \%info, \%TmplOptions);
     setlocale(POSIX::LC_MESSAGES, $user_locale);
     return $result;
 }
