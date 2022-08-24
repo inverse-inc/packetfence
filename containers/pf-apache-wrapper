@@ -2,6 +2,8 @@
 
 CONTAINER_PF_UID=`id -u pf`
 CONTAINER_PF_GID=`id -g pf`
+CONTAINER_FINGERBANK_UID=`id -u fingerbank`
+CONTAINER_FINGERBANK_GID=`id -g fingerbank`
 
 if [ -z "$PF_UID" ]; then
   echo "PF_UID hasn't been provided in env"
@@ -13,6 +15,16 @@ if [ -z "$PF_GID" ]; then
   exit 1
 fi
 
+if [ -z "$FINGERBANK_UID" ]; then
+  echo "FINGERBANK_UID hasn't been provided in env"
+  exit 1
+fi
+
+if [ -z "$FINGERBANK_GID" ]; then
+  echo "FINGERBANK_GID hasn't been provided in env"
+  exit 1
+fi
+
 echo "Changing UID of user pf"
 usermod -u $PF_UID -d /dev/null pf
 usermod -d /usr/local/pf pf
@@ -20,11 +32,20 @@ usermod -d /usr/local/pf pf
 echo "Changing GID of user pf"
 groupmod -g $PF_GID pf
 
+echo "Changing UID of user fingerbank"
+usermod -u $FINGERBANK_UID -d /dev/null fingerbank
+usermod -d /usr/local/fingerbank fingerbank
+
+echo "Changing GID of user fingerbank"
+groupmod -g $FINGERBANK_GID fingerbank
+
 function adjust_ids() {
   dir="$1"
-  echo "Adjusting permissions for user pf in $dir"
+  echo "Adjusting permissions in $dir"
   find $dir -user $CONTAINER_PF_UID ! -path '*/lib_perl/*' ! -path '*/node_modules/*' -exec chown -h pf {} \;
   find $dir -group $CONTAINER_PF_GID ! -path '*/lib_perl/*' ! -path '*/node_modules/*' -exec chgrp -h pf {} \;
+  find $dir -user $CONTAINER_FINGERBANK_UID ! -path '*/lib_perl/*' ! -path '*/node_modules/*' -exec chown -h fingerbank {} \;
+  find $dir -group $CONTAINER_FINGERBANK_GID ! -path '*/lib_perl/*' ! -path '*/node_modules/*' -exec chgrp -h fingerbank {} \;
 }
 
 adjust_ids /usr/local/pf

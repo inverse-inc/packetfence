@@ -15,6 +15,7 @@ function base_args {
   args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
   args="$args -ePF_UID=`id -u pf` -e PF_GID=`id -g pf`"
+  args="$args -eFINGERBANK_UID=`id -u fingerbank` -e FINGERBANK_GID=`id -g fingerbank`"
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
 
   if [ -f /usr/local/pf/var/conf/$name.env ]; then
