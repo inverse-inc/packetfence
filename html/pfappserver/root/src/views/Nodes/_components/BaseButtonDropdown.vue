@@ -56,57 +56,57 @@
         <b-row v-if="node.device_class"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Device Class'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.device_class"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Device Class'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.device_class"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.device_manufacturer"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Device Manufacturer'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.device_manufacturer"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Device Manufacturer'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.device_manufacturer"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.device_type"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Device Type'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.device_type"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Device Type'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.device_type"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.device_version"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Device Version'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.device_version"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Device Version'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.device_version"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.computername"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Computer Name'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.computername"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Computer Name'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.computername"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.machine_account"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Machine Account'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.machine_account"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Machine Account'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.machine_account"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.pid"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Owner'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.pid"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Owner'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.pid"></p>
           </b-col>
         </b-row>
         <b-row v-if="node.category"
           class="flex-nowrap">
           <b-col cols="auto">
-            <p class="py-0 col-form-label text-left text-nowrap" v-text="'Role'"></p>
-            <p class="mb-2 text-nowrap" v-text="node.category"></p>
+            <p class="py-0 col-form-label text-left text-nowrap text-secondary" v-text="'Role'"></p>
+            <p class="mb-2 text-nowrap text-dark" v-text="node.category"></p>
           </b-col>
         </b-row>
       </b-dropdown-form>

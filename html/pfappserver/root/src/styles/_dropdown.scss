@@ -3,4 +3,7 @@
 .dropdown-menu {
     overflow: auto;
     max-height: 80vh;
+    .row .col-form-label {
+        font-weight: bold;
+    }
 }
