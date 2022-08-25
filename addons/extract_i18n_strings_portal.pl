@@ -17,6 +17,7 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use File::Find;
 use pf::web::constants;
 use pf::person;
+use pf::IniFiles;
 
 use constant {
     CONF => 'conf',
@@ -213,6 +214,21 @@ sub parse_person {
     }
 }
 
+=head2 extract_portal_module_description
+
+extract the default portal module description
+
+=cut
+
+sub extract_portal_module_description {
+    my $ini = pf::IniFiles->new( -file => '/usr/local/pf/conf/portal_modules.conf.defaults');
+    for my $section ($ini->Sections) {
+        my $value = $ini->val($section, 'description');
+        next if !defined $value;
+        add_string($value, "/usr/local/pf/conf/portal_modules.conf.defaults $section");
+    }
+}
+
 
 =head2 print_po
 
@@ -296,6 +312,7 @@ sub verify {
 &parse_person;
 &parse_mc;
 &extract_modules;
+&extract_portal_module_description;
 &print_po;
 &verify;
 
