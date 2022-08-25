@@ -58,6 +58,7 @@ BEGIN {
         dns_names
         ip_addresses
         scep
+        csr
         alert
         subject
     );
@@ -86,6 +87,7 @@ BEGIN {
         dns_names => undef,
         ip_addresses => undef,
         scep => '0',
+        csr => '0',
         alert => '0',
         subject => undef,
     );
@@ -114,6 +116,7 @@ BEGIN {
         dns_names
         ip_addresses
         scep
+        csr
         alert
         subject
     );
@@ -269,6 +272,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        csr => {
+            type => 'TINYINT',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         alert => {
             type => 'TINYINT',
             is_auto_increment => 0,
@@ -313,6 +322,7 @@ BEGIN {
         pki_certs.dns_names
         pki_certs.ip_addresses
         pki_certs.scep
+        pki_certs.csr
         pki_certs.alert
         pki_certs.subject
     );

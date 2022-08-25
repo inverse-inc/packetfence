@@ -300,7 +300,7 @@ BEGIN {
             is_nullable => 1,
         },
         reason => {
-            type => 'TEXT',
+            type => 'MEDIUMTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
@@ -366,13 +366,13 @@ BEGIN {
             is_nullable => 1,
         },
         radius_request => {
-            type => 'TEXT',
+            type => 'MEDIUMTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
         },
         radius_reply => {
-            type => 'TEXT',
+            type => 'MEDIUMTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
             is_nullable => 1,
