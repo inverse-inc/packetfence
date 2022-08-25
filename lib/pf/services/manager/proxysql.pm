@@ -104,6 +104,9 @@ EOT
         $i--;
         }
     }
+
+    $tags{'mysql_pf_user'} = $DB_Config->{user};
+    $tags{'mysql_pf_pass'} = $DB_Config->{pass};
     $tt->process($self->proxysql_config_template, \%tags, "$generated_conf_dir/".$self->name.".conf") or die $tt->error();
 
     return 1;
