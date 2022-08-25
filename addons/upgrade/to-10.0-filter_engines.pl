@@ -245,6 +245,11 @@ sub build_condition {
     my $condition = $ctx->{conditions}{$name};
     my $op = $condition->{operator};
     my $filter = $condition->{filter};
+    my $attribute = $condition->{attribute};
+    if (defined $attribute && length $attribute) {
+        $filter .= ".$attribute";
+    }
+
     my $val = $condition->{value} // '';
     $val =~ s/(["\\])/\\$1/g;
     if ($filter eq 'time') {
