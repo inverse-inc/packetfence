@@ -33,3 +33,7 @@
     user-select: initial;
   }
 }
+
+.table > thead[role="rowgroup"] > tr[role="row"] > th[role="columnheader"] {
+  min-width: 40px;
+}

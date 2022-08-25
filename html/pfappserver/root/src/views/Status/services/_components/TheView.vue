@@ -122,7 +122,7 @@ const setup = (props, context) => {
     return [
       {
         key: 'selected',
-        thStyle: 'min-width: 40px; width: 40px;', tdClass: 'text-center',
+        thStyle: 'width: 40px;', tdClass: 'text-center',
         locked: true,
         stickyColumn: true,
 
