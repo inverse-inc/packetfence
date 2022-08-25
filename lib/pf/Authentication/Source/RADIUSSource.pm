@@ -12,8 +12,8 @@ use pf::constants qw($TRUE $FALSE);
 use pf::Authentication::constants qw($LOGIN_CHALLENGE);
 use pf::constants::authentication::messages;
 use pf::log;
-use pf::config qw(%Config $management_network);
-use pf::cluster qw($cluster_enabled);
+use pf::config qw(%Config);
+use pf::config::cluster qw($cluster_enabled);
 
 our $RADIUS_STATE = 'State';
 our $RADIUS_REPLY_MESSAGE = 'Reply-Message';
@@ -174,12 +174,14 @@ sub _fetch_attributes {
 sub check_radius_password {
     my ($self, $radius, $name, $pwd, $nas, @extra) = @_;
 
+    require pf::cluster;
+    require pf::config;
     if(!defined($nas)) {
         if($self->nas_ip_address) {
             $nas = $self->nas_ip_address;
         }
         else {
-            $nas = $cluster_enabled ? pf::cluster::management_cluster_ip : $management_network->{Tip};
+            $nas = $cluster_enabled ? pf::cluster::management_cluster_ip() : $pf::config::management_network->{Tip};
         }
     }
     $radius->clear_attributes;
