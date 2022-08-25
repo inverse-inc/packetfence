@@ -7,6 +7,8 @@ MYSQL_CONF="${2}"
 QUERY_CONF="${3}"
 ERR_FILE="${4}"
 
+: > $ERR_FILE
+
 PROXYSQL_USERNAME=`echo "$PROXYSQL_CONF" | jq -r .username`
 PROXYSQL_PASSWORD=`echo "$PROXYSQL_CONF" | jq -r .password`
 PROXYSQL_HOST=`echo "$PROXYSQL_CONF" | jq -r .host`
