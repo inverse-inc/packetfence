@@ -11,16 +11,16 @@ PROXYSQL_USERNAME=`echo "$PROXYSQL_CONF" | jq -r .username`
 PROXYSQL_PASSWORD=`echo "$PROXYSQL_CONF" | jq -r .password`
 PROXYSQL_HOST=`echo "$PROXYSQL_CONF" | jq -r .host`
 PROXYSQL_PORT=`echo "$PROXYSQL_CONF" | jq -r .port`
-echo "$PROXYSQL_USERNAME $PROXYSQL_PASSWORD $PROXYSQL_HOST $PROXYSQL_PORT"
+#echo "$PROXYSQL_USERNAME $PROXYSQL_PASSWORD $PROXYSQL_HOST $PROXYSQL_PORT"
 
 MYSQL_USERNAME=`echo "$MYSQL_CONF" | jq -r .username`
 MYSQL_PASSWORD=`echo "$MYSQL_CONF" | jq -r .password`
-echo "$MYSQL_USERNAME $MYSQL_PASSWORD"
+#echo "$MYSQL_USERNAME $MYSQL_PASSWORD"
 
 READ_WRITE_HOSTGROUP=`echo "$QUERY_CONF" | jq -r .read_write_hostgroup`
 READ_HOSTGROUP=`echo "$QUERY_CONF" | jq -r .read_hostgroup`
 QUERY_RULE_IDS=`echo "$QUERY_CONF" | jq -r .rule_ids`
-echo "$READ_WRITE_HOSTGROUP $READ_HOSTGROUP $QUERY_RULE_IDS"
+#echo "$READ_WRITE_HOSTGROUP $READ_HOSTGROUP $QUERY_RULE_IDS"
 
 TIMEOUT=10
 
@@ -43,7 +43,7 @@ do
   fi
 done <<< "$($PROXYSQL_CMDLINE "SELECT hostname,port,status FROM mysql_servers WHERE hostgroup_id='$READ_WRITE_HOSTGROUP'")"
 
-echo "$HAS_ONE_READY $HAS_ONE_READ_WRITE"
+#echo "$HAS_ONE_READY $HAS_ONE_READ_WRITE"
 
 if [ "${HAS_ONE_READY}" = "no" ] || [ "${HAS_ONE_READ_WRITE}" = "no" ]; then
   echo `date` All the servers are either wsrep_ready=off or read_only=1, stopping writes >> ${ERR_FILE}
