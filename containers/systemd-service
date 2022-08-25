@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCAL_REGISTRY=local
+LOCAL_REGISTRY=packetfence
 source /usr/local/pf/conf/build_id
 
 if [ -f /usr/local/pf/containers/.local_env ]; then
