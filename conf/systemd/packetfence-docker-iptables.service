@@ -1,8 +1,6 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence Docker Iptables configuration
-Wants=packetfence-base.target packetfence-config.service
-After=packetfence-base.target packetfence-config.service
 
 [Service]
 StartLimitBurst=3
