@@ -49,8 +49,10 @@
           </b-row>
         </template>
         <template #top-row v-if="selected.length">
-        <base-button-bulk-actions
-          :selectedItems="selectedItems" :visibleColumns="serviceFields" class="my-3" />
+          <td :colspan="serviceFields.length">
+            <base-button-bulk-actions
+              :selectedItems="selectedItems" :visibleColumns="serviceFields" />
+          </td>
         </template>
         <template #cell(selected)="{ index, rowSelected }">
           <span @click.stop="onItemSelected(index)">
