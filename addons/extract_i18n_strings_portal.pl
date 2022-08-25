@@ -214,6 +214,26 @@ sub parse_person {
     }
 }
 
+=head2 extract_authentication_description
+
+extract the default authentication description
+
+=cut
+
+sub extract_authentication_description {
+    _extract_field_from_ini('/usr/local/pf/conf/authentication.conf.example', 'description');
+}
+
+sub _extract_field_from_ini {
+    my ($file, $field) = @_;
+    my $ini = pf::IniFiles->new( -file => $file);
+    for my $section  (grep { /^\S+$/ } $ini->Sections) {
+        my $value = $ini->val($section, $field);
+        next if !defined $value || $value eq '';
+        add_string($value, "$file $section");
+    }
+}
+
 =head2 extract_portal_module_description
 
 extract the default portal module description
@@ -221,12 +241,7 @@ extract the default portal module description
 =cut
 
 sub extract_portal_module_description {
-    my $ini = pf::IniFiles->new( -file => '/usr/local/pf/conf/portal_modules.conf.defaults');
-    for my $section ($ini->Sections) {
-        my $value = $ini->val($section, 'description');
-        next if !defined $value;
-        add_string($value, "/usr/local/pf/conf/portal_modules.conf.defaults $section");
-    }
+    _extract_field_from_ini('/usr/local/pf/conf/portal_modules.conf.defaults', 'description');
 }
 
 
@@ -313,6 +328,7 @@ sub verify {
 &parse_mc;
 &extract_modules;
 &extract_portal_module_description;
+&extract_authentication_description;
 &print_po;
 &verify;
 
