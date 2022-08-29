@@ -87,6 +87,6 @@ Then, complete the PacketFence Connector configuration by specifying the secret 
 
     https://NODE_BALANCER_IP:1443/api/v1/pfconnector/tunnel
 
-Finally, restart the packetfence-pfconnector-remote service:
+Finally, restart and enable the packetfence-pfconnector-remote service:
 
    systemctl restart packetfence-pfconnector-remote
