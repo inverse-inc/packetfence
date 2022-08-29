@@ -112,7 +112,7 @@ mysql_query_rules =
     {
         rule_id=100
         active=1
-        match_pattern="^SELECT .* FOR UPDATE"
+        match_pattern="^\s*SELECT .* FOR UPDATE"
         destination_hostgroup=10
         apply=1
     },
@@ -133,7 +133,7 @@ mysql_query_rules =
     {
         rule_id=300
         active=1
-        match_pattern="^SELECT .*"
+        match_pattern="^\s*SELECT .*"
         destination_hostgroup=30
         apply=1
     },
