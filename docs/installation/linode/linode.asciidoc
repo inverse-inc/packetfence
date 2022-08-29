@@ -72,7 +72,7 @@ Finally, you must configure a secure way to reach your Cloud-hosted version of P
 
 Starting from v12, PacketFence provides the PacketFence Connector. The PacketFence Connector allows you to establish a secure connection to a Cloud-hosted version of PacketFence so that NAS devices from a LAN can securely communicate with. The PacketFence Connector is meant to be lightweight, easy to configure and should not require any firewall changes as it tunnels everything over HTTPS.
 
-To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 11 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 50GB of disk space). Then, perform the following commands as root:
+To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 11 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
 
     apt install git make
     curl -O https://raw.githubusercontent.com/inverse-inc/packetfence/devel/addons/pfconnector/install.sh
