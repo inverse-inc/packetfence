@@ -24,7 +24,9 @@ This section will guide you into the high-level steps required to deploy PacketF
 
 === Installation and Configuration Steps
 
-First, you need to create three Linodes in the same region. Dedicate 16GB of memory per instance and make sure Private IP are enabled for each instance. Once done, make sure to configure the firewall policy similar to the following screenshot:
+First, you need to create three 'Debian 11' or 'Rocky 8' Linodes in the same region. The 'Dedicated 16GB' plan or above is required and make sure Private IP is enabled for each instance. 
+
+Once done, make sure to configure the firewall policy similar to the following screenshot:
 
 image::linode_firewall.png[scaledwidth="100%",alt="Linode firewall configuration"]
 
