@@ -121,22 +121,22 @@ our %ALLOWED_JOIN_FIELDS = (
     'security_event.open_count' => {
         namespace => 'security_event_open',
         rewrite_query => \&rewrite_security_event_open_count,
-        column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_count`",
+        column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = 'open' ) AS `security_event.open_count`",
     },
     'security_event.open_security_event_id' => {
         namespace => 'security_event.open_security_event_id',
         rewrite_query => \&rewrite_security_event_open_security_event_id,
-        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_security_event_id`",
+        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = 'open' ) AS `security_event.open_security_event_id`",
     },
     'security_event.close_count' => {
         namespace => 'security_event_close',
         rewrite_query => \&rewrite_security_event_close_count,
-        column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_count`",
+        column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = 'closed' ) AS `security_event.close_count`",
     },
     'security_event.close_security_event_id' => {
         namespace => 'security_event_close',
         rewrite_query => \&rewrite_security_event_close_security_event_id,
-        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_security_event_id`",
+        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = 'closed' ) AS `security_event.close_security_event_id`",
     },
     'mac' => {
         rewrite_query => \&rewrite_mac_query,
