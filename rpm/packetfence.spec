@@ -545,6 +545,7 @@ rm -rf %{buildroot}
 #==============================================================================
 %pre
 
+mkdir -p /usr/local/pf/var/run/
 touch /usr/local/pf/var/run/pkg_install_in_progress
 
 /usr/bin/systemctl --now mask mariadb
