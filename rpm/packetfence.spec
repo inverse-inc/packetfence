@@ -545,9 +545,6 @@ rm -rf %{buildroot}
 #==============================================================================
 %pre
 
-mkdir -p /usr/local/pf/var/run/
-touch /usr/local/pf/var/run/pkg_install_in_progress
-
 /usr/bin/systemctl --now mask mariadb
 /usr/bin/systemctl --now mask proxysql
 
@@ -609,6 +606,9 @@ fi
 # Post Installation
 #==============================================================================
 %post
+mkdir -p /usr/local/pf/var/run/
+touch /usr/local/pf/var/run/pkg_install_in_progress
+
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
