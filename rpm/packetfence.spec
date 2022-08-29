@@ -648,7 +648,7 @@ fi
 
 # Install the monitoring scripts signing key
 echo "Install the monitoring scripts signing key"
-gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
+gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
