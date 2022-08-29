@@ -77,7 +77,7 @@ To deploy the PacketFence Connector, first provision on your local network (wher
     apt install git make
     curl -O https://raw.githubusercontent.com/inverse-inc/packetfence/devel/addons/pfconnector/install.sh
     bash install.sh
-    /usr/local/bin/pfconnector
+    /usr/local/bin/pfconnector-configure
 
 When executing the last command, save the Connector ID.
 
