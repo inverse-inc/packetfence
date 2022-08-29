@@ -90,3 +90,4 @@ Then, complete the PacketFence Connector configuration by specifying the secret 
 Finally, restart and enable the packetfence-pfconnector-remote service:
 
    systemctl restart packetfence-pfconnector-remote
+   systemctl enable packetfence-pfconnector-remote
