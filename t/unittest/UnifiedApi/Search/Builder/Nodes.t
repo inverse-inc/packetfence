@@ -543,16 +543,6 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         'Return the joined tables'
     );
 
-    is_deeply(
-        [
-            $sb->make_group_by(\%search_info)
-        ],
-        [
-            200,
-            [qw( node.mac)],
-        ],
-        "security_event.open_count Group by",
-    )
 }
 
 {
