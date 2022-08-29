@@ -582,7 +582,9 @@ type RadiusStatements struct {
 func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
 	var err error
 	if *stmt, err = db.Prepare(sql); err != nil {
-		panic(err)
+		log.Logger().Error(fmt.Sprintf("Failed to prepare statement '%s': %s", sql, err))
+		time.Sleep(5 * time.Second)
+		go setupStmt(db, stmt, sql)
 	}
 }
 
