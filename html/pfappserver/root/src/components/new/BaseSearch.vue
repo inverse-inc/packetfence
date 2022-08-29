@@ -252,6 +252,7 @@ const setup = (props, context) => {
   })
 
   const onSearchBasic = () => {
+    setPage(1, false)
     if (conditionBasic.value) {
       doSearchString(conditionBasic.value)
       $store.dispatch('preferences/get', saveSearchNamespace)
@@ -274,6 +275,7 @@ const setup = (props, context) => {
   }
 
   const onSearchAdvanced = () => {
+    setPage(1, false)
     if (conditionAdvanced.value) {
       doSearchCondition(conditionAdvanced.value)
       $store.dispatch('preferences/get', saveSearchNamespace)
@@ -303,7 +305,7 @@ const setup = (props, context) => {
   const onSearchReset = () => {
     conditionBasic.value = null
     conditionAdvanced.value = defaultCondition()
-    setPage(1)
+    setPage(1, false)
     $store.dispatch('preferences/get', saveSearchNamespace)
       .then(({ meta, ...value }) => {
         const { conditionAdvanced, conditionBasic, ...rest } = value || {}
