@@ -79,7 +79,7 @@ To deploy the PacketFence Connector, first provision on your local network (wher
     bash install.sh
     /usr/local/bin/pfconnector-configure
 
-When executing the last command, save the Connector ID.
+When executing the last command, note down the Connector ID.
 
 Then, from the PacketFence's admin interface, in the "Configuration->System Configuration->Connectors" section, create a Connector with ID saved at last step. Then, generate a secret and add the networks where your network devices on remote sites are - this will be used to send RADIUS disconnect requests.
 
