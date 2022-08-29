@@ -118,34 +118,38 @@ our %ALLOWED_JOIN_FIELDS = (
         rewrite_query => \&rewrite_switch_ip,
         column_spec   => make_join_column_spec( 'locationlog', 'switch_ip' ),
     },
-    'security_event.open_count' => {
-        namespace => 'security_event_open',
-        rewrite_query => \&rewrite_security_event_open_count,
-        column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = 'open' ) AS `security_event.open_count`",
-    },
-    'security_event.open_security_event_id' => {
-        namespace => 'security_event.open_security_event_id',
-        rewrite_query => \&rewrite_security_event_open_security_event_id,
-        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = 'open' ) AS `security_event.open_security_event_id`",
-    },
-    'security_event.close_count' => {
-        namespace => 'security_event_close',
-        rewrite_query => \&rewrite_security_event_close_count,
-        column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = 'closed' ) AS `security_event.close_count`",
-    },
-    'security_event.close_security_event_id' => {
-        namespace => 'security_event_close',
-        rewrite_query => \&rewrite_security_event_close_security_event_id,
-        column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = 'closed' ) AS `security_event.close_security_event_id`",
-    },
+    security_events_count('open'),
+    security_events_count('closed'),
+    security_events_count('delayed'),
     'mac' => {
         rewrite_query => \&rewrite_mac_query,
     }
 );
 
+sub security_events_count {
+    my ($status) = @_;
+    return (
+        "security_event.${status}_count" => {
+            namespace => "security_event_${status}",
+            rewrite_query => sub {
+                my ($self, $s, $q) = @_;
+                $self->rewrite_security_event_status_count($s, $q, $status);
+            },
+            column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = '${status}' ) AS `security_event.${status}_count`",
+        },
+        "security_event.${status}_security_event_id" => {
+            namespace => "security_event.${status}_security_event_id",
+            rewrite_query => sub {
+                my ($self, $s, $q) = @_;
+                return $self->rewrite_security_event_security_event_id_status($s, $q, $status);
+            },
+            column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = '${status}' ) AS `security_event.${status}_security_event_id`",
+        },
+    )
+}
+
 sub rewrite_mac_query {
     my ( $self, $s, $q ) = @_;
-
     my $value       = $q->{value};
     my $cleaned_mac = clean_mac($value);
     if ( $cleaned_mac ne "0" ) {
@@ -158,16 +162,6 @@ sub rewrite_mac_query {
 sub non_searchable {
     my ($self, $s, $q) = @_;
     return (422, { message => "$q->{field} is not searchable" });
-}
-
-sub rewrite_security_event_open_security_event_id {
-    my ($self, $s, $q) = @_;
-    return $self->rewrite_security_event_security_event_id_status($s, $q, 'open');
-}
-
-sub rewrite_security_event_close_security_event_id {
-    my ($self, $s, $q) = @_;
-    return $self->rewrite_security_event_security_event_id_status($s, $q, 'closed');
 }
 
 sub rewrite_security_event_security_event_id_status {
@@ -206,16 +200,6 @@ our %SECURITY_EVENT_COUNTS_ALLOWED_OPS = (
     less_than_equals    => 1,
 );
 
-sub rewrite_security_event_open_count {
-    my ($self, $s, $q) = @_;
-    $self->rewrite_security_event_status_count($s, $q, 'open');
-}
-
-sub rewrite_security_event_close_count {
-    my ($self, $s, $q) = @_;
-    $self->rewrite_security_event_status_count($s, $q,'closed');
-}
-
 sub rewrite_security_event_status_count {
     my ($self, $s, $q, $status) = @_;
     my $op = $q->{op};
@@ -241,7 +225,6 @@ sub rewrite_security_event_status_count {
         ],
     );
     $sql =~ s/GROUP BY.*?HAVING/HAVING/;
-
     return (200, \["EXISTS ($sql)", @bind]);
 }
 
@@ -289,7 +272,7 @@ sub map_dal_fields_to_join_spec {
     my ($dal, $join_spec, $where_spec, $exclude) = @_;
     $exclude //= {};
     my $table = $dal->table;
-    return map { map_dal_field_to_join_spec($table, $_,$join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names}; 
+    return map { map_dal_field_to_join_spec($table, $_, $join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names};
 }
 
 sub map_dal_field_to_join_spec {
