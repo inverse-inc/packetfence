@@ -245,12 +245,6 @@ sub rewrite_security_event_status_count {
     return (200, \["EXISTS ($sql)", @bind]);
 }
 
-sub rewrite_security_event_close_security_event_id {
-    my ($self, $s, $q) = @_;
-    $q->{field} = 'security_event_close.security_event_id';
-    return (200, $q);
-}
-
 our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
 our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
 our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by ba.last_updated DESC LIMIT 1)';
