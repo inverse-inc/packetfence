@@ -7,6 +7,12 @@ import apiCall from '@/utils/api'
 
 const retries = {} // global retry counter
 
+// number of retries before giving up
+const POLL_RETRY_NUM = 20
+
+// delay between retries (seconds)
+const POLL_RETRY_INTERVAL = 3
+
 const pollTaskStatus = ({ task_id, headers }) => {
   return apiCall.getQuiet(`pfqueue/task/${task_id}/status/poll`, { headers }).then(response => {
     if (task_id in retries)
@@ -21,14 +27,14 @@ const pollTaskStatus = ({ task_id, headers }) => {
         retries[task_id] = 0
       else
         retries[task_id]++
-      if (retries[task_id] > 10) // give up after N retries
+      if (retries[task_id] > POLL_RETRY_NUM) // give up after N retries
         throw error
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
           pollTaskStatus({ task_id, headers })
             .then(resolve)
             .catch(reject)
-        }, 1000)
+        }, POLL_RETRY_INTERVAL * 1E3)
       })
     }
   })
