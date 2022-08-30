@@ -342,15 +342,15 @@ post-auth {
 			Realm = "eduroam"
 		}
 		rest
-	}
-	if (updated || ok || noop) {
-		request-timing
-		-sql
-	} else {
-		request-timing
-		-sql_reject
-	}
 
+		if (updated || ok || noop) {
+			request-timing
+			-sql
+		} else {
+			request-timing
+			-sql_reject
+		}
+	}
 	attr_filter.packetfence_post_auth
 	linelog
 	#
