@@ -83,7 +83,7 @@ bash install.sh
 
 When executing the last command, note down the Connector ID.
 
-Then, from the PacketFence's admin interface, in the "Configuration->System Configuration->Connectors" section, create a Connector with the ID from the last step. Then, generate a secret and add the networks where your network devices on remote sites are - this will be used for access reevaluation, SNMP communication, LDAP queries, etc.
+Then, from the PacketFence's admin interface, in the _Configuration->System Configuration->Connectors_ section, create a Connector with the ID from the last step. Then, generate a secret and add the networks where your network devices on remote sites are - this will be used for access reevaluation, SNMP communication, LDAP queries, etc.
 
 Then, complete the PacketFence Connector configuration by specifying the secret and the host, which should be similar to:
 
