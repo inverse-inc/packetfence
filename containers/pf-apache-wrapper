@@ -51,5 +51,8 @@ function adjust_ids() {
 adjust_ids /usr/local/pf
 adjust_ids /usr/local/fingerbank
 
+# Ensure pf is still part of the fingerbank group
+usermod -a -G fingerbank pf
+
 eval $@
 
