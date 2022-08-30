@@ -34,7 +34,7 @@ Then, perform a standard PacketFence installation on each Linode. Once completed
 
 image::linode_lb.png[scaledwidth="100%",alt="Linode load-balancer configuration"]
 
-Once completed, you will have to go through the PacketFence Clustering Quick Installation Guide. For the IP addresses in the CLUSTER sections, use the public IP of the NodeBalancer above. For the IP addresses of the servers themselves, use their private IP addresses. No registration/isolation VLANs are supported at the moment. If you want to perform enforcement with PacketFence, you will have to use Web Authentication. Once done building the cluster, disable 'Proxy RADIUS using virtual IP' and 'Use virtual IP for access reevaluation' from the "Configuration->System Configuration->Cluster" configuration section and restart the radiusd-load_balancer service. Once completed, your cluster.conf should be similar to:
+Once completed, you will have to go through the <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,PacketFence Clustering Quick Installation Guide>>. For the IP addresses in the CLUSTER sections, use the public IP of the NodeBalancer above. For the IP addresses of the servers themselves, use their private IP addresses. No registration/isolation VLANs are supported at the moment. If you want to perform enforcement with PacketFence, you will have to use Web Authentication. Once done building the cluster, disable 'Proxy RADIUS using virtual IP' and 'Use virtual IP for access reevaluation' from the "Configuration->System Configuration->Cluster" configuration section and restart the radiusd-load_balancer service. Once completed, your cluster.conf should be similar to:
 
 
     [CLUSTER]
