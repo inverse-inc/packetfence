@@ -6,11 +6,11 @@
     </template>
     <b-dropdown-group v-if="isCluster"
       :header="$i18n.t('CLUSTER')">
-      <b-dropdown-item @click="doEnableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doDisableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doRestartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doStartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start All') }}</b-dropdown-item>
-      <b-dropdown-item @click="doStopCluster" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $i18n.t('Stop All') }}</b-dropdown-item>
+      <b-dropdown-item @click="doEnableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable All Sequentially') }}</b-dropdown-item>
+      <b-dropdown-item @click="doDisableCluster" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable All Sequentially') }}</b-dropdown-item>
+      <b-dropdown-item @click="doRestartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All Sequentially') }}</b-dropdown-item>
+      <b-dropdown-item @click="doStartCluster" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start All Sequentially') }}</b-dropdown-item>
+      <b-dropdown-item @click="doStopCluster" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $i18n.t('Stop All Sequentially') }}</b-dropdown-item>
     </b-dropdown-group>
     <template v-for="(_, server) in servers">
       <b-dropdown-divider v-if="isCluster" :key="`divider-${server}`" />

@@ -39,15 +39,15 @@
     <b-dropdown-group v-if="isAllowed && isCluster"
       :header="$i18n.t('CLUSTER')">
       <b-dropdown-item v-if="enable && cluster.hasDisabled"
-        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
+        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="disable && cluster.hasEnabled"
-        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
+        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="restart && cluster.hasAlive"
-        @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
+        @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="start && cluster.hasDead"
-        @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
+        @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="stop && cluster.hasAlive"
-        @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
+        @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All Sequentially') }}</b-dropdown-item>
     </b-dropdown-group>
 
     <template v-for="(service, server) in servers">
