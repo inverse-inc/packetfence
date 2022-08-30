@@ -472,6 +472,7 @@ const actions = {
   },
 
   restartSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_RESTARTING', { server, id })
     return api(state, server).restartSystem(id).then(response => {
       commit('SYSTEM_SERVICE_RESTARTED', { server, id, response })
@@ -483,6 +484,7 @@ const actions = {
     })
   },
   startSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_STARTING', { server, id })
     return api(state, server).startSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STARTED', { server, id, response })
@@ -494,6 +496,7 @@ const actions = {
     })
   },
   stopSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_STOPPING', { server, id })
     return api(state, server).stopSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STOPPED', { server, id, response })
@@ -526,7 +529,7 @@ const mutations = {
   },
   CONFIG_SUCCESS: (state, items) => {
     items.map(server => {
-      Vue.set(state.servers, server.host, { services: {}, ...state.servers[server.host], ...server })
+      Vue.set(state.servers, server.host, { services: {}, system_services: {}, ...state.servers[server.host], ...server })
     })
     state.status = types.SUCCESS
     state.message = ''
@@ -558,7 +561,7 @@ const mutations = {
 
   SERVICE_REQUEST: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, state.servers[server] || { services: {} })
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {} })
     Vue.set(state.servers[server].services, id, state.servers[server].services[id] || {})
     Vue.set(state.servers[server].services[id], 'status', types.LOADING)
   },
@@ -633,27 +636,40 @@ const mutations = {
     }
   },
 
-  SYSTEM_SERVICE_RESTARTING: state => {
-    state.status = types.RESTARTING
+  SYSTEM_SERVICE_REQUEST: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {} })
+    Vue.set(state.servers[server].system_services, id, state.servers[server].services[id] || {})
+    Vue.set(state.servers[server].system_services[id], 'status', types.LOADING)
   },
-  SYSTEM_SERVICE_RESTARTED: state => {
+  SYSTEM_SERVICE_RESTARTING: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers[server].system_services[id], 'status', types.RESTARTING)
+  },
+  SYSTEM_SERVICE_RESTARTED: (state, { server, id }) => {
     state.status = types.SUCCESS
+    Vue.set(state.servers[server].system_services[id], 'status', types.SUCCESS)
   },
-  SYSTEM_SERVICE_STARTING: state => {
-    state.status = types.STARTING
+  SYSTEM_SERVICE_STARTING: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers[server].system_services[id], 'status', types.STARTING)
   },
-  SYSTEM_SERVICE_STARTED: state => {
+  SYSTEM_SERVICE_STARTED: (state, { server, id }) => {
     state.status = types.SUCCESS
+    Vue.set(state.servers[server].system_services[id], 'status', types.SUCCESS)
   },
-  SYSTEM_SERVICE_STOPPING: state => {
-    state.status = types.STOPPING
+  SYSTEM_SERVICE_STOPPING: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers[server].system_services[id], 'status', types.STOPPING)
   },
-  SYSTEM_SERVICE_STOPPED: state => {
+  SYSTEM_SERVICE_STOPPED: (state, { server, id }) => {
     state.status = types.SUCCESS
+    Vue.set(state.servers[server].system_services[id], 'status', types.SUCCESS)
   },
-  SYSTEM_SERVICE_ERROR: (state, error) => {
+  SYSTEM_SERVICE_ERROR: (state, { server, id, error }) => {
     state.status = types.ERROR
     state.message = error
+    Vue.set(state.servers[server].system_services[id], 'status', types.ERROR)
   },
 
   SYSTEMD_REQUEST: state => {
