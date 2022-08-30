@@ -56,8 +56,8 @@ mysql_variables=
     default_schema="information_schema"
     stacksize=1048576
     server_version="5.1.30"
-    connect_timeout_server=50
-    connect_timeout_server_max=125
+    connect_timeout_server=1000
+    connect_timeout_server_max=3000
     monitor_history=60000
     monitor_connect_interval=200000
     monitor_ping_interval=200000
@@ -112,7 +112,7 @@ mysql_query_rules =
     {
         rule_id=100
         active=1
-        match_pattern="^SELECT .* FOR UPDATE"
+        match_pattern="^\s*SELECT .* FOR UPDATE"
         destination_hostgroup=10
         apply=1
     },
@@ -133,7 +133,7 @@ mysql_query_rules =
     {
         rule_id=300
         active=1
-        match_pattern="^SELECT .*"
+        match_pattern="^\s*SELECT .*"
         destination_hostgroup=30
         apply=1
     },
@@ -149,4 +149,18 @@ mysql_query_rules =
 mysql_users =
 (
 [% mysql_users %]
+)
+
+scheduler =
+(
+  {
+     id=1
+     active=1
+     interval_ms=5000
+     filename="/proxysql-read-only-handler.sh"
+     arg1="{\"username\":\"admin\", \"password\":\"admin\", \"host\":\"127.0.0.1\", \"port\":6032}"
+     arg2="{\"username\":\"[% mysql_pf_user %]\", \"password\":\"[% mysql_pf_pass %]\"}"
+     arg3="{\"read_write_hostgroup\":10, \"read_hostgroup\":30, \"rule_ids\":\"100,400\"}"
+     arg4="/proxysql-read-only-handler.log"
+  }
 )

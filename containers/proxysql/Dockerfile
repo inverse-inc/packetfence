@@ -75,4 +75,7 @@ RUN apt-get -qq update \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb
 
+COPY bin/proxysql-read-only-handler.sh /proxysql-read-only-handler.sh
+RUN chmod +x /proxysql-read-only-handler.sh
+
 ENTRYPOINT ["proxysql", "-f", "-D", "/usr/local/pf/var/proxysql/", "-c", "/usr/local/pf/var/conf/proxysql.conf", "--initial", "--idle-threads"]
