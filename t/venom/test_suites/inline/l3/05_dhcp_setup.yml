@@ -9,7 +9,7 @@ testcases:
            #Interfaces that act as dhcp server
            listen=blok-vpeer0
            #Interface:Relay ip mean dhcp request received on this interface will be forwarded to the relay address.
-           relay=blok-vpeer0:100.64.0.2
+           relay=blok-vpeer0:100.127.255.254
            EOF
 
   - name: download_the_dhcp_relay
