@@ -95,8 +95,7 @@ export const useInputValidator = (props, value, recursive = false) => {
       }
     }
 
-    let validateDebouncerEarly
-    let validateDebouncerLate
+    let validateDebouncer
     const validate = () => {
       const schema = unref(localValidator)
       const thisPromise = ++lastPromise
@@ -143,13 +142,9 @@ export const useInputValidator = (props, value, recursive = false) => {
         })
       }
 
-      if (!validateDebouncerEarly)
-        validateDebouncerEarly = createDebouncer()
-      validateDebouncerEarly({ handler, time: 1000 }) // 1s
-
-      if (!validateDebouncerLate)
-        validateDebouncerLate = createDebouncer()
-      validateDebouncerLate({ handler, time: 5000 }) // 5s
+      if (!validateDebouncer)
+        validateDebouncer = createDebouncer()
+      validateDebouncer({ handler, time: 100 }) // 100ms
     }
 
     watch([value, localValidator], validate, { deep: true, immediate: true })
