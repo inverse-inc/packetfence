@@ -18,8 +18,8 @@ RUN wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | apt-key add -
 RUN apt-get update
 
 COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh
-RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh
-RUN rm -f /usr/local/fingerbank/db/fingerbank_*.db
+RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
+      rm -f /usr/local/fingerbank/db/fingerbank_*.db
 
 RUN apt-get install -y freeradius-common
 
