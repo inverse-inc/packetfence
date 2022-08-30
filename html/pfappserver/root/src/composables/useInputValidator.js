@@ -145,11 +145,11 @@ export const useInputValidator = (props, value, recursive = false) => {
 
       if (!validateDebouncerEarly)
         validateDebouncerEarly = createDebouncer()
-      validateDebouncerEarly({ handler, time: 100 }) // 100ms
+      validateDebouncerEarly({ handler, time: 1000 }) // 1s
 
       if (!validateDebouncerLate)
         validateDebouncerLate = createDebouncer()
-      validateDebouncerLate({ handler, time: 3000 }) // 3s
+      validateDebouncerLate({ handler, time: 5000 }) // 5s
     }
 
     watch([value, localValidator], validate, { deep: true, immediate: true })
