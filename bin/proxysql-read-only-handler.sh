@@ -48,9 +48,9 @@ done <<< "$($PROXYSQL_CMDLINE "SELECT hostname,port,status FROM mysql_servers WH
 #echo "$HAS_ONE_READY $HAS_ONE_READ_WRITE"
 
 if [ "${HAS_ONE_READY}" = "no" ] || [ "${HAS_ONE_READ_WRITE}" = "no" ]; then
-  echo `date` All the servers are either wsrep_ready=off or read_only=1, stopping writes >> ${ERR_FILE}
+  echo `date` All the servers have either wsrep_ready=off or read_only=1, stopping writes >> ${ERR_FILE}
   $PROXYSQL_CMDLINE "update mysql_query_rules set replace_pattern='ERROR DB IS IN R/O', destination_hostgroup=$READ_HOSTGROUP where rule_id IN ($QUERY_RULE_IDS); LOAD MYSQL QUERY RULES TO RUNTIME;" 2>> ${ERR_FILE}
 else
-  echo `date` At least one server is wsrep_ready=on and read_only=0 >> ${ERR_FILE}
+  echo `date` At least one server has wsrep_ready=on and read_only=0 >> ${ERR_FILE}
   $PROXYSQL_CMDLINE "update mysql_query_rules set replace_pattern=NULL, destination_hostgroup=$READ_WRITE_HOSTGROUP where rule_id IN ($QUERY_RULE_IDS); LOAD MYSQL QUERY RULES TO RUNTIME;" 2>> ${ERR_FILE}
 fi
