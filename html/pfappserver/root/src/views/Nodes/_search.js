@@ -287,7 +287,7 @@ export const search = {
       class: 'text-nowrap'
     },
     {
-      key: 'security_event.close_security_event_id',
+      key: 'security_event.closed_security_event_id',
       label: 'Security Event Closed', // i18n defer
       sortable: false,
       searchable: true,
@@ -297,7 +297,7 @@ export const search = {
         : formatter.noAdminRolePermission
     },
     {
-      key: 'security_event.close_count',
+      key: 'security_event.closed_count',
       label: 'Security Event Closed Count', // i18n defer
       sortable: false,
       searchable: true,
@@ -503,13 +503,13 @@ export const search = {
       icon: 'exclamation-triangle'
     },
     {
-      value: 'security_event.close_security_event_id',
+      value: 'security_event.closed_security_event_id',
       text: 'Security Event Closed', // i18n defer
       types: [conditionType.SECURITY_EVENT],
       icon: 'exclamation-circle'
     },
     {
-      value: 'security_event.close_count',
+      value: 'security_event.closed_count',
       text: 'Security Event Close Count', // i18n defer
       types: [conditionType.INTEGER],
       icon: 'exclamation-circle'
