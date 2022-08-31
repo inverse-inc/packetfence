@@ -80,16 +80,16 @@ yum install MariaDB-backup socat --enablerepo=packetfence
 .On Debian-based systems (for PacketFence versions 11.0.0 and later)
 [source,bash]
 ----
-apt-get install lsb-release wget gnupg2
-apt-get update
+apt-get install lsb-release wget gnupg2 ; \
+apt-get update ; \
 apt-get -y install mariadb-backup
 ----
 
 .On Debian-based systems (for PacketFence versions prior to 11.0.0)
 [source,bash]
 ----
-apt-get install lsb-release wget gnupg2
-apt-get update
+apt-get install lsb-release wget gnupg2 ; \
+apt-get update ; \
 apt-get -y install mariadb-backup-10.2
 ----
 
