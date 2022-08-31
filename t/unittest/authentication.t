@@ -22,7 +22,7 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 58;                      # last test to print
+use Test::More tests => 59;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -38,6 +38,23 @@ use_ok("pf::authentication");
 is(pf::authentication::match("bad_source_name",{ username => 'test', context => $pf::constants::realm::ADMIN_CONTEXT }), undef, "Return undef for an invalid name of source");
 
 is(pf::authentication::match2("bad_source_name",{ username => 'test', context => $pf::constants::realm::ADMIN_CONTEXT }), undef, "Return undef for an invalid name of source");
+
+is_deeply(
+    pf::authentication::match("htpasswd2", { username => 'user_manager', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }),
+    [
+        pf::Authentication::Action->new({
+            'value' => 'gaming',
+            'type'  => 'set_role',
+            'class' => 'authentication',
+        }),
+        pf::Authentication::Action->new({
+            'value' => '2020-01-01',
+            'type'  => 'set_unreg_date',
+            'class' => 'authentication',
+        }),
+    ],
+    "match any authentication htpasswd2 catchall"
+);
 
 is_deeply(
     pf::authentication::match("email", { username => 'user_manager', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }),

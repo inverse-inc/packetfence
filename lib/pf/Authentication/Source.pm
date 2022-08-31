@@ -214,8 +214,9 @@ sub match_rule {
     my $common_attributes = $self->common_attributes();
     my $available_attributes = $self->available_attributes();
     my @matching_rules = ();
+    my $conditions = $rule->{'conditions'} // [];
 
-    foreach my $condition ( @{$rule->{'conditions'}} ) {
+    foreach my $condition ( @$conditions ) {
         if (grep { $_->{value} eq $condition->attribute } @$common_attributes) {
             # A condition on a common attribute
             my $r = $self->match_condition($condition, $params);
@@ -238,10 +239,10 @@ sub match_rule {
       my $match = $rule->match;
       # We compare the matched conditions with how many we had
       if ($match eq $Rules::ANY &&
-          scalar @matching_conditions > 0) {
+          (scalar @matching_conditions > 0 || @$conditions == 0)) {
           push(@matching_rules, $rule);
       } elsif ($match eq $Rules::ALL &&
-               scalar @matching_conditions == scalar @{$rule->{'conditions'}}) {
+               scalar @matching_conditions == scalar @{$conditions}) {
           push(@matching_rules, $rule);
       }
     }
