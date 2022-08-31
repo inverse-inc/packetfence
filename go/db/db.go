@@ -83,6 +83,7 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	host = strings.TrimSpace(host)
 	port = strings.TrimSpace(port)
 	dbName = strings.TrimSpace(dbName)
+	location, _ := time.LoadLocation("Local")
 
 	proto := "tcp"
 
@@ -102,5 +103,6 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 	Configuration.DBName = dbName
 	Configuration.Collation = collation
 	Configuration.ParseTime = true
+	Configuration.Loc = location
 	return Configuration.FormatDSN()
 }
