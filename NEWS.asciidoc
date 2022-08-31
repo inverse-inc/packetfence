@@ -42,6 +42,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Detect Cli-Access from Dell N1500 switch (#7070)
 * Deprecate /api/v1/config/fixpermissions and /api/v1/config/checkup
 * Update monit email (#7012)
+* Initial Linode IaaS and PacketFence Connector documentation (#7152)
 
 === Bug Fixes
 
