@@ -3,7 +3,7 @@ testcases:
   - name: register_device_on_the_portal
     steps:
     - type: exec
-      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@{{.inline_l3.node.ipaddress}}"  -t "/root/register_node  -portal=https://100.127.255.254"
+      script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@{{.inline_l3.node.ipaddress}}"  -t "/root/register_node  -portal={{.inline_lx.pf_portal_url}}"
 
     # let wait a bit until the device is set in the ipset
     - type: exec
