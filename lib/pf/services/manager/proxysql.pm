@@ -105,6 +105,9 @@ EOT
         }
     }
 
+    my @mysql_servers = pf::cluster::mysql_servers();
+    $tags{'single_server'} = (scalar(@mysql_servers) == 1);
+
     $tags{'mysql_pf_user'} = $DB_Config->{user};
     $tags{'mysql_pf_user'} =~ s/"/\\"/g;
     $tags{'mysql_pf_pass'} = $DB_Config->{pass};

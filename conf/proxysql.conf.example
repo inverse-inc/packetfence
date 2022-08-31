@@ -72,7 +72,8 @@ mysql_variables=
     monitor_galera_healthcheck_timeout=800
 }
 
-[% IF geoDB -%]
+[% UNLESS single_server %]
+  [% IF geoDB -%]
 
 mysql_replication_hostgroups =
 (
@@ -84,7 +85,7 @@ mysql_replication_hostgroups =
   }
 )
 
-[% ELSE %]
+  [% ELSE %]
 
 mysql_galera_hostgroups =
 (
@@ -100,6 +101,7 @@ mysql_galera_hostgroups =
     }
 )
 
+  [% END %]
 [% END %]
  
 mysql_servers =
@@ -107,6 +109,7 @@ mysql_servers =
 [% mysql_servers %]
 )
  
+[% UNLESS single_server %]
 mysql_query_rules =
 (
     {
@@ -145,12 +148,14 @@ mysql_query_rules =
         apply=1
     }
 )
+[% END %]
  
 mysql_users =
 (
 [% mysql_users %]
 )
 
+[% UNLESS single_server %]
 scheduler =
 (
   {
@@ -164,3 +169,4 @@ scheduler =
      arg4="/proxysql-read-only-handler.log"
   }
 )
+[% END %]
