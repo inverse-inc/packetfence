@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { types } from '@/store'
 import apiCall from '@/utils/api'
+import i18n from '@/utils/locale'
 
 const retries = {} // global retry counter
 
@@ -27,13 +28,21 @@ const pollTaskStatus = ({ task_id, headers }) => {
         retries[task_id] = 0
       else
         retries[task_id]++
-      if (retries[task_id] > POLL_RETRY_NUM) // give up after N retries
+      if (retries[task_id] >= POLL_RETRY_NUM) // give up after N retries
         throw error
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
           pollTaskStatus({ task_id, headers })
             .then(resolve)
-            .catch(reject)
+            .catch(err => {
+              if (err.message) { // AxiosError
+                const data = i18n.t('{message}. No response after {timeout} seconds, gave up after {retries} retries.', { message: err.message, timeout: POLL_RETRY_NUM * POLL_RETRY_INTERVAL, retries: POLL_RETRY_NUM })
+                reject({ response: { data } })
+              }
+              else { // resursion
+                reject(error)
+              }
+            })
         }, POLL_RETRY_INTERVAL * 1E3)
       })
     }
