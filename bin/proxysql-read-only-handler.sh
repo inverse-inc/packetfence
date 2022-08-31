@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -o nounset -o pipefail -o errexit
-
 PROXYSQL_CONF="${1}"
 MYSQL_CONF="${2}"
 QUERY_CONF="${3}"
