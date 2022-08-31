@@ -40,7 +40,7 @@
       <b-row v-if="isProtected"
         class="mt-2 mx-0">
         <b-col cols="auto" class="small text-info text-wrap">
-          <icon name="info-circle" scale="1.5" class="mr-1" /> {{ $i18n.t('Service {name} is required for this page to function. Modifying this service may cause this page to stop working which will require CLI access to remediate.', { name: service.id }) }}
+          <icon name="info-circle" scale="1.5" class="mr-1" /> {{ $i18n.t('Service {name} is required for this page to function. If there is any error performing the action on this service, this page will stop working which will require CLI access to remediate.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="!service.alive && service.managed"
