@@ -39,7 +39,7 @@ const pollTaskStatus = ({ task_id, headers }) => {
                 const data = i18n.t('{message}. No response after {timeout} seconds, gave up after {retries} retries.', { message: err.message, timeout: POLL_RETRY_NUM * POLL_RETRY_INTERVAL, retries: POLL_RETRY_NUM })
                 reject({ response: { data } })
               }
-              else { // resursion
+              else { // recursion
                 reject(error)
               }
             })
