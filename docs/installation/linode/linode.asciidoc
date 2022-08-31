@@ -1,0 +1,95 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//  How to deploy PacketFence on Linode ?
+
+=== Introduction
+
+This section will guide you into the high-level steps required to deploy PacketFence on Linode. Linode is an Infrastructure as a Service (IaaS) that provides cloud computing services which can be leveraged by PacketFence. This is often the preferred deployment option for Cloud-first organizations.
+
+=== Installation and Configuration Steps
+
+First, you need to create three 'Debian 11' or 'Rocky 8' Linodes in the same region. The 'Dedicated 16GB' plan or above is required and make sure Private IP is enabled for each instance. 
+
+Once done, make sure to configure the firewall policy similar to the following screenshot:
+
+image::linode_firewall.png[scaledwidth="100%",alt="Linode firewall configuration"]
+
+Then, perform a standard PacketFence installation on each Linode. Once completed, from Linode's cloud management interface, configure a NodeBalancer for ports 80, 443, 1443, 9090 and 9999 as shown in the following screenshot:
+
+image::linode_lb.png[scaledwidth="100%",alt="Linode load-balancer configuration"]
+
+Once completed, you will have to go through the <<PacketFence_Clustering_Guide.asciidoc#_cluster_setup,PacketFence Clustering Quick Installation Guide>>. For the IP addresses in the CLUSTER sections, use the public IP of the NodeBalancer above. For the IP addresses of the servers themselves, use their private IP addresses. No registration/isolation VLANs are supported at the moment. If you want to perform enforcement with PacketFence, you will have to use Web Authentication. Once done building the cluster, disable 'Proxy RADIUS using virtual IP' and 'Use virtual IP for access reevaluation' from the "Configuration->System Configuration->Cluster" configuration section and restart the radiusd-load_balancer service. Once completed, your cluster.conf should be similar to:
+
+
+    [CLUSTER]
+    management_ip=172.105.12.210
+
+    [CLUSTER interface eth0]
+    ip=172.105.12.210
+
+    [cluster-1]
+    management_ip=192.168.139.40
+
+    [cluster-1 interface eht0]
+    ip=192.168.139.40
+
+    [cluster-2]
+    management_ip=192.168.129.9
+
+    [cluster-2 interface eth0]
+    ip=192.168.129.9
+
+    [cluster-3]
+    management_ip=192.168.139.254
+
+    [cluster-3 interface eth0]
+    ip=192.168.139.254
+
+
+Then, make sure you mask keepalived so it does not mount a VIP on your server:
+
+    systemctl mask packetfence-keepalived
+
+Finally, you must configure a secure way to reach your Cloud-hosted version of PacketFence so that your NAS devices can talk to it in a secure way. One approach is to use a site-to-site VPN. An other approach is to use the PacketFence Connector.
+
+=== PacketFence Connector
+
+Starting from v12, PacketFence provides the PacketFence Connector. The PacketFence Connector allows you to establish a secure connection to a Cloud-hosted version of PacketFence so that NAS devices from a LAN can securely communicate with. The PacketFence Connector is meant to be lightweight, easy to configure and should not require any firewall changes as it tunnels everything over HTTPS.
+
+To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 11 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
+[source,bash,subs="attributes"]
+----
+apt install git make
+curl -O https://raw.githubusercontent.com/inverse-inc/packetfence/maintenance/{release_minor}/addons/pfconnector/install.sh
+bash install.sh
+/usr/local/bin/pfconnector-configure
+----
+
+When executing the last command, note down the Connector ID.
+
+Then, from the PacketFence's admin interface, in the _Configuration->System Configuration->Connectors_ section, create a Connector with the ID from the last step. Then, generate a secret and add the networks where your network devices on remote sites are - this will be used for access reevaluation, SNMP communication, LDAP queries, etc.
+
+Then, complete the PacketFence Connector configuration by specifying the secret and the host, which should be similar to:
+
+    https://NODE_BALANCER_IP:1443/api/v1/pfconnector/tunnel
+
+Finally, restart and enable the packetfence-pfconnector-remote service:
+
+   systemctl restart packetfence-pfconnector-remote
+   systemctl enable packetfence-pfconnector-remote

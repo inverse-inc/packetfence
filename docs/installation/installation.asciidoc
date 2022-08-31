@@ -195,3 +195,6 @@ apt-get update
 apt-get install packetfence
 ----
 
+=== Installing PacketFence on Linode
+
+PacketFence v12 includes instructions on deploying PacketFence on Linode IaaS. See the <<PacketFence_Installation_Guide.asciidoc#_how_to_deploy_packetfence_on_linode,Appendix>> below for details.
