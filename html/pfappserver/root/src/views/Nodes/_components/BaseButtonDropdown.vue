@@ -131,7 +131,7 @@ const props = {
 }
 
 
-import { ref, toRefs, watch } from '@vue/composition-api'
+import { nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import store from '@/store'
 import NodesStoreModule from '../_store'
 import { useStore } from '../_composables/useCollection'
@@ -165,6 +165,7 @@ const setup = (props, context) => {
         .catch(() => {
           isExists.value = false
         })
+        .finally(() => nextTick(() => window.scrollBy(0, 1))) // center b-dropdown
     }
   })
 
