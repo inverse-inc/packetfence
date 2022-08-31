@@ -26,7 +26,7 @@ testcases:
 - name: reset_iptables_rules
   steps:
   - type: exec
-    script: iptables -F
+    script: /usr/local/pf/addons/reset-iptables-rules-and-policies.sh
   
   - type: exec
     script: systemctl restart packetfence-iptables

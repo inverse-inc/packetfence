@@ -22,6 +22,7 @@ pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
 pfserver_bin_dir: '{{.pfserver_root_dir}}/bin'
 pfserver_pfcmd: '{{.pfserver_bin_dir}}/pfcmd'
 pfserver_test_dir: '{{.pfserver_root_dir}}/t'
+pfserver_docker_subnet: '100.64.0.0/10'
 ini_cmd: '{{.pfserver_test_dir}}/ini_cmd.pl'
 
 # fingerbank variables
