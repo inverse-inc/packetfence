@@ -1091,6 +1091,17 @@ my %FB_MODEL_2_PATH = (
     User_Agent        => 'user_agents',
 );
 
+my %FB_MODEL_2_OP = (
+    Combination       => 'contains',
+    Device            => 'contains',
+    DHCP6_Enterprise  => 'contains',
+    DHCP6_Fingerprint => 'contains',
+    DHCP_Fingerprint  => 'starts_with',
+    DHCP_Vendor       => 'contains',
+    MAC_Vendor        => 'contains',
+    User_Agent        => 'contains',
+);
+
 sub field_allowed_lookup {
     my ($self, $field) = @_;
     my $allowed_lookup  = $field->get_tag("allowed_lookup") || undef;
@@ -1106,6 +1117,7 @@ sub field_allowed_lookup {
             search_path => "/api/v1/fingerbank/all/$path/search",
             field_name  => $fingerbank_model->value_field,
             value_name  => 'id',
+            search_op   => (exists $FB_MODEL_2_OP{$name}  ? $FB_MODEL_2_OP{$name} : 'contains'),
         };
     }
 

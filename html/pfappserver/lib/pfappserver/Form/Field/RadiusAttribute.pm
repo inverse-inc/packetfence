@@ -29,6 +29,7 @@ has_field 'type' => (
                 search_path => "/api/v1/radius_attributes",
                 field_name  => "name",
                 value_name  => 'name',
+                search_op   => 'contains',
             }
         },
     },
