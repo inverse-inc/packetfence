@@ -461,7 +461,7 @@ EOT
         $tags{'local_realm'} .= << "EOT";
             update control {
                 Proxy-To-Realm := "eduroam"
-		Realm := "eduroam"
+                Realm := "eduroam"
             }
 EOT
         foreach my $realm ( @{$eduroam_authentication_source[0]{'local_realm'}} ) {
@@ -477,7 +477,7 @@ EOT
                 $tags{'local_realm'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "eduroam.$realm"
-		    Realm := "eduroam"
+                    Realm := "eduroam"
                 }
             }
 EOT
@@ -492,7 +492,7 @@ EOT
                 $tags{'local_realm_acct'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "eduroam.$realm"
-		    Realm := "eduroam"
+                    Realm := "eduroam"
                 }
             }
 EOT
@@ -515,7 +515,7 @@ EOT
             $tags{'local_realm'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "packetfence"
-		    Realm := "packetfence"
+                    Realm := "packetfence"
                 }
             }
 EOT
@@ -525,7 +525,7 @@ EOT
             $tags{'local_realm_exception'} .= <<"EOT";
                 update control {
                     Proxy-To-Realm := "packetfence"
-		    Realm := "packetfence"
+                    Realm := "packetfence"
                 }
             } else {
                 reject
@@ -1244,13 +1244,13 @@ EOT
                 update control {
                     Load-Balance-Key := "%{Calling-Station-Id}"
                     Proxy-To-Realm := "packetfence"
-		    Realm := "packetfence"
+                    Realm := "packetfence"
                 }
             } else {
                 update control {
                     Load-Balance-Key := "%{Calling-Station-Id}"
                     Proxy-To-Realm := "eduroam.cluster"
-		    Realm := "eduroam"
+                    Realm := "eduroam"
                 }
             }
 EOT
@@ -1259,7 +1259,7 @@ $tags{'local_realm'} = << "EOT";
                     update control {
                         Load-Balance-Key := "%{Calling-Station-Id}"
                         Proxy-To-Realm := "eduroam.cluster"
-			Realm : "eduroam"
+                        Realm : "eduroam"
                     }
 EOT
             }
