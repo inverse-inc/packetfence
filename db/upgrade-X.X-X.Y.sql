@@ -49,7 +49,7 @@ ALTER DATABASE
     COLLATE = 'utf8mb4_bin';
 
 \! echo "Checking PacketFence schema version...";
-call ValidateVersion;
+-- call ValidateVersion;
 
 \! /usr/local/pf/db/upgrade-tenant-11.2-12.0.pl;
 SOURCE /usr/local/pf/db/upgrade-tenant-11.2-12.0.sql;
@@ -57,119 +57,116 @@ SOURCE /usr/local/pf/db/upgrade-tenant-11.2-12.0.sql;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
 ALTER TABLE security_event
-   DROP CONSTRAINT security_event_tenant_id,
-   DROP CONSTRAINT `tenant_id_mac_fkey_node`,
-   DROP tenant_id;
+   DROP CONSTRAINT IF EXISTS security_event_tenant_id,
+   DROP CONSTRAINT IF EXISTS `tenant_id_mac_fkey_node`,
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip4log
-    DROP CONSTRAINT `ip4log_tenant_id`,
+    DROP CONSTRAINT IF EXISTS `ip4log_tenant_id`,
     DROP PRIMARY KEY,
-    RENAME INDEX ip4log_tenant_id_mac_end_time TO ip4log_mac_end_time,
+    RENAME INDEX IF EXISTS ip4log_tenant_id_mac_end_time TO ip4log_mac_end_time,
     ADD PRIMARY KEY (`ip`),
-    DROP tenant_id;
+    DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip4log_history
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip4log_archive
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip6log
-   DROP CONSTRAINT `ip6log_tenant_id`,
+   DROP CONSTRAINT IF EXISTS `ip6log_tenant_id`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`ip`),
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip6log_history
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip6log_archive
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE locationlog
-   DROP CONSTRAINT `locationlog_tenant_id`,
+   DROP CONSTRAINT IF EXISTS `locationlog_tenant_id`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`mac`),
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE locationlog_history
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE password
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE bandwidth_accounting
-   RENAME INDEX bandwidth_accounting_tenant_id_mac_last_updated TO bandwidth_accounting_mac_last_updated,
-   DROP tenant_id
+   RENAME INDEX IF EXISTS bandwidth_accounting_tenant_id_mac_last_updated TO bandwidth_accounting_mac_last_updated,
+   DROP IF EXISTS tenant_id
 ;
 
 ALTER TABLE radius_nas
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE radacct
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE radacct_log
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE radreply
-   RENAME INDEX `tenant_id` TO `username`,
-   DROP tenant_id;
+   RENAME INDEX IF EXISTS `tenant_id` TO `username`,
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE scan
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE activation
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE radius_audit_log
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE auth_log
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE user_preference
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`, `id`),
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE dns_audit_log
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE admin_api_audit_log
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE bandwidth_accounting_history
-   RENAME INDEX bandwidth_accounting_tenant_id_mac TO bandwidth_accounting_mac,
-   DROP tenant_id;
+   RENAME INDEX IF EXISTS bandwidth_accounting_tenant_id_mac TO bandwidth_accounting_mac,
+   DROP IF EXISTS tenant_id;
 
 ALTER TABLE node
-   DROP CONSTRAINT `0_57`,
-   DROP CONSTRAINT `node_tenant_id`,
-   DROP CONSTRAINT `node_category_key`,
+   DROP CONSTRAINT IF EXISTS `0_57`,
+   DROP CONSTRAINT IF EXISTS `node_tenant_id`,
+   DROP CONSTRAINT IF EXISTS `node_category_key`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`mac`),
-   DROP tenant_id
+   DROP IF EXISTS tenant_id
 ;
 
 ALTER TABLE person
-   DROP CONSTRAINT `person_tenant_id`,
+   DROP CONSTRAINT IF EXISTS `person_tenant_id`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
-   DROP tenant_id;
+   DROP IF EXISTS tenant_id;
 
-DROP TABLE tenant;
+DROP TABLE IF EXISTS tenant;
 
-\! echo "altering sms_carrier"
-ALTER TABLE sms_carrier
-    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-
-INSERT INTO sms_carrier
+\! echo "adding RingRing to sms_carrier"
+INSERT IGNORE INTO sms_carrier
     (name, email_pattern, created)
   VALUES
-      ('RingRing', '%s@smsemail.be', now());
+      ('RingRing', '%s@smsemail.be', NOW());
 
 --
 -- Trigger to archive dhcp_option82 entries to the history table after an update
@@ -575,10 +572,6 @@ BEGIN
 END /
 DELIMITER ;
 
-\! echo "altering sms_carrier"
-ALTER TABLE sms_carrier
-    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-
 \! echo "Removing cached realm search for all users...";
 DELETE FROM user_preference WHERE id='roles::defaultSearch';
 
@@ -588,6 +581,10 @@ ALTER TABLE ip4log ADD INDEX IF NOT EXISTS ip4log_mac_start_time (mac, start_tim
 \! echo "altering pki_certs"
 ALTER TABLE pki_certs
     ADD COLUMN IF NOT EXISTS `csr` BOOLEAN DEFAULT FALSE AFTER scep;
+
+\! echo "altering sms_carrier"
+ALTER TABLE sms_carrier
+    CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
 \! echo "altering node"
 ALTER TABLE node
@@ -760,14 +757,16 @@ ALTER TABLE admin_api_audit_log
     MODIFY `request` MEDIUMTEXT;
 
 ALTER TABLE node
-   ADD FOREIGN KEY `node_category_key` (`category_id`) REFERENCES `node_category` (`category_id`),
-   ADD FOREIGN KEY `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
-
+   ADD FOREIGN KEY IF NOT EXISTS `node_category_key` (`category_id`) REFERENCES `node_category` (`category_id`),
+   ADD FOREIGN KEY IF NOT EXISTS `0_57` (`pid`) REFERENCES `person` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE security_event
     MODIFY notes MEDIUMTEXT,
-    ADD CONSTRAINT `mac_fkey_node` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
+    DROP CONSTRAINT IF EXISTS `mac_fkey_node`,
     CONVERT TO CHARACTER SET utf8mb4;
+
+ALTER TABLE security_event
+    ADD CONSTRAINT `mac_fkey_node` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 DELIMITER /
 

@@ -45,9 +45,32 @@ security_event
 user_preference
 );
 
+my $fn = <<"EOL";
+DROP PROCEDURE IF EXISTS DeleteTenant;
+DELIMITER //
+CREATE PROCEDURE DeleteTenant(IN TableName VARCHAR(255))
+BEGIN
+    DECLARE TenantExists BOOL;
+    SELECT TRUE INTO TenantExists FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=TableName AND COLUMN_NAME='tenant_id';
+    IF TenantExists THEN
+        SET \@stmt = CONCAT('DELETE FROM ', TableName, ' WHERE tenant_id != ', $tenant_id);
+        PREPARE stmt FROM \@stmt;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END;
+//
+DELIMITER ;
+EOL
+
+print $fh $fn;
+
 for my $t (@tenant_tables) {
-    print $fh "DELETE FROM $t WHERE tenant_id != $tenant_id;\n";
+   # print $fh "DELETE FROM $t WHERE tenant_id != $tenant_id;\n";
+   print $fh "CALL DeleteTenant('$t');\n";
 }
+
+print $fh "DROP PROCEDURE IF EXISTS DeleteTenant;\n";
 
 for my $t (qw( bandwidth_accounting bandwidth_accounting_history)) {
     print $fh "UPDATE $t SET node_id = node_id & 0x0000ffffffffffff;\n";
