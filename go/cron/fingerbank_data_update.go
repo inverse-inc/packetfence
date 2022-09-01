@@ -5,7 +5,6 @@ import (
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func NewFingerbankDataUpdate(config map[string]interface{}) JobSetupConfig {
@@ -28,7 +27,6 @@ func (j *FingerbankDataUpdate) Run() {
 	}
 	if !cluster.CallCluster(ctx, method, args) {
 		clientApi := jsonrpc2.NewClientFromConfig(ctx)
-		spew.Dump(clientApi)
 		if _, err := clientApi.Call(ctx, method, args); err != nil {
 			log.LogError(ctx, "Error calling "+clientApi.Host+": "+err.Error())
 		}
