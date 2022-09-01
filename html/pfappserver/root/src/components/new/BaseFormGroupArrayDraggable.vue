@@ -43,7 +43,7 @@
             'is-lastchild': index === inputValue.length - 1
           }"
         >
-          <b-col class="text-center" :class="{
+          <b-col class="text-center p-3" :class="{
             'draggable-on': isSortable,
             'draggable-off': !isSortable
           }">
@@ -51,7 +51,7 @@
               class="draggable-handle" name="th" scale="1.5"
               v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"
             />
-            <span class="draggable-index col-form-label "><b-badge pill variant="light" class="py-1 px-2">{{ index + 1 }}</b-badge></span>
+            <span class="draggable-index col-form-label"><b-badge pill variant="light" class="py-1 px-2">{{ index + 1 }}</b-badge></span>
           </b-col>
           <b-col cols="10" class="py-1">
 

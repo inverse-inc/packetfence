@@ -15,7 +15,7 @@
           'is-lastchild': index === inputValue.length - 1
         }"
       >
-        <b-col class="text-center">
+        <b-col class="text-center p-3">
           <span class="col-form-label "><b-badge pill variant="light" class="py-1 px-2">{{ index + 1 }}</b-badge></span>
         </b-col>
         <b-col cols="10">
