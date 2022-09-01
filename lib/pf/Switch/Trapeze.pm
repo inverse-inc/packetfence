@@ -92,6 +92,42 @@ sub getVersion {
     $logger->warn("unable to fetch version information");
 }
 
+=head2 _commandSSH
+
+Execute a command on an SSH channel with a timeout
+
+=cut
+
+sub _commandSSH{
+    my ($self, $chan, $command, $timeout) = @_;
+    my $logger = $self->logger;
+    $timeout //= 5;
+    eval {
+        local $SIG{ALRM} = sub { die "timeout\n" };
+        alarm $timeout;
+        print $chan "$command\n";
+        $logger->info("SSH output : $_") while <$chan>;
+        alarm 0;
+    };
+}
+
+sub _connectSSH {
+    my ($self) = @_;
+
+    my $ssh;
+    eval {
+        require Net::SSH2;
+        $ssh = Net::SSH2->new();
+        $ssh->connect($self->{_ip}, 22 ) or die "Cannot connect $!"  ;
+    };
+
+    if($@) {
+        $self->logger->error("Error connecting through SSH: $@");
+    }
+    return $ssh;
+
+}
+
 =item deauthenticateMacDefault
 
 deauthenticate a MAC address from wireless network
@@ -114,52 +150,28 @@ sub deauthenticateMacDefault {
         return 1;
     }
 
-    my $session;
-    eval {
-        require Net::Appliance::Session;
-        $session = Net::Appliance::Session->new(
-            Host      => $self->{_ip},
-            Timeout   => 5,
-            Transport => $self->{_cliTransport},
-            Platform => 'TrapezeOS',
-            Source   => $lib_dir.'/pf/Switch/Trapeze/nas-pb.yml'
-        );
-        $session->connect(
-            Name     => $self->{_cliUser},
-            Password => $self->{_cliPwd}
-        );
-    };
 
-    if ($@) {
-        $logger->error("Unable to connect to ".$self->{'_ip'}." using ".$self->{_cliTransport}.". Failed with $@");
-        return;
-    }
+    my $ssh = $self->_connectSSH();
 
-    if (!$session->in_privileged_mode()) {
-        if (!$session->enable($self->{_cliEnablePwd})) {
-            $logger->error("Cannot get into privileged mode on ".$self->{'_id'}.
-                           ". Are you sure you provided enable password in configuration?");
-            $session->close();
-            return;
-        }
-    }
+    return unless($ssh);
 
     my $command = "clear sessions network mac-addr $mac";
 
+    my $chan = $ssh->channel();
+    $chan->shell();
+    $self->_commandSSH($chan, $self->{_cliUser});
+    $self->_commandSSH($chan, $self->{_cliPwd});
+    $self->_commandSSH($chan, "enable");
+    $self->_commandSSH($chan, $self->{_cliEnablePwd});
+    $self->_commandSSH($chan, $command);
+
+    $ssh->disconnect();
+
+
+
+
     $logger->info("Deauthenticating mac $mac");
     $logger->trace("sending CLI command '$command'");
-    my @output;
-    $session->in_privileged_mode(1);
-    eval {
-        @output = $session->cmd(String => $command, Timeout => '10');
-    };
-    $session->in_privileged_mode(0);
-    if ($@) {
-        $logger->error("Unable to deauthenticate $mac: $@");
-        $session->close();
-        return;
-    }
-    $session->close();
     return 1;
 }
 
