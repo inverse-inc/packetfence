@@ -58,6 +58,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Multiline entries in "Role by access list" are returned as a string (#6791)
 * Respect the time of the expiration date of the password. (#7003)
 * Monitoring scripting key is not installed correctly when performing an ISO installation (#6965)
+* Set the database location to the system Local timezone (golang)
 
 == Version 11.2.0 released on 2022-02-23
 
