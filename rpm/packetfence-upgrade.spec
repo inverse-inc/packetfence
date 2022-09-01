@@ -44,7 +44,7 @@ This package should only be installed on releases after v11.
 %attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/run-upgrade.sh
 %attr(0644, -, -)     /usr/local/pf/addons/full-upgrade/*.functions
 %dir /usr/local/pf/addons/full-upgrade/hooks
-%attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/hooks/*
+%attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/hooks/*.sh
 
 %changelog
 * Wed Feb 23 2022 Inverse <info@inverse.ca> - 11.3.0-1
