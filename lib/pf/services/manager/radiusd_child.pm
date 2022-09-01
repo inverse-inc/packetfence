@@ -1259,7 +1259,7 @@ $tags{'local_realm'} = << "EOT";
                     update control {
                         Load-Balance-Key := "%{Calling-Station-Id}"
                         Proxy-To-Realm := "eduroam.cluster"
-                        Realm : "eduroam"
+                        Realm := "eduroam"
                     }
 EOT
             }
