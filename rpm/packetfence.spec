@@ -721,6 +721,7 @@ echo "Restarting rsyslogd"
 /bin/systemctl enable docker
 /bin/systemctl restart docker
 
+# We use a if/else bloc to stop post installation at first error in manage-images.sh
 # get containers images and tag them locally
 if /usr/local/pf/containers/manage-images.sh; then
     rm -rf /usr/local/pf/var/cache/
