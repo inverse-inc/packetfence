@@ -1330,7 +1330,6 @@ EOT
         # Eduroam integration
         if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
             my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-            my $listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};
             foreach my $interface ( uniq(@radius_ints) ) {
                 my $server_ip = $interface->{Tip};
                 my $cluster_ip = pf::cluster::cluster_ip($interface->{Tint});
@@ -1338,13 +1337,13 @@ EOT
 # Eduroam integration
 listen {
         ipaddr = $server_ip
-        port = $self->{eduroam_port}
+        port = $self->{eduroam_loadbalancer_port}
         type = auth
         virtual_server = eduroam.cluster
 }
 listen {
         ipaddr = $cluster_ip
-        port = $self->{eduroam_port}
+        port = $self->{eduroam_loadbalancer_port}
         type = auth
         virtual_server = eduroam.cluster
 }
@@ -1651,6 +1650,7 @@ sub generate_port {
     $self->{radsec_port} = "2083";
     if ($cluster_enabled) {
         $self->{auth_port} = $self->{auth_port} + 10;
+        $self->{eduroam_loadbalancer_port} = $self->{eduroam_port};
         $self->{eduroam_port} = $self->{eduroam_port} + 10;
         $self->{acct_port} = $self->{acct_port} + 10;
         $self->{cli_port} = $self->{cli_port} + 10;
