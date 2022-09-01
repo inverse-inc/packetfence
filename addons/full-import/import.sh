@@ -111,6 +111,10 @@ echo "Applying fixpermissions"
 check_code $?
 
 sub_splitter
+echo "Restarting packetfence-redis-cache"
+systemctl restart packetfence-redis-cache
+
+sub_splitter
 echo "Restarting packetfence-config"
 systemctl restart packetfence-config
 check_code $?
