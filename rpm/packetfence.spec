@@ -720,41 +720,45 @@ echo "Restarting rsyslogd"
 #removing old cache
 /bin/systemctl enable docker
 /bin/systemctl restart docker
-# get containers image and tag them locally
-/usr/local/pf/containers/manage-images.sh
 
-rm -rf /usr/local/pf/var/cache/
-/usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
-/bin/systemctl disable firewalld
-/bin/systemctl enable packetfence-mariadb
-/bin/systemctl enable packetfence-redis-cache
-/bin/systemctl enable packetfence-config
-/bin/systemctl disable packetfence-iptables
-/bin/systemctl start packetfence-config
-/usr/local/pf/bin/pfcmd generatemariadbconfig --force
-# only packetfence-config is running after this command
-/bin/systemctl isolate packetfence-base
+# We use a if/else bloc to stop post installation at first error in manage-images.sh
+# get containers images and tag them locally
+if /usr/local/pf/containers/manage-images.sh; then
+    rm -rf /usr/local/pf/var/cache/
+    /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
+    /bin/systemctl disable firewalld
+    /bin/systemctl enable packetfence-mariadb
+    /bin/systemctl enable packetfence-redis-cache
+    /bin/systemctl enable packetfence-config
+    /bin/systemctl disable packetfence-iptables
+    /bin/systemctl start packetfence-config
+    /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+    # only packetfence-config is running after this command
+    /bin/systemctl isolate packetfence-base
 
-/bin/systemctl enable packetfence-httpd.admin_dispatcher
-/bin/systemctl enable packetfence-haproxy-admin
-/bin/systemctl enable packetfence-iptables
-/bin/systemctl enable packetfence-tracking-config.path
-/usr/local/pf/bin/pfcmd configreload
-echo "Starting PacketFence Administration GUI..."
-/bin/systemctl start packetfence-httpd.admin_dispatcher
-/bin/systemctl start packetfence-haproxy-admin
+    /bin/systemctl enable packetfence-httpd.admin_dispatcher
+    /bin/systemctl enable packetfence-haproxy-admin
+    /bin/systemctl enable packetfence-iptables
+    /bin/systemctl enable packetfence-tracking-config.path
+    /usr/local/pf/bin/pfcmd configreload
+    echo "Starting PacketFence Administration GUI..."
+    /bin/systemctl start packetfence-httpd.admin_dispatcher
+    /bin/systemctl start packetfence-haproxy-admin
 
-/usr/local/pf/bin/pfcmd service pf updatesystemd
+    /usr/local/pf/bin/pfcmd service pf updatesystemd
 
-# Empty root password in order to allow other user to connect as root.
-/usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
+    # Empty root password in order to allow other user to connect as root.
+    /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
 
-echo Installation complete
-echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
-echo "  * Please stop your iptables service if you don't have access to configurator."
+    echo Installation complete
+    echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
+    echo "  * Please stop your iptables service if you don't have access to configurator."
 
-rm -f /usr/local/pf/var/run/pkg_install_in_progress
-
+    rm -f /usr/local/pf/var/run/pkg_install_in_progress
+else
+    echo "An issue occured while downloading containers images"
+    echo "Check your Internet access and reinstall packetfence package"
+fi
 #==============================================================================
 # Pre uninstallation
 #==============================================================================
