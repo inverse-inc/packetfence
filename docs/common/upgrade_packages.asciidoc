@@ -3,6 +3,7 @@ In order to upgrade your PacketFence packages to latest version, you can run fol
 .RHEL-based systems
 [source,bash]
 ----
+yum clean all --enablerepo=packetfence
 yum update --enablerepo=packetfence
 ----
 
