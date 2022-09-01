@@ -66,7 +66,6 @@ EOL
 print $fh $fn;
 
 for my $t (@tenant_tables) {
-   # print $fh "DELETE FROM $t WHERE tenant_id != $tenant_id;\n";
    print $fh "CALL DeleteTenant('$t');\n";
 }
 

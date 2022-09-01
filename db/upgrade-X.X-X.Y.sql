@@ -49,7 +49,7 @@ ALTER DATABASE
     COLLATE = 'utf8mb4_bin';
 
 \! echo "Checking PacketFence schema version...";
--- call ValidateVersion;
+call ValidateVersion;
 
 \! /usr/local/pf/db/upgrade-tenant-11.2-12.0.pl;
 SOURCE /usr/local/pf/db/upgrade-tenant-11.2-12.0.sql;
