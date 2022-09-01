@@ -8,6 +8,7 @@ export const props = {
     type: Object,
     default: () => ({
       search_path: 'fingerbank/all/dhcp_fingerprints/search',
+      search_op:  'starts_with',
       field_name: 'value',
       value_name: 'id'
     })

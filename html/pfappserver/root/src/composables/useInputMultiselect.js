@@ -306,7 +306,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
       })
     }
     else { // handle lookup Object (automatic)
-      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
+      const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL, search_op: op = 'contains' } = lookup.value
       searchDebouncer({
         handler: () => {
           const thisSearchPromise = ++lastSearchPromise
@@ -315,7 +315,7 @@ export const useSingleValueLookupOptions = (value, onInput, lookup, options, opt
             .trim() // trim outside whitespace
             .split(' ') // separate terms by space
             .filter(q => q) // ignore multiple spaces
-            .map(query => ({ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }))
+            .map(query => ({ op: 'or', values: [{ field: fieldName, op, value: query }] }))
 
           apiCall.request({
             url,
@@ -411,7 +411,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
     if (newValue === oldValue && JSON.stringify(newLookup) === JSON.stringify(oldLookup))
       return // These are not the droids you're looking for...
 
-    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL, search_op: op = 'equals' } = lookup.value
     currentValueLoading.value = true
     const thisCurrentPromise = ++lastCurrentPromise
     apiCall.request({
@@ -421,7 +421,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
       data: {
         query: { op: 'and', values: [{
           op: 'or',
-          values: value.value.map(value => ({ field: valueName, op: 'equals', value }))
+          values: value.value.map(value => ({ field: valueName, op, value }))
         }] },
         fields: [...new Set([fieldName, valueName])],
         sort: [fieldName],
@@ -453,7 +453,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
       searchResultOptions.value = []
       return
     }
-    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL } = lookup.value
+    const { field_name: fieldName, search_path: url, value_name: valueName, base_url: baseURL, search_op: op = 'contains' } = lookup.value
     searchResultLoading.value = true
     if (!searchDebouncer)
       searchDebouncer = createDebouncer()
@@ -465,7 +465,7 @@ export const useMultipleValueLookupOptions = (value, onInput, lookup, options, o
           .trim() // trim outside whitespace
           .split(' ') // separate terms by space
           .filter(q => q) // ignore multiple spaces
-          .map(query => ({ op: 'or', values: [{ field: fieldName, op: 'contains', value: query }] }))
+          .map(query => ({ op: 'or', values: [{ field: fieldName, op, value: query }] }))
 
         apiCall.request({
           url,
