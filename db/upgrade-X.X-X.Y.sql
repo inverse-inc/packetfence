@@ -51,8 +51,8 @@ ALTER DATABASE
 \! echo "Checking PacketFence schema version...";
 call ValidateVersion;
 
-\! /usr/local/pf/db/upgrade-tenant-11.2-12.0.pl;
-SOURCE /usr/local/pf/db/upgrade-tenant-11.2-12.0.sql;
+\! /usr/local/pf/db/upgrade-11.2-12.0-tenant.pl;
+SOURCE /usr/local/pf/db/upgrade-11.2-12.0-tenant.sql;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
 

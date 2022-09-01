@@ -15,7 +15,7 @@ use warnings;
 use lib qw(/usr/local/pf/lib);
 use lib qw(/usr/local/pf/lib_perl/lib/perl5);
 my $tenant_id = $ENV{PF_TENANT_ID} ||  1;
-open(my $fh, ">", "/usr/local/pf/db/upgrade-tenant-11.2-12.0.sql");
+open(my $fh, ">", "/usr/local/pf/db/upgrade-11.2-12.0-tenant.sql");
 
 my @tenant_tables = qw(
 activation
