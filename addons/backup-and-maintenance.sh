@@ -89,7 +89,6 @@ should_backup(){
 
     if [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
         echo "Remote database detected: backup should be done on database server itself."
-        SHOULD_BACKUP=0
         exit $BACKUPRC
     fi
 
@@ -98,7 +97,6 @@ should_backup(){
         MARIADB_LOCAL_CLUSTER=1
         FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
         if ! ip a | grep $FIRST_SERVER > /dev/null; then
-            SHOULD_BACKUP=0
             echo "Not the first server of the cluster: database backup canceled."
             exit $BACKUPRC
         else
