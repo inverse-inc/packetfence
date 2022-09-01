@@ -15,7 +15,6 @@ ExecStart=/usr/local/pf/sbin/pfperl-api-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfperl-api ; echo Stopped"
 Slice=packetfence.slice
 Restart=on-failure
-KillMode=process
 PIDFile=/usr/local/pf/var/run/pfperl-api-systemd-notify.pid
 
 [Install]
