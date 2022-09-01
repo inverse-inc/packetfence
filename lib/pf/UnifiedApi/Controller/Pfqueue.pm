@@ -21,15 +21,14 @@ sub poll {
     my ($self) = @_;
     my $job_id = $self->param('job_id');
     my $redis = consumer_redis_client;
-    my @topics = ("$job_id-Status-Updates");
-    my $savecallback = sub {};
-    $redis->subscribe(@topics, $savecallback);
     my ($status, $response) = $self->get_job_status($job_id, $redis);
     if ((is_success($status) && $response->{status} != 202) || (is_error($status) && $status != 404 ) ) {
-        $redis->unsubscribe(@topics, $savecallback);
         return $self->render(json => $response , status => $status);
     }
 
+    my @topics = ("$job_id-Status-Updates");
+    my $savecallback = sub {};
+    $redis->subscribe(@topics, $savecallback);
     $redis->wait_for_messages($POLL_TIMEOUT);
     $redis->unsubscribe(@topics, $savecallback);
     return $self->_send_status($job_id, $redis);
