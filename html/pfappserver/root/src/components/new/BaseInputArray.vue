@@ -16,7 +16,7 @@
         }"
       >
         <b-col class="text-center">
-          <span class="col-form-label ">{{ index + 1 }}</span>
+          <span class="col-form-label "><b-badge pill variant="light" class="py-1 px-2">{{ index + 1 }}</b-badge></span>
         </b-col>
         <b-col cols="10">
 
