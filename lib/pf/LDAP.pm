@@ -64,17 +64,17 @@ log_error_msg
 =cut
 
 sub log_error_msg {
-    my ($msg) = @_;
+    my ($ldap, $msg) = @_;
     my $logger = get_logger;
     if ($msg) {
         my $error_text = $msg->server_error;
         if ($error_text) {
-            $logger->error( "Error binding: '$error_text'");
+            $logger->error( "Error binding to ".$ldap->host().":".$ldap->port().": '$error_text'");
         } else {
-            $logger->warn( "binding:'" . $msg->error() . "'" );
+            $logger->warn( "binding to ".$ldap->host().":".$ldap->port().":'" . $msg->error() . "'" );
         }
     } else {
-        $logger->error("Error binding: 'Unknown error'");
+        $logger->error("Error binding".$ldap->host().":".$ldap->port().": 'Unknown error'");
     }
     return;
 }
@@ -93,7 +93,7 @@ sub bind {
     if (!defined $msg || $msg->is_error) {
         $ldap->unbind;
         $ldap->disconnect;
-        log_error_msg($msg);
+        log_error_msg($ldap, $msg);
         return undef;
     }
     get_logger->trace("Successful bind");;
@@ -145,7 +145,7 @@ sub compute_connection {
         my $msg = $ldap->start_tls(%$start_tls_options);
         if ($msg->is_error) {
             $logger->error("Error starting tls for $server:$args->{port}");
-            log_error_msg($msg);
+            log_error_msg($ldap, $msg);
             $ldap->unbind;
             $ldap->disconnect;
             return undef;
