@@ -1610,10 +1610,10 @@ Generate the environment variables for running the container
 sub generate_container_environments {
     my ($self, $tt) = @_;
 
-    my $port;
+    my $port = 0;
     if ($self->name eq 'radiusd-eduroam') {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        $port = $eduroam_authentication_source[0]{'auth_listening_port'} || 0;
+        $port = $eduroam_authentication_source[0]{'auth_listening_port'};
     }
     if ($self->name eq 'radiusd-auth') {
         $port = '1812';
