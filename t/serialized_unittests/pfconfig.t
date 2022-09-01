@@ -78,7 +78,7 @@ $manager->expire('config::Switch');
 $role = $switches{default}{registrationRole};
 
 ok(($role eq $new_role), "role is set in default switch in pfconfig config::Switch");
-
+sleep(5);
 $role = $SwitchConfig{default}{registrationRole};
 ok(($role eq $new_role), "role is set in default switch in pfconfig cached_hash");
 
