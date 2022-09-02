@@ -140,7 +140,7 @@ function handle_pkgnew_file() {
 
 function handle_pkgnew_files() {
   # We don't want to handle dpkg-dist files for pfconfig here because from 11 to 12, a pfconfig.conf.defaults was introduced
-  rm -f /usr/local/pf/conf/pfconfig.dpkg-dist
+  rm -f /usr/local/pf/conf/pfconfig.conf.dpkg-dist
 
   if is_rpm_based; then
     suffix=".rpmnew"
