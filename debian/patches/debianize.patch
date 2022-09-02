@@ -12,7 +12,7 @@ index 64f5e73f3d..90319cfc09 100644
          # Netdata is not designed to be exposed to potentially hostile networks
          # See https://github.com/firehol/netdata/issues/164
 diff --git a/conf/pf.conf.defaults b/conf/pf.conf.defaults
-index ca7945e30c..e3961f796e 100644
+index 5492ed51f1..d2237bc88e 100644
 --- a/conf/pf.conf.defaults
 +++ b/conf/pf.conf.defaults
 @@ -443,7 +443,7 @@ radiusd=enabled
@@ -116,13 +116,13 @@ index a3ac735600..be76136201 100644
  
  [Install]
 diff --git a/conf/systemd/packetfence-keepalived.service b/conf/systemd/packetfence-keepalived.service
-index 5277b4103e..31525c5537 100644
+index 98a2a340d3..9605ef030a 100644
 --- a/conf/systemd/packetfence-keepalived.service
 +++ b/conf/systemd/packetfence-keepalived.service
-@@ -9,7 +9,7 @@ StartLimitBurst=3
- StartLimitInterval=10
+@@ -10,7 +10,7 @@ StartLimitInterval=10
  Type=forking
  KillMode=process
+ ExecStartPre=/bin/rm -f /usr/local/pf/var/run/keepalived.pid
 -ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
 +ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::keepalived' -e 'pf::services::manager::keepalived->new()->generateConfig()'
  ExecStart=/usr/sbin/keepalived -f /usr/local/pf/var/conf/keepalived.conf --pid=/usr/local/pf/var/run/keepalived.pid
