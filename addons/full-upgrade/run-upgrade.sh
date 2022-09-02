@@ -83,9 +83,9 @@ function yum_upgrade_packetfence_package() {
   yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
-    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade
+    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade --allowerasing
   else
-    yum update packetfence -y --enablerepo=packetfence
+    yum update packetfence -y --enablerepo=packetfence --allowerasing
   fi
 }
 
