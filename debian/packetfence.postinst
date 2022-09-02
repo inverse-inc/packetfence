@@ -186,6 +186,8 @@ case "$1" in
         /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables
         systemctl stop packetfence-iptables
+        /usr/local/pf/containers/docker-minimal-rules.sh
+
         /usr/local/pf/bin/pfcmd service pf updatesystemd
         if [ ${DIST} = "stretch" ]; then
             set +e

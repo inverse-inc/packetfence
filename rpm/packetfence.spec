@@ -750,6 +750,7 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     /bin/systemctl enable packetfence-iptables
     /bin/systemctl stop packetfence-iptables
+    /usr/local/pf/containers/docker-minimal-rules.sh
     
     /usr/local/pf/bin/pfcmd service pf updatesystemd
 
