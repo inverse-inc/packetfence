@@ -82,6 +82,10 @@ function yum_upgrade_packetfence_package() {
   set_upgrade_to
   yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
+  
+  # Remove runc and podman if they're there because they'll prevent the install of docker and container.io
+  yum remove runc podman -y
+
   if is_enabled $1; then
     yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade
   else
