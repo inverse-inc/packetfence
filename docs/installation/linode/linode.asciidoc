@@ -70,15 +70,15 @@ Finally, you must configure a secure way to reach your Cloud-hosted version of P
 
 === PacketFence Connector
 
-NOTE:  The pfconnector is currently in the ‘Technical Preview’ phase. It can safely be used in production but has not yet been field proven for large scale and/or complex deployments
+NOTE:  The PacketFence Connector (pfconnector) is currently in the ‘Technical Preview’ phase. It can safely be used in production but has not yet been field proven for large scale and/or complex deployments
 
 Starting from v12, PacketFence provides the PacketFence Connector. The PacketFence Connector allows you to establish a secure connection to a Cloud-hosted version of PacketFence so that NAS devices from a LAN can securely communicate with. The PacketFence Connector is meant to be lightweight, easy to configure and should not require any firewall changes as it tunnels everything over HTTPS.
 
 Here are the use-cases the pfconnector supports:
 
  * RADIUS MAB
- * RADIUS 802.1x
- * Captive portal through web-auth (no registration or isolation VLAN support)
+ * RADIUS 802.1X
+ * Captive portal through Web Authentication (no registration or isolation VLAN support)
  * Performing access reevaluation through the pfconnector (i.e. RADIUS CoA/Disconnect, SNMP, etc)
  * Performing LDAP queries through the pfconnector to an on-premise LDAP server (including Active Directory) for portal and admin interface authentication
  * Authentication against a RADIUS source through the pfconnector to an on-premise RADIUS server for portal and admin interface authentication
