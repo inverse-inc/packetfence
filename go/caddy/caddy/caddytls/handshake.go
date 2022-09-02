@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/julsemaan/certmagic"
+	"github.com/inverse-inc/certmagic"
 )
 
 // configGroup is a type that keys configs by their hostname
