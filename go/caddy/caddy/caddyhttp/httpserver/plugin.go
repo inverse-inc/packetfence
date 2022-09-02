@@ -32,7 +32,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/staticfiles"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/julsemaan/certmagic"
+	"github.com/inverse-inc/certmagic"
 )
 
 const serverType = "http"
