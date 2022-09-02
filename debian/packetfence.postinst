@@ -152,6 +152,11 @@ case "$1" in
 	echo "Restarting rsyslog"
         systemctl restart rsyslog
 
+        if dpkg --compare-versions "$2" lt "12"; then
+          echo "Migrating from a version prior to 12.0. Need to restart packetfence-mariadb so it uses the new UNIX socket path"
+          systemctl restart packetfence-mariadb
+        fi
+
         systemctl restart docker
 	# get containers image and tag them locally
 	/usr/local/pf/containers/manage-images.sh
