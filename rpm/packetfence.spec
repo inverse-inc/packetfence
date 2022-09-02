@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    11.3.0
+Version:    12.0.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -1292,6 +1292,9 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Fri Sep 02 2022 Inverse <info@inverse.ca> - 12.0.0-1
+- New release 12.0.0
+
 * Wed Feb 23 2022 Inverse <info@inverse.ca> - 11.3.0-1
 - New release 11.3.0
 

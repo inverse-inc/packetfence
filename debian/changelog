@@ -1,3 +1,9 @@
+packetfence (12.0.0) unstable; urgency=low
+
+  * Version 12.0.0
+
+ -- Inverse <info@inverse.ca>  Fri, 02 Sep 2022 08:58:21 -0400
+
 packetfence (11.3.0) unstable; urgency=low
 
   * Version 11.3.0

@@ -2,8 +2,8 @@
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 11;
-SET @MINOR_VERSION = 3;
+SET @MAJOR_VERSION = 12;
+SET @MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries
