@@ -42,7 +42,7 @@ case "$1" in
 
         chown pf:pf $PACKETFENCE
         find $PACKETFENCE '(' -type d -or -type f ')' -not -name pfcmd -not -path "$PACKETFENCE/logs*" -print0 | xargs -0 chown pf:pf
-	chgrp pf $PACKETFENCE/logs
+        chgrp pf $PACKETFENCE/logs
 
         touch $PACKETFENCE/var/run/pkg_install_in_progress
 
@@ -82,12 +82,12 @@ case "$1" in
             date +%s | sha256sum | base64 | head -c 32 > /usr/local/pf/conf/unified_api_system_pass
         fi
 
-	    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
-	        echo "Building default RADIUS certificates..."
-	        cd /usr/local/pf/raddb/certs
-	        make
-	    else
-	        echo "DH already exists, won't touch it!"
+        if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+            echo "Building default RADIUS certificates..."
+            cd /usr/local/pf/raddb/certs
+            make
+        else
+            echo "DH already exists, won't touch it!"
         fi
 
         if [ ! -f /usr/local/pf/conf/pf.conf ]; then
@@ -146,10 +146,10 @@ case "$1" in
            /bin/systemctl set-default packetfence.target
         fi
 
-	systemctl daemon-reload
+        systemctl daemon-reload
         echo "Restarting journald to enable persistent logging"
         /bin/systemctl restart systemd-journald
-	echo "Restarting rsyslog"
+        echo "Restarting rsyslog"
         systemctl restart rsyslog
 
         if dpkg --compare-versions "$2" lt "12"; then
@@ -158,8 +158,8 @@ case "$1" in
         fi
 
         systemctl restart docker
-	# get containers image and tag them locally
-	/usr/local/pf/containers/manage-images.sh
+        # get containers image and tag them locally
+        /usr/local/pf/containers/manage-images.sh
 
         systemctl enable packetfence-mariadb
         systemctl enable packetfence-redis-cache
