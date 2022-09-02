@@ -97,7 +97,7 @@ Once this is done, stop `galera-autofix` service on *all* nodes using:
 /usr/local/pf/bin/pfcmd service galera-autofix stop
 ----
 
-==== Upgrading node C
+==== Detaching and upgrading node C
 
 
 In order to be able to work on node C, we first need to stop all the
@@ -107,19 +107,7 @@ PacketFence services section>>.
   
 Next, you can upgrade your operating system and/or PacketFence on node C by following instructions of <<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades section>>.
 
-===== Next steps
-
-Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asciidoc#,upgrade guide>> as you would on a standalone server with the exception of the database schema updates.
-
-==== Migrating service on node C
-
-
-Node C should currently be running the latest version of PacketFence while A and B should still be running the older version and still be offering service. The database is also still being synced to node C via the `packetfence-mariadb` service.
-
-NOTE: The steps below will cause a temporary loss of service.
-
 ===== Detach node C from the cluster
-
 
 First, we need to tell A and B to ignore C in their cluster configuration. In order to do so, execute the following command **on A and B** while changing `node-C-hostname` with the actual hostname of node C:
 
@@ -130,24 +118,6 @@ First, we need to tell A and B to ignore C in their cluster configuration. In or
 
 Once this is done proceed to restart the following services on nodes A and B **one at a time**. This will cause service failure during the restart on node A
 
-.For PacketFence versions prior to 8.0
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd service haproxy restart
-/usr/local/pf/bin/pfcmd service keepalived restart
-----
-
-.For PacketFence versions from 8.0 to 10.0
-[source,bash]
-----
-/usr/local/pf/bin/pfcmd service radiusd restart
-/usr/local/pf/bin/pfcmd service pfdhcplistener restart
-/usr/local/pf/bin/pfcmd service haproxy-db restart
-/usr/local/pf/bin/pfcmd service haproxy-portal restart
-/usr/local/pf/bin/pfcmd service keepalived restart
-----
-
-.For PacketFence version 10.0 and later
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service radiusd restart
@@ -178,10 +148,10 @@ NOTE: From this moment on, you will lose the configuration changes and data chan
 
 The commands above will make sure that nodes A and B will not be forwarding requests to C even if it is alive. Same goes for C which won't be sending traffic to A and B. This means A and B will continue to have the same database informations while C will start to diverge from it when it goes live. We'll make sure to reconcile this data afterwards.
 
-===== Complete upgrade of node C
+===== Upgrade node C
 
-From that moment node C is in standalone for its database. We can proceed to update the database schema so it matches the one of the latest version.
-In order to do so, upgrade the database schema using the instructions provided in <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade guide>>.
+From that moment node C is in standalone for its database. We can proceed to update the packages, configuration and database schema
+In order to do so, apply the upgrade process described here **on node C only** <<PacketFence_Installation_Guide.asciidoc#AUTOMATION OF UPGRADES HELP NQB :)>>.
 
 ===== Start service on node C
 
