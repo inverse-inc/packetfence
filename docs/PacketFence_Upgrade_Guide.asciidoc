@@ -1946,6 +1946,11 @@ The name of some log files have changed. You can find a list below:
 |haproxy.log
 |===
 
+=== Remote database backups
+
+The ability to backup a remote database configured in PacketFence has been deprecated. 
+From now on, a dedicated tool on the database server itself must be used to backup the external database.
+If your database is hosted on the PacketFence server (default behavior), then no adjustment is required for this.
 
 == Archived upgrade notes
 
