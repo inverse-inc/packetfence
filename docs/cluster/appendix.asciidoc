@@ -50,6 +50,7 @@ You only need to allow this IP address in your network devices.
 
 === Performing an upgrade on a cluster
 
+NOTE: This guide only covers upgrading from PacketFence 11.0.0 or above.
 
 CAUTION: Performing a live upgrade on a PacketFence cluster is not a straightforward operation and should be done meticulously.
 
