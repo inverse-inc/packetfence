@@ -70,7 +70,18 @@ Finally, you must configure a secure way to reach your Cloud-hosted version of P
 
 === PacketFence Connector
 
+NOTE:  The pfconnector is currently in the ‘Technical Preview’ phase. It can safely be used in production but has not yet been field proven for large scale and/or complex deployments
+
 Starting from v12, PacketFence provides the PacketFence Connector. The PacketFence Connector allows you to establish a secure connection to a Cloud-hosted version of PacketFence so that NAS devices from a LAN can securely communicate with. The PacketFence Connector is meant to be lightweight, easy to configure and should not require any firewall changes as it tunnels everything over HTTPS.
+
+Here are the use-cases the pfconnector supports:
+
+ * RADIUS MAB
+ * RADIUS 802.1x
+ * Captive portal through web-auth (no registration or isolation VLAN support)
+ * Performing access reevaluation through the pfconnector (i.e. RADIUS CoA/Disconnect, SNMP, etc)
+ * Performing LDAP queries through the pfconnector to an on-premise LDAP server (including Active Directory) for portal and admin interface authentication
+ * Authentication against a RADIUS source through the pfconnector to an on-premise RADIUS server for portal and admin interface authentication
 
 To deploy the PacketFence Connector, first provision on your local network (where NAS devices reside) a x86_64 Debian 11 virtual machine with minimal resources (2GB of RAM, 1 CPU core and 10GB of disk space). Then, perform the following commands as root:
 [source,bash,subs="attributes"]
@@ -93,3 +104,5 @@ Finally, restart and enable the packetfence-pfconnector-remote service:
 
    systemctl restart packetfence-pfconnector-remote
    systemctl enable packetfence-pfconnector-remote
+   
+Once your pfconnector is started, you can now point your network equipment to use the pfconnector's IP address for RADIUS and the captive portal like you would do with a typical on-premise PacketFence server.
