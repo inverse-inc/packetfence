@@ -14,6 +14,19 @@ function get_db_name() {
   echo $db_name
 }
 
+function get_mariadb_extra_args() {
+  args="--defaults-file=`pwd`/setup_mycnf"
+  ver=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release`
+
+  # Socket argument is not necessary on 11.x 
+  # When these functions are used to upgrade to 12+, the socket arg must be provided
+  if ! echo $ver | grep "^11\." > /dev/null 2>/dev/null; then
+    args="$args --socket=/var/lib/mysql/mysql.sock"
+  fi
+
+  echo $args
+}
+
 function import_mysqldump() {
   grants_file="$1"
   dump_file="$2"
@@ -24,7 +37,7 @@ function import_mysqldump() {
     exit 1
   fi
 
-  mariadb_args="--defaults-file=`pwd`/setup_mycnf"
+  mariadb_args="`get_mariadb_extra_args`"
   # we need a grant dump generated via: mysql ${MYSQL_CONN} --skip-column-names -A -e"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''" | mysql ${MYSQL_CONN} --skip-column-names -A | sed 's/$/;/g' > grants.sql
   if ! test_db_connection_no_creds; then
     echo -n "Please enter the root password for MariaDB:"
@@ -157,7 +170,7 @@ EOT
 }
 
 function upgrade_database() {
-  mariadb_args="--defaults-file=`pwd`/setup_mycnf"
+  mariadb_args="`get_mariadb_extra_args`"
   if ! test_db_connection_no_creds; then
     echo "NOTE: The root password you must enter is the one of the server of which you're reimporting the data, not this server's MariaDB root password"
     echo -n "Please enter the root password for MariaDB:"
