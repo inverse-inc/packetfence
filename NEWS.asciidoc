@@ -29,6 +29,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 * New assets, communications and threats visualizations
 * Containerization of most PacketFence services
+* New pfconnector service to connect remote locations to a central or cloud PacketFence server
 * Support for role-based enforcement on Meraki wired devices (#7000)
 * Support to split database read and writes to different MySQL servers (#7055)
 * Support for distributed database reads in cluster using ProxySQL
