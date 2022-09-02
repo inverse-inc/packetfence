@@ -134,6 +134,14 @@ Install kernel development package:
 yum install kernel-devel-$(uname -r)
 ----
 
+Ensure `runc` and `podman` are uninstalled (PacketFence uses docker+containerd.io)
+
+[source,bash]
+----
+yum remove runc podman
+----
+
+
 NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
 
 ===== RHEL 8.x
