@@ -165,6 +165,7 @@ case "$1" in
         systemctl enable packetfence-redis-cache
         systemctl enable packetfence-config
         systemctl disable packetfence-iptables
+        systemctl stop packetfence-iptables
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
         systemctl start packetfence-config
@@ -183,6 +184,7 @@ case "$1" in
         /bin/systemctl start packetfence-httpd.admin_dispatcher
         /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables
+        systemctl stop packetfence-iptables
         /usr/local/pf/bin/pfcmd service pf updatesystemd
         if [ ${DIST} = "stretch" ]; then
             set +e

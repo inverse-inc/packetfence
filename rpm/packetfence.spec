@@ -731,6 +731,7 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl enable packetfence-redis-cache
     /bin/systemctl enable packetfence-config
     /bin/systemctl disable packetfence-iptables
+    /bin/systemctl stop packetfence-iptables
     /bin/systemctl start packetfence-config
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
     # only packetfence-config is running after this command
@@ -738,13 +739,15 @@ if /usr/local/pf/containers/manage-images.sh; then
 
     /bin/systemctl enable packetfence-httpd.admin_dispatcher
     /bin/systemctl enable packetfence-haproxy-admin
-    /bin/systemctl enable packetfence-iptables
     /bin/systemctl enable packetfence-tracking-config.path
     /usr/local/pf/bin/pfcmd configreload
     echo "Starting PacketFence Administration GUI..."
     /bin/systemctl start packetfence-httpd.admin_dispatcher
     /bin/systemctl start packetfence-haproxy-admin
 
+    /bin/systemctl enable packetfence-iptables
+    /bin/systemctl stop packetfence-iptables
+    
     /usr/local/pf/bin/pfcmd service pf updatesystemd
 
     # Empty root password in order to allow other user to connect as root.
