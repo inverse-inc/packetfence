@@ -117,7 +117,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
             pfdeb11dev:
               box: inverse-inc/pfdeb11dev
               box_version: 11.0.20220114143906
@@ -126,7 +126,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
             el8dev:
               box: generic/rhel8
               box_version: '3.6.4'
@@ -135,7 +135,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
             deb11dev:
               box: debian/bullseye64
               box_version: 11.20220328.1
@@ -144,7 +144,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
 
         localdev:
           hosts:
@@ -160,7 +160,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
             pfdeb11localdev:
               box: inverse-inc/pfdeb11dev
               box_version: 11.0.20220114143906
@@ -169,7 +169,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
 
         stable:
           hosts:
@@ -181,7 +181,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
             # to test upgrades
             pfdeb9stable:
               box: inverse-inc/pfdeb9stable
@@ -190,7 +190,7 @@ all:
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb9stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
               cpus: 8
-              memory: 12288
+              memory: 16384
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20211018.1
@@ -199,7 +199,7 @@ all:
               ansible_host: "{{ mgmt_ip }}"
               ansible_python_interpreter: '/usr/bin/python3'
               cpus: 8
-              memory: 12288
+              memory: 16384
 
 
   vars:
