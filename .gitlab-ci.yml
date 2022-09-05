@@ -212,6 +212,14 @@ variables:
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
 
 
+# run this job on:
+# - devel branch with BUILD_ARTIFACTS_DOC variable defined or build_artifacts_doc=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
+.build_artifacts_doc_devel_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
+
 # don't run if DEPLOY_PKG is equals to 'no'
 # run only jobs on "devel" branch (push, schedule and web)
 .deploy_devel_rules:
@@ -317,6 +325,20 @@ variables:
     - ${BUILDDIR}/start-pfconfig-in-container.sh
     - make material
     - ${RELEASEDIR}/publish-to-git.sh ${SRC_FILE} ${DST_FILE}
+  tags:
+    - docker
+
+.build_artifacts_doc_job:
+  stage: build_artifacts
+  dependencies: []
+  script:
+    - make -C html/pfappserver/root/ vendor
+    - make -C html/pfappserver/root/ light-dist
+    - make html
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - docs/*.html
   tags:
     - docker
 
@@ -845,6 +867,13 @@ material_release:
   extends:
     - .build_artifacts_material_job
     - .release_only_rules
+
+# build_artifacts_doc jobs for development
+build_artifacts_doc_devel_and_branches:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  extends:
+    - .build_artifacts_doc_job
+    - .build_artifacts_doc_devel_and_branches_rules
 
 ########################################
 # SIGN JOBS
