@@ -198,6 +198,11 @@ echo "Stopping the PacketFence services"
 /usr/local/pf/bin/pfcmd service pf stop
 
 main_splitter
+# This step is exceptional for 11.x since the current script doesn't support backup of cluster members running in standalone during the upgrade
+echo "Updating /usr/local/pf/addons/backup-and-maintenance.sh from Github"
+curl https://raw.githubusercontent.com/inverse-inc/packetfence/maintenance/11.2/addons/backup-and-maintenance.sh > /usr/local/pf/addons/backup-and-maintenance.sh
+
+main_splitter
 export_to="/root/packetfence-pre-upgrade-backup-`date '+%s'`.tgz"
 echo "Generating full pre-upgrade backup to $export_to"
 /usr/local/pf/addons/backup-and-maintenance.sh
