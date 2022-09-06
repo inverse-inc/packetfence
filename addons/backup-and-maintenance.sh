@@ -86,6 +86,7 @@ should_backup(){
     # Default choices
     SHOULD_BACKUP=1
     MARIADB_LOCAL_CLUSTER=0
+    MARIADB_DISABLE_GALERA=1
 
     if [ $MARIADB_REMOTE_CLUSTER -eq 1 ]; then
         echo "Remote database detected: backup should be done on database server itself."
@@ -96,7 +97,11 @@ should_backup(){
     if [ -f /var/lib/mysql/grastate.dat ]; then
         MARIADB_LOCAL_CLUSTER=1
         FIRST_SERVER=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_incoming_addresses";' | tail -1 | awk '{ print $2 }' | awk -F "," '{ print $1 }' | awk -F ":" '{ print $1 }'`
-        if ! ip a | grep $FIRST_SERVER > /dev/null; then
+        WSREP_CONNECTED=`mysql -u$REP_USER -p$REP_PWD -e 'show status like "wsrep_connected";' | tail -n 1 | awk '{print $2}'`
+        if [ -z "$FIRST_SERVER" ] && [ "$WSREP_CONNECTED" == "OFF" ]; then
+            echo "Server is in a cluster but running in standalone mode. Will be running backup."
+            MARIADB_DISABLE_GALERA=0
+        elif ! ip a | grep $FIRST_SERVER > /dev/null; then
             echo "Not the first server of the cluster: database backup canceled."
             exit $BACKUPRC
         else
@@ -117,7 +122,7 @@ backup_db(){
     BACKUPS_AVAILABLE_SPACE=`df --output=avail $BACKUP_DIRECTORY | awk 'NR == 2 { print $1  }'`
     MYSQL_USED_SPACE=`du -s /var/lib/mysql | awk '{ print $1 }'`
     if (( $BACKUPS_AVAILABLE_SPACE > (( $MYSQL_USED_SPACE /2 )) )); then
-        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
+        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ] && [ $MARIADB_DISABLE_GALERA -eq 1 ]; then
              echo "Temporarily stopping Galera cluster sync for DB backup"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=ON;' || die "mysql command failed"
         else
@@ -158,7 +163,7 @@ backup_db(){
             fi
         fi
 
-        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ]; then
+        if [ $MARIADB_LOCAL_CLUSTER -eq 1 ] && [ $MARIADB_DISABLE_GALERA -eq 1 ]; then
              echo "Reenabling Galera cluster sync"
              mysql -u$REP_USER -p$REP_PWD -e 'set global wsrep_desync=OFF;' || die "mysql command failed"
         else
