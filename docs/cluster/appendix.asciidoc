@@ -204,12 +204,6 @@ Once you are feeling confident to try your failover to node C again, you can do 
 
 If you are happy about the state of your upgrade on node C, you can move on to upgrading the other nodes.
 
-.On nodes A and B
-[source,bash]
-----
-export UPGRADE_CLUSTER_SECONDARY=yes
-----
-
 .On node A
 ----
 /usr/local/pf/bin/cluster/node node-B-hostname disable
@@ -218,6 +212,13 @@ export UPGRADE_CLUSTER_SECONDARY=yes
 .On node B
 ----
 /usr/local/pf/bin/cluster/node node-A-hostname disable
+----
+
+.On nodes A and B
+[source,bash]
+----
+export UPGRADE_CLUSTER_SECONDARY=yes
+systemctl start packetfence-mariadb
 ----
 
 Then, <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
