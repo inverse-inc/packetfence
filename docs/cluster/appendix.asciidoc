@@ -58,7 +58,7 @@ In this procedure, the 3 nodes will be named A, B and C and they are in this ord
 
 ==== Backups
 
-First, ensure you have taken backups of your data. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade. You should also take a backup of the database and the `/usr/local/pf` directory using <<PacketFence_Upgrade_Guide.asciidoc#__database_and_configurations_backup,Database and configurations backup instructions>>.
+Re-importable backups will be taken during the upgrade process. We highly encourage you to perform snapshots of all the virtual machines prior to the upgrade if possible.
 
 ==== Disabling the auto-correction of configuration
 
