@@ -586,6 +586,10 @@ ALTER TABLE pki_certs
 ALTER TABLE sms_carrier
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
+\! echo "altering security_event"
+ALTER TABLE security_event
+    DROP CONSTRAINT IF EXISTS `mac_fkey_node`;
+
 \! echo "altering node"
 ALTER TABLE node
    CONVERT TO CHARACTER SET utf8mb4;
@@ -762,7 +766,6 @@ ALTER TABLE node
 
 ALTER TABLE security_event
     MODIFY notes MEDIUMTEXT,
-    DROP CONSTRAINT IF EXISTS `mac_fkey_node`,
     CONVERT TO CHARACTER SET utf8mb4;
 
 ALTER TABLE security_event
