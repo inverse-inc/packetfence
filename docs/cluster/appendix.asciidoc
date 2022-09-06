@@ -218,7 +218,7 @@ If you are happy about the state of your upgrade on node C, you can move on to u
 [source,bash]
 ----
 export UPGRADE_CLUSTER_SECONDARY=yes
-systemctl start packetfence-mariadb
+systemctl restart packetfence-mariadb
 ----
 
 Then, <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on nodes A and B**.
