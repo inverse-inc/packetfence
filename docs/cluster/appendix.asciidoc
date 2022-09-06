@@ -154,14 +154,20 @@ In order to do so, <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgr
 
 Next, stop all application services on node A and B:
 
-* See <<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
-PacketFence services section>>
+* Stop PacketFence services:
++
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf stop
+----
 * Stop database:
 +
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
 ----
+
+IMPORTANT: `packetfence-config` should stay started in order to run `/usr/local/pf/bin/cluster/node` commands.
 
 ===== Start service on node C
 
