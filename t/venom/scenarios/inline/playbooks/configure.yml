@@ -10,6 +10,19 @@
         state: present
       when: ansible_facts['os_family'] == "Debian"
 
+    # cause a failure on RHEL
+    - name: Disable Netfilter on bridge on Debian only
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        state: 'present'
+        value: '0'
+        reload: yes
+      loop:
+        - net.bridge.bridge-nf-call-ip6tables
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-arptables
+      when: ansible_facts['os_family'] == "Debian"
+
     - name: Install qemu-kvm on el8
       yum:
         name: qemu-kvm
