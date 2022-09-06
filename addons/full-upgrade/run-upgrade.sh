@@ -157,14 +157,6 @@ function handle_pkgnew_files() {
   done
 }
 
-ALLOW_CLUSTER_UPGRADE="${ALLOW_CLUSTER_UPGRADE:-no}"
-if ! is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
-  echo "Upgrading a cluster is not supported by this tool at the moment."
-  echo "You can use it **at your own risk** by setting the following environment variable:"
-  echo "  export ALLOW_CLUSTER_UPGRADE=yes"
-  exit 1
-fi
-
 function hook_if_exists() {
   hook=/usr/local/pf/addons/full-upgrade/hooks/hook-$1
   if [ -f $hook ]; then
