@@ -72,13 +72,11 @@ RUN mkdir -p /usr/local/pf/bin  && \
 
 COPY ./conf/pf.conf.defaults /usr/local/pf/conf/pf.conf.defaults
 
-RUN touch /usr/local/pf/conf/pf.conf
+RUN touch /usr/local/pf/conf/pf.conf /usr/local/pf/conf/pfconfig.conf
 
 COPY ./conf/chi.conf.defaults /usr/local/pf/conf/chi.conf.defaults
 
 COPY ./conf/chi.conf.example /usr/local/pf/conf/chi.conf
-
-COPY ./conf/pfconfig.conf.example /usr/local/pf/conf/pfconfig.conf
 
 COPY ./conf/pfconfig.conf.defaults /usr/local/pf/conf/pfconfig.conf.defaults
 
