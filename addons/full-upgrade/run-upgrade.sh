@@ -227,11 +227,15 @@ upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 hook_if_exists do-upgrade-post-package-upgrade.sh
 
-main_splitter
-db_name=`get_db_name /usr/local/pf/conf/pf.conf`
-upgrade_database $db_name
+UPGRADE_CLUSTER_SECONDARY="${UPGRADE_CLUSTER_SECONDARY:-}"
+# Do not upgrade the database when upgrading secondary nodes of a cluster (the primary will sync its data to them)
+if [ "$UPGRADE_CLUSTER_SECONDARY" != "yes" ]; then
+  main_splitter
+  db_name=`get_db_name /usr/local/pf/conf/pf.conf`
+  upgrade_database $db_name
 
-hook_if_exists do-upgrade-post-db-upgrade.sh
+  hook_if_exists do-upgrade-post-db-upgrade.sh
+fi
 
 main_splitter
 upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade`
