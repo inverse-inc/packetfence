@@ -47,6 +47,7 @@ RUN make -j2 deb
 #
 FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
+# Copy debian packages
 COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
 RUN apt-get -qq -y remove freeradius-common
