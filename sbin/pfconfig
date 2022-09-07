@@ -161,6 +161,8 @@ Linux::Systemd::Daemon::sd_notify( READY => 1, STATUS => "Ready", unset => 1 );
 # Used to set the current prefered encoding
 my $encoding;
 
+my $REQUEST_TIMEOUT = 5;
+
 while($RUNNING) {
     # check for any child to reap
     waitpid(-1, WNOHANG);
@@ -172,6 +174,8 @@ while($RUNNING) {
     my $line;
     my $query;
     eval {
+        local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
+        alarm $REQUEST_TIMEOUT;
         my $paddr = accept($socket,$listner);
         #Check if a signal was caught
         unless (defined $paddr || $! == EINTR) {
@@ -200,6 +204,7 @@ while($RUNNING) {
             }
         }
         $socket = undef;
+        alarm 0;
     };
     if($@){
         print STDERR "$line : $@";
