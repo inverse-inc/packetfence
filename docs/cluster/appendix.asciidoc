@@ -75,7 +75,7 @@ Once this is done, restart `pfcron` on all nodes using:
 /usr/local/pf/bin/pfcmd service pfcron restart
 ----
 
-==== Disabling galera-autofix (for PacketFence version 10.0 and later)
+==== Disabling galera-autofix
 
 You should disable the `galera-autofix` service in the configuration to disable the automated resolution of cluster issues during the upgrade.
 
