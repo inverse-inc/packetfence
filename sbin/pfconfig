@@ -174,13 +174,13 @@ while($RUNNING) {
     my $line;
     my $query;
     eval {
-        local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
-        alarm $REQUEST_TIMEOUT;
         my $paddr = accept($socket,$listner);
         #Check if a signal was caught
         unless (defined $paddr || $! == EINTR) {
             die("Can't accept connection: $!\n");
         }
+        local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
+        alarm $REQUEST_TIMEOUT;
         if($paddr) {
             chomp( $line = <$socket> );
 
