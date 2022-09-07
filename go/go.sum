@@ -409,6 +409,8 @@ github.com/infobloxopen/go-trees v0.0.0-20190313150506-2af4e13f9062 h1:d3VSuNcgT
 github.com/infobloxopen/go-trees v0.0.0-20190313150506-2af4e13f9062/go.mod h1:PcNJqIlcX/dj3DTG/+QQnRvSgTMG6CLpRMjWcv4+J6w=
 github.com/inverse-inc/certmagic v0.0.0-20220907140700-1d3fd40852e0 h1:7n8M8370B+t5J3ZaPjHXGrzCE0FaSez1LNJ8qWi18w0=
 github.com/inverse-inc/certmagic v0.0.0-20220907140700-1d3fd40852e0/go.mod h1:8N4LVY1ObQFG2JN3PqNc8h3DkignaIcjwk/YxCjLT5Q=
+github.com/inverse-inc/certmagic v0.0.0-20220907160515-95e0c7209564 h1:PK2wNqM1HgC7bAICjGa0NGsP8+4bxLj0EpNkh80poZY=
+github.com/inverse-inc/certmagic v0.0.0-20220907160515-95e0c7209564/go.mod h1:FDF59Xft9LsddQJhkHcptWn95Fffa+2pr9kTcs3Vxhc=
 github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca h1:HGKx8fPnuu4j2qzkyhDEntEc2FiypCU324AjvM+MzPE=
 github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca/go.mod h1:lvc5S3uPg6xat1wRFAA0ru/DfIV6YOmMK6E754FUEuo=
 github.com/inverse-inc/go-ipset/v2 v2.2.4 h1:nhhi/nJuAzoTiznskwGd1n2iCMZRXEg1QKx+MF2jWU8=
@@ -1091,6 +1093,7 @@ gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
 gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie2QXMNeKRTHCNY2nXvo=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20180728063816-88497007e858/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=

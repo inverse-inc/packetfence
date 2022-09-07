@@ -101,7 +101,7 @@ require (
 
 require (
 	github.com/go-acme/lego/v3 v3.9.0
-	github.com/inverse-inc/certmagic v0.0.0-20220907140700-1d3fd40852e0
+	github.com/inverse-inc/certmagic v0.0.0-20220907160515-95e0c7209564
 )
 
 require (
