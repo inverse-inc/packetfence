@@ -1,0 +1,16 @@
+---
+- hosts: ['devel_centos8', 'stable_centos8']
+  name: Install Ruby on EL
+  become: True
+  gather_facts: True
+  vars:
+    ruby_version: 2.7
+
+  tasks:
+    - name: Install Ruby at a specific version
+      dnf:
+        name: "@ruby:{{ ruby_version }}"
+        state: present
+      when: ansible_distribution_major_version == '8' and ansible_os_family == 'RedHat'
+        
+
