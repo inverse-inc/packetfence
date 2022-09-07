@@ -2,6 +2,9 @@
 # only for el8, see https://developers.redhat.com/blog/2018/11/14/python-in-rhel-8/
 - import_playbook: playbooks/python3.yml
 
+# only for el8
+- import_playbook: playbooks/ruby.yml
+
 - hosts: ['common_centos', 'common_debian']
   name: Install upstream repos and packages needed to install build requires
   become: True
