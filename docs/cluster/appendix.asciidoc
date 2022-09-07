@@ -69,7 +69,6 @@ In order to do so, go in _Configuration->System Configuration->Maintenance_ and 
 
 Once this is done, restart `pfcron` on all nodes using:
 
-.For PacketFence versions 10.2 and later
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd service pfcron restart
