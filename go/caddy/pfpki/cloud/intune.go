@@ -13,6 +13,7 @@ import (
 	"os"
 
 	"github.com/Azure/go-autorest/autorest/adal"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -110,7 +111,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 
 	// Intune token
 
-	spt, err := adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, intuneResourceUrl)
+	spt, err := adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
 
 	err = spt.Refresh()
 
@@ -120,12 +121,12 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		token = spt.Token()
 		cl.AccessToken = "Bearer " + token.AccessToken
 	}
-
+	spew.Dump(token)
 	id, err := uuid.NewUUID()
 	cl.TransactionID = id.String()
 
 	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
-
+spew.Dump(err.Error())
 	err = spt.Refresh()
 
 	var Bearer string
