@@ -269,7 +269,7 @@ RELOAD_FAILED=0
 
 # This was found to be necessary in some cases where the first configreload would fail.
 # If the reload did succeed, then it will just ignore this and continue
-if [ $RELOAD_FAILED -eq 1 ];
+if [ $RELOAD_FAILED -eq 1 ]; then
   echo "Failed to configreload once. Will wait a few seconds and try again"
   sleep 10
   /usr/local/pf/bin/pfcmd configreload hard
