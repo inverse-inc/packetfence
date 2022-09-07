@@ -1,5 +1,5 @@
 Name:       packetfence-release
-Version:    2.4.0
+Version:    2.4.1
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence release file and RPM repository configuration
