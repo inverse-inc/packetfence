@@ -11,9 +11,9 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide covers the configuration of network devices in order to integrate 
-them with PacketFence in VLAN enforcement. Switches, wireless controllers and 
-wireless access points are all considered network devices in PacketFence's 
+This guide covers the configuration of network devices in order to integrate
+them with PacketFence in VLAN enforcement. Switches, wireless controllers and
+wireless access points are all considered network devices in PacketFence's
 terms.
 
 The latest version of this guide is available at https://packetfence.org/documentation/
@@ -30,20 +30,20 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
-link:https://packetfence.org/news.html[PacketFence News]
+https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
 
 == Note on Inline enforcement support
 
-There is no need to follow the instructions in this guide if you plan on deploying in inline enforcement, except RADIUS inline. In this case all you need to do is to have a flat layer 2 network up to PacketFence's inline interface with no other gateway available for devices to reach out to the Internet. 
+There is no need to follow the instructions in this guide if you plan on deploying in inline enforcement, except RADIUS inline. In this case all you need to do is to have a flat layer 2 network up to PacketFence's inline interface with no other gateway available for devices to reach out to the Internet.
 
-This technique is usually used when your network hardware doesn't support VLAN enforcement.
+This technique is usually used when your network hardware does not support VLAN enforcement.
 
 == Note on RADIUS accounting
 
-Enabling RADIUS accounting on your network devices will increase significantly your database size and can cause performance issues. You should be aware of this and use accounting only if you really need it.
+Enabling RADIUS accounting on your network devices will significantly increase the database size and may cause performance issues. You should be aware of this and only use RADIUS accounting if it is really needed.
 
 == List of supported Network Devices
 

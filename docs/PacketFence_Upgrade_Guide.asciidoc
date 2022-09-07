@@ -24,7 +24,7 @@ This guide covers procedures to upgrade PacketFence servers.
   Covers installation and configuration of PacketFence.
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
   Covers switches, WiFi controllers and access points configuration.
-link:https://packetfence.org/news.html[PacketFence News]
+https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
@@ -33,38 +33,38 @@ These files are included in the package and release tarballs.
 
 === Prerequisites
 
-You need to have your MariaDB root password ready because several scripts will need it.
+The MariaDB root password that was provided during the initial configuration is required.
 
 === Database and configurations backup
 
-NOTE: Starting from PacketFence 11.0.0, this step is not necessary if you are
+NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
 doing an
 <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automated
 upgrade>>.
 
-Taking a complete backup of your current installation is strongly recommended.
-You can take a backup using:
+Taking a complete backup of the current installation is strongly recommended.
+Perform a backup using:
 
-.For PacketFence versions prior to 9.0.0
+.For PacketFence versions prior to 9.0.0:
 [source,bash]
 ----
 /usr/local/pf/addons/database-backup-and-maintenance.sh
 ----
 
-.For PacketFence versions 9.0.0 and later
+.For PacketFence versions 9.0.0 and later:
 [source,bash]
 ----
 /usr/local/pf/addons/backup-and-maintenance.sh
 ----
 
-=== Disable monit alerts (only if you have monit installed)
+=== Disable monit alerts (only if monit is installed)
 
-NOTE: Starting from PacketFence 11.0.0, this step is not necessary if you are
+NOTE: Starting from PacketFence 11.0.0, this step is not necessary for
 doing an
 <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,automated
 upgrade>>.
 
-If `monit` is installed and running, shut it down with:
+If `monit` is installed and running, stop and disable it with:
 
 [source,bash]
 ----
@@ -74,16 +74,16 @@ systemctl disable monit
 
 == Type of upgrades
 
-Starting from PacketFence 11.0.0, you can upgrade your PacketFence installation in two ways:
+Starting from PacketFence 11.0.0, the PacketFence installation can be upgraded in two ways:
 
 * <<#_upgrade_to_a_patch_version_x_y_patch,Upgrade to a patch version (X.Y.PATCH)>>
 * <<#_upgrade_to_a_major_or_minor_version_major_minor_z,Upgrade to a major or minor version (MAJOR.MINOR.Z)>>
 
-For all PacketFence versions prior to 11.0.0, you should follow <<_upgrade_procedure,steps described in Upgrade procedure section>>.
+For all PacketFence versions prior to 11.0.0, follow the steps described in the <<_upgrade_procedure,Upgrade procedure>>.
 
 == Upgrade to a patch version (X.Y.PATCH)
 
-=== Disable monit alerts (only if you have monit installed)
+=== Disable monit alerts (only if monit is installed)
 
 If `monit` is installed and running, shut it down with:
 
@@ -95,8 +95,7 @@ systemctl disable monit
 
 === Stop all PacketFence services
 
-It is recommended that you stop the currently running PacketFence services before proceeding any further.
-To do so, run the following commands:
+It is recommended to stop all PacketFence services that are currently running before proceeding any further:
 
 [source,bash]
 ----
@@ -106,7 +105,7 @@ systemctl stop packetfence-config
 
 === Upgrade packages
 
-WARNING: All changes to files not considered as configuration files will be overwritten by new packages.
+WARNING: All non-configuration files will be overwritten by new packages. All changes made to any other files will be lost during the upgrade.
 
 include::common/upgrade_packages.asciidoc[]
 
@@ -126,41 +125,37 @@ Follow instructions related to <<PacketFence_Installation_Guide.asciidoc#_automa
 
 == Upgrade procedure
 
-A PacketFence upgrade consists of following steps:
+A PacketFence upgrade consists of the following steps:
 
-. stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>> section)
+. stop all PacketFence services (see <<_stop_all_packetfence_services,Stop all PacketFence services>>)
 . preliminary step(s) to run before packages upgrades (see sections for your upgrade path)
-. packages upgrades (see <<_packages_upgrades,Package upgrades>> section)
+. packages upgrades (see <<_packages_upgrades,Package upgrades>>)
 . configuration migration(s) (see sections for your upgrade path)
 . database schema upgrade(s) (see sections for your upgrade path)
-. restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>> section)
-. regenerate Monit configuration (optional) (see <<_regenerate_monit_configuration,Regenerate Monit configuration>> section)
+. restart all PacketFence services (see <<_restart_all_packetfence_services,Restart all PacketFence services>>)
+. regenerate Monit configuration (optional) (see <<_regenerate_monit_configuration,Regenerate Monit configuration>>)
 
-Upgrade notes for a given upgrade path are cumulative. That is to say, if you
-are upgrading from version 7.0 to version 9.0 you must apply in order all:
+Upgrade notes for a given upgrade path are cumulative. That is to say, upgrading from version 7.0 to version 9.0 all of the following must be applied in order for each sequential version (7.0, 8.0 and 9.0):
 
 . preliminary step(s) to run before packages upgrades
 . configuration migration(s)
 . database schema upgrade(s)
 
-in between the two versions.
-
-IMPORTANT: Before starting packages upgrades, make sure to go through (read) the upgrade
+IMPORTANT: Before starting packages upgrades read the upgrade
 instructions specific to the upgrade path taken since some preliminary steps may be
-required to be done *BEFORE* the packages upgrades.
+required *BEFORE* the packages are upgraded.
 
 === Clustered environment: specific procedure
 
-Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>> section.
+Please refer to the <<PacketFence_Clustering_Guide.asciidoc#,PacketFence Clustering Guide>>, more specifically the <<PacketFence_Clustering_Guide.asciidoc#_performing_an_upgrade_on_a_cluster,Performing an upgrade on a cluster>>.
 
 ==== Cluster upgrade before 10.3
 
-If you run a version prior to 10.3, cluster upgrade for this version is specific. You need to follow steps described in <<_mariadb_upgrade_to_10_2,MariaDB upgrade to 10.2>> section.
+There is a specific cluster upgrade that must be performed if the current version is prior to 10.3. Follow the steps described in <<_mariadb_upgrade_to_10_2,MariaDB upgrade to 10.2>>.
 
 === Stop all PacketFence services
 
-It is recommended that you stop the currently running PacketFence services before proceeding any further.
-To do so, run the following commands:
+It is recommended to stop all the `packetfence-config` and `packetfence` services before proceeding any further:
 
 [source,bash]
 ----
@@ -168,9 +163,9 @@ To do so, run the following commands:
 systemctl stop packetfence-config
 ----
 
-==== Rebooting after services have been stopped
+==== Reboot
 
-If you reboot a standalone server or one server from a cluster after services
+If you reboot a standalone server or any server member in a cluster after services
 have been stopped, make sure you set the systemd target to `multi-user.target`
 before rebooting:
 
@@ -179,17 +174,17 @@ before rebooting:
 systemctl set-default multi-user.target
 ----
 
-This will make sure your services don't start up after the reboot.
+This will ensure services do not restart after a reboot.
 
-Set it back to previous target after it boots up:
+After rebooting revert to the previous target:
 
-.Cluster
+.Cluster:
 [source,bash]
 ----
 systemctl set-default packetfence-cluster.target
 ----
 
-.Standalone
+.Standalone:
 [source,bash]
 ----
 systemctl set-default packetfence.target
@@ -197,13 +192,13 @@ systemctl set-default packetfence.target
 
 === Packages upgrades
 
-IMPORTANT: Again, before starting packages upgrades, make sure to go through (read) the upgrade
+IMPORTANT: Before starting packages upgrades read the upgrade
 instructions specific to the upgrade path taken since some preliminary steps may be
-required to be done *BEFORE* the packages upgrades.
+required *BEFORE* the packages are upgraded.
 
 ==== RHEL / CentOS based systems
 
-Run the following command to update PacketFence:
+Update PacketFence with [command]`yum`:
 
 // subs=attributes allow to substitute {release_minor} in code block
 [source,bash,subs="attributes"]
@@ -218,11 +213,9 @@ you are upgrading from.
 
 ===== Upgrade to RHEL / CentOS 7.7 before 9.1.0
 
-If you run a version prior to 9.1.0 and want to *only* upgrade your RHEL /
-CentOS system to 7.7, you will need to perform the following preliminary steps
-before you perform your OS update through [command]`yum`.
+To *ONLY* upgrade your RHEL / CentOS system to 7.7, perform the following steps *BEFORE* you perform your OS update with [command]`yum`.
 
-.Disable `systemd-logind` service which is currently causing issues with the `systemctl isolate` command
+.Disable `systemd-logind` service (known issues with `systemctl isolate`):
 [source,bash]
 ----
 /usr/bin/systemctl stop systemd-logind
@@ -231,11 +224,9 @@ before you perform your OS update through [command]`yum`.
 /bin/bash -c "/usr/bin/systemctl status user-0.slice | /usr/bin/grep -E -o '─[0-9]+' | /usr/bin/sed 's/─//g' | /usr/bin/xargs -I{} /bin/bash -c '/usr/bin/kill -0 {} > /dev/null 2>/dev/null && /usr/bin/echo {} > /sys/fs/cgroup/systemd/tasks'"
 ----
 
-These commands prevent disconnection issues while [command]`yum` is performing
-the update. The last command ensures your current process is removed out of
-the `user-0.slice`.
+This prevents network disconnects while [command]`yum` is performing the update. The last command ensures the current process is removed from the `user-0.slice`.
 
-.Get latest version of [package]`ipset` package from packetfence repository
+.Get latest version of [package]`ipset` package from packetfence repository:
 [source,bash]
 ----
 yum update ipset ipset-libs --enablerepo=packetfence
@@ -244,7 +235,7 @@ yum update ipset ipset-libs --enablerepo=packetfence
 
 ==== Debian-based systems
 
-Run the following commands to update PacketFence:
+Update PacketFence with [command]`apt`:
 
 [source,bash,subs="attributes"]
 ----
@@ -253,24 +244,22 @@ apt update
 apt install packetfence
 ----
 
-Since PacketFence heavily relies on Fingerbank, it is recommended to make sure you are running the latest version:
+PacketFence relies heavily on Fingerbank, it is recommended to use the latest version:
 
 [source,bash]
 ----
 apt install fingerbank
 ----
 
-PacketFence and Fingerbank should now be upgraded. However, there may be extra
-steps required depending on the version you are upgrading from.
+PacketFence and Fingerbank are now upgraded. However, there may be additional steps that are required depending on the version being upgrading from.
 
-==== New versions of configuration files
+==== New configuration files
 
 include::common/new_config_files.asciidoc[]
 
 === Restart all PacketFence services
 
-Once all <<_steps,steps of upgrade procedure>> are completed, restart
-`packetfence-config` and `packetfence` services:
+Once all the <<_steps,steps>> of the upgrade procedure are completed, restart the `packetfence-config` and `packetfence` services:
 
 include::common/restart.asciidoc[]
 
@@ -278,23 +267,21 @@ include::common/restart.asciidoc[]
 
 NOTE: This step is optional
 
-In order to have Monit configuration upgraded, you need to:
+To upgrade and regenerate the Monit configuration:
 
-. Regenerate Monit configuration
-
-.For PacketFence versions prior to v11.1.0
+.For PacketFence versions prior to v11.1.0:
 [source,bash]
 ----
 /usr/local/pf/addons/monit/monit_build_configuration.pl 'email(s)' 'subject' 'configurations' 'mailserver'
 ----
 
-.For PacketFence versions v11.1.0 and later
+.For PacketFence versions v11.1.0 and later:
 [source,bash]
 ----
 /usr/local/pf/bin/pfcmd generatemonitconfig
 ----
 
-. Enable and start monit (if you stopped it at beginning of upgrade):
+. Enable and start `monit` (if stopped earlier):
 
 [source,bash]
 ----
@@ -302,7 +289,7 @@ systemctl enable monit
 systemctl start monit
 ----
 
-. Restart rsyslog:
+. Restart `rsyslog`:
 
 [source,bash]
 ----
@@ -315,9 +302,9 @@ systemctl restart rsyslog
 === Realms upgrade
 
 
-The way PacketFence detects whether or not it should strip the realm out of a username when performing authentication and authorisation has been moved to the realms. Moreover, it is now configurable based on the context (login on the captive portal or administration interface, as well as when performing authorization in RADIUS 802.1x)
+The way PacketFence detects if the realm is stripped out of the username when performing authentication and authorisation has been moved to the realms. Moreover, it is now configurable based on the context (login on the captive portal or administration interface, as well as when performing authorization in RADIUS 802.1x)
 
-In order to migrate your configuration, you can use the following script which will guide you through the migration:
+In order to migrate the configuration, use the following script to help guide you through the migration:
 
  /usr/local/pf/addons/upgrade/to-8.0-authentication-conf.pl
 
@@ -326,15 +313,18 @@ In order to migrate your configuration, you can use the following script which w
 
 *Device names*
 
-Packetfence now uses Fingerbank v2 for improved device profiling. Since this new version brings new device names, a rename of the previous data is necessary.
+Packetfence now uses Fingerbank v2 for improved device profiling. Since this new version brings new device names, a rename of the current data is necessary.
 
-In order to do so, execute the following script:
+Rename the current data:
 
- /usr/local/pf/addons/upgrade/to-8.0-fingerbank-db-data.pl
+[source,bash]
+----
+/usr/local/pf/addons/upgrade/to-8.0-fingerbank-db-data.pl
+----
 
-*Necessary API key*
+*Mandatory Fingerbank API key*
 
-Fingerbank doesn't release its signature database anymore and has moved to an API centric approach for device profiling. In order for device profiling to keep working on your installation, you must make sure that there is an API key configured for Fingerbank in your PacketFence installation.
+Fingerbank no longer releases a signature database and now uses an API for device profiling. In order for device profiling to continue working, there must be a Fingerbank API key configured in PacketFence.
 
 In order to do so, you should make sure you have the following in `/usr/local/fingerbank/conf/fingerbank.conf`
 
@@ -1938,7 +1928,7 @@ The name of some log files have changed. You can find a list below:
 |httpd.apache
 
 |api-frontend (Apache requests)
-|httpd.api-frontend.access 
+|httpd.api-frontend.access
 |httpd.apache
 
 |HAProxy (all services)
@@ -1948,7 +1938,7 @@ The name of some log files have changed. You can find a list below:
 
 === Remote database backups
 
-The ability to backup a remote database configured in PacketFence has been deprecated. 
+The ability to backup a remote database configured in PacketFence has been deprecated.
 From now on, a dedicated tool on the database server itself must be used to backup the external database.
 If your database is hosted on the PacketFence server (default behavior), then no adjustment is required for this.
 

@@ -11,7 +11,7 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide will help you modifying PacketFence to your particular needs. It also contains information on how to add support for new switches.
+This guide will help you modify PacketFence to your specific needs and contains information on how to add support for new switches.
 
 The latest version of this guide is available at https://packetfence.org/documentation/.
 
@@ -26,7 +26,7 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
-link:https://packetfence.org/news.html[PacketFence News]
+https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.

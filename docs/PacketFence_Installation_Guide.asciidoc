@@ -11,7 +11,7 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide will walk you through the installation and the day to day administration of the PacketFence solution.
+This guide will walk you through PacketFence installation and day-to-day administration.
 
 The latest version of this guide is available at https://packetfence.org/documentation/
 
@@ -27,7 +27,7 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
   Covers compatibility related changes, manual instructions and general notes
   about upgrading.
-link:https://packetfence.org/news.html[PacketFence News]
+https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
 
 These files are included in the package and release tarballs.
