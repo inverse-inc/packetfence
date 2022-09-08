@@ -1,0 +1,51 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//== Development environment setup
+
+This section will guide you through the setup of your development environment and once done, you will have an environment running the sources in `/usr/local/pf`.
+
+First, you will need to deploy an RHEL 8 or Rocky 8 machine. No other operating systems are currently supported for a development environment.
+
+NOTE: If you're running on Linode, disable Network helper: https://www.linode.com/docs/guides/network-helper/
+
+Now, you need to figure out what is the current devel version number, you can obtain it from here: https://github.com/inverse-inc/packetfence/blob/devel/conf/pf-release
+
+IMPORTANT: This example will use version `99.9` as the example version number.
+
+Next, install PacketFence from the RPM repository:
+
+[source,bash]
+----
+yum localinstall http://packetfence.org/downloads/PacketFence/RHEL8/packetfence-release-99.9.el8.noarch.rpm -y
+yum install kernel-devel-$(uname -r) -y
+yum install packetfence --enablerepo=packetfence --allowerasing
+----
+
+Now, you must go through the configurator and validate you can login into the admin interface at the end.
+
+Next, run:
+
+[source,bash]
+----
+dnf module install nodejs:12
+bash /usr/local/pf/addons/dev-helpers/setup-dev-env.sh
+----
+
+You will now have to wait for 10-15 minutes after the startup so that all container images are built (they're built on runtime when using a dev environment)
+

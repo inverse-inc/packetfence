@@ -39,6 +39,10 @@ include::developer/template_switches.asciidoc[]
 
 include::developer/documentation_info.asciidoc[]
 
+== Development environment setup
+
+include::developer/dev_env_setup.asciidoc[]
+
 == Golang environment
 
 include::developer/go/README.asciidoc[]
