@@ -14,6 +14,7 @@ if ! [ -f $dockerfile ]; then
 
   sub_splitter
 
+  echo "The following images can be built using this tool:"
   output_all_container_images
 
   exit 1
