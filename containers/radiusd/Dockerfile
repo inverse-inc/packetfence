@@ -54,6 +54,7 @@ RUN apt-get -qq -y remove freeradius-common
 
 
 RUN apt-get -qq update \
+    && apt-get clean \
     && apt-get -qq install -y /tmp/*.deb \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb \
