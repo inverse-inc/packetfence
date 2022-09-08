@@ -51,24 +51,6 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
 RUN apt-get -qq -y remove freeradius-common
-RUN apt-get -qq -y remove freeradius-config
-RUN apt-get -qq -y remove freeradius-dbg
-RUN apt-get -qq -y remove freeradius-dhcp
-RUN apt-get -qq -y remove freeradius-freetds
-RUN apt-get -qq -y remove freeradius-iodbc
-RUN apt-get -qq -y remove freeradius-krb5
-RUN apt-get -qq -y remove freeradius-ldap
-RUN apt-get -qq -y remove freeradius-memcached
-RUN apt-get -qq -y remove freeradius-mysql
-RUN apt-get -qq -y remove freeradius-perl-util
-RUN apt-get -qq -y remove freeradius-postgresql
-RUN apt-get -qq -y remove freeradius-redis
-RUN apt-get -qq -y remove freeradius-rest
-RUN apt-get -qq -y remove freeradius-utils
-RUN apt-get -qq -y remove freeradius-yubikey
-RUN apt-get -qq -y remove freeradius
-RUN apt-get -qq -y remove libfreeradius-dev
-RUN apt-get -qq -y remove libfreeradius3
 
 RUN apt-get -qq update \
     && apt-get -qq install -y /tmp/*.deb \

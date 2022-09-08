@@ -77,8 +77,8 @@ generate_destinations() {
 build_image() {
     /kaniko/executor --context $CI_PROJECT_DIR \
          --dockerfile ${DOCKFILE_PATH} \
-         --cache \
-         --cache-repo ${KNK_REGISTRY_URL}/cache \
+#         --cache \
+#         --cache-repo ${KNK_REGISTRY_URL}/cache \
          $(generate_destinations) \
          $(generate_build_args)
 }
