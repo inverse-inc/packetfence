@@ -20,23 +20,23 @@ endif::[]
 
 === DHCP Remote Sensor
 
-The DHCP remote sensor consists of a lightweight binary that is installed on your production DHCP server in order to replicate the DHCP traffic 1 to 1 to the PacketFence server. This solution is more reliable than the DHCP relaying since PacketFence receives a copy of all your DHCP traffic and not only the broadcasted DHCP traffic. Supported DHCP servers are Microsoft DHCP server and CentOS 6 and 7.
+The DHCP remote sensor consists of a lightweight binary installed on the production DHCP server to replicate all DHCP traffic (1-to-1) to the PacketFence server. This solution is more reliable than DHCP relaying since PacketFence receives a copy of all the DHCP traffic including broadcast traffic. Supported DHCP servers include Microsoft DHCP server and CentOS 6 and 7.
 
-These sensors work by capturing the packets at the lowest level possible on your DHCP server and forward them to the PacketFence management interface
+These sensors low-level packet capture on the DHCP server and forwards them to the PacketFence management interface.
 
 ==== Microsoft DHCP Sensor
 
-DHCP-Forwarder is an optimized version of precedent udp-reflector, which installs easily and only copy DHCPREQUESTS and DHCPACK packets to the destination.
+The DHCP-Forwarder is an optimized version of the udp-reflector, which installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the source to the destination.
 
-https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[Download the installer here.]
+Download the https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[DHCP Forwarder installer].
 
-It will install WinPCAP, nssm, launch a configurator to ask for interface, IP and port, save the configuration, install and launch DHCP-Forwarder service.
+This installs `WinPCAP`, `nssm`, launches a configurator for the interface, IP and port, saves the configuration, and finally installs and launches the DHCP-Forwarder service.
 
-When you will be asked for a host IP and port, specify PacketFence management IP and 767 as the UDP port.
+When asked for a host IP and UDP port provide the PacketFence management IP and 767 respectively.
 
-WARNING: On some versions of Windows, the `getmac` command will return invalid output when running the installer in a language other than English. In order to workaround the issue, change your Windows language to English, then logout/login and run the installer again.
+WARNING: On some versions of Windows, the `getmac` command will return invalid output when running the installer in a non-English language. In order to workaround the issue, change the Windows language to English, then logout/login and run the installer again.
 
-The project page can be found https://github.com/inverse-inc/packetfence-dhcp-forwarder[here].
+Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[DHCP Forwarder project page].
 
 ==== Linux-based Sensor
 
@@ -44,65 +44,70 @@ First download the RPM on your DHCP server.
 
 ===== CentOS 6 and 7 servers
 
-For CentOS 6:
+For CentOS 6 (x86_64):
 
+[source,bash]
 ----
-# for x86_64
-# wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
-----
-
-For CentOS 7:
-
-----
-# for x86_64
-# wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+wget http://inverse.ca/downloads/PacketFence/CentOS6/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
 ----
 
-Now install the sensor:
+For CentOS 7 (x86_64):
 
+[source,bash]
 ----
-# rpm -i udp-reflector-*.rpm
+wget http://inverse.ca/downloads/PacketFence/CentOS7/extra/x86_64/RPMS/udp-reflector-1.0-6.1.x86_64.rpm
+----
+
+Install the sensor with [command]`rpm`:
+
+[source,bash]
+----
+rpm -i udp-reflector-*.rpm
 ----
 
 ===== Compiling the sensor from source on a Linux system
 
-First make sure you have the following packages installed:
+First ensure the following packages are installed:
 [options="compact"]
 * libpcap
 * libpcap-devel
 * gcc-c++
 
-Get the source code of the sensor:
+Get the sensor source code:
 
+[source,bash]
 ----
-# mkdir -p ~/udp-reflector && cd ~/udp-reflector
-# wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
-# g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
+mkdir -p ~/udp-reflector && cd ~/udp-reflector
+wget http://inverse.ca/downloads/PacketFence/udp-reflector/udp_reflector.cpp
+g++ udp_reflector.cpp -o /usr/local/bin/udp_reflector -lpcap
 ----
 
-===== Configuring the Sensor
+===== Configure the Sensor
 
 Place the following line in `/etc/rc.local`
 [options="compact"]
-* where `pcap0` is the pcap interface where your DHCP server listens on. (List them using `udp_reflector -l`)
-* where `192.168.1.5` is the management IP of your PacketFence server
+* where `pcap0` is the pcap interface where the DHCP server listens on. (List them using `udp_reflector -l`)
+* where `192.168.1.5` is the management IP of the PacketFence server
+
+[source,bash]
 ----
 /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
 ----
 
 Start the sensor:
 
+[source,bash]
 ----
-# /usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
+/usr/local/bin/udp_reflector -s pcap0:67 -d 192.168.1.5:767 -b 25000 &
 ----
 
-The DHCP traffic should now be reflected on your PacketFence server.
+All DHCP traffic is now reflected to the PacketFence server.
 
 === Active Directory Integration
 
 ==== Deleted Account
 
-Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+Create the script `unreg_node_deleted_account.ps1` on the Windows Server with the following content:
 
 ----
 #########################################################################################
@@ -134,7 +139,9 @@ Get-EventLog -LogName Security -InstanceId 4726 |
    }
 ----
 
-===== Create the scheduled task based on an event ID
+NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server and change the `$username` and `$password` so they match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+
+===== Create a scheduled task for an event ID
 
 *Start -> Run -> Taskschd.msc*
 
@@ -171,11 +178,11 @@ Settings:
 At the bottom, select in the list "Run a new instance in parallel" in order to unregister multiple nodes at the same time.
 ----
 
-Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+Validate with Ok and provide the account that will run this task (usually _DOMAIN\Administrator_).
 
 ==== Disabled Account
 
-Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+Create the script `unreg_node_disabled_account.ps1` on the Windows Server with the following content:
 
 ----
 ##########################################################################################
@@ -208,7 +215,9 @@ Get-EventLog -LogName Security -InstanceId 4725 |
    }
 ----
 
-===== Create the scheduled task based on an event ID
+NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server and change the `$username` and `$password` so they match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+
+===== Create a scheduled task for an event ID
 
 *Start -> Run -> Taskschd.msc*
 
@@ -245,11 +254,11 @@ Settings:
 At the bottom, select in the list "Run a new instance in parallel"
 ----
 
-Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+Validate with Ok and provide the account that will run this task (usually _DOMAIN\Administrator_).
 
 ==== Locked Account
 
-Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content. Make sure to change `@IP_PACKETFENCE` to the IP address of your PacketFence server. You'll also need to change the username and password as they must match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
+Create the script `unreg_node_locked_account.ps1` on the Windows Server with the following content:
 
 ----
 #########################################################################################
@@ -281,6 +290,8 @@ Get-EventLog -LogName Security -InstanceId 4740 |
 
    }
 ----
+
+NOTE: Change `@IP_PACKETFENCE` to the IP address of the PacketFence server and change the `$username` and `$password` so they match the credentials defined in the Web admin interface under _Configuration -> Integration -> Web Services_.
 
 ===== Create the scheduled task based on an event ID
 
@@ -319,99 +330,105 @@ Settings:
 At the bottom, select in the list "Run a new instance in parallel"
 ----
 
-Validate with Ok and give the account who will run this task. (Usually _DOMAIN\Administrator_)
+Validate with Ok and provide the account that will run this task (usually _DOMAIN\Administrator_).
 
 === Switch Login Access
 
-PacketFence is able to act as an authentication and authorization service on the port 1815 for granting command-line interface (CLI) access to switches.
-PacketFence currently supports Cisco switches and these must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence's web admin interface, you must configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or in an Administration rule in an internal source.
+PacketFence is able to provide an authentication and authorization service on port 1815 for granting command-line interface (CLI) access to switches.
+PacketFence currently supports Cisco switches which must be configured using the following guide: http://www.cisco.com/c/en/us/support/docs/security-vpn/remote-authentication-dial-user-service-radius/116291-configure-freeradius-00.html. From the PacketFence web admin interface, configure an Admin Access role (_Configuration -> System Configuration -> Admin Access_) that contains the action 'Switches CLI - Read' or 'Switches CLI - Write' and assign this role to an internal user or with an Administration rule in an internal source.
 
-Then you need to enable `_CLI Access Enabled_` setting on switch(s) you want to manage in _Configuration -> Network devices -> Switches_.
+Then enable `_CLI Access Enabled_` setting on the switch(s) to manage in _Configuration -> Network devices -> Switches_.
 
-NOTE: Any user that has the 'ALL' administrative role will be able to login into your switches. If you want to provide all PacketFence administrative access to some users without allowing them to login into the switches, then apply the 'ALL_PF_ONLY' administrative role which will contains all the necessary PacketFence roles without the switch login.
+NOTE: The `ALL` administrative role allows the user to login into the switches. Change this role to `ALL_PF_ONLY` to allow the user all the nenecessary adminstrative roles except for switch login.
 
 
 === Syslog forwarding
 
-Syslog forwarding feature allows you to forward PacketFence logs (all or specific log files) to a remote Syslog server using Syslog protocol.
+Syslog forwarding forwards PacketFence logs (all or specific log files) to a remote Syslog server using the Syslog protocol.
 
-You can configure this feature in _Configuration -> Integration -> Syslog Forwarding_
+Configure this feature in _Configuration -> Integration -> Syslog Forwarding_
 
-After you add a new Syslog server, you will need to perfom following actions using CLI:
+After adding a new Syslog server, perfom the following commands:
 
 [source,bash]
 ----
 systemctl restart rsyslog
 ----
 
-Logs will be kept on PacketFence **and** sent to your remote Syslog server.
+Logs are retained on the PacketFence server **and** a copy is sent to the remote Syslog server(s).
 
 === Monit
 
-`monit` is a utility for managing and monitoring processes, files, directories and filesystems on a Unix system. Monit conducts automatic maintenance and repair and can execute meaningful causal actions in error situations. E.g. Monit can start a process if it does not run, restart a process if it does not respond and stop a process if it uses too much resources.
+`monit` manages and monitors processes, files, directories and filesystems on a Unix system. Monit conducts automatic maintenance and repair, and can execute meaningful causal-actions in error situations. E.g. Monit can start a process if it stops running, restart a process if it does not respond and stop a process if it uses too much resources.
 
 For further reference the monit documentation is available at: https://mmonit.com/monit/documentation/monit.html
 
 The monit configuration path is different between EL and Debian systems:
 
-* [filename]`MONIT_PATH=/etc/monit.d` for EL-based systems
-* [filename]`MONIT_PATH=/etc/monit/conf.d` for Debian-based systems
+EL based systems:
 
-To simplify further documentation, we will use `$MONIT_PATH` variable as a reference to these paths.
+* [filename]`MONIT_PATH=/etc/monit.d`
 
-Starting from PacketFence 11.1, the Monit configuration is directly managed by PacketFence. 
+Debian based systems:
 
-In order to enable Monit on your system, go in 'System Configuration->Main Configuration->Monit'. From there, you should configure the following settings:
+* [filename]`MONIT_PATH=/etc/monit/conf.d`
+
+To simplify further documentation, `$MONIT_PATH` will be used as a reference to these paths herein.
+
+Starting from PacketFence 11.1, the Monit configuration is directly managed by PacketFence.
+
+To enable Monit, configure the following settings in _Configuration -> System Configuration -> Main Configuration -> Monit_:
 [options="compact"]
-* Set the 'Status' to 'enabled'
-* Set the email addresses you wish to send the alerts to in 'Alert Email To'. If left empty, it will default to the email addresses defined in the 'Alerting' section
-* Select the configurations you want monit to use. The defaults should be fine unless your deployment uses port-security enforcement or is an active/passive cluster
+* Status: enabled
+* Alert Email To: The email address(es) to send the alerts. If left empty, the default email addresses defined in _Configuration -> System Configuration -> Main Configuration -> Alerting_ will be used.
+* Configuration: Enter the configurations for monit to use. If left empty, the defaults should be fine unless port-security enforcement or active/passive cluster is used.
+* Mailserver: Specify the mailserver to use. This can only be used for unauthenticated relaying. If using localhost, ensure postfix is installed and properly configured. If left empty, the SMTP server settings in _Configuration -> System Configuration -> Main Configuration -> Alerting_ are used. Note that monit doesn't support StartTLS so 'none' or 'ssl' must be configured for SMTP encryption in the alerting configuration. If StartTLS is required, configure postfix for relaying and use 'localhost' as the Mailserver in the monit configuration.
 
-For the mailserver:
-[options="compact"]
-* You can specify a mailserver to use in the Monit configuration section. This can only be used for unauthenticated relaying. If using localhost, make sure you have postfix installed and properly configured on your server.
-* If you do not specify a mailserver in the Monit section, you will want to make sure that the SMTP server settings in the 'Alerting' section are set properly as they will be used to generate the SMTP configuration of monit. Note that monit doesn't support STARTTLS so make sure you use 'none' or 'ssl' as your SMTP encryption in the 'Alerting' section. If you must use STARTLS, configure postfix on your local server for relaying and use 'localhost' in the mailserver configuration in the Monit section. 
+Restart the monit service:
 
-Once done, restart the monit service using:
-
-  systemctl restart monit
+[source,bash]
+----
+systemctl restart monit
+----
 
 ==== Monitoring scripts
 
-Included with the monit configuration is a set of digitally signed scripts that are fetched from http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and runned on a regular interval in order to make sure that your environment follows the best practices defined by Inverse and to alert you of any important change you may need to perform.
+Digitally signed scripts are included in the monit configuration which are fetched from http://inverse.ca/downloads/PacketFence/monitoring-scripts/v1/. These scripts will be updated and run at regular intervals to ensure the environment follows the best practices defined by Inverse and to email alerts of any important changes that may need to be performed.
 
-You can run them manually for troubleshooting purposes using:
+Run manually to help with troubleshooting:
 
-  /usr/local/pf/addons/monit/monitoring-scripts/update.sh
-  /usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
+[source,bash]
+----
+/usr/local/pf/addons/monit/monitoring-scripts/update.sh
+/usr/local/pf/addons/monit/monitoring-scripts/run-all.sh
+----
 
 ===== Ignoring some checks
 
-Should you want to ignore one of the check that is being performed, add its script name in `$MONIT_PATH/packetfence/local-ignores`.
+To ignore one of the checks that are being performed, add its script name in [filename]`$MONIT_PATH/packetfence/local-ignores`.
 
-For example, if you would want to ignore the script that generated the following output
+For example, to ignore the script that generated the following output add [filename]`/usr/local/pf/var/monitoring-scripts/.check-epel.sh` to [filename]`$MONIT_PATH/packetfence/local-ignores`:
+----
+------------------------------------------
+/usr/local/pf/var/monitoring-scripts/.check-epel.sh failed
+Result of /usr/local/pf/var/monitoring-scripts/.check-epel.sh
+The EPEL repository is enabled. This can cause disastrous issues by having the wrong versions of certain packages installed. It is recommended to disable it using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g' /etc/yum.repos.d/epel.repo
+------------------------------------------
+----
 
-  ------------------------------------------
-  /usr/local/pf/var/monitoring-scripts/.check-epel.sh failed
-  Result of /usr/local/pf/var/monitoring-scripts/.check-epel.sh
-  The EPEL repository is enabled. This can cause disastrous issues by having the wrong versions of certain packages installed. It is recommended to disable it using the following command: sed -i 's/enabled\s*=\s*1/enabled = 0/g' /etc/yum.repos.d/epel.repo
-  ------------------------------------------
-
-You would add `/usr/local/pf/var/monitoring-scripts/.check-epel.sh` to the local-ignores file
 
 ===== Run some checks as root
 
-Some scripts need to run as root but are disabled by default. If you want to
-run these checks, you need to add following content in
-[filename]`$MONIT_PATH/packetfence/local-vars`:
+Some scripts need to run as root but are disabled by default. To run these checks add the following in [filename]`$MONIT_PATH/packetfence/local-vars`:
 
+[source,bash]
 ----
 export RUN_ROOT_SCRIPTS=1
 ----
 
 ==== Monit Summary
 
-View the monit summary to ensure all services are status `Running`, `Accessible`, or `Status ok`. Address any services that display any other failed status. Monit will display the services in the same order that they are processed. If the summary appears stuck, troubleshoot the next service in the list.
+View the monit summary and ensure all services show status `Running`, `Accessible`, or `Status ok`. Any services that display a failed status will need to be investigated. Monit will process and display the services in the same order that they are listed. If the summary appears stuck, troubleshoot the next service in the list.
 
 [source,bash]
 ----
