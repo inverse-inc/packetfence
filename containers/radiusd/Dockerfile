@@ -53,7 +53,7 @@ COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 RUN apt-get -qq -y remove freeradius-common
 
 RUN apt-get -qq update \
-    && apt-get -qq install -y /tmp/*.deb \
+    && dpkg --force-all -i /tmp/*.deb \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb \
     \
