@@ -51,9 +51,11 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
 RUN apt-get -qq -y remove freeradius-common
+RUN apt-get -qq -y remove libfreeradius3
+RUN apt-get -qq -y remove freeradius-perl-util
 
 RUN apt-get -qq update \
-    && dpkg --force-all -i /tmp/*.deb \
+    && apt-get -qq install -y /tmp/*.deb \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb \
     \
