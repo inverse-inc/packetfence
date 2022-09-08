@@ -214,6 +214,13 @@ upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 hook_if_exists do-upgrade-post-package-upgrade.sh
 
+if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
+  main_splitter
+  UPGRADING_FROM=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade | egrep -o '^[0-9]+\.[0-9]+'`
+  echo "Upgrade to a devel package detected. Upgrading from $UPGRADING_FROM to $UPGRADE_TO. Renaming DB upgrade schema accordingly"
+  cp /usr/local/pf/db/upgrade-X.X-X.Y.sql /usr/local/pf/db/upgrade-$UPGRADING_FROM-$UPGRADE_TO.sql
+fi
+
 UPGRADE_CLUSTER_SECONDARY="${UPGRADE_CLUSTER_SECONDARY:-}"
 # Do not upgrade the database when upgrading secondary nodes of a cluster (the primary will sync its data to them)
 if [ "$UPGRADE_CLUSTER_SECONDARY" != "yes" ]; then
