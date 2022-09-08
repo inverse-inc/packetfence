@@ -335,10 +335,13 @@ variables:
     - make -C html/pfappserver/root/ vendor
     - make -C html/pfappserver/root/ light-dist
     - make html
+    - make pdf
   artifacts:
     expire_in: 1 day
     paths:
       - docs/*.html
+      - docs/*.pdf
+      - docs/images/*
   tags:
     - docker
 
