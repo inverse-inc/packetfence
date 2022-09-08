@@ -25,6 +25,29 @@ endif::[]
  * 'Management node/server': The first server of a PacketFence cluster as defined in `/usr/local/pf/conf/cluster.conf`.
  * 'Node': In the context of this document, a node is a member of the cluster while in other PacketFence documents it may represent an endpoint.
 
+=== Database via ProxySQL or haproxy-db
+
+In PacketFence 12.0, proxysql became the default way for PacketFence services to obtain their connection to a database member. ProxySQL has the ability to split reads and writes to different members which offers greater performance and scalability.
+
+If you suspect that using ProxySQL causes issues in your deployment, you can revert back to using haproxy-db by changing `database.port` in `conf/pf.conf` to `3306`. 
+
+Once that is changed on one of your cluster members, propagate your change using:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/cluster/sync --as-master
+----
+
+And restart PacketFence on all your cluster members:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+Additionally, you could change pfconfig's configuration to use haproxy-db as well although its usage of the database is extremelly light. Still, if you want to change it for pfconfig, edit `conf/pconfig.conf` and change `mysql.port` to `3306`. After doing this change, restart pfconfig using `systemctl restart packetfence-config`. Note that this change must be done on all cluster members.
+
 === IP addresses in a cluster environment
 
 ==== DHCP and DNS services
