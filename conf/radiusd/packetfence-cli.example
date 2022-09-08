@@ -116,6 +116,7 @@ authorize {
 	#  get a chance to set Auth-Type for themselves.
 	#
 	#pap
+	packetfence-base64-password
 	rest-cli
 	if (updated || ok || noop) {
 		update {

@@ -75,6 +75,7 @@ use pf::Redis;
 use pf::constants::eap_type qw($EAP_TLS $MS_EAP_AUTHENTICATION $EAP_PSK);
 use pf::person;
 use pf::factory::mfa;
+use MIME::Base64;
 
 our $VERSION = 1.03;
 
@@ -791,6 +792,9 @@ sub switch_access {
     my $connection_type = $connection->attributesToBackwardCompatible;
     my $connection_sub_type = $connection->subType;
     my $password = $radius_request->{'User-Password'};
+    if (exists($radius_request->{'PacketFence-UserPassword'})) {
+        $password = decode_base64($radius_request->{'PacketFence-UserPassword'});
+    }
     my $otp;
 
     # is switch object correct?
