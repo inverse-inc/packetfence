@@ -878,6 +878,13 @@ build_artifacts_doc_devel_and_branches:
     - .build_artifacts_doc_job
     - .build_artifacts_doc_devel_and_branches_rules
 
+# build_artifacts_doc jobs for release
+build_artifacts_doc_release:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+  extends:
+    - .build_artifacts_doc_job
+    - .release_only_rules
+
 ########################################
 # SIGN JOBS
 ########################################
