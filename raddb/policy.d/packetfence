@@ -254,3 +254,12 @@ packetfence-degraded-auth {
         }
     }
 }
+
+packetfence-base64-password {
+    if (&User-Password) {
+        update {
+            request:PacketFence-UserPassword := "%{base64: %{User-Password}}"
+        }
+    }
+}
+
