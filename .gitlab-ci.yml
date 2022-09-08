@@ -346,7 +346,7 @@ variables:
     paths:
       - results/*
   tags:
-    - venom-runner 
+    - test-shell
 
 .deploy_deb_job:
   stage: deploy
