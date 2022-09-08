@@ -172,6 +172,18 @@ The commands above will make sure that nodes A and B will not be forwarding requ
 From that moment node C is in standalone for its database. We can proceed to update the packages, configuration and database schema
 In order to do so, <<PacketFence_Installation_Guide.asciidoc#_automation_of_upgrades,apply the upgrade process described here>> **on node C only**.
 
+===== Check upgrade on node C
+
+Prior to migrating the service on node C, it is advised to run a checkup of your configuration to validate your upgrade. In order to do so, perform:
+
+[source,bash]
+----
+systemctl start packetfence-proxysql
+/usr/local/pf/bin/pfcmd checkup
+----
+
+Review the checkup output to ensure no errors are shown. Any 'FATAL' error will prevent PacketFence from starting up and should be dealt with immediately.
+
 ===== Stop services on nodes A and B
 
 Next, stop all application services on node A and B:
