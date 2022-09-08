@@ -34,7 +34,7 @@ import (
 	"os"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
-	"github.com/inverse-inc/certmagic"
+	"github.com/julsemaan/certmagic"
 	"github.com/russross/blackfriday"
 )
 

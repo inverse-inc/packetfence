@@ -34,7 +34,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyfile"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/inverse-inc/certmagic"
+	"github.com/julsemaan/certmagic"
 	"github.com/klauspost/cpuid"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 
