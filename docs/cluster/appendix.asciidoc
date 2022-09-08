@@ -124,7 +124,7 @@ PacketFence application services on it:
 
 IMPORTANT: `packetfence-config` should stay started in order to run `/usr/local/pf/bin/cluster/node` commands.
   
-Next, you can upgrade your operating system and/or PacketFence on node C.
+In the next following steps, you will be upgrading PacketFence on node C.
 
 ===== Detach node C from the cluster
 
