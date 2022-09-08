@@ -1862,7 +1862,7 @@ notify about next certificates expirations for certificates without emails.
 
 PacketFence previously used haproxy (via the haproxy-db service) to load balance and failover database connections from the PacketFence services to the database servers. This is now performed by ProxySQL which allows for splitting reads and writes to different members which offers greater performance and scalability.
 
-If you suspect that using ProxySQL causes issues in your deployment, you can revert back to using haproxy-db by following <<PacketFence_Clustering_Guide.asciidoc#TODO NQB HELP :D,these instructions>>
+If you suspect that using ProxySQL causes issues in your deployment, you can revert back to using haproxy-db by following <<PacketFence_Clustering_Guide.asciidoc#_database_via_proxysql_or_haproxy_db,these instructions>>
 
 === Bandwidth accounting is now disabled by default.
 
