@@ -183,7 +183,7 @@ our @SyslogInfo = (
     {
         'description' => 'ProxySQL log',
         'name'       => 'proxysql.log',
-         'conditions' => [ '$programname == "proxysql"' ]
+         'conditions' => [ '$programname == "proxysql-docker-wrapper"' ]
     },
     {
         'description' => 'haproxy portal log',
