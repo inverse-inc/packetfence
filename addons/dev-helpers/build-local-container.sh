@@ -14,24 +14,8 @@ if ! [ -f $dockerfile ]; then
 
   sub_splitter
 
-  # find all directories with Dockerfile
-  # excluding non necessary images
-  DOCKERFILE_DIRS=$(find containers/ -type f -name "Dockerfile" \
-                         -not -path "*/pfdebian/*" \
-                         -not -path "*/radiusd/*" \
-                         -not -path "*/pfconnector-*/*" \
-                         -printf "%P\n")
+  output_all_container_images
 
-  for file in ${DOCKERFILE_DIRS}; do
-    # remove /Dockerfile suffix
-    CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
-  done
-  
-  echo "The following images can be built using this tool:"
-  for img in ${CONTAINERS_IMAGES}; do
-    echo "- $img"
-  done
-  
   exit 1
 fi
 

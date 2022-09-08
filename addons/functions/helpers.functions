@@ -83,3 +83,22 @@ function handle_devel_upgrade() {
     cp /usr/local/pf/db/upgrade-X.X-X.Y.sql /usr/local/pf/db/upgrade-$UPGRADING_FROM-$UPGRADE_TO.sql
   fi
 }
+
+function output_all_container_images {
+  # find all directories with Dockerfile
+  # excluding non necessary images
+  DOCKERFILE_DIRS=$(find containers/ -type f -name "Dockerfile" \
+                         -not -path "*/pfdebian/*" \
+                         -not -path "*/radiusd/*" \
+                         -not -path "*/pfconnector-*/*" \
+                         -printf "%P\n")
+
+  for file in ${DOCKERFILE_DIRS}; do
+    # remove /Dockerfile suffix
+    CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
+  done
+  
+  for img in ${CONTAINERS_IMAGES}; do
+    echo "- $img"
+  done
+}
