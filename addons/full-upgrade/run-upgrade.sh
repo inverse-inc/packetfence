@@ -229,8 +229,10 @@ hook_if_exists do-upgrade-post-package-upgrade.sh
 
 if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
   main_splitter
-  UPGRADING_FROM=`egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade | egrep -o '^[0-9]+\.[0-9]+'`
-  echo "Upgrade to a devel package detected. Upgrading from $UPGRADING_FROM to $UPGRADE_TO. Renaming DB upgrade schema accordingly"
+  echo "Upgrade to a devel package detected. Renaming DB upgrade schema accordingly"
+  sub_splitter
+  echo -n "You need to input the PF version that comes before $UPGRADE_TO. This will replace X.X in the upgrade-X.X-X.Y.sql filename. Only input the minor version (ex: 11.2): "
+  read UPGRADING_FROM
   cp /usr/local/pf/db/upgrade-X.X-X.Y.sql /usr/local/pf/db/upgrade-$UPGRADING_FROM-$UPGRADE_TO.sql
 fi
 
