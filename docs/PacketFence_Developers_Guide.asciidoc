@@ -71,6 +71,10 @@ include::developer/packer/README.asciidoc[]
 
 include::developer/developer_recipes.asciidoc[]
 
+== Containers recipes
+
+include::developer/containers_recipes.asciidoc[]
+
 == Running tests
 
 include::developer/tests/README.asciidoc[]
