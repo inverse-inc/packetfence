@@ -22,6 +22,7 @@ pfserver_conf_dir: '{{.pfserver_root_dir}}/conf'
 pfserver_bin_dir: '{{.pfserver_root_dir}}/bin'
 pfserver_pfcmd: '{{.pfserver_bin_dir}}/pfcmd'
 pfserver_test_dir: '{{.pfserver_root_dir}}/t'
+pfserver_docker_subnet: '100.64.0.0/10'
 ini_cmd: '{{.pfserver_test_dir}}/ini_cmd.pl'
 
 # fingerbank variables
@@ -29,7 +30,7 @@ fingerbank_root_dir: '/usr/local/fingerbank/'
 fingerbank_conf_dir: '{{.fingerbank_root_dir}}/conf'
 fingerbank_upstream_db: '{{.fingerbank_root_dir}}/db/fingerbank_Upstream.db'
 fingerbank_api_mock_pidfile: '{{.pfserver_root_dir}}/var/run/fingerbank-api-mock.pid'
-fingerbank_host: '127.0.0.1'
+fingerbank_host: '100.64.0.1'
 fingerbank_port: 3000
 
 # PacketFence general settings
@@ -38,7 +39,6 @@ pfserver_api_inactivity_timeout.unit: h
 pfserver_pffilter_processes: 1
 pfserver_pfperl_api_processes: 8
 pfserver_pfqueue_workers: 8
-pfserver_haproxy_admin_server_timeout: 240s
 
 # ad variables
 ad_domain_upper: EXAMPLE
@@ -296,7 +296,7 @@ captive_portal.profiles.locales3: de_DE
 captive_portal.profiles.locales4: it_IT
 
 # URL
-captive_portal.reg.url: 'https://{{.configurator.interfaces.reg.ip}}/captive-portal'
+captive_portal.reg.url: 'https://{{.configurator.hostname}}.{{.configurator.domain}}/captive-portal'
 
 ################################################################################
 # wired_dot1x_eap_tls_manual test suite specific variables
@@ -575,6 +575,7 @@ cli_login_radius.switch.ip: 192.168.0.1
 # like the user (iastigmate) and password in the /root/register_node
 #
 inline_lx_iastigmate.password.expiration: "2031-12-01 00:00:00"
+inline_lx.pf_portal_url: "https://pf.example.lan"
 inline_l3.node.macaddress: 02:06:19:98:00:00
 inline_l3.node.ipaddress: 192.168.1.10
 inline_l3.pf_portal: 192.168.1.1
@@ -622,9 +623,9 @@ inline_l2_and_radius.profiles.unreg_on_acct_stop: disabled
 #################################################################################
 # HTTPS Firewall SSO
 firewall_sso.https.host: '{{.pfserver_mgmt_ip}}'
-firewall_sso.https.port_config: 8080
-firewall_sso.https.port_http: 8081
-firewall_sso.https.port_https: 8082
+firewall_sso.https.port_config: 8180
+firewall_sso.https.port_http: 8181
+firewall_sso.https.port_https: 8182
 firewall_sso.https.transport: http
 firewall_sso.https.password: secret
 firewall_sso.https.type: PaloAlto
@@ -634,9 +635,9 @@ smocker_dir: /opt/smocker
 
 # RADIUS Firewall SSO
 firewall_sso.radius.api_host: '{{.pfserver_mgmt_ip}}'
-firewall_sso.radius.api_port: 8083
+firewall_sso.radius.api_port: 8183
 firewall_sso.radius.radius_host: '127.0.0.1'
-firewall_sso.radius.radius_port: 8084
+firewall_sso.radius.radius_port: 8184
 firewall_sso.radius.radius_secret: secret
 firewall_sso.radius.radius_user_name: foo
 firewall_sso.radius.radius_user_password: bar

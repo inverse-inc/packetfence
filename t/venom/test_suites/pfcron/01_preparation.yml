@@ -1,0 +1,53 @@
+name: pfcron-prepare-service
+testcases:
+
+- name: prepare_mount_tmp
+  steps:
+  - type: exec
+    script: 'echo PF_MOUNT_TMP=yes >> /usr/local/pf/containers/.local_env'
+
+- name: stop_pfcron_service
+  steps:
+  - type: pf_api_service_stop
+    service: pfcron
+
+- name: setup_pfcron_and_mock_servers
+  steps:
+  - type: exec
+    script: 'cp "{{.fingerbank_upstream_db}}" "{{.fingerbank_upstream_db}}.bak"'
+
+  - type: exec
+    script: 'cp "{{.pfserver_root_dir}}/t/data/pfcron-test.conf.test" "{{.pfserver_conf_dir}}/pfcron.conf"'
+
+  - type: exec
+    script: '{{.ini_cmd}} {{.fingerbank_conf_dir}}/fingerbank.conf add upstream host {{.fingerbank_host}} upstream port {{.fingerbank_port}} upstream use_https disabled'
+
+- name: configreload
+  steps:
+  - type: pfcmd_run_command
+    command: 'configreload'
+
+- name: fingerbank_prefork
+  steps:
+  - type: exec
+    script: '{{.pfserver_test_dir}}/mock_servers/fingerbank.pl prefork -P {{.fingerbank_api_mock_pidfile}} -l "http://{{.fingerbank_host}}:{{.fingerbank_port}}" -w 1 -s 1'
+
+- name: remove_tmp_test_file
+  steps:
+  - type: file_delete
+    file: '/tmp/pfcron-test.log'
+
+- name: start_pfcron_service
+  steps:
+  - type: pf_api_service_start
+    service: pfcron
+
+- name: start_pfqueue_service
+  steps:
+  - type: pf_api_service_start
+    service: pfqueue
+
+- name: start_httpd.webservices_service
+  steps:
+  - type: pf_api_service_start
+    service: httpd.webservices

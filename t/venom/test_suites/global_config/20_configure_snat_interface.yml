@@ -8,7 +8,7 @@ testcases:
 - name: get_name_of_dhcp_listener_int
   steps:
   - type: exec
-    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}' | awk -F ': ' '{print $2;}'"
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.dhcp_listener.index}}:' | awk -F ': ' '{print $2;}'"
     vars:
       dhcp_listener_interface:
         from: result.systemout

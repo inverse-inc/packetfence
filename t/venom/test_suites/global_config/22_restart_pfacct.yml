@@ -1,0 +1,8 @@
+name: Restart pfacct service
+testcases:
+- name: restart_pfacct_service
+  steps:
+  - type: pf_api_service_restart
+    service: pfacct
+
+

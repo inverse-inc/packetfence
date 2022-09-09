@@ -87,6 +87,24 @@ testcases:
       "Authorization": "{{.get_login_token.result.token}}"
       "Content-Type": "application/json"
     assertions:
+      - result.statuscode ShouldEqual 202
+    vars:
+      task_id:
+        from: result.bodyjson.task_id
+
+  - type: http
+    method: GET
+    url: '{{.pfserver_webadmin_url}}/api/v1/pfqueue/task/{{.test_join.task_id}}/status/poll'
+    ignore_verify_ssl: true
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
       - result.statuscode ShouldEqual 200
+      - result.bodyjson.message ShouldEqual Completed
+      - result.bodyjson.progress ShouldEqual 100
       - result.bodyjson.status ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Join is OK"
+    # wait 1m30 before failing
+    retry: 2
+    delay: 30
+
