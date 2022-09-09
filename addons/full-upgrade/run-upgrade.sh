@@ -146,6 +146,9 @@ function handle_pkgnew_files() {
   # We don't want to handle dpkg-dist or rpmnew files for pfconfig here because from 11 to 12, a pfconfig.conf.defaults was introduced
   rm -f /usr/local/pf/conf/pfconfig.conf.dpkg-dist
   rm -f /usr/local/pf/conf/pfconfig.conf.rpmnew
+  # We handle this through configuration upgrade scripts
+  rm -f /usr/local/pf/conf/authentication.conf.dpkg-dist
+  rm -f /usr/local/pf/conf/authentication.conf.rpmnew
 
   if is_rpm_based; then
     suffix=".rpmnew"
