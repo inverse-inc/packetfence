@@ -269,8 +269,7 @@ include::common/new_config_files.asciidoc[]
 
 === Restart all PacketFence services
 
-Once all <<_steps,steps of upgrade procedure>> are completed, restart
-`packetfence-config` and `packetfence` services:
+Once all <<_steps,steps of upgrade procedure>> are completed, restart PacketFence services:
 
 include::common/restart.asciidoc[]
 
