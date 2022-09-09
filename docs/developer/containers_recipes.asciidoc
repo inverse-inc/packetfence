@@ -28,7 +28,7 @@ When applying a custom patch or adding debug in the code on a PacketFence 12.0+ 
 
 To know if a service runs in container mode, run `systemctl status` on the service (ex: `systemctl status packetfence-pfpki`) and check if one of the child processes contains `docker run`.
 
-After you've applied you've altered the code on the server and you're satisfied with the changes, run the following command:
+After you've altered the code on the server and you're satisfied with the changes, run the following command:
 
 [source,bash]
 ----
