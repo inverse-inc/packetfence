@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 
@@ -281,6 +282,16 @@ func parseBlock(c *caddy.Controller, f *Forward) error {
 		}
 		f.ErrLimitExceeded = errors.New("concurrent queries exceeded maximum " + c.Val())
 		f.maxConcurrent = int64(n)
+	case "network_source":
+		if !c.NextArg() {
+			return c.ArgErr()
+		}
+		_, ipNet, err := net.ParseCIDR(c.Val())
+		if err != nil {
+			return c.Err("Unable to parse network_source configuration parameter")
+		}
+
+		f.sourceNetwork = *ipNet
 
 	default:
 		return c.Errf("unknown property '%s'", c.Val())

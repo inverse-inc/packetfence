@@ -8,6 +8,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"net"
 	"sync/atomic"
 	"time"
 
@@ -42,6 +43,7 @@ type Forward struct {
 	maxfails      uint32
 	expire        time.Duration
 	maxConcurrent int64
+	sourceNetwork net.IPNet
 
 	opts options // also here for testing
 
@@ -190,11 +192,15 @@ func (f *Forward) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg
 }
 
 func (f *Forward) match(state request.Request) bool {
-	if !plugin.Name(f.from).Matches(state.Name()) || !f.isAllowedDomain(state.Name()) {
+	if !plugin.Name(f.from).Matches(state.Name()) || !f.isAllowedDomain(state.Name()) || !f.isIpAllowed(net.ParseIP(state.IP())) {
 		return false
 	}
 
 	return true
+}
+
+func (f *Forward) isIpAllowed(ip net.IP) bool {
+	return len(f.sourceNetwork.IP) != len(ip) || f.sourceNetwork.Contains(ip)
 }
 
 func (f *Forward) isAllowedDomain(name string) bool {
