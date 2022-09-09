@@ -267,7 +267,7 @@ You should now sync the configuration by running the following **on nodes A and 
 
 [source,bash]
 ----
-/usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=fence
+/usr/local/pf/bin/cluster/sync --from=192.168.1.5 --api-user=packet --api-password=anotherMoreSecurePassword
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
