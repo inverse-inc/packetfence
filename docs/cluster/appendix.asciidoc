@@ -307,7 +307,7 @@ MariaDB> truncate TABLE_NAME;
 
 ===== Elect node C as database master
 
-NOTE: The steps in next sections will cause brief service interruptions
+NOTE: The steps in next sections will cause brief service disruptions
 
 Now that all the members are ready to reintegrate the cluster, run the following commands on **all cluster members**
 
