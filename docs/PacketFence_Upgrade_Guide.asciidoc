@@ -1335,19 +1335,33 @@ Now, make sure you follow the directives in the <<PacketFence_Upgrade_Guide.asci
 
 ====== Start service on node C
 
-Now, start the application service on node C using the instructions provided
-in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
-all PacketFence services section>>.
+Now, start the application service on node C using following instructions:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
 
 ====== Stop services on nodes A and B
 
 Next, stop all application services on node A and B:
 
-* See <<PacketFence_Upgrade_Guide.asciidoc#_stop_all_packetfence_services,Stop all
-PacketFence services section>>
+* Stop all PacketFence services:
++
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
 * Stop database:
-
++
 [source,bash]
 ----
 systemctl stop packetfence-mariadb
@@ -1562,17 +1576,31 @@ upgrades:
 systemctl restart packetfence-mariadb
 ----
 
-You can now safely start PacketFence on nodes A and B using the instructions
-provided in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
-all PacketFence services section>>.
+You can now safely start PacketFence on nodes A and B using following instructions:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
 
 ===== Restart node C
 
-Now, you should restart PacketFence on node C using the instructions provided
-in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
-all PacketFence services section>>.  So it becomes aware of its peers again.
+Now, you should restart PacketFence on node C using following instructions:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd fixpermissions
+/usr/local/pf/bin/pfcmd pfconfig clear_backend
+systemctl restart packetfence-config
+/usr/local/pf/bin/pfcmd configreload hard
+/usr/local/pf/bin/pfcmd service pf restart
+----
+
+So it becomes aware of its peers again.
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
