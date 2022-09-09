@@ -59,3 +59,15 @@ function is_deb_based() {
 function is_enabled() {
   [ "$1" = "yes" ] || [ "$1" = "enabled" ]
 }
+
+function configreload() {
+  /usr/local/pf/bin/pfcmd configreload hard && return 0
+
+  # This was found to be necessary in some cases where the first configreload would fail.
+  # If the reload did succeed, then it will just ignore this and continue
+  echo "Failed to configreload once. Will wait a few seconds and try again"
+  sleep 10
+  /usr/local/pf/bin/pfcmd configreload hard
+
+  return $?
+}
