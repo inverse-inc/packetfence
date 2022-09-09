@@ -29,11 +29,10 @@
       when: "'packetfence-test' in ansible_facts.packages"
 
   roles:
+    - role: apt_preferences
+
     - role: inverse_inc.gitlab_buildpkg_tools
       tags: ci
-
-    - role: apt_preferences
-      when: ansible_os_family == 'Debian'
 
 - name: Configure Wireless Linux
   hosts: wireless
