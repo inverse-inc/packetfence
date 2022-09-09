@@ -214,14 +214,7 @@ upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 hook_if_exists do-upgrade-post-package-upgrade.sh
 
-if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
-  main_splitter
-  echo "Upgrade to a devel package detected. Renaming DB upgrade schema accordingly"
-  sub_splitter
-  echo -n "You need to input the PF version that comes before $UPGRADE_TO. This will replace X.X in the upgrade-X.X-X.Y.sql filename. Only input the minor version (ex: 11.2): "
-  read UPGRADING_FROM
-  cp /usr/local/pf/db/upgrade-X.X-X.Y.sql /usr/local/pf/db/upgrade-$UPGRADING_FROM-$UPGRADE_TO.sql
-fi
+handle_devel_upgrade
 
 UPGRADE_CLUSTER_SECONDARY="${UPGRADE_CLUSTER_SECONDARY:-}"
 # Do not upgrade the database when upgrading secondary nodes of a cluster (the primary will sync its data to them)

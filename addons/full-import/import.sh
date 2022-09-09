@@ -67,6 +67,8 @@ else
   exit 1
 fi
 
+handle_devel_upgrade
+
 #TODO: check the version of the export, we want to support only 10.3.0 and above
 #TODO: check if galera is enabled and stop if its the case
 

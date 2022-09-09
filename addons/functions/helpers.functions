@@ -71,3 +71,14 @@ function configreload() {
 
   return $?
 }
+
+function handle_devel_upgrade() {
+  if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
+    main_splitter
+    echo "Upgrade to a devel package detected. Renaming DB upgrade schema accordingly"
+    sub_splitter
+    echo -n "You need to input the PF version that comes before $UPGRADE_TO. This will replace X.X in the upgrade-X.X-X.Y.sql filename. Only input the minor version (ex: 11.2): "
+    read UPGRADING_FROM
+    cp /usr/local/pf/db/upgrade-X.X-X.Y.sql /usr/local/pf/db/upgrade-$UPGRADING_FROM-$UPGRADE_TO.sql
+  fi
+}
