@@ -20,7 +20,6 @@ import (
 	_ "github.com/coredns/coredns/plugin/erratic"
 	_ "github.com/coredns/coredns/plugin/errors"
 	_ "github.com/coredns/coredns/plugin/file"
-	_ "github.com/coredns/coredns/plugin/forward"
 	_ "github.com/coredns/coredns/plugin/geoip"
 	_ "github.com/coredns/coredns/plugin/grpc"
 	_ "github.com/coredns/coredns/plugin/header"
@@ -50,5 +49,7 @@ import (
 	_ "github.com/coredns/coredns/plugin/transfer"
 	_ "github.com/coredns/coredns/plugin/tsig"
 	_ "github.com/coredns/coredns/plugin/whoami"
+
 	_ "github.com/inverse-inc/packetfence/go/plugin/coredns/pfdns"
+	_ "github.com/inverse-inc/packetfence/go/plugin/coredns/forward"
 )
