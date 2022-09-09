@@ -73,6 +73,7 @@ function configreload() {
 }
 
 function handle_devel_upgrade() {
+  UPGRADE_TO="$1"
   if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
     main_splitter
     echo "Upgrade to a devel package detected. Renaming DB upgrade schema accordingly"

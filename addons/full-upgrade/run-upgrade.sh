@@ -214,7 +214,7 @@ upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 hook_if_exists do-upgrade-post-package-upgrade.sh
 
-handle_devel_upgrade
+handle_devel_upgrade $UPGRADE_TO
 
 UPGRADE_CLUSTER_SECONDARY="${UPGRADE_CLUSTER_SECONDARY:-}"
 # Do not upgrade the database when upgrading secondary nodes of a cluster (the primary will sync its data to them)
