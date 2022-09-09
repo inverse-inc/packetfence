@@ -447,7 +447,7 @@ extract the value from TLS-Client-Cert-Common-Name before the @ sign and assign 
 
 === VLAN Filters
 
-Filters can be defined directly in the portion of code that re-evaluates the VLAN or performs API calls      when a RADIUS request is received. These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
+Filters can be defined directly in the portion of code that re-evaluates the VLAN or performs API calls when a RADIUS request is received. These filters can be defined in _Configuration -> Advanced Access Configuration -> Filter engines_.
 
 These rules are available in different scopes:
 
@@ -613,13 +613,11 @@ The filter will be combined and generated as:
 
 If the "Search Attributes" feature is not required, this will still store the users' DN in the PacketFence-UserDN attribute.
 
-
 ==== basedn condition
 
 This condition overrides the default `basedn` in the LDAP source and will test if an object is in a specific OU.
 
 === Advanced Realm Configuration
-
 
 Multiple realms can be defined to select which domain is used to authenticate users.
 
