@@ -51,6 +51,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Full UTF-8 support in the PacketFence database
 * Added MySQL compatibility
 * Added CSV import to switch groups
+* Simplify cluster upgrades (#7180)
 
 === Bug Fixes
 
