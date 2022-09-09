@@ -96,6 +96,7 @@ ALTER TABLE locationlog_history
    DROP IF EXISTS tenant_id;
 
 ALTER TABLE password
+   DROP CONSTRAINT IF EXISTS `password_tenant_id`,
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
    DROP IF EXISTS tenant_id;
