@@ -35,13 +35,11 @@ import (
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/staticfiles"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddytls"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/telemetry"
-	"github.com/lucas-clemente/quic-go/h2quic"
 )
 
 // Server is the HTTP server implementation.
 type Server struct {
 	Server      *http.Server
-	quicServer  *h2quic.Server
 	sites       []*SiteConfig
 	connTimeout time.Duration // max time to wait for a connection before force stop
 	tlsGovChan  chan struct{} // close to stop the TLS maintenance goroutine
@@ -104,7 +102,6 @@ func NewServer(addr string, group []*SiteConfig) (*Server, error) {
 	if s.Server.TLSConfig != nil {
 		// enable QUIC if desired (requires HTTP/2)
 		if HTTP2 && QUIC {
-			s.quicServer = &h2quic.Server{Server: s.Server}
 			s.Server.Handler = s.wrapWithSvcHeaders(s.Server.Handler)
 		}
 
@@ -234,9 +231,6 @@ func makeHTTPServerWithTimeouts(addr string, group []*SiteConfig) *http.Server {
 
 func (s *Server) wrapWithSvcHeaders(previousHandler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := s.quicServer.SetQuicHeaders(w.Header()); err != nil {
-			log.Println("[Error] failed to set proper headers for QUIC: ", err)
-		}
 		previousHandler.ServeHTTP(w, r)
 	}
 }
@@ -324,14 +318,6 @@ func (s *Server) Serve(ln net.Listener) error {
 		s.tlsGovChan = caddytls.RotateSessionTicketKeys(s.Server.TLSConfig)
 	}
 
-	defer func() {
-		if s.quicServer != nil {
-			if err := s.quicServer.Close(); err != nil {
-				log.Println("[ERROR] failed to close QUIC server: ", err)
-			}
-		}
-	}()
-
 	err := s.Server.Serve(ln)
 	if err != nil && err != http.ErrServerClosed {
 		return err
@@ -341,10 +327,6 @@ func (s *Server) Serve(ln net.Listener) error {
 
 // ServePacket serves QUIC requests on pc until it is closed.
 func (s *Server) ServePacket(pc net.PacketConn) error {
-	if s.quicServer != nil {
-		err := s.quicServer.Serve(pc.(*net.UDPConn))
-		return fmt.Errorf("serving QUIC connections: %v", err)
-	}
 	return nil
 }
 
