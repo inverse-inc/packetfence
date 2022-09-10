@@ -42,8 +42,6 @@ import (
 	"golang.org/x/net/http2"
 
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/lucas-clemente/quic-go"
-	"github.com/lucas-clemente/quic-go/h2quic"
 )
 
 var (
@@ -254,12 +252,6 @@ func NewSingleHostReverseProxy(target *url.URL, without string, keepalive int, t
 			Dial: socketDial(target.String(), timeout),
 		}
 	} else if target.Scheme == "quic" {
-		rp.Transport = &h2quic.RoundTripper{
-			QuicConfig: &quic.Config{
-				HandshakeTimeout: defaultCryptoHandshakeTimeout,
-				KeepAlive:        true,
-			},
-		}
 	} else if keepalive != http.DefaultMaxIdleConnsPerHost || strings.HasPrefix(target.Scheme, "srv") {
 		dialFunc := rp.dialer.Dial
 		if strings.HasPrefix(target.Scheme, "srv") {
@@ -311,11 +303,6 @@ func (rp *ReverseProxy) UseInsecureTransport() {
 		// No http2.ConfigureTransport() here.
 		// For now this is only added in places where
 		// an http.Transport is actually created.
-	} else if transport, ok := rp.Transport.(*h2quic.RoundTripper); ok {
-		if transport.TLSClientConfig == nil {
-			transport.TLSClientConfig = &tls.Config{}
-		}
-		transport.TLSClientConfig.InsecureSkipVerify = true
 	}
 }
 
@@ -330,11 +317,6 @@ func (rp *ReverseProxy) UseOwnCACertificates(CaCertPool *x509.CertPool) {
 		// No http2.ConfigureTransport() here.
 		// For now this is only added in places where
 		// an http.Transport is actually created.
-	} else if transport, ok := rp.Transport.(*h2quic.RoundTripper); ok {
-		if transport.TLSClientConfig == nil {
-			transport.TLSClientConfig = &tls.Config{}
-		}
-		transport.TLSClientConfig.RootCAs = CaCertPool
 	}
 }
 
