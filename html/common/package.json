@@ -16,6 +16,7 @@
     "inuitcss": "^6.0.0",
     "node-sass": "^4.12.0",
     "postcss": "^7.0.18",
+    "caniuse-lite": "1.0.30001393",
     "time-grunt": "^2.0.0"
   },
   "browserslist": [
