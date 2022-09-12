@@ -9,12 +9,15 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
+	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/go-utils/statsd"
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/julienschmidt/httprouter"
@@ -22,10 +25,8 @@ import (
 
 // Register the plugin in caddy
 func init() {
-	caddy.RegisterPlugin("api-aaa", caddy.Plugin{
-		ServerType: "http",
-		Action:     setup,
-	})
+	caddy.RegisterModule(ApiAAAHandler{})
+	httpcaddyfile.RegisterHandlerDirective("api-aaa", parseCaddyfile)
 }
 
 type PrettyTokenInfo struct {
@@ -36,7 +37,6 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
-	Next               httpserver.Handler
 	router             *httprouter.Router
 	systemBackend      *aaa.MemAuthenticationBackend
 	webservicesBackend *aaa.MemAuthenticationBackend
@@ -47,14 +47,14 @@ type ApiAAAHandler struct {
 
 // Setup the api-aaa middleware
 // Also loads the pfconfig resources and registers them in the pool
-func setup(c *caddy.Controller) error {
+func (h *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	ctx := log.LoggerNewContext(context.Background())
 
 	noAuthPaths := map[string]bool{}
 	tokenBackendArgs := []string{}
 	var err error
 	for c.Next() {
-		for c.NextBlock() {
+		for c.NextBlock(0) {
 			switch c.Val() {
 			case "no_auth":
 				args := c.RemainingArgs()
@@ -90,11 +90,6 @@ func setup(c *caddy.Controller) error {
 	if err != nil {
 		return err
 	}
-
-	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
-		apiAAA.Next = next
-		return apiAAA
-	})
 
 	return nil
 }
@@ -328,7 +323,7 @@ func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {
 	}
 }
 
-func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
+func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 
 	// Reload the webservices user info
@@ -349,18 +344,45 @@ func (h ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, e
 		handle(w, r, params)
 
 		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
+		return nil
 	} else {
 		_, noauth := h.noAuthPaths[r.URL.Path]
 		if noauth || h.HandleAAA(w, r) {
-			code, err := h.Next.ServeHTTP(w, r)
-
-			return code, err
-
+			return next.ServeHTTP(w, r)
 		} else {
 			// TODO change me and wrap actions into something that handles server errors
-			return 0, nil
+			return nil
 		}
 	}
 
 }
+
+func (h *ApiAAAHandler) Validate() error {
+    return nil
+}
+
+func (h *ApiAAAHandler) Provision(ctx caddy.Context) error {
+    return nil
+}
+
+func (h ApiAAAHandler) CaddyModule() caddy.ModuleInfo {
+    return caddy.ModuleInfo {
+        ID: "http.handlers.api-aaa",
+        New: func() caddy.Module { return &ApiAAAHandler{} },
+    }
+}
+
+// parseCaddyfile unmarshals tokens from h into a new Middleware.
+func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
+	var m ApiAAAHandler
+	err := m.UnmarshalCaddyfile(h.Dispenser)
+	return &m, err
+}
+
+// Interface guards
+var (
+	_ caddy.Provisioner           = (*ApiAAAHandler)(nil)
+	_ caddy.Validator             = (*ApiAAAHandler)(nil)
+	_ caddyhttp.MiddlewareHandler = (*ApiAAAHandler)(nil)
+	_ caddyfile.Unmarshaler       = (*ApiAAAHandler)(nil)
+)

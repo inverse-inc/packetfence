@@ -44,7 +44,6 @@ import (
 	//PACKETFENCE
 	pflog "github.com/inverse-inc/go-utils/log"
 	_ "github.com/inverse-inc/packetfence/go/caddy/api"
-	_ "github.com/inverse-inc/packetfence/go/caddy/api-aaa"
 	_ "github.com/inverse-inc/packetfence/go/caddy/cors"
 	_ "github.com/inverse-inc/packetfence/go/caddy/forwardproxy"
 	_ "github.com/inverse-inc/packetfence/go/caddy/httpdispatcher"

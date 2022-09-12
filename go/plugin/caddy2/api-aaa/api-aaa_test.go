@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -18,6 +19,7 @@ import (
 
 var ctx = log.LoggerNewContext(context.Background())
 var apiAAA, err = buildApiAAAHandler(ctx, []string{})
+var dummyHandler = caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error { return nil })
 
 func TestApiAAALogin(t *testing.T) {
 	req, _ := http.NewRequest(
@@ -127,7 +129,7 @@ func TestApiAAAContentType(t *testing.T) {
 	)
 
 	recorder := httptest.NewRecorder()
-	apiAAA.ServeHTTP(recorder, req)
+	apiAAA.ServeHTTP(recorder, req, dummyHandler)
 
 	if recorder.Header().Get("Content-Type") != "application/json" {
 		t.Error("Wrong Content-Type for the request")
