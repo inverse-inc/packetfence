@@ -370,7 +370,7 @@ d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
                           tmux tcpdump lnav apg sysstat bsd-mailx \
-                          packetfence
+                          cgroupfs-mount
 
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
@@ -484,6 +484,9 @@ d-i preseed/early_command string sed -i \
 # Set the Inverse repo in the official location
 # Reset the MariaDB root password to empty since this install process prevents perl::DBI from connecting without a password on the local UNIX socket
 d-i preseed/late_command string \
+  mount --bind /proc /target/proc ; \
+  mount --bind /sys /target/sys ; \
+  apt-install packetfence ; \
   sed -i '/^deb cdrom:/s/^/#/' /target/etc/apt/sources.list ; \
   sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config ; \
   sed -i 's/.*inverse\.ca.*//g' /target/etc/apt/sources.list ; \
