@@ -11,7 +11,7 @@ include::includes/global-attributes.asciidoc[]
 
 == About this Guide
 
-This guide has been created to give a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalived for advanced features.
+This guide gives a quick start to install active/active clustering in PacketFence 7+. This guide does not include advanced troubleshooting of the active/active clustering. Refer to the documentation of HAProxy and Keepalived for advanced features.
 
 The latest version of this guide is available at https://packetfence.org/documentation/
 
@@ -22,11 +22,12 @@ The latest version of this guide is available at https://packetfence.org/documen
 <<PacketFence_Installation_Guide.asciidoc#,Installation Guide>>::
   Covers installation and configuration of PacketFence.
 <<PacketFence_Network_Devices_Configuration_Guide.asciidoc#,Network Devices Configuration Guide>>::
-  Covers switches, WiFi controllers and access points configuration.
+  Covers switches, WiFi controllers and access point configuration.
 <<PacketFence_Upgrade_Guide.asciidoc#,Upgrade Guide>>::
-  Covers compatibility related changes, manual instructions and general notes about upgrading.
-link:https://packetfence.org/news.html[PacketFence News]
+  Covers compatibility changes, manual instructions and general upgrade notes.
+https://packetfence.org/news.html[PacketFence News]::
   Covers noteworthy features, improvements and bug fixes by release.
+
 
 These files are included in the package and release tarballs.
 
