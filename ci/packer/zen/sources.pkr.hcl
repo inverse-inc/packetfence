@@ -1,7 +1,7 @@
 # VirtualBox builds
 source "virtualbox-iso" "debian-11" {
   vm_name = "${var.vm_name}"
-  disk_size = "100000"
+  disk_size = "200000"
   guest_os_type = "Debian_64"
   hard_drive_interface = "scsi"
   headless = "true"
