@@ -152,7 +152,14 @@ case "$1" in
         echo "Restarting rsyslog"
         systemctl restart rsyslog
 
-        systemctl restart docker
+        # check if we are inside our ISO installer (chroot environment)
+        if [ -f /media/cdrom/postinst-debian-installer.sh ]; then
+            echo "Debian installer detected, launching Docker manually"
+            /usr/local/pf/containers/run-docker-in-debian-installer.sh
+        else
+            systemctl restart docker
+        fi
+
         # get containers image and tag them locally
         /usr/local/pf/containers/manage-images.sh
 
