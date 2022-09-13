@@ -1,12 +1,25 @@
 #!/bin/bash
 
+set -o nounset -o pipefail -o errexit
+
 source /usr/local/pf/addons/functions/helpers.functions
 
 cd /usr/local/pf/
 
 main_splitter
 
-name="$1"
+name="${1:-}"
+if [ -z "$name" ]; then
+  echo "Unspecified container name"
+  
+  sub_splitter
+
+  echo "The following images can be used with this tool:"
+  output_all_container_images
+
+  exit 1
+fi
+
 dockerfile=containers/$name/Dockerfile
 
 if ! [ -f $dockerfile ]; then
@@ -19,8 +32,6 @@ if ! [ -f $dockerfile ]; then
 
   exit 1
 fi
-
-set -o nounset -o pipefail -o errexit
 
 source /usr/local/pf/conf/build_id
 
