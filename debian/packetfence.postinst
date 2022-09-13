@@ -156,6 +156,9 @@ case "$1" in
         if [ -f /media/cdrom/postinst-debian-installer.sh ]; then
             echo "Debian installer detected, launching Docker manually"
             /usr/local/pf/containers/run-docker-in-debian-installer.sh
+
+            # remove file in advance to timeout more quickly
+            rm -f $PACKETFENCE/var/run/pkg_install_in_progress
         else
             systemctl restart docker
         fi
