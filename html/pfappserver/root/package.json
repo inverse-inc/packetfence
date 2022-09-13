@@ -56,7 +56,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-vue": "^8.7.1",
-    "node-sass": "^7.0.1",
+    "node-sass": "^7.0.3",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.14",
     "sass-loader": "^12.6.0",
