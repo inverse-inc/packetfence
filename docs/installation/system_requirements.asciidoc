@@ -39,7 +39,7 @@ The following provides a list of the minimum server hardware recommendations:
 
 [options="compact"]
 * Intel or AMD CPU 3 GHz, 4 CPU cores
-* 16 GB of RAM (20 GB recommended)
+* 16 GB of RAM
 * 200 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
 
