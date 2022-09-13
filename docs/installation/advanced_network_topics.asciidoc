@@ -22,13 +22,13 @@ endif::[]
 
 PacketFence supports floating network devices. A Floating network device is a device for which PacketFence has a different behavior compared to a non-floating (regular) network device. This functionality was originally added to support mobile Access Points.
 
-CAUTION: Currently only Cisco and Nortel switches configured with port-sercurity are supported.
+CAUTION: Currently only Cisco and Nortel switches configured with port-security are supported.
 
 A regular device is placed in the VLAN corresponding to its status (Registration, Isolation or Production VLAN) and is authorized on the port (port-security). This is not managed the same way as a floating network device.
 
 When a floating network device is connected, PacketFence will let/allow all the MAC addresses are connected to this device or appear on the port. If necessary the port is configured as multi-vlan (trunk) the PVID is set and VLANs are tagged on the port.
 
-When a floating network device is disconnected, PacketFence will reconfigure the port to what is was before the device connected.
+When a floating network device is disconnected, PacketFence will reconfigure the port to what it was before the device connected.
 
 ==== How it works
 
@@ -38,7 +38,7 @@ Configuration:
 * floating network devices have to be identified using their MAC address.
 * linkup/linkdown traps are not enabled on the switches, only port-security traps are enabled.
 
-.When a port-security trap is recieved for a floating network device, the port configuration is changed with:
+.When a port-security trap is received for a floating network device, the port configuration is changed with:
 
 [options="compact"]
 * disable port-security
@@ -91,7 +91,7 @@ No DHCP Server should be listening on the interface where these requests are bei
 
 ==== Copy of the DHCP traffic
 
-To copy of all the DHCP Traffic from a dedicated physical interface of the PacketFence server run `pfdhcplistener` on the desired interface. This will properly configure the switch in order to perform port mirroring (network span) and adds the proper interface parameters to the operating system and in [filename]`/usr/local/pf/conf/pf.conf`.
+To copy all the DHCP Traffic from a dedicated physical interface of the PacketFence server run `pfdhcplistener` on the desired interface. This will properly configure the switch in order to perform port mirroring (network span) and sets the proper interface parameters to the operating system and in [filename]`/usr/local/pf/conf/pf.conf`.
 
 `/etc/sysconfig/network-scripts/ifcfg-eth2`:
 
@@ -159,7 +159,7 @@ Considering the network architecture illustrated above, [filename]`/usr/local/pf
    type=internal
    mask=255.255.255.0
 
-NOTE: PacketFence will not start unless at least one 'internal' interface is detected, thus local Registration and Isolation VLANs will need to be created even if they are not needed. The `dhcpd` daemon only listens on the 'internal' interfaces, therefore the remote Registration and Isolation subnets need to point their DHCP helper-address to those particular IP addresses.
+NOTE: PacketFence will not start unless at least one 'internal' interface is detected, thus local Registration and Isolation VLANs will need to be created even if they are not needed. The [command]`dhcpd` daemon only listens on the 'internal' interfaces, therefore the remote Registration and Isolation subnets need to point their DHCP helper-address to those particular IP addresses.
 
 Provide the routed networks to PacketFence through the GUI in _Configuration -> Network Configuration -> Networks_ or manually in [filename]`/usr/local/pf/conf/networks.conf`.
 
@@ -228,7 +228,7 @@ Restart `packetfence-keepalived` to apply the changes:
 /usr/local/pf/bin/pfcmd service keepalived restart
 ----
 
-DHCP clients on the Registration and Isolation networks receive the PacketFence server IP as their DNS server in their lease, then DNS responses are spoofed to force clients via the portal. However, clients could manually configure their DNS settings to escape the portal. To prevent this apply an ACL on the access router nearest to the clients, permitting access only to the PacketFence server and local DHCP broadcast traffic.
+DHCP clients on the Registration and Isolation networks receive the PacketFence server IP as their DNS server in their lease, then DNS responses are spoofed to force clients via the portal. However, clients could manually configure their DNS settings to escape the portal. To prevent this, apply an ACL on the access router nearest to the clients, permitting access only to the PacketFence server and local DHCP broadcast traffic.
 
 Example for VLAN 20 remote Registration network:
 
@@ -419,7 +419,7 @@ NOTE: Refer to the _Network Configuration Guide_ for switch hardware VoIP suppor
 
 If an IP phone does not support CDP or LLDP, DHCP can be used to provision the device with a voice VLAN. Some models require a specific DHCP option in order for the DHCP server to lease the device a voice VLAN ID. After rebooting the ethernet frames are tagged using the provided VLAN tag.
 
-For this scenario work, the Registration and Production DHCP servers must be configured to provide the DHCP option, there is a voice VLAN configured on the port, and IP Phones are auto-registered (On the first connection, the phone are assigned on the registration VLAN).
+For this scenario to work, the Registration and Production DHCP servers must be configured to provide the DHCP option, there is a voice VLAN configured on the port, and IP Phones are auto-registered (On the first connection, the phone is assigned on the registration VLAN).
 
 === DHCP Option 82
 

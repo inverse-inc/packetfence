@@ -34,7 +34,7 @@ In some cases, a different captive portal may be presented (see below for the av
 
 When configured, connection profiles will override default values. When no values are configured in the profile, PacketFence will use the values from the "default" connection profile.
 
-Below the different configuration parameters for each connection profiles are provided. The only mandatory parameter is "filter", otherwise, PacketFence will not be able to correctly apply the connection profile. The parameters are set in [filename]`/usr/local/pf/conf/profiles.conf`:
+Below the different configuration parameters for each connection profile are provided. The only mandatory parameter is "filter", otherwise, PacketFence will not be able to correctly apply the connection profile. The parameters are set in [filename]`/usr/local/pf/conf/profiles.conf`:
 
 ./usr/local/pf/conf/profiles.conf
 [source,ini,numbered]
@@ -45,7 +45,7 @@ filter = the name of the SSID or the VLAN to apply the profile
 sources = a comma-separated list of authentications sources (IDs) to use
 ----
 
-Connection profiles should be managed from PacketFence's Web administrative GUI - from the _Configuration -> Policies and Access Control -> Connection Profiles_ section. Adding a new connection profile will make a copy of the default templates - which can then be modified as desired.
+Connection profiles should be managed from PacketFence's Web administration GUI - from the _Configuration -> Policies and Access Control -> Connection Profiles_ section. Adding a new connection profile will make a copy of the default templates - which can then be modified as desired.
 
 * Filters under _Configuration -> Policies and Access Control -> Connection Profile -> Profile Name -> Filters_
 
@@ -303,7 +303,7 @@ Example of attributes that can be filtered:
 'last_start_time' => '2019-08-15 16:09:16'
 ----
 
-PacketFence uses Apache for its captive portal, administrative interface and Web services. The PacketFence Apache configuration is located in [filename]`/usr/local/pf/conf/httpd.conf.d/`.
+PacketFence uses Apache for its captive portal, administration interface and Web services. The PacketFence Apache configuration is located in [filename]`/usr/local/pf/conf/httpd.conf.d/`.
 
 .In this directory the following important files are used for different purposes:
 * `httpd.admin`: used to manage PacketFence admin interface
@@ -315,13 +315,13 @@ These files are dynamically generated with Perl and services are only activated 
 
 The other files in this directory are managed by PacketFence using templates, so it is easy to modify these files based on the configuration. SSL is enabled by default to secure access.
 
-During installation self-signed certificates will be created in [filename]`/usr/local/pf/conf/ssl/` (`server.key` and `server.crt`). The certificates can be replaced anytime by either a 3rd-party or existing wild card certificate without issue. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file [filename]`/usr/local/pf/conf/pf.conf`.
+During installation self-signed certificates will be created in [filename]`/usr/local/pf/conf/ssl/` (`server.key` and `server.crt`). The certificates can be replaced anytime by either a 3rd-party or existing wildcard certificate without issue. Please note that the CN (Common Name) needs to be the same as the one defined in the PacketFence configuration file [filename]`/usr/local/pf/conf/pf.conf`.
 
 ==== Reuse 802.1X credentials
 
 In certain circumstances - for example to show an AUP after a successful 802.1X connection - "SSO emulation" may be used so that the user does not need to re-enter their credentials on the portal after having entered them during 802.1X EAP. The connection profile option 'Reuse 802.1X credentials' can be enabled for this purpose. The username used during the 802.1X connection will be reused with the different authentication sources to recompute the role from the portal.
 
-As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (`username@domain`, `domain\username`), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be match IF an authentication source is configured for it.
+As a security precaution, this option will only reuse 802.1X credentials if there is an authentication source matching the provided realm. This means, if users use 802.1X credentials with a domain part (`username@domain`, `domain\username`), the domain part needs to be configured as a realm under the RADIUS section and an authentication source needs to be configured for that realm. If users do not use 802.1X credentials with a domain part, only the NULL realm will be matched IF an authentication source is configured for it.
 
 === Filter Engine Macros
 
@@ -553,7 +553,7 @@ EXAMPLE_Session-timeout_Idle-Timeout_Terminate_action::
   filter on the switch IP addresses and add the Session-Timeout (with a value between 10620 and 12600), the Idle-Timeout and Terminate-Action RADIUS attributes.
 
 EXAMPLE_ipad_by_name::
-  use Fingerbank to target a specific devices (Apple iPad) and add Cisco ACL(s) to them.
+  use Fingerbank to target specific devices (Apple iPad) and add Cisco ACL(s) to them.
 
 EXAMPLE_eap-tls-preProcess::
   create RADIUS attributes that will be used internally (like authentication rules).
@@ -579,7 +579,7 @@ Adding the action `set_role_on_not_found = REJECT` will reject the device if the
 
 ==== Action role_from_source
 
-`role_from_source` checks if the LDAP attribute exists, if so it is added in the the `ldap_attribute` context (available in the RADIUS filters).
+`role_from_source` checks if the LDAP attribute exists, if so it is added in the `ldap_attribute` context (available in the RADIUS filters).
 
 Example that takes the LDAP attribute `customRadius` value and adds it in the RADIUS answer. In the authentication rule add an action "Role from source" to `customRadius`. Next create a RADIUS filter that will add the custom RADIUS attributes:
 
@@ -593,7 +593,7 @@ Example that takes the LDAP attribute `customRadius` value and adds it in the RA
   merge_answer=no
   condition=action == "set_role_from_source"
 
-NOTE: This supports multiples LDAP attributes, like `customRadius:Airespace-Interface-Name=internet` and `customRadius:Aruba-User-Vlan=666`.
+NOTE: This supports multiple LDAP attributes, like `customRadius:Airespace-Interface-Name=internet` and `customRadius:Aruba-User-Vlan=666`.
 
 ==== Append search attributes LDAP filter
 

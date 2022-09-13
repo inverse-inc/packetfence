@@ -22,7 +22,7 @@ endif::[]
 
 The DHCP remote sensor consists of a lightweight binary installed on the production DHCP server to replicate all DHCP traffic (1-to-1) to the PacketFence server. This solution is more reliable than DHCP relaying since PacketFence receives a copy of all the DHCP traffic including broadcast traffic. Supported DHCP servers include Microsoft DHCP server and CentOS 6 and 7.
 
-These sensors low-level packet capture on the DHCP server and forwards them to the PacketFence management interface.
+These sensors capture low-level packets on the DHCP server and forwards them to the PacketFence management interface.
 
 ==== Microsoft DHCP Sensor
 
@@ -339,7 +339,7 @@ PacketFence currently supports Cisco switches which must be configured using the
 
 Then enable `_CLI Access Enabled_` setting on the switch(s) to manage in _Configuration -> Network devices -> Switches_.
 
-NOTE: The `ALL` administrative role allows the user to login into the switches. Change this role to `ALL_PF_ONLY` to allow the user all the nenecessary adminstrative roles except for switch login.
+NOTE: The `ALL` administrative role allows the user to login into the switches. Change this role to `ALL_PF_ONLY` to allow the user all the necessary administrative roles except for switch login.
 
 
 === Syslog forwarding
@@ -348,7 +348,7 @@ Syslog forwarding forwards PacketFence logs (all or specific log files) to a rem
 
 Configure this feature in _Configuration -> Integration -> Syslog Forwarding_
 
-After adding a new Syslog server, perfom the following commands:
+After adding a new Syslog server, perform the following commands:
 
 [source,bash]
 ----
