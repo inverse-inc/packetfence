@@ -634,9 +634,6 @@ fi
 # Run actions only on upgrade
 if [ "$1" = "2" ]; then
     perl /usr/local/pf/addons/upgrade/add-default-params-to-auth.pl
-    # When upgrading from pre-v12, redis-cache must be restarted to listen on the containers interfaces
-    # Didn't find a way to detect the previous version during the upgrade so it's always going to be restarted on upgrade
-    systemctl restart packetfence-redis-cache
 fi
 
 /usr/bin/mkdir -p /var/log/journal/
@@ -723,6 +720,12 @@ echo "Restarting rsyslogd"
 #removing old cache
 /bin/systemctl enable docker
 /bin/systemctl restart docker
+
+if [ "$1" = "2" ]; then
+    # When upgrading from pre-v12, redis-cache must be restarted to listen on the containers interfaces
+    # Didn't find a way to detect the previous version during the upgrade so it's always going to be restarted on upgrade
+    systemctl restart packetfence-redis-cache
+fi
 
 # We use a if/else bloc to stop post installation at first error in manage-images.sh
 # get containers images and tag them locally

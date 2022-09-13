@@ -157,14 +157,6 @@ function handle_pkgnew_files() {
   done
 }
 
-ALLOW_CLUSTER_UPGRADE="${ALLOW_CLUSTER_UPGRADE:-no}"
-if ! is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
-  echo "Upgrading a cluster is not supported by this tool at the moment."
-  echo "You can use it **at your own risk** by setting the following environment variable:"
-  echo "  export ALLOW_CLUSTER_UPGRADE=yes"
-  exit 1
-fi
-
 function hook_if_exists() {
   hook=/usr/local/pf/addons/full-upgrade/hooks/hook-$1
   if [ -f $hook ]; then
@@ -222,11 +214,17 @@ upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 hook_if_exists do-upgrade-post-package-upgrade.sh
 
-main_splitter
-db_name=`get_db_name /usr/local/pf/conf/pf.conf`
-upgrade_database $db_name
+handle_devel_upgrade $UPGRADE_TO
 
-hook_if_exists do-upgrade-post-db-upgrade.sh
+UPGRADE_CLUSTER_SECONDARY="${UPGRADE_CLUSTER_SECONDARY:-}"
+# Do not upgrade the database when upgrading secondary nodes of a cluster (the primary will sync its data to them)
+if [ "$UPGRADE_CLUSTER_SECONDARY" != "yes" ]; then
+  main_splitter
+  db_name=`get_db_name /usr/local/pf/conf/pf.conf`
+  upgrade_database $db_name
+
+  hook_if_exists do-upgrade-post-db-upgrade.sh
+fi
 
 main_splitter
 upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade`
@@ -255,7 +253,7 @@ systemctl restart packetfence-config
 
 sub_splitter
 echo "Reloading configuration"
-/usr/local/pf/bin/pfcmd configreload hard
+configreload
 
 sub_splitter
 echo "Updating systemd services state"

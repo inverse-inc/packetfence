@@ -71,6 +71,7 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 COPY --from=build /opt/proxysql/binaries/*.deb /tmp/
 
 RUN apt-get -qq update \
+    && apt-get clean \
     && apt-get -qq install -y /tmp/*.deb \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb

@@ -12,4 +12,4 @@ steps:
 - type: pf_api_service_status
   service: "{{.input.service}}"
   assertions:
-    - result.pf_api_service_status_json.alive ShouldEqual 0
+    - result.pf_api_service_status_json.pid ShouldEqual 0

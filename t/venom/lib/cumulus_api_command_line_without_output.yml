@@ -19,3 +19,5 @@ steps:
     "Content-Type": "application/json"
   assertions:
     - result.statuscode ShouldEqual 200
+  retry: 3
+  delay: 1

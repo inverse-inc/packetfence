@@ -18,12 +18,12 @@ testcases:
   - name: assign_an_ip_on_inlinel3-a
     steps: 
     - type: exec
-      script: ip -n inlinel3 addr add 100.64.0.1/30 dev inlinel3-a
+      script: ip -n inlinel3 addr add 100.127.255.253/30 dev inlinel3-a
 
   - name: assign_an_ip_on_inlinel3
     steps:
     - type: exec
-      script: ip addr add 100.64.0.2/30 dev inlinel3
+      script: ip addr add 100.127.255.254/30 dev inlinel3
 
   - name: set_inlinel3-a_up
     steps:
@@ -38,7 +38,7 @@ testcases:
   - name: set_default_route_in_namespace_inlinel3
     steps:
     - type: exec
-      script: ip netns exec inlinel3 route add default gw 100.64.0.2 dev inlinel3-a
+      script: ip netns exec inlinel3 route add default gw 100.127.255.254 dev inlinel3-a
 
   - name: set_lo_interface_up_in_namespace_inlinel3
     steps:
@@ -50,31 +50,31 @@ testcases:
     - type: exec
       script: echo 202 inlinel3 >> /etc/iproute2/rt_tables
 
-  - name: set_rule_from_100.64.0.2
+  - name: set_rule_from_100.127.255.254
     steps:
     - type: exec
-      script: ip rule add from 100.64.0.2 lookup inlinel3
+      script: ip rule add from 100.127.255.254 lookup inlinel3
 
 
   - name: add_10.0.0.0/8_route_in_table_inlinel3_table
     steps:
     - type: exec
-      script: ip route add 10.0.0.0/8 via 100.64.0.1 dev inlinel3 table inlinel3
+      script: ip route add 10.0.0.0/8 via 100.127.255.253 dev inlinel3 table inlinel3
 
   - name: add_172.16.0.0/12_route_in_inlinel3_table
     steps:
     - type: exec
-      script: ip route add 172.16.0.0/12 via 100.64.0.1 dev inlinel3 table inlinel3
+      script: ip route add 172.16.0.0/12 via 100.127.255.253 dev inlinel3 table inlinel3
 
   - name: add_192.168.0.0/16_in_inlinel3_table
     steps:
     - type: exec
-      script: ip route add 192.168.0.0/16 via 100.64.0.1 dev inlinel3 table inlinel3
+      script: ip route add 192.168.0.0/16 via 100.127.255.253 dev inlinel3 table inlinel3
 
-  - name: add_100.64.0.0/30_route_in_inlinel3_table
+  - name: add_100.127.255.252/30_route_in_inlinel3_table
     steps:
     - type: exec
-      script: ip route add 100.64.0.0/30 dev inlinel3 scope link src 100.64.0.2 table inlinel3
+      script: ip route add 100.127.255.252/30 dev inlinel3 scope link src 100.127.255.254 table inlinel3
 
   - name: create_tap_interface
     steps:

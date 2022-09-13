@@ -19,6 +19,8 @@ steps:
     "Content-Type": "application/json"
   assertions:
     - result.statuscode ShouldEqual 200
+  retry: 3
+  delay: 1
 output:
   cumulus_api_command_line_: "{{.result.bodyjson}}"
   cumulus_api_command_line_body: "{{.result.body}}"

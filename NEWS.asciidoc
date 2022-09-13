@@ -51,6 +51,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Full UTF-8 support in the PacketFence database
 * Added MySQL compatibility
 * Added CSV import to switch groups
+* Simplify cluster upgrades (#7180)
 
 === Bug Fixes
 
@@ -69,6 +70,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 * Set the database location to the system Local timezone (golang)
 * Add missing translations to the captival portal
 * Fix Trapeze Deauth issue
+* Fix the wrong encoding of special char in the REST call to PacketFence (use base64)
 
 == Version 11.2.0 released on 2022-02-23
 

@@ -1,0 +1,44 @@
+name: Forge DHCP request to create node10 in DB
+testcases:
+  - name: get_login_token
+    steps:
+    - type: get_login_token
+
+  - name: forge_dhcp_request_node10
+    steps:
+    - type: exec
+      script: "perl {{.pfserver_root_dir}}/addons/stress-tester/dhcp_test --mac={{.pfdhcplistener_single_tenant.nodes.node10.mac}} --ip={{.pfdhcplistener_single_tenant.nodes.node10.first_ip}} --hostname={{.pfdhcplistener_single_tenant.nodes.node10.hostname}} --dhcp-fingerprint={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}} --dhcp-vendor={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}} --server={{.pfdhcplistener_single_tenant.nodes.node10.dhcp_server}}"
+
+  # let node be created in DB
+  - name: sleep_some_time
+    steps:
+    - type: exec
+      script: sleep 5
+  
+  - name: check_node10_creation
+    steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.get_login_token.result.token}}"
+        "Content-Type": "application/json"
+      assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.computername ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.hostname}}"
+      - result.bodyjson.item.dhcp_fingerprint ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.dhcp_fingerprint}}"
+      - result.bodyjson.item.dhcp_vendor ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.dhcp_vendor}}"
+
+  - name: check_node10_ip4log
+    steps:
+    - type: http
+      method: GET
+      url: '{{.pfserver_webadmin_url}}/api/v1/ip4logs/open/{{.pfdhcplistener_single_tenant.nodes.node10.mac_url_encoded}}'
+      ignore_verify_ssl: true
+      headers:
+        "Authorization": "{{.get_login_token.result.token}}"
+        "Content-Type": "application/json"
+      assertions:
+      - result.statuscode ShouldEqual 200
+      - result.bodyjson.item.ip ShouldEqual "{{.pfdhcplistener_single_tenant.nodes.node10.first_ip}}"

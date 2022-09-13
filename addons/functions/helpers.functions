@@ -59,3 +59,46 @@ function is_deb_based() {
 function is_enabled() {
   [ "$1" = "yes" ] || [ "$1" = "enabled" ]
 }
+
+function configreload() {
+  /usr/local/pf/bin/pfcmd configreload hard && return 0
+
+  # This was found to be necessary in some cases where the first configreload would fail.
+  # If the reload did succeed, then it will just ignore this and continue
+  echo "Failed to configreload once. Will wait a few seconds and try again"
+  sleep 10
+  /usr/local/pf/bin/pfcmd configreload hard
+
+  return $?
+}
+
+function handle_devel_upgrade() {
+  UPGRADE_TO="$1"
+  if [ -f /usr/local/pf/db/upgrade-X.X-X.Y.sql ]; then
+    main_splitter
+    echo "Upgrade to a devel package detected. Renaming DB upgrade schema accordingly"
+    sub_splitter
+    echo -n "You need to input the PF version that comes before $UPGRADE_TO. This will replace X.X in the upgrade-X.X-X.Y.sql filename. Only input the minor version (ex: 11.2): "
+    read UPGRADING_FROM
+    cp /usr/local/pf/db/upgrade-X.X-X.Y.sql /usr/local/pf/db/upgrade-$UPGRADING_FROM-$UPGRADE_TO.sql
+  fi
+}
+
+function output_all_container_images {
+  # find all directories with Dockerfile
+  # excluding non necessary images
+  DOCKERFILE_DIRS=$(find containers/ -type f -name "Dockerfile" \
+                         -not -path "*/pfdebian/*" \
+                         -not -path "*/radiusd/*" \
+                         -not -path "*/pfconnector-*/*" \
+                         -printf "%P\n")
+
+  for file in ${DOCKERFILE_DIRS}; do
+    # remove /Dockerfile suffix
+    CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
+  done
+  
+  for img in ${CONTAINERS_IMAGES}; do
+    echo "- $img"
+  done
+}

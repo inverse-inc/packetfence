@@ -1,4 +1,4 @@
-executor: extract_certificates
+executor: extract_certificates_http
 input:
   cn: ""
   cn_ca: ""
@@ -50,3 +50,7 @@ steps:
 # install_key
 - type: exec
   script: "yes | cp -r {{.temp_dir}}/{{.input.cn}}.key {{.input.cert_path}}/server.key"
+
+# generate server.pem
+- type: exec
+  script: "cat {{.input.cert_path}}/server.crt {{.input.cert_path}}/server.key >> {{.input.cert_path}}/server.pem"

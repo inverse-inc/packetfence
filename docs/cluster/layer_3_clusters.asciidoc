@@ -420,7 +420,7 @@ Transfer this file to the remote server (eg: /root/backup/)
 
 Connect to the remote server and perform the following to sync the configuration from the master cluster:
 
- /usr/local/pf/bin/cluster/sync --from=192.168.1.11 --api-user=packet --api-password=fence
+ /usr/local/pf/bin/cluster/sync --from=192.168.1.11 --api-user=packet --api-password=anotherMoreSecurePassword
  /usr/local/pf/bin/pfcmd configreload hard
 
 Then the following command to import the backup:

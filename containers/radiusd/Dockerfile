@@ -22,7 +22,7 @@ WORKDIR /usr/local/src/repositories
 #  Shallow clone the FreeRADIUS source
 #
 ARG source=https://github.com/fdurand/freeradius-server.git
-ARG release=PacketFence_3.2-1
+ARG release=PacketFence_3.2.2
 
 RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source}
 WORKDIR freeradius-server
@@ -52,7 +52,9 @@ COPY --from=build /usr/local/src/repositories/*.deb /tmp/
 
 RUN apt-get -qq -y remove freeradius-common
 
+
 RUN apt-get -qq update \
+    && apt-get clean \
     && apt-get -qq install -y /tmp/*.deb \
     && apt-get clean \
     && rm -r /var/lib/apt/lists/* /tmp/*.deb \

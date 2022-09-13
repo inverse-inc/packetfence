@@ -29,7 +29,7 @@ This section covers automation of upgrades available since PacketFence 11.0.0.
 * You can perform automated upgrades starting from PacketFence 11.0.0
 * A backup and an export of your configuration are performed before doing upgrade
 
-=== Full upgrade (for PacketFence version 11.0.0 only)
+=== Full upgrade (for PacketFence version 11.0.0 only - see next section for 11.1.0 and above)
 
 ==== Preliminary steps
 
