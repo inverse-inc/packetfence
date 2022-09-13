@@ -4,7 +4,7 @@ ifdef::env-github[]
 :lang: en
 :doctype: book
 :toc: left
-:imagesdir: ../images
+:imagesdir: ../../images
 endif::[]
 
 ////
