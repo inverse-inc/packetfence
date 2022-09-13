@@ -262,7 +262,6 @@ html/admin/traplog/
 # built by package or installer
 lib/pf/pfcmd/pfcmd_pregrammar.pm
 lib/fingerbank
-html/common/package-lock.json
 
 # directories that can be ignored
 logs/
