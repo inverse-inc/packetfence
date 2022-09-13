@@ -39,6 +39,10 @@ include::developer/template_switches.asciidoc[]
 
 include::developer/documentation_info.asciidoc[]
 
+== Development environment setup
+
+include::developer/dev_env_setup.asciidoc[]
+
 == Golang environment
 
 include::developer/go/README.asciidoc[]
@@ -70,6 +74,10 @@ include::developer/packer/README.asciidoc[]
 == Developer recipes
 
 include::developer/developer_recipes.asciidoc[]
+
+== Containers recipes
+
+include::developer/containers_recipes.asciidoc[]
 
 == Running tests
 
