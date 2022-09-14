@@ -1874,7 +1874,7 @@ recommend you to set a value for this attribute.
 By doing this, `pfpki` will use email addresses defined in PKI templates to
 notify about next certificates expirations for certificates without emails.
 
-== Upgrading from a version prior to X.Y.Z
+== Upgrading from a version prior to 12.0.0
 
 === Clusters now use ProxySQL to load balance the DB connections
 
