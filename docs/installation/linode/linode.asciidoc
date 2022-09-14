@@ -16,13 +16,13 @@ endif::[]
 
 ////
 
-//  How to deploy PacketFence on Linode ?
+//===  How to deploy PacketFence on Linode ?
 
-=== Introduction
+==== Introduction
 
 This section will guide you into the high-level steps required to deploy PacketFence on Linode. Linode is an Infrastructure as a Service (IaaS) that provides cloud computing services which can be leveraged by PacketFence. This is often the preferred deployment option for Cloud-first organizations.
 
-=== Installation and Configuration Steps
+==== Installation and Configuration Steps
 
 First, you need to create three 'Debian 11' or 'Rocky 8' Linodes in the same region. The 'Dedicated 16GB' plan or above is required and make sure Private IP is enabled for each instance. 
 
@@ -68,7 +68,7 @@ Then, make sure you mask keepalived so it does not mount a VIP on your server:
 
 Finally, you must configure a secure way to reach your Cloud-hosted version of PacketFence so that your NAS devices can talk to it in a secure way. One approach is to use a site-to-site VPN. An other approach is to use the PacketFence Connector.
 
-=== PacketFence Connector
+==== PacketFence Connector
 
 NOTE:  The PacketFence Connector (pfconnector) is currently in the ‘Technical Preview’ phase. It can safely be used in production but has not yet been field proven for large scale and/or complex deployments
 
