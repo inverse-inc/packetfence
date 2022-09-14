@@ -681,6 +681,7 @@ pfdeb_based_rel:
           - "pfperl-api"
           - "pfconnector"
           - "pfpki"
+	  - "pfcron"
           - "haproxy-portal"
           - "haproxy-admin"
           - "proxysql"
