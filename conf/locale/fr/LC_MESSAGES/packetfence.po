@@ -11,9 +11,9 @@
 # GurVan, 2019
 # GurVan, 2019
 # GurVan, 2019
-# inverse <info@inverse.ca>, 2013-2014,2016,2018,2021
-# inverse <info@inverse.ca>, 2012-2013
-# Je Goi <jeremy.goimard@gmail.com>, 2021
+# inverse <support@inverse.ca>, 2013-2014,2016,2018,2021
+# inverse <support@inverse.ca>, 2012-2013
+# jgoimard <jgoimard@inverse.ca>, 2021
 # Louis Munro <git@louismunro.com>, 2016
 # lzammit <lzammit@inverse.ca>, 2014,2016,2018,2021
 # lzammit <lzammit@inverse.ca>, 2014,2016,2018
@@ -31,14 +31,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-08-24 14:18+0000\n"
-"Last-Translator: inverse <info@inverse.ca>\n"
+"PO-Revision-Date: 2011-11-16 20:16+0000\n"
+"Last-Translator: inverse <support@inverse.ca>, 2013-2014,2016,2018,2021\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Root.pm
@@ -136,6 +136,7 @@ msgid "Access to the guest network has been granted."
 msgstr "L'accès au réseau invité a été accordé"
 
 # html/captive-portal/templates/provisioner/deny.html
+# html/captive-portal/templates/provisioner/google_workspace_chromebook.html
 msgid ""
 "According to the provisioner configuration, this device cannot access the "
 "network."
@@ -184,12 +185,6 @@ msgstr "Un compte a été créé pour vous donner accès au réseau."
 # html/captive-portal/templates/account.html
 msgid "An e-mail with the login informations will follow in the next minutes"
 msgstr "Un courriel avec les informations de connexion va arriver dans un instant"
-
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
-msgid ""
-"An error has occured while trying to save your certificate, please contact "
-"your local support staff"
-msgstr "Une erreur est survenue lors de l'enregistrement du certificat. Veuillez contacter le support informatique."
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Root.pm
 # html/captive-
@@ -241,6 +236,10 @@ msgid ""
 "<i>Finish</i> button."
 msgstr "À l'écran<i> Fin de l'assistant d'importation de certificat</i>, appuyez sur le bouton <i>Terminer</i>."
 
+# html/captive-portal/templates/mfa/TOTP.html
+msgid "Authentication code"
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "Back at the main wizard screen, the <i>Certificate store</i> box should now "
@@ -276,10 +275,6 @@ msgstr "Recherchez le fichier de certificat que vous avez téléchargé précéd
 msgid "Building_number"
 msgstr "Numéro de batiment"
 
-# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
-msgid "CVC"
-msgstr "CVC"
-
 # html/captive-portal/templates/status.html
 # html/captive-portal/templates/status/billing_cancel_subscription.html
 msgid "Cancel"
@@ -288,10 +283,6 @@ msgstr "Annuler"
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 msgid "Cancel subscription"
 msgstr "Annuler l'abonnement"
-
-# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
-msgid "Card Number"
-msgstr "Numéro de carte"
 
 # pf::person::FIELDS
 msgid "Cell_phone"
@@ -366,6 +357,10 @@ msgstr "Barre de téléchargement Chrome"
 msgid "Chrome file browser"
 msgstr "Navigateur de fichiers Chrome"
 
+# html/captive-portal/templates/provisioner/kandji.html
+msgid "Click here to access the enrollment page"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Company"
 msgstr "Entreprise"
@@ -386,6 +381,7 @@ msgstr "Confirmez votre mot de passe"
 # html/captive-portal/templates/account.html
 # html/captive-portal/templates/challenge.html
 # html/captive-portal/templates/message.html
+# html/captive-portal/templates/mfa/TOTP.html
 # html/captive-portal/templates/provisioner/accept.html
 # html/captive-portal/templates/provisioner/airwatch.html
 # html/captive-portal/templates/provisioner/android.html
@@ -393,6 +389,7 @@ msgstr "Confirmez votre mot de passe"
 # html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/opswat.html
@@ -602,11 +599,9 @@ msgstr "Courriel"
 msgid "Email"
 msgstr "Courriel"
 
-# html/captive-
-# portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
-msgid ""
-"Email activation code has been verified. Access granted until : $unregdate"
-msgstr "Le code d'activation courriel a été vérifié. Accès autorisé jusqu'au : $unregdate "
+# html/captive-portal/templates/activation/email.html
+msgid "Email activation code has been verified. Access granted until : %s"
+msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Enter a valid telephone number"
@@ -615,10 +610,6 @@ msgstr "Veuillez entrer un numéro de téléphone valide"
 # html/captive-portal/templates/security_events/bandwidth_expiration.html
 msgid "Expiration"
 msgstr "Expiration"
-
-# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
-msgid "Expiration (MM/YYYY)"
-msgstr "Expiration (MM / AAAA)"
 
 # html/captive-portal/templates/emails/emails-guest_password_of_the_day.html
 msgid "Expire"
@@ -926,13 +917,13 @@ msgstr "Assurez-vous que la <i>confiance</i> est développée et sélectionnez l
 msgid "Manage"
 msgstr "Gérer"
 
+# html/captive-portal/templates/max-nodes-reached.html
+msgid "Manage your devices"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
 msgstr "Opérateur mobile"
-
-# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
-msgid "Name on Card"
-msgstr "Nom sur la carte"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/NetworkLogoff.pm
@@ -994,12 +985,12 @@ msgid "No active subscription"
 msgstr "Pas d'abonnement actif"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
-msgid "Not allowed to deregister $mac"
-msgstr "Pas autorisé à désenregistrer cette mac $mac"
+msgid "Not allowed to deregister %s"
+msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
-msgid "Not logged in or node ID $mac is not known"
-msgstr "Pas connecté ou mac $mac est inconnu"
+msgid "Not logged in or node ID %s is not known"
+msgstr ""
 
 # pf::person::FIELDS
 msgid "Notes"
@@ -1042,6 +1033,7 @@ msgstr "Sur site, sélectionnez le portail invité et utilisez les identifiants 
 # html/captive-portal/templates/provisioner/ibm.html
 # html/captive-portal/templates/provisioner/intune.html
 # html/captive-portal/templates/provisioner/jamf.html
+# html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
 # html/captive-portal/templates/provisioner/sepm.html
@@ -1086,6 +1078,12 @@ msgstr "Sur site, authentifiez-vous sur le portail captif en utilisant les ident
 msgid "One of the password fields hasn't been filled"
 msgstr "Un des champ mot de passe n'a pas été rempli"
 
+# html/captive-portal/templates/mfa/TOTP.html
+msgid ""
+"Open the two-factor authentication app on your device to view your "
+"authentication code and verify your identity."
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid ""
 "Open up Keychain Access (<i>Finder > Applications > Utilities > Keychain "
@@ -1117,6 +1115,10 @@ msgstr "Invite de confiance de l'émetteur Opera"
 # html/captive-portal/templates/ssl_inspection/menu.html
 msgid "Other"
 msgstr "Autre"
+
+# pf::person::FIELDS
+msgid "Otp"
+msgstr ""
 
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
@@ -1162,10 +1164,6 @@ msgstr "Payer"
 msgid "Pay for your access"
 msgstr "Payez votre accès"
 
-# html/captive-portal/templates/billing/confirm_AuthorizeNet.html
-msgid "Pay with Authorize.Net"
-msgstr "Payer avec Authorize.Net"
-
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Phone number"
 msgstr "Numéro de téléphone"
@@ -1195,6 +1193,10 @@ msgstr "Ignorer cette requête si vous n’avez pas fait de demande d'accès au 
 # html/captive-portal/templates/ssl_inspection.html
 msgid "Please install the certificate."
 msgstr "Veuillez installer le certificat."
+
+# html/captive-portal/templates/mfa/TOTP.html
+msgid "Please scan the code below in your favorite authenticator app"
+msgstr ""
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Please select the account you would like to manage"
@@ -1256,6 +1258,10 @@ msgstr "Enregistrement en attente"
 # html/captive-portal/templates/sms/validate.html
 msgid "Resend PIN"
 msgstr "Renvoyer le code PIN"
+
+# html/captive-portal/templates/max-nodes-reached.html
+msgid "Retry signup"
+msgstr ""
 
 # html/captive-portal/templates/status/menu.html
 msgid "Return to device list"
@@ -1370,10 +1376,6 @@ msgstr "Téléphone"
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Telephone number is not valid"
 msgstr "Numéro de téléphone invalide"
-
-# pf::person::FIELDS
-msgid "Tenant_id"
-msgstr "Identifiant de l'entité"
 
 # html/captive-portal/templates/ssl_inspection/common.html
 msgid "Test Certificate"
@@ -1663,6 +1665,12 @@ msgid ""
 "To complete your network activation you need to install the JAMF client."
 msgstr "Pour finaliser votre accès au réseau, vous devez installer le client JAMF."
 
+# html/captive-portal/templates/provisioner/kandji.html
+msgid ""
+"To complete your network activation you need to install the Kandji MDM "
+"client."
+msgstr ""
+
 # html/captive-portal/templates/provisioner/opswat.html
 msgid ""
 "To complete your network activation you need to install the OPSWAT "
@@ -1736,8 +1744,8 @@ msgstr "Impossible de trouver une source Stripe avec ce profil de connexion"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
-msgid "Unable to register the device: $status_msg"
-msgstr "Impossible d'enregistrer le périphérique: $status_msg"
+msgid "Unable to register the device: %s"
+msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "Unregister"
@@ -1859,6 +1867,12 @@ msgstr "Des activités malveillantes sur le réseau provenant de votre appareil 
 msgid "You have no registered devices."
 msgstr "Vous n'avez pas d'appareil enregistré."
 
+# html/captive-portal/templates/max-nodes-reached.html
+msgid ""
+"You have reached the maximum amount of endpoints you can register with this "
+"username."
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid ""
 "You may not see exactly the same thing if you are using another browser or a"
@@ -1957,12 +1971,6 @@ msgid ""
 "Your XML configuration have been generated and is now ready to download.  "
 "Follow the link below in order to get access to the secure SSID."
 msgstr "Votre configuration XML a été générée et est prête à être téléchargée. Pour accéder au SSID sécurisé, suivez le lien ci-dessous. "
-
-# html/captive-portal/lib/captiveportal/PacketFence/Controller/TLSProfile.pm
-msgid ""
-"Your certificate could not be aquired from the certificate server. Try again"
-" later or contact your network administrator."
-msgstr "Votre certificat n'a pu être obtenu du serveur. Veuillez contacter votre support informatique."
 
 # html/captive-portal/templates/lost_stolen.html
 msgid "Your device %s has been declared as lost or stolen."
