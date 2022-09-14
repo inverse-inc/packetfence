@@ -4,7 +4,7 @@ testcases:
 - name: get_name_of_mgmt_int
   steps:
   - type: exec
-    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.mgmt.index}}' | awk -F ': ' '{print $2;}'"
+    script: "ip -o link show | egrep -v '^1:' | grep '^{{.configurator.interfaces.mgmt.index}}:' | awk -F ': ' '{print $2;}'"
     vars:
       mgmt_interface:
         from: result.systemout
