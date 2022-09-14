@@ -151,7 +151,8 @@ const setup = (props, context) => {
 
   const advancedMode = ref(false)
   const conditionBasic = ref(null)
-  const conditionAdvanced = ref(defaultCondition()) // default
+  const workaround = { op: 'and', values: [ { op: 'or', values: [] } ] }
+  const conditionAdvanced = ref(defaultCondition() || workaround) // default
   const hint = ref(uuidv4())
 
   const query = useQuery()

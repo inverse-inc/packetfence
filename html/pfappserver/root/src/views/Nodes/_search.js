@@ -550,10 +550,5 @@ export const useSearch = makeSearch('nodes', {
   ],
   sortBy: 'mac',
   sortDesc: true,
-  defaultCondition: () => ({
-    op: 'and', values: [
-    { op: 'or', values: [
-      { field: 'mac', op: 'not_equals', value: null }
-    ] }
-  ] })
+  defaultCondition: () => null
 })
