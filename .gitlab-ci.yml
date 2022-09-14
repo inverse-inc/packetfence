@@ -163,6 +163,7 @@ variables:
 .publish_ppa_rules:
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
+    - if: '$CI_COMMIT_TAG'
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
