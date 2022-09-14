@@ -114,6 +114,8 @@ variables:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
 # run this job on maintenance branches and all other branches if not canceled by BUILD_IMG_CONTAINER=no
