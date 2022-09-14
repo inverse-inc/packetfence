@@ -127,7 +127,9 @@ variables:
 # only run this job on devel branch with build_img_docker variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
+    - if: '$BUILD_IMG_DOCKER == "no" || $CI_COMMIT_MESSAGE =~ /build_img_docker=no/)'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME == "devel"'
 
 # run this job on maintenance branches and all other branches if not canceled by BUILD_IMG_DOCKER=no
 .build_img_docker_branches_and_maintenance_rules:
