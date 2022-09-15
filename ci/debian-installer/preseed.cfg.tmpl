@@ -486,14 +486,6 @@ d-i preseed/early_command string sed -i \
 d-i preseed/late_command string \
   mount --bind /proc /target/proc ; \
   mount --bind /sys /target/sys ; \
-  apt-install packetfence ; \
-  sed -i '/^deb cdrom:/s/^/#/' /target/etc/apt/sources.list ; \
-  sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config ; \
-  sed -i 's/.*inverse\.ca.*//g' /target/etc/apt/sources.list ; \
-  echo 'deb http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bullseye bullseye' > /target/etc/apt/sources.list.d/packetfence.list ; \
-  echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /target/tmp/reset-root.sql ; \
-  mkdir /target/run/mysqld ; \
-  chroot /target chown mysql: /run/mysqld/ ; \
-  chroot /target timeout 10 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /target/var/reset-root.log 2>&1 ; \
-  rm -f /target/tmp/reset-root.sql
-
+  in-target cp -a /media/cdrom/postinst-debian-installer.sh /target/usr/local/bin/ ; \
+  in-target chmod 700 /usr/local/bin/postinst-debian-installer.sh ; \
+  in-target /bin/bash /usr/local/bin/postinst-debian-installer.sh %%PF_VERSION%%
