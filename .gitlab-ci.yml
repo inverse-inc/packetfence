@@ -81,6 +81,8 @@ variables:
 # run only on maintenance jobs (schedule and web, not on push)
 .maintenance_only_rules:
   rules:
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
 
@@ -109,7 +111,7 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-# run this job on devel branch if not canceled by BUILD_IMG_CONTAINER=no
+# run this job on devel branch if not canceled by BUILD_IMG_CONTAINER=no or commit message build_img_container=no
 .build_img_container_devel_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
@@ -118,17 +120,17 @@ variables:
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# run this job on maintenance branches and all other branches if not canceled by BUILD_IMG_CONTAINER=no
+# run this job on maintenance branches and all other branches if not canceled by BUILD_IMG_CONTAINER=no or commit message build_img_container=no
 .build_img_container_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
     - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
       when: never
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_CONTAINER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_container=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
-# only run this job on devel branch with build_img_docker variable defined or build_img_docker in commit message
+# only run this job on devel branch with BUILD_IMG_DOCKER variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
@@ -138,7 +140,7 @@ variables:
   rules:
     - if: '$BUILD_IMG_DOCKER == "no"'
       when: never
-    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ( $BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/ ) && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # run jobs only when:
@@ -219,10 +221,11 @@ variables:
 
 # run this job on:
 # - devel branch with BUILD_ARTIFACTS_DOC variable defined or build_artifacts_doc=yes in commit message
-# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
+# - all branches, except devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
 .build_artifacts_doc_devel_and_branches_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
 
 # don't run if DEPLOY_PKG is equals to 'no'
