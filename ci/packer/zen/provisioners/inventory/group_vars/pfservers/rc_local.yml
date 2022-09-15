@@ -6,12 +6,18 @@ rc_local_commands:
     echo "Welcome to the PacketFence-ZEN." >> /etc/issue
     echo "" >> /etc/issue
     echo "In order to configure your PacketFence installation, please connect to one of the following URLs:" >> /etc/issue
+    
+    while ! /usr/local/pf/bin/pfcmd pfconfig get resource::fqdn 2>&1| grep last_touch_cache > /dev/null ; do
+            echo "Waiting for pfconfig to be online..."
+    done
+    echo "pfconfig is now online!"
+    
     mgmt_ipaddr=`/usr/local/pf/bin/pfcmd pfconfig show interfaces::management_network`
     if [ "$mgmt_ipaddr" != "\$VAR1 = '';" ]; then
         mgmt_ipaddr=`echo $mgmt_ipaddr | grep Tip | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'`
         echo https://$mgmt_ipaddr:1443 >> /etc/issue
     else
-        for IPADDR in `/sbin/ifconfig | sed '/broadcast/!d' | awk '{print $2}'`; do
+        for IPADDR in `/sbin/ifconfig | grep -v 100.64.0.1 | sed '/broadcast/!d' | awk '{print $2}'`; do
                 echo "https://$IPADDR:1443" >> /etc/issue
         done
     fi
