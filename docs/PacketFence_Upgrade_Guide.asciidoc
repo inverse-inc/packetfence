@@ -1876,6 +1876,10 @@ notify about next certificates expirations for certificates without emails.
 
 == Upgrading from a version prior to 12.0.0
 
+=== Tenant code deprecated
+
+The code used to manage tenants in PacketFence has been removed. If you previously used tenants in PacketFence, you should consider staying on a release prior to v12.
+
 === Clusters now use ProxySQL to load balance the DB connections
 
 PacketFence previously used haproxy (via the haproxy-db service) to load balance and failover database connections from the PacketFence services to the database servers. This is now performed by ProxySQL which allows for splitting reads and writes to different members which offers greater performance and scalability.
