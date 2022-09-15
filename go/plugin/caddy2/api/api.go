@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
@@ -29,10 +28,10 @@ type APIHandler struct {
 }
 
 func (h APIHandler) CaddyModule() caddy.ModuleInfo {
-    return caddy.ModuleInfo {
-        ID: "http.handlers.api",
-        New: func() caddy.Module { return &APIHandler{} },
-    }
+	return caddy.ModuleInfo{
+		ID:  "http.handlers.api",
+		New: func() caddy.Module { return &APIHandler{} },
+	}
 }
 
 func (h *APIHandler) init(ctx context.Context) error {
@@ -42,7 +41,7 @@ func (h *APIHandler) init(ctx context.Context) error {
 
 	h.router.POST("/api/v1/nodes/fingerbank_communications", h.nodeFingerbankCommunications)
 
-    return nil
+	return nil
 }
 
 // Build the Handler which will initialize the routes
@@ -74,22 +73,22 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 }
 
 func (h *APIHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
-    return nil
+	return nil
 }
 
 // parseCaddyfile unmarshals tokens from h into a new Middleware.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-    m := &APIHandler{}
+	m := &APIHandler{}
 	err := m.UnmarshalCaddyfile(h.Dispenser)
-    return m, err
+	return m, err
 }
 
 func (h *APIHandler) Validate() error {
-    return nil
+	return nil
 }
 
 func (h *APIHandler) Provision(ctx caddy.Context) error {
-    return h.init(ctx)
+	return h.init(ctx)
 }
 
 // Interface guards
