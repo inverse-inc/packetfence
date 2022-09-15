@@ -50,7 +50,6 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/caddy/job-status"
 	_ "github.com/inverse-inc/packetfence/go/caddy/log-tailer"
 	_ "github.com/inverse-inc/packetfence/go/caddy/logger"
-	_ "github.com/inverse-inc/packetfence/go/caddy/pfconfig"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfipset"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfpki"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"
