@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 11.3.0\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
-"PO-Revision-Date: 2022-08-04 10:38-0400\n"
+"PO-Revision-Date: 2022-08-25 14:47-0400\n"
 "Last-Translator: Inverse inc. <support@packetfence.org>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -114,7 +114,7 @@ msgstr ""
 msgid "6 months"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheSearch.vue:160
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheSearch.vue:161
 msgid "<code>{cn}</code> certificate copied to clipboard"
 msgstr ""
 
@@ -150,8 +150,14 @@ msgstr ""
 msgid "A comma-separated list of domains that will be resolved with the correct IP addresses."
 msgstr ""
 
-#: html/pfappserver/root/src/utils/api.js:198
+#: html/pfappserver/root/src/utils/api.js:201
 msgid "A database foreign key constraint prevented the deletion of this resource. See <code>packetfence.log</code> for more information about the specific constraint(s). Use the MySQL CLI to resolve these constraints manually before trying again."
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:142
+#: html/pfappserver/root/src/components/new/BaseFormGroupInput.vue:49
+#: html/pfappserver/root/src/views/Configuration/switches/_components/BaseFormGroupType.vue:33
+msgid "A default value is provided if this field is not defined."
 msgstr ""
 
 #: html/pfappserver/root/src/components/AppLogin.vue:122
@@ -210,6 +216,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/_components/TheForm.vue:47
 #: html/pfappserver/root/src/views/Configurator/fingerbank/_components/FormFingerbank.vue:40
 msgid "API Key"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:41
+msgid "API Redirect"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeGithub.vue:34
@@ -338,7 +348,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/accessDurations/_composables/useResource.js:8
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheForm.vue:30
 #: html/pfappserver/root/src/views/Configuration/index.vue:107
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:27
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:36
 msgid "Access Duration"
 msgstr ""
 
@@ -522,8 +532,8 @@ msgstr ""
 msgid "Active registered nodes of roles vs device types"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:21
-#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:22
+#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:30
+#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:31
 #: html/pfappserver/root/src/components/new/BaseInputArray.vue:6
 msgid "Add"
 msgstr ""
@@ -617,8 +627,8 @@ msgstr ""
 msgid "Add Route"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:65
-#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:74
+#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:74
+#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:83
 #: html/pfappserver/root/src/components/new/BaseInputArray.vue:48
 msgid "Add Row"
 msgstr ""
@@ -647,13 +657,11 @@ msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvanced.vue:51
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvanced.vue:53
-#: html/pfappserver/root/src/components/pfSearchBoolean.vue:68
 msgid "Add \"and\" statement"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvancedRule.vue:50
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvancedRule.vue:52
-#: html/pfappserver/root/src/components/pfSearchBoolean.vue:51
 msgid "Add \"or\" statement"
 msgstr ""
 
@@ -666,7 +674,7 @@ msgstr ""
 msgid "Add custom static routes managed by keepalived, one line per static route. (like: <code>10.0.0.0/24 dev eth1</code> or <code>10.0.0.0/24 via 10.0.0.1 dev eth1</code>)"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:73
+#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:72
 msgid "Add to Passthroughs"
 msgstr ""
 
@@ -698,19 +706,19 @@ msgstr ""
 msgid "Additional listening daemon(s)"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:83
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:99
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:108
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:92
 msgid "Additional message"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupServerAddressPort.vue:17
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupServerAddressPort.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/schema.js:132
 #: html/pfappserver/root/src/views/Configuration/sources/schema.js:133
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:79
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:63
 #: html/pfappserver/root/src/views/Users/_config/index.js:172
-#: html/pfappserver/root/src/views/Users/_search.js:270
-#: html/pfappserver/root/src/views/Users/_search.js:74
+#: html/pfappserver/root/src/views/Users/_search.js:271
+#: html/pfappserver/root/src/views/Users/_search.js:81
 msgid "Address"
 msgstr ""
 
@@ -787,7 +795,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeKerberos.vue:35
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:116
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:42
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:59
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:64
 msgid "Administration Rules"
 msgstr ""
 
@@ -903,8 +911,7 @@ msgstr ""
 msgid "Algorithm"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:16
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:32
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:9
 msgid "Alive"
 msgstr ""
 
@@ -999,18 +1006,6 @@ msgstr ""
 msgid "All registered nodes"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:176
-msgid "All services restarted."
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:170
-msgid "All services started."
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:164
-msgid "All services stopped."
-msgstr ""
-
 #: conf/report.conf.defaults:[Authentication::All Successes]/description
 msgid "All successful authentications (portal) that have occured on the server."
 msgstr ""
@@ -1097,6 +1092,7 @@ msgstr ""
 msgid "Alt agent download URI"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:7
 #: html/pfappserver/root/src/views/Configuration/switches/config.js:7
 msgid "Always"
 msgstr ""
@@ -1213,8 +1209,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:82
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:66
 #: html/pfappserver/root/src/views/Users/_config/index.js:158
-#: html/pfappserver/root/src/views/Users/_search.js:260
-#: html/pfappserver/root/src/views/Users/_search.js:62
+#: html/pfappserver/root/src/views/Users/_search.js:261
+#: html/pfappserver/root/src/views/Users/_search.js:69
 msgid "Anniversary"
 msgstr ""
 
@@ -1241,8 +1237,8 @@ msgid "Any event"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Users/_config/index.js:179
-#: html/pfappserver/root/src/views/Users/_search.js:275
-#: html/pfappserver/root/src/views/Users/_search.js:80
+#: html/pfappserver/root/src/views/Users/_search.js:276
+#: html/pfappserver/root/src/views/Users/_search.js:87
 msgid "Apartment Number"
 msgstr ""
 
@@ -1367,7 +1363,7 @@ msgstr ""
 msgid "Aruba Wireless Controller"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/index.vue:31
+#: html/pfappserver/root/src/views/Status/index.vue:29
 msgid "Assets"
 msgstr ""
 
@@ -1384,7 +1380,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeKerberos.vue:26
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:107
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:33
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:50
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:55
 msgid "Associated Realms"
 msgstr ""
 
@@ -1496,7 +1492,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeNull.vue:22
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeOpenId.vue:82
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:38
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:55
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:60
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSms.vue:62
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeSponsorEmail.vue:93
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeTwilio.vue:67
@@ -1578,7 +1574,7 @@ msgstr ""
 msgid "Authorized domains"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:58
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:67
 msgid "Auto Enable"
 msgstr ""
 
@@ -1768,8 +1764,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:85
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:69
 #: html/pfappserver/root/src/views/Users/_config/index.js:165
-#: html/pfappserver/root/src/views/Users/_search.js:265
-#: html/pfappserver/root/src/views/Users/_search.js:68
+#: html/pfappserver/root/src/views/Users/_search.js:266
+#: html/pfappserver/root/src/views/Users/_search.js:75
 msgid "Birthday"
 msgstr ""
 
@@ -1844,8 +1840,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:73
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:57
 #: html/pfappserver/root/src/views/Users/_config/index.js:186
-#: html/pfappserver/root/src/views/Users/_search.js:280
-#: html/pfappserver/root/src/views/Users/_search.js:87
+#: html/pfappserver/root/src/views/Users/_search.js:281
+#: html/pfappserver/root/src/views/Users/_search.js:94
 msgid "Building Number"
 msgstr ""
 
@@ -1877,7 +1873,7 @@ msgstr ""
 msgid "Bulk Apply Bypass VLAN"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:48
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:57
 msgid "Button Text"
 msgstr ""
 
@@ -1938,6 +1934,11 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:237
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:241
 msgid "CLI/VPN Access Enabled"
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:40
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:8
+msgid "CLUSTER"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Status/dashboard/_config/system.js:81
@@ -2051,10 +2052,6 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:26
-msgid "Cancel Redirect"
-msgstr ""
-
 #: html/pfappserver/root/src/views/Configuration/captivePortal/_composables/useResource.js:4
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:126
 #: html/pfappserver/root/src/views/Configuration/index.vue:101
@@ -2098,8 +2095,8 @@ msgstr ""
 msgid "Cellular Phone"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:143
-#: html/pfappserver/root/src/views/Users/_search.js:325
+#: html/pfappserver/root/src/views/Users/_search.js:144
+#: html/pfappserver/root/src/views/Users/_search.js:326
 msgid "Cellular Phone Number"
 msgstr ""
 
@@ -2159,9 +2156,9 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:67
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/_components/TheForm.vue:15
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:100
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:75
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:47
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:101
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:76
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:49
 #: html/pfappserver/root/src/views/Configuration/radius/ssl/_components/TheForm.vue:19
 #: html/pfappserver/root/src/views/Configuration/radius/ssl/schema.js:32
 msgid "Certificate Authority"
@@ -2172,12 +2169,12 @@ msgid "Certificate Authority <code>{id}</code>"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:131
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:108
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:110
 msgid "Certificate Authority Identifier"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:136
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:113
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:115
 msgid "Certificate Authority Name"
 msgstr ""
 
@@ -2370,9 +2367,6 @@ msgid "Cisco ISE-PIC"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputBasic.vue:9
-#: html/pfappserver/root/src/components/pfSearch.vue:24
-#: html/pfappserver/root/src/components/pfSearch.vue:37
-#: html/pfappserver/root/src/components/pfSearch.vue:9
 #: html/pfappserver/root/src/views/Auditing/liveLogs/_components/TheView.vue:107
 msgid "Clear"
 msgstr ""
@@ -2396,11 +2390,10 @@ msgid "Cleared logs."
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvancedRule.vue:11
-#: html/pfappserver/root/src/components/pfSearchBoolean.vue:26
 msgid "Click & drag statement to reorder"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:43
+#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:52
 msgid "Click and drag to re-order"
 msgstr ""
 
@@ -2499,7 +2492,7 @@ msgid "Client key path"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Auditing/liveLogs/_components/TheView.vue:319
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheSearch.vue:165
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheSearch.vue:166
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateCopy.vue:44
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormAdministrator.vue:93
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormDatabase.vue:447
@@ -2549,7 +2542,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheSearch.vue:78
 #: html/pfappserver/root/src/views/Configuration/selfServices/_components/TheSearch.vue:74
 #: html/pfappserver/root/src/views/Configuration/sources/_components/TheTable.vue:62
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:80
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:81
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_components/TheSearch.vue:72
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:94
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/TheSearch.vue:75
@@ -2687,8 +2680,8 @@ msgstr ""
 msgid "Clone Routed Network <code>{id}</code>"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:65
-#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:74
+#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:74
+#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:83
 #: html/pfappserver/root/src/components/new/BaseInputArray.vue:48
 msgid "Clone Row"
 msgstr ""
@@ -2751,11 +2744,13 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/domains/_components/BaseButtonJoin.vue:129
 #: html/pfappserver/root/src/views/Configuration/sources/_components/ButtonSamlMetaData.vue:7
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_components/TheCsr.vue:43
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheCsvImport.vue:4
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheCsvImport.vue:4
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:129
 msgid "Close"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheCsvImport.vue:14
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheCsvImport.vue:14
 #: html/pfappserver/root/src/views/Nodes/_components/TheCsvImport.vue:13
 #: html/pfappserver/root/src/views/Users/_components/TheCsvImport.vue:13
@@ -2836,12 +2831,7 @@ msgid "Cloud Type"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/index.vue:153
-#: html/pfappserver/root/src/views/Status/index.vue:67
 msgid "Cluster"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:4
-msgid "Cluster Services"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/fingerbank/generalSettings/_components/TheForm.vue:117
@@ -2981,14 +2971,14 @@ msgid "Comma-separated list of the switch uplinks."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheForm.vue:13
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:61
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:94
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:63
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:96
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/TheForm.vue:17
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:151
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:85
 #: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_components/TheForm.vue:16
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:128
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:65
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:130
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:67
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_components/TheCsr.vue:35
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_components/TheForm.vue:110
 msgid "Common Name"
@@ -3044,8 +3034,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:58
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:42
 #: html/pfappserver/root/src/views/Users/_config/index.js:200
-#: html/pfappserver/root/src/views/Users/_search.js:101
-#: html/pfappserver/root/src/views/Users/_search.js:290
+#: html/pfappserver/root/src/views/Users/_search.js:108
+#: html/pfappserver/root/src/views/Users/_search.js:291
 msgid "Company"
 msgstr ""
 
@@ -3123,7 +3113,7 @@ msgstr ""
 msgid "Confirmation"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:59
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:64
 msgid "Conflict resolution threshold"
 msgstr ""
 
@@ -3305,7 +3295,7 @@ msgstr ""
 msgid "Cost"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheSearch.vue:162
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheSearch.vue:163
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateCopy.vue:41
 msgid "Could not copy <code>{cn}</code> certificate to clipboard."
 msgstr ""
@@ -3320,8 +3310,16 @@ msgstr ""
 msgid "Could not copy password to clipboard."
 msgstr ""
 
+#: html/pfappserver/root/src/store/modules/cluster.js:49
+msgid "Could not disable {id} on {server}."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateEmail.vue:70
 msgid "Could not email certificate <code>{cn}</code> to <code>{mail}</code>: "
+msgstr ""
+
+#: html/pfappserver/root/src/store/modules/cluster.js:60
+msgid "Could not enable {id} on {server}."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:355
@@ -3332,8 +3330,20 @@ msgstr ""
 msgid "Could not parse file."
 msgstr ""
 
+#: html/pfappserver/root/src/store/modules/cluster.js:74
+msgid "Could not restart {id} on {server}."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateRevoke.vue:96
 msgid "Could not revoke certificate <code>{cn}</code>.<br/>Reason: "
+msgstr ""
+
+#: html/pfappserver/root/src/store/modules/cluster.js:89
+msgid "Could not start {id} on {server}."
+msgstr ""
+
+#: html/pfappserver/root/src/store/modules/cluster.js:104
+msgid "Could not stop {id} on {server}."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Status/network_communication/_composables/useCollection.js:56
@@ -3409,6 +3419,7 @@ msgstr ""
 msgid "Create Session"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:2
 #: html/pfappserver/root/src/views/Users/_components/TheViewCreate.vue:4
 msgid "Create Users"
 msgstr ""
@@ -3466,6 +3477,10 @@ msgstr ""
 msgid "Created at"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:6
+msgid "Creating Users"
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/networkBehaviorPolicy/_components/AlertServices.vue:6
 msgid "Creating or modifying a network behavior policy requires to restart the fingerbank-collector service"
 msgstr ""
@@ -3483,7 +3498,7 @@ msgid "Creating or modifying the general configuration requires to restart the h
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/radius/general/_components/AlertServices.vue:6
-msgid "Creating or modifying the general configuration requires to restart the pfacct service."
+msgid "Creating or modifying the general configuration requires to restart the pfacct and radiusd services."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/maintenanceTasks/_components/AlertServices.vue:6
@@ -3539,48 +3554,48 @@ msgstr ""
 msgid "Custom"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:164
-#: html/pfappserver/root/src/views/Users/_search.js:340
+#: html/pfappserver/root/src/views/Users/_search.js:165
+#: html/pfappserver/root/src/views/Users/_search.js:341
 msgid "Custom Field #1"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:170
-#: html/pfappserver/root/src/views/Users/_search.js:345
+#: html/pfappserver/root/src/views/Users/_search.js:171
+#: html/pfappserver/root/src/views/Users/_search.js:346
 msgid "Custom Field #2"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:176
-#: html/pfappserver/root/src/views/Users/_search.js:350
+#: html/pfappserver/root/src/views/Users/_search.js:177
+#: html/pfappserver/root/src/views/Users/_search.js:351
 msgid "Custom Field #3"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:182
-#: html/pfappserver/root/src/views/Users/_search.js:355
+#: html/pfappserver/root/src/views/Users/_search.js:183
+#: html/pfappserver/root/src/views/Users/_search.js:356
 msgid "Custom Field #4"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:188
-#: html/pfappserver/root/src/views/Users/_search.js:360
+#: html/pfappserver/root/src/views/Users/_search.js:189
+#: html/pfappserver/root/src/views/Users/_search.js:361
 msgid "Custom Field #5"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:194
-#: html/pfappserver/root/src/views/Users/_search.js:365
+#: html/pfappserver/root/src/views/Users/_search.js:195
+#: html/pfappserver/root/src/views/Users/_search.js:366
 msgid "Custom Field #6"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:200
-#: html/pfappserver/root/src/views/Users/_search.js:370
+#: html/pfappserver/root/src/views/Users/_search.js:201
+#: html/pfappserver/root/src/views/Users/_search.js:371
 msgid "Custom Field #7"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:206
-#: html/pfappserver/root/src/views/Users/_search.js:375
+#: html/pfappserver/root/src/views/Users/_search.js:207
+#: html/pfappserver/root/src/views/Users/_search.js:376
 msgid "Custom Field #8"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:212
-#: html/pfappserver/root/src/views/Users/_search.js:380
+#: html/pfappserver/root/src/views/Users/_search.js:213
+#: html/pfappserver/root/src/views/Users/_search.js:381
 msgid "Custom Field #9"
 msgstr ""
 
@@ -3898,7 +3913,7 @@ msgstr ""
 msgid "Daemons"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/index.vue:27
+#: html/pfappserver/root/src/views/Status/index.vue:24
 msgid "Dashboard"
 msgstr ""
 
@@ -4145,7 +4160,7 @@ msgstr ""
 msgid "Define if the PSK needs to be generated."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:46
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:51
 msgid "Define options for FreeRADIUS home_server definition (if you use the source in the realm configuration). Need a radiusd restart."
 msgstr ""
 
@@ -4199,7 +4214,7 @@ msgstr ""
 msgid "Defines how to format the username that is sent to your firewall. $username represents the username and $realm represents the realm of your user if applicable. $pf_username represents the unstripped username as it is stored in the PacketFence database. If left empty, it will use the username as stored in PacketFence (value of $pf_username)."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:60
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:65
 msgid "Defines the amount of seconds after which pfcron attempts to resolve a configuration version conflict between cluster members. For example, if this is set to 5 minutes, then a resolution will be attempted when the members will be detected running a different version for more than 5 minutes."
 msgstr ""
 
@@ -4207,11 +4222,11 @@ msgstr ""
 msgid "Defines the attributes that should be analysed when checking against the pristine profile of the endpoint. Leaving this empty will disable the feature."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:75
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:80
 msgid "Defines the replication password to be used for the MariaDB Galera cluster replication."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:70
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:75
 msgid "Defines the replication username to be used for the MariaDB Galera cluster replication."
 msgstr ""
 
@@ -4296,7 +4311,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/selfServices/_components/TheSearch.vue:70
 #: html/pfappserver/root/src/views/Configuration/sources/_components/TheTable.vue:58
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:415
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:75
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:76
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_components/TheSearch.vue:67
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:84
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/TheSearch.vue:70
@@ -4313,8 +4328,8 @@ msgstr ""
 msgid "Delete Admin Role?"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:54
-#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:63
+#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:63
+#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:72
 #: html/pfappserver/root/src/components/new/BaseInputArray.vue:36
 msgid "Delete All"
 msgstr ""
@@ -4434,8 +4449,8 @@ msgstr ""
 msgid "Delete Routed Network?"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:54
-#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:63
+#: html/pfappserver/root/src/components/new/BaseFormGroupArray.vue:63
+#: html/pfappserver/root/src/components/new/BaseFormGroupArrayDraggable.vue:72
 #: html/pfappserver/root/src/components/new/BaseInputArray.vue:36
 msgid "Delete Row"
 msgstr ""
@@ -4461,7 +4476,7 @@ msgstr ""
 msgid "Delete Source?"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:73
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:74
 msgid "Delete Switch Group?"
 msgstr ""
 
@@ -4515,7 +4530,6 @@ msgid "Delete selected preferences?"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvancedRule.vue:31
-#: html/pfappserver/root/src/components/pfSearchBoolean.vue:40
 msgid "Delete statement"
 msgstr ""
 
@@ -4679,6 +4693,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:103
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:65
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useForm.js:27
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:36
 #: html/pfappserver/root/src/views/Configuration/switchGroups/schema.js:37
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_composables/useCollection.js:47
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_composables/useCollection.js:77
@@ -4701,7 +4716,7 @@ msgstr ""
 msgid "Destination URL"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:54
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:63
 msgid "Destination URL where PacketFence will forward the device. By default it will use the Redirection URL from the connection profile configuration."
 msgstr ""
 
@@ -4928,8 +4943,15 @@ msgstr ""
 msgid "Directory name exists."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:42
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:20
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:25
 msgid "Disable"
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:44
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:10
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:72
+msgid "Disable All"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/advanced/_components/TheForm.vue:129
@@ -4953,16 +4975,19 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/remoteConnectionProfiles/_components/ToggleStatus.js:14
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/ToggleStatus.js:14
 #: html/pfappserver/root/src/views/Configuration/syslogParsers/_components/ToggleStatus.js:14
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceEnabled.js:14
 msgid "Disabled"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Status/services/config.js:2
+msgid "Disabled services {services}."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:72
+msgid "Disabling"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:52
 msgid "Disabling Configurator"
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:207
-msgid "Disabling {service}"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:221
@@ -5312,16 +5337,16 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/alerting/schema.js:17
 #: html/pfappserver/root/src/views/Configuration/alerting/schema.js:6
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheForm.vue:16
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:68
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:99
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:101
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:70
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateEmail.vue:3
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/TheForm.vue:21
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:156
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:92
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/_components/TheForm.vue:23
 #: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_components/TheForm.vue:20
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:133
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:72
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:135
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:74
 #: html/pfappserver/root/src/views/Configuration/portalModules/config.js:79
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:23
 #: html/pfappserver/root/src/views/Configuration/sources/config.js:22
@@ -5329,10 +5354,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/sources/schema.js:118
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:30
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:18
-#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:63
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:86
 #: html/pfappserver/root/src/views/Users/_config/index.js:142
-#: html/pfappserver/root/src/views/Users/_search.js:250
-#: html/pfappserver/root/src/views/Users/_search.js:49
+#: html/pfappserver/root/src/views/Users/_search.js:251
+#: html/pfappserver/root/src/views/Users/_search.js:56
 msgid "Email"
 msgstr ""
 
@@ -5351,7 +5376,7 @@ msgstr ""
 msgid "Email Recipient"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:96
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:105
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePaypal.vue:53
 msgid "Email address"
 msgstr ""
@@ -5415,10 +5440,17 @@ msgstr ""
 msgid "Email the password of the pkcs12 file."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:41
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/_components/TheForm.vue:14
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/schema.js:32
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:19
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:21
 msgid "Enable"
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:42
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:9
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:70
+msgid "Enable All"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/_components/TheForm.vue:114
@@ -5494,7 +5526,7 @@ msgstr ""
 msgid "Enable master/slave replication."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:80
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:85
 msgid "Enable mysql-probe in haproxy-db to detect the availability of the MariaDB servers."
 msgstr ""
 
@@ -5557,7 +5589,6 @@ msgstr ""
 msgid "Enable to revoke the certificate when the node using it is unregistered. Do not use if multiple devices share the same certificate."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:23
 #: html/pfappserver/root/src/components/new/BaseFormGroupToggleDisabledEnabled.js:12
 #: html/pfappserver/root/src/views/Configuration/_components/new/BaseFormGroupToggleDisabledEnabledDefault.vue:33
 #: html/pfappserver/root/src/views/Configuration/_components/new/BaseFormGroupToggleDisabledEnabledDefault.vue:43
@@ -5571,10 +5602,12 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/remoteConnectionProfiles/_components/ToggleStatus.js:26
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/ToggleStatus.js:32
 #: html/pfappserver/root/src/views/Configuration/syslogParsers/_components/ToggleStatus.js:32
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:39
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:131
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceEnabled.js:25
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:13
 msgid "Enabled"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Status/services/config.js:5
+msgid "Enabled services {services}."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeMessage.vue:33
@@ -5589,6 +5622,10 @@ msgstr ""
 msgid "Enables processing of bandwidth accounting. Requires a restart of pfacct to be effective"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:73
+msgid "Enabling"
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:47
 msgid "Enabling PacketFence"
 msgstr ""
@@ -5600,10 +5637,6 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/_components/TheForm.vue:95
 #: html/pfappserver/root/src/views/Configuration/networks/routedNetworks/_components/TheForm.vue:45
 msgid "Enabling this will send a CoA request to the equipment to reevaluate network access of endpoints."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:203
-msgid "Enabling {service}"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:194
@@ -5699,7 +5732,7 @@ msgstr ""
 msgid "Enter a VLAN"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:108
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:118
 msgid "Enter a new value."
 msgstr ""
 
@@ -5809,10 +5842,10 @@ msgid "Export Selected"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseButtonExportCsv.vue:5
-#: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheSearch.vue:67
-#: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheSearch.vue:70
-#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:74
-#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:81
+#: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheSearch.vue:66
+#: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheSearch.vue:69
+#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:73
+#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:80
 #: html/pfappserver/root/src/views/Configuration/adminRoles/_components/TheSearch.vue:85
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheSearch.vue:84
 #: html/pfappserver/root/src/views/Configuration/clouds/_components/TheSearch.vue:85
@@ -5852,7 +5885,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheSearch.vue:95
 #: html/pfappserver/root/src/views/Configuration/selfServices/_components/TheSearch.vue:84
 #: html/pfappserver/root/src/views/Configuration/sources/_components/TheTable.vue:72
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:90
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:91
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_components/TheSearch.vue:82
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:104
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/TheSearch.vue:85
@@ -5913,24 +5946,24 @@ msgstr ""
 msgid "Failed RADIUS authentications in the last day"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:239
-msgid "Failed to disable service <code>{service}</code>. See the server error logs for more information."
+#: html/pfappserver/root/src/views/Status/services/config.js:3
+msgid "Failed to disable services {services}. See the server error logs for more information."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:232
-msgid "Failed to enable service <code>{service}</code>. See the server error logs for more information."
+#: html/pfappserver/root/src/views/Status/services/config.js:6
+msgid "Failed to enable services {services}. See the server error logs for more information."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:260
-msgid "Failed to kill service <code>{service}</code>.  See the server error logs for more information.s"
+#: html/pfappserver/root/src/views/Status/services/config.js:9
+msgid "Failed to restart services {services}. See the server error logs for more information."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:246
-msgid "Failed to restart service <code>{service}</code>.  See the server error logs for more information."
+#: html/pfappserver/root/src/views/Status/services/config.js:12
+msgid "Failed to start services {services}. See the server error logs for more information."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:253
-msgid "Failed to start service <code>{service}</code>.  See the server error logs for more information."
+#: html/pfappserver/root/src/views/Status/services/config.js:15
+msgid "Failed to stop services {services}. See the server error logs for more information."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/routedNetworks/_components/TheForm.vue:39
@@ -6166,8 +6199,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:36
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:49
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:33
-#: html/pfappserver/root/src/views/Users/_search.js:235
-#: html/pfappserver/root/src/views/Users/_search.js:29
+#: html/pfappserver/root/src/views/Users/_search.js:236
+#: html/pfappserver/root/src/views/Users/_search.js:36
 msgid "Firstname"
 msgstr ""
 
@@ -6272,15 +6305,19 @@ msgstr ""
 msgid "Fully Qualified Device Name"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:64
-msgid "Galera replication"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:74
-msgid "Galera replication password"
+#: html/pfappserver/root/src/App.vue:64
+msgid "GIT Commit ID"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:69
+msgid "Galera replication"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:79
+msgid "Galera replication password"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:74
 msgid "Galera replication username"
 msgstr ""
 
@@ -6299,8 +6336,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:43
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:27
 #: html/pfappserver/root/src/views/Users/_config/index.js:207
-#: html/pfappserver/root/src/views/Users/_search.js:107
-#: html/pfappserver/root/src/views/Users/_search.js:295
+#: html/pfappserver/root/src/views/Users/_search.js:114
+#: html/pfappserver/root/src/views/Users/_search.js:296
 msgid "Gender"
 msgstr ""
 
@@ -6338,7 +6375,7 @@ msgstr ""
 msgid "General Settings"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:66
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:75
 #: html/pfappserver/root/src/components/new/BaseInputGroupPasswordGenerator.vue:58
 #: html/pfappserver/root/src/views/Configuration/sslCertificates/_components/TheCsr.vue:47
 msgid "Generate"
@@ -6352,8 +6389,8 @@ msgstr ""
 msgid "Generate Signing Request for {certificate} certificate"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:35
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:41
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:44
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:50
 #: html/pfappserver/root/src/components/new/BaseInputGroupPasswordGenerator.vue:27
 #: html/pfappserver/root/src/components/new/BaseInputGroupPasswordGenerator.vue:33
 msgid "Generate password"
@@ -6364,7 +6401,7 @@ msgstr ""
 msgid "Get role details"
 msgstr ""
 
-#: html/pfappserver/root/src/App.vue:134
+#: html/pfappserver/root/src/App.vue:137
 msgid "Go to configuration"
 msgstr ""
 
@@ -6460,8 +6497,8 @@ msgstr ""
 msgid "Hold on a moment while we render it..."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:150
-#: html/pfappserver/root/src/views/Users/_search.js:330
+#: html/pfappserver/root/src/views/Users/_search.js:151
+#: html/pfappserver/root/src/views/Users/_search.js:331
 msgid "Home Telephone Number"
 msgstr ""
 
@@ -6658,7 +6695,7 @@ msgstr ""
 msgid "ID of the scanning configuration on the OpenVAS server."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:124
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:133
 msgid "ID of the security event"
 msgstr ""
 
@@ -6730,7 +6767,7 @@ msgstr ""
 msgid "IP address history of the devices on the network (1 week is kept by default)"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:123
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:132
 msgid "IP address of the endpoint"
 msgstr ""
 
@@ -6865,17 +6902,17 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/mfas/_composables/useCollection.js:67
 #: html/pfappserver/root/src/views/Configuration/mfas/_composables/useCollection.js:91
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheForm.vue:9
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:53
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:89
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:55
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:91
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/TheForm.vue:10
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:126
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:55
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/_components/TheForm.vue:11
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:63
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:95
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:64
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:96
 #: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_components/TheForm.vue:9
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:103
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:35
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:105
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:37
 #: html/pfappserver/root/src/views/Configuration/radius/eap/_components/TheForm.vue:9
 #: html/pfappserver/root/src/views/Configuration/radius/fast/_components/TheForm.vue:10
 #: html/pfappserver/root/src/views/Configuration/radius/ocsp/_components/TheForm.vue:9
@@ -6890,6 +6927,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:57
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:98
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useForm.js:20
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:30
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_components/TheForm.vue:9
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_composables/useCollection.js:39
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_composables/useCollection.js:72
@@ -7144,6 +7182,7 @@ msgstr ""
 msgid "Import / Export Search"
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:9
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:14
 msgid "Import CSV"
 msgstr ""
@@ -7170,6 +7209,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:253
 msgid "Import Progress"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheCsvImport.vue:5
+msgid "Import Switch Groups"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheCsvImport.vue:5
@@ -7223,27 +7266,27 @@ msgstr ""
 msgid "Include Parent ACLs"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:73
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:82
 msgid "Include accentuated characters"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:82
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:91
 msgid "Include ambiguous characters"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:64
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:73
 msgid "Include brackets/parenthesis"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:44
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:53
 msgid "Include digits"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:35
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:44
 msgid "Include lowercase characters"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:55
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:64
 msgid "Include special characters"
 msgstr ""
 
@@ -7251,7 +7294,7 @@ msgstr ""
 msgid "Include the region in the FQDN when using the cloud version (ex: login.myregion.linewize.net)."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:26
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:35
 msgid "Include uppercase characters"
 msgstr ""
 
@@ -7805,8 +7848,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:40
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:24
 #: html/pfappserver/root/src/views/Users/_config/index.js:215
-#: html/pfappserver/root/src/views/Users/_search.js:113
-#: html/pfappserver/root/src/views/Users/_search.js:300
+#: html/pfappserver/root/src/views/Users/_search.js:120
+#: html/pfappserver/root/src/views/Users/_search.js:301
 msgid "Language"
 msgstr ""
 
@@ -7916,8 +7959,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:40
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:52
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:36
-#: html/pfappserver/root/src/views/Users/_search.js:240
-#: html/pfappserver/root/src/views/Users/_search.js:36
+#: html/pfappserver/root/src/views/Users/_search.js:241
+#: html/pfappserver/root/src/views/Users/_search.js:43
 msgid "Lastname"
 msgstr ""
 
@@ -7966,7 +8009,7 @@ msgid "Leave this field empty if you want to perform an anonymous bind."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/parking/schema.js:5
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:16
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:25
 msgid "Length"
 msgstr ""
 
@@ -8013,7 +8056,7 @@ msgstr ""
 msgid "List"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:110
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:120
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:87
 msgid "List is empty."
 msgstr ""
@@ -8100,7 +8143,7 @@ msgid "Load balancers IP"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseContainerLoading.vue:22
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:16
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:17
 msgid "Loading"
 msgstr ""
 
@@ -8140,7 +8183,7 @@ msgstr ""
 msgid "Local"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/index.vue:62
+#: html/pfappserver/root/src/views/Status/index.vue:60
 msgid "Local Queue"
 msgstr ""
 
@@ -8355,6 +8398,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:45
 #: html/pfappserver/root/src/views/Configuration/floatingDevices/_components/TheForm.vue:10
 #: html/pfappserver/root/src/views/Configuration/securityEvents/config.js:65
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:17
 #: html/pfappserver/root/src/views/Configuration/switches/config.js:17
 #: html/pfappserver/root/src/views/Configuration/wrix/_components/TheForm.vue:94
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:25
@@ -8401,7 +8445,7 @@ msgstr ""
 msgid "MAC address exists."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:122
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:131
 msgid "MAC address of the endpoint"
 msgstr ""
 
@@ -8507,15 +8551,6 @@ msgstr ""
 msgid "Manage"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:44
-msgid "Manageable Services"
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:27
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:43
-msgid "Managed"
-msgstr ""
-
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/config.js:9
 msgid "Management"
 msgstr ""
@@ -8573,7 +8608,7 @@ msgstr ""
 msgid "Max"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:63
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:72
 msgid "Max Enables"
 msgstr ""
 
@@ -8795,6 +8830,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:30
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:108
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:79
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:48
 #: html/pfappserver/root/src/views/Configuration/switchGroups/schema.js:40
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:29
 #: html/pfappserver/root/src/views/Configuration/switches/_composables/useCollection.js:115
@@ -8941,6 +8977,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:56
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:204
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:362
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:45
 msgid "NAS IP Address"
 msgstr ""
 
@@ -9035,8 +9072,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/networkBehaviorPolicy/_composables/useCollection.js:48
 #: html/pfappserver/root/src/views/Configuration/networkBehaviorPolicy/_composables/useCollection.js:70
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/_components/TheForm.vue:19
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:105
-#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:81
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:106
+#: html/pfappserver/root/src/views/Configuration/pki/profiles/_composables/useCollection.js:82
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/_composables/useCollection.js:67
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/_composables/useCollection.js:91
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeAuthenticationBilling.vue:9
@@ -9291,7 +9328,7 @@ msgstr ""
 msgid "Network Behaviour Policies"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/index.vue:43
+#: html/pfappserver/root/src/views/Status/index.vue:41
 #: html/pfappserver/root/src/views/Status/network_communication/_components/TheView.vue:4
 msgid "Network Communication"
 msgstr ""
@@ -9319,12 +9356,12 @@ msgstr ""
 msgid "Network Settings"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/index.vue:37
+#: html/pfappserver/root/src/views/Status/index.vue:35
 #: html/pfappserver/root/src/views/Status/network_threats/_components/TheView.vue:4
 msgid "Network Threats"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/index.vue:50
+#: html/pfappserver/root/src/views/Status/index.vue:48
 msgid "Network View"
 msgstr ""
 
@@ -9757,8 +9794,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:55
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:39
 #: html/pfappserver/root/src/views/Users/_config/index.js:135
-#: html/pfappserver/root/src/views/Users/_search.js:245
-#: html/pfappserver/root/src/views/Users/_search.js:43
+#: html/pfappserver/root/src/views/Users/_search.js:246
+#: html/pfappserver/root/src/views/Users/_search.js:50
 msgid "Nickname"
 msgstr ""
 
@@ -9805,8 +9842,7 @@ msgstr ""
 msgid "No Rules Matched"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:22
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:73
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:23
 msgid "No Services found"
 msgstr ""
 
@@ -9835,24 +9871,24 @@ msgstr ""
 msgid "No location logs found"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:106
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:116
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:86
 msgid "No options"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:140
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:160
 msgid "No permission, admin role {acl} required."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:121
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:131
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:98
 msgid "No results"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheSearch.vue:30
-#: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheSearch.vue:30
-#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:30
-#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:30
+#: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheSearch.vue:29
+#: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheSearch.vue:29
+#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:29
+#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:29
 #: html/pfappserver/root/src/views/Configuration/adminRoles/_components/TheSearch.vue:34
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheSearch.vue:33
 #: html/pfappserver/root/src/views/Configuration/clouds/_components/TheSearch.vue:34
@@ -9892,7 +9928,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheSearch.vue:33
 #: html/pfappserver/root/src/views/Configuration/selfServices/_components/TheSearch.vue:33
 #: html/pfappserver/root/src/views/Configuration/sources/_components/TheTable.vue:19
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:30
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:31
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_components/TheSearch.vue:30
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:36
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/TheSearch.vue:33
@@ -9928,10 +9964,6 @@ msgstr ""
 msgid "No security events found"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:20
-msgid "No services found"
-msgstr ""
-
 #: html/pfappserver/root/src/views/Status/queue/_components/TheView.vue:21
 #: html/pfappserver/root/src/views/Status/queue/_components/TheView.vue:45
 #: html/pfappserver/root/src/views/Status/queue/_components/TheView.vue:69
@@ -9942,7 +9974,7 @@ msgstr ""
 msgid "No switch group members found"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:13
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:26
 msgid "No users created"
 msgstr ""
 
@@ -10003,7 +10035,7 @@ msgstr ""
 msgid "Node has no open wired connections."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:20
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:21
 msgid "Node not found."
 msgstr ""
 
@@ -10107,6 +10139,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Status/network_communication/_components/TheSearch.vue:18
 #: html/pfappserver/root/src/views/Status/network_threats/_components/BaseFilterSecurityEvents.vue:18
 #: html/pfappserver/root/src/views/Status/network_threats/_components/TheSearch.vue:18
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:43
 #: html/pfappserver/root/src/views/Users/_components/TheSearch.vue:115
 #: html/pfappserver/root/src/views/Users/_components/TheSearch.vue:127
 msgid "None"
@@ -10129,8 +10162,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/_components/TheForm.vue:70
 #: html/pfappserver/root/src/views/Configuration/networks/routedNetworks/_components/TheForm.vue:58
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheForm.vue:21
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:120
-#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupHostPortEncryption.vue:38
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:129
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupHostPortEncryption.vue:47
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:82
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:92
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:85
@@ -10157,8 +10190,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_config/index.js:222
 #: html/pfappserver/root/src/views/Users/_config/index.js:498
 #: html/pfappserver/root/src/views/Users/_config/index.js:617
-#: html/pfappserver/root/src/views/Users/_search.js:119
-#: html/pfappserver/root/src/views/Users/_search.js:305
+#: html/pfappserver/root/src/views/Users/_search.js:126
+#: html/pfappserver/root/src/views/Users/_search.js:306
 msgid "Notes"
 msgstr ""
 
@@ -10209,7 +10242,7 @@ msgstr ""
 msgid "Number of seconds to wait for the OCSP response. 0 uses system default."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:64
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:73
 msgid "Number of times a host will be able to try and self remediate before they are locked out and have to call the help desk. This is useful for users who just click through security event pages."
 msgstr ""
 
@@ -10328,7 +10361,7 @@ msgstr ""
 msgid "On success"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:39
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:40
 #: html/pfappserver/root/src/views/Nodes/_search.js:24
 msgid "Online"
 msgstr ""
@@ -10354,6 +10387,7 @@ msgstr ""
 msgid "Only works for accounting security events. The security event will be opened according to the time you set in the accounting security event (ie. You have an accounting security event for 10GB/month. If you bust the bandwidth after 3 days, the security event will open and the release date will be set for the last day of the current month)."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheCsvImport.vue:29
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheCsvImport.vue:29
 #: html/pfappserver/root/src/views/Nodes/_components/TheCsvImport.vue:28
 #: html/pfappserver/root/src/views/Users/_components/TheCsvImport.vue:61
@@ -10447,13 +10481,13 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:42
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:47
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:45
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:50
 msgid "Options"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheForm.vue:29
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:104
-#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:75
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:106
+#: html/pfappserver/root/src/views/Configuration/pki/cas/_composables/useCollection.js:77
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/TheForm.vue:36
 #: html/pfappserver/root/src/views/Configuration/pki/profiles/_components/TheForm.vue:30
 #: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_components/TheForm.vue:35
@@ -10602,9 +10636,8 @@ msgstr ""
 msgid "PEAP Profile"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:143
 #: html/pfappserver/root/src/views/Users/_config/index.js:98
-#: html/pfappserver/root/src/views/Users/_search.js:225
+#: html/pfappserver/root/src/views/Users/_search.js:226
 msgid "PID"
 msgstr ""
 
@@ -10629,6 +10662,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Users/_config/index.js:102
 msgid "PID required."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:7
+msgid "PID: {pid}"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeClickatell.vue:26
@@ -10680,8 +10717,8 @@ msgid "PKI:"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Users/_config/index.js:236
-#: html/pfappserver/root/src/views/Users/_search.js:131
-#: html/pfappserver/root/src/views/Users/_search.js:315
+#: html/pfappserver/root/src/views/Users/_search.js:138
+#: html/pfappserver/root/src/views/Users/_search.js:316
 msgid "PSK"
 msgstr ""
 
@@ -10869,7 +10906,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:21
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:169
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:171
-#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:69
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:92
 #: html/pfappserver/root/src/views/Users/_config/index.js:107
 msgid "Password"
 msgstr ""
@@ -11031,7 +11068,7 @@ msgid "Paypal cert file"
 msgstr ""
 
 #: html/pfappserver/root/src/globals/pfField.js:262
-#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:65
+#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:64
 msgid "Pending"
 msgstr ""
 
@@ -11108,7 +11145,7 @@ msgstr ""
 msgid "Please reboot the server at the end of the configuration wizard to apply changes."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:122
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:132
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:99
 #: html/pfappserver/root/src/components/new/BaseTableEmpty.vue:25
 #: html/pfappserver/root/src/views/Nodes/network/_components/TheGraph.vue:251
@@ -11174,9 +11211,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_composables/useCollection.js:122
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_composables/useCollection.js:98
 #: html/pfappserver/root/src/views/Configuration/scanEngines/schema.js:49
-#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupServerAddressPort.vue:25
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupServerAddressPort.vue:34
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:22
 #: html/pfappserver/root/src/views/Configuration/sources/schema.js:122
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:12
 #: html/pfappserver/root/src/views/Configuration/switches/config.js:12
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/FormTypeServer.vue:22
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/schema.js:34
@@ -11214,16 +11252,16 @@ msgstr ""
 msgid "Port the proxy is listening on."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupHostPortEncryption.vue:103
-#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupHostPortEncryption.vue:99
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupHostPortEncryption.vue:108
+#: html/pfappserver/root/src/views/Configuration/sources/_components/BaseFormGroupHostPortEncryption.vue:112
 msgid "Port {port} is standard for {encryption} encryption."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/interfaces/config.js:10
 #: html/pfappserver/root/src/views/Status/dashboard/_config/portal.js:5
 #: html/pfappserver/root/src/views/Users/_config/index.js:229
-#: html/pfappserver/root/src/views/Users/_search.js:125
-#: html/pfappserver/root/src/views/Users/_search.js:310
+#: html/pfappserver/root/src/views/Users/_search.js:132
+#: html/pfappserver/root/src/views/Users/_search.js:311
 msgid "Portal"
 msgstr ""
 
@@ -11255,7 +11293,7 @@ msgstr ""
 msgid "Portal URL"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:54
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:59
 msgid "Portal authentication on management"
 msgstr ""
 
@@ -11341,7 +11379,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheFilesList.vue:67
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheSearch.vue:76
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheSearch.vue:79
-#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:19
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:32
 msgid "Preview"
 msgstr ""
 
@@ -11420,7 +11458,7 @@ msgstr ""
 msgid "Private key required."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:79
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:84
 msgid "Probe Mysql from haproxy-db"
 msgstr ""
 
@@ -11432,11 +11470,11 @@ msgstr ""
 msgid "Process Name"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:50
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:55
 msgid "Process RADIUS authentication requests on the management server (the current load balancer). Disabling it will make the management server only proxy requests to other servers. Useful if your load balancer cannot handle both tasks. Changing this requires to restart radiusd."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:55
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:60
 msgid "Process captive portal requests requests on the management server (the current load balancer). Disabling it will make the management server only proxy requests to other servers. Useful if your load balancer cannot handle both tasks. Changing this requires to restart haproxy-portal."
 msgstr ""
 
@@ -11478,10 +11516,6 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networkBehaviorPolicy/schema.js:42
 msgid "Profile exists."
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:5
-msgid "Protected Services"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/schema.js:38
@@ -11587,7 +11621,7 @@ msgstr ""
 msgid "Proxy Port"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:44
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:49
 msgid "Proxy RADIUS using virtual IP"
 msgstr ""
 
@@ -11595,7 +11629,7 @@ msgstr ""
 msgid "Proxy addresses"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:45
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:50
 msgid "Proxy the RADIUS requests received on the RADIUS load balancer using the VIP. When deploying in an environment where the virtual IP is a software load balancer, disable this so that servers proxy the requests using their own IP address"
 msgstr ""
 
@@ -11762,7 +11796,7 @@ msgstr ""
 msgid "RADIUS auth"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:49
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:54
 msgid "RADIUS authentication on management"
 msgstr ""
 
@@ -11881,7 +11915,7 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAuthorization.vue:19
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypePotd.vue:34
-#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:51
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:56
 msgid "Realms that will be associated with this source (for the portal/admin GUI/RADIUS post-auth, not for FreeRADIUS proxy)."
 msgstr ""
 
@@ -11908,7 +11942,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:417
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_components/ButtonCertificateRevoke.vue:17
 #: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_components/TheForm.vue:56
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:85
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:87
 msgid "Reason"
 msgstr ""
 
@@ -11958,7 +11992,7 @@ msgid "Redirecting to login page"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/connectionProfiles/_components/TheForm.vue:132
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:53
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:62
 msgid "Redirection URL"
 msgstr ""
 
@@ -12048,7 +12082,7 @@ msgid "Register on activation"
 msgstr ""
 
 #: html/pfappserver/root/src/globals/pfField.js:260
-#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:64
+#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:63
 #: html/pfappserver/root/src/views/Nodes/_components/TabTimeline.vue:89
 #: html/pfappserver/root/src/views/Nodes/_components/TabTimeline.vue:96
 msgid "Registered"
@@ -12291,11 +12325,14 @@ msgstr ""
 msgid "Response timeout"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:43
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:21
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:29
 msgid "Restart"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:56
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:46
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:11
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:74
 msgid "Restart All"
 msgstr ""
 
@@ -12308,12 +12345,12 @@ msgstr ""
 msgid "Restart Switchport"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:174
-msgid "Restarting all services."
+#: html/pfappserver/root/src/views/Status/services/config.js:8
+msgid "Restarted services {services}."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:211
-msgid "Restarting {service}"
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:74
+msgid "Restarting"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/wrix/_components/TheForm.vue:88
@@ -12540,7 +12577,7 @@ msgstr ""
 msgid "Role to assign"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:40
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:49
 msgid "Role while isolated"
 msgstr ""
 
@@ -12597,8 +12634,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:76
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:60
 #: html/pfappserver/root/src/views/Users/_config/index.js:193
-#: html/pfappserver/root/src/views/Users/_search.js:285
-#: html/pfappserver/root/src/views/Users/_search.js:94
+#: html/pfappserver/root/src/views/Users/_search.js:101
+#: html/pfappserver/root/src/views/Users/_search.js:286
 msgid "Room Number"
 msgstr ""
 
@@ -12671,11 +12708,6 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/syslogParsers/schema.js:51
 msgid "Rules contain one or more errors."
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:137
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceAlive.js:25
-msgid "Running"
 msgstr ""
 
 #: conf/portal_modules.conf.defaults:[default_saml_policy]/description
@@ -13005,22 +13037,19 @@ msgstr ""
 msgid "Score"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:116
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:125
 msgid "Script need to be readable and executable by pf user."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:115
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:124
 msgid "Script path"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseButtonSaveSearch.vue:2
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:114
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:124
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:91
 #: html/pfappserver/root/src/components/new/BaseSearchInputBasic.vue:22
-#: html/pfappserver/root/src/components/pfSearch.vue:11
-#: html/pfappserver/root/src/components/pfSearch.vue:25
-#: html/pfappserver/root/src/components/pfSearch.vue:38
-#: html/pfappserver/root/src/composables/useInputMultiselect.js:563
+#: html/pfappserver/root/src/composables/useInputMultiselect.js:571
 #: html/pfappserver/root/src/views/Nodes/index.vue:30
 #: html/pfappserver/root/src/views/Status/assets/_components/TheView.vue:12
 #: html/pfappserver/root/src/views/Status/network_communication/_components/TheView.vue:10
@@ -13187,7 +13216,7 @@ msgstr ""
 msgid "Security event <code>{desc}</code> was not enabled."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:138
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:147
 msgid "Security event to close"
 msgstr ""
 
@@ -13202,11 +13231,11 @@ msgstr ""
 msgid "Seen"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:95
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:105
 msgid "Select All"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:97
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:107
 msgid "Select None"
 msgstr ""
 
@@ -13343,7 +13372,7 @@ msgstr ""
 msgid "Server 2 address"
 msgstr ""
 
-#: html/pfappserver/root/src/App.vue:64
+#: html/pfappserver/root/src/App.vue:67
 #: html/pfappserver/root/src/views/Configurator/network/_components/TheList.vue:96
 msgid "Server Hostname"
 msgstr ""
@@ -13386,36 +13415,8 @@ msgstr ""
 msgid "Servers required."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:86
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:125
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:133
 msgid "Service"
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:236
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceEnabled.js:20
-msgid "Service <code>{service}</code> disabled."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:229
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceEnabled.js:31
-msgid "Service <code>{service}</code> enabled."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:257
-msgid "Service <code>{service}</code> killed."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:243
-msgid "Service <code>{service}</code> restarted."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:250
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceAlive.js:31
-msgid "Service <code>{service}</code> started."
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceAlive.js:20
-msgid "Service <code>{service}</code> stopped."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeGoogleWorkspaceChromebook.vue:63
@@ -13443,11 +13444,11 @@ msgstr ""
 msgid "Service not running"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:79
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:57
 msgid "Service {name} is not required with this configuration."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:77
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:51
 msgid "Service {name} is required with this configuration."
 msgstr ""
 
@@ -13458,8 +13459,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/_components/TheTabsMain.vue:45
 #: html/pfappserver/root/src/views/Configuration/index.vue:144
 #: html/pfappserver/root/src/views/Configuration/services/_composables/useResource.js:4
-#: html/pfappserver/root/src/views/Status/index.vue:57
-#: html/pfappserver/root/src/views/Status/index.vue:70
+#: html/pfappserver/root/src/views/Status/index.vue:55
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:4
 msgid "Services"
 msgstr ""
 
@@ -13910,8 +13911,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/realms/schema.js:58
 #: html/pfappserver/root/src/views/Configuration/sources/schema.js:98
 #: html/pfappserver/root/src/views/Users/_config/index.js:252
-#: html/pfappserver/root/src/views/Users/_search.js:137
-#: html/pfappserver/root/src/views/Users/_search.js:320
+#: html/pfappserver/root/src/views/Users/_search.js:23
+#: html/pfappserver/root/src/views/Users/_search.js:321
 msgid "Source"
 msgstr ""
 
@@ -13981,7 +13982,7 @@ msgstr ""
 msgid "Sources:"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:59
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:68
 msgid "Specifies if a host can self remediate the security event (enable network button) or if they can not and must call the help desk."
 msgstr ""
 
@@ -14018,8 +14019,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:34
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:21
 #: html/pfappserver/root/src/views/Users/_config/index.js:151
-#: html/pfappserver/root/src/views/Users/_search.js:255
-#: html/pfappserver/root/src/views/Users/_search.js:56
+#: html/pfappserver/root/src/views/Users/_search.js:256
+#: html/pfappserver/root/src/views/Users/_search.js:63
 msgid "Sponsor"
 msgstr ""
 
@@ -14059,12 +14060,15 @@ msgstr ""
 msgid "Standard Switch (template based)"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:44
 #: html/pfappserver/root/src/views/Reports/_components/BaseInputDateRange.vue:22
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:22
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:33
 msgid "Start"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:53
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:48
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:12
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:76
 msgid "Start All"
 msgstr ""
 
@@ -14077,10 +14081,6 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:12
 msgid "Start PacketFence"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/cluster/_components/TheView.vue:25
-msgid "Start Redirect"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Auditing/liveLogs/_components/TheForm.vue:31
@@ -14099,6 +14099,14 @@ msgstr ""
 msgid "Start the pfpki service."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Status/services/config.js:11
+msgid "Started services {services}."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:75
+msgid "Starting"
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/networks/layer2Networks/_components/TheForm.vue:29
 #: html/pfappserver/root/src/views/Configuration/networks/layer2Networks/config.js:112
 #: html/pfappserver/root/src/views/Configuration/networks/routedNetworks/_components/TheForm.vue:79
@@ -14107,14 +14115,6 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configurator/status/_components/TheStep.vue:49
 msgid "Starting PacketFence"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:168
-msgid "Starting all services."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:215
-msgid "Starting {service}"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/_components/FormTypePacketfencePki.vue:24
@@ -14180,7 +14180,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/syslogParsers/_components/FormTypeRegex.vue:14
 #: html/pfappserver/root/src/views/Configuration/syslogParsers/_composables/useCollection.js:67
 #: html/pfappserver/root/src/views/Configurator/network/_components/TheList.vue:145
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:25
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:26
 #: html/pfappserver/root/src/views/Nodes/_components/TheFormCreate.vue:16
 #: html/pfappserver/root/src/views/Nodes/_components/TheFormUpdate.vue:14
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:189
@@ -14215,12 +14215,15 @@ msgstr ""
 msgid "Sticky DC"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:45
 #: html/pfappserver/root/src/views/Auditing/liveLogs/_components/TheView.vue:48
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:23
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:37
 msgid "Stop"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:50
+#: html/pfappserver/root/src/components/new/BaseButtonService.vue:50
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:13
+#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:78
 msgid "Stop All"
 msgstr ""
 
@@ -14228,20 +14231,13 @@ msgstr ""
 msgid "Stop processing rules if this rule matches."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Status/services/_components/ToggleServiceAlive.js:14
-msgid "Stopped"
+#: html/pfappserver/root/src/views/Status/services/config.js:14
+msgid "Stopped services {services}."
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseCsvImport.vue:854
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:76
 msgid "Stopping"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:162
-msgid "Stopping all services."
-msgstr ""
-
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:219
-msgid "Stopping {service}"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/cas/_components/TheForm.vue:41
@@ -14690,7 +14686,7 @@ msgstr ""
 msgid "Tagged VLANs"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:23
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:32
 msgid "Target Role"
 msgstr ""
 
@@ -14744,7 +14740,7 @@ msgid "Telephone number"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:78
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:58
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:60
 #: html/pfappserver/root/src/views/Configuration/pkiProviders/_components/FormTypePacketfencePki.vue:14
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeAuthenticationBlackhole.vue:33
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeAuthenticationChoice.vue:28
@@ -14767,12 +14763,12 @@ msgid "Template <code>{id}</code>"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:141
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:118
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:120
 msgid "Template Identifier"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:146
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:123
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:125
 msgid "Template Name"
 msgstr ""
 
@@ -14780,8 +14776,8 @@ msgstr ""
 msgid "Template required."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:102
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:44
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:111
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:53
 msgid "Template to use"
 msgstr ""
 
@@ -14810,15 +14806,15 @@ msgstr ""
 msgid "Tenant code"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:36
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:34
-#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:58
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:45
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:43
+#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:67
 msgid "Test"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:139
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:127
-#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:162
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:148
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:136
+#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:171
 msgid "Test failed with unknown error."
 msgstr ""
 
@@ -14827,9 +14823,9 @@ msgstr ""
 msgid "Test mode"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:136
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:124
-#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:159
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:145
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:133
+#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:168
 msgid "Test succeeded."
 msgstr ""
 
@@ -14841,14 +14837,14 @@ msgstr ""
 msgid "Testing SMTP..."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:130
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:118
-#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:153
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordTest.vue:139
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputTest.vue:127
+#: html/pfappserver/root/src/components/new/BaseFormGroupTextareaTest.vue:162
 #: html/pfappserver/root/src/views/Configuration/syslogParsers/_components/BaseFormGroupTest.js:48
 msgid "Testing..."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:49
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:58
 msgid "Text displayed on the security event form to hosts."
 msgstr ""
 
@@ -15054,7 +15050,7 @@ msgid "The character used to quote fields. The quoting of all fields is not mand
 msgstr ""
 
 #: html/pfappserver/root/src/views/Status/dashboard/_components/TheView.vue:5
-msgid "The charts of the dasboard are currently not available."
+msgid "The charts on the dashboard are currently not available."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/clouds/_components/FormTypeIntune.vue:19
@@ -15065,7 +15061,7 @@ msgstr ""
 msgid "The client secret of the intune service"
 msgstr ""
 
-#: html/pfappserver/root/src/App.vue:132
+#: html/pfappserver/root/src/App.vue:135
 msgid "The configurator is enabled. You should disable it if your PacketFence configuration is completed."
 msgstr ""
 
@@ -15073,8 +15069,8 @@ msgstr ""
 msgid "The cost factor to apply to the password hashing if applicable. Currently only applies to bcrypt."
 msgstr ""
 
-#: html/pfappserver/root/src/App.vue:126
-#: html/pfappserver/root/src/store/modules/system.js:84
+#: html/pfappserver/root/src/App.vue:129
+#: html/pfappserver/root/src/store/modules/system.js:85
 msgid "The database is in readonly mode. Not all functionality is available."
 msgstr ""
 
@@ -15153,7 +15149,7 @@ msgstr ""
 msgid "The encoding to use when opening local files."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:2
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:9
 msgid "The following users have been created"
 msgstr ""
 
@@ -15514,6 +15510,7 @@ msgstr ""
 msgid "The window to consider when counting the amount of blacklisted IPs the endpoint has communicated with."
 msgstr ""
 
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheCsvImport.vue:39
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheCsvImport.vue:39
 #: html/pfappserver/root/src/views/Nodes/_components/TheCsvImport.vue:38
 #: html/pfappserver/root/src/views/Users/_components/TheCsvImport.vue:71
@@ -15530,10 +15527,6 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeAuthenticationSms.vue:34
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeAuthenticationSponsor.vue:35
 msgid "These fields will be saved through the registration process"
-msgstr ""
-
-#: html/pfappserver/root/src/views/Status/services/_components/TheView.vue:6
-msgid "These services can not be managed since they are required in order for this page to function."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/captivePortal/_components/TheForm.vue:20
@@ -15675,8 +15668,8 @@ msgstr ""
 msgid "This server's name (account name) in your Active Directory. Use '%h' to automatically use this server hostname."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseButtonService.vue:38
-msgid "This service must be managed from the command-line."
+#: html/pfappserver/root/src/views/Status/services/_components/BaseService.vue:45
+msgid "This service can not be managed since it is required for this page to function."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configurator/packetfence/_components/FormGeneral.vue:31
@@ -15778,8 +15771,8 @@ msgstr ""
 #: html/pfappserver/root/src/views/Users/_components/TheFormCreateSingle.vue:46
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:30
 #: html/pfappserver/root/src/views/Users/_config/index.js:114
-#: html/pfappserver/root/src/views/Users/_search.js:23
-#: html/pfappserver/root/src/views/Users/_search.js:230
+#: html/pfappserver/root/src/views/Users/_search.js:231
+#: html/pfappserver/root/src/views/Users/_search.js:30
 msgid "Title"
 msgstr ""
 
@@ -16049,6 +16042,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:113
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useCollection.js:72
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_composables/useForm.js:33
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:42
 #: html/pfappserver/root/src/views/Configuration/switchGroups/schema.js:39
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheForm.vue:25
 #: html/pfappserver/root/src/views/Configuration/switches/_composables/useCollection.js:120
@@ -16074,13 +16068,13 @@ msgstr ""
 msgid "Type required."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:100
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:110
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:80
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:428
 msgid "Type to search"
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:115
+#: html/pfappserver/root/src/components/new/BaseFormGroupChosen.vue:125
 #: html/pfappserver/root/src/components/new/BaseInputChosen.vue:92
 msgid "Type to search results."
 msgstr ""
@@ -16258,7 +16252,7 @@ msgid "Unregister"
 msgstr ""
 
 #: html/pfappserver/root/src/globals/pfField.js:261
-#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:66
+#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:65
 msgid "Unregistered"
 msgstr ""
 
@@ -16510,9 +16504,12 @@ msgid "Use the RADIUS username instead of the TLS certificate common name when d
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeEdir.vue:90
+msgid "Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server."
+msgstr ""
+
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeLdap.vue:103
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:41
-msgid "Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server."
+msgid "Use the available PacketFence connectors to connect to this authentication source. By default, a local connector is hosted on this server. Using remote connectors is only supported on a standalone instance at the moment."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheForm.vue:246
@@ -16535,6 +16532,14 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/radius/general/_components/TheForm.vue:97
 msgid "Use the local accounts in the password table to authenticate 802.1x users. Requires to have the passwords in clear text or NTLM."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:45
+msgid "Use the virtual IP as the source IP during access reevaluation."
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:44
+msgid "Use virtual IP for access reevaluation"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Preferences/_components/TabSettings.vue:16
@@ -16670,7 +16675,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:30
 #: html/pfappserver/root/src/views/Configurator/status/_components/FormStatus.vue:46
 #: html/pfappserver/root/src/views/Nodes/_config/index.js:167
-#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:57
+#: html/pfappserver/root/src/views/Users/_components/ThePreviewModal.vue:80
 #: html/pfappserver/root/src/views/Users/_search.js:15
 msgid "Username"
 msgstr ""
@@ -16799,7 +16804,7 @@ msgid "VRRP Unicast"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/pki/certs/_composables/useCollection.js:99
-#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:79
+#: html/pfappserver/root/src/views/Configuration/pki/revokedCerts/_composables/useCollection.js:81
 msgid "Valid Until"
 msgstr ""
 
@@ -16900,11 +16905,11 @@ msgstr ""
 msgid "View All"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:119
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:120
 msgid "View Communication"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:115
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:116
 msgid "View Node"
 msgstr ""
 
@@ -16913,8 +16918,8 @@ msgid "View Service Provider Metadata"
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/networks/trafficShapingPolicies/_components/TheSearch.vue:71
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:62
-#: html/pfappserver/root/src/views/Configuration/switches/_components/BaseFormGroupType.vue:17
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:63
+#: html/pfappserver/root/src/views/Configuration/switches/_components/BaseFormGroupType.vue:26
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:71
 msgid "View Switch Template"
 msgstr ""
@@ -17269,7 +17274,7 @@ msgstr ""
 msgid "Whether or not this task is enabled.\\nRequires a restart of pfcron to be effective."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:65
+#: html/pfappserver/root/src/views/Configuration/activeActive/_components/TheForm.vue:70
 msgid "Whether or not to activate galera cluster when using a cluster."
 msgstr ""
 
@@ -17288,6 +17293,10 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeSslInspection.vue:29
 #: html/pfappserver/root/src/views/Configuration/portalModules/_components/FormTypeUrl.vue:19
 msgid "Whether or not, this message can be skipped"
+msgstr ""
+
+#: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeRadius.vue:46
+msgid "Which NAS IP Address to use when communicating with the RADIUS server. Leaving this empty will make the source use the management IP of the server (management VIP in a cluster)."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeKandji.vue:65
@@ -17354,6 +17363,7 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheView.vue:61
 #: html/pfappserver/root/src/views/Auditing/radiusLogs/_search.js:437
+#: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:22
 #: html/pfappserver/root/src/views/Configuration/switches/config.js:22
 msgid "Wi-Fi Network SSID"
 msgstr ""
@@ -17469,8 +17479,8 @@ msgstr ""
 msgid "Work Phone"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_search.js:157
-#: html/pfappserver/root/src/views/Users/_search.js:335
+#: html/pfappserver/root/src/views/Users/_search.js:158
+#: html/pfappserver/root/src/views/Users/_search.js:336
 msgid "Work Telephone Number"
 msgstr ""
 
@@ -17520,7 +17530,7 @@ msgstr ""
 msgid "You can add FreeRADIUS options in the realm definition."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:120
+#: html/pfappserver/root/src/views/Configuration/securityEvents/_components/BaseFormGroupActions.vue:129
 msgid "You can use the following variables in your script launch command:"
 msgstr ""
 
@@ -17590,7 +17600,6 @@ msgid "\"{set_unreg_date}\" requires either \"{set_role}\" or \"{set_role_on_not
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvanced.vue:43
-#: html/pfappserver/root/src/components/pfSearchBoolean.vue:61
 msgid "and"
 msgstr ""
 
@@ -17803,12 +17812,12 @@ msgstr ""
 msgid "not starts with"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:44
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:45
 #: html/pfappserver/root/src/views/Nodes/_components/TheSearch.vue:72
 msgid "off"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:41
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:42
 #: html/pfappserver/root/src/views/Nodes/_components/TheSearch.vue:69
 #: html/pfappserver/root/src/views/Status/dashboard/_components/Chart.vue:90
 msgid "on"
@@ -17822,11 +17831,10 @@ msgid "open"
 msgstr ""
 
 #: html/pfappserver/root/src/components/new/BaseSearchInputAdvancedRule.vue:42
-#: html/pfappserver/root/src/components/pfSearchBoolean.vue:45
 msgid "or"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:33
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:34
 #: html/pfappserver/root/src/views/Nodes/_components/TheSearch.vue:64
 msgid "pending"
 msgstr ""
@@ -17844,7 +17852,7 @@ msgstr ""
 msgid "protocols"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:27
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:28
 #: html/pfappserver/root/src/views/Nodes/_components/TheSearch.vue:58
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:217
 msgid "registered"
@@ -17887,12 +17895,12 @@ msgstr ""
 msgid "time period within"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:47
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:48
 #: html/pfappserver/root/src/views/Nodes/_components/TheSearch.vue:75
 msgid "unknown"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:30
+#: html/pfappserver/root/src/views/Nodes/_components/BaseButtonDropdown.vue:31
 #: html/pfappserver/root/src/views/Nodes/_components/TheSearch.vue:61
 #: html/pfappserver/root/src/views/Users/_components/TheFormUpdate.vue:218
 msgid "unregistered"
@@ -17940,9 +17948,9 @@ msgstr ""
 msgid "{collection} <code>{id}</code> enabled."
 msgstr ""
 
-#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:48
+#: html/pfappserver/root/src/components/new/BaseFormGroupInputPasswordGenerator.vue:57
 #: html/pfappserver/root/src/components/new/BaseInputGroupPasswordGenerator.vue:40
-#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:17
+#: html/pfappserver/root/src/views/Users/_components/BaseFormGroupPasswordOptions.vue:26
 msgid "{count} characters"
 msgstr ""
 
@@ -17964,10 +17972,10 @@ msgstr ""
 msgid "{name} Server Private Key"
 msgstr ""
 
-#: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheSearch.vue:65
-#: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheSearch.vue:68
-#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:71
-#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:79
+#: html/pfappserver/root/src/views/Auditing/adminApiLogs/_components/TheSearch.vue:64
+#: html/pfappserver/root/src/views/Auditing/dhcpOption82Logs/_components/TheSearch.vue:67
+#: html/pfappserver/root/src/views/Auditing/dnsLogs/_components/TheSearch.vue:70
+#: html/pfappserver/root/src/views/Auditing/radiusLogs/_components/TheSearch.vue:78
 #: html/pfappserver/root/src/views/Configuration/adminRoles/_components/TheSearch.vue:83
 #: html/pfappserver/root/src/views/Configuration/billingTiers/_components/TheSearch.vue:82
 #: html/pfappserver/root/src/views/Configuration/clouds/_components/TheSearch.vue:83
@@ -18007,7 +18015,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/securityEvents/_components/TheSearch.vue:93
 #: html/pfappserver/root/src/views/Configuration/selfServices/_components/TheSearch.vue:82
 #: html/pfappserver/root/src/views/Configuration/sources/_components/TheTable.vue:70
-#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:88
+#: html/pfappserver/root/src/views/Configuration/switchGroups/_components/TheSearch.vue:89
 #: html/pfappserver/root/src/views/Configuration/switchTemplates/_components/TheSearch.vue:80
 #: html/pfappserver/root/src/views/Configuration/switches/_components/TheSearch.vue:102
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/TheSearch.vue:83
@@ -18017,6 +18025,7 @@ msgstr ""
 #: html/pfappserver/root/src/views/Reports/_components/TheTable.vue:90
 #: html/pfappserver/root/src/views/Status/network_communication/_components/BaseButtonBulkActions.vue:4
 #: html/pfappserver/root/src/views/Status/network_threats/_components/TheView.vue:125
+#: html/pfappserver/root/src/views/Status/services/_components/BaseButtonBulkActions.vue:5
 #: html/pfappserver/root/src/views/Users/_components/TheSearch.vue:75
 msgid "{num} selected"
 msgstr ""
@@ -18025,7 +18034,7 @@ msgstr ""
 msgid "{path} required."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:195
+#: html/pfappserver/root/src/views/Users/_components/TheFormCreateMultiple.vue:202
 msgid "{quantity} users created"
 msgstr ""
 

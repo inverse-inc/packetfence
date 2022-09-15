@@ -20,6 +20,7 @@ use List::MoreUtils qw(any);
 
 our %ALLOWED_ATTRIBUTES = (
     Public => 1,
+    Queue => 1,
     Fork => 1,
     AllowedAsAction => 1,
     ActionParams => 1,
@@ -92,6 +93,20 @@ sub updateAllowedAsActions {
 sub isPublic {
     my ($class, $method) = @_;
     return _hasTag($class, $method, 'Public');
+}
+
+sub isQueue {
+    my ($class, $method) = @_;
+    return _hasAnyTags($class, $method, 'Public', 'Queue');
+}
+
+sub _hasAnyTags {
+    my ($class, $method, @tags) = @_;
+    my $code = $class->can($method);
+    return unless $code;
+    my $ref_addr = Scalar::Util::refaddr($code);
+    return unless exists $TAGS{$ref_addr};
+    return any { exists $TAGS{$ref_addr}{$_} } @tags;
 }
 
 sub _hasTag {

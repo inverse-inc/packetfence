@@ -6,5 +6,6 @@ name=pfcron
 
 args=`base_args $name`
 args="$args -v /usr/local/pf/raddb/certs:/usr/local/pf/raddb/certs -v /usr/local/pf/conf/ssl:/usr/local/pf/conf/ssl"
+args="$args --network=host"
 
 run $name "$args"

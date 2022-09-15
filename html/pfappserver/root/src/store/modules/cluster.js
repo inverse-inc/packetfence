@@ -9,7 +9,7 @@ import i18n from '@/utils/locale'
 const api = (state, server = store.state.system.hostname) => {
   let headers = {}
 
-  if (server && state.config) { // is cluster
+  if (server && state.cluster) { // is cluster
     const { servers: { [server]: { management_ip } = {} } = {} } = state
     if (management_ip) {
       headers['X-PacketFence-Server'] = management_ip
@@ -18,23 +18,12 @@ const api = (state, server = store.state.system.hostname) => {
 
   return {
     config: () => {
-      return apiCall.get('cluster/config').then(response => {
-        const { data: { item, item: { CLUSTER = {} } = {} } = {} } = response
-        if (Object.keys(CLUSTER).length) {
-          // is cluster
-          return item
-        }
-        // no cluster
-        return store.dispatch('system/getHostname').then(host => {
-          return {
-            "CLUSTER": false,
-            [host]: { host, management_ip: "127.0.0.1" }
-          }
-        })
+      return apiCall.get('cluster/servers').then(response => {
+        return response.data.items
       })
     },
     services: () => {
-      if (state.config) { // is cluster
+      if (state.cluster) { // is cluster
         return apiCall.getQuiet(`services/cluster_status/${server}`).then(response => {
           return response.data.item.services
         })
@@ -170,7 +159,7 @@ export const protectedServices = [ // prevent start|stop|restart control on thes
 // Default values
 const initialState = () => {
   return {
-    config: false,
+    cluster: false,
     servers: {},
     message: '',
     status: ''
@@ -189,13 +178,20 @@ const getters = {
           [id]: {
             servers: {
                ...((id in sorted) ? sorted[id].servers : {} ),
-              [server]: service
+              [server]: {
+                ...service,
+                isDisabling: service.status === types.DISABLING,
+                isEnabling: service.status === types.ENABLING,
+                isRestarting: service.status === types.RESTARTING,
+                isStarting: service.status === types.STARTING,
+                isStopping: service.status === types.STOPPING,
+              }
             },
             hasAlive: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.alive && service.pid) > -1,
             hasDead: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !(service.alive || service.pid)) > -1,
             hasEnabled: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.enabled) > -1,
             hasDisabled: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !service.enabled) > -1,
-            isProtected: !!protectedServices.find(listed => listed === id)
+            isProtected: !!protectedServices.find(listed => listed === id),
           }
         }
       }, sorted)
@@ -206,19 +202,32 @@ const getters = {
 const actions = {
   getConfig: ({ state, commit, dispatch }, withServices) => {
     commit('CONFIG_REQUEST')
-    return api(state).config().then(item => {
-      commit('CONFIG_SUCCESS', item)
-      const { CLUSTER, ...servers } = item
-      if (withServices) {
-        let promises = []
-        Object.keys(servers).map(server => {
-          promises.push(dispatch('getServices', server))
-        })
-        return Promise.all(promises).then(() => {
-         return state.config
+    return api(state).config().then(items => {
+      if (items.length) {
+        // is cluster
+        commit('CONFIG_IS_CLUSTER')
+      }
+      else {
+        // no cluster
+        items = store.dispatch('system/getHostname').then(host => {
+          return [
+            { host, management_ip: "127.0.0.1" }
+          ]
         })
       }
-      return state.config
+      return Promise.resolve(items).then(items => {
+        commit('CONFIG_SUCCESS', items)
+        if (withServices) {
+          let promises = []
+          items.map(server => {
+            promises.push(dispatch('getServices', server.host))
+          })
+          return Promise.all(promises).then(() => {
+           return state.cluster
+          })
+        }
+        return state.cluster
+      })
     }).catch(err => {
       const { response } = err
       commit('CONFIG_ERROR', response)
@@ -462,7 +471,8 @@ const actions = {
     })
   },
 
-  restartSystemService: ({ state, commit }, { server, id }) => {
+  restartSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_RESTARTING', { server, id })
     return api(state, server).restartSystem(id).then(response => {
       commit('SYSTEM_SERVICE_RESTARTED', { server, id, response })
@@ -473,7 +483,8 @@ const actions = {
       throw err
     })
   },
-  startSystemService: ({ state, commit }, { server, id }) => {
+  startSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_STARTING', { server, id })
     return api(state, server).startSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STARTED', { server, id, response })
@@ -484,7 +495,8 @@ const actions = {
       throw err
     })
   },
-  stopSystemService: ({ state, commit }, { server, id }) => {
+  stopSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_STOPPING', { server, id })
     return api(state, server).stopSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STOPPED', { server, id, response })
@@ -495,7 +507,7 @@ const actions = {
       throw err
     })
   },
-  updateSystemd: ({ state, commit }, { server, id }) => {
+  updateSystemd: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEMD_REQUEST', { server, id })
     return api(state, server).updateSystemd(id).then(response => {
       commit('SYSTEMD_SUCCESS', { server, id, response })
@@ -512,11 +524,12 @@ const mutations = {
   CONFIG_REQUEST: state => {
     state.status = types.LOADING
   },
-  CONFIG_SUCCESS: (state, item) => {
-    const { CLUSTER, ...servers } = item
-    state.config = CLUSTER
-    Object.keys(servers).map(server => {
-      Vue.set(state.servers, server, { services: {}, ...state.servers[server], ...item[server] })
+  CONFIG_IS_CLUSTER: state => {
+    state.cluster = true
+  },
+  CONFIG_SUCCESS: (state, items) => {
+    items.map(server => {
+      Vue.set(state.servers, server.host, { services: {}, system_services: {}, ...state.servers[server.host], ...server })
     })
     state.status = types.SUCCESS
     state.message = ''
@@ -548,7 +561,7 @@ const mutations = {
 
   SERVICE_REQUEST: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, state.servers[server] || { services: {} })
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {} })
     Vue.set(state.servers[server].services, id, state.servers[server].services[id] || {})
     Vue.set(state.servers[server].services[id], 'status', types.LOADING)
   },
@@ -623,27 +636,40 @@ const mutations = {
     }
   },
 
-  SYSTEM_SERVICE_RESTARTING: state => {
-    state.status = types.RESTARTING
+  SYSTEM_SERVICE_REQUEST: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {} })
+    Vue.set(state.servers[server].system_services, id, state.servers[server].services[id] || {})
+    Vue.set(state.servers[server].system_services[id], 'status', types.LOADING)
   },
-  SYSTEM_SERVICE_RESTARTED: state => {
+  SYSTEM_SERVICE_RESTARTING: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers[server].system_services[id], 'status', types.RESTARTING)
+  },
+  SYSTEM_SERVICE_RESTARTED: (state, { server, id }) => {
     state.status = types.SUCCESS
+    Vue.set(state.servers[server].system_services[id], 'status', types.SUCCESS)
   },
-  SYSTEM_SERVICE_STARTING: state => {
-    state.status = types.STARTING
+  SYSTEM_SERVICE_STARTING: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers[server].system_services[id], 'status', types.STARTING)
   },
-  SYSTEM_SERVICE_STARTED: state => {
+  SYSTEM_SERVICE_STARTED: (state, { server, id }) => {
     state.status = types.SUCCESS
+    Vue.set(state.servers[server].system_services[id], 'status', types.SUCCESS)
   },
-  SYSTEM_SERVICE_STOPPING: state => {
-    state.status = types.STOPPING
+  SYSTEM_SERVICE_STOPPING: (state, { server, id }) => {
+    state.status = types.LOADING
+    Vue.set(state.servers[server].system_services[id], 'status', types.STOPPING)
   },
-  SYSTEM_SERVICE_STOPPED: state => {
+  SYSTEM_SERVICE_STOPPED: (state, { server, id }) => {
     state.status = types.SUCCESS
+    Vue.set(state.servers[server].system_services[id], 'status', types.SUCCESS)
   },
-  SYSTEM_SERVICE_ERROR: (state, error) => {
+  SYSTEM_SERVICE_ERROR: (state, { server, id, error }) => {
     state.status = types.ERROR
     state.message = error
+    Vue.set(state.servers[server].system_services[id], 'status', types.ERROR)
   },
 
   SYSTEMD_REQUEST: state => {

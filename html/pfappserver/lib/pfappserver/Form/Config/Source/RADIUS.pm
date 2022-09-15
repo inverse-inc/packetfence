@@ -80,6 +80,12 @@ has_field 'options',
    default => 'type = auth+acct',
 );
 
+has_field 'nas_ip_address' =>
+  (
+   type => 'Text',
+   default => pf::Authentication::Source::RADIUSSource->meta->get_attribute('nas_ip_address')->default,
+  );
+
 sub _options_set_role_from_source {
     my ($self) = @_;
     return map { $_ => $_} @{$Config{radius_configuration}{radius_attributes}};

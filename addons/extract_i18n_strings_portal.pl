@@ -17,6 +17,7 @@ use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use File::Find;
 use pf::web::constants;
 use pf::person;
+use pf::IniFiles;
 
 use constant {
     CONF => 'conf',
@@ -213,6 +214,36 @@ sub parse_person {
     }
 }
 
+=head2 extract_authentication_description
+
+extract the default authentication description
+
+=cut
+
+sub extract_authentication_description {
+    _extract_field_from_ini('/usr/local/pf/conf/authentication.conf.example', 'description');
+}
+
+sub _extract_field_from_ini {
+    my ($file, $field) = @_;
+    my $ini = pf::IniFiles->new( -file => $file);
+    for my $section  (grep { /^\S+$/ } $ini->Sections) {
+        my $value = $ini->val($section, $field);
+        next if !defined $value || $value eq '';
+        add_string($value, "$file $section");
+    }
+}
+
+=head2 extract_portal_module_description
+
+extract the default portal module description
+
+=cut
+
+sub extract_portal_module_description {
+    _extract_field_from_ini('/usr/local/pf/conf/portal_modules.conf.defaults', 'description');
+}
+
 
 =head2 print_po
 
@@ -296,6 +327,8 @@ sub verify {
 &parse_person;
 &parse_mc;
 &extract_modules;
+&extract_portal_module_description;
+&extract_authentication_description;
 &print_po;
 &verify;
 

@@ -13,8 +13,22 @@
         <template v-else v-for="(service, server) in servers">
           <icon v-if="service.status === 'loading'" :key="`icon-${server}`"
             name="circle-notch" spin class="text-primary fa-overlap mr-1" />
-           <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
+          <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
             name="exclamation-triangle" class="text-danger fa-overlap mr-1" />
+          <icon v-else-if="service.isDisabling || service.isEnabling || service.isRestarting || service.isStarting || service.isStopping"  :key="`icon-${server}`"
+            class="fa-overlap mr-1">
+            <icon name="circle" class="text-white" />
+            <icon v-if="service.isDisabling"
+              name="toggle-off" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isEnabling"
+              name="toggle-on" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isRestarting"
+              name="redo" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isStarting"
+              name="play" class="text-primary" scale="0.5" />
+            <icon v-else-if="service.isStopping"
+              name="stop" class="text-primary" scale="0.5" />
+          </icon>
           <icon v-else :key="`icon-${server}`"
             name="circle" :class="(service.alive && service.pid) ? 'text-success' : 'text-danger'" class="fa-overlap mr-1" />
         </template>
@@ -25,15 +39,15 @@
     <b-dropdown-group v-if="isAllowed && isCluster"
       :header="$i18n.t('CLUSTER')">
       <b-dropdown-item v-if="enable && cluster.hasDisabled"
-        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All') }}</b-dropdown-item>
+        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="disable && cluster.hasEnabled"
-        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All') }}</b-dropdown-item>
+        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="restart && cluster.hasAlive"
-        @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All') }}</b-dropdown-item>
+        @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="start && cluster.hasDead"
-        @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All') }}</b-dropdown-item>
+        @click="doStartAll" @click.stop="onClick" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $t('Start All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="stop && cluster.hasAlive"
-        @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All') }}</b-dropdown-item>
+        @click="doStopAll" @click.stop="onClick" :disabled="isLoading"><icon name="stop" class="mr-1" /> {{ $t('Stop All Sequentially') }}</b-dropdown-item>
     </b-dropdown-group>
 
     <template v-for="(service, server) in servers">
@@ -43,12 +57,11 @@
          {{ server }}
         </template>
         <b-dropdown-form style="width: 400px;">
-          <base-service :id="service.id" :server="server" v-bind="{ enable, disable, restart, start, stop }" />
+          <base-service :id="service.id" :server="server" v-bind="{ acl, enable, disable, restart, start, stop }" />
         </b-dropdown-form>
       </b-dropdown-group>
     </template>
   </b-dropdown>
-
 </template>
 <script>
 import BaseService from '@/views/Status/services/_components/BaseService'

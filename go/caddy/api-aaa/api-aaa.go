@@ -99,15 +99,32 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func validateTokenArgs(args []string) ([]string, error) {
-	switch args[0] {
-	default:
-		err := fmt.Errorf("Invalid session_backend type '%s'", args[0])
-		fmt.Println(err)
-		return nil, err
-	case "mem", "redis", "db":
-		return args, nil
+func hasDuplicate(a []string) bool {
+	dups := map[string]struct{}{}
+	for _, i := range a {
+		if _, found := dups[i]; found {
+			return true
+		}
+		dups[i] = struct{}{}
 	}
+	return false
+}
+
+func validateTokenArgs(args []string) ([]string, error) {
+	if hasDuplicate(args) {
+		return nil, errors.New("Cannot defined a backend type multiple times")
+	}
+
+	for _, i := range args {
+		switch i {
+		default:
+			err := fmt.Errorf("Invalid session_backend type '%s'", i)
+			return nil, err
+		case "mem", "redis", "db":
+			break
+		}
+	}
+	return args, nil
 }
 
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes

@@ -83,9 +83,9 @@ function yum_upgrade_packetfence_package() {
   yum localinstall -y https://www.inverse.ca/downloads/PacketFence/RHEL8/packetfence-release-$UPGRADE_TO.el8.noarch.rpm
   yum clean all --enablerepo=packetfence
   if is_enabled $1; then
-    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade
+    yum update -y --enablerepo=packetfence --exclude=packetfence-upgrade --allowerasing
   else
-    yum update packetfence -y --enablerepo=packetfence
+    yum update packetfence -y --enablerepo=packetfence --allowerasing
   fi
 }
 
@@ -157,14 +157,6 @@ function handle_pkgnew_files() {
   done
 }
 
-ALLOW_CLUSTER_UPGRADE="${ALLOW_CLUSTER_UPGRADE:-no}"
-if ! is_enabled $ALLOW_CLUSTER_UPGRADE && is_cluster; then
-  echo "Upgrading a cluster is not supported by this tool at the moment."
-  echo "You can use it **at your own risk** by setting the following environment variable:"
-  echo "  export ALLOW_CLUSTER_UPGRADE=yes"
-  exit 1
-fi
-
 function hook_if_exists() {
   hook=/usr/local/pf/addons/full-upgrade/hooks/hook-$1
   if [ -f $hook ]; then
@@ -222,11 +214,17 @@ upgrade_packetfence_package $INCLUDE_OS_UPDATE
 
 hook_if_exists do-upgrade-post-package-upgrade.sh
 
-main_splitter
-db_name=`get_db_name /usr/local/pf/conf/pf.conf`
-upgrade_database $db_name
+handle_devel_upgrade $UPGRADE_TO
 
-hook_if_exists do-upgrade-post-db-upgrade.sh
+UPGRADE_CLUSTER_SECONDARY="${UPGRADE_CLUSTER_SECONDARY:-}"
+# Do not upgrade the database when upgrading secondary nodes of a cluster (the primary will sync its data to them)
+if [ "$UPGRADE_CLUSTER_SECONDARY" != "yes" ]; then
+  main_splitter
+  db_name=`get_db_name /usr/local/pf/conf/pf.conf`
+  upgrade_database $db_name
+
+  hook_if_exists do-upgrade-post-db-upgrade.sh
+fi
 
 main_splitter
 upgrade_configuration `egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' /usr/local/pf/conf/pf-release.preupgrade`
@@ -246,12 +244,16 @@ echo "Applying fixpermissions"
 /usr/local/pf/bin/pfcmd fixpermissions
 
 sub_splitter
+echo "Restarting packetfence-redis-cache"
+systemctl restart packetfence-redis-cache
+
+sub_splitter
 echo "Restarting packetfence-config"
 systemctl restart packetfence-config
 
 sub_splitter
 echo "Reloading configuration"
-/usr/local/pf/bin/pfcmd configreload hard
+configreload
 
 sub_splitter
 echo "Updating systemd services state"

@@ -16,7 +16,6 @@ args="$args -v /etc/resolv.conf:/etc/resolv.conf"
 args="$args --network=host"
 args="$args -e HOST_OS"
 args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
-args="$args -v/usr/local/pf/var/run/:/usr/local/pf/var/run/"
 
 cd /usr/local/pf/
 

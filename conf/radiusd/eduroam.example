@@ -336,21 +336,21 @@ post-auth {
 	#	&reply: += &session-state:
 	#}
 [% eduroam_post_auth %]
-	if (Realm == "eduroam") {
+	if (&control:Realm == "eduroam") {
 		# Update the realm in the request so its consistent with the logic that will be performed in httpd.aaa
 		update request {
 			Realm = "eduroam"
 		}
 		rest
-	}
-	if (updated || ok || noop) {
-		request-timing
-		-sql
-	} else {
-		request-timing
-		-sql_reject
-	}
 
+		if (updated || ok || noop) {
+			request-timing
+			-sql
+		} else {
+			request-timing
+			-sql_reject
+		}
+	}
 	attr_filter.packetfence_post_auth
 	linelog
 	#

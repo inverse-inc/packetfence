@@ -29,7 +29,7 @@ You can download the ZEN here: https://www.packetfence.org/download.html#/zen
 ==== Virtual Machine
 
 This setup has been tested using VMware ESXi, Fusion and Workstation products
-with 12 GB of RAM dedicated to the virtual machine. It might work using other
+with 16 GB of RAM dedicated to the virtual machine. It might work using other
 VMware products.  To properly run the PacketFence virtual appliance, you need
 a CPU that supports long mode. In other words, you need to have a 64-bit
 capable CPU on your host. PacketFence ZEN comes in a pre-built virtual disk
@@ -64,7 +64,7 @@ You can download the ISO here: https://www.packetfence.org/download.html#/releas
 
 This setup has been tested using VMware ESXi, Proxmox VE and VirtualBox but will also work with any hypervisor PacketFence supports as well as bare-metal servers.
 
-You will need a virtual machine or server with 12 GB of RAM dedicated to machine as well as 2 CPUs. Make sure you allocate at least 100GB of disk space for PacketFence.
+You will need a virtual machine or server with 16 GB of RAM dedicated to machine as well as 4 CPUs. Make sure you allocate at least 200GB of disk space for PacketFence.
 
 ==== Installing the ISO to a virtual machine
 
@@ -134,6 +134,14 @@ Install kernel development package:
 yum install kernel-devel-$(uname -r)
 ----
 
+Ensure `runc` and `podman` are uninstalled (PacketFence uses docker+containerd.io)
+
+[source,bash]
+----
+yum remove runc podman
+----
+
+
 NOTE: Make sure you are actually running the latest kernel prior to installing the kernel development package. Reboot prior to installing this package if unsure.
 
 ===== RHEL 8.x
@@ -195,3 +203,6 @@ apt-get update
 apt-get install packetfence
 ----
 
+=== Installing PacketFence on Linode
+
+PacketFence v12 includes instructions on deploying PacketFence on Linode IaaS. See the <<PacketFence_Installation_Guide.asciidoc#_how_to_deploy_packetfence_on_linode,Appendix>> below for details.

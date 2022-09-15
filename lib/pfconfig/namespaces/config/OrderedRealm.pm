@@ -34,7 +34,7 @@ sub init {
 
 sub build_child {
     my ($self) = @_;
-    return [@{$self->{ordered_sections}}];
+    return [map {lc($_)} @{$self->{ordered_sections}}];
 }
 
 =head1 AUTHOR

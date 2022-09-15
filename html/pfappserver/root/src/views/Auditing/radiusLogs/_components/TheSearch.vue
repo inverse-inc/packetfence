@@ -20,7 +20,6 @@
         show-empty
         no-local-sorting
         sort-icon-left
-        fixed
         striped
         selectable
         @row-selected="onRowSelected"

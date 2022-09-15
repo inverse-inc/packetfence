@@ -11,11 +11,15 @@ type MemTokenBackend struct {
 	maxExpiration time.Duration
 }
 
-func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) *MemTokenBackend {
+func NewMemTokenBackend(expiration time.Duration, maxExpiration time.Duration, args []string) TokenBackend {
 	return &MemTokenBackend{
 		store:         cache.New(expiration, 10*time.Minute),
 		maxExpiration: maxExpiration,
 	}
+}
+
+func (tb *MemTokenBackend) Type() string {
+	return "mem"
 }
 
 func (mtb *MemTokenBackend) TokenIsValid(token string) bool {
@@ -52,3 +56,5 @@ func (mtb *MemTokenBackend) TouchTokenInfo(token string) {
 		mtb.store.SetDefault(token, ti)
 	}
 }
+
+var _ TokenBackend = (*MemTokenBackend)(nil)

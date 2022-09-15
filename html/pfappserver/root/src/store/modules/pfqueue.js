@@ -4,8 +4,15 @@
 import Vue from 'vue'
 import { types } from '@/store'
 import apiCall from '@/utils/api'
+import i18n from '@/utils/locale'
 
 const retries = {} // global retry counter
+
+// number of retries before giving up
+const POLL_RETRY_NUM = 20
+
+// delay between retries (seconds)
+const POLL_RETRY_INTERVAL = 3
 
 const pollTaskStatus = ({ task_id, headers }) => {
   return apiCall.getQuiet(`pfqueue/task/${task_id}/status/poll`, { headers }).then(response => {
@@ -21,14 +28,22 @@ const pollTaskStatus = ({ task_id, headers }) => {
         retries[task_id] = 0
       else
         retries[task_id]++
-      if (retries[task_id] > 10) // give up after N retries
+      if (retries[task_id] >= POLL_RETRY_NUM) // give up after N retries
         throw error
       return new Promise((resolve, reject) => {
         setTimeout(() => { // debounce retries
           pollTaskStatus({ task_id, headers })
             .then(resolve)
-            .catch(reject)
-        }, 1000)
+            .catch(err => {
+              if (err.message) { // AxiosError
+                const data = i18n.t('{message}. No response after {timeout} seconds, gave up after {retries} retries.', { message: err.message, timeout: POLL_RETRY_NUM * POLL_RETRY_INTERVAL, retries: POLL_RETRY_NUM })
+                reject({ response: { data } })
+              }
+              else { // recursion
+                reject(error)
+              }
+            })
+        }, POLL_RETRY_INTERVAL * 1E3)
       })
     }
   })

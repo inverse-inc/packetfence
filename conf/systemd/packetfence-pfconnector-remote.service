@@ -8,7 +8,7 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
 LimitNOFILE=infinity
 EnvironmentFile=/etc/pfconnector-client.env
 ExecStart=/usr/local/bin/pfconnector client ENV 127.0.0.1:22226:127.0.0.1:22226
-Restart=on-failure
+Restart=always
 
 [Install]
 WantedBy=multi-user.target

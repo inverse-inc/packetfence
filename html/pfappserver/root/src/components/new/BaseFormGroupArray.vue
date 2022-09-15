@@ -4,9 +4,18 @@
     :class="{
       'mb-0': !columnLabel
     }"
-    :state="inputState"
-    :labelCols="labelCols"
+    :content-cols="contentCols"
+    :content-cols-sm="contentColsSm"
+    :content-cols-md="contentColsMd"
+    :content-cols-lg="contentColsLg"
+    :content-cols-xl="contentColsXl"
     :label="columnLabel"
+    :label-cols="labelCols"
+    :label-cols-sm="labelColsSm"
+    :label-cols-md="labelColsMd"
+    :label-cols-lg="labelColsLg"
+    :label-cols-xl="labelColsXl"
+    :state="inputState"
   >
     <b-input-group
       :class="{
@@ -33,8 +42,8 @@
             'is-lastchild': index === inputValue.length - 1
           }"
         >
-          <b-col class="text-center">
-            <span class="col-form-label ">{{ index + 1 }}</span>
+          <b-col class="text-center p-3">
+            <span class="col-form-label"><b-badge pill variant="light" class="py-1 px-2">{{ index + 1 }}</b-badge></span>
           </b-col>
           <b-col cols="10" class="py-1">
 

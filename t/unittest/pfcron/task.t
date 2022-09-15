@@ -44,6 +44,8 @@ use Test::More tests => 2 + (sum map { $_->{test_count} // 2 } @TESTS );
 
 use DateTime;
 use Test::NoWarnings;
+use pf::api;
+use pf::api::local;
 use Net::SMTP::Server;
 use Net::SMTP::Server::Client;
 use Carp;
@@ -85,6 +87,8 @@ END {
 }
 
 is(SHM::getCount(), 0, "The SHM is set to zero");
+
+local $pf::config::util::SEND_MAIL_API_CLIENT = 'pf::api::local';
 
 for my $test (@TESTS) {
     my $ctx = {};

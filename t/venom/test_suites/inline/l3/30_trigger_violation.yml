@@ -32,6 +32,9 @@ testcases:
 
   - type: exec
     script: 'ipset test pfsession_Isol_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
+    # wait two minutes before failing
+    retry: 8
+    delay: 15
 
 - name: release_violation_on_the_node
   steps:
@@ -58,4 +61,6 @@ testcases:
 
   - type: exec
     script: 'ipset test pfsession_Reg_{{.inline_l3.routed_networks}} {{.inline_l3.node.ipaddress}}'
-
+    # wait two minutes before failing
+    retry: 8
+    delay: 15

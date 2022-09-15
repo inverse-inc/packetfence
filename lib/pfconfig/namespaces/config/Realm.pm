@@ -42,14 +42,16 @@ sub build_child {
     $self->cleanup_whitespaces( \%cfg );
     my %reverselookup;
     $self->{reverselookup} = \%reverselookup;
+    my %cfg_lc;
     while ( my ($k, $val) = each %cfg) {
         $self->expand_list($val, qw(categories));
         if (exists $val->{domain}) {
             push @{$reverselookup{domain}{$val->{domain}}}, $k;
         }
+        $cfg_lc{lc($k)} = $val;
     }
 
-    return \%cfg;
+    return \%cfg_lc;
 }
 
 =head1 AUTHOR

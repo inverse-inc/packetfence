@@ -23,6 +23,10 @@ our $CONFIG_DEFAULTS_FILE_PATH = "/usr/local/pf/conf/pfconfig.conf.defaults";
 our $SOCKET_PATH = "/usr/local/pf/var/run/pfconfig.sock";
 Readonly::Scalar our $CONTROL_FILE_DIR => "/usr/local/pf/var/control";
 
+Readonly::Scalar our $UPGRADE_IN_PROCESS_PATH => "/usr/local/pf/var/run/pkg_install_in_progress";
+Readonly::Scalar our $UPGRADE_IN_PROCESS_MAX_CONNECT_TIMES => 7200;
+
+Readonly::Scalar our $MAX_CONNECT_TIMES => 600;
 
 Readonly::Scalar our $DEFAULT_BACKEND => "mysql";
 

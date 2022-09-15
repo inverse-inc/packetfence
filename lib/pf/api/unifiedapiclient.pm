@@ -207,7 +207,7 @@ sub call {
             }
         }
         # If we got a 401 and aren't currently logging in then we try to login and retry the request
-        elsif(!$retrying || ($response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH)) {
+        elsif(!$retrying && $response_code == 401 && $path ne $pf::constants::api::LOGIN_PATH) {
             get_logger->info("Request to $path is unauthorized, will perform a login");
             $self->connection($self->curl);
             $self->login();
@@ -238,7 +238,7 @@ Perform a login and record the token
 
 sub login {
     my ($self) = @_;
-    my $token = $self->call("POST", $pf::constants::api::LOGIN_PATH, {username => $self->username, password => $self->password})->{token};
+    my $token = $self->call("POST", $pf::constants::api::LOGIN_PATH, {username => $self->username, password => $self->password}, 1)->{token};
     $self->token($token);
 }
 

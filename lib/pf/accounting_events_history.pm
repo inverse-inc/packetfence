@@ -44,7 +44,7 @@ The server of the redis client
 has server => (
     is       => 'rw',
     required => 1,
-    default  => sub { "127.0.0.1:6379" },
+    default  => sub { "100.64.0.1:6379" },
 );
 
 =head2 prefix

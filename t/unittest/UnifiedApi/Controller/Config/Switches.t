@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 60;
+use Test::More tests => 64;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -231,6 +231,22 @@ $t->patch_ok("$base_url/172.16.8.24" => json => {RoleMap => 'Y'})
 $t->get_ok("$base_url/172.16.8.24")
   ->status_is(200)
   ->json_is('/item/RoleMap', 'Y');
+
+$t->get_ok("$base_url/172.16.8.37")
+  ->status_is(200)->json_is(
+    '/item/registrationAccessList',
+    "permit udp any range bootps 65347 any range bootpc 65348\ndeny ip any any"
+  )
+  ->json_is(
+    '/item/AccessListMapping',
+    [
+        {
+            accesslist =>
+"permit udp any range bootps 65347 any range bootpc 65348\ndeny ip any any",
+            role => 'registration'
+        }
+    ]
+  );
 
 =head1 AUTHOR
 

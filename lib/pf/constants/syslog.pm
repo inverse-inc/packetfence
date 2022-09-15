@@ -32,7 +32,7 @@ our @SyslogInfo = (
         'name'       => 'packetfence.log',
         'conditions' => [
             '$programname contains "packetfence"',
-            '$programname == "pfqueue-docker-wrapper"',
+            '$programname == "pfqueue"',
             '($syslogtag == "pfhttpd" and not $msg contains "GET /api/v1/logs/tail/")',
             '$programname == "pfipset"',
             '$programname == "pfpki-docker-wrapper"',
@@ -126,7 +126,7 @@ our @SyslogInfo = (
     {
         'description' => 'FreeRADIUS eduroam server log',
         'name'       => 'radius-eduroam.log',
-        'conditions' => [ '$programname == "radiusd-eduroam-docker-wrapper"' ]
+        'conditions' => [ '$syslogtag contains "eduroam" ' ]
     },
     {
         'description' => 'FreeRADIUS load balancing server log (cluster only)',
@@ -136,7 +136,10 @@ our @SyslogInfo = (
     {
         'description' => 'FreeRADIUS authentication server log',
          'name'       => 'radius.log',
-        'conditions' => [ '$programname == "radiusd-auth-docker-wrapper"' ]
+        'conditions' => [
+            '$syslogtag contains "auth" and $syslogfacility-text == "local1"',
+            '$programname contains "radius" and $syslogfacility-text == "local1"'
+        ]
 
     },
     {
@@ -180,7 +183,7 @@ our @SyslogInfo = (
     {
         'description' => 'ProxySQL log',
         'name'       => 'proxysql.log',
-         'conditions' => [ '$programname == "proxysql"' ]
+         'conditions' => [ '$programname == "proxysql-docker-wrapper"' ]
     },
     {
         'description' => 'haproxy portal log',

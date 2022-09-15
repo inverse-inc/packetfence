@@ -13,7 +13,7 @@
 # Main package
 #==============================================================================
 Name:       packetfence
-Version:    11.3.0
+Version:    12.1.0
 Release:    2%{?dist}
 Summary:    PacketFence network registration / worm mitigation system
 Packager:   Inverse inc. <support@inverse.ca>
@@ -308,7 +308,7 @@ Requires: docker-ce docker-ce-cli containerd.io
 # For managing the number of connections per device
 Requires: haproxy >= 2.2.0, keepalived >= 2.0.0
 # CAUTION: we need to require the version we want for Fingerbank and ensure we don't want anything equal or above the next major release as it can add breaking changes
-Requires: fingerbank >= 4.3.1, fingerbank < 5.0.0
+Requires: fingerbank >= 4.3.2, fingerbank < 5.0.0
 Requires: fingerbank-collector >= 1.4.0, fingerbank-collector < 2.0.0
 #Requires: perl(File::Tempdir)
 
@@ -547,6 +547,7 @@ rm -rf %{buildroot}
 
 /usr/bin/systemctl --now mask mariadb
 /usr/bin/systemctl --now mask proxysql
+/usr/bin/systemctl --now mask radiusd
 
 # Disable libvirtd and kill its dnsmasq if its there so that it doesn't prevent pfdns from starting
 /usr/bin/systemctl --now mask libvirtd
@@ -606,6 +607,9 @@ fi
 # Post Installation
 #==============================================================================
 %post
+mkdir -p /usr/local/pf/var/run/
+touch /usr/local/pf/var/run/pkg_install_in_progress
+
 chown pf.pf /usr/local/pf/conf/pfconfig.conf
 echo "Adding PacketFence config startup script"
 
@@ -645,7 +649,7 @@ fi
 
 # Install the monitoring scripts signing key
 echo "Install the monitoring scripts signing key"
-gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /usr/share/keyrings/monitoring-scripts-keyring.gpg
+gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /etc/pki/rpm-gpg/RPM-GPG-KEY-PACKETFENCE-MONITORING
 
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
@@ -716,39 +720,55 @@ echo "Restarting rsyslogd"
 #removing old cache
 /bin/systemctl enable docker
 /bin/systemctl restart docker
-# get containers image and tag them locally
-/usr/local/pf/containers/manage-images.sh
 
-rm -rf /usr/local/pf/var/cache/
-/usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
-/bin/systemctl disable firewalld
-/bin/systemctl enable packetfence-mariadb
-/bin/systemctl enable packetfence-redis-cache
-/bin/systemctl enable packetfence-config
-/bin/systemctl disable packetfence-iptables
-/bin/systemctl start packetfence-config
-/usr/local/pf/bin/pfcmd generatemariadbconfig --force
-# only packetfence-config is running after this command
-/bin/systemctl isolate packetfence-base
+if [ "$1" = "2" ]; then
+    # When upgrading from pre-v12, redis-cache must be restarted to listen on the containers interfaces
+    # Didn't find a way to detect the previous version during the upgrade so it's always going to be restarted on upgrade
+    systemctl restart packetfence-redis-cache
+fi
 
-/bin/systemctl enable packetfence-httpd.admin_dispatcher
-/bin/systemctl enable packetfence-haproxy-admin
-/bin/systemctl enable packetfence-iptables
-/bin/systemctl enable packetfence-tracking-config.path
-/usr/local/pf/bin/pfcmd configreload
-echo "Starting PacketFence Administration GUI..."
-/bin/systemctl start packetfence-httpd.admin_dispatcher
-/bin/systemctl start packetfence-haproxy-admin
+# We use a if/else bloc to stop post installation at first error in manage-images.sh
+# get containers images and tag them locally
+if /usr/local/pf/containers/manage-images.sh; then
+    rm -rf /usr/local/pf/var/cache/
+    /usr/bin/firewall-cmd --zone=public --add-port=1443/tcp
+    /bin/systemctl disable firewalld
+    /bin/systemctl enable packetfence-mariadb
+    /bin/systemctl enable packetfence-redis-cache
+    /bin/systemctl enable packetfence-config
+    /bin/systemctl disable packetfence-iptables
+    /bin/systemctl stop packetfence-iptables
+    /bin/systemctl start packetfence-config
+    /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+    # only packetfence-config is running after this command
+    /bin/systemctl isolate packetfence-base
 
-/usr/local/pf/bin/pfcmd service pf updatesystemd
+    /bin/systemctl enable packetfence-httpd.admin_dispatcher
+    /bin/systemctl enable packetfence-haproxy-admin
+    /bin/systemctl enable packetfence-tracking-config.path
+    /usr/local/pf/bin/pfcmd configreload
+    echo "Starting PacketFence Administration GUI..."
+    /bin/systemctl start packetfence-httpd.admin_dispatcher
+    /bin/systemctl start packetfence-haproxy-admin
 
-# Empty root password in order to allow other user to connect as root.
-/usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
+    /bin/systemctl enable packetfence-iptables
+    /bin/systemctl stop packetfence-iptables
+    /usr/local/pf/containers/docker-minimal-rules.sh
+    
+    /usr/local/pf/bin/pfcmd service pf updatesystemd
 
-echo Installation complete
-echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
-echo "  * Please stop your iptables service if you don't have access to configurator."
+    # Empty root password in order to allow other user to connect as root.
+    /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('');"
 
+    echo Installation complete
+    echo "  * Please fire up your Web browser and go to https://@ip_packetfence:1443 to complete your PacketFence configuration."
+    echo "  * Please stop your iptables service if you don't have access to configurator."
+
+    rm -f /usr/local/pf/var/run/pkg_install_in_progress
+else
+    echo "An issue occured while downloading containers images"
+    echo "Check your Internet access and reinstall packetfence package"
+fi
 #==============================================================================
 # Pre uninstallation
 #==============================================================================
@@ -847,6 +867,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/bin/pftest
                         /usr/local/pf/bin/pflogger-packetfence
 %attr(0755, pf, pf)     /usr/local/pf/bin/pflogger.pl
+%attr(0755, pf, pf)     /usr/local/pf/bin/proxysql-read-only-handler.sh
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/maintenance
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/management_update
 %attr(0755, pf, pf)     /usr/local/pf/bin/cluster/sync
@@ -1186,6 +1207,7 @@ fi
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
+%attr(0755, pf, pf)     /usr/local/pf/db/upgrade-11.2-12.0-tenant.pl
 
 # html dir
 %dir                    /usr/local/pf/html
@@ -1280,6 +1302,12 @@ fi
 # Changelog
 #==============================================================================
 %changelog
+* Wed Sep 14 2022 Inverse <info@inverse.ca> - 12.1.0-1
+- New release 12.1.0
+
+* Fri Sep 02 2022 Inverse <info@inverse.ca> - 12.0.0-1
+- New release 12.0.0
+
 * Wed Feb 23 2022 Inverse <info@inverse.ca> - 11.3.0-1
 - New release 11.3.0
 

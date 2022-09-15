@@ -19,6 +19,8 @@ const api = {
     const { id = null, value = null } = _data
     if (!id)
       throw new Error('Invalid or missing id.')
+    if (!value)
+      return Promise.resolve(undefined)
     let meta = {
       created_at: (new Date()).getTime(),
       updated_at: (new Date()).getTime(),

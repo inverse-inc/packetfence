@@ -99,6 +99,7 @@ sub put_dns_servers {
 sub _get_hostname {
     my ($self) = @_;
     my $hostname = pf_run("hostnamectl --static");
+    chomp($hostname);
     return $hostname if defined($hostname);
 }
 

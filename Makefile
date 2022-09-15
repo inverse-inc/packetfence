@@ -280,7 +280,8 @@ dist-packetfence-test: distclean-packetfence-test
 	# preserve, recursive and symlinks
 	cp -pRH $(pf_test_files_to_include) packetfence-test-$(PF_PATCH_RELEASE)
 	cp -p Makefile config.mk packetfence-test-$(PF_PATCH_RELEASE)
-	tar c -f packetfence-test-$(PF_PATCH_RELEASE).tar packetfence-test-$(PF_PATCH_RELEASE)
+	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
+	-f packetfence-test-$(PF_PATCH_RELEASE).tar packetfence-test-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-test-$(PF_PATCH_RELEASE)
 
 
@@ -312,7 +313,8 @@ dist-packetfence-export: distclean-packetfence-export
 	mkdir -p packetfence-export-$(PF_PATCH_RELEASE)
 	# preserve, recursive and symlinks
 	cp -pRH $(pf_export_files_to_include) packetfence-export-$(PF_PATCH_RELEASE)
-	tar c -f packetfence-export-$(PF_PATCH_RELEASE).tar packetfence-export-$(PF_PATCH_RELEASE)
+	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
+	-f packetfence-export-$(PF_PATCH_RELEASE).tar packetfence-export-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-export-$(PF_PATCH_RELEASE)
 
 # packetfence-upgrade package
@@ -325,7 +327,8 @@ dist-packetfence-upgrade: distclean-packetfence-upgrade
 	mkdir -p packetfence-upgrade-$(PF_PATCH_RELEASE)
 	# preserve, recursive and symlinks
 	cp -pRH $(pf_upgrade_files_to_include) packetfence-upgrade-$(PF_PATCH_RELEASE)
-	tar c -f packetfence-upgrade-$(PF_PATCH_RELEASE).tar packetfence-upgrade-$(PF_PATCH_RELEASE)
+	tar c --exclude-from=$(SRC_ROOT_DIR)/dist_ignore \
+	-f packetfence-upgrade-$(PF_PATCH_RELEASE).tar packetfence-upgrade-$(PF_PATCH_RELEASE)
 	rm -rf packetfence-upgrade-$(PF_PATCH_RELEASE)
 
 .PHONY: website

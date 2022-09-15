@@ -219,7 +219,10 @@ sub _get_from_socket {
         $logger->error($message);
         print STDERR "$message\n";
         select( undef, undef, undef, 0.1 );
-        die("Cannot connect to service pfconfig!") if ( $times >= 600 );
+        my $max_times = (-f $pfconfig::constants::UPGRADE_IN_PROCESS_PATH) ? $pfconfig::constants::UPGRADE_IN_PROCESS_MAX_CONNECT_TIMES : $pfconfig::constants::MAX_CONNECT_TIMES;
+        if ( $times >= $max_times ) {
+            die("Cannot connect to service pfconfig!") ;
+        }
     }
 
     # it returns it as a sereal hash

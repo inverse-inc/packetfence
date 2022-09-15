@@ -127,7 +127,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.bulkImportAsync(data).then(response => {
       const { data: { task_id } = {} } = response
-      return store.dispatch('pfqueue/pollTaskStatus', task_id).then(response => {
+      return store.dispatch('pfqueue/pollTaskStatus', { task_id }).then(response => {
         commit('ITEM_BULK_SUCCESS', response.items)
         return response
       })

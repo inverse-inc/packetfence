@@ -81,6 +81,9 @@ BEGIN {
   );
 }
 
+
+our $SEND_MAIL_API_CLIENT = "pf::api::queue";
+
 =head1 METHODS
 
 =cut
@@ -129,6 +132,13 @@ sub ip2device {
 =cut
 
 sub pfmailer {
+    my (%data) = @_;
+    my $client = $SEND_MAIL_API_CLIENT->new(queue => 'priority');
+    $client->notify(pfmailer => %data);
+    return;
+}
+
+sub pfmailer_now {
     my (%data) = @_;
     my $to = $Config{'alerting'}{'emailaddr'};
     my $host_prefix = $cluster_enabled ? " ($host_id)" : '';
@@ -195,6 +205,12 @@ sub build_email {
 
 sub send_email {
     my ($template, $email, $subject, $data, $tmpoptions) = @_;
+    my $client = $SEND_MAIL_API_CLIENT->new(queue => 'priority');
+    $client->notify(send_email => $template, $email, $subject, $data, $tmpoptions);
+}
+
+sub send_email_now {
+    my ($template, $email, $subject, $data, $tmpoptions) = @_;
     my $msg = build_email($template, $email, $subject, $data, $tmpoptions);
     return send_mime_lite($msg);
 }
@@ -234,8 +250,6 @@ sub i18n_format {
     $result = sprintf($result, @args);
     return $result;
 }
-
-
 
 =head2 add_standard_include_path
 
@@ -489,6 +503,14 @@ sub get_send_email_config {
     $args{Timeout} = $config->{smtp_timeout};
     $args{Port} = $config->{smtp_port} || $ALERTING_PORTS{$encryption};
     return \%args;
+}
+
+
+sub send_mime_lite_queued {
+    my ($mime, @args) = @_;
+    my $client = $SEND_MAIL_API_CLIENT->new(queue => 'priority');
+    $client->notify(send_mime_lite => $mime, @args);
+    return 1;
 }
 
 =head2 send_mime_lite

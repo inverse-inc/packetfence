@@ -49,8 +49,10 @@
           </b-row>
         </template>
         <template #top-row v-if="selected.length">
-        <base-button-bulk-actions
-          :selectedItems="selectedItems" :visibleColumns="serviceFields" class="my-3" />
+          <td :colspan="serviceFields.length">
+            <base-button-bulk-actions
+              :selectedItems="selectedItems" :visibleColumns="serviceFields" />
+          </td>
         </template>
         <template #cell(selected)="{ index, rowSelected }">
           <span @click.stop="onItemSelected(index)">
@@ -70,7 +72,7 @@
             class="m-1" variant="outline-primary" @click="doEnableAll(service)" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable All') }}</b-button>
           <b-button v-if="hasEnabled"
             class="m-1" variant="outline-primary" @click="doDisableAll(service)" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable All') }}</b-button>
-          <b-button v-if="hasAlive && !isProtected"
+          <b-button v-if="hasAlive"
             class="m-1" variant="outline-primary" @click="doRestartAll(service)" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $i18n.t('Restart All') }}</b-button>
           <b-button v-if="hasDead && !isProtected"
             class="m-1" variant="outline-primary" @click="doStartAll(service)" :disabled="isLoading"><icon name="play" class="mr-1" /> {{ $i18n.t('Start All') }}</b-button>
@@ -122,7 +124,7 @@ const setup = (props, context) => {
     return [
       {
         key: 'selected',
-        thStyle: 'min-width: 40px; width: 40px;', tdClass: 'text-center',
+        thStyle: 'width: 40px;', tdClass: 'text-center',
         locked: true,
         stickyColumn: true,
 

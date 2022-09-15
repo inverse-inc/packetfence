@@ -1,7 +1,11 @@
-import { onMounted, onBeforeUnmount, ref } from '@vue/composition-api'
+import { nextTick, onMounted, onBeforeUnmount, ref } from '@vue/composition-api'
+import { createDebouncer } from 'promised-debounce'
 
 export const useMutationObserver = (el, callback, config = {}) => {
-  const observer = new MutationObserver(callback)
+  const _debouncer = createDebouncer()
+  const handler = () => nextTick(callback) // wait for all Vue DOM mutations
+  const debouncer = () => _debouncer({ handler, time: 100 }) // debounce DOM mutations
+  const observer = new MutationObserver(debouncer)
   const removeObserver = () => observer.disconnect()
 
   onMounted(() => {

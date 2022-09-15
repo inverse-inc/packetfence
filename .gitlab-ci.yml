@@ -109,14 +109,16 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-# only run this job on devel branch with build_img_container variable defined or build_img_container in commit message
+# run this job on devel branch if not canceled by BUILD_IMG_CONTAINER=no
 .build_img_container_devel_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
       when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# run this job on maintenance branches if BUILD_IMG_CONTAINER is yes or on all other branches unless BUILD_IMG_DOCKER is no
+# run this job on maintenance branches and all other branches if not canceled by BUILD_IMG_CONTAINER=no
 .build_img_container_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_IMG_CONTAINER == "no"'
@@ -129,7 +131,7 @@ variables:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ($BUILD_IMG_DOCKER == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_docker=yes/)'
 
-# run this job on maintenance branches if BUILD_IMG_DOCKER is yes or on all other branches unless BUILD_IMG_DOCKER is no
+# run this job on maintenance branches and all other branches if not canceled by BUILD_IMG_DOCKER=no
 .build_img_docker_branches_and_maintenance_rules:
   rules:
     - if: '$BUILD_IMG_DOCKER == "no"'
@@ -211,6 +213,14 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_MATERIAL == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_material=yes/ )'
 
+
+# run this job on:
+# - devel branch with BUILD_ARTIFACTS_DOC variable defined or build_artifacts_doc=yes in commit message
+# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
+.build_artifacts_doc_devel_and_branches_rules:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
 
 # don't run if DEPLOY_PKG is equals to 'no'
 # run only jobs on "devel" branch (push, schedule and web)
@@ -320,6 +330,23 @@ variables:
   tags:
     - docker
 
+.build_artifacts_doc_job:
+  stage: build_artifacts
+  dependencies: []
+  script:
+    - make -C html/pfappserver/root/ vendor
+    - make -C html/pfappserver/root/ light-dist
+    - make html
+    - make pdf
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - docs/*.html
+      - docs/*.pdf
+      - docs/images/*
+  tags:
+    - docker
+
 .publish_job:
   stage: publish
   environment:
@@ -346,8 +373,7 @@ variables:
     paths:
       - results/*
   tags:
-    - inverse.ca
-    - shell
+    - test-shell
 
 .deploy_deb_job:
   stage: deploy
@@ -657,19 +683,21 @@ pfdeb_based_rel:
           - "pfperl-api"
           - "pfconnector"
           - "pfpki"
+          - "pfcron"
           - "haproxy-portal"
           - "haproxy-admin"
           - "proxysql"
 
-#img_rel:
-#  extends:
-#    - .build_img_container_job
-#    - .release_only_rules
-#  variables:
-#    IMAGE_TAGS: ${CI_COMMIT_TAG}
-#  parallel:
-#    matrix:
-#      - IMAGE_NAME:
+img_rel:
+ extends:
+   - .build_img_container_job
+   - .release_only_rules
+ variables:
+   IMAGE_TAGS: ${CI_COMMIT_TAG}
+ parallel:
+   matrix:
+     - IMAGE_NAME:
+          - "fingerbank-db"
 
 rad_based_rel:
   extends:
@@ -840,10 +868,24 @@ material_devel_and_branches:
     - .build_artifacts_material_devel_and_branches_rules
 
 # build_artificats_material job for release
-material_release:
+# material_release:
+#   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
+#   extends:
+#     - .build_artifacts_material_job
+#     - .release_only_rules
+
+# build_artifacts_doc jobs for development
+build_artifacts_doc_devel_and_branches:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
+  extends:
+    - .build_artifacts_doc_job
+    - .build_artifacts_doc_devel_and_branches_rules
+
+# build_artifacts_doc jobs for release
+build_artifacts_doc_release:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_TAG}
   extends:
-    - .build_artifacts_material_job
+    - .build_artifacts_doc_job
     - .release_only_rules
 
 ########################################

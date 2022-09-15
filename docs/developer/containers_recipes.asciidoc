@@ -1,0 +1,54 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//== Containers recipes
+
+=== Glossary
+
+ * A server running the packages: A PacketFence server installed using the RPM or DEB packages and not converted to a dev machine (i.e. what PacketFence users deploy)
+
+=== Applying a custom patch on a server running the packages
+
+When applying a custom patch or adding debug in the code on a PacketFence 12.0+ server, additional steps must be taking for your change to be effective in the service(s) running in container mode.
+
+To know if a service runs in container mode, run `systemctl status` on the service (ex: `systemctl status packetfence-pfpki`) and check if one of the child processes contains `docker run`.
+
+After you've altered the code on the server and you're satisfied with the changes, run the following command:
+
+[source,bash]
+----
+# (pfpki is being used in this example, replace with the appropriate container name)
+/usr/local/pf/addons/dev-helpers/build-local-container.sh pfpki
+----
+
+Make sure the build succeeds and then restart the service using `systemctl restart [service-name]` to make your change active.
+
+WARNING: If you apply the maintenance or upgrade PacketFence, your changes to this container will be lost
+
+=== Altering the code in a container on a server running the packages
+
+If you alter the code in a running container, your change will be lost the next time the container restarts. In order to make your change permanent, run:
+
+[source,bash]
+----
+# (pfpki is being used in this example, replace with the appropriate container name)
+/usr/local/pf/addons/dev-helpers/commit-local-container.sh pfpki
+----
+
+WARNING: If you apply the maintenance or upgrade PacketFence, your changes to this container will be lost
+

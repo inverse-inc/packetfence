@@ -4,3 +4,6 @@ testcases:
     steps:
       - type: exec
         script: 'ipset test pfsession_Unreg_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
+        # wait two minutes before failing
+        retry: 8
+        delay: 15

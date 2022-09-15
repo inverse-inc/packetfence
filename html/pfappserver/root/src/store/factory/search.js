@@ -179,14 +179,21 @@ const factory = (uuid, options = {}) => {
                   const response = this.responseInterceptor(_response)
                   const { items = [], nextCursor, total_count } = response
                   this.items = items || []
-                  if (nextCursor)
-                    this.cursors[this.page] = nextCursor
+                  const itemsLength = this.useItems(items).length
                   if (total_count) // endpoint returned a total count
                     this.totalRows = total_count
-                  else if (this.useItems(items).length === this.limit) // +1 to guarantee next
-                    this.totalRows = (this.page * this.limit) + 1
+                  else if (itemsLength === this.limit)
+                    this.totalRows = (this.page * this.limit)
                   else
-                    this.totalRows = (this.page * this.limit) - this.limit + this.useItems(items).length
+                    this.totalRows = (this.page * this.limit) - this.limit + itemsLength
+                  if (nextCursor) {
+                    this.cursors[this.page] = nextCursor
+                    if (!total_count)
+                      this.totalRows = Math.max(this.totalRows, nextCursor + 1) // +1 to guarantee next
+                  }
+                  if (!itemsLength && this.page > 1) { // go back page if !items
+                    this.setPage(this.page - 1)
+                  }
                   this.lastQuery = null
                 })
                 .catch(() => {
@@ -241,14 +248,21 @@ const factory = (uuid, options = {}) => {
                 const response = this.responseInterceptor(_response)
                 const { items, nextCursor, total_count } = response
                 this.items = items || []
-                if (nextCursor)
-                  this.cursors[this.page] = nextCursor
+                const itemsLength = this.useItems(items).length
                 if (total_count) // endpoint returned a total count
                   this.totalRows = total_count
-                else if (this.useItems(items).length === this.limit) // +1 to guarantee next
-                  this.totalRows = (this.page * this.limit) + 1
+                else if (itemsLength === this.limit)
+                  this.totalRows = (this.page * this.limit)
                 else {
-                  this.totalRows = (this.page * this.limit) - this.limit + this.useItems(items).length
+                  this.totalRows = (this.page * this.limit) - this.limit + itemsLength
+                }
+                if (nextCursor) {
+                  this.cursors[this.page] = nextCursor
+                  if (!total_count)
+                    this.totalRows = Math.max(this.totalRows, nextCursor + 1) // +1 to guarantee next
+                }
+                if (!itemsLength && this.page > 1) { // go back page if !items
+                  this.setPage(this.page - 1)
                 }
                 this.lastQuery = query
               })

@@ -1,8 +1,7 @@
 # Copyright (C) Inverse inc.
 [Unit]
 Description=PacketFence MariaDB Galera conflict resolution
-After=network.target packetfence-config.service
-Wants=packetfence-config.service
+After=network.target
 
 [Service]
 EnvironmentFile=-/usr/local/pf/conf/log.conf.d/galera-autofix.conf

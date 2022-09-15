@@ -1,10 +1,17 @@
 <template>
   <b-form-group ref="form-group"
     class="base-form-group"
+    :content-cols="contentCols"
+    :content-cols-md="contentColsMd"
+    :content-cols-lg="contentColsLg"
+    :content-cols-xl="contentColsXl"
     :state="state"
+    :label="columnLabel"
     :label-class="labelClass"
     :label-cols="labelCols"
-    :label="columnLabel"
+    :label-cols-md="labelColsMd"
+    :label-cols-lg="labelColsLg"
+    :label-cols-xl="labelColsXl"
   >
     <template v-slot:invalid-feedback v-if="invalidFeedback">
       <span v-html="invalidFeedback" />

@@ -115,12 +115,13 @@ sub sendSMS {
     my ($self, $info) = @_;
     require pf::config::util;
     my $email = sprintf($info->{activation}{'carrier_email_pattern'}, $info->{'to'});
-    my $msg = MIME::Lite->new(
-        To          =>  $email,
-        Subject     =>  "Network Activation",
-        Data        =>  $info->{message} . "\r\n",
+    return pf::config::util::send_mime_lite_queued(
+        MIME::Lite->new(
+            To          =>  $email,
+            Subject     =>  "Network Activation",
+            Data        =>  $info->{message} . "\r\n",
+        )
     );
-    return pf::config::util::send_mime_lite($msg);
 }
 
 =head1 AUTHOR

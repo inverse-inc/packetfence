@@ -105,7 +105,8 @@ sub _expandMapping {
             my $type = $2;
             my $role = $1;
             if ($type eq 'AccessList' && ref($val) eq 'ARRAY') {
-                $toset->{$attr} = join("\n", @$val);
+                $val = join("\n", @$val);
+                $toset->{$attr} = $val;
             }
 
             my $key;

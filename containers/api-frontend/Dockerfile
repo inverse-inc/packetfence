@@ -17,8 +17,6 @@ FROM ${KNK_REGISTRY_URL}/pfdebian:${IMAGE_TAG}
 
 WORKDIR /usr/local/pf/
 
-RUN apt-get install -y freeradius-common
-
 COPY ./lib/pf/util/combined_dictionary /usr/local/pf/lib/pf/util/combined_dictionary
 COPY ./raddb/dictionary ./raddb/dictionary.inverse ./raddb/dictionary.oauth2 ./raddb/dictionary.pfacct ./raddb/dictionary.ruckus ./raddb/dictionary.xirrus /usr/local/pf/raddb/
 COPY html/pfappserver/root/errors/ html/pfappserver/root/errors/

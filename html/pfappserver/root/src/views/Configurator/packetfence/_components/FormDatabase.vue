@@ -4,7 +4,20 @@
       <h4 class="d-inline mb-0" v-t="'Database'"/>
     </b-card-header>
     <b-form>
-      <base-form
+      <b-container v-if="isStarting || isLoading"
+        class="d-flex align-items-center justify-content-md-center">
+        <b-row class="py-5 justify-content-md-center text-secondary">
+          <b-col cols="12" md="auto">
+            <b-media>
+              <template v-slot:aside><icon name="circle-notch" scale="2" spin class="is-invalid"/></template>
+              <h4 v-if="isStarting">{{ $i18n.t('Starting MySQL service') }}</h4>
+              <h4 v-else>{{ $i18n.t('Probing MySQL configuration') }}</h4>
+              <p class="font-weight-light" v-t="'Please wait...'"/>
+            </b-media>
+          </b-col>
+        </b-row>
+      </b-container>
+      <base-form v-else
         :form="form"
         :schema="schema"
         :isLoading="isLoading"
@@ -250,10 +263,13 @@ export const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['$_bases/isLoading'])
 
   // Make sure the database server is running
+  const isStarting = ref(true)
   $store.dispatch('cluster/startSystemService', { id: 'packetfence-mariadb', quiet: true }).then(() => {
     form.value.db = DEFAULT_DATABASE
     form.value.user = DEFAULT_USERNAME
     initialValidation()
+  }).finally(() => {
+    isStarting.value = false
   })
 
   const automaticConfiguration = ref(false)
@@ -484,6 +500,7 @@ export const setup = (props, context) => {
     form,
     schema,
     isLoading,
+    isStarting,
     onSave,
 
     automaticConfiguration,

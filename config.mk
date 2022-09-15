@@ -32,7 +32,7 @@ SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
 # Containers
 KNK_REGISTRY = ghcr.io
 KNK_REGISTRY_URL = ghcr.io/inverse-inc/packetfence
-LOCAL_REGISTRY = local
+LOCAL_REGISTRY = packetfence
 #
 # Golang
 #

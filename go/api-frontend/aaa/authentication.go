@@ -25,7 +25,6 @@ func NewTokenAuthenticationMiddleware(tb TokenBackend) *TokenAuthenticationMiddl
 }
 
 func (tam *TokenAuthenticationMiddleware) AddAuthenticationBackend(ab AuthenticationBackend) {
-	fmt.Println("bleh")
 	tam.authBackends = append(tam.authBackends, ab)
 }
 

@@ -1,5 +1,5 @@
 # Copyright (C) Inverse inc.
-127.0.0.1:22223 100.64.0.1:22223 {
+*:22223 {
   pfconfigpool
   logger {
     level INFO

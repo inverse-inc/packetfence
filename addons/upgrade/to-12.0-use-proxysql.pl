@@ -32,7 +32,7 @@ if (!$pf_ini->exists('database', 'host')) {
 }
 
 my $db_pf = $pf_ini->val('database', 'host');
-my $db_pfconfig = $pf_ini->val('mysql', 'host');
+my $db_pfconfig = $pfconfig_ini->val('mysql', 'host');
 
 if ($db_pf eq '127.0.0.1' || $db_pfconfig eq '127.0.0.1') {
     $pf_ini->newval('database', 'host', '100.64.0.1');

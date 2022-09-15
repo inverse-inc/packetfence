@@ -131,7 +131,7 @@ sub redirect_info {
 sub generate_otp {
     my ($self ,$username) = @_;
     my $person = person_view($username);
-    if (defined $person->{otp} && $person->{otp} ne '') {
+    if ($person && exists($person->{otp}) && defined $person->{otp} && $person->{otp} ne '') {
         get_logger->debug("Returning OTP key $person->{otp} for user $username");
         return ($TRUE, $person->{otp});
     }
@@ -151,7 +151,7 @@ sub generate_otp {
 
 =head2 verify_response
 
-Verify the Akamai MFA response
+Verify the response
 
 =cut
 

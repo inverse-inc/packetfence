@@ -1,5 +1,5 @@
 <template>
-  <b-form @submit.prevent="onSave" ref="rootRef">
+  <b-form @submit.prevent ref="rootRef">
     <base-form
       :form="form"
       :schema="schema"
@@ -198,6 +198,7 @@ const setup = (props, context) => {
   const onReset = () => init()
 
   const actionKey = useEventActionKey(rootRef)
+
   const onSave = () => {
     const closeAfter = actionKey.value
     save().then(response => {

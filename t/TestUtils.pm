@@ -123,7 +123,7 @@ sub include_file {
     my ($f) = @_;
     my $go_binary = $f;
     $go_binary =~ s#/sbin/#/go/cmd/#;
-    my $r =  -f $f && !exists $exclusions{ $f } && $f !~ /docker-wrapper/ && !-d $go_binary;
+    my $r =  -f $f && !exists $exclusions{ $f } && $f !~ /docker-wrapper/ && !-d $go_binary && $f !~ /\.sh$/;
     return $r;
 }
 

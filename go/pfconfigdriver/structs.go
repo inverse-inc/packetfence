@@ -497,7 +497,7 @@ type NetInterface struct {
 
 type PassthroughsConf struct {
 	StructConfig
-	PfconfigMethod string `val:"hash_element"`
+	PfconfigMethod string `val:"element"`
 	PfconfigNS     string `val:"resource::passthroughs"`
 	Wildcard       map[string][]string
 	Normal         map[string][]string

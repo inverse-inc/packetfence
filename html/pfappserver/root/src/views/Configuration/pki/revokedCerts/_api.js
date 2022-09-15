@@ -4,13 +4,13 @@ import { recomposeGorm } from '../config'
 export default {
   list: params => {
     return apiCall.getQuiet('pki/revokedcerts', { params }).then(response => {
-      const { data: { items = [] } = {} } = response
-      return { items: items.map(item => recomposeGorm(item)) }
+      const { data: { items = [], ...rest } = {} } = response
+      return { items: items.map(item => recomposeGorm(item)), ...rest }
     })
   },
   search: params => {
     return apiCall.postQuiet('pki/revokedcerts/search', params).then(response => {
-      const { data: { items = [] }, ...rest } = response
+      const { data: { items = [], ...rest } } = response
       return { items: items.map(item => recomposeGorm(item)), ...rest }
     })
   },

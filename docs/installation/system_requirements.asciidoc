@@ -38,9 +38,9 @@ Good understanding of those underlying components and GNU/Linux is required to i
 The following provides a list of the minimum server hardware recommendations:
 
 [options="compact"]
-* Intel or AMD CPU 3 GHz, 2 CPU cores
-* 12 GB of RAM (16 GB recommended)
-* 100 GB of disk space (RAID-1 recommended)
+* Intel or AMD CPU 3 GHz, 4 CPU cores
+* 16 GB of RAM
+* 200 GB of disk space (RAID-1 recommended)
 * 1 network card (2 recommended)
 
 ==== Recommendations

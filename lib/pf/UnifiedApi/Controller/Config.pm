@@ -423,6 +423,11 @@ sub create_response {
 sub commit {
     my ($self, $cs) = @_;
     my ($res, $msg) = $cs->commit();
+
+    if($ENV{PF_UID} && $ENV{PF_GID}) {
+        chown($ENV{PF_UID}, $ENV{PF_GID}, $cs->configFile);
+    }
+
     unless($res) {
         $self->render_error(500, $msg);
         return undef;

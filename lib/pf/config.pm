@@ -879,6 +879,8 @@ sub configreload {
         }
     }
 
+    pf::config::cluster::increment_config_version() || die "Unable to increment config version\n";
+
     return ;
 }
 

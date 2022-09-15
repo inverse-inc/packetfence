@@ -347,6 +347,11 @@ trigger, you can limit data usage of your nodes. GUI also use
 nodes.  Bandwidth usage reports are available in _Reports_ menu under
 _Accounting_ section.
 
+If you want to get bandwidth reports, security events or online/offline
+features, you need to enable 'Process Bandwidth Accounting' in _Configuration
+-> System Configuration -> RADIUS -> General_ menu.  `pfacct` service needs to be
+restarted to apply changes.
+
 ==== NetFlow traffic
 
 `pfacct` can get NetFlow traffic from two kind of sources:
