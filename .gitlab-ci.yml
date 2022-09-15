@@ -81,6 +81,8 @@ variables:
 # run only on maintenance jobs (schedule and web, not on push)
 .maintenance_only_rules:
   rules:
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
     - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/'
 
