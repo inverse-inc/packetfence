@@ -194,7 +194,6 @@ all:
             pfdeb11stable:
               box: debian/bullseye64
               box_version: 11.20220912.1
->>>>>>> 0cdcde5ea8 (update debian/bullseye vagrant boxes)
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
