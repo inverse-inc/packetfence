@@ -1,4 +1,4 @@
-
+PF_VERSION=$(CI_COMMIT_REF_SLUG)
 RESULT_DIR=results
 
 .PHONY: packetfence-debian-installer.iso
