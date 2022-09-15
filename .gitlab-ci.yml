@@ -219,10 +219,11 @@ variables:
 
 # run this job on:
 # - devel branch with BUILD_ARTIFACTS_DOC variable defined or build_artifacts_doc=yes in commit message
-# - all branches, except maintenance/X.Y and devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
+# - all branches, except devel (web) if variable BUILD_ARTIFACTS_DOC sets to yes or if CI_COMMIT_MESSAGE contains "build_artifacts_doc=yes".
 .build_artifacts_doc_devel_and_branches_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_ARTIFACTS_DOC == "yes" || $CI_COMMIT_MESSAGE =~ /build_artifacts_doc=yes/ )'
 
 # don't run if DEPLOY_PKG is equals to 'no'
