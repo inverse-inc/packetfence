@@ -20,6 +20,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/api-frontend/aaa"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -37,6 +38,7 @@ type PrettyTokenInfo struct {
 }
 
 type ApiAAAHandler struct {
+	caddy2.ModuleBase
 	router             *httprouter.Router
 	systemBackend      *aaa.MemAuthenticationBackend
 	webservicesBackend *aaa.MemAuthenticationBackend
