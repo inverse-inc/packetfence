@@ -3,13 +3,14 @@ package caddylog
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/requesthistory"
-	"github.com/julienschmidt/httprouter"
 	"io"
 	"math"
 	"net/http"
 	"strconv"
+
+	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/requesthistory"
+	"github.com/julienschmidt/httprouter"
 )
 
 type RequestHistoryController struct {
@@ -20,7 +21,6 @@ type RequestHistoryController struct {
 func NewRequestHistoryController(rh *requesthistory.RequestHistory) *RequestHistoryController {
 	rhc := &RequestHistoryController{}
 	rhc.requestHistory = rh
-
 	rhc.router = httprouter.New()
 	rhc.router.GET("/request_history/:requestId", rhc.handleRequestHistoryGetRequest)
 	rhc.router.GET("/request_history", rhc.handleRequestHistoryList)
