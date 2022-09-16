@@ -20,7 +20,7 @@ import (
 
 func init() {
 	caddy.RegisterModule(Logger{})
-	httpcaddyfile.RegisterHandlerDirective("api-aaa", caddy2.ParseCaddyfile[Logger])
+	httpcaddyfile.RegisterHandlerDirective("logger", caddy2.ParseCaddyfile[Logger])
 }
 
 type Logger struct {
