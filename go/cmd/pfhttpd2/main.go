@@ -7,6 +7,7 @@ import (
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api-aaa"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdispatcher"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfconfig"
 )
 
