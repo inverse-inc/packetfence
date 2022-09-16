@@ -44,7 +44,6 @@ import (
 	//PACKETFENCE
 	pflog "github.com/inverse-inc/go-utils/log"
 	_ "github.com/inverse-inc/packetfence/go/caddy/forwardproxy"
-	_ "github.com/inverse-inc/packetfence/go/caddy/log-tailer"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfipset"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfpki"
 	_ "github.com/inverse-inc/packetfence/go/caddy/pfsso"

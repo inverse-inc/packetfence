@@ -11,6 +11,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdispatcher"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdportalpreview"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/job-status"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/log-tailer"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/logger"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfconfig"
 )
