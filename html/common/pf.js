@@ -66,7 +66,7 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
   var varsEl = document.getElementById('variables');
   var vars = JSON.parse(variables.textContent || variables.innerHTML);
 
-  netdetect = $('#netdetect');
+  netdetect = document.getElementById('netdetect');
   netdetect.error(function() {
     errorDetected = true;
     loaded = false;
@@ -78,13 +78,13 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
   initNetDetect = function() {
     if(vars["auto_redirect"] != 0) {
       errorDetected = loaded = undefined;
-      var netdetect = $('#netdetect');
+      var netdetect = document.getElementById('netdetect');
       netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
     }
     setTimeout(checker, retry_delay * 1000);
   };
   checker = function() {
-    var netdetect = $('#netdetect');
+    var netdetect = document.getElementById('netdetect');
     if (errorDetected === true) {
       initNetDetect();
     }
@@ -143,7 +143,7 @@ function showWebNotification(message, icon){
     } catch(err) {
       console.log("Error while creating notification...", err);
     }
-  }  
+  }
 }
 
 /**
@@ -178,7 +178,7 @@ function getPortalUrl(url) {
 }
 
 
-$(function() {
+document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
   /**
@@ -186,23 +186,25 @@ $(function() {
     This prevents the destination URL from being computed from an API call.
   */
   var wanted_destination_url = getQueryParams()["destination_url"];
-  if (wanted_destination_url){
-    $.post(
-      "/record_destination_url",
-      { destination_url: wanted_destination_url }
+  if (wanted_destination_url) {
+    ajax(
+      'post', // method
+      '/record_destination_url', // url
+      { destination_url: wanted_destination_url } // data
     );
   }
-
-  $(document).on('keyup', '.tabbable',function(e){
-    if(e.which==13 || e.which==32) {
-      this.click()
+  document.addEventListener('keyup', function (e) {
+    if (e.target.className == 'tabbable' && [13, 32].includes(e.which)) {
+      e.target.click();
     }
-  });
+  })
 
-  $('.disable-on-click').one('click', function(e){
-    var target = $(e.target);
-    target.click();
-    target.attr("disabled", true);
-  });
+  Array.prototype.slice.call(document.getElementsByClassName('disable-on-click'))
+    .forEach(function (node) {
+      node.addEventListener('click', function (e) {
+        e.target.click();
+        e.target.setAttribute('disabled', true);
+      }, { once: true });
+    });
 });
 

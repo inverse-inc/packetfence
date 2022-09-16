@@ -1,9 +1,9 @@
 /* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-$(function() {
+document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
   if (!navigator.userAgent.match('Safari') && navigator.userAgent.match('Macintosh')) {
-    $('#addMessage').removeClass('hide');
+    document.getElementById('addMessage').classList.remove('hide');
   }
 });

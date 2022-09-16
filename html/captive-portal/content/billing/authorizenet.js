@@ -1,7 +1,6 @@
 /* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-  var varsEl = $('#variables');
-  var vars = JSON.parse(varsEl.html());
+  var vars = JSON.parse(document.getElementById('variables').innerHTML);
 
   function sendPaymentDataToAnet() {
       var secureData = {}; authData = {}; cardData = {};
@@ -31,7 +30,7 @@
               for (var i = 0; i < response.messages.message.length; i++) {
                   console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
               }
-              var $form = $('#payment-form');
+              var $form = document.getElementById('payment-form');
               $form.find('.payment-errors p').text('Unable to proceed with payment please contact your service provider');
               $form.find('.payment-errors').removeClass('hide');
           } else {

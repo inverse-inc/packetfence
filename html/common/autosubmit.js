@@ -1,1 +1,1 @@
-$('#button').click();
+document.getElementById('button').click();
