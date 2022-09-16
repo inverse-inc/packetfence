@@ -15,6 +15,7 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/logger"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfconfig"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfipset"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfsso"
 )
 
 func main() {
