@@ -109,13 +109,15 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		}
 	}
 
-	// Intune token
 	cred, err := azidentity.NewClientSecretCredential(cl.TenantID, cl.ClientID, cl.ClientSecret, nil)
+	// Fetch the token for Graph api
 	tk, err := cred.GetToken(
 		context.TODO(), policy.TokenRequestOptions{Scopes: []string{msGraphResourceUrl + ".default"}},
 	)
 	if err == nil {
 		cl.AccessToken = "Bearer " + tk.Token
+	} else {
+		log.Print(err)
 	}
 
 	id, err := uuid.NewUUID()
@@ -138,7 +140,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		},
 			PreferServerCipherSuites: true,
 			InsecureSkipVerify:       true,
-			MinVersion:               tls.VersionTLS11,
+			MinVersion:               tls.VersionTLS12,
 			MaxVersion:               tls.VersionTLS12,
 			Renegotiation:            tls.RenegotiateOnceAsClient,
 		},
@@ -191,12 +193,15 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		}
 	}
 
+	// Fetch the token for intune api
 	tk, err = cred.GetToken(
-		context.TODO(), policy.TokenRequestOptions{Scopes: []string{intuneResourceUrl + ".default"}},
+		context.TODO(), policy.TokenRequestOptions{Scopes: []string{intuneResourceUrl + "/.default"}},
 	)
 
 	if err == nil {
 		cl.AccessToken = "Bearer " + tk.Token
+	} else {
+		log.Print(err)
 	}
 
 	cl.Endpoint = apiEndpoint
@@ -222,7 +227,7 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("authorization", cl.AccessToken)
-	req.Header.Set("api-version", msGraphApiVersion)
+	req.Header.Set("api-version", serviceVersion)
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("useragent", PROVIDER_NAME_AND_VERSION_NAME)
 	resp, err := cl.Client.Do(req)
