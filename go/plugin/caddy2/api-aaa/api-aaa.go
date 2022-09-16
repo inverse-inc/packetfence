@@ -42,17 +42,16 @@ type ApiAAAHandler struct {
 	webservicesBackend *aaa.MemAuthenticationBackend
 	authentication     *aaa.TokenAuthenticationMiddleware
 	authorization      *aaa.TokenAuthorizationMiddleware
-	noAuthPaths        map[string]bool
+	NoAuthPaths        map[string]bool `json:"no_auth_paths"`
+	SessionBackend     []string        `json:"session_backend"`
 }
 
 // Setup the api-aaa middleware
 // Also loads the pfconfig resources and registers them in the pool
 func (h *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
-	ctx := log.LoggerNewContext(context.Background())
 
 	noAuthPaths := map[string]bool{}
 	tokenBackendArgs := []string{}
-	var err error
 	for c.Next() {
 		for c.NextBlock(0) {
 			switch c.Val() {
@@ -67,15 +66,10 @@ func (h *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 					fmt.Println("The following path will not be authenticated via the api-aaa module", path)
 				}
 			case "session_backend":
-				args := c.RemainingArgs()
+				tokenBackendArgs = c.RemainingArgs()
 
-				if len(args) == 0 {
+				if len(tokenBackendArgs) == 0 {
 					return c.ArgErr()
-				}
-
-				tokenBackendArgs, err = validateTokenArgs(args)
-				if err != nil {
-					return err
 				}
 
 			default:
@@ -84,12 +78,8 @@ func (h *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 		}
 	}
 
-	apiAAA, err := buildApiAAAHandler(ctx, tokenBackendArgs)
-	apiAAA.noAuthPaths = noAuthPaths
-
-	if err != nil {
-		return err
-	}
+	h.NoAuthPaths = noAuthPaths
+	h.SessionBackend = tokenBackendArgs
 
 	return nil
 }
@@ -105,27 +95,26 @@ func hasDuplicate(a []string) bool {
 	return false
 }
 
-func validateTokenArgs(args []string) ([]string, error) {
+func validateTokenArgs(args []string) error {
 	if hasDuplicate(args) {
-		return nil, errors.New("Cannot defined a backend type multiple times")
+		return errors.New("Cannot defined a backend type multiple times")
 	}
 
 	for _, i := range args {
 		switch i {
 		default:
 			err := fmt.Errorf("Invalid session_backend type '%s'", i)
-			return nil, err
+			return err
 		case "mem", "redis", "db":
 			break
 		}
 	}
-	return args, nil
+
+	return nil
 }
 
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes
-func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAHandler, error) {
-
-	apiAAA := ApiAAAHandler{}
+func (apiAAA *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
@@ -134,7 +123,7 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.AdminLogin)
 
-	tokenBackend := aaa.MakeTokenBackend(tokenBackendArgs)
+	tokenBackend := aaa.MakeTokenBackend(apiAAA.SessionBackend)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
@@ -183,7 +172,7 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 
 	apiAAA.router = router
 
-	return apiAAA, nil
+	return nil
 }
 
 // Handle an API login
@@ -346,7 +335,7 @@ func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next c
 		// TODO change me and wrap actions into something that handles server errors
 		return nil
 	} else {
-		_, noauth := h.noAuthPaths[r.URL.Path]
+		_, noauth := h.NoAuthPaths[r.URL.Path]
 		if noauth || h.HandleAAA(w, r) {
 			return next.ServeHTTP(w, r)
 		} else {
@@ -358,18 +347,18 @@ func (h *ApiAAAHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next c
 }
 
 func (h *ApiAAAHandler) Validate() error {
-    return nil
+	return validateTokenArgs(h.SessionBackend)
 }
 
 func (h *ApiAAAHandler) Provision(ctx caddy.Context) error {
-    return nil
+	return h.buildApiAAAHandler(ctx)
 }
 
 func (h ApiAAAHandler) CaddyModule() caddy.ModuleInfo {
-    return caddy.ModuleInfo {
-        ID: "http.handlers.api-aaa",
-        New: func() caddy.Module { return &ApiAAAHandler{} },
-    }
+	return caddy.ModuleInfo{
+		ID:  "http.handlers.api-aaa",
+		New: func() caddy.Module { return &ApiAAAHandler{} },
+	}
 }
 
 // parseCaddyfile unmarshals tokens from h into a new Middleware.
