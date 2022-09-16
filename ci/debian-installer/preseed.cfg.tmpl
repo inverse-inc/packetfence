@@ -370,7 +370,7 @@ d-i pkgsel/include string sudo bzip2 acpid cryptsetup \
                           nfs-common net-tools build-essential \
                           linux-headers-amd64 gnupg2 apt-transport-https \
                           tmux tcpdump lnav apg sysstat bsd-mailx \
-                          packetfence
+                          cgroupfs-mount
 
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
@@ -484,13 +484,8 @@ d-i preseed/early_command string sed -i \
 # Set the Inverse repo in the official location
 # Reset the MariaDB root password to empty since this install process prevents perl::DBI from connecting without a password on the local UNIX socket
 d-i preseed/late_command string \
-  sed -i '/^deb cdrom:/s/^/#/' /target/etc/apt/sources.list ; \
-  sed -i 's/#PermitRootLogin.*/PermitRootLogin yes/g' /target/etc/ssh/sshd_config ; \
-  sed -i 's/.*inverse\.ca.*//g' /target/etc/apt/sources.list ; \
-  echo 'deb http://inverse.ca/downloads/PacketFence/debian/%%PF_VERSION%% bullseye bullseye' > /target/etc/apt/sources.list.d/packetfence.list ; \
-  echo "SET PASSWORD FOR root@'localhost' = PASSWORD('');" > /target/tmp/reset-root.sql ; \
-  mkdir /target/run/mysqld ; \
-  chroot /target chown mysql: /run/mysqld/ ; \
-  chroot /target timeout 10 mysqld --skip-networking --init-file /tmp/reset-root.sql --user=mysql > /target/var/reset-root.log 2>&1 ; \
-  rm -f /target/tmp/reset-root.sql
-
+  mount --bind /proc /target/proc ; \
+  mount --bind /sys /target/sys ; \
+  in-target cp -a /media/cdrom/postinst-debian-installer.sh /target/usr/local/bin/ ; \
+  in-target chmod 700 /usr/local/bin/postinst-debian-installer.sh ; \
+  in-target /bin/bash /usr/local/bin/postinst-debian-installer.sh %%PF_VERSION%%
