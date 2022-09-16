@@ -152,14 +152,16 @@ case "$1" in
         echo "Restarting rsyslog"
         systemctl restart rsyslog
 
-        # check if we are inside our ISO installer (chroot environment)
+        # check if we are inside our Debian ISO installer (chroot environment)
         if [ -f /media/cdrom/postinst-debian-installer.sh ]; then
-            echo "Debian installer detected, launching Docker manually"
+            DEBIAN_ISO_INSTALLER=yes
+            echo "Debian ISO installer detected, launching Docker manually"
             /usr/local/pf/containers/run-docker-in-debian-installer.sh
 
             # remove file in advance to timeout more quickly
             rm -f $PACKETFENCE/var/run/pkg_install_in_progress
         else
+            DEBIAN_ISO_INSTALLER=no
             systemctl restart docker
         fi
 
@@ -180,7 +182,13 @@ case "$1" in
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
         systemctl start packetfence-config
-        /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then
+            # next command need packetfence-config started
+            /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        else
+            echo "MariaDB config will be generated at next boot"
+        fi
+
         # only packetfence-config is running after this command
         systemctl isolate packetfence-base.target
 
