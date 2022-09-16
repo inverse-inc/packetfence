@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Azure/go-autorest/autorest/adal"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -81,9 +81,11 @@ const SERVICE_VERSION_PROP_NAME = VALIDATION_SERVICE_NAME + "Version"
 const PROVIDER_NAME_AND_VERSION_NAME = "PacketFence"
 
 const intuneAppId = "0000000a-0000-0000-c000-000000000000"
+
 const intuneResourceUrl = "https://api.manage.microsoft.com/"
-const graphApiVersion = "1.6"
-const graphResourceUrl = "https://graph.windows.net/"
+
+const msGraphApiVersion = "1.0"
+const msGraphResourceUrl = "https://graph.microsoft.com/"
 
 func NewIntuneCloud(ctx context.Context, name string) (Cloud, error) {
 
@@ -107,35 +109,19 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		}
 	}
 
-	oauthConfig, err := adal.NewOAuthConfig(activeDirectoryEndpoint, cl.TenantID)
-
 	// Intune token
-
-	spt, err := adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
-
-	err = spt.Refresh()
-
-	var token adal.Token
-
+	cred, err := azidentity.NewClientSecretCredential(cl.TenantID, cl.ClientID, cl.ClientSecret, nil)
+	tk, err := cred.GetToken(
+		context.TODO(), policy.TokenRequestOptions{Scopes: []string{msGraphResourceUrl + ".default"}},
+	)
 	if err == nil {
-		token = spt.Token()
-		cl.AccessToken = "Bearer " + token.AccessToken
+		cl.AccessToken = "Bearer " + tk.Token
 	}
-	spew.Dump(token)
+
 	id, err := uuid.NewUUID()
 	cl.TransactionID = id.String()
 
-	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
-	err = spt.Refresh()
-
-	var Bearer string
-
-	if err == nil {
-		token = spt.Token()
-		Bearer = "Bearer " + token.AccessToken
-	}
-
-	graphRequest := graphResourceUrl + cl.TenantID + "/servicePrincipalsByAppId/" + intuneAppId + "/serviceEndpoints?api-version=" + graphApiVersion
+	graphRequest := msGraphResourceUrl + "v" + msGraphApiVersion + "/servicePrincipals/appId=" + intuneAppId + "/endpoints"
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{CipherSuites: []uint16{
@@ -167,9 +153,9 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		os.Exit(1)
 	}
 
-	req.Header.Set("Authorization", Bearer)
-	req.Header.Set("api-version", "1.0")
-	req.Header.Set("client-request-id", id.String())
+	req.Header.Set("Authorization", cl.AccessToken)
+	req.Header.Set("api-version", msGraphApiVersion)
+	req.Header.Set("client-request-id", cl.TransactionID)
 	resp, err := cl.Client.Do(req)
 
 	var Data interface{}
@@ -195,15 +181,8 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		if k == "value" {
 			for _, n := range v.([]interface{}) {
 				for a, b := range n.(map[string]interface{}) {
-					if a == "serviceName" {
+					if a == "providerName" {
 						if b == VALIDATION_SERVICE_NAME {
-							apiEndpoint.OdataType = n.(map[string]interface{})["odata.type"].(string)
-							apiEndpoint.ObjectId = n.(map[string]interface{})["objectId"].(string)
-							apiEndpoint.ResourceId = n.(map[string]interface{})["resourceId"].(string)
-							apiEndpoint.ObjectType = n.(map[string]interface{})["objectType"].(string)
-							apiEndpoint.Capability = n.(map[string]interface{})["capability"].(string)
-							apiEndpoint.ServiceId = n.(map[string]interface{})["serviceId"].(string)
-							apiEndpoint.ServiceName = n.(map[string]interface{})["serviceName"].(string)
 							apiEndpoint.Uri = n.(map[string]interface{})["uri"].(string)
 						}
 					}
@@ -211,6 +190,15 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 			}
 		}
 	}
+
+	tk, err = cred.GetToken(
+		context.TODO(), policy.TokenRequestOptions{Scopes: []string{intuneResourceUrl + ".default"}},
+	)
+
+	if err == nil {
+		cl.AccessToken = "Bearer " + tk.Token
+	}
+
 	cl.Endpoint = apiEndpoint
 	return nil
 }
@@ -226,7 +214,6 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	request.Request.CallerInfo = PROVIDER_NAME_AND_VERSION_NAME
 
 	slcB, _ := json.Marshal(request)
-
 	req, err := http.NewRequest("POST", cl.Endpoint.Uri+"/"+VALIDATION_URL, bytes.NewBuffer(slcB))
 	if err != nil {
 		log.Print(err)
@@ -235,13 +222,14 @@ func (cl *Intune) ValidateRequest(ctx context.Context, data []byte) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("authorization", cl.AccessToken)
-	req.Header.Set("api-version", "1.0")
+	req.Header.Set("api-version", msGraphApiVersion)
 	req.Header.Set("client-request-id", cl.TransactionID)
-	req.Header.Set("api-version", serviceVersion)
+	req.Header.Set("useragent", PROVIDER_NAME_AND_VERSION_NAME)
 	resp, err := cl.Client.Do(req)
 	if err != nil {
 		return err
 	}
+
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		return errors.New("Unable to verify the scep request on intune")
@@ -272,7 +260,7 @@ func (cl *Intune) SuccessReply(ctx context.Context, cert *x509.Certificate, data
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("authorization", cl.AccessToken)
-	req.Header.Set("api-version", "1.0")
+	req.Header.Set("api-version", msGraphApiVersion)
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
@@ -310,7 +298,7 @@ func (cl *Intune) FailureReply(ctx context.Context, cert *x509.Certificate, data
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("authorization", cl.AccessToken)
-	req.Header.Set("api-version", "1.0")
+	req.Header.Set("api-version", msGraphApiVersion)
 	req.Header.Set("client-request-id", cl.TransactionID)
 	req.Header.Set("api-version", serviceVersion)
 	resp, err := cl.Client.Do(req)
