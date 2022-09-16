@@ -116,7 +116,7 @@ func validateTokenArgs(args []string) error {
 }
 
 // Build the ApiAAAHandler which will initialize the cache and instantiate the router along with its routes
-func (apiAAA *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
+func (h *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Webservices)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.UnifiedApiSystemUser)
@@ -125,54 +125,54 @@ func (apiAAA *ApiAAAHandler) buildApiAAAHandler(ctx context.Context) error {
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.AdminLogin)
 
-	tokenBackend := aaa.MakeTokenBackend(apiAAA.SessionBackend)
-	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
+	tokenBackend := aaa.MakeTokenBackend(h.SessionBackend)
+	h.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
 
 	// Backend for the system Unified API user
 	if pfconfigdriver.Config.UnifiedApiSystemUser.User != "" {
-		apiAAA.systemBackend = aaa.NewMemAuthenticationBackend(
+		h.systemBackend = aaa.NewMemAuthenticationBackend(
 			map[string]string{},
 			map[string]bool{"ALL": true},
 		)
-		apiAAA.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
-		apiAAA.authentication.AddAuthenticationBackend(apiAAA.systemBackend)
+		h.systemBackend.SetUser(pfconfigdriver.Config.UnifiedApiSystemUser.User, pfconfigdriver.Config.UnifiedApiSystemUser.Pass)
+		h.authentication.AddAuthenticationBackend(h.systemBackend)
 	} else {
 		panic("Unable to setup the system user authentication backend")
 	}
 
 	// Backend for the pf.conf webservices user
-	apiAAA.webservicesBackend = aaa.NewMemAuthenticationBackend(
+	h.webservicesBackend = aaa.NewMemAuthenticationBackend(
 		map[string]string{},
 		map[string]bool{"ALL": true},
 	)
-	apiAAA.authentication.AddAuthenticationBackend(apiAAA.webservicesBackend)
+	h.authentication.AddAuthenticationBackend(h.webservicesBackend)
 
 	if pfconfigdriver.Config.PfConf.Webservices.User != "" {
-		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
+		h.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	}
 
 	// Backend for SSO
 	if sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminLogin.SSOStatus) {
 		url, err := url.Parse(fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminLogin.SSOBaseUrl, pfconfigdriver.Config.PfConf.AdminLogin.SSOAuthorizePath))
 		sharedutils.CheckError(err)
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
+		h.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
 	}
 
 	// Backend for username/password auth via the internal auth sources
 	if sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminLogin.AllowUsernamePassword) {
 		url, err := url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", pfconfigdriver.Config.PfConf.ServicesURL.PfperlApi))
 		sharedutils.CheckError(err)
-		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
+		h.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
 	}
 
-	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
+	h.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 
 	router := httprouter.New()
-	router.POST("/api/v1/login", apiAAA.handleLogin)
-	router.GET("/api/v1/token_info", apiAAA.handleTokenInfo)
-	router.GET("/api/v1/sso_info", apiAAA.handleSSOInfo)
+	router.POST("/api/v1/login", h.handleLogin)
+	router.GET("/api/v1/token_info", h.handleTokenInfo)
+	router.GET("/api/v1/sso_info", h.handleSSOInfo)
 
-	apiAAA.router = router
+	h.router = router
 
 	return nil
 }
