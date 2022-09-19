@@ -27,7 +27,7 @@ import (
 // Register the plugin in caddy
 func init() {
 	caddy.RegisterModule(ApiAAAHandler{})
-	httpcaddyfile.RegisterHandlerDirective("api-aaa", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("api-aaa", caddy2.ParseCaddyfile[ApiAAAHandler])
 }
 
 type PrettyTokenInfo struct {
@@ -361,13 +361,6 @@ func (h ApiAAAHandler) CaddyModule() caddy.ModuleInfo {
 		ID:  "http.handlers.api-aaa",
 		New: func() caddy.Module { return &ApiAAAHandler{} },
 	}
-}
-
-// parseCaddyfile unmarshals tokens from h into a new Middleware.
-func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	var m ApiAAAHandler
-	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return &m, err
 }
 
 // Interface guards
