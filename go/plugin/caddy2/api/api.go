@@ -12,6 +12,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/fbcollectorclient"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -20,7 +21,7 @@ func init() {
 	caddy.RegisterModule(APIHandler{})
 	setupRadiusDictionary()
 	pfconfigdriver.PfconfigPool.AddRefreshable(context.Background(), fbcollectorclient.DefaultClient)
-	httpcaddyfile.RegisterHandlerDirective("api", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("api", caddy2.ParseCaddyfile[APIHandler])
 }
 
 type APIHandler struct {
@@ -74,13 +75,6 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 func (h *APIHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	return nil
-}
-
-// parseCaddyfile unmarshals tokens from h into a new Middleware.
-func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	m := &APIHandler{}
-	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return m, err
 }
 
 func (h *APIHandler) Validate() error {
