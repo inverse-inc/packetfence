@@ -92,10 +92,7 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.2.0
 )
 
-require (
-	github.com/caddyserver/caddy/v2 v2.5.2
-	github.com/inverse-inc/packetfence/go/caddy/caddy v0.0.0-20191111155906-e5a5b005ff50
-)
+require github.com/caddyserver/caddy/v2 v2.5.2
 
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
