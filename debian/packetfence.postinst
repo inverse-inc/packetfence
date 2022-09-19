@@ -217,7 +217,7 @@ case "$1" in
             /usr/bin/mysql -uroot -e "flush privileges"
             set -e
         fi
-        if [ ${DIST} = "bullseye" ]; then
+        if [ ${DIST} = "bullseye" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
             set +e
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
             set -e
