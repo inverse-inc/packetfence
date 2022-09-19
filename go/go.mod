@@ -20,11 +20,10 @@ require (
 	github.com/farsightsec/golang-framestream v0.3.0
 	github.com/fdurand/arp v0.0.0-20180807174648-27b38d3af1be
 	github.com/fdurand/go-cache v0.0.0-20180104143916-cf0198ac7d92
-	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
+	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
 	github.com/gin-gonic/gin v1.7.7
-	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.10.0
 	github.com/go-redis/redis v6.15.9+incompatible
@@ -33,12 +32,11 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
-	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
 	github.com/gorilla/schema v1.1.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
-	github.com/hashicorp/go-syslog v1.0.0
 	github.com/hpcloud/tail v1.0.0
 	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
 	github.com/infobloxopen/go-trees v0.0.0-20190313150506-2af4e13f9062
@@ -48,14 +46,11 @@ require (
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
 	github.com/inverse-inc/scep v0.0.0-20220616202131-aafda39f7dd7
 	github.com/jcuga/golongpoll v1.1.0
-	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jpillora/backoff v1.0.0
 	github.com/jpillora/requestlog v1.0.0
 	github.com/jpillora/sizestr v1.0.0
 	github.com/julienschmidt/httprouter v1.3.0
-	github.com/julsemaan/certmagic v0.6.3-0.20191015203349-067e102ae4ff
-	github.com/klauspost/cpuid v1.2.1
 	github.com/knq/pemutil v0.0.0-20181215144041-fb6fad722528
 	github.com/lucas-clemente/quic-go v0.28.0 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1
@@ -63,7 +58,6 @@ require (
 	github.com/mdlayher/raw v0.0.0-20171214195253-9df8b4265df2
 	github.com/mediocregopher/radix.v2 v0.0.0-20180603022615-94360be26253
 	github.com/miekg/dns v1.1.46
-	github.com/naoina/toml v0.1.1
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/nxadm/tail v1.4.8
 	github.com/opentracing/opentracing-go v1.2.0
@@ -75,7 +69,6 @@ require (
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.32.1
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/russross/blackfriday v1.5.2
 	github.com/simon/go-netadv v0.0.0-20170602081515-fe67988531c7
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/ti-mo/netfilter v0.2.0
@@ -90,7 +83,7 @@ require (
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
-	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.25.0
 	k8s.io/apimachinery v0.25.0
@@ -99,7 +92,10 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.2.0
 )
 
-require github.com/caddyserver/caddy/v2 v2.5.2
+require (
+	github.com/caddyserver/caddy/v2 v2.5.2
+	github.com/inverse-inc/packetfence/go/caddy/caddy v0.0.0-20191111155906-e5a5b005ff50
+)
 
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
@@ -121,7 +117,6 @@ require (
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/caddyserver/certmagic v0.16.1 // indirect
-	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f // indirect
@@ -272,7 +267,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
-	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
@@ -285,5 +279,3 @@ require (
 replace github.com/inverse-inc/packetfence => ../
 
 replace github.com/inverse-inc/packetfence/go => ./
-
-replace github.com/inverse-inc/packetfence/go/caddy/caddy => ./go/caddy/caddy
