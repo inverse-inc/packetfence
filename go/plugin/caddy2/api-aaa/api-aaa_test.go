@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
@@ -20,6 +21,15 @@ import (
 var ctx = log.LoggerNewContext(context.Background())
 var apiAAA, err = buildApiAAAHandler(ctx, []string{})
 var dummyHandler = caddyhttp.HandlerFunc(func(w http.ResponseWriter, r *http.Request) error { return nil })
+
+func buildApiAAAHandler(ctx context.Context, args []string) (*ApiAAAHandler, error) {
+	var h = &ApiAAAHandler{}
+	err := h.Provision(caddy.Context{Context: ctx})
+	if err != nil {
+		return nil, err
+	}
+	return h, nil
+}
 
 func TestApiAAALogin(t *testing.T) {
 	req, _ := http.NewRequest(
