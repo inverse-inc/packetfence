@@ -236,6 +236,11 @@ sub verify {
 
 sub subscribe_customer {
     my ($self, $session, $tier, $token) = @_;
+
+    if(ref($token) eq "ARRAY") {
+        return (500, {error => {message => "Invalid request, please try again."}});
+    }
+
     my $object = {
         plan   => $tier->{id},
         source => $token,
