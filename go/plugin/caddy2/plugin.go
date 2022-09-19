@@ -16,5 +16,9 @@ type Plugin[T any] interface {
 func ParseCaddyfile[T any, P Plugin[T]](h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
 	m := P(new(T))
 	err := m.UnmarshalCaddyfile(h.Dispenser)
+	if err != nil {
+		return nil, err
+	}
+
 	return m, err
 }
