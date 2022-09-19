@@ -42,11 +42,11 @@ export const schema = (props) => {
     multi_source_ids: schemaSources,
     aup_template: yup.string().label(i18n.t('Template')),
     landing_template: yup.string().label(i18n.t('Template')),
-    message: yup.string().label(i18n.t('Message')),
+    message: yup.string().nullable().label(i18n.t('Message')),
     signup_template: yup.string().label(i18n.t('Template')),
     ssl_mobileconfig_path: yup.string().label(i18n.t('URL')),
     ssl_path: yup.string().label(i18n.t('URL')),
-    url: yup.string().label(i18n.t('URL')),
+    url: yup.string().nullable().label(i18n.t('URL')),
     username: yup.string().label(i18n.t('Username'))
   })
 }
