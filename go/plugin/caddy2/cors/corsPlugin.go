@@ -11,7 +11,6 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/captncraig/cors"
 
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/plugin/caddy2"
 )
 
@@ -46,13 +45,11 @@ func (h Cors) CaddyModule() caddy.ModuleInfo {
 
 func (h *Cors) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	for _, rule := range h.rules {
-		if httpserver.Path(r.URL.Path).Matches(rule.Path) {
-			rule.conf.HandleRequest(w, r)
-			if cors.IsPreflight(r) {
-				return nil
-			}
-			break
+		rule.conf.HandleRequest(w, r)
+		if cors.IsPreflight(r) {
+			return nil
 		}
+		break
 	}
 
 	return next.ServeHTTP(w, r)
