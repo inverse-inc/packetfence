@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
 
 // DSAKeyFormat is the format of a DSA key

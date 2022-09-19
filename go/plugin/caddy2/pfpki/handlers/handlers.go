@@ -14,11 +14,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/models"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/ocspresponder"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/scep"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/ocspresponder"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/scep"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
 )
 
 func SearchCA(pfpki *types.Handler) http.Handler {

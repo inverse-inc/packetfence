@@ -7,9 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
-	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/inverse-inc/packetfence/go/panichandler"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
 	"github.com/jinzhu/gorm"
 )
 
@@ -50,7 +48,6 @@ type (
 	}
 	// Handler struct
 	Handler struct {
-		Next   httpserver.Handler
 		Router *mux.Router
 		DB     *gorm.DB
 		Ctx    *context.Context
@@ -83,20 +80,4 @@ func DecodeUrlQuery(req *http.Request) (sql.Vars, error) {
 		vars.Sort = sorts
 	}
 	return vars, nil
-}
-
-func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
-	ctx := r.Context()
-	r = r.WithContext(ctx)
-
-	defer panichandler.Http(ctx, w)
-
-	routeMatch := mux.RouteMatch{}
-	if h.Router.Match(r, &routeMatch) {
-		h.Router.ServeHTTP(w, r)
-
-		// TODO change me and wrap actions into something that handles server errors
-		return 0, nil
-	}
-	return h.Next.ServeHTTP(w, r)
 }
