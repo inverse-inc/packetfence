@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/caddyserver/caddy/v2"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/firewallsso"
@@ -14,9 +15,10 @@ import (
 )
 
 var ctx = log.LoggerNewContext(context.Background())
-var pfsso, err = buildPfssoHandler(ctx)
 
 func TestValidateInfo(t *testing.T) {
+	var pfsso = &PfssoHandler{}
+	err := pfsso.Provision(caddy.Context{Context: context.Background()})
 	sharedutils.CheckTestError(t, err)
 
 	// Test valid info
@@ -63,6 +65,9 @@ func TestValidateInfo(t *testing.T) {
 }
 
 func TestParseSsoRequest(t *testing.T) {
+	var pfsso = &PfssoHandler{}
+	err := pfsso.Provision(caddy.Context{Context: context.Background()})
+	sharedutils.CheckTestError(t, err)
 	// Valid payload with timeout
 	b := bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`))
 	r, _ := http.NewRequest("POST", "/", b)
@@ -148,6 +153,9 @@ func TestParseSsoRequest(t *testing.T) {
 }
 
 func TestHandleStart(t *testing.T) {
+	var pfsso = &PfssoHandler{}
+	err := pfsso.Provision(caddy.Context{Context: context.Background()})
+	sharedutils.CheckTestError(t, err)
 	req := httptest.NewRequest("POST", "/pfsso/start", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default", "timeout":"86400"}`)))
 	recorder := httptest.NewRecorder()
 	pfsso.handleStart(recorder, req, httprouter.Params{})
@@ -177,6 +185,9 @@ func TestHandleStart(t *testing.T) {
 }
 
 func TestHandleStop(t *testing.T) {
+	var pfsso = &PfssoHandler{}
+	err := pfsso.Provision(caddy.Context{Context: context.Background()})
+	sharedutils.CheckTestError(t, err)
 	req := httptest.NewRequest("POST", "/pfsso/stop", bytes.NewBuffer([]byte(`{"ip":"1.2.3.4", "mac": "00:11:22:33:44:55", "username":"lzammit", "role": "default"}`)))
 	recorder := httptest.NewRecorder()
 	pfsso.handleStop(recorder, req, httprouter.Params{})
@@ -207,7 +218,9 @@ func TestHandleStop(t *testing.T) {
 
 // Run this with -test.race to see the potential race conditions
 func TestSpawnSso(t *testing.T) {
-	pfsso, err := buildPfssoHandler(ctx)
+	var pfsso = &PfssoHandler{}
+	err := pfsso.Provision(caddy.Context{Context: context.Background()})
+	sharedutils.CheckTestError(t, err)
 
 	if err != nil {
 		t.Error("Can't build PfssoHandler", err)

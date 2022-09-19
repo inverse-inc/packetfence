@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/caddyserver/caddy/v2"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/julienschmidt/httprouter"
@@ -15,6 +16,16 @@ import (
 
 var ctx = log.LoggerNewContext(context.Background())
 var jobStatus, _ = buildJobStatusHandler(ctx)
+
+func buildJobStatusHandler(context.Context) (*JobStatusHandler, error) {
+	h := &JobStatusHandler{}
+	err := h.Provision(caddy.Context{Context: ctx})
+	if err != nil {
+		return nil, err
+	}
+
+	return h, nil
+}
 
 func TestJobStatusHandleStatus(t *testing.T) {
 	req, _ := http.NewRequest(
