@@ -20,7 +20,7 @@ yup.addMethod(yup.string, 'filterIdNotExistsExcept', function (except, message) 
 })
 
 const schemaAction = yup.object({
-  api_method: yup.string().required(i18n.t('Method required.')),
+  api_method: yup.string().nullable().required(i18n.t('Method required.')),
   api_parameters: yup.string().required(i18n.t('Parameters required.'))
 })
 

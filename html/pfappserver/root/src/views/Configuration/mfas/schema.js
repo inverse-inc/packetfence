@@ -33,6 +33,7 @@ export const schema = (props) => {
     app_secret: yup.string().nullable().label(i18n.t('Application Secret')),
     radius_mfa_method: yup.string().nullable().label(i18n.t('RADIUS MFA Method')),
     signing_key: yup.string().nullable().label(i18n.t('Key')),
+    split_char: yup.string().nullable().label(i18n.t('Separator')),
     verify_key: yup.string().nullable().label(i18n.t('Key'))
   })
 }

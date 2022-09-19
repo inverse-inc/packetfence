@@ -91,7 +91,7 @@ export const pfFilters = {
 }
 
 const pfFilterSchema = yup.object({
-  type: yup.string().required(i18n.t('Type required.')),
+  type: yup.string().nullable().required(i18n.t('Type required.')),
   match: yup.string() //
     .when('type', type => {
       const schema = yup.string().nullable()

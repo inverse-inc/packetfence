@@ -18,7 +18,7 @@ yup.addMethod(yup.string, 'portalModuleIdentifierNotExistsExcept', function (exc
   })
 })
 
-const schemaModule = yup.string().required(i18n.t('Module required'))
+const schemaModule = yup.string().nullable().required(i18n.t('Module required'))
 
 const schemaModules = yup.array().ensure().unique(i18n.t('Duplicate module.')).of(schemaModule)
 

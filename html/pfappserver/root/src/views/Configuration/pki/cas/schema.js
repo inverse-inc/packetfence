@@ -58,7 +58,7 @@ export default (props) => {
     street_address: yup.string().max(255),
     postal_code: yup.string().max(255),
     key_type: yup.string().nullable().required(i18n.t('Key type required.')),
-    key_size: yup.string().when('key_type', () => {
+    key_size: yup.string().nullable().when('key_type', () => {
       // array to friendly csv, eg: [a, b] => 'a or b', [a, b, c] => 'a, b or c'
       const arrToLocale = (arr) => {
         const exceptLast = arr.slice(0, -1)
@@ -67,7 +67,7 @@ export default (props) => {
           return i18n.t('{first} or {last}', { first: exceptLast.join(', '), last })
         return last
       }
-      const _schema = yup.string().required(i18n.t('Key size required.'))
+      const _schema = yup.string().nullable().required(i18n.t('Key size required.'))
       const { [key_type]: { text: type, sizes } = {} } = keyTypes
       if (sizes)
         return _schema.in(sizes, i18n.t('Invalid key size. {type} only supports {list}', { type, list: arrToLocale(sizes) }))
