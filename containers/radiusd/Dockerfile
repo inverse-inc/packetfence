@@ -21,8 +21,8 @@ WORKDIR /usr/local/src/repositories
 #
 #  Shallow clone the FreeRADIUS source
 #
-ARG source=https://github.com/fdurand/freeradius-server.git
-ARG release=PacketFence_3.2.2
+ARG source=https://github.com/inverse-inc/freeradius-server.git
+ARG release=feature/PacketFence_3.2
 
 RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source}
 WORKDIR freeradius-server
