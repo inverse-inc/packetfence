@@ -5,7 +5,7 @@
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch" :disabled="!isServiceAlive">
-        <b-dropdown :text="$t('New Template')" variant="outline-primary" :disabled="!isServiceAlive || cas.length === 0">
+        <b-dropdown :text="$t('New Template')" variant="outline-primary" :disabled="!isServiceAlive">
           <b-dropdown-header>{{ $t('Choose Certificate Authority') }}</b-dropdown-header>
           <b-dropdown-item v-for="ca in casSorted" :key="ca.id" :to="{ name: 'newPkiProfile', params: { ca_id: ca.id } }">{{ ca.cn }}</b-dropdown-item>
         </b-dropdown>
