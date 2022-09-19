@@ -177,12 +177,12 @@ const setup = (props, context) => {
 
   const onAddOperator = () => {
     const newOperator = { op: undefined, values: [{ field: undefined, op: undefined, value: undefined }] }
-    return onInput({ ...value.value, values: [ ...value.value.values, newOperator ] })
+    return onInput({ ...value.value, values: [ ...value.value.values || [], newOperator ] })
   }
 
   const onAddValue = () => {
     const newValue = { field: undefined, op: undefined, value: undefined }
-    return onInput({ ...value.value, values: [ ...value.value.values, newValue ] })
+    return onInput({ ...value.value, values: [ ...value.value.values || [], newValue ] })
   }
 
   const onTruncate = () => onInput({ ...value.value, values: [] })
