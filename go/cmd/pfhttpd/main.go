@@ -1,28 +1,26 @@
-// Copyright 2015 Light Code Labs, LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-// By moving the application's package main logic into
-// a package other than main, it becomes much easier to
-// wrap caddy for custom builds that are go-gettable.
-// https://caddy.community/t/my-wish-for-0-9-go-gettable-custom-builds/59?u=matt
-
 package main
 
-import "github.com/inverse-inc/packetfence/go/caddy/caddy/caddy/caddymain"
+import (
+	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 
-var run = caddymain.Run // replaced for tests
+	// plug in Caddy modules here
+	_ "github.com/caddyserver/caddy/v2/modules/standard"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/api-aaa"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/cors"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdispatcher"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/httpdportalpreview"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/job-status"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/log-tailer"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/logger"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfconfig"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfipset"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfsso"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/requestlimit"
+	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/statsd"
+)
 
 func main() {
-	run()
+	caddycmd.Main()
 }
