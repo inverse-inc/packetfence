@@ -61,7 +61,7 @@ const schemaAdvancedFilter = yup.object({
   )
 }).nullable()
 
-const schemaArrayItem = yup.string().required().label('Value')
+const schemaArrayItem = yup.string().nullable().required().label('Value')
 
 const schemaArray = yup.array().of(schemaArrayItem)
 
