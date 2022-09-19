@@ -488,6 +488,6 @@ d-i preseed/late_command string \
   mount --bind /sys /target/sys ; \
   in-target cp -a /media/cdrom/postinst-debian-installer.sh /usr/local/bin/ ; \
   in-target chmod 700 /usr/local/bin/postinst-debian-installer.sh ; \
-  in-target /bin/bash /usr/local/bin/postinst-debian-installer.sh %%PF_VERSION%%
-  umount /target/proc
+  in-target /bin/bash /usr/local/bin/postinst-debian-installer.sh %%PF_VERSION%% ; \
+  umount /target/proc ; \
   umount /target/sys
