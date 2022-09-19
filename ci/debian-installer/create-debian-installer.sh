@@ -33,6 +33,7 @@ cp gtk.cfg isofiles/isolinux/drkgtk.cfg
 cp grub.cfg isofiles/boot/grub/grub.cfg
 chmod 0444 isofiles/isolinux/gtk.cfg isofiles/isolinux/drkgtk.cfg isofiles/boot/grub/grub.cfg
 
+cp postinst-debian-installer.sh isofiles/
 cd isofiles
 chmod +w md5sum.txt
 # The '|| echo' is there so that it always exits with 0 because find returns a non-zero status because there is debian symlink in isofiles that points to '.'

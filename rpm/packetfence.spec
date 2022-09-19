@@ -739,6 +739,7 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl disable packetfence-iptables
     /bin/systemctl stop packetfence-iptables
     /bin/systemctl start packetfence-config
+    # next command need packetfence-config started
     /usr/local/pf/bin/pfcmd generatemariadbconfig --force
     # only packetfence-config is running after this command
     /bin/systemctl isolate packetfence-base

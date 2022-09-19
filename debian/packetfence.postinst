@@ -152,7 +152,19 @@ case "$1" in
         echo "Restarting rsyslog"
         systemctl restart rsyslog
 
-        systemctl restart docker
+        # check if we are inside our Debian ISO installer (chroot environment)
+        if [ -f /media/cdrom/postinst-debian-installer.sh ]; then
+            DEBIAN_ISO_INSTALLER=yes
+            echo "Debian ISO installer detected, launching Docker manually"
+            /usr/local/pf/containers/run-docker-in-debian-installer.sh
+
+            # remove file in advance to timeout more quickly
+            rm -f $PACKETFENCE/var/run/pkg_install_in_progress
+        else
+            DEBIAN_ISO_INSTALLER=no
+            systemctl restart docker
+        fi
+
         # get containers image and tag them locally
         /usr/local/pf/containers/manage-images.sh
 
@@ -170,7 +182,13 @@ case "$1" in
         systemctl enable packetfence-haproxy-admin
         systemctl enable packetfence-tracking-config.path
         systemctl start packetfence-config
-        /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then
+            # next command need packetfence-config started
+            /usr/local/pf/bin/pfcmd generatemariadbconfig --force
+        else
+            echo "MariaDB config will be generated at next boot"
+        fi
+
         # only packetfence-config is running after this command
         systemctl isolate packetfence-base.target
 
@@ -186,16 +204,20 @@ case "$1" in
         /bin/systemctl start packetfence-haproxy-admin
         systemctl enable packetfence-iptables
         systemctl stop packetfence-iptables
-        /usr/local/pf/containers/docker-minimal-rules.sh
+        if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then
+            /usr/local/pf/containers/docker-minimal-rules.sh
+            /usr/local/pf/bin/pfcmd service pf updatesystemd
+        else
+            echo "Skipping some steps which will be run at next boot"
+        fi
 
-        /usr/local/pf/bin/pfcmd service pf updatesystemd
         if [ ${DIST} = "stretch" ]; then
             set +e
             /usr/bin/mysql -uroot -e "update mysql.user set plugin='' where User='root'"
             /usr/bin/mysql -uroot -e "flush privileges"
             set -e
         fi
-        if [ ${DIST} = "bullseye" ]; then
+        if [ ${DIST} = "bullseye" ] && [ "$DEBIAN_ISO_INSTALLER" = "no" ]; then
             set +e
             /usr/bin/mysql -uroot -e "set password for 'root'@'localhost' = password('')"
             set -e
