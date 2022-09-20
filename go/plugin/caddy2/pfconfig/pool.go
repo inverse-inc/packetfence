@@ -54,6 +54,7 @@ func (h *PoolHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 }
 
 type PoolHandler struct {
+	caddy2.ModuleBase
 	refreshLauncher *sync.Once `json:"-"`
 	NoRlockPaths    []string   `json:"no_rlock_paths"`
 }
@@ -89,14 +90,6 @@ func (h *PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cad
 	} else {
 		panic("Unable to obtain pfconfigpool lock in caddy middleware")
 	}
-}
-
-func (h *PoolHandler) Validate() error {
-	return nil
-}
-
-func (h *PoolHandler) Provision(ctx caddy.Context) error {
-	return nil
 }
 
 // Interface guards

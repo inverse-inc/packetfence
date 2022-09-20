@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
@@ -42,21 +41,12 @@ func (h *HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	return nil
 }
 
-func (h *HttpDispatcherHandler) Validate() error {
-	return nil
-}
-
 func (h *HttpDispatcherHandler) Provision(ctx caddy.Context) error {
-
 	proxy := httpdispatcher.NewProxy(ctx)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Fencing)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.General)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.CaptivePortal)
 	pfconfigdriver.PfconfigPool.AddRefreshable(ctx, proxy)
 	h.proxy = proxy
-	return nil
-}
-
-func (h *HttpDispatcherHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	return nil
 }

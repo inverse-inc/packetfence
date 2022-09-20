@@ -73,14 +73,6 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 }
 
-func (h *APIHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
-	return nil
-}
-
-func (h *APIHandler) Validate() error {
-	return nil
-}
-
 func (h *APIHandler) Provision(ctx caddy.Context) error {
 	return h.init(ctx)
 }
