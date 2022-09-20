@@ -19,6 +19,9 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/pfsso"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/requestlimit"
 	_ "github.com/inverse-inc/packetfence/go/plugin/caddy2/statsd"
+
+	// External modules
+	_ "github.com/caddyserver/transform-encoder"
 )
 
 func main() {
