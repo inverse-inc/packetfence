@@ -34,7 +34,7 @@ type Logger struct {
 func (h Logger) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.logger",
-		New: func() caddy.Module { return &Logger{} },
+		New: func() caddy.Module { return &Logger{RequestHistory: 100} },
 	}
 }
 
@@ -42,6 +42,7 @@ func (h *Logger) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	ctx := context.Background()
 	ctx = log.LoggerNewContext(ctx)
 
+	h.RequestHistory = 100
 	for c.Next() {
 		for c.NextBlock(0) {
 			switch c.Val() {
