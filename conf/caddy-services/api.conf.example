@@ -1,94 +1,99 @@
 # Copyright (C) Inverse inc.
+{
+	admin off
+	log {
+		output stdout
+        format transform  `api-frontend-access {remote} - {user} [{when}] "{method} {uri} {proto}" {status} {size} "{>Referer}" "{>User-Agent}""`
+	}
+	auto_https off
+}
+
 0.0.0.0:9999 {
   tls /usr/local/pf/conf/ssl/server.crt /usr/local/pf/conf/ssl/server.key
 
-  log / stdout "api-frontend-access {remote} - {user} [{when}] \"{method} {uri} {proto}\" {status} {size} \"{>Referer}\" \"{>User-Agent}\""
 
-  errors {
-    502 /usr/local/pf/html/pfappserver/root/errors/502.json
-    503 /usr/local/pf/html/pfappserver/root/errors/503.json
-  }
+  handle_errors {
+    @502-503 expression `{err.status_code} in [502, 503]`
+    handle @502-503 {
+        rewrite * /{err.status_code}.json
+        file_server {
+            root /usr/local/pf/html/pfappserver/root/errors/
+        }
+    }
 
-  pfconfigpool {
-    dont_rlock /api/v1/pfconnector/tunnel
-  }
-
-  logger {
-    level INFO
-  }
-  statsd {
-    proto udp
-    prefix api
-    address {$STATSD_ADDRESS}
+    handle {
+        respond "" 
+    }
   }
 
-  cors /api/v1 {
-    allowed_headers Authorization,Content-Type
-    methods GET,OPTIONS,POST,DELETE,PUT,PATCH
-  }
+route {
+      pfconfigpool {
+        dont_rlock /api/v1/pfconnector/tunnel
+      }
 
-  cors /api/v1.1 {
-    allowed_headers Authorization,Content-Type
-    methods GET,OPTIONS,POST,DELETE,PUT,PATCH
-  }
+      logger {
+        level INFO
+      }
 
-  api-aaa {
-    no_auth /api/v1/pfconnector/tunnel
-    session_backend db mem
-  }
-  
-  api
+      statsd {
+        proto udp
+        prefix api
+        address {$STATSD_ADDRESS}
+      }
 
-  log-tailer
+      cors /api/v1 {
+        allowed_headers Authorization,Content-Type
+        methods GET,OPTIONS,POST,DELETE,PUT,PATCH
+      }
 
-  # Job status access
-  job-status
+      cors /api/v1.1 {
+        allowed_headers Authorization,Content-Type
+        methods GET,OPTIONS,POST,DELETE,PUT,PATCH
+      }
 
-  proxy /api/v1/pfconnector {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
-    websocket
-    transparent
-  }
+      api-aaa {
+        no_auth /api/v1/pfconnector/tunnel
+        session_backend db mem
+      }
+      
+      api
 
-  # pfipset API access
-  proxy /api/v1/ipset/ {$PF_SERVICES_URL_PFIPSET} {
-    transparent
-  }
-  
-  # pfdhcp API access
-  proxy /api/v1/dhcp/ {$PF_SERVICES_URL_PFDHCP} {
-    transparent
-  }
-  
-  # pfsso API access
-  proxy /api/v1/firewall_sso/ {$PF_SERVICES_URL_PFSSO} {
-    transparent
-  }
+      log-tailer
 
-  # pfpki API access
-  proxy /api/v1/pki/ {$PF_SERVICES_URL_PFPKI} {
-    transparent
-  }
-  
-  # Everything else goes to the Perl API
-  proxy /api/v1/ {$PF_SERVICES_URL_PFPERL_API} {
-    transparent
-    timeout 10m
-  }
+      # Job status access
+      job-status
 
-  # Everything else goes to the Perl API
-  proxy /api/v1.1/ {$PF_SERVICES_URL_PFPERL_API} {
-    transparent
-    timeout 10m
-  }
+      reverse_proxy /api/v1/pfconnector {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
+      }
 
-  # doh forward
-  proxy /dns-query {$PF_SERVICES_URL_PFDNS_DOH} {
-      transparent
-  }
+      # pfipset API access
+      reverse_proxy /api/v1/ipset/ {$PF_SERVICES_URL_PFIPSET} {
+      }
+      
+      # pfdhcp API access
+      reverse_proxy /api/v1/dhcp/ {$PF_SERVICES_URL_PFDHCP} {
+      }
+      
+      # pfsso API access
+      reverse_proxy /api/v1/firewall_sso/ {$PF_SERVICES_URL_PFSSO} {
+      }
 
-  timeouts {
-    write 10m
-    idle 10m
+      # pfpki API access
+      reverse_proxy /api/v1/pki/ {$PF_SERVICES_URL_PFPKI} {
+      }
+      
+      # Everything else goes to the Perl API
+      reverse_proxy /api/v1/ {$PF_SERVICES_URL_PFPERL_API} {
+      }
+
+      # Everything else goes to the Perl API
+      reverse_proxy /api/v1.1/ {$PF_SERVICES_URL_PFPERL_API} {
+      }
+
+      # doh forward
+      reverse_proxy /dns-query {$PF_SERVICES_URL_PFDNS_DOH} {
+      }
+
   }
 }
 

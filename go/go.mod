@@ -92,7 +92,10 @@ require (
 	software.sslmate.com/src/go-pkcs12 v0.2.0
 )
 
-require github.com/caddyserver/caddy/v2 v2.5.2
+require (
+	github.com/caddyserver/caddy/v2 v2.5.2
+	github.com/caddyserver/transform-encoder v0.0.0-20220809185311-4eb1fddf1855
+)
 
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
@@ -113,6 +116,7 @@ require (
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220418222510-f25a4f6275ed // indirect
 	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/caddyserver/certmagic v0.16.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -232,7 +236,7 @@ require (
 	go.step.sm/crypto v0.16.1 // indirect
 	go.step.sm/linkedca v0.15.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220106191415-9b9b3d81d5e3 // indirect
 	golang.org/x/oauth2 v0.0.0-20220909003341-f21342109be1 // indirect
