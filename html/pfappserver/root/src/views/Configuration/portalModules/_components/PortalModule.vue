@@ -68,8 +68,8 @@ const props = {
   }
 }
 
-import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
-const setup = props => {
+import { computed, customRef, onMounted, ref, toRefs } from '@vue/composition-api'
+const setup = (props, context) => {
 
   const {
     id,
@@ -79,6 +79,8 @@ const setup = props => {
     level,
     index
   } = toRefs(props)
+
+  const { emit } = context
 
   const dragging = ref(false)
   const childParents = ref([])
@@ -91,14 +93,21 @@ const setup = props => {
     return currentModule.value.type === 'Chained'
   })
 
-  const children = computed(() => {
+  const children = customRef((track, trigger) => ({
+    get() {
+      track()
       if (currentModule.value.modules) {
         const _modules = currentModule.value.modules.filter(id => modules.value.find(module => module.id === id))
         if (_modules.length || currentModule.value.type === 'Root')
           return _modules
       }
       return false
-  })
+    },
+    set(newValue) {
+      emit('children', newValue)
+      trigger()
+    }
+  }))
 
   const path = computed(() => {
     return 'L' + level.value + 'I' + index.value
