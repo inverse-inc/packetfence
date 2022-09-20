@@ -1,25 +1,38 @@
 # Copyright (C) Inverse inc.
+{
+	admin off
+	log {
+		output stdout
+		format transform `api-frontend-access {remote} - {user} [{when}] "{method} {uri} {proto}" {status} {size} "{>Referer}" "{>User-Agent}""`
+	}
+	auto_https off
+}
+
 :8890 {
-  logger {
-    level INFO
-  }
-  httpdportalpreview
+	route {
+		logger {
+			level INFO
+		}
+
+		httpdportalpreview
+	}
 }
 
-:8891/static/doc {
-  root /usr/local/pf/docs
-}
+:8891 {
+	file_server /static/doc/* {
+		root /usr/local/pf/docs
+	}
 
-:8891/static {
-  root /usr/local/pf/html/pfappserver/root
-}
+	file_server /static/* {
+		root /usr/local/pf/html/pfappserver/root
+	}
 
-:8891/common {
-  root /usr/local/pf/html/common
-}
+	file_server /common/* {
+		root /usr/local/pf/html/common
+	}
 
-:8891/admin {
-  root /usr/local/pf/html/pfappserver/root/dist
-  index index.html
+	file_server /admin/* {
+		root /usr/local/pf/html/pfappserver/root/dist
+		index index.html
+	}
 }
-
