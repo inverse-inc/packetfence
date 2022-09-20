@@ -9,6 +9,7 @@
         <draggable v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
           @start="dragging = true" @end="dragging = false">
           <portal-module v-for="(mid, i) in children" :key="`v-${mid}`"
+            @update="$emit('update', $event)"
             :id="mid" :parents="childParents" :modules="modules" :level="level + 1" :index="i" :last="i + 1 === children.length" />
         </draggable>
       </b-col>
@@ -17,7 +18,7 @@
     <draggable class="row row-nowrap portal-module-row align-items-center" :class="{ first: index === 0 && !last, last: last }" v-if="!isRoot && children && isChained" v-model="children" :group="{ name: path, pull: path, put: ['portal-module', path] }" ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag"
       @start="dragging = true" @end="dragging = false">
       <div v-for="(mid, i) in children" :key="`h-${mid}`" :class="{ 'col portal-module-col': (i > 0), dragging: dragging }">
-        <portal-module :id="mid" :parents="childParents" :modules="modules" :level="level + i + 1" :first-in-chain="i === 0" :index="0" last />
+        <portal-module :id="mid" :parents="childParents" :modules="modules" :level="level + i + 1" :first-in-chain="i === 0" :index="0" @update="$emit('update', $event)" last />
       </div>
     </draggable>
   </div>
@@ -104,7 +105,7 @@ const setup = (props, context) => {
       return false
     },
     set(newValue) {
-      emit('children', newValue)
+      emit('update', { id: id.value, modules: newValue })
       trigger()
     }
   }))
@@ -116,12 +117,14 @@ const setup = (props, context) => {
   const onRemove = id => {
     let list = []
     let _index = -1
+    let _id = id.value
     if (parents.value.length > 0) {
       // Disconnect module from its parent
       let [parentId] = parents.value.slice(-1)
       let parentModule = modules.value.find(module => module.id === parentId)
       list = parentModule.modules
       _index = list.findIndex(mid => mid === id)
+      _id = parentId
     } else {
       // Delete module's definition
       list = modules.value
@@ -129,6 +132,7 @@ const setup = (props, context) => {
     }
     if (_index >= 0) {
       list.splice(_index, 1)
+      emit('update', { id: _id, modules: list })
     }
   }
 
