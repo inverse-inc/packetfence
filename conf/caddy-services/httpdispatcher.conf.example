@@ -1,14 +1,18 @@
 # Copyright (C) Inverse inc.
 :8888 {
+  route {
   logger {
     level INFO
   }
   pfconfigpool
   httpdispatcher
+  }
 }
 
 :8889 {
-  root /usr/local/pf/html/common
+  file_server {
+     root /usr/local/pf/html/common
+  }
 }
 
 :8889/common {

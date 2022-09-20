@@ -63,7 +63,7 @@ func (h *Cors) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 		for i := 0; i < len(args); i++ {
 			h.Origins = append(h.Origins, strings.Split(args[i], ",")...)
 		}
-		for c.NextBlock(0) {
+		if nesting := c.Nesting(); c.NextBlock(nesting) {
 			switch c.Val() {
 			case "origin":
 				args := c.RemainingArgs()
