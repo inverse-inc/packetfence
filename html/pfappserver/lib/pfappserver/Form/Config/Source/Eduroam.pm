@@ -22,59 +22,85 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'server1_address' => (
-    type        => 'Text',
-    label       => 'Server 1 address',
-    required    => 1,
-    # Default value needed for creating dummy source
-    default     => "",
-    tags        => {
-        after_element   => \&help,
-        help            => 'Eduroam server 1 address',
-    },
-);
+has_field 'eduroam_options' =>
+  (
+   type => 'TextArea',
+   label => 'Eduroam Realm Options',
+   required => 0,
+   tags => { after_element => \&help,
+             help => 'You can add FreeRADIUS options in the realm definition' },
+  );
 
-has_field 'server1_port' => (
-    type            => 'Port',
-    label           => 'Eduroam server 1 port',
-    element_attr    => {
-        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
-    },
-    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
-);
+has_field 'eduroam_radius_auth' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Eduroam RADIUS AUTH',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server(s) to proxy authentication' },
+  );
 
-has_field 'server2_address' => (
-    type        => 'Text',
-    label       => 'Server 2 address',
-    required    => 1,
-    # Default value needed for creating dummy source
-    default     => "",
-    tags        => {
-        after_element   => \&help,
-        help            => 'Eduroam server 2 address',
-    },
-);
+has_field 'eduroam_radius_auth_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'keyed-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
+  );
 
-has_field 'server2_port' => (
-    type            => 'Port',
-    label           => 'Eduroam server 2 port',
-    element_attr    => {
-        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
-    },
-    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
-);
+has_field 'eduroam_radius_auth_compute_in_pf' =>
+  (
+   type => 'Toggle',
+   checkbox_value => "enabled",
+   unchecked_value => "disabled",
+   default => "enabled",
+   label => 'Authorize from PacketFence',
+   tags => { after_element => \&help,
+             help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
+  );
 
-has_field 'radius_secret' => (
-    type        => 'Text',
-    label       => 'RADIUS secret',
-    required    => 1,
-    # Default value needed for creating dummy source
-    default     => "",
-    tags        => {
-        after_element   => \&help,
-        help            => 'Eduroam RADIUS secret',
-    },
-);
+has_field 'eduroam_radius_acct' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Eduroam RADIUS ACCT',
+   options_method => \&options_radius,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
+   tags => { after_element => \&help,
+             help => 'The RADIUS Server(s) to proxy accounting' },
+  );
+
+has_field 'eduroam_radius_acct_proxy_type' =>
+  (
+   type => 'Select',
+   label => 'type',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'load-balance',
+   tags => { after_element => \&help,
+             help => 'Home server pool type' },
+  );
 
 has_field 'auth_listening_port' => (
     type            => 'Port',
@@ -133,6 +159,16 @@ sub options_realm {
     return @roles;
 }
 
+=head2 options_radius
+
+=cut
+
+sub options_radius {
+    my $self = shift;
+    my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
+    push @radius , map { $_ => $_ } keys %pf::config::ConfigAuthenticationEduroam;
+    return @radius;
+}
 
 =head1 AUTHOR
 
