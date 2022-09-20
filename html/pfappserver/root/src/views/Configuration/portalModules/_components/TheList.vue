@@ -36,7 +36,7 @@
           </div>
           <b-row align-v="center" class="pt-5 pl-3 row-nowrap">
             <icon class="connector-circle" name="circle"></icon>
-            <portal-module :index="0" :id="rootModule.id" :modules="items" :minimize="minimize" />
+            <portal-module :index="0" :id="rootModule.id" :modules="items" :minimize="minimize" @children="onChildren(rootModule.id, $event)" />
           </b-row>
         </div>
       </b-tab>
@@ -61,6 +61,7 @@
             :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
             ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
             <portal-module v-for="(mid, i) in getModulesByType(moduleType)" :key="mid"
+              @children="onChildren(mid, $event)"
               :index="i" :id="mid" :module="getModule(mid)" :modules="items" v-show="mid" is-root />
           </draggable>
         </b-tab>
@@ -249,6 +250,11 @@ const setup = (props, context) => {
     }
   }
 
+  const onChildren = (id, modules) => {
+    updateItem({ id, modules, quiet: true })
+      .then(() => reSearch())
+  }
+
   return {
     isLoading,
     items,
@@ -264,7 +270,8 @@ const setup = (props, context) => {
     stepsCount,
     validateMove,
     onSave,
-    onRemove
+    onRemove,
+    onChildren
   }
 }
 
