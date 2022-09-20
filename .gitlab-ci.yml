@@ -70,14 +70,6 @@ variables:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel"'
 
-# run jobs on any branches only via "Run pipeline", except:
-# - devel branch
-# - maintenance/X.Y branches
-# don't run on tag
-.branches_only_rules:
-  rules:
-   - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
-
 # run only on maintenance jobs (schedule and web, not on push)
 .maintenance_only_rules:
   rules:
@@ -91,13 +83,21 @@ variables:
 # run jobs on any branches except maintenance/X.Y branches (web,schedule)
 # don't run on tag
 # we used same kind of rules below but we add variable checks to add jobs to pipeline
-.devel_and_branches_rules:
+.build_artifacts_pkg_devel_rules:
   rules:
     - if: '$BUILD_ARTIFACTS_PKG == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME == "devel"'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web"'
-    - if: '$CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "schedule"'
+
+# run jobs on any branches only via "Run pipeline", except:
+# - devel branch
+# - maintenance/X.Y branches
+# don't run on tag
+.build_artifacts_pkg_branches_rules:
+  rules:
+    - if: '$BUILD_ARTIFACTS_PKG == "no"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # don't run if BUILD_ARTIFACTS_PKG is equals to 'no'
 # run jobs on "devel" branch *or* vX.Y.Z tag (push, schedule and web)
@@ -807,20 +807,35 @@ build_img_vagrant_devel_and_branches_debian_bullseye:
 ########################################
 #  BUILD_ARTIFACTS JOBS
 ########################################
-# build_artifacts_pkg jobs for development
+# build_artifacts_pkg jobs for development (devel)
 build_artifacts_pkg_devel_and_branches_centos_8:
   image: ${PFBUILD_CENTOS_8_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .rpm_script_job
-    - .devel_and_branches_rules
+    - .build_artifacts_pkg_devel_rules
 
 build_artifacts_pkg_devel_and_branches_debian_bullseye:
   image: ${PFBUILD_DEB_BULLSEYE_IMG}:${PFBUILD_DEFAULT_DEV_TAG}
   extends:
     - .build_artifacts_pkg_job
     - .deb_script_job
-    - .devel_and_branches_rules
+    - .build_artifacts_pkg_devel_rules
+
+# build_artifacts_pkg jobs for development (branches other than devel and maintenance)
+build_artifacts_pkg_devel_and_branches_centos_8:
+  image: ${PFBUILD_CENTOS_8_IMG}:${CI_COMMIT_REF_SLUG}
+  extends:
+    - .build_artifacts_pkg_job
+    - .rpm_script_job
+    - .build_artifacts_pkg_branches_rules
+
+build_artifacts_pkg_devel_and_branches_debian_bullseye:
+  image: ${PFBUILD_DEB_BULLSEYE_IMG}:${CI_COMMIT_REF_SLUG}
+  extends:
+    - .build_artifacts_pkg_job
+    - .deb_script_job
+    - .build_artifacts_pkg_branches_rules
 
 # build_artifacts_pkg jobs for release
 # CI_COMMIT_TAG contains vX.Y.X
