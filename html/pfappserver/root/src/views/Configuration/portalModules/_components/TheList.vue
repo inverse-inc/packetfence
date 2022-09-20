@@ -11,32 +11,33 @@
       <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
+          <b-form @submit.prevent="onSave(rootModule)">
+            <base-button-save class="mr-1" type="submit" :isLoading="isLoading" :disabled="!isMutated">
+              {{ $t('Save') }}
+            </base-button-save>
+          </b-form>
+          <b-button variant="outline-secondary" class="mr-1" @click="onReset" :disabled="!isMutated">{{ $t('Reset') }}</b-button>
           <base-button-confirm
             variant="danger" class="mr-1" reverse
             :disabled="isLoading"
             :confirm="$t('Delete Module?')"
             @click="onRemove(rootModule.id)"
           >{{ $t('Delete') }}</base-button-confirm>
-          <b-form @submit.prevent="onSave(rootModule)">
-            <base-button-save type="submit" :isLoading="isLoading">
-              {{ $t('Save') }}
-            </base-button-save>
-          </b-form>
         </b-form-row>
         <div class="position-relative">
           <div class="steps-row">
             <template v-for="step in stepsCount(rootModule.id)">
-            <icon class="card-bg" name="caret-right" :key="`${step}-icon`" v-show="!minimize"><!-- force proper spacing --></icon>
-            <div class="step-col" :key="`${step}-div`">
-              <div class="step">
-                <div class="float-right py-1 pr-2 text-secondary small"><span v-show="!minimize" v-t="'step'"></span> {{ step }}</div>
+              <icon class="card-bg" name="caret-right" :key="`${step}-icon`" v-show="!minimize"><!-- force proper spacing --></icon>
+              <div class="step-col" :key="`${step}-div`">
+                <div class="step">
+                  <div class="float-right py-1 pr-2 text-secondary small"><span v-show="!minimize" v-t="'step'"></span> {{ step }}</div>
+                </div>
               </div>
-            </div>
             </template>
           </div>
           <b-row align-v="center" class="pt-5 pl-3 row-nowrap">
             <icon class="connector-circle" name="circle"></icon>
-            <portal-module :index="0" :id="rootModule.id" :modules="items" :minimize="minimize" @children="onChildren(rootModule.id, $event)" />
+            <portal-module :index="0" :id="rootModule.id" :modules="items" :minimize="minimize" @update="onUpdate" />
           </b-row>
         </div>
       </b-tab>
@@ -61,7 +62,7 @@
             :group="{ name: 'portal-module', pull: 'clone', revertClone: true, put: false }"
             ghost-class="portal-module-row-ghost" drag-class="portal-module-row-drag">
             <portal-module v-for="(mid, i) in getModulesByType(moduleType)" :key="mid"
-              @children="onChildren(mid, $event)"
+              @update="onUpdate"
               :index="i" :id="mid" :module="getModule(mid)" :modules="items" v-show="mid" is-root />
           </draggable>
         </b-tab>
@@ -107,7 +108,7 @@ import {
   moduleTypeName as getModuleTypeName
 } from '../config'
 
-import { computed, ref, toRefs } from '@vue/composition-api'
+import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import { useSearch, useStore } from '../_composables/useCollection'
 const setup = (props, context) => {
 
@@ -134,11 +135,18 @@ const setup = (props, context) => {
   const tabIndex = ref(0)
   const minimize = ref(false)
 
-  const rootModules = computed(() => items.value.filter(module => module.type === 'Root'))
+  const mutableItems = ref([])
+  watch(items, () => {
+    mutableItems.value = items.value
+  }, { deep: true, immediate: true })
+
+  const isMutated = computed(() => JSON.stringify(items.value) !== JSON.stringify(mutableItems.value))
+
+  const rootModules = computed(() => mutableItems.value.filter(module => module.type === 'Root'))
   const activeModuleTypes = computed(() => {
     let types = {}
     let sortedTypes = []
-    items.value.forEach(module => {
+    mutableItems.value.forEach(module => {
       if (module.type !== 'Root')
         types[module.type] = true
     })
@@ -152,14 +160,14 @@ const setup = (props, context) => {
   })
 
   const getModule = id => {
-    let module = items.value.find(module => module.id === id)
+    let module = mutableItems.value.find(module => module.id === id)
     if (module)
       module.color = getColorByType(module.type)
     return module
   }
 
   const getModulesByType = type => {
-    const modules = items.value.filter(module => module.type === type).map(module => module.id)
+    const modules = mutableItems.value.filter(module => module.type === type).map(module => module.id)
     return [undefined, ...modules]
   }
 
@@ -229,35 +237,50 @@ const setup = (props, context) => {
     return false
   }
 
-  const onSave = module => {
-    updateItem(module)
+  const onSave = (module, isRoot = true) => {
+    let promises = []
+    promises.push(updateItem(module))
     if (module.modules) {
-      module.modules.forEach(mid => {
+        module.modules.forEach(mid => {
         const childModule = {
           ...getModule(mid),
           ...{ quiet: true }
         }
-        onSave(childModule)
+        promises.push(onSave(childModule, false))
       })
     }
+    return Promise.all(promises)
+      .finally(() => {
+        if (isRoot)
+          reSearch()
+      })
   }
 
   const onRemove = id => {
-    const index = items.value.findIndex(module => module.id === id)
+    const index = mutableItems.value.findIndex(module => module.id === id)
     if (index >= 0) {
       deleteItem({ id })
         .then(() => reSearch())
     }
   }
 
-  const onChildren = (id, modules) => {
-    updateItem({ id, modules, quiet: true })
-      .then(() => reSearch())
+  const onReset = () => {
+    reSearch()
+  }
+
+  const onUpdate = data => {
+    const { id, ...rest } = data
+    mutableItems.value = mutableItems.value.map(item => {
+      if (item.id === id)
+        item = { ...item, ...rest }
+      return item
+    })
   }
 
   return {
     isLoading,
-    items,
+    items: mutableItems,
+    isMutated,
     moduleTypes,
     getModuleTypeName,
     tabIndex,
@@ -271,7 +294,8 @@ const setup = (props, context) => {
     validateMove,
     onSave,
     onRemove,
-    onChildren
+    onReset,
+    onUpdate,
   }
 }
 
