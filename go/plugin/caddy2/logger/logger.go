@@ -44,7 +44,7 @@ func (h *Logger) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 
 	h.RequestHistory = 100
 	for c.Next() {
-		for c.NextBlock(0) {
+		if nesting := c.Nesting(); c.NextBlock(nesting) {
 			switch c.Val() {
 			case "requesthistory":
 				args := c.RemainingArgs()
