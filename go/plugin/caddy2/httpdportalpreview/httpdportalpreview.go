@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
@@ -34,19 +33,11 @@ func (h *HttpDispatcherHandler) Provision(ctx caddy.Context) error {
 	return nil
 }
 
-func (h *HttpDispatcherHandler) Validate() error {
-	return nil
-}
-
 func (h *HttpDispatcherHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	ctx := r.Context()
 	defer panichandler.Http(ctx, w)
 	// This will never call the next middleware so make sure its the only «acting» middleware on this service
 	h.proxy.ServeHTTP(w, r)
 	// TODO change me and wrap actions into something that handles server errors
-	return nil
-}
-
-func (h *HttpDispatcherHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	return nil
 }
