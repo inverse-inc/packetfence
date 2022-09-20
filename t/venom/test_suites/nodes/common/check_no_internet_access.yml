@@ -1,0 +1,12 @@
+name: Check Internet access on node
+testcases:
+- name: check_internet_access_on_node
+  steps:
+  - type: http
+    method: GET
+    url: '{{.network_detection_url}}'
+    assertions:
+      - result.statuscode ShouldNotEqual 200
+    # retry to let node get IP by DHCP
+    retry: 6
+    delay: 10

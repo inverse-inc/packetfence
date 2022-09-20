@@ -32,3 +32,6 @@ output:
   pf_api_action_message: "{{.http_json.message}}" 
   pf_api_action_progress: "{{.http_json.progress}}" 
   pf_api_action_status: "{{.http_json.status}}" 
+  pf_api_action_node_status: "{{.http_json.item.status}}" 
+  pf_api_action_node_dhcp_fingerprint: "{{.http_json.item.dhcp_fingerprint}}" 
+  pf_api_action_node_unregdate: "{{.http_json.item.unregdate}}" 

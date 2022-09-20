@@ -18,3 +18,6 @@ steps:
       from: result.pf_api_action_
 output:
   pf_api_node_action_: "{{.node_temp}}"
+  pf_api_node_status_: "result.pf_api_action_node_status"
+  pf_api_node_dhcp_fingerprint_: "result.pf_api_action_node_dhcp_fingerprint"
+  pf_api_node_unregdate_: "result.pf_api_action_node_unregdate"

@@ -1,0 +1,30 @@
+executor: pf_api_security_events_create
+input:
+  id: ""
+  access_duration: ""
+  actions: []
+  desc: ""
+  enabled: ""
+  target_category: ""
+  triggers: []
+  whitelisted_roles: []
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  url: "config/security_events"
+  body: >-
+    {
+      "id": "{{.input.id}}",
+      "access_duration": "{{.input.access_duration}}",
+      "actions": "{{.input.actions}}",
+      "desc": "{{.input.desc}}",
+      "enabled": "{{.input.enabled}}",
+      "target_category": "{{.input.target_category}}",
+      "triggers": "{{.input.triggers}}",
+      "whitelisted_roles": "{{.input.whitelisted_roles}}"
+    }
+  method: POST
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  status_code: 201
+output:
+  pf_api_security_events_create_: "{{.result.pf_api_action_}}"

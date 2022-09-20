@@ -1,0 +1,6 @@
+name: Delete captive portal connection profile
+testcases:
+- name: delete_captive_portal_connection_profile
+  steps:
+  - type: pf_api_connection_profile_delete 
+    id: '{{.captive_portal.profiles.id}}'

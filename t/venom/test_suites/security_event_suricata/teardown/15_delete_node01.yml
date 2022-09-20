@@ -1,0 +1,5 @@
+name: Delete node01
+testcases:
+- name: delete_node01
+  steps:
+  - type: node01_delete 

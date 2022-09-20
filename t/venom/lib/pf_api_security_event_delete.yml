@@ -1,0 +1,16 @@
+executor: pf_api_security_event_delete
+input:
+  id: ""
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  url: "config/security_event/{{.input.id}}"
+  method: DELETE 
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  status_code: 200
+
+- type: pf_api_action
+  url: "config/security_event/{{.input.id}}"
+  method: GET
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  status_code: 404
