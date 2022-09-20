@@ -14,19 +14,34 @@
       :column-label="$i18n.t('Description')"
     />
 
-    <form-group-server-address-port :namespaces="['server1_address', 'server1_port']"
-      :column-label="$i18n.t('Server 1 address')"
-      :text="$i18n.t('Eduroam server 1 address.')"
+    <form-group-eduroam-options namespace="eduroam_options"
+      :column-label="$i18n.t('Eduroam Realm Options')"
+      :text="$i18n.t('You can add Eduroam FreeRADIUS options in the realm definition.')"
     />
 
-    <form-group-server-address-port :namespaces="['server2_address', 'server2_port']"
-      :column-label="$i18n.t('Server 2 address')"
-      :text="$i18n.t('Eduroam server 2 address.')"
+    <form-group-eduroam-radius-auth namespace="eduroam_radius_auth"
+      :column-label="$i18n.t('Eduroam RADIUS AUTH')"
+      :text="$i18n.t('The RADIUS Server(s) to proxy authentication.')"
     />
 
-    <form-group-radius-secret namespace="radius_secret"
-      :column-label="$i18n.t('RADIUS secret')"
-      :text="$i18n.t('Eduroam RADIUS secret.')"
+    <form-group-eduroam-radius-auth-proxy-type namespace="eduroam_radius_auth_proxy_type"
+      :column-label="$i18n.t('Type')"
+      :text="$i18n.t('Home server pool type.')"
+    />
+
+    <form-group-eduroam-radius-auth-compute-in-pf namespace="eduroam_radius_auth_compute_in_pf"
+      :column-label="$i18n.t('Authorize from PacketFence')"
+      :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
+    />
+
+    <form-group-eduroam-radius-acct namespace="eduroam_radius_acct"
+      :column-label="$i18n.t('Eduroam RADIUS ACCT')"
+      :text="$i18n.t('The RADIUS Server(s) to proxy accounting.')"
+    />
+
+    <form-group-eduroam-radius-acct-proxy-type namespace="eduroam_radius_acct_proxy_type"
+      :column-label="$i18n.t('Type')"
+      :text="$i18n.t('Home server pool type.')"
     />
 
     <form-group-auth-listening-port namespace="auth_listening_port"
@@ -63,9 +78,13 @@ import {
   FormGroupIdentifier,
   FormGroupLocalRealm,
   FormGroupMonitor,
-  FormGroupRadiusSecret,
   FormGroupRejectRealm,
-  FormGroupServerAddressPort,
+  FormGroupEduroamOptions,
+  FormGroupEduroamRadiusAuth,
+  FormGroupEduroamRadiusAuthProxyType,
+  FormGroupEduroamRadiusAuthComputeInPf,
+  FormGroupEduroamRadiusAcct,
+  FormGroupEduroamRadiusAcctProxyType,
 } from './'
 
 const components = {
@@ -77,9 +96,13 @@ const components = {
   FormGroupIdentifier,
   FormGroupLocalRealm,
   FormGroupMonitor,
-  FormGroupRadiusSecret,
   FormGroupRejectRealm,
-  FormGroupServerAddressPort,
+  FormGroupEduroamOptions,
+  FormGroupEduroamRadiusAuth,
+  FormGroupEduroamRadiusAuthProxyType,
+  FormGroupEduroamRadiusAuthComputeInPf,
+  FormGroupEduroamRadiusAcct,
+  FormGroupEduroamRadiusAcctProxyType,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
