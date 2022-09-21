@@ -8,7 +8,7 @@ input:
   interval: 0
   unit: "s"
   status: "enabled"
-  type: "suricata"
+  syslog_type: "suricata"
 
 steps:
 - type: pf_api_action
@@ -18,17 +18,17 @@ steps:
   status_code: 201
   body: >-
     {
-      "id": "sarfg",
-      "isClone": false,
-      "isNew": true,
-      "syslogParserType": "suricata",
-      "path": "dsrg",
+      "id": "{{.input.id}}",
+      "isClone": "{{.input.isClone}}",
+      "isNew": "{{.input.isNew}}",
+      "syslogParserType": "{{.input.syslogParserType}}",
+      "path": "{{.input.path}}",
       "rate_limit": {
-        "interval":0,
-        "unit":"s"
+        "interval": "{{.input.interval}}",
+        "unit":"{{.input.unit}}"
       },
-      "status": "enabled",
-      "type": "suricata"
+      "status": "{{.input.status}}",
+      "type": "{{.input.syslog_type}}"
     }
 
 - type: pf_api_syslog_parser_action
