@@ -1,6 +1,8 @@
 0.0.0.0:22225 {
-  logger {
-    level INFO
-  }
-  pfpki
+	route {
+		logger {
+			level INFO
+		}
+		pfpki
+	}
 }
