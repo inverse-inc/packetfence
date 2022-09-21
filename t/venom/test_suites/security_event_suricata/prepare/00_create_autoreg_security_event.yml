@@ -15,7 +15,7 @@ testcases:
     isNew: true
     syslogParserType: "suricata"
     path: "{{.security_event_suricata.fifo_file}}"
-    type: "suricata"
+    syslog_type: "suricata"
 
 # create the Syslog Parser Suricata
 - name: create_security_event
