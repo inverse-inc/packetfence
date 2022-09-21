@@ -72,36 +72,6 @@ has_field 'eduroam_radius_auth_compute_in_pf' =>
              help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
   );
 
-has_field 'eduroam_radius_acct' =>
-  (
-   type => 'Select',
-   multiple => 1,
-   label => 'Eduroam RADIUS ACCT',
-   options_method => \&options_radius,
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
-   tags => { after_element => \&help,
-             help => 'The RADIUS Server(s) to proxy accounting' },
-  );
-
-has_field 'eduroam_radius_acct_proxy_type' =>
-  (
-   type => 'Select',
-   label => 'type',
-   required => 1,
-   options =>
-   [
-    { value => 'keyed-balance', label => 'Keyed Balance' },
-    { value => 'fail-over', label => 'Fail Over' },
-    { value => 'load-balance', label => 'Load Balance' },
-    { value => 'client-balance', label => 'Client Balance' },
-    { value => 'client-port-balance', label => 'Client Port Balance' },
-   ],
-   default => 'load-balance',
-   tags => { after_element => \&help,
-             help => 'Home server pool type' },
-  );
-
 has_field 'auth_listening_port' => (
     type            => 'Port',
     label           => 'Authentication listening port',
@@ -166,7 +136,6 @@ sub options_realm {
 sub options_radius {
     my $self = shift;
     my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
-    push @radius , map { $_ => $_ } keys %pf::config::ConfigAuthenticationEduroam;
     return @radius;
 }
 

@@ -155,8 +155,6 @@ export {
   BaseFormGroupChosenMultiple               as FormGroupEduroamRadiusAuth,
   BaseFormGroupChosenOne                    as FormGroupEduroamRadiusAuthProxyType,
   BaseFormGroupToggleDisabledEnabled        as FormGroupEduroamRadiusAuthComputeInPf,
-  BaseFormGroupChosenMultiple               as FormGroupEduroamRadiusAcct,
-  BaseFormGroupChosenOne                    as FormGroupEduroamRadiusAcctProxyType,
 
   ButtonSamlMetaData,
   TheForm,

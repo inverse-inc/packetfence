@@ -34,16 +34,6 @@
       :text="$i18n.t('Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes?')"
     />
 
-    <form-group-eduroam-radius-acct namespace="eduroam_radius_acct"
-      :column-label="$i18n.t('Eduroam RADIUS ACCT')"
-      :text="$i18n.t('The RADIUS Server(s) to proxy accounting.')"
-    />
-
-    <form-group-eduroam-radius-acct-proxy-type namespace="eduroam_radius_acct_proxy_type"
-      :column-label="$i18n.t('Type')"
-      :text="$i18n.t('Home server pool type.')"
-    />
-
     <form-group-auth-listening-port namespace="auth_listening_port"
       :column-label="$i18n.t('Authentication listening port')"
       :text="$i18n.t('PacketFence Eduroam RADIUS virtual server authentication listening port.')"
@@ -83,8 +73,6 @@ import {
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
   FormGroupEduroamRadiusAuthComputeInPf,
-  FormGroupEduroamRadiusAcct,
-  FormGroupEduroamRadiusAcctProxyType,
 } from './'
 
 const components = {
@@ -101,8 +89,6 @@ const components = {
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
   FormGroupEduroamRadiusAuthComputeInPf,
-  FormGroupEduroamRadiusAcct,
-  FormGroupEduroamRadiusAcctProxyType,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

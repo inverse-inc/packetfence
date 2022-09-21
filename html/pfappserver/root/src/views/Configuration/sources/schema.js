@@ -155,8 +155,6 @@ export const schema = (props) => {
     eduroam_options: yup.string().nullable().label(i18n.t('Options')),
     eduroam_radius_auth: schemaServers,
     eduroam_radius_auth_proxy_type: yup.string().nullable().label(i18n.t('Type')),
-    eduroam_radius_acct: schemaServers,
-    eduroam_radius_acct_proxy_type: yup.string().nullable().label(i18n.t('Type')),
   })
 }
 
