@@ -61,17 +61,6 @@ has_field 'eduroam_radius_auth_proxy_type' =>
              help => 'Home server pool type' },
   );
 
-has_field 'eduroam_radius_auth_compute_in_pf' =>
-  (
-   type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => "1",
-   label => 'Authorize from PacketFence',
-   tags => { after_element => \&help,
-             help => 'Should we forward the request to PacketFence to have a dynamic answer or do we use the remote proxy server answered attributes ?' },
-  );
-
 has_field 'auth_listening_port' => (
     type            => 'Port',
     label           => 'Authentication listening port',
