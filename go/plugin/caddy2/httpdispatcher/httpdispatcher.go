@@ -26,6 +26,7 @@ func (h HttpDispatcherHandler) CaddyModule() caddy.ModuleInfo {
 }
 
 type HttpDispatcherHandler struct {
+	caddy2.ModuleBase
 	proxy *httpdispatcher.Proxy
 }
 

@@ -18,6 +18,7 @@ func init() {
 }
 
 type HttpDispatcherHandler struct {
+	caddy2.ModuleBase
 	proxy *httpdportalpreview.Proxy
 }
 

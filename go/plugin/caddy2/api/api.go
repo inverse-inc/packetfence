@@ -25,6 +25,7 @@ func init() {
 }
 
 type APIHandler struct {
+	caddy2.ModuleBase
 	router *httprouter.Router
 }
 
