@@ -6,7 +6,7 @@ input:
   file: "/usr/lib/pf/myfile.txt"
 steps:
 - type: exec
-  script: 'mkdir "$(dirname "{{.input.file}}")"'
+  script: 'mkdir -p "$(dirname "{{.input.file}}")"'
 
 - type: exec
   script: "touch {{.input.file}}"

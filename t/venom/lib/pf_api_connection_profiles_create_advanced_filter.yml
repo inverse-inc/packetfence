@@ -16,7 +16,7 @@ steps:
   body: >-
     {
       "access_registration_when_registered": null,
-      "advanced_filter": "{{.input.advanced_filter}}",,
+      "advanced_filter": "{{.input.advanced_filter}}",
       "always_use_redirecturl": null,
       "autoregister": "{{.input.autoregister}}",
       "billing_tiers": null,
