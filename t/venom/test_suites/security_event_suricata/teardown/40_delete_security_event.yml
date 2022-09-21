@@ -3,4 +3,9 @@ testcases:
 - name: delete_security_event
   steps:
   - type: pf_api_security_event_delete
-    id: '{{.security_event_autoreg.event.id}}'
+    id: '{{.security_event_suricata.event.id}}'
+
+- name: delete_syslog_parser
+  steps:
+  - type: pf_api_syslog_parser_delete
+    id: '{{.security_event_suricata.syslog_parser.id}}'

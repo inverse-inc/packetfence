@@ -8,7 +8,7 @@ testcases:
     vars:
       ipv4:
         from: result.pf_api_nodes_search_mac_address_online_json
-    retry: 10
+    retry: 20
     delay: 3
 
 - name: create_suricata_event_in_fifo

@@ -10,7 +10,7 @@ testcases:
 - name: create_the_syslog_parser
   steps:
   - type: pf_api_syslog_parsers_create
-    id: "Suricata"
+    id: "{{.security_event_suricata.syslog_parser.id}}"
     isClone: false
     isNew: true
     syslogParserType: "suricata"
@@ -41,16 +41,7 @@ testcases:
   - type: pf_api_service_restart
     service: packetfence-pfdetect
 
-- name: calculate_unregdate_should_be_after
-  steps:
-  - type: exec
-    script: 'date +"%Y-%m-%dT%H:%M:%S+00:00" -d "5 days" > {{.security_event_suricata.unreg_tmp_file}}'
-
-    # Create a fake event
-    # echo "Apr 18 10:48:17 pfdetect(6716) INFO: alert received: 04/18/2018-10:48:17.643084 [**] [1:2002878:7] ET POLICY iTunes User Agent [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {TCP} {{.node01_mgmt_ip}}:52801 -> 165.254.0.105:80" > /usr/local/pf/var/suricata
-  
 - name: clear_fingerbank_cache
   steps:
   - type: pfcmd_run_command 
     script: 'cache fingerbank clear'
-
