@@ -416,7 +416,7 @@ sub getSourceArgs {
             }
         }
     }
-    for my $r (qw(realms searchattributes sources local_realm reject_realm eduroam_radius_auth eduroam_radius_acct)) {
+    for my $r (qw(realms searchattributes sources local_realm reject_realm eduroam_radius_auth)) {
         $args->{$r} //= [];
         if (ref($args->{$r}) ne "ARRAY" ) {
             $args->{$r} = [$args->{$r}];
