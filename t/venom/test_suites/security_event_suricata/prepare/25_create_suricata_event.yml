@@ -12,5 +12,6 @@ testcases:
     delay: 3
 
 - name: create_suricata_event_in_fifo
+  steps:
   - type: exec
     script: 'echo "Apr 18 10:48:17 pfdetect(6716) INFO: alert received: 04/18/2018-10:48:17.643084 [**] [1:2002878:7] ET POLICY iTunes User Agent [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {TCP} {{.get_node01_dhcp_on_reg.ipv4}}:52801 -> 165.254.0.105:80" > {{.security_event_suricata.fifo_file}}'
