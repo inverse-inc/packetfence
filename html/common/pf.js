@@ -67,19 +67,19 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
   var vars = JSON.parse(variables.textContent || variables.innerHTML);
 
   netdetect = document.getElementById('netdetect');
-  netdetect.error(function() {
+  netdetect.onerror = function () {
     errorDetected = true;
     loaded = false;
-  });
-  netdetect.load(function() {
+  };
+  netdetect.onload = function () {
     errorDetected = false;
     loaded = true;
-  });
+  };
   initNetDetect = function() {
     if(vars["auto_redirect"] != 0) {
       errorDetected = loaded = undefined;
       var netdetect = document.getElementById('netdetect');
-      netdetect.attr('src',"http://" + external_ip + image_path + "?r=" + Date.now());
+      netdetect.setAttribute('src', 'http://' + external_ip + image_path + '?r=' + Date.now());
     }
     setTimeout(checker, retry_delay * 1000);
   };
@@ -93,7 +93,7 @@ function detectNetworkAccess(retry_delay, destination_url, external_ip, image_pa
     }
     else {
       // Check the width or height of the image since we do not know if it is loaded
-      if (netdetect.width() || netdetect.height()) {
+      if (netdetect.width || netdetect.height) {
         networkAccessCallback(destination_url);
       } else {
         initNetDetect();

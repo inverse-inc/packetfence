@@ -30,9 +30,9 @@
               for (var i = 0; i < response.messages.message.length; i++) {
                   console.log(response.messages.message[i].code + ": " + response.messages.message[i].text);
               }
-              var $form = document.getElementById('payment-form');
-              $form.find('.payment-errors p').text('Unable to proceed with payment please contact your service provider');
-              $form.find('.payment-errors').removeClass('hide');
+              var form = document.getElementById('payment-form');
+              form.querySelector('.payment-errors p').innerHTML = 'Unable to proceed with payment please contact your service provider';
+              form.querySelector('.payment-errors').classList.remove('hide');
           } else {
               processTransaction(response.opaqueData);
           }
