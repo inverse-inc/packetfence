@@ -604,9 +604,8 @@ EOT
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
 
         %tags = ();
-        my @eduroam_servers = split(',', $eduroam_authentication_source[0]{'eduroam_radius_auth'});
         my $i = 0;
-        foreach my $radius_server (@eduroam_servers) {
+        foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
             $i++;
             my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
             my $radius_secret = $radius_source->{secret};
@@ -1043,12 +1042,14 @@ EOT
         my $server_pool;
         my $home_server;
         my $i = 0;
-        foreach my $radius_server (@eduroam_servers) {
+        foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
             $i++;
             my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
             my $radius_secret = $radius_source->{secret};
             my $radius_ip = $radius_source->{host};
             my $radius_port = $radius_source->{port};
+            my $radius_options = $radius_source->{eduroam_options};
+            my $radius_auth_proxy_type = $radius_source->{eduroam_radius_auth_proxy_type};
             $server_pool .= <<"EOT";
     home_server = eduroam_server$i
 EOT
@@ -1069,10 +1070,11 @@ EOT
 
 realm eduroam {
     auth_pool = eduroam_auth_pool
-    nostrip
+    $radius_options
 }
 home_server_pool eduroam_auth_pool {
-    $server_pool
+$server_pool
+type = $radius_auth_proxy_type
 }
 $home_server
 EOT
