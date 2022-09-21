@@ -126,7 +126,6 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 	cl.TransactionID = id.String()
 
 	spt, err = adal.NewServicePrincipalToken(*oauthConfig, cl.ClientID, cl.ClientSecret, graphResourceUrl)
-	spew.Dump(err.Error())
 	err = spt.Refresh()
 
 	var Bearer string
