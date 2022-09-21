@@ -162,12 +162,19 @@ external_integrations_deb11:
 	SCENARIOS_TO_RUN=external_integrations \
 	$(MAKE_TARGET)
 
-security_events_deb11:
+security_events_autoreg_deb11:
 	make \
 	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
 	INT_TEST_VM_NAMES="switch01 node01" \
-	SCENARIOS_TO_RUN=security_events \
+	SCENARIOS_TO_RUN=security_events_autoreg \
 	$(MAKE_TARGET)
+
+security_events_suricata_deb11:
+	make \
+        PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+        INT_TEST_VM_NAMES="switch01 node01" \
+        SCENARIOS_TO_RUN=security_events_suricata \
+        $(MAKE_TARGET)
 
 cli_login_el8:
 	make \
