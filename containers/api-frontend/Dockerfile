@@ -22,4 +22,4 @@ COPY ./raddb/dictionary.freeradius.evs5 ./raddb/dictionary ./raddb/dictionary.in
 COPY html/pfappserver/root/errors/ html/pfappserver/root/errors/
 COPY --from=0 /usr/local/pf/go/pfhttpd /usr/local/pf/sbin/pfhttpd
 
-ENTRYPOINT /usr/local/pf/sbin/pfhttpd -conf /usr/local/pf/conf/caddy-services/api.conf -log-name api-frontend
+ENTRYPOINT /usr/local/pf/sbin/pfhttpd run --config /usr/local/pf/conf/caddy-services/api.conf --adapter caddyfile
