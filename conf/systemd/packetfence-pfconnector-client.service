@@ -11,7 +11,7 @@ PartOf=packetfence-docker-iptables.service
 LimitNOFILE=infinity
 ExecStart=/usr/local/pf/sbin/pfconnector-client-docker-wrapper
 ExecStop=/bin/bash -c "docker stop pfconnector-client ; echo Stopped"
-Restart=on-failure
+Restart=always
 Slice=packetfence.slice
 PIDFile=/usr/local/pf/var/run/pfconnector-client-systemd-notify.pid
 
