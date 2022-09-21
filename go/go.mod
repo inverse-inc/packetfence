@@ -93,7 +93,7 @@ require (
 )
 
 require (
-	github.com/caddyserver/caddy/v2 v2.6.0
+	github.com/caddyserver/caddy/v2 v2.6.1
 	github.com/caddyserver/transform-encoder v0.0.0-20220809185311-4eb1fddf1855
 )
 
