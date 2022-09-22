@@ -14,14 +14,14 @@ steps:
   url: "config/security_events"
   body: >-
     {
-      "id": "{{.input.id}}",
-      "access_duration": "{{.input.access_duration}}",
-      "actions": "{{.input.actions}}",
-      "desc": "{{.input.desc}}",
-      "enabled": "{{.input.enabled}}",
-      "target_category": "{{.input.target_category}}",
-      "triggers": "{{.input.triggers}}",
-      "whitelisted_roles": "{{.input.whitelisted_roles}}"
+      "id": '{{.input.id}}',
+      "access_duration": '{{.input.access_duration}}',
+      "actions": '{{.input.actions}}',,
+      "desc": '{{.input.desc}}',
+      "enabled": '{{.input.enabled}}',
+      "target_category": '{{.input.target_category}}',
+      "triggers": '{{.input.triggers}}',
+      "whitelisted_roles": '{{.input.whitelisted_roles}}'
     }
   method: POST
   time_to_sleep: "{{.input.time_to_sleep}}"
