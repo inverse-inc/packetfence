@@ -190,7 +190,13 @@ while($RUNNING) {
         local $SIG{ALRM} = sub { die "timeout of $REQUEST_TIMEOUT has been reached\n" };
         alarm $REQUEST_TIMEOUT;
         if($paddr) {
-            chomp( $line = <$socket> );
+            $line = <$socket>;
+            if (!defined $line) {
+                print STDERR "Error reading from socket: $!\n";
+                next;
+            }
+
+            chomp($line);
 
             if($line eq "exit") {exit}
 
