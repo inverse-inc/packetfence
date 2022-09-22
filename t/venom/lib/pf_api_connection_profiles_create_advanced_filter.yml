@@ -16,23 +16,23 @@ steps:
   body: >-
     {
       "access_registration_when_registered": null,
-      "advanced_filter": "{{.input.advanced_filter}}",
+      "advanced_filter": '{{.input.advanced_filter}}',
       "always_use_redirecturl": null,
-      "autoregister": "{{.input.autoregister}}",
+      "autoregister": '{{.input.autoregister}}',
       "billing_tiers": null,
       "block_interval": {
         "interval": "10",
         "unit": "m"
       },
       "default_psk_key": null,
-      "description": "{{.input.desc}}",
+      "description": '{{.input.desc}}',
       "dot1x_recompute_role_from_portal": "enabled",
       "dot1x_unset_on_unmatch": "disabled",
       "dpsk": "disabled",
       "filter": null,
       "filter_match_style": null,
       "id": "{{.input.id}}",
-      "locale": "{{.input.locale}}",
+      "locale": '{{.input.locale}}',
       "login_attempt_limit": 0,
       "logo": null,
       "mac_auth_recompute_role_from_portal": "disabled",
@@ -47,11 +47,10 @@ steps:
       "self_service": null,
       "sms_pin_retry_limit": 0,
       "sms_request_limit": 0,
-      "sources": "{{.input.sources}}",
+      "sources": '{{.input.sources}}',
       "status": "enabled",
-      "unreg_on_acct_stop": "{{.input.unreg_on_acct_stop}}",
+      "unreg_on_acct_stop": '{{.input.unreg_on_acct_stop}}',
       "vlan_pool_technique": "username_hash"
     }
-
 output:
   - pf_api_connection_profiles_create_: "{{.result.pf_api_action_}}"

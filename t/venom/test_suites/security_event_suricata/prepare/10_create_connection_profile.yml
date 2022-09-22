@@ -3,15 +3,8 @@ testcases:
 - name: create_captive_portal_connection_profile
   steps:
   - type: pf_api_connection_profiles_create_advanced_filter
+    id: "{{.captive_portal.profiles.id}}"
     autoregister: null
     description: "{{.captive_portal.profiles.description}}"
     advanced_filter: "connection_type =~ {{.captive_portal.profiles.filters.connection_type}}"
-    id: "{{.captive_portal.profiles.id}}"
-    locale: >-
-        [
-          "{{.captive_portal.profiles.locales1}}",
-          "{{.captive_portal.profiles.locales2}}",
-          "{{.captive_portal.profiles.locales3}}",
-          "{{.captive_portal.profiles.locales4}}"
-        ]
     unreg_on_acct_stop: "disabled"
