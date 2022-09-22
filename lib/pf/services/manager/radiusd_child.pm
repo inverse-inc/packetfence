@@ -1038,12 +1038,14 @@ EOT
     # Eduroam configuration
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        my @eduroam_servers = split(',', $eduroam_authentication_source[0]{'eduroam_radius_auth'});
         my $server_pool;
         my $home_server;
+        my $eduroam_options = $eduroam_authentication_source[0]->{'eduroam_options'};
+        my $eduroam_radius_auth_proxy_type = $eduroam_authentication_source[0]->{'eduroam_radius_auth_proxy_type'};
         my $i = 0;
         foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
             $i++;
+
             my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
             my $radius_secret = $radius_source->{secret};
             my $radius_ip = $radius_source->{host};
@@ -1065,19 +1067,21 @@ home_server eduroam_server$i {
 EOT
 
         }
+        if ($i) {
         $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
 
 realm eduroam {
     auth_pool = eduroam_auth_pool
-    $radius_options
+    $eduroam_options
 }
 home_server_pool eduroam_auth_pool {
 $server_pool
-type = $radius_auth_proxy_type
+type = $eduroam_radius_auth_proxy_type
 }
 $home_server
 EOT
+        }
     } else {
         $tags{'eduroam'} = "# Eduroam integration is not configured";
     }

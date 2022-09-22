@@ -22,6 +22,7 @@ has '+class'                            => (isa => 'Str', is => 'ro', default =>
 has '+unique'                           => (isa => 'Bool', is => 'ro', default => $TRUE);
 has 'eduroam_radius_auth_proxy_type'    => (isa => 'Str', is => 'rw');
 has 'eduroam_radius_auth'               => (isa => 'ArrayRef[Str]', is => 'rw');
+has 'eduroam_options'                   => (isa => 'Str', is => 'rw');
 has 'auth_listening_port'               => (isa => 'Maybe[Int]', is => 'rw', default => '11812');
 has 'local_realm'                       => (isa => 'ArrayRef[Str]', is => 'rw');
 has 'reject_realm'                      => (isa => 'ArrayRef[Str]', is => 'rw');
