@@ -1,4 +1,13 @@
 # Copyright (C) Inverse inc.
+{
+	admin off
+	log {
+		output stdout
+        format transform  "{common_log}"
+	}
+	auto_https off
+}
+
 *:22223 {
 	route {
 		pfconfigpool
