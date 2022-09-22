@@ -1,3 +1,12 @@
+{
+	admin off
+	log {
+		output stdout
+        format transform  "{common_log}"
+	}
+	auto_https off
+}
+
 0.0.0.0:22225 {
 	route {
 		logger {

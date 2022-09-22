@@ -3,7 +3,7 @@
 	admin off
 	log {
 		output stdout
-        format transform  `api-frontend-access {remote} - {user} [{when}] "{method} {uri} {proto}" {status} {size} "{>Referer}" "{>User-Agent}""`
+        format transform  "{common_log}"
 	}
 	auto_https off
 }
