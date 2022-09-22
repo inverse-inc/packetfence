@@ -18,16 +18,95 @@ testcases:
     syslog_type: "suricata"
 
 # create the Syslog Parser Suricata
+#- name: create_security_event
+#  steps:
+#  - type: pf_api_security_events_create 
+#    id: "{{.security_event_suricata.event.id}}"
+#    access_duration: "{{.security_event_suricata.event.access_duration}}"
+#    actions: ["autoreg", "role"]
+#    desc: "{{.security_event_suricata.event.desc}}"
+#    enabled: "Y"
+#    target_category: "{{.mac_auth.roles.headless_device.id}}"
+#    triggers: '[{"dhcp_fingerprint": "{{.security_event_suricata.node.dhcp_fingerprint_id}}"}]'
+
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
 - name: create_security_event
   steps:
-  - type: pf_api_security_events_create 
-    id: "{{.security_event_suricata.event.id}}"
-    access_duration: "{{.security_event_autoreg.event.access_duration}}"
-    actions: ["autoreg", "role"]
-    desc: "{{.security_event_autoreg.event.desc}}"
-    enabled: "Y"
-    target_category: "{{.mac_auth.roles.headless_device.id}}"
-    triggers: '[{"dhcp_fingerprint": "{{.security_event_autoreg.node.dhcp_fingerprint_id}}"}]'
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.security_event_suricata.event.id}}",
+        "isClone": false,
+        "isNew": true,
+        "access_duration": "{{.security_event_suricata.event.access_duration}}",
+        "actions": ["reevaluate_access"],
+        "auto_enable": "Y",
+        "button_text": null,
+        "delay_by": {
+            "interval": null,
+            "unit": null
+        },
+        "desc": "{{.security_event_suricata.event.desc}}",
+        "email_recipient_message": null,
+        "enabled": "Y",
+        "external_command": null,
+        "grace": {
+            "interval": "5",
+            "unit": null
+        },
+        "max_enable": "2",
+        "priority": "1",
+        "recipient_email": null,
+        "recipient_template_email": null,
+        "redirect_url": null,
+        "target_category": null,
+        "template": "p2p",
+        "triggers": [{
+            "accounting": null,
+            "custom": null,
+            "detect": null,
+            "device": null,
+            "dhcp_fingerprint": null,
+            "dhcp_vendor": null,
+            "dhcp6_fingerprint": null,
+            "dhcp6_enterprise": null,
+            "internal": null,
+            "mac": null,
+            "mac_vendor": null,
+            "nessus": null,
+            "nessus6": null,
+            "nexpose_event_contains": null,
+            "nexpose_event_starts_with": null,
+            "openvas": null,
+            "provisioner": null,
+            "role": null,
+            "suricata_event": "ET POLICY ",
+            "suricata_md5": null,
+            "switch": null,
+            "switch_group": null
+        }],
+        "user_mail_message": null,
+        "vclose": null,
+        "vlan": "isolation",
+        "whitelisted_roles": [],
+        "window": {
+            "interval": null,
+            "unit": null
+        },
+        "window_dynamic": null
+      }
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
 
 # restart pfqueue et pf detect
 - name: restart_services
