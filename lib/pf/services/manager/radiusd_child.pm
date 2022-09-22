@@ -1050,15 +1050,14 @@ EOT
             my $radius_secret = $radius_source->{secret};
             my $radius_ip = $radius_source->{host};
             my $radius_port = $radius_source->{port};
-            my $radius_options = $radius_source->{eduroam_options};
-            my $radius_auth_proxy_type = $radius_source->{eduroam_radius_auth_proxy_type};
+            my $radius_options = $radius_source->{options};
             $server_pool .= <<"EOT";
     home_server = eduroam_server$i
 EOT
 
             $home_server .= <<"EOT";
 home_server eduroam_server$i {
-    type = auth
+    $radius_options
     ipaddr = $radius_ip
     port = $radius_port
     secret = '$radius_secret'

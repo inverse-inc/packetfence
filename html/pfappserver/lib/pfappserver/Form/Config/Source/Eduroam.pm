@@ -27,8 +27,7 @@ has_field 'eduroam_options' =>
    type => 'TextArea',
    label => 'Eduroam Realm Options',
    required => 0,
-   tags => { after_element => \&help,
-             help => 'You can add FreeRADIUS options in the realm definition' },
+   default => 'nostrip',
   );
 
 has_field 'eduroam_radius_auth' =>
@@ -39,8 +38,6 @@ has_field 'eduroam_radius_auth' =>
    options_method => \&options_radius,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
-   tags => { after_element => \&help,
-             help => 'The RADIUS Server(s) to proxy authentication' },
   );
 
 has_field 'eduroam_radius_auth_proxy_type' =>
@@ -57,17 +54,11 @@ has_field 'eduroam_radius_auth_proxy_type' =>
     { value => 'client-port-balance', label => 'Client Port Balance' },
    ],
    default => 'keyed-balance',
-   tags => { after_element => \&help,
-             help => 'Home server pool type' },
   );
 
 has_field 'auth_listening_port' => (
     type            => 'Port',
     label           => 'Authentication listening port',
-    tags            => {
-        after_element   => \&help,
-        help            => 'PacketFence Eduroam RADIUS virtual server authentication listening port',
-    },
     element_attr    => {
         placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('auth_listening_port')->default,
     },
@@ -83,8 +74,6 @@ has_field 'reject_realm' =>
    options_method => \&options_realm,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a realm'},
-   tags => { after_element => \&help,
-             help => 'Realms that will be rejected' },
    default => '',
   );
 
@@ -96,8 +85,6 @@ has_field 'local_realm' =>
    options_method => \&options_realm,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to add a realm'},
-   tags => { after_element => \&help,
-             help => 'Realms that will be authenticate locally' },
    default => '',
   );
 
@@ -107,8 +94,6 @@ has_field 'monitor',
    label => 'Monitor',
    checkbox_value => '1',
    unchecked_value => '0',
-   tags => { after_element => \&help,
-             help => 'Do you want to monitor this source?' },
    default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
 );
 
