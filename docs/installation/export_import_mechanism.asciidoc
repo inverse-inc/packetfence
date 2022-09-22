@@ -49,6 +49,11 @@ It can be used to automate parts of upgrades or to restore PacketFence installat
 ** [filename]`/usr/local/pf/conf/iptables.conf`
 ** [filename]`/usr/local/pf/conf/cluster.conf`
 
+
+WARNING: The import process will never replace a virtual IP address in
+configurations. If your export has been done on a cluster, ensure there is no references to
+virtual IP address of this cluster after import has been completed.
+
 === Export on current installation
 
 NOTE: When you are in a cluster, you need to perform this process on the first
