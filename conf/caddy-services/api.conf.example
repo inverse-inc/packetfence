@@ -35,11 +35,11 @@ route {
         level INFO
       }
 
-      statsd {
-        proto udp
-        prefix api
-        address {$STATSD_ADDRESS}
-      }
+#     statsd {
+#       proto udp
+#       prefix api
+#       address {$STATSD_ADDRESS}
+#     }
 
       cors /api/v1 {
         allowed_headers Authorization,Content-Type
