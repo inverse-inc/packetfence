@@ -13,19 +13,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/sharedutils"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/phayes/freeport"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 )
 
 var activeTunnels = sync.Map{}
-var activeDynReverse = sync.Map{}
 var apiPrefix = "/api/v1/pfconnector"
 
 // handleClientHandler is the main http websocket handler for the chisel server
@@ -211,35 +210,13 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	host := sharedutils.EnvOrDefault("PFCONNECTOR_SERVER_DYN_REVERSE_HOST", strings.Join(hostPort[0:len(hostPort)-1], ":"))
 
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
-	if o, found := activeDynReverse.Load(cacheKey); found {
+	if o, found := settings.ActiveDynReverse.Load(cacheKey); found {
 		remote := o.(*settings.Remote)
-		var err error
-		func() {
-			remote.Lock()
-			defer remote.Unlock()
-			remote.LastTouched = time.Now()
-
-			switch remote.LocalProto {
-			case "tcp":
-				var c net.Listener
-				c, err = net.Listen(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
-				if c != nil {
-					c.Close()
-				}
-			case "udp":
-				var c net.PacketConn
-				c, err = net.ListenPacket(remote.LocalProto, fmt.Sprintf(":%s", remote.LocalPort))
-				if c != nil {
-					c.Close()
-				}
-			}
-		}()
-		if err != nil {
-			json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
-			return
-		} else {
-			activeDynReverse.Delete(cacheKey)
-		}
+		remote.Lock()
+		defer remote.Unlock()
+		remote.LastTouched = time.Now()
+		json.NewEncoder(w).Encode(gin.H{"host": host, "port": remote.LocalPort, "message": fmt.Sprintf("Reusing existing port %s", remote.LocalPort)})
+		return
 	}
 
 	connectorId := payload.ConnectorID
@@ -267,7 +244,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
 		}()
 
-		activeDynReverse.Store(cacheKey, remote)
+		settings.ActiveDynReverse.Store(cacheKey, remote)
 		json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 	} else {
 		w.WriteHeader(http.StatusNotFound)

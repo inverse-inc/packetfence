@@ -153,6 +153,12 @@ func (p *Proxy) runTCP(ctx context.Context) error {
 				return false
 			}()
 			if shouldReturn {
+				if settings.ClearFromActiveDynReverse(p.remote) {
+					// We've cleared it from the cache, we'll continue monitoring the inactivity of the connection just in case it got sent just before the cache clear
+					p.Infof("Cleared entry from active dynamic reverses")
+					continue
+				}
+
 				p.Infof("Closing due to inactivity timeout")
 				cancel()
 				p.tcp.Close()
