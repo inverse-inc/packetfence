@@ -42,7 +42,6 @@ if ($saved_authsection) {
     $iniauth->newval("RadiusEduroam1", 'port' , $iniauth->val($saved_authsection, 'server1_port'));
     $iniauth->newval("RadiusEduroam1", 'options' , 'type = auth');
     $iniauth->newval("RadiusEduroam1", 'description' , 'Eduroam1');
-    $iniauth->newval("RadiusEduroam1", 'options' , '0');
     $iniauth->newval("RadiusEduroam1", 'timeout' , '1');
     $iniauth->newval("RadiusEduroam2", 'type' , 'RADIUS');
     $iniauth->newval("RadiusEduroam2", 'host' , $iniauth->val($saved_authsection, 'server2_address'));
@@ -50,7 +49,6 @@ if ($saved_authsection) {
     $iniauth->newval("RadiusEduroam2", 'port' , $iniauth->val($saved_authsection, 'server2_port'));
     $iniauth->newval("RadiusEduroam2", 'options' , 'type = auth');
     $iniauth->newval("RadiusEduroam2", 'description' , 'Eduroam2');
-    $iniauth->newval("RadiusEduroam2", 'options' , '0');
     $iniauth->newval("RadiusEduroam2", 'timeout' , '1');
 
     # Add proxy config

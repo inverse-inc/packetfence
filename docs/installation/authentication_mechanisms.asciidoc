@@ -263,9 +263,15 @@ image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal Edur
 
 Open the PacketFence administration web interface and go to _Configuration -> Policies and Access Control -> Authentication Sources_.
 
-Local *Exclusive Sources* and click on `New exclusive source` then `Eduroam`.
+First create as much RADIUS sources as you have Eduroam servers to define.
 
-The information to configure that source could be found on the Eduroam platform.
+To do that click `New internal source` and choose RADIUS.
+
+Fill the Name, Description, Host, Port, Secret and disable Monitor. (The information to configure that source could be found on the Eduroam platform)
+
+Next click on *Exclusive Sources* and click on `New exclusive source` then `Eduroam`.
+
+Associate the Radius sources you previously configured in 'Eduroam RADIUS AUTH' section, define the radius listening port and keep the type to `Keyed Balance`.
 
 In order to handle correctly external and internal students with your Eduroam source, you will need to:
 
