@@ -154,6 +154,7 @@ export {
   BaseFormGroupTextarea                     as FormGroupEduroamOptions,
   BaseFormGroupChosenMultiple               as FormGroupEduroamRadiusAuth,
   BaseFormGroupChosenOne                    as FormGroupEduroamRadiusAuthProxyType,
+  BaseFormGroupInput                        as FormGroupEduroamOperatorName,
 
   ButtonSamlMetaData,
   TheForm,

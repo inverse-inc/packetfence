@@ -600,6 +600,16 @@ EOT
         else {
             $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
         }
+        if (defined($eduroam_authentication_source[0]->{'eduroam_operator_name'}) && $eduroam_authentication_source[0]->{'eduroam_operator_name'} ne "") {
+            $tags{'operator_name'} = <<"EOT";
+                update proxy-request {
+                        &Operator-Name := "$eduroam_authentication_source[0]->{'eduroam_operator_name'}"
+                }
+EOT
+        }
+        else {
+            $tags{'operator_name'} = "";
+        }
         $tt->process("$conf_dir/radiusd/eduroam", \%tags, "$install_dir/raddb/sites-available/eduroam") or die $tt->error();
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
 

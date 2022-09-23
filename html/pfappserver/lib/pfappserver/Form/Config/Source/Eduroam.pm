@@ -95,7 +95,15 @@ has_field 'monitor',
    checkbox_value => '1',
    unchecked_value => '0',
    default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
-);
+  );
+
+has_field 'eduroam_operator_name' =>
+  (
+   type => 'Text',
+   required => 0,
+   default => '',
+   element_class => ['span10'],
+  );
 
 sub options_realm {
     my $self = shift;

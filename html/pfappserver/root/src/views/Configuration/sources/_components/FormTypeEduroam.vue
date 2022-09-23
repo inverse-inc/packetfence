@@ -19,6 +19,11 @@
       :text="$i18n.t('You can add Eduroam FreeRADIUS options in the realm definition.')"
     />
 
+    <form-group-eduroam-operator-name namespace="eduroam_operator_name"
+      :column-label="$i18n.t('Operator-Name')"
+      :text="$i18n.t('Value of the Operator-Name attribute appended to the radius request.')"
+    />
+
     <form-group-eduroam-radius-auth namespace="eduroam_radius_auth"
       :column-label="$i18n.t('Eduroam RADIUS AUTH')"
       :text="$i18n.t('The RADIUS Server(s) to proxy authentication.')"
@@ -65,6 +70,7 @@ import {
   FormGroupMonitor,
   FormGroupRejectRealm,
   FormGroupEduroamOptions,
+  FormGroupEduroamOperatorName,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
 } from './'
@@ -80,6 +86,7 @@ const components = {
   FormGroupMonitor,
   FormGroupRejectRealm,
   FormGroupEduroamOptions,
+  FormGroupEduroamOperatorName,
   FormGroupEduroamRadiusAuth,
   FormGroupEduroamRadiusAuthProxyType,
 }
