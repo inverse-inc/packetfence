@@ -2,7 +2,7 @@
 	admin off
 	log {
 		output stdout
-        format transform  "{common_log}"
+		format transform "{common_log}"
 	}
 	auto_https off
 }

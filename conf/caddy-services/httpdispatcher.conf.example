@@ -3,42 +3,41 @@
 	admin off
 	log {
 		output stdout
-        format transform  "{common_log}"
+		format transform "{common_log}"
 	}
 	auto_https off
 }
 
 :8888 {
-  route {
-  logger {
-    level INFO
-  }
-  pfconfigpool
-  httpdispatcher
-  }
+	route {
+		logger {
+			level INFO
+		}
+		pfconfigpool
+		httpdispatcher
+	}
 }
 
 :8889 {
-  file_server {
-     root /usr/local/pf/html/common
-  }
+	file_server {
+		root /usr/local/pf/html/common
+	}
 }
 
 :8889/common {
-  root /usr/local/pf/html/common
-  mime {
-    .crt application/x-pem-file
-    .pem application/x-pem-file
-  }
+	root /usr/local/pf/html/common
+	mime {
+		.crt application/x-pem-file
+		.pem application/x-pem-file
+	}
 }
 
-
 :8889/content {
-  root /usr/local/pf/html/captive-portal/content
-  mime {
-    .crt application/x-pem-file
-    .pem application/x-pem-file
-  }
+	root /usr/local/pf/html/captive-portal/content
+	mime {
+		.crt application/x-pem-file
+		.pem application/x-pem-file
+	}
 }
 
 :8889/profile-templates {
@@ -50,15 +49,14 @@
 }
 
 :8889/.well-known/acme-challenge {
-  root /usr/local/pf/conf/ssl/acme-challenge
+	root /usr/local/pf/conf/ssl/acme-challenge
 }
 
-
 :5252 {
-  header / {
-    Cache-Control "no-cache, no-store, must-revalidate"
-    Pragma "no-cache"
-    Expires "0"
-  }
-  root /usr/local/pf/html/parking
+	header / {
+		Cache-Control "no-cache, no-store, must-revalidate"
+		Pragma "no-cache"
+		Expires "0"
+	}
+	root /usr/local/pf/html/parking
 }
