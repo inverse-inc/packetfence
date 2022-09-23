@@ -109,12 +109,14 @@ testcases:
 
 
 # restart pfqueue et pf detect
-- name: restart_services
+- name: restart_service_pfqueue
   steps:
-  - type: pf_api_service_restart
+  - type: systemctl_service_restart 
     service: packetfence-pfqueue
 
-  - type: pf_api_service_restart
+- name: restart_service_pfdetect
+  steps:
+  - type: systemctl_service_restart 
     service: packetfence-pfdetect
 
 - name: clear_fingerbank_cache
