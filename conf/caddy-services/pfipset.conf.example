@@ -8,7 +8,7 @@
 	auto_https off
 }
 
-*:22223 {
+:22223 {
 	route {
 		pfconfigpool
 		logger {

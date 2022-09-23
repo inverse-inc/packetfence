@@ -7,7 +7,7 @@
 	auto_https off
 }
 
-0.0.0.0:22225 {
+:22225 {
 	route {
 		logger {
 			level INFO
