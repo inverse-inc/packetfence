@@ -53,6 +53,11 @@ func (h *PoolHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	return nil
 }
 
+func (h *PoolHandler) Provision(ctx caddy.Context) error {
+	h.refreshLauncher = &sync.Once{}
+	return nil
+}
+
 type PoolHandler struct {
 	caddy2.ModuleBase
 	refreshLauncher *sync.Once `json:"-"`
