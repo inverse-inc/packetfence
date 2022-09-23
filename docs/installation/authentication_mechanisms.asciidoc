@@ -263,7 +263,7 @@ image::internal-eduroam-authentication.png[scaledwidth="100%",alt="Internal Edur
 
 Open the PacketFence administration web interface and go to _Configuration -> Policies and Access Control -> Authentication Sources_.
 
-First create as much RADIUS sources as you have Eduroam servers to define.
+First create RADIUS sources for each Eduroam servers you want to define.
 
 To do that click `New internal source` and choose RADIUS.
 

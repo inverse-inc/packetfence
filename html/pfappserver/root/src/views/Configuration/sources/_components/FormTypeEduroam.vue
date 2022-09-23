@@ -16,7 +16,7 @@
 
     <form-group-eduroam-options namespace="eduroam_options"
       :column-label="$i18n.t('Eduroam Realm Options')"
-      :text="$i18n.t('You can add Eduroam FreeRADIUS options in the realm definition.')"
+      :text="$i18n.t('FreeRADIUS options to add in the realm definition.')"
     />
 
     <form-group-eduroam-operator-name namespace="eduroam_operator_name"

@@ -25,7 +25,6 @@ with 'pfappserver::Base::Form::Role::Help';
 has_field 'eduroam_options' =>
   (
    type => 'TextArea',
-   label => 'Eduroam Realm Options',
    required => 0,
    default => 'nostrip',
   );
@@ -34,16 +33,12 @@ has_field 'eduroam_radius_auth' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Eduroam RADIUS AUTH',
    options_method => \&options_radius,
-   element_class => ['chzn-select'],
-   element_attr => {'data-placeholder' => 'Click to select a RADIUS Server'},
   );
 
 has_field 'eduroam_radius_auth_proxy_type' =>
   (
    type => 'Select',
-   label => 'type',
    required => 1,
    options =>
    [
@@ -58,7 +53,6 @@ has_field 'eduroam_radius_auth_proxy_type' =>
 
 has_field 'auth_listening_port' => (
     type            => 'Port',
-    label           => 'Authentication listening port',
     element_attr    => {
         placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('auth_listening_port')->default,
     },
@@ -70,10 +64,7 @@ has_field 'reject_realm' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Reject Realms',
    options_method => \&options_realm,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a realm'},
    default => '',
   );
 
@@ -81,17 +72,13 @@ has_field 'local_realm' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Local Realms',
    options_method => \&options_realm,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a realm'},
    default => '',
   );
 
 has_field 'monitor',
   (
    type => 'Toggle',
-   label => 'Monitor',
    checkbox_value => '1',
    unchecked_value => '0',
    default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
@@ -102,7 +89,6 @@ has_field 'eduroam_operator_name' =>
    type => 'Text',
    required => 0,
    default => '',
-   element_class => ['span10'],
   );
 
 sub options_realm {
