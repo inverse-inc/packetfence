@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 
@@ -77,11 +76,3 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 func (h *APIHandler) Provision(ctx caddy.Context) error {
 	return h.init(ctx)
 }
-
-// Interface guards
-var (
-	_ caddy.Provisioner           = (*APIHandler)(nil)
-	_ caddy.Validator             = (*APIHandler)(nil)
-	_ caddyhttp.MiddlewareHandler = (*APIHandler)(nil)
-	_ caddyfile.Unmarshaler       = (*APIHandler)(nil)
-)
