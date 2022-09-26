@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"net/http"
+	"sync"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
@@ -15,11 +16,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+var setupOnce = sync.Once{}
+
 // Register the plugin in caddy
 func init() {
 	caddy.RegisterModule(APIHandler{})
-	setupRadiusDictionary()
-	pfconfigdriver.PfconfigPool.AddRefreshable(context.Background(), fbcollectorclient.DefaultClient)
 	httpcaddyfile.RegisterHandlerDirective("api", caddy2.ParseCaddyfile[APIHandler])
 }
 
@@ -33,29 +34,6 @@ func (h APIHandler) CaddyModule() caddy.ModuleInfo {
 		ID:  "http.handlers.api",
 		New: func() caddy.Module { return &APIHandler{} },
 	}
-}
-
-func (h *APIHandler) init(ctx context.Context) error {
-	h.router = httprouter.New()
-
-	h.router.POST("/api/v1/radius_attributes", h.searchRadiusAttributes)
-
-	h.router.POST("/api/v1/nodes/fingerbank_communications", h.nodeFingerbankCommunications)
-
-	return nil
-}
-
-// Build the Handler which will initialize the routes
-func buildHandler(ctx context.Context) (APIHandler, error) {
-	apiHandler := APIHandler{}
-	router := httprouter.New()
-
-	router.POST("/api/v1/radius_attributes", apiHandler.searchRadiusAttributes)
-
-	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
-
-	apiHandler.router = router
-	return apiHandler, nil
 }
 
 func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
@@ -73,6 +51,16 @@ func (h *APIHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cadd
 
 }
 
+// Build the Handler which will initialize the routes
 func (h *APIHandler) Provision(ctx caddy.Context) error {
-	return h.init(ctx)
+	setupOnce.Do(func() {
+		setupRadiusDictionary()
+		pfconfigdriver.PfconfigPool.AddRefreshable(context.Background(), fbcollectorclient.DefaultClient)
+	})
+
+	h.router = httprouter.New()
+	h.router.POST("/api/v1/radius_attributes", h.searchRadiusAttributes)
+	h.router.POST("/api/v1/nodes/fingerbank_communications", h.nodeFingerbankCommunications)
+
+	return nil
 }
