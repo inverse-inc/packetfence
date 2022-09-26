@@ -19,19 +19,19 @@
 }
 
 :8889 {
-    handle_path /common/* {
+	handle_path /common/* {
 		root * /usr/local/pf/html/common
-        file_server
+		file_server
 	}
 
-    handle_path /content/* {
+	handle_path /content/* {
 		root * /usr/local/pf/html/content
-        file_server
+		file_server
 	}
 
-    handle /.well-known/acme-challenge {
-        root * /usr/local/pf/conf/ssl/acme-challenge
-        file_server
+	handle /.well-known/acme-challenge {
+		root * /usr/local/pf/conf/ssl/acme-challenge
+		file_server
 	}
 }
 
