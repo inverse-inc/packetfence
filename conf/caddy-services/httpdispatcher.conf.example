@@ -19,37 +19,20 @@
 }
 
 :8889 {
-	file_server {
-		root /usr/local/pf/html/common
+    handle_path /common/* {
+		root * /usr/local/pf/html/common
+        file_server
 	}
-}
 
-:8889/common {
-	root /usr/local/pf/html/common
-	mime {
-		.crt application/x-pem-file
-		.pem application/x-pem-file
+    handle_path /content/* {
+		root * /usr/local/pf/html/content
+        file_server
 	}
-}
 
-:8889/content {
-	root /usr/local/pf/html/captive-portal/content
-	mime {
-		.crt application/x-pem-file
-		.pem application/x-pem-file
+    handle /.well-known/acme-challenge {
+        root * /usr/local/pf/conf/ssl/acme-challenge
+        file_server
 	}
-}
-
-:8889/profile-templates {
-  root /usr/local/pf/html/captive-portal/profile-templates
-  mime {
-    .crt application/x-pem-file
-    .pem application/x-pem-file
-  }
-}
-
-:8889/.well-known/acme-challenge {
-	root /usr/local/pf/conf/ssl/acme-challenge
 }
 
 :5252 {
@@ -58,5 +41,5 @@
 		Pragma "no-cache"
 		Expires "0"
 	}
-	root /usr/local/pf/html/parking
+	root * /usr/local/pf/html/parking
 }
