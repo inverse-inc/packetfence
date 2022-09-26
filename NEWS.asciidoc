@@ -33,6 +33,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+ * Fixed issue with pfconnector where it would reuse a dynamic reverse that isn't active anymore (Pfconnector server active dyn reverse cache checks can fail #7218)
+
 == Version 12.0.0 released on 2022-09-14
 
 === New Features
