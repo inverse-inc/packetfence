@@ -362,11 +362,3 @@ func (h ApiAAAHandler) CaddyModule() caddy.ModuleInfo {
 		New: func() caddy.Module { return &ApiAAAHandler{} },
 	}
 }
-
-// Interface guards
-var (
-	_ caddy.Provisioner           = (*ApiAAAHandler)(nil)
-	_ caddy.Validator             = (*ApiAAAHandler)(nil)
-	_ caddyhttp.MiddlewareHandler = (*ApiAAAHandler)(nil)
-	_ caddyfile.Unmarshaler       = (*ApiAAAHandler)(nil)
-)

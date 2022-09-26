@@ -96,11 +96,3 @@ func (h *PoolHandler) ServeHTTP(w http.ResponseWriter, r *http.Request, next cad
 		panic("Unable to obtain pfconfigpool lock in caddy middleware")
 	}
 }
-
-// Interface guards
-var (
-	_ caddy.Provisioner           = (*PoolHandler)(nil)
-	_ caddy.Validator             = (*PoolHandler)(nil)
-	_ caddyhttp.MiddlewareHandler = (*PoolHandler)(nil)
-	_ caddyfile.Unmarshaler       = (*PoolHandler)(nil)
-)
