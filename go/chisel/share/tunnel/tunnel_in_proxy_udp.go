@@ -216,7 +216,14 @@ func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) erro
 			return false
 		}()
 		if shouldReturn {
+			if settings.ClearFromActiveDynReverse(u.remote) {
+				// We've cleared it from the cache, we'll continue monitoring the inactivity of the connection just in case it got sent just before the cache clear
+				u.Infof("Cleared entry from active dynamic reverses")
+				continue
+			}
+
 			u.Infof("Closing due to inactivity timeout")
+
 			u.inbound.Close()
 			if u.outbound != nil && u.outbound.c != nil {
 				u.outbound.c.Close()
