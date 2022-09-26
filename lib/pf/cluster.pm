@@ -52,9 +52,9 @@ use Module::Pluggable
 use Exporter;
 our ( @ISA, @EXPORT );
 @ISA = qw(Exporter);
-@EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts @db_cluster_servers @db_cluster_hosts @config_cluster_servers @config_cluster_hosts $cluster_enabled $host_id $CLUSTER $cluster_name);
+@EXPORT = qw(%ConfigCluster @cluster_servers @cluster_hosts @db_cluster_servers @db_cluster_hosts @config_cluster_servers @config_cluster_hosts $cluster_enabled $host_id $CLUSTER $cluster_name %all_cluster_sections);
 
-our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts, @config_cluster_servers, @config_cluster_hosts);
+our (%clusters_hostname_map, $cluster_enabled, $cluster_name, %ConfigCluster, @cluster_servers, @cluster_hosts, @db_cluster_servers, @db_cluster_hosts, @config_cluster_servers, @config_cluster_hosts, %all_cluster_sections);
 tie %clusters_hostname_map, 'pfconfig::cached_hash', 'resource::clusters_hostname_map';
 
 our $CLUSTER = "CLUSTER";
@@ -72,6 +72,7 @@ if($cluster_enabled) {
     tie @db_cluster_hosts, 'pfconfig::cached_array', "resource::all_cluster_hosts($cluster_name)";
     tie @config_cluster_servers, 'pfconfig::cached_array', "resource::all_cluster_servers($cluster_name)";
     tie @config_cluster_hosts, 'pfconfig::cached_array', "resource::all_cluster_hosts($cluster_name)";
+    tie %all_cluster_sections, 'pfconfig::cached_hash', "resource::all_cluster_sections()";
 }
 
 =head2 node_disabled_file
