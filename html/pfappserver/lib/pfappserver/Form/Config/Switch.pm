@@ -84,7 +84,7 @@ has_field 'useCoA' =>
   (
    type => 'Toggle',
    label => 'Use CoA',
-   default => 'Y',
+   default => undef,
    tags => { after_element => \&help,
              help => 'Use CoA when available to deauthenticate the user. When disabled, RADIUS Disconnect will be used instead if it is available.' },
   );
@@ -92,13 +92,13 @@ has_field 'useCoA' =>
 has_field 'radiusDeauthUseConnector' =>
   (
    type => 'Toggle',
-   default => 'Y',
+   default => undef,
   );
 
 has_field 'deauthOnPrevious' =>
   (
    type => 'Toggle',
-   default => 'N',
+   default => undef,
   );
 
 has_field 'VlanMap' =>
@@ -143,49 +143,36 @@ has_field 'cliAccess' =>
   );
 has_field 'ExternalPortalEnforcement' => (
     type    => 'Toggle',
-    label   => 'External Portal Enforcement',
-    tags    => {
-        after_element   => \&help,
-        help            => 'Enable external portal enforcement when supported by network equipment',
-    },
+    default => undef,
 );
 has_field 'VoIPEnabled' =>
   (
    type => 'Toggle',
+   default => undef,
    label => 'VoIP',
   );
 
 has_field 'VoIPLLDPDetect' =>
   (
    type => 'Toggle',
-   label => 'VoIPLLDPDetect',
    default => undef,
-   tags => { after_element => \&help,
-             help => 'Detect VoIP with a SNMP request in the LLDP MIB'},
   );
 
 has_field 'VoIPCDPDetect' =>
   (
    type => 'Toggle',
-   label => 'VoIPCDPDetect',
    default => undef,
-   tags => { after_element => \&help,
-             help => 'Detect VoIP with a SNMP request in the CDP MIB'},
   );
 
 has_field 'VoIPDHCPDetect' =>
   (
    type => 'Toggle',
-   label => 'VoIPDHCPDetect',
    default => undef,
-   tags => { after_element => \&help,
-             help => 'Detect VoIP with the DHCP Fingerprint'},
   );
 
 has_field 'PostMfaValidation' =>
   (
    type => 'Toggle',
-   label => 'PostMfaValidation',
    default => undef,
   );
 
@@ -283,7 +270,7 @@ has_block definition =>
 has_field 'SNMPUseConnector' =>
   (
    type => 'Toggle',
-   default => 'Y',
+   default => undef,
   );
 
   has_field 'SNMPVersion' =>
