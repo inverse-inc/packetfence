@@ -163,19 +163,22 @@ sub freeradius_populate_nas_config {
 }
 
 sub additional_switches {
+    my @switches;
+
     if ($cluster_enabled) {
-        my $cluster_ip = pf::cluster::management_cluster_ip();
-        my $int = $management_network->{'Tint'};
-        return map {
-            {
-                id            => $_,
-                radiusSecret  => $local_secret,
-                type          => 'PacketFence'
-            }
-        } (values %{pf::cluster::members_ips($int)}, $cluster_ip);
+        while (my (undef, $entries) = each(%all_cluster_sections)) {
+            push @switches, map {
+                {
+                    id            => $_->{management_ip},
+                    radiusSecret  => $local_secret,
+                    type          => 'PacketFence'
+                }
+            } (@$entries);
+        }
     }
 
-    return;
+
+    return @switches;
 }
 
 our $validate_radius_nas_table_sql = <<SQL;
