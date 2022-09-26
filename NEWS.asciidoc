@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * More flexibility in the definition of the RADIUS servers in an Eduroam source
+
 === Bug Fixes
 
 == Version 12.0.0 released on 2022-09-14
