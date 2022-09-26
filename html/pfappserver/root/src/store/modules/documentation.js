@@ -107,11 +107,19 @@ const actions = {
     }
   },
   setPath: ({ commit, state }, path) => {
+
+window._paq.push(['trackEvent', 'documentation', 'open file', path])
+
     if (state.path !== path) {
       commit('SET_PATH', path)
     }
   },
   setHash: ({ commit, state }, hash) => {
+
+    console.log('setHash', { hash })
+
+window._paq.push(['trackEvent', 'documentation', 'open section', hash])
+
     hash = (hash.charAt(0) === '#') ? hash.substr(1) : hash
     if (state.hash !== hash) {
       commit('SET_HASH', hash)

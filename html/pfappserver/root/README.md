@@ -58,6 +58,7 @@ Since this is a SPA (Single-Page Application), it is currently accessible from `
 * [typeface-b612-mono](https://www.npmjs.com/package/typeface-b612-mono) -- small fonts
 * [mime-type](https://github.com/jshttp/mime-types) -- mime/content-type
 * [yup](https://github.com/jquense/yup) -- validation schema
+* [vue-matomo](https://github.com/AmazingDreams/vue-matomo) -- behavioral tracking
 
 ## Files Structure
 
