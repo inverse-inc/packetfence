@@ -14,19 +14,24 @@
       :column-label="$i18n.t('Description')"
     />
 
-    <form-group-server-address-port :namespaces="['server1_address', 'server1_port']"
-      :column-label="$i18n.t('Server 1 address')"
-      :text="$i18n.t('Eduroam server 1 address.')"
+    <form-group-eduroam-options namespace="eduroam_options"
+      :column-label="$i18n.t('Eduroam Realm Options')"
+      :text="$i18n.t('FreeRADIUS options to add in the realm definition.')"
     />
 
-    <form-group-server-address-port :namespaces="['server2_address', 'server2_port']"
-      :column-label="$i18n.t('Server 2 address')"
-      :text="$i18n.t('Eduroam server 2 address.')"
+    <form-group-eduroam-operator-name namespace="eduroam_operator_name"
+      :column-label="$i18n.t('Operator-Name')"
+      :text="$i18n.t('Value of the Operator-Name attribute appended to the radius request.')"
     />
 
-    <form-group-radius-secret namespace="radius_secret"
-      :column-label="$i18n.t('RADIUS secret')"
-      :text="$i18n.t('Eduroam RADIUS secret.')"
+    <form-group-eduroam-radius-auth namespace="eduroam_radius_auth"
+      :column-label="$i18n.t('Eduroam RADIUS AUTH')"
+      :text="$i18n.t('The RADIUS Server(s) to proxy authentication.')"
+    />
+
+    <form-group-eduroam-radius-auth-proxy-type namespace="eduroam_radius_auth_proxy_type"
+      :column-label="$i18n.t('Type')"
+      :text="$i18n.t('Home server pool type.')"
     />
 
     <form-group-auth-listening-port namespace="auth_listening_port"
@@ -63,9 +68,11 @@ import {
   FormGroupIdentifier,
   FormGroupLocalRealm,
   FormGroupMonitor,
-  FormGroupRadiusSecret,
   FormGroupRejectRealm,
-  FormGroupServerAddressPort,
+  FormGroupEduroamOptions,
+  FormGroupEduroamOperatorName,
+  FormGroupEduroamRadiusAuth,
+  FormGroupEduroamRadiusAuthProxyType,
 } from './'
 
 const components = {
@@ -77,9 +84,11 @@ const components = {
   FormGroupIdentifier,
   FormGroupLocalRealm,
   FormGroupMonitor,
-  FormGroupRadiusSecret,
   FormGroupRejectRealm,
-  FormGroupServerAddressPort,
+  FormGroupEduroamOptions,
+  FormGroupEduroamOperatorName,
+  FormGroupEduroamRadiusAuth,
+  FormGroupEduroamRadiusAuthProxyType,
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'

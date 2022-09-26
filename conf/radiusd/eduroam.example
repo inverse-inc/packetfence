@@ -391,6 +391,8 @@ post-auth {
 #
 pre-proxy {
 [% pre_proxy_filter %]
+
+[% operator_name %]
 }
 
 #

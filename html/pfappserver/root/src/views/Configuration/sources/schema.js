@@ -70,6 +70,10 @@ const schemaPersonMapping = yup.object({
 
 const schemaPersonMappings = yup.array().ensure().unique(i18n.t('Duplicate mapping.')).of(schemaPersonMapping)
 
+const schemaServer = yup.string().nullable()
+
+const schemaServers = yup.array().ensure().of(schemaServer)
+
 export const schema = (props) => {
   const {
     id,
@@ -148,6 +152,10 @@ export const schema = (props) => {
     twilio_phone_number: yup.string().label(i18n.t('Phone')),
     user_header: yup.string().label(i18n.t('Header')),
     usernameattribute: yup.string().label(i18n.t('Attribute')),
+    eduroam_options: yup.string().nullable().label(i18n.t('Options')),
+    eduroam_radius_auth: schemaServers,
+    eduroam_radius_auth_proxy_type: yup.string().nullable().label(i18n.t('Type')),
+    eduroam_operator_name: yup.string().label(i18n.t('Operator Name')),
   })
 }
 

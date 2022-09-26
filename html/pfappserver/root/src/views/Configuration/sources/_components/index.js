@@ -151,6 +151,10 @@ export {
   BaseFormGroupToggleNoYes                  as FormGroupValidateSponsor,
   BaseFormGroupChosenOne                    as FormGroupVerify,
   BaseFormGroupInputNumber                  as FormGroupWriteTimeout,
+  BaseFormGroupTextarea                     as FormGroupEduroamOptions,
+  BaseFormGroupChosenMultiple               as FormGroupEduroamRadiusAuth,
+  BaseFormGroupChosenOne                    as FormGroupEduroamRadiusAuthProxyType,
+  BaseFormGroupInput                        as FormGroupEduroamOperatorName,
 
   ButtonSamlMetaData,
   TheForm,

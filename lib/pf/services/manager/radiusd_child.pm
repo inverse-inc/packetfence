@@ -600,33 +600,40 @@ EOT
         else {
             $tags{'preacct_filter'} = "# filter not activated because explicitly disabled in pf.conf";
         }
+        if (defined($eduroam_authentication_source[0]->{'eduroam_operator_name'}) && $eduroam_authentication_source[0]->{'eduroam_operator_name'} ne "") {
+            $tags{'operator_name'} = <<"EOT";
+                update proxy-request {
+                        &Operator-Name := "$eduroam_authentication_source[0]->{'eduroam_operator_name'}"
+                }
+EOT
+        }
+        else {
+            $tags{'operator_name'} = "";
+        }
         $tt->process("$conf_dir/radiusd/eduroam", \%tags, "$install_dir/raddb/sites-available/eduroam") or die $tt->error();
         symlink("$install_dir/raddb/sites-available/eduroam", "$install_dir/raddb/sites-enabled/eduroam");
 
         %tags = ();
-        my $server1_address = $eduroam_authentication_source[0]{'server1_address'};
-        my $server2_address = $eduroam_authentication_source[0]{'server2_address'};
-        my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};
-        my $virtual_server = "packetfence";
-        if ($cluster_enabled) {
-            $virtual_server = "pf.cluster";
-        }
+        my $i = 0;
+        foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
+            $i++;
+            my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
+            my $radius_secret = $radius_source->{secret};
+            my $radius_ip = $radius_source->{host};
+            my $virtual_server = "packetfence";
+            if ($cluster_enabled) {
+                $virtual_server = "pf.cluster";
+            }
             $tags{'config'} .= <<"EOT";
-client eduroam_tlrs_server_1 {
-        ipaddr = $server1_address
+client eduroam_tlrs_server_$i {
+        ipaddr = $radius_ip
         secret = $radius_secret
-        shortname = eduroam_tlrs1
-        virtual_server = $virtual_server
-}
-
-client eduroam_tlrs_server_2 {
-        ipaddr = $server2_address
-        secret = $radius_secret
-        shortname = eduroam_tlrs2
+        shortname = eduroam_tlrs$i
         virtual_server = $virtual_server
 }
 
 EOT
+        }
     } else {
         $tags{'config'} = "# Eduroam integration is not configured";
         unlink("$install_dir/raddb/sites-enabled/eduroam");
@@ -1041,36 +1048,49 @@ EOT
     # Eduroam configuration
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
-        my $server1_address = $eduroam_authentication_source[0]{'server1_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        my $server1_port = $eduroam_authentication_source[0]{'server1_port'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        my $server2_address = $eduroam_authentication_source[0]{'server2_address'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        my $server2_port = $eduroam_authentication_source[0]{'server2_port'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
-        my $radius_secret = $eduroam_authentication_source[0]{'radius_secret'};   # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $server_pool;
+        my $home_server;
+        my $eduroam_options = $eduroam_authentication_source[0]->{'eduroam_options'};
+        my $eduroam_radius_auth_proxy_type = $eduroam_authentication_source[0]->{'eduroam_radius_auth_proxy_type'};
+        my $i = 0;
+        foreach my $radius_server (@{$eduroam_authentication_source[0]->{'eduroam_radius_auth'}}) {
+            $i++;
 
+            my $radius_source = pf::authentication::getAuthenticationSource($radius_server);
+            my $radius_secret = $radius_source->{secret};
+            my $radius_ip = $radius_source->{host};
+            my $radius_port = $radius_source->{port};
+            my $radius_options = $radius_source->{options};
+            $server_pool .= <<"EOT";
+    home_server = eduroam_server$i
+EOT
+
+            $home_server .= <<"EOT";
+home_server eduroam_server$i {
+    $radius_options
+    ipaddr = $radius_ip
+    port = $radius_port
+    secret = '$radius_secret'
+}
+
+EOT
+
+        }
+        if ($i) {
         $tags{'eduroam'} = <<"EOT";
 # Eduroam integration
 
 realm eduroam {
     auth_pool = eduroam_auth_pool
-    nostrip
+    $eduroam_options
 }
 home_server_pool eduroam_auth_pool {
-    home_server = eduroam_server1
-    home_server = eduroam_server2
+$server_pool
+type = $eduroam_radius_auth_proxy_type
 }
-home_server eduroam_server1 {
-    type = auth
-    ipaddr = $server1_address
-    port = $server1_port
-    secret = '$radius_secret'
-}
-home_server eduroam_server2 {
-    type = auth
-    ipaddr = $server2_address
-    port = $server2_port
-    secret = '$radius_secret'
-}
+$home_server
 EOT
+        }
     } else {
         $tags{'eduroam'} = "# Eduroam integration is not configured";
     }

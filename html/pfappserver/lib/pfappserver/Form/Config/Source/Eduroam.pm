@@ -22,67 +22,37 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help';
 
-has_field 'server1_address' => (
-    type        => 'Text',
-    label       => 'Server 1 address',
-    required    => 1,
-    # Default value needed for creating dummy source
-    default     => "",
-    tags        => {
-        after_element   => \&help,
-        help            => 'Eduroam server 1 address',
-    },
-);
+has_field 'eduroam_options' =>
+  (
+   type => 'TextArea',
+   required => 0,
+   default => 'nostrip',
+  );
 
-has_field 'server1_port' => (
-    type            => 'Port',
-    label           => 'Eduroam server 1 port',
-    element_attr    => {
-        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
-    },
-    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server1_port')->default,
-);
+has_field 'eduroam_radius_auth' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   options_method => \&options_radius,
+  );
 
-has_field 'server2_address' => (
-    type        => 'Text',
-    label       => 'Server 2 address',
-    required    => 1,
-    # Default value needed for creating dummy source
-    default     => "",
-    tags        => {
-        after_element   => \&help,
-        help            => 'Eduroam server 2 address',
-    },
-);
-
-has_field 'server2_port' => (
-    type            => 'Port',
-    label           => 'Eduroam server 2 port',
-    element_attr    => {
-        placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
-    },
-    default         => pf::Authentication::Source::EduroamSource->meta->get_attribute('server2_port')->default,
-);
-
-has_field 'radius_secret' => (
-    type        => 'Text',
-    label       => 'RADIUS secret',
-    required    => 1,
-    # Default value needed for creating dummy source
-    default     => "",
-    tags        => {
-        after_element   => \&help,
-        help            => 'Eduroam RADIUS secret',
-    },
-);
+has_field 'eduroam_radius_auth_proxy_type' =>
+  (
+   type => 'Select',
+   required => 1,
+   options =>
+   [
+    { value => 'keyed-balance', label => 'Keyed Balance' },
+    { value => 'fail-over', label => 'Fail Over' },
+    { value => 'load-balance', label => 'Load Balance' },
+    { value => 'client-balance', label => 'Client Balance' },
+    { value => 'client-port-balance', label => 'Client Port Balance' },
+   ],
+   default => 'keyed-balance',
+  );
 
 has_field 'auth_listening_port' => (
     type            => 'Port',
-    label           => 'Authentication listening port',
-    tags            => {
-        after_element   => \&help,
-        help            => 'PacketFence Eduroam RADIUS virtual server authentication listening port',
-    },
     element_attr    => {
         placeholder     => pf::Authentication::Source::EduroamSource->meta->get_attribute('auth_listening_port')->default,
     },
@@ -94,12 +64,7 @@ has_field 'reject_realm' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Reject Realms',
    options_method => \&options_realm,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a realm'},
-   tags => { after_element => \&help,
-             help => 'Realms that will be rejected' },
    default => '',
   );
 
@@ -107,25 +72,24 @@ has_field 'local_realm' =>
   (
    type => 'Select',
    multiple => 1,
-   label => 'Local Realms',
    options_method => \&options_realm,
-   element_class => ['chzn-deselect'],
-   element_attr => {'data-placeholder' => 'Click to add a realm'},
-   tags => { after_element => \&help,
-             help => 'Realms that will be authenticate locally' },
    default => '',
   );
 
 has_field 'monitor',
   (
    type => 'Toggle',
-   label => 'Monitor',
    checkbox_value => '1',
    unchecked_value => '0',
-   tags => { after_element => \&help,
-             help => 'Do you want to monitor this source?' },
    default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
-);
+  );
+
+has_field 'eduroam_operator_name' =>
+  (
+   type => 'Text',
+   required => 0,
+   default => '',
+  );
 
 sub options_realm {
     my $self = shift;
@@ -133,6 +97,15 @@ sub options_realm {
     return @roles;
 }
 
+=head2 options_radius
+
+=cut
+
+sub options_radius {
+    my $self = shift;
+    my @radius = map { $_ => $_ } keys %pf::config::ConfigAuthenticationRadius;
+    return @radius;
+}
 
 =head1 AUTHOR
 
