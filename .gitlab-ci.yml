@@ -30,6 +30,7 @@ variables:
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
   KNK_REGISTRY: ghcr.io
   KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc/packetfence
+  KNK_CACHE: "true"
   PFBUILD_DEFAULT_DEV_TAG: latest
   CIDIR: ci
   CILIBDIR: ci/lib
