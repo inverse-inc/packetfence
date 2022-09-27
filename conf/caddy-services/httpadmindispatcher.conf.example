@@ -19,20 +19,23 @@
 }
 
 :8891 {
-	file_server /static/doc/* {
-		root /usr/local/pf/docs
+    handle_path /static/doc/* {
+		root * /usr/local/pf/docs
+        file_server
 	}
 
-	file_server /static/* {
-		root /usr/local/pf/html/pfappserver/root
+    handle_path /static/* {
+		root * /usr/local/pf/html/pfappserver/root
+        file_server
 	}
 
-	file_server /common/* {
-		root /usr/local/pf/html/common
+    handle_path /common/* {
+		root * /usr/local/pf/html/common
+        file_server
 	}
 
-	file_server /admin/* {
-		root /usr/local/pf/html/pfappserver/root/dist
-		index index.html
-	}
+    handle_path /admin/* {
+		root * /usr/local/pf/html/pfappserver/root/dist
+        file_server
+    }
 }
