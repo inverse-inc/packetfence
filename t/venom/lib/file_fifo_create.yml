@@ -1,0 +1,25 @@
+executor: file_fifo_create
+input:
+  chmod: "0100"
+  user: "pf"
+  group: "pf"
+  file: "/usr/lib/pf/myfile.txt"
+  fifo_args: ""
+steps:
+- type: exec
+  script: 'mkdir -p "$(dirname "{{.input.file}}")"'
+
+- type: exec
+  script: "mkfifo {{.input.fifo_args}} {{.input.file}}"
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: "chmod {{.input.chmod}} {{.input.file}}"
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: "chown {{.input.user}}:{{.input.group}} {{.input.file}}"
+  assertions:
+    - result.code ShouldEqual 0

@@ -1,12 +1,13 @@
 executor: check_internet_access
 input:
   url: '{{.network_detection_url}}'
+  status_code: "200"
 steps:
 - type: http
   method: GET
   url: '{{.input.url}}'
   assertions:
-    - result.statuscode ShouldEqual 200
+    - result.statuscode ShouldEqual "{{.input.status_code}}"
   # retry to let node get IP by DHCP
   retry: 6
   delay: 10

@@ -30,4 +30,4 @@ steps:
     }
   time_to_sleep: "{{.input.time_to_sleep}}"
 output:
-  pf_api_nodes_search_mac_address_online_: "{{.result.pf_api_nodes_search_}}"
+  pf_api_nodes_search_mac_address_online_: '{{.result.pf_api_nodes_search_}}'

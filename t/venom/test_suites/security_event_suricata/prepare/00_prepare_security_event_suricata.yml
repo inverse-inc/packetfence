@@ -3,8 +3,8 @@ testcases:
 # Create the fifo
 - name: create_the_fifo_file
   steps:
-  - type: file_create
-    chmod: 0644
+  - type: file_fifo_create
+    chmod: "0777"
     file: "{{.security_event_suricata.fifo_file}}"
 
 - name: create_the_syslog_parser
@@ -58,7 +58,7 @@ testcases:
         "external_command": null,
         "grace": {
             "interval": "5",
-            "unit": null
+            "unit": "m"
         },
         "max_enable": "2",
         "priority": "1",
@@ -99,7 +99,7 @@ testcases:
             "interval": null,
             "unit": null
         },
-        "window_dynamic": null
+        "window_dynamic": "yes"
       }
     headers:
       "Content-Type": "application/json"

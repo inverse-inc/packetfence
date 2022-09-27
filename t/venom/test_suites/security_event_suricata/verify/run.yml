@@ -1,13 +1,21 @@
 name: SecurityEventAutoreg
 testcases:
-- name: check_node_in_isolation
+- name: check_event_in_node
   steps:
-  - type: pf_api_nodes_search_mac_address_online
-    fields: "status"
-    mac_address: "{{.security_event_suricata.node.mac}}"
-    assertions:
-    - result.pf_api_nodes_search_mac_address_online_json ShouldEqual "iso"
+  - type: pf_api_node_security_events
+    id: "{{.security_event_suricata.node.mac}}"
+    vars:
+      content:
+        from: result.pf_api_node_security_event_id
+  - script: echo "hello {{.content}}"
+#- name: check_node_in_isolation
+#  steps:
+#  - type: pf_api_nodes_search_mac_address_online
+#    fields: "status"
+#    mac_address: "{{.security_event_suricata.node.mac}}"
+#    assertions:
+#    - result.pf_api_nodes_search_mac_address_online_json ShouldEqual "iso"
 
-- name: check_host_internet_access_without access
-  steps:
-  - type: check_no_internet_access_on_host
+#- name: check_host_internet_access_without access
+#  steps:
+#  - type: check_no_internet_access_on_host

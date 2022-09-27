@@ -1,0 +1,6 @@
+name: Check access internet with ping
+testcases:
+- name: check_internet_access_with_ping
+  steps:
+  - type: ping
+

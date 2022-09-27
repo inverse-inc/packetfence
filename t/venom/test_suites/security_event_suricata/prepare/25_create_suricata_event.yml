@@ -1,4 +1,4 @@
-name: Create the event 
+name: Create the event
 testcases:
 - name: get_node01_dhcp_on_reg
   steps:
@@ -7,7 +7,7 @@ testcases:
     mac_address: "{{.security_event_suricata.node.mac}}"
     vars:
       ipv4:
-        from: result.pf_api_nodes_search_mac_address_online_json
+        from: result.pf_api_nodes_search_mac_address_online_json.items.items0.ip4log.ip
     retry: 20
     delay: 3
 
