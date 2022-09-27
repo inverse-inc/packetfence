@@ -21,7 +21,8 @@ Script to put this node into maintenance state. Will ensure that MariaDB will no
 use strict;
 use warnings;
 
-use lib '/usr/local/pf/lib';
+use constant INSTALL_DIR => '/usr/local/pf';
+use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 
 use pf::log;
 BEGIN {
