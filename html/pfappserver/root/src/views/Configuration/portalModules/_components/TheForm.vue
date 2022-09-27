@@ -37,6 +37,7 @@ import FormTypeFixedRole from './FormTypeFixedRole'
 import FormTypeMessage from './FormTypeMessage'
 import FormTypeProvisioning from './FormTypeProvisioning'
 import FormTypeRoot from './FormTypeRoot'
+import FormTypeRootSession from './FormTypeRootSession'
 import FormTypeSelectRole from './FormTypeSelectRole'
 import FormTypeShowLocalAccount from './FormTypeShowLocalAccount'
 import FormTypeSslInspection from './FormTypeSslInspection'
@@ -64,6 +65,7 @@ const components = {
   FormTypeMessage,
   FormTypeProvisioning,
   FormTypeRoot,
+  FormTypeRootSession,
   FormTypeSelectRole,
   FormTypeShowLocalAccount,
   FormTypeSslInspection,
@@ -136,6 +138,9 @@ export const setup = (props) => {
 
       case 'Root':
         return FormTypeRoot // break
+
+      case 'RootSession':
+        return FormTypeRootSession // break
 
       case 'SelectRole':
         return FormTypeSelectRole // break
