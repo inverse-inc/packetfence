@@ -23,8 +23,6 @@ func init() {
 
 func (h *Statsd) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 
-	h.Proto = "udp"
-	h.Address = "127.0.0.1:8125"
 	for c.Next() {
 		for nesting := c.Nesting(); c.NextBlock(nesting); {
 			switch c.Val() {
@@ -91,7 +89,7 @@ type Statsd struct {
 func (h Statsd) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.statsd",
-		New: func() caddy.Module { return &Statsd{} },
+		New: func() caddy.Module { return &Statsd{Proto: "udp", Address: "127.0.0.1:8125"} },
 	}
 }
 
