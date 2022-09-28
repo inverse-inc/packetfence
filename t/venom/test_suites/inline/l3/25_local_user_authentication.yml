@@ -24,3 +24,5 @@ testcases:
     steps:
     - type: exec
       script: ssh -o "ConnectTimeout 3" -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" "root@{{.inline_l3.node.ipaddress}}"  -t "/root/test_internet_access"
+      retry: 5
+      delay: 1
