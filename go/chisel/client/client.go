@@ -265,7 +265,7 @@ func (c *Client) Start(ctx context.Context) error {
 			for {
 				time.Sleep(5 * time.Second)
 				func() {
-					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds"))
+					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=", strings.Split(c.config.Auth, ":")[0]))
 					if err != nil {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
 						return

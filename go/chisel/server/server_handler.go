@@ -19,6 +19,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
+	"github.com/inverse-inc/packetfence/go/util"
 	"github.com/phayes/freeport"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
@@ -29,6 +30,8 @@ var apiPrefix = "/api/v1/pfconnector"
 
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
+	s.connectors.Refresh(r.Context())
+
 	//websockets upgrade AND has chisel prefix
 	upgrade := strings.ToLower(r.Header.Get("Upgrade"))
 	protocol := r.Header.Get("Sec-WebSocket-Protocol")
@@ -253,7 +256,19 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+var baseConnectorRange = net.ParseIP("127.47.0.0")
+
 func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: "Missing connector-id query parameter"})
+		return
+	}
+
+	index := s.computeConnectorIndex(connectorId)
+	connectorLocalIP := util.NextIP(baseConnectorRange, uint(index))
+
 	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocket(req.Context(), &managementNetwork)
 
@@ -270,5 +285,8 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp", managementIP))),
 		fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp", managementIP))),
 		fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp", managementIP))),
+		// Remotes to access the fingerbank-collector on the other side
+		fmt.Sprintf("R:%s:1192:localhost:1192/udp", connectorLocalIP),
+		fmt.Sprintf("R:%s:4723:localhost:4723/udp", connectorLocalIP),
 	}})
 }
