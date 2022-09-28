@@ -29,7 +29,7 @@
 		file_server
 	}
 
-	handle /.well-known/acme-challenge/* {
+	handle_path /.well-known/acme-challenge/* {
 		root * /usr/local/pf/conf/ssl/acme-challenge
 		file_server
 	}
