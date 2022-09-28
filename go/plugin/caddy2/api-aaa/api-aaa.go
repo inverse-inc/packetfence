@@ -55,7 +55,7 @@ func (h *ApiAAAHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	noAuthPaths := map[string]bool{}
 	tokenBackendArgs := []string{}
 	for c.Next() {
-		if nesting := c.Nesting(); c.NextBlock(nesting) {
+		for nesting := c.Nesting(); c.NextBlock(nesting); {
 			switch c.Val() {
 			case "no_auth":
 				args := c.RemainingArgs()
