@@ -1027,7 +1027,7 @@ active_directory_os_join_check_bypass=disabled
 #
 # The port where statsd listen
 statsd_listen_port = [% ENV.env_or_default("STATSD_LISTEN_PORT", "8125") %]
-statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "127.0.0.1") %]
+statsd_listen_host = [% ENV.env_or_default("STATSD_LISTEN_HOST", "100.64.0.1") %]
 
 # advanced.pfperl_api_timeout
 #
