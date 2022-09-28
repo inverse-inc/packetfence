@@ -44,6 +44,8 @@ testcases:
       "Content-Type": "application/json"
     assertions:
       - result.bodyjson.app_name ShouldEqual smocker
+    retry: 5
+    delay: 1
 
 - name: configure_smocker_http
   steps:
