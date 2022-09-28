@@ -19,23 +19,31 @@
 }
 
 :8891 {
-    handle_path /static/doc/* {
-		root * /usr/local/pf/docs
-        file_server
+	@doc {
+		path /static/doc/*
+		path /static/doc/
+		path /static/doc
 	}
 
-    handle_path /static/* {
-		root * /usr/local/pf/html/pfappserver/root
-        file_server
+	handle @doc {
+		uri strip_prefix /static/doc
+		file_server {
+			index PacketFence_Installation_Guide.html
+			root /usr/local/pf/docs
+		}
 	}
 
-    handle_path /common/* {
-		root * /usr/local/pf/html/common
-        file_server
+	@admin {
+		path /admin/*
+		path /admin/
+		path /admin
 	}
 
-    handle_path /admin/* {
-		root * /usr/local/pf/html/pfappserver/root/dist
-        file_server
-    }
+	handle @admin {
+		uri strip_prefix /admin
+		file_server {
+			index index.html
+			root /usr/local/pf/html/pfappserver/root/dist
+		}
+	}
 }
