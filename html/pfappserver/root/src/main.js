@@ -174,15 +174,6 @@ Vue.use(pfTemplatePlugin)
 Vue.use(PiniaVuePlugin)
 const pinia = createPinia()
 
-import VueMatomo from 'vue-matomo'
-Vue.use(VueMatomo, {
-  host: 'https://172.0.0.0',
-  siteId: 2,
-  router,
-  debug: process.env.VUE_APP_DEBUG === 'true',
-  enableHeartBeatTimer: true
-})
-
 // Register global filters
 for (const filter of Object.keys(filters)) {
   Vue.filter(filter, filters[filter])

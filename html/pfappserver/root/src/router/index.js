@@ -111,6 +111,7 @@ router.afterEach((to, from) => {
       store.dispatch('system/getSummary')
     }
   }
+  store.dispatch('analytics/trackRoute', { to, from })
 })
 
 export default router
