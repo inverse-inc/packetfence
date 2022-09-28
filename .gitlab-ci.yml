@@ -24,6 +24,8 @@ stages:
 # VARIABLES
 ################################################################################
 variables:
+  # synced with Pipeline timeout in GitLab UI
+  PIPELINE_TIMEOUT: 185m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
@@ -507,7 +509,7 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
-    - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
   after_script:
     - ${TESTCIDIR}/clean-test-environment.sh
 
