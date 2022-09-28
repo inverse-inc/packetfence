@@ -25,11 +25,11 @@
 	}
 
 	handle_path /content/* {
-		root * /usr/local/pf/html/content
+		root * /usr/local/pf/html/captive-portal/content
 		file_server
 	}
 
-	handle /.well-known/acme-challenge {
+	handle /.well-known/acme-challenge/* {
 		root * /usr/local/pf/conf/ssl/acme-challenge
 		file_server
 	}
@@ -42,4 +42,5 @@
 		Expires "0"
 	}
 	root * /usr/local/pf/html/parking
+	file_server
 }
