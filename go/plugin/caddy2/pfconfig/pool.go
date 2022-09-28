@@ -32,7 +32,7 @@ func (h PoolHandler) CaddyModule() caddy.ModuleInfo {
 func (h *PoolHandler) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	noRlockPaths := []string{}
 	for c.Next() {
-		if nesting := c.Nesting(); c.NextBlock(nesting) {
+		for nesting := c.Nesting(); c.NextBlock(nesting); {
 			switch c.Val() {
 			case "dont_rlock":
 				args := c.RemainingArgs()

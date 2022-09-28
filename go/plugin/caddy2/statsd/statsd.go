@@ -26,7 +26,7 @@ func (h *Statsd) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 	h.Proto = "udp"
 	h.Address = "127.0.0.1:8125"
 	for c.Next() {
-		if nesting := c.Nesting(); c.NextBlock(nesting) {
+		for nesting := c.Nesting(); c.NextBlock(nesting); {
 			switch c.Val() {
 			case "proto":
 				args := c.RemainingArgs()
@@ -58,7 +58,7 @@ func (h *Statsd) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 					}
 
 					h.Address = address
-					fmt.Println("Using configured statsd addresse and port: " + address)
+					fmt.Println("Using configured statsd address and port: " + address)
 				}
 			default:
 				return c.ArgErr()
