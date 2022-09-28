@@ -40,12 +40,12 @@
 			address {$STATSD_ADDRESS}
 		}
 
-		cors /api/v1 {
+		cors /api/v1/* {
 			allowed_headers Authorization,Content-Type
 			methods GET,OPTIONS,POST,DELETE,PUT,PATCH
 		}
 
-		cors /api/v1.1 {
+		cors /api/v1.1/* {
 			allowed_headers Authorization,Content-Type
 			methods GET,OPTIONS,POST,DELETE,PUT,PATCH
 		}
@@ -62,42 +62,42 @@
 		# Job status access
 		job-status
 
-		reverse_proxy /api/v1/pfconnector {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
+		reverse_proxy /api/v1/pfconnector/* {$PF_SERVICES_URL_PFCONNECTOR_SERVER} {
 		}
 
 		# pfipset API access
-		reverse_proxy /api/v1/ipset/ {$PF_SERVICES_URL_PFIPSET} {
+		reverse_proxy /api/v1/ipset/* {$PF_SERVICES_URL_PFIPSET} {
 		}
 
 		# pfdhcp API access
-		reverse_proxy /api/v1/dhcp/ {$PF_SERVICES_URL_PFDHCP} {
+		reverse_proxy /api/v1/dhcp/* {$PF_SERVICES_URL_PFDHCP} {
 		}
 
 		# pfsso API access
-		reverse_proxy /api/v1/firewall_sso/ {$PF_SERVICES_URL_PFSSO} {
+		reverse_proxy /api/v1/firewall_sso/* {$PF_SERVICES_URL_PFSSO} {
 		}
 
 		# pfpki API access
-		reverse_proxy /api/v1/pki/ {$PF_SERVICES_URL_PFPKI} {
+		reverse_proxy /api/v1/pki/* {$PF_SERVICES_URL_PFPKI} {
 		}
 
 		# Everything else goes to the Perl API
-		reverse_proxy /api/v1/ {$PF_SERVICES_URL_PFPERL_API} {
+		reverse_proxy /api/v1/* {$PF_SERVICES_URL_PFPERL_API} {
 		}
 
 		# Everything else goes to the Perl API
-		reverse_proxy /api/v1.1/ {$PF_SERVICES_URL_PFPERL_API} {
+		reverse_proxy /api/v1.1/* {$PF_SERVICES_URL_PFPERL_API} {
 		}
 
 		# doh forward
-		reverse_proxy /dns-query {$PF_SERVICES_URL_PFDNS_DOH} {
+		reverse_proxy /dns-query/* {$PF_SERVICES_URL_PFDNS_DOH} {
 		}
 	}
 }
 
 ####
 ## The configuration below allows to use this server as a proxy
-#0.0.0.0:9990 {
+#:9990 {
 #  pfconfigpool
 #  logger {
 #    level INFO
