@@ -15,6 +15,8 @@ TESTDIR = $(PF_PREFIX)/t
 SRC_ROOT_DIR = $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SRC_RPMDIR = $(SRC_ROOT_DIR)/rpm
 SRC_DEBDIR = $(SRC_ROOT_DIR)/debian
+SRC_CONFDIR = $(SRC_ROOT_DIR)/conf
+SRC_SYSTEMD_DIR = $(SRC_CONFDIR)/systemd
 SRC_CIDIR = $(SRC_ROOT_DIR)/ci
 SRC_CI_TESTDIR = $(SRC_CIDIR)/lib/test
 SRC_GODIR = $(SRC_ROOT_DIR)/go
@@ -24,6 +26,7 @@ SRC_ADDONSDIR = $(SRC_ROOT_DIR)/addons
 SRC_FULL_IMPORTDIR = $(SRC_ADDONSDIR)/full-import
 SRC_FULL_UPGRADEDIR = $(SRC_ADDONSDIR)/full-upgrade
 SRC_FUNCTIONSDIR = $(SRC_ADDONSDIR)/functions
+SRC_PFCONNECTORDIR = $(SRC_ADDONSDIR)/pfconnector
 SRC_DOCKERDIR = $(SRC_ROOTDIR)/docker
 
 # specific directory to build website artifacts

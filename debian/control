@@ -196,6 +196,11 @@ Architecture: all
 Description: GPG keys provided by PacketFence project
  GPG keys provided by PacketFence project.
 
+Package: packetfence-pfconnector
+Architecture: all
+Description: PacketFence Connector
+ PacketFence Connector files. This package contains all files related to PacketFence Connector.
+
 Package: packetfence-pfcmd-suid
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}

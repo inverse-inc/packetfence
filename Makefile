@@ -303,6 +303,14 @@ test_install:
 	    cp -v --no-dereference $$link $(DESTDIR)$(PF_PREFIX)/$$link ; \
 	done
 
+.PHONY: pfconnector_install
+pfconnector_install:
+	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-pfconnector-remote.service -D $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)/usr/local/bin/pfconnector-configure
+	make -C $(SRC_GODIR) pfconnector
+	cp $(SRC_GODIR)/pfconnector $(DESTDIR)/usr/local/bin/pfconnector
+
+
 # packetfence-export package
 .PHONY: distclean-packetfence-export
 distclean-packetfence-export:

@@ -74,6 +74,9 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
 	cp debian/keyrings/monitoring-scripts-keyring.gpg $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
 
+	# packetfence-pfconnector package
+	make DESTDIR=$(CURDIR)/debian/packetfence-pfconnector pfconnector_install
+
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
@@ -269,6 +272,9 @@ binary-arch: build install
 	# packetfence-upgrade pkg
 	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-upgrade/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-upgrade/hooks/*.sh
+	# packetfence-pfconnector pkg
+	chmod 0755 $(CURDIR)/debian/packetfence-pfconnector/usr/local/bin/pfconnector-configure
+	chmod 0755 $(CURDIR)/debian/packetfence-pfconnector/usr/local/bin/pfconnector
 	# packetfence-test pkg
 	# t
 	chmod 0755 $(CURDIR)/debian/packetfence-test$(PREFIX)/$(NAME)/t/*.pl
