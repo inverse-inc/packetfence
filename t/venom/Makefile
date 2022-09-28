@@ -13,11 +13,13 @@ ifeq ($(CI), true)
  $(info CI environment detected)
  MAKE_TARGET=run
  DEV_ENV=dev
+ ROOT_DIR=$(CI_PROJECT_DIR)
  RESULT_DIR=$(CI_PROJECT_DIR)/results
 else
  $(info localdev environment detected)
  MAKE_TARGET=run
  DEV_ENV=localdev
+ ROOT_DIR=$(SRC_ROOT_DIR)
  RESULT_DIR=$(SRC_ROOT_DIR)/results
 endif
 
@@ -36,7 +38,7 @@ run:
 	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
-	./test-wrapper.sh run
+	$(ROOT_DIR)/ci/lib/utils/launch_job.sh ./test-wrapper.sh run
 
 # to only run tests
 run_tests:

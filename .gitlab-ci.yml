@@ -38,6 +38,7 @@ variables:
   BUILDDIR: ${CILIBDIR}/build
   RELEASEDIR: ${CILIBDIR}/release
   TESTCIDIR: ${CILIBDIR}/test
+  UTILSCIDIR: ${CILIBDIR}/utils
   PACKERDIR: $CIDIR/packer
   ZENDIR: $CIDIR/packer/zen
   ISODIR: $CIDIR/debian-installer
