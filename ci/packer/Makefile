@@ -9,7 +9,8 @@ all: build_img_docker_pfbuild build_img_docker_cpanbuild
 
 .PHONY: build_img_docker_pfbuild
 build_img_docker_pfbuild:
-	GOVERSION=$(GOVERSION) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) ./packer-wrapper.sh
+	GOVERSION=$(GOVERSION) PF_MINOR_RELEASE=$(PF_MINOR_RELEASE) \
+	$(SRC_ROOT_DIR)/ci/lib/utils/launch_job.sh ./packer-wrapper.sh
 
 .PHONY: build_img_docker_cpanbuild
 build_img_docker_cpanbuild:
