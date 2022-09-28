@@ -26,6 +26,8 @@ variables:
   PFBUILD_CENTOS_8_IMG: inverseinc/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: inverseinc/pfbuild-debian-bullseye
   PFBUILD_DEFAULT_DEV_TAG: latest
+  # synced with Pipeline timeout in GitLab UI
+  PIPELINE_TIMEOUT: 185m
   CIDIR: ci
   CILIBDIR: ci/lib
   CHECKDIR: ${CILIBDIR}/check
@@ -354,7 +356,7 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
-    - MAKE_TARGET=run make -e -C ${TESTDIR} ${CI_JOB_NAME}
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
   after_script:
     - ${TESTCIDIR}/clean-test-environment.sh
 
