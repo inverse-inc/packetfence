@@ -70,7 +70,7 @@ func (h *Statsd) UnmarshalCaddyfile(c *caddyfile.Dispenser) error {
 func (h *Statsd) Provision(ctx caddy.Context) error {
 	client, err := _statsd.New(_statsd.Prefix(h.Prefix), _statsd.Network(h.Proto), _statsd.Address(h.Address))
 	if err != nil {
-		return err
+		fmt.Printf("Couldn't initialize statsd client (%s) \n", err)
 	}
 
 	h.client = client
