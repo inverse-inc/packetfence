@@ -2,8 +2,10 @@ package connector
 
 import (
 	"context"
+	"os"
 
 	"github.com/go-redis/redis"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
@@ -11,6 +13,11 @@ var redisClient *redis.Client
 var redisTunnelsNamespace string
 
 func init() {
+	// The pfconnector-remote doesn't have pfconfig nor redis
+	if sharedutils.IsEnabled(os.Getenv("PFCONNECTOR_REMOTE")) {
+		return
+	}
+
 	pfconfigdriver.PfconfigPool.AddStruct(context.Background(), &pfconfigdriver.Config.PfConf.Pfconnector)
 	var network string
 	if pfconfigdriver.Config.PfConf.Pfconnector.RedisServer[0] == '/' {
