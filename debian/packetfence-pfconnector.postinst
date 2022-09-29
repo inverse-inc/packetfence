@@ -25,7 +25,13 @@ case "$1" in
     configure)
     /bin/systemctl daemon-reload
     /bin/systemctl enable packetfence-pfconnector-remote.service
-    /bin/systemctl stop packetfence-pfconnector-remote.service
+    if [ -n "$2" ]; then
+        echo "Upgrade detected, restarting packetfence-pfconnector-remote service"
+        /bin/systemctl restart packetfence-pfconnector-remote.service
+    else
+        /bin/systemctl stop packetfence-pfconnector-remote.service
+    fi
+    
     echo "Connector installation completed"
     ;;
 
