@@ -274,7 +274,7 @@ variables:
 .build_img_docker_job:
   stage: build_img
   script:
-    - make -e -C ${PACKERDIR} build_img_docker_pfbuild
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${PACKERDIR} build_img_docker_pfbuild
   tags:
     - shell
 
@@ -295,9 +295,9 @@ variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
-    - make -e -C ${VAGRANT_IMG_DIR} clean
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
     - shell
     - inverse.ca
@@ -467,8 +467,8 @@ variables:
     name: sourceforge
     url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
   after_script:
-    - make -e -C ${ZENDIR} clean
-    - make -e -C ${ZENDIR} clean_cache
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} clean
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} clean_cache
   dependencies: []
   tags:
     - shell
@@ -478,7 +478,7 @@ variables:
   environment:
     name: sourceforge
   after_script:
-    - make -e -C ${ISODIR} clean
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ISODIR} clean
   dependencies: []
   tags:
     - shell
@@ -489,9 +489,9 @@ variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
-    - make -e -C ${VAGRANT_IMG_DIR} clean
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} clean
   dependencies: []
   tags:
     - inverse.ca
@@ -511,7 +511,7 @@ variables:
   script:
     - timeout ${PIPELINE_TIMEOUT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
   after_script:
-    - ${TESTCIDIR}/clean-test-environment.sh
+    - timeout ${PIPELINE_TIMEOUT} ${TESTCIDIR}/clean-test-environment.sh
 
 
 ################################################################################
@@ -1222,13 +1222,13 @@ build_pf_img_zen_devel_branches_and_maintenance:
     - .build_pf_img_zen_job
     - .build_pf_img_zen_devel_branches_and_maintenance_rules
   script:
-    - make -e -C ${ZENDIR} zen-deb11
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} zen-deb11
 
 build_pf_img_zen_release:
   extends:
     - .build_pf_img_zen_job
   script:
-    - make -e -C ${ZENDIR} zen-deb11
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} zen-deb11
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
@@ -1243,15 +1243,17 @@ build_pf_img_iso_devel_branches_and_maintenance:
   environment:
     url: ${SF_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}
   script:
-    - make -e -C ${ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ISODIR} iso
 
 build_pf_img_iso_release:
   extends:
     - .build_pf_img_iso_job
+  variables:
+    PF_VERSION: ${CI_COMMIT_TAG}
   environment:
     url: ${SF_ISO_REPO_URL}/${CI_COMMIT_TAG}
   script:
-    - PF_VERSION=${CI_COMMIT_TAG} make -e -C ${ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ISODIR} iso
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
