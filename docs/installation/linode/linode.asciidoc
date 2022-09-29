@@ -114,6 +114,10 @@ Then, complete the PacketFence Connector configuration by specifying the secret 
 https://NODE_BALANCER_IP:1443/api/v1/pfconnector/tunnel
 ----
 
+If you configured a HTTP certificate signed by a public CA on PacketFence webadmin, you can answer `Yes` to the next question.
+
+A configuration file will be created in [filename]`/etc/pfconnector-client.env`
+
 Finally, restart the packetfence-pfconnector-remote service:
 
 [source,bash]
