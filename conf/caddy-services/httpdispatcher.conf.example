@@ -19,6 +19,13 @@
 }
 
 :8889 {
+	@pem-file {
+		path *.crt
+		path *.pem
+	}
+
+    header @pem-file Content-Type application/x-pem-file
+
 	handle_path /common/* {
 		root * /usr/local/pf/html/common
 		file_server
