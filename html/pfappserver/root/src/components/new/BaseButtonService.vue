@@ -3,6 +3,7 @@
     :disabled="isDisabled"
     :size="size"
     :text="service"
+    no-flip
     variant="outline-primary"
     v-b-tooltip.hover.top.d300 :title="tooltip"
     v-bind="$attrs"
