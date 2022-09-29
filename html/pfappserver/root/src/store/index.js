@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import analytics from './modules/analytics'
 import config from './modules/config'
 import cluster from './modules/cluster'
 import documentation from './modules/documentation'
@@ -36,6 +37,7 @@ export const types = {
 
 const store = new Vuex.Store({
   modules: {
+    analytics,
     config,
     cluster,
     documentation,
