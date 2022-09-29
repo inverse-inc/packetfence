@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gin-gonic/gin"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
@@ -19,7 +20,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
-	"github.com/inverse-inc/packetfence/go/util"
 	"github.com/phayes/freeport"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
@@ -267,7 +267,10 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 	}
 
 	index := s.computeConnectorIndex(connectorId)
-	connectorLocalIP := util.NextIP(baseConnectorRange, uint(index))
+	//connectorLocalIP := util.NextIP(baseConnectorRange, uint(index))
+	connectorLocalIP := net.ParseIP("127.0.0.1")
+
+	spew.Dump(index, connectorId, connectorLocalIP)
 
 	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
 	pfconfigdriver.FetchDecodeSocket(req.Context(), &managementNetwork)
