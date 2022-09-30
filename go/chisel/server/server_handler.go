@@ -310,7 +310,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		}
 		go func() {
 			// TODO: handle an error
-			tun.BindRemotes(context.Background(), remotes)
+			tun.BindDynamicRemotes(remotes)
 		}()
 
 		w.WriteHeader(http.StatusOK)

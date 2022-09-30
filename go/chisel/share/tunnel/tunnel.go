@@ -48,6 +48,8 @@ type Tunnel struct {
 	//internals
 	connStats   cnet.ConnCount
 	socksServer *socks5.Server
+
+	connectionCtx context.Context
 }
 
 //New Tunnel from the given Config
@@ -74,6 +76,7 @@ func New(c Config) *Tunnel {
 //BindSSH provides an active SSH for use for tunnelling
 func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Request, chans <-chan ssh.NewChannel) error {
 	//link ctx to ssh-conn
+	t.connectionCtx = ctx
 	go func() {
 		<-ctx.Done()
 		if c.Close() == nil {
@@ -141,6 +144,11 @@ func (t *Tunnel) activatingConnWait() <-chan struct{} {
 		close(ch)
 	}()
 	return ch
+}
+
+// Bind remotes that are tied to the context of the SSH connection
+func (t *Tunnel) BindDynamicRemotes(remotes []*settings.Remote) error {
+	return t.BindRemotes(t.connectionCtx, remotes)
 }
 
 //BindRemotes converts the given remotes into proxies, and blocks
