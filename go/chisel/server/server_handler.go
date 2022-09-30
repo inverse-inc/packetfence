@@ -308,6 +308,9 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			sharedutils.CheckError(err)
 			remotes[i] = remote
 		}
+
+		tun.IsRemoteConnector = true
+
 		go func() {
 			// TODO: handle an error
 			tun.BindDynamicRemotes(remotes)
@@ -333,7 +336,7 @@ func (s *Server) handleFingerbankCollectorEndpoints(w http.ResponseWriter, req *
 	activeTunnels.Range(func(k, v interface{}) bool {
 		tun := v.(*tunnel.Tunnel)
 		// Only consider tunnels with an active connection
-		if tun.IsActive() {
+		if tun.IsActive() && tun.IsRemoteConnector {
 			host := s.pfconnectorHost(req)
 			fingerbankLocalPort := baseFingerbankPort + s.computeConnectorIndex(k.(string))
 			collectors = append(collectors, fmt.Sprintf("http://%s:%d", host, fingerbankLocalPort))

@@ -50,6 +50,8 @@ type Tunnel struct {
 	socksServer *socks5.Server
 
 	connectionCtx context.Context
+
+	IsRemoteConnector bool
 }
 
 //New Tunnel from the given Config
