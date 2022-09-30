@@ -301,7 +301,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			managementIP = managementNetwork.Ip
 		}
 
-		remoteStrs := []string{fmt.Sprintf("R:%d:localhost:4723/udp", fingerbankLocalPort)}
+		remoteStrs := []string{fmt.Sprintf("R:%d:127.0.0.1:4723", fingerbankLocalPort)}
 		remotes := make([]*settings.Remote, len(remoteStrs))
 		for i, remoteStr := range remoteStrs {
 			remote, err := settings.DecodeRemote(remoteStr)
@@ -331,9 +331,13 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 func (s *Server) handleFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
 	collectors := []string{}
 	activeTunnels.Range(func(k, v interface{}) bool {
-		host := s.pfconnectorHost(req)
-		fingerbankLocalPort := baseFingerbankPort + s.computeConnectorIndex(k.(string))
-		collectors = append(collectors, fmt.Sprintf("http://%s:%d", host, fingerbankLocalPort))
+		tun := v.(*tunnel.Tunnel)
+		// Only consider tunnels with an active connection
+		if tun.IsActive() {
+			host := s.pfconnectorHost(req)
+			fingerbankLocalPort := baseFingerbankPort + s.computeConnectorIndex(k.(string))
+			collectors = append(collectors, fmt.Sprintf("http://%s:%d", host, fingerbankLocalPort))
+		}
 		return true
 	})
 	w.WriteHeader(http.StatusOK)

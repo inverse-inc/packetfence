@@ -191,3 +191,7 @@ func (t *Tunnel) keepAliveLoop(sshConn ssh.Conn) {
 	//close ssh connection on abnormal ping
 	sshConn.Close()
 }
+
+func (t *Tunnel) IsActive() bool {
+	return t.activeConn != nil
+}
