@@ -154,6 +154,18 @@ sub iptables_generate {
     }
     $tags{'netdata'} .= "-A input-management-if --protocol tcp --match tcp --dport 19999 --jump DROP\n";
 
+    # The dynamic range used to access the fingerbank collector that are connected via a remote connector
+    $tags{'pfconnector'} = "";
+    my @pfconnector_ips = ("127.0.0.1");
+    push @pfconnector_ips, (map { $_->{management_ip} } pf::cluster::config_enabled_servers()) if ($cluster_enabled);
+    push @pfconnector_ips, $management_network->{Tip};
+    @pfconnector_ips = uniq sort @pfconnector_ips;
+    for my $ip (@pfconnector_ips) {
+        for my $dport (23001..23256) {
+            $tags{'pfconnector'} .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport $dport --jump ACCEPT\n";
+        }
+    }
+
     # eduroam RADIUS virtual-server
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
