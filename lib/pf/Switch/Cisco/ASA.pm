@@ -267,13 +267,8 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $connection_info = {
-            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
-            nas_ip => $send_disconnect_to,
-            secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
-            nas_port => $coa_port,
-        };
+        my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
+        $connection_info->{nas_port} = $coa_port;
 
         $logger->debug("network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();

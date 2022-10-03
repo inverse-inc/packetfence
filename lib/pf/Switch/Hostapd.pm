@@ -143,12 +143,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $connection_info = {
-            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
-            nas_ip => $send_disconnect_to,
-            secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
-        };
+        my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
         # transforming MAC to the expected format 00-11-22-33-CA-FE
         $mac = uc($mac);
