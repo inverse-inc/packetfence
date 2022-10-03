@@ -71,3 +71,10 @@ func EnabledServers(ctx context.Context) ([]Server, bool) {
 
 	return servers, true
 }
+
+func UnifiedAPICallCluster(ctx context.Context, method string, path, replies map[string]interface{}) map[string]error {
+	servers, cluster_mode := EnabledServers(ctx)
+	if cluster_mode {
+
+	}
+}
