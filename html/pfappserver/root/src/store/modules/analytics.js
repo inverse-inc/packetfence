@@ -9,6 +9,7 @@ const initialState = () => {
   return {
     initialized: false,
     summary: {},
+    unsubscribe: () => {},
   }
 }
 
@@ -19,6 +20,7 @@ const actions = {
     let promise = new Promise(r => r())
     if (!state.initialized) {
       commit('INIT')
+      commit('UNSUBSCRIBE')
       promise = store.dispatch('system/getSummary').then(summary => {
         // eslint-disable-next-line no-unused-vars
         const {
@@ -53,22 +55,34 @@ const actions = {
             property_blacklist:     [],
             ignore_dnt:             true,
             debug:                  process.env.VUE_APP_DEBUG === 'true',
-            loaded:                 () => {}
+            loaded: () => {
+              const unsubscribe = store.subscribeAction((storeAction, state) => {
+                const { type } = storeAction
+                const isCollection = type => /^\$_/.test(type) // $_ prefix
+                const isCluster = type => /^cluster\//.test(type) // ^cluster/
+                const isGetter = type => /\/get/.test(type) // /get
+                const isOptions = type => /\/options$/.test(type) // /options$
+                const isTracked = type => (isCollection(type) || isCluster(type)) && !(isGetter(type) || isOptions(type))
+                if (isTracked(type)) {
+                  const matches = type.match(/^(\$_)?([a-zA-Z]+)\/([a-zA-Z]+)/)
+                  if (matches) {
+                    // eslint-disable-next-line no-unused-vars
+                    const [_type, _prefix, event, action] = matches
+console.log(type, isTracked(type), matches)
+                    mixpanel.track(`${event}/${action}`, { ...state.summary, event, action })
+                  }
+                }
+              })
+              commit('SUBSCRIBED', unsubscribe)
+            }
           })
         }
       })
     }
     return promise
   },
-  trackEvent: ({ dispatch, state }, params) => {
-    dispatch('init')
-      .then(() => {
-        const [category, action, toUrl] = params
-        return mixpanel.track(category, { ...state.summary, action, toUrl })
-      })
-  },
   trackRoute: ({ dispatch, state }, route) => {
-    dispatch('init')
+    return dispatch('init')
       .then(() => {
         const { to, from } = route
         let event = {}
@@ -101,6 +115,12 @@ const mutations = {
   },
   SUMMARY: (state, summary) => {
     state.summary = summary
+  },
+  SUBSCRIBED: (state, unsubscribe) => {
+    state.unsubscribe = unsubscribe
+  },
+  UNSUBSCRIBE: (state) => {
+    state.unsubscribe()
   },
   $RESET: (state) => {
     // eslint-disable-next-line no-unused-vars

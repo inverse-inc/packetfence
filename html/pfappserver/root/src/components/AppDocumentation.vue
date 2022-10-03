@@ -44,7 +44,7 @@
         <b-col md="9" xl="10">
           <!-- HTML document -->
           <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="documentation-frame"
-            :src="`/static/doc/${path}`"
+            :src="`${documentationPath}/${path}`"
             @load="initDocument()"
           />
           <b-container class="documentation-frame my-5" v-if="isLoading">
@@ -75,6 +75,8 @@
 import Vue from 'vue'
 import store from '@/store'
 
+export const documentationPath = '/static/doc'
+
 Vue.mixin({
   beforeRouteLeave(to, from, next) {
     store.dispatch('documentation/closeViewer')
@@ -88,7 +90,7 @@ import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
-  const { refs, root: { $store } = {} } = context
+  const { refs, root: { $router, $store } = {} } = context
 
   // template refs
   const refDocument = ref(null)
@@ -144,7 +146,10 @@ const setup = (props, context) => {
   const isLoading = ref(false)
   let isLoadingTimeout
 
-  const loadDocument = document => $store.dispatch('documentation/setPath', document.name)
+  const loadDocument = document => {
+    $store.dispatch('documentation/setPath', document.name)
+    $store.dispatch('analytics/trackRoute', { to: { fullPath: `${documentationPath}/${document.name}` }, from: $router.currentRoute })
+  }
   const initDocument = () => {
     const here = new URL(window.location.href)
     const documentFrame = window.frames['documentFrame'].document.body
@@ -208,7 +213,7 @@ const setup = (props, context) => {
     head.appendChild(css)
 
     // rewrite links
-    const re = new RegExp('^/static/doc/')
+    const re = new RegExp(`^${documentationPath}/`)
     const links = [...documentFrame.getElementsByTagName('a')]
     links.forEach((link) => {
       let url = new URL(link.href)
@@ -225,16 +230,18 @@ const setup = (props, context) => {
             link.classList.add('internal-link') // add class to style document links
             link.target = '_self'
             link.href = 'javascript:void(0);' // disable default link
-            const _path = url.pathname.replace('/static/doc/', '')
+            const _path = url.pathname.replace(`${documentationPath}/`, '')
             if (_path !== path.value) {
               link.addEventListener('click', (event) => {
                 event.preventDefault()
                 $store.dispatch('documentation/setPath', _path)
+                $store.dispatch('analytics/trackRoute', { to: { fullPath: `${documentationPath}/${_path}` }, from: $router.currentRoute })
               })
             } else if (url.hash.charAt(0) === '#') {
               link.addEventListener('click', (event) => {
                 event.preventDefault()
                 $store.dispatch('documentation/setHash', url.hash.substr(1))
+                $store.dispatch('analytics/trackRoute', { to: { fullPath: `${documentationPath}/${_path}${url.hash}` }, from: $router.currentRoute })
               })
             }
             return
@@ -270,7 +277,7 @@ const setup = (props, context) => {
     if (_hash.value)
       nextTick(() => _scrollToSection(_hash.value))
   }
-  const openExternal = () => window.open(`/static/doc/${path.value}`, '_blank')
+  const openExternal = () => window.open(`${documentationPath}/${path.value}`, '_blank')
   const openViewer = () => $store.dispatch('documentation/openViewer')
   const closeViewer = () => $store.dispatch('documentation/closeViewer')
   const toggleFullscreen = () => $store.dispatch('documentation/toggleFullscreen')
@@ -296,6 +303,8 @@ const setup = (props, context) => {
   onMounted(() => $store.dispatch('documentation/getIndex'))
 
   return {
+    documentationPath,
+
     // template refs
     refDocument,
     refDocumentList,
