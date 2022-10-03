@@ -130,3 +130,87 @@ finalize_import() {
     systemctl cat monit > /dev/null 2>&1 && systemctl enable monit
     popd > /dev/null
 }
+
+help(){
+    cat <<-EOF
+$0 imports a PacketFence export
+
+Usage: $0 -f /path/to/export.tgz [OPTION]...
+
+Options:
+ -f,--file                  Import a PacketFence export (mandatory)
+ -h,--help                  Display this help
+ --db			    Import only database from PacketFence export
+ --conf			    Import only configuration from PacketFence export
+
+EOF
+}
+
+#############################################################################
+### Handle args
+#############################################################################
+do_full_import=1
+do_db_import=0
+do_config_import=0
+EXPORT_FILE=${EXPORT_FILE:-}
+
+# Parse option
+# TEMP=$(getopt -o f:h --long file:,help,db,conf \
+    #      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
+TEMP=$(getopt -o f:h --long file:,help,db,conf \
+     -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+while true ; do
+    case "$1" in
+        -f|--file)
+	    # first shift is mandatory to get file path
+	    shift 
+            EXPORT_FILE="$1" ; shift 
+            ;;
+        -h|--help)
+            help ; exit 0 ; shift 
+            ;;
+        --db)
+            do_db_import=1 ; do_full_import=0 ; shift 
+            ;;
+        --conf)
+            do_config_import=1 ; do_full_import=0 ; shift
+            ;;
+        --) 
+            shift ; break 
+            ;;
+        *) 
+            echo "Wrong usage !" ; help ; exit 1 
+            ;;
+    esac
+done
+
+if [ -z "$EXPORT_FILE" ]; then
+    echo "A path to a PacketFence export is mandatory"
+    help
+    exit 1
+fi
+
+if [ ! -f "$EXPORT_FILE" ]; then
+    echo "$EXPORT_FILE is not a regular file"
+    exit 1
+fi
+
+#############################################################################
+### Import process
+#############################################################################
+prepare_import $EXPORT_FILE
+
+case "$do_full_import" in
+    1)    import_db ; import_config ;;
+    0)    [ "$do_db_import" -eq 1 ] && import_db
+          [ "$do_config_import" -eq 1 ] && import_config
+	  ;;
+    *)    echo "Unexpected result" ; exit 1
+	  ;;
+esac
+
+finalize_import
