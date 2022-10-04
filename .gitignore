@@ -34,6 +34,7 @@ conf/pfdhcp.conf
 conf/etcd.conf.yml
 conf/ssl.conf
 conf/template_switches.conf
+conf/uploads/*
 conf/radiusd/eap_profiles.conf
 conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
