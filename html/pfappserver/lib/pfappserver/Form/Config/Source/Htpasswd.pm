@@ -20,10 +20,22 @@ has_field 'path' =>
   (
    type => 'Path',
    label => 'File Path',
-   required => 1,
+   required => 0,
    element_class => ['input-xxlarge'],
    # Default value needed for creating dummy source
    default => '',
+  );
+
+# Form fields
+has_field 'path_upload' =>
+  (
+   type => 'PathUpload',
+   accessor => 'path',
+   config_prefix => '.conf',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'authentication',
+   element_class => ['input-xxlarge'],
   );
 
 =head2 validate
@@ -37,7 +49,7 @@ sub validate {
 
     $self->SUPER::validate();
     my $path = $self->value->{path};
-    unless (defined($path) && -r $path) {
+    if (defined($path) && !-r $path) {
         $self->field('path')->add_error("The file is not readable by the user 'pf'.");
     }
 }
