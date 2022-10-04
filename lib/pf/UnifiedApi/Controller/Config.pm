@@ -714,6 +714,13 @@ sub field_meta {
 
     }
 
+    if ($type eq 'file') {
+	  $meta->{accept} = {
+		type => 'String',
+		default => '*/*'
+	  },
+    }
+
     $meta->{implied} = $self->field_implied($field);
     return $meta;
 }
