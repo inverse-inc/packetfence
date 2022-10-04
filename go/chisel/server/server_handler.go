@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
@@ -71,6 +72,12 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/local-fingerbank-collector-endpoints":
 		s.handleLocalFingerbankCollectorEndpoints(w, r)
+		return
+	case apiPrefix + "/remote-fingerbank-collector-env":
+		s.handleRemoteFingerbankCollectorEnv(w, r)
+		return
+	case apiPrefix + "/remote-fingerbank-collector-nba-conf":
+		s.handleRemoteFingerbankCollectorNbaConf(w, r)
 		return
 	}
 	//missing :O
@@ -327,6 +334,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 			fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp", managementIP))),
 			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp", managementIP))),
 			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp", managementIP))),
+			fmt.Sprintf("127.0.0.1:9090:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9090", fmt.Sprintf("%s:9090", managementIP))),
 		}})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
@@ -379,4 +387,49 @@ func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, 
 	})
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
+}
+
+func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {
+	fingerbankSettings := pfconfigdriver.FingerbankSettings{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &fingerbankSettings)
+
+	webservices := pfconfigdriver.PfConfWebservices{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices)
+
+	env := map[string]string{
+		"COLLECTOR_ARP_LOOKUP":                fingerbankSettings.Collector.ArpLookup,
+		"COLLECTOR_CLUSTERED":                 "true",
+		"COLLECTOR_CLUSTER_RESYNC_INTERVAL":   fingerbankSettings.Collector.ClusterResyncInterval.String() + "s",
+		"COLLECTOR_DB_PERSISTENCE_INTERVAL":   fingerbankSettings.Collector.DbPersistenceInterval.String() + "s",
+		"COLLECTOR_DELETE_INACTIVE_ENDPOINTS": fingerbankSettings.Collector.InactiveEndpointsExpiration.String() + "h",
+		"COLLECTOR_ENDPOINTS_CACHE_PATH":      "/usr/local/collector-remote/db/collector_endpoints_cache.db",
+		"COLLECTOR_ENDPOINTS_DB_PATH":         "/usr/local/collector-remote/db/collector_endpoints.db",
+		"COLLECTOR_QUERY_CACHE_TIME":          fingerbankSettings.Collector.QueryCacheTime.String() + "m",
+		"FINGERBANK_API_KEY":                  fingerbankSettings.Upstream.ApiKey,
+		"PORT":                                "4723",
+	}
+
+	if sharedutils.IsEnabled(fingerbankSettings.Collector.NetworkBehaviorAnalysis) {
+		env["COLLECTOR_ENDPOINT_ANALYSIS_WEBHOOK"] = "https://localhost:9090/fingerbank/nba/webhook"
+		env["COLLECTOR_ENDPOINT_ANALYSIS_WEBHOOK_PASSWORD"] = webservices.Pass
+		env["COLLECTOR_ENDPOINT_ANALYSIS_WEBHOOK_USERNAME"] = webservices.User
+		env["COLLECTOR_NETWORK_BEHAVIOR_ANALYSIS"] = "true"
+		env["COLLECTOR_NETWORK_BEHAVIOR_POLICIES"] = "/usr/local/collector-remote/conf/network_behavior_policies.conf"
+	}
+
+	envFile := ""
+	for k, v := range env {
+		envFile += fmt.Sprintf("export %s=%s\n", k, v)
+	}
+
+	w.Write([]byte(envFile))
+}
+
+func (s *Server) handleRemoteFingerbankCollectorNbaConf(w http.ResponseWriter, req *http.Request) {
+	if nbaConf, err := ioutil.ReadFile("/usr/local/pf/conf/network_behavior_policies.conf"); err == nil {
+		w.Write(nbaConf)
+	} else {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error while reading Fingerbank NBA config: %s", err))
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
