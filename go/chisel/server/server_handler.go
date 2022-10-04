@@ -336,7 +336,7 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 }
 
 type FingerbankServersReply struct {
-	Servers []string
+	Servers []string `json:"servers"`
 }
 
 func (s *Server) handleAllFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
