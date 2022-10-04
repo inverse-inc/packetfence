@@ -20,11 +20,13 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 7;
+use Test::More tests => 19;
 
 #This test will running last
 use Test::NoWarnings;
 use Test::Mojo;
+use MIME::Base64;
+use File::Slurp qw(read_file);
 
 my $t = Test::Mojo->new('pf::UnifiedApi');
 use pf::ConfigStore::Source;
@@ -34,6 +36,8 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Source");
 my $collection_base_url = '/api/v1/config/sources';
 
 my $base_url = '/api/v1/config/source';
+my $id1 = "id_$$";
+my $id2 = "id2_$$";
 
 #This is the second test
 $t->post_ok("$collection_base_url/test" =>
@@ -47,9 +51,60 @@ $t->post_ok("$collection_base_url/test" =>
   ->status_is(405)
   ->json_has('/errors');
 
+my $content = 'authtest:$apr1$gpI/g6In$SEMJI9kxmLBTzLjM46Ws9.';
+
+$t->post_ok("$collection_base_url" =>
+    json => {
+        type => 'Htpasswd',
+        id   => $id1,
+        path_upload => encode_base64($content),
+        description => "Test",
+    }
+  )
+  ->status_is(201);
+
+my $file = "/usr/local/pf/conf/uploads/authentication/${id1}.conf";
+
+$t->get_ok("$base_url/$id1")
+  ->status_is(200)
+  ->json_is('/item/path', $file);
+;
+
+ok(-e $file, "$file was saved");
+is($content, read_file($file), "File is saved $file properly");
+
+$t->post_ok("$collection_base_url" =>
+    json => {
+        type => 'Htpasswd',
+        id   => $id2,
+        path => '/usr/local/pf/t/data/htpasswd.conf',
+        description => "Test",
+    }
+  )
+  ->status_is(201);
+
+
 $t->get_ok("$base_url/htpasswd1")
   ->status_is(200)
   ->json_is('/item/class' => 'internal');
+
+$t->options_ok("$collection_base_url?type=Htpasswd" )
+  ->status_is(200)
+  ->json_is(
+      '/meta/path_upload',
+      {
+      default => undef,
+      implied => undef,
+      placeholder => undef,
+      required => 0,
+      type => 'file',
+      accept => {
+            type => 'String',
+            default => '*/*',
+          },
+      }
+  );
+
 
 =head1 AUTHOR
 
