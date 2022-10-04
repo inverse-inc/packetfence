@@ -78,9 +78,12 @@ export default {
 }
 </script>
 <style lang="scss">
-.base-input-group {
+.base-input-group,
+.input-group {
   & > div,
-  & > input {
+  & > input,
+  & > .input-group-append,
+  & > .input-group-prepend {
     transition: border-color .3s;
     border-top: 1px solid transparent;
     border-right: 0px;
@@ -103,15 +106,28 @@ export default {
   &.is-focus > textarea {
     border-color: $input-focus-border-color !important;
   }
+  &.is-focus .btn > .fa-icon {
+    color: $input-focus-border-color;
+  }
   &.is-invalid > div,
   &.is-invalid > input,
   &.is-invalid > textarea {
     border-color: $form-feedback-invalid-color !important;
   }
+  &.is-invalid .btn > .fa-icon {
+    color: $form-feedback-invalid-color;
+  }
   &.is-valid > div,
   &.is-valid > input,
   &.is-valid > textarea {
     border-color: $form-feedback-valid-color !important;
+  }
+  &.is-valid .btn > .fa-icon {
+    color: $form-feedback-valid-color;
+  }
+  &.is-blur > .input-group-append,
+  &.is-blur > .input-group-prepend {
+    border-color: $input-border-color;
   }
   & > .input-group-append,
   & > .input-group-prepend {

@@ -1,5 +1,5 @@
 <template>
-  <div class="base-button-upload" :title="title">
+  <div class="base-button-upload" v-b-tooltip.hover.top.d300 :title="title" :class="`btn-${size}`">
     <label class="base-button-upload-label mb-0">
       <b-form ref="formRef" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
@@ -56,7 +56,16 @@ export const props = {
   variant: {
     type: String,
     default: 'primary'
-  }
+  },
+  encode: {
+    type: Function,
+    default: input => input
+  },
+  size: {
+    type: String,
+    default: 'md',
+    validator: value => ['sm', 'md', 'lg'].includes(value)
+  },
 }
 
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
@@ -70,7 +79,8 @@ const setup = (props, context) => {
     accept,
     cumulative,
     readAsText,
-    multiple
+    multiple,
+    encode,
   } = toRefs(props)
 
   const { emit, refs, root: { $store } = {} } = context
@@ -84,7 +94,7 @@ const setup = (props, context) => {
     const filesMapped = files.map(file => ({ ...file, storeName: storeNameFromFile(file), close: () => { doClose(file) } }))
     emit('files', filesMapped)
     if (!multiple.value && readAsText.value && filesMapped[0] && filesMapped[0].result)
-      emit('input', filesMapped[0].result)
+      emit('input', encode.value(filesMapped[0].result))
     if (files.length)
       emit('focus', files.length - 1)
   }, { deep: true })

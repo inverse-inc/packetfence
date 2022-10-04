@@ -20,7 +20,8 @@ import BaseFormGroupChosenMultipleSearchable, { props as BaseFormGroupChosenMult
 import BaseFormGroupChosenOne, { props as BaseFormGroupChosenOneProps } from './BaseFormGroupChosenOne'
 import BaseFormGroupChosenOneSearchable, { props as BaseFormGroupChosenOneSearchableProps } from './BaseFormGroupChosenOneSearchable'
 import BaseFormGroupChosenTimezone from './BaseFormGroupChosenTimezone'
-import BaseFormGroupInput from './BaseFormGroupInput'
+import BaseFormGroupFileUpload, { props as BaseFormGroupFileUploadProps } from './BaseFormGroupFileUpload'
+import BaseFormGroupInput, { props as BaseFormGroupInputProps } from './BaseFormGroupInput'
 import BaseFormGroupInputDate from './BaseFormGroupInputDate'
 import BaseFormGroupInputDateTime from './BaseFormGroupInputDateTime'
 import BaseFormGroupInputMultiplier from './BaseFormGroupInputMultiplier'
@@ -40,7 +41,7 @@ import BaseFormGroupToggleNY from './BaseFormGroupToggleNY'
 import BaseFormGroupToggleOffOn from './BaseFormGroupToggleOffOn'
 import BaseFormTab from './BaseFormTab'
 import BaseIconPreference from './BaseIconPreference'
-import BaseInput from './BaseInput'
+import BaseInput, { props as BaseInputProps } from './BaseInput'
 import BaseInputArray, { props as BaseInputArrayProps } from './BaseInputArray'
 import BaseInputChosenMultiple from './BaseInputChosenMultiple'
 import BaseInputChosenOne, { props as BaseInputChosenOneProps } from './BaseInputChosenOne'
@@ -92,7 +93,8 @@ export {
   BaseFormGroupChosenOne, BaseFormGroupChosenOneProps,
   BaseFormGroupChosenOneSearchable, BaseFormGroupChosenOneSearchableProps,
   BaseFormGroupChosenTimezone,
-  BaseFormGroupInput,
+  BaseFormGroupFileUpload, BaseFormGroupFileUploadProps,
+  BaseFormGroupInput, BaseFormGroupInputProps,
   BaseFormGroupInputDate,
   BaseFormGroupInputDateTime,
   BaseFormGroupInputMultiplier,
@@ -115,7 +117,7 @@ export {
   BaseIconPreference,
 
   // form inputs
-  BaseInput,
+  BaseInput, BaseInputProps,
   BaseInputArray, BaseInputArrayProps,
   BaseInputChosenMultiple,
   BaseInputChosenOne, BaseInputChosenOneProps,

@@ -76,10 +76,13 @@ const schemaServers = yup.array().ensure().of(schemaServer)
 
 export const schema = (props) => {
   const {
+    form,
     id,
     isNew,
     isClone
   } = props
+
+  const { path_upload } = form || {}
 
   return yup.object({
     id: yup.string()
@@ -124,7 +127,12 @@ export const schema = (props) => {
     key_file: yup.string().label(i18n.t('File')),
     merchant_id: yup.string().label(i18n.t('ID')),
     password_email_update: yup.string().nullable().label(i18n.t('Email')),
-    path: yup.string().label(i18n.t('Path')),
+    path: yup.string()
+      .when('path_upload', () => {
+        return (!path_upload)
+          ? yup.string().nullable().required(i18n.t('Path required.'))
+          : yup.string().nullable()
+      }),
     payment_type: yup.string().nullable().label(i18n.t('Payment type')),
     paypal_cert_file: yup.string().label(i18n.t('File')),
     person_mappings: schemaPersonMappings,

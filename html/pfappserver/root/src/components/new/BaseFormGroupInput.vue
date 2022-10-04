@@ -39,8 +39,9 @@
         @change="onChange"
         @focus="onFocus"
         @blur="onBlur"
+        v-on="$listeners"
       />
-      <template v-slot:prepend>
+      <template v-slot:prepend v-if="$slots.prepend || inputPlaceholder">
         <slot name="prepend"></slot>
         <b-button v-if="inputPlaceholder && !inputValue"
           class="input-group-text"
@@ -53,7 +54,7 @@
           />
         </b-button>
       </template>
-      <template v-slot:append>
+      <template v-slot:append v-if="$slots.append || isLocked">
         <slot name="append"></slot>
         <b-button v-if="isLocked"
           class="input-group-text"
@@ -158,7 +159,24 @@ export default {
 }
 </script>
 <style lang="scss">
-.base-form-group-input {
-  border-radius: $border-radius !important;
+.base-form-group {
+  .input-group > * {
+    &:first-child {
+      border-top-left-radius: $border-radius !important;
+      border-bottom-left-radius: $border-radius !important;
+    }
+    &:not(:first-child) {
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+    }
+    &:last-child {
+      border-top-right-radius: $border-radius !important;
+      border-bottom-right-radius: $border-radius !important;
+    }
+    &:not(:last-child) {
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+  }
 }
 </style>

@@ -19,6 +19,7 @@ import BaseFormGroupAdministrationRules from './BaseFormGroupAdministrationRules
 import BaseFormGroupAuthenticationRules from './BaseFormGroupAuthenticationRules'
 import BaseFormGroupDomains from './BaseFormGroupDomains'
 import BaseFormGroupHostPortEncryption from './BaseFormGroupHostPortEncryption'
+import BaseFormGroupPathFileUpload from './BaseFormGroupPathFileUpload'
 import BaseFormGroupPersonMappings from './BaseFormGroupPersonMappings'
 import BaseFormGroupProtocolHostPort from './BaseFormGroupProtocolHostPort'
 import BaseFormGroupServerAddressPort from './BaseFormGroupServerAddressPort'
@@ -99,7 +100,7 @@ export {
   BaseFormGroupInput                        as FormGroupPasswordEmailUpdate,
   BaseFormGroupChosenOne                    as FormGroupPasswordLength,
   BaseFormGroupChosenOne                    as FormGroupPasswordRotation,
-  BaseFormGroupInput                        as FormGroupPath,
+  BaseFormGroupPathFileUpload               as FormGroupPath,
   BaseFormGroupChosenOne                    as FormGroupPaymentType,
   BaseFormGroupInput                        as FormGroupPaypalCertFile,
   BaseFormGroupPersonMappings               as FormGroupPersonMappings,
