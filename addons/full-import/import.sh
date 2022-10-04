@@ -9,6 +9,9 @@ source /usr/local/pf/addons/functions/configuration.functions
 function cleanup() {
   echo "Cleaning temporary directory"
   rm -fr $extract_dir
+  if [ "$mariabackup_installed" = "true" ]; then
+      uninstall_mariabackup $pf_version_in_export
+  fi
 }
 
 prepare_import() {
@@ -52,6 +55,11 @@ prepare_import() {
     echo "Uncompressed database dump '$db_dump'"
 
     main_splitter
+    echo "Get PF version in PacketFence export"
+    pf_version_in_export=$(get_pf_version_in_export $extract_dir)
+    echo "$pf_version_in_export"
+
+    main_splitter
     echo "Stopping PacketFence services"
     systemctl cat monit >/dev/null 2>&1 && (systemctl stop monit ; systemctl disable monit)
     systemctl isolate packetfence-base
@@ -59,12 +67,21 @@ prepare_import() {
 }
 
 import_db() {
+    main_splitter
     if echo "$db_dump" | grep '\.sql$' >/dev/null; then
         echo "The database dump uses mysqldump"
         #TODO /tmp/grants.sql should be included in the export
         import_mysqldump grants.sql $db_dump usr/local/pf/conf/pf.conf
     elif echo "$db_dump" | grep '\.xbstream$' >/dev/null; then
         echo "The database uses mariabackup"
+	# permit to remove mariabackup if everything goes well
+	# or to uninstall it if a failure occurs during installation
+        if install_mariabackup $pf_version_in_export; then
+	    mariabackup_installed=true
+	else
+	    uninstall_mariabackup $pf_version_in_export
+	    exit 1
+	fi
         import_mariabackup $db_dump
     else
         echo "Unable to detect format of the database dump"
@@ -152,6 +169,7 @@ EOF
 do_full_import=1
 do_db_import=0
 do_config_import=0
+mariabackup_installed=false
 EXPORT_FILE=${EXPORT_FILE:-}
 
 # Parse option
