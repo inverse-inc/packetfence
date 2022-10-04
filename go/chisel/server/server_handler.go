@@ -18,6 +18,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/phayes/freeport"
@@ -65,8 +66,11 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	case apiPrefix + "/remote-binds":
 		s.handleRemoteBinds(w, r)
 		return
-	case apiPrefix + "/fingerbank-collector-endpoints":
-		s.handleFingerbankCollectorEndpoints(w, r)
+	case apiPrefix + "/all-fingerbank-collector-endpoints":
+		s.handleAllFingerbankCollectorEndpoints(w, r)
+		return
+	case apiPrefix + "/local-fingerbank-collector-endpoints":
+		s.handleLocalFingerbankCollectorEndpoints(w, r)
 		return
 	}
 	//missing :O
@@ -331,7 +335,37 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s *Server) handleFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
+type FingerbankServersReply struct {
+	Servers []string
+}
+
+func (s *Server) handleAllFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	collectors := []string{}
+	//TODO: handle this for a k8s deployment
+	if _, clusterEnabled := cluster.EnabledServers(ctx); clusterEnabled {
+		replies := map[string]*FingerbankServersReply{}
+		createResponseStructPtr := func(serverId string) interface{} {
+			replies[serverId] = &FingerbankServersReply{}
+			return replies[serverId]
+		}
+		errors := cluster.UnifiedAPICallCluster(ctx, "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
+		for serverId, err := range errors {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error collecting fingerbank collector servers on %s: %s", serverId, err))
+		}
+
+		for _, resp := range replies {
+			collectors = append(collectors, resp.Servers...)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
+	} else {
+		s.handleLocalFingerbankCollectorEndpoints(w, req)
+	}
+}
+
+func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
 	collectors := []string{}
 	activeTunnels.Range(func(k, v interface{}) bool {
 		tun := v.(*tunnel.Tunnel)
@@ -344,5 +378,5 @@ func (s *Server) handleFingerbankCollectorEndpoints(w http.ResponseWriter, req *
 		return true
 	})
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(gin.H{"servers": collectors})
+	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
 }
