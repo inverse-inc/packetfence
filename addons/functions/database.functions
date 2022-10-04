@@ -211,17 +211,17 @@ function install_old_mariabackup() {
 	mv -f $temp_dir/mariadb-backup/usr/bin/mariabackup /usr/local/bin/mariabackup
 	mv -f $temp_dir/mariadb-backup/usr/bin/mbstream /usr/local/bin/mbstream
     else
-	yum remove MariaDB-backup -y
-	yum localinstall https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
+	yum remove -q -y MariaDB-backup
+	yum localinstall -q -y https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
     fi
 }
 
 function install_current_mariabackup() {
     if is_deb_based; then
-	apt update && apt install -y mariadb-backup
+	apt update && apt install -q -y mariadb-backup
     else
-	yum clean all --enablerepo=packetfence
-	yum install -y MariaDB-backup --enablerepo=packetfence
+	yum clean all -q --enablerepo=packetfence
+	yum install -q -y MariaDB-backup --enablerepo=packetfence
   fi
 }
 
@@ -244,14 +244,14 @@ function uninstall_old_mariabackup() {
 	rm -f /usr/local/bin/mariabackup
 	rm -f /usr/local/bin/mbstream
     else
-	yum remove MariaDB-backup -y
+	yum remove -q -y MariaDB-backup
     fi
 }
 
 function uninstall_current_mariabackup() {
     if is_deb_based; then
-	apt remove -y mariadb-backup
+	apt remove -q -y mariadb-backup
     else
-	yum remove -y MariaDB-backup
+	yum remove -q -y MariaDB-backup
   fi
 }
