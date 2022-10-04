@@ -74,7 +74,9 @@ func EnabledServers(ctx context.Context) ([]Server, bool) {
 	return servers, true
 }
 
-func UnifiedAPICallCluster(ctx context.Context, method string, path string, createResponseStructPtr func(serverId string) interface{}) (errs map[string]error) {
+func UnifiedAPICallCluster(ctx context.Context, method string, path string, createResponseStructPtr func(serverId string) interface{}) map[string]error {
+	errs := map[string]error{}
+
 	servers, cluster_mode := EnabledServers(ctx)
 	if cluster_mode {
 		for _, member := range servers {
