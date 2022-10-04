@@ -16,6 +16,7 @@ use strict;
 use warnings;
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::IniFiles;
+use pf::util;
 use pf::file_paths qw($authentication_config_file);
 
 run_as_pf();
