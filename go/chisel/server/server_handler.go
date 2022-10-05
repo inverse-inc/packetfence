@@ -417,6 +417,11 @@ func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *
 		env["COLLECTOR_NETWORK_BEHAVIOR_POLICIES"] = "/usr/local/collector-remote/conf/network_behavior_policies.conf"
 	}
 
+	for _, l := range strings.Split(fingerbankSettings.Collector.AdditionalEnv, "\n") {
+		d := strings.Split(l, "=")
+		env[d[0]] = strings.Join(d[1:len(d)], "=")
+	}
+
 	envFile := ""
 	for k, v := range env {
 		envFile += fmt.Sprintf("export %s=%s\n", k, v)
