@@ -141,10 +141,20 @@ has_field 'organization' => (
     },
 );
 
+has_field 'ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'pki',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'ca_cert_path' => (
     type        => 'Path',
     label       => 'CA cert path',
-    required    => 1,
+    required    => 0,
     tags        => {
         after_element   => \&help,
         help            => 'Path of the CA certificate that will generate your certificates',
@@ -172,10 +182,20 @@ has_field 'cn_format' => (
     },
 );
 
+has_field 'server_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'server_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'pki',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'server_cert_path' => (
     type        => 'Path',
     label       => 'Server cert path',
-    required    => 1,
+    required    => 0,
     tags        => {
         after_element   => \&help,
         help            => 'Path of the RADIUS server authentication certificate',

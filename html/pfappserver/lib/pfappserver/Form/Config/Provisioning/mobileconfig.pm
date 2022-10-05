@@ -89,6 +89,16 @@ has_field 'psk_size' =>
              help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
   );
 
+has_field 'server_certificate_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'server_certificate_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'provisioning',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'server_certificate_path' =>
  (
   type => 'Path',
@@ -97,6 +107,16 @@ has_field 'server_certificate_path' =>
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },       
  );
+
+has_field 'ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'provisioning',
+   element_class => ['input-xxlarge'],
+);
 
 has_field 'ca_cert_path' =>
  (

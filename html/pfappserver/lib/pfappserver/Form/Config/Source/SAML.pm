@@ -28,6 +28,16 @@ has_field 'sp_entity_id' =>
    default => '',
   );
 
+has_field 'sp_key_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'sp_key_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'sp_key_path' =>
   (
    type => 'Path',
@@ -35,6 +45,16 @@ has_field 'sp_key_path' =>
    required => 1,
    default => '',
   );
+
+has_field 'sp_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'sp_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
 
 has_field 'sp_cert_path' =>
   (
@@ -52,6 +72,16 @@ has_field 'idp_entity_id' =>
    default => '',
   );
 
+has_field 'idp_metadata_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'idp_metadata_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'idp_metadata_path' =>
   (
    type => 'Path',
@@ -60,6 +90,16 @@ has_field 'idp_metadata_path' =>
    default => '',
   );
 
+has_field 'idp_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'idp_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'idp_cert_path' =>
   (
    type => 'Path',
@@ -67,6 +107,16 @@ has_field 'idp_cert_path' =>
    required => 1,
    default => '',
   );
+
+has_field 'idp_ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'idp_ca_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
 
 has_field 'idp_ca_cert_path' =>
   (

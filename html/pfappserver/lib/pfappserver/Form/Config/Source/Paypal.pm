@@ -33,6 +33,16 @@ has_field cert_id =>
    default => '',
   );
 
+has_field 'cert_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'cert_file',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
+
 has_field cert_file =>
   (
    type => 'Path',
@@ -43,6 +53,16 @@ has_field cert_file =>
              help => 'The path to the certificate you submitted to Paypal.' },
   );
 
+has_field 'key_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'key_file',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
+
 has_field key_file =>
   (
    type => 'Path',
@@ -52,6 +72,16 @@ has_field key_file =>
    tags => { after_element => \&help,
              help => 'The path to the associated key of the certificate you submitted to Paypal.' },
   );
+
+has_field 'paypal_cert_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'paypal_cert_file',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
+);
 
 has_field paypal_cert_file =>
   (

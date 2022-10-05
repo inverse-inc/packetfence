@@ -35,6 +35,16 @@ has_field 'type' => (
     required    => 1,
 );
 
+has_field 'client_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'pki',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'client_cert_path' => (
     type        => 'Path',
     label       => 'Client cert path',
@@ -43,6 +53,16 @@ has_field 'client_cert_path' => (
         after_element   => \&help,
         help            => 'Path of the client cert that will be used to generate the p12',
     },
+);
+
+has_field 'client_key_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_key_path',
+   config_prefix => '.key',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'pki',
+   element_class => ['input-xxlarge'],
 );
 
 has_field 'client_key_path' => (
@@ -55,6 +75,16 @@ has_field 'client_key_path' => (
     },
 );
 
+has_field 'ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'pki',
+   element_class => ['input-xxlarge'],
+);
+
 has_field 'ca_cert_path' => (
     type        => 'Path',
     label       => 'CA cert path',
@@ -63,6 +93,16 @@ has_field 'ca_cert_path' => (
         after_element   => \&help,
         help            => 'Path of the CA certificate used to generate client certificate/key combination',
     },
+);
+
+has_field 'server_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'server_cert_path',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'pki',
+   element_class => ['input-xxlarge'],
 );
 
 has_field 'server_cert_path' => (

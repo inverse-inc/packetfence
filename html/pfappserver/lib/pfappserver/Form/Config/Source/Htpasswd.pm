@@ -34,7 +34,7 @@ has_field 'path_upload' =>
    config_prefix => '.conf',
    label => 'File Upload',
    required => 0,
-   upload_namespace => 'authentication',
+   upload_namespace => 'sources',
    element_class => ['input-xxlarge'],
   );
 
