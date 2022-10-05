@@ -112,8 +112,11 @@ import_config() {
     upgrade_imported_configuration
 
     main_splitter
-    echo "Performing adjustments on the configuration"
-    adjust_configuration
+    if [ "$do_adjust_config" -eq 1 ]; then
+        echo "Performing adjustments on the configuration"
+    else
+	echo "Skipping adjustments on the configuration"
+    fi
 
     main_splitter
     echo "Restoring certificates"
@@ -159,6 +162,7 @@ Options:
  -h,--help                  Display this help
  --db			    Import only database from PacketFence export
  --conf			    Import only configuration from PacketFence export
+ --skip-adjust-conf	    Don't run adjustments on configuration (only use it if you know what you are doing)
 
 EOF
 }
@@ -169,13 +173,14 @@ EOF
 do_full_import=1
 do_db_import=0
 do_config_import=0
+do_adjust_config=1
 mariabackup_installed=false
 EXPORT_FILE=${EXPORT_FILE:-}
 
 # Parse option
 # TEMP=$(getopt -o f:h --long file:,help,db,conf \
     #      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
-TEMP=$(getopt -o f:h --long file:,help,db,conf \
+TEMP=$(getopt -o f:h --long file:,help,db,conf,skip-adjust-conf \
      -n "$0" -- "$@") || (echo "getopt failed." && exit 1)
 
 # Note the quotes around `$TEMP': they are essential!
@@ -196,6 +201,9 @@ while true ; do
             ;;
         --conf)
             do_config_import=1 ; do_full_import=0 ; shift
+            ;;
+        --skip-adjust-conf)
+            do_adjust_config=0 ; shift
             ;;
         --) 
             shift ; break 
