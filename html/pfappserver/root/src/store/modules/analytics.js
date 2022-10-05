@@ -22,7 +22,7 @@ const actions = {
       commit('INIT')
       commit('UNSUBSCRIBE')
       promise = store.dispatch('system/getSummary').then(summary => {
-        // eslint-disable-next-line no-unused-vars
+
         const {
           hostname, // strip PII
           quiet, status, // strip noise
@@ -68,7 +68,6 @@ const actions = {
                   if (matches) {
                     // eslint-disable-next-line no-unused-vars
                     const [_type, _prefix, event, action] = matches
-console.log(type, isTracked(type), matches)
                     mixpanel.track(`${event}/${action}`, { ...state.summary, event, action })
                   }
                 }
