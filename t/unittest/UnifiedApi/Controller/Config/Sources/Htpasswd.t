@@ -63,7 +63,7 @@ $t->post_ok("$collection_base_url" =>
   )
   ->status_is(201);
 
-my $file = "/usr/local/pf/conf/uploads/authentication/${id1}.conf";
+my $file = "/usr/local/pf/conf/uploads/authentication/${id1}_path_upload.conf";
 
 $t->get_ok("$base_url/$id1")
   ->status_is(200)

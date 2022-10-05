@@ -27,8 +27,9 @@ apply [
     {
         transform => sub {
             my ($value, $field) = @_;
+            my $name = $field->name;
             my $id = $field->parent->field("id")->value;
-            my $file = "$conf_uploads/" . $field->upload_namespace . "/$id" . $field->config_prefix;
+            my $file = "$conf_uploads/" . $field->upload_namespace . "/${id}_$name" . $field->config_prefix;
             safe_file_update($file, decode_base64($value));
             eval { pf::cluster::sync([$file]) };
             if ($@) {
