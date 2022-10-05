@@ -113,6 +113,14 @@ the server.
 WARNING: If you want to use the first step of the configurator to configure your
 server, you need to do it **before** running your import.
 
+==== Note on Mariabackup
+
+The import script could try to install Mariabackup to import your database dump. If that is the case,
+it will remove it at end of import.
+
+Consequently, if you installed Mariabackup **before** running
+the import script, you should ensure that Mariabackup is still installed at end of import.
+
 ==== Start the import process
 
 The import script will guide you through the restore of the database, the configuration files and will help adjust the PacketFence IP configuration if necessary.
@@ -132,7 +140,7 @@ Completed import of the database and the configuration! Complete any necessary a
 
 If that's not the case, check the output above to understand why the process failed.
 
-If you experimented any issues during import, you can run it again.
+If you experience any issues during import, you can run it again.
 
 If all goes well, you can restart services using <<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,following instructions>>.
 
@@ -144,3 +152,4 @@ If your previous installation was a cluster, some steps may not be necessary
 to do.  Your export archive will contain your previous
 [filename]`cluster.conf` file.
 
+WARNING: if you installed Mariabackup before running the import, it's possible that you need to reinstall it.
