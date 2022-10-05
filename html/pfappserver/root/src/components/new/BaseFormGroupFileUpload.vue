@@ -5,31 +5,28 @@
         <template #button-content>
           <icon name="file" class="mr-2" /> {{ fileDecorated.name }}
         </template>
-        <b-dropdown-header style="width: 400px;">
-          {{ $i18n.t('Use the file') }}:
-        </b-dropdown-header>
-        <b-dropdown-divider />
-        <b-dropdown-form>
+        <b-dropdown-form style="width: 400px;">
           <b-media md="auto">
-            <template v-slot:aside><icon name="file" scale="1.5" class="mt-2 ml-2"></icon></template>
+            <template v-slot:aside><icon name="file" scale="1.5" class="mt-2 mx-2"></icon></template>
             <strong>{{ fileDecorated.name }}</strong>
             <p class="small mt-3 mb-0">{{ fileDecorated.size }}</p>
-            <p class="small">{{ fileDecorated.lastModifiedDate }}</p>
+            <p class="small mb-0">{{ fileDecorated.lastModifiedDate }}</p>
           </b-media>
-          <b-button class="mt-3 mr-1" size="sm" variant="danger" @click="onReset">{{ $i18n.t('Delete') }}</b-button>
+        </b-dropdown-form>
+        <b-dropdown-divider />
+        <b-dropdown-form>
           <base-button-upload
             @input="onInput"
             @files="onFiles"
-            :accept="accept"
+            :accept="uploadAccept"
             :encode="encode"
-            :title="title"
-            class="mt-3 btn btn-primary text-nowrap"
+            class="btn btn-primary text-nowrap mr-2"
             size="sm"
             read-as-text
           >
             {{ $i18n.t('Replace') }}
           </base-button-upload>
-
+          <b-button class="mr-2" size="sm" variant="danger" @click="onReset">{{ $i18n.t('Delete') }}</b-button>
         </b-dropdown-form>
       </b-dropdown>
       <base-button-upload v-else
@@ -86,15 +83,18 @@ export const props = {
 
 import { computed, customRef, inject, ref, toRefs, watch } from '@vue/composition-api'
 import { getFormNamespace, setFormNamespace } from '@/composables/useInputValue'
+import { getMetaNamespace } from '@/composables/useMeta'
 import bytes from '@/utils/bytes'
 
 const setup = (props) => {
 
   const {
+    accept,
     namespace,
   } = toRefs(props)
 
   const form = inject('form', ref({}))
+  const meta = inject('meta', ref({}))
 
   const inputValue = customRef((track, trigger) => ({
     get() {
@@ -107,16 +107,24 @@ const setup = (props) => {
     }
   }))
 
+  const uploadNamespace = computed(() => `${namespace.value}_upload`.split('.'))
+
   const uploadValue = customRef((track, trigger) => ({
     get() {
       track()
-      return getFormNamespace(`${namespace.value}_upload`.split('.'), form.value)
+      return getFormNamespace(uploadNamespace.value, form.value)
     },
     set(newValue) {
-      setFormNamespace(`${namespace.value}_upload`.split('.'), form.value, newValue)
+      setFormNamespace(uploadNamespace.value, form.value, newValue)
       trigger()
     }
   }))
+
+  const uploadMeta = computed(() => getMetaNamespace(uploadNamespace.value, meta.value))
+  const uploadAccept = computed(() => {
+    const { accept: { ['default']: defaultMeta = accept.value } = {} } = uploadMeta.value
+    return defaultMeta
+  })
 
   const isUpload = ref(false)
   const file = ref(false)
@@ -159,7 +167,8 @@ const setup = (props) => {
     onInput,
     onFiles,
     onReset,
-    fileDecorated
+    fileDecorated,
+    uploadAccept,
   }
 }
 

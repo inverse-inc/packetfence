@@ -112,7 +112,10 @@ const setup = (props, context) => {
 
   const isAccept = (file) => {
     const { name } = file
-    const contentType = mime.lookup(name).replace(/ /g, '').toLowerCase() // case insensitive
+    let contentType
+    if (name.indexOf('.') !== -1) {
+      contentType = mime.lookup(name).replace(/ /g, '').toLowerCase() // case insensitive
+    }
     const accepted = accept.value.replace(/ /g, '').split(',')
       .filter(type => type.toLowerCase()) // ignore multiple commas, case insensitive
       .filter(type => {
