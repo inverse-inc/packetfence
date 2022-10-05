@@ -113,44 +113,6 @@ the server.
 WARNING: If you want to use the first step of the configurator to configure your
 server, you need to do it **before** running your import.
 
-==== Preliminary steps
-
-If your export archive used MariaDB-backup instead of `mysqldump` (your DB
-backup filename in /root/backup/ contains `xbstream`), then you need to install identical
-MariaDB-backup version on your **new** installation.
-
-===== If you are restoring from PacketFence 10.3.0 only
-
-.RHEL / CentOS based systems
-[source,bash]
-----
-yum remove MariaDB-backup
-yum localinstall https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
-----
-
-.Debian based systems
-[source,bash]
-----
-wget -O /root/mariadb-backup-10.2_10.2.37.deb https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
-dpkg-deb -xv /root/mariadb-backup-10.2_10.2.37.deb /root/mariadb-backup
-mv /root/mariadb-backup/usr/bin/mariabackup /usr/local/bin/mariabackup
-mv /root/mariadb-backup/usr/bin/mbstream /usr/local/bin/mbstream
-----
-
-===== If you are restoring from PacketFence 11.0 or above
-
-.RHEL / CentOS based systems
-[source,bash]
-----
-yum install MariaDB-backup --enablerepo=packetfence
-----
-
-.Debian based systems
-[source,bash]
-----
-apt install mariadb-backup
-----
-
 ==== Start the import process
 
 The import script will guide you through the restore of the database, the configuration files and will help adjust the PacketFence IP configuration if necessary.
@@ -181,22 +143,4 @@ If you want to build or rebuild a cluster, you need to follow instructions in <<
 If your previous installation was a cluster, some steps may not be necessary
 to do.  Your export archive will contain your previous
 [filename]`cluster.conf` file.
-
-==== Final steps
-
-If you restored from PacketFence 10.3.0 and you installed MariaDB-backup for your
-restore during the 'Preliminary steps', you need to update it to the latest version:
-
-.RHEL / CentOS based systems
-[source,bash]
-----
-yum update MariaDB-backup --enablerepo=packetfence
-----
-
-.Debian based systems
-[source,bash]
-----
-rm /usr/local/bin/mariabackup
-rm /usr/local/bin/mbstream
-----
 
