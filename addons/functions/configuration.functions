@@ -222,3 +222,8 @@ function adjust_configuration() {
 function is_cluster() {
   [ `perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::config::cluster -e 'print $cluster_enabled'` -eq 1 ]
 }
+
+function get_pf_version_in_export() {
+    export_dir=$1
+    egrep -o '[0-9]+\.[0-9]+\.[0-9]+$' $export_dir/usr/local/pf/conf/pf-release
+}
