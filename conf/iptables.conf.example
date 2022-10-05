@@ -58,8 +58,7 @@
 #-A input-management-if --protocol tcp --match tcp --dport 1026 --jump ACCEPT
 # Netdata
 %%netdata%%
-# pfconnector
-%%pfconnector%%
+
 
 # RADIUS
 -A input-management-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
