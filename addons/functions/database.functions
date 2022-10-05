@@ -202,3 +202,69 @@ function upgrade_database() {
   mysql ${mariadb_args} $db_name -e 'truncate keyed'
   check_code $?
 }
+
+function install_mariabackup() {
+    local pf_version=$1
+    sub_splitter
+    if [ "$pf_version" = "10.3.0" ]; then
+	echo "Installing old MariaDB-backup to import database dump"
+	install_old_mariabackup
+    else
+	echo "Installing current MariaDB-backup to import database dump"
+	install_current_mariabackup
+    fi
+}
+
+function install_old_mariabackup() {
+    if is_deb_based; then
+	temp_dir=$(mktemp -d)
+	wget -O $temp_dir/mariadb-backup-10.2_10.2.37.deb \
+	     https://www.packetfence.org/downloads/PacketFence/debian-lastrelease/pool/stretch/m/mariadb-10.2/mariadb-backup-10.2_10.2.37+maria~stretch_amd64.deb
+	dpkg-deb -xv $temp_dir/mariadb-backup-10.2_10.2.37.deb $temp_dir/mariadb-backup
+	mv -f $temp_dir/mariadb-backup/usr/bin/mariabackup /usr/local/bin/mariabackup
+	mv -f $temp_dir/mariadb-backup/usr/bin/mbstream /usr/local/bin/mbstream
+    else
+	yum remove -q -y MariaDB-backup
+	yum localinstall -q -y https://www.packetfence.org/downloads/PacketFence/CentOS7/x86_64/RPMS/MariaDB-backup-10.2.37-1.el7.centos.x86_64.rpm
+    fi
+}
+
+function install_current_mariabackup() {
+    if is_deb_based; then
+	apt update && apt install -q -y mariadb-backup
+    else
+	yum clean all -q --enablerepo=packetfence
+	yum install -q -y MariaDB-backup --enablerepo=packetfence
+  fi
+}
+
+function uninstall_mariabackup() {
+    local pf_version=$1
+    sub_splitter
+    if [ "$pf_version" = "10.3.0" ]; then
+	echo "Uninstalling old MariaDB-backup"
+	uninstall_old_mariabackup
+    else
+	echo "Uninstalling current MariaDB-backup"
+	uninstall_current_mariabackup
+    fi
+}
+
+# yum and apt will not exit with an error code greater than 0
+# if package to removed is not installed
+function uninstall_old_mariabackup() {
+    if is_deb_based; then
+	rm -f /usr/local/bin/mariabackup
+	rm -f /usr/local/bin/mbstream
+    else
+	yum remove -q -y MariaDB-backup
+    fi
+}
+
+function uninstall_current_mariabackup() {
+    if is_deb_based; then
+	apt remove -q -y mariadb-backup
+    else
+	yum remove -q -y MariaDB-backup
+  fi
+}
