@@ -116,6 +116,7 @@ export {
   BaseFormGroupToggleDisabledEnabled        as FormGroupRegisterOnActivation,
   BaseFormGroupChosenMultiple               as FormGroupRejectRealm,
   BaseFormGroupChosenOne                    as FormGroupScope,
+  BaseFormGroupInput                        as FormGroupScopeString,
   BaseFormGroupChosenMultiple               as FormGroupSearchAttributes,
   BaseFormGroupInput                        as FormGroupSearchAttributesAppend,
   BaseFormGroupInputPassword                as FormGroupSecret,
