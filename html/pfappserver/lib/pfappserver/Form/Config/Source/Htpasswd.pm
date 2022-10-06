@@ -16,17 +16,6 @@ extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
 
 # Form fields
-has_field 'path' =>
-  (
-   type => 'Path',
-   label => 'File Path',
-   required => 0,
-   element_class => ['input-xxlarge'],
-   # Default value needed for creating dummy source
-   default => '',
-  );
-
-# Form fields
 has_field 'path_upload' =>
   (
    type => 'PathUpload',
@@ -36,6 +25,17 @@ has_field 'path_upload' =>
    required => 0,
    upload_namespace => 'sources',
    element_class => ['input-xxlarge'],
+  );
+
+# Form fields
+has_field 'path' =>
+  (
+   type => 'Path',
+   label => 'File Path',
+   required => 0,
+   element_class => ['input-xxlarge'],
+   # Default value needed for creating dummy source
+   default => '',
   );
 
 =head2 validate

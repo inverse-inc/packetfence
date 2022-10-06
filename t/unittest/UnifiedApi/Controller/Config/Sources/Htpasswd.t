@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 21;
 
 #This test will running last
 use Test::NoWarnings;
@@ -32,6 +32,8 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 use pf::ConfigStore::Source;
 use Utils;
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Source");
+my $true = bless( do { \( my $o = 1 ) }, 'JSON::PP::Boolean' );
+my $false = bless( do { \( my $o = 0 ) }, 'JSON::PP::Boolean' );
 
 my $collection_base_url = '/api/v1/config/sources';
 
@@ -82,6 +84,7 @@ $t->post_ok("$collection_base_url" =>
         type => 'Htpasswd',
         id   => $id2,
         path => '/usr/local/pf/t/data/htpasswd.conf',
+        path_upload => undef,
         description => "Test",
     }
   )
@@ -109,6 +112,43 @@ $t->options_ok("$collection_base_url?type=Htpasswd" )
       }
   );
 
+my $id3 = "id3_$$";
+$t->post_ok("$collection_base_url" =>
+    json => {
+		"id" =>  $id3,
+		"isClone" =>  $true,
+		"isNew" =>  $false,
+		"sourceType" =>  "Htpasswd",
+		"administration_rules" =>  [{
+			"actions" =>  [{
+				"type" =>  "set_access_level",
+				"value" =>  ["ALL"]
+			}],
+			"conditions" =>  [],
+			"description" =>  "All admins",
+			"id" =>  "admins",
+			"match" =>  "all",
+			"status" =>  "enabled"
+		}],
+		"authentication_rules" =>  [],
+		"description" =>  "Legacy Source",
+		"ldapfilter_operator" =>  undef,
+        path => '/usr/local/pf/t/data/htpasswd.conf',
+		"path_upload" =>  undef,
+		"realms" =>  ["null"],
+		"set_access_durations_action" =>  [],
+		"set_role_from_source_action" =>  undef,
+		"trigger_portal_mfa_action" =>  undef,
+		"trigger_radius_mfa_action" =>  undef,
+		"type" =>  "Htpasswd",
+		"class" =>  "internal",
+		"not_deletable" =>  $false,
+		"not_sortable" =>  $false,
+		"allowed_domains" =>  "",
+		"banned_domains" =>  ""
+	}
+  )
+  ->status_is(201);
 
 =head1 AUTHOR
 

@@ -410,9 +410,10 @@ sub getSourceArgs {
         # Deflate the duration fields
         # To avoid dummy sources from not being created
         if ($field->type eq 'Duration') {
-            my $value = $args->{$name};
+            my $accessor = $field->accessor;
+            my $value = $args->{$accessor};
             if (ref $value eq 'HASH') {
-                $args->{$name} = $field->duration_deflate($value);
+                $args->{$accessor} = $field->duration_deflate($value);
             }
         }
     }
