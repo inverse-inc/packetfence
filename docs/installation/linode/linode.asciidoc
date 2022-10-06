@@ -97,10 +97,10 @@ To deploy the PacketFence Connector, first provision on your local network (wher
 ----
 apt update && apt install gnupg
 echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
-/etc/apt/sources.list.d/packetfence-pfconnector.list
+/etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 apt update
-apt install packetfence-pfconnector
+apt install packetfence-pfconnector-remote
 /usr/local/pfconnector-remote/bin/pfconnector-configure
 ----
 
@@ -134,7 +134,7 @@ In order to upgrade PacketFence Connector, you need to run following commands:
 [source,bash]
 ----
 echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
-/etc/apt/sources.list.d/packetfence-pfconnector.list
+/etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 apt update
 apt upgrade
 ----

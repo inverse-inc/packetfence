@@ -74,8 +74,8 @@ install: build
 	install -d $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
 	cp debian/keyrings/monitoring-scripts-keyring.gpg $(CURDIR)/debian/packetfence-archive-keyring/usr/share/keyrings/
 
-	# packetfence-pfconnector package
-	make DESTDIR=$(CURDIR)/debian/packetfence-pfconnector pfconnector_install
+	# packetfence-pfconnector-remote package
+	make DESTDIR=$(CURDIR)/debian/packetfence-pfconnector-remote pfconnector_remote_install
 
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \

@@ -304,8 +304,8 @@ test_install:
 	done
 
 # -D to create target directories if they don't exist
-.PHONY: pfconnector_install
-pfconnector_install:
+.PHONY: pfconnector_remote_install
+pfconnector_remote_install:
 	#FIXME
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
 	TMPDIR=$(shell mktemp -d)
