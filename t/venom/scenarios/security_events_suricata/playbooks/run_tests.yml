@@ -8,7 +8,6 @@
      - configurator_inline
      - security_event_suricata2
      - security_event_suricata2/teardown
-     - global_teardown
 
   tasks:
     - name: Run Venom testsuites
