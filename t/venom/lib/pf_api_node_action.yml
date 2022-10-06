@@ -14,6 +14,9 @@ steps:
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
   url: 'node/{{.result.mac_address_url_encoded}}{{.input.url_extra}}'
+  #info:
+  #- "{{.result.pf_api_action__items}}"
+  #- "{{.result.pf_api_action_}}"
   vars:
     node_temp:
       from: result.pf_api_action_
@@ -23,3 +26,4 @@ output:
   pf_api_node_dhcp_fingerprint_: "result.pf_api_action__node_dhcp_fingerprint"
   pf_api_node_unregdate_: "result.pf_api_action__node_unregdate"
   pf_api_node_security_event_id_: "result.pf_api_action__node_security_event_id"
+  pf_api_node_items_: "{{.result.pf_api_action__items}}"
