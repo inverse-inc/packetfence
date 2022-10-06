@@ -270,13 +270,16 @@ func (c *Client) Start(ctx context.Context) error {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
 						return
 					}
+					if res.StatusCode != http.StatusOK {
+						fmt.Printf("Invalid status code %d received for remote binds", err)
+					}
 					defer res.Body.Close()
 					apiRemotes := struct {
 						Binds []string
 					}{}
 					err = json.NewDecoder(res.Body).Decode(&apiRemotes)
 					if err != nil {
-						fmt.Printf("Unable to parse remote binds from pfconnector API: %s", err)
+						fmt.Printf("Unable to parse remote binds from pfconnector API: %s\n", err)
 						return
 					}
 					remotes := []*settings.Remote{}
