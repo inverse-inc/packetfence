@@ -19,8 +19,8 @@ steps:
   assertions:
     - result.statuscode ShouldEqual "{{.input.status_code}}"
     - result.bodyjson.__type__ ShouldEqual Map
-  info:
-    - "{{.http_json.items.items0.security_event_id}}"
+  #info:
+  # - "{{.http_json.items.items0.security_event_id}}"
   vars:
     http_json:
       from: result.bodyjson
