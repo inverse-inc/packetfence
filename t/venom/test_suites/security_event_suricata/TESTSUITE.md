@@ -18,7 +18,8 @@ Create a Inline L2 network, start a client on this network and test.
 1. Authenticate on the portal
 1. Test if the device is in the registered and role ID1 ipset set
 1. Test internet access by trying to reach cnn.com
-1. Trigger a violation on the node
+1. Set Suricata configuration
+1. Load a Suricata event and trigger the security event
 1. Test if the device is in the Isolation ipset set
 1. Release the violation on the node
 1. Test if the device is in the registered ipset set
@@ -32,3 +33,5 @@ Create a Inline L2 network, start a client on this network and test.
 1. Deconfigure interfaceSNAT (network and inline)
 1. Restart services related to inline setup
 1. Remove Inline L2 network (remove virtual ethernet interfaces, bridge and tap)
+1. Remove extra files
+1. Remove suricata configuration
