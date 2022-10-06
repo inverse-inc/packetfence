@@ -133,7 +133,7 @@
           </b-media>
         </template>
       </multiselect>
-      <template v-slot:prepend>
+      <template v-slot:prepend v-if="$slots.prepend || (inputPlaceholder && isEmpty)">
         <slot  v-if="$slots.prepend" name="prepend"></slot>
         <b-button v-if="inputPlaceholder && isEmpty"
           class="input-group-text"

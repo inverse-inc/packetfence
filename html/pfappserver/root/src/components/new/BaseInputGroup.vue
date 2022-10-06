@@ -80,28 +80,40 @@ export default {
 <style lang="scss">
 .base-input-group,
 .input-group {
-  & > div,
+  & > div:not([class*="base-input"]),
   & > input,
+  & > button,
   & > .input-group-append,
   & > .input-group-prepend {
     transition: border-color .3s;
-    border-top: 1px solid transparent;
-    border-right: 0px;
-    border-bottom: 1px solid transparent;
-    border-left: 0px;
-
+    border-top: 1px solid $input-border-color;
+    border-bottom: 1px solid $input-border-color;
+    &:not(:first-child) {
+      border-left: 0px;
+    }
     &:first-child {
       border-top-left-radius: $border-radius !important;
       border-bottom-left-radius: $border-radius !important;
-      border-left: 1px solid transparent;
+      &:not(:focus) {
+        border-left: 1px solid $input-border-color;
+      }
+    }
+    &:not(:last-child) {
+      border-right: 0px;
     }
     &:last-child {
       border-top-right-radius: $border-radius !important;
       border-bottom-right-radius: $border-radius !important;
-      border-right: 1px solid transparent;
+      &:not(:focus) {
+        border-right: 1px solid $input-border-color;
+      }
+    }
+    & + input {
+      border-left: 1px solid $input-border-color;
     }
   }
   &.is-focus > div,
+  &.is-focus > button,
   &.is-focus > input,
   &.is-focus > textarea {
     border-color: $input-focus-border-color !important;
@@ -110,6 +122,7 @@ export default {
     color: $input-focus-border-color;
   }
   &.is-invalid > div,
+  &.is-invalid > button,
   &.is-invalid > input,
   &.is-invalid > textarea {
     border-color: $form-feedback-invalid-color !important;
@@ -118,6 +131,7 @@ export default {
     color: $form-feedback-invalid-color;
   }
   &.is-valid > div,
+  &.is-valid > button,
   &.is-valid > input,
   &.is-valid > textarea {
     border-color: $form-feedback-valid-color !important;
