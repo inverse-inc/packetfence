@@ -108,6 +108,23 @@ testcases:
       - result.statuscode ShouldEqual 201
 
 
+- name: add_range_in_fencing
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/fencing'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "fencing",
+        "range": "192.168.2.0/24"
+      }
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
 # restart pfqueue et pf detect
 - name: restart_service_pfqueue
   steps:

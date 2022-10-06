@@ -5,12 +5,10 @@
 
   vars:
     test_suites:
-      - configurator
-      - global_config
-      - security_event_suricata/prepare
-      - security_event_suricata/verify
-      - security_event_suricata/teardown
-      - global_teardown
+     - configurator_inline
+     - security_event_suricata2
+     - security_event_suricata2/teardown
+     - global_teardown
 
   tasks:
     - name: Run Venom testsuites

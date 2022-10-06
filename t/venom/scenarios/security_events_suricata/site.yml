@@ -5,6 +5,6 @@
 - import_playbook: playbooks/rsync.yml
   when: lookup("env", "CI") != 'true'
 
-#- import_playbook: playbooks/configure.yml
+- import_playbook: playbooks/configure.yml
 
 - import_playbook: playbooks/run_tests.yml
