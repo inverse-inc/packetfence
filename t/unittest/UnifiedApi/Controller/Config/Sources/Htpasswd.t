@@ -63,7 +63,7 @@ $t->post_ok("$collection_base_url" =>
   )
   ->status_is(201);
 
-my $file = "/usr/local/pf/conf/uploads/authentication/${id1}_path_upload.conf";
+my $file = "/usr/local/pf/conf/uploads/sources/${id1}_path_upload.conf";
 
 $t->get_ok("$base_url/$id1")
   ->status_is(200)
@@ -71,7 +71,11 @@ $t->get_ok("$base_url/$id1")
 ;
 
 ok(-e $file, "$file was saved");
-is($content, read_file($file), "File is saved $file properly");
+if (-e $file) {
+    is($content, read_file($file), "File is saved $file properly");
+} else {
+    fail("File is saved $file properly");
+}
 
 $t->post_ok("$collection_base_url" =>
     json => {
