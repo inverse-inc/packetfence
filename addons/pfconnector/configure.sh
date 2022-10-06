@@ -27,17 +27,17 @@ echo "=================================================================="
 
 echo "Configuring connector with ID '$connector_id' and secret '$secret'"
 
-echo "AUTH=$connector_id:$secret" > /etc/pfconnector-client.env
+echo "AUTH=$connector_id:$secret" > /usr/local/pfconnector-remote/conf/pfconnector-client.env
 
 echo "Please enter the URL of the pfconnector server"
 echo "Usually looks like: https://packetfence.example:1443/api/v1/pfconnector/tunnel"
 echo -n "Enter URL: "
 read connector_server
 
-echo "HOST=$connector_server" >> /etc/pfconnector-client.env
+echo "HOST=$connector_server" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 
 if ! prompt "Should the pfconnector server TLS certificate be validated?"; then
-  echo "TLS_SKIP_VERIFY=true" >> /etc/pfconnector-client.env
+  echo "TLS_SKIP_VERIFY=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env
 fi
 
-echo "FETCH_REMOTES_VIA_API=true" >> /etc/pfconnector-client.env
+echo "FETCH_REMOTES_VIA_API=true" >> /usr/local/pfconnector-remote/conf/pfconnector-client.env

@@ -6,9 +6,18 @@
 #
 PREFIX = /usr/local
 PF_PREFIX = $(PREFIX)/pf
+PFCONNECTOR_PREFIX = $(PREFIX)/pfconnector-remote
+
+# PF
 BINDIR = $(PF_PREFIX)/bin
 SBINDIR = $(PF_PREFIX)/sbin
 TESTDIR = $(PF_PREFIX)/t
+
+# PF connector
+PFCONNECTOR_BINDIR = $(PFCONNECTOR_PREFIX)/bin
+PFCONNECTOR_CONFDIR = $(PFCONNECTOR_PREFIX)/conf
+PFCONNECTOR_LOGDIR = $(PFCONNECTOR_PREFIX)/logs
+
 # source dirs
 # hack to get directory of config.mk from any Makefile in source tree
 # even if make is called with -C

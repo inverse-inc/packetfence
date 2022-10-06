@@ -101,7 +101,7 @@ echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullsey
 wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
 apt update
 apt install packetfence-pfconnector
-/usr/local/bin/pfconnector-configure
+/usr/local/pfconnector-remote/bin/pfconnector-configure
 ----
 
 When executing the last command, note down the Connector ID.
@@ -116,7 +116,7 @@ https://NODE_BALANCER_IP:1443/api/v1/pfconnector/tunnel
 
 If you configured a HTTP certificate signed by a public CA on PacketFence webadmin, you can answer `Yes` to the next question.
 
-A configuration file will be created in [filename]`/etc/pfconnector-client.env`
+A configuration file will be created in [filename]`/usr/local/pfconnector-remote/conf/pfconnector-client.env`
 
 Finally, restart the packetfence-pfconnector-remote service:
 
