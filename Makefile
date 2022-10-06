@@ -303,18 +303,19 @@ test_install:
 	    cp -v --no-dereference $$link $(DESTDIR)$(PF_PREFIX)/$$link ; \
 	done
 
+# -D to create target directories if they don't exist
 .PHONY: pfconnector_install
 pfconnector_install:
 	#FIXME
-	install -d m0755 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
-	install -v -m 0644 $(TMPDIR)/pfconnector-client.env -D $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
-	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-pfconnector-remote.service -D $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
-	install -v -m 0644 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
+	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
+	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
+	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
 	make -C $(SRC_GODIR) pfconnector
-	cp $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
-
+	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
 
 # packetfence-export package
 .PHONY: distclean-packetfence-export

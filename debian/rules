@@ -272,9 +272,6 @@ binary-arch: build install
 	# packetfence-upgrade pkg
 	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-upgrade/*.sh
 	chmod 0755 $(CURDIR)/debian/packetfence-upgrade$(PREFIX)/$(NAME)/addons/full-upgrade/hooks/*.sh
-	# packetfence-pfconnector pkg
-	chmod 0755 $(CURDIR)/debian/packetfence-pfconnector$(PREFIX)/pfconnector-remote/bin/pfconnector-configure
-	chmod 0755 $(CURDIR)/debian/packetfence-pfconnector$(PREFIX)/pfconnector-remote/bin/pfconnector
 
 	# packetfence-test pkg
 	# t
