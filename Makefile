@@ -308,12 +308,12 @@ test_install:
 pfconnector_remote_install:
 	# logrotate config is installed through dh_installlogrotate
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
-	install -v -m 0644 $(SRC_ROOT_DIR)/packetfence-pfconnector-remote.logrotate-drop-in.service -D $(DESTDIR)/etc/systemd/system/logrotate.service.d/override.conf
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.logrotate-drop-in.service -D $(DESTDIR)/etc/systemd/system/logrotate.service.d/override.conf
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
 	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
-	install -v -m 0644 $(SRC_SYSTEMD_DIR)/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
+	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
