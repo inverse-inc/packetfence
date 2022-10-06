@@ -44,6 +44,7 @@
   </component>
 </template>
 <script>
+import BaseFormGroupInput, { props as BaseFormGroupInputProps } from './BaseFormGroupInput'
 import BaseButtonUpload, { props as BaseButtonUploadProps } from './BaseButtonUpload'
 const components = {
   BaseButtonUpload
@@ -58,6 +59,7 @@ import { utf8ToBase64 } from '@/utils/strings'
 import i18n from '@/utils/locale'
 
 export const props = {
+  ...BaseFormGroupInputProps,
   ...BaseButtonUploadProps,
 
   // overload encode(ing)
@@ -73,7 +75,8 @@ export const props = {
   ...useInputValueProps,
 
   component: {
-    type: Object
+    type: Object,
+    default: () => BaseFormGroupInput
   },
   title: {
     type: String,

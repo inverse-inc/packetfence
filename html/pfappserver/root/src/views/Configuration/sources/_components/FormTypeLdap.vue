@@ -119,17 +119,20 @@
 
       <base-form-tab :title="$i18n.t('Certificates')">
         <form-group-client-cert-file namespace="client_cert_file"
-          :column-label="$i18n.t('Client Certificate')"
+          :column-label="$i18n.t('Client Certificate File')"
+          :title="$i18n.t('Upload Client Certificate File')"
           :text="$i18n.t('Path to the client certificate if a client certificate is required.')"
         />
 
         <form-group-client-key-file namespace="client_key_file"
-          :column-label="$i18n.t('Client Key')"
+          :column-label="$i18n.t('Client Key File')"
+          :title="$i18n.t('Upload Client Key File')"
           :text="$i18n.t('Path to the client key if a client certificate is required.')"
         />
 
         <form-group-ca-file namespace="ca_file"
           :column-label="$i18n.t('CA File')"
+          :title="$i18n.t('Upload CA File')"
           :text="$i18n.t('Path to file with additional Certificate Authorities')"
         />
       </base-form-tab>

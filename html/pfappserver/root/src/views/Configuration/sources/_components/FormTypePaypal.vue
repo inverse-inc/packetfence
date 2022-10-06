@@ -35,17 +35,20 @@
     />
 
     <form-group-cert-file namespace="cert_file"
-      :column-label="$i18n.t('Cert file')"
+      :column-label="$i18n.t('Certificate File')"
+      :title="$i18n.t('Upload Certificate File')"
       :text="$i18n.t('The path to the certificate you submitted to Paypal.')"
     />
 
     <form-group-key-file namespace="key_file"
-      :column-label="$i18n.t('Key file')"
+      :column-label="$i18n.t('Key File')"
+      :title="$i18n.t('Upload Key File')"
       :text="$i18n.t('The path to the associated key of the certificate you submitted to Paypal.')"
     />
 
     <form-group-paypal-cert-file namespace="paypal_cert_file"
-      :column-label="$i18n.t('Paypal cert file')"
+      :column-label="$i18n.t('Paypal Certificate File')"
+      :title="$i18n.t('Upload Paypal Certificate File')"
       :text="$i18n.t('The path to the Paypal certificate you downloaded.')"
     />
 

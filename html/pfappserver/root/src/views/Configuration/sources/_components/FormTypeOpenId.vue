@@ -138,7 +138,6 @@ const components = {
   FormGroupSite,
   FormGroupScope,
   FormGroupUsernameAttribute,
-
 }
 
 import { useForm as setup, useFormProps as props } from '../_composables/useForm'
