@@ -17,6 +17,7 @@ TESTDIR = $(PF_PREFIX)/t
 PFCONNECTOR_BINDIR = $(PFCONNECTOR_PREFIX)/bin
 PFCONNECTOR_CONFDIR = $(PFCONNECTOR_PREFIX)/conf
 PFCONNECTOR_LOGDIR = $(PFCONNECTOR_PREFIX)/logs
+PFCONNECTOR_UPGRADEDIR = $(PFCONNECTOR_PREFIX)/upgrade
 
 # source dirs
 # hack to get directory of config.mk from any Makefile in source tree

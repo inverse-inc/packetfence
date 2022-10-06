@@ -314,6 +314,7 @@ pfconnector_remote_install:
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
 	install -v -m 0600 $(TMPDIR)/pfconnector-client.env $(DESTDIR)$(PFCONNECTOR_CONFDIR)/pfconnector-client.env
 	install -v -m 0644 $(SRC_PFCONNECTORDIR)/systemd/packetfence-pfconnector-remote.service $(DESTDIR)/etc/systemd/system/packetfence-pfconnector-remote.service
+	install -v -m 0755 $(SRC_PFCONNECTORDIR)/upgrade/remove-unpackaged-pfconnector.sh -D $(DESTDIR)$(PFCONNECTOR_UPGRADEDIR)/remove-unpackaged-pfconnector.sh
 	install -v -m 0755 $(SRC_PFCONNECTORDIR)/configure.sh -D $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector-configure
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
