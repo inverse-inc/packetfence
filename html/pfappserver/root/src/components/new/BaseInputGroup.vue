@@ -82,7 +82,6 @@ export default {
 .input-group {
   & > div:not([class*="base-input"]),
   & > input,
-  & > button,
   & > .input-group-append,
   & > .input-group-prepend {
     transition: border-color .3s;
@@ -113,7 +112,6 @@ export default {
     }
   }
   &.is-focus > div,
-  &.is-focus > button,
   &.is-focus > input,
   &.is-focus > textarea {
     border-color: $input-focus-border-color !important;
@@ -122,7 +120,6 @@ export default {
     color: $input-focus-border-color;
   }
   &.is-invalid > div,
-  &.is-invalid > button,
   &.is-invalid > input,
   &.is-invalid > textarea {
     border-color: $form-feedback-invalid-color !important;
@@ -131,7 +128,6 @@ export default {
     color: $form-feedback-invalid-color;
   }
   &.is-valid > div,
-  &.is-valid > button,
   &.is-valid > input,
   &.is-valid > textarea {
     border-color: $form-feedback-valid-color !important;
