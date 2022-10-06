@@ -306,8 +306,9 @@ test_install:
 # -D to create target directories if they don't exist
 .PHONY: pfconnector_remote_install
 pfconnector_remote_install:
-	#FIXME
+	# logrotate config is installed through dh_installlogrotate
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_LOGDIR)
+	install -v -m 0644 $(SRC_ROOT_DIR)/packetfence-pfconnector-remote.logrotate-drop-in.service -D $(DESTDIR)/etc/systemd/system/logrotate.service.d/override.conf
 	TMPDIR=$(shell mktemp -d)
 	touch $(TMPDIR)/pfconnector-client.env
 	install -v -d -m0750 $(DESTDIR)$(PFCONNECTOR_CONFDIR)
