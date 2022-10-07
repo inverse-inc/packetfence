@@ -379,8 +379,11 @@ github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae h1:Q06vHrLqah
 github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae/go.mod h1:B89ocJt+mdgvXbYGP2Rvh0e6ZoMJQ1j09lQFGqE2D/Y=
 github.com/inverse-inc/pkcs7 v0.0.0-20210506124822-140ab7b963b3 h1:YAWsp7d4RknQd5gZJRo7yxTge444bTKOYmC0nj7OR1I=
 github.com/inverse-inc/pkcs7 v0.0.0-20210506124822-140ab7b963b3/go.mod h1:adBgAyadl5D9Mz9rhkQyzZpwcUK9eXdKslXH4oImbB0=
+github.com/inverse-inc/pkcs7 v0.0.0-20221007184446-739fb7dad187/go.mod h1:EfeT8OW+dVA+SNdc/FVftfHU+v7vu5vMckVQSxq9CJA=
 github.com/inverse-inc/scep v0.0.0-20220616202131-aafda39f7dd7 h1:FVTEP/eZiu0gLUXvcSmXtmx97Pp+PzbNS2IjLAtFk+g=
 github.com/inverse-inc/scep v0.0.0-20220616202131-aafda39f7dd7/go.mod h1:YiFGmEvc2lMnwT6Gh9ity1SWgdyXojOIjD35JMiDRpQ=
+github.com/inverse-inc/scep v0.0.0-20221007185838-e978f1bf6b97 h1:1b8IbKdHUpC6Sh3wCCdilGKDyXsXOccxiMexk3SmxL4=
+github.com/inverse-inc/scep v0.0.0-20221007185838-e978f1bf6b97/go.mod h1:Fa0J36nMSxuIXVSy4t53wLfIQGhBW836i5m5X3X+42Q=
 github.com/jcuga/golongpoll v1.1.0 h1:2CWYEd5sH23aOxzMZ9xw5yjiZC8XdNG5wa70+KBkJrQ=
 github.com/jcuga/golongpoll v1.1.0/go.mod h1:sM63poxLraGZiLM83pQwKL3GbcPxWaxWcD7Hj94CcBc=
 github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a h1:BcF8coBl0QFVhe8vAMMlD+CV8EISiu9MGKLoj6ZEyJA=

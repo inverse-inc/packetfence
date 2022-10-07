@@ -46,7 +46,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
-	github.com/inverse-inc/scep v0.0.0-20220616202131-aafda39f7dd7
+	github.com/inverse-inc/scep v0.0.0-20221007185838-e978f1bf6b97
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
@@ -128,7 +128,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
 	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
-	github.com/inverse-inc/pkcs7 v0.0.0-20210506124822-140ab7b963b3 // indirect
+	github.com/inverse-inc/pkcs7 v0.0.0-20221007184446-739fb7dad187 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
