@@ -1,6 +1,6 @@
-# Inline L2
+# Security Event Suricata
 
-Create a Inline L2 network, start a client on this network and test.
+Create a Inline L2 network, start a client on this network apply a security suricata event, tests.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ Create a Inline L2 network, start a client on this network and test.
 1. Set Suricata configuration
 1. Load a Suricata event and trigger the security event
 1. Test if the device is in the Isolation ipset set
-1. Release the violation on the node
+1. Release the security event on the node
 1. Test if the device is in the registered ipset set
 1. Change the role of the device to guest
 1. Test if the device is in the role ID 2 ipset set
@@ -33,5 +33,5 @@ Create a Inline L2 network, start a client on this network and test.
 1. Deconfigure interfaceSNAT (network and inline)
 1. Restart services related to inline setup
 1. Remove Inline L2 network (remove virtual ethernet interfaces, bridge and tap)
-1. Remove extra files
 1. Remove suricata configuration
+1. Remove extra files
