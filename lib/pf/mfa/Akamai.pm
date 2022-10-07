@@ -151,7 +151,7 @@ sub check_user {
             return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
        }
     }
-    elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
+    elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password' || $self->radius_mfa_method eq 'sms' || $self->radius_mfa_method eq 'phone') {
         if (defined $otp) {
             if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
                 if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
@@ -161,6 +161,7 @@ sub check_user {
                     return $FALSE;
                 }
             } elsif ($otp =~ /^\d{8,8}$/) {
+                    $logger->info("Otp verification");
                     return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp);
             } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
                 my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
@@ -176,6 +177,16 @@ sub check_user {
             } else {
                 $logger->warn("Method not supported");
                 return $FALSE;
+            }
+        } elsif ($self->radius_mfa_method eq 'sms' || $self->radius_mfa_method eq 'phone') {
+            my @device = $self->select_phone($devices->{'result'}->{'devices'}, undef);
+            foreach my $device (@device) {
+                if ( grep $_ =~ $METHOD_ALIAS{$self->radius_mfa_method}, @{$device->{'methods'}}) {
+                    return $ACTIONS{$self->radius_mfa_method}->($self,$device->{'device'},$username,$self->radius_mfa_method);
+                } else {
+                    $logger->warn("Unsuported method on device ".$device->{'name'});
+                    return $FALSE;
+                }
             }
         } else {
             $logger->error("OTP is empty");
@@ -228,7 +239,7 @@ sub totp {
         return $FALSE;
     }
     if ($auth->{'result'}->{'status'} eq 'allow') {
-        $logger->warn("Authentication sucessfull on Akamai MFA");
+        $logger->info("Authentication sucessfull on Akamai MFA");
         return $TRUE;
     }
     $logger->warn("Authentication denied on Akamai MFA, reason: ". $auth->{'result'}->{'status'}->{'deny'}->{'reason'});
@@ -287,6 +298,7 @@ sub push {
     my $i = 0;
     while($TRUE) {
         my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+        return $FALSE if $error;
         if ($answer->{'result'} eq 'allow') {
             return $TRUE;
         }
@@ -308,8 +320,12 @@ sub check_auth {
     if (my $infos = cache->get($username)) {
         my $post_fields = encode_json({tx => $infos->{'tx'}, user_input => $otp});
         my ($return, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$infos->{'tx'}."&user_input=".$otp);
+        return $FALSE if $error;
         if ($return->{'result'} eq 'allow') {
+            $logger->info("Authentication successfull");
             return $TRUE;
+        } else {
+            return $FALSE;
         }
     }
 }
