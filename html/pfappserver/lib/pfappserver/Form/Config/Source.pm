@@ -404,9 +404,16 @@ sub getSourceArgs {
     if (!defined ($args) || keys %$args == 0 ) {
         $args = $self->init_object;
     }
+
     for my $name (keys %$args) {
         my $field = $self->field($name);
         next unless $field;
+        my $accessor = $field->accessor;
+        if ($accessor ne $name) {
+            if (!exists $args->{$accessor}) {
+                $args->{$accessor} = delete $args->{$name};
+            }
+        }
         # Deflate the duration fields
         # To avoid dummy sources from not being created
         if ($field->type eq 'Duration') {

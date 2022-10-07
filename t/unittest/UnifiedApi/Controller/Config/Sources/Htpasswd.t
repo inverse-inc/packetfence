@@ -61,9 +61,29 @@ $t->post_ok("$collection_base_url" =>
         id   => $id1,
         path_upload => encode_base64($content),
         description => "Test",
+        authentication_rules =>  [
+            {
+                "actions" =>  [
+                    {
+                        "type" =>  "set_role",
+                        "value" =>  "default"
+                    },
+                    {
+                        "type" =>  "set_access_duration",
+                        "value" =>  "1h"
+                    }
+                ],
+                "conditions" =>  [],
+                "description" =>  "Heelo",
+                "id" =>  "qwqw",
+                "match" =>  "all",
+                "status" =>  "enabled"
+            }
+        ],
     }
   )
   ->status_is(201);
+
 
 my $file = "/usr/local/pf/conf/uploads/sources/${id1}_path_upload.conf";
 
