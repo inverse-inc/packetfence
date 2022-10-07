@@ -169,12 +169,6 @@ security_events_deb11:
 	SCENARIOS_TO_RUN=security_events \
 	$(MAKE_TARGET)
 
-security_events_suricata_deb11:
-	make \
-        PF_VM_NAMES=pfdeb11$(DEV_ENV) \
-        SCENARIOS_TO_RUN=security_events_suricata \
-        $(MAKE_TARGET)
-
 cli_login_el8:
 	make \
 	PF_VM_NAMES=pfel8$(DEV_ENV) \
