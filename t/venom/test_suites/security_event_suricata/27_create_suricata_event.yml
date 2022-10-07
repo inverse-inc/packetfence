@@ -1,6 +1,6 @@
 name: Create event in fifo
 testcases:
-- name: get_node01_dhcp_on_reg
+- name: get_node01_current_ip
   steps:
   - type: pf_api_nodes_search_mac_address_online
     fields: "ip4log.ip"
