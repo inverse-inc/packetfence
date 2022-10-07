@@ -1,4 +1,4 @@
-name: Create the event
+name: Create event in fifo
 testcases:
 - name: get_node01_dhcp_on_reg
   steps:
