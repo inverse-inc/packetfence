@@ -1,4 +1,4 @@
-name: SecurityEventAutoreg
+name: Security Event Suricata Clean
 testcases:
 - name: delete_security_event
   steps:
