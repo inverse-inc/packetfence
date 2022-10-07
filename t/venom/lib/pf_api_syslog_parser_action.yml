@@ -13,4 +13,4 @@ steps:
   url: 'config/syslog_parser/{{.input.id}}'
   time_to_sleep: "{{.input.time_to_sleep}}"
 output:
-  pf_api_realm_action_: "{{.result.pf_api_action_}}"
+  pf_api_syslog_parser_action_: "{{.result.pf_api_action_}}"
