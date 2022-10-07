@@ -59,6 +59,7 @@ $t->post_ok("$collection_base_url" =>
     json => {
         type => 'Htpasswd',
         id   => $id1,
+        path => undef,
         path_upload => encode_base64($content),
         description => "Test",
         authentication_rules =>  [

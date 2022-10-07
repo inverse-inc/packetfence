@@ -24,6 +24,7 @@ use pfappserver::Form::Field::DynamicList;
 use pfappserver::Base::Form::Authentication::Action;
 
 use pf::log;
+use Clone;
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::config qw(%connection_group %connection_type);
@@ -405,12 +406,13 @@ sub getSourceArgs {
         $args = $self->init_object;
     }
 
+    $args = Clone::clone($args);
     for my $name (keys %$args) {
         my $field = $self->field($name);
         next unless $field;
         my $accessor = $field->accessor;
         if ($accessor ne $name) {
-            if (!exists $args->{$accessor}) {
+            if (!exists $args->{$accessor} || !defined $args->{$accessor}) {
                 $args->{$accessor} = delete $args->{$name};
             }
         }
@@ -424,12 +426,14 @@ sub getSourceArgs {
             }
         }
     }
+
     for my $r (qw(realms searchattributes sources local_realm reject_realm eduroam_radius_auth)) {
         $args->{$r} //= [];
         if (ref($args->{$r}) ne "ARRAY" ) {
             $args->{$r} = [$args->{$r}];
         }
     }
+
     return $args;
 }
 

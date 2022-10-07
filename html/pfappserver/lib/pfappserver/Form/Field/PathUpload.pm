@@ -22,6 +22,7 @@ use pf::cluster;
 has upload_namespace => ( is => 'rw', isa => 'Str', required => 1 );
 has config_prefix => ( is => 'rw', isa => 'Str', required => 1 );
 has '+writeonly' => (default => 1);
+has '+noupdate' => (default => 1);
 
 apply [
     {
@@ -31,11 +32,12 @@ apply [
             my $id = $field->parent->field("id")->value;
             my $file = "$conf_uploads/" . $field->upload_namespace . "/${id}_$name" . $field->config_prefix;
             safe_file_update($file, decode_base64($value));
-            eval { pf::cluster::sync([$file]) };
+            eval { pf::cluster::sync_files([$file]) };
             if ($@) {
                 get_logger->error("Error syncing file $file: $@");
             }
 
+            $field->noupdate(0);
             return $file;
         }
     }

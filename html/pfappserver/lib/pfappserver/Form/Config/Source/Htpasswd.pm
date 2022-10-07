@@ -14,6 +14,17 @@ use HTML::FormHandler::Moose;
 use pf::Authentication::Source::HtpasswdSource;
 extends 'pfappserver::Form::Config::Source';
 with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::InternalSource';
+#
+# Form fields
+has_field 'path' =>
+  (
+   type => 'Path',
+   label => 'File Path',
+   required => 0,
+   element_class => ['input-xxlarge'],
+   # Default value needed for creating dummy source
+   default => '',
+  );
 
 # Form fields
 has_field 'path_upload' =>
@@ -27,16 +38,6 @@ has_field 'path_upload' =>
    element_class => ['input-xxlarge'],
   );
 
-# Form fields
-has_field 'path' =>
-  (
-   type => 'Path',
-   label => 'File Path',
-   required => 0,
-   element_class => ['input-xxlarge'],
-   # Default value needed for creating dummy source
-   default => '',
-  );
 
 =head2 validate
 
