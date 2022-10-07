@@ -33,6 +33,15 @@ has_field cert_id =>
    default => '',
   );
 
+has_field cert_file => (
+   type => 'Path',
+   element_class => ['input-xlarge'],
+   default => '',
+   required => 1,
+   tags => { after_element => \&help,
+             help => 'The path to the certificate you submitted to Paypal.' },
+);
+
 has_field 'cert_file_upload' => (
    type => 'PathUpload',
    accessor => 'cert_file',
@@ -43,15 +52,14 @@ has_field 'cert_file_upload' => (
    element_class => ['input-xxlarge'],
 );
 
-has_field cert_file =>
-  (
+has_field key_file => (
    type => 'Path',
    element_class => ['input-xlarge'],
-   default => '',
    required => 1,
+   default => '',
    tags => { after_element => \&help,
-             help => 'The path to the certificate you submitted to Paypal.' },
-  );
+             help => 'The path to the associated key of the certificate you submitted to Paypal.' },
+);
 
 has_field 'key_file_upload' => (
    type => 'PathUpload',
@@ -63,15 +71,14 @@ has_field 'key_file_upload' => (
    element_class => ['input-xxlarge'],
 );
 
-has_field key_file =>
-  (
+has_field paypal_cert_file => (
    type => 'Path',
    element_class => ['input-xlarge'],
    required => 1,
    default => '',
    tags => { after_element => \&help,
-             help => 'The path to the associated key of the certificate you submitted to Paypal.' },
-  );
+             help => 'The path to the Paypal certificate you downloaded.' },
+);
 
 has_field 'paypal_cert_file_upload' => (
    type => 'PathUpload',
@@ -82,16 +89,6 @@ has_field 'paypal_cert_file_upload' => (
    upload_namespace => 'sources',
    element_class => ['input-xxlarge'],
 );
-
-has_field paypal_cert_file =>
-  (
-   type => 'Path',
-   element_class => ['input-xlarge'],
-   required => 1,
-   default => '',
-   tags => { after_element => \&help,
-             help => 'The path to the Paypal certificate you downloaded.' },
-  );
 
 has_field email_address =>
   (

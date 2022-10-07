@@ -240,16 +240,6 @@ has_field verify => (
     ],
 );
 
-has_field 'client_cert_file_upload' => (
-   type => 'PathUpload',
-   accessor => 'client_cert_file',
-   config_prefix => '.crt',
-   label => 'File Upload',
-   required => 0,
-   upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
-);
-
 has_field client_cert_file => (
     type => 'Path',
     label => 'Client Certificate',
@@ -257,10 +247,10 @@ has_field client_cert_file => (
     default => $META->get_attribute('client_cert_file')->default,
 );
 
-has_field 'client_key_file_upload' => (
+has_field 'client_cert_file_upload' => (
    type => 'PathUpload',
-   accessor => 'client_key_file',
-   config_prefix => '.key',
+   accessor => 'client_cert_file',
+   config_prefix => '.crt',
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
@@ -274,10 +264,10 @@ has_field client_key_file => (
     default => $META->get_attribute('client_key_file')->default,
 );
 
-has_field 'ca_file_upload' => (
+has_field 'client_key_file_upload' => (
    type => 'PathUpload',
-   accessor => 'ca_file',
-   config_prefix => '.crt',
+   accessor => 'client_key_file',
+   config_prefix => '.key',
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
@@ -289,6 +279,16 @@ has_field ca_file => (
     label => 'CA File',
     file_type => 'file',
     default => $META->get_attribute('ca_file')->default,
+);
+
+has_field 'ca_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_file',
+   config_prefix => '.crt',
+   label => 'File Upload',
+   required => 0,
+   upload_namespace => 'sources',
+   element_class => ['input-xxlarge'],
 );
 
 has '+dependency' => (
