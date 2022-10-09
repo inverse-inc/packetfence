@@ -46,7 +46,7 @@ ip=172.105.12.210
 [cluster-1]
 management_ip=192.168.139.40
 
-[cluster-1 interface eht0]
+[cluster-1 interface eth0]
 ip=192.168.139.40
 
 [cluster-2]
