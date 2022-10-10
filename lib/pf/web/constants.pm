@@ -146,9 +146,10 @@ Apache config.
 =cut
 
 Readonly::Hash our %CAPTIVE_PORTAL_STATIC_ALIASES => (
-    '/common/'      => '/html/common/',
-    '/content/'     => '/html/captive-portal/content/',
-    '/favicon.ico'  => '/html/common/favicon.ico',
+    '/common/'                => '/html/common/',
+    '/content/'               => '/html/captive-portal/content/',
+    '/profile-templates/'     => '/html/captive-portal/profile-templates/',
+    '/favicon.ico'            => '/html/common/favicon.ico',
 );
 
 =item CAPTIVE_PORTAL_RESOURCES
