@@ -9,7 +9,7 @@ Create a Inline L2 network, start a client on this network apply a security suri
 
 ## Scenario steps
 1. Enable the interface inlinel2 as a inlinel2 interface
-1. Configure the network 192.168.2.0 to lower the lease time
+1. Configure the network 192.168.3.0 to lower the lease time
 1. Create a user to use to authenticate on the portal
 1. Configure interfaceSNAT (network and inline) to allow internet access for the client once registered
 1. Restart services associated to inline configuration
@@ -23,8 +23,6 @@ Create a Inline L2 network, start a client on this network apply a security suri
 1. Test if the device is in the Isolation ipset set
 1. Release the security event on the node
 1. Test if the device is in the registered ipset set
-1. Change the role of the device to guest
-1. Test if the device is in the role ID 2 ipset set
 
 ## Teardown steps
 1. Stop the client and remove the systemd script
