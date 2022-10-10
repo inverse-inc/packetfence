@@ -1,4 +1,4 @@
-name: Create autoreg security event
+name: Create Suricata Security event
 testcases:
 # Create the fifo
 - name: create_the_fifo_file
