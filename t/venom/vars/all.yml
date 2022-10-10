@@ -604,6 +604,10 @@ security_event_suricata.syslog_parser.id: 'Suricata'
 security_event_suricata.event.access_duration: '12h'
 security_event_suricata.event.desc: 'ET P2P Kaaza Media'
 security_event_suricata.fifo_file: '/usr/local/pf/var/suricata'
+security_event_suricata.node.macaddress: 02:06:19:98:00:02
+security_event_suricata.node.ipaddress: 192.168.3.10
+security_event_suricata.pf_portal: 192.168.3.1
+security_event_suricata.networks: 192.168.3.0
 
 #################################################################################
 ## inline_l2_and_radius test suite specific variables
