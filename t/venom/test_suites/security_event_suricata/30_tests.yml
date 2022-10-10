@@ -7,14 +7,14 @@ testcases:
 - name: test_if_the_device_is_in_the_isolation_ipset
   steps:
   - type: exec
-    script: 'ipset test pfsession_Isol_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
+    script: 'ipset test pfsession_Isol_{{.security_event_suricata.networks}} {{.security_event_suricata.node.ipaddress}}'
     delay: 5
     retry: 14
 
 - name: get_security_event_id
   steps: 
   - type: pf_api_node_security_events
-    id: "{{.inline_l2.node.macaddress}}"
+    id: "{{.security_event_suricata.node.macaddress}}"
     vars:
       all_events:
         from: result.pf_api_node_security_event_
@@ -31,12 +31,12 @@ testcases:
   steps:
   - type: http
     method: PUT
-    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.inline_l2.node.macaddress}}/close_security_event'
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_suricata.node.macaddress}}/close_security_event'
     ignore_verify_ssl: true
     body: >-
      {
        "security_event_id": "{{.get_event_id.event_id}}",
-       "mac": "{{.inline_l2.node.macaddress}}"
+       "mac": "{{.security_event_suricata.node.macaddress}}"
      }
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
@@ -48,6 +48,6 @@ testcases:
 - name: test_if_the_device_is_in_the_register_ipset
   steps:
   - type: exec
-    script: 'ipset test pfsession_Reg_{{.inline_l2.networks}} {{.inline_l2.node.ipaddress}}'
+    script: 'ipset test pfsession_Reg_{{.security_event_suricata.networks}} {{.security_event_suricata.node.ipaddress}}'
     delay: 10
     retry: 15
