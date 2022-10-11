@@ -1079,7 +1079,7 @@ sub mfa_pre_auth {
     $merged->{'context'} = $pf::constants::realm::RADIUS_CONTEXT;
     my $attributes;
     my $matched = pf::authentication::match2([@$sources], $merged, $$extra, \$attributes);
-
+    my $source_id = \@$sources;
     # Verify if the user succeed the MFA on the portal
     my $value = $matched->{values}{$Actions::TRIGGER_PORTAL_MFA} if $matched;
     if ($value) {
@@ -1088,7 +1088,7 @@ sub mfa_pre_auth {
         if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && $cache->get($args->{'username'}."mfapostauth")) {
             $cache->remove($args->{'username'}."mfapostauth");
             $cache->remove($args->{'username'}."mfapreauth");
-            return $args->{'switch'}->returnAuthorizeVPN($args);
+            return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
         }
         if (isenabled($args->{switch}->{_PostMfaValidation}) && $cache->get($args->{'username'}."mfapreauth") && !$cache->get($args->{'username'}."mfapostauth")) {
             return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA portal verification failed") ];
@@ -1107,7 +1107,7 @@ sub mfa_pre_auth {
                     return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                 } else {
                     if ($caller eq "pf::radius::vpn") {
-                        return $args->{'switch'}->returnAuthorizeVPN($args);
+                        return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
                 } else {
                         return $TRUE;
                     }
@@ -1124,7 +1124,7 @@ sub mfa_pre_auth {
                         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed")];
                     } else {
                         if ($caller eq "pf::radius::vpn") {
-                            return $args->{'switch'}->returnAuthorizeVPN($args);
+                            return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
                         } else {
                             return $TRUE;
                         }
@@ -1136,7 +1136,7 @@ sub mfa_pre_auth {
                         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "MFA verification failed") ];
                     } else {
                         if ($caller eq "pf::radius::vpn") {
-                            return $args->{'switch'}->returnAuthorizeVPN($args);
+                            return $self->returnRadiusVpn($args, $options, $sources, $source_id, $extra);
                         } else {
                             return $TRUE;
                         }

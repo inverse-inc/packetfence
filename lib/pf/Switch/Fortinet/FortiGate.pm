@@ -269,7 +269,7 @@ sub returnAuthorizeVPN {
     if ( isenabled($self->{_VpnMap}) && $self->supportsVPNRoleBasedEnforcement()) {
         $logger->debug("Network device (".$self->{'_id'}.") supports roles. Evaluating role to be returned");
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
-            $role = $self->getRoleByName($args->{'user_role'});
+            $role = $self->getVpnByName($args->{'user_role'});
         }
         if ( defined($role) && $role ne "" ) {
             $radius_reply_ref = {

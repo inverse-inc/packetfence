@@ -773,6 +773,53 @@ sub _parentRoleForWebAuthUrl {
     return $role->{parent_id};
 }
 
+=item getVpnByName
+
+Get the switch-specific role of a given global Vpn role in switches.conf
+
+=cut
+
+sub getVpnByName {
+    my ($self, $roleName) = @_;
+    my $logger = $self->logger;
+
+
+    if (!defined($self->{'_vpn'}) || !defined($self->{'_vpn'}{$roleName})) {
+        my $parent = _parentRoleForVpn($roleName);
+        if (defined $parent && length($parent)) {
+            return $self->getVpnByName($parent);
+        }
+        # VPN name doesn't exist
+        $pf::StatsD::statsd->increment(called() . ".error" );
+        $logger->warn("No parameter ${roleName}Vpn found in conf/switches.conf for the switch " . $self->{_id});
+        return undef;
+    }
+
+    # return if found
+    return $self->{'_vpn'}->{$roleName} if (defined($self->{'_vpn'}->{$roleName}));
+
+    # otherwise log and return undef
+    $logger->trace("(".$self->{_id}.") No parameter ${roleName}Vpn found in conf/switches.conf");
+    return;
+}
+
+sub _parentRoleForVpn {
+    my ($name) = @_;
+    # not yet supported
+    return undef;
+    if (!exists $ConfigRoles{$name}) {
+        return undef;
+    }
+
+    my $role = $ConfigRoles{$name};
+    if (isdisabled($role->{inherit_vpn} // 'disabled')) {
+        return undef;
+    }
+
+    return $role->{parent_id};
+}
+
+
 =item setVlanByName - set the ifIndex VLAN to the VLAN identified by given name in switches.conf
 
 Input: ifIndex, VLAN name (as in switches.conf), switch lock

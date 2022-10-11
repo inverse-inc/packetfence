@@ -86,11 +86,11 @@ sub build_child {
 
         $self->updateReverseLookup($name, $switch, qw(group));
         # transforming vlans and roles to hashes
-        my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} );
+        my %merged = ( Vlan => {}, Role => {}, AccessList => {} , Url => {} , Vpn => {});
         my %roles;
-        foreach my $key ( grep {/(Vlan|Role|AccessList|Url)$/} keys %{$switch} ) {
+        foreach my $key ( grep {/(Vlan|Role|AccessList|Url|Vpn)$/} keys %{$switch} ) {
             next unless my $value = $switch->{$key};
-            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url)$/ ) ) {
+            if ( my ( $type_key, $type ) = ( $key =~ /^(.+)(Vlan|Role|AccessList|Url|Vpn)$/ ) ) {
                 $merged{$type}{$type_key} = $value;
                 $roles{$type_key} = undef;
             }
@@ -104,6 +104,7 @@ sub build_child {
         $switch->{vlans}        = $merged{Vlan};
         $switch->{access_lists} = $merged{AccessList};
         $switch->{urls}         = $merged{Url};
+        $switch->{vpn}          = $merged{Vpn};
         $switch->{VoIPEnabled}  = (
             $switch->{VoIPEnabled} =~ /^\s*(y|yes|true|enabled|1)\s*$/i
             ? 1
