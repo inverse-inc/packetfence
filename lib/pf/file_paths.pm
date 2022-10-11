@@ -116,6 +116,11 @@ our (
     $fingerbank_doc_file,
     $api_i18n_dir,
     $iptable_config_file,
+    $iptable_input_config_file,
+    $iptable_input_management_config_file,
+    $ip6table_config_file,
+    $ip6table_input_config_file,
+    $ip6table_input_management_config_file,
     $ssl_config_file, $ssl_default_config_file,
     $tls_config_file, $tls_default_config_file,
     $ocsp_config_file, $ocsp_default_config_file,
@@ -214,6 +219,11 @@ BEGIN {
         $fingerbank_doc_file
         $api_i18n_dir
         $iptable_config_file
+        $iptable_input_config_file
+        $iptable_input_management_config_file
+        $ip6table_config_file
+        $ip6table_input_config_file
+        $ip6table_input_management_config_file
         $ssl_config_file $ssl_default_config_file
         $tls_config_file $tls_default_config_file
         $ocsp_config_file $ocsp_default_config_file
@@ -338,6 +348,11 @@ $switch_filters_config_file = catfile($conf_dir,"switch_filters.conf");
 $stats_config_file = catfile($conf_dir, "stats.conf");
 $stats_config_default_file = catfile($conf_dir, "stats.conf.defaults");
 $iptable_config_file = catfile($conf_dir, "iptables.conf");
+$iptable_input_config_file = catfile($conf_dir, "iptables-input.conf.inc");
+$iptable_input_management_config_file = catfile($conf_dir, "iptables-input-management.conf.inc");
+$ip6table_config_file = catfile($conf_dir, "ip6tables.conf");
+$ip6table_input_config_file = catfile($conf_dir, "ip6tables-input.conf.inc");
+$ip6table_input_management_config_file = catfile($conf_dir, "ip6tables-input-management.conf.inc");
 $ssl_config_file = catfile($conf_dir,"ssl.conf");
 $ssl_default_config_file = catfile($conf_dir,"ssl.conf.defaults");
 $tls_config_file = catfile($conf_dir,"radiusd/tls.conf");
