@@ -46,7 +46,7 @@ It can be used to automate parts of upgrades or to restore PacketFence installat
 ** [filename]`/usr/local/pf/conf/radiusd/*`
 ** [filename]`/usr/local/pf/conf/log.conf`
 ** [filename]`/usr/local/pf/conf/log.conf.d/*`
-** [filename]`/usr/local/pf/conf/iptables.conf`
+** [filename]`/usr/local/pf/conf/iptables.conf` (but [filename]`/usr/local/pf/conf/iptables-input*.conf` and [filename]`/usr/local/pf/conf/ip6tables-input*.conf` are restored)
 ** [filename]`/usr/local/pf/conf/cluster.conf`
 
 
