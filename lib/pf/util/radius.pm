@@ -46,7 +46,6 @@ use pf::node qw (node_view);
 use pf::util qw (clean_mac);
 use pf::util::radius_dictionary qw($RADIUS_DICTIONARY);
 use pf::factory::connector;
-use pf::config::cluster qw($cluster_enabled);
 use pf::log;
 
 my $default_port = '3799';
@@ -111,15 +110,9 @@ sub perform_dynauth {
 
     if($connection_info->{useConnector}) {
         my $connector = pf::factory::connector->for_ip($host);
-        # Skip using the local connector to do deauth if we're in a cluster since pfconnector will not use the VIP
-        if($cluster_enabled && $connector->id eq pf::factory::connector->local_connector->id) {
-            get_logger->debug("Not using local connector to perform deauth because this is a cluster");            
-        }
-        else {
-            my $connector_conn = $connector->dynreverse("$host:$port/udp");
-            $host = $connector_conn->{host};
-            $port = $connector_conn->{port};
-        }
+        my $connector_conn = $connector->dynreverse("$host:$port/udp");
+        $host = $connector_conn->{host};
+        $port = $connector_conn->{port};
     }
 
     # Warning: original code had Reuse => 1 (Note: Reuse is deprecated in favor of ReuseAddr)
