@@ -196,6 +196,12 @@ Architecture: all
 Description: GPG keys provided by PacketFence project
  GPG keys provided by PacketFence project.
 
+Package: packetfence-pfconnector-remote
+Architecture: all
+Depends: fingerbank-collector-remote (>= 1.4.1)
+Description: PacketFence Connector
+ PacketFence Connector files. This package contains all files related to PacketFence Connector.
+
 Package: packetfence-pfcmd-suid
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}

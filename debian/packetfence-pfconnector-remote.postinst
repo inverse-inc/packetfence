@@ -1,0 +1,48 @@
+#!/bin/sh
+# postinst script for packetfence-pfconnector
+#
+# see: dh_installdeb(1)
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+# Force the LC_CTYPE to C to avoid i18n problems during postinstallation.
+LC_CTYPE=C
+export LC_CTYPE
+
+case "$1" in
+    configure)
+    /usr/local/pfconnector-remote/upgrade/remove-unpackaged-pfconnector.sh
+    /bin/systemctl daemon-reload
+    /bin/systemctl enable packetfence-pfconnector-remote.service
+    if [ -n "$2" ]; then
+        echo "Upgrade detected, restarting packetfence-pfconnector-remote service"
+        /bin/systemctl restart packetfence-pfconnector-remote.service
+    else
+        /bin/systemctl stop packetfence-pfconnector-remote.service
+    fi
+    
+    echo "Connector installation completed"
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+exit 0
