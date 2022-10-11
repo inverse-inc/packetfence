@@ -38,7 +38,7 @@ const tabs = {
     component: RadiusFastSearch
   },
   radiusSsls: {
-    title: 'SSL Certificates', // i18n defer
+    title: 'PKI SSL Certificates', // i18n defer
     component: RadiusSslSearch
   },
   radiusOcsps: {

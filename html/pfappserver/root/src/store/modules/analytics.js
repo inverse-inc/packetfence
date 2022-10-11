@@ -4,6 +4,27 @@
 import mixpanel from 'mixpanel-browser'
 import store from '@/store'
 
+const xlatEvent = event => {
+  const xlat = {
+    '0': 'Zero',
+    '1': 'One',
+    '2': 'Two',
+    '3': 'Three',
+    '4': 'Four',
+    '5': 'Five',
+    '6': 'Six',
+    '7': 'Seven',
+    '8': 'Eight',
+    '9': 'Nine'
+  }
+  for (let i = 0; i < event.length; i++) {
+    if (event[i] in xlat) {
+      event[i] = xlat[event[i]]
+    }
+  }
+  return event
+}
+
 // Default values
 const initialState = () => {
   return {
@@ -68,7 +89,7 @@ const actions = {
                   if (matches) {
                     // eslint-disable-next-line no-unused-vars
                     const [_type, _prefix, event, action] = matches
-                    mixpanel.track(`${event}/${action}`, { ...state.summary, event, action })
+                    mixpanel.track(xlatEvent(`${event}/${action}`), { ...state.summary, event, action })
                   }
                 }
               })
