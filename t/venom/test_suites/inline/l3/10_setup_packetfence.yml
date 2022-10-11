@@ -312,3 +312,9 @@ testcases:
     # let service restarts
   - type: exec
     script: sleep 5
+
+- name: restart_pfqueue_service
+  steps:
+  - type: systemctl_service_restart
+    service: packetfence-pfqueue
+    time_to_sleep: 5
