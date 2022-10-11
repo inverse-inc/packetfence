@@ -64,6 +64,8 @@ use File::Spec::Functions;
 use File::FcntlLock;
 use JSON::MaybeXS;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
+use pf::factory::connector;
+use pf::config::cluster qw($cluster_enabled);
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
     -Cdp
@@ -2729,12 +2731,7 @@ sub radiusDisconnect {
 
     my $response;
     try {
-        my $connection_info = {
-            useConnector => $self->shouldUseConnectorForRadiusDeauth(),
-            nas_ip => $send_disconnect_to,
-            secret => $self->{'_radiusSecret'},
-            LocalAddr => $self->deauth_source_ip($send_disconnect_to),
-        };
+        my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
 
         if (defined($self->{'_disconnectPort'}) && $self->{'_disconnectPort'} ne '') {
             $connection_info->{'nas_port'} = $self->{'_disconnectPort'};
@@ -3159,7 +3156,7 @@ Takes into account the active/active clustering and centralized deauth
 =cut
 
 sub deauth_source_ip {
-    my ($self,$dst_ip) = @_;
+    my ($self,$dst_ip,$using_connector) = @_;
     my $logger = $self->logger();
     my $chi = pf::CHI->new(namespace => 'route_int');
     my $int = $chi->compute($dst_ip, sub {
@@ -3172,7 +3169,7 @@ sub deauth_source_ip {
                                       }
                            );
     if (defined($Config{ 'interface ' . $int })) {
-        if($cluster_enabled){
+        if($cluster_enabled && !$using_connector){
             return (isenabled($Config{active_active}{centralized_deauth}) && isenabled($Config{active_active}{use_vip_for_deauth})) ? 
                 pf::cluster::cluster_ip($int) : 
                 pf::cluster::current_server->{"interface $int"}->{ip};
@@ -3830,6 +3827,33 @@ sub find_user_by_psk {
     my ($self, $radius_request) = @_;
     $self->logger->debug("Unbound DPSK not implemented for this switch module");
     return undef;
+}
+
+sub radius_deauth_connection_info {
+    my ($self, $send_disconnect_to) = @_;
+
+    my $using_connector = $FALSE;
+    if($self->shouldUseConnectorForRadiusDeauth()) {
+        my $connector = pf::factory::connector->for_ip($send_disconnect_to);
+        # Skip using the local connector to do deauth if we're in a cluster since pfconnector will not use the VIP
+        if($cluster_enabled && $connector->id eq pf::factory::connector->local_connector->id) {
+            get_logger->debug("Not using local connector to perform deauth because this is a cluster");            
+        }
+        else {
+            get_logger->info("Will be using connnector ".$connector->id." to perform the deauth");
+            $using_connector = $TRUE;
+        }
+    }
+
+
+    my $connection_info = {
+        useConnector => $using_connector,
+        nas_ip => $send_disconnect_to,
+        secret => $self->{'_radiusSecret'},
+        LocalAddr => $self->deauth_source_ip($send_disconnect_to, $using_connector),
+    };
+
+    return $connection_info;
 }
 
 =back
