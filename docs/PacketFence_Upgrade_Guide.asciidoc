@@ -1316,6 +1316,14 @@ following instructions of
 <<PacketFence_Upgrade_Guide.asciidoc#_packages_upgrades,Packages upgrades
 section>>.
 
+IMPORTANT: If you are on a RHEL/CentOS based systems, the command to install
+`packetfence-release` released with 10.3.0 version will be:
+
+[source,bash]
+----
+https://www.packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.noarch.rpm
+----
+
 ====== Maintenance patches (on node C)
 
 include::common/maintenance_patches.asciidoc[][]
@@ -1349,7 +1357,7 @@ Next, stop all application services on node A and B:
 /usr/local/pf/bin/pfcmd pfconfig clear_backend
 systemctl restart packetfence-config
 /usr/local/pf/bin/pfcmd configreload hard
-/usr/local/pf/bin/pfcmd service pf restart
+/usr/local/pf/bin/pfcmd service pf stop
 ----
 * Stop database:
 +
@@ -1535,6 +1543,14 @@ following instructions of
 section>>.
 
 WARNING: You only need to merge changes of new configuration files that will not be synced by `/usr/local/pf/bin/cluster/sync` command described below.
+
+IMPORTANT: If you are on a RHEL/CentOS based systems, the command to install
+`packetfence-release` released with 10.3.0 version will be:
+
+[source,bash]
+----
+https://www.packetfence.org/downloads/PacketFence/RHEL7/packetfence-release-7.stable.noarch.rpm
+----
 
 ====== Maintenance patches (on nodes A and B)
 
