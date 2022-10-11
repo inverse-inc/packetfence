@@ -83,6 +83,7 @@ Here are the use-cases the pfconnector supports:
  * Performing access reevaluation through the pfconnector (i.e. RADIUS CoA/Disconnect, SNMP, etc)
  * Performing LDAP queries through the pfconnector to an on-premise LDAP server (including Active Directory) for portal and admin interface authentication
  * Authentication against a RADIUS source through the pfconnector to an on-premise RADIUS server for portal and admin interface authentication
+ * Device profiling using the Fingerbank Collector (installed automatically with the pfconnector on 12.1+)
 
 Current limitations:
 
