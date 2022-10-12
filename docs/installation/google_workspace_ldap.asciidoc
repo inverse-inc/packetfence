@@ -31,7 +31,6 @@
     ... Username Attribute: `uid` (unless you've heavily customized your Google Workspace directory)
     ... Email Attribute: `mail` 
     ... Associated Realms: You'll need to match a previously created realm which matches your `example.com` domain. This will let the system strip the domain part when searching for the user and also let the system know which source to use for which specific realms (the @example.com part of the username) are used for each source.
-
-. For Authentication and Administration rules, you can match against google group membership (if you have configured google to allow group membership access - this is done when creating the ldap client on the Google workspace configuration page on Google's side, not on PacketFence). In that case, you want to use the condtionn `memberOf`, a match of `equals` and the value of `cn=mygroupname,ou=Groups,dc=example,dc=com` if your group is called "mygroupname`. Keep in mind that nested group membership does not work via ldap for google workspace.
+  .. For Authentication and Administration rules, you can match against google group membership (if you have configured google to allow group membership access - this is done when creating the ldap client on the Google workspace configuration page on Google's side, not on PacketFence). In that case, you want to use the condtionn `memberOf`, a match of `equals` and the value of `cn=mygroupname,ou=Groups,dc=example,dc=com` if your group is called "mygroupname`. Keep in mind that nested group membership does not work via ldap for google workspace.
   
   
