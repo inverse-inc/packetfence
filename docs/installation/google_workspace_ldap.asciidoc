@@ -22,3 +22,16 @@
     ... Password: The access credentials password
     ... Client Certificate: The .crt file text from the downloaded certificate bundle
     ... Client Key: The .key file text from the downloaded certificate bundle
+  .. You will also need to configure several values for the Authentication Source:
+    ... Host: `ldap.google.com` / Port: `636` / Type: `SSL`
+    ... SSL Verify Mode: `None`
+    ... Base DN: (this is the ldap path for your domain.. usually something like this: `dc=example,dc=com` if your email is @example.com)
+        You might have to add `ou=Users,` as a prefix in some cases, so it would be `ou=Users,dc=example,dc=com` 
+    ... Scope: `Subtree`
+    ... Username Attribute: `uid` (unless you've heavily customized your Google Workspace directory)
+    ... Email Attribute: `mail` 
+    ... Associated Realms: You'll need to match a previously created realm which matches your `example.com` domain. This will let the system strip the domain part when searching for the user and also let the system know which source to use for which specific realms (the @example.com part of the username) are used for each source.
+
+. For Authentication and Administration rules, you can match against google group membership (if you have configured google to allow group membership access - this is done when creating the ldap client on the Google workspace configuration page on Google's side, not on PacketFence). In that case, you want to use the condtionn `memberOf`, a match of `equals` and the value of `cn=mygroupname,ou=Groups,dc=example,dc=com` if your group is called "mygroupname`. Keep in mind that nested group membership does not work via ldap for google workspace.
+  
+  
