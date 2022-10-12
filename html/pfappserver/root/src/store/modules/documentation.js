@@ -2,7 +2,7 @@
 * "documentation" store module
 */
 import Vue from 'vue'
-import { types } from '@/store'
+import store, { types } from '@/store'
 import { documentationCall } from '@/utils/api'
 
 const api = {
@@ -109,12 +109,14 @@ const actions = {
   setPath: ({ commit, state }, path) => {
     if (state.path !== path) {
       commit('SET_PATH', path)
+      store.dispatch('analytics/trackEvent', ['Documentation Path', { path }])
     }
   },
   setHash: ({ commit, state }, hash) => {
     hash = (hash.charAt(0) === '#') ? hash.substr(1) : hash
     if (state.hash !== hash) {
       commit('SET_HASH', hash)
+      store.dispatch('analytics/trackEvent', ['Documentation Hash', { hash }])
     }
   }
 }

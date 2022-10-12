@@ -4,27 +4,6 @@
 import mixpanel from 'mixpanel-browser'
 import store from '@/store'
 
-const xlatEvent = event => {
-  const xlat = {
-    '0': 'Zero',
-    '1': 'One',
-    '2': 'Two',
-    '3': 'Three',
-    '4': 'Four',
-    '5': 'Five',
-    '6': 'Six',
-    '7': 'Seven',
-    '8': 'Eight',
-    '9': 'Nine'
-  }
-  for (let i = 0; i < event.length; i++) {
-    if (event[i] in xlat) {
-      event[i] = xlat[event[i]]
-    }
-  }
-  return event
-}
-
 // Default values
 const initialState = () => {
   return {
@@ -43,7 +22,6 @@ const actions = {
       commit('INIT')
       commit('UNSUBSCRIBE')
       promise = store.dispatch('system/getSummary').then(summary => {
-
         const {
           hostname, // strip PII
           quiet, status, // strip noise
@@ -72,7 +50,7 @@ const actions = {
             disable_persistence:    false,
             disable_cookie:         false,
             secure_cookie:          false,
-            ip:                     true,
+            ip:                     false,
             property_blacklist:     [],
             ignore_dnt:             true,
             debug:                  process.env.VUE_APP_DEBUG === 'true',
@@ -81,25 +59,33 @@ const actions = {
                 const { type } = storeAction
                 const isCollection = type => /^\$_/.test(type) // $_ prefix
                 const isCluster = type => /^cluster\//.test(type) // ^cluster/
-                const isGetter = type => /\/get/.test(type) // /get
-                const isOptions = type => /\/options$/.test(type) // /options$
+                const isGetter = type => /\/get/.test(type) || /\/all$/.test(type) // /get... || /all$
+                const isOptions = type => /\/options/.test(type) // /options, /optionsBy...
                 const isTracked = type => (isCollection(type) || isCluster(type)) && !(isGetter(type) || isOptions(type))
                 if (isTracked(type)) {
-                  const matches = type.match(/^(\$_)?([a-zA-Z]+)\/([a-zA-Z]+)/)
+                  const matches = type.match(/^(\$_)?([a-zA-Z0-9_]+)\/([a-zA-Z0-9]+)/)
                   if (matches) {
                     // eslint-disable-next-line no-unused-vars
                     const [_type, _prefix, event, action] = matches
-                    mixpanel.track(xlatEvent(`${event}/${action}`), { ...state.summary, event, action })
+                    mixpanel.track(`${event}/${action}`, { event, action, ...state.summary })
                   }
                 }
               })
               commit('SUBSCRIBED', unsubscribe)
+              const { git_commit_id, version } = state.summary
+              // prefix _ avoids collision
+              mixpanel.set_group('_version', version)
+              mixpanel.set_group('_git_commit_id', git_commit_id)
             }
           })
         }
       })
     }
     return promise
+  },
+  trackEvent: ({ dispatch, state }, event) => {
+    const [eventName, eventData] = event
+    return dispatch('init').then(() => mixpanel.track(eventName, { ...eventData, ...state.summary }))
   },
   trackRoute: ({ dispatch, state }, route) => {
     return dispatch('init')
@@ -110,7 +96,7 @@ const actions = {
           event.fromName = from.name
         }
         if (from.fullPath) {
-          // strip user-defined dynamic variables
+          // strip user-defined dynamic variables (/:id, /:mac)
           const { matched: fromMatched = [] } = from
           const { [fromMatched.length - 1]: { path: fromPath = from.fullPath } = {} } = fromMatched
           event.fromUrl = fromPath
@@ -119,12 +105,12 @@ const actions = {
           event.toName = to.name
         }
         if (to.fullPath) {
-          // strip user-defined dynamic variables
+          // strip user-defined dynamic variables (/:id, /:mac)
           const { matched: toMatched = [] } = to
           const { [toMatched.length - 1]: { path: toPath = to.fullPath } = {} } = toMatched
           event.toUrl = toPath
         }
-        return mixpanel.track('route', { ...state.summary, ...event })
+        return mixpanel.track('route', { ...event, ...state.summary })
       })
   }
 }

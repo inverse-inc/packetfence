@@ -90,7 +90,7 @@ import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
 
-  const { refs, root: { $router, $store } = {} } = context
+  const { refs, root: { $store } = {} } = context
 
   // template refs
   const refDocument = ref(null)
@@ -148,7 +148,6 @@ const setup = (props, context) => {
 
   const loadDocument = document => {
     $store.dispatch('documentation/setPath', document.name)
-    $store.dispatch('analytics/trackRoute', { to: { fullPath: `${documentationPath}/${document.name}` }, from: $router.currentRoute })
   }
   const initDocument = () => {
     const here = new URL(window.location.href)
@@ -235,13 +234,11 @@ const setup = (props, context) => {
               link.addEventListener('click', (event) => {
                 event.preventDefault()
                 $store.dispatch('documentation/setPath', _path)
-                $store.dispatch('analytics/trackRoute', { to: { fullPath: `${documentationPath}/${_path}` }, from: $router.currentRoute })
               })
             } else if (url.hash.charAt(0) === '#') {
               link.addEventListener('click', (event) => {
                 event.preventDefault()
                 $store.dispatch('documentation/setHash', url.hash.substr(1))
-                $store.dispatch('analytics/trackRoute', { to: { fullPath: `${documentationPath}/${_path}${url.hash}` }, from: $router.currentRoute })
               })
             }
             return
