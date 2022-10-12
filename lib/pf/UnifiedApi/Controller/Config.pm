@@ -398,7 +398,7 @@ sub create {
     }
 
     $item = $self->cleanupItemForCreate($item);
-    (my $status, $item) = $self->validate_item($item);
+    (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);
     }
@@ -410,14 +410,26 @@ sub create {
 
     $cs->create($id, $item);
     return unless($self->commit($cs));
+    my $additional_out = $self->additional_create_out($form, $item);
     $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, json => $self->create_response($id));
+    $self->render(status => 201, json => $self->create_response($id, $additional_out));
+}
+
+sub additional_create_out {
+    my ($self, $form, $item) = @_;
+    my %out;
+    for my $field ($form->fields) {
+        next if $field->type ne 'PathUpload' || $field->noupdate;
+        $out{$field->accessor} = $field->value;
+    }
+
+    return \%out;
 }
 
 sub create_response {
-    my ($self, $id) = @_;
-    return { id => $id, message => "'$id' created" };
+    my ($self, $id, $additional_out) = @_;
+    return { id => $id, message => "'$id' created", %$additional_out };
 }
 
 sub commit {
@@ -445,15 +457,15 @@ sub validate_item {
     $item = $self->cleanupItemForValidate($item);
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        return $status, { message => $form };
+        return $status, { message => $form }, undef;
     }
 
     $form->process($self->form_process_parameters_for_validation($item));
     if (!$form->has_errors) {
-        return 200, $form->value;
+        return 200, $form->value, $form;
     }
 
-    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) };
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) }, undef;
 }
 
 

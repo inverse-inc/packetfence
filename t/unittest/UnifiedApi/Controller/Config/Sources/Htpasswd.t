@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 
 #This test will running last
 use Test::NoWarnings;
@@ -55,6 +55,8 @@ $t->post_ok("$collection_base_url/test" =>
 
 my $content = 'authtest:$apr1$gpI/g6In$SEMJI9kxmLBTzLjM46Ws9.';
 
+my $file = "/usr/local/pf/conf/uploads/sources/${id1}_path_upload.conf";
+
 $t->post_ok("$collection_base_url" =>
     json => {
         type => 'Htpasswd',
@@ -83,10 +85,9 @@ $t->post_ok("$collection_base_url" =>
         ],
     }
   )
-  ->status_is(201);
-
-
-my $file = "/usr/local/pf/conf/uploads/sources/${id1}_path_upload.conf";
+  ->status_is(201)
+  ->json_is("/path", $file);
+  ;
 
 $t->get_ok("$base_url/$id1")
   ->status_is(200)
