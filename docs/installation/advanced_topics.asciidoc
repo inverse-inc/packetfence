@@ -334,7 +334,7 @@ NOTE: A 'portal' interface type is required to use this feature. A 'portal' inte
 
 The Content-Security-Policy HTTP response header tells modern browsers what can be accessed from a generated web page. The default policy is pushed for the captive portal and enforces that everything the browser executes comes from within PacketFence, with the exception of the configured network detection host that is by default the Inverse IP address.
 
-If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP Security Headers_.
+If, for some reason the portal is modified with content that needs to be accessed from PacketFence generated web pages, CSP can be deactivated through _Configuration -> System Configuration -> Main Configuration -> Advanced -> CSP headers for Captive Portal_. Then you need to restart `httpd.portal` service.
 
 === `pfacct`: track bandwidth usage
 
