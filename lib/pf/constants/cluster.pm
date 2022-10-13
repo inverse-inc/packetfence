@@ -30,7 +30,6 @@ use pf::file_paths qw(
     $iptable_input_config_file
     $iptable_input_management_config_file
     $ip6table_config_file
-    $ip6table_input_config_file
     $ip6table_input_management_config_file
     $local_secret_file
     $unified_api_system_pass_file
@@ -54,7 +53,6 @@ our @FILES_TO_SYNC = (
     $iptable_input_config_file,
     $iptable_input_management_config_file,
     $ip6table_config_file,
-    $ip6table_input_config_file,
     $ip6table_input_management_config_file,
     $fingerbank::FilePath::CONF_FILE, 
     $fingerbank::FilePath::LOCAL_DB_FILE
