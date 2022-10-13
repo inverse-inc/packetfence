@@ -121,7 +121,6 @@ const actions = {
   },
   showImage: ({ state }, src) => {
     const parsed = new URL(src)
-console.log(JSON.stringify({ src, parsed }, null, 2), parsed.pathname)
     store.dispatch('analytics/trackEvent', ['Documentation Image', { path: state.path, hash: state.hash, src: parsed.pathname }])
   }
 }
