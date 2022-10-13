@@ -265,6 +265,7 @@ const setup = (props, context) => {
         _image.addEventListener('click', () => {
           image.value = { src: _image.src, alt: _image.alt || _image.src, width, height }
           showImageModal.value = true
+          $store.dispatch('documentation/showImage', _image.src)
         })
       }
     })

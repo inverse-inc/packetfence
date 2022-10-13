@@ -8,15 +8,18 @@ import store from '@/store'
 const initialState = () => {
   return {
     initialized: false,
+    route: {},
     summary: {},
     unsubscribe: () => {},
   }
 }
 
-const getters = {}
+const getters = {
+  route: state => state.route
+}
 
 const actions = {
-  init: ({ commit, state }) => {
+  init: ({ commit, getters, state }) => {
     let promise = new Promise(r => r())
     if (!state.initialized) {
       commit('INIT')
@@ -57,7 +60,7 @@ const actions = {
             loaded: () => {
               const unsubscribe = store.subscribeAction((storeAction, state) => {
                 const { type } = storeAction
-                const isCollection = type => /^\$_/.test(type) // $_ prefix
+                const isCollection = type => /^\$_/.test(type) && !/^\$_status/.test(type) // $_ prefix (not $_status)
                 const isCluster = type => /^cluster\//.test(type) // ^cluster/
                 const isGetter = type => /\/get/.test(type) || /\/all$/.test(type) // /get... || /all$
                 const isOptions = type => /\/options/.test(type) // /options, /optionsBy...
@@ -66,16 +69,16 @@ const actions = {
                   const matches = type.match(/^(\$_)?([a-zA-Z0-9_]+)\/([a-zA-Z0-9]+)/)
                   if (matches) {
                     // eslint-disable-next-line no-unused-vars
-                    const [_type, _prefix, event, action] = matches
-                    mixpanel.track(`${event}/${action}`, { event, action, ...state.summary })
+                    const [_type, _prefix, module, action] = matches
+                    const event = `${module}/${action}`
+                    mixpanel.track(event, { event, module, action, ...getters.route, ...state.summary })
                   }
                 }
               })
               commit('SUBSCRIBED', unsubscribe)
-              const { git_commit_id, version } = state.summary
+              const { version } = state.summary
               // prefix _ avoids collision
               mixpanel.set_group('_version', version)
-              mixpanel.set_group('_git_commit_id', git_commit_id)
             }
           })
         }
@@ -83,34 +86,15 @@ const actions = {
     }
     return promise
   },
-  trackEvent: ({ dispatch, state }, event) => {
+  trackEvent: ({ dispatch, getters, state }, event) => {
     const [eventName, eventData] = event
-    return dispatch('init').then(() => mixpanel.track(eventName, { ...eventData, ...state.summary }))
+    return dispatch('init').then(() => mixpanel.track(eventName, { ...eventData, ...getters.route, ...state.summary }))
   },
-  trackRoute: ({ dispatch, state }, route) => {
+  trackRoute: ({ commit, dispatch, getters, state }, route) => {
     return dispatch('init')
       .then(() => {
-        const { to, from } = route
-        let event = {}
-        if (from.name) {
-          event.fromName = from.name
-        }
-        if (from.fullPath) {
-          // strip user-defined dynamic variables (/:id, /:mac)
-          const { matched: fromMatched = [] } = from
-          const { [fromMatched.length - 1]: { path: fromPath = from.fullPath } = {} } = fromMatched
-          event.fromUrl = fromPath
-        }
-        if (to.name) {
-          event.toName = to.name
-        }
-        if (to.fullPath) {
-          // strip user-defined dynamic variables (/:id, /:mac)
-          const { matched: toMatched = [] } = to
-          const { [toMatched.length - 1]: { path: toPath = to.fullPath } = {} } = toMatched
-          event.toUrl = toPath
-        }
-        return mixpanel.track('route', { ...event, ...state.summary })
+        commit('ROUTE', route)
+        return mixpanel.track('route', { ...getters.route, ...state.summary })
       })
   }
 }
@@ -118,6 +102,39 @@ const actions = {
 const mutations = {
   INIT: (state) => {
     state.initialized = true
+  },
+  ROUTE: (state, route) => {
+    const { to, from } = route
+    let clean = {}
+    if (from.name) {
+      clean.fromName = from.name
+    }
+    if (from.fullPath) {
+      const { matched: fromMatched = [], meta: { track: fromTrack } = {}, path: fromRawPath } = from
+      if (fromTrack) {
+        clean.fromUrl = decodeURIComponent(fromRawPath)
+      }
+      else {
+        // strip user-defined dynamic variables (/:id, /:mac)
+        const { [fromMatched.length - 1]: { path: fromPath = from.fullPath } = {} } = fromMatched
+        clean.fromUrl = fromPath.replace(/\(.*\)$/, '') // remove regex
+      }
+    }
+    if (to.name) {
+      clean.toName = to.name
+    }
+    if (to.fullPath) {
+      const { matched: toMatched = [], meta: { track: toTrack } = {}, path: toRawPath } = to
+      if (toTrack) { // track identifiers
+        clean.toUrl = decodeURIComponent(toRawPath)
+      }
+      else {
+        // strip user-defined dynamic variables (/:id, /:mac)
+        const { [toMatched.length - 1]: { path: toPath = to.fullPath } = {} } = toMatched
+        clean.toUrl = toPath.replace(/\(.*\)$/, '') // remove regex
+      }
+    }
+    state.route = clean
   },
   SUMMARY: (state, summary) => {
     state.summary = summary

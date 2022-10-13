@@ -29,7 +29,8 @@ const route = {
       component: TheView,
       props: route => ({ id: route.params.id }),
       meta: {
-        can: 'read reports'
+        can: 'read reports',
+        track: true
       }
     }
   ]

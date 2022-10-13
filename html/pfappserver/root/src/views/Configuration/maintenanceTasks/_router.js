@@ -31,6 +31,9 @@ export default [
     path: 'maintenance_task/:id',
     name: 'maintenance_task',
     component: TheView,
+    meta: {
+      track: true
+    },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

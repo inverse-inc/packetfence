@@ -116,8 +116,13 @@ const actions = {
     hash = (hash.charAt(0) === '#') ? hash.substr(1) : hash
     if (state.hash !== hash) {
       commit('SET_HASH', hash)
-      store.dispatch('analytics/trackEvent', ['Documentation Hash', { hash }])
+      store.dispatch('analytics/trackEvent', ['Documentation Hash', { path: state.path, hash }])
     }
+  },
+  showImage: ({ state }, src) => {
+    const parsed = new URL(src)
+console.log(JSON.stringify({ src, parsed }, null, 2), parsed.pathname)
+    store.dispatch('analytics/trackEvent', ['Documentation Image', { path: state.path, hash: state.hash, src: parsed.pathname }])
   }
 }
 
