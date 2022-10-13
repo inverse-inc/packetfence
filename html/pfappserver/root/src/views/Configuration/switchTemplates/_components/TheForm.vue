@@ -11,7 +11,7 @@
     />
 
     <form-group-description namespace="description"
-      :column-label="$i18n.t('Decription')"
+      :column-label="$i18n.t('Description')"
     />
 
     <form-group-radius-disconnect namespace="radiusDisconnect"

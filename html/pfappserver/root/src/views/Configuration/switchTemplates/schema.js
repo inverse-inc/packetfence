@@ -41,7 +41,7 @@ export const schema = (props) => {
       .required(i18n.t('Identifier required.'))
       .switchTemplateIdNotExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Identifier exists.')),
 
-    description: yup.string().required(i18n.t('Description required.')),
+    description: yup.string().nullable().required(i18n.t('Description required.')),
     acceptVlan: schemaRadiusAttributes,
     acceptRole: schemaRadiusAttributes,
     bounce: schemaRadiusAttributes,

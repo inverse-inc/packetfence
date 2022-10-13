@@ -56,29 +56,31 @@ const actions = {
             ip:                     false,
             property_blacklist:     [],
             ignore_dnt:             true,
-            debug:                  process.env.VUE_APP_DEBUG === 'true',
+            debug:                  false, // process.env.VUE_APP_DEBUG === 'true',
             loaded: () => {
-              const unsubscribe = store.subscribeAction((storeAction, state) => {
+              const unsubscribe = store.subscribeAction(storeAction => {
                 const { type } = storeAction
-                const isCollection = type => /^\$_/.test(type) && !/^\$_status/.test(type) // $_ prefix (not $_status)
+                const isCollection = type => /^\$_/.test(type) // $_ prefix
                 const isCluster = type => /^cluster\//.test(type) // ^cluster/
-                const isGetter = type => /\/get/.test(type) || /\/all$/.test(type) // /get... || /all$
+                const isGetter = type => /\/get/.test(type) || /\/all/.test(type) || /\/files$/.test(type) // /get... || /all... || /files$
+                const isIgnore = type => /^\$_status/.test(type) || /^\$_network_threats/.test(type) // $_status/*, $_network_threats/*
                 const isOptions = type => /\/options/.test(type) // /options, /optionsBy...
-                const isTracked = type => (isCollection(type) || isCluster(type)) && !(isGetter(type) || isOptions(type))
+                const isTracked = type => (isCollection(type) || isCluster(type)) && !(isGetter(type) || isOptions(type) || isIgnore(type))
                 if (isTracked(type)) {
                   const matches = type.match(/^(\$_)?([a-zA-Z0-9_]+)\/([a-zA-Z0-9]+)/)
                   if (matches) {
                     // eslint-disable-next-line no-unused-vars
                     const [_type, _prefix, module, action] = matches
                     const event = `${module}/${action}`
-                    mixpanel.track(event, { event, module, action, ...getters.route, ...state.summary })
+                    mixpanel.track(event, { event, module, action, ...getters.route, ...summaryNoPii })
                   }
                 }
               })
               commit('SUBSCRIBED', unsubscribe)
-              const { version } = state.summary
+              const { version } = summaryNoPii
               // prefix _ avoids collision
               mixpanel.set_group('_version', version)
+              mixpanel.set_group('_language', navigator.languages)
             }
           })
         }
