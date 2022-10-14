@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
@@ -24,8 +25,9 @@ func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort strin
 	}
 	defer conns.closeAll()
 	h := &udpHandler{
-		Logger:   l,
-		hostPort: hostPort,
+		connectorID: t.ConnectorID,
+		Logger:      l,
+		hostPort:    hostPort,
 		udpChannel: &udpChannel{
 			r: gob.NewDecoder(rwc),
 			w: gob.NewEncoder(rwc),
@@ -42,6 +44,7 @@ func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort strin
 }
 
 type udpHandler struct {
+	connectorID string
 	*cio.Logger
 	hostPort string
 	*udpChannel
@@ -72,7 +75,8 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 			h.Errorf("exceeded max udp connections (%d)", maxConns)
 		}
 	}
-	_, err = conn.Write(p.Payload)
+	modified, _ := proxyRadiusOut(h, p.Payload)
+	_, err = conn.Write(modified)
 	if err != nil {
 		return err
 	}
@@ -98,6 +102,7 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 			}
 			break
 		}
+		spew.Dump("handleRead", conn.LocalAddr(), conn.RemoteAddr())
 		b := buff[:n]
 		//encode back over ssh connection
 		err = h.udpChannel.encode(p.Src, b)
