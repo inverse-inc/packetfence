@@ -21,6 +21,23 @@ usage() {
     echo "If you want to run all test suites in subdirectories, use <path_to_test_suite_dir/*>"
 } 
 
+check_free_space() {
+    # https://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
+    # "the block size currently defaults to 1024 bytes"
+    # 30GiB (1,073,741,824 * 30 ) = 32,212,254,720
+    # size necessary to run a full test with pf*dev, switch, ad, wireless and node0*
+    # it's a bit over than necessary because ad, switch and wireless could have been
+    # already provisioned
+    MANDATORY_SPACE='32212254'
+    AVAILABLE_SPACE=$(df --output=avail / | awk 'NR == 2 { print $1  }')
+
+    if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
+        echo "Enough space on system to run tests."
+    else
+        die "There is not enough space on system to run tests. Skipping tests."
+    fi
+}
+
 
 configure_and_check() {
     # paths
@@ -30,6 +47,7 @@ configure_and_check() {
     VENOM_COMMON_FLAGS="${VENOM_COMMON_FLAGS:---format=tap}"
     VENOM_EXIT_FLAGS="${VENOM_EXIT_FLAGS:-}"
 
+    check_free_space
     echo -e "Using venom using following variables:"
     echo -e "  VENOM_BINARY=${VENOM_BINARY}"
     echo -e "  VENOM_ALL_FLAGS=${VENOM_COMMON_FLAGS} ${VENOM_EXIT_FLAGS}"
