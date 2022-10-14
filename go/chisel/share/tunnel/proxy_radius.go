@@ -1,7 +1,11 @@
 package tunnel
 
 import (
+	"crypto/hmac"
+	"crypto/md5"
+
 	"github.com/inverse-inc/go-radius"
+	"github.com/inverse-inc/go-radius/rfc2869"
 	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
@@ -25,8 +29,15 @@ func proxyRadiusOut(h *udpHandler, b []byte) ([]byte, error) {
 	sharedutils.CheckError(err)
 	p.Attributes.Add(26, vsa)
 
-	// Remove any existing message authenticator
+	// Remove any existing message authenticator and set it correctly
 	p.Attributes.Del(80)
+
+	hash := hmac.New(md5.New, []byte("MWZjMzc1YmYyYjhiOWZjYjAwYzEzZDBm"))
+
+	rfc2869.MessageAuthenticator_Set(p, []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
+	encode, _ := p.Encode()
+	hash.Write(encode)
+	rfc2869.MessageAuthenticator_Set(p, hash.Sum(nil))
 
 	b2, err := p.Encode()
 	sharedutils.CheckError(err)
