@@ -19,7 +19,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-//Config a Tunnel
+// Config a Tunnel
 type Config struct {
 	*cio.Logger
 	Inbound   bool
@@ -30,13 +30,13 @@ type Config struct {
 	SrcIP net.IP
 }
 
-//Tunnel represents an SSH tunnel with proxy capabilities.
-//Both chisel client and server are Tunnels.
-//chisel client has a single set of remotes, whereas
-//chisel server has multiple sets of remotes (one set per client).
-//Each remote has a 1:1 mapping to a proxy.
-//Proxies listen, send data over ssh, and the other end of the ssh connection
-//communicates with the endpoint and returns the response.
+// Tunnel represents an SSH tunnel with proxy capabilities.
+// Both chisel client and server are Tunnels.
+// chisel client has a single set of remotes, whereas
+// chisel server has multiple sets of remotes (one set per client).
+// Each remote has a 1:1 mapping to a proxy.
+// Proxies listen, send data over ssh, and the other end of the ssh connection
+// communicates with the endpoint and returns the response.
 type Tunnel struct {
 	Config
 	//ssh connection
@@ -52,9 +52,10 @@ type Tunnel struct {
 	connectionCtx context.Context
 
 	IsRemoteConnector bool
+	ConnectorID       string
 }
 
-//New Tunnel from the given Config
+// New Tunnel from the given Config
 func New(c Config) *Tunnel {
 	c.Logger = c.Logger.Fork("tun")
 	t := &Tunnel{
@@ -75,7 +76,7 @@ func New(c Config) *Tunnel {
 	return t
 }
 
-//BindSSH provides an active SSH for use for tunnelling
+// BindSSH provides an active SSH for use for tunnelling
 func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Request, chans <-chan ssh.NewChannel) error {
 	//link ctx to ssh-conn
 	t.connectionCtx = ctx
@@ -112,7 +113,7 @@ func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Reque
 	return err
 }
 
-//getSSH blocks while connecting
+// getSSH blocks while connecting
 func (t *Tunnel) getSSH(ctx context.Context) ssh.Conn {
 	//cancelled already?
 	if isDone(ctx) {
@@ -153,8 +154,8 @@ func (t *Tunnel) BindDynamicRemotes(remotes []*settings.Remote) error {
 	return t.BindRemotes(t.connectionCtx, remotes)
 }
 
-//BindRemotes converts the given remotes into proxies, and blocks
-//until the caller cancels the context or there is a proxy error.
+// BindRemotes converts the given remotes into proxies, and blocks
+// until the caller cancels the context or there is a proxy error.
 func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) error {
 	if len(remotes) == 0 {
 		return errors.New("no remotes")
