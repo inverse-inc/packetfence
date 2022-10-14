@@ -25,7 +25,6 @@ use List::MoreUtils qw(any);
 use pf::util;
 use File::Copy;
 use File::Basename;
-#use Data::Dumper;
 
 run_as_pf();
 
@@ -104,8 +103,6 @@ for my $section ($ini->Sections()) {
 }
 
 print("==========\n");
-
-#print(Dumper(\%profiles_logos));
 
 for my $profile_id (keys %profiles_logos) {
     if (check_logo_path($profile_id)) {
