@@ -28,6 +28,14 @@
   }
 }
 
+:8889/profile-templates {
+  root /usr/local/pf/html/captive-portal/profile-templates
+  mime {
+    .crt application/x-pem-file
+    .pem application/x-pem-file
+  }
+}
+
 :8889/.well-known/acme-challenge {
   root /usr/local/pf/conf/ssl/acme-challenge
 }
