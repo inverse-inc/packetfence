@@ -114,7 +114,7 @@ export const useViewCollectionItem = (collection, props, context) => {
 
   const _initItem = (resolve, reject) => {
     getItem().then(item => {
-      form.value = { ...form.value, ...item } // dereferenced
+      form.value = { ...form.value, ...JSON.parse(JSON.stringify(item)) } // dereferenced
       resolve()
     }).catch(e => {
       form.value = {}
