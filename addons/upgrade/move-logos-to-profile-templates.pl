@@ -62,16 +62,22 @@ sub check_logo_path {
     }
 }
 
+sub check_logo_exists {
+    my ($profile_id) = @_;
+
+    if (-e "$profiles_logos{$profile_id}->{'old_logo_absolute_path'}") {
+	print("Current logo configured on '$profile_id' exists on filesystem\n");
+        return 1;
+    } else {
+	print("Current logo configured on '$profile_id' **doesn't** exist on filesystem\n");
+	return 0;
+    }
+}
+
 sub copy_logo_to_new_location {
     my ($profile_id) = @_;
     my $profile_template_dir = dirname($profiles_logos{$profile_id}->{'new_logo_absolute_path'});
 
-    if (-e "$profiles_logos{$profile_id}->{'old_logo_absolute_path'}") {
-	print("Current logo configured on '$profile_id' exists on filesystem\n");
-    } else {
-	print("Current logo configured on '$profile_id' **doesn't** exist on filesystem, stopping script\n");
-	exit 1;
-    }
     # check if target dir already exist
     if (-d "$profile_template_dir" ) {
 	print("$profile_template_dir already exists\n");
@@ -106,8 +112,13 @@ print("==========\n");
 
 for my $profile_id (keys %profiles_logos) {
     if (check_logo_path($profile_id)) {
-	copy_logo_to_new_location($profile_id);
-	update_connection_profile($profile_id);
+        if (check_logo_exists($profile_id)) {
+            copy_logo_to_new_location($profile_id);
+            update_connection_profile($profile_id);
+        } else {
+            print("==========\n");
+            next;
+        }
 	print("==========\n");
     } else {
 	print("Nothing to do on '$profile_id'\n");
