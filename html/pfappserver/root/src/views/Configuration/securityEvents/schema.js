@@ -8,7 +8,7 @@ yup.addMethod(yup.string, 'securityEventIdNotExistsExcept', function (exceptId =
     name: 'securityEventIdNotExistsExcept',
     message: message || i18n.t('Identifier exists.'),
     test: (value) => {
-      if (!value || `${value}`.toLowerCase() === exceptId.toLowerCase()) return true
+      if (!value || `${value}`.toLowerCase() === `${exceptId}`.toLowerCase()) return true
       return store.dispatch('config/getSecurityEvents').then(response => {
         return Object.keys(response).filter(item => item.toLowerCase() === `${value}`.toLowerCase()).length === 0
       }).catch(() => {

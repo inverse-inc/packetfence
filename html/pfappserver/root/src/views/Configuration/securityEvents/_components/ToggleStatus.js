@@ -58,7 +58,7 @@ export const props = {
 }
 
 export default {
-  name: 'base-toggle-status',
+  name: 'toggle-status',
   extends: BaseInputToggle,
   props
 }
