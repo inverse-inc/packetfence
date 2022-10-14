@@ -3,6 +3,7 @@
 */
 import mixpanel from 'mixpanel-browser'
 import store from '@/store'
+import i18n from '@/utils/locale'
 
 // Default values
 const initialState = () => {
@@ -72,7 +73,7 @@ const actions = {
                     // eslint-disable-next-line no-unused-vars
                     const [_type, _prefix, module, action] = matches
                     const event = `${module}/${action}`
-                    mixpanel.track(event, { event, module, action, ...getters.route, ...summaryNoPii })
+                    mixpanel.track(event, { event, module, action, ...getters.route, ...summaryNoPii, locale: i18n.locale })
                   }
                 }
               })
@@ -90,13 +91,13 @@ const actions = {
   },
   trackEvent: ({ dispatch, getters, state }, event) => {
     const [eventName, eventData] = event
-    return dispatch('init').then(() => mixpanel.track(eventName, { ...eventData, ...getters.route, ...state.summary }))
+    return dispatch('init').then(() => mixpanel.track(eventName, { ...eventData, ...getters.route, ...state.summary, locale: i18n.locale }))
   },
   trackRoute: ({ commit, dispatch, getters, state }, route) => {
     return dispatch('init')
       .then(() => {
         commit('ROUTE', route)
-        return mixpanel.track('route', { ...getters.route, ...state.summary })
+        return mixpanel.track('route', { ...getters.route, ...state.summary, locale: i18n.locale })
       })
   }
 }
