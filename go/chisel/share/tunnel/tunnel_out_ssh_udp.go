@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
@@ -75,6 +74,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 			h.Errorf("exceeded max udp connections (%d)", maxConns)
 		}
 	}
+	// TODO: Only apply this to remotes that are specific to RADIUS
 	modified, _ := proxyRadiusOut(h, p.Payload)
 	_, err = conn.Write(modified)
 	if err != nil {
@@ -102,10 +102,10 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 			}
 			break
 		}
-		spew.Dump("handleRead", conn.LocalAddr(), conn.RemoteAddr())
 		b := buff[:n]
+		modified, _ := proxyRadiusIn(h, b)
 		//encode back over ssh connection
-		err = h.udpChannel.encode(p.Src, b)
+		err = h.udpChannel.encode(p.Src, modified)
 		if err != nil {
 			h.Debugf("encode error %s: %s", conn, err)
 			return
