@@ -1,6 +1,7 @@
 import axios from 'axios'
 import store from '@/store'
 import i18n from '@/utils/locale'
+import { v4 as uuidv4 } from 'uuid'
 
 export const baseURL = (process.env.VUE_APP_API_BASEURL)
   ? process.env.VUE_APP_API_BASEURL
@@ -25,7 +26,11 @@ function _encodeURL (url) {
 const methodsWithoutData = ['get', 'head', 'options']
 methodsWithoutData.forEach((method) => {
   apiCall[method] = (url, config = {}) => {
-    return apiCall.request({ ...config, method, url: _encodeURL(url) })
+    url = _encodeURL(url)
+    if (config.nocache) {
+      url += `?nocache=${uuidv4()}`
+    }
+    return apiCall.request({ ...config, method, url })
   }
 })
 

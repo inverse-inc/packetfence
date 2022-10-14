@@ -52,7 +52,7 @@ export default {
   },
   file: params => {
     const get = params.quiet ? 'getQuiet' : 'get'
-    return apiCall[get](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')]).then(response => {
+    return apiCall[get](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/').filter(p => p)], { nocache: true }).then(response => {
       return response.data
     })
   },
