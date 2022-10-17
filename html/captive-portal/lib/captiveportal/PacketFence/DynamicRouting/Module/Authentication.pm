@@ -152,6 +152,10 @@ sub execute_actions {
 
     $self->SUPER::execute_actions();
 
+    if ($self->app->isrootsession and defined($self->new_node_info->{access_level})) {
+        get_logger->debug(sub { use Data::Dumper; "new_node_info after auth module actions : ".Dumper($self->new_node_info) });
+        return $TRUE;
+    }
     unless(
         defined($self->new_node_info->{category}) && 
         $self->new_node_info->{category} ne $REJECT_ROLE && 
