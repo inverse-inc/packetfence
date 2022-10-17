@@ -98,7 +98,7 @@ has_field 'organizational_unit' =>
 
 has_field 'ca_cert_path' => (
    type => 'Path',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'Path of the CA that will generate your certificates'},
 );
@@ -115,7 +115,7 @@ has_field 'ca_cert_path_upload' => (
 
 has_field 'server_cert_path' => (
    type => 'Path',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'Path of the RADIUS server authentication certificate' },
 );

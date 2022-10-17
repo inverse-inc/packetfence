@@ -91,7 +91,7 @@ has_field 'psk_size' =>
 
 has_field 'server_certificate_path' => (
   type => 'Path',
-  required_when => { 'eap_type' => 25 },
+  #  required_when => { 'eap_type' => 25 },
   label => 'RADIUS server certificate path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },
@@ -109,7 +109,7 @@ has_field 'server_certificate_path_upload' => (
 
 has_field 'ca_cert_path' => (
   type => 'Path',
-  required_when => { 'eap_type' => 25 },
+  #  required_when => { 'eap_type' => 25 },
   label => 'RADIUS server CA path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server CA' },
