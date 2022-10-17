@@ -64,7 +64,7 @@ has_field 'radius_mfa_method' =>
    options =>
    [
     { value => 'push', label => 'Push' },
-    { value => 'sms' , label => 'Sms' },
+    { value => 'sms' , label => 'SMS' },
     { value => 'phone' , label => 'Phone Call' },
     { value => 'strip-otp', label => 'Strip OTP' },
     { value => 'second-password', label => 'Second Password Field' },
