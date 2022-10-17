@@ -94,7 +94,8 @@ const actions = {
   createPkiProvider: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.create(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const { ca_cert_path, client_cert_path, client_key_path, server_cert_path } = response
+      commit('ITEM_REPLACED', { ...data, ca_cert_path, client_cert_path, client_key_path, server_cert_path })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -104,7 +105,8 @@ const actions = {
   updatePkiProvider: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const { ca_cert_path, client_cert_path, client_key_path, server_cert_path } = response
+      commit('ITEM_REPLACED', { ...data, ca_cert_path, client_cert_path, client_key_path, server_cert_path })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

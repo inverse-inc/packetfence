@@ -134,7 +134,8 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.create(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const { path } = response
+      commit('ITEM_REPLACED', { ...data, path })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -157,7 +158,8 @@ const actions = {
     }
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const { path } = response
+      commit('ITEM_REPLACED', { ...data, path })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

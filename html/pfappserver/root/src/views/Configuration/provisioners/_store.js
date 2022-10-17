@@ -84,7 +84,8 @@ const actions = {
   createProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.create(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const { ca_cert_path, server_certificate_path } = response
+      commit('ITEM_REPLACED', { ...data, ca_cert_path, server_certificate_path })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -94,7 +95,8 @@ const actions = {
   updateProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      const { ca_cert_path, server_certificate_path } = response
+      commit('ITEM_REPLACED', { ...data, ca_cert_path, server_certificate_path })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
