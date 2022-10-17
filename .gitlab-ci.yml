@@ -25,7 +25,7 @@ stages:
 ################################################################################
 variables:
   # synced with Pipeline timeout in GitLab UI
-  PIPELINE_TIMEOUT: 185m
+  PIPELINE_TIMEOUT: 170m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
