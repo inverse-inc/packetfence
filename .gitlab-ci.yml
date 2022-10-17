@@ -27,7 +27,7 @@ variables:
   PFBUILD_DEB_BULLSEYE_IMG: inverseinc/pfbuild-debian-bullseye
   PFBUILD_DEFAULT_DEV_TAG: latest
   # synced with Pipeline timeout in GitLab UI
-  PIPELINE_TIMEOUT: 185m
+  PIPELINE_TIMEOUT: 170m
   CIDIR: ci
   CILIBDIR: ci/lib
   CHECKDIR: ${CILIBDIR}/check
