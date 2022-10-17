@@ -10,6 +10,8 @@ ExecStart=/usr/local/pf/sbin/galera-autofix
 Restart=on-failure
 Slice=packetfence-base.slice
 User=root
+# Prevents systemd on giving up on the restart of this service
+StartLimitInterval=0
 
 [Install]
 WantedBy=packetfence-base.target
