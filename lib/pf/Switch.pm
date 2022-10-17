@@ -807,16 +807,6 @@ sub _parentRoleForVpn {
     my ($name) = @_;
     # not yet supported
     return undef;
-    if (!exists $ConfigRoles{$name}) {
-        return undef;
-    }
-
-    my $role = $ConfigRoles{$name};
-    if (isdisabled($role->{inherit_vpn} // 'disabled')) {
-        return undef;
-    }
-
-    return $role->{parent_id};
 }
 
 
