@@ -78,8 +78,9 @@ const actions = {
                 }
               })
               commit('SUBSCRIBED', unsubscribe)
-              const { version } = summaryNoPii
+              const { os, version } = summaryNoPii
               // prefix _ avoids collision
+              mixpanel.set_group('_os', os)
               mixpanel.set_group('_version', version)
               mixpanel.set_group('_language', navigator.languages)
             }

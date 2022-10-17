@@ -33,6 +33,7 @@ sub get {
            uptime(),
            git_commit_id(),
            db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
+           os => pf::util::host_os_detection(),
         }
     );
 

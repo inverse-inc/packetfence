@@ -91,7 +91,7 @@ BEGIN {
         empty_dir
         is_in_list
         validate_date
-        clean_locale 
+        clean_locale
         parse_api_action_spec
         pf_chown
         user_chown
@@ -917,7 +917,7 @@ sub pf_run {
             . "Child exited with non-zero value $exit_status"
         );
     }
-    
+
     chdir $switch_back_wd if(defined($switch_back_wd));
     return;
 }
@@ -1436,7 +1436,7 @@ Sets the UID and GID of the currently running process to pf
 
 sub run_as_pf {
     my (undef, undef,$uid,$gid) = getpwnam('pf');
-    
+
     # Early return if we're already running as pf
     return $TRUE if($uid == $<);
 
@@ -1446,7 +1446,7 @@ sub run_as_pf {
         get_logger->error($msg);
         return $FALSE;
     }
-    
+
     unless(setuid($uid)) {
         my $msg = "Cannot switch process user to pf. setuid to $uid has failed";
         print STDERR $msg . "\n";
