@@ -988,19 +988,6 @@ CREATE TABLE billing (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
 
 --
--- Table structure for table `savedsearch`
---
-
-CREATE TABLE savedsearch (
-  id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  pid varchar(255) NOT NULL,
-  namespace varchar(255) NOT NULL,
-  name varchar(255) NOT NULL,
-  query MEDIUMTEXT,
-  in_dashboard tinyint
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
-
---
 -- Table structure for wrix
 --
 
