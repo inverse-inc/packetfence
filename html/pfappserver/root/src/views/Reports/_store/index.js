@@ -5,6 +5,7 @@ import Vue from 'vue'
 import { types } from '@/store'
 import { computed } from '@vue/composition-api'
 import api from '../_api'
+import { analytics } from '../config'
 
 export const useStore = $store => {
   return {
@@ -19,6 +20,7 @@ export const useStore = $store => {
 // Default values
 const state = () => {
   return {
+    analytics,
     cache: {}, // reports details
     status: '',
     message: ''

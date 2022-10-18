@@ -24,3 +24,7 @@ export const provisioningTypes = {
 export const provisioningTypeOptions = Object.keys(provisioningTypes)
   .sort((a, b) => provisioningTypes[a].localeCompare(provisioningTypes[b]))
   .map(key => ({ value: key, text: provisioningTypes[key] }))
+
+export const analytics = {
+  track: ['provisioningType']
+}

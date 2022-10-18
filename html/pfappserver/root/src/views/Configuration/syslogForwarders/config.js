@@ -139,3 +139,7 @@ export const regexRuleActions = {
     }
   }
 }
+
+export const analytics = {
+  track: ['syslogForwarderType']
+}

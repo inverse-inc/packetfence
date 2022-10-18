@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -33,7 +34,7 @@ export default [
     name: 'newSyslogForwarder',
     component: TheView,
     meta: {
-      track: ['syslogForwarderType']
+      ...analytics
     },
     props: (route) => ({ isNew: true, syslogForwarderType: route.params.syslogForwarderType }),
     beforeEnter
@@ -55,7 +56,7 @@ export default [
     name: 'cloneSyslogForwarder',
     component: TheView,
     meta: {
-      track: ['syslogForwarderType']
+      ...analytics
     },
     props: (route) => ({ id: route.params.id, syslogForwarderType: route.params.syslogForwarderType, isClone: true }),
     beforeEnter: (to, from, next) => {

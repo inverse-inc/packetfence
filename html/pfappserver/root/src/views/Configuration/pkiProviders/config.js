@@ -9,3 +9,7 @@ export const pkiProvidersTypes = {
 export const pkiProvidersTypeOptions = Object.keys(pkiProvidersTypes)
   .sort((a, b) => pkiProvidersTypes[a].localeCompare(pkiProvidersTypes[b]))
   .map(key => ({ value: key, text: pkiProvidersTypes[key] }))
+
+export const analytics = {
+  track: ['providerType']
+}

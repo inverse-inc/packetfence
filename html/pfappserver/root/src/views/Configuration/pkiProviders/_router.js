@@ -1,6 +1,7 @@
 import store from '@/store'
 import PkiProvidersStoreModule from './_store'
 import PkisStoreModule from '../pki/_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -36,7 +37,7 @@ export default [
     name: 'newPkiProvider',
     component: TheView,
     meta: {
-      track: ['providerType']
+      ...analytics
     },
     props: (route) => ({ isNew: true, providerType: route.params.providerType }),
     beforeEnter
@@ -58,7 +59,7 @@ export default [
     name: 'clonePkiProvider',
     component: TheView,
     meta: {
-      track: ['providerType']
+      ...analytics
     },
     props: (route) => ({ id: route.params.id, providerType: route.params.providerType, isClone: true }),
     beforeEnter: (to, from, next) => {

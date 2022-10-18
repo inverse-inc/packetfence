@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -34,7 +35,7 @@ export default [
     name: 'newProvisioning',
     component: TheView,
     meta: {
-      track: ['provisioningType']
+      ...analytics
     },
     props: (route) => ({ isNew: true, provisioningType: route.params.provisioningType }),
     beforeEnter
@@ -56,7 +57,7 @@ export default [
     name: 'cloneProvisioning',
     component: TheView,
     meta: {
-      track: ['provisioningType']
+      ...analytics
     },
     props: (route) => ({ id: route.params.id, provisioningType: route.params.provisioningType, isClone: true }),
     beforeEnter: (to, from, next) => {

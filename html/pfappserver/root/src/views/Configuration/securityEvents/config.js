@@ -242,3 +242,7 @@ export const fingerbankNetworkBehaviorPolicyTypes = [
   'fingerbank_blacklisted_ips_threshold_too_high',
   'fingerbank_blacklisted_ports'
 ]
+
+export const analytics = {
+  track: ['id']
+}

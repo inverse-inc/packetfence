@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 export const useRouter = $router => {
   return {
@@ -34,7 +35,7 @@ export default [
     name: 'newCloud',
     component: TheView,
     meta: {
-      track: ['cloudType']
+      ...analytics
     },
     props: (route) => ({ isNew: true, cloudType: route.params.cloudType }),
     beforeEnter
@@ -56,7 +57,7 @@ export default [
     name: 'cloneCloud',
     component: TheView,
     meta: {
-      track: ['cloudType']
+      ...analytics
     },
     props: (route) => ({ id: route.params.id, cloudType: route.params.cloudType, isClone: true }),
     beforeEnter: (to, from, next) => {

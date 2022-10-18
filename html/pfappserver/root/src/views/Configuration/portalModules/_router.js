@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheList = () => import(/* webpackChunkName: "Configuration" */ './_components/TheList')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -32,7 +33,7 @@ export default [
     name: 'newPortalModule',
     component: TheView,
     meta: {
-      track: ['moduleType']
+      ...analytics
     },
     props: (route) => ({ isNew: true, moduleType: route.params.moduleType }),
     beforeEnter
@@ -54,7 +55,7 @@ export default [
     name: 'clonePortalModule',
     component: TheView,
     meta: {
-      track: ['moduleType']
+      ...analytics
     },
     props: (route) => ({ id: route.params.id, moduleType: route.params.moduleType, isClone: true }),
     beforeEnter: (to, from, next) => {

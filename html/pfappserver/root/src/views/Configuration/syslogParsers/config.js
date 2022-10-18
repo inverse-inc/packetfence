@@ -153,4 +153,8 @@ export const typeOptions = Object.keys(types)
       api_parameters: { default: 'role, $role' }
     }
   }
+  }
+
+export const analytics = {
+  track: ['syslogParserType']
 }

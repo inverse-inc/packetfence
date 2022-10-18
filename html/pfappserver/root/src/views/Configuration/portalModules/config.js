@@ -125,3 +125,7 @@ export const moduleTypeName = (moduleType) => {
   })
   return name
 }
+
+export const analytics = {
+  track: ['moduleType']
+}

@@ -99,3 +99,7 @@ export const recomposeSource = (item) => {
     banned_domains: (banned_domains || []).join(',')
   }
 }
+
+export const analytics = {
+  track: ['sourceType']
+}

@@ -19,3 +19,7 @@ export const strings = {
 }
 
 export const sortSslKeys = ['serial', 'issuer', 'not_before', 'not_after', 'subject', 'common_name', 'subject_alt_name']
+
+export const analytics = {
+  track: ['id']
+}

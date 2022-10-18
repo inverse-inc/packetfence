@@ -59,8 +59,8 @@ const actions = {
             ignore_dnt:             true,
             debug:                  false, // process.env.VUE_APP_DEBUG === 'true',
             loaded: () => {
-              const unsubscribe = store.subscribeAction(storeAction => {
-                const { type } = storeAction
+              const unsubscribe = store.subscribeAction((storeAction, storeState) => {
+                const { type, payload } = storeAction
                 const isCollection = type => /^\$_/.test(type) // $_ prefix
                 const isCluster = type => /^cluster\//.test(type) // ^cluster/
                 const isGetter = type => /\/get/.test(type) || /\/all/.test(type) || /\/files$/.test(type) // /get... || /all... || /files$
@@ -73,7 +73,11 @@ const actions = {
                     // eslint-disable-next-line no-unused-vars
                     const [_type, _prefix, module, action] = matches
                     const event = `${module}/${action}`
-                    mixpanel.track(event, { event, module, action, ...getters.route, ...summaryNoPii, locale: i18n.locale })
+                    const { [`$_${module}`]: { analytics: { track = [] } = {} } = {} } = storeState
+                    const trackNoPii = Object.entries(payload) // unpack
+                      .filter(([k]) => track.includes(k)) // only tracked
+                      .reduce((types, [k, v]) => ({ ...types, [k]: v }), {}) // repack
+                    mixpanel.track(event, { event, module, action, ...getters.route, ...summaryNoPii, ...trackNoPii, locale: i18n.locale })
                   }
                 }
               })
@@ -150,6 +154,7 @@ const mutations = {
     state.unsubscribe()
   },
   $RESET: (state) => {
+    state.unsubscribe()
     // eslint-disable-next-line no-unused-vars
     state = initialState()
   }
