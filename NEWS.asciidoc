@@ -37,6 +37,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Fixed issue with pfconnector where it would reuse a dynamic reverse that isn't active anymore (Pfconnector server active dyn reverse cache checks can fail #7218)
  * Fixed RADIUS deauth through pfconnector-remote in a cluster where it was logging as failed although it succeeded
+ * When a rule match is 'any' and has no conditions the rule is always successful (#3768)
 
 == Version 12.0.0 released on 2022-09-14
 
