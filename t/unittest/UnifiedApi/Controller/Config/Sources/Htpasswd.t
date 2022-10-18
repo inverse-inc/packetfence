@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 22;
+use Test::More tests => 25;
 
 #This test will running last
 use Test::NoWarnings;
@@ -171,6 +171,44 @@ $t->post_ok("$collection_base_url" =>
 	}
   )
   ->status_is(201);
+
+$t->patch_ok("$base_url/$id3" =>
+    json => {
+		"id" =>  $id3,
+		"isClone" =>  $true,
+		"isNew" =>  $false,
+		"sourceType" =>  "Htpasswd",
+		"administration_rules" =>  [{
+			"actions" =>  [{
+				"type" =>  "set_access_level",
+				"value" =>  ["ALL"]
+			}],
+			"conditions" =>  [],
+			"description" =>  "All admins",
+			"id" =>  "admins",
+			"match" =>  "all",
+			"status" =>  "enabled"
+		}],
+		"authentication_rules" =>  [],
+		"description" =>  "Legacy Source",
+		"ldapfilter_operator" =>  undef,
+        path => undef,
+		"path_upload" =>  $content,
+		"realms" =>  ["null"],
+		"set_access_durations_action" =>  [],
+		"set_role_from_source_action" =>  undef,
+		"trigger_portal_mfa_action" =>  undef,
+		"trigger_radius_mfa_action" =>  undef,
+		"type" =>  "Htpasswd",
+		"class" =>  "internal",
+		"not_deletable" =>  $false,
+		"not_sortable" =>  $false,
+		"allowed_domains" =>  "",
+		"banned_domains" =>  ""
+	}
+  )
+  ->status_is(200)
+  ->json_is("/path", "/usr/local/pf/conf/uploads/sources/${id3}_path_upload.conf");
 
 =head1 AUTHOR
 

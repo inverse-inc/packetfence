@@ -541,19 +541,29 @@ sub update {
     }
     my $old_item = $self->item;
     my $new_item = $self->mergeUpdate($data, $self->item);
-    my ($status, $new_data) = $self->validate_item($new_item);
+    my ($status, $new_data, $form) = $self->validate_item($new_item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
     }
 
-    delete $new_data->{id};
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
-    $cs->update($self->id, $new_data);
+    my $id =  $self->id;
+    $cs->update($id, $new_data);
     return unless($self->commit($cs));
-    $self->render(status => 200, json => { message => "Settings updated"});
+    $self->render(status => 200, json => $self->update_response($form));
 }
 
+sub update_response {
+    my ($self, $form) = @_;
+    my %response =  ( message => "Settings updated", id => $self->id);
+    for my $field ($form->fields) {
+        next if $field->type ne 'PathUpload' || $field->noupdate;
+        $response{$field->accessor} = $field->value;
+    }
+
+    return \%response;
+}
 =head2 cleanupItemForUpdate
 
 cleanupItemForUpdate
