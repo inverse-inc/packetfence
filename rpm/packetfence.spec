@@ -534,6 +534,9 @@ ln -s ../sites-available/status status
 cd %{buildroot}/usr/local/pf/lib
 ln -s /usr/local/fingerbank/lib/fingerbank fingerbank
 
+cd %{buildroot}/usr/local/pf/addons/upgrade
+ln -s /usr/local/pf/addons/upgrade/move-logos-to-profile-templates.pl to-12.1-move-logos-to-profile-templates.pl
+
 cd $curdir
 #end create symlinks
 
