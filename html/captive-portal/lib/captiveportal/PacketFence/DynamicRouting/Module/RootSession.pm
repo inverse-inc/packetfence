@@ -31,6 +31,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::Portal::Session;
 use pf::CHI;
+use Data::UUID;
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
 
@@ -113,10 +114,10 @@ Register the device and apply the new node info
 
 sub execute_actions {
     my ($self) = @_;
-    # Here we put the stuff in redis for the api (like cookie session => blablabla)
-    #if (exists $self->node_info->{access_level}) {
-    # Set in cache...
-    #}
+    my $ug    = Data::UUID->new;
+    my $uuid = $ug->to_string($ug->create());
+    cache->set($uuid, $self->new_node_info);
+    $self->{uuid} = $uuid;
 }
 
 =head2 record_destination_url

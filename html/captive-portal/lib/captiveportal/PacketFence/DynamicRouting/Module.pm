@@ -42,6 +42,8 @@ has username => (is => 'rw', builder => '_build_username', lazy => 1, trigger =>
 
 has renderer => (is => 'rw');
 
+has uuid => (is => 'rw');
+
 has 'actions' => ('is' => 'rw', isa => 'HashRef', default => sub {{}});
 
 =head2 BUILD
