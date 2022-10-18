@@ -57,6 +57,8 @@ configure_and_check() {
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
+    check_free_space
+
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p ANSIBLE_INVENTORY RESULT_DIR VENOM_ROOT_DIR
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
@@ -65,6 +67,23 @@ configure_and_check() {
 
     export ANSIBLE_INVENTORY
     export VENOM_ROOT_DIR
+}
+
+check_free_space() {
+    # https://www.gnu.org/software/coreutils/manual/html_node/Block-size.html
+    # "the block size currently defaults to 1024 bytes"
+    # 30GiB (1,073,741,824 * 30 ) = 32,212,254,720
+    # size necessary to run a full test with pf*dev, switch, ad, wireless and node0*
+    # it's a bit over than necessary because ad, switch and wireless could have been
+    # already provisioned
+    MANDATORY_SPACE='32212254'
+    AVAILABLE_SPACE=$(df --output=avail / | awk 'NR == 2 { print $1  }')
+
+    if ((  $AVAILABLE_SPACE > $MANDATORY_SPACE )); then
+        echo "Enough space on system to run tests."
+    else
+        die "There is not enough space on system to run tests. Skipping tests."
+    fi
 }
 
 run() {
