@@ -57,7 +57,7 @@ SOURCE /usr/local/pf/db/upgrade-11.2-12.0-tenant.sql;
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
 ALTER TABLE security_event
-   DROP CONSTRAINT IF EXISTS security_event_tenant_id;
+   DROP CONSTRAINT IF EXISTS `security_event_tenant_id`;
 ALTER TABLE security_event
    DROP CONSTRAINT IF EXISTS `tenant_id_mac_fkey_node`;
 ALTER TABLE security_event
