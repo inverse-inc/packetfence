@@ -1205,6 +1205,7 @@ fi
                         /usr/local/pf/conf/template_switches.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/traffic_shaping.conf
                         /usr/local/pf/conf/traffic_shaping.conf.example
+%dir                    /usr/local/pf/conf/uploads
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
