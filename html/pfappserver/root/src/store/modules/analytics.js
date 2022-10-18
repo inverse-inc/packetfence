@@ -29,11 +29,11 @@ const actions = {
         const {
           hostname, // strip PII
           quiet, status, // strip noise
-          analytics = true, // track?
+          send_anonymous_stats = false, // track?
           ...summaryNoPii // safe to xfer
         } = summary
         commit('SUMMARY', summaryNoPii)
-        if (analytics) {
+        if (send_anonymous_stats) {
           mixpanel.init(process.env.VUE_APP_MIXPANEL_TOKEN, {
             api_host:               'https://api.mixpanel.com',
             app_host:               'https://mixpanel.com',
