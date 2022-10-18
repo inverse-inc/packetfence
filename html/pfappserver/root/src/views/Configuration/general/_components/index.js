@@ -3,7 +3,8 @@ import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupTextarea
+  BaseFormGroupTextarea,
+  BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
 import AlertServices from './AlertServices'
 import TheForm from './TheForm'
@@ -12,10 +13,11 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar       as FormButtonBar,
 
-  BaseFormGroupTextarea   as FormGroupDhcpServers,
-  BaseFormGroupInput      as FormGroupDomain,
-  BaseFormGroupInput      as FormGroupHostname,
-  BaseFormGroupChosenOne  as FormGroupTimezone,
+  BaseFormGroupTextarea               as FormGroupDhcpServers,
+  BaseFormGroupInput                  as FormGroupDomain,
+  BaseFormGroupInput                  as FormGroupHostname,
+  BaseFormGroupToggleDisabledEnabled  as FormGroupSendAnonymousStats,
+  BaseFormGroupChosenOne              as FormGroupTimezone,
 
   BaseViewResource        as BaseView,
   AlertServices,

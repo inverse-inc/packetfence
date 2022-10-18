@@ -15,6 +15,10 @@ hostname=packetfence
 #
 # Comma-delimited list of DHCP servers.  Passthroughs are created to allow DHCP transactions from even "trapped" nodes.
 dhcpservers=127.0.0.1
+# general.send_anonymous_stats
+#
+# Whether or not to send anonymous statistics on how you use PacketFence
+send_anonymous_stats = enabled
 #
 # general.timezone
 #

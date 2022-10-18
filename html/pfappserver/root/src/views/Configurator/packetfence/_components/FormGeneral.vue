@@ -26,6 +26,11 @@
           :text="$i18n.t(`System's timezone in string format. List generated from Perl library DateTime::TimeZone. When left empty, it will use the timezone of the server.`)"
         />
 
+        <form-group-send-anonymous-stats namespace="send_anonymous_stats"
+          :column-label="$i18n.t('Send anonymous stats')"
+          :text="$i18n.t('Whether or not to send anonymous statistics on how you use PacketFence')"
+        />
+
         <base-form-group
           :column-label="$i18n.t('Track Configuration')"
           :text="$i18n.t('This service will track all changes to the configuration. Notice that the content of all files (except domain.conf) under /usr/local/pf/conf will be tracked, including passwords.')"
@@ -46,6 +51,7 @@ import {
 import {
   FormGroupDomain,
   FormGroupHostname,
+  FormGroupSendAnonymousStats,
   FormGroupTimezone
 } from '@/views/Configuration/general/_components/'
 
@@ -56,6 +62,7 @@ const components = {
 
   FormGroupDomain,
   FormGroupHostname,
+  FormGroupSendAnonymousStats,
   FormGroupTimezone
 }
 

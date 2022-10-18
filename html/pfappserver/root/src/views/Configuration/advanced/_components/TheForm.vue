@@ -1,4 +1,4 @@
-<template>
+,<template>
   <base-form
     :form="form"
     :meta="meta"
