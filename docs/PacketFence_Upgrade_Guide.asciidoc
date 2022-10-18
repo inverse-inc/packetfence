@@ -1794,7 +1794,7 @@ If you previously added custom rules in `iptables.conf`, we recommend you to mov
 
 === Support of local authentication for 802.1X in web admin
 
-PacketFence now allow to enable or disable local authentication for 802.1X directly in web admmin.
+PacketFence now allow to enable or disable local authentication for 802.1X directly in web admin.
 
 If you previously enabled `packetfence-local-auth` feature in
 [filename]`/usr/local/pf/conf/radiusd/packetfence-tunnel`, we recommend you to
