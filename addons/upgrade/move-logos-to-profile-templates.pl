@@ -11,6 +11,7 @@ move-logos-to-profile-templates.pl
 - Find all connection profiles with logo defined in conf/profiles.conf
 - Copy each logo into html/captive-portal/profile-templates/PROFILE_NAME/
 - Update each connection profile with logo in conf/profiles.conf with new relative paths to logo
+- Add logo paths to cluster-files.txt to synchronize across cluster members
 
 =cut
 
@@ -21,6 +22,7 @@ use pf::IniFiles;
 use pf::file_paths qw(
     $profiles_config_file
 );
+use pf::config::cluster qw($cluster_enabled);
 use List::MoreUtils qw(any);
 use pf::util;
 use File::Copy;
@@ -33,6 +35,18 @@ my %profiles_logos;
 my $html_prefix = '/usr/local/pf/html';
 my $cp_prefix = '/usr/local/pf/html/captive-portal';
 my $new_logo_prefix = '/profile-templates';
+my $sync_file = '/usr/local/pf/conf/cluster-files.txt';
+
+
+sub create_sync_file {
+    if (-e "$sync_file") {
+	print("Synchronization file already exists\n");
+    } else {
+	print("Creating '$sync_file'\n");
+	touch_file($sync_file);
+    }
+    print("==========\n");
+}
 
 sub store_logo_paths {
     my ($profile_id) = @_;
@@ -97,6 +111,15 @@ sub update_connection_profile {
     $ini->setval($profile_id, 'logo', $profiles_logos{$profile_id}->{'new_logo_relative_path'});
 }
 
+sub add_logo_to_sync {
+    my ($profile_id) = @_;
+    my $logo_path = $profiles_logos{$profile_id}->{'new_logo_absolute_path'};
+    # open file descriptor and write
+    open(my $fh, '>>', $sync_file) or die $!;
+    print $fh "$logo_path\n";
+    close $fh;
+}
+
 sub apply_changes {
     $ini->RewriteConfig();
 }
@@ -110,11 +133,18 @@ for my $section ($ini->Sections()) {
 
 print("==========\n");
 
+if ($cluster_enabled) {
+    create_sync_file;
+}
+
 for my $profile_id (keys %profiles_logos) {
     if (check_logo_path($profile_id)) {
         if (check_logo_exists($profile_id)) {
             copy_logo_to_new_location($profile_id);
             update_connection_profile($profile_id);
+	    if ($cluster_enabled) {
+		add_logo_to_sync($profile_id);
+	    }
         } else {
             print("==========\n");
             next;
