@@ -160,7 +160,7 @@ const setup = (props) => {
   }
 
   watch(inputValue, () => {
-    if (isUpload.value && inputValue.value) {
+    if (isUpload.value && inputValue.value !== null) {
       onReset()
     }
   })
