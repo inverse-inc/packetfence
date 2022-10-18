@@ -32,6 +32,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * More flexibility in the definition of the RADIUS servers in an Eduroam source
  * Allow to import only DB or configuration during import
  * Debian package for PacketFence Connector
+ * Removed the savedsearch table.
 
 === Bug Fixes
 
