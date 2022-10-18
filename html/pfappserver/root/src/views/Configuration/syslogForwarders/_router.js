@@ -32,6 +32,9 @@ export default [
     path: 'syslog/new/:syslogForwarderType',
     name: 'newSyslogForwarder',
     component: TheView,
+    meta: {
+      track: ['syslogForwarderType']
+    },
     props: (route) => ({ isNew: true, syslogForwarderType: route.params.syslogForwarderType }),
     beforeEnter
   },
@@ -39,7 +42,7 @@ export default [
     path: 'syslog/:id',
     name: 'syslogForwarder',
     component: TheView,
-    props: (route) => ({      id: route.params.id }),
+    props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
       store.dispatch('$_syslog_forwarders/getSyslogForwarder', to.params.id).then(() => {
@@ -51,6 +54,9 @@ export default [
     path: 'syslog/:id/clone/:syslogForwarderType',
     name: 'cloneSyslogForwarder',
     component: TheView,
+    meta: {
+      track: ['syslogForwarderType']
+    },
     props: (route) => ({ id: route.params.id, syslogForwarderType: route.params.syslogForwarderType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

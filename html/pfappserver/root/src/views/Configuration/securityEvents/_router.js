@@ -46,7 +46,7 @@ export default [
     name: 'security_event',
     component: TheView,
     meta: {
-      track: true
+      track: ['id']
     },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
@@ -61,7 +61,7 @@ export default [
     name: 'cloneSecurityEvent',
     component: TheView,
     meta: {
-      track: true
+      track: ['id']
     },
     props: (route) => ({ id: route.params.id, isClone: true }),
     beforeEnter: (to, from, next) => {

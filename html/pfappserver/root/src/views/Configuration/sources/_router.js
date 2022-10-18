@@ -32,6 +32,9 @@ export default [
     path: 'sources/new/:sourceType',
     name: 'newAuthenticationSource',
     component: TheView,
+    meta: {
+      track: ['sourceType']
+    },
     props: (route) => ({ isNew: true, sourceType: route.params.sourceType }),
     beforeEnter
   },
@@ -51,6 +54,9 @@ export default [
     path: 'source/:id/clone/:sourceType',
     name: 'cloneAuthenticationSource',
     component: TheView,
+    meta: {
+      track: ['sourceType']
+    },
     props: (route) => ({ id: route.params.id, sourceType: route.params.sourceType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

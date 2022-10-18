@@ -33,6 +33,9 @@ export default [
     path: 'provisionings/new/:provisioningType',
     name: 'newProvisioning',
     component: TheView,
+    meta: {
+      track: ['provisioningType']
+    },
     props: (route) => ({ isNew: true, provisioningType: route.params.provisioningType }),
     beforeEnter
   },
@@ -52,6 +55,9 @@ export default [
     path: 'provisioning/:id/clone/:provisioningType',
     name: 'cloneProvisioning',
     component: TheView,
+    meta: {
+      track: ['provisioningType']
+    },
     props: (route) => ({ id: route.params.id, provisioningType: route.params.provisioningType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

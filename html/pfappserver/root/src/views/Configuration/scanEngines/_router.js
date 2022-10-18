@@ -32,6 +32,9 @@ export default [
     path: 'scan_engines/new/:scanType',
     name: 'newScanEngine',
     component: TheView,
+    meta: {
+      track: ['scanType']
+    },
     props: (route) => ({ isNew: true, scanType: route.params.scanType }),
     beforeEnter
   },
@@ -51,6 +54,9 @@ export default [
     path: 'scan_engine/:id/clone/:scanType',
     name: 'cloneScanEngine',
     component: TheView,
+    meta: {
+      track: ['scanType']
+    },
     props: (route) => ({ id: route.params.id, scanType: route.params.scanType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

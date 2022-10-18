@@ -32,6 +32,9 @@ export default [
     path: 'event_loggers/new/:eventLoggerType',
     name: 'newEventLogger',
     component: TheView,
+    meta: {
+      track: ['eventLoggerType']
+    },
     props: (route) => ({ isNew: true, eventLoggerType: route.params.eventLoggerType }),
     beforeEnter
   },
@@ -51,6 +54,9 @@ export default [
     path: 'event_logger/:id/clone/:eventLoggerType',
     name: 'cloneEventLogger',
     component: TheView,
+    meta: {
+      track: ['eventLoggerType']
+    },
     props: (route) => ({ id: route.params.id, eventLoggerType: route.params.eventLoggerType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

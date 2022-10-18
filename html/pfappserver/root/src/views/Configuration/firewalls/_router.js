@@ -33,6 +33,9 @@ export default [
     path: 'firewalls/new/:firewallType',
     name: 'newFirewall',
     component: TheView,
+    meta: {
+      track: ['firewallType']
+    },
     props: (route) => ({ isNew: true, firewallType: route.params.firewallType }),
     beforeEnter
   },
@@ -52,6 +55,9 @@ export default [
     path: 'firewall/:id/clone/:firewallType',
     name: 'cloneFirewall',
     component: TheView,
+    meta: {
+      track: ['firewallType']
+    },
     props: (route) => ({ id: route.params.id, firewallType: route.params.firewallType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

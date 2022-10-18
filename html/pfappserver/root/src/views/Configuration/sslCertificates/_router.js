@@ -19,7 +19,7 @@ export default [
     name: 'certificate',
     component: TheView,
     meta: {
-      track: true
+      track: ['id']
     },
     props: (route) => ({ id: route.params.id }),
     beforeEnter

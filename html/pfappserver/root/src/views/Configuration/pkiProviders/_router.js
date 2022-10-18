@@ -35,6 +35,9 @@ export default [
     path: 'pki_providers/new/:providerType',
     name: 'newPkiProvider',
     component: TheView,
+    meta: {
+      track: ['providerType']
+    },
     props: (route) => ({ isNew: true, providerType: route.params.providerType }),
     beforeEnter
   },
@@ -54,6 +57,9 @@ export default [
     path: 'pki_provider/:id/clone/:providerType',
     name: 'clonePkiProvider',
     component: TheView,
+    meta: {
+      track: ['providerType']
+    },
     props: (route) => ({ id: route.params.id, providerType: route.params.providerType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

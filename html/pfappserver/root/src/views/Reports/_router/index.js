@@ -30,7 +30,7 @@ const route = {
       props: route => ({ id: route.params.id }),
       meta: {
         can: 'read reports',
-        track: true
+        track: ['id'],
       }
     }
   ]

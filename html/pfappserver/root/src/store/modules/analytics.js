@@ -114,32 +114,32 @@ const mutations = {
       clean.fromName = from.name
     }
     if (from.fullPath) {
-      const { matched: fromMatched = [], meta: { track: fromTrack } = {}, path: fromRawPath } = from
-      if (fromTrack) {
-        clean.fromUrl = decodeURIComponent(fromRawPath)
-      }
-      else {
-        // strip user-defined dynamic variables (/:id, /:mac)
-        const { [fromMatched.length - 1]: { path: fromPath = from.fullPath } = {} } = fromMatched
-        clean.fromUrl = fromPath.replace(/\(.*\)$/, '') // remove regex
+      const { params: fromParams, matched: fromMatched = [], meta: { track: fromTrack = [] } = {} } = from
+      // strip user-defined dynamic variables (/:id, /:mac)
+      const { [fromMatched.length - 1]: { path: fromPath = from.fullPath } = {} } = fromMatched
+      clean.fromUrl = fromPath.replace(/\(.*\)$/, '') // remove regex
+      if (fromTrack.length) { // track parameters
+        for (let param of fromTrack) {
+          clean[`from${param}`] = fromParams[param] || null
+        }
       }
     }
     if (to.name) {
       clean.toName = to.name
     }
     if (to.fullPath) {
-      const { matched: toMatched = [], meta: { track: toTrack } = {}, path: toRawPath } = to
-      if (toTrack) { // track identifiers
-        clean.toUrl = decodeURIComponent(toRawPath)
-      }
-      else {
-        // strip user-defined dynamic variables (/:id, /:mac)
-        const { [toMatched.length - 1]: { path: toPath = to.fullPath } = {} } = toMatched
-        clean.toUrl = toPath.replace(/\(.*\)$/, '') // remove regex
+      const { params: toParams, matched: toMatched = [], meta: { track: toTrack = [] } = {} } = to
+      // strip user-defined dynamic variables (/:id, /:mac)
+      const { [toMatched.length - 1]: { path: toPath = to.fullPath } = {} } = toMatched
+      clean.toUrl = toPath.replace(/\(.*\)$/, '') // remove regex
+      if (toTrack.length) { // track parameters
+        for (let param of toTrack) {
+          clean[`to${param}`] = toParams[param] || null
+        }
       }
     }
     state.route = clean
-  },
+ },
   SUMMARY: (state, summary) => {
     state.summary = summary
   },

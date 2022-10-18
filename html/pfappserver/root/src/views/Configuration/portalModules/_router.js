@@ -31,6 +31,9 @@ export default [
     path: 'portal_modules/new/:moduleType',
     name: 'newPortalModule',
     component: TheView,
+    meta: {
+      track: ['moduleType']
+    },
     props: (route) => ({ isNew: true, moduleType: route.params.moduleType }),
     beforeEnter
   },
@@ -50,6 +53,9 @@ export default [
     path: 'portal_module/:id/clone/:moduleType',
     name: 'clonePortalModule',
     component: TheView,
+    meta: {
+      track: ['moduleType']
+    },
     props: (route) => ({ id: route.params.id, moduleType: route.params.moduleType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

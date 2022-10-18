@@ -33,6 +33,9 @@ export default [
     path: 'mfas/new/:mfaType',
     name: 'newMfa',
     component: TheView,
+    meta: {
+      track: ['mfaType']
+    },
     props: (route) => ({ isNew: true, mfaType: route.params.mfaType }),
     beforeEnter
   },
@@ -52,6 +55,9 @@ export default [
     path: 'mfa/:id/clone/:mfaType',
     name: 'cloneMfa',
     component: TheView,
+    meta: {
+      track: ['mfaType']
+    },
     props: (route) => ({ id: route.params.id, mfaType: route.params.mfaType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

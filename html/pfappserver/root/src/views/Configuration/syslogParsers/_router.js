@@ -32,6 +32,9 @@ export default [
     path: 'pfdetect/new/:syslogParserType',
     name: 'newSyslogParser',
     component: TheView,
+    meta: {
+      track: ['syslogParserType']
+    },
     props: (route) => ({ isNew: true, syslogParserType: route.params.syslogParserType }),
     beforeEnter
   },
@@ -51,6 +54,9 @@ export default [
     path: 'pfdetect/:id/clone/:syslogParserType',
     name: 'cloneSyslogParser',
     component: TheView,
+    meta: {
+      track: ['syslogParserType']
+    },
     props: (route) => ({ id: route.params.id, syslogParserType: route.params.syslogParserType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
