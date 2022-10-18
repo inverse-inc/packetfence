@@ -76,6 +76,8 @@ testcases:
       task_id:
         from: result.bodyjson.task_id
 
+- name: test_pf_services_started
+  steps:
   - type: http
     method: GET
     url: '{{.pfserver_webadmin_url}}/api/v1/configurator/pfqueue/task/{{.start_pf_services.task_id}}/status/poll'
