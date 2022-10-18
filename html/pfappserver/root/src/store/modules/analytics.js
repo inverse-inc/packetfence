@@ -34,10 +34,10 @@ const actions = {
         } = summary
         commit('SUMMARY', summaryNoPii)
         if (send_anonymous_stats) {
-          mixpanel.init(process.env.VUE_APP_MIXPANEL_TOKEN, {
-            api_host:               'https://api.mixpanel.com',
-            app_host:               'https://mixpanel.com',
-            cdn:                    'https://cdn.mxpnl.com',
+          mixpanel.init('7061636B657466656E63652E6F72672F', {
+            api_host:               'https://analytics.packetfence.org',
+            app_host:               'https://app-analytics.packetfence.org',
+            cdn:                    'https://cdn-analytics.packetfence.org',
             cross_subdomain_cookie: true,
             persistence:            'cookie',
             persistence_name:       '',
@@ -57,7 +57,7 @@ const actions = {
             ip:                     false,
             property_blacklist:     [],
             ignore_dnt:             true,
-            debug:                  false, // process.env.VUE_APP_DEBUG === 'true',
+            debug:                  false,
             loaded: () => {
               const unsubscribe = store.subscribeAction((storeAction, storeState) => {
                 const { type, payload } = storeAction
