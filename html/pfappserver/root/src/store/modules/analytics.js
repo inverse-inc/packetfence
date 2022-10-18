@@ -37,7 +37,7 @@ const actions = {
           mixpanel.init('7061636B657466656E63652E6F72672F', {
             api_host:               'https://analytics.packetfence.org',
             app_host:               'https://app-analytics.packetfence.org',
-            cdn:                    'https://cdn-analytics.packetfence.org',
+            cdn: 'https://cdn-analytics.packetfence.org',
             cross_subdomain_cookie: true,
             persistence:            'cookie',
             persistence_name:       '',
@@ -58,6 +58,7 @@ const actions = {
             property_blacklist:     [],
             ignore_dnt:             true,
             debug:                  false,
+            api_payload_format:     'json',
             loaded: () => {
               const unsubscribe = store.subscribeAction((storeAction, storeState) => {
                 const { type, payload } = storeAction
