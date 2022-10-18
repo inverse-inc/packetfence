@@ -11,7 +11,7 @@ const initialState = () => {
     initialized: false,
     route: {},
     summary: {},
-    unsubscribe: () => {},
+    unsubscribe: false,
   }
 }
 
@@ -21,46 +21,45 @@ const getters = {
 
 const actions = {
   init: ({ commit, getters, state }) => {
-    let promise = new Promise(r => r())
-    if (!state.initialized) {
-      commit('INIT')
-      commit('UNSUBSCRIBE')
-      promise = store.dispatch('system/getSummary').then(summary => {
-        const {
-          hostname, // strip PII
-          quiet, status, // strip noise
-          send_anonymous_stats = false, // track?
-          ...summaryNoPii // safe to xfer
-        } = summary
+    return store.dispatch('system/getSummary').then(summary => {
+      const {
+        send_anonymous_stats, // track?
+        hostname, // strip PII
+        quiet, status, // strip noise
+        ...summaryNoPii // safe to xfer
+      } = summary
+      if (!state.initialized && send_anonymous_stats) {
+        commit('INIT')
         commit('SUMMARY', summaryNoPii)
-        if (send_anonymous_stats) {
-          mixpanel.init('7061636B657466656E63652E6F72672F', {
-            api_host:               'https://analytics.packetfence.org',
-            app_host:               'https://app-analytics.packetfence.org',
-            cdn: 'https://cdn-analytics.packetfence.org',
-            cross_subdomain_cookie: true,
-            persistence:            'cookie',
-            persistence_name:       '',
-            cookie_name:            '',
-            store_google:           true,
-            save_referrer:          true,
-            test:                   false,
-            verbose:                false,
-            img:                    false,
-            track_pageview:         true,
-            track_links_timeout:    300,
-            cookie_expiration:      365,
-            upgrade:                false,
-            disable_persistence:    false,
-            disable_cookie:         false,
-            secure_cookie:          false,
-            ip:                     false,
-            property_blacklist:     [],
-            ignore_dnt:             true,
-            debug:                  false,
-            api_payload_format:     'json',
-            loaded: () => {
-              const unsubscribe = store.subscribeAction((storeAction, storeState) => {
+        mixpanel.init('7061636B657466656E63652E6F72672F', {
+          api_host: 'https://analytics.packetfence.org',
+          app_host: 'https://app-analytics.packetfence.org',
+          cdn: 'https://cdn-analytics.packetfence.org',
+          cross_subdomain_cookie: true,
+          persistence: 'cookie',
+          persistence_name: '',
+          cookie_name: '',
+          store_google: true,
+          save_referrer: true,
+          test: false,
+          verbose: false,
+          img: false,
+          track_pageview: true,
+          track_links_timeout: 300,
+          cookie_expiration: 365,
+          upgrade: false,
+          disable_persistence: false,
+          disable_cookie: false,
+          secure_cookie: false,
+          ip: false,
+          property_blacklist: [],
+          ignore_dnt: true,
+          debug: false,
+          api_payload_format: 'json',
+          loaded: () => {
+            const unsubscribe = store.subscribeAction((storeAction, storeState) => {
+              const { system: { summary: { send_anonymous_stats } = {} } = {} } = storeState
+              if (send_anonymous_stats) { // may be disabled since subscribed
                 const { type, payload } = storeAction
                 const isCollection = type => /^\$_/.test(type) // $_ prefix
                 const isCluster = type => /^cluster\//.test(type) // ^cluster/
@@ -81,29 +80,39 @@ const actions = {
                     mixpanel.track(event, { event, module, action, ...getters.route, ...summaryNoPii, ...trackNoPii, locale: i18n.locale })
                   }
                 }
-              })
-              commit('SUBSCRIBED', unsubscribe)
-              const { os, version } = summaryNoPii
-              // prefix _ avoids collision
-              mixpanel.set_group('_os', os)
-              mixpanel.set_group('_version', version)
-              mixpanel.set_group('_language', navigator.languages)
-            }
-          })
-        }
-      })
-    }
-    return promise
+              }
+            })
+            commit('SUBSCRIBED', unsubscribe)
+            const { os, version } = summaryNoPii
+            // prefix _ avoids collision
+            mixpanel.set_group('_os', os)
+            mixpanel.set_group('_version', version)
+            mixpanel.set_group('_language', navigator.languages)
+          }
+        })
+      }
+      else if (state.initialized && !send_anonymous_stats && state.unsubscribe) {
+        commit('UNSUBSCRIBE')
+      }
+      return send_anonymous_stats
+    })
   },
   trackEvent: ({ dispatch, getters, state }, event) => {
-    const [eventName, eventData] = event
-    return dispatch('init').then(() => mixpanel.track(eventName, { ...eventData, ...getters.route, ...state.summary, locale: i18n.locale }))
+    return dispatch('init')
+      .then(send_anonymous_stats => {
+        if (send_anonymous_stats) {
+          const [eventName, eventData] = event
+          mixpanel.track(eventName, { ...eventData, ...getters.route, ...state.summary, locale: i18n.locale })
+        }
+      })
   },
   trackRoute: ({ commit, dispatch, getters, state }, route) => {
     return dispatch('init')
-      .then(() => {
-        commit('ROUTE', route)
-        return mixpanel.track('route', { ...getters.route, ...state.summary, locale: i18n.locale })
+      .then(send_anonymous_stats => {
+        if (send_anonymous_stats) {
+          commit('ROUTE', route)
+          return mixpanel.track('route', { ...getters.route, ...state.summary, locale: i18n.locale })
+        }
       })
   }
 }
@@ -152,11 +161,13 @@ const mutations = {
     state.unsubscribe = unsubscribe
   },
   UNSUBSCRIBE: (state) => {
-    state.unsubscribe()
+    if (state.unsubscribe)
+      state.unsubscribe()
+    state.unsubscribe = false
   },
   $RESET: (state) => {
     state.unsubscribe()
-    // eslint-disable-next-line no-unused-vars
+     
     state = initialState()
   }
 }

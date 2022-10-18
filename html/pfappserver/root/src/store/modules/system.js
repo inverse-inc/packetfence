@@ -71,8 +71,8 @@ const getters = {
 }
 
 const actions = {
-  getSummary: ({ commit, state }) => {
-    if (state.summary) {
+  getSummary: ({ commit, state }, ignoreCache = false) => {
+    if (state.summary && !ignoreCache) {
       return Promise.resolve(state.summary)
     }
     if (acl.$can('read', 'system')) {
