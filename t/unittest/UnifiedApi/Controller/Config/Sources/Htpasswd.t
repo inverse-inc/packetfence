@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 25;
+use Test::More tests => 26;
 
 #This test will running last
 use Test::NoWarnings;
@@ -110,7 +110,8 @@ $t->post_ok("$collection_base_url" =>
         description => "Test",
     }
   )
-  ->status_is(201);
+  ->status_is(201)
+  ->json_is('/path', '/usr/local/pf/t/data/htpasswd.conf');
 
 
 $t->get_ok("$base_url/htpasswd1")

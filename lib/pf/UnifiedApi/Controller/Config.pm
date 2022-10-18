@@ -420,7 +420,11 @@ sub additional_create_out {
     my ($self, $form, $item) = @_;
     my %out;
     for my $field ($form->fields) {
-        next if $field->type ne 'PathUpload' || $field->noupdate;
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate ) {
+            next;
+        }
+
         $out{$field->accessor} = $field->value;
     }
 
@@ -558,12 +562,17 @@ sub update_response {
     my ($self, $form) = @_;
     my %response =  ( message => "Settings updated", id => $self->id);
     for my $field ($form->fields) {
-        next if $field->type ne 'PathUpload' || $field->noupdate;
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate ) {
+            next;
+        }
+
         $response{$field->accessor} = $field->value;
     }
 
     return \%response;
 }
+
 =head2 cleanupItemForUpdate
 
 cleanupItemForUpdate
