@@ -93,7 +93,7 @@ const actions = {
       })
     } else {
       commit('SYSTEM_SUCCESS', {})
-      return state.summary
+      return Promise.resolve(state.summary)
     }
   },
   getDnsServers: ({ commit, state }) => {

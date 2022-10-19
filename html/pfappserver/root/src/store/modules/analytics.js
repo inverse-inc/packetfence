@@ -21,7 +21,7 @@ const getters = {
 
 const actions = {
   init: ({ commit, getters, state }) => {
-    return store.dispatch('system/getSummary').then(summary => {
+    return store.dispatch('system/getSummary', !state.initialized).then(summary => {
       const {
         send_anonymous_stats, // track?
         hostname, // strip PII
@@ -35,7 +35,8 @@ const actions = {
           api_host: 'https://analytics.packetfence.org',
           app_host: 'https://app-analytics.packetfence.org',
           cdn: 'https://cdn-analytics.packetfence.org',
-          cross_subdomain_cookie: true,
+          api_payload_format: 'json',
+          cross_subdomain_cookie: false,
           persistence: 'cookie',
           persistence_name: '',
           cookie_name: '',
@@ -55,7 +56,6 @@ const actions = {
           property_blacklist: [],
           ignore_dnt: true,
           debug: false,
-          api_payload_format: 'json',
           loaded: () => {
             const unsubscribe = store.subscribeAction((storeAction, storeState) => {
               const { system: { summary: { send_anonymous_stats } = {} } = {} } = storeState
@@ -161,13 +161,16 @@ const mutations = {
     state.unsubscribe = unsubscribe
   },
   UNSUBSCRIBE: (state) => {
-    if (state.unsubscribe)
+    if (state.unsubscribe) {
       state.unsubscribe()
-    state.unsubscribe = false
+      state.initialized = false
+    }
   },
   $RESET: (state) => {
-    if (state.unsubscribe)
+    if (state.unsubscribe) {
       state.unsubscribe()
+      state.initialized = false
+    }
     state = initialState()
   }
 }

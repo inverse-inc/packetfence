@@ -384,8 +384,8 @@ const actions = {
     data.id = 'general'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
-      store.dispatch('system/getSummary', true)
-      return response
+      return store.dispatch('system/getSummary', true)
+        .then(() => response)
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
       throw err
