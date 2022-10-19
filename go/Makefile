@@ -2,15 +2,8 @@ include ../config.mk
 GO ?= go
 build_cmd = $(GO) build $(ARGS)
 
-.PHONY: clean-caddy-src
-clean-caddy-src:
-	find caddy/ -type f -exec sed -i.bak "s'github.com/mholt/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
-	find caddy/ -type f -exec sed -i.bak "s'github.com/caddyserver/caddy'github.com/inverse-inc/packetfence/go/caddy/caddy'g" {} \; ; find . -name '*.bak' -delete
-	find caddy/caddy/ -name '*_test.go' -delete
-
-.PHONY: go-env
-go-env:
-	GOVERSION=$(GOVERSION) ../addons/dev-helpers/setup-go-env.sh
+.PHONY: all
+all: $(PF_BINARIES)
 
 .PHONY: test
 test:
@@ -31,8 +24,6 @@ $(ALL_BINARIES_RACE):
 	$(build_cmd) -o $@ -race && \
 	mv $@ ../..
 
-.PHONY: all
-all: $(PF_BINARIES)
 
 .PHONY: copy
 copy:
@@ -51,3 +42,7 @@ clean-coredns-src:
 .PHONY: clean-chisel-src
 clean-chisel-src:
 	find chisel/ -type f -exec sed -i.bak "s'github.com/jpillora/chisel'github.com/inverse-inc/packetfence/go/chisel'g" {} \; ; find . -name '*.bak' -delete
+
+.PHONY: go-env
+go-env:
+	GOVERSION=$(GOVERSION) ../addons/dev-helpers/setup-go-env.sh
