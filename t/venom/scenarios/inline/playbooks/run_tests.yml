@@ -13,6 +13,8 @@
       - inline/l2/teardown
       - security_event_suricata
       - security_event_suricata/teardown
+      - security_event_random_mac
+      - security_event_random_mac/teardown
 
   tasks:
     - name: Run Venom testsuites
