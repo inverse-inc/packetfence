@@ -86,6 +86,25 @@ check_free_space() {
     fi
 }
 
+run_ansible_galaxy() {
+    local req_file=${1:-}
+    local force=${2:-}
+    if [ -z "$force" ]; then
+        local ansible_cmd="ansible-galaxy install -r ${req_file}"
+    else
+        local ansible_cmd="ansible-galaxy install -r ${req_file} --force"
+    fi
+    for retry in {5..1}; do
+        if ${ansible_cmd}; then
+            break
+        elif [ $retry -gt 1 ]; then
+            sleep 10
+        else
+            exit 1
+        fi
+    done
+}
+
 run() {
     log_section "Tests"
     start_and_provision_pf_vm ${PF_VM_NAME}
@@ -116,10 +135,12 @@ start_vm() {
             echo "Machine already started, Ansible provisioning only"
         fi
         ( cd ${VAGRANT_DIR}; \
+          run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           ansible-playbook site.yml -l $vm )
     else
         echo "Machine $vm doesn't exist, start and provision with Vagrant"
         ( cd ${VAGRANT_DIR} ; \
+          run_ansible_galaxy ${VAGRANT_DIR}/requirements.yml force ; \
           VAGRANT_DOTFILE_PATH=${dotfile_path} \
                   vagrant up \
                   ${vm} \
@@ -152,7 +173,8 @@ start_and_provision_other_vm() {
 run_tests() {
     log_subsection "Configure VM for tests and run tests"
     # install roles and collections in VENOM_ROOT_DIR
-    ansible-galaxy install --force -r ${VENOM_ROOT_DIR}/requirements.yml
+    run_ansible_galaxy ${VENOM_ROOT_DIR}/requirements.yml force
+
     for scenario_name in ${SCENARIOS_TO_RUN}; do
         scenario_path="${SCENARIOS_BASE_DIR}/${scenario_name}"
         if [ -e "${scenario_path}/ansible_inventory.yml" ]; then
@@ -205,6 +227,8 @@ delete_ansible_files() {
     log_subsection "Remove Ansible files"
     delete_dir_if_exists ${VAGRANT_DIR}/roles
     delete_dir_if_exists ${VAGRANT_DIR}/ansible_collections
+    delete_dir_if_exists ${VENOM_ROOT_DIR}/roles
+    delete_dir_if_exists ${VENOM_ROOT_DIR}/ansible_collections
 }
 
 destroy() {
