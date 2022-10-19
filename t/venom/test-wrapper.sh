@@ -57,8 +57,6 @@ configure_and_check() {
     CI_PIPELINE_ID=${CI_PIPELINE_ID:-}
     PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-}
 
-    check_free_space
-
     declare -p VAGRANT_DIR VAGRANT_ANSIBLE_VERBOSE VAGRANT_PF_DOTFILE_PATH VAGRANT_COMMON_DOTFILE_PATH
     declare -p ANSIBLE_INVENTORY RESULT_DIR VENOM_ROOT_DIR
     declare -p CI_COMMIT_TAG CI_PIPELINE_ID PF_MINOR_RELEASE
@@ -106,6 +104,7 @@ run_ansible_galaxy() {
 }
 
 run() {
+    check_free_space
     log_section "Tests"
     start_and_provision_pf_vm ${PF_VM_NAME}
     if [ -n "${INT_TEST_VM_NAMES}" ]; then
