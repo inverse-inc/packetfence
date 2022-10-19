@@ -181,8 +181,8 @@ sub do_sponsor_registration {
     return unless($self->_validate_sponsor($sponsor));
 
     # form valid, adding person (using modify in case person already exists)
-    my $note = 'sponsored confirmation Date of arrival: ' . time2str("%Y-%m-%d %H:%M:%S", time);
-    $logger->info( "Adding guest person $pid" );
+    my $sponsered_date = time2str("%Y-%m-%d %H:%M:%S", time);
+    $logger->info( "Adding guest person $pid Date of arrival: $sponsered_date");
 
     $info{'bcc'} = $source->{sponsorship_bcc};
     $info{'activation_domain'} = $source->{activation_domain} if (defined($source->{activation_domain}));
@@ -250,10 +250,10 @@ sub do_sponsor_registration {
 
     # update sponsor field with forced_sponsor value
     if (!defined($self->request_fields->{sponsor})) {
-        $self->update_person_from_fields(additionnal_fields => {notes => $note, sponsor => $sponsor});
+        $self->update_person_from_fields(additionnal_fields => {sponsered_date => $sponsered_date, sponsor => $sponsor});
     }
     else {
-        $self->update_person_from_fields(additionnal_fields => {notes => $note});
+        $self->update_person_from_fields(additionnal_fields => {sponsered_date => $sponsered_date});
     }
 
     $self->waiting_room();
