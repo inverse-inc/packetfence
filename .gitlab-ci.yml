@@ -175,14 +175,14 @@ variables:
 
 # run jobs only when:
 # - on devel branch (push, web, *not* schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches (maintenance/X.Y branches included) (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on all branches (maintenance/X.Y branches included) and devel with a schedule, with test variable defined or test=yes in commit message
+# - on maintenance/X.Y branches only (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
+# - on maintenance/X.Y branches and devel with a schedule, with test variable defined or test=yes in commit message
 # don't run on tag
-.test_devel_branches_and_maintenance_rules:
+.test_devel_and_maintenance_rules:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "devel" && $CI_PIPELINE_SOURCE != "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
+    - if: '( $CI_COMMIT_REF_NAME == "devel" || $CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/) && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_TAG == null && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
 
 # run jobs only when:
 # - on all branches (except maintenance/X.Y branches) (web) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
@@ -956,7 +956,7 @@ unit_tests_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 dot1x_eap_peap_el8:
   variables:
@@ -964,7 +964,7 @@ dot1x_eap_peap_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 dot1x_eap_peap_deb11:
   variables:
@@ -972,7 +972,7 @@ dot1x_eap_peap_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 mac_auth_el8:
   variables:
@@ -980,7 +980,7 @@ mac_auth_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 mac_auth_deb11:
   variables:
@@ -988,7 +988,7 @@ mac_auth_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 dot1x_eap_tls_el8:
   variables:
@@ -996,7 +996,7 @@ dot1x_eap_tls_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 dot1x_eap_tls_deb11:
   variables:
@@ -1004,7 +1004,7 @@ dot1x_eap_tls_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 fingerbank_invalid_db_deb11:
   variables:
@@ -1012,7 +1012,7 @@ fingerbank_invalid_db_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 security_events_deb11:
   variables:
@@ -1020,7 +1020,7 @@ security_events_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 cli_login_deb11:
   variables:
@@ -1028,7 +1028,7 @@ cli_login_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 cli_login_el8:
   variables:
@@ -1036,7 +1036,7 @@ cli_login_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 external_integrations_deb11:
   variables:
@@ -1044,7 +1044,7 @@ external_integrations_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 captive_portal_el8:
   variables:
@@ -1052,7 +1052,7 @@ captive_portal_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 captive_portal_deb11:
   variables:
@@ -1060,7 +1060,7 @@ captive_portal_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 inline_deb11:
   variables:
@@ -1068,7 +1068,7 @@ inline_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 inline_el8:
   variables:
@@ -1076,7 +1076,7 @@ inline_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_devel_branches_and_maintenance_rules
+    - .test_devel_and_maintenance_rules
 
 ### development branches **only**
 # We force VAGRANT_COMMON_DOTFILE_PATH to a specific value
