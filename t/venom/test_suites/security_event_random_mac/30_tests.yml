@@ -1,0 +1,53 @@
+name: Test inline l2 violation
+testcases:
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: test_if_the_device_is_in_the_isolation_ipset
+  steps:
+  - type: exec
+    script: 'ipset test pfsession_Isol_{{.security_event_random_mac.networks}} {{.security_event_random_mac.node.ipaddress}}'
+    delay: 5
+    retry: 14
+
+- name: get_security_event_id
+  steps: 
+  - type: pf_api_node_security_events
+    id: "{{.security_event_random_mac.node.macaddress}}"
+    vars:
+      all_events:
+        from: result.pf_api_node_security_event_
+
+- name: get_event_id
+  steps: 
+  - type:
+    script: echo '{{.get_security_event_id.all_events}}' | jq '.[] | if (.security_event_id == {{.security_event_random_mac.event.id}} and .status == "open") then .id else false end ' | grep -v "false"
+    vars:
+      event_id:
+        from: result.systemout
+
+- name: release_violation_on_the_node
+  steps:
+  - type: http
+    method: PUT
+    url: '{{.pfserver_webadmin_url}}/api/v1/node/{{.security_event_random_mac.node.macaddress}}/close_security_event'
+    ignore_verify_ssl: true
+    body: >-
+     {
+       "security_event_id": "{{.get_event_id.event_id}}",
+       "mac": "{{.security_event_random_mac.node.macaddress}}"
+     }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+
+- name: test_if_the_device_is_back_in_the_register_ipset
+  steps:
+  - type: exec
+    script: 'ipset test pfsession_Unreg_{{.security_event_random_mac.networks}} {{.security_event_random_mac.node.ipaddress}}'
+    delay: 10
+    retry: 15

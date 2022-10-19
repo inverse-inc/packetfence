@@ -609,6 +609,15 @@ security_event_suricata.node.ipaddress: 192.168.3.10
 security_event_suricata.pf_portal: 192.168.3.1
 security_event_suricata.networks: 192.168.3.0
 
+################################################################################
+## Security event random_mac test suite specific variables
+#################################################################################
+security_event_random_mac.event.id: '3000007'
+security_event_random_mac.node.macaddress: 02:06:19:98:00:04
+security_event_random_mac.node.ipaddress: 192.168.4.10
+security_event_random_mac.pf_portal: 192.168.4.1
+security_event_random_mac.networks: 192.168.4.0
+
 #################################################################################
 ## inline_l2_and_radius test suite specific variables
 #################################################################################

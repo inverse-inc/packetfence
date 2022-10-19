@@ -1,0 +1,24 @@
+name: Set Random Mac Security event
+testcases:
+- name: enable_security_event
+  steps:
+  - type: pf_api_action
+    method: PATCH
+    url: 'config/security_event/{{.security_event_random_mac.event.id}}'
+    body: '{"id":"{{.security_event_random_mac.event.id}}","enabled":"Y","quiet":true}'
+
+# restart pfqueue et pf detect
+- name: restart_service_pfqueue
+  steps:
+  - type: systemctl_service_restart 
+    service: packetfence-pfqueue
+
+- name: restart_service_pfdetect
+  steps:
+  - type: systemctl_service_restart 
+    service: packetfence-pfdetect
+
+- name: clear_fingerbank_cache
+  steps:
+  - type: pfcmd_run_command 
+    script: 'cache fingerbank clear'
