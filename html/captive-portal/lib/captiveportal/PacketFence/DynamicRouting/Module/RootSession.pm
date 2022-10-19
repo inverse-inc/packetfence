@@ -76,13 +76,7 @@ sub release {
     my ($self) = @_;
 
     my $lang = $self->app->session->{lang} // "";
-    return $self->app->redirect("http://" . $self->app->request->header("host") . "/access?lang=$lang") unless($self->app->request->path eq "access");
-
-    get_logger->info("Releasing device");
-    # Redirect call-back
-    #
-    $self->app->reset_session;
-    $self->render("release.html", $self->_release_args());
+    return $self->app->redirect($self->app->session->{callback}."/".$self->uuid);
 }
 
 =head2 execute_child
@@ -93,16 +87,10 @@ Execute the flow for this module
 
 sub execute_child {
     my ($self) = @_;
+    if ($self->app->request->param('callback')) {
+        $self->app->session->{callback} = $self->app->request->param('callback');
+    }
 
-    # The user should be released, he is already registered and doesn't have any security_event
-    # HACK alert : E-mail registration has the user registered but still going in the portal
-    # release_bypass is there for that. If it is set, it will keep the user in the portal
-    if (!defined($self->app->session->{release_bypass})) {
-        $self->app->session->{release_bypass} = $TRUE;
-    }
-    if($self->app->profile->canAccessRegistrationWhenRegistered() && $self->app->session->{release_bypass}) {
-        get_logger->info("Allowing user through portal even though he is registered as the release bypass is set and the connection profile is configured to let registered users use the registration module of the portal.");
-    }
     $self->SUPER::execute_child();
 }
 
