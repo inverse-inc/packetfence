@@ -309,10 +309,6 @@ vagrant_interface_rule
       ansible.playbook = "site.yml"
       ansible.config_file = "ansible.cfg"
       ansible.inventory_path = "inventory"
-      ansible.galaxy_role_file = "requirements.yml"
-      # redefine to disable --force option
-      # will use ${VAGRANT_DIR}/ansible.cfg for paths
-      ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
@@ -376,10 +372,6 @@ vagrant_interface_rule
       }
       ansible.playbook = "playbooks/nodes_pre_prov.yml"
       ansible.config_file = "ansible.cfg"
-      ansible.galaxy_role_file = "requirements.yml"
-      # redefine to disable --force option
-      # will use ${VAGRANT_DIR}/ansible.cfg for paths
-      ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
@@ -428,10 +420,6 @@ vagrant_interface_rule
       ansible.playbook = "site.yml"
       ansible.config_file = "ansible.cfg"
       ansible.inventory_path = "inventory"
-      ansible.galaxy_role_file = "requirements.yml"
-      # redefine to disable --force option
-      # will use ${VAGRANT_DIR}/ansible.cfg for paths
-      ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
@@ -485,7 +473,6 @@ vagrant_interface_rule
       }
       ansible.playbook = "playbooks/nodes_pre_prov.yml"
       ansible.config_file = "ansible.cfg"
-      ansible.galaxy_role_file = "requirements.yml"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
@@ -530,10 +517,6 @@ vagrant_interface_rule
       ansible.playbook = "site.yml"
       ansible.config_file = "ansible.cfg"
       ansible.inventory_path = "inventory"
-      ansible.galaxy_role_file = "requirements.yml"
-      # redefine to disable --force option
-      # will use ${VAGRANT_DIR}/ansible.cfg for paths
-      ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
@@ -587,10 +570,6 @@ vagrant_interface_rule
       }
       ansible.playbook = "playbooks/nodes_pre_prov.yml"
       ansible.config_file = "ansible.cfg"
-      ansible.galaxy_role_file = "requirements.yml"
-      # redefine to disable --force option
-      # will use ${VAGRANT_DIR}/ansible.cfg for paths
-      ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
@@ -635,10 +614,6 @@ vagrant_interface_rule
       ansible.playbook = "site.yml"
       ansible.config_file = "ansible.cfg"
       ansible.inventory_path = "inventory"
-      ansible.galaxy_role_file = "requirements.yml"
-      # redefine to disable --force option
-      # will use ${VAGRANT_DIR}/ansible.cfg for paths
-      ansible.galaxy_command = "ansible-galaxy install --role-file=%{role_file}"
       # only for debug
       ansible.verbose = ENV['VAGRANT_ANSIBLE_VERBOSE'] || false
     end
