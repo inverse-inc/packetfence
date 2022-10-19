@@ -59,12 +59,21 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 ALTER TABLE security_event
    DROP CONSTRAINT IF EXISTS `security_event_tenant_id`;
 ALTER TABLE security_event
+   DROP CONSTRAINT IF EXISTS `security_event_tenant_id`;
+
+ALTER TABLE security_event
    DROP CONSTRAINT IF EXISTS `tenant_id_mac_fkey_node`;
+ALTER TABLE security_event
+   DROP CONSTRAINT IF EXISTS `tenant_id_mac_fkey_node`;
+
 ALTER TABLE security_event
    DROP IF EXISTS tenant_id;
 
 ALTER TABLE ip4log
     DROP CONSTRAINT IF EXISTS `ip4log_tenant_id`;
+ALTER TABLE ip4log
+    DROP CONSTRAINT IF EXISTS `ip4log_tenant_id`;
+
 ALTER TABLE ip4log
     DROP PRIMARY KEY,
     RENAME INDEX IF EXISTS ip4log_tenant_id_mac_end_time TO ip4log_mac_end_time,
@@ -80,6 +89,9 @@ ALTER TABLE ip4log_archive
 ALTER TABLE ip6log
    DROP CONSTRAINT IF EXISTS `ip6log_tenant_id`;
 ALTER TABLE ip6log
+   DROP CONSTRAINT IF EXISTS `ip6log_tenant_id`;
+
+ALTER TABLE ip6log
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`ip`),
    DROP IF EXISTS tenant_id;
@@ -93,6 +105,9 @@ ALTER TABLE ip6log_archive
 ALTER TABLE locationlog
    DROP CONSTRAINT IF EXISTS `locationlog_tenant_id`;
 ALTER TABLE locationlog
+   DROP CONSTRAINT IF EXISTS `locationlog_tenant_id`;
+
+ALTER TABLE locationlog
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`mac`),
    DROP IF EXISTS tenant_id;
@@ -102,6 +117,9 @@ ALTER TABLE locationlog_history
 
 ALTER TABLE password
    DROP CONSTRAINT IF EXISTS `password_tenant_id`;
+ALTER TABLE password
+   DROP CONSTRAINT IF EXISTS `password_tenant_id`;
+
 ALTER TABLE password
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
@@ -155,9 +173,18 @@ ALTER TABLE bandwidth_accounting_history
 ALTER TABLE node
    DROP CONSTRAINT IF EXISTS `0_57`;
 ALTER TABLE node
+   DROP CONSTRAINT IF EXISTS `0_57`;
+
+ALTER TABLE node
    DROP CONSTRAINT IF EXISTS `node_tenant_id`;
 ALTER TABLE node
+   DROP CONSTRAINT IF EXISTS `node_tenant_id`;
+
+ALTER TABLE node
    DROP CONSTRAINT IF EXISTS `node_category_key`;
+ALTER TABLE node
+   DROP CONSTRAINT IF EXISTS `node_category_key`;
+
 ALTER TABLE node
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`mac`),
@@ -166,6 +193,9 @@ ALTER TABLE node
 
 ALTER TABLE person
    DROP CONSTRAINT IF EXISTS `person_tenant_id`;
+ALTER TABLE person
+   DROP CONSTRAINT IF EXISTS `person_tenant_id`;
+
 ALTER TABLE person
    DROP PRIMARY KEY,
    ADD PRIMARY KEY (`pid`),
@@ -598,6 +628,8 @@ ALTER TABLE sms_carrier
     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
 
 \! echo "altering security_event"
+ALTER TABLE security_event
+    DROP CONSTRAINT IF EXISTS `mac_fkey_node`;
 ALTER TABLE security_event
     DROP CONSTRAINT IF EXISTS `mac_fkey_node`;
 
