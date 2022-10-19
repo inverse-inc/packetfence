@@ -166,8 +166,8 @@ const mutations = {
     state.unsubscribe = false
   },
   $RESET: (state) => {
-    state.unsubscribe()
-     
+    if (state.unsubscribe)
+      state.unsubscribe()
     state = initialState()
   }
 }
