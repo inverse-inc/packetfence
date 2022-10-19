@@ -11,6 +11,8 @@
       - inline/l3/teardown
       - inline/l2
       - inline/l2/teardown
+      - security_event_suricata
+      - security_event_suricata/teardown
 
   tasks:
     - name: Run Venom testsuites

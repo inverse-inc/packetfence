@@ -1,0 +1,15 @@
+executor: ping 
+input:
+  count: 1
+  timeout: 5
+  status_code: "0"
+  other_options: ""
+  destination: "8.8.8.8"
+  interface: "ens7"
+steps:
+- type: exec
+  script: "ping -c {{.input.count}} -W {{.input.timeout}} -I {{.input.interface}} {{.input.other_options}} {{.input.destination}}"
+  assertions:
+    - result.statuscode ShouldEqual "{{.input.status_code}}"
+  retry: 6
+  delay: 10

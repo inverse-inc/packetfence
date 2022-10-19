@@ -1,0 +1,130 @@
+name: Create Suricata Security event
+testcases:
+# Create the fifo
+- name: create_the_fifo_file
+  steps:
+  - type: file_fifo_create
+    chmod: "0777"
+    file: "{{.security_event_suricata.fifo_file}}"
+
+- name: create_the_syslog_parser
+  steps:
+  - type: pf_api_syslog_parsers_create
+    id: "{{.security_event_suricata.syslog_parser.id}}"
+    isClone: false
+    isNew: true
+    syslogParserType: "suricata"
+    path: "{{.security_event_suricata.fifo_file}}"
+    syslog_type: "suricata"
+
+- name: get_login_token
+  steps:
+  - type: get_login_token
+
+- name: create_security_event
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/security_events'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.security_event_suricata.event.id}}",
+        "isClone": false,
+        "isNew": true,
+        "access_duration": "{{.security_event_suricata.event.access_duration}}",
+        "actions": ["reevaluate_access"],
+        "auto_enable": "Y",
+        "button_text": null,
+        "delay_by": {
+            "interval": null,
+            "unit": null
+        },
+        "desc": "{{.security_event_suricata.event.desc}}",
+        "email_recipient_message": null,
+        "enabled": "Y",
+        "external_command": null,
+        "grace": {
+            "interval": "5",
+            "unit": "m"
+        },
+        "max_enable": "2",
+        "priority": "1",
+        "recipient_email": null,
+        "recipient_template_email": null,
+        "redirect_url": null,
+        "target_category": null,
+        "template": "p2p",
+        "triggers": [{
+            "accounting": null,
+            "custom": null,
+            "detect": null,
+            "device": null,
+            "dhcp_fingerprint": null,
+            "dhcp_vendor": null,
+            "dhcp6_fingerprint": null,
+            "dhcp6_enterprise": null,
+            "internal": null,
+            "mac": null,
+            "mac_vendor": null,
+            "nessus": null,
+            "nessus6": null,
+            "nexpose_event_contains": null,
+            "nexpose_event_starts_with": null,
+            "openvas": null,
+            "provisioner": null,
+            "role": null,
+            "suricata_event": "ET POLICY ",
+            "suricata_md5": null,
+            "switch": null,
+            "switch_group": null
+        }],
+        "user_mail_message": null,
+        "vclose": null,
+        "vlan": "isolation",
+        "whitelisted_roles": [],
+        "window": {
+            "interval": null,
+            "unit": null
+        },
+        "window_dynamic": "yes"
+      }
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+
+- name: add_range_in_fencing
+  steps:
+  - type: http
+    method: PATCH
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/base/fencing'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "fencing",
+        "range": "192.168.3.0/24"
+      }
+    headers:
+      "Content-Type": "application/json"
+      "Authorization": "{{.get_login_token.json.result.token}}"
+    assertions:
+      - result.statuscode ShouldEqual 200
+
+# restart pfqueue et pf detect
+- name: restart_service_pfqueue
+  steps:
+  - type: systemctl_service_restart 
+    service: packetfence-pfqueue
+
+- name: restart_service_pfdetect
+  steps:
+  - type: systemctl_service_restart 
+    service: packetfence-pfdetect
+
+- name: clear_fingerbank_cache
+  steps:
+  - type: pfcmd_run_command 
+    script: 'cache fingerbank clear'

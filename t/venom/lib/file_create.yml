@@ -1,0 +1,24 @@
+executor: file_create
+input:
+  chmod: "0100"
+  user: "pf"
+  group: "pf"
+  file: "/usr/lib/pf/myfile.txt"
+steps:
+- type: exec
+  script: 'mkdir -p "$(dirname "{{.input.file}}")"'
+
+- type: exec
+  script: "touch {{.input.file}}"
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: "chmod {{.input.chmod}} {{.input.file}}"
+  assertions:
+    - result.code ShouldEqual 0
+
+- type: exec
+  script: "chown {{.input.user}}:{{.input.group}} {{.input.file}}"
+  assertions:
+    - result.code ShouldEqual 0

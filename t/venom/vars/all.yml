@@ -596,6 +596,19 @@ security_event_autoreg.node.mac_url_encoded: '{{.node01_ens7_mac_address_url_enc
 security_event_autoreg.node.dhcp_fingerprint: 1,28,2,3,15,6,119,12,44,47,26,121,42
 security_event_autoreg.node.dhcp_fingerprint_id: 276
 
+################################################################################
+## Security event suricata test suite specific variables
+#################################################################################
+security_event_suricata.event.id: '88888889'
+security_event_suricata.syslog_parser.id: 'Suricata'
+security_event_suricata.event.access_duration: '12h'
+security_event_suricata.event.desc: 'ET P2P Kaaza Media'
+security_event_suricata.fifo_file: '/usr/local/pf/var/suricata'
+security_event_suricata.node.macaddress: 02:06:19:98:00:02
+security_event_suricata.node.ipaddress: 192.168.3.10
+security_event_suricata.pf_portal: 192.168.3.1
+security_event_suricata.networks: 192.168.3.0
+
 #################################################################################
 ## inline_l2_and_radius test suite specific variables
 #################################################################################

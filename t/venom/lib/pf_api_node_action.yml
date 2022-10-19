@@ -4,6 +4,7 @@ input:
   id: ""
   method: GET
   status_code: 200
+  url_extra: ""
 steps:
 - type: mac_address_url_encoder
   mac_address: "{{.input.id}}"
@@ -12,9 +13,17 @@ steps:
   body: '{{.input.body}}'
   method: "{{.input.method}}"
   status_code: "{{.input.status_code}}"
-  url: 'node/{{.result.mac_address_url_encoded}}'
+  url: 'node/{{.result.mac_address_url_encoded}}{{.input.url_extra}}'
+  #info:
+  #- "{{.result.pf_api_action__items}}"
+  #- "{{.result.pf_api_action_}}"
   vars:
     node_temp:
       from: result.pf_api_action_
 output:
   pf_api_node_action_: "{{.node_temp}}"
+  pf_api_node_status_: "result.pf_api_action__node_status"
+  pf_api_node_dhcp_fingerprint_: "result.pf_api_action__node_dhcp_fingerprint"
+  pf_api_node_unregdate_: "result.pf_api_action__node_unregdate"
+  pf_api_node_security_event_id_: "result.pf_api_action__node_security_event_id"
+  pf_api_node_items_: "{{.result.pf_api_action__items}}"

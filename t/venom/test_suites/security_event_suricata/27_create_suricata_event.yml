@@ -1,0 +1,17 @@
+name: Create event in fifo
+testcases:
+- name: get_node01_current_ip
+  steps:
+  - type: pf_api_nodes_search_mac_address_online
+    fields: "ip4log.ip"
+    mac_address: "{{.security_event_suricata.node.macaddress}}"
+    vars:
+      ipv4:
+        from: result.pf_api_nodes_search_mac_address_online_json.items.items0.ip4log.ip
+    retry: 20
+    delay: 3
+
+- name: create_suricata_event_in_fifo
+  steps:
+  - type: exec
+    script: 'echo "04/18/2018-10:48:17.643084 [**] [1:2002878:7] ET POLICY iTunes User Agent [**] [Classification: Potential Corporate Privacy Violation] [Priority: 1] {TCP} {{.get_node01_current_ip.ipv4}}:52801 -> 165.254.0.105:80" > {{.security_event_suricata.fifo_file}}'

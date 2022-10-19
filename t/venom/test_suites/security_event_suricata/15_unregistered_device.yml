@@ -1,0 +1,9 @@
+name: Unregistered device
+testcases:
+  - name: test_if_the_device_is_in_the_ipset_unregister_set
+    steps:
+      - type: exec
+        script: 'ipset test pfsession_Unreg_{{.security_event_suricata.networks}} {{.security_event_suricata.node.ipaddress}}'
+        # wait two minutes before failing
+        retry: 8
+        delay: 15

@@ -1,4 +1,4 @@
-executor: systemctl_service_restart
+executor: systemctl_service_stop
 input:
   service: "" 
   time_to_sleep: 0
@@ -6,7 +6,7 @@ input:
 steps:
 # service restarted by hand because using API cause Venom failure (EOF)
 - type: systemctl_service
-  unit_command: restart
+  unit_command: stop
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
 
@@ -18,3 +18,5 @@ steps:
 - type: systemctl_service_status
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
+  substring: "inactive (dead)"
+  service_code: 3

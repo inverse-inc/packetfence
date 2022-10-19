@@ -1,0 +1,13 @@
+executor: pf_api_node_security_events
+input:
+  id: ""
+steps:
+- type: pf_api_node_action
+  id: "{{.input.id}}"
+  status_code: 200
+  url_extra: "/security_events"
+  #info:
+  #  - "{{.result.pf_api_node_security_event_id}}"
+output:
+  pf_api_node_security_event_id: "{{.result.pf_api_node_security_event_id}}"
+  pf_api_node_security_event_: "{{.result.pf_api_node_items_}}"

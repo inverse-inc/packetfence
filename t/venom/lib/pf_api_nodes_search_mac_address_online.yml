@@ -1,5 +1,6 @@
 executor: pf_api_nodes_search_mac_address_online
 input:
+  fields: "online"
   mac_address: ""
   time_to_sleep: 0
 steps:
@@ -8,7 +9,7 @@ steps:
     {
       "cursor": 0,
       "fields": [
-        "online"
+        "{{.input.fields}}"
       ],
       "limit": 1,
       "query": {
@@ -29,4 +30,4 @@ steps:
     }
   time_to_sleep: "{{.input.time_to_sleep}}"
 output:
-  pf_api_nodes_search_mac_address_online_: "{{.result.pf_api_nodes_search_}}"
+  pf_api_nodes_search_mac_address_online_: '{{.result.pf_api_nodes_search_}}'

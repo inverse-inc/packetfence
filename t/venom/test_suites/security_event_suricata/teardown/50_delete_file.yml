@@ -1,0 +1,6 @@
+name: Security Event Suricata Clean file
+testcases:
+- name: file_delete 
+  steps:
+  - type: file_delete
+    file: "{{.security_event_suricata.fifo_file}}" 

@@ -1,0 +1,6 @@
+name: Check access internet
+testcases:
+- name: check_internet_access
+  steps:
+  - type: check_internet_access
+    status_code: 404

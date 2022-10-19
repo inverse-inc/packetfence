@@ -6,8 +6,8 @@ steps:
 - type: pf_api_node_action
   method: DELETE
   id: "{{.input.id}}"
-  info:
-    - "{{.result.pf_api_node_action_json}}"
+ #info:
+ #  - "{{.result.pf_api_node_action_json}}"
   assertions:
     - result.pf_api_node_action_json.message ShouldEqual "Deleted {{.input.id}} successfully"
 
