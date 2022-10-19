@@ -144,7 +144,7 @@ sub check_activation {
     }
 }
 
-my @auto_included = qw(firstname lastname telephone);
+my @auto_included = qw(firstname lastname telephone email);
 my %auto_included = map { $_ => 1 } @auto_included;
 
 =head2 do_sponsor_registration
