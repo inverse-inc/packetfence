@@ -28,14 +28,19 @@ sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
 
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
-    my $actions = {
-        access_level => "none",
-    };
-
+    my $actions;
     if (my $uuid = $c->request->param('token')) {
         $actions = cache->get($uuid);
+        if (!defined($actions)) {
+            $c->response->status(404);
+            $c->response->body('{ "access_level" => "none" }');
+            $c->response->content_type("application/json");
+        }
+    } else {
+        $c->response->status(404);
+        $c->response->content_type("application/json");
+        $c->response->body('{ "access_level" => "none" }');
     }
-
     $c->stash(
         current_view     => 'JSON',
         json_content     => $actions,
