@@ -725,7 +725,7 @@ inline_el8:
 
 ### development branches **only**
 # We force VAGRANT_COMMON_DOTFILE_PATH to a specific value
-unit_tests_el8:
+unit_tests_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -734,7 +734,7 @@ unit_tests_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-configurator_el8:
+configurator_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
@@ -742,7 +742,7 @@ configurator_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-configurator_deb11:
+configurator_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
   extends:
@@ -750,7 +750,7 @@ configurator_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-dot1x_eap_peap_el8:
+dot1x_eap_peap_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -759,7 +759,7 @@ dot1x_eap_peap_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-dot1x_eap_peap_deb11:
+dot1x_eap_peap_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -768,7 +768,7 @@ dot1x_eap_peap_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-mac_auth_el8:
+mac_auth_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -777,7 +777,7 @@ mac_auth_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-mac_auth_deb11:
+mac_auth_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -786,7 +786,7 @@ mac_auth_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-dot1x_eap_tls_el8:
+dot1x_eap_tls_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -795,7 +795,7 @@ dot1x_eap_tls_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-dot1x_eap_tls_deb11:
+dot1x_eap_tls_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -804,7 +804,7 @@ dot1x_eap_tls_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-fingerbank_invalid_db_deb11:
+fingerbank_invalid_db_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -813,7 +813,7 @@ fingerbank_invalid_db_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-security_events_deb11:
+security_events_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -822,7 +822,7 @@ security_events_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-cli_login_deb11:
+cli_login_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -831,7 +831,7 @@ cli_login_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-cli_login_el8:
+cli_login_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -840,7 +840,7 @@ cli_login_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-external_integrations_deb11:
+external_integrations_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -849,7 +849,7 @@ external_integrations_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-captive_portal_el8:
+captive_portal_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -858,7 +858,7 @@ captive_portal_el8:
     - .test_script_job
     - .test_branches_only_rules
 
-captive_portal_deb11:
+captive_portal_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -867,7 +867,7 @@ captive_portal_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-inline_deb11:
+inline_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
@@ -876,7 +876,7 @@ inline_deb11:
     - .test_script_job
     - .test_branches_only_rules
 
-inline_el8:
+inline_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_JOB_NAME}-${CI_JOB_ID}
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
