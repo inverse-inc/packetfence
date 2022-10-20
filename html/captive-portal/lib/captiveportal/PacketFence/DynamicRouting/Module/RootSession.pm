@@ -31,7 +31,6 @@ use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::Portal::Session;
 use pf::CHI;
-use Data::UUID;
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
 
@@ -103,7 +102,7 @@ Register the device and apply the new node info
 sub execute_actions {
     my ($self) = @_;
     my $ug    = Data::UUID->new;
-    my $uuid = $ug->to_string($ug->create());
+    my $uuid = pf::util::get_uuid();
     cache->set($uuid, $self->new_node_info);
     $self->{uuid} = $uuid;
 }

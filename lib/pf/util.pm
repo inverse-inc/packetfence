@@ -1760,6 +1760,20 @@ sub strip_path_for_git_storage {
     return $path;
 }
 
+sub gen_uuid {
+    my $uuid = '';
+    for ( 1 .. 4 ) {
+        $uuid .= pack 'I', int(rand(2 ** 32));
+    }
+
+    substr $uuid, 6, 1, chr( ord( substr( $uuid, 6, 1 ) ) & 0x0f | 0x40 );
+
+    return join '-',
+        map { unpack 'H*', $_ }
+        map { substr $uuid, 0, $_, '' }
+        ( 4, 2, 2, 2, 6 );
+}
+
 =back
 
 =head1 AUTHOR
