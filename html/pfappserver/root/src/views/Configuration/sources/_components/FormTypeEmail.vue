@@ -113,6 +113,8 @@ export default {
   inheritAttrs: false,
   components,
   props,
-  setup
+  setup,
+  services: ['haproxy-portal']
 }
+
 </script>

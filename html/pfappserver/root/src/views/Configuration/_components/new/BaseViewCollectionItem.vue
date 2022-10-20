@@ -14,6 +14,7 @@
         :isNew="isNew"
         :isClone="isClone"
         :isLoading="isLoading"
+        :isModified="isModified"
         v-bind="$props"
       />
     </b-form>

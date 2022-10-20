@@ -21,6 +21,10 @@ const useFormProps = {
     type: Boolean,
     default: false
   },
+  isModified: {
+    type: Boolean,
+    default: false
+  },
   id: {
     type: String
   }

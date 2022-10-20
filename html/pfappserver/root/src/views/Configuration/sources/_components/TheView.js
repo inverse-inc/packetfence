@@ -28,10 +28,12 @@ const setup = (props, context) => {
 
   const viewCollectionItem = useViewCollectionItem(collection, props, context)
   const {
-    form
+    form,
+    isLoading,
+    isModified
   } = viewCollectionItem
 
-  const scopedSlotProps = computed(() => ({ ...props, sourceType: sourceType.value || form.value.type }))
+  const scopedSlotProps = computed(() => ({ ...props, isLoading: isLoading.value, isModified: isModified.value, sourceType: sourceType.value || form.value.type }))
 
   return {
     ...viewCollectionItem,

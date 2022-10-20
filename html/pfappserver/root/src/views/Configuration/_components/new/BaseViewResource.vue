@@ -10,6 +10,7 @@
         :form="form"
         :meta="meta"
         :isLoading="isLoading"
+        :isModified="isModified"
         v-bind="$props"
       />
     </b-form>

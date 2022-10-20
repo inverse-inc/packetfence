@@ -1,8 +1,12 @@
 <template>
   <b-container class="px-0" fluid>
-    <component v-if="formType"
-      :is="formType" v-bind="$props"
-    />
+
+    <template v-if="formType">
+      <component :is="formType" v-bind="$props" />
+
+      <alert-services v-if="formType.services"
+        :show="isModified" :disabled="isLoading" :services="formType.services" class="m-3" />
+    </template>
 
     <base-container-loading v-else-if="isLoading"
       :title="$i18n.t('Building Form')"
@@ -20,6 +24,7 @@
 import { computed, toRefs, unref } from '@vue/composition-api'
 import { useFormProps as props } from '../_composables/useForm'
 import { BaseContainerLoading } from '@/components/new/'
+import AlertServices from './AlertServices'
 import FormTypeAdminProxy from './FormTypeAdminProxy'
 import FormTypeAuthorization from './FormTypeAuthorization'
 import FormTypeAzureAD from './FormTypeAzureAD'
@@ -51,6 +56,7 @@ import FormTypeTwilio from './FormTypeTwilio'
 import FormTypeWindowsLive from './FormTypeWindowsLive'
 
 const components = {
+  AlertServices,
   BaseContainerLoading,
 
   FormTypeAdminProxy,
