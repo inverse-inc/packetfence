@@ -196,6 +196,16 @@ sub build_child {
         get_logger->info("secure redirect has been disabled since the portal certificate is a self-signed");
     }
 
+    unless($Config{admin_sso}{base_url}) {
+        if(isenabled($Config{'captive_portal'}{'secure_redirect'})) {
+            $Config{admin_sso}{base_url} = "https://";
+        }
+        else {
+            $Config{admin_sso}{base_url} = "http://";
+        }
+        $Config{admin_sso}{base_url} .= $Config{general}{hostname}.".".$Config{general}{domain};
+    }
+
     return \%Config;
 }
 
