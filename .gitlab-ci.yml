@@ -155,18 +155,6 @@ variables:
     - if: '$CI_COMMIT_REF_NAME == "devel" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
     - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "web" && ( $BUILD_IMG_VAGRANT == "yes" || $CI_COMMIT_MESSAGE =~ /build_img_vagrant=yes/ )'
 
-# run jobs only when:
-# - on a tag (push, schedule, web)
-# - on all branches (web and schedule) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# - on devel branch (push) if variable TEST sets to yes or if CI_COMMIT_MESSAGE contains "test=yes".
-# Web pipelines launch on devel branch will be catched by previous rules
-.test_rules:
-  rules:
-    - if: '$CI_COMMIT_TAG'
-    - if: '$CI_PIPELINE_SOURCE == "web" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-    - if: '$CI_COMMIT_REF_NAME == "devel" && ( $TEST == "yes" || $CI_COMMIT_MESSAGE =~ /test=yes/ )'
-
 .publish_ppa_rules:
   rules:
     - if: '$PUBLISH_PPA == "yes" || $CI_COMMIT_MESSAGE =~ /publish_ppa=yes/'
