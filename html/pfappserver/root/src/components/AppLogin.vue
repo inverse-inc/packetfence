@@ -20,22 +20,31 @@
         </template>
       </component>
       <template v-slot:[footerSlotName]>
-        <b-dropdown variant="link" class="float-right" :text="$t(currentLanguage.label)">
-          <b-dropdown-item v-for="language in languages" :key="language.locale"
-            :disabled="language.locale === $i18n.locale"
-            @click="setLanguage(language.locale)"
-            >{{ $t(language.label) }}</b-dropdown-item>
-        </b-dropdown>
-        <template v-if="sessionTime">
-          <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
-          <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
-        </template>
-        <template v-else>
-          <b-link variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
-          <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
-            {{ $t('Login') }}
-          </base-button-save>
-        </template>
+        <b-row align-h="between">
+          <b-col>
+            <template v-if="sessionTime">
+              <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
+              <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
+            </template>
+            <template v-else>
+              <b-link variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
+              <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" class="ml-1" variant="primary">
+                {{ $t('Login') }}
+              </base-button-save>
+            </template>
+          </b-col>
+          <b-col class="text-right">
+            <b-dropdown class="ml-1" variant="link" :text="$t(currentLanguage.label)">
+              <b-dropdown-item v-for="language in languages" :key="language.locale"
+                :disabled="language.locale === $i18n.locale"
+                @click="setLanguage(language.locale)"
+                >{{ $t(language.label) }}</b-dropdown-item>
+            </b-dropdown>
+            <b-button v-if="ssoLoginUrl" :href="ssoLoginUrl" class="ml-1" variant="outline-primary">
+              {{ $t('Single Sign On') }} <icon class="ml-1" name="user-lock" />
+            </b-button>
+          </b-col>
+        </b-row>
       </template>
     </component>
   </b-form>
@@ -84,6 +93,7 @@ const setup = (props, context) => {
   const isSessionAlive = computed(() => $store.getters['session/getSessionTime']() !== false)
   const isLoading = computed(() => $store.getters['session/isLoading'])
   const validForm = computed(() => username.value.length > 0 && password.value.length > 0 && !isLoading.value)
+  const ssoLoginUrl = computed(() => $store.getters['session/ssoLoginUrl'])
 
   onMounted(() => {
     if ($router.currentRoute.path === '/logout') {
@@ -103,6 +113,7 @@ const setup = (props, context) => {
       // Watch for session state change from external sources
       watch(isSessionAlive, updateSessionTimeVerified)
     }
+    $store.dispatch('session/getSsoInfo')
   })
 
   let sessionTimer
@@ -211,7 +222,9 @@ const setup = (props, context) => {
 
     languages,
     currentLanguage,
-    setLanguage
+    setLanguage,
+
+    ssoLoginUrl
   }
 }
 
