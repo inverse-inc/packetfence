@@ -180,7 +180,7 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 	router := httprouter.New()
 	router.POST("/api/v1/login", apiAAA.handleLogin)
 	router.GET("/api/v1/token_info", apiAAA.handleTokenInfo)
-	router.GET("/api/v1/sso-info", apiAAA.handleSSOInfo)
+	router.GET("/api/v1/sso_info", apiAAA.handleSSOInfo)
 
 	apiAAA.router = router
 
