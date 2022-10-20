@@ -19,12 +19,13 @@ source ${FUNCTIONS_FILE}
 configure_and_check() {
     CI_JOB_STATUS=${CI_JOB_STATUS:-}
     CI_JOB_NAME=${CI_JOB_NAME:-}
+    KEEP_VMS=${KEEP_VMS:-no}
 
-    if [ "$CI_JOB_STATUS" = "success" ]; then
+    if [ "$CI_JOB_STATUS" = "success" ] || [ "$KEEP_VMS" = "no" ]; then
         echo "Passed tests, no need to keep VM"
         MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
     else
-        echo 'Failed tests, shutdown VM to analyze issue'
+        echo 'Failed tests or KEEP_VMS variable defined, only halting VM'
         MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
     fi
 
