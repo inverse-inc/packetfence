@@ -247,3 +247,22 @@ cluster_el8:
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
 
+### alias to run tests on other branches
+# it's a hack to simplify definition of jobs in .gitlab-ci.yml
+unit_tests_el8_branches: unit_tests_el8
+configurator_el8_branches: configurator_el8
+configurator_deb11_branches: configurator_deb11
+dot1x_eap_peap_el8_branches: dot1x_eap_peap_el8
+dot1x_eap_peap_deb11_branches: dot1x_eap_peap_deb11
+mac_auth_el8_branches: mac_auth_el8
+mac_auth_deb11_branches: mac_auth_deb11
+dot1x_eap_tls_el8_branches: dot1x_eap_tls_el8
+dot1x_eap_tls_deb11_branches: dot1x_eap_tls_deb11
+inline_deb11_branches: inline_deb11
+inline_el8_branches: inline_el8
+external_integrations_deb11_branches: external_integrations_deb11
+security_events_deb11_branches: security_events_deb11
+cli_login_el8_branches: cli_login_el8
+cli_login_deb11_branches: cli_login_deb11
+captive_portal_el8_branches: captive_portal_el8
+captive_portal_deb11_branches: captive_portal_deb11
