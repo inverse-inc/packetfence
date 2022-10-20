@@ -33,6 +33,8 @@ use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
 use pf::activation;
 use fingerbank::Config;
+use captiveportal::DynamicRouting::Module::Root;
+use captiveportal::DynamicRouting::Module::RootSession;
 
 has 'session' => (is => 'rw', required => 1);
 
