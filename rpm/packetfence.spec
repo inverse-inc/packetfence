@@ -437,6 +437,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/addons/full-import
 %{__install} -d %{buildroot}/usr/local/pf/addons/functions
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
+%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/uploads
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
