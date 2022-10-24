@@ -31,6 +31,7 @@ use pf::constants qw($TRUE $FALSE);
 use pf::util;
 use pf::Portal::Session;
 use pf::CHI;
+use Bytes::Random::Secure;
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
 
@@ -75,7 +76,7 @@ sub release {
     my ($self) = @_;
 
     my $lang = $self->app->session->{lang} // "";
-    return $self->app->redirect($self->app->session->{callback}."/?token=".$self->uuid);
+    return $self->app->redirect($self->app->session->{callback}."/?token=".$self->{root_session_token});
 }
 
 =head2 execute_child
@@ -101,10 +102,14 @@ Register the device and apply the new node info
 
 sub execute_actions {
     my ($self) = @_;
-    my $ug    = Data::UUID->new;
-    my $uuid = pf::util::get_uuid();
-    cache->set($uuid, $self->new_node_info);
-    $self->{uuid} = $uuid;
+    my $rand = Bytes::Random::Secure->new(
+            Bits        => 64,
+            NonBlocking => 1,
+        );
+    my $token = unpack("H*", $rand->bytes(32));
+    cache->set($token, $self->new_node_info);
+    $self->{root_session_token} = $token;
+    return $TRUE;
 }
 
 =head2 record_destination_url
