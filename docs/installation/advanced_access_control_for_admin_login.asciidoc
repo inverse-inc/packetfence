@@ -6,9 +6,9 @@ If you need to perform other types of authentication for the admin interface (ex
 
 ==== Basic Configuration
 
-First, head to 'Configuration->System Configuration->Admin SSO' and set the status to enabled. If you want to enforce the usage of your SSO policy for login (i.e. disable the username/password), you should disable 'Allow username/password authentication' in this page.
+First, head to 'Configuration->System Configuration->Admin Login' and set 'SSO Status' to enabled. If you want to enforce the usage of your SSO policy for login (i.e. disable the username/password), you should disable 'Allow username/password authentication' in this page.
 
-Optionally, you may need to configure the 'Base URL' if your PacketFence captive portal must be accessed under a different named than what is defined in the 'Hostname' and 'Domain' values that are in 'General Configuration'.
+Optionally, you may need to configure the 'SSO Base URL' if your PacketFence captive portal must be accessed under a different named than what is defined in the 'Hostname' and 'Domain' values that are in 'General Configuration'.
 
 Next, you will need to configure a connnection profile for authenticating administrators. Go in 'Configuration->Policies and Access Control->Connection Profiles' and create a new connection profile with these values:
 
@@ -16,7 +16,7 @@ Next, you will need to configure a connnection profile for authenticating admini
  * Filter: URI with value '/admin-sso'
  * Sources: The authentication sources that should be used for the login.
 
-After this, restart `api-frontend` and `httpd.portal` and when accessing the admin interface login page, you should see a new option named 'Single Sign On'. This text can be changed in the 'Admin SSO' configuration section.
+After this, restart `api-frontend` and `httpd.portal` and when accessing the admin interface login page, you should see a new option named 'Single Sign On'. This text can be changed in the 'Admin Login' configuration section.
 
 Any authentication mechanism that can be used on the portal (SAML, Akamai MFA, TOTP, etc) can be used for authenticating administrators using this process. Refer to the appropriate section for each feature in this guide in order to configure them on your connection profile used for authenticating administrators. 
 
