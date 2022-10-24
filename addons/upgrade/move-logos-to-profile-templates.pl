@@ -40,10 +40,10 @@ my $sync_file = '/usr/local/pf/conf/cluster-files.txt';
 
 sub create_sync_file {
     if (-e "$sync_file") {
-	print("Synchronization file already exists\n");
+    print("Synchronization file already exists\n");
     } else {
-	print("Creating '$sync_file'\n");
-	touch_file($sync_file);
+    print("Creating '$sync_file'\n");
+    touch_file($sync_file);
     }
     print("==========\n");
 }
@@ -51,16 +51,16 @@ sub create_sync_file {
 sub store_logo_paths {
     my ($profile_id) = @_;
     if (my $logo_path = $ini->val($profile_id, 'logo')) {
-	my $logo_filename = basename($logo_path);
-    	$profiles_logos{$profile_id} = {
-    	    'old_logo_absolute_path' => "$html_prefix$logo_path",
-	    'old_logo_relative_path' => "$logo_path",
+    my $logo_filename = basename($logo_path);
+        $profiles_logos{$profile_id} = {
+            'old_logo_absolute_path' => "$html_prefix$logo_path",
+        'old_logo_relative_path' => "$logo_path",
             'new_logo_absolute_path' => "$cp_prefix$new_logo_prefix/$profile_id/$logo_filename",
-	    'new_logo_relative_path' => "$new_logo_prefix/$profile_id/$logo_filename",
-	};
-	print("Logo detected on '$profile_id' connection profile\n");
+        'new_logo_relative_path' => "$new_logo_prefix/$profile_id/$logo_filename",
+    };
+    print("Logo detected on '$profile_id' connection profile\n");
     } else {
-	print("No logo declaration detected on '$profile_id' connection profile, profile is using default settings\n");
+    print("No logo declaration detected on '$profile_id' connection profile, profile is using default settings\n");
     }
 }
 
@@ -69,10 +69,10 @@ sub check_logo_path {
     my ($profile_id) = @_;
 
     if ( $profiles_logos{$profile_id}->{'old_logo_absolute_path'} =~ "/profile-templates/" ) {
-	print("'$profile_id' has already been migrated\n");
-	return 0;
+    print("'$profile_id' has already been migrated\n");
+    return 0;
     } else {
-	return 1;
+    return 1;
     }
 }
 
@@ -80,11 +80,11 @@ sub check_logo_exists {
     my ($profile_id) = @_;
 
     if (-e "$profiles_logos{$profile_id}->{'old_logo_absolute_path'}") {
-	print("Current logo configured on '$profile_id' exists on filesystem\n");
+    print("Current logo configured on '$profile_id' exists on filesystem\n");
         return 1;
     } else {
-	print("Current logo configured on '$profile_id' **doesn't** exist on filesystem\n");
-	return 0;
+    print("Current logo configured on '$profile_id' **doesn't** exist on filesystem\n");
+    return 0;
     }
 }
 
@@ -94,10 +94,10 @@ sub copy_logo_to_new_location {
 
     # check if target dir already exist
     if (-d "$profile_template_dir" ) {
-	print("$profile_template_dir already exists\n");
+    print("$profile_template_dir already exists\n");
     } else {
-	print("Creating $profile_template_dir\n");
-	mkdir($profile_template_dir);
+    print("Creating $profile_template_dir\n");
+    mkdir($profile_template_dir);
     }
 
     print("Copy $profiles_logos{$profile_id}->{'old_logo_absolute_path'} into $profiles_logos{$profile_id}->{'new_logo_absolute_path'}\n");
@@ -142,16 +142,16 @@ for my $profile_id (keys %profiles_logos) {
         if (check_logo_exists($profile_id)) {
             copy_logo_to_new_location($profile_id);
             update_connection_profile($profile_id);
-	    if ($cluster_enabled) {
-		add_logo_to_sync($profile_id);
-	    }
+        if ($cluster_enabled) {
+        add_logo_to_sync($profile_id);
+        }
         } else {
             print("==========\n");
             next;
         }
-	print("==========\n");
+    print("==========\n");
     } else {
-	print("Nothing to do on '$profile_id'\n");
+    print("Nothing to do on '$profile_id'\n");
     }
 }
 
