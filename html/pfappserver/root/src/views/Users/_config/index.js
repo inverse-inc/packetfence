@@ -46,6 +46,7 @@ export const createSingleForm = {
   pid: '',
   email: '',
   sponsor: '',
+  sponsored_date: null,
   password: '',
   login_remaining: null,
   gender: '',
@@ -152,6 +153,13 @@ export const importFields = [
     types: [fieldType.SUBSTRING],
     required: false,
     validator: validatorFromColumnSchemas(MysqlDatabase.person.sponsor)
+  },
+  {
+    value: 'sponsored_date',
+    text: i18n.t('Sponsor'),
+    types: [fieldType.DATE],
+    required: false,
+    validator: validatorFromColumnSchemas(MysqlDatabase.person.sponsored_date)
   },
   {
     value: 'anniversary',

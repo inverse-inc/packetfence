@@ -20,6 +20,11 @@
           <form-group-sponsor namespace="sponsor"
             :column-label="$t('Sponsor')" />
 
+          <form-group-sponsored-date namespace="sponsored_date"
+            :column-label="$t('Sponsored Date')"
+            readonly
+            />
+
           <form-group-language namespace="lang"
             :column-label="$t('Language')" />
 
@@ -300,6 +305,7 @@ import {
   FormGroupLoginRemaining,
   FormGroupEmail,
   FormGroupSponsor,
+  FormGroupSponsoredDate,
   FormGroupLanguage,
   FormGroupGender,
   FormGroupTitle,
@@ -344,6 +350,7 @@ const components = {
   FormGroupPid,
   FormGroupEmail,
   FormGroupSponsor,
+  FormGroupSponsoredDate,
   FormGroupLanguage,
   FormGroupGender,
   FormGroupTitle,
