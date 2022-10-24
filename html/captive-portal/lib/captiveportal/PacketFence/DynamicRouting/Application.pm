@@ -592,7 +592,7 @@ return $TRUE if the root module ia a RootSession
 
 sub isrootsession {
     my ($self) = @_;
-    return $self->isa("captiveportal::DynamicRouting::Module::RootSession")
+    return $self->root_module->isa("captiveportal::DynamicRouting::Module::RootSession")
 }
 
 =head1 AUTHOR
