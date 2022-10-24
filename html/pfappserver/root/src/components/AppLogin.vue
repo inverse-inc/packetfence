@@ -3,20 +3,22 @@
     <component :is="modal?'b-modal':'b-card'" v-model="showModal"
       static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
       <template v-slot:[headerSlotName]>
-        <b-row align-h="between" align-v="center" class="text-nowrap">
-          <b-col cols="auto">
-            <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expire soon'" />
-            <h4 class="mb-0" v-else v-t="'PacketFence Administration Login'" />
-          </b-col>
-          <b-col cols="auto" class="text-right">
-            <b-dropdown class="ml-1" variant="link" :text="$t(currentLanguage.label)">
-              <b-dropdown-item v-for="language in languages" :key="language.locale"
-                :disabled="language.locale === $i18n.locale"
-                @click="setLanguage(language.locale)"
-                >{{ $t(language.label) }}</b-dropdown-item>
-            </b-dropdown>
-          </b-col>
-        </b-row>
+        <b-container fluid class="px-0">
+          <b-row align-h="between" align-v="center" class="text-nowrap">
+            <b-col cols="9" md="9">
+              <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expire soon'" />
+              <h4 class="mb-0" v-else v-t="'PacketFence Administration Login'" />
+            </b-col>
+            <b-col cols="auto" md="auto" class="ml-auto text-right">
+              <b-dropdown variant="link" :text="$t(currentLanguage.label)">
+                <b-dropdown-item v-for="language in languages" :key="language.locale"
+                  :disabled="language.locale === $i18n.locale"
+                  @click="setLanguage(language.locale)"
+                  >{{ $t(language.label) }}</b-dropdown-item>
+              </b-dropdown>
+            </b-col>
+          </b-row>
+        </b-container>
       </template>
       <component :is="modal?'div':'b-card-body'">
         <b-alert :variant="message.level" :show="!!message.text" fade>
@@ -32,26 +34,28 @@
         </template>
       </component>
       <template v-slot:[footerSlotName]>
-        <b-row align-h="between">
-          <b-col cols="auto">
-            <template v-if="sessionTime">
-              <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
-              <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
-            </template>
-            <template v-else>
-              <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" class="ml-1" variant="primary">
-                {{ $t('Login') }}
-              </base-button-save>
-              <b-link class="ml-1" variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
-            </template>
-          </b-col>
-          <b-col v-if="ssoEnabled"
-            cols="auto" class="text-right">
-            <b-button :href="ssoLoginUrl" class="ml-1" variant="outline-primary">
-              {{ $t(ssoLoginButtonText) }} <icon class="ml-1" name="user-lock" />
-            </b-button>
-          </b-col>
-        </b-row>
+        <b-container fluid class="px-0">
+          <b-row align-h="between">
+            <b-col cols="auto" md="auto" class="mr-auto">
+              <template v-if="sessionTime">
+                <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
+                <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
+              </template>
+              <template v-else>
+                <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
+                  {{ $t('Login') }}
+                </base-button-save>
+                <b-link class="ml-2" variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
+              </template>
+            </b-col>
+            <b-col v-if="!sessionTime && ssoEnabled"
+              cols="5" md="5" class="text-right">
+              <b-button :href="ssoLoginUrl" variant="outline-primary">
+                {{ $t(ssoLoginButtonText) }} <icon class="ml-1" name="user-lock" />
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-container>
       </template>
     </component>
   </b-form>
