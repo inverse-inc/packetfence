@@ -56,8 +56,9 @@ Logout of the captive portal
 
 sub logout {
     my ($self) = @_;
+    my $callback = $self->app->session->{callback};
     $self->app->reset_session;
-    $self->redirect_root();
+    $self->app->redirect($callback."?error=canceled");
 }
 
 =head2 release
@@ -101,7 +102,6 @@ sub execute_actions {
     my $token = unpack("H*", $rand->bytes(32));
     cache->set($token, $self->new_node_info);
     $self->{root_session_token} = $token;
-    return $TRUE;
 }
 
 =head1 AUTHOR

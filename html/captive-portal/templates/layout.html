@@ -83,7 +83,9 @@
           <div class="o-pack__item o-layout--center">
             <p class="text-p3">[% i18n("help: provide info") %]</p>
             <p class="text-p3 u-margin-none">IP <b>[% client_ip %]</b></p>
+            [% UNLESS isrootsession %]
             <p class="text-p3">MAC <b>[% client_mac %]</b></p>
+            [% END %]
           </div>
         </div>
         <!-- <div class="o-box u-padding-tiny u-padding@tablet">

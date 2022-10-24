@@ -377,6 +377,7 @@ sub render {
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
 
     my $layout_args = {
+        isrootsession => $self->isrootsession,
         flash => $self->flash,
         content => $inner_content,
         client_mac => $self->current_mac,

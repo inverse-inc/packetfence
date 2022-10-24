@@ -17,6 +17,7 @@ type PortalAuthenticationBackend struct {
 
 type PortalAuthenticationReply struct {
 	AccessLevel string `json:"access_level"`
+	Username    string `json:"pid"`
 }
 
 func NewPortalAuthenticationBackend(ctx context.Context, url *url.URL, checkCert bool) *PortalAuthenticationBackend {
@@ -63,5 +64,5 @@ func (pab *PortalAuthenticationBackend) buildTokenInfo(ctx context.Context, data
 		adminRolesMap[role] = true
 	}
 
-	return &TokenInfo{AdminRoles: adminRolesMap}
+	return &TokenInfo{AdminRoles: adminRolesMap, Username: data.Username}
 }
