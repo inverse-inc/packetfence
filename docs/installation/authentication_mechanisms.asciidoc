@@ -329,7 +329,7 @@ Where :
 * *Path to Service Provider cert* is the path to the certificate associated to the key above. A self-signed one is provided under the path : `/usr/local/pf/conf/ssl/server.crt`
 * *Path to Identity Provider metadata* is the path to the metadata file you transferred above (should be in `/usr/local/pf/conf/idp-metadata.xml`)
 * *Path to Identity Provider cert* is the path to the certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/idp.crt`).
-* *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/ca-idp.crt`). If the certificate above is self-signed, put the same path as above in this field.
+* *Path to Identity Provider CA cert* is the path to the CA certificate of the identity provider you transferred on the server above (should be in `/usr/local/pf/conf/ssl/idp-ca.crt`). If the certificate above is self-signed, put the same path as above in this field.
 * *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The default should fit at least SimpleSAMLphp.
 * *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The 'Authentication' section of this document contains explanations on how to configure an LDAP source which can then be used here.
 
