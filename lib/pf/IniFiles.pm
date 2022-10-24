@@ -23,6 +23,7 @@ use base qw(Config::IniFiles);
 use Time::HiRes qw(stat time);
 use Template;
 use Template::Stash;
+use utf8;
 *errors = \@Config::IniFiles::errors;
 
 use List::MoreUtils qw(all first_index uniq any none);
@@ -552,6 +553,17 @@ sub populate {
     }
 
     return;
+}
+
+sub _nextline {
+    my ($self, $fh) = @_;
+    my $line = $self->SUPER::_nextline($fh);
+    #    return $line;
+    if (defined $line) {
+        utf8::decode($line);
+    }
+
+    return $line;
 }
 
 =head1 AUTHOR
