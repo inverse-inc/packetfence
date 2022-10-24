@@ -17,19 +17,13 @@ with 'captiveportal::Role::Routed';
 has '+route_map' => (default => sub {
     tie my %map, 'Tie::IxHash', (
         '/logout' => \&logout,
-        '/access' => \&release,
-        '/record_destination_url' => \&record_destination_url,
     );
     return \%map;
 
 });
 
 use pf::log;
-use pf::node;
-use pf::config qw($default_pid);
-use pf::constants qw($TRUE $FALSE);
 use pf::util;
-use pf::Portal::Session;
 use pf::CHI;
 use Bytes::Random::Secure;
 
@@ -74,8 +68,6 @@ Reevaluate the access of the user and show the release page
 
 sub release {
     my ($self) = @_;
-
-    my $lang = $self->app->session->{lang} // "";
     return $self->app->redirect($self->app->session->{callback}."?token=".$self->{root_session_token});
 }
 
@@ -110,19 +102,6 @@ sub execute_actions {
     cache->set($token, $self->new_node_info);
     $self->{root_session_token} = $token;
     return $TRUE;
-}
-
-=head2 record_destination_url
-
-Record the destination URL wanted by the user
-
-=cut
-
-sub record_destination_url {
-    my ($self) = @_;
-    $self->app->session->{user_destination_url} = $self->app->request->param('destination_url');
-    $self->app->response_code(200);
-    $self->app->template_output('');
 }
 
 =head1 AUTHOR
