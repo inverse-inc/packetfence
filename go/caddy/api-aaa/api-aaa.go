@@ -166,9 +166,11 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 	}
 
 	// Backend for SSO
-	url, err := url.Parse(fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminSSO.BaseUrl, pfconfigdriver.Config.PfConf.AdminSSO.AuthorizePath))
-	sharedutils.CheckError(err)
-	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
+	if sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminSSO.Status) {
+		url, err := url.Parse(fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminSSO.BaseUrl, pfconfigdriver.Config.PfConf.AdminSSO.AuthorizePath))
+		sharedutils.CheckError(err)
+		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
+	}
 
 	// Backend for username/password auth via the internal auth sources
 	url, err = url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", pfconfigdriver.Config.PfConf.ServicesURL.PfperlApi))
