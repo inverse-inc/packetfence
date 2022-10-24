@@ -76,7 +76,7 @@ sub release {
     my ($self) = @_;
 
     my $lang = $self->app->session->{lang} // "";
-    return $self->app->redirect($self->app->session->{callback}."/?token=".$self->{root_session_token});
+    return $self->app->redirect($self->app->session->{callback}."?token=".$self->{root_session_token});
 }
 
 =head2 execute_child
