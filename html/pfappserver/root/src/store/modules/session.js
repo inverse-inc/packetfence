@@ -137,7 +137,9 @@ const getters = {
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
   aclContext: state => state.roles || [],
   configuratorEnabled: state => state.configuratorEnabled,
+  ssoEnabled: state => state.ssoInfo.is_enabled || false,
   ssoLoginUrl: state => state.ssoInfo.login_url || false,
+  ssoLoginButtonText: state => state.ssoInfo.login_text || 'Single Sign On', // i18n defer
 }
 
 const actions = {

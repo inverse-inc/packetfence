@@ -1471,4 +1471,4 @@ status=disabled
 base_url=
 login_path=/admin-sso
 authorize_path=/portaltoken
-login_text=Login with single sign on
+login_text=Single Sign On
