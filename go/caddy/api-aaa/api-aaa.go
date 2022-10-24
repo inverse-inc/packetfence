@@ -270,9 +270,13 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 
 func (h ApiAAAHandler) handleSSOInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	info := struct {
-		LoginURL string `json:"login_url"`
+		LoginText string `json:"login_text"`
+		LoginURL  string `json:"login_url"`
+		IsEnabled bool   `json:"is_enabled"`
 	}{
-		LoginURL: fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminSSO.BaseUrl, pfconfigdriver.Config.PfConf.AdminSSO.LoginPath),
+		LoginText: pfconfigdriver.Config.PfConf.AdminSSO.LoginText,
+		LoginURL:  fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminSSO.BaseUrl, pfconfigdriver.Config.PfConf.AdminSSO.LoginPath),
+		IsEnabled: sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminSSO.Status),
 	}
 
 	json.NewEncoder(w).Encode(info)

@@ -836,9 +836,11 @@ type PfConfAdminSSO struct {
 	PfconfigMethod string `val:"hash_element"`
 	PfconfigNS     string `val:"config::Pf"`
 	PfconfigHashNS string `val:"admin_sso"`
+	AuthorizePath  string `json:"authorize_path"`
 	BaseUrl        string `json:"base_url"`
 	LoginPath      string `json:"login_path"`
-	AuthorizePath  string `json:"authorize_path"`
+	LoginText      string `json:"login_text"`
+	Status         string `json:"status"`
 }
 
 type Connectors struct {

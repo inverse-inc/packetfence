@@ -1467,6 +1467,8 @@ api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://cont
 netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]
 
 [admin_sso]
+status=disabled
 base_url=
 login_path=/admin-sso
 authorize_path=/portaltoken
+login_text=Login with single sign on
