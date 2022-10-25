@@ -33,6 +33,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Allow to import only DB or configuration during import
  * Debian package for PacketFence Connector
  * Removed the savedsearch table.
+ * Removed jQuery dependency in captive portal.
 
 === Bug Fixes
 
