@@ -133,6 +133,10 @@ sub check_user {
        return $FALSE;
     }
     if (exists($devices->{'result'}->{'policy_decision'})) {
+        if ($devices->{'result'}->{'policy_decision'} eq "bypass") {
+            $logger->info("Policy descision is bypass, allow access");
+            return $TRUE;
+        }
         if ($devices->{'result'}->{'policy_decision'} ne "authenticate_user") {
             $logger->error($devices->{'result'}->{'policy_decision'});
             return $FALSE;
