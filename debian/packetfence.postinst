@@ -198,7 +198,6 @@ case "$1" in
         printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
         sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
 
-        set +e
         /usr/local/pf/bin/pfcmd configreload
         /usr/local/pf/bin/pfcmd fixpermissions
         echo "Starting PacketFence Administration GUI..."
