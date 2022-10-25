@@ -104,12 +104,12 @@ const actions = {
       throw err
     })
   },
-  updateAdminLogin: ({ commit, dispatch }, data) => {
+  updateAdminLogin: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'admin_login'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
-      dispatch('session/updateConfiguratorState', data.configurator, { root: true })
+      store.dispatch('session/getSsoInfo', true)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -139,12 +139,12 @@ const actions = {
       throw err
     })
   },
-  updateAdvanced: ({ commit, dispatch }, data) => {
+  updateAdvanced: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'advanced'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
-      dispatch('session/updateConfiguratorState', data.configurator, { root: true })
+      store.dispatch('session/updateConfiguratorState', data.configurator, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

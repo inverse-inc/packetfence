@@ -229,8 +229,8 @@ const actions = {
       return response.data.item.admin_actions // return ACLs
     })
   },
-  getSsoInfo: ({ state, commit }) => {
-    if (state.ssoInfo) {
+  getSsoInfo: ({ state, commit }, ignoreCache = false) => {
+    if (!ignoreCache && state.ssoInfo) {
       return Promise.resolve(state.ssoInfo)
     }
     return api.getSsoInfo().then(response => {
