@@ -130,7 +130,7 @@ const setup = (props, context) => {
       // Watch for session state change from external sources
       watch(isSessionAlive, updateSessionTimeVerified)
     }
-    $store.dispatch('session/getSsoInfo').then(() => {
+    $store.dispatch('session/getSsoInfo', true).then(() => {
       if (ssoEnabled.value && 'token' in $router.currentRoute.query) {
         doLogin(null, $router.currentRoute.query.token)
       }

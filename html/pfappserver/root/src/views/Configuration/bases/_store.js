@@ -109,7 +109,6 @@ const actions = {
     data.id = 'admin_login'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
-      store.dispatch('session/getSsoInfo', true)
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
