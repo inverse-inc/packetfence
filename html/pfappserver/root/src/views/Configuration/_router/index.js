@@ -61,6 +61,7 @@ import DatabaseRoutes from '../database/_router'
 import ActiveActiveRoutes from '../activeActive/_router'
 import RadiusRoutes from '../radius/_router'
 import DnsRoutes from '../dns/_router'
+import AdminLoginRoutes from '../adminLogin/_router'
 import AdminRolesRoutes from '../adminRoles/_router'
 import ConnectorsRoutes from '../connectors/_router'
 
@@ -173,6 +174,7 @@ const route = {
     ...ActiveActiveRoutes,
     ...RadiusRoutes,
     ...DnsRoutes,
+    ...AdminLoginRoutes,
     ...AdminRolesRoutes,
     ...SslCertificatesRoutes,
     ...ConnectorsRoutes
