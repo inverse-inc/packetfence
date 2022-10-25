@@ -797,6 +797,29 @@ if [ $1 -eq 0 ]; then
 fi
 
 #==============================================================================
+# Post-trans
+#==============================================================================
+%posttrans
+### to handle deletion of pfconfig.conf starting in 12.1.0
+# pfconfig.conf.rpmsave have been created because pfconfig.conf is not
+# part of new package since 12.1.0
+if [ -f /usr/local/pf/conf/pfconfig.conf.rpmsave ]; then
+    echo "pfconfig.conf.rpmsave detected, trying to restore it in pfconfig.conf"
+    if [ ! -f /usr/local/pf/conf/pfconfig.conf ]; then
+        if /usr/local/pf/addons/upgrade/restore-pfconfig-conf.sh; then
+            echo "pfconfig.conf restored, packetfence-config service restarted"
+        else
+            echo "An issue occured while restoring pfconfig.conf.rpmsave"
+            echo "Check pfconfig.conf before you continue"
+        fi
+    else
+        echo "pfconfig.conf already exists, restoration canceled"
+        echo "Check pfconfig.conf before you continue"
+    fi
+fi
+
+
+#==============================================================================
 # Packaged files
 #==============================================================================
 # TODO we should simplify this file manifest to the maximum keeping treating 
