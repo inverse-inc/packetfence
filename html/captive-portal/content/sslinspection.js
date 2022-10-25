@@ -1,22 +1,22 @@
 /* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-$(function() {
+document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  $('#test').on('click', function() {
-    $('#testFailure').addClass('hide');
-    $.ajax({
-      url: 'https://packetfence.org/ssl-test/',
-      method: 'GET'
-    })
-      .done(function() {
+  document.getElementById('test').addEventListener('click', function () {
+    document.getElementById('testFailure').classList.add('hide');
+    ajax(
+      'get', // method
+      'https://packetfence.org/ssl-test/', // url
+      null, // data
+      function () { // success
         window.location.href = "/captive-portal?next=next";
-      })
-      .fail(function() {
-        $('#testFailure').removeClass('hide');
-      });
+      },
+      function () { // failure
+        document.getElementById('testFailure').classList.remove('hide');
+      }
+    );
     return false;
   });
-
 });
 

@@ -1,7 +1,6 @@
 /* -*- Mode: javascript; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
 
-
-$(function() {
+document.addEventListener('DOMContentLoaded', function () {
 
   var varsEl = document.getElementById('variables');
   var vars = JSON.parse(variables.textContent || variables.innerHTML);
