@@ -52,7 +52,7 @@ our (
     $switches_config_file, $switches_default_config_file,
     $template_switches_config_file, $template_switches_default_config_file,
     $security_events_config_file, $security_events_default_config_file,
-    $authentication_config_file,
+    $authentication_config_file, $authentication_default_config_file,
     $chi_config_file, $chi_defaults_config_file,
     $ui_config_file, $floating_devices_file, $log_config_file,
     @stored_config_files, @log_files,
@@ -153,7 +153,7 @@ BEGIN {
         $switches_config_file $switches_default_config_file
         $template_switches_config_file $template_switches_default_config_file
         $security_events_config_file $security_events_default_config_file
-        $authentication_config_file
+        $authentication_config_file $authentication_default_config_file
         $chi_config_file $chi_defaults_config_file
         $ui_config_file $floating_devices_file $log_config_file
         @stored_config_files @log_files
@@ -300,6 +300,7 @@ $admin_roles_config_file = catfile($conf_dir, "adminroles.conf");
 
 $security_events_config_file       = catfile($conf_dir, "security_events.conf");
 $authentication_config_file   = catfile($conf_dir, "authentication.conf");
+$authentication_default_config_file   = catfile($conf_dir, "authentication.conf.defaults");
 $event_loggers_config_file = catfile($conf_dir, "event_loggers.conf");
 $floating_devices_config_file = catfile($conf_dir, "floating_network_device.conf"); # TODO: Adjust to /floating_devices.conf when $floating_devices_file will be deprecated
 $wrix_config_file = catfile($conf_dir, "wrix.conf");

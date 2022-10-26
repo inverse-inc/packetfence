@@ -17,7 +17,10 @@ use Moo;
 use pf::constants;
 use namespace::autoclean;
 use pf::Authentication::utils;
-use pf::file_paths qw($authentication_config_file);
+use pf::file_paths qw(
+    $authentication_config_file
+    $authentication_default_config_file
+);
 use Sort::Naturally qw(nsort);
 extends 'pf::ConfigStore';
 with 'pf::ConfigStore::Role::ReverseLookup';
@@ -25,6 +28,8 @@ with 'pf::ConfigStore::Role::ReverseLookup';
 use pf::file_paths qw($authentication_config_file);
 
 sub configFile {$authentication_config_file};
+
+sub importConfigFile { $authentication_default_config_file };
 
 sub pfconfigNamespace { 'config::Authentication' }
 

@@ -20,7 +20,10 @@ use strict;
 use warnings;
 
 use pfconfig::namespaces::config;
-use pf::file_paths qw($authentication_config_file);
+use pf::file_paths qw(
+    $authentication_config_file
+    $authentication_default_config_file
+);
 use pf::util qw(isdisabled);
 use pf::constants::authentication;
 use pf::Authentication::constants;
@@ -47,6 +50,8 @@ sub init {
         'resource::authentication_sources_radius',
         'resource::RolesReverseLookup',
     ];
+    my $defaults = pf::IniFiles->new(-file => $authentication_default_config_file, -envsubst => 1);
+    $self->{added_params}{'-import'} = $defaults;
 }
 
 sub build_child {
