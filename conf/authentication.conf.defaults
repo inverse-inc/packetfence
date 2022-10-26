@@ -2,12 +2,14 @@
 [local]
 description=Local Users
 type=SQL
+dynamic_routing_module=AuthModule
 
 [file1]
 description=Legacy Source
 path=/usr/local/pf/conf/admin.conf
 type=Htpasswd
 realms=null
+dynamic_routing_module=AuthModule
 
 [file1 rule admins]
 description=All admins
@@ -21,6 +23,15 @@ description=SMS-based registration
 sms_carriers=100056,100057,100061,100058,100059,100060,100062,100063,100071,100064,100116,100066,100117,100112,100067,100065,100068,100069,100070,100118,100115,100072,100073,100074,100075,100076,100077,100085,100086,100080,100079,100081,100083,100082,100084,100087,100088,100111,100089,100090,100091,100092,100093,100094,100095,100096,100098,100097,100099,100100,100101,100113,100102,100103,100104,100106,100105,100107,100108,100109,100114,100110,100078,100119,100120,100121,100122,100123,100124,100125,100126,100127,100128,100129
 type=SMS
 create_local_account=no
+local_account_expiration=0s
+message=PIN: $pin
+hash_passwords=bcrypt
+pin_code_length=6
+sms_activation_timeout=10m
+local_account_logins=0
+password_length=8
+dynamic_routing_module=AuthModule
+
 
 [sms rule catchall]
 description=
@@ -36,6 +47,11 @@ email_activation_timeout=10m
 type=Email
 allow_localdomain=yes
 create_local_account=no
+local_account_expiration=0s
+hash_passwords=bcrypt
+dynamic_routing_module=AuthModule
+password_length=8
+local_account_logins=0
 
 [email rule catchall]
 description=
@@ -50,6 +66,16 @@ description=Sponsor-based registration
 type=SponsorEmail
 allow_localdomain=yes
 create_local_account=no
+lang=
+dynamic_routing_module=AuthModule
+local_account_logins=0
+password_length=8
+hash_passwords=bcrypt
+email_activation_timeout=30m
+sources=
+validate_sponsor=yes
+local_account_expiration=0s
+register_on_activation=disabled
 
 [sponsor rule catchall]
 description=
@@ -63,6 +89,7 @@ status=enabled
 description=Null Source
 type=Null
 email_required=no
+dynamic_routing_module=AuthModule
 
 [null rule catchall]
 description=catchall
