@@ -20,7 +20,7 @@ const pollTaskStatus = ({ task_id, headers }) => {
       delete retries[task_id]
     return response.data
   }).catch(error => {
-    if (error.response && error.code !== 'ERR_NETWORK') { // The request was made and a response with a status code was received
+    if (error.response && !['ERR_BAD_RESPONSE', 'ERR_NETWORK'].includes(error.code)) { // The request was made and a response with a status code was received
       throw error
     }
     else {
