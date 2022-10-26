@@ -949,6 +949,7 @@ fi
 %config                 /usr/local/pf/conf/ui.conf
                         /usr/local/pf/conf/allowed_device_oui.txt.example
 %config(noreplace)      /usr/local/pf/conf/authentication.conf
+%config                 /usr/local/pf/conf/authentication.conf.defaults
 %config                 /usr/local/pf/conf/caddy-services/*.conf
                         /usr/local/pf/conf/caddy-services/*.conf.example
 %config(noreplace)      /usr/local/pf/conf/caddy-services/locales/*.yml
