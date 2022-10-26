@@ -8,7 +8,15 @@
     </b-card-header>
     <!-- Visual representation of portal modules -->
     <b-tabs class="flex-grow-1" :class="{ minimize: minimize }" v-scroll100 v-model="tabIndex" card>
-      <b-tab v-for="rootModule in rootModules" :key="rootModule.id" :title="rootModule.description">
+      <b-tab v-for="rootModule in rootModules" :key="rootModule.id">
+        <template v-slot:title>
+          <small>
+            {{ rootModule.description }}
+            <b-badge variant="light">
+              <icon :style="{ color: getColorByType(rootModule.type) }" name="circle" class="mr-1" /> {{ getModuleTypeName(rootModule.type) }}
+            </b-badge>
+          </small>
+        </template>
         <b-form-row class="justify-content-end">
           <b-button variant="link" @click="minimize = !minimize"><icon :name="minimize ? 'expand' : 'compress'"></icon></b-button>
           <b-form @submit.prevent="onSave(rootModule)">
@@ -42,7 +50,17 @@
         </div>
       </b-tab>
       <template v-slot:tabs-end>
+        <b-dropdown variant="outline-primary" class="nav-item text-nowrap pr-3 ml-3 mb-1">
+          <template v-slot:button-content>
+            <span class="mr-1">{{ $t('New Root Module') }}</span>
+          </template>
+          <b-dropdown-header class="text-secondary px-2">Root</b-dropdown-header>
+          <b-dropdown-item :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }"><icon :style="{ color: 'black' }" class="mb-1" name="circle" scale=".5" /> Root</b-dropdown-item>
+          <b-dropdown-item :to="{ name: 'newPortalModule', params: { moduleType: 'RootSession' } }"><icon :style="{ color: 'black' }" class="mb-1" name="circle" scale=".5" /> RootSession</b-dropdown-item>
+        </b-dropdown>
+        <!--
         <b-button class="nav-item ml-3 mb-1" variant="outline-primary" :to="{ name: 'newPortalModule', params: { moduleType: 'Root' } }">{{ $t('New Root Module') }}</b-button>
+        -->
       </template>
       <!-- Loading progress indicator -->
       <b-container class="my-5" v-if="isLoading && !items.length">
@@ -69,7 +87,7 @@
         <template v-slot:tabs-end>
           <b-dropdown :text="$t('New Module')" class="nav-item text-nowrap pr-3 ml-3 mb-1" size="sm" variant="outline-primary" :boundary="$refs.container">
             <template v-for="(group, groupIndex) in moduleTypes">
-              <b-dropdown-header class="text-secondary px-2" v-t="group.name" :key="`${group.name}-${groupIndex}`"></b-dropdown-header>
+              <b-dropdown-header class="text-secondary px-2" :key="`${group.name}-${groupIndex}`">{{ $t(group.name) }}</b-dropdown-header>
               <b-dropdown-item v-for="(moduleType, moduleIndex) in group.types" :key="`${moduleType.name}-${moduleIndex}`" :to="{ name: 'newPortalModule', params: { moduleType: moduleType.type } }">
                 <icon :style="{ color: moduleType.color }" class="mb-1" name="circle" scale=".5"></icon> {{ moduleType.name }}
               </b-dropdown-item>
@@ -142,7 +160,10 @@ const setup = (props, context) => {
 
   const isMutated = computed(() => JSON.stringify(items.value) !== JSON.stringify(mutableItems.value))
 
-  const rootModules = computed(() => mutableItems.value.filter(module => module.type === 'Root'))
+  const rootModules = computed(() => mutableItems.value
+    .filter(module => ['Root', 'RootSession'].includes(module.type))
+    .sort((a, b) => (a.type === b.type) ? a.id.localeCompare(b.id) : a.type.localeCompare(b.type))
+  )
   const activeModuleTypes = computed(() => {
     let types = {}
     let sortedTypes = []
