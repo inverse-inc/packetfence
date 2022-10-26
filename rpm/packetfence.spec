@@ -613,9 +613,6 @@ fi
 mkdir -p /usr/local/pf/var/run/
 touch /usr/local/pf/var/run/pkg_install_in_progress
 
-chown pf.pf /usr/local/pf/conf/pfconfig.conf
-echo "Adding PacketFence config startup script"
-
 # Stop packetfence-config during upgrade process to ensure
 # it is started with latest code
 if [ "$(/bin/systemctl show -p ActiveState packetfence-config | awk -F '=' '{print $2}')" = "active" ]; then
@@ -696,6 +693,14 @@ if [ ! -f /usr/local/pf/conf/pf.conf ]; then
   chown pf.pf /usr/local/pf/conf/pf.conf
 else
   echo "pf.conf already exists, won't touch it!"
+fi
+
+if [ ! -f /usr/local/pf/conf/pfconfig.conf ]; then
+  echo "Touch pfconfig.conf because it doesnt exist"
+  touch /usr/local/pf/conf/pfconfig.conf
+  chown pf.pf /usr/local/pf/conf/pfconfig.conf
+else
+  echo "pfconfig.conf already exists, won't touch it!"
 fi
 
 #Getting rid of SELinux
@@ -790,6 +795,29 @@ if [ $1 -eq 0 ]; then
                /usr/sbin/userdel pf || %logmsg "User \"pf\" could not be deleted."
         fi
 fi
+
+#==============================================================================
+# Post-trans
+#==============================================================================
+%posttrans
+### to handle deletion of pfconfig.conf starting in 12.1.0
+# pfconfig.conf.rpmsave have been created because pfconfig.conf is not
+# part of new package since 12.1.0
+if [ -f /usr/local/pf/conf/pfconfig.conf.rpmsave ]; then
+    echo "pfconfig.conf.rpmsave detected, trying to restore it in pfconfig.conf"
+    if [ ! -f /usr/local/pf/conf/pfconfig.conf ]; then
+        if /usr/local/pf/addons/upgrade/restore-pfconfig-conf.sh; then
+            echo "pfconfig.conf restored, packetfence-config service restarted"
+        else
+            echo "An issue occured while restoring pfconfig.conf.rpmsave"
+            echo "Check pfconfig.conf before you continue"
+        fi
+    else
+        echo "pfconfig.conf already exists, restoration canceled"
+        echo "Check pfconfig.conf before you continue"
+    fi
+fi
+
 
 #==============================================================================
 # Packaged files
@@ -915,7 +943,6 @@ fi
 %doc                    /usr/local/pf/ChangeLog
                         /usr/local/pf/conf/*.example
 %dir %attr(0770, pf pf) /usr/local/pf/conf
-%config(noreplace)      /usr/local/pf/conf/pfconfig.conf
 %config                 /usr/local/pf/conf/pfconfig.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/adminroles.conf
 %config(noreplace)      /usr/local/pf/conf/allowed_device_oui.txt
