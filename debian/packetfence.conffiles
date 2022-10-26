@@ -17,10 +17,8 @@
 /usr/local/pf/conf/haproxy-admin.conf
 /usr/local/pf/conf/haproxy-db.conf
 /usr/local/pf/conf/haproxy-portal.conf
-/usr/local/pf/conf/iptables.conf
 /usr/local/pf/conf/iptables-input.conf.inc
 /usr/local/pf/conf/iptables-input-management.conf.inc
-/usr/local/pf/conf/ip6tables.conf
 /usr/local/pf/conf/ip6tables-input-management.conf.inc
 /usr/local/pf/conf/keepalived.conf
 /usr/local/pf/conf/log.conf
