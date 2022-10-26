@@ -42,6 +42,7 @@ use pf::file_paths qw(
 use pf::log;
 use pf::constants::exit_code qw($EXIT_SUCCESS $EXIT_FAILURE);
 use pf::constants qw($DIR_MODE $PFCMD_MODE);
+use pf::constants::user;
 use pf::util;
 use File::Find;
 
@@ -60,9 +61,26 @@ Fix the permissions on pf and fingerbank files
 sub action_all {
     my $pfcmd = "${bin_dir}/pfcmd";
     my @extra_var_dirs = map { catfile($var_dir,$_) } qw(run cache conf sessions redis_cache redis_queue);
-    _changeFilesToOwner('pf', @stored_config_files, $install_dir, $bin_dir, $conf_dir, $var_dir, $lib_dir, $generated_conf_dir, $tt_compile_cache_dir, $pfconfig_cache_dir, @extra_var_dirs, $config_version_file, $iptable_config_file);
+    _changeFilesToOwner(
+        'pf',
+        @stored_config_files,
+        $install_dir,
+        $bin_dir,
+        $conf_dir,
+        $var_dir,
+        $lib_dir,
+        $generated_conf_dir,
+        $tt_compile_cache_dir,
+        $pfconfig_cache_dir,
+        @extra_var_dirs,
+        $config_version_file,
+        $iptable_config_file,
+    );
     _changePathToOwnerRecursive('pf', $html_dir);
-    _changeFilesToOwner('root',$pfcmd);
+    _changeFilesToOwner(
+        'root',
+        $pfcmd,
+    );
     chmod($PFCMD_MODE, $pfcmd);
     chmod(0664, @stored_config_files, $iptable_config_file, $config_version_file);
     chmod($DIR_MODE, $conf_dir, $var_dir, "$var_dir/redis_cache", "$var_dir/redis_queue");
@@ -126,11 +144,18 @@ sub action_file {
 }
 
 sub _changeFilesToOwner {
-    my ($user,@files) = @_;
-    my ($login,$pass,$uid,$gid) = getpwnam($user);
+    my ($user, @files) = @_;
+    my ($uid, $gid);
+    if ($user eq 'pf') {
+        $uid = $pf::constants::user::PF_UID;
+        $gid = $pf::constants::user::PF_GID;
+    } else {
+        (my $login, my $pass, $uid, $gid) = getpwnam($user);
+    }
+
     if(defined $uid && defined $gid) {
         my ($group, undef, undef, undef)= getgrgid($gid);
-        chown $uid,$gid,@files;
+        chown $uid, $gid, @files;
     }
     else {
         my $msg = "Problem getting group and user id for $user\n";

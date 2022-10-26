@@ -138,9 +138,6 @@ $t->options_ok("/api/v1/config/provisionings?type=mobileconfig")
         default       => undef,
         placeholder   => undef,
         required      => $false,
-        required_when => {
-            eap_type => 25,
-        },
         implied  => undef,
         type => "string"
     }
