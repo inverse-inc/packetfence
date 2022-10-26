@@ -588,8 +588,8 @@ create_response
 =cut
 
 sub create_response {
-    my ($self, $id) = @_;
-    my $resp = $self->SUPER::create_response($id);
+    my ($self, $id, @args) = @_;
+    my $resp = $self->SUPER::create_response($id, @args);
     my $path = profileFilePath($self->id, '');
     if (-e -d $path) {
         my $count = do {
