@@ -35,6 +35,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Removed the savedsearch table.
  * Removed jQuery dependency in captive portal.
  * Present the dynamic PSK on the status page when appropriate
+ * Manage pfconfig.conf through upgrade scripts instead of packaging
 
 === Bug Fixes
 
