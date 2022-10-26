@@ -1,0 +1,85 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Extreme Networks
+
+==== Access points AP305C (managed by Extreme Cloud IQ Controller)
+
+In such deployment, PacketFence communicate directly with access
+points using RADIUS. Extreme Cloud IQ controller is only used to configure
+access points in a central place.
+
+===== Web authentication
+
+====== Extreme Cloud IQ Controller
+
+On Extreme Cloud IQ Controller, you should have builtin IP Firewall policies:
+
+* Redirect-only policy: this policy must have "redirect" rules
+* Internet-access-only policy
+
+On Extreme Cloud IQ Controller, create two user profiles:
+
+* Registration
+** VLAN: 5
+** Firewall rules: Enabled
+** IP Firewall Name: Redirect-only policy
+** Redirect URL: http://192.168.1.5/Extreme::AP
+* Guest
+** VLAN: 5
+** Firewall rules: Enabled
+** IP Firewall Name: Internet-access-only policy
+
+On Extreme Cloud IQ Controller, create a wireless network with following configuration:
+
+* SSID Authentication: Open
+** Enable Captive Web Portal: No
+* MAC Authentication tab
+** Enable MAC authentication: Yes
+** Authentication protocol: CHAP
+** Authenticate via RADIUS server
+*** Create a RADIUS group with an External RADIUS Server
+**** Permit Dynamic Change Of Authorization Messages (RFC 3576): Enabled
+** User access settings
+*** Apply a different user profile to various clients and user groups: Enabled
+**** Allow user profile assignment using RADIUS attributes in addition to the three tunnel RADIUS attributes: Enabled
+***** Standard RADIUS Attribute: Filter-Id
+
+Under User access settings, you need to create following rules:
+
+.User Access Settings rules
+|===
+| User profile name | VLAN/VLAN Group | Assignment rules
+
+| Registration      |  5              | If Filter-ID equals "Registration"
+| Guest             |  5              | If Filter-ID equals "Guest"
+|===
+
+====== PacketFence
+
+Create a switch with following configuration:
+
+* Definition tab
+** Identifier: subnet of your Extreme AP
+** External portal enforcement: Yes
+** Deauthentication method: RADIUS
+* Roles tab
+** Role by Switch Role: Yes
+*** registration: Registration
+*** guest: Guest
