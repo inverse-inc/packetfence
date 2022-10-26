@@ -31,7 +31,7 @@ has_field 'sp_entity_id' =>
 has_field 'sp_key_path' => (
    type => 'Path',
    label => 'Path to Service Provider key (x509)',
-   required => 1,
+   required => 0,
    default => '',
 );
 
@@ -49,7 +49,7 @@ has_field 'sp_cert_path' => (
    type => 'Path',
    label => 'Path to Service Provider cert (x509)',
    default => '',
-   required => 1,
+   required => 0,
 );
 
 has_field 'sp_cert_path_upload' => (
@@ -73,7 +73,7 @@ has_field 'idp_entity_id' =>
 has_field 'idp_metadata_path' => (
    type => 'Path',
    label => 'Path to Identity Provider metadata',
-   required => 1,
+   required => 0,
    default => '',
 );
 
@@ -90,7 +90,7 @@ has_field 'idp_metadata_path_upload' => (
 has_field 'idp_cert_path' => (
    type => 'Path',
    label => 'Path to Identity Provider cert (x509)',
-   required => 1,
+   required => 0,
    default => '',
 );
 
@@ -107,7 +107,7 @@ has_field 'idp_cert_path_upload' => (
 has_field 'idp_ca_cert_path' => (
    type => 'Path',
    label => 'Path to Identity Provider CA cert (x509)',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.' },
    default => '',
