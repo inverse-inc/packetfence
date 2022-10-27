@@ -42,6 +42,38 @@ The template `aup_text.html` is used as the final fallback for all locales.
 
 Note that you cannot use the full locale in the template name (i.e. `aup_text.en_US.html`) as only the two letter prefix should be used.
 
+===== Logo
+
+WARNING: If you perform an upgrade from a 11.X version, these steps have been handled by an upgrade script.
+
+In order to display your own logo on captive portal, you need to follow these
+steps on your PacketFence server (or on first node of your cluster):
+
+. Upload your logo through SSH in [filename]`/tmp/my_logo.png`
+. Run following commands:
+
+.Standalone and clusters
+[source,bash]
+----
+mkdir /usr/local/pf/html/captive-portal/profile-templates/default
+cp /tmp/my_logo.png /usr/local/pf/html/captive-portal/profile-templates/default/my_logo.png
+----
+
+.Clusters only
+[source,bash]
+----
+cat >> /usr/local/pf/conf/cluster-files.txt << EOF
+/usr/local/pf/conf/cluster-files.txt
+/usr/local/pf/html/captive-portal/profile-templates/default/my_logo.png
+EOF
+/usr/local/pf/bin/cluster/sync --as-master
+----
+
+Once done, connect to PacketFence web admin and configure `default` connection
+profile (_Configuration -> Policies and Access control -> Connection profiles_) like this:
+
+* Logo: [filename]`/profile-templates/default/logo.png`
+
 ===== CSS
 
 The easiest way to customize CSS is to override default CSS using a `<style>` tag inside [filename]`layout.html`.
