@@ -110,6 +110,10 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 	}
 
 	cred, err := azidentity.NewClientSecretCredential(cl.TenantID, cl.ClientID, cl.ClientSecret, nil)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
 	// Fetch the token for Graph api
 	tk, err := cred.GetToken(
 		context.TODO(), policy.TokenRequestOptions{Scopes: []string{msGraphResourceUrl + ".default"}},
