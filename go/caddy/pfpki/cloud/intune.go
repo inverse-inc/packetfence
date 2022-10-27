@@ -118,6 +118,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		cl.AccessToken = "Bearer " + tk.Token
 	} else {
 		log.Print(err)
+		return err
 	}
 
 	id, err := uuid.NewUUID()
@@ -152,7 +153,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 	req, err := http.NewRequest("GET", graphRequest, nil)
 	if err != nil {
 		log.Print(err)
-		os.Exit(1)
+		return err
 	}
 
 	req.Header.Set("Authorization", cl.AccessToken)
@@ -202,6 +203,7 @@ func (cl *Intune) NewCloud(ctx context.Context, name string) error {
 		cl.AccessToken = "Bearer " + tk.Token
 	} else {
 		log.Print(err)
+		return err
 	}
 
 	cl.Endpoint = apiEndpoint
