@@ -81,6 +81,10 @@
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
+
+    <form-group-administration-rules namespace="administration_rules"
+      :column-label="$i18n.t('Administration Rules')"
+    />
   </base-form>
 </template>
 <script>
@@ -88,6 +92,7 @@ import { BaseForm } from '@/components/new/'
 import {
   FormGroupAccessTokenParam,
   FormGroupAccessTokenPath,
+  FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
   FormGroupClientIdentifier,
   FormGroupClientSecret,
@@ -110,6 +115,7 @@ const components = {
 
   FormGroupAccessTokenParam,
   FormGroupAccessTokenPath,
+  FormGroupAdministrationRules,
   FormGroupAuthenticationRules,
   FormGroupClientIdentifier,
   FormGroupClientSecret,
