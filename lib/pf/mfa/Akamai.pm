@@ -156,7 +156,7 @@ sub check_user {
             return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
        }
     }
-    elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password' || $self->radius_mfa_method eq 'sms' || $self->radius_mfa_method eq 'phone') {
+    else {
         if (defined $otp) {
             if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
                 if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
@@ -175,7 +175,7 @@ sub check_user {
                     if ( grep $_ =~ $METHOD_ALIAS{$method}, @{$device->{'methods'}}) {
                         return $ACTIONS{$method}->($self,$device->{'device'},$username,$1,$devices);
                     } else {
-                        $logger->info("Unsuported method on device ".$device->{'name'});
+                        $logger->info("Unsupported method on device ".$device->{'name'});
                         return $FALSE;
                     }
                 }
@@ -189,7 +189,7 @@ sub check_user {
                 if ( grep $_ =~ $METHOD_ALIAS{$self->radius_mfa_method}, @{$device->{'methods'}}) {
                     return $ACTIONS{$self->radius_mfa_method}->($self,$device->{'device'},$username,$self->radius_mfa_method);
                 } else {
-                    $logger->info("Unsuported method on device ".$device->{'name'});
+                    $logger->info("Unsup orted method on device ".$device->{'name'});
                     return $FALSE;
                 }
             }
