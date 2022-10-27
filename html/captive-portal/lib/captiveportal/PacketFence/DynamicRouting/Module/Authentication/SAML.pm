@@ -74,7 +74,7 @@ sub redirect {
     my ($self) = @_;
     if(!$self->with_aup || $self->request_fields->{aup}){
         pf::auth_log::record_oauth_attempt($self->source->id, $self->current_mac, $self->app->profile->name);
-        $self->app->redirect($self->source->sso_url);
+        $self->app->redirect($self->source->sso_url($self->app->request->cookie("CGISESSION")->value));
     }
     else {
         $self->app->flash->{error} = "You must accept the terms and conditions";

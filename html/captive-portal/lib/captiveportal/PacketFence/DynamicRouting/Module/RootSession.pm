@@ -102,6 +102,7 @@ sub execute_actions {
     my $token = unpack("H*", $rand->bytes(32));
     cache->set($token, $self->new_node_info);
     $self->{root_session_token} = $token;
+    return 1;
 }
 
 =head1 AUTHOR
