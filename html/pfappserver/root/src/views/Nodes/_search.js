@@ -272,42 +272,42 @@ export const search = {
       key: 'security_event.closed_security_event_id',
       label: 'Security Event Closed', // i18n defer
       sortable: true,
-      searchable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
     {
       key: 'security_event.closed_count',
       label: 'Security Event Closed Count', // i18n defer
       sortable: true,
-      searchable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
     {
       key: 'security_event.delayed_security_event_id',
       label: 'Security Event Delayed', // i18n defer
       sortable: true,
-      searchable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
     {
       key: 'security_event.delayed_count',
       label: 'Security Event Delayed Count', // i18n defer
       sortable: true,
-      searchable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
     {
       key: 'security_event.open_security_event_id',
       label: 'Security Event Open', // i18n defer
       sortable: true,
-      searchable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
     {
       key: 'security_event.open_count',
       label: 'Security Event Open Count', // i18n defer
       sortable: true,
-      searchable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
     {
