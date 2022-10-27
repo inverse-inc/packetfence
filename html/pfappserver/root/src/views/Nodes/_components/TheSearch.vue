@@ -85,6 +85,21 @@
         <template #cell(device_score)="item">
           <icon-score :score="item.value" />
         </template>
+        <template #[`cell(security_event.closed_security_event_id)`]="item">
+          <span v-for="(securityEvent, s) in decoratedSecurityEvents(item.value)" :key="s">
+            <b-badge :to="{ path: `/status/network_threats/${securityEvent.id}` }" class="mr-1">{{ securityEvent.desc }}</b-badge>
+          </span>
+        </template>
+        <template #[`cell(security_event.delayed_security_event_id)`]="item">
+          <span v-for="(securityEvent, s) in decoratedSecurityEvents(item.value)" :key="s">
+            <b-badge :to="{ path: `/status/network_threats/${securityEvent.id}` }" class="mr-1">{{ securityEvent.desc }}</b-badge>
+          </span>
+        </template>
+        <template #[`cell(security_event.open_security_event_id)`]="item">
+          <span v-for="(securityEvent, s) in decoratedSecurityEvents(item.value)" :key="s">
+            <b-badge :to="{ path: `/status/network_threats/${securityEvent.id}` }" class="mr-1">{{ securityEvent.desc }}</b-badge>
+          </span>
+        </template>
         <template #head(buttons)>
           <base-search-input-columns
             :disabled="isLoading"
@@ -133,7 +148,7 @@ const components = {
   IconScore
 }
 
-import { ref, toRefs } from '@vue/composition-api'
+import { onMounted, ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useSearch, useStore, useRouter } from '../_composables/useCollection'
 
@@ -163,13 +178,27 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  const securityEventMap = ref({})
+  onMounted(() => {
+    $store.dispatch('$_security_events/all').then(items => {
+      securityEventMap.value = items.reduce((assoc, item) => {
+        return { ...assoc, [item.id]: item.desc }
+      }, {})
+    })
+  })
+  const decoratedSecurityEvents = ids => ids
+    .split(',')
+    .filter(v => v)
+    .map(id => ({ id, desc: securityEventMap.value[id] }))
+
   return {
     useSearch,
     tableRef,
     ...router,
     ...selected,
     ...toRefs(search),
-    onRemove
+    onRemove,
+    decoratedSecurityEvents,
   }
 }
 

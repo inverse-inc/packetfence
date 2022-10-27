@@ -1,7 +1,6 @@
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import makeSearch from '@/store/factory/search'
-import acl from '@/utils/acl'
 import bytes from '@/utils/bytes'
 import api from './_api'
 
@@ -270,36 +269,44 @@ export const search = {
       sortable: true
     },
     {
-      key: 'security_event.open_security_event_id',
-      label: 'Security Event Open', // i18n defer
-      sortable: false,
-      searchable: true,
-      class: 'text-nowrap',
-      formatter: (acl.$can.apply(null, ['read', 'security_events']))
-        ? formatter.securityEventIdsToDescCsv
-        : formatter.noAdminRolePermission
-    },
-    {
-      key: 'security_event.open_count',
-      label: 'Security Event Open Count', // i18n defer
-      sortable: false,
+      key: 'security_event.closed_security_event_id',
+      label: 'Security Event Closed', // i18n defer
+      sortable: true,
       searchable: true,
       class: 'text-nowrap'
     },
     {
-      key: 'security_event.closed_security_event_id',
-      label: 'Security Event Closed', // i18n defer
-      sortable: false,
-      searchable: true,
-      class: 'text-nowrap',
-      formatter: (acl.$can.apply(null, ['read', 'security_events']))
-        ? formatter.securityEventIdsToDescCsv
-        : formatter.noAdminRolePermission
-    },
-    {
       key: 'security_event.closed_count',
       label: 'Security Event Closed Count', // i18n defer
-      sortable: false,
+      sortable: true,
+      searchable: true,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.delayed_security_event_id',
+      label: 'Security Event Delayed', // i18n defer
+      sortable: true,
+      searchable: true,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.delayed_count',
+      label: 'Security Event Delayed Count', // i18n defer
+      sortable: true,
+      searchable: true,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.open_security_event_id',
+      label: 'Security Event Open', // i18n defer
+      sortable: true,
+      searchable: true,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.open_count',
+      label: 'Security Event Open Count', // i18n defer
+      sortable: true,
       searchable: true,
       class: 'text-nowrap'
     },
@@ -491,18 +498,6 @@ export const search = {
       icon: 'user-secret'
     },
     {
-      value: 'security_event.open_security_event_id',
-      text: 'Security Event Open', // i18n defer
-      types: [conditionType.SECURITY_EVENT],
-      icon: 'exclamation-triangle'
-    },
-    {
-      value: 'security_event.open_count',
-      text: 'Security Event Open Count', // i18n defer
-      types: [conditionType.INTEGER],
-      icon: 'exclamation-triangle'
-    },
-    {
       value: 'security_event.closed_security_event_id',
       text: 'Security Event Closed', // i18n defer
       types: [conditionType.SECURITY_EVENT],
@@ -513,6 +508,30 @@ export const search = {
       text: 'Security Event Close Count', // i18n defer
       types: [conditionType.INTEGER],
       icon: 'exclamation-circle'
+    },
+    {
+      value: 'security_event.delayed_security_event_id',
+      text: 'Security Event Delayed', // i18n defer
+      types: [conditionType.SECURITY_EVENT],
+      icon: 'exclamation-circle'
+    },
+    {
+      value: 'security_event.delayed_count',
+      text: 'Security Event Delayed Count', // i18n defer
+      types: [conditionType.INTEGER],
+      icon: 'exclamation-circle'
+    },
+    {
+      value: 'security_event.open_security_event_id',
+      text: 'Security Event Open', // i18n defer
+      types: [conditionType.SECURITY_EVENT],
+      icon: 'exclamation-triangle'
+    },
+    {
+      value: 'security_event.open_count',
+      text: 'Security Event Open Count', // i18n defer
+      types: [conditionType.INTEGER],
+      icon: 'exclamation-triangle'
     },
     {
       value: 'voip',
