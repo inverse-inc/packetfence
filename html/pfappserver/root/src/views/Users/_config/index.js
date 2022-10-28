@@ -156,7 +156,7 @@ export const importFields = [
   },
   {
     value: 'sponsored_date',
-    text: i18n.t('Sponsor'),
+    text: i18n.t('Sponsored Date'),
     types: [fieldType.DATE],
     required: false,
     validator: validatorFromColumnSchemas(MysqlDatabase.person.sponsored_date)
