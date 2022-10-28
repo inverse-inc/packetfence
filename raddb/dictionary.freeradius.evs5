@@ -6,6 +6,7 @@
 #
 # Version:	$Id$
 #
+VENDOR          FreeRADIUS                      11344
 
 BEGIN-VENDOR	FreeRADIUS	format=Extended-Vendor-Specific-5
 
