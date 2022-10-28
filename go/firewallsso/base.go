@@ -57,6 +57,7 @@ type FirewallSSO struct {
 	CacheTimeout   string                `json:"cache_timeout"`
 	UsernameFormat string                `json:"username_format"`
 	DefaultRealm   string                `json:"default_realm"`
+	UseConnector   string                `json:"use_connector"`
 }
 
 // Builds all networks, meant to be called after the data is loaded into the struct attributes
