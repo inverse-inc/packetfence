@@ -24,10 +24,7 @@ tie %doc, 'Config::IniFiles',
 
 #plan the number of tests
 my $testNb = 0;
-foreach my $section ( tied(%default_cfg)->Sections ) {
-    next if $section eq 'proxies';
-    $testNb += scalar keys( %{ $default_cfg{$section} } );
-}
+
 foreach my $section ( tied(%doc)->Sections ) {
     next if $section eq 'proxies' || exists $doc{$section}{guide_anchor};
     if ($section =~ /^([^.]+)\.(.+)$/) {
@@ -46,16 +43,6 @@ foreach my $section ( tied(%doc)->Sections ) {
 plan tests => $testNb + 2 + 15;
 
 use_ok('pf::config');
-
-#run the tests
-foreach my $section ( tied(%default_cfg)->Sections ) {
-    next if $section eq 'proxies';
-    foreach my $key ( keys( %{ $default_cfg{$section} } ) ) {
-        my $param = "$section.$key";
-        ok ( exists($doc{$param}{'description'}),
-             "$param is documented" );
-    }
-}
 
 foreach my $section ( tied(%doc)->Sections ) {
     next if exists $doc{$section}{guide_anchor};
