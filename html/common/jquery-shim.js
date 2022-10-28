@@ -5,7 +5,7 @@ function ajax(method, url, data, successFn = function(){}, failureFn = function(
     return;
   xhr.open(method, url, true);
   if (data)
-    xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onreadystatechange = function () {
     if (xhr.readyState != 4)
       return;

@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
         node.addEventListener('click', function (event) {
           event.stopPropagation();
           return false;
-          closest(node, function (el) { return el.classList.contains('o-box'); })).classList.add('hide');
+          closest(node, function (el) { return el.classList.contains('o-box'); }).classList.add('hide');
         })
       })
   }
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
       './common/img/sprite.svg',
       null,
       function (data) {
-        document.body.appendChild(data.documentElement);
+        document.body.appendChild(data.responseXML.documentElement);
       }
     );
   }
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var aup, checkAccept;
 
     aup = document.getElementById('aup');
-    checkAccept = function(event) {
+    checkAccept = function (event) {
       var aup, index, activateIndex = false, dot, card;
       aup = document.getElementById('aup');
       if (aup && (event || aup.checked)) {
