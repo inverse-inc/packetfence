@@ -11,6 +11,7 @@ PATH="$(pwd)/go/bin:$PATH"
 
 git clone https://github.com/inverse-inc/packetfence
 cd packetfence
+git checkout maintenance/12.0
 
 cp conf/systemd/packetfence-pfconnector-remote.service /etc/systemd/system/
 systemctl daemon-reload
