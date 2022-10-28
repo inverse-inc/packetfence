@@ -134,7 +134,7 @@ sub check_user {
     }
     if (exists($devices->{'result'}->{'policy_decision'})) {
         if ($devices->{'result'}->{'policy_decision'} eq "bypass") {
-            $logger->info("Policy descision is bypass, allow access");
+            $logger->info("Policy decision is bypass, allow access");
             return $TRUE;
         }
         if ($devices->{'result'}->{'policy_decision'} ne "authenticate_user") {
@@ -162,7 +162,7 @@ sub check_user {
                 if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
                     return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp,$devices);
                 } else {
-                    $logger->info("Unsuported method totp on device ".$default_device[0]->{'name'});
+                    $logger->info("Unsupported method totp on device ".$default_device[0]->{'name'});
                     return $FALSE;
                 }
             } elsif ($otp =~ /^\d{8,8}$/) {
@@ -189,7 +189,7 @@ sub check_user {
                 if ( grep $_ =~ $METHOD_ALIAS{$self->radius_mfa_method}, @{$device->{'methods'}}) {
                     return $ACTIONS{$self->radius_mfa_method}->($self,$device->{'device'},$username,$self->radius_mfa_method);
                 } else {
-                    $logger->info("Unsuported method on device ".$device->{'name'});
+                    $logger->info("Unsupported method on device ".$device->{'name'});
                     return $FALSE;
                 }
             }
