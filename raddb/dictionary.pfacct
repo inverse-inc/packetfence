@@ -1,5 +1,5 @@
 # This dictionary is made for pfacct so that it includes the dictionaries of /usr/local/pf/raddb and /usr/share/freeradius 
 
-$INCLUDE    /usr/local/pf/raddb/dictionary
 $INCLUDE    /usr/share/freeradius/dictionary
+$INCLUDE    /usr/local/pf/raddb/dictionary
 
