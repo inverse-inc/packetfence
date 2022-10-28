@@ -422,13 +422,22 @@ func GetClusterSummary(ctx context.Context) ClusterSummary {
 	query.method = "element"
 	query.encoding = "json"
 
-	clusterSummary = &ClusterSummary{}
+	// Will make it try for roughly 1 minute
+	for i := 0; i < 60; i++ {
+		clusterSummary = &ClusterSummary{}
 
-	jsonResponse := FetchSocket(ctx, query.GetPayload())
-	receiver := &PfconfigElementResponse{}
-	decodeInterface(ctx, query.encoding, jsonResponse, receiver)
-	b, _ := receiver.Element.MarshalJSON()
-	decodeInterface(ctx, query.encoding, b, clusterSummary)
+		jsonResponse := FetchSocket(ctx, query.GetPayload())
+		receiver := &PfconfigElementResponse{}
+		decodeInterface(ctx, query.encoding, jsonResponse, receiver)
+		if receiver.Element != nil {
+			b, _ := receiver.Element.MarshalJSON()
+			decodeInterface(ctx, query.encoding, b, clusterSummary)
+			break
+		} else {
+			log.LoggerWContext(ctx).Error("Unable to obtain ClusterSummary, will try again")
+			time.Sleep(1 * time.Second)
+		}
+	}
 
 	return *clusterSummary
 }
