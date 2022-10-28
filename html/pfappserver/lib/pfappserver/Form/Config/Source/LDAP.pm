@@ -254,7 +254,6 @@ has_field 'client_cert_file_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field client_key_file => (
@@ -271,7 +270,6 @@ has_field 'client_key_file_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field ca_file => (
@@ -288,7 +286,6 @@ has_field 'ca_file_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has '+dependency' => (

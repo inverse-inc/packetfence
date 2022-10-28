@@ -49,7 +49,6 @@ has_field 'cert_file_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field key_file => (
@@ -68,7 +67,6 @@ has_field 'key_file_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field paypal_cert_file => (
@@ -87,7 +85,6 @@ has_field 'paypal_cert_file_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field email_address =>

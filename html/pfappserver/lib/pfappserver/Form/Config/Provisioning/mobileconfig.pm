@@ -104,7 +104,6 @@ has_field 'server_certificate_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'provisioning',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'ca_cert_path' => (
@@ -122,7 +121,6 @@ has_field 'ca_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'provisioning',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'cert_chain' =>

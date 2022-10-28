@@ -52,7 +52,6 @@ has_field 'client_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'client_key_path' => (
@@ -72,7 +71,6 @@ has_field 'client_key_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'ca_cert_path' => (
@@ -92,7 +90,6 @@ has_field 'ca_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'server_cert_path' => (
@@ -112,7 +109,6 @@ has_field 'server_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
-   element_class => ['input-xxlarge'],
 );
 
 has_block 'definition' => (

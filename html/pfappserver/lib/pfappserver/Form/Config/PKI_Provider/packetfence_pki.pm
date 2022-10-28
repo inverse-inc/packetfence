@@ -158,7 +158,6 @@ has_field 'ca_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'cn_attribute' => (
@@ -199,7 +198,6 @@ has_field 'server_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'revoke_on_unregistration' => (

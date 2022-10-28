@@ -35,7 +35,6 @@ has_field 'path_upload' =>
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
   );
 
 

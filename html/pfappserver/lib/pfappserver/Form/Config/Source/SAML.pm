@@ -42,7 +42,6 @@ has_field 'sp_key_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'sp_cert_path' => (
@@ -59,7 +58,6 @@ has_field 'sp_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'idp_entity_id' =>
@@ -84,7 +82,6 @@ has_field 'idp_metadata_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'idp_cert_path' => (
@@ -101,7 +98,6 @@ has_field 'idp_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'idp_ca_cert_path' => (
@@ -120,7 +116,6 @@ has_field 'idp_ca_cert_path_upload' => (
    label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
-   element_class => ['input-xxlarge'],
 );
 
 has_field 'username_attribute' =>
