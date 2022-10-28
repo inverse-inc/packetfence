@@ -21,20 +21,20 @@ endif::[]
 
 ==== Access points AP305C (managed by Extreme Cloud IQ Controller)
 
-In such deployment, PacketFence communicate directly with access
-points using RADIUS. Extreme Cloud IQ controller is only used to configure
+In such deployment, PacketFence communicates directly with the access
+points using RADIUS. The Extreme Cloud IQ controller is only used to configure
 access points in a central place.
 
 ===== Web authentication
 
 ====== Extreme Cloud IQ Controller
 
-On Extreme Cloud IQ Controller, you should have builtin IP Firewall policies:
+On the Extreme Cloud IQ Controller, there should already be two built-in IP Firewall policies:
 
 * Redirect-only policy: this policy must have "redirect" rules
 * Internet-access-only policy
 
-On Extreme Cloud IQ Controller, create two user profiles:
+On the Extreme Cloud IQ Controller, create two user profiles:
 
 * Registration
 ** VLAN: 5
@@ -46,7 +46,7 @@ On Extreme Cloud IQ Controller, create two user profiles:
 ** Firewall rules: Enabled
 ** IP Firewall Name: Internet-access-only policy
 
-On Extreme Cloud IQ Controller, create a wireless network with following configuration:
+Still, on the Extreme Cloud IQ Controller, create a wireless network with the following configuration:
 
 * SSID Authentication: Open
 ** Enable Captive Web Portal: No
