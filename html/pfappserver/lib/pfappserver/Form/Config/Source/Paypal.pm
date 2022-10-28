@@ -106,7 +106,6 @@ has_field payment_type =>
 has_field 'domains' =>
   (
    type => 'Text',
-   label => 'Authorized domains',
    required => 1,
    default => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default,
    element_attr => {'placeholder' => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default},

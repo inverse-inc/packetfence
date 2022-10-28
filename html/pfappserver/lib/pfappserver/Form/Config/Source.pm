@@ -39,7 +39,6 @@ has source_type => (is => 'ro', builder => '_build_source_type', lazy => 1);
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
    apply => [ pfappserver::Base::Form::id_validator('source name'), { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
@@ -55,7 +54,6 @@ has_field 'type' => (
 has_field 'description' =>
   (
    type => 'Text',
-   label => 'Description',
    required => 1,
    # Default value needed for creating dummy source
    default => '',
@@ -64,7 +62,6 @@ has_field 'description' =>
 has_field "${Rules::AUTH}_rules" =>
   (
    type => 'DynamicList',
-   label => 'Authentication Rules',
    do_label => 1,
    do_wrapper => 1,
    sortable => 1,
@@ -86,7 +83,6 @@ has_field "${Rules::AUTH}_rules.contains" =>
 has_field "${Rules::ADMIN}_rules" =>
   (
    type => 'DynamicList',
-   label => 'Administration Rules',
    do_label => 1,
    do_wrapper => 1,
    sortable => 1,

@@ -23,7 +23,6 @@ use pf::factory::pki_provider;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'PKI Provider Name',
    required => 1,
    messages => { required => 'Please specify the name of the PKI provider' },
    tags => { after_element => \&help,
@@ -130,7 +129,6 @@ has_field 'server_cert_path_upload' => (
 has_field 'cn_attribute' =>
   (
    type => 'Select',
-   label => 'Common name Attribute',
    options => [{ label => 'MAC address', value => 'mac' }, { label => 'Username' , value => 'pid' }],
    default => 'pid',
    tags => { after_element => \&help,
@@ -139,7 +137,6 @@ has_field 'cn_attribute' =>
 
 has_field 'cn_format' => (
     type    => 'Text',
-    label   => 'Common Name Format',
     default => '%s',
     tags    => {
         after_element   => \&help,

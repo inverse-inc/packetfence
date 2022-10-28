@@ -16,7 +16,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'id' => (
     type     => 'Text',
-    label    => 'PKI Provider Name',
     required => 1,
     messages => { required => 'Please specify the name of the PKI provider' },
     tags     => { 
@@ -31,13 +30,11 @@ has_field 'id' => (
 
 has_field 'type' => (
     type        => 'Hidden',
-    label       => 'PKI Provider type',
     required    => 1,
 );
 
 has_field 'client_cert_path' => (
     type        => 'Path',
-    label       => 'Client cert path',
     required    => 0,
     tags        => { 
         after_element   => \&help,
@@ -55,7 +52,6 @@ has_field 'client_cert_path_upload' => (
 
 has_field 'client_key_path' => (
     type        => 'Path',
-    label       => 'Client key path',
     required    => 0,
     tags        => {
         after_element   => \&help,
@@ -73,7 +69,6 @@ has_field 'client_key_path_upload' => (
 
 has_field 'ca_cert_path' => (
     type        => 'Path',
-    label       => 'CA cert path',
     required    => 0,
     tags        => { 
         after_element   => \&help,
@@ -91,7 +86,6 @@ has_field 'ca_cert_path_upload' => (
 
 has_field 'server_cert_path' => (
     type        => 'Path',
-    label       => 'Server cert path',
     required    => 0,
     tags        => { 
         after_element   => \&help,

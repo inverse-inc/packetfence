@@ -21,14 +21,12 @@ has_field 'company' =>
 has_field 'ssid' =>
   (
    type => 'Text',
-   label => 'SSID',
    required => 1,
   );
 
 has_field 'broadcast' =>
   (
    type => 'Checkbox',
-   label => 'Broadcast network',
    checkbox_value => 1,
    input_without_param => 0,
    default => 1,
@@ -40,7 +38,6 @@ has_field 'security_type' =>
   (
    type => 'Select',
    multiple => 0,
-   label => 'Security type',
    options_method => \&option_security,
    element_class => ['chzn-deselect'],
    tags => { after_element => \&help,
@@ -51,7 +48,6 @@ has_field 'eap_type' =>
   (
    type => 'Select',
    multiple => 0,
-   label => 'EAP type',
    options_method => \&options_eap_type,
    element_class => ['chzn-deselect'],
    tags => { after_element => \&help,
@@ -61,7 +57,6 @@ has_field 'eap_type' =>
 has_field 'passcode' =>
   (
    type => 'Text',
-   label => 'Wifi Key',
    tags => { after_element => \&help,
              help => 'The WiFi key to join the SSID' },
   );
@@ -69,7 +64,6 @@ has_field 'passcode' =>
 has_field 'dpsk' =>
   (
    type => 'Checkbox',
-   label => 'Enable DPSK',
    tags => { after_element => \&help,
              help => 'Define if the PSK needs to be generated' },
   );
@@ -84,7 +78,6 @@ has_field 'psk_size' =>
   (
    type => 'PSKLength',
    default => 8,
-   label => 'PSK length',
    tags => { after_element => \&help,
              help => 'This is the length of the PSK key you want to generate. The minimum length is eight characters.' },
   );
@@ -92,7 +85,6 @@ has_field 'psk_size' =>
 has_field 'server_certificate_path' => (
   type => 'Path',
   #  required_when => { 'eap_type' => 25 },
-  label => 'RADIUS server certificate path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server certificate' },
  );
@@ -108,7 +100,6 @@ has_field 'server_certificate_path_upload' => (
 has_field 'ca_cert_path' => (
   type => 'Path',
   #  required_when => { 'eap_type' => 25 },
-  label => 'RADIUS server CA path',
   tags => { after_element => \&help,
             help => 'The path to the RADIUS server CA' },
  );
@@ -127,7 +118,6 @@ has_field 'cert_chain' =>
    element_class => ['input-xxlarge'],
    inflate_default_method => \&filter_inflate ,
    deflate_value_method => \&filter_deflate ,
-   label => 'The certificate chain for the signer certificate',
    tags => { after_element => \&help,
              help => 'The certificate chain of the signer certificate in pem format'},
   );
@@ -135,7 +125,6 @@ has_field 'cert_chain' =>
 has_field 'certificate' =>
   (
    type => 'TextArea',
-   label => 'The certificate for signing profiles',
    inflate_default_method => \&filter_inflate ,
    deflate_value_method => \&filter_deflate ,
    element_class => ['input-xxlarge'],
@@ -149,7 +138,6 @@ has_field 'private_key' =>
    element_class => ['input-xxlarge'],
    inflate_default_method => \&filter_inflate ,
    deflate_value_method => \&filter_deflate ,
-   label => 'The private key for signing profiles',
    tags => { after_element => \&help,
              help => 'The Private Key for signing in pem format'},
   );
@@ -157,7 +145,6 @@ has_field 'private_key' =>
 has_field 'can_sign_profile' =>
   (
    type => 'Checkbox',
-   label => 'Sign Profile',
    value => 0,
    checkbox_value => 1,
    tags => { after_element => \&help,

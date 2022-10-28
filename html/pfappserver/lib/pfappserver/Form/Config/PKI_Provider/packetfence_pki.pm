@@ -16,7 +16,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'id' => (
     type        => 'Text',
-    label       => 'PKI Provider Name',
     required    => 1,
     messages    => { required => 'Please specify the name of the PKI provider' },
     tags        => {
@@ -31,13 +30,11 @@ has_field 'id' => (
 
 has_field 'type' => (
     type        => 'Hidden',
-    label       => 'PKI Provider type',
     required    => 1,
 );
 
 has_field 'host' => (
     type    => 'Text',
-    label   => 'Host',
     default => "127.0.0.1",
     tags    => {
         after_element   => \&help,
@@ -47,7 +44,6 @@ has_field 'host' => (
 
 has_field 'port' => (
     type    => 'Port',
-    label   => 'Port',
     default => '9393',
     tags    => {
         after_element   => \&help,
@@ -57,7 +53,6 @@ has_field 'port' => (
 
 has_field 'proto' => (
     type    => 'Select',
-    label   => 'Protocol',
     default => 'https',
     options => [ { label => 'https', value => 'https' }, { label => 'http', value => 'http' } ],
     tags    => {
@@ -68,7 +63,6 @@ has_field 'proto' => (
 
 has_field 'username' => (
     type    => 'Text',
-    label   => 'Username',
     tags    => {
         after_element   => \&help,
         help            => 'Username to connect to the PKI',
@@ -77,7 +71,6 @@ has_field 'username' => (
 
 has_field 'password' => (
     type        => 'ObfuscatedText',
-    label       => 'Password',
     tags        => {
         after_element   => \&help,
         help            => 'Password for the username filled in above',
@@ -86,7 +79,6 @@ has_field 'password' => (
 
 has_field 'profile' => (
     type    => 'Text',
-    label   => 'Profile',
     tags    => {
         after_element   => \&help,
         help            => 'Profile used for the generation of certificate',
@@ -116,7 +108,6 @@ has_field 'postalcode' =>
 
 has_field 'country' => (
     type    => 'Country',
-    label   => 'Country',
     tags    => {
         after_element   => \&help,
         help            => 'Country for the certificate',
@@ -125,7 +116,6 @@ has_field 'country' => (
 
 has_field 'state' => (
     type    => 'Text',
-    label   => 'State',
     tags    => {
         after_element   => \&help,
         help            => 'State for the certificate',
@@ -134,7 +124,6 @@ has_field 'state' => (
 
 has_field 'organization' => (
     type    => 'Text',
-    label   => 'Organization',
     tags    => {
         after_element   => \&help,
         help            => 'Organization for the certificate',
@@ -143,7 +132,6 @@ has_field 'organization' => (
 
 has_field 'ca_cert_path' => (
     type        => 'Path',
-    label       => 'CA cert path',
     required    => 0,
     tags        => {
         after_element   => \&help,
@@ -161,7 +149,6 @@ has_field 'ca_cert_path_upload' => (
 
 has_field 'cn_attribute' => (
     type    => 'Select',
-    label   => 'Common Name Attribute',
     options => [ { label => 'MAC address', value => 'mac' }, { label => 'Username', value => 'pid' } ],
     default => 'pid',
     tags    => {
@@ -172,7 +159,6 @@ has_field 'cn_attribute' => (
 
 has_field 'cn_format' => (
     type    => 'Text',
-    label   => 'Common Name Format',
     default => '%s',
     tags    => {
         after_element   => \&help,
@@ -182,7 +168,6 @@ has_field 'cn_format' => (
 
 has_field 'server_cert_path' => (
     type        => 'Path',
-    label       => 'Server cert path',
     required    => 0,
     tags        => {
         after_element   => \&help,
@@ -200,7 +185,6 @@ has_field 'server_cert_path_upload' => (
 
 has_field 'revoke_on_unregistration' => (
     type             => 'Checkbox',
-    label            => 'Revoke on unregistration',
     checkbox_value   => 'Y',
     tags             => {
         after_element   => \&help,

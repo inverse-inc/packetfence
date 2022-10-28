@@ -19,7 +19,6 @@ with 'pfappserver::Base::Form::Role::Help', 'pfappserver::Base::Form::Role::Inte
 has_field 'path' =>
   (
    type => 'Path',
-   label => 'File Path',
    required => 0,
    element_class => ['input-xxlarge'],
    # Default value needed for creating dummy source
