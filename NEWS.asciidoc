@@ -47,6 +47,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Fixed RADIUS deauth through pfconnector-remote in a cluster where it was logging as failed although it succeeded
  * When a rule match is 'any' and has no conditions the rule is always successful (#3768)
  * Fix issue with database upgrade (#7283)
+ * Fix issue Sponsor registration: notes field can't be used on captive portal #6385
 
 == Version 12.0.0 released on 2022-09-14
 
