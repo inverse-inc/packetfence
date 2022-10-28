@@ -1158,10 +1158,10 @@ fi
 %config                 /usr/local/pf/conf/httpd.conf.d/log.conf
 %config(noreplace)      /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf
                         /usr/local/pf/conf/httpd.conf.d/ssl-certificates.conf.example
-%config(noreplace)      /usr/local/pf/conf/iptables.conf
+%config                 /usr/local/pf/conf/iptables.conf
 %config(noreplace)      /usr/local/pf/conf/iptables-input.conf.inc
 %config(noreplace)      /usr/local/pf/conf/iptables-input-management.conf.inc
-%config(noreplace)      /usr/local/pf/conf/ip6tables.conf
+%config                 /usr/local/pf/conf/ip6tables.conf
 %config(noreplace)      /usr/local/pf/conf/ip6tables-input-management.conf.inc
 %config(noreplace)      /usr/local/pf/conf/keepalived.conf
                         /usr/local/pf/conf/keepalived.conf.example

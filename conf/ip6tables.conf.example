@@ -1,3 +1,6 @@
+# Copyright (C) Inverse inc.
+# iptables template
+# This file is manipulated on PacketFence's startup before being given to iptables
 *raw
 :PREROUTING ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
