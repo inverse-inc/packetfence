@@ -133,11 +133,16 @@ sub check_user {
        return $FALSE;
     }
     if (exists($devices->{'result'}->{'policy_decision'})) {
+        if ($devices->{'result'}->{'policy_decision'} eq "bypass") {
+            $logger->info("Policy decision is bypass, allow access");
+            return $TRUE;
+        }
         if ($devices->{'result'}->{'policy_decision'} ne "authenticate_user") {
             $logger->error($devices->{'result'}->{'policy_decision'});
             return $FALSE;
         }
     }
+
 
     my @default_device;
     if (defined($device)) {
@@ -151,31 +156,42 @@ sub check_user {
             return $ACTIONS{'push'}->($self,$default_device[0]->{'device'},$username);
        }
     }
-    elsif ($self->radius_mfa_method eq 'strip-otp' || $self->radius_mfa_method eq 'second-password') {
+    else {
         if (defined $otp) {
             if ($otp =~ /^\d{6,6}$/ || $otp =~ /^\d{16,16}$/) {
                 if ( grep $_ eq 'totp', @{$default_device[0]->{'methods'}}) {
-                    return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp);
+                    return $ACTIONS{'totp'}->($self,$default_device[0]->{'device'},$username,$otp,$devices);
                 } else {
-                    $logger->warn("Unsuported method totp on device ".$default_device[0]->{'name'});
+                    $logger->info("Unsupported method totp on device ".$default_device[0]->{'name'});
                     return $FALSE;
                 }
             } elsif ($otp =~ /^\d{8,8}$/) {
-                    return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp);
+                $logger->info("OTP Verification");
+                return $ACTIONS{'check_auth'}->($self,$default_device[0]->{'device'},$username,$otp,$devices);
             } elsif ($otp =~ /^(sms|push|phone)(\d?)$/i) {
                 my @device = $self->select_phone($devices->{'result'}->{'devices'}, $2);
                 my $method = $1;
                 foreach my $device (@device) {
                     if ( grep $_ =~ $METHOD_ALIAS{$method}, @{$device->{'methods'}}) {
-                        return $ACTIONS{$method}->($self,$device->{'device'},$username,$1);
+                        return $ACTIONS{$method}->($self,$device->{'device'},$username,$1,$devices);
                     } else {
-                        $logger->warn("Unsuported method on device ".$device->{'name'});
+                        $logger->info("Unsupported method on device ".$device->{'name'});
                         return $FALSE;
                     }
                 }
             } else {
-                $logger->warn("Method not supported");
+                $logger->info("Method not supported");
                 return $FALSE;
+            }
+        } elsif ($self->radius_mfa_method eq 'sms' || $self->radius_mfa_method eq 'phone') {
+            my @device = $self->select_phone($devices->{'result'}->{'devices'}, undef);
+            foreach my $device (@device) {
+                if ( grep $_ =~ $METHOD_ALIAS{$self->radius_mfa_method}, @{$device->{'methods'}}) {
+                    return $ACTIONS{$self->radius_mfa_method}->($self,$device->{'device'},$username,$self->radius_mfa_method);
+                } else {
+                    $logger->info("Unsupported method on device ".$device->{'name'});
+                    return $FALSE;
+                }
             }
         } else {
             $logger->error("OTP is empty");
@@ -215,23 +231,23 @@ totp method
 =cut
 
 sub totp {
-    my ($self, $device, $username, $otp) = @_;
+    my ($self, $device, $username, $otp, $devices) = @_;
     my $logger = get_logger();
     my $method = "offline_otp";
     if (length($otp) == 16) {
         $method = "bypass_code";
     }
-    $logger->info("Trigger $method for user $username");
+    $logger->info("Trigger $method for user $username on $device");
     my $post_fields = encode_json({device => $device, method => { $method => {"code" => $otp} } , username => $username});
     my ($auth, $error) = $self->_post_curl("/api/v1/verify/start_auth", $post_fields);
     if ($error) {
         return $FALSE;
     }
     if ($auth->{'result'}->{'status'} eq 'allow') {
-        $logger->warn("Authentication sucessfull on Akamai MFA");
+        $logger->info("Authentication sucessfull on Akamai MFA");
         return $TRUE;
     }
-    $logger->warn("Authentication denied on Akamai MFA, reason: ". $auth->{'result'}->{'status'}->{'deny'}->{'reason'});
+    $logger->info("Authentication denied on Akamai MFA, reason: ". $auth->{'result'}->{'status'}->{'deny'}->{'reason'});
     return $FALSE;
 }
 
@@ -287,6 +303,7 @@ sub push {
     my $i = 0;
     while($TRUE) {
         my ($answer, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$auth->{'result'}->{'tx'});
+        return $FALSE if $error;
         if ($answer->{'result'} eq 'allow') {
             return $TRUE;
         }
@@ -303,13 +320,23 @@ check_auth
 =cut
 
 sub check_auth {
-    my ($self, $device, $username, $otp) = @_;
+    my ($self, $device, $username, $otp, $devices) = @_;
     my $logger = get_logger();
     if (my $infos = cache->get($username)) {
         my $post_fields = encode_json({tx => $infos->{'tx'}, user_input => $otp});
         my ($return, $error) = $self->_get_curl("/api/v1/verify/check_auth?tx=".$infos->{'tx'}."&user_input=".$otp);
+        return $FALSE if $error;
         if ($return->{'result'} eq 'allow') {
+            $logger->info("Authentication successfull");
             return $TRUE;
+        } else {
+            return $FALSE;
+        }
+    } else {
+        foreach my $device (@{$devices->{'result'}->{'devices'}}) {
+            if ( grep $_ =~ "hardware_token", @{$device->{'methods'}}) {
+                return $ACTIONS{'totp'}->($self,$device->{'device'},$username,$otp);
+            }
         }
     }
 }
@@ -344,7 +371,7 @@ sub decode_response {
     my ($self, $code, $response_body) = @_;
     my $logger = get_logger();
     if ( $code != 200 ) {
-        $logger->error("Unauthorized to contact Akamai MFA");
+        $logger->error("Unauthorized to contact Akamai MFA: $response_body");
         return undef,1;
     }
     elsif($code == 200){
@@ -463,7 +490,7 @@ Generate redirection information
 sub redirect_info {
     my ($self, $username, $session_id) = @_;
     my $logger = get_logger();
-    $logger->warn("MFA USERNAME: ".$username);
+    $logger->info("MFA USERNAME: ".$username);
     my $payload = {
         version => "2.0.0",
         timestamp => time(),
