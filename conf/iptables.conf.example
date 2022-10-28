@@ -81,9 +81,6 @@
 -A input-management-if --protocol tcp --match tcp --dport 9392 --jump ACCEPT
 # Nessus Administration Interface
 -A input-management-if --protocol tcp --match tcp --dport 8834 --jump ACCEPT
-# PacketFence-PKI
-# -A input-management-if --protocol tcp --match tcp --dport 9393 --jump ACCEPT
-# -A input-management-if --protocol tcp --match tcp --dport 9292 --jump ACCEPT
 
 # Fingerbank collector (replication, NetFlow, API, sFlow)
 -A input-management-if --protocol udp --match udp --dport 1192 --jump ACCEPT
