@@ -189,7 +189,7 @@ sub check_user {
                 if ( grep $_ =~ $METHOD_ALIAS{$self->radius_mfa_method}, @{$device->{'methods'}}) {
                     return $ACTIONS{$self->radius_mfa_method}->($self,$device->{'device'},$username,$self->radius_mfa_method);
                 } else {
-                    $logger->info("Unsup orted method on device ".$device->{'name'});
+                    $logger->info("Unsuported method on device ".$device->{'name'});
                     return $FALSE;
                 }
             }
