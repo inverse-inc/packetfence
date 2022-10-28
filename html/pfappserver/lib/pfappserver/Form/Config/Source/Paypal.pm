@@ -46,7 +46,6 @@ has_field 'cert_file_upload' => (
    type => 'PathUpload',
    accessor => 'cert_file',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -64,7 +63,6 @@ has_field 'key_file_upload' => (
    type => 'PathUpload',
    accessor => 'key_file',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -82,7 +80,6 @@ has_field 'paypal_cert_file_upload' => (
    type => 'PathUpload',
    accessor => 'paypal_cert_file',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );

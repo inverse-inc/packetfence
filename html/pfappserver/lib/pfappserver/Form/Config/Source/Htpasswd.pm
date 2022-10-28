@@ -32,7 +32,6 @@ has_field 'path_upload' =>
    type => 'PathUpload',
    accessor => 'path',
    config_prefix => '.conf',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
   );

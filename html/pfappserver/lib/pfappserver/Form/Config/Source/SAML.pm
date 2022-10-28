@@ -39,7 +39,6 @@ has_field 'sp_key_path_upload' => (
    type => 'PathUpload',
    accessor => 'sp_key_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -55,7 +54,6 @@ has_field 'sp_cert_path_upload' => (
    type => 'PathUpload',
    accessor => 'sp_cert_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -79,7 +77,6 @@ has_field 'idp_metadata_path_upload' => (
    type => 'PathUpload',
    accessor => 'idp_metadata_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -95,7 +92,6 @@ has_field 'idp_cert_path_upload' => (
    type => 'PathUpload',
    accessor => 'idp_cert_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -113,7 +109,6 @@ has_field 'idp_ca_cert_path_upload' => (
    type => 'PathUpload',
    accessor => 'idp_ca_cert_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );

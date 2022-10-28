@@ -251,7 +251,6 @@ has_field 'client_cert_file_upload' => (
    type => 'PathUpload',
    accessor => 'client_cert_file',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -267,7 +266,6 @@ has_field 'client_key_file_upload' => (
    type => 'PathUpload',
    accessor => 'client_key_file',
    config_prefix => '.key',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -283,7 +281,6 @@ has_field 'ca_file_upload' => (
    type => 'PathUpload',
    accessor => 'ca_file',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'sources',
 );

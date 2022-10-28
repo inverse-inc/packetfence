@@ -155,7 +155,6 @@ has_field 'ca_cert_path_upload' => (
    type => 'PathUpload',
    accessor => 'ca_cert_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
 );
@@ -195,7 +194,6 @@ has_field 'server_cert_path_upload' => (
    type => 'PathUpload',
    accessor => 'server_cert_path',
    config_prefix => '.crt',
-   label => 'File Upload',
    required => 0,
    upload_namespace => 'pki',
 );
