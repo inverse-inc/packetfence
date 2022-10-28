@@ -131,6 +131,10 @@ include::networkdevice/coovachilli.asciidoc[]
 
 NOTE: To be contributed...
 
+=== Extreme Networks
+
+include::networkdevice/extreme_networks_wireless.asciidoc[]
+
 === Extricom
 
 include::networkdevice/extricom.asciidoc[]
