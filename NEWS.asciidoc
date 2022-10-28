@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Added unbound dynamic PSK support to the OpenWiFi module
+
 === Enhancements
 
  * More flexibility in the definition of the RADIUS servers in an Eduroam source
