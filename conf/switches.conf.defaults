@@ -102,3 +102,5 @@ PushACLs=N
 DownloadableACLsLimit=384
 UseDownloadableACLs=N
 ACLsLimit=20
+
+deauthOnPrevious=N
