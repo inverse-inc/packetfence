@@ -16,10 +16,21 @@ use strict;
 use warnings;
 
 our ($PF_UID, $PF_GID);
-our $PF_ID = 'pf';
-our $PF_GROUP = 'pf';
+our $PF_ID;
+our $PF_GROUP;
 
-( undef, undef, $PF_UID, $PF_GID ) = getpwnam($PF_ID);
+BEGIN {
+    $PF_ID = 'pf';
+    $PF_GROUP = 'pf';
+    if (exists $ENV{PF_UID} && exists $ENV{PF_GID}) {
+        $ENV{PF_UID} =~ /^(\d+)$/;
+        $PF_UID = $1;
+        $ENV{PF_GID} =~ /^(\d+)$/;
+        $PF_GID = $1;
+    } else {
+        ( undef, undef, $PF_UID, $PF_GID ) = getpwnam($PF_ID);
+    }
+}
 
 =head1 AUTHOR
 

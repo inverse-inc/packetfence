@@ -19,11 +19,13 @@
     />
 
     <form-group-service-provider-key-path namespace="sp_key_path"
-      :column-label="$i18n.t('Path to Service Provider key (x509)')"
+      :column-label="$i18n.t('Service Provider key (x509)')"
+      :title="$i18n.t('Upload service provider key (x509)')"
     />
 
     <form-group-service-provider-cert-path namespace="sp_cert_path"
-      :column-label="$i18n.t('Path to Service Provider cert (x509)')"
+      :column-label="$i18n.t('Service Provider cert (x509)')"
+      :title="$i18n.t('Upload service provider cert (x509)')"
     />
 
     <form-group-identity-provider-entity-identifier namespace="idp_entity_id"
@@ -31,15 +33,18 @@
     />
 
     <form-group-identity-provider-metadata-path namespace="idp_metadata_path"
-      :column-label="$i18n.t('Path to Identity Provider metadata')"
+      :column-label="$i18n.t('Identity Provider metadata')"
+      :title="$i18n.t('Upload identity provider metadata')"
     />
 
     <form-group-identity-provider-cert-path namespace="idp_cert_path"
-      :column-label="$i18n.t('Path to Identity Provider cert (x509)')"
+      :column-label="$i18n.t('Identity Provider cert (x509)')"
+      :title="$i18n.t('Upload identity provider cert (x509)')"
     />
 
     <form-group-identity-provider-ca-cert-path namespace="idp_ca_cert_path"
-      :column-label="$i18n.t('Path to Identity Provider CA cert (x509)')"
+      :column-label="$i18n.t('Identity Provider CA cert (x509)')"
+      :title="$i18n.t('Upload identity provider CA cert (x509)')"
       :text="$i18n.t('If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.')"
     />
 

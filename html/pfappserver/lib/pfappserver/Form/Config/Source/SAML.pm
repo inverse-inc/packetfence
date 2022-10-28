@@ -23,65 +23,92 @@ with qw(
 has_field 'sp_entity_id' =>
   (
    type => 'Text',
-   label => 'Service Provider entity ID',
    required => 1,
    default => '',
   );
 
-has_field 'sp_key_path' =>
-  (
+has_field 'sp_key_path' => (
    type => 'Path',
-   label => 'Path to Service Provider key (x509)',
-   required => 1,
+   required => 0,
    default => '',
-  );
+);
 
-has_field 'sp_cert_path' =>
-  (
+has_field 'sp_key_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'sp_key_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field 'sp_cert_path' => (
    type => 'Path',
-   label => 'Path to Service Provider cert (x509)',
    default => '',
-   required => 1,
-  );
+   required => 0,
+);
+
+has_field 'sp_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'sp_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
 
 has_field 'idp_entity_id' =>
   (
    type => 'Text',
-   label => 'Identity Provider entity ID',
    required => 1,
    default => '',
   );
 
-has_field 'idp_metadata_path' =>
-  (
+has_field 'idp_metadata_path' => (
    type => 'Path',
-   label => 'Path to Identity Provider metadata',
-   required => 1,
+   required => 0,
    default => '',
-  );
+);
 
-has_field 'idp_cert_path' =>
-  (
+has_field 'idp_metadata_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'idp_metadata_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field 'idp_cert_path' => (
    type => 'Path',
-   label => 'Path to Identity Provider cert (x509)',
-   required => 1,
+   required => 0,
    default => '',
-  );
+);
 
-has_field 'idp_ca_cert_path' =>
-  (
+has_field 'idp_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'idp_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field 'idp_ca_cert_path' => (
    type => 'Path',
-   label => 'Path to Identity Provider CA cert (x509)',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'If your Identity Provider uses a self-signed certificate, put the path to its certificate here instead.' },
    default => '',
-  );
+);
+
+has_field 'idp_ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'idp_ca_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
 
 has_field 'username_attribute' =>
   (
    type => 'Text',
-   label => 'Attribute of the username in the SAML response',
     element_attr => {
         'placeholder' =>
             pf::Authentication::Source::SAMLSource->meta->get_attribute('username_attribute')->default
@@ -93,7 +120,6 @@ has_field 'authorization_source_id' =>
   (
    type => 'Select',
    multiple => 0,
-   label => 'Authorization source',
    options_method => \&options_sources,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'Click to select a source'},

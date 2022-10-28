@@ -16,7 +16,6 @@ with 'pfappserver::Base::Form::Role::Help';
 
 has_field 'id' => (
     type     => 'Text',
-    label    => 'PKI Provider Name',
     required => 1,
     messages => { required => 'Please specify the name of the PKI provider' },
     tags     => { 
@@ -31,48 +30,75 @@ has_field 'id' => (
 
 has_field 'type' => (
     type        => 'Hidden',
-    label       => 'PKI Provider type',
     required    => 1,
 );
 
 has_field 'client_cert_path' => (
     type        => 'Path',
-    label       => 'Client cert path',
-    required    => 1,
+    required    => 0,
     tags        => { 
         after_element   => \&help,
         help            => 'Path of the client cert that will be used to generate the p12',
     },
 );
 
+has_field 'client_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'pki',
+);
+
 has_field 'client_key_path' => (
     type        => 'Path',
-    label       => 'Client key path',
-    required    => 1,
+    required    => 0,
     tags        => {
         after_element   => \&help,
         help            => 'Path of the client key that will be used to generate the p12',
     },
 );
 
+has_field 'client_key_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_key_path',
+   config_prefix => '.key',
+   required => 0,
+   upload_namespace => 'pki',
+);
+
 has_field 'ca_cert_path' => (
     type        => 'Path',
-    label       => 'CA cert path',
-    required    => 1,
+    required    => 0,
     tags        => { 
         after_element   => \&help,
         help            => 'Path of the CA certificate used to generate client certificate/key combination',
     },
 );
 
+has_field 'ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'pki',
+);
+
 has_field 'server_cert_path' => (
     type        => 'Path',
-    label       => 'Server cert path',
-    required    => 1,
+    required    => 0,
     tags        => { 
         after_element   => \&help,
         help            => 'Path of the RADIUS server authentication certificate',
     },
+);
+
+has_field 'server_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'server_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'pki',
 );
 
 has_block 'definition' => (

@@ -23,7 +23,6 @@ use pf::factory::pki_provider;
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'PKI Provider Name',
    required => 1,
    messages => { required => 'Please specify the name of the PKI provider' },
    tags => { after_element => \&help,
@@ -96,27 +95,40 @@ has_field 'organizational_unit' =>
              help => 'Organizational unit for the certificate'},
   );
 
-has_field 'ca_cert_path' =>
-  (
+has_field 'ca_cert_path' => (
    type => 'Path',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'Path of the CA that will generate your certificates'},
-  );
+);
 
-has_field 'server_cert_path' =>
-  (
+has_field 'ca_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'pki',
+);
+
+has_field 'server_cert_path' => (
    type => 'Path',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'Path of the RADIUS server authentication certificate' },
-  );
+);
+
+has_field 'server_cert_path_upload' => (
+   type => 'PathUpload',
+   accessor => 'server_cert_path',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'pki',
+);
 
 
 has_field 'cn_attribute' =>
   (
    type => 'Select',
-   label => 'Common name Attribute',
    options => [{ label => 'MAC address', value => 'mac' }, { label => 'Username' , value => 'pid' }],
    default => 'pid',
    tags => { after_element => \&help,
@@ -125,7 +137,6 @@ has_field 'cn_attribute' =>
 
 has_field 'cn_format' => (
     type    => 'Text',
-    label   => 'Common Name Format',
     default => '%s',
     tags    => {
         after_element   => \&help,

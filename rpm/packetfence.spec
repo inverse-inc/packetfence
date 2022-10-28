@@ -437,6 +437,7 @@ done
 %{__install} -d %{buildroot}/usr/local/pf/addons/full-import
 %{__install} -d %{buildroot}/usr/local/pf/addons/functions
 %{__install} -d -m2770 %{buildroot}/usr/local/pf/conf
+%{__install} -d -m2770 %{buildroot}/usr/local/pf/conf/uploads
 %{__install} -d %{buildroot}/usr/local/pf/conf/radiusd
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl
 %{__install} -d %{buildroot}/usr/local/pf/conf/ssl/acme-challenge
@@ -1235,6 +1236,7 @@ fi
                         /usr/local/pf/conf/template_switches.conf.defaults
 %config(noreplace)      /usr/local/pf/conf/traffic_shaping.conf
                         /usr/local/pf/conf/traffic_shaping.conf.example
+%dir                    /usr/local/pf/conf/uploads
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*

@@ -398,7 +398,7 @@ sub create {
     }
 
     $item = $self->cleanupItemForCreate($item);
-    (my $status, $item) = $self->validate_item($item);
+    (my $status, $item, my $form) = $self->validate_item($item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $item);
     }
@@ -410,14 +410,30 @@ sub create {
 
     $cs->create($id, $item);
     return unless($self->commit($cs));
+    my $additional_out = $self->additional_create_out($form, $item);
     $self->stash( $self->primary_key => $id );
     $self->res->headers->location($self->make_location_url($id));
-    $self->render(status => 201, json => $self->create_response($id));
+    $self->render(status => 201, json => $self->create_response($id, $additional_out));
+}
+
+sub additional_create_out {
+    my ($self, $form, $item) = @_;
+    my %out;
+    for my $field ($form->fields) {
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate ) {
+            next;
+        }
+
+        $out{$field->accessor} = $field->value;
+    }
+
+    return \%out;
 }
 
 sub create_response {
-    my ($self, $id) = @_;
-    return { id => $id, message => "'$id' created" };
+    my ($self, $id, $additional_out) = @_;
+    return { id => $id, message => "'$id' created", %$additional_out };
 }
 
 sub commit {
@@ -445,15 +461,15 @@ sub validate_item {
     $item = $self->cleanupItemForValidate($item);
     my ($status, $form) = $self->form($item);
     if (is_error($status)) {
-        return $status, { message => $form };
+        return $status, { message => $form }, undef;
     }
 
     $form->process($self->form_process_parameters_for_validation($item));
     if (!$form->has_errors) {
-        return 200, $form->value;
+        return 200, $form->value, $form;
     }
 
-    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) };
+    return 422, { message => "Unable to validate", errors => $self->format_form_errors($form) }, undef;
 }
 
 
@@ -529,17 +545,32 @@ sub update {
     }
     my $old_item = $self->item;
     my $new_item = $self->mergeUpdate($data, $self->item);
-    my ($status, $new_data) = $self->validate_item($new_item);
+    my ($status, $new_data, $form) = $self->validate_item($new_item);
     if (is_error($status)) {
         return $self->render(status => $status, json => $new_data);
     }
 
-    delete $new_data->{id};
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
-    $cs->update($self->id, $new_data);
+    my $id =  $self->id;
+    $cs->update($id, $new_data);
     return unless($self->commit($cs));
-    $self->render(status => 200, json => { message => "Settings updated"});
+    $self->render(status => 200, json => $self->update_response($form));
+}
+
+sub update_response {
+    my ($self, $form) = @_;
+    my %response =  ( message => "Settings updated", id => $self->id);
+    for my $field ($form->fields) {
+        my $type = $field->type;
+        if (($type ne 'PathUpload' && $type ne 'Path') || $field->noupdate ) {
+            next;
+        }
+
+        $response{$field->accessor} = $field->value;
+    }
+
+    return \%response;
 }
 
 =head2 cleanupItemForUpdate
@@ -712,6 +743,13 @@ sub field_meta {
             $meta->{allow_custom} = $self->field_allow_custom($field);
         }
 
+    }
+
+    if ($type eq 'file') {
+        $meta->{accept} = {
+            type => 'String',
+            default => '*/*'
+        };
     }
 
     $meta->{implied} = $self->field_implied($field);

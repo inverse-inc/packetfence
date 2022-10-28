@@ -19,20 +19,48 @@ yup.addMethod(yup.string, 'pkiProviderIdExistsExcept', function (exceptId = '', 
 
 export const schema = (props) => {
   const {
+    form,
     id,
     isNew,
     isClone
   } = props
+
+  const {
+    ca_cert_path_upload,
+    client_cert_path_upload,
+    client_key_path_upload,
+    server_cert_path_upload
+  } = form || {}
 
   return yup.object({
     id: yup.string()
       .nullable()
       .required(i18n.t('Detector required.'))
       .pkiProviderIdExistsExcept((!isNew && !isClone) ? id : undefined, i18n.t('Detector exists.')),
-    ca_cert_path: yup.string().nullable().label(i18n.t('Cert Path')),
-    client_cert_path: yup.string().nullable().label(i18n.t('Cert Path')),
-    client_key_path: yup.string().nullable().label(i18n.t('Key Path')),
-    server_cert_path: yup.string().nullable().label(i18n.t('Cert Path')),
+    ca_cert_path: yup.string().nullable().label(i18n.t('CA certificate file'))
+      .when('ca_cert_path_upload', () => {
+        return (!ca_cert_path_upload)
+          ? yup.string().nullable().required(i18n.t('CA certificate file required.'))
+          : yup.string().nullable()
+      }),
+    client_cert_path: yup.string().nullable().label(i18n.t('Cilent certificate file'))
+    .when('client_cert_path_upload', () => {
+      return (!client_cert_path_upload)
+        ? yup.string().nullable().required(i18n.t('Client certificate file required.'))
+        : yup.string().nullable()
+    }),
+    client_key_path: yup.string().nullable().label(i18n.t('Client key file'))
+    .when('client_key_path_upload', () => {
+      return (!client_key_path_upload)
+        ? yup.string().nullable().required(i18n.t('Client key file required.'))
+        : yup.string().nullable()
+    }),
+    server_cert_path: yup.string().nullable().label(i18n.t('Server certificate file'))
+    .when('server_cert_path_upload', () => {
+      return (!server_cert_path_upload)
+        ? yup.string().nullable().required(i18n.t('Server certificate file required.'))
+        : yup.string().nullable()
+    }),
 
     url: yup.string().nullable().label('URL'),
     proto: yup.string().nullable().label(i18n.t('Protocol')),

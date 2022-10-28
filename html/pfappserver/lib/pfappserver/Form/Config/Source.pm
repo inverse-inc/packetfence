@@ -24,6 +24,7 @@ use pfappserver::Form::Field::DynamicList;
 use pfappserver::Base::Form::Authentication::Action;
 
 use pf::log;
+use Clone;
 use pf::authentication;
 use pf::Authentication::constants;
 use pf::config qw(%connection_group %connection_type);
@@ -38,7 +39,6 @@ has source_type => (is => 'ro', builder => '_build_source_type', lazy => 1);
 has_field 'id' =>
   (
    type => 'Text',
-   label => 'Name',
    required => 1,
    messages => { required => 'Please specify the name of the source entry' },
    apply => [ pfappserver::Base::Form::id_validator('source name'), { check => qr/^([^\s\.])+$/, message => 'The name must not contain spaces or dots.' } ],
@@ -54,7 +54,6 @@ has_field 'type' => (
 has_field 'description' =>
   (
    type => 'Text',
-   label => 'Description',
    required => 1,
    # Default value needed for creating dummy source
    default => '',
@@ -63,7 +62,6 @@ has_field 'description' =>
 has_field "${Rules::AUTH}_rules" =>
   (
    type => 'DynamicList',
-   label => 'Authentication Rules',
    do_label => 1,
    do_wrapper => 1,
    sortable => 1,
@@ -85,7 +83,6 @@ has_field "${Rules::AUTH}_rules.contains" =>
 has_field "${Rules::ADMIN}_rules" =>
   (
    type => 'DynamicList',
-   label => 'Administration Rules',
    do_label => 1,
    do_wrapper => 1,
    sortable => 1,
@@ -404,24 +401,35 @@ sub getSourceArgs {
     if (!defined ($args) || keys %$args == 0 ) {
         $args = $self->init_object;
     }
+
+    $args = Clone::clone($args);
     for my $name (keys %$args) {
         my $field = $self->field($name);
         next unless $field;
+        my $accessor = $field->accessor;
+        if ($accessor ne $name) {
+            if (!exists $args->{$accessor} || !defined $args->{$accessor}) {
+                $args->{$accessor} = delete $args->{$name};
+            }
+        }
         # Deflate the duration fields
         # To avoid dummy sources from not being created
         if ($field->type eq 'Duration') {
-            my $value = $args->{$name};
+            my $accessor = $field->accessor;
+            my $value = $args->{$accessor};
             if (ref $value eq 'HASH') {
-                $args->{$name} = $field->duration_deflate($value);
+                $args->{$accessor} = $field->duration_deflate($value);
             }
         }
     }
+
     for my $r (qw(realms searchattributes sources local_realm reject_realm eduroam_radius_auth)) {
         $args->{$r} //= [];
         if (ref($args->{$r}) ne "ARRAY" ) {
             $args->{$r} = [$args->{$r}];
         }
     }
+
     return $args;
 }
 

@@ -33,35 +33,56 @@ has_field cert_id =>
    default => '',
   );
 
-has_field cert_file =>
-  (
+has_field cert_file => (
    type => 'Path',
    element_class => ['input-xlarge'],
    default => '',
-   required => 1,
+   required => 0,
    tags => { after_element => \&help,
              help => 'The path to the certificate you submitted to Paypal.' },
-  );
+);
 
-has_field key_file =>
-  (
+has_field 'cert_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'cert_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field key_file => (
    type => 'Path',
    element_class => ['input-xlarge'],
-   required => 1,
+   required => 0,
    default => '',
    tags => { after_element => \&help,
              help => 'The path to the associated key of the certificate you submitted to Paypal.' },
-  );
+);
 
-has_field paypal_cert_file =>
-  (
+has_field 'key_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'key_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
+has_field paypal_cert_file => (
    type => 'Path',
    element_class => ['input-xlarge'],
-   required => 1,
+   required => 0,
    default => '',
    tags => { after_element => \&help,
              help => 'The path to the Paypal certificate you downloaded.' },
-  );
+);
+
+has_field 'paypal_cert_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'paypal_cert_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
 
 has_field email_address =>
   (
@@ -85,7 +106,6 @@ has_field payment_type =>
 has_field 'domains' =>
   (
    type => 'Text',
-   label => 'Authorized domains',
    required => 1,
    default => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default,
    element_attr => {'placeholder' => pf::Authentication::Source::PaypalSource->meta->get_attribute('domains')->default},

@@ -61,13 +61,15 @@
     />
 
     <form-group-ca-cert-path namespace="ca_cert_path"
-      :column-label="$i18n.t('CA cert path')"
-      :text="$i18n.t('Path of the CA certificate used to generate client certificate/key combination.')"
+      :column-label="$i18n.t('CA certificate file')"
+      :title="$i18n.t('Upload CA certificate file')"
+      :text="$i18n.t('CA certificate used to generate client certificate/key combination.')"
     />
 
     <form-group-server-cert-path namespace="server_cert_path"
-      :column-label="$i18n.t('Server cert path')"
-      :text="$i18n.t('Path of the RADIUS server authentication certificate.')"
+      :column-label="$i18n.t('Server certificate file')"
+      :title="$i18n.t('Upload server certificate file')"
+      :text="$i18n.t('RADIUS server authentication certificate.')"
     />
   </base-form>
 </template>

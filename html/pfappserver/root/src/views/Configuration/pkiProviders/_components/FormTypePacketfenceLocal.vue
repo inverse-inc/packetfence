@@ -11,23 +11,27 @@
     />
 
     <form-group-client-cert-path namespace="client_cert_path"
-      :column-label="$i18n.t('Client cert path')"
-      :text="$i18n.t('Path of the client cert that will be used to generate the p12.')"
+      :column-label="$i18n.t('Client certificate file')"
+      :title="$i18n.t('Upload client certificate file')"
+      :text="$i18n.t('Client certificate that will be used to generate the p12.')"
     />
 
     <form-group-client-key-path namespace="client_key_path"
-      :column-label="$i18n.t('Client key path')"
-      :text="$i18n.t('Path of the client key that will be used to generate the p12.')"
+      :column-label="$i18n.t('Client key file')"
+      :title="$i18n.t('Upload client key file')"
+      :text="$i18n.t('Client key that will be used to generate the p12.')"
     />
 
     <form-group-ca-cert-path namespace="ca_cert_path"
-      :column-label="$i18n.t('CA cert path')"
-      :text="$i18n.t('Path of the CA certificate used to generate client certificate/key combination.')"
+      :column-label="$i18n.t('CA certificate file')"
+      :title="$i18n.t('Upload CA certificate file')"
+      :text="$i18n.t('CA certificate used to generate client certificate/key combination.')"
     />
 
     <form-group-server-cert-path namespace="server_cert_path"
-      :column-label="$i18n.t('Server cert path')"
-      :text="$i18n.t('Path of the RADIUS server authentication certificate.')"
+      :column-label="$i18n.t('Server certificate file')"
+      :title="$i18n.t('Upload server certificate file')"
+      :text="$i18n.t('RADIUS server authentication certificate.')"
     />
   </base-form>
 </template>

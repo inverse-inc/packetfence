@@ -15,7 +15,8 @@
     />
 
     <form-group-path namespace="path"
-      :column-label="$i18n.t('File Path')"
+      :column-label="$i18n.t('Htpasswd File Path')"
+      :title="$i18n.t('Upload Htpasswd File')"
     />
 
     <form-group-realms namespace="realms"

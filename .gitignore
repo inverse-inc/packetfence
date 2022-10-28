@@ -34,6 +34,7 @@ conf/pfdhcp.conf
 conf/etcd.conf.yml
 conf/ssl.conf
 conf/template_switches.conf
+conf/uploads/*
 conf/radiusd/eap_profiles.conf
 conf/radiusd/fast.conf
 conf/radiusd/ocsp.conf
@@ -44,6 +45,7 @@ conf/pfcron.conf
 conf/certmanager
 conf/mfa.conf
 conf/proxysql.conf
+conf/uploads
 db/upgrade-tenant-11.2-12.0.sql
 bin/pfcmd
 bin/ntlm_auth_wrapper

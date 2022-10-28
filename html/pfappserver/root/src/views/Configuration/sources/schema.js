@@ -76,10 +76,23 @@ const schemaServers = yup.array().ensure().of(schemaServer)
 
 export const schema = (props) => {
   const {
+    form,
     id,
     isNew,
     isClone
   } = props
+
+  const {
+    cert_file_upload,
+    key_file_upload,
+    idp_ca_cert_path_upload,
+    idp_cert_path_upload,
+    idp_metadata_path_upload,
+    path_upload,
+    paypal_cert_file_upload,
+    sp_cert_path_upload,
+    sp_key_path_upload,
+  } = form || {}
 
   return yup.object({
     id: yup.string()
@@ -103,7 +116,12 @@ export const schema = (props) => {
     authorize_path: yup.string().label(i18n.t('Path')),
     banned_domains: schemaDomains,
     basedn: yup.string().label(i18n.t('Base DN')),
-    cert_file: yup.string().label(i18n.t('File')),
+    cert_file: yup.string()
+      .when('cert_file_upload', () => {
+        return (!cert_file_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
     cert_id: yup.string().label(i18n.t('ID')),
     client_cert_file: yup.string().label(i18n.t('Client Certificate')),
     client_id: yup.string().label(i18n.t('Client ID')),
@@ -117,16 +135,46 @@ export const schema = (props) => {
     hash_passwords: yup.string().nullable().label(i18n.t('Hash')),
     host: schemaHosts,
     identity_token: yup.string().label(i18n.t('Token')),
-    idp_ca_cert_path: yup.string().label(i18n.t('Path')),
-    idp_cert_path: yup.string().label(i18n.t('Path')),
+    idp_ca_cert_path: yup.string()
+      .when('idp_ca_cert_path_upload', () => {
+        return (!idp_ca_cert_path_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
+    idp_cert_path: yup.string()
+      .when('idp_cert_path_upload', () => {
+        return (!idp_cert_path_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
     idp_entity_id: yup.string().label(i18n.t('Entity ID')),
-    idp_metadata_path: yup.string().label(i18n.t('Path')),
-    key_file: yup.string().label(i18n.t('File')),
+    idp_metadata_path: yup.string()
+      .when('idp_metadata_path_upload', () => {
+        return (!idp_metadata_path_upload)
+          ? yup.string().nullable().required(i18n.t('Metadata required.'))
+          : yup.string().nullable()
+      }),
+    key_file: yup.string()
+    .when('key_file_upload', () => {
+      return (!key_file_upload)
+        ? yup.string().nullable().required(i18n.t('Key required.'))
+        : yup.string().nullable()
+    }),
     merchant_id: yup.string().label(i18n.t('ID')),
     password_email_update: yup.string().nullable().label(i18n.t('Email')),
-    path: yup.string().label(i18n.t('Path')),
+    path: yup.string()
+      .when('path_upload', () => {
+        return (!path_upload)
+          ? yup.string().nullable().required(i18n.t('File/path required.'))
+          : yup.string().nullable()
+      }),
     payment_type: yup.string().nullable().label(i18n.t('Payment type')),
-    paypal_cert_file: yup.string().label(i18n.t('File')),
+    paypal_cert_file: yup.string()
+      .when('paypal_cert_file_upload', () => {
+        return (!paypal_cert_file_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
     person_mappings: schemaPersonMappings,
     port: yup.string().label(i18n.t('Port')).isPort(),
     protected_resource_url: yup.string().label(i18n.t('URL')),
@@ -143,9 +191,19 @@ export const schema = (props) => {
     shared_secret_direct: yup.string().label(i18n.t('Secret')),
     shared_secret: yup.string().label(i18n.t('Secret')),
     site: yup.string().label(i18n.t('URL')),
-    sp_cert_path: yup.string().label(i18n.t('Path')),
+    sp_cert_path: yup.string()
+      .when('psp_cert_path_upload', () => {
+        return (!sp_cert_path_upload)
+          ? yup.string().nullable().required(i18n.t('Certificate required.'))
+          : yup.string().nullable()
+      }),
     sp_entity_id: yup.string().label(i18n.t('Entity ID')),
-    sp_key_path: yup.string().label(i18n.t('Path')),
+    sp_key_path: yup.string()
+      .when('sp_key_path_upload', () => {
+        return (!sp_key_path_upload)
+          ? yup.string().nullable().required(i18n.t('Key required.'))
+          : yup.string().nullable()
+      }),
     tenant_id: yup.string().label(i18n.t('Tenant ID')),
     terminal_id: yup.string().label(i18n.t('ID')),
     transaction_key: yup.string().label(i18n.t('Key')),

@@ -30,7 +30,6 @@ has_field 'host' => (
 has_field 'host.contains' =>
   (
    type => 'Text',
-   label => 'Host',
    element_class => ['input-small'],
    element_attr => {'placeholder' => ''},
    required => 1,
@@ -38,7 +37,6 @@ has_field 'host.contains' =>
 has_field 'port' =>
   (
    type => 'Port',
-   label => 'Port',
    element_class => ['input-mini'],
    element_attr => {'placeholder' => '389'},
    default => $META->get_attribute('port')->default,
@@ -54,7 +52,6 @@ has_field 'dead_duration' =>
 has_field 'connection_timeout' =>
   (
     type         => 'Float',
-    label        => 'Connection timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('connection_timeout')->default
     },
@@ -65,7 +62,6 @@ has_field 'connection_timeout' =>
 has_field 'write_timeout' =>
   (
     type         => 'Float',
-    label        => 'Request timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('write_timeout')->default
     },
@@ -76,7 +72,6 @@ has_field 'write_timeout' =>
 has_field 'read_timeout' =>
   (
     type         => 'Float',
-    label        => 'Response timeout',
     element_attr => {
         'placeholder' => $META->get_attribute('read_timeout')->default
     },
@@ -87,7 +82,6 @@ has_field 'read_timeout' =>
 has_field 'encryption' =>
   (
    type => 'Select',
-   label => 'Encryption',
    options =>
    [
     { value => 'none', label => 'None' },
@@ -101,7 +95,6 @@ has_field 'encryption' =>
 has_field 'basedn' =>
   (
    type => 'Text',
-   label => 'Base DN',
    required => 1,
    # Default value needed for creating dummy source
    default => '',
@@ -110,7 +103,6 @@ has_field 'basedn' =>
 has_field 'scope' =>
   (
    type => 'Select',
-   label => 'Scope',
    required => 1,
    options =>
    [
@@ -124,7 +116,6 @@ has_field 'scope' =>
 has_field 'usernameattribute' =>
   (
    type => 'Select',
-   label => 'Username Attribute',
    required => 1,
    options_method => \&options_attributes,
    element_class  => ['chzn-deselect', 'input-xxlarge'],
@@ -139,7 +130,6 @@ has_field 'usernameattribute' =>
 has_field 'binddn' =>
   (
    type => 'Text',
-   label => 'Bind DN',
    element_class => ['span10'],
    tags => { after_element => \&help,
              help => 'Leave this field empty if you want to perform an anonymous bind.' },
@@ -149,7 +139,6 @@ has_field 'binddn' =>
 has_field 'password' =>
   (
    type => 'ObfuscatedText',
-   label => 'Password',
    trim => undef,
    # Default value needed for creating dummy source
    default => '',
@@ -157,7 +146,6 @@ has_field 'password' =>
 has_field 'cache_match',
   (
    type => 'Toggle',
-   label => 'Cache match',
    checkbox_value => '1',
    unchecked_value => '0',
    tags => { after_element => \&help,
@@ -167,7 +155,6 @@ has_field 'cache_match',
 
 has_field 'email_attribute' => (
     type => 'Text',
-    label => 'Email attribute',
     required => 0,
     default => $META->get_attribute('email_attribute')->default,
     tags => {
@@ -179,7 +166,6 @@ has_field 'email_attribute' => (
 has_field 'monitor',
   (
    type => 'Toggle',
-   label => 'Monitor',
    checkbox_value => '1',
    unchecked_value => '0',
    tags => { after_element => \&help,
@@ -190,7 +176,6 @@ has_field 'monitor',
 has_field 'shuffle',
   (
    type => 'Toggle',
-   label => 'Shuffle',
    checkbox_value => '1',
    unchecked_value => '0',
    tags => { after_element => \&help,
@@ -208,7 +193,6 @@ has_field 'use_connector',
 
 has_field 'searchattributes' => (
     type           => 'Select',
-    label          => 'Search Attributes',
     multiple       => 1,
     options_method => \&options_attributes,
     element_class  => ['chzn-deselect', 'input-xxlarge'],
@@ -222,7 +206,6 @@ has_field 'searchattributes' => (
 
 has_field 'append_to_searchattributes' => (
     type => 'Text',
-    label => 'Append search attributes ldap filter',
     required => 0,
     default => '',
     tags => {
@@ -233,7 +216,6 @@ has_field 'append_to_searchattributes' => (
 
 has_field verify => (
     type => 'Select',
-    label => 'SSL verify mode',
     default => 'none',
     options => [
         map { { value => $_, label => $_ }  } qw(none optional require)
@@ -242,23 +224,44 @@ has_field verify => (
 
 has_field client_cert_file => (
     type => 'Path',
-    label => 'Client Certificate',
     file_type => 'file',
     default => $META->get_attribute('client_cert_file')->default,
 );
 
+has_field 'client_cert_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_cert_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
 has_field client_key_file => (
     type => 'Path',
-    label => 'Client Key',
     file_type => 'file',
     default => $META->get_attribute('client_key_file')->default,
 );
 
+has_field 'client_key_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'client_key_file',
+   config_prefix => '.key',
+   required => 0,
+   upload_namespace => 'sources',
+);
+
 has_field ca_file => (
     type => 'Path',
-    label => 'CA File',
     file_type => 'file',
     default => $META->get_attribute('ca_file')->default,
+);
+
+has_field 'ca_file_upload' => (
+   type => 'PathUpload',
+   accessor => 'ca_file',
+   config_prefix => '.crt',
+   required => 0,
+   upload_namespace => 'sources',
 );
 
 has '+dependency' => (

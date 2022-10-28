@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import { computed } from '@vue/composition-api'
 import { types } from '@/store'
+import { fileUploadPaths } from '@/utils/api'
 import i18n from '@/utils/locale'
 import api from './_api'
 
@@ -84,7 +85,7 @@ const actions = {
   createProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.create(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      commit('ITEM_REPLACED', { ...data, ...fileUploadPaths(response) })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)
@@ -94,7 +95,7 @@ const actions = {
   updateProvisioning: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     return api.update(data).then(response => {
-      commit('ITEM_REPLACED', data)
+      commit('ITEM_REPLACED', { ...data, ...fileUploadPaths(response) })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

@@ -540,7 +540,7 @@ fix the file permissions of the files
 
 sub fix_file_permissions {
     my ($file) = @_;
-    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions file "' . $file . '"');
+    pf_run("sudo PF_GID='$pf::constants::user::PF_GID' PF_UID='$pf::constants::user::PF_UID' /usr/local/pf/bin/pfcmd fixpermissions file '$file'");
 }
 
 =item fix_files_permissions
@@ -550,7 +550,7 @@ Fix the files permissions
 =cut
 
 sub fix_files_permissions {
-    pf_run('sudo /usr/local/pf/bin/pfcmd fixpermissions');
+    pf_run("sudo PF_GID='$pf::constants::user::PF_GID' PF_UID='$pf::constants::user::PF_UID' /usr/local/pf/bin/pfcmd fixpermissions");
 }
 
 sub parse_template {

@@ -269,4 +269,20 @@ export const documentationCall = axios.create({
   baseURL: '/static/doc/'
 })
 
+/**
+ * File Upload response filter,
+ *  input a JSON response object
+ *  returns a filtered JSON object, includes only keys matching /(.*)_path$/
+ */
+export const fileUploadPaths = response => {
+  const filtered = {}
+  Object.entries(response).forEach(([k, v]) => {
+    if (/([a-zA-Z0-9_])_path$/i.test(k) && v) { // path is defined
+      filtered[k] = v // forward path
+      filtered[`${k}_upload`] = undefined // delete upload
+    }
+  })
+  return filtered
+}
+
 export default apiCall

@@ -78,13 +78,15 @@
 
     <form-group-server-certificate-path v-if="wantsServerCertificatePath"
       namespace="server_certificate_path"
-      :column-label="$i18n.t('RADIUS server certificate path')"
+      :column-label="$i18n.t('RADIUS server certificate file')"
+      :title="$i18n.t('Upload RADIUS server certificate file')"
       :text="$i18n.t('The path to the RADIUS server certificate.')"
     />
 
     <form-group-ca-cert-path v-if="wantsServerRadiusCaPath"
       namespace="ca_cert_path"
-      :column-label="$i18n.t('RADIUS server CA path')"
+      :column-label="$i18n.t('RADIUS server CA file')"
+      :title="$i18n.t('Upload RADIUS server CA file')"
       :text="$i18n.t('The path to the RADIUS server CA which signed the RADIUS server certificate.')"
     />
 
