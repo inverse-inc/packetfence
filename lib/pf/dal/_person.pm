@@ -67,6 +67,7 @@ BEGIN {
         psk
         potd
         otp
+        sponsored_date
     );
 
     %DEFAULTS = (
@@ -104,6 +105,7 @@ BEGIN {
         psk => undef,
         potd => 'no',
         otp => undef,
+        sponsored_date => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -141,6 +143,7 @@ BEGIN {
         psk
         potd
         otp
+        sponsored_date
     );
 
     %FIELDS_META = (
@@ -352,6 +355,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        sponsored_date => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -393,6 +402,7 @@ BEGIN {
         person.psk
         person.potd
         person.otp
+        person.sponsored_date
     );
 
 }

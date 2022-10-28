@@ -37,6 +37,7 @@ export {
   BaseFormGroupTextarea               as FormGroupAddress,
   BaseFormGroupInputDateTime          as FormGroupAnniversary,
   BaseFormGroupInputDateTime          as FormGroupBirthday,
+  BaseFormGroupInputDateTime          as FormGroupSponsoredDate,
   BaseFormGroupInput                  as FormGroupPsk,
   BaseFormGroupTextarea               as FormGroupNotes,
   BaseFormGroupInput                  as FormGroupCustomField1,

@@ -65,6 +65,12 @@ export const useSearch = makeSearch('users', {
       sortable: true
     },
     {
+      key: 'sponsored_date',
+      label: 'Sponsored Date', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
       key: 'anniversary',
       label: 'Anniversary', // i18n defer
       searchable: false,
@@ -254,6 +260,11 @@ export const useSearch = makeSearch('users', {
     {
       value: 'sponsor',
       text: 'Sponsor', // i18n defer
+      types: [conditionType.SUBSTRING]
+    },
+    {
+      value: 'sponsored_date',
+      text: 'Sponsored Date', // i18n defer
       types: [conditionType.SUBSTRING]
     },
     {

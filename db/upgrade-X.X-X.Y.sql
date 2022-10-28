@@ -49,6 +49,10 @@ call ValidateVersion;
 
 DROP PROCEDURE IF EXISTS ValidateVersion;
 
+\! echo "Updating the person table"
+ALTER TABLE person
+    ADD COLUMN IF NOT EXISTS sponsored_date DATETIME DEFAULT NULL;
+
 --
 -- UPGRADE STATEMENTS GO HERE
 --

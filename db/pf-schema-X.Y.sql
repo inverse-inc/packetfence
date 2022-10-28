@@ -76,6 +76,7 @@ CREATE TABLE person (
   `psk` varchar(255) NULL DEFAULT NULL,
   `potd` enum('no','yes') NOT NULL DEFAULT 'no',
   `otp` MEDIUMTEXT NULL DEFAULT NULL,
+  `sponsored_date` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pid`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'; 
 
