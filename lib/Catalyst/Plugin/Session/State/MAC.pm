@@ -35,18 +35,15 @@ sub get_session_id {
     my $mac = $c->portalSession->clientMac;
     # Allow to restore the session from a RelayState for SAML callbacks
     if(exists $c->request->{parameters}->{RelayState}) {
-        print "Using RelayState to restore SID\n";
         $c->stash->{browser_session_id} = $c->request->{parameters}->{RelayState};
         return $c->request->{parameters}->{RelayState};
     }
     elsif(valid_mac($mac)){
         $mac =~ s/\://g;
-        print "Using $mac as sid";
         return $mac;
     }
     else {
         my $sid = $c->browser_session_id();
-        print "Using $sid as sid";
         return $sid;
     }
 };
