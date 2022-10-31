@@ -40,6 +40,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Manage pfconfig.conf through upgrade scripts instead of packaging
  * Improve WebAuth support on Extreme controllers
  * Allow users to upload files from the admin instead of uploading them manually via SCP/SSH
+ * Added new radius attribute vpn detection for fortigate
+ * Fixed valid_mac that identify some ip address as mac
 
 === Bug Fixes
 
