@@ -178,7 +178,7 @@ sub security_event_grace {
     my ( $mac, $security_event_id ) = @_;
     my ($status, $iter) = pf::dal::security_event->search(
         -where => {
-            'status' => "closed",
+            'status' => 'closed',
             'security_event.security_event_id' => $security_event_id,
             'mac' => $mac,
         },
@@ -195,7 +195,7 @@ sub security_event_count {
     my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
-            status => "open",
+            status => 'open',
         }
     );
 
@@ -207,7 +207,7 @@ sub security_event_count_reevaluate_access {
     my ($status, $count) = pf::dal::security_event->count(
         -where => {
             mac => $mac,
-            status => "open",
+            status => 'open',
             'action.action' => 'reevaluate_access',
             'security_event.security_event_id' => { -ident => 'action.security_event_id'},
         },
@@ -235,7 +235,7 @@ sub security_event_count_open_security_event_id {
         -where => {
             mac => $mac,
             security_event_id => $security_event_id,
-            status => "open",
+            status => 'open',
         }
     );
 
@@ -312,7 +312,7 @@ sub security_event_view_open {
     my ($mac) = @_;
     return _db_data({
         -where => {
-            status => "open",
+            status => 'open',
             mac => $mac,
         },
         -columns => [qw(id mac security_event_id start_date release_date status ticket_ref notes)],
@@ -325,7 +325,7 @@ sub security_event_view_open_desc {
     my ($mac) = @_;
     return _db_data({
         -where => {
-            status => "open",
+            status => 'open',
             mac => $mac,
         },
         -columns => [qw(id start_date class.description security_event.security_event_id status)],
@@ -344,7 +344,7 @@ Since trap security_events stay open, this has the intended effect of getting al
 sub security_event_view_open_uniq {
     return _db_data({
         -where => {
-            status => "open",
+            status => 'open',
         },
         -group_by => "mac",
         -columns => [qw(mac)],
@@ -376,7 +376,7 @@ sub security_event_add {
     $data{start_date} = mysql_date()
         if ( !defined $data{start_date} || !$data{start_date} );
     $data{release_date} = $ZERO_DATE if ( !defined $data{release_date} );
-    $data{status} = "open" if ( !defined $data{status} || !$data{status} );
+    $data{status} = 'open' if ( !defined $data{status} || !$data{status} );
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
@@ -701,7 +701,7 @@ sub security_event_scaning {
         -where => {
             mac => $mac,
             security_event_id => $security_event_id,
-            status => { "!=" => "closed"},
+            status => { '!=' => 'closed'},
         }
         );
 
@@ -736,7 +736,7 @@ sub security_event_close {
             -where => {
                 mac => $mac,
                 security_event_id => $security_event_id,
-                status => { "!=" => "closed"},
+                status => { '!=' => 'closed'},
             }
         );
         $logger->info("security_event $security_event_id closed for $mac");
@@ -762,7 +762,7 @@ sub security_event_force_close {
         -where => {
             mac => $mac,
             security_event_id => $security_event_id,
-            status => { "!=" => "closed"},
+            status => { '!=' => 'closed'},
         }
     );
     $logger->info("security_event $security_event_id force-closed for $mac");
@@ -817,7 +817,7 @@ sub security_event_view_last_closed {
         -where => {
             mac => $mac,
             security_event_id => $security_event_id,
-            status => "closed",
+            status => 'closed',
         },
         -order_by => {-desc => 'release_date'} ,
         -columns => [qw(mac security_event_id release_date)],

@@ -18,9 +18,11 @@ use Moo;
 extends qw(pf::UnifiedApi::Search::Builder);
 use pf::dal::node;
 use pf::dal::locationlog;
+use pf::dal::security_event;
 use pf::dal::radacct;
 use pf::util qw(clean_mac ip2int valid_ip);
 use pf::constants qw($ZERO_DATE);
+use pf::UnifiedApi::Search;
 
 our @LOCATION_LOG_JOIN = (
     "=>{locationlog.mac=node.mac,locationlog.end_time='$ZERO_DATE'}",
@@ -116,42 +118,38 @@ our %ALLOWED_JOIN_FIELDS = (
         rewrite_query => \&rewrite_switch_ip,
         column_spec   => make_join_column_spec( 'locationlog', 'switch_ip' ),
     },
-    'security_event.open_count' => {
-        namespace => 'security_event_open',
-        join_spec => \@SECURITY_EVENT_OPEN_JOIN,
-        rewrite_query => \&rewrite_security_event_open_count,
-        group_by => 1,
-        column_spec => \"COUNT(security_event_open.id) AS `security_event.open_count`",
-    },
-    'security_event.open_security_event_id' => {
-        namespace => 'security_event_open',
-        join_spec => \@SECURITY_EVENT_OPEN_JOIN,
-        rewrite_query => \&rewrite_security_event_open_security_event_id,
-        group_by => 1,
-        column_spec => \"GROUP_CONCAT(security_event_open.security_event_id) AS `security_event.open_security_event_id`"
-    },
-    'security_event.close_count' => {
-        namespace => 'security_event_close',
-        join_spec => \@SECURITY_EVENT_CLOSED_JOIN,
-        rewrite_query => \&rewrite_security_event_close_count,
-        group_by => 1,
-        column_spec => \"COUNT(security_event_close.id) AS `security_event.close_count`",
-    },
-    'security_event.close_security_event_id' => {
-        namespace => 'security_event_close',
-        join_spec => \@SECURITY_EVENT_CLOSED_JOIN,
-        rewrite_query => \&rewrite_security_event_close_security_event_id,
-        group_by => 1,
-        column_spec => \"GROUP_CONCAT(security_event_close.security_event_id) AS `security_event.close_security_event_id`"
-    },
+    security_events_count('open'),
+    security_events_count('closed'),
+    security_events_count('delayed'),
     'mac' => {
         rewrite_query => \&rewrite_mac_query,
     }
 );
 
+sub security_events_count {
+    my ($status) = @_;
+    return (
+        "security_event.${status}_count" => {
+            namespace => "security_event_${status}",
+            rewrite_query => sub {
+                my ($self, $s, $q) = @_;
+                $self->rewrite_security_event_status_count($s, $q, $status);
+            },
+            column_spec => \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = '${status}' ) AS `security_event.${status}_count`",
+        },
+        "security_event.${status}_security_event_id" => {
+            namespace => "security_event.${status}_security_event_id",
+            rewrite_query => sub {
+                my ($self, $s, $q) = @_;
+                return $self->rewrite_security_event_security_event_id_status($s, $q, $status);
+            },
+            column_spec => \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = '${status}' ) AS `security_event.${status}_security_event_id`",
+        },
+    )
+}
+
 sub rewrite_mac_query {
     my ( $self, $s, $q ) = @_;
-
     my $value       = $q->{value};
     my $cleaned_mac = clean_mac($value);
     if ( $cleaned_mac ne "0" ) {
@@ -166,28 +164,68 @@ sub non_searchable {
     return (422, { message => "$q->{field} is not searchable" });
 }
 
-sub rewrite_security_event_open_security_event_id {
-    my ($self, $s, $q) = @_;
-    $q->{field} = 'security_event_open.security_event_id';
-    return (200, $q);
+sub rewrite_security_event_security_event_id_status {
+    my ($self, $s, $q, $status) = @_;
+    my $op = $q->{op};
+    my $value = $q->{value};
+    if (!defined $value) {
+        return (422, { message => "value cannot be null for $q->{field} field" });
+    }
+
+    if ($op ne 'equals') {
+        return (422, { message => "$op is not valid for $q->{field} field" });
+    }
+
+    my ($sql, @bind) = pf::dal::security_event->select(
+        -from => 'security_event',
+        -columns => [\1],
+        -where => {
+            'security_event.mac' => { '=' => {-ident => 'node.mac'} },
+            'security_event.status' => $status,
+            'security_event.security_event_id' => {
+                 $pf::UnifiedApi::Search::OP_TO_SQL_OP{$op} => $value,
+            },
+        },
+    );
+
+    return (200, \["EXISTS ($sql)", @bind]);
 }
 
-sub rewrite_security_event_open_count {
-    my ($self, $s, $q) = @_;
-    $q->{field} = 'COUNT(security_event_open.id)';
-    return (200, $q);
-}
+our %SECURITY_EVENT_COUNTS_ALLOWED_OPS = (
+    equals              => 1,
+    not_equals          => 1,
+    greater_than        => 1,
+    less_than           => 1,
+    greater_than_equals => 1,
+    less_than_equals    => 1,
+);
 
-sub rewrite_security_event_close_security_event_id {
-    my ($self, $s, $q) = @_;
-    $q->{field} = 'security_event_close.security_event_id';
-    return (200, $q);
-}
+sub rewrite_security_event_status_count {
+    my ($self, $s, $q, $status) = @_;
+    my $op = $q->{op};
+    my $value = $q->{value};
+    if (!defined $value) {
+        return (422, { message => "value cannot be null for $q->{field} field" });
+    }
 
-sub rewrite_security_event_close_count {
-    my ($self, $s, $q) = @_;
-    $q->{field} = 'COUNT(security_event_close.id)';
-    return (200, $q);
+    if (!exists $SECURITY_EVENT_COUNTS_ALLOWED_OPS{$op}) {
+        return (422, { message => "$op is not valid for $q->{field} field" });
+    }
+
+    my ($sql, @bind) = pf::dal::security_event->select(
+        -from => 'security_event',
+        -columns => [\1],
+        -where => {
+            'security_event.mac' => { '=' => {-ident => 'node.mac'} },
+            'security_event.status' => $status,
+        },
+        -group_by => ['id'],
+        -having => [
+            \["COUNT(*) $pf::UnifiedApi::Search::OP_TO_SQL_OP{$op} ?", $value]
+        ],
+    );
+    $sql =~ s/GROUP BY.*?HAVING/HAVING/;
+    return (200, \["EXISTS ($sql)", @bind]);
 }
 
 our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
@@ -234,7 +272,7 @@ sub map_dal_fields_to_join_spec {
     my ($dal, $join_spec, $where_spec, $exclude) = @_;
     $exclude //= {};
     my $table = $dal->table;
-    return map { map_dal_field_to_join_spec($table, $_,$join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names}; 
+    return map { map_dal_field_to_join_spec($table, $_, $join_spec, $where_spec) } grep {!exists $exclude->{$_}} @{$dal->table_field_names};
 }
 
 sub map_dal_field_to_join_spec {

@@ -3,6 +3,7 @@ import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
 import NodesStoreModule from '../_store'
 import UsersStoreModule from '../../Users/_store'
+import SecurityEventsStoreModule from '@/views/Configuration/securityEvents/_store'
 import TheView from '../'
 const TheSearch = () => import(/* webpackChunkName: "Nodes" */ '../_components/TheSearch')
 const TheCsvImport = () => import(/* webpackChunkName: "Editor" */ '../_components/TheCsvImport')
@@ -23,6 +24,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
     store.registerModule('$_nodes', NodesStoreModule)
   if (!store.state.$_users)
     store.registerModule('$_users', UsersStoreModule)
+  if (!store.state.$_security_events)
+    store.registerModule('$_security_events', SecurityEventsStoreModule)
   next()
 }
 

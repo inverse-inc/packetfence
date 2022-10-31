@@ -153,7 +153,13 @@ const components = {
   TheSearch,
 }
 
-import { computed, onMounted, ref, toRefs } from '@vue/composition-api'
+const props = {
+  securityEventIds: {
+    type: String
+  }
+}
+
+import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
@@ -162,7 +168,23 @@ import { useSearch } from '../_search'
 
 const setup = (props, context) => {
 
+  const {
+    securityEventIds
+  } = toRefs(props)
+
   const { root: { $router, $store } = {} } = context
+
+  const selectedSecurityEvents = usePreference('vizsec::filters', 'securityEvents', [])
+  watch(selectedSecurityEvents, (a) => {
+    if (securityEventIds.value && JSON.stringify(a) !== JSON.stringify((securityEventIds.value || '').split(','))) {
+      $router.push({ name: 'statusNetworkThreats' })
+    }
+  })
+  watch(securityEventIds, () => {
+    if (securityEventIds.value) {
+      selectedSecurityEvents.value = (securityEventIds.value || '').split(',')
+    }
+  }, { immediate: true })
 
   const search = useSearch()
   const {
@@ -172,8 +194,6 @@ const setup = (props, context) => {
     items,
     visibleColumns
   } = toRefs(search)
-
-  const selectedSecurityEvents = usePreference('vizsec::filters', 'securityEvents', [])
 
   const totalOpen = computed(() => $store.state.$_network_threats.totalOpen)
   const totalClosed = computed(() => $store.state.$_network_threats.totalClosed)
@@ -232,6 +252,7 @@ export default {
   name: 'the-view',
   inheritAttrs: false,
   components,
+  props,
   setup
 }
 </script>

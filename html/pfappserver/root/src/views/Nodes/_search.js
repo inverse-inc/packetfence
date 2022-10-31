@@ -1,7 +1,6 @@
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
 import { pfFormatters as formatter } from '@/globals/pfFormatters'
 import makeSearch from '@/store/factory/search'
-import acl from '@/utils/acl'
 import bytes from '@/utils/bytes'
 import api from './_api'
 
@@ -270,39 +269,47 @@ export const search = {
       sortable: true
     },
     {
+      key: 'security_event.closed_security_event_id',
+      label: 'Security Event Closed', // i18n defer
+      sortable: true,
+      searchable: false,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.closed_count',
+      label: 'Security Event Closed Count', // i18n defer
+      sortable: true,
+      searchable: false,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.delayed_security_event_id',
+      label: 'Security Event Delayed', // i18n defer
+      sortable: true,
+      searchable: false,
+      class: 'text-nowrap'
+    },
+    {
+      key: 'security_event.delayed_count',
+      label: 'Security Event Delayed Count', // i18n defer
+      sortable: true,
+      searchable: false,
+      class: 'text-nowrap'
+    },
+    {
       key: 'security_event.open_security_event_id',
       label: 'Security Event Open', // i18n defer
       sortable: true,
-      class: 'text-nowrap',
-      formatter: (acl.$can.apply(null, ['read', 'security_events']))
-        ? formatter.securityEventIdsToDescCsv
-        : formatter.noAdminRolePermission
+      searchable: false,
+      class: 'text-nowrap'
     },
-    /* TODO - #4166
     {
       key: 'security_event.open_count',
       label: 'Security Event Open Count', // i18n defer
       sortable: true,
+      searchable: false,
       class: 'text-nowrap'
     },
-    */
-    {
-      key: 'security_event.close_security_event_id',
-      label: 'Security Event Closed', // i18n defer
-      sortable: true,
-      class: 'text-nowrap',
-      formatter: (acl.$can.apply(null, ['read', 'security_events']))
-        ? formatter.securityEventIdsToDescCsv
-        : formatter.noAdminRolePermission
-    },
-    /* TODO - #4166
-    {
-      key: 'security_event.close_count',
-      label: 'Security Event Closed Count', // i18n defer
-      sortable: true,
-      class: 'text-nowrap'
-    }
-    */
     {
       key: 'buttons',
       class: 'col-no-overflow text-right p-0',
@@ -490,7 +497,30 @@ export const search = {
       types: [conditionType.SUBSTRING],
       icon: 'user-secret'
     },
-    /* TODO - #3400, #4166
+    {
+      value: 'security_event.closed_security_event_id',
+      text: 'Security Event Closed', // i18n defer
+      types: [conditionType.SECURITY_EVENT],
+      icon: 'exclamation-circle'
+    },
+    {
+      value: 'security_event.closed_count',
+      text: 'Security Event Close Count', // i18n defer
+      types: [conditionType.INTEGER],
+      icon: 'exclamation-circle'
+    },
+    {
+      value: 'security_event.delayed_security_event_id',
+      text: 'Security Event Delayed', // i18n defer
+      types: [conditionType.SECURITY_EVENT],
+      icon: 'exclamation-circle'
+    },
+    {
+      value: 'security_event.delayed_count',
+      text: 'Security Event Delayed Count', // i18n defer
+      types: [conditionType.INTEGER],
+      icon: 'exclamation-circle'
+    },
     {
       value: 'security_event.open_security_event_id',
       text: 'Security Event Open', // i18n defer
@@ -499,23 +529,10 @@ export const search = {
     },
     {
       value: 'security_event.open_count',
-      text: 'Security Event Open Count [Issue #3400]', // i18n defer
+      text: 'Security Event Open Count', // i18n defer
       types: [conditionType.INTEGER],
       icon: 'exclamation-triangle'
     },
-    {
-      value: 'security_event.close_security_event_id',
-      text: 'Security Event Closed', // i18n defer
-      types: [conditionType.SECURITY_EVENT],
-      icon: 'exclamation-circle'
-    },
-    {
-      value: 'security_event.close_count',
-      text: 'Security Event Close Count [Issue #3400]', // i18n defer
-      types: [conditionType.INTEGER],
-      icon: 'exclamation-circle'
-    },
-    */
     {
       value: 'voip',
       text: 'VoIP', // i18n defer

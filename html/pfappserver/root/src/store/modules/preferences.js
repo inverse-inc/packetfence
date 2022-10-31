@@ -5,6 +5,9 @@ import Vue from 'vue'
 import store, { types } from '@/store' // required for 'system/version'
 import apiCall from '@/utils/api'
 
+import { createDebouncer } from 'promised-debounce'
+let debouncer
+
 const getPreference = id => apiCall.getQuiet(['preference', id]).then(response => {
   const { value: _value = '{}' } = response.data.item
   const { meta, ...value } = JSON.parse(_value)
@@ -116,6 +119,15 @@ const actions = {
           .catch(error => commit('PREFERENCE_ERROR', error))
 
       })
+  },
+  setDebounced: ({ dispatch }, params) => {
+    if (!debouncer) {
+      debouncer = createDebouncer()
+    }
+    debouncer({
+      handler: () => dispatch('set', params),
+      time: 100 // 100ms
+    })
   },
   delete: ({ state, commit, dispatch }, id) => {
     commit('PREFERENCE_DELETE', id)

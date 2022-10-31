@@ -1,29 +1,26 @@
 
 import store from '@/store'
-import { createDebouncer } from 'promised-debounce'
 import { ref, watch } from '@vue/composition-api'
 
 export default (id, key, defaultValue) => {
-
   const preference = ref(defaultValue)
-  let debouncer
-
+  let isLoaded = false
+  let isInterrupted = false
+  watch(preference, () => {
+    if (isLoaded) {
+      const { meta, ...currentValue } = store.state.preferences.cache[id]
+      store.dispatch('preferences/setDebounced', { id, value: { ...currentValue, [key]: preference.value } })
+    }
+    else {
+      isInterrupted = true
+    }
+  }, { deep: true })
   store.dispatch('preferences/get', id).then(value => {
-    preference.value = value[key] || defaultValue
-
-    watch(preference, () => {
-      if (!debouncer) {
-        debouncer = createDebouncer()
-      }
-      debouncer({
-        handler: () => {
-          const { meta, ...currentValue } = store.state.preferences.cache[id]
-          store.dispatch('preferences/set', { id, value: { ...currentValue, [key]: preference.value } })
-        },
-        time: 100
-      })
-    }, { deep: true })
+    isLoaded = true
+    if (!isInterrupted) {
+      preference.value = value[key] || defaultValue
+    }
+    isInterrupted = false
   })
-
   return preference
 }

@@ -53,17 +53,6 @@ export const pfFormatters = {
       return item.bypass_role_id
     }
   },
-  securityEventIdToDesc: (value) => {
-    if (!value) return null
-    store.dispatch('config/getSecurityEvents')
-    return store.getters['config/sortedSecurityEvents'].filter(securityEvent => securityEvent.id === value).map(securityEvent => securityEvent.desc)[0]
-  },
-  securityEventIdsToDescCsv: (value) => {
-    if (!value) return null
-    store.dispatch('config/getSecurityEvents')
-    const uVids = [...new Set(value.split(',').filter(item => item))]
-    return store.getters['config/sortedSecurityEvents'].filter(securityEvent => uVids.includes(securityEvent.id)).map(securityEvent => securityEvent.desc).join(', ')
-  },
   yesNoFromString: (value) => {
     if (value === null || value === '') return null
     switch (value.toLowerCase()) {
