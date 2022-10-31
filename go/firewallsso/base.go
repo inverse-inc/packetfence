@@ -243,7 +243,7 @@ func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 }
 
 func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, toPort string) string {
-	if fw.UseConnector == "enabled", cc := connector.ConnectorsContainerFromContext(ctx); cc != nil {
+	if sharedutils.IsEnabled(fw.UseConnector), cc := connector.ConnectorsContainerFromContext(ctx); cc != nil {
 		c := cc.ForIP(ctx, net.ParseIP(toIP))
 		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
 		if err != nil {
