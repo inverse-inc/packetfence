@@ -35,6 +35,8 @@ use pf::config qw (
     $WEBAUTH_WIRELESS
     $WIRELESS_MAC_AUTH
     %connection_type_to_str
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
 );
 use pf::util::radius qw(perform_disconnect);
 use pf::log;
