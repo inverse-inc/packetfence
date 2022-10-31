@@ -247,7 +247,6 @@ sub identifyConnectionType {
     }
 }
 
-
 =item returnAuthorizeVPN
 
 Return radius attributes to allow VPN access
