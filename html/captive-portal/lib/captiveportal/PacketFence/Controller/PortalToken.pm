@@ -1,8 +1,6 @@
 package captiveportal::PacketFence::Controller::PortalToken;
 
 use Moose;
-use Data::Dumper;
-use pf::log;
 use pf::CHI;
 
 BEGIN { extends 'captiveportal::Base::Controller'; }

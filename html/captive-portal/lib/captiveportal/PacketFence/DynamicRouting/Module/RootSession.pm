@@ -25,6 +25,7 @@ has '+route_map' => (default => sub {
 use pf::log;
 use pf::util;
 use pf::CHI;
+use pf::constants qw($TRUE);
 use Bytes::Random::Secure;
 
 sub cache { return pf::CHI->new(namespace => 'portaladmin'); }
@@ -102,7 +103,7 @@ sub execute_actions {
     my $token = unpack("H*", $rand->bytes(32));
     cache->set($token, $self->new_node_info);
     $self->{root_session_token} = $token;
-    return 1;
+    return $TRUE;
 }
 
 =head1 AUTHOR

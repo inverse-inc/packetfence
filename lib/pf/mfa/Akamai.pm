@@ -463,7 +463,7 @@ Generate redirection information
 sub redirect_info {
     my ($self, $username, $session_id, $relay_state) = @_;
     my $logger = get_logger();
-    $logger->warn("MFA USERNAME: ".$username);
+    $logger->info("MFA USERNAME: ".$username);
     my $payload = {
         version => "2.0.0",
         timestamp => time(),
