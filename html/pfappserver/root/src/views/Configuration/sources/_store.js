@@ -8,6 +8,7 @@ import { fileUploadPaths } from '@/utils/api'
 import i18n from '@/utils/locale'
 import api from './_api'
 import {
+  analytics,
   decomposeSource,
   recomposeSource
 } from './config'
@@ -34,6 +35,7 @@ export const useStore = $store => {
 // Default values
 const state = () => {
   return {
+    analytics,
     cache: {}, // items details
     saml_metadata: {}, // SAML
     message: '',

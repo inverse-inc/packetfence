@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -33,6 +34,9 @@ export default [
     path: 'mfas/new/:mfaType',
     name: 'newMfa',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ isNew: true, mfaType: route.params.mfaType }),
     beforeEnter
   },
@@ -52,6 +56,9 @@ export default [
     path: 'mfa/:id/clone/:mfaType',
     name: 'cloneMfa',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ id: route.params.id, mfaType: route.params.mfaType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

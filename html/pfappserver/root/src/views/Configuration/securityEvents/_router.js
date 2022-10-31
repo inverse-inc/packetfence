@@ -2,6 +2,7 @@ import store from '@/store'
 import SecurityEventsStoreModule from './_store'
 import ConnectionProfilesStoreModule from '../connectionProfiles/_store'
 import NetworkBehaviorPoliciesStoreModule from '../networkBehaviorPolicy/_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -46,7 +47,7 @@ export default [
     name: 'security_event',
     component: TheView,
     meta: {
-      track: true
+      ...analytics
     },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
@@ -61,7 +62,7 @@ export default [
     name: 'cloneSecurityEvent',
     component: TheView,
     meta: {
-      track: true
+      ...analytics
     },
     props: (route) => ({ id: route.params.id, isClone: true }),
     beforeEnter: (to, from, next) => {

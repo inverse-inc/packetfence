@@ -2,6 +2,7 @@ import acl from '@/utils/acl'
 import store from '@/store'
 import TheIndex from '../'
 import StoreModule from '../_store'
+import { analytics } from '../config'
 
 const TheView = () => import(/* webpackChunkName: "Reports" */ '../_components/TheView')
 
@@ -30,7 +31,7 @@ const route = {
       props: route => ({ id: route.params.id }),
       meta: {
         can: 'read reports',
-        track: true
+        ...analytics,
       }
     }
   ]

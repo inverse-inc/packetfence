@@ -6,6 +6,7 @@ import { computed } from '@vue/composition-api'
 import { types } from '@/store'
 import i18n from '@/utils/locale'
 import api from './_api'
+import { analytics } from './config'
 
 export const useStore = $store => {
   const getItem = params => $store.dispatch('$_certificates/getCertificate', params.id).then(_certificate => {
@@ -39,6 +40,7 @@ export const useStore = $store => {
 // Default values
 const state = () => {
   return {
+    analytics,
     cache: { info: {}, certificate: {} }, // items details
     message: '',
     itemStatus: '',

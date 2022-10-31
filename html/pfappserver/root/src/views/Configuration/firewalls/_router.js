@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -33,6 +34,9 @@ export default [
     path: 'firewalls/new/:firewallType',
     name: 'newFirewall',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ isNew: true, firewallType: route.params.firewallType }),
     beforeEnter
   },
@@ -52,6 +56,9 @@ export default [
     path: 'firewall/:id/clone/:firewallType',
     name: 'cloneFirewall',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ id: route.params.id, firewallType: route.params.firewallType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

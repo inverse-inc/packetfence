@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
 
@@ -19,7 +20,7 @@ export default [
     name: 'certificate',
     component: TheView,
     meta: {
-      track: true
+      ...analytics
     },
     props: (route) => ({ id: route.params.id }),
     beforeEnter

@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsMain')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -32,7 +33,7 @@ export default [
     name: 'maintenance_task',
     component: TheView,
     meta: {
-      track: true
+      ...analytics
     },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {

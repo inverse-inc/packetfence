@@ -17,10 +17,11 @@ use pf::db;
 use pf::config::util qw(is_inline_configured);
 use pf::version;
 use pf::cluster;
-use pf::util qw(pf_run);
+use pf::util qw(pf_run isenabled);
 use pf::file_paths qw($git_commit_id_file $install_dir);
 use Fcntl qw(SEEK_SET);
 use pf::UnifiedApi::Controller::Config::System;
+use pf::config qw(%Config);
 
 sub get {
     my ($self) = @_;
@@ -34,6 +35,7 @@ sub get {
            git_commit_id(),
            db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
            os => pf::util::host_os_detection(),
+           send_anonymous_stats => (isenabled($Config{general}{send_anonymous_stats}) ? $self->json_true : $self->json_false),
         }
     );
 

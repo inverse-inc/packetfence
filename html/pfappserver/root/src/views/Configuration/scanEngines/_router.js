@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -32,6 +33,9 @@ export default [
     path: 'scan_engines/new/:scanType',
     name: 'newScanEngine',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ isNew: true, scanType: route.params.scanType }),
     beforeEnter
   },
@@ -51,6 +55,9 @@ export default [
     path: 'scan_engine/:id/clone/:scanType',
     name: 'cloneScanEngine',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ id: route.params.id, scanType: route.params.scanType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

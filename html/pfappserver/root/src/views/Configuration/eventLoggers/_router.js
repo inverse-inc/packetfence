@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -32,6 +33,9 @@ export default [
     path: 'event_loggers/new/:eventLoggerType',
     name: 'newEventLogger',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ isNew: true, eventLoggerType: route.params.eventLoggerType }),
     beforeEnter
   },
@@ -51,6 +55,9 @@ export default [
     path: 'event_logger/:id/clone/:eventLoggerType',
     name: 'cloneEventLogger',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ id: route.params.id, eventLoggerType: route.params.eventLoggerType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

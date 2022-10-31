@@ -71,8 +71,8 @@ const getters = {
 }
 
 const actions = {
-  getSummary: ({ commit, state }) => {
-    if (state.summary) {
+  getSummary: ({ commit, state }, ignoreCache = false) => {
+    if (state.summary && !ignoreCache) {
       return Promise.resolve(state.summary)
     }
     if (acl.$can('read', 'system')) {
@@ -93,7 +93,7 @@ const actions = {
       })
     } else {
       commit('SYSTEM_SUCCESS', {})
-      return state.summary
+      return Promise.resolve(state.summary)
     }
   },
   getDnsServers: ({ commit, state }) => {

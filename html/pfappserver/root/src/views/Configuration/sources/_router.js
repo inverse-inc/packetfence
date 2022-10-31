@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -32,6 +33,9 @@ export default [
     path: 'sources/new/:sourceType',
     name: 'newAuthenticationSource',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ isNew: true, sourceType: route.params.sourceType }),
     beforeEnter
   },
@@ -51,6 +55,9 @@ export default [
     path: 'source/:id/clone/:sourceType',
     name: 'cloneAuthenticationSource',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ id: route.params.id, sourceType: route.params.sourceType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

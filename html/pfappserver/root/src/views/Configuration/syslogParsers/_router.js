@@ -1,5 +1,6 @@
 import store from '@/store'
 import StoreModule from './_store'
+import { analytics } from './config'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -32,6 +33,9 @@ export default [
     path: 'pfdetect/new/:syslogParserType',
     name: 'newSyslogParser',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ isNew: true, syslogParserType: route.params.syslogParserType }),
     beforeEnter
   },
@@ -51,6 +55,9 @@ export default [
     path: 'pfdetect/:id/clone/:syslogParserType',
     name: 'cloneSyslogParser',
     component: TheView,
+    meta: {
+      ...analytics
+    },
     props: (route) => ({ id: route.params.id, syslogParserType: route.params.syslogParserType, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

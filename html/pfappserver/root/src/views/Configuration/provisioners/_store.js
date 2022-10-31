@@ -7,6 +7,7 @@ import { types } from '@/store'
 import { fileUploadPaths } from '@/utils/api'
 import i18n from '@/utils/locale'
 import api from './_api'
+import { analytics } from './config'
 
 export const useStore = $store => {
   return {
@@ -28,6 +29,7 @@ export const useStore = $store => {
 // Default values
 const state = () => {
   return {
+    analytics,
     cache: {}, // items details
     message: '',
     itemStatus: ''
