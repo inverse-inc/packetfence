@@ -49,11 +49,6 @@
       :text="$i18n.t('Realms that will be authenticate locally.')"
     />
 
-    <form-group-monitor namespace="monitor"
-      :column-label="$i18n.t('Monitor')"
-      :text="$i18n.t('Do you want to monitor this source?')"
-    />
-
     <form-group-authentication-rules namespace="authentication_rules"
       :column-label="$i18n.t('Authentication Rules')"
     />
@@ -67,7 +62,6 @@ import {
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupLocalRealm,
-  FormGroupMonitor,
   FormGroupRejectRealm,
   FormGroupEduroamOptions,
   FormGroupEduroamOperatorName,
@@ -83,7 +77,6 @@ const components = {
   FormGroupDescription,
   FormGroupIdentifier,
   FormGroupLocalRealm,
-  FormGroupMonitor,
   FormGroupRejectRealm,
   FormGroupEduroamOptions,
   FormGroupEduroamOperatorName,

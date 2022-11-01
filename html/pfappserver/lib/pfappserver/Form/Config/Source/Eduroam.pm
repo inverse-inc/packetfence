@@ -76,14 +76,6 @@ has_field 'local_realm' =>
    default => '',
   );
 
-has_field 'monitor',
-  (
-   type => 'Toggle',
-   checkbox_value => '1',
-   unchecked_value => '0',
-   default => pf::Authentication::Source::EduroamSource->meta->get_attribute('monitor')->default,
-  );
-
 has_field 'eduroam_operator_name' =>
   (
    type => 'Text',
