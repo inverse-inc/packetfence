@@ -21,10 +21,8 @@ use pf::file_paths qw(
 
 
 my $fsso = pf::IniFiles->new( -file => $firewall_sso_config_file, -allowempty => 1);
-my @groups;
-my @switches;
 
-if (length ($fsso->Sections())) > 0
+if (length ($fsso->Sections()) > 0) {
     for my $section ($fsso->Sections()) {
         if (!($fsso->exists($section, "use_connector"))) {
             $fsso->newval($section, 'use_connector', 'enabled');
