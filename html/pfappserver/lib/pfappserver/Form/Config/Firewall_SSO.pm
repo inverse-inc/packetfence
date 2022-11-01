@@ -23,6 +23,8 @@ use pf::util;
 use File::Find qw(find);
 use pf::constants::firewallsso;
 
+our $META = pf::Authentication::Source::LDAPSource->meta;
+
 has_field 'id' =>
   (
    type => 'Text',
@@ -109,6 +111,14 @@ has_field 'default_realm' =>
    label => 'Default realm',
    tags => { after_element => \&help,
              help => 'The default realm to be used while formatting the username when no realm can be extracted from the username.' },
+  );
+
+has_field 'use_connector',
+  (
+   type => 'Toggle',
+   checkbox_value => '1',
+   unchecked_value => '0',
+   default => $META->get_attribute('use_connector')->default,
   );
 
 has_block 'definition' =>
