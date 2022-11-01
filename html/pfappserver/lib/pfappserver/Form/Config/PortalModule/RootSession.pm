@@ -1,8 +1,8 @@
-package pfappserver::Form::Config::PortalModule::RootSession;
+package pfappserver::Form::Config::PortalModule::RootSSO;
 
 =head1 NAME
 
-pfappserver::Form::Config::PortalModule:RootSession
+pfappserver::Form::Config::PortalModule:RootSSO
 
 =head1 DESCRIPTION
 
@@ -14,8 +14,8 @@ use HTML::FormHandler::Moose;
 extends 'pfappserver::Form::Config::PortalModule::Chained';
 with 'pfappserver::Base::Form::Role::Help';
 
-use captiveportal::DynamicRouting::Module::RootSession;
-sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::RootSession'}
+use captiveportal::DynamicRouting::Module::RootSSO;
+sub for_module {'captiveportal::PacketFence::DynamicRouting::Module::RootSSO'}
 
 ## Definition
 

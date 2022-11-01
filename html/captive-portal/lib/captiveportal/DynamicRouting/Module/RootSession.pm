@@ -1,11 +1,11 @@
-package captiveportal::DynamicRouting::Module::RootSession;
+package captiveportal::DynamicRouting::Module::RootSSO;
 use Moose;
 
-BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::RootSession'; }
+BEGIN { extends 'captiveportal::PacketFence::DynamicRouting::Module::RootSSO'; }
 
 =head1 NAME
 
-captiveportal::DynamicRouting::Module::RootSession - Root Controller for captiveportal
+captiveportal::DynamicRouting::Module::RootSSO - Root Controller for captiveportal
 
 =head1 DESCRIPTION
 

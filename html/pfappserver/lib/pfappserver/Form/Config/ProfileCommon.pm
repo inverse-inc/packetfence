@@ -656,7 +656,7 @@ Returns the list of root modules to be displayed
 
 sub options_root_module {
     my $cs = pf::ConfigStore::PortalModule->new;
-    return map { ($_->{type} eq "Root" || $_->{type} eq 'RootSession')  ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
+    return map { ($_->{type} eq "Root" || $_->{type} eq 'RootSSO')  ? { value => $_->{id}, label => $_->{description} } : () } @{$cs->readAll("id")};
 }
 
 =head2 options_vlan_pool

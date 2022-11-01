@@ -34,13 +34,13 @@ use pf::config qw(%Config);
 use pf::activation;
 use fingerbank::Config;
 use captiveportal::DynamicRouting::Module::Root;
-use captiveportal::DynamicRouting::Module::RootSession;
+use captiveportal::DynamicRouting::Module::RootSSO;
 
 has 'session' => (is => 'rw', required => 1);
 
 has 'user_session' => (is => 'rw', required => 1);
 
-has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root|captiveportal::DynamicRouting::Module::RootSession");
+has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root|captiveportal::DynamicRouting::Module::RootSSO");
 
 has 'root_module_id' => (is => 'rw');
 
@@ -377,7 +377,7 @@ sub render {
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
 
     my $layout_args = {
-        isrootsession => $self->isrootsession,
+        isRootSSO => $self->isRootSSO,
         flash => $self->flash,
         content => $inner_content,
         client_mac => $self->current_mac,
@@ -585,15 +585,15 @@ sub preregistration {
     return isenabled($self->profile->{_preregistration});
 }
 
-=head2 isrootsession
+=head2 isRootSSO
 
-return $TRUE if the root module ia a RootSession
+return $TRUE if the root module ia a RootSSO
 
 =cut
 
-sub isrootsession {
+sub isRootSSO {
     my ($self) = @_;
-    return $self->root_module->isa("captiveportal::DynamicRouting::Module::RootSession")
+    return $self->root_module->isa("captiveportal::DynamicRouting::Module::RootSSO")
 }
 
 =head1 AUTHOR

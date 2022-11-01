@@ -1,4 +1,4 @@
-package captiveportal::PacketFence::DynamicRouting::Module::RootSession;
+package captiveportal::PacketFence::DynamicRouting::Module::RootSSO;
 
 =head1 NAME
 
