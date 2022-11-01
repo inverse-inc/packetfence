@@ -33,15 +33,18 @@ sub get_session_id {
     my $c = shift;
 
     my $mac = $c->portalSession->clientMac;
-    if(valid_mac($mac)){
+    # Allow to restore the session from a RelayState for SAML callbacks
+    if(exists $c->request->{parameters}->{RelayState}) {
+        $c->stash->{browser_session_id} = $c->request->{parameters}->{RelayState};
+        return $c->request->{parameters}->{RelayState};
+    }
+    elsif(valid_mac($mac)){
         $mac =~ s/\://g;
         return $mac;
     }
-    elsif(my $cookie = $c->get_session_cookie) {
-        return $cookie->value;
-    }
     else {
-        return $c->browser_session_id();
+        my $sid = $c->browser_session_id();
+        return $sid;
     }
 };
 
@@ -69,7 +72,10 @@ Get the browser session ID (not tied to MAC address)
 
 sub browser_session_id {
     my ($c) = @_;
-    if($c->request->cookie('CGISESSION')){
+    if(exists $c->request->{parameters}->{RelayState}) {
+        return $c->request->{parameters}->{RelayState};
+    }
+    elsif($c->request->cookie('CGISESSION')){
         return $c->request->cookie('CGISESSION')->value();
     }
     elsif($c->stash->{browser_session_id}) {

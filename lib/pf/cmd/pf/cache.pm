@@ -20,6 +20,7 @@ Namespaces:
   local_mac
   ntlm_cache_username_lookup
   openvas_scans
+  portaladmin
   person_lookup
   pfdhcp_api
   pfdns

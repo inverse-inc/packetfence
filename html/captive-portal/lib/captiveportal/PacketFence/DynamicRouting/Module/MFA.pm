@@ -116,7 +116,7 @@ sub execute_child {
         }
     }
     else {
-        my $info = $mfa->redirect_info($self->username, $self->app->session->{'captiveportal::Model::Portal::Session'}->{'dispatcherSession'}->{'_session_id'});
+        my $info = $mfa->redirect_info($self->username, $self->app->session->{'captiveportal::Model::Portal::Session'}->{'dispatcherSession'}->{'_session_id'}, $self->app->request->cookie("CGISESSION")->value);
         $self->show_mfa($info);
     }
 }

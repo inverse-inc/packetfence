@@ -137,6 +137,7 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.AdminRoles)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.Advanced)
 	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.ServicesURL)
+	pfconfigdriver.PfconfigPool.AddStruct(ctx, &pfconfigdriver.Config.PfConf.AdminLogin)
 
 	tokenBackend := aaa.MakeTokenBackend(tokenBackendArgs)
 	apiAAA.authentication = aaa.NewTokenAuthenticationMiddleware(tokenBackend)
@@ -164,15 +165,26 @@ func buildApiAAAHandler(ctx context.Context, tokenBackendArgs []string) (ApiAAAH
 		apiAAA.webservicesBackend.SetUser(pfconfigdriver.Config.PfConf.Webservices.User, pfconfigdriver.Config.PfConf.Webservices.Pass)
 	}
 
-	url, err := url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", pfconfigdriver.Config.PfConf.ServicesURL.PfperlApi))
-	sharedutils.CheckError(err)
-	apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
+	// Backend for SSO
+	if sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminLogin.SSOStatus) {
+		url, err := url.Parse(fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminLogin.SSOBaseUrl, pfconfigdriver.Config.PfConf.AdminLogin.SSOAuthorizePath))
+		sharedutils.CheckError(err)
+		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPortalAuthenticationBackend(ctx, url, false))
+	}
+
+	// Backend for username/password auth via the internal auth sources
+	if sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminLogin.AllowUsernamePassword) {
+		url, err := url.Parse(fmt.Sprintf("%s/api/v1/authentication/admin_authentication", pfconfigdriver.Config.PfConf.ServicesURL.PfperlApi))
+		sharedutils.CheckError(err)
+		apiAAA.authentication.AddAuthenticationBackend(aaa.NewPfAuthenticationBackend(ctx, url, false))
+	}
 
 	apiAAA.authorization = aaa.NewTokenAuthorizationMiddleware(tokenBackend)
 
 	router := httprouter.New()
 	router.POST("/api/v1/login", apiAAA.handleLogin)
 	router.GET("/api/v1/token_info", apiAAA.handleTokenInfo)
+	router.GET("/api/v1/sso_info", apiAAA.handleSSOInfo)
 
 	apiAAA.router = router
 
@@ -258,6 +270,20 @@ func (h ApiAAAHandler) handleTokenInfo(w http.ResponseWriter, r *http.Request, p
 		})
 		fmt.Fprintf(w, string(res))
 	}
+}
+
+func (h ApiAAAHandler) handleSSOInfo(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	info := struct {
+		LoginText string `json:"login_text"`
+		LoginURL  string `json:"login_url"`
+		IsEnabled bool   `json:"is_enabled"`
+	}{
+		LoginText: pfconfigdriver.Config.PfConf.AdminLogin.SSOLoginText,
+		LoginURL:  fmt.Sprintf("%s%s", pfconfigdriver.Config.PfConf.AdminLogin.SSOBaseUrl, pfconfigdriver.Config.PfConf.AdminLogin.SSOLoginPath),
+		IsEnabled: sharedutils.IsEnabled(pfconfigdriver.Config.PfConf.AdminLogin.SSOStatus),
+	}
+
+	json.NewEncoder(w).Encode(info)
 }
 
 func (h ApiAAAHandler) HandleAAA(w http.ResponseWriter, r *http.Request) bool {

@@ -54,7 +54,11 @@ func (tam *TokenAuthenticationMiddleware) Login(ctx context.Context, username, p
 				return false, "", err
 			}
 
-			tokenInfo.Username = username
+			// Don't set it if it was set by the backend
+			if tokenInfo.Username == "" {
+				tokenInfo.Username = username
+			}
+
 			tam.tokenBackend.StoreTokenInfo(token, tokenInfo)
 			return true, token, nil
 		} else if err != nil {

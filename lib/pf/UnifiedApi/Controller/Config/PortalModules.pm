@@ -49,6 +49,7 @@ use pfappserver::Form::Config::PortalModule::FixedRole;
 use pfappserver::Form::Config::PortalModule::Message;
 use pfappserver::Form::Config::PortalModule::Provisioning;
 use pfappserver::Form::Config::PortalModule::Root;
+use pfappserver::Form::Config::PortalModule::RootSession;
 use pfappserver::Form::Config::PortalModule::SelectRole;
 use pfappserver::Form::Config::PortalModule::Survey;
 use pfappserver::Form::Config::PortalModule::URL;
@@ -82,6 +83,7 @@ our %TYPES_TO_FORMS = (
         Message
         Provisioning
         Root
+        RootSession
         SelectRole
         Survey
         URL

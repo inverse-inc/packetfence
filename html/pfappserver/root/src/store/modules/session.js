@@ -24,6 +24,9 @@ const api = {
     if (readonly) url += '?no-expiration-extension=1'
     return apiCall.getQuiet(url)
   },
+  getSsoInfo: () => {
+    return apiCall.getQuiet('sso_info')
+  },
   getLanguage: (locale) => {
     return apiCall.get(`translation/${locale}`)
   },
@@ -87,7 +90,8 @@ const initialState = () => {
     allowedUserRoles: false,
     allowedUserRolesStatus: '',
     allowedUserUnregDate: false,
-    allowedUserUnregDateStatus: ''
+    allowedUserUnregDateStatus: '',
+    ssoInfo: false
   }
 }
 
@@ -132,7 +136,10 @@ const getters = {
   allowedUserRolesList: state => (state.allowedUserRoles || []).map(role => { return { value: role.category_id, text: `${role.name} - ${role.notes}` } }),
   allowedUserUnregDate: state => state.allowedUserUnregDate || [],
   aclContext: state => state.roles || [],
-  configuratorEnabled: state => state.configuratorEnabled
+  configuratorEnabled: state => state.configuratorEnabled,
+  ssoEnabled: state => state.ssoInfo.is_enabled || false,
+  ssoLoginUrl: state => state.ssoInfo.login_url || false,
+  ssoLoginButtonText: state => state.ssoInfo.login_text || 'Single Sign On', // i18n defer
 }
 
 const actions = {
@@ -220,6 +227,14 @@ const actions = {
       commit('USERNAME_UPDATED', response.data.item.username)
       commit('EXPIRES_AT_UPDATED', response.data.item.expires_at)
       return response.data.item.admin_actions // return ACLs
+    })
+  },
+  getSsoInfo: ({ state, commit }, ignoreCache = false) => {
+    if (!ignoreCache && state.ssoInfo) {
+      return Promise.resolve(state.ssoInfo)
+    }
+    return api.getSsoInfo().then(response => {
+      commit('SSO_INFO_UPDATED', response.data)
     })
   },
   setLanguage: ({ state, commit }, params) => {
@@ -461,6 +476,9 @@ const mutations = {
   },
   LANGUAGES_UPDATED: (state, languages) => {
     state.languages = languages
+  },
+  SSO_INFO_UPDATED: (state, ssoInfo) => {
+    state.ssoInfo = ssoInfo
   },
   // eslint-disable-next-line no-unused-vars
   $RESET: (state) => {

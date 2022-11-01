@@ -75,6 +75,7 @@ type configStruct struct {
 		Services      PfConfServices
 		ServicesURL   PfConfServicesURL
 		Pfconnector   PfConfPfconnector
+		AdminLogin    PfConfAdminLogin
 	}
 	AdminRoles AdminRoles
 	Cluster    struct {
@@ -828,6 +829,19 @@ type PfConfServicesURL struct {
 	PfperlApi             string `json:"pfperl-api"`
 	PfdnsDoh              string `json:"pfdns-doh"`
 	Pfsso                 string `json:"pfsso"`
+}
+
+type PfConfAdminLogin struct {
+	StructConfig
+	PfconfigMethod        string `val:"hash_element"`
+	PfconfigNS            string `val:"config::Pf"`
+	PfconfigHashNS        string `val:"admin_login"`
+	SSOAuthorizePath      string `json:"sso_authorize_path"`
+	SSOBaseUrl            string `json:"sso_base_url"`
+	SSOLoginPath          string `json:"sso_login_path"`
+	SSOLoginText          string `json:"sso_login_text"`
+	SSOStatus             string `json:"sso_status"`
+	AllowUsernamePassword string `json:"allow_username_password"`
 }
 
 type Connectors struct {

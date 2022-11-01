@@ -192,3 +192,16 @@ storage=distributed
 #
 # Amount of time from the current time to expire an entry
 expires_in=120s
+
+
+[namespace portaladmin]
+#
+# namespace portaladmin.storage
+#
+# The storage to use for the namespace
+storage=distributed
+#
+# storage portaladmin.expires_in
+#
+# Amount of time from the current time to expire an entry
+expires_in=120s

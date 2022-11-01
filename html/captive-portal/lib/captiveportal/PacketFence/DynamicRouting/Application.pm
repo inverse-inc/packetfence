@@ -33,12 +33,14 @@ use pf::file_paths qw($install_dir);
 use pf::config qw(%Config);
 use pf::activation;
 use fingerbank::Config;
+use captiveportal::DynamicRouting::Module::Root;
+use captiveportal::DynamicRouting::Module::RootSession;
 
 has 'session' => (is => 'rw', required => 1);
 
 has 'user_session' => (is => 'rw', required => 1);
 
-has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root");
+has 'root_module' => (is => 'rw', isa => "captiveportal::DynamicRouting::Module::Root|captiveportal::DynamicRouting::Module::RootSession");
 
 has 'root_module_id' => (is => 'rw');
 
@@ -375,6 +377,7 @@ sub render {
     my %saved_fields = %{$self->session->{saved_fields}} if (defined ($self->session->{saved_fields}) );
 
     my $layout_args = {
+        isrootsession => $self->isrootsession,
         flash => $self->flash,
         content => $inner_content,
         client_mac => $self->current_mac,
@@ -580,6 +583,17 @@ Whether or not we are currently doing pre-registration
 sub preregistration {
     my ($self) = @_;
     return isenabled($self->profile->{_preregistration});
+}
+
+=head2 isrootsession
+
+return $TRUE if the root module ia a RootSession
+
+=cut
+
+sub isrootsession {
+    my ($self) = @_;
+    return $self->root_module->isa("captiveportal::DynamicRouting::Module::RootSession")
 }
 
 =head1 AUTHOR

@@ -71,8 +71,8 @@ Forward matching to the authorization source
 =cut
 
 sub match {
-    my ($self, $params) = @_;
-    return $self->authorization_source->match($params);
+    my ($self, $params, $action, $extra) = @_;
+    return $self->authorization_source->match($params, $action, $extra);
 }
 
 =head2 authorization_source
@@ -130,7 +130,7 @@ Generate the Single-Sign-On URL that points to the Identity Provider
 =cut
 
 sub sso_url {
-    my ($self) = @_;
+    my ($self, $relayState) = @_;
 
     require pf::constants::saml;
     require Lasso;
@@ -145,13 +145,14 @@ sub sso_url {
         $lassoLogin->request->NameIDPolicy->AllowCreate(1);
         $lassoLogin->request->ForceAuthn(0);
         $lassoLogin->request->IsPassive(0);
+        $lassoLogin->msg_relayState($relayState);
 
         $lassoLogin->build_authn_request_msg();
 
         $url = $lassoLogin->msg_url;
     };
     if($@){
-        die "Can't create Single-Sign-On URL : ".$@->{message}."\n";
+        die "Can't create Single-Sign-On URL : ".$@."\n";
     }
     return $url;
 }

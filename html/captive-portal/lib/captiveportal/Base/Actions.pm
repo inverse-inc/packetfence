@@ -45,6 +45,7 @@ our %AUTHENTICATION_ACTIONS = (
     destination_url => sub {$_[0]->app->session->{destination_url} = $_[1];$_[0]->app->session->{portal_module_force_destination_url} = $TRUE},
     unregdate_from_sponsor_source => sub { $_[0]->new_node_info->{unregdate} = $_[0]->session->{unregdate} if defined($_[0]->session->{unregdate}) },
     trigger_portal_mfa => sub { $_[0]->app->session->{mfa_id} = action_authentication_match_wrapper($_[0]->source->id, $_[0]->auth_source_params, $Actions::TRIGGER_PORTAL_MFA, undef, $_[0]->session->{extra}); },
+    set_access_level => sub { $_[0]->new_node_info->{access_level} = action_authentication_match_wrapper($_[0]->source->id, {%{$_[0]->auth_source_params}, rule_class => "administration"}, $Actions::SET_ACCESS_LEVEL); },
 );
 
 =head2 action_authentication_match_wrapper

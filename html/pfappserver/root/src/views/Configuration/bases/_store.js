@@ -81,6 +81,40 @@ const actions = {
       throw err
     })
   },
+  getAdminLogin: ({ state, commit }) => {
+    if (state.cache['advanced']) {
+      return Promise.resolve(state.cache['admin_login']).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ITEM_REQUEST')
+    return api.base('admin_login').then(item => {
+      commit('ITEM_REPLACED', item)
+      return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsAdminLogin: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.baseOptions('admin_login').then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateAdminLogin: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'admin_login'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getAdvanced: ({ state, commit }) => {
     if (state.cache['advanced']) {
       return Promise.resolve(state.cache['advanced']).then(cache => JSON.parse(JSON.stringify(cache)))
@@ -104,12 +138,12 @@ const actions = {
       throw err
     })
   },
-  updateAdvanced: ({ commit, dispatch }, data) => {
+  updateAdvanced: ({ commit }, data) => {
     commit('ITEM_REQUEST')
     data.id = 'advanced'
     return api.updateBase(data).then(response => {
       commit('ITEM_REPLACED', data)
-      dispatch('session/updateConfiguratorState', data.configurator, { root: true })
+      store.dispatch('session/updateConfiguratorState', data.configurator, { root: true })
       return response
     }).catch(err => {
       commit('ITEM_ERROR', err.response)

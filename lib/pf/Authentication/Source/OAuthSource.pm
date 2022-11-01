@@ -25,16 +25,6 @@ Which module to use for DynamicRouting
 
 sub dynamic_routing_module { 'Authentication::OAuth' }
 
-=head2 available_rule_classes
-
-OAuth sources only allow 'authentication' rules
-
-=cut
-
-sub available_rule_classes {
-    return [ grep { $_ ne $Rules::ADMIN } @Rules::CLASSES ];
-}
-
 =head2 available_actions
 
 For an OAuth source, only the authentication actions should be available
@@ -42,7 +32,7 @@ For an OAuth source, only the authentication actions should be available
 =cut
 
 sub available_actions {
-    my @actions = map( { @$_ } $Actions::ACTIONS{$Rules::AUTH});
+    my @actions = (map( { @$_ } $Actions::ACTIONS{$Rules::AUTH}), $Actions::SET_ACCESS_LEVEL);
     return \@actions;
 }
 

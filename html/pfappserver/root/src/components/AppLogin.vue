@@ -3,8 +3,22 @@
     <component :is="modal?'b-modal':'b-card'" v-model="showModal"
       static lazy no-close-on-esc no-close-on-backdrop hide-header-close no-body>
       <template v-slot:[headerSlotName]>
-        <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expires soon'" />
-        <h4 class="mb-0" v-else v-t="'Login to PacketFence Administration'" />
+        <b-container fluid class="px-0">
+          <b-row align-h="between" align-v="center" class="text-nowrap">
+            <b-col cols="9" md="9">
+              <h4 class="mb-0" v-if="sessionTime" v-t="'Your session will expire soon'" />
+              <h4 class="mb-0" v-else v-t="'PacketFence Administration Login'" />
+            </b-col>
+            <b-col cols="auto" md="auto" class="ml-auto text-right">
+              <b-dropdown variant="link" :text="$t(currentLanguage.label)">
+                <b-dropdown-item v-for="language in languages" :key="language.locale"
+                  :disabled="language.locale === $i18n.locale"
+                  @click="setLanguage(language.locale)"
+                  >{{ $t(language.label) }}</b-dropdown-item>
+              </b-dropdown>
+            </b-col>
+          </b-row>
+        </b-container>
       </template>
       <component :is="modal?'div':'b-card-body'">
         <b-alert :variant="message.level" :show="!!message.text" fade>
@@ -20,22 +34,28 @@
         </template>
       </component>
       <template v-slot:[footerSlotName]>
-        <b-dropdown variant="link" class="float-right" :text="$t(currentLanguage.label)">
-          <b-dropdown-item v-for="language in languages" :key="language.locale"
-            :disabled="language.locale === $i18n.locale"
-            @click="setLanguage(language.locale)"
-            >{{ $t(language.label) }}</b-dropdown-item>
-        </b-dropdown>
-        <template v-if="sessionTime">
-          <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
-          <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
-        </template>
-        <template v-else>
-          <b-link variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
-          <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
-            {{ $t('Login') }}
-          </base-button-save>
-        </template>
+        <b-container fluid class="px-0">
+          <b-row align-h="between">
+            <b-col cols="auto" md="auto" class="mr-auto">
+              <template v-if="sessionTime">
+                <b-link variant="outline-secondary" @click="onLogout">{{ $t('Logout now') }}</b-link>
+                <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
+              </template>
+              <template v-else>
+                <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
+                  {{ $t('Login') }}
+                </base-button-save>
+                <b-link class="ml-2" variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
+              </template>
+            </b-col>
+            <b-col v-if="!sessionTime && ssoEnabled"
+              cols="5" md="5" class="text-right">
+              <b-button :href="ssoLoginUrl" variant="outline-primary">
+                {{ $t(ssoLoginButtonText) }} <icon class="ml-1" name="user-lock" />
+              </b-button>
+            </b-col>
+          </b-row>
+        </b-container>
       </template>
     </component>
   </b-form>
@@ -84,6 +104,13 @@ const setup = (props, context) => {
   const isSessionAlive = computed(() => $store.getters['session/getSessionTime']() !== false)
   const isLoading = computed(() => $store.getters['session/isLoading'])
   const validForm = computed(() => username.value.length > 0 && password.value.length > 0 && !isLoading.value)
+  const ssoEnabled = computed(() => $store.getters['session/ssoEnabled'])
+  const ssoLoginUrl = computed(() => {
+    const here = new URL(window.location.href)
+    const callback = encodeURIComponent(`${here.origin}${here.pathname}#/login`)
+    return `${$store.getters['session/ssoLoginUrl']}?callback=${callback}`
+  })
+  const ssoLoginButtonText = computed(() => $store.getters['session/ssoLoginButtonText'])
 
   onMounted(() => {
     if ($router.currentRoute.path === '/logout') {
@@ -103,12 +130,16 @@ const setup = (props, context) => {
       // Watch for session state change from external sources
       watch(isSessionAlive, updateSessionTimeVerified)
     }
+    $store.dispatch('session/getSsoInfo', true).then(() => {
+      if (ssoEnabled.value && 'token' in $router.currentRoute.query) {
+        doLogin(null, $router.currentRoute.query.token)
+      }
+    })
   })
 
-  let sessionTimer
-  const onLogin = () => {
+  const doLogin = (username, password) => {
     message.value = {}
-    $store.dispatch('session/login', { username: username.value, password: password.value }).then(response => {
+    $store.dispatch('session/login', { username, password }).then(response => {
       if (modal.value) {
         updateSessionTime()
         $store.dispatch('notification/status_success', { message: i18n.t('Login successful') })
@@ -123,6 +154,9 @@ const setup = (props, context) => {
       }
     })
   }
+
+  let sessionTimer
+  const onLogin = () => doLogin(username.value, password.value)
   const onExtendSession = () => {
     if (sessionTimer)
       clearTimeout(sessionTimer)
@@ -211,7 +245,11 @@ const setup = (props, context) => {
 
     languages,
     currentLanguage,
-    setLanguage
+    setLanguage,
+
+    ssoEnabled,
+    ssoLoginUrl,
+    ssoLoginButtonText
   }
 }
 

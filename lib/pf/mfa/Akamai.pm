@@ -488,7 +488,7 @@ Generate redirection information
 =cut
 
 sub redirect_info {
-    my ($self, $username, $session_id) = @_;
+    my ($self, $username, $session_id, $relay_state) = @_;
     my $logger = get_logger();
     $logger->info("MFA USERNAME: ".$username);
     my $payload = {
@@ -496,7 +496,7 @@ sub redirect_info {
         timestamp => time(),
         request => {
             username => $username,
-            callback => $self->callback_url."?CGISESSION_PF=".$session_id,
+            callback => $self->callback_url."?CGISESSION_PF=".$session_id."&RelayState=".$relay_state,
         },
     };
     $payload = encode_json($payload);
