@@ -2,7 +2,7 @@
 
 context('Login', () => {
   beforeEach(() => {
-    cy.visit('https://localhost:1443')
+    cy.visit('/')
   })
 
   it('assert login button is disabled when form is empty', () => {
@@ -13,33 +13,23 @@ context('Login', () => {
   })
 
   it('assert login button is enabled when form is filled', () => {
-
     cy.get('form input#username').first().as('inputUsername')
     cy.get('form input#password').first().as('inputPassword')
     cy.get('form button[type="submit"]').first().as('btnSubmit')
-
     cy.get('@inputUsername').type('foo')
     cy.get('@inputPassword').type('bar')
-
     cy.get('@btnSubmit')
       .should('not.have.class', 'disabled')
       .and('not.have.disabled', 'disabled')
-
-//    cy.get('@btnSubmit').click()
-
   })
 
   it('assert invalid login shows an alert', () => {
-
     cy.get('form input#username').first().as('inputUsername')
     cy.get('form input#password').first().as('inputPassword')
     cy.get('form button[type="submit"]').first().as('btnSubmit')
-
     cy.get('@inputUsername').type('foo')
     cy.get('@inputPassword').type('bar')
-
     cy.get('@btnSubmit').click()
-
     cy.get('form div[role="alert"]').first().should('contain', `Wasn't able to authenticate those credentials`)
   })
 
