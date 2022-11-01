@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
@@ -12,11 +13,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
+	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/phayes/freeport"
@@ -29,6 +32,10 @@ var apiPrefix = "/api/v1/pfconnector"
 
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
+	log.LoggerWContext(r.Context()).Info(fmt.Sprintf("Handling %s %s", r.Method, r.URL.Path))
+
+	s.connectors.Refresh(r.Context())
+
 	//websockets upgrade AND has chisel prefix
 	upgrade := strings.ToLower(r.Header.Get("Upgrade"))
 	protocol := r.Header.Get("Sec-WebSocket-Protocol")
@@ -59,6 +66,18 @@ func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	case apiPrefix + "/remote-binds":
 		s.handleRemoteBinds(w, r)
+		return
+	case apiPrefix + "/all-fingerbank-collector-endpoints":
+		s.handleAllFingerbankCollectorEndpoints(w, r)
+		return
+	case apiPrefix + "/local-fingerbank-collector-endpoints":
+		s.handleLocalFingerbankCollectorEndpoints(w, r)
+		return
+	case apiPrefix + "/remote-fingerbank-collector-env":
+		s.handleRemoteFingerbankCollectorEnv(w, r)
+		return
+	case apiPrefix + "/remote-fingerbank-collector-nba-conf":
+		s.handleRemoteFingerbankCollectorNbaConf(w, r)
 		return
 	}
 	//missing :O
@@ -191,6 +210,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (s *Server) pfconnectorHost(req *http.Request) string {
+	hostPort := strings.Split(req.Context().Value(http.LocalAddrContextKey).(net.Addr).String(), ":")
+	host := sharedutils.EnvOrDefault("PFCONNECTOR_SERVER_DYN_REVERSE_HOST", strings.Join(hostPort[0:len(hostPort)-1], ":"))
+
+	return host
+}
+
 func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -206,8 +232,7 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	hostPort := strings.Split(req.Context().Value(http.LocalAddrContextKey).(net.Addr).String(), ":")
-	host := sharedutils.EnvOrDefault("PFCONNECTOR_SERVER_DYN_REVERSE_HOST", strings.Join(hostPort[0:len(hostPort)-1], ":"))
+	host := s.pfconnectorHost(req)
 
 	cacheKey := fmt.Sprintf("%s:%s", payload.ConnectorID, payload.To)
 	if o, found := settings.ActiveDynReverse.Load(cacheKey); found {
@@ -253,22 +278,165 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
-	managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
-	pfconfigdriver.FetchDecodeSocket(req.Context(), &managementNetwork)
+var baseFingerbankPort = 23000
+var maxCheckedInConnectors = 256
 
-	var managementIP string
-	if managementNetwork.Vip != "" {
-		managementIP = managementNetwork.Vip
-	} else {
-		managementIP = managementNetwork.Ip
+func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
+	connectorId := req.URL.Query().Get("connector-id")
+	if connectorId == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: "Missing connector-id query parameter"})
+		return
 	}
+
+	if o, ok := activeTunnels.Load(connectorId); ok {
+		tun := o.(*tunnel.Tunnel)
+		index := s.computeConnectorIndex(connectorId)
+
+		if index > maxCheckedInConnectors {
+			log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Too many connectors are currently connected on this server. Denying access to %s", connectorId))
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: "Too many connectors are currently connected on this server."})
+			return
+		}
+
+		fingerbankLocalPort := baseFingerbankPort + index
+
+		managementNetwork := pfconfigdriver.Config.Interfaces.ManagementNetwork
+		pfconfigdriver.FetchDecodeSocket(req.Context(), &managementNetwork)
+
+		var managementIP string
+		if managementNetwork.Vip != "" {
+			managementIP = managementNetwork.Vip
+		} else {
+			managementIP = managementNetwork.Ip
+		}
+
+		remoteStrs := []string{fmt.Sprintf("R:%d:127.0.0.1:4723", fingerbankLocalPort)}
+		remotes := make([]*settings.Remote, len(remoteStrs))
+		for i, remoteStr := range remoteStrs {
+			remote, err := settings.DecodeRemote(remoteStr)
+			sharedutils.CheckError(err)
+			remotes[i] = remote
+		}
+
+		tun.IsRemoteConnector = true
+
+		go func() {
+			// TODO: handle an error
+			tun.BindDynamicRemotes(remotes)
+		}()
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(gin.H{"binds": []string{
+			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
+			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
+			fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp", managementIP))),
+			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp", managementIP))),
+			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp", managementIP))),
+			fmt.Sprintf("127.0.0.1:9090:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9090", fmt.Sprintf("%s:9090", managementIP))),
+		}})
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
+		return
+	}
+}
+
+type FingerbankServersReply struct {
+	Servers []string `json:"servers"`
+}
+
+func (s *Server) handleAllFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
+	ctx := req.Context()
+	collectors := []string{}
+	//TODO: handle this for a k8s deployment
+	if _, clusterEnabled := cluster.EnabledServers(ctx); clusterEnabled {
+		replies := map[string]*FingerbankServersReply{}
+		createResponseStructPtr := func(serverId string) interface{} {
+			replies[serverId] = &FingerbankServersReply{}
+			return replies[serverId]
+		}
+		errors := cluster.UnifiedAPICallCluster(ctx, "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
+		for serverId, err := range errors {
+			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error collecting fingerbank collector servers on %s: %s", serverId, err))
+		}
+
+		for _, resp := range replies {
+			collectors = append(collectors, resp.Servers...)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
+	} else {
+		s.handleLocalFingerbankCollectorEndpoints(w, req)
+	}
+}
+
+func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
+	collectors := []string{}
+	activeTunnels.Range(func(k, v interface{}) bool {
+		tun := v.(*tunnel.Tunnel)
+		// Only consider tunnels with an active connection
+		if tun.IsActive() && tun.IsRemoteConnector {
+			host := s.pfconnectorHost(req)
+			fingerbankLocalPort := baseFingerbankPort + s.computeConnectorIndex(k.(string))
+			collectors = append(collectors, fmt.Sprintf("http://%s:%d", host, fingerbankLocalPort))
+		}
+		return true
+	})
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(gin.H{"binds": []string{
-		fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
-		fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
-		fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp", managementIP))),
-		fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp", managementIP))),
-		fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp", managementIP))),
-	}})
+	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
+}
+
+func (s *Server) handleRemoteFingerbankCollectorEnv(w http.ResponseWriter, req *http.Request) {
+	fingerbankSettings := pfconfigdriver.FingerbankSettings{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &fingerbankSettings)
+
+	webservices := pfconfigdriver.PfConfWebservices{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &webservices)
+
+	env := map[string]string{
+		"COLLECTOR_ARP_LOOKUP":                fingerbankSettings.Collector.ArpLookup,
+		"COLLECTOR_CLUSTERED":                 "true",
+		"COLLECTOR_CLUSTER_RESYNC_INTERVAL":   fingerbankSettings.Collector.ClusterResyncInterval.String() + "s",
+		"COLLECTOR_DB_PERSISTENCE_INTERVAL":   fingerbankSettings.Collector.DbPersistenceInterval.String() + "s",
+		"COLLECTOR_DELETE_INACTIVE_ENDPOINTS": fingerbankSettings.Collector.InactiveEndpointsExpiration.String() + "h",
+		"COLLECTOR_ENDPOINTS_CACHE_PATH":      "/usr/local/collector-remote/db/collector_endpoints_cache.db",
+		"COLLECTOR_ENDPOINTS_DB_PATH":         "/usr/local/collector-remote/db/collector_endpoints.db",
+		"COLLECTOR_QUERY_CACHE_TIME":          fingerbankSettings.Collector.QueryCacheTime.String() + "m",
+		"FINGERBANK_API_KEY":                  fingerbankSettings.Upstream.ApiKey,
+		"PORT":                                "4723",
+	}
+
+	if sharedutils.IsEnabled(fingerbankSettings.Collector.NetworkBehaviorAnalysis) {
+		env["COLLECTOR_ENDPOINT_ANALYSIS_WEBHOOK"] = "https://localhost:9090/fingerbank/nba/webhook"
+		env["COLLECTOR_ENDPOINT_ANALYSIS_WEBHOOK_PASSWORD"] = webservices.Pass
+		env["COLLECTOR_ENDPOINT_ANALYSIS_WEBHOOK_USERNAME"] = webservices.User
+		env["COLLECTOR_NETWORK_BEHAVIOR_ANALYSIS"] = "true"
+		env["COLLECTOR_NETWORK_BEHAVIOR_POLICIES"] = "/usr/local/collector-remote/conf/network_behavior_policies.conf"
+	}
+
+	if fingerbankSettings.Collector.AdditionalEnv != "" {
+		for _, l := range strings.Split(fingerbankSettings.Collector.AdditionalEnv, "\n") {
+			d := strings.Split(l, "=")
+			env[d[0]] = strings.Join(d[1:len(d)], "=")
+		}
+	}
+
+	envFile := ""
+	for k, v := range env {
+		envFile += fmt.Sprintf("export %s=%s\n", k, v)
+	}
+
+	w.Write([]byte(envFile))
+}
+
+func (s *Server) handleRemoteFingerbankCollectorNbaConf(w http.ResponseWriter, req *http.Request) {
+	if nbaConf, err := ioutil.ReadFile("/usr/local/pf/conf/network_behavior_policies.conf"); err == nil {
+		w.Write(nbaConf)
+	} else {
+		log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Error while reading Fingerbank NBA config: %s", err))
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }

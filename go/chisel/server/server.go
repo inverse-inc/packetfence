@@ -8,16 +8,18 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	chshare "github.com/inverse-inc/packetfence/go/chisel/share"
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/connector"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"github.com/jpillora/requestlog"
 	"golang.org/x/crypto/ssh"
 )
@@ -38,6 +40,7 @@ type Config struct {
 type Server struct {
 	*cio.Logger
 	config                *Config
+	connectors            *connector.ConnectorsContainer
 	fingerprint           string
 	httpServer            *cnet.HTTPServer
 	reverseProxy          *httputil.ReverseProxy
@@ -48,6 +51,8 @@ type Server struct {
 	listenProto           string
 	redis                 *redis.Client
 	redisTunnelsNamespace string
+	connectorsIndexes     map[string]int
+	connectorIndexesLock  *sync.Mutex
 }
 
 var upgrader = websocket.Upgrader{
@@ -59,10 +64,13 @@ var upgrader = websocket.Upgrader{
 // NewServer creates and returns a new chisel server
 func NewServer(c *Config) (*Server, error) {
 	server := &Server{
-		config:     c,
-		httpServer: cnet.NewHTTPServer(),
-		Logger:     cio.NewLogger("server"),
-		sessions:   settings.NewUsers(),
+		config:               c,
+		connectors:           connector.NewConnectorsContainer(context.Background()),
+		httpServer:           cnet.NewHTTPServer(),
+		Logger:               cio.NewLogger("server"),
+		sessions:             settings.NewUsers(),
+		connectorsIndexes:    map[string]int{},
+		connectorIndexesLock: &sync.Mutex{},
 	}
 	server.Info = true
 	server.users = settings.NewUserIndex(server.Logger)
@@ -215,8 +223,9 @@ var acceptAllAddrs = regexp.MustCompile("")
 var connectors = pfconfigdriver.Connectors{}
 
 func (s *Server) refreshUsersPfconfig() {
-	pfconfigdriver.FetchDecodeSocketCache(context.Background(), &connectors)
-	for connectorId, connector := range connectors.Element {
+	ctx := context.Background()
+	s.connectors.Refresh(ctx)
+	for connectorId, connector := range s.connectors.All(ctx) {
 		s.users.AddUser(&settings.User{
 			Name:  connectorId,
 			Pass:  connector.Secret,
@@ -251,5 +260,25 @@ func (s *Server) setupRedisClient(ctx context.Context) {
 	})
 
 	s.redisTunnelsNamespace = pfconfigdriver.Config.PfConf.Pfconnector.RedisTunnelsNamespace
+
+}
+
+func (s *Server) computeConnectorIndex(connectorId string) int {
+	s.connectorIndexesLock.Lock()
+	defer s.connectorIndexesLock.Unlock()
+	if index, ok := s.connectorsIndexes[connectorId]; ok {
+		return index
+	} else {
+		highestId := 0
+		for _, id := range s.connectorsIndexes {
+			if id >= highestId {
+				highestId = id
+			} else if id == highestId {
+				panic("There are duplicate s.connectorsIndexes values. This shouldn't have happened")
+			}
+		}
+		s.connectorsIndexes[connectorId] = highestId + 1
+		return s.connectorsIndexes[connectorId]
+	}
 
 }

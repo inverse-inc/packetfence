@@ -265,10 +265,13 @@ func (c *Client) Start(ctx context.Context) error {
 			for {
 				time.Sleep(5 * time.Second)
 				func() {
-					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds"))
+					res, err := http.Get(fmt.Sprintf("http://127.0.0.1:22226/api/v1/pfconnector/remote-binds?connector-id=%s", strings.Split(c.config.Auth, ":")[0]))
 					if err != nil {
 						fmt.Printf("Unable to contact pfconnector API to obtain remote binds: %s", err)
 						return
+					}
+					if res.StatusCode != http.StatusOK {
+						fmt.Printf("Invalid status code %d received for remote binds", err)
 					}
 					defer res.Body.Close()
 					apiRemotes := struct {
@@ -276,7 +279,7 @@ func (c *Client) Start(ctx context.Context) error {
 					}{}
 					err = json.NewDecoder(res.Body).Decode(&apiRemotes)
 					if err != nil {
-						fmt.Printf("Unable to parse remote binds from pfconnector API: %s", err)
+						fmt.Printf("Unable to parse remote binds from pfconnector API: %s\n", err)
 						return
 					}
 					remotes := []*settings.Remote{}

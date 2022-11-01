@@ -2,11 +2,13 @@ package cluster
 
 import (
 	"context"
+	"errors"
 	"os"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/jsonrpc2"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 type Server struct {
@@ -70,4 +72,24 @@ func EnabledServers(ctx context.Context) ([]Server, bool) {
 	}
 
 	return servers, true
+}
+
+func UnifiedAPICallCluster(ctx context.Context, method string, path string, createResponseStructPtr func(serverId string) interface{}) map[string]error {
+	errs := map[string]error{}
+
+	servers, cluster_mode := EnabledServers(ctx)
+	if cluster_mode {
+		for _, member := range servers {
+			client := unifiedapiclient.NewFromConfig(ctx)
+			client.Host = member.ManagementIp
+			resp := createResponseStructPtr(member.Host)
+			err := client.Call(ctx, method, path, resp)
+			if err != nil {
+				errs[member.Host] = err
+			}
+		}
+	} else {
+		errs["CLUSTER"] = errors.New("This is not a cluster...")
+	}
+	return errs
 }
