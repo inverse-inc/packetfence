@@ -65,6 +65,7 @@ Only the authentication actions should be available
 
 sub available_actions {
     my @actions = (map( { @$_ } $Actions::ACTIONS{$Rules::AUTH}), $Actions::SET_ACCESS_LEVEL);
+    return \@actions;
 }
 
 =head2 match_in_subclass
