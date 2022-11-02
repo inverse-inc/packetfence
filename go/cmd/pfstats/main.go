@@ -177,65 +177,6 @@ func (s ldaptype) Test(source interface{}, ctx context.Context) {
 	}
 }
 
-var EDUROAM eduroamtype
-
-type eduroamtype struct{}
-
-func (s eduroamtype) Test(source interface{}, ctx context.Context) {
-
-	t := StatsdClient.NewTiming()
-	packet := radius.New(radius.CodeStatusServer, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
-	rfc2865.NASIdentifier_Set(packet, []byte("Status Check"))
-	rfc2869.MessageAuthenticator_Set(packet, make([]byte, 16))
-	hash := hmac.New(md5.New, packet.Secret)
-	encode, _ := packet.Encode()
-	hash.Write(encode)
-
-	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
-	client := radius.DefaultClient
-	client.MaxPacketErrors = 2
-	ctx2, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	response, err := client.Exchange(ctx2, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address+":"+source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Port)
-
-	if err != nil {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 0)
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("EDUROAM test on %s returned this error: %s", source.(pfconfigdriver.AuthenticationSourceEduroam).Server1Address, err.Error()))
-	} else {
-		StatsdClient.Count("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"1", 1)
-		if response.Code == radius.CodeAccessAccept {
-			fmt.Println("Accepted")
-		} else {
-			fmt.Println("Denied")
-		}
-	}
-	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "1")
-
-	t = StatsdClient.NewTiming()
-	packet = radius.New(radius.CodeStatusServer, []byte(source.(pfconfigdriver.AuthenticationSourceEduroam).RadiusSecret))
-	rfc2865.NASIdentifier_Set(packet, []byte("Status Check"))
-	rfc2869.MessageAuthenticator_Set(packet, make([]byte, 16))
-	hash = hmac.New(md5.New, packet.Secret)
-	encode, _ = packet.Encode()
-	hash.Write(encode)
-	rfc2869.MessageAuthenticator_Set(packet, hash.Sum(nil))
-
-	response, err = client.Exchange(ctx, packet, source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address+":"+source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Port)
-	if err != nil {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 0)
-		log.LoggerWContext(ctx).Error(fmt.Sprintf("EDUROAM test on %s returned this error: %s", source.(pfconfigdriver.AuthenticationSourceEduroam).Server2Address, err.Error()))
-	} else {
-		StatsdClient.Gauge("source."+source.(pfconfigdriver.AuthenticationSourceEduroam).Type+"."+source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS+"2", 1)
-		if response.Code == radius.CodeAccessAccept {
-			fmt.Println("Accepted")
-		} else {
-			fmt.Println("Denied")
-		}
-	}
-	t.Send("source." + source.(pfconfigdriver.AuthenticationSourceEduroam).Type + "." + source.(pfconfigdriver.AuthenticationSourceEduroam).PfconfigHashNS + "2")
-
-}
-
 func forward(c net.Conn) {
 	for {
 		buf := make([]byte, 512)
@@ -362,27 +303,6 @@ func main() {
 				}
 			}
 			time.Sleep(time.Second * 10)
-		}
-	}()
-
-	// Eduroam Sources
-	go func() {
-		for {
-			var sections pfconfigdriver.PfconfigKeys
-			sections.PfconfigNS = "resource::authentication_sources_eduroam"
-
-			pfconfigdriver.FetchDecodeSocket(ctx, &sections)
-			for _, src := range sections.Keys {
-				var source pfconfigdriver.AuthenticationSourceEduroam
-				source.PfconfigNS = "resource::authentication_sources_eduroam"
-				source.PfconfigHashNS = src
-				pfconfigdriver.FetchDecodeSocket(ctx, &source)
-				if source.Monitor == "1" {
-					var Source = TestSource{EDUROAM}
-					go Source.SourceType.Test(source, ctx)
-				}
-			}
-			time.Sleep(time.Second * 30)
 		}
 	}()
 
