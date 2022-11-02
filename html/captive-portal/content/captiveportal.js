@@ -186,12 +186,17 @@ document.addEventListener('DOMContentLoaded', function () {
       Array.prototype.slice.call(form.querySelectorAll('input:not([type=hidden]), select'))
         .forEach(function (input) {
           var minLength = input.getAttribute('minlength') || 1;
-          if (input.getAttribute('value').length < parseInt(minLength)) {
+          if (input.value.length < parseInt(minLength)) {
             valid = false;
             return false;
           }
         })
-      submitBtn.setAttribute('disabled', !valid);
+      if (valid) {
+        submitBtn.removeAttribute('disabled')
+      }
+      else {
+        submitBtn.setAttribute('disabled', true);
+      }
     }
   }
 
