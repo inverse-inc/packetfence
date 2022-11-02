@@ -51,6 +51,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Fix issue with database upgrade (#7283)
  * Fix issue Sponsor registration: notes field can't be used on captive portal #6385
  * Better error handling when performing a deauth on the previous switch. (captive portal redirect page return Caught exception in captiveportal::Controller::Root->dynamic_application "Can't use string ("0") as a HASH ref while "strict refs" in use at /usr/local/pf/lib/pf/enforcement.pm line 206 #6985)
+ * Fixes possible Clickjacking for netdata reverse proxy (#7338)
 
 == Version 12.0.0 released on 2022-09-14
 
