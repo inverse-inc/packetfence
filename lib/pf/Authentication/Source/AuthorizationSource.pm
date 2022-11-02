@@ -64,7 +64,7 @@ Only the authentication actions should be available
 =cut
 
 sub available_actions {
-    return [@{$Actions::ACTIONS{$Rules::AUTH}}];
+    my @actions = (map( { @$_ } $Actions::ACTIONS{$Rules::AUTH}), $Actions::SET_ACCESS_LEVEL);
 }
 
 =head2 match_in_subclass
