@@ -215,43 +215,46 @@ const setup = (props, context) => {
     const re = new RegExp(`^${documentationPath}/`)
     const links = [...documentFrame.getElementsByTagName('a')]
     links.forEach((link) => {
-      let url = new URL(link.href)
-      switch (true) {
-        case url.port === '1443': // local link
-        case url.hostname === '%3Chostname%3E':
-        case url.hostname === 'your_portal_hostname':
-        case url.hostname === 'your_portal_ip':
-        case url.hostname === 'pf_management_ip':
-        case url.hostname === '%3Cyour_captive_portal_ip%3E':
-        case url.hostname === '_ip_address_of_packetfence':
-        case url.hostname === here.hostname:
-          if (re.test(url.pathname)) { // link to other local document
-            link.classList.add('internal-link') // add class to style document links
-            link.target = '_self'
-            link.href = 'javascript:void(0);' // disable default link
-            const _path = url.pathname.replace(`${documentationPath}/`, '')
-            if (_path !== path.value) {
-              link.addEventListener('click', (event) => {
-                event.preventDefault()
-                $store.dispatch('documentation/setPath', _path)
-              })
-            } else if (url.hash.charAt(0) === '#') {
-              link.addEventListener('click', (event) => {
-                event.preventDefault()
-                $store.dispatch('documentation/setHash', url.hash.substr(1))
-              })
+      try {
+        // invalid links throw an exception
+        let url = new URL(link.href)
+        switch (true) {
+          case url.port === '1443': // local link
+          case url.hostname === '%3Chostname%3E':
+          case url.hostname === 'your_portal_hostname':
+          case url.hostname === 'your_portal_ip':
+          case url.hostname === 'pf_management_ip':
+          case url.hostname === '%3Cyour_captive_portal_ip%3E':
+          case url.hostname === '_ip_address_of_packetfence':
+          case url.hostname === here.hostname:
+            if (re.test(url.pathname)) { // link to other local document
+              link.classList.add('internal-link') // add class to style document links
+              link.target = '_self'
+              link.href = 'javascript:void(0);' // disable default link
+              const _path = url.pathname.replace(`${documentationPath}/`, '')
+              if (_path !== path.value) {
+                link.addEventListener('click', (event) => {
+                  event.preventDefault()
+                  $store.dispatch('documentation/setPath', _path)
+                })
+              } else if (url.hash.charAt(0) === '#') {
+                link.addEventListener('click', (event) => {
+                  event.preventDefault()
+                  $store.dispatch('documentation/setHash', url.hash.substr(1))
+                })
+              }
+              return
             }
-            return
-          }
-          // replace href with current hostname:port
-          url.port = '1443'
-          url.hostname = here.hostname
-          link.href = url.toString()
-          break
-      }
-      // unhandled URLs
-      link.classList.add('external-link') // add class to style external links
-      link.target = '_blank' // open in a new tab
+            // replace href with current hostname:port
+            url.port = '1443'
+            url.hostname = here.hostname
+            link.href = url.toString()
+            break
+        }
+        // unhandled URLs
+        link.classList.add('external-link') // add class to style external links
+        link.target = '_blank' // open in a new tab
+      } catch(e) {/* noop */}
     })
 
     // rewrite images
