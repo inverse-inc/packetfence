@@ -96,7 +96,7 @@ To deploy the PacketFence Connector, first provision on your local network (wher
 
 [source,bash,subs="attributes"]
 ----
-apt update && apt install gnupg
+apt update && apt install gnupg sudo
 echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
 wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
