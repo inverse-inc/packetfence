@@ -26,17 +26,19 @@ These sensors capture low-level packets on the DHCP server and forwards them to 
 
 ==== Microsoft DHCP Sensor
 
-The DHCP-Forwarder is an optimized version of the udp-reflector, which installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the source to the destination.
+The PacketFence Forwarder is an optimized version of the udp-reflector, which installs easily and only forwards DHCPREQUESTS and DHCPACK packets from the source to the destination.
 
-Download the https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe[DHCP Forwarder installer].
+Before installing the Packetfence Forwarder install https://npcap.com/#download.
 
-This installs `WinPCAP`, `nssm`, launches a configurator for the interface, IP and port, saves the configuration, and finally installs and launches the DHCP-Forwarder service.
+Download the https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe[PacketFence Forwarder Installer].
+
+This installs `nssm`, launches a configurator for the interface, IP and port, saves the configuration, and finally installs and launches the PacketFence-Forwarder service.
 
 When asked for a host IP and UDP port provide the PacketFence management IP and 767 respectively.
 
 WARNING: On some versions of Windows, the `getmac` command will return invalid output when running the installer in a non-English language. In order to workaround the issue, change the Windows language to English, then logout/login and run the installer again.
 
-Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[DHCP Forwarder project page].
+Visit the https://github.com/inverse-inc/packetfence-dhcp-forwarder[PacketFence Forwarder project page].
 
 ==== Linux-based Sensor
 
