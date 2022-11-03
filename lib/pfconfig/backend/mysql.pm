@@ -154,6 +154,9 @@ sub get {
     my $db = $self->_get_db();
     unless($db){
         $self->_db_error();
+        # Signal that we should clear the backend when we recover a valid connection
+        # This is done since outside of this backend, the process could load a different version of what is in the DB which will cause issues when we go out of read-only
+        $self->{should_clear} = 1;
         return undef;
     }
 
