@@ -22,6 +22,25 @@ dist:
 		echo "Nothing to commit; skipping git-commit"; \
 	fi
 
+test-install:
+	npm install cypress -g --allow-root --unsafe-perm=true
+
+test:
+	# DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'):0.0
+	cypress open --config-file=cypress/config/cypress.config.js
+
+test-e2e-configuration:
+	DISPLAY= CYPRESS_baseUrl= cypress run --e2e --headless --config-file=cypress/config/cypress.config-configuration.js
+
+test-e2e-configurator:
+	DISPLAY= CYPRESS_baseUrl= cypress run --e2e --headless --config-file=cypress/config/cypress.config-configurator.js
+
+test-e2e:
+	DISPLAY= CYPRESS_baseUrl= cypress run --e2e --headless --config-file=cypress/config/cypress.config.js
+
+test-e2e-debug:
+	DEBUG=cypress:* DISPLAY= CYPRESS_baseUrl= cypress run --e2e --headless --config-file=cypress/config/cypress.config.js
+
 light-dist:
 	npm run build
 

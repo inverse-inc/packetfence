@@ -1,19 +1,25 @@
 /// <reference types="cypress" />
 
-context('Roles', () => {
+describe('Roles', () => {
 
-  before('Login as system', () => {
-    cy.pfSystemLogin()
+  context('Roles List', () => {
+
+    before('Login as system', () => {
+      cy.pfConfiguratorDisable()
+      cy.pfSystemLogin()
+    })
+
+    beforeEach('Load URI', () => {
+      cy.visit('/admin#/configuration/roles')
+    })
+
+    it('assert add new button exists', () => {
+      cy.get('form button[type="submit"]').first().as('btnSubmit')
+      cy.get('@btnSubmit')
+        .should('have.class', 'disabled')
+        .and('have.disabled', 'disabled')
+    })
+
   })
 
-  beforeEach('Load URI', () => {
-    cy.visit('/admin#/configuration/roles')
-  })
-
-  it('assert login button is disabled when form is empty', () => {
-    cy.get('form button[type="submit"]').first().as('btnSubmit')
-    cy.get('@btnSubmit')
-      .should('have.class', 'disabled')
-      .and('have.disabled', 'disabled')
-  })
 })
