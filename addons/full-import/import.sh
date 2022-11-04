@@ -114,6 +114,7 @@ import_config() {
     main_splitter
     if [ "$do_adjust_config" -eq 1 ]; then
         echo "Performing adjustments on the configuration"
+        adjust_configuration
     else
 	echo "Skipping adjustments on the configuration"
     fi
