@@ -395,7 +395,6 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $dhcp_fingerprints_file, $profiles_config_file,
     $oui_file, $floating_devices_file,
     $chi_config_file,$allowed_device_oui_file,$allowed_device_types_file,
-    $chi_defaults_config_file,
     $ui_config_file,$provisioning_config_file,$oauth_ip_file,$log_config_file,
     $self_service_config_file,
     $admin_roles_config_file,$wrix_config_file,
