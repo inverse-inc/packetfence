@@ -32,7 +32,7 @@ tie my %switches_conf_file, 'pf::IniFiles', ( -file => $pf::file_paths::switches
 
 
 foreach my $key (keys %switches_conf_file) {
-    if ($switches_conf_file{$key}{'type'} eq 'Fortinet::FortiGate') {
+    if (defined($switches_conf_file{$key}{'type'}) && $switches_conf_file{$key}{'type'} eq 'Fortinet::FortiGate') {
         foreach my $role (keys %{$switches_conf_file{$key}}) {
             if ($role =~ /(.*)Role$/) {
                 if (!$cs->exists($key, $1."Vpn")) {
