@@ -217,7 +217,32 @@ function adjust_configuration() {
   echo "Setting localhost as the database host"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->setval('mysql', 'host', 'localhost') ; \$c->RewriteConfig"
   perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->setval('database', 'host', 'localhost') ; \$c->RewriteConfig"
+  if get_pfconfig_database_port; then
+      delete_pfconfig_database_port
+  fi
+  if get_pf_database_port; then
+      delete_pf_database_port
+  fi
 }
+
+function get_pfconfig_database_port() {
+    perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->exists('mysql', 'port') ? exit(0) : exit(1)"
+}
+
+function get_pf_database_port() {
+    perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->exists('database', 'port') ? exit(0) : exit(1)"
+}
+
+function delete_pfconfig_database_port() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '/usr/local/pf/conf/pfconfig.conf') ; \$c->delval('mysql', 'port') ; \$c->RewriteConfig"
+  echo "Deleted database port in pfconfig.conf"
+}
+
+function delete_pf_database_port() {
+  perl -MConfig::IniFiles -I/usr/local/pf/lib_perl/lib/perl5/ -e "\$c = Config::IniFiles->new( -file => '$PF_CONF_PATH') ; \$c->delval('database', 'port') ; \$c->RewriteConfig"
+  echo "Deleted database port in pf.conf"
+}
+
 
 function is_cluster() {
   [ `perl -I/usr/local/pf/lib_perl/lib/perl5/ -I/usr/local/pf/lib -Mpf::config::cluster -e 'print $cluster_enabled'` -eq 1 ]
