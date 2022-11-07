@@ -12,7 +12,7 @@ function base_args {
   args="--sig-proxy=true --rm --name=$name --add-host=containers-gateway.internal:host-gateway -h `hostname` "
 
   args="$args -v /var/lib/mysql:/var/lib/mysql"
-  args="$args -v /etc/sudoers.d:/etc/sudoers.d"
+  args="$args -v /etc/sudoers:/etc/sudoers -v /etc/sudoers.d/:/etc/sudoers.d/"
   args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
   args="$args -v /usr/local/fingerbank/db:/usr/local/fingerbank/db"
   args="$args -v /usr/local/pf/var/run:/usr/local/pf/var/run"
