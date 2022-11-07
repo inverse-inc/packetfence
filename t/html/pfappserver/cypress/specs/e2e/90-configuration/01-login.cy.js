@@ -1,6 +1,11 @@
 /// <reference types="cypress" />
 
 context('Login', () => {
+
+  before(() => {
+    cy.pfConfiguratorDisable()
+  })
+
   beforeEach(() => {
     cy.visit('/')
   })

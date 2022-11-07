@@ -1,13 +1,15 @@
-module.exports = {
+const collections = require('config/collections');
 
-  useFactory: collection => {
+describe('Collections', () => {
+
+  before('Login as system', () => {
+    cy.pfConfiguratorDisable()
+    cy.pfSystemLogin()
+  })
+
+  Object.values(collections).forEach(collection => {
 
     context(`${collection.name} List`, () => {
-
-      before('Login as system', () => {
-        cy.pfConfiguratorDisable()
-        cy.pfSystemLogin()
-      })
 
       beforeEach('Load URI', () => {
         cy.visit(`/admin#${collection.url}`)
@@ -22,6 +24,5 @@ module.exports = {
 
     })
 
-  }
-
-};
+  })
+});

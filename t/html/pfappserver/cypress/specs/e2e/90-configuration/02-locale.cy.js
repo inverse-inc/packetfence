@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 context('Locale', () => {
+
   before(() => {
     cy.pfConfiguratorDisable()
     cy.pfSystemLogin()

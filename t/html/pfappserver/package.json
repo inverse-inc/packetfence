@@ -1,0 +1,12 @@
+{
+  "name": "Cypress E2E",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
+    "@cypress/webpack-preprocessor": "^5.15.3",
+    "babel-loader": "^9.1.0",
+    "webpack": "^5.74.0"
+  }
+}
