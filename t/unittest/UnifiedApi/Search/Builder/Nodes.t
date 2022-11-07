@@ -502,7 +502,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac security_event.open_count security_event.close_count);
+    my @f = qw(mac security_event.open_count security_event.closed_count);
 
     my %search_info = (
         dal => $dal,
@@ -515,8 +515,8 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_count`",
-                \"(SELECT COUNT(*) as count FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_count`",
+                \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = 'open' ) AS `security_event.open_count`",
+                \"(SELECT COUNT(*) as count FROM security_event WHERE node.mac = security_event.mac AND status = 'closed' ) AS `security_event.closed_count`",
             ],
         ],
         'Return the columns'
@@ -661,7 +661,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
 }
 
 {
-    my @f = qw(mac security_event.close_security_event_id security_event.open_security_event_id);
+    my @f = qw(mac security_event.closed_security_event_id security_event.open_security_event_id);
 
     my %search_info = (
         dal    => $dal,
@@ -674,8 +674,8 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'closed' ) AS `security_event.close_security_event_id`",
-                \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE (node.mac, node.tenant_id) = (security_event.mac, security_event.tenant_id) AND status = 'open' ) AS `security_event.open_security_event_id`",
+                \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = 'closed' ) AS `security_event.closed_security_event_id`",
+                \"(SELECT GROUP_CONCAT(security_event_id) FROM security_event WHERE node.mac = security_event.mac AND status = 'open' ) AS `security_event.open_security_event_id`",
             ]
         ],
         'Return the columns'

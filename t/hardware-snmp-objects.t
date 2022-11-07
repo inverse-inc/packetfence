@@ -61,7 +61,7 @@ my @whitelist = (
     'findTrapVarWithBase', 'getIfIndexFromTrap', 'findTrapOID', 'getMacFromTrapVariablesForOIDBase', 'extractMacFromVariable', 
     'handleTrap', 'getExclusiveLock', 'getExclusiveLockForScope', 'cache_distributed', 'cachedSNMPTable', 'parseRequestUsername', 'getCiscoAvPairAttribute', 'supportsVPN', 'vpnAttributes', 'parseVPNRequest', 'canDoCliAccess', 'fingerbank_dynamic_acl',
     '_parentRoleForVlan','_parentRoleForWebAuthUrl','_parentRoleForRole',
-    'find_user_by_psk', 'returnAuthorizeProbe', 'returnVpnRoleAttributes', 'shouldUseConnectorForRadiusDeauth', 'radius_deauth_connection_info',
+    'find_user_by_psk', 'returnAuthorizeProbe', 'returnVpnRoleAttributes', 'shouldUseConnectorForRadiusDeauth', 'radius_deauth_connection_info', 'getVpnByName',
 );
 
 my @missing_subs;

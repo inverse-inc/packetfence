@@ -542,7 +542,20 @@ $t->options_ok("/api/v1/config/base/general")
                 required    => $false,
                 implied  => undef,
                 type        => "string"
-            }
+            },
+            send_anonymous_stats => {
+                allowed => [
+                    (
+                        map { { text => $_, value => $_ }  }  qw(enabled disabled)
+                    )
+                ],
+                type        => "string",
+                required => $false,
+                implied  => undef,
+                placeholder => 'enabled',
+                allow_custom => $false,
+                default     => undef,
+            },
         },
         status => 200
     }
