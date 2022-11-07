@@ -491,12 +491,16 @@ sub redirect_info {
     my ($self, $username, $session_id, $relay_state) = @_;
     my $logger = get_logger();
     $logger->info("MFA USERNAME: ".$username);
+    my $url = $self->callback_url."?CGISESSION_PF=".$session_id;
+    if($relay_state) {
+        $url .= "&RelayState=".$relay_state;
+    }
     my $payload = {
         version => "2.0.0",
         timestamp => time(),
         request => {
             username => $username,
-            callback => $self->callback_url."?CGISESSION_PF=".$session_id."&RelayState=".$relay_state,
+            callback => $url,
         },
     };
     $payload = encode_json($payload);

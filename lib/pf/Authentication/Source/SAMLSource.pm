@@ -145,7 +145,9 @@ sub sso_url {
         $lassoLogin->request->NameIDPolicy->AllowCreate(1);
         $lassoLogin->request->ForceAuthn(0);
         $lassoLogin->request->IsPassive(0);
-        $lassoLogin->msg_relayState($relayState);
+        if($relayState) {
+            $lassoLogin->msg_relayState($relayState);
+        }
 
         $lassoLogin->build_authn_request_msg();
 
