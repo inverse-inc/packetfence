@@ -262,6 +262,18 @@ cluster_el8:
 	SCENARIOS_TO_RUN=cluster \
 	$(MAKE_TARGET)
 
+pfappserver_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfappserver \
+	$(MAKE_TARGET)
+
+pfappserver_deb11:
+	make \
+	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfappserver \
+	$(MAKE_TARGET)
+
 ### alias to run tests on other branches
 # it's a hack to simplify definition of jobs in .gitlab-ci.yml
 captive_portal_deb11_branches: captive_portal_deb11
@@ -282,3 +294,4 @@ mac_auth_deb11_branches: mac_auth_deb11
 mac_auth_el8_branches: mac_auth_el8
 security_events_deb11_branches: security_events_deb11
 unit_tests_el8_branches: unit_tests_el8
+=======

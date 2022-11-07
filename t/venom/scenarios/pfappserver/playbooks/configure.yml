@@ -1,0 +1,55 @@
+---
+- hosts: pfservers
+  name: Configure Packetfence VM
+  become: True
+
+  vars:
+    nodejs_version: "12.x"
+    npm_config_unsafe_perm: "true"
+    debianPackages:
+      - libgtk2.0-0
+      - libgtk-3-0
+      - libgbm-dev
+      - libnotify-dev
+      - libgconf-2-4
+      - libnss3
+      - libxss1
+      - libasound2
+      - libxtst6
+      - xauth
+      - xvfb
+
+    el8Packages:
+      - xorg-x11-server-Xvfb
+      - gtk2-devel
+      - gtk3-devel
+      - libnotify-devel
+      - GConf2
+      - nss
+      - libXScrnSaver
+      - alsa-lib
+
+  roles:
+    # nodejs is already installed on Debian during build of Vagrant images
+    - role: geerlingguy.nodejs
+      tags: nodejs
+
+  tasks:
+    - name: Install Cypress dependencies on debian
+      package:
+        name: "{{ debianPackages }}"
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Install Cypress dependencies on el8
+      package:
+        name: "{{ el8Packages }}"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install Cypress
+      steps:
+      - script: |
+          npm install cypress -g --allow-root --unsafe-perm=true
+        assertions:
+        - result.code ShouldEqual 0
