@@ -40,6 +40,12 @@
       :text="$i18n.t('Specify actions to perform when condition is met.')"
     />
 
+    <form-group-actions-synchronous v-if="fields.includes('actions')"
+      namespace="actions_synchronous"
+      :column-label="$i18n.t('Perform Actions Synchronously')"
+      :text="$i18n.t('By default, actions are performing asynchronously to the request. Enable this to make them synchronous so that the result of the actions may impact the current RADIUS request.')"
+    />
+
     <form-group-log v-if="fields.includes('log')"
       namespace="log"
       :column-label="$i18n.t('Log Entry')"
@@ -102,6 +108,7 @@ import {
 } from '@/components/new/'
 import {
   FormGroupActions,
+  FormGroupActionsSynchronous,
   FormGroupAnswer,
   FormGroupAnswers,
   FormGroupCondition,
@@ -121,6 +128,7 @@ import {
 const components = {
   BaseForm,
   FormGroupActions,
+  FormGroupActionsSynchronous,
   FormGroupAnswer,
   FormGroupAnswers,
   FormGroupCondition,
