@@ -552,6 +552,7 @@ sub update {
 
     my $cs = $self->config_store;
     $self->cleanupItemForUpdate($old_item, $new_data, $data);
+    delete $new_data->{id}
     my $id =  $self->id;
     $cs->update($id, $new_data);
     return unless($self->commit($cs));
