@@ -69,6 +69,17 @@ cleanup_images() {
 }
 
 delete_images() {
+    # ID of images which contain "packetfence" (in repository or tag)
+    # and don't match TAG_OR_BRANCH_NAME store in conf/build_id
+    # uniq to remove duplicated ID due to local and remote tags
+    PREVIOUS_IMAGES=$(docker images --format "{{.Repository}};{{.ID}};{{.Tag}}" \
+                              | grep "packetfence" \
+                              | grep -v ${TAG_OR_BRANCH_NAME} \
+                              | cut -d ';' -f 2 | uniq)
+
+    # -f is necessary because images are tagged locally and remotely (registry)
+    docker rmi ${PREVIOUS_IMAGES} -f
+
     # Remove all dangling images, images not referenced by any container are kept
     docker image prune -f > /dev/null 2>&1
 }
