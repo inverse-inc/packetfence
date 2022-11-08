@@ -40,7 +40,7 @@ sub auto :Private {
 sub is_dpsk_enabled {
     my ( $profile ) = @_;
 
-    if (exists $profile->{'_self_service'} && isenabled($ConfigSelfService{$profile->{'_self_service'}}{'dynamic_pre_shared_key'}) ) {
+    if (ref($profile->{'_self_service'}) eq "HASH" && isenabled($ConfigSelfService{$profile->{'_self_service'}}{'dynamic_pre_shared_key'}) ) {
         return $TRUE;
     }
     return $FALSE;
