@@ -202,6 +202,8 @@ sub radiusDisconnect {
     return;
 }
 
+sub getVersion { undef }
+
 =item returnRoleAttribute
 
 What RADIUS Attribute (usually VSA) should the role returned into.
