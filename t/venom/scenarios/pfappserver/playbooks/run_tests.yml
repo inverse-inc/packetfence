@@ -6,6 +6,7 @@
   vars:
     test_suites:
     - pfappserver_configurator
+    - pfappserver_configuration
 
   tasks:
     - name: Run Venom testsuites

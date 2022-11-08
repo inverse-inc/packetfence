@@ -4,11 +4,14 @@ const webpackOptions = {
   watchOptions: {}
 }
 
+// see https://docs.cypress.io/guides/references/configuration#Global
+
 module.exports = {
   defaultCommandTimeout: 10000, // 10s
   e2e: {
     baseUrl: 'https://localhost:1443',
     setupNodeEvents: (on, config) => {
+//console.info({config})
       on('file:preprocessor', webpackPreprocessor(webpackOptions))
       on('before:browser:launch', (browser = {}, launchOptions) => {
         if (browser.name == 'chrome') {
