@@ -1,5 +1,0 @@
-{
-  "devDependencies": {
-    "@cypress/webpack-preprocessor": "^5.15.3"
-  }
-}
