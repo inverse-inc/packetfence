@@ -4,6 +4,6 @@ testcases:
   steps:
   - script: |
       cd {{.html.pfappserver_dir}}
-      npm run test-e2e BASE_URL={{.pfserver_webadmin_url}} CONFIG_FILE=cypress/config/cypress.config-configurator.js
+      make test-e2e BASE_URL={{.pfserver_webadmin_url}} CONFIG_FILE=cypress/config/cypress.config-configurator.js
     assertions:
     - result.code ShouldEqual 0
