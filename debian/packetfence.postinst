@@ -198,7 +198,12 @@ case "$1" in
         printf '[client-server]\nsocket = /var/lib/mysql/mysql.sock\n' > /etc/mysql/mariadb.conf.d/999-socket-override.cnf
         sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
 
-        /usr/local/pf/bin/pfcmd configreload
+        if [ "$DEBIAN_ISO_INSTALLER" = "no" ];  then
+            # next command need Redis started
+            /usr/local/pf/bin/pfcmd configreload
+        else
+            echo "Configreload is not necessary at this step"
+        fi
         /usr/local/pf/bin/pfcmd fixpermissions
         echo "Starting PacketFence Administration GUI..."
         /bin/systemctl start packetfence-httpd.admin_dispatcher
