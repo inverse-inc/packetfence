@@ -18,4 +18,9 @@ build {
     # temp
     keep_inventory_file = true
   }
+
+  provisioner "shell" {
+    execute_command = "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    script = "${var.provisioner_dir}/shell/sysprep-packetfence.sh"
+  }
 }

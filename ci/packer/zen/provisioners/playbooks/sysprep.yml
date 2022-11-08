@@ -1,0 +1,10 @@
+- hosts: pfservers
+  name: Sysprep PacketFence
+  become: True
+  gather_facts: True
+
+  tasks:
+    # dpkg-reconfigure will be use to regenerate it
+    - name: Remove server SSH keys
+      shell: 'rm -f /etc/ssh/ssh_host_*'
+

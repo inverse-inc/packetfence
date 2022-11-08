@@ -2,6 +2,18 @@
 rc_local_service_name: rc-local
 rc_local_commands:
   - |
+    if [ ! -f "/etc/ssh/ssh_host_rsa_key.pub" ]; then
+        export DEBIAN_FRONTEND=noninteractive ; export DEBCONF_NONINTERACTIVE_SEEN=true ; /usr/sbin/dpkg-reconfigure openssh-server 2> /dev/null
+        sleep 30
+        /bin/systemctl restart ssh.service
+    else
+       echo "SSH keys already regenerated"
+    fi
+    make -C /usr/local/pf conf/ssl/server.pem
+    make -C /usr/local/pf conf/local_secret
+    make -C /usr/local/pf/raddb/certs
+    /usr/local/pf/bin/pfcmd fixpermissions
+
     echo "" > /etc/issue
     echo "Welcome to the PacketFence-ZEN." >> /etc/issue
     echo "" >> /etc/issue
