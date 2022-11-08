@@ -11,7 +11,7 @@
 [% ELSIF status == "notowned" %]
 <div class="o-media o-media--error u-padding u-margin-bottom">
   <div class="o-media__img">[% flashIcon(level='error') %]</div>
-  <p class="o-media__body">[% i18n_format("You do not own this device %s, therefor you can not declare it as lost or stolen.", mac) | none %]</p>
+  <p class="o-media__body">[% i18n_format("You do not own this device %s, you can not declare it as lost or stolen.", mac) | none %]</p>
 </div>
 [% END %]
 
