@@ -7,6 +7,9 @@ packetfence_domain_password: 'P@ck3tF3nc3pass'
 
 packetfence_domain_default_groups:
   - Domain Users
+
+# Groups are under CN=Users,DC=example,DC=lan, i.e:
+# cn=sponsor,CN=Users,DC=example,DC=lan
 packetfence_domain_groups:
   - sponsor
   - IT
