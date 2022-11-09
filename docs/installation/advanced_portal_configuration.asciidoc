@@ -332,6 +332,8 @@ Once a user is registered they can self-register any device on the Portal by ent
 
 NOTE: The user can access the portal within the network, or in any VLAN that can reach PacketFence on a _portal_ interface (see below) at: `https://YOUR_PORTAL_HOSTNAME/device-registration`.
 
+Device registration page is disabled by default. In order to enable it, you need to configure a self service policy and assign it to a connection profile.
+
 A self-service portal policy can be configured in _Configuration -> Advanced Access Configuration -> Self Service Portal_. Define the behavior by either modifying the default policy, or creating a new policy. If the _"Role to assign"_ is left empty, the role of the user that is registering the device will be reused. Optionally select one or more _"Allowed OS"_ to restrict which operating systems can be registered - as it may be useful to only allow gaming devices.
 
 In _Configuration -> Policies and Access Control -> Connection Profiles_, assign the _"Self service policy"_, then click Save.
@@ -346,7 +348,10 @@ NOTE: The user can access the portal within the network at https://YOUR_PORTAL_H
 
 By default all users can manage all their own devices through the self-service portal. In _Configuration -> Advanced Access Configuration -> Self Service Portal_, choose a _Self Service Portal_, specify the _"Self Service Portal -> Allowed roles"_, then click Save.
 
-Optionally, it can be disabled in all but the PacketFence management network (registration, isolation, inline) by enabling *Status URI only on management interface* in _Configuration -> Advanced Access Configuration -> Captive Portal_.
+Status page is available by default, even if you don't configure a self service policy. Optionally, it can be disabled in all but
+the PacketFence management network (registration, isolation, inline) by
+enabling *Status URI only on management interface* in _Configuration ->
+Advanced Access Configuration -> Captive Portal_.
 
 In _Configuration -> Policies and Access Control -> Connection Profiles_, assign the _"Self service policy"_, then click Save.
 
