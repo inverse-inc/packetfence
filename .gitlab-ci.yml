@@ -1098,6 +1098,7 @@ unit_tests_el8_branches:
 configurator_el8_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
   extends:
     - .test_job
     - .test_script_job
@@ -1106,6 +1107,7 @@ configurator_el8_branches:
 configurator_deb11_branches:
   variables:
     VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-devel
   extends:
     - .test_job
     - .test_script_job
