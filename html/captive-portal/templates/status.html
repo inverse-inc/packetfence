@@ -127,7 +127,7 @@
         <div id="confirmUnregister[% n.mac.remove('\W+') %]" class="[ o-box o-box--small o-box--inverted o-box--overlap ] hide">
           <div class="[ o-layout o-layout--middle ]">
             <div class="[ o-layout__item o-layout--center ] [ u-1/1 ]">
-              <div class="[ u-margin-bottom-tiny u-margin-bottom@tablet ]">[% i18n_format("Really unregister %s? The device will be immediately disconnected from the network.", n.mac) %]</div>
+              <div class="[ u-margin-bottom-tiny u-margin-bottom@tablet ]">[% i18n_format("Unregister %s? The device will be immediately disconnected from the network.", n.mac) %]</div>
               <a href="/node/manager/unreg/[% n.mac %]" class="[ c-btn c-btn--secondary c-btn--small c-btn--error ]">[% i18n("Unregister") %]</a>
               <a href="#cancel" class="[ c-btn c-btn--tertiary c-btn--small js-box-hide ]">[% i18n("Cancel") %]</a>
             </div>

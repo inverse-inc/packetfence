@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.txt_web_notification = vars.txt_web_notification;
   window.timerbarAction = function() {
     if (vars["auto_redirect"] != 0) {
-      Array.prototype.slice.call(document.getElementsByClassName(timerbar))
+      Array.prototype.slice.call(document.getElementsByClassName('timerbar'))
         .forEach(function (node) {
           node.classList.add('hide');
         });

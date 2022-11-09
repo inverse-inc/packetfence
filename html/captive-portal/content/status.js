@@ -55,15 +55,19 @@ document.addEventListener('DOMContentLoaded', function () {
       ).toString();
     }
 
-    Array.prototype.slice.call(document.getElementById('popup').querySelectorAll('a[target="_new"]'))
-      .forEach(function (node) {
-        node.addEventListener('click', function (event) {
-          event.stopPropagation();
-          var newwindow = window.open("/status", "status_popup", "height=220,width=300");
-          if (window.focus)
-            newwindow.focus();
-          return false;
+    var popup = document.getElementById('popup')
+    if (popup) {
+      Array.prototype.slice.call(popup.querySelectorAll('a[target="_new"]'))
+        .forEach(function (node) {
+          node.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var newwindow = window.open("/status", "status_popup", "height=220,width=300");
+            if (window.focus)
+              newwindow.focus();
+            return false;
+          });
         });
-      });
+    }
+
   })();
 });

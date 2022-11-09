@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
     Array.prototype.slice.call(document.getElementsByClassName('c-btn'))
       .forEach(function (node) {
         node.addEventListener('click', function (event) {
-          if (node.classList.contains('disabled') || node.getAttribute('disabled')) {
+          if (node.classList.contains('disabled') || node.getAttribute('disabled') || node.classList.contains('js-box-show')) {
+            event.preventDefault();
             event.stopPropagation();
             return false;
           }
@@ -55,9 +56,9 @@ document.addEventListener('DOMContentLoaded', function () {
     Array.prototype.slice.call(document.getElementsByClassName('js-box-hide'))
       .forEach(function (node) {
         node.addEventListener('click', function (event) {
+          closest(node, function (el) { return el.classList.contains('o-box'); }).classList.add('hide');
           event.stopPropagation();
           return false;
-          closest(node, function (el) { return el.classList.contains('o-box'); }).classList.add('hide');
         })
       })
   }
@@ -82,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function initSvgSprite() {
     ajax(
       'get',
-      './common/img/sprite.svg',
+      '/common/img/sprite.svg',
       null,
       function (data) {
         document.body.appendChild(data.responseXML.documentElement);
@@ -151,8 +152,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!template)
         return; // template not found
       var button = template.querySelector('.c-btn');
-      parent.insertAfter(template, input);
-      parent.insertBefore(input, button);
+      parent.appendChild(template);
+      template.insertBefore(input, button);
       button.addEventListener('click', function (event) {
         var type = '', label = '', state = '';
         if (button.dataset.state === 'hide') {
@@ -170,8 +171,9 @@ document.addEventListener('DOMContentLoaded', function () {
         rep.setAttribute('id', input.getAttribute('id'));
         rep.setAttribute('name', input.getAttribute('name'));
         rep.setAttribute('value', input.getAttribute('value'));
-        parent.insertBefore(rep, input);
-        parent.removeChild(input);
+        template.insertBefore(rep, button);
+        template.removeChild(input);
+        input = rep
         button.dataset.state = state;
         button.innerHTML = label;
         return false;
