@@ -1,11 +1,11 @@
-executor: pf_api_service_restart_async
+executor: pf_api_system_service_restart_async
 input:
   service: ""
   time_to_sleep: 0
   i_retry: 10
   i_delay: 20
 steps:
-- type: pf_api_service_action
+- type: pf_api_system_service_action
   service: "{{.input.service}}"
   action: "restart"
   method: POST
@@ -17,17 +17,12 @@ steps:
     }
   vars:
     task_id:
-      from: result.pf_api_service_action_json.task_id
+      from: result.pf_api_system_service_action_json.task_id
 
 - type: pf_api_poll
-  url_suffix: "pfqueue/task/{{.pf_api_service_action.task_id}}/status/poll"
+  url_suffix: "pfqueue/task/{{.pf_api_system_service_action.task_id}}/status/poll"
   retry: "{{.input.i_retry}}"
   delay: "{{.input.i_delay}}"
   assertions:
     - result.pf_api_poll_json.message ShouldEqual Completed
     - result.pf_api_poll_json.progress ShouldEqual 100
-
-- type: pf_api_service_status
-  service: "{{.input.service}}"
-  assertions:
-    - result.pf_api_service_status_json.alive ShouldEqual 1
