@@ -292,7 +292,7 @@ sub action_email_user {
     my $node_info = node_attributes($mac);
     my $person    = person_view( $node_info->{pid} );
 
-    if (defined($person->{email}) && $person->{email}) {
+    if ($person && defined($person->{email}) && $person->{email}) {
         my %message;
         require pf::lookup::node;
         my $class_info  = class_view($security_event_id);
