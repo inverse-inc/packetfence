@@ -97,7 +97,7 @@ backend 127.0.0.1-netdata
         server service 127.0.0.1:19999
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
-	http-response add-header X-Frame-Options SAMEORIGIN
+        http-response add-header X-Frame-Options SAMEORIGIN
 EOT
 
         my $mgmt_api_backend;
@@ -130,7 +130,7 @@ backend $mgmt_back_ip-netdata
         server service $mgmt_back_ip:19999
         http-request set-uri %[var(req.path)]?%[query] if paramsquery
         http-request set-uri %[var(req.path)] unless paramsquery
-	http-response add-header X-Frame-Options SAMEORIGIN
+        http-response add-header X-Frame-Options SAMEORIGIN
 EOT
             }
             $mgmt_api_backend .= <<"EOT";
