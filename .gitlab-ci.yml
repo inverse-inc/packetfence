@@ -1249,7 +1249,7 @@ inline_el8_branches:
 ### release
 configurator_el8_pristine:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
@@ -1257,12 +1257,11 @@ configurator_el8_pristine:
 
 configurator_deb11_pristine:
   variables:
-    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}
+    VAGRANT_PF_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-${CI_COMMIT_TAG}-${CI_JOB_ID}
   extends:
     - .test_job
     - .test_script_job
     - .release_only_rules
-
 
 
 ########################################
