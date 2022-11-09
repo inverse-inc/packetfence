@@ -55,7 +55,7 @@ sub returnRadiusAccessAccept {
     my %radius_reply = @super_reply;
     my $radius_reply_ref = \%radius_reply;
     return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
-    my @acls = defined($radius_reply_ref->{'NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'NAS-Filter-Rule'}} : ();
+    my @acls = defined($radius_reply_ref->{'Aruba-NAS-Filter-Rule'}) ? @{$radius_reply_ref->{'Aruba-NAS-Filter-Rule'}} : ();
 
     if ( isenabled($self->{_UrlMap}) ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
@@ -81,7 +81,7 @@ sub returnRadiusAccessAccept {
         }
     }
 
-    $radius_reply_ref->{'NAS-Filter-Rule'} = \@acls;
+    $radius_reply_ref->{'Aruba-NAS-Filter-Rule'} = \@acls;
 
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
