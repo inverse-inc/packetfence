@@ -78,7 +78,7 @@ delete_images() {
                               | cut -d ';' -f 2 | uniq)
 
     # -f is necessary because images are tagged locally and remotely (registry)
-    docker rmi ${PREVIOUS_IMAGES} -f
+    docker rmi ${PREVIOUS_IMAGES} -f > /dev/null 2>&1
 
     # Remove all dangling images, images not referenced by any container are kept
     docker image prune -f > /dev/null 2>&1
