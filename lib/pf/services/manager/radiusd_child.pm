@@ -1213,7 +1213,7 @@ home_server eduroam$i.cluster {
         type = auth
         ipaddr = $radius_back
         src_ipaddr = $cluster_ip
-        port = $listening_port
+        port = $self->{eduroam_port}
         secret = $local_secret
         response_window = 6
         status_check = status-server
