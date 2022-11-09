@@ -1028,9 +1028,11 @@ sub returnRadiusCli{
                 return $args->{'switch'}->returnAuthorizeProbe($args);
             }
         }
+        $logger->error("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write or Switches Probe) to permit to login in $args->{'switch'}{'_id'} ");
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE or SWITCH_PROBE)") ];
     } else {
-        $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write) to permit to login in $args->{'switch'}{'_id'}");
-        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE)") ];
+        $logger->info("User $args->{'user_name'} has no role (Switches CLI - Read or Switches CLI - Write or Switches Probe) to permit to login in $args->{'switch'}{'_id'}");
+        return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "User has no role defined in PacketFence to allow switch login (SWITCH_LOGIN_READ or SWITCH_LOGIN_WRITE or SWITCH_PROBE)") ];
     }
 }
 
