@@ -170,10 +170,15 @@ sub iptables_generate {
     if ( @{pf::authentication::getAuthenticationSourcesByType('Eduroam')} ) {
         my @eduroam_authentication_source = @{pf::authentication::getAuthenticationSourcesByType('Eduroam')};
         my $eduroam_listening_port = $eduroam_authentication_source[0]{'auth_listening_port'};    # using array index 0 since there can only be one 'eduroam' authentication source ('unique' attribute)
+        my $eduroam_listening_port_backend = $eduroam_listening_port + 10;
         $tags{'eduroam_radius_virtualserver'} = "-A input-management-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
         $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
         $tags{'eduroam_radius_listening'} = "-A input-radius-if --protocol tcp --match tcp --dport $eduroam_listening_port --jump ACCEPT\n";
         $tags{'eduroam_radius_listening'} .= "-A input-radius-if --protocol udp --match udp --dport $eduroam_listening_port --jump ACCEPT\n";
+        $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT\n";
+        $tags{'eduroam_radius_virtualserver'} .= "-A input-management-if --protocol udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT\n";
+        $tags{'eduroam_radius_listening'} .= "-A input-radius-if --protocol tcp --match tcp --dport $eduroam_listening_port_backend --jump ACCEPT\n";
+        $tags{'eduroam_radius_listening'} .= "-A input-radius-if --protocol udp --match udp --dport $eduroam_listening_port_backend --jump ACCEPT\n";
     }
     else {
         $tags{'eduroam_radius_virtualserver'} = "# eduroam integration is not configured\n";
