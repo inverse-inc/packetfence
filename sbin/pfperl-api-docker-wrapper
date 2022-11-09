@@ -6,7 +6,7 @@ source /usr/local/pf/containers/setup-vars
 name=pfperl-api
 
 args=`base_args $name`
-args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/raddb/certs:/usr/local/pf/raddb/certs -v /usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -v /usr/local/pf/raddb/certs:/usr/local/pf/raddb/certs"
 args="$args --privileged -v /run/systemd/system:/run/systemd/system -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket"
 args="$args -v /usr/local/fingerbank/conf:/usr/local/fingerbank/conf"
 # if directory doesn't exist on host, Docker will create it
@@ -16,6 +16,12 @@ args="$args -v /etc/resolv.conf:/etc/resolv.conf"
 args="$args --network=host"
 args="$args -e HOST_OS"
 args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
+
+if ! [ -z "$HTML_CAPTIVEPORTAL_MOUNT" ]; then
+  args="$args -v$HTML_CAPTIVEPORTAL_MOUNT:/usr/local/pf/html/captive-portal"
+else
+  args="$args -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
+fi
 
 cd /usr/local/pf/
 

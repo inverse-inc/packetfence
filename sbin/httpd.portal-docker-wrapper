@@ -5,14 +5,16 @@ source /usr/local/pf/containers/systemd-service
 name=httpd.portal
 
 args=`base_args $name`
-args="$args -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates -v/usr/local/pf/conf/:/usr/local/pf/conf/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/ -v/usr/local/pf/raddb/certs/:/usr/local/pf/raddb/certs/"
+args="$args -v/usr/local/pf/conf/:/usr/local/pf/conf/ -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/ -v/usr/local/pf/raddb/certs/:/usr/local/pf/raddb/certs/"
 
-if ! [ -z "$HTML_CAPTIVEPORTAL_CONTENT_MOUNT" ]; then
-  args="$args -v $HTML_CAPTIVEPORTAL_CONTENT_MOUNT:/usr/local/pf/html/captive-portal/content"
+if ! [ -z "$HTML_CAPTIVEPORTAL_MOUNT" ]; then
+  args="$args -v$HTML_CAPTIVEPORTAL_MOUNT:/usr/local/pf/html/captive-portal"
+else
+  args="$args -v/usr/local/pf/html/captive-portal/profile-templates:/usr/local/pf/html/captive-portal/profile-templates"
 fi
 
 if ! [ -z "$HTML_COMMON_MOUNT" ]; then
-  args="$args -v $HTML_COMMON_MOUNT:/usr/local/pf/html/common"
+  args="$args -v$HTML_COMMON_MOUNT:/usr/local/pf/html/common"
 fi
 
 args+=" -p 8080:80 -p 1444:1444"
