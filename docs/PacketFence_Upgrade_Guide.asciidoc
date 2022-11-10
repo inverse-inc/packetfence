@@ -1802,6 +1802,16 @@ If your database is hosted on the PacketFence server (default behavior), then no
 
 == Upgrading from a version prior to X.Y.Z
 
+=== configreload deprecated on pfcmd service pf restart
+
+configreload call has been deprecated on pfcmd service pf restart due to a file synchronisation issue on each restart.
+If you modify a config file directly from the filesystem then you have to do the configreload manually.
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd configreload hard
+----
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
