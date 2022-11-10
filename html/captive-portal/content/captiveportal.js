@@ -166,14 +166,19 @@ document.addEventListener('DOMContentLoaded', function () {
           state = 'hide';
           type = 'password';
         }
+        var inputHandler = function () { checkForm(form); };
+        input.removeEventListener('keyup', inputHandler);
+        input.removeEventListener('change', inputHandler);
         var rep = document.createElement('input');
         rep.setAttribute('type', type);
-        rep.setAttribute('id', input.getAttribute('id'));
-        rep.setAttribute('name', input.getAttribute('name'));
-        rep.setAttribute('value', input.getAttribute('value'));
+        rep.id = input.id;
+        rep.name = input.name;
+        rep.value = input.value;
+        rep.addEventListener('keyup', inputHandler);
+        rep.addEventListener('change', inputHandler);
         template.insertBefore(rep, button);
         template.removeChild(input);
-        input = rep
+        input = rep;
         button.dataset.state = state;
         button.innerHTML = label;
         return false;
