@@ -282,6 +282,20 @@ sub security_event_exist_open {
     });
 }
 
+sub security_event_exist_open_or_delayed {
+    my ( $mac, $security_event_id ) = @_;
+    return _db_item({
+        -where => {
+            security_event_id => $security_event_id,
+            mac => $mac,
+            status => [ 'open', 'delayed' ],
+        },
+        -columns => [qw(id mac security_event_id start_date release_date status ticket_ref notes)],
+        -no_default_join => 1,
+        -limit => 1,
+    });
+}
+
 sub security_event_view {
     my ($id) = @_;
     return _db_data({
@@ -380,7 +394,7 @@ sub security_event_add {
     $data{notes}  = ""     if ( !defined $data{notes} );
     $data{ticket_ref} = "" if ( !defined $data{ticket_ref} );
 
-    if ( my $security_event =  security_event_exist_open( $mac, $security_event_id ) ) {
+    if ( my $security_event =  security_event_exist_open_or_delayed( $mac, $security_event_id ) ) {
         my $msg = "security_event $security_event_id already exists for $mac, not adding again";
         $logger->info($msg);
         security_event_add_warnings($msg);
