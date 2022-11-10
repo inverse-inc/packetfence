@@ -2,15 +2,14 @@ name: Restart services
 testcases:
 - name: restart_packetfence_config_service
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/system_service/packetfence-config/restart'
-    ignore_verify_ssl: true
-    headers:
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual "Service has been restarted"
+  - type: pf_api_system_service_restart_async
+    service: 'packetfence-config'
+
+- name: restart_pfqueue_service
+  steps:
+  - type: pf_api_system_service_restart_async
+    service: "packetfence-pfqueue"
+    time_to_sleep: 5
 
 - name: update_systemd
   steps:
@@ -24,55 +23,22 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Updated systemd for pf"
 
-# service restarted by hand because using API cause Venom failure (EOF)
 - name: restart_haproxy_admin_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-haproxy-admin
+  - type: pf_api_service_start_async
+    service: 'packetfence-haproxy-admin'
 
 # to apply changes made during custom step
 # no API call usable
 - name: restart_pfperl_api_service
   steps:
-  - type: exec
-    script: systemctl restart packetfence-pfperl-api
-
-# let haproxy-admin and pfperl-api to restart before going further
-- name: sleep_some_time
-  steps:
-  - type: exec
-    script: sleep 10
+  - type: systemctl_service_restart
+    service: 'packetfence-pfperl-api'
+    time_to_sleep: 10
 
 - name: start_pf_services
   steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/service/pf/start'
-    ignore_verify_ssl: true
-    headers:
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 202
-    vars:
-      task_id:
-        from: result.bodyjson.task_id
-
-  - type: http
-    method: GET
-    url: '{{.pfserver_webadmin_url}}/api/v1/configurator/pfqueue/task/{{.start_pf_services.task_id}}/status/poll'
-    ignore_verify_ssl: true
-    body: >-
-      {
-        "async": true
-      }
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
-      - result.bodyjson.message ShouldEqual Completed
-      - result.bodyjson.progress ShouldEqual 100
-      - result.bodyjson.status ShouldEqual 200
-    # wait 10 minutes before failing
-    retry: 10
-    delay: 60
+  - type: pf_api_service_start_async
+    service: 'pf'
+    i_retry: 10
+    i_delay: 60
