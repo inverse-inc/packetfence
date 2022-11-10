@@ -15,18 +15,9 @@ steps:
     {
       "async": "true"
     }
-  info:
-  - "{{.result.pf_api_service_action_json}}"
-  - "{{.result.pf_api_service_action_json.task_id}}"
   vars:
     task_id:
       from: result.pf_api_service_action_json.task_id
 
-# It is used in the configruator with the service "pf", so no status test
 - type: pf_api_poll
-  url_suffix: "pfqueue/task/{{.pf_api_service_action.task_id}}/status/poll"
-  retry: "{{.input.i_retry}}"
-  delay: "{{.input.i_delay}}"
-  assertions:
-    - result.pf_api_poll_json.message ShouldEqual Completed
-    - result.pf_api_poll_json.progress ShouldEqual 100
+  i_task_id: "{{.task_id}}"
