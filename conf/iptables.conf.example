@@ -41,6 +41,7 @@
 # HTTP and HTTPS for the portal
 -A input-management-if --protocol tcp --match tcp --dport 80 --jump ACCEPT
 -A input-management-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-management-if --protocol tcp --match tcp --dport 8080 --jump ACCEPT
 # Web Admin
 -A input-management-if --protocol tcp --match tcp --dport %%web_admin_port%% --jump ACCEPT
 # Webservices
@@ -105,6 +106,7 @@
 :input-portal-if - [0:0]
 -A input-portal-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-portal-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-portal-if --protocol tcp --match tcp --dport 8080 --jump ACCEPT
 
 :input-radius-if - [0:0]
 -A input-radius-if --protocol tcp --match tcp --dport 1812 --jump ACCEPT
@@ -132,6 +134,7 @@
 # HTTP (captive-portal)
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-vlan-if --protocol tcp --match tcp --dport 8080 --jump ACCEPT
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 # HTTP (parking portal)
 -A input-internal-vlan-if --protocol tcp --match tcp --dport 5252 --jump ACCEPT
@@ -148,6 +151,7 @@
 # HTTP (captive-portal)
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 8080 --jump ACCEPT
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 # HTTP (parking portal)
 -A input-internal-isol_vlan-if --protocol tcp --match tcp --dport 5252 --jump ACCEPT
@@ -165,6 +169,7 @@
 # allow everyone else behind inline interface (not registered, isolated, etc.)
 -A input-internal-inline-if --protocol tcp --match tcp --dport 80  --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 443 --jump ACCEPT
+-A input-internal-inline-if --protocol tcp --match tcp --dport 8080 --jump ACCEPT
 -A input-internal-inline-if --protocol tcp --match tcp --dport 647 --jump ACCEPT
 %%input_inter_inline_rules%%
 
