@@ -24,10 +24,10 @@
       :column-label="$i18n.t('Timezone')"
       :text="$i18n.t(`System's timezone in string format. List generated from Perl library DateTime::TimeZone. When left empty, it will use the timezone of the server. You will need to reboot the server after changing this setting.`)"
     />
-    
+
     <form-group-send-anonymous-stats namespace="send_anonymous_stats"
       :column-label="$i18n.t('Send anonymous stats')"
-      :text="$i18n.t('Whether or not to send anonymous statistics on how you use PacketFence')"
+      :text="$i18n.t('Whether or not to send anonymous statistics on how PacketFence is used. Enabling this will help us prioritize the features you use.')"
     />
 
   </base-form>

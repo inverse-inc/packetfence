@@ -28,7 +28,7 @@
 
         <form-group-send-anonymous-stats namespace="send_anonymous_stats"
           :column-label="$i18n.t('Send anonymous stats')"
-          :text="$i18n.t('Whether or not to send anonymous statistics on how you use PacketFence')"
+          :text="$i18n.t('Whether or not to send anonymous statistics on how PacketFence is used. Enabling this will help us prioritize the features you use.')"
         />
 
         <base-form-group
