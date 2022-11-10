@@ -8,7 +8,7 @@ testcases:
 - name: restart_pfqueue_service
   steps:
   - type: pf_api_system_service_restart_async
-    service: "pfqueue"
+    service: "packetfence-pfqueue"
     time_to_sleep: 5
 
 - name: update_systemd
@@ -23,11 +23,10 @@ testcases:
       - result.statuscode ShouldEqual 200
       - result.bodyjson.message ShouldEqual "Updated systemd for pf"
 
-# service restarted by hand because using API cause Venom failure (EOF)
 - name: restart_haproxy_admin_service
   steps:
   - type: pf_api_service_start_async
-    service: 'haproxy-admin'
+    service: 'packetfence-haproxy-admin'
 
 # to apply changes made during custom step
 # no API call usable
