@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	//Import mysql as _
-	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"gopkg.in/alexcesaro/statsd.v2"
