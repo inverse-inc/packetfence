@@ -1,17 +1,6 @@
 name: Restart haproxy-portal service
 testcases:
-- name: get_login_token
+- name: restart_haproxy_portal_service
   steps:
-  - type: get_login_token
-
-- name: restart_haproxy-portal_service
-  steps:
-  - type: http
-    method: POST
-    url: '{{.pfserver_webadmin_url}}/api/v1/service/haproxy-portal/restart'
-    ignore_verify_ssl: true
-    headers:
-      "Authorization": "{{.get_login_token.result.token}}"
-      "Content-Type": "application/json"
-    assertions:
-      - result.statuscode ShouldEqual 200
+  - type: pf_api_service_start_async
+    service: 'haproxy-portal'

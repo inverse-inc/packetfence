@@ -1,6 +1,6 @@
 name: Restart haproxy-portal service
 testcases:
-- name: restart_haproxy-portal_service
+- name: restart_haproxy_portal_service
   steps:
-  - type: pf_api_service_restart
-    service: haproxy-portal
+  - type: pf_api_service_start_async
+    service: 'haproxy-portal'
