@@ -21,3 +21,5 @@ steps:
 
 - type: pf_api_poll
   i_task_id: "{{.task_id}}"
+  i_retry: "{{.input.i_retry}}"
+  i_delay: "{{.input.i_delay}}"

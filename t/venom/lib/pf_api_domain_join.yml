@@ -3,6 +3,8 @@ input:
   id: ""
   username: ""
   password: ""
+  i_retry: 24
+  i_delay: 5
 steps:
 - type: pf_api_domain_action
   method: POST
@@ -21,6 +23,8 @@ steps:
 
 - type: pf_api_poll
   i_task_id: '{{.task_id}}'
+  i_retry: "{{.input.i_retry}}"
+  i_delay: "{{.input.i_delay}}"
 
 - type: pf_api_domain_action
   id: "{{.input.id}}"
