@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	//Import mysql as _
+	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"gopkg.in/alexcesaro/statsd.v2"
@@ -176,11 +177,10 @@ func (dp *Mysql) GetFreeIPIndex(mac string) (uint64, string, error) {
 	var query string
 
 	if dp.DHCPPool.algorithm == OldestReleased {
-		query = "UPDATE dhcppool D SET D.mac = ?, D.free = 0 WHERE D.pool_name = ? AND D.idx IN ( SELECT temp.tmpidx FROM ( SELECT idx as tmpidx FROM dhcppool P WHERE P.free = 1 AND P.pool_name = ? ORDER BY released LIMIT 1 ) AS temp ) AND @tmp_index := idx"
+		query = "UPDATE dhcppool D SET D.mac = ?, D.free = 0 WHERE D.pool_name = ? AND D.idx IN ( SELECT temp.tmpidx FROM ( SELECT idx as tmpidx FROM dhcppool P WHERE P.free = 1 AND P.pool_name = ? ORDER BY released LIMIT 1 ) AS temp )"
 	} else {
-		query = "UPDATE dhcppool D SET D.mac = ?, D.free = 0 WHERE D.pool_name = ? AND D.idx IN ( SELECT temp.tmpidx FROM ( SELECT idx as tmpidx FROM dhcppool P WHERE P.free = 1 AND P.pool_name = ? ORDER BY RAND() LIMIT 1 ) AS temp ) AND @tmp_index := idx"
+		query = "UPDATE dhcppool D SET D.mac = ?, D.free = 0 WHERE D.pool_name = ? AND D.idx IN ( SELECT temp.tmpidx FROM ( SELECT idx as tmpidx FROM dhcppool P WHERE P.free = 1 AND P.pool_name = ? ORDER BY RAND() LIMIT 1 ) AS temp )"
 	}
-
 	res, err := tx.Exec(query, mac, dp.PoolName, dp.PoolName)
 
 	if err != nil {
@@ -189,13 +189,14 @@ func (dp *Mysql) GetFreeIPIndex(mac string) (uint64, string, error) {
 
 	}
 	count, err2 := res.RowsAffected()
+
 	if err2 != nil {
 		tx.Commit()
 		return 0, FreeMac, err2
 	}
 	if count == 1 {
-		query = "SELECT @tmp_index"
-		rows, err := tx.Query(query)
+		query = "SELECT idx from dhcppool where free = 0 and pool_name = ? and mac = ?"
+		rows, err := tx.Query(query, dp.PoolName, mac)
 		defer rows.Close()
 		if err != nil {
 			tx.Commit()
