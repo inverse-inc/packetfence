@@ -26,7 +26,7 @@ testcases:
 - name: restart_haproxy_admin_service
   steps:
   - type: pf_api_service_start_async
-    service: 'packetfence-haproxy-admin'
+    service: 'haproxy-admin'
 
 # to apply changes made during custom step
 # no API call usable
