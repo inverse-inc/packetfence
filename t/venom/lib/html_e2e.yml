@@ -1,0 +1,24 @@
+executor: html_e2e
+input:
+  base_url: "{{.pfserver_webadmin_url}}"
+  config_file: "cypress/config/cypress.config.js"
+steps:
+- type: exec
+  script: |
+    cd {{.html.pfappserver_dir}}
+    make test-e2e \
+      BASE_URL={{.input.base_url}} \
+      CONFIG_FILE={{.input.config_file}} \
+      CONFIG=downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos
+  # Info is only returned if assertion passes
+  info:
+  - "{{.result.systemout}}"
+  # Assertion is meant to pass, otherwise info is truncated to caller.
+  # Caller must have their own assertion(s).
+  assertions:
+  - result.systemout ShouldNotBeNil
+# Output is renamed to avoid collisions
+output:
+  html_e2e_code: "{{.result.code}}"
+  html_e2e_systemout: "{{.result.systemout}}"
+

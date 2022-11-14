@@ -2,12 +2,10 @@ name: Run Cypress E2E Tests
 testcases:
 - name: run_e2e
   steps:
-  - script: |
-      cd {{.html.pfappserver_dir}}
-      make test-e2e \
-        BASE_URL={{.pfserver_webadmin_url}} \
-        CONFIG_FILE=cypress/config/cypress.config-configurator.js \
-        CONFIG=downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos
-    info: '{{.result.systemout}}'
+  - type: html_e2e
+    base_url: "{{.html.pfappserver_baseurl}}"
+    config_file: "cypress/config/cypress.config-configurator.js"
+    info:
+    - "{{.result.systemout}}"
     assertions:
-    - result.code ShouldEqual 0
+    - result.html_e2e_code ShouldEqual 0
