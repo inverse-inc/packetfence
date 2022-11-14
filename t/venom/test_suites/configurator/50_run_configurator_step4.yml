@@ -40,5 +40,5 @@ testcases:
   steps:
   - type: pf_api_service_start_async
     service: 'pf'
-    i_retry: 10
+    i_retry: 30
     i_delay: 60
