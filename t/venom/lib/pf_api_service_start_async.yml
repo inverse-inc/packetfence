@@ -2,8 +2,8 @@ executor: pf_api_service_start_async
 input:
   service: ""
   time_to_sleep: 0
-  i_retry: 40
-  i_delay: 20
+  i_retry: 24
+  i_delay: 5
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
