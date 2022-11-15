@@ -42,9 +42,6 @@ use Try::Tiny;
 use JSON::MaybeXS;
 use pf::config::cluster;
 
-# The port to reach the Unifi controller API
-our $UNIFI_API_PORT = "8443";
-
 sub description { 'Unifi Controller' }
 
 =head1 SUBROUTINES
@@ -196,17 +193,28 @@ sub _connect {
     $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
     $ua->ssl_opts(verify_hostname => 0);
     $ua->timeout(10);
+    $ua->default_header('Content-Type' => "application/json");
 
+    my $base_url = "$transport://$controllerIp";
+    my $login_path = "/api/login";
+    my $api_prefix = "";
 
-    my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
+    my $response = $ua->get($base_url."/proxy/network/status");
 
-    my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
+    if ($response->code == 401) {
+        $login_path = "/api/auth/login";
+        $api_prefix = "/proxy/network";
+    } else {
+        $base_url .= ":8443";
+    }
+
+    $response = $ua->post($base_url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
 
     unless($response->is_success) {
         $logger->error("Can't login on the Unifi controller: ".$response->status_line);
         die;
     }
-    return ($ua, $base_url);
+    return ($ua, $base_url.$api_prefix);
 }
 
 
