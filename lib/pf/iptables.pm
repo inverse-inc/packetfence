@@ -161,9 +161,7 @@ sub iptables_generate {
     push @pfconnector_ips, $management_network->{Tip};
     @pfconnector_ips = uniq sort @pfconnector_ips;
     for my $ip (@pfconnector_ips) {
-        for my $dport (23001..23256) {
-            $tags{'pfconnector'} .= "-A input-management-if --protocol tcp --match tcp -s $ip --dport $dport --jump ACCEPT\n";
-        }
+        $tags{'pfconnector'} .= "-A input-management-if --protocol tcp --match multiport -s $ip --dports 23001:23256 -j ACCEPT\n";
     }
 
     # eduroam RADIUS virtual-server
@@ -203,6 +201,9 @@ sub iptables_generate {
 
     #NAT Intercept Proxy
     $self->generate_interception_rules(\$tags{'nat_if_src_to_chain'},\$tags{'nat_prerouting_vlan'},\$tags{'input_inter_vlan_if'} );
+
+    #DNAT traffic from docker to mgmt ip
+    $self->generate_dnat_from_docker(\$tags{'nat_if_src_to_chain'});
 
     # OAuth
     my $passthrough_enabled = (isenabled($Config{'fencing'}{'passthrough'}) || isenabled($Config{'fencing'}{'isolation_passthrough'}));
@@ -857,6 +858,20 @@ sub generate_netflow_rules {
     if (netflow_enabled()) {
         $$forward_netflow_ref .= "-I FORWARD -j NETFLOW\n";
     }
+}
+
+=item generate_dnat_from_docker
+
+DNAT to 100.64.0.1 the traffic coming from docker image to management ip address.
+
+=cut
+
+sub generate_dnat_from_docker {
+    my ($self, $nat_if_src_to_chain) = @_;
+    my $logger = get_logger();
+
+    my $mgmt_ip = (defined($management_network->tag('vip'))) ? $management_network->tag('vip') : $management_network->tag('ip');
+    $$nat_if_src_to_chain .= "-A PREROUTING --protocol udp -s 100.64.0.0/10 -d $mgmt_ip --jump DNAT --to 100.64.0.1\n";
 }
 
 =back
