@@ -7,7 +7,7 @@ input:
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
-  action: "restart"
+  action: "start"
   method: POST
   time_to_sleep: "{{.input.time_to_sleep}}"
   status_code: 202
