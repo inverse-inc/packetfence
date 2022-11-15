@@ -25,7 +25,7 @@ testcases:
 
 - name: restart_haproxy_admin_service
   steps:
-  - type: pf_api_service_start_async
+  - type: pf_api_service_restart_async
     service: 'haproxy-admin'
 
 # to apply changes made during custom step
