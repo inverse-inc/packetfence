@@ -504,7 +504,7 @@ sub safe_file_update {
     $dir = '.' if $dir eq '';
     # Creates a new file in the same directory to ensure it is on the same filesystem
     pf_make_dir($dir);
-    my $temp = File::Temp->new(DIR => $dir) or die "cannot create temp file in $dir";
+    my $temp = File::Temp->new(DIR => $dir, PERMS => 0664) or die "cannot create temp file in $dir";
     if (defined $binmode) {
         binmode($temp, $binmode);
     }
