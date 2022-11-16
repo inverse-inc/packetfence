@@ -369,6 +369,7 @@ sub extract_modules {
       terminal_id
       transaction_key
       options
+      tenant_id
     );
     foreach (@$types) {
         my $type = "pf::Authentication::Source::${_}Source";
