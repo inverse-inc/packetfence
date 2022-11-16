@@ -30,5 +30,7 @@ steps:
 
 - type: pf_api_service_status
   service: "{{.input.service}}"
+  retry: "{{.input.i_retry}}"
+  delay: "{{.input.i_delay}}"
   assertions:
     - result.pf_api_service_status_json.alive ShouldEqual 1
