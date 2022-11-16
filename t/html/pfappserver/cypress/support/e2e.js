@@ -1,4 +1,5 @@
 require('./commands')
+require('./filter')
 
 // > Cannot set properties of undefined (setting 'Vue')
 Cypress.on('uncaught:exception', (err, runnable) => {

@@ -1,6 +1,6 @@
 {
-  "name": "Cypress E2E",
-  "version": "1.0.0",
+  "name": "packetfence-e2e",
+  "version": "0.99.0",
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.20.2",

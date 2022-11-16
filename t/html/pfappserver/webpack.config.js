@@ -18,7 +18,7 @@ module.exports = {
   },
   resolve: {
     modules: [
-      path.resolve(__dirname, ''),
+      path.resolve(__dirname, './cypress'),
     ],
   }
 };

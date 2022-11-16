@@ -10,15 +10,18 @@ module.exports = {
   defaultCommandTimeout: 10000, // 10s
   e2e: {
     baseUrl: 'https://localhost:1443',
+    blockHosts: [
+      'analytics.packetfence.org' // DNT
+    ],
     setupNodeEvents: (on, config) => {
-//console.info({config})
-      on('file:preprocessor', webpackPreprocessor(webpackOptions))
+      on('file:preprocessor', webpackPreprocessor(webpackOptions));
       on('before:browser:launch', (browser = {}, launchOptions) => {
         if (browser.name == 'chrome') {
-          launchOptions.args.push('--disable-gpu') // headless
+          launchOptions.args.push('--disable-gpu'); // headless
         }
-        return launchOptions
-      })
+        return launchOptions;
+      });
+      return config;
     },
     specPattern: [
       'cypress/specs/e2e/*.cy.{js,jsx,ts,tsx}',
@@ -30,4 +33,8 @@ module.exports = {
   videoUploadOnPasses: false,
   viewportWidth: 1280,
   viewportHeight: 1024,
+
+  // The number of tests for which snapshots and command data are kept in memory (default: 50).
+  // Reduce this number if you are experiencing high memory consumption in your browser during a test run.
+  numTestsKeptInMemory: 50,
 };

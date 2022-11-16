@@ -7,7 +7,7 @@ CONFIG_FILE ?= cypress/config/cypress.config.js
 CONFIG ?= env={}
 #DEBUG ?= cypress:*
 DEBUG ?=
-BUILD_ID ?= $$(openssl rand -hex 16)
+CI_PIPELINE_ID ?= $$(openssl rand -hex 16)
 PROJECT_ID ?=
 RECORD_KEY ?=
 
@@ -45,14 +45,14 @@ test:
 		DISPLAY= \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --headless --tag $(TAG) ; \
+		cypress run --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --headless --env tags=[$(TAGS)] ; \
 
 test-e2e:
 		DEBUG=$(DEBUG) \
 		DISPLAY= \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(BUILD_ID) --headless --parallel --record --key $(RECORD_KEY) --tag $(TAG) ; \
+		cypress run --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --headless --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
 
 test-x11:
 	DEBUG=$(DEBUG) \
