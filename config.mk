@@ -46,6 +46,8 @@ SRC_WEBSITE_DIR = $(SRC_ROOT_DIR)/website
 KNK_REGISTRY = ghcr.io
 KNK_REGISTRY_URL = ghcr.io/inverse-inc/packetfence
 LOCAL_REGISTRY = packetfence
+PF_UID = $(id -u pf)
+PF_GID = $(id -g pf)
 #
 # Golang
 #

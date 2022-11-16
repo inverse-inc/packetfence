@@ -45,6 +45,8 @@ docker build -t $img_name \
   --build-arg=BUILD_PFAPPSERVER_VUE=yes \
   --build-arg=KNK_REGISTRY_URL=ghcr.io/inverse-inc/packetfence \
   --build-arg=IMAGE_TAG=$TAG_OR_BRANCH_NAME \
+  --build-arg=PF_UID=$(id -u pf) \
+  --build-arg=PF_GID=$(id -g pf) \
   -f containers/$name/Dockerfile .
 
 main_splitter

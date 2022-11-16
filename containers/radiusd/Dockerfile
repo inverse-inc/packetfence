@@ -2,6 +2,9 @@ ARG from=debian:bullseye
 ARG KNK_REGISTRY_URL
 ARG IMAGE_TAG
 
+ARG PF_UID
+ARG PF_GID
+
 FROM ${from} as build
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -93,3 +96,8 @@ RUN mkdir -p /usr/local/pf/var/run && \
 
 RUN sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
 
+# Copy the script.
+COPY ./containers/radiusd/setup.sh /
+
+# Launch setup.sh
+RUN bash /setup.sh "${PF_UID}" "${PF_GID}"
