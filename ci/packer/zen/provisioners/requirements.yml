@@ -1,7 +1,4 @@
 ---
-roles:
-  - src: oefenweb.rc_local
-
 collections:
   - name: inverse_inc.packetfence
     version: 1.2.3-1

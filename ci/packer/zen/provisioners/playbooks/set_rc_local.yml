@@ -1,7 +1,9 @@
 - hosts: pfservers
-  name: Set /etc/rc.local on hosts
+  name: Set /etc/rc.local on hosts without running it
   become: True
   gather_facts: True
+  collections:
+    - inverse_inc.packetfence
 
   roles:
-    - oefenweb.rc_local
+    - rc_local
