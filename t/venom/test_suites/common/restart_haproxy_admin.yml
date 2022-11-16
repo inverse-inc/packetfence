@@ -1,4 +1,4 @@
-name: Restart haproxy-portal service
+name: Restart haproxy-admin service
 testcases:
 - name: restart_haproxy_admin_service
   steps:
