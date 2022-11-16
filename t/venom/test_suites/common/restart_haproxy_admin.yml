@@ -4,3 +4,4 @@ testcases:
   steps:
   - type: pf_api_service_restart_async
     service: 'haproxy-admin'
+    time_to_sleep_before_status: 5

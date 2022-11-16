@@ -4,6 +4,7 @@ input:
   time_to_sleep: 0
   i_retry: 24
   i_delay: 5
+  time_to_sleep_before_status: 0
 steps:
 - type: pf_api_service_action
   service: "{{.input.service}}"
@@ -23,6 +24,9 @@ steps:
   i_task_id: "{{.task_id}}"
   i_retry: "{{.input.i_retry}}"
   i_delay: "{{.input.i_delay}}"
+
+- type: sleep
+  time_to_sleep: "{{.input.time_to_sleep_before_status}}"
 
 - type: pf_api_service_status
   service: "{{.input.service}}"
