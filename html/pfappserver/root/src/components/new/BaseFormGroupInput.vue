@@ -28,6 +28,7 @@
     >
       <b-form-input ref="input"
         class="base-form-group-input"
+        :data-namespace="namespace"
         :disabled="isLocked"
         :readonly="inputReadonly"
         :state="inputState"

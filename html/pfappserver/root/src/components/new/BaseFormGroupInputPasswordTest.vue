@@ -25,6 +25,7 @@
         'is-focus': isFocus,
         'is-blur': !isFocus
       }"
+      :data-namespace="namespace"
       :disabled="isLocked"
       :placeholder="inputPlaceholder"
       :readonly="readonly"
