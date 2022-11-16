@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 11.3.0\n"
+"Project-Id-Version: 12.1.0\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-08-25 14:30-0400\n"
+"PO-Revision-Date: 2022-11-16 21:06-0400\n"
 "Last-Translator: Inverse inc. <info@inverse.ca>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -401,6 +401,26 @@ msgstr ""
 msgid "Declare as lost or stolen"
 msgstr ""
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_provisioning_policy
+msgid "Default Provisioning policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_admin_sso_policy
+msgid "Default admin SSO policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_pending_policy
+msgid "Default pending policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_policy
+msgid "Default portal policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_registration_policy
+msgid "Default registration policy"
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid "Depending on your browser and configuration, you may see a <i>Security Warning</i> which asks if you're sure you want to open the file; if so, click <i>Open</i> once more."
 msgstr ""
@@ -508,6 +528,10 @@ msgstr ""
 msgid "Email activation code has been verified. Access granted until : %s"
 msgstr ""
 
+# /usr/local/pf/conf/authentication.conf.example email
+msgid "Email-based registration"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Enter a valid telephone number"
 msgstr ""
@@ -571,6 +595,10 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Guest request"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_guest_policy
+msgid "Guest signup"
 msgstr ""
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
@@ -730,6 +758,14 @@ msgstr ""
 msgid "Lastname"
 msgstr ""
 
+# /usr/local/pf/conf/authentication.conf.example file1
+msgid "Legacy Source"
+msgstr ""
+
+# /usr/local/pf/conf/authentication.conf.example local
+msgid "Local Users"
+msgstr ""
+
 # html/captive-portal/templates/activation/sponsor_login.html
 # html/captive-portal/templates/oauth2/landing.html
 # html/captive-portal/templates/saml.html
@@ -757,6 +793,10 @@ msgstr ""
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "MAC Address"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_mfa_policy
+msgid "MFA policy"
 msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
@@ -842,6 +882,14 @@ msgstr ""
 
 # pf::person::FIELDS
 msgid "Notes"
+msgstr ""
+
+# /usr/local/pf/conf/authentication.conf.example null
+msgid "Null Source"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_oauth_policy
+msgid "OAuth login"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
@@ -976,6 +1024,7 @@ msgstr ""
 msgid "Pay"
 msgstr ""
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_billing_policy
 # html/captive-portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
 msgstr ""
@@ -1038,8 +1087,8 @@ msgstr ""
 msgid "Psk"
 msgstr ""
 
-# html/captive-portal/templates/status.html
-msgid "Really unregister %s? The device will be immediately disconnected from the network."
+# /usr/local/pf/conf/portal_modules.conf.defaults default_blackhole_policy
+msgid "Refuse Login"
 msgstr ""
 
 # html/captive-portal/templates/device-registration/registration.html
@@ -1086,6 +1135,14 @@ msgstr ""
 msgid "SAML authentication"
 msgstr ""
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_saml_policy
+msgid "SAML login"
+msgstr ""
+
+# /usr/local/pf/conf/authentication.conf.example sms
+msgid "SMS-based registration"
+msgstr ""
+
 # html/captive-portal/templates/provisioner/dpsk.html
 msgid "SSID: "
 msgstr ""
@@ -1114,6 +1171,10 @@ msgstr ""
 msgid "Select registration role"
 msgstr ""
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_show_local_account
+msgid "Show local account"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Source"
 msgstr ""
@@ -1128,6 +1189,14 @@ msgstr ""
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Sponsor request accepted"
+msgstr ""
+
+# /usr/local/pf/conf/authentication.conf.example sponsor
+msgid "Sponsor-based registration"
+msgstr ""
+
+# pf::person::FIELDS
+msgid "Sponsored_date"
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
@@ -1449,6 +1518,10 @@ msgstr ""
 msgid "Unregister"
 msgstr ""
 
+# html/captive-portal/templates/status.html
+msgid "Unregister %s? The device will be immediately disconnected from the network."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Until you click on the activation link this guest will have NO Internet access."
 msgstr ""
@@ -1468,6 +1541,10 @@ msgstr ""
 # html/captive-portal/templates/emails/emails-guest_sponsor_preregistration.html
 # html/captive-portal/templates/status/login.html
 msgid "Username"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_login_policy
+msgid "Username/password login"
 msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/osx.html
@@ -1533,7 +1610,7 @@ msgid "You can also modify the password below."
 msgstr ""
 
 # html/captive-portal/templates/lost_stolen.html
-msgid "You do not own this device %s, therefor you can not declare it as lost or stolen."
+msgid "You do not own this device %s, you can not declare it as lost or stolen."
 msgstr ""
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
@@ -1608,6 +1685,10 @@ msgstr ""
 
 # html/captive-portal/templates/status.html
 msgid "You're not connected to the network, but have a timebank of <strong id='timeleft'>%s</strong>"
+msgstr ""
+
+# html/captive-portal/templates/status.html
+msgid "Your WPA Wi-Fi key: "
 msgstr ""
 
 # html/captive-portal/templates/provisioner/android.html
