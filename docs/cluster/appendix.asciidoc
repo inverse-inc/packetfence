@@ -369,8 +369,8 @@ systemctl start packetfence-mariadb
 
 You can now safely start PacketFence on nodes A and B using the instructions
 provided in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
-all PacketFence services section>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
+PacketFence services section>>.
 
 ==== Restart node C
 
