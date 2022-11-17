@@ -275,7 +275,7 @@ Where:
 
 * `_192.168.1.5_` is the management IP of node C
 * `_packet_` is the webservices username (_Configuration->Webservices_)
-* `_fence_` is the webservices password (_Configuration->Webservices_)
+* `_anotherMoreSecurePassword_` is the webservices password (_Configuration->Webservices_)
 
 
 ==== Reintegrating nodes A and B
