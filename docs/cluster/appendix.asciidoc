@@ -207,8 +207,7 @@ IMPORTANT: `packetfence-config` should stay started in order to run `/usr/local/
 
 Now, start the application service on node C using the instructions provided
 in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
-all PacketFence services section>>.
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart PacketFence services section>>.
 
 ==== Validate migration
 
