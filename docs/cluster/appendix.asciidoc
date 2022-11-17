@@ -377,8 +377,8 @@ all PacketFence services section>>.
 
 Now, you should restart PacketFence on node C using the instructions provided
 in
-<<PacketFence_Upgrade_Guide.asciidoc#_restart_all_packetfence_services,Restart
-all PacketFence services section>>.  So it becomes aware of its peers again.
+<<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
+PacketFence services section>>.  So it becomes aware of its peers again.
 
 You should now have full service on all 3 nodes using the latest version of PacketFence.
 
