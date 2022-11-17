@@ -178,6 +178,13 @@ sub build_email {
         ENCODING     => 'utf8',
         %{$tmpoptions // {}},
     );
+    my $locale = delete $TmplOptions{__locale};
+    my $old_locale;
+    if (defined $locale && length($locale)) {
+        $old_locale = setlocale(POSIX::LC_MESSAGES);
+        setlocale(POSIX::LC_MESSAGES, $locale);
+    }
+
     add_standard_include_path(\%TmplOptions);
     my %vars = (
         i18n        => \&i18n,
@@ -196,6 +203,9 @@ sub build_email {
         ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
     $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
+    if ($old_locale) {
+        setlocale(POSIX::LC_MESSAGES, $old_locale);
+    }
     return $msg;
 }
 
@@ -206,6 +216,8 @@ sub build_email {
 sub send_email {
     my ($template, $email, $subject, $data, $tmpoptions) = @_;
     my $client = $SEND_MAIL_API_CLIENT->new(queue => 'priority');
+    my $locale = setlocale(POSIX::LC_MESSAGES);
+    $tmpoptions->{__locale} //= $locale;
     $client->notify(send_email => $template, $email, $subject, $data, $tmpoptions);
 }
 
