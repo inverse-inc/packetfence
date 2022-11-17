@@ -81,7 +81,7 @@ Starting from PacketFence 11.0.0, the PacketFence installation can be upgraded i
 
 For all PacketFence versions prior to 11.0.0, follow the steps described in the <<_upgrade_procedure,Upgrade procedure>>.
 
-== Upgrade to a patch version (X.Y.PATCH)
+== Apply maintenance patches
 
 === Disable monit alerts (only if monit is installed)
 
@@ -117,7 +117,7 @@ include::common/new_config_files.asciidoc[]
 
 include::common/restart.asciidoc[]
 
-== Upgrade to a major or minor version (MAJOR.MINOR.Z)
+== Upgrade to another version (major or minor)
 
 === For a standalone server
 
