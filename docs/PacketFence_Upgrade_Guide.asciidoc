@@ -76,8 +76,8 @@ systemctl disable monit
 
 Starting from PacketFence 11.0.0, the PacketFence installation can be upgraded in two ways:
 
-* <<#_upgrade_to_a_patch_version_x_y_patch,Upgrade to a patch version (X.Y.PATCH)>>
-* <<#_upgrade_to_a_major_or_minor_version_major_minor_z,Upgrade to a major or minor version (MAJOR.MINOR.Z)>>
+* <<#_apply_maintenance_patches,Apply maintenance patches>>
+* <<#_upgrade_to_another_version_major_or_minor,Upgrade to another version (major or minor)>>
 
 For all PacketFence versions prior to 11.0.0, follow the steps described in the <<_upgrade_procedure,Upgrade procedure>>.
 
@@ -1590,7 +1590,7 @@ The option `NTLM cache background job` and its associated parameters have been d
 
 === pf-maint.pl script deprecated
 
-The `pf-maint.pl` script used to get maintenance patches has been deprecated. You can now get maintenance patches using your package manager, see <<#_upgrade_to_a_patch_version_x_y_patch,Upgrade to a patch version (X.Y.PATCH) section>>.
+The `pf-maint.pl` script used to get maintenance patches has been deprecated. You can now get maintenance patches using your package manager, see <<#_apply_maintenance_patches,Apply maintenance patches section>>.
 
 === WMI scan engine deprecated
 
