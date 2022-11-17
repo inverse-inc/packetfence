@@ -10,13 +10,14 @@ testcases:
 # restart pfqueue et pf detect
 - name: restart_service_pfqueue
   steps:
-  - type: systemctl_service_restart 
-    service: packetfence-pfqueue
+  - type: pf_api_system_service_restart_async 
+    service: "packetfence-pfqueue"
+    time_to_sleep: 5
 
 - name: restart_service_pfdetect
   steps:
-  - type: systemctl_service_restart 
-    service: packetfence-pfdetect
+  - type: pf_api_service_restart_async
+    service: "packetfence-pfdetect"
 
 - name: clear_fingerbank_cache
   steps:
