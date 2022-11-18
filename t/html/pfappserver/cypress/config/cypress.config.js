@@ -7,7 +7,7 @@ const webpackOptions = {
 // see https://docs.cypress.io/guides/references/configuration#Global
 
 module.exports = {
-  defaultCommandTimeout: 10000, // 10s
+//  defaultCommandTimeout: 10000, // 10s
   e2e: {
     baseUrl: 'https://localhost:1443',
     blockHosts: [
@@ -21,6 +21,12 @@ module.exports = {
         }
         return launchOptions;
       });
+      on('task', {
+        log(message) {
+          console.log(message)
+          return null
+        }
+      })
       return config;
     },
     specPattern: [
@@ -29,6 +35,7 @@ module.exports = {
   },
   downloadsFolder: 'cypress/results/downloads',
   screenshotsFolder: 'cypress/results/screenshots',
+  video: false,
   videosFolder: 'cypress/results/videos',
   videoUploadOnPasses: false,
   viewportWidth: 1280,
