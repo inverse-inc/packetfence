@@ -26,6 +26,7 @@ use Date::Format qw(time2str);
 use pf::util;
 use pf::node;
 use pf::enforcement;
+use POSIX;
 
 =head2 execute_child
 
@@ -87,6 +88,7 @@ sub do_email_registration {
         push @additional_fields, { label => ucfirst($key), value => $value };
         $info{$key} = $value;
     }
+    $info{lang} = clean_locale(setlocale(POSIX::LC_MESSAGES));
 
     $info{'firstname'} = $self->request_fields->{firstname};
     $info{'lastname'} = $self->request_fields->{lastname};
