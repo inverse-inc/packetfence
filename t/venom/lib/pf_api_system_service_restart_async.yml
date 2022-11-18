@@ -1,0 +1,25 @@
+executor: pf_api_system_service_restart_async
+input:
+  service: ""
+  time_to_sleep: 0
+  i_retry: 24
+  i_delay: 5
+steps:
+- type: pf_api_system_service_action
+  service: "{{.input.service}}"
+  action: "restart"
+  method: POST
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  status_code: 202
+  body: >-
+    {
+      "async": "true"
+    }
+  vars:
+    task_id:
+      from: result.pf_api_system_service_action_json.task_id
+
+- type: pf_api_poll
+  i_task_id: "{{.task_id}}"
+  i_retry: "{{.input.i_retry}}"
+  i_delay: "{{.input.i_delay}}"

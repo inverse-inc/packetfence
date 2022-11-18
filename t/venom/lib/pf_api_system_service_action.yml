@@ -1,0 +1,21 @@
+executor: pf_api_system_service_action
+input:
+  action: ""
+  body: {}
+  method: ""
+  service: ""
+  status_code: ""
+  time_to_sleep: 0
+steps:
+- type: pf_api_action
+  body: '{{.input.body}}'
+  status_code: "{{.input.status_code}}"
+  method: "{{.input.method}}"
+  time_to_sleep: "{{.input.time_to_sleep}}"
+  url: 'system_service/{{.input.service}}/{{.input.action}}'
+  vars:
+    service_temp:
+       from: result.pf_api_action_
+
+output:
+  pf_api_system_service_action_: "{{.service_temp}}"
