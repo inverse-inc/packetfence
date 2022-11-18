@@ -17,6 +17,12 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
+
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 )
 
 // Config a Tunnel
@@ -53,6 +59,8 @@ type Tunnel struct {
 
 	IsRemoteConnector bool
 	ConnectorID       string
+	radiusProxy       *RadiusProxy
+	k8ControllerDrop  chan struct{}
 }
 
 // New Tunnel from the given Config
@@ -61,6 +69,12 @@ func New(c Config) *Tunnel {
 	t := &Tunnel{
 		Config: c,
 	}
+	radiusProxy, stop, err := radiusProxyFromKubernetes()
+	if err == nil {
+		t.radiusProxy = radiusProxy
+		t.k8ControllerDrop = stop
+	}
+
 	t.activatingConn.Add(1)
 	//setup socks server (not listening on any port!)
 	extra := ""
@@ -74,6 +88,67 @@ func New(c Config) *Tunnel {
 	}
 	t.Debugf("Created%s", extra)
 	return t
+}
+
+const radiusAuthK8Filter = "app=radiusd-auth"
+
+func radiusProxyFromKubernetes() (*RadiusProxy, chan struct{}, error) {
+	clientset, _ := kubernetes.NewForConfig(&rest.Config{
+		Host:            os.Getenv("K8S_MASTER_HOST"),
+		BearerToken:     os.Getenv("K8S_MASTER_TOKEN"),
+		TLSClientConfig: rest.TLSClientConfig{Insecure: true},
+	})
+
+	data, err := os.ReadFile(os.Getenv("K8S_NAMESPACE_PATH"))
+	if err != nil {
+		return nil, nil, err
+	}
+	namespace := string(data)
+	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: radiusAuthK8Filter})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	servers := []string{}
+	for _, p := range pods.Items {
+		servers = append(servers, p.Status.PodIP+":1812")
+	}
+	radiusProxy := &RadiusProxy{
+		backends: NewRadiusBackends(servers...),
+		secret:   os.Getenv("RADIUS_SECRET"),
+	}
+
+	watchlist := cache.NewFilteredListWatchFromClient(
+		clientset.CoreV1().RESTClient(),
+		string(v1.ResourcePods),
+		namespace,
+		func(opts *metav1.ListOptions) {
+			opts.LabelSelector = radiusAuthK8Filter
+		},
+	)
+	_, controller := cache.NewInformer( // also take a look at NewSharedIndexInformer
+		watchlist,
+		&v1.Pod{},
+		0, //Duration is int64
+		cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				pod := obj.(*v1.Pod)
+				radiusProxy.backends.Add(pod.Status.PodIP + ":1812")
+			},
+			DeleteFunc: func(obj interface{}) {
+				pod := obj.(*v1.Pod)
+				radiusProxy.backends.Delete(pod.Status.PodIP + ":1812")
+			},
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				pod := newObj.(*v1.Pod)
+				_ = pod
+			},
+		},
+	)
+	stop := make(chan struct{})
+	go controller.Run(stop)
+
+	return radiusProxy, stop, nil
 }
 
 // BindSSH provides an active SSH for use for tunnelling
