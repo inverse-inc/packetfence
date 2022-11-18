@@ -386,6 +386,8 @@ github.com/inverse-inc/go-ipset/v2 v2.2.4 h1:nhhi/nJuAzoTiznskwGd1n2iCMZRXEg1QKx
 github.com/inverse-inc/go-ipset/v2 v2.2.4/go.mod h1:4f10dGst9qh5++xbbaj13FWiDc/pid6GssgeX1/E2uw=
 github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606 h1:kb0JRRJD0SWHIq+/x211IfwSyfB8hDp2tLKTYbNLvkA=
 github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606/go.mod h1:IQmy9DslBZ9lU4/y/MphJ9oY//4r9A9wQwqOjjLmBso=
+github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4 h1:KvA38U6G6F4bJrIdOFsxlqhreI4FuX4NOckiZHROmWE=
+github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4/go.mod h1:jqa4WeuHe2MvT63YlmHj1Yz+bXxqZah3/YC0aI73I+Q=
 github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4 h1:gjF5yMG/zW1TCyNq+wD+glRWYLO8NXelWtYxG2St0A4=
 github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4/go.mod h1:B89ocJt+mdgvXbYGP2Rvh0e6ZoMJQ1j09lQFGqE2D/Y=
 github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 h1:1wjwpitH5JfZ4cAwRqGvB2Affb61SlGvROBzJla25dM=
@@ -686,6 +688,7 @@ golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8U
 golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
+golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 h1:Y/gsMcFOcR+6S6f3YeMKl5g+dZMEWqcz5Czj/GWYbkM=
 golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=

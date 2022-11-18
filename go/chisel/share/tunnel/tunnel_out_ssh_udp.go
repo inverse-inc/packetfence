@@ -32,7 +32,8 @@ func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort strin
 			w: gob.NewEncoder(rwc),
 			c: rwc,
 		},
-		udpConns: conns,
+		radiusProxy: t.radiusProxy,
+		udpConns:    conns,
 	}
 	for {
 		p := udpPacket{}
@@ -45,17 +46,31 @@ func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort strin
 type udpHandler struct {
 	connectorID string
 	*cio.Logger
-	hostPort string
+	hostPort    string
+	radiusProxy *RadiusProxy
 	*udpChannel
 	*udpConns
 }
 
+func (h *udpHandler) isRadius(p *udpPacket) bool {
+	return h.radiusProxy != nil
+}
+
 func (h *udpHandler) handleWrite(p *udpPacket) error {
-	if err := h.r.Decode(&p); err != nil {
+	var err error
+	if err = h.r.Decode(&p); err != nil {
 		return err
 	}
+
+	packet, hostPort := p.Payload, h.hostPort
+	if h.isRadius(p) {
+		packet, hostPort, err = h.radiusProxy.ProxyPacket(h, p)
+		if err != nil {
+			return err
+		}
+	}
 	//dial now, we know we must write
-	conn, exists, err := h.udpConns.dial(p.Src, h.hostPort)
+	conn, exists, err := h.udpConns.dial(p.Src, hostPort)
 	if err != nil {
 		return err
 	}
@@ -75,11 +90,11 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 		}
 	}
 	// TODO: Only apply this to remotes that are specific to RADIUS
-	modified, _ := proxyRadiusOut(h, p.Payload)
-	_, err = conn.Write(modified)
+	_, err = conn.Write(packet)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

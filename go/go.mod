@@ -195,6 +195,10 @@ require (
 	gopkg.in/square/go-jose.v2 v2.3.1 // indirect
 )
 
+require layeh.com/radius v0.0.0-00010101000000-000000000000
+
+replace layeh.com/radius => github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4
+
 replace github.com/inverse-inc/packetfence => ../
 
 replace github.com/inverse-inc/packetfence/go => ./
