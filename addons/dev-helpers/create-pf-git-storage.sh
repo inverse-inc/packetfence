@@ -70,6 +70,12 @@ cd -
 cp -a $tmpdir/packetfence/conf $dst_dir/
 cp -a $tmpdir/packetfence/raddb $dst_dir/
 
+mkdir $dst_dir/raddb/sites-enabled
+cd $dst_dir/raddb/sites-enabled/
+ln -s ../sites-available/status status
+ln -s ../sites-available/dynamic-clients dynamic-clients
+cd -
+
 mkdir $dst_dir/fingerbank
 cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
 touch $dst_dir/fingerbank/conf/fingerbank.conf
