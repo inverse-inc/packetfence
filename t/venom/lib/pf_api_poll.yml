@@ -1,9 +1,19 @@
 executor: pf_api_poll
 input:
-  url_suffix: ""
+  i_task_id: ""
+  i_message: "Completed"
+  i_progress: 100
+  i_retry: 24
+  i_delay: 5
 steps:
-- type: pf_api_service_action
-  url: "{{.input.url_suffix}}"
+- type: pf_api_action
+  url: "pfqueue/task/{{.input.i_task_id}}/status/poll"
+  # wait two minutes by default
+  retry: "{{.input.i_retry}}"
+  delay: "{{.input.i_delay}}"
+  assertions:
+    - result.pf_api_action_json.message ShouldEqual "{{.input.i_message}}"
+    - result.pf_api_action_json.progress ShouldEqual "{{.input.i_progress}}"
   vars:
     poll_temp:
        from: result.pf_api_action_
