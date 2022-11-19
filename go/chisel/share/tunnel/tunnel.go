@@ -23,7 +23,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/kubectl/pkg/util/podutils"
 )
 
 // Config a Tunnel
@@ -91,6 +90,20 @@ func New(c Config) *Tunnel {
 	return t
 }
 
+func isPodReady(pod *v1.Pod) bool {
+	if pod.DeletionTimestamp != nil {
+		return false
+	}
+
+	for _, cond := range pod.Status.Conditions {
+		if cond.Type == v1.PodReady {
+			return cond.Status == v1.ConditionTrue
+		}
+	}
+
+	return false
+}
+
 const radiusAuthK8Filter = "app=radiusd-auth"
 
 func radiusProxyFromKubernetes() (*RadiusProxy, chan struct{}, error) {
@@ -133,7 +146,8 @@ func radiusProxyFromKubernetes() (*RadiusProxy, chan struct{}, error) {
 		0, //Duration is int64
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				if podutils.IsPodReady(pod) {
+				pod := obj.(*v1.Pod)
+				if isPodReady(pod) {
 					radiusProxy.backends.Add(pod.Status.PodIP + ":1812")
 					return
 				}
@@ -144,7 +158,7 @@ func radiusProxyFromKubernetes() (*RadiusProxy, chan struct{}, error) {
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				pod := newObj.(*v1.Pod)
-				if podutils.IsPodReady(pod) {
+				if isPodReady(pod) {
 					radiusProxy.backends.Add(pod.Status.PodIP + ":1812")
 					return
 				}

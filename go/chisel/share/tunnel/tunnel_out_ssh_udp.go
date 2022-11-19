@@ -118,9 +118,8 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 			break
 		}
 		b := buff[:n]
-		modified, _ := proxyRadiusIn(h, b)
 		//encode back over ssh connection
-		err = h.udpChannel.encode(p.Src, modified)
+		err = h.udpChannel.encode(p.Src, b)
 		if err != nil {
 			h.Debugf("encode error %s: %s", conn, err)
 			return
