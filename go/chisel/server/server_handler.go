@@ -360,7 +360,14 @@ func (s *Server) handleAllFingerbankCollectorEndpoints(w http.ResponseWriter, re
 
 	if pfk8s.IsRunningInK8S() {
 		c := pfk8s.NewClientFromEnv()
-		errs = c.UnifiedAPICallDeployment(context.Background(), false, "pfconnector", "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
+		errs = c.UnifiedAPICallDeployment(
+			context.Background(),
+			false,
+			sharedutils.EnvOrDefault("PFCONNECTOR_K8S_DEPLOYMENT_NAME", "pfconnector"),
+			"GET",
+			"/api/v1/pfconnector/local-fingerbank-collector-endpoints",
+			createResponseStructPtr,
+		)
 	} else if _, clusterEnabled := cluster.EnabledServers(ctx); clusterEnabled {
 		errs = cluster.UnifiedAPICallCluster(ctx, "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
 	} else {

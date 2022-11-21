@@ -44,7 +44,7 @@ type Client struct {
 }
 
 func IsRunningInK8S() bool {
-	return os.Getenv("KUBERNETES_TOKEN_PATH") != "" && os.Getenv("KUBERNETES_NAMESPACE_PATH") != ""
+	return os.Getenv("K8S_MASTER_TOKEN")
 }
 
 func NewClient(host string, token string) *Client {
@@ -53,7 +53,7 @@ func NewClient(host string, token string) *Client {
 
 func NewClientFromEnv() *Client {
 	host := sharedutils.EnvOrDefault("KUBERNETES_MASTER", "localhost")
-	token := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_TOKEN_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/token"))
+	token := sharedutils.EnvOrDefault("K8S_MASTER_TOKEN", "")
 	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
 
 	c := NewClient(string(host), string(token))
