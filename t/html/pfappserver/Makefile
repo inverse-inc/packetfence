@@ -21,7 +21,7 @@ all:
 	@echo "make test-e2e: run tests headless, requires PROJECT_ID and RECORD_KEY"
 	@echo "make test-x11: run tests interactively (w/ X11 \$$DISPLAY)"
 	@echo ""
-	@echo "make [target] DEBUG=cypress:*"
+	@echo "make [target] DEBUG=cypress:* (see https://docs.cypress.io/guides/references/troubleshooting#Log-sources)"
 	@echo "make [target] BASE_URL=https://localhost:1443"
 	@echo "make [target] CONFIG_FILE=cypress/config/cypress.config.js"
 	@echo "make [target] CONFIG=downloadsFolder=/tmp/downloads,screenshotsFolder=/tmp/screenshots,videosFolder=/tmp/videos"

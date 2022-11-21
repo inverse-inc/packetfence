@@ -9,5 +9,7 @@ module.exports = {
     specPattern: [
       'cypress/specs/e2e/*-configurator/**/*.cy.{js,jsx,ts,tsx}',
     ],
+    experimentalSessionAndOrigin: false,
+    testIsolation: null,
   }
 };

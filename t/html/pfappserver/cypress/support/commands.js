@@ -53,3 +53,21 @@ Cypress.Commands.add('pfConfiguratorDisable', () => {
     }
   })
 })
+
+Cypress.Commands.add('formFillNamespace', (selector, data) => {
+  cy.get(selector).then($ => {
+    for (let entry of Object.entries(data)) {
+      const [namespace, value] = entry
+      cy.get(selector).find(`*[data-namespace="${namespace}"]:not([disabled])`).first().then(el => {
+        const tagName = Cypress.$(el)[0].tagName.toLowerCase()
+        switch (tagName) {
+          case "input":
+            cy.get(el).type(`{selectAll}{del}${value}`)
+            break
+          default:
+            throw new Error(`unhandled form tagName "${tagName}"`)
+        }
+      })
+    }
+  })
+})

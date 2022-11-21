@@ -32,6 +32,8 @@ module.exports = {
     specPattern: [
       'cypress/specs/e2e/*.cy.{js,jsx,ts,tsx}',
     ],
+    experimentalSessionAndOrigin: true,
+    testIsolation: 'on',
   },
   downloadsFolder: 'cypress/results/downloads',
   screenshotsFolder: 'cypress/results/screenshots',
