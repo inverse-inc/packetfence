@@ -45,7 +45,7 @@ testcases:
       - result.statuscode ShouldEqual 200
 
 
-- name: test_if_the_device_is_back_in_the_register_ipset
+- name: test_if_the_device_is_back_in_the_unregister_ipset
   steps:
   - type: exec
     script: 'ipset test pfsession_Unreg_{{.security_event_random_mac.networks}} {{.security_event_random_mac.node.ipaddress}}'
