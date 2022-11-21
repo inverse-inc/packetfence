@@ -69,7 +69,7 @@ testcases:
     assertions:
       - result.statuscode ShouldEqual 200
 
-- name: desable_security_event
+- name: disable_security_event
   steps:
   - type: pf_api_action
     method: PATCH
