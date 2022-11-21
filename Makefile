@@ -75,6 +75,7 @@ configurations: SHELL:=/bin/bash
 configurations:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp -n $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch conf/pf.conf
+	touch conf/pfconfig.conf
 
 .PHONY: configurations_force
 
@@ -82,6 +83,7 @@ configurations_hard: SHELL:=/bin/bash
 configurations_hard:
 	find -type f -name '*.example' -print0 | while read -d $$'\0' file; do cp $$file "$$(dirname $$file)/$$(basename $$file .example)"; done
 	touch conf/pf.conf
+	touch conf/pfconfig.conf
 
 # server certs and keys
 # the | in the prerequisites ensure the target is not created if it already exists
