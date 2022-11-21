@@ -468,6 +468,26 @@ msgstr "Data di Nascita"
 msgid "Declare as lost or stolen"
 msgstr "Dichiarare come smarrito o rubato"
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_provisioning_policy
+msgid "Default Provisioning policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_admin_sso_policy
+msgid "Default admin SSO policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_pending_policy
+msgid "Default pending policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_policy
+msgid "Default portal policy"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_registration_policy
+msgid "Default registration policy"
+msgstr ""
+
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
 "Depending on your browser and configuration, you may see a <i>Security "
@@ -595,6 +615,10 @@ msgstr "Email"
 msgid "Email activation code has been verified. Access granted until : %s"
 msgstr ""
 
+# /usr/local/pf/conf/authentication.conf.example email
+msgid "Email-based registration"
+msgstr ""
+
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Enter a valid telephone number"
 msgstr "Immettere un numero di telefono valido"
@@ -666,6 +690,10 @@ msgstr "È stato richiesto l'accesso alla rete come ospite utilizzando questo in
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid "Guest request"
 msgstr "Richiesta ospite"
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_guest_policy
+msgid "Guest signup"
+msgstr ""
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Has an active subscription"
@@ -859,6 +887,14 @@ msgstr "Lingua"
 msgid "Lastname"
 msgstr "Cognome"
 
+# /usr/local/pf/conf/authentication.conf.example file1
+msgid "Legacy Source"
+msgstr ""
+
+# /usr/local/pf/conf/authentication.conf.example local
+msgid "Local Users"
+msgstr ""
+
 # html/captive-portal/templates/activation/sponsor_login.html
 # html/captive-portal/templates/oauth2/landing.html
 # html/captive-portal/templates/saml.html
@@ -887,6 +923,10 @@ msgstr "MAC"
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "MAC Address"
 msgstr "Indirizzo MAC"
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_mfa_policy
+msgid "MFA policy"
+msgstr ""
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
@@ -987,6 +1027,14 @@ msgstr ""
 # pf::person::FIELDS
 msgid "Notes"
 msgstr "Note"
+
+# /usr/local/pf/conf/authentication.conf.example null
+msgid "Null Source"
+msgstr ""
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_oauth_policy
+msgid "OAuth login"
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "OS"
@@ -1151,6 +1199,7 @@ msgstr ""
 msgid "Pay"
 msgstr ""
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_billing_policy
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/Authentication/Billing.pm
 msgid "Pay for your access"
@@ -1220,11 +1269,9 @@ msgstr "Prezzo"
 msgid "Psk"
 msgstr ""
 
-# html/captive-portal/templates/status.html
-msgid ""
-"Really unregister %s? The device will be immediately disconnected from the "
-"network."
-msgstr "Vuoi davvero annullare la registrazione %s? Il dispositivo verrà immediatamente scollegato dalla rete."
+# /usr/local/pf/conf/portal_modules.conf.defaults default_blackhole_policy
+msgid "Refuse Login"
+msgstr ""
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Register"
@@ -1273,6 +1320,14 @@ msgstr "Numero stanza"
 msgid "SAML authentication"
 msgstr "Autenticazione SAML"
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_saml_policy
+msgid "SAML login"
+msgstr ""
+
+# /usr/local/pf/conf/authentication.conf.example sms
+msgid "SMS-based registration"
+msgstr ""
+
 # html/captive-portal/templates/provisioner/dpsk.html
 msgid "SSID: "
 msgstr ""
@@ -1301,6 +1356,10 @@ msgstr "Seleziona un metodo di autenticazione"
 msgid "Select registration role"
 msgstr ""
 
+# /usr/local/pf/conf/portal_modules.conf.defaults default_show_local_account
+msgid "Show local account"
+msgstr ""
+
 # pf::person::FIELDS
 msgid "Source"
 msgstr "Sorgente"
@@ -1317,6 +1376,14 @@ msgstr "Sponsor Email"
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Sponsor request accepted"
 msgstr "Richiesta sponsor accettata"
+
+# /usr/local/pf/conf/authentication.conf.example sponsor
+msgid "Sponsor-based registration"
+msgstr ""
+
+# pf::person::FIELDS
+msgid "Sponsored_date"
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
@@ -1743,6 +1810,11 @@ msgstr ""
 msgid "Unregister"
 msgstr "Annullare la registrazione"
 
+# html/captive-portal/templates/status.html
+msgid ""
+"Unregister %s? The device will be immediately disconnected from the network."
+msgstr ""
+
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid ""
 "Until you click on the activation link this guest will have NO Internet "
@@ -1770,6 +1842,10 @@ msgstr "Account utente"
 # html/captive-portal/templates/status/login.html
 msgid "Username"
 msgstr "Nome utente"
+
+# /usr/local/pf/conf/portal_modules.conf.defaults default_login_policy
+msgid "Username/password login"
+msgstr ""
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid "Utilities folder from the Finder"
@@ -1847,9 +1923,8 @@ msgstr "È inoltre possibile modificare la password qui sotto."
 
 # html/captive-portal/templates/lost_stolen.html
 msgid ""
-"You do not own this device %s, therefor you can not declare it as lost or "
-"stolen."
-msgstr "Non possiedi questa periferica %s, quindi non puoi dichiararla come smarrita o rubata."
+"You do not own this device %s, you can not declare it as lost or stolen."
+msgstr ""
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "You have been detected doing malicious activity on the network."
@@ -1956,6 +2031,10 @@ msgid ""
 "You're not connected to the network, but have a timebank of <strong "
 "id='timeleft'>%s</strong>"
 msgstr "Non sei connesso alla rete, ma hai un timebank di <strong id='timeleft'> %s</strong>"
+
+# html/captive-portal/templates/status.html
+msgid "Your WPA Wi-Fi key: "
+msgstr ""
 
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
