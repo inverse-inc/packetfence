@@ -21,6 +21,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel"
 	"github.com/inverse-inc/packetfence/go/cluster"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/inverse-inc/packetfence/go/pfk8s"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	"github.com/phayes/freeport"
 	"golang.org/x/crypto/ssh"
@@ -349,28 +350,36 @@ type FingerbankServersReply struct {
 
 func (s *Server) handleAllFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	collectors := []string{}
-	//TODO: handle this for a k8s deployment
-	if _, clusterEnabled := cluster.EnabledServers(ctx); clusterEnabled {
-		replies := map[string]*FingerbankServersReply{}
-		createResponseStructPtr := func(serverId string) interface{} {
-			replies[serverId] = &FingerbankServersReply{}
-			return replies[serverId]
-		}
-		errors := cluster.UnifiedAPICallCluster(ctx, "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
-		for serverId, err := range errors {
-			log.LoggerWContext(ctx).Error(fmt.Sprintf("Error collecting fingerbank collector servers on %s: %s", serverId, err))
-		}
 
-		for _, resp := range replies {
-			collectors = append(collectors, resp.Servers...)
-		}
-
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
-	} else {
-		s.handleLocalFingerbankCollectorEndpoints(w, req)
+	replies := map[string]*FingerbankServersReply{}
+	createResponseStructPtr := func(serverId string) interface{} {
+		replies[serverId] = &FingerbankServersReply{}
+		return replies[serverId]
 	}
+	errs := map[string]error{}
+
+	if pfk8s.IsRunningInK8S() {
+		c := pfk8s.NewClientFromEnv()
+		errs = c.UnifiedAPICallDeployment(context.Background(), false, "pfconnector", "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
+	} else if _, clusterEnabled := cluster.EnabledServers(ctx); clusterEnabled {
+		errs = cluster.UnifiedAPICallCluster(ctx, "GET", "/api/v1/pfconnector/local-fingerbank-collector-endpoints", createResponseStructPtr)
+	} else {
+		// Does an early return as it builds the response using the local data only
+		s.handleLocalFingerbankCollectorEndpoints(w, req)
+		return
+	}
+
+	for serverId, err := range errs {
+		log.LoggerWContext(ctx).Error(fmt.Sprintf("Error collecting fingerbank collector servers on %s: %s", serverId, err))
+	}
+
+	collectors := []string{}
+	for _, resp := range replies {
+		collectors = append(collectors, resp.Servers...)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(FingerbankServersReply{Servers: collectors})
 }
 
 func (s *Server) handleLocalFingerbankCollectorEndpoints(w http.ResponseWriter, req *http.Request) {

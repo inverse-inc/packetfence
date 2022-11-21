@@ -1,6 +1,7 @@
 package pfk8s
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -9,8 +10,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 )
 
 type PodList struct {
@@ -39,6 +43,10 @@ type Client struct {
 	HTTPClient *http.Client
 }
 
+func IsRunningInK8S() bool {
+	return os.Getenv("KUBERNETES_TOKEN_PATH") != "" && os.Getenv("KUBERNETES_NAMESPACE_PATH") != ""
+}
+
 func NewClient(host string, token string) *Client {
 	return &Client{Host: host, Token: token, Namespace: "default"}
 }
@@ -50,6 +58,8 @@ func NewClientFromEnv() *Client {
 
 	c := NewClient(string(host), string(token))
 	c.Namespace = string(namespace)
+
+	c.SetTLSConfigFromEnv()
 
 	return c
 }
@@ -124,4 +134,29 @@ func (c *Client) ListPods(appSelector string) (PodList, error) {
 	}
 
 	return pods, nil
+}
+
+func (c *Client) UnifiedAPICallDeployment(ctx context.Context, useTLS bool, appSelector, method, path string, createResponseStructPtr func(serverId string) interface{}) map[string]error {
+	errs := map[string]error{}
+
+	pods, err := c.ListPods(appSelector)
+	if err != nil {
+		errs["ALL"] = err
+		return errs
+	}
+	for _, pod := range pods.Items {
+		client := unifiedapiclient.NewFromConfig(ctx)
+		client.Host = pod.Status.PodIP
+		client.Port = strconv.Itoa(pod.Spec.Containers[0].Ports[0].ContainerPort)
+		client.Proto = "http"
+		if useTLS {
+			client.Proto = "https"
+		}
+		resp := createResponseStructPtr(client.Host)
+		err := client.Call(ctx, method, path, resp)
+		if err != nil {
+			errs[client.Host] = err
+		}
+	}
+	return errs
 }
