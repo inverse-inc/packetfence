@@ -44,7 +44,7 @@ type Client struct {
 }
 
 func IsRunningInK8S() bool {
-	return os.Getenv("K8S_MASTER_TOKEN")
+	return os.Getenv("K8S_MASTER_TOKEN") != ""
 }
 
 func NewClient(host string, token string) *Client {
