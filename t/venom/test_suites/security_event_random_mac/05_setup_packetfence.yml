@@ -242,47 +242,39 @@ testcases:
 - name: restart_iptables
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-iptables"
-    time_to_sleep: 5
+    service: "iptables"
 
 - name: restart_pfdns_service
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-pfdns"
-    time_to_sleep: 5
+    service: "pfdns"
 
 - name: restart_pfdhcp_service
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-pfdhcp"
-    time_to_sleep: 5
+    service: "pfdhcp"
 
 - name: restart_haproxy-portal_service
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-haproxy-portal"
-    time_to_sleep: 5
+    service: "haproxy-portal"
 
 - name: restart_keepalived_service
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-keepalived"
-    time_to_sleep: 5
+    service: "keepalived"
 
 - name: restart_pfdhcplistener_service
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-pfdhcplistener"
-    time_to_sleep: 5
+    service: "pfdhcplistener"
 
 - name: restart_pfacct_service
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-pfacct"
-    time_to_sleep: 5
+    service: "pfacct"
 
 - name: restart_pfqueue_service
   steps:
   - type: pf_api_system_service_restart_async
-    service: "packetfence-pfqueue"
-    time_to_sleep: 5
+    service: "pfqueue"
