@@ -7,12 +7,20 @@ describe('Configurator', () => {
   })
 
   beforeEach(() => {
+    // interceptors - step 1
     cy.intercept('GET', '/api/**/config/interfaces?*').as('getInterfaces')
     cy.intercept('PATCH', '/api/**/config/interface/*').as('patchInterface')
-    cy.intercept('PUT', '/api/**/config/system/gateway').as('setGateway')
+    cy.intercept('PUT', '/api/**/config/system/hostname').as('setHostname')
+
+    // interceptors - step 2
+    cy.intercept('POST', '/api/**/config/base/database/test').as('getDatabase')
+    cy.intercept('GET', '/api/**/config/base/general').as('getGeneral')
+    cy.intercept('GET', '/api/**/config/base/alerting').as('getAlerting')
+    cy.intercept('GET', '/api/**/user/admin').as('getAdminUser')
+    cy.intercept('PATCH', '/api/**/user/admin/password').as('patchAdminPassword')
 
     cy.visit('/')
-  })
+   })
 
   it('SPA', () => {
 
@@ -23,14 +31,17 @@ describe('Configurator', () => {
       * Step #1
      **/
 
+    // URL path
+    cy.url().should('include', '/configurator/network')
+
     // wizard circle is highlighted
-    cy.get('.wizard-sidebar div.bg-warning').last().should('contain', '1')
+    cy.get('.wizard-sidebar div.bg-warning, .wizard-sidebar div.btn-outline-primary').last().should('contain', '1')
 
     // wait for API
     cy.wait('@getInterfaces').its('response.statusCode').should('be.oneOf', [200])
 
     // next button is disabled
-    cy.get('button[type="button"]:contains(Next)').should('have.attr', 'disabled', 'disabled')
+    cy.get('button[type="button"]:contains(Next Step)').should('have.attr', 'disabled', 'disabled')
 
     // interface table at least 1 row, not contains 'management'
     cy.get('.card-body table.b-table tbody tr')
@@ -51,18 +62,78 @@ describe('Configurator', () => {
 
     // wait for form, then fill it out
     cy.get('.base-form').then(() => {
-      cy.formFillNamespace('.base-form', { hostname: 'bar', gateway: 'foo' }).then(() => {
+      cy.fixture('configurator').then(configurator => {
+        cy.formFillNamespace('.base-form', configurator.network)
       })
     })
 
     // next button enabled
-    cy.get('button[type="button"]:contains(Next)').should('not.have.attr', 'disabled')
+    cy.get('button[type="button"]:contains(Next Step)').should('not.have.attr', 'disabled')
 
     // click next button
-    cy.get('button[type="button"]:contains(Next)').click()
+    cy.get('button[type="button"]:contains(Next Step)').click()
 
     // wait for API
-    cy.wait('@setGateway').its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@setHostname').its('response.statusCode').should('be.oneOf', [200])
+
+
+    /**
+      * Step #2
+     **/
+
+    // URL path
+    cy.url().should('include', '/configurator/packetfence')
+
+    // wizard circle is highlighted
+    cy.get('.wizard-sidebar div.bg-warning, .wizard-sidebar div.btn-outline-primary').last().should('contain', '2')
+
+    // wait for API
+    cy.wait('@getDatabase').its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@getGeneral').its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@getAlerting').its('response.statusCode').should('be.oneOf', [200])
+    cy.wait('@getAdminUser').its('response.statusCode').should('be.oneOf', [500])
+
+    // next button is disabled
+    cy.get('button[type="button"]:contains(Next Step)').should('have.attr', 'disabled', 'disabled')
+
+    // automatic database enabled
+    cy.get('*[data-form="database"] input[type="range"]').invoke('val').then(value => {
+      expect(value).to.equal('1') // enabled
+    })
+
+    // fill administrator form
+    cy.fixture('configurator').then(configurator => {
+      cy.formFillNamespace('*[data-form="administrator"]', configurator.administrator)
+    })
+
+    // next button enabled
+    cy.get('button[type="button"]:contains(Next Step)').should('not.have.attr', 'disabled')
+
+    // click next button
+    cy.get('button[type="button"]:contains(Next Step)').click()
+
+    // wait for API
+    // async w/ pfqueue polling, instead of poll tracking just wait a while and intercept final request
+    const wait = { timeout: 60E3 } // 60 seconds
+    cy.wait('@patchAdminPassword', wait).its('response.statusCode').should('be.oneOf', [200])
+
+    /**
+      * Step #3
+     **/
+
+    // URL path
+    cy.url().should('include', '/configurator/fingerbank')
+
+    // wizard circle is highlighted
+    cy.get('.wizard-sidebar div.bg-warning, .wizard-sidebar div.btn-outline-primary').last().should('contain', '3')
+
+
+
+// fail
+  cy.get('button[type="button"]:contains(Next Step)').should('have.attr', 'foo', 'bar')
+
+
+
 
   })
 
