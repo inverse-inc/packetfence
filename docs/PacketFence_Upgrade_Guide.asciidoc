@@ -1812,6 +1812,8 @@ If you modify a config file directly from the filesystem then you have to do the
 /usr/local/pf/bin/pfcmd configreload hard
 ----
 
+== Upgrading from a version prior to X.Y.Z
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
