@@ -139,17 +139,19 @@ func (c *Client) UnifiedAPICallDeployment(ctx context.Context, useTLS bool, appS
 		return errs
 	}
 	for _, pod := range pods.Items {
-		client := unifiedapiclient.NewFromConfig(ctx)
-		client.Host = pod.Status.PodIP
-		client.Port = strconv.Itoa(pod.Spec.Containers[0].Ports[0].ContainerPort)
-		client.Proto = "http"
-		if useTLS {
-			client.Proto = "https"
-		}
-		resp := createResponseStructPtr(client.Host)
-		err := client.Call(ctx, method, path, resp)
-		if err != nil {
-			errs[client.Host] = err
+		if pod.Status.ContainerStatuses[0].Ready {
+			client := unifiedapiclient.NewFromConfig(ctx)
+			client.Host = pod.Status.PodIP
+			client.Port = strconv.Itoa(pod.Spec.Containers[0].Ports[0].ContainerPort)
+			client.Proto = "http"
+			if useTLS {
+				client.Proto = "https"
+			}
+			resp := createResponseStructPtr(client.Host)
+			err := client.Call(ctx, method, path, resp)
+			if err != nil {
+				errs[client.Host] = err
+			}
 		}
 	}
 	return errs
