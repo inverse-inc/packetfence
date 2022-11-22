@@ -16735,9 +16735,7 @@ msgstr ""
 "signifie à l’infini."
 
 #: html/pfappserver/root/src/views/Configuration/adminLogin/_components/TheForm.vue:15
-msgid ""
-"The base URL of the SSO server. If left empty, it will default to the "
-"hostname and domain (`hostname.domain"
+msgid "The base URL of the SSO server. If left empty, it will default to the hostname and domain (`hostname.domain`) defined in the general settings. Change this if your portal is bound to another domain name."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileconfig.vue:116
