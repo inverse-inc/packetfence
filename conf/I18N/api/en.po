@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 12.1.0\n"
 "POT-Creation-Date: 2019-05-01 12:00-0400\n"
-"PO-Revision-Date: 2022-11-16 21:03-0400\n"
+"PO-Revision-Date: 2022-11-22 20:15-0400\n"
 "Last-Translator: Inverse inc. <support@packetfence.org>\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -7704,6 +7704,10 @@ msgstr ""
 
 #: html/pfappserver/root/src/utils/yup.js:294
 msgid "Invalid extension. Must be one of: {extensions}."
+msgstr ""
+
+#: html/pfappserver/root/src/components/new/BaseButtonUpload.vue:163
+msgid "Invalid file, only \"<code>{contentTypes}</code>\" content-type(s) are accepted."
 msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/fingerbank/dhcpFingerprints/schema.js:8

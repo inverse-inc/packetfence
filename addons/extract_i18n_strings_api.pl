@@ -130,8 +130,14 @@ sub parse_js {
                 add_string($string, "$file:$nb");
             }
             # i18n.t() inside <script>
-            while ($line =~ m/i18n\.t\(['`](.+?(?<!\\))['`](,.*)?\)/g) {
-                my $string = $1;
+            while ($line =~ m/
+                i18n.t
+                \(
+                    (?<s>['`])    #Match quote name it s
+                    (?<i>.+?)      #Match any character
+                    (?<!\\)\k{s}  #Match quote named s that does not has a \ in front
+                [\),]/xg) {
+                my $string = $+{i};
                 add_string($string, "$file:$nb");
             }
             # i18n defer inside <script>
