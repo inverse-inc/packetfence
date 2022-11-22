@@ -37,8 +37,7 @@ type PodList struct {
 
 type Client struct {
 	Token      string
-	Scheme     string
-	Host       string
+	BaseURI    string
 	Namespace  string
 	HTTPClient *http.Client
 }
@@ -47,16 +46,16 @@ func IsRunningInK8S() bool {
 	return os.Getenv("K8S_MASTER_TOKEN") != ""
 }
 
-func NewClient(host string, token string) *Client {
-	return &Client{Host: host, Token: token, Namespace: "default"}
+func NewClient(baseURI string, token string) *Client {
+	return &Client{BaseURI: baseURI, Token: token, Namespace: "default"}
 }
 
 func NewClientFromEnv() *Client {
-	host := sharedutils.EnvOrDefault("KUBERNETES_MASTER", "localhost")
+	baseURI := sharedutils.EnvOrDefault("K8S_MASTER_URI", "http://localhost")
 	token := sharedutils.EnvOrDefault("K8S_MASTER_TOKEN", "")
 	namespace := sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_NAMESPACE_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/namespace"))
 
-	c := NewClient(string(host), string(token))
+	c := NewClient(baseURI, token)
 	c.Namespace = string(namespace)
 
 	c.SetTLSConfigFromEnv()
@@ -90,12 +89,7 @@ func (c *Client) getHttpClient() *http.Client {
 }
 
 func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
-	scheme := "https"
-	if c.Scheme != "" {
-		scheme = c.Scheme
-	}
-
-	req, err := http.NewRequest(method, fmt.Sprintf("%s://%s%s", scheme, c.Host, path), body)
+	req, err := http.NewRequest(method, fmt.Sprintf("%s%s", c.BaseURI, path), body)
 	if err != nil {
 		return nil, err
 	}
