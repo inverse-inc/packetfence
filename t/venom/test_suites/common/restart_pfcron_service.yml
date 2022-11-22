@@ -1,9 +1,5 @@
 name: Restart pfcron service
 testcases:
-- name: get_login_token
-  steps:
-  - type: get_login_token
-
 - name: restart_pfcron_service
   steps:
   - type: pf_api_service_restart_async 
