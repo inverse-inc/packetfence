@@ -1,5 +1,5 @@
 Name:       packetfence-upgrade
-Version:    12.1.0
+Version:    12.2.0
 Release:    1%{?dist}
 BuildArch:  noarch
 Summary:    PacketFence upgrade files
@@ -47,6 +47,9 @@ This package should only be installed on releases after v11.
 %attr(0755, -, -)     /usr/local/pf/addons/full-upgrade/hooks/*
 
 %changelog
+* Tue Nov 22 2022 Inverse <info@inverse.ca> - 12.2.0-1
+- New release 12.2.0
+
 * Wed Sep 14 2022 Inverse <info@inverse.ca> - 12.1.0-1
 - New release 12.1.0
 
