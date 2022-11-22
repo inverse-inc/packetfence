@@ -4,5 +4,8 @@
   },
   administrator: {
     password: 'admin'
+  },
+  fingerbank: {
+    'upstream.api_key': null
   }
 }

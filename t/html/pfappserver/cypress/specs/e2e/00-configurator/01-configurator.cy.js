@@ -19,6 +19,9 @@ describe('Configurator', () => {
     cy.intercept('GET', '/api/**/user/admin').as('getAdminUser')
     cy.intercept('PATCH', '/api/**/user/admin/password').as('patchAdminPassword')
 
+    // interceptors - step 3
+    cy.intercept('GET', '/api/**/fingerbank/account_info').as('getFingerbankAccountInfo')
+
     cy.visit('/')
    })
 
@@ -45,7 +48,7 @@ describe('Configurator', () => {
 
     // interface table at least 1 row, not contains 'management'
     cy.get('.card-body table.b-table tbody tr')
-          .should('have.length.to.be.at.least', 1)
+      .should('have.length.to.be.at.least', 1)
       .should('not.contain.text', 'management')
 
     // detect network button exists, click it
@@ -127,9 +130,41 @@ describe('Configurator', () => {
     // wizard circle is highlighted
     cy.get('.wizard-sidebar div.bg-warning, .wizard-sidebar div.btn-outline-primary').last().should('contain', '3')
 
+    // wait for form, then fill it out
+    cy.get('.base-form').then(() => {
+      cy.fixture('configurator').then(configurator => {
+        cy.formFillNamespace('.base-form', configurator.fingerbank)
+        // verify fingerbank upstream api_key
+        if (configurator.fingerbank['upstream.api_key']) {
+          cy.get('button[type="button"]:contains(Verify)').click()
+          cy.wait('@getFingerbankAccountInfo').its('response.statusCode').should('be.oneOf', [200])
+        }
+      })
+    })
+
+    // next button enabled
+    cy.get('button[type="button"]:contains(Next Step)').should('not.have.attr', 'disabled')
+
+    // click next button
+    cy.get('button[type="button"]:contains(Next Step)').click()
 
 
-// fail
+    /**
+      * Step #4
+     **/
+
+    // URL path
+    cy.url().should('include', '/configurator/status')
+
+    // wizard circle is highlighted
+    cy.get('.wizard-sidebar div.bg-warning, .wizard-sidebar div.btn-outline-primary').last().should('contain', '4')
+
+    // password match
+    cy.fixture('configurator').then(configurator => {
+      cy.get('*[data-card="administrator"] code').last().should('contain', configurator.administrator.password)
+    })
+
+    // fail
   cy.get('button[type="button"]:contains(Next Step)').should('have.attr', 'foo', 'bar')
 
 
