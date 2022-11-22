@@ -57,4 +57,4 @@ PacketFence supports the following operating systems on the x86_64 architecture:
 
 Make sure that you can install additional packages from your standard distribution. For example, if you are using Red Hat Enterprise Linux, you have to be subscribed to the Red Hat Network before continuing with the PacketFence software installation.
 
-Other distributions such as RHEL derivatives are known to work but this document does not cover them.
+Other distributions such as RHEL (or Debian) derivatives are known to work but they are not supported by the Akamai/Inverse team and they are not covered in this document.
