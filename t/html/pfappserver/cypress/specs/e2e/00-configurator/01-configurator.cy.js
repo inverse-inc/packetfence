@@ -1,5 +1,10 @@
 /// <reference types="cypress" />
 
+// API async w/ pfqueue polling,
+// instead of poll tracking request chains, just wait a while and intercept final request
+// TODO: improve intercepts w/ pfqueue polling
+let waitForPfqueuePolling = { timeout: 90E3 } // 90 seconds
+
 describe('Configurator', () => {
 
   before(() => {
@@ -21,6 +26,10 @@ describe('Configurator', () => {
 
     // interceptors - step 3
     cy.intercept('GET', '/api/**/fingerbank/account_info').as('getFingerbankAccountInfo')
+
+    // interceptors - Step 4
+    cy.intercept('GET', '/api/**/config/base/advanced').as('getAdvanced')
+    cy.intercept('GET', '/api/**/service/pf/status').as('getPacketfenceStatus')
 
     cy.visit('/')
    })
@@ -116,9 +125,9 @@ describe('Configurator', () => {
     cy.get('button[type="button"]:contains(Next Step)').click()
 
     // wait for API
-    // async w/ pfqueue polling, instead of poll tracking just wait a while and intercept final request
-    const wait = { timeout: 60E3 } // 60 seconds
-    cy.wait('@patchAdminPassword', wait).its('response.statusCode').should('be.oneOf', [200])
+
+    cy.wait('@patchAdminPassword', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [200])
+
 
     /**
       * Step #3
@@ -153,6 +162,9 @@ describe('Configurator', () => {
       * Step #4
      **/
 
+    // wait for API
+    cy.wait('@getAdvanced').its('response.statusCode').should('be.oneOf', [200])
+
     // URL path
     cy.url().should('include', '/configurator/status')
 
@@ -164,11 +176,19 @@ describe('Configurator', () => {
       cy.get('*[data-card="administrator"] code').last().should('contain', configurator.administrator.password)
     })
 
-    // fail
-  cy.get('button[type="button"]:contains(Next Step)').should('have.attr', 'foo', 'bar')
+    // click start button
+    cy.get('button[type="submit"]:contains(Start)').click()
+
+    // wait for API
+    cy.wait('@getPacketfenceStatus', waitForPfqueuePolling).its('response.statusCode').should('be.oneOf', [200])
 
 
+    /**
+      * Complete
+     **/
 
+    // wait for URL path
+    cy.url(waitForPfqueuePolling).should('include', '/login')
 
   })
 
