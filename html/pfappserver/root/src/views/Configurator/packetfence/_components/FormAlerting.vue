@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body>
+  <b-card no-body data-form="alerting">
     <b-card-header>
       <b-row align-h="between" align-v="center">
         <b-col cols="auto" class="mr-auto">

@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body>
+  <b-card no-body data-form="database">
     <b-card-header>
       <h4 class="d-inline mb-0" v-t="'Database'"/>
     </b-card-header>
