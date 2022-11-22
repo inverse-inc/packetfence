@@ -6,7 +6,7 @@
     </b-card-header>
     <div class="card-body">
       <b-card v-if="database.root_pass"
-        no-body class="mb-3">
+        data-card="database-root" no-body class="mb-3">
         <b-card-header>
           <h5 class="mb-0" v-t="'Database Root Account'"/>
         </b-card-header>
@@ -22,7 +22,7 @@
       </b-card>
 
       <b-card v-if="database.pass"
-        no-body class="mb-3">
+        data-card="database-user" no-body class="mb-3">
         <b-card-header>
           <h5 class="mb-0" v-t="'Database User Account'"/>
         </b-card-header>
@@ -38,7 +38,7 @@
       </b-card>
 
       <b-card v-if="administrator.password"
-        no-body>
+        data-card="administrator" no-body>
         <b-card-header>
           <h5 class="mb-0" v-t="'Administrator Account'"/>
         </b-card-header>
