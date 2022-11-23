@@ -28,10 +28,11 @@ import (
 // Config a Tunnel
 type Config struct {
 	*cio.Logger
-	Inbound   bool
-	Outbound  bool
-	Socks     bool
-	KeepAlive time.Duration
+	Inbound      bool
+	Outbound     bool
+	Socks        bool
+	RadiusSecret string
+	KeepAlive    time.Duration
 	// The source IP for the packets that come into the remote
 	SrcIP net.IP
 }
@@ -129,7 +130,7 @@ func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
 	}
 	radiusProxy := &RadiusProxy{
 		backends: NewRadiusBackends(servers...),
-		secret:   os.Getenv("RADIUS_SECRET"),
+		secret:   t.Config.RadiusSecret,
 	}
 
 	watchlist := cache.NewFilteredListWatchFromClient(

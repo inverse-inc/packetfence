@@ -171,15 +171,19 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
+
+	localSecret := pfconfigdriver.LocalSecret{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret)
 	//successfuly validated config!
 	r.Reply(true, nil)
 	//tunnel per ssh connection
 	tunnel := tunnel.New(tunnel.Config{
-		Logger:    l,
-		Inbound:   s.config.Reverse,
-		Outbound:  true, //server always accepts outbound
-		Socks:     s.config.Socks5,
-		KeepAlive: s.config.KeepAlive,
+		Logger:       l,
+		Inbound:      s.config.Reverse,
+		Outbound:     true, //server always accepts outbound
+		Socks:        s.config.Socks5,
+		KeepAlive:    s.config.KeepAlive,
+		RadiusSecret: localSecret.Element,
 	})
 	//bind
 	eg, ctx := errgroup.WithContext(req.Context())
