@@ -92,7 +92,7 @@ use warnings;
 use base ('pf::Switch::Cisco');
 use Carp;
 use Net::SNMP;
-use Data::Dumper;
+use Readonly;
 
 use pf::constants;
 use pf::config qw(
@@ -111,6 +111,9 @@ use pf::util;
 use pf::config::util;
 use pf::role::custom $ROLE_API_LEVEL;
 use pf::Connection::ProfileFactory;
+
+Readonly::Scalar our $Virtual => '5';
+Readonly::Scalar our $Async => '0';
 
 =head1 SUBROUTINES
 
@@ -1190,6 +1193,26 @@ sub getRelayAgentInfoOptRemoteIdSub {
     $cdsRelayAgentInfoOptRemoteIdSub =~ s/^0x//i;
     my $mac = clean_mac($cdsRelayAgentInfoOptRemoteIdSub);
     return $mac if ($mac);
+}
+
+=item identifyConnectionType
+
+Determine Connection Type based on radius attributes
+
+=cut
+
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
+    my $logger = $self->logger;
+    my @require = qw(NAS-Port-Type);
+    my @found = grep {exists $radius_request->{$_}} @require;
+
+    # Force the connection type to be CLI-Access is NAS-Port-Type is Virtual or Async
+    if ( (@require == @found) && $radius_request->{'NAS-Port-Type'} =~ /^($Virtual|$Async)/i ) {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
+        $connection->transport('Virtual');
+    }
 }
 
 =back
