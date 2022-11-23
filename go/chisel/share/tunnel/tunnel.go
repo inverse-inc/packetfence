@@ -69,7 +69,7 @@ func New(c Config) *Tunnel {
 	t := &Tunnel{
 		Config: c,
 	}
-	radiusProxy, stop, err := radiusProxyFromKubernetes()
+	radiusProxy, stop, err := radiusProxyFromKubernetes(t)
 	if err == nil {
 		t.radiusProxy = radiusProxy
 		t.k8ControllerDrop = stop
@@ -106,7 +106,7 @@ func isPodReady(pod *v1.Pod) bool {
 
 const radiusAuthK8Filter = "app=radiusd-auth"
 
-func radiusProxyFromKubernetes() (*RadiusProxy, chan struct{}, error) {
+func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
 	clientset, _ := kubernetes.NewForConfig(&rest.Config{
 		Host:            os.Getenv("K8S_MASTER_HOST"),
 		BearerToken:     os.Getenv("K8S_MASTER_TOKEN"),
@@ -148,23 +148,31 @@ func radiusProxyFromKubernetes() (*RadiusProxy, chan struct{}, error) {
 			AddFunc: func(obj interface{}) {
 				pod := obj.(*v1.Pod)
 				if isPodReady(pod) {
-					radiusProxy.backends.Add(pod.Status.PodIP + ":1812")
+					address := pod.Status.PodIP + ":1812"
+					t.Infof("Adding %s", address)
+					radiusProxy.backends.Add(address)
 					return
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
 				pod := obj.(*v1.Pod)
-				radiusProxy.backends.Delete(pod.Status.PodIP + ":1812")
+				address := pod.Status.PodIP + ":1812"
+				t.Infof("Removing %s", address)
+				radiusProxy.backends.Delete(address)
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				pod := newObj.(*v1.Pod)
 				if isPodReady(pod) {
-					radiusProxy.backends.Add(pod.Status.PodIP + ":1812")
+					address := pod.Status.PodIP + ":1812"
+					t.Infof("Adding %s", address)
+					radiusProxy.backends.Add(address)
 					return
 				}
 
 				if pod.DeletionTimestamp != nil {
-					radiusProxy.backends.Delete(pod.Status.PodIP + ":1812")
+					address := pod.Status.PodIP + ":1812"
+					t.Infof("%s is terminating removing", address)
+					radiusProxy.backends.Delete(address)
 				}
 			},
 		},
