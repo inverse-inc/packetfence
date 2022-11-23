@@ -10,7 +10,7 @@ testcases:
 # restart pfqueue et pf detect
 - name: restart_service_pfqueue
   steps:
-  - type: pf_api_system_service_restart_async 
+  - type: pf_api_service_restart_async 
     service: "pfqueue"
     time_to_sleep: 5
 
