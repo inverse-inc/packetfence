@@ -34,6 +34,7 @@ use pfappserver::Form::Config::Pfdetect::security_onion;
 use pfappserver::Form::Config::Pfdetect::snort;
 use pfappserver::Form::Config::Pfdetect::suricata_md5;
 use pfappserver::Form::Config::Pfdetect::suricata;
+use pf::config qw($fqdn);
 
 use Test::More tests => 4;
 use Test::Deep;
@@ -348,7 +349,7 @@ cmp_deeply(
                 },
                 'network_logoff' => {
                     type => 'string',
-                    description => 'This allows users to access the network logoff page (http://pf.pfdemo.org/networklogoff) in order to terminate their network access (switch their device back to unregistered)',
+                    description => "This allows users to access the network logoff page (http://$fqdn/networklogoff) in order to terminate their network access (switch their device back to unregistered)",
                 },
                 'network_logoff_popup' => {
                     type => 'string',
