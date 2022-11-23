@@ -39,10 +39,12 @@ install-debian:
 
 install:
 	npm install cypress -g --allow-root --unsafe-perm=true
+	npm ci --legacy-peer-deps
 
 test:
 		DEBUG=$(DEBUG) \
 		DISPLAY= \
+		NO_COLOR=1 \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
 		cypress run --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --headless --env tags=[$(TAGS)] ; \
@@ -50,6 +52,7 @@ test:
 test-e2e:
 		DEBUG=$(DEBUG) \
 		DISPLAY= \
+		NO_COLOR=1 \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
 		cypress run --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --headless --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
