@@ -17,7 +17,6 @@ import (
 
 type RadiusBackend struct {
 	addr     string
-	client   radius.Client
 	sLock    sync.RWMutex
 	sessions map[string]struct{}
 }
@@ -243,12 +242,7 @@ func NewRadiusBackends(addrs ...string) *RadiusBackends {
 
 func NewRadiusBackend(addr string, b *RadiusBackends) *RadiusBackend {
 	be := &RadiusBackend{
-		addr: addr,
-		client: radius.Client{
-			Net:             "udp",
-			Retry:           time.Second,
-			MaxPacketErrors: 0,
-		},
+		addr:     addr,
 		sLock:    sync.RWMutex{},
 		sessions: map[string]struct{}{},
 	}
