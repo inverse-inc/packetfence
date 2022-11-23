@@ -11,13 +11,13 @@ testcases:
 - name: restart_service_pfqueue
   steps:
   - type: pf_api_system_service_restart_async 
-    service: "packetfence-pfqueue"
+    service: "pfqueue"
     time_to_sleep: 5
 
 - name: restart_service_pfdetect
   steps:
   - type: pf_api_service_restart_async
-    service: "packetfence-pfdetect"
+    service: "pfdetect"
 
 - name: clear_fingerbank_cache
   steps:
