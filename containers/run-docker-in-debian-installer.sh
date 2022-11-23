@@ -15,6 +15,6 @@ modprobe overlay
 /usr/bin/containerd &
 
 # run Docker daemon
-/usr/bin/dockerd --iptables=false -b=none -s overlay2 &
+/usr/bin/dockerd --iptables=false -s overlay2 &
 
 
