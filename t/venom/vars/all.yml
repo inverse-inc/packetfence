@@ -675,4 +675,7 @@ firewall_sso.radius.type: FortiGate
 #################################################################################
 ## html e2e tests
 #################################################################################
+psono_secret.pfappserver_project_id: '{{.pfappserver_project_id}}'
+psono_secret.pfappserver_record_key: '{{.pfappserver_record_key}}'
+html.pfappserver_baseurl: 'https://{{.pfserver_mgmt_ip}}:1443'
 html.pfappserver_dir: '{{.pfserver_root_dir}}/t/html/pfappserver'

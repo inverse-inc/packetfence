@@ -2,14 +2,20 @@ executor: html_e2e
 input:
   base_url: "{{.pfserver_webadmin_url}}"
   config_file: "cypress/config/cypress.config.js"
+  project_id: ""
+  record_key: ""
+  tag: "e2e"
 steps:
 - type: exec
   script: |
     cd {{.html.pfappserver_dir}}
     make test-e2e \
-      BASE_URL={{.input.base_url}} \
-      CONFIG_FILE={{.input.config_file}} \
-      CONFIG=downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos
+      PROJECT_ID="{{.input.project_id}}" \
+      RECORD_KEY="{{.input.record_key}}" \
+      BASE_URL="{{.input.base_url}}" \
+      CONFIG_FILE="{{.input.config_file}}" \
+      CONFIG="downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos"
+      TAG="{{.input.tag}}"
   # Info is only returned if assertion passes
   info:
   - "{{.result.systemout}}"

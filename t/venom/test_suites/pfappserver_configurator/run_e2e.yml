@@ -1,10 +1,25 @@
 name: Run Cypress E2E Tests
 testcases:
+- name: get_psono_secret
+  steps:
+  - type: exec
+    script: "psonoci secret get {{.psono_secret.pfappserver_project_id}} password"
+    vars:
+      project_id:
+        from: result.systemout
+  - type: exec
+    script: "psonoci secret get {{.psono_secret.pfappserver_record_key}} password"
+    vars:
+      record_key:
+        from: result.systemout
+
 - name: run_e2e
   steps:
   - type: html_e2e
     base_url: "{{.html.pfappserver_baseurl}}"
     config_file: "cypress/config/cypress.config-configurator.js"
+    project_id: "{{.get_psono_secret.project_id}}"
+    record_key: "{{.get_psono_secret.record_key}}"
     info:
     - "{{.result.systemout}}"
     assertions:
