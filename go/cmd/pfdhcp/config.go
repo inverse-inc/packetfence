@@ -265,11 +265,13 @@ func (d *Interfaces) readConfig() {
 							xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
 
 							DHCPScope.xid = xid
-							wg.Add(1)
-							go func() {
-								initiaLease(DHCPScope, ConfNet)
-								wg.Done()
-							}()
+							if VIP[eth.Name] {
+								wg.Add(1)
+								go func() {
+									initiaLease(DHCPScope, ConfNet)
+									wg.Done()
+								}()
+							}
 							var options = make(map[dhcp.OptionCode][]byte)
 
 							options[dhcp.OptionSubnetMask] = []byte(DHCPNet.network.Mask)
@@ -337,12 +339,14 @@ func (d *Interfaces) readConfig() {
 						xid := cache.New(time.Duration(4)*time.Second, 2*time.Second)
 
 						DHCPScope.xid = xid
-						wg.Add(1)
-						go func() {
-							initiaLease(DHCPScope, ConfNet)
-							wg.Done()
-						}()
 
+						if VIP[eth.Name] {
+							wg.Add(1)
+							go func() {
+								initiaLease(DHCPScope, ConfNet)
+								wg.Done()
+							}()
+						}
 						var options = make(map[dhcp.OptionCode][]byte)
 
 						options[dhcp.OptionSubnetMask] = []byte(net.ParseIP(ConfNet.Netmask).To4())

@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	//Import mysql as _
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/inverse-inc/go-utils/log"
 	"gopkg.in/alexcesaro/statsd.v2"
@@ -43,6 +44,7 @@ func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm
 		ctx:       ctx,
 		statsd:    StatsdClient,
 	}
+
 	if createBackend {
 		rows, _ := dp.SQL.Query("DELETE FROM dhcppool WHERE pool_name=?", dp.PoolName)
 		rows.Close()
