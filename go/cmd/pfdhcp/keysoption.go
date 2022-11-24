@@ -47,7 +47,7 @@ func MysqlGet(key string) (string, string) {
 }
 
 // MysqlSearchMac function
-func MysqlSearchMac(key string) string {
+func MysqlSearchMac(sourceip string) (string, string) {
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -55,6 +55,7 @@ func MysqlSearchMac(key string) string {
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
 	var index int64
+	var poolname string
 	index = -1
 	for _, key := range keyConfNet.Keys {
 		var ConfNet pfconfigdriver.RessourseNetworkConf
@@ -64,8 +65,9 @@ func MysqlSearchMac(key string) string {
 		sz, _ := net.IPMask(ip.To4()).Size()
 		cidr := strconv.Itoa(sz)
 		_, subnet, _ := net.ParseCIDR(net.ParseIP(key).String() + "/" + cidr)
-		if subnet.Contains(net.ParseIP(key)) {
-			index = IP4toInt(net.ParseIP(key)) - IP4toInt(net.ParseIP(ConfNet.DhcpStart))
+		if subnet.Contains(net.ParseIP(sourceip)) {
+			index = IP4toInt(net.ParseIP(sourceip)) - IP4toInt(net.ParseIP(ConfNet.DhcpStart))
+			poolname = key
 			break
 		}
 	}
@@ -73,11 +75,11 @@ func MysqlSearchMac(key string) string {
 		if err := MySQLdatabase.PingContext(ctx); err != nil {
 			log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 		}
-		rows, err := MySQLdatabase.Query("select mac from dhcppool where pool_name = ? and idx = ?", key, index)
+		rows, err := MySQLdatabase.Query("select mac from dhcppool where pool_name = ? and idx = ?", poolname, index)
 		defer rows.Close()
 		if err != nil {
-			log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + key + "': " + err.Error())
-			return ""
+			log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + poolname + "': " + err.Error())
+			return "", ""
 		}
 		var (
 			mac string
@@ -86,12 +88,12 @@ func MysqlSearchMac(key string) string {
 			err := rows.Scan(&mac)
 			if err != nil {
 				log.LoggerWContext(ctx).Crit(err.Error())
-				return ""
+				return "", ""
 			}
 		}
-		return mac
+		return mac, poolname
 	}
-	return FreeMac
+	return FreeMac, "none"
 }
 
 // MysqlDel function

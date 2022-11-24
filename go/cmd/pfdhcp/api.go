@@ -84,7 +84,6 @@ type OptionsFromFilter struct {
 
 func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-
 	if index, expiresAt, found := GlobalIPCache.GetWithExpiration(vars["ip"]); found {
 		var node = &Node{Mac: index.(string), IP: vars["ip"], EndsAt: expiresAt}
 
@@ -98,12 +97,12 @@ func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	} else {
-		mac := MysqlSearchMac(vars["ip"])
+		mac, poolname := MysqlSearchMac(vars["ip"])
 		if mac == FreeMac {
 			unifiedapierrors.Error(res, "Cannot find match for this IP address", http.StatusNotFound)
 			return
 		}
-		var node = &Node{Mac: mac, IP: vars["ip"]}
+		var node = &Node{Mac: mac, IP: vars["ip"], Pool: poolname}
 
 		outgoingJSON, err := json.Marshal(node)
 
