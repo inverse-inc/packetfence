@@ -1,7 +1,11 @@
 package main
 
 import (
+	"net"
+	"strconv"
+
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 // MysqlInsert function
@@ -40,6 +44,54 @@ func MysqlGet(key string) (string, string) {
 		}
 	}
 	return ID, Value
+}
+
+// MysqlSearchMac function
+func MysqlSearchMac(key string) string {
+
+	var keyConfNet pfconfigdriver.PfconfigKeys
+	keyConfNet.PfconfigNS = "config::Network"
+	keyConfNet.PfconfigHostnameOverlay = "yes"
+
+	pfconfigdriver.FetchDecodeSocket(ctx, &keyConfNet)
+	var index int64
+	index = -1
+	for _, key := range keyConfNet.Keys {
+		var ConfNet pfconfigdriver.RessourseNetworkConf
+		ConfNet.PfconfigHashNS = key
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+		ip := net.ParseIP(ConfNet.Netmask)
+		sz, _ := net.IPMask(ip.To4()).Size()
+		cidr := strconv.Itoa(sz)
+		_, subnet, _ := net.ParseCIDR(net.ParseIP(key).String() + "/" + cidr)
+		if subnet.Contains(net.ParseIP(key)) {
+			index = IP4toInt(net.ParseIP(key)) - IP4toInt(net.ParseIP(ConfNet.DhcpStart))
+			break
+		}
+	}
+	if index != -1 {
+		if err := MySQLdatabase.PingContext(ctx); err != nil {
+			log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+		}
+		rows, err := MySQLdatabase.Query("select mac from dhcppool where pool_name = ? and idx = ?", key, index)
+		defer rows.Close()
+		if err != nil {
+			log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + key + "': " + err.Error())
+			return ""
+		}
+		var (
+			mac string
+		)
+		for rows.Next() {
+			err := rows.Scan(&mac)
+			if err != nil {
+				log.LoggerWContext(ctx).Crit(err.Error())
+				return ""
+			}
+		}
+		return mac
+	}
+	return FreeMac
 }
 
 // MysqlDel function

@@ -97,9 +97,24 @@ func handleIP2Mac(res http.ResponseWriter, req *http.Request) {
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
+	} else {
+		mac := MysqlSearchMac(vars["ip"])
+		if mac == FreeMac {
+			unifiedapierrors.Error(res, "Cannot find match for this IP address", http.StatusNotFound)
+			return
+		}
+		var node = &Node{Mac: mac, IP: vars["ip"]}
+
+		outgoingJSON, err := json.Marshal(node)
+
+		if err != nil {
+			unifiedapierrors.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprint(res, string(outgoingJSON))
+		return
 	}
-	unifiedapierrors.Error(res, "Cannot find match for this IP address", http.StatusNotFound)
-	return
 }
 
 func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
@@ -117,6 +132,8 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 
 		fmt.Fprint(res, string(outgoingJSON))
 		return
+	} else {
+
 	}
 	unifiedapierrors.Error(res, "Cannot find match for this MAC address", http.StatusNotFound)
 	return

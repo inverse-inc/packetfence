@@ -536,3 +536,23 @@ func IsDisabled(hostname string) bool {
 	_, err := os.Stat(fmt.Sprintf("/usr/local/pf/var/run/%s-cluster-disabled", hostname))
 	return err == nil
 }
+
+func IP4toInt(IPv4Addr net.IP) int64 {
+	bits := strings.Split(IPv4Addr.String(), ".")
+
+	b0, _ := strconv.Atoi(bits[0])
+	b1, _ := strconv.Atoi(bits[1])
+	b2, _ := strconv.Atoi(bits[2])
+	b3, _ := strconv.Atoi(bits[3])
+
+	var sum int64
+
+	// left shifting 24,16,8,0 and bitwise OR
+
+	sum += int64(b0) << 24
+	sum += int64(b1) << 16
+	sum += int64(b2) << 8
+	sum += int64(b3)
+
+	return sum
+}
