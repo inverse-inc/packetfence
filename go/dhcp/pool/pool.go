@@ -23,7 +23,7 @@ const OldestReleased = 2
 
 // Backend interface
 type Backend interface {
-	NewDHCPPool(ctx context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client)
+	NewDHCPPool(ctx context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client, createBackend bool)
 	ReserveIPIndex(index uint64, mac string) (string, error)
 	IsFreeIPAtIndex(index uint64) bool
 	GetMACIndex(index uint64) (uint64, string, error)
@@ -38,7 +38,7 @@ type Backend interface {
 }
 
 // Creater function
-type Creater func(context.Context, uint64, string, int, *statsd.Client, *sql.DB) (Backend, error)
+type Creater func(context.Context, uint64, string, int, *statsd.Client, *sql.DB, bool) (Backend, error)
 
 var poolLookup = map[string]Creater{
 	"memory": NewMemoryPool,
@@ -46,9 +46,9 @@ var poolLookup = map[string]Creater{
 }
 
 // Create function
-func Create(ctx context.Context, poolType string, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB) (Backend, error) {
+func Create(ctx context.Context, poolType string, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB, createBackend bool) (Backend, error) {
 	if creater, found := poolLookup[poolType]; found {
-		return creater(ctx, capacity, name, algorithm, StatsdClient, sql)
+		return creater(ctx, capacity, name, algorithm, StatsdClient, sql, createBackend)
 	}
 
 	return nil, fmt.Errorf("Pool of %s not found", poolType)

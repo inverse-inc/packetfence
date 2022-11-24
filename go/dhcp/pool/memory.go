@@ -22,16 +22,16 @@ type Memory struct {
 }
 
 // NewMemoryPool return a new memory pool
-func NewMemoryPool(context context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB) (Backend, error) {
+func NewMemoryPool(context context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB, createBackend bool) (Backend, error) {
 	Pool := &Memory{}
 	Pool.PoolName = name
-	Pool.NewDHCPPool(context, capacity, algorithm, StatsdClient)
+	Pool.NewDHCPPool(context, capacity, algorithm, StatsdClient, createBackend)
 
 	return Pool, nil
 }
 
 // NewDHCPPool initialize the DHCPPool
-func (dp *Memory) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) {
+func (dp *Memory) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client, createBackend bool) {
 	log.SetProcessName("pfdhcp")
 	ctx := log.LoggerNewContext(context)
 	d := &DHCPPool{

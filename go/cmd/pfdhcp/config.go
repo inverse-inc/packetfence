@@ -246,7 +246,7 @@ func (d *Interfaces) readConfig() {
 								backend = ConfNet.PoolBackend
 							}
 							// Initialize dhcp pool
-							available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase)
+							available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(ip, ips)), DHCPNet.network.IP.String()+Role, algorithm, StatsdClient, MySQLdatabase, VIP[eth.Name])
 
 							DHCPScope.available = available
 
@@ -318,7 +318,7 @@ func (d *Interfaces) readConfig() {
 							backend = ConfNet.PoolBackend
 						}
 						// Initialize dhcp pool
-						available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase)
+						available, _ := pool.Create(ctx, backend, uint64(dhcp.IPRange(net.ParseIP(ConfNet.DhcpStart), net.ParseIP(ConfNet.DhcpEnd))), DHCPNet.network.IP.String(), algorithm, StatsdClient, MySQLdatabase, VIP[eth.Name])
 
 						DHCPScope.available = available
 

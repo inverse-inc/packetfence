@@ -21,16 +21,16 @@ type Mysql struct {
 }
 
 // NewMysqlPool return a new mysql pool
-func NewMysqlPool(context context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB) (Backend, error) {
+func NewMysqlPool(context context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB, createBackend bool) (Backend, error) {
 	dp := Mysql{}
 	dp.PoolName = name
 	dp.SQL = sql
-	dp.NewDHCPPool(context, capacity, algorithm, StatsdClient)
+	dp.NewDHCPPool(context, capacity, algorithm, StatsdClient, createBackend)
 	return &dp, nil
 }
 
 // NewDHCPPool initialize the DHCPPool
-func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client) {
+func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client, createBackend bool) {
 	log.SetProcessName("pfdhcp")
 	ctx := log.LoggerNewContext(context)
 	d := &DHCPPool{
@@ -43,11 +43,13 @@ func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm
 		ctx:       ctx,
 		statsd:    StatsdClient,
 	}
-	rows, _ := dp.SQL.Query("DELETE FROM dhcppool WHERE pool_name=?", dp.PoolName)
-	rows.Close()
-	for i := uint64(0); i < capacity; i++ {
-		rows, _ := dp.SQL.Query("INSERT INTO dhcppool (pool_name, idx, released) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE id=id", dp.PoolName, i)
+	if createBackend {
+		rows, _ := dp.SQL.Query("DELETE FROM dhcppool WHERE pool_name=?", dp.PoolName)
 		rows.Close()
+		for i := uint64(0); i < capacity; i++ {
+			rows, _ := dp.SQL.Query("INSERT INTO dhcppool (pool_name, idx, released) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE id=id", dp.PoolName, i)
+			rows.Close()
+		}
 	}
 	dp.DHCPPool = d
 }
