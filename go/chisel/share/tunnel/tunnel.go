@@ -12,9 +12,11 @@ import (
 	"time"
 
 	"github.com/armon/go-socks5"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel/radius_proxy"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 
@@ -60,7 +62,7 @@ type Tunnel struct {
 
 	IsRemoteConnector bool
 	ConnectorID       string
-	radiusProxy       *RadiusProxy
+	radiusProxy       *radius_proxy.RadiusProxy
 	k8ControllerDrop  chan struct{}
 }
 
@@ -107,11 +109,11 @@ func isPodReady(pod *v1.Pod) bool {
 
 const radiusAuthK8Filter = "app=radiusd-auth"
 
-func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
+func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.RadiusProxy, chan struct{}, error) {
 	clientset, _ := kubernetes.NewForConfig(&rest.Config{
 		Host:            os.Getenv("K8S_MASTER_HOST"),
 		BearerToken:     os.Getenv("K8S_MASTER_TOKEN"),
-		TLSClientConfig: rest.TLSClientConfig{Insecure: true},
+		TLSClientConfig: TLSConfigFromEnv(),
 	})
 
 	data, err := os.ReadFile(os.Getenv("K8S_NAMESPACE_PATH"))
@@ -128,10 +130,15 @@ func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
 	for _, p := range pods.Items {
 		servers = append(servers, p.Status.PodIP+":1812")
 	}
-	radiusProxy := &RadiusProxy{
-		backends: NewRadiusBackends(servers...),
-		secret:   t.Config.RadiusSecret,
-	}
+
+	radiusProxy := radius_proxy.NewRadiusProxy(
+		&radius_proxy.Config{
+			Secret:         []byte(t.Config.RadiusSecret),
+			Addrs:          servers,
+			SessionTimeout: 20 * time.Second,
+			Logger:         t.Logger,
+		},
+	)
 
 	watchlist := cache.NewFilteredListWatchFromClient(
 		clientset.CoreV1().RESTClient(),
@@ -151,7 +158,7 @@ func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
 				if isPodReady(pod) {
 					address := pod.Status.PodIP + ":1812"
 					t.Infof("Adding %s", address)
-					radiusProxy.backends.Add(address)
+					radiusProxy.AddBackend(address)
 					return
 				}
 			},
@@ -159,21 +166,21 @@ func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
 				pod := obj.(*v1.Pod)
 				address := pod.Status.PodIP + ":1812"
 				t.Infof("Removing %s", address)
-				radiusProxy.backends.Delete(address)
+				radiusProxy.DeleteBackend(address)
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				pod := newObj.(*v1.Pod)
 				if isPodReady(pod) {
 					address := pod.Status.PodIP + ":1812"
 					t.Infof("Adding %s", address)
-					radiusProxy.backends.Add(address)
+					radiusProxy.AddBackend(address)
 					return
 				}
 
 				if pod.DeletionTimestamp != nil {
 					address := pod.Status.PodIP + ":1812"
 					t.Infof("%s is terminating removing", address)
-					radiusProxy.backends.Delete(address)
+					radiusProxy.DeleteBackend(address)
 				}
 			},
 		},
@@ -182,6 +189,13 @@ func radiusProxyFromKubernetes(t *Tunnel) (*RadiusProxy, chan struct{}, error) {
 	go controller.Run(stop)
 
 	return radiusProxy, stop, nil
+}
+
+func TLSConfigFromEnv() rest.TLSClientConfig {
+	caCerts := []byte(sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_CA_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")))
+	return rest.TLSClientConfig{
+		CAData: caCerts,
+	}
 }
 
 // BindSSH provides an active SSH for use for tunnelling

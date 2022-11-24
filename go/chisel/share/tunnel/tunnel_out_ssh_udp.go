@@ -12,6 +12,7 @@ import (
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
+	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel/radius_proxy"
 )
 
 var udpCloseOnReply = sharedutils.IsEnabled(sharedutils.EnvOrDefault("PFCONNECTOR_UDP_CLOSE_ON_REPLY", "disabled"))
@@ -47,7 +48,7 @@ type udpHandler struct {
 	connectorID string
 	*cio.Logger
 	hostPort    string
-	radiusProxy *RadiusProxy
+	radiusProxy *radius_proxy.RadiusProxy
 	*udpChannel
 	*udpConns
 }
@@ -64,7 +65,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 
 	packet, hostPort := p.Payload, h.hostPort
 	if h.isRadius(p) {
-		packet, hostPort, err = h.radiusProxy.ProxyPacket(h, p)
+		packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID)
 		if err != nil {
 			return err
 		}
@@ -103,9 +104,10 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 	defer h.udpConns.remove(conn.id)
 	const maxMTU = 9012
 	buff := make([]byte, maxMTU)
+	//response must arrive within 5 seconds
+	deadline := settings.EnvDuration("UDP_DEADLINE", 5*time.Second)
+	h.Debugf("Reading host port: '%s', UDP conn: '%s'", h.hostPort, conn.id)
 	for {
-		//response must arrive within 5 seconds
-		deadline := settings.EnvDuration("UDP_DEADLINE", 5*time.Second)
 		conn.SetReadDeadline(time.Now().Add(deadline))
 		//read response
 		n, err := conn.Read(buff)
