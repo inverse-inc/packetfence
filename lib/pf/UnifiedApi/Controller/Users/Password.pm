@@ -73,6 +73,11 @@ sub _handle_password_data {
             $data->{access_level} = join(",", @$access_level);
         }
     }
+
+    # Not sure why but currently in the cloudnac, the sponsor field breaks the insert
+    # This is a temporary fix, we should figure out why this happens
+    $data->{sponsor} = $data->{sponsor} ne "" ? $data->{sponsor} : 0; 
+
     return $data;
 }
 
