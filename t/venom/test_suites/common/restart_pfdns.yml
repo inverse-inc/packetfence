@@ -1,6 +1,0 @@
-name: Restart pfdns service
-testcases:
-- name: restart_pfdns_service
-  steps:
-  - type: pf_api_service_restart_async
-    service: 'pfdns'
