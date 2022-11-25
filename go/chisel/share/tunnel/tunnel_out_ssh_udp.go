@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 )
@@ -61,7 +62,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 	//TODO++ dont use go-routines, switch to pollable
 	//  array of listeners where all listeners are
 	//  sweeped periodically, removing the idle ones
-	const maxConns = 100
+	const maxConns = sharedutils.EnvOrDefaultInt("PFCONNECTOR_UDP_MAX_CONNS", 1000)
 	if !exists {
 		if h.udpConns.len() <= maxConns {
 			go h.handleRead(p, conn)
