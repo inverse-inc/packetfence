@@ -71,8 +71,8 @@ func (dp *Mysql) ReserveIPIndex(index uint64, mac string, cacheDuration time.Dur
 		return FreeMac, errors.New("Trying to reserve an IP that is outside the capacity of this pool")
 	}
 	released := time.Now().Local().Add(cacheDuration)
-	query := "UPDATE dhcppool SET free = 0, mac = ? , released = ? WHERE idx = ? AND free = 1 AND pool_name = ?"
-	res, err := dp.SQL.Exec(query, mac, released, index, dp.PoolName)
+	query := "UPDATE dhcppool SET free = 0, mac = ? , released = ? WHERE idx = ? AND pool_name = ?"
+	res, err := dp.SQL.Exec(query, mac, released.Format(time.RFC3339), index, dp.PoolName)
 
 	if err != nil {
 		return FreeMac, errors.New("IP is already reserved")

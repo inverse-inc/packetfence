@@ -119,14 +119,17 @@ func MysqlSearchIP(sourcemac string) (string, string, time.Time) {
 		err := rows.Scan(&pool_name, &idx, &released)
 		if err != nil {
 			log.LoggerWContext(ctx).Crit(err.Error())
-			return FreeMac, "", time.Now()
+			return FreeIP, "", time.Now()
 		}
 	}
-	var ConfNet pfconfigdriver.RessourseNetworkConf
-	ConfNet.PfconfigHashNS = pool_name
-	pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
-	ip := dhcp.IPAdd(net.ParseIP(ConfNet.DhcpStart), idx)
-	return ip.String(), pool_name, released
+	if pool_name != "" {
+		var ConfNet pfconfigdriver.RessourseNetworkConf
+		ConfNet.PfconfigHashNS = pool_name
+		pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+		ip := dhcp.IPAdd(net.ParseIP(ConfNet.DhcpStart), idx)
+		return ip.String(), pool_name, released
+	}
+	return FreeIP, "", time.Now()
 }
 
 // MysqlDel function
