@@ -30,6 +30,7 @@ variables:
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
   KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
+  KANIKOBUILD_IMG: ghcr.io/inverse-inc/packetfence/kaniko-build
   KNK_REGISTRY: ghcr.io
   KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc/packetfence
   KNK_CACHE: "true"
@@ -282,6 +283,14 @@ variables:
   stage: build_img_container
   dependencies: []
   image:
+    name: ${KANIKOBUILD_IMG}
+  tags:
+    - docker
+
+.build_img_container_kanikobuild_job:
+  stage: build_img_container
+  dependencies: []
+  image:
     name: ${KANIKO_DEBUG_IMG}
     entrypoint: [""]
   script:
@@ -528,10 +537,19 @@ run_pipeline_if_necessary:
 # BUILD_IMG_CONTAINER JOBS
 ########################################
 # devel
+kaniko_dev:
+  extends:
+    - .build_img_container_kanikobuild_job
+    - .build_img_container_devel_rules
+  variables:
+    IMAGE_NAME: "kaniko-build"
+    IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
+
 pfdeb_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
+  needs: ["kaniko_dev"]
   variables:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
@@ -570,6 +588,7 @@ img_dev:
   extends:
     - .build_img_container_job
     - .build_img_container_devel_rules
+  needs: ["kaniko_dev"]
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
@@ -594,10 +613,19 @@ rad_based_dev:
           - "radiusd-eduroam"
 
 # branches and maintenance
+kaniko_br_maint:
+  extends:
+    - .build_img_container_kanikobuild_job
+    - .build_img_container_branches_and_maintenance_rules
+  variables:
+    IMAGE_NAME: "kaniko-build"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+
 pfdeb_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
+  needs: ["kaniko_br_maint"]
   variables:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
@@ -636,6 +664,7 @@ img_br_maint:
   extends:
     - .build_img_container_job
     - .build_img_container_branches_and_maintenance_rules
+  needs: ["kaniko_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -660,10 +689,19 @@ rad_based_br_maint:
           - "radiusd-eduroam"
 
 # release
+kaniko_rel:
+  extends:
+    - .build_img_container_kanikobuild_job
+    - .release_only_rules
+  variables:
+    IMAGE_NAME: "kaniko-build"
+    IMAGE_TAGS: ${CI_COMMIT_TAG}
+
 pfdeb_rel:
   extends:
     - .build_img_container_job
     - .release_only_rules
+  needs: ["kaniko_rel"]
   variables:
     IMAGE_NAME: "pfdebian"
     IMAGE_TAGS: ${CI_COMMIT_TAG}
@@ -698,14 +736,15 @@ pfdeb_based_rel:
           - "proxysql"
 
 img_rel:
- extends:
-   - .build_img_container_job
-   - .release_only_rules
- variables:
+  extends:
+    - .build_img_container_job
+    - .release_only_rules
+  needs: ["kaniko_rel"]
+  variables:
    IMAGE_TAGS: ${CI_COMMIT_TAG}
- parallel:
-   matrix:
-     - IMAGE_NAME:
+  parallel:
+    matrix:
+      - IMAGE_NAME:
           - "fingerbank-db"
 
 rad_based_rel:
