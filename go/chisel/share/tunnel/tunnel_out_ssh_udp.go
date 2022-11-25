@@ -65,16 +65,21 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 
 	packet, hostPort := p.Payload, h.hostPort
 	if h.isRadius(p) {
+		h.Debugf("Proxying RADIUS")
 		packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID)
 		if err != nil {
 			return err
 		}
+	} else {
+		h.Debugf("Proxying raw UDP")
 	}
 	//dial now, we know we must write
 	conn, exists, err := h.udpConns.dial(p.Src, hostPort)
 	if err != nil {
 		return err
 	}
+
+	h.Debugf("Writing host port: '%s', UDP conn: '%s'", hostPort, conn.id)
 	//however, we dont know if we must read...
 	//spawn up to <max-conns> go-routines to wait
 	//for a reply.
