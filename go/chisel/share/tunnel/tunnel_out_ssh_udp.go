@@ -66,7 +66,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 		if h.udpConns.len() <= maxConns {
 			go h.handleRead(p, conn)
 		} else {
-			h.Debugf("exceeded max udp connections (%d)", maxConns)
+			h.Errorf("exceeded max udp connections (%d)", maxConns)
 		}
 	}
 	_, err = conn.Write(p.Payload)
