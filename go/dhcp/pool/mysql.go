@@ -6,6 +6,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"time"
 
 	//Import mysql as _
 
@@ -62,15 +63,16 @@ func (dp *Mysql) GetDHCPPool() DHCPPool {
 }
 
 // ReserveIPIndex reserves an IP in the pool, returns an error if the IP has already been reserved
-func (dp *Mysql) ReserveIPIndex(index uint64, mac string) (string, error) {
+func (dp *Mysql) ReserveIPIndex(index uint64, mac string, cacheDuration time.Duration) (string, error) {
 	t := dp.DHCPPool.NewTiming()
 	defer dp.DHCPPool.timeTrack(t, "ReserveIPIndex")
 
 	if index >= dp.DHCPPool.capacity {
 		return FreeMac, errors.New("Trying to reserve an IP that is outside the capacity of this pool")
 	}
-	query := "UPDATE dhcppool SET free = 0, mac = ? WHERE idx = ? AND free = 1 AND pool_name = ?"
-	res, err := dp.SQL.Exec(query, mac, index, dp.PoolName)
+	released := time.Now().Local().Add(cacheDuration)
+	query := "UPDATE dhcppool SET free = 0, mac = ? , released = ? WHERE idx = ? AND free = 1 AND pool_name = ?"
+	res, err := dp.SQL.Exec(query, mac, released, index, dp.PoolName)
 
 	if err != nil {
 		return FreeMac, errors.New("IP is already reserved")

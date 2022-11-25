@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"sync"
+	"time"
 
 	"gopkg.in/alexcesaro/statsd.v2"
 )
@@ -24,7 +25,7 @@ const OldestReleased = 2
 // Backend interface
 type Backend interface {
 	NewDHCPPool(ctx context.Context, capacity uint64, algorithm int, StatsdClient *statsd.Client, createBackend bool)
-	ReserveIPIndex(index uint64, mac string) (string, error)
+	ReserveIPIndex(index uint64, mac string, cacheDuration time.Duration) (string, error)
 	IsFreeIPAtIndex(index uint64) bool
 	GetMACIndex(index uint64) (uint64, string, error)
 	GetFreeIPIndex(mac string) (uint64, string, error)

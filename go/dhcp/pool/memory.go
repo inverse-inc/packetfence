@@ -109,7 +109,7 @@ func (dp *Memory) GetIssues(macs []string) ([]string, map[uint64]string) {
 }
 
 // ReserveIPIndex reserves an IP in the pool, returns an error if the IP has already been reserved
-func (dp *Memory) ReserveIPIndex(index uint64, mac string) (string, error) {
+func (dp *Memory) ReserveIPIndex(index uint64, mac string, cacheDuration time.Duration) (string, error) {
 	dp.DHCPPool.lock.Lock()
 	defer dp.DHCPPool.lock.Unlock()
 	t := dp.DHCPPool.NewTiming()

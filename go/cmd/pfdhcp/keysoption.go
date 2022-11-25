@@ -3,7 +3,9 @@ package main
 import (
 	"net"
 	"strconv"
+	"time"
 
+	dhcp "github.com/inverse-inc/dhcp4"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
@@ -47,7 +49,7 @@ func MysqlGet(key string) (string, string) {
 }
 
 // MysqlSearchMac function
-func MysqlSearchMac(sourceip string) (string, string) {
+func MysqlSearchMac(sourceip string) (string, string, time.Time) {
 
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
@@ -75,25 +77,56 @@ func MysqlSearchMac(sourceip string) (string, string) {
 		if err := MySQLdatabase.PingContext(ctx); err != nil {
 			log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 		}
-		rows, err := MySQLdatabase.Query("select mac from dhcppool where pool_name = ? and idx = ?", poolname, index)
+		rows, err := MySQLdatabase.Query("select mac, released from dhcppool where pool_name = ? and idx = ?", poolname, index)
 		defer rows.Close()
 		if err != nil {
 			log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + poolname + "': " + err.Error())
-			return "", ""
+			return FreeMac, "", time.Now()
 		}
 		var (
-			mac string
+			mac      string
+			released time.Time
 		)
 		for rows.Next() {
-			err := rows.Scan(&mac)
+			err := rows.Scan(&mac, &released)
 			if err != nil {
 				log.LoggerWContext(ctx).Crit(err.Error())
-				return "", ""
+				return FreeMac, "", time.Now()
 			}
 		}
-		return mac, poolname
+		return mac, poolname, released
 	}
-	return FreeMac, "none"
+	return FreeMac, "none", time.Now()
+}
+
+// MysqlSearchIp function
+func MysqlSearchIP(sourcemac string) (string, string, time.Time) {
+	if err := MySQLdatabase.PingContext(ctx); err != nil {
+		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
+	}
+	rows, err := MySQLdatabase.Query("select pool_name, idx, released from dhcppool where mac = ?", sourcemac)
+	defer rows.Close()
+	if err != nil {
+		log.LoggerWContext(ctx).Debug("Error while getting MySQL '" + sourcemac + "': " + err.Error())
+		return FreeIP, "", time.Now()
+	}
+	var (
+		pool_name string
+		idx       int
+		released  time.Time
+	)
+	for rows.Next() {
+		err := rows.Scan(&pool_name, &idx, &released)
+		if err != nil {
+			log.LoggerWContext(ctx).Crit(err.Error())
+			return FreeMac, "", time.Now()
+		}
+	}
+	var ConfNet pfconfigdriver.RessourseNetworkConf
+	ConfNet.PfconfigHashNS = pool_name
+	pfconfigdriver.FetchDecodeSocket(ctx, &ConfNet)
+	ip := dhcp.IPAdd(net.ParseIP(ConfNet.DhcpStart), idx)
+	return ip.String(), pool_name, released
 }
 
 // MysqlDel function
