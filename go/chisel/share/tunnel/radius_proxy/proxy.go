@@ -38,6 +38,10 @@ func NewProxy(config *ProxyConfig) *Proxy {
 	return radiusProxy
 }
 
+func (rp *Proxy) Cleanup(stop chan struct{}) {
+	rp.backends.sessions.Cleanup(5*time.Second, stop)
+}
+
 func (rp *Proxy) addProxyState(p *radius.Packet) bool {
 	state := rfc2865.ProxyState_GetString(p)
 	if state != "" {

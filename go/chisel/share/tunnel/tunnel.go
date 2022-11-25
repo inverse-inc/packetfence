@@ -76,6 +76,7 @@ func New(c Config) *Tunnel {
 	if err == nil {
 		t.radiusProxy = radiusProxy
 		t.k8ControllerDrop = stop
+		go radiusProxy.Cleanup(stop)
 	}
 
 	t.activatingConn.Add(1)
