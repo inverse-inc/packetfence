@@ -281,24 +281,27 @@ variables:
 .build_img_container_job_dev:
   stage: build_img_container
   dependencies: []
-  image:
-    name: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  script:
+    - /bin/kanikobuild
   tags:
     - docker
 
 .build_img_container_job_br_maint:
   stage: build_img_container
   dependencies: []
-  image:
-    name: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  script:
+    - /bin/kanikobuild
   tags:
     - docker
 
 .build_img_container_job_rel:
   stage: build_img_container
   dependencies: []
-  image:
-    name: ${KANIKOBUILD_IMG}:${CI_COMMIT_TAG}
+  image: ${KANIKOBUILD_IMG}:${CI_COMMIT_TAG}
+  script:
+    - /bin/kanikobuild
   tags:
     - docker
 
