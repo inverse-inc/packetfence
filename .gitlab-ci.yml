@@ -278,11 +278,27 @@ variables:
   tags:
     - shell
 
-.build_img_container_job:
+.build_img_container_job_dev:
   stage: build_img_container
   dependencies: []
   image:
-    name: ${KANIKOBUILD_IMG}
+    name: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  tags:
+    - docker
+
+.build_img_container_job_br_maint:
+  stage: build_img_container
+  dependencies: []
+  image:
+    name: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  tags:
+    - docker
+
+.build_img_container_job_rel:
+  stage: build_img_container
+  dependencies: []
+  image:
+    name: ${KANIKOBUILD_IMG}:${CI_COMMIT_TAG}
   tags:
     - docker
 
@@ -546,7 +562,7 @@ kaniko_dev:
 
 pfdeb_dev:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_dev
     - .build_img_container_devel_rules
   needs: ["kaniko_dev"]
   variables:
@@ -555,7 +571,7 @@ pfdeb_dev:
 
 pfdeb_based_dev:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_dev
     - .build_img_container_devel_rules
   needs: ["pfdeb_dev"]
   variables:
@@ -585,7 +601,7 @@ pfdeb_based_dev:
 
 img_dev:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_dev
     - .build_img_container_devel_rules
   needs: ["kaniko_dev"]
   variables:
@@ -597,7 +613,7 @@ img_dev:
 
 rad_based_dev:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_dev
     - .build_img_container_devel_rules
   needs: ["pfdeb_based_dev"]
   variables:
@@ -622,7 +638,7 @@ kaniko_br_maint:
 
 pfdeb_br_maint:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_br_maint
     - .build_img_container_branches_and_maintenance_rules
   needs: ["kaniko_br_maint"]
   variables:
@@ -631,7 +647,7 @@ pfdeb_br_maint:
 
 pfdeb_based_br_maint:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_br_maint
     - .build_img_container_branches_and_maintenance_rules
   needs: ["pfdeb_br_maint"]
   variables:
@@ -661,7 +677,7 @@ pfdeb_based_br_maint:
 
 img_br_maint:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_br_maint
     - .build_img_container_branches_and_maintenance_rules
   needs: ["kaniko_br_maint"]
   variables:
@@ -673,7 +689,7 @@ img_br_maint:
 
 rad_based_br_maint:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_br_maint
     - .build_img_container_branches_and_maintenance_rules
   needs: ["pfdeb_based_br_maint"]
   variables:
@@ -698,7 +714,7 @@ kaniko_rel:
 
 pfdeb_rel:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_rel
     - .release_only_rules
   needs: ["kaniko_rel"]
   variables:
@@ -707,7 +723,7 @@ pfdeb_rel:
 
 pfdeb_based_rel:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_rel
     - .release_only_rules
   needs: ["pfdeb_rel"]
   variables:
@@ -736,7 +752,7 @@ pfdeb_based_rel:
 
 img_rel:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_rel
     - .release_only_rules
   needs: ["kaniko_rel"]
   variables:
@@ -748,7 +764,7 @@ img_rel:
 
 rad_based_rel:
   extends:
-    - .build_img_container_job
+    - .build_img_container_job_rel
     - .release_only_rules
   needs: ["pfdeb_based_rel"]
   variables:
