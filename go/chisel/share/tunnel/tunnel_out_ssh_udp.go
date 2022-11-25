@@ -83,7 +83,7 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 	const maxMTU = 9012
 	buff := make([]byte, maxMTU)
 	for {
-		//response must arrive within 15 seconds
+		//response must arrive within 5 seconds
 		deadline := settings.EnvDuration("UDP_DEADLINE", 5*time.Second)
 		conn.SetReadDeadline(time.Now().Add(deadline))
 		//read response
