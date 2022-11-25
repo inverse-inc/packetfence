@@ -14,6 +14,8 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 )
 
+var udpCloseOnReply = sharedutils.IsEnabled(sharedutils.EnvOrDefault("PFCONNECTOR_UDP_CLOSE_ON_REPLY", "disabled"))
+
 func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort string) error {
 	conns := &udpConns{
 		Logger: l,
@@ -62,7 +64,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 	//TODO++ dont use go-routines, switch to pollable
 	//  array of listeners where all listeners are
 	//  sweeped periodically, removing the idle ones
-	const maxConns = sharedutils.EnvOrDefaultInt("PFCONNECTOR_UDP_MAX_CONNS", 1000)
+	maxConns := sharedutils.EnvOrDefaultInt("PFCONNECTOR_UDP_MAX_CONNS", 1000)
 	if !exists {
 		if h.udpConns.len() <= maxConns {
 			go h.handleRead(p, conn)
@@ -91,6 +93,8 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 		if err != nil {
 			if !os.IsTimeout(err) && err != io.EOF {
 				h.Debugf("read error: %s", err)
+			} else {
+				h.Debugf("closing connection")
 			}
 			break
 		}
@@ -100,6 +104,10 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 		if err != nil {
 			h.Debugf("encode error: %s", err)
 			return
+		}
+		// Enabling this makes it so less active connections are kept at the cost of re-dialing if there is a continious exchange in that specific UDP connection
+		if udpCloseOnReply {
+			h.Debugf("UDP close on reply")
 		}
 	}
 }
