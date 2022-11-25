@@ -74,7 +74,10 @@
         reverse
         @click="onDelete"
       >{{ $t('Revert') }}</button-revert>
-      <b-button class="mr-1" variant="secondary" @click="onHide">{{ $t('Cancel') }}</b-button>
+      <b-button v-if="isNew"
+        class="mr-1" variant="secondary" @click="onHide">{{ $t('Cancel') }}</b-button>
+      <b-button v-else
+        class="mr-1" variant="secondary" @click="onHide">{{ $t('Close') }}</b-button>
     </template>
   </b-modal>
 </template>

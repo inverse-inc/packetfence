@@ -11,7 +11,7 @@
     />
     <b-table :items="tableItems" :fields="tableFields" :sort-by="sortBy" :sort-desc="sortDesc"
       class="the-files-list"
-      small hover striped show-empty no-local-sorting no-select-on-click borderless
+      small hover responsive striped show-empty no-local-sorting no-select-on-click borderless
       @sort-changed="onSortChanged($event)"
       @row-clicked="onRowClicked($event)"
     >
@@ -22,7 +22,7 @@
           :disabled="false"
         >
           <icon v-for="(name, n) in item.icons" :key="n"
-            :name="name" class="nav-icon"/>
+            :name="name" class="nav-icon" />
 
           <icon v-if="item.expand"
             name="regular/folder-open"/>
@@ -32,13 +32,18 @@
         <div v-else
           class="d-flex align-items-center"
           variant="link"
+          :class="{ 'text-primary': !item.not_revertible || !item.not_deletable }"
         >
           <icon v-for="(name, n) in item.icons" :key="n"
-            :name="name" class="nav-icon"/>
+            :name="name" class="nav-icon" />
 
-          <icon name="file" v-if="!item.not_revertible || !item.not_deletable"/>
-          <icon name="regular/file" v-else/>
-          {{ item.name }}
+          <icon name="file" v-if="!item.not_revertible || !item.not_deletable" />
+          <icon name="regular/file" v-else />
+
+          <inline-name v-if="!item.not_revertible || !item.not_deletable"
+            :id="id" :item="item" :entries="entries" />
+          <span v-else
+            >{{ item.name }}</span>
         </div>
       </template>
       <template v-slot:cell(buttons)="{ item }">
@@ -69,10 +74,13 @@
         <div v-else-if="item.type === 'dir'"
           class="text-right text-nowrap">
 
-          <b-dropdown :text="$i18n.t('Create')"
-            size="sm" variant="outline-primary" class="my-1" right>
-            <b-dropdown-item @click="onToggleDirectory(item)">New Sub Directory</b-dropdown-item>
-            <b-dropdown-item @click="onToggleFile(item)">New File</b-dropdown-item>
+          <b-dropdown size="sm" variant="outline-primary" class="my-1" right>
+            <template #button-content>
+              <icon name="plus-circle" />
+            </template>
+            <b-dropdown-item @click="onToggleDirectory(item)">{{ $i18n.t('Create New Sub Directory') }}</b-dropdown-item>
+            <b-dropdown-item @click="onToggleFile(item)">{{ $i18n.t('Create New File') }}</b-dropdown-item>
+            <b-dropdown-item @click="onToggleUpload(item)">{{ $i18n.t('Upload File') }}</b-dropdown-item>
           </b-dropdown>
 
         </div>
@@ -107,15 +115,17 @@ import {
   BaseFormGroupToggle
 } from '@/components/new/'
 import {
+  InlineName,
   ModalDirectory,
-  ModalFile
+  ModalFile,
 } from './'
 
 const components = {
   BaseButtonConfirm,
+  InlineName,
   InputToggle: BaseFormGroupToggle,
   ModalDirectory,
-  ModalFile
+  ModalFile,
 }
 
 const props = {
@@ -171,7 +181,6 @@ const setup = (props, context) => {
 
   const sortBy = ref(undefined)
   const sortDesc = ref(false)
-  const entries = ref([])
 
   const expandPaths = ref(['/'])
   const expandPath = (path) => {
@@ -187,6 +196,17 @@ const setup = (props, context) => {
 
   const tableItems = ref([])
   const isLoading = computed(() => $store.getters['$_connection_profiles/isLoadingFiles'])
+  //const entries = ref([])
+  const entries = computed(() => {
+    const { [id.value]: { entries = [] } = {} } = $store.state.$_connection_profiles.files.cache
+    return [{
+      name: '/',
+      type: 'dir',
+      entries: JSON.parse(JSON.stringify(entries))
+    }]
+  })
+
+
 
   const _getFiles = () => {
     let sort = ['type']
@@ -196,13 +216,7 @@ const setup = (props, context) => {
     }
     else
       sort.push('name')
-    $store.dispatch('$_connection_profiles/files', { id: id.value, sort }).then(response => {
-      entries.value = [{
-        name: '/',
-        type: 'dir',
-        entries: JSON.parse(JSON.stringify(response.entries))
-      }]
-    })
+    $store.dispatch('$_connection_profiles/files', { id: id.value, sort })
   }
 
   watch([sortBy, sortDesc], () => _getFiles(), { immediate: true })
@@ -299,13 +313,7 @@ const setup = (props, context) => {
 
   const onDelete = (item) => {
     const { path, name } = item
-    $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}`.replace('//', '/') }).then(response => {
-      entries.value = entries.value = [{
-        name: '/',
-        type: 'dir',
-        entries: JSON.parse(JSON.stringify(response.entries))
-      }]
-    })
+    $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}`.replace('//', '/') })
   }
 
   const previewUrl = (item) => {
@@ -329,6 +337,13 @@ const setup = (props, context) => {
     const { path = '', name = '' } = item || {}
     lastPath.value = `${path}/${name}`.replace('//', '/')
     isShowFileModal.value = !isShowFileModal.value
+  }
+
+  const isShowUploadModal = ref(false)
+  const onToggleUpload = (item) => {
+    const { path = '', name = '' } = item || {}
+    lastPath.value = `${path}/${name}`.replace('//', '/')
+    isShowUploadModal.value = !isShowUploadModal.value
   }
 
   const onCreateDirectory = (name) => {
@@ -384,6 +399,9 @@ const setup = (props, context) => {
     onUpdateFile,
     onDeleteFile,
     onToggleFile,
+
+    isShowUploadModal,
+    onToggleUpload,
 
     lastPath,
     hideDefaultFiles

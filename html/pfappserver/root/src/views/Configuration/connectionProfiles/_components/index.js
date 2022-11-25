@@ -15,6 +15,7 @@ import BaseFormGroupProvisioners from './BaseFormGroupProvisioners'
 import BaseFormGroupScanners from './BaseFormGroupScanners'
 import BaseFormGroupSources from './BaseFormGroupSources'
 import ButtonPreviewPortal from './ButtonPreviewPortal'
+import InlineName from './InlineName'
 import ModalDirectory from './ModalDirectory'
 import ModalFile from './ModalFile'
 import TheFilesList from './TheFilesList'
@@ -64,6 +65,7 @@ export {
   BaseFormGroupLocales                as FormGroupLocale,
 
   ButtonPreviewPortal,
+  InlineName,
   ModalDirectory,
   ModalFile,
   TheFilesList,

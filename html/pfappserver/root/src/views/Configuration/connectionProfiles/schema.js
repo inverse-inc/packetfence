@@ -18,7 +18,7 @@ yup.addMethod(yup.string, 'connectionProfileIdNotExistsExcept', function (except
   })
 })
 
-yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
+yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message, except) {
   return this.test({
     name: 'pathNotExists',
     message: message || i18n.t('File exists.'),
@@ -43,7 +43,7 @@ yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
       for (let e = 0; e < ptrEntries.length; e++) {
         const { name } = ptrEntries[e]
         if (name === value.trim())
-          return false
+          return (name === except)
       }
       return true
     }
