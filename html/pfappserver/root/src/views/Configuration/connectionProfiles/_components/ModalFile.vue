@@ -137,12 +137,12 @@ const setup = (props, context) => {
     value,
   } = toRefs(props)
 
-  const schema = yup.object({
+  const schema = computed(() => yup.object({
     name: yup.string()
       .required(i18n.t('File name required.'))
       .isFilenameWithExtension(['html', 'mjml'])
-      .pathNotExists(entries, path, i18n.t('Filename exists.'))
-  })
+      .fileNotExists(entries.value, path.value, i18n.t('File exists.'))
+  }))
 
   const form = ref(defaults())
   const formRef = ref(null)

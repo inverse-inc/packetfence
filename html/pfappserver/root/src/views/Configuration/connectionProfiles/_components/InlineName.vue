@@ -67,7 +67,7 @@ const setup = (props, context) => {
     name: yup.string()
       .required(i18n.t('Filename required.'))
       .isFilenameWithExtension(['html', 'mjml'])
-      .pathNotExists(entries, ref(item.value.path), i18n.t('Filename exists.'), item.value.name)
+      .fileNotExists(entries.value, item.value.path, i18n.t('File exists.'), item.value.name)
   }))
 
   const form = ref()

@@ -78,9 +78,17 @@
             <template #button-content>
               <icon name="plus-circle" />
             </template>
+            <b-dropdown-header>{{ `${item.path}/${item.name}`.replace('//', '/') }}</b-dropdown-header>
+            <b-dropdown-divider />
             <b-dropdown-item @click="onToggleDirectory(item)">{{ $i18n.t('Create New Sub Directory') }}</b-dropdown-item>
             <b-dropdown-item @click="onToggleFile(item)">{{ $i18n.t('Create New File') }}</b-dropdown-item>
-            <b-dropdown-item @click="onToggleUpload(item)">{{ $i18n.t('Upload File') }}</b-dropdown-item>
+            <b-dropdown-item @click="onToggleUpload(item)">
+              <base-button-upload
+                @files="onUploadFiles(item, $event)"
+                :accept="uploadAccept"
+                multiple
+              >{{ $i18n.t('Upload File(s)') }}</base-button-upload>
+            </b-dropdown-item>
           </b-dropdown>
 
         </div>
@@ -112,6 +120,7 @@
 <script>
 import {
   BaseButtonConfirm,
+  BaseButtonUpload,
   BaseFormGroupToggle
 } from '@/components/new/'
 import {
@@ -122,6 +131,7 @@ import {
 
 const components = {
   BaseButtonConfirm,
+  BaseButtonUpload,
   InlineName,
   InputToggle: BaseFormGroupToggle,
   ModalDirectory,
@@ -170,6 +180,8 @@ const tableFields = [
 ]
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import i18n from '@/utils/locale'
+import { fileNotExists } from '../schema'
 
 const setup = (props, context) => {
 
@@ -205,8 +217,6 @@ const setup = (props, context) => {
       entries: JSON.parse(JSON.stringify(entries))
     }]
   })
-
-
 
   const _getFiles = () => {
     let sort = ['type']
@@ -377,6 +387,47 @@ const setup = (props, context) => {
     _getFiles()
   }
 
+  const onUploadFiles = (item, files) => {
+console.log('onUploadFiles', {item, files})
+    const { path, name } = item
+    const pathname = `${path}/${name}`.replace('//', '/')
+    files.forEach(file => {
+      const exists = !fileNotExists(entries.value, pathname, file.name)
+      if (exists) {
+        $store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: file.name,
+          message: i18n.t('{file} exists.', { file: `<code>${pathname}/${file.name}</code>` })
+        })
+      }
+      else {
+        $store.dispatch(`${file.storeName}/readSlice`, { start: 0, end: file.size }).then(content => {
+          $store.dispatch('$_connection_profiles/createFile', {
+            id: id.value,
+            filename: `${pathname}/${file.name}`.replace('//', '/'),
+            content, // file.result
+            quiet: true
+          }).then(() => {
+            $store.dispatch('notification/info', {
+              url: file.name,
+              message: i18n.t('{file} uploaded.', { file: `<code>${pathname}/${file.name}</code>` })
+            })
+          }).catch(error => {
+            const { response: { data: { message = '' } = {} } = {} } = error
+            $store.dispatch('notification/danger', {
+              icon: 'exclamation-triangle',
+              url: file.name,
+              message
+            })
+            throw error
+          })
+        })
+      }
+    })
+  }
+
+  const uploadAccept = '*/*'
+
   return {
     sortBy,
     sortDesc,
@@ -404,7 +455,10 @@ const setup = (props, context) => {
     onToggleUpload,
 
     lastPath,
-    hideDefaultFiles
+    hideDefaultFiles,
+
+    onUploadFiles,
+    uploadAccept,
   }
 }
 

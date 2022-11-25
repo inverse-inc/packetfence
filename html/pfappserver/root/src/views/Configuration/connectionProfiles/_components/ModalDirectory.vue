@@ -80,7 +80,7 @@ const setup = (props, context) => {
     name: yup.string()
       .required(i18n.t('A new directory name is required.'))
       .isFilename(i18n.t('Invalid directory name.'))
-      .pathNotExists(entries, path, i18n.t('Directory name exists.'))
+      .fileNotExists(entries.value, path.value, i18n.t('Directory exists.'))
   }))
 
   const form = ref(defaults())

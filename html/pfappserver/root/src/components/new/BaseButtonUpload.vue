@@ -1,13 +1,18 @@
 <template>
-  <div class="base-button-upload" v-b-tooltip.hover.top.d300 :title="title" :class="`btn-${size}`">
+  <div class="base-button-upload d-flex flex-grow-1"
+    :title="title" :class="`btn-${size}`"
+    v-b-tooltip.hover.top.d300
+  >
     <label class="base-button-upload-label mb-0">
       <b-form ref="formRef" @submit.prevent>
         <!-- MUTLIPLE UPLOAD -->
         <input v-if="multiple"
+          @click.stop
           type="file" @change="doUpload" :accept="accept" title=" " multiple
           :disabled="disabled" />
         <!-- SINGLE UPLOAD -->
         <input v-else
+          @click.stop
           ref="inputRef"
           type="file" @change="doUpload" :accept="accept" title=" "
           :disabled="disabled" />
@@ -61,6 +66,10 @@ export const props = {
     type: Function,
     default: input => input
   },
+  encoding: {
+    type: String,
+    default: 'utf-8'
+  },
   size: {
     type: String,
     default: 'md',
@@ -81,6 +90,7 @@ const setup = (props, context) => {
     readAsText,
     multiple,
     encode,
+    encoding,
   } = toRefs(props)
 
   const { emit, refs, root: { $store } = {} } = context
@@ -92,7 +102,9 @@ const setup = (props, context) => {
 
   watch($files, files => {
     const filesMapped = files.map(file => ({ ...file, storeName: storeNameFromFile(file), close: () => { doClose(file) } }))
-    emit('files', filesMapped)
+    if (!readAsText.value || filesMapped.filter(file => !file.end).length === 0) {
+      emit('files', filesMapped)
+    }
     if (!multiple.value && readAsText.value && filesMapped[0] && filesMapped[0].result)
       emit('input', encode.value(filesMapped[0].result))
     if (files.length)
@@ -150,7 +162,7 @@ const setup = (props, context) => {
         if (isAccept(file)) { // contentType accepted
           const storeName = storeNameFromFile(file)
           if (!$store.state[storeName]) { // register store module only once
-            const fileStore = new FileStore(file, accept.value)
+            const fileStore = new FileStore(file, encoding.value)
             $store.registerModule(storeName, fileStore.module())
           }
           if (readAsText.value)
