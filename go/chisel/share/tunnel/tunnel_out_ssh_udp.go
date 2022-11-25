@@ -48,7 +48,7 @@ type udpHandler struct {
 	connectorID string
 	*cio.Logger
 	hostPort    string
-	radiusProxy *radius_proxy.RadiusProxy
+	radiusProxy *radius_proxy.Proxy
 	*udpChannel
 	*udpConns
 }

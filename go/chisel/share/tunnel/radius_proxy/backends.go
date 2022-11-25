@@ -9,19 +9,31 @@ import (
 	"layeh.com/radius/rfc2865"
 )
 
-type RadiusBackends struct {
+type Backend struct {
+	addr string
+}
+
+func NewBackend(addr string) *Backend {
+	be := &Backend{
+		addr: addr,
+	}
+
+	return be
+}
+
+type Backends struct {
 	lock           *sync.RWMutex
 	keys           []string
-	backends       map[string]*RadiusBackend
-	sessions       *RadiusSessionBackend
+	backends       map[string]*Backend
+	sessions       *SessionBackend
 	sessionTimeout time.Duration
 }
 
-func NewRadiusBackends(timeout time.Duration, addrs ...string) *RadiusBackends {
-	b := &RadiusBackends{
+func NewBackends(timeout time.Duration, addrs ...string) *Backends {
+	b := &Backends{
 		lock:           &sync.RWMutex{},
-		backends:       map[string]*RadiusBackend{},
-		sessions:       NewRadiusSessionBackend(),
+		backends:       map[string]*Backend{},
+		sessions:       NewSessionBackend(),
 		sessionTimeout: timeout,
 	}
 
@@ -32,7 +44,7 @@ func NewRadiusBackends(timeout time.Duration, addrs ...string) *RadiusBackends {
 	return b
 }
 
-func (b *RadiusBackends) getBackend(p *radius.Packet) *RadiusBackend {
+func (b *Backends) getBackend(p *radius.Packet) *Backend {
 	be := b.sessions.GetBackend(p)
 	if be != nil {
 		return be
@@ -41,14 +53,14 @@ func (b *RadiusBackends) getBackend(p *radius.Packet) *RadiusBackend {
 	return b.pickBackend(p)
 }
 
-func (b *RadiusBackends) pickBackend(p *radius.Packet) *RadiusBackend {
+func (b *Backends) pickBackend(p *radius.Packet) *Backend {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 	i := b.loadBalanceIndex(p)
 	return b.backends[b.keys[i]]
 }
 
-func (b *RadiusBackends) loadBalanceIndex(packet *radius.Packet) int {
+func (b *Backends) loadBalanceIndex(packet *radius.Packet) int {
 	hash := fnv.New32()
 	username := rfc2865.UserName_Get(packet)
 	callingStation := rfc2865.CallingStationID_Get(packet)
@@ -58,22 +70,22 @@ func (b *RadiusBackends) loadBalanceIndex(packet *radius.Packet) int {
 	return int(hash.Sum32()) % len(b.keys)
 }
 
-func (b *RadiusBackends) Add(addr string) {
+func (b *Backends) Add(addr string) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 	b.add(addr)
 }
 
-func (b *RadiusBackends) add(addr string) {
+func (b *Backends) add(addr string) {
 	if _, found := b.backends[addr]; found {
 		return
 	}
 
-	b.backends[addr] = NewRadiusBackend(addr)
+	b.backends[addr] = NewBackend(addr)
 	b.keys = append(b.keys, addr)
 }
 
-func (b *RadiusBackends) Delete(addr string) {
+func (b *Backends) Delete(addr string) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 	_, found := b.backends[addr]

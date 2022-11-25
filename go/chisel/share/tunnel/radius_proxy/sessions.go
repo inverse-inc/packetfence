@@ -9,17 +9,17 @@ import (
 	"layeh.com/radius/rfc2865"
 )
 
-type RadiusSessionBackend struct {
+type SessionBackend struct {
 	store sync.Map
 }
 
-func NewRadiusSessionBackend() *RadiusSessionBackend {
-	return &RadiusSessionBackend{
+func NewSessionBackend() *SessionBackend {
+	return &SessionBackend{
 		store: sync.Map{},
 	}
 }
 
-func NewRadiusSession(id string, timeout time.Duration, backend *RadiusBackend) *RadiusSession {
+func NewRadiusSession(id string, timeout time.Duration, backend *Backend) *RadiusSession {
 	return &RadiusSession{
 		backend: backend,
 		id:      id,
@@ -29,7 +29,7 @@ func NewRadiusSession(id string, timeout time.Duration, backend *RadiusBackend) 
 	}
 }
 
-func (sb *RadiusSessionBackend) Cleanup(tick time.Duration, stop chan struct{}) {
+func (sb *SessionBackend) Cleanup(tick time.Duration, stop chan struct{}) {
 	ticker := time.NewTicker(tick)
 	for {
 		select {
@@ -42,7 +42,7 @@ func (sb *RadiusSessionBackend) Cleanup(tick time.Duration, stop chan struct{}) 
 	ticker.Stop()
 }
 
-func (sb *RadiusSessionBackend) GetBackend(packet *radius.Packet) *RadiusBackend {
+func (sb *SessionBackend) GetBackend(packet *radius.Packet) *Backend {
 	state := rfc2865.ProxyState_GetString(packet)
 	if state == "" {
 		return nil
@@ -58,7 +58,7 @@ func (sb *RadiusSessionBackend) GetBackend(packet *radius.Packet) *RadiusBackend
 	return nil
 }
 
-func (sb *RadiusSessionBackend) cleanup() {
+func (sb *SessionBackend) cleanup() {
 	sb.store.Range(
 		func(key, value any) bool {
 			rs := value.(*RadiusSession)
@@ -73,7 +73,7 @@ func (sb *RadiusSessionBackend) cleanup() {
 	)
 }
 
-func (rs *RadiusSessionBackend) Add(id string, timeout time.Duration, backend *RadiusBackend) {
+func (rs *SessionBackend) Add(id string, timeout time.Duration, backend *Backend) {
 	rs.store.Store(
 		id,
 		NewRadiusSession(
@@ -88,7 +88,7 @@ type RadiusSession struct {
 	id      string
 	timeout time.Duration
 	endTime time.Time
-	backend *RadiusBackend
+	backend *Backend
 	lock    *sync.RWMutex
 }
 

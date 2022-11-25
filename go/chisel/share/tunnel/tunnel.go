@@ -62,7 +62,7 @@ type Tunnel struct {
 
 	IsRemoteConnector bool
 	ConnectorID       string
-	radiusProxy       *radius_proxy.RadiusProxy
+	radiusProxy       *radius_proxy.Proxy
 	k8ControllerDrop  chan struct{}
 }
 
@@ -109,7 +109,7 @@ func isPodReady(pod *v1.Pod) bool {
 
 const radiusAuthK8Filter = "app=radiusd-auth"
 
-func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.RadiusProxy, chan struct{}, error) {
+func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, error) {
 	clientset, _ := kubernetes.NewForConfig(&rest.Config{
 		Host:            os.Getenv("K8S_MASTER_HOST"),
 		BearerToken:     os.Getenv("K8S_MASTER_TOKEN"),
@@ -131,8 +131,8 @@ func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.RadiusProxy, chan struc
 		servers = append(servers, p.Status.PodIP+":1812")
 	}
 
-	radiusProxy := radius_proxy.NewRadiusProxy(
-		&radius_proxy.Config{
+	radiusProxy := radius_proxy.NewProxy(
+		&radius_proxy.ProxyConfig{
 			Secret:         []byte(t.Config.RadiusSecret),
 			Addrs:          servers,
 			SessionTimeout: 20 * time.Second,

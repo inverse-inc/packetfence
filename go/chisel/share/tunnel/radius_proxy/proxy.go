@@ -12,25 +12,25 @@ import (
 	"layeh.com/radius/rfc2869"
 )
 
-type RadiusProxy struct {
+type Proxy struct {
 	attributes_keys []string
 	secret          []byte
 	sessionTimeout  time.Duration
-	backends        *RadiusBackends
+	backends        *Backends
 	*cio.Logger
 }
 
-type Config struct {
+type ProxyConfig struct {
 	Addrs          []string
 	Secret         []byte
 	SessionTimeout time.Duration
 	Logger         *cio.Logger
 }
 
-func NewRadiusProxy(config *Config) *RadiusProxy {
-	radiusProxy := &RadiusProxy{
+func NewProxy(config *ProxyConfig) *Proxy {
+	radiusProxy := &Proxy{
 		sessionTimeout: config.SessionTimeout,
-		backends:       NewRadiusBackends(config.SessionTimeout, config.Addrs...),
+		backends:       NewBackends(config.SessionTimeout, config.Addrs...),
 		secret:         []byte(config.Secret),
 		Logger:         config.Logger,
 	}
@@ -38,7 +38,7 @@ func NewRadiusProxy(config *Config) *RadiusProxy {
 	return radiusProxy
 }
 
-func (rp *RadiusProxy) addProxyState(p *radius.Packet) bool {
+func (rp *Proxy) addProxyState(p *radius.Packet) bool {
 	state := rfc2865.ProxyState_GetString(p)
 	if state != "" {
 		return false
@@ -52,15 +52,15 @@ func (rp *RadiusProxy) addProxyState(p *radius.Packet) bool {
 	return true
 }
 
-func (rp *RadiusProxy) AddBackend(addr string) {
+func (rp *Proxy) AddBackend(addr string) {
 	rp.backends.Add(addr)
 }
 
-func (rp *RadiusProxy) DeleteBackend(addr string) {
+func (rp *Proxy) DeleteBackend(addr string) {
 	rp.backends.Delete(addr)
 }
 
-func (rp *RadiusProxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
+func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
 	packet, err := radius.Parse(payload, rp.secret)
 	if err != nil {
 		return nil, "", err
