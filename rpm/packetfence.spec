@@ -918,6 +918,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/sdnotify-proxy
+%attr(0755, pf, pf)     /usr/local/pf/sbin/signal-proxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/api-frontend-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.aaa-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
