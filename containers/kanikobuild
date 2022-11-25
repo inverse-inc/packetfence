@@ -6,21 +6,21 @@ set -o nounset -o pipefail -o errexit
 # CI_PROJECT_DIR must be equal to root of PF source tree (full path)
 
 setup_vars() {
-    DOCKFILE_PATH=$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile
+    # all specific variables need to be defined in kaniko_vars
+    if [ -f "$CI_PROJECT_DIR/containers/kaniko_vars" ]; then
+	source $CI_PROJECT_DIR/containers/kaniko_vars
+    else
+	echo "No specific variables added to build"
+    fi
 
-    ### collect variables needed inside Dockerfile
-    # returns X.Y
-    export PF_VERSION=$(egrep -o '[0-9]+\.[0-9]+' $CI_PROJECT_DIR/conf/pf-release)
+    # necessary if variables are not defined in kaniko_vars or in environment
+    DOCKFILE_PATH=${DOCKFILE_PATH:-"$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile"}
+    DOCKFILE_VARS=${DOCKFILE_VARS:-}
+    KNK_CACHE=${KNK_CACHE:-true}
 
     # IMAGE_TAG is used inside DockerFile to reference other image
     # only one tag can be used in Dockerfile
     export IMAGE_TAG=$(echo $IMAGE_TAGS | cut -d ',' -f 1)
-
-    # only used for pfdebian build
-    export PKGS_TO_EXCLUDE="packetfence|freeradius"
-
-    # variables to pass during build
-    DOCKFILE_VARS='PF_VERSION KNK_REGISTRY_URL IMAGE_TAG FINGERBANK_BUILD_API_KEY BUILD_PFAPPSERVER_VUE PKGS_TO_EXCLUDE'
 
     echo "Building ${IMAGE_NAME} using ${DOCKFILE_PATH}"
 }
@@ -35,15 +35,17 @@ generate_knk_config() {
 # already in the environment
 generate_build_args() {
     local build_args=''
-    for var in ${DOCKFILE_VARS}; do
-      # just to handle case of first iteration
-      if [ -z "$build_args" ]; then 
-        build_args="--build-arg ${var}"
-      else
-        build_args="$build_args --build-arg ${var}"
-      fi
-    done
-    echo "$build_args"
+    if [ -n "${DOCKFILE_VARS}" ]; then
+        for var in ${DOCKFILE_VARS}; do
+          # just to handle case of first iteration
+          if [ -z "$build_args" ]; then
+            build_args="--build-arg ${var}"
+          else
+            build_args="$build_args --build-arg ${var}"
+          fi
+        done
+        echo "$build_args"
+    fi
 }
 
 detect_multi_tags() {
