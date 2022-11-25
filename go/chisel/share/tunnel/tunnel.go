@@ -73,7 +73,10 @@ func New(c Config) *Tunnel {
 		Config: c,
 	}
 	radiusProxy, stop, err := radiusProxyFromKubernetes(t)
-	if err == nil {
+
+	if err != nil {
+		t.Errorf("Error getting pod info: %s", err.Error())
+	} else {
 		t.radiusProxy = radiusProxy
 		t.k8ControllerDrop = stop
 		go radiusProxy.Cleanup(stop)
