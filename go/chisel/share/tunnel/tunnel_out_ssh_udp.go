@@ -92,9 +92,9 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 		n, err := conn.Read(buff)
 		if err != nil {
 			if !os.IsTimeout(err) && err != io.EOF {
-				h.Debugf("read error: %s", err)
+				h.Debugf("read error %s: %s", conn, err)
 			} else {
-				h.Debugf("closing connection")
+				h.Debugf("closing connection %s", conn)
 			}
 			break
 		}
@@ -102,12 +102,12 @@ func (h *udpHandler) handleRead(p *udpPacket, conn *udpConn) {
 		//encode back over ssh connection
 		err = h.udpChannel.encode(p.Src, b)
 		if err != nil {
-			h.Debugf("encode error: %s", err)
+			h.Debugf("encode error %s: %s", conn, err)
 			return
 		}
 		// Enabling this makes it so less active connections are kept at the cost of re-dialing if there is a continious exchange in that specific UDP connection
 		if udpCloseOnReply {
-			h.Debugf("UDP close on reply")
+			h.Debugf("UDP close on reply %s", conn)
 		}
 	}
 }
