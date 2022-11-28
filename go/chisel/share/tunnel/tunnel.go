@@ -113,17 +113,35 @@ func isPodReady(pod *v1.Pod) bool {
 
 const radiusAuthK8Filter = "app=radiusd-auth"
 
-func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, error) {
-	clientset, _ := kubernetes.NewForConfig(&rest.Config{
-		Host:            os.Getenv("K8S_MASTER_HOST"),
-		BearerToken:     os.Getenv("K8S_MASTER_TOKEN"),
+func clientSetFromEnv() (*kubernetes.Clientset, error) {
+	host := os.Getenv("K8S_MASTER_URI")
+	if host == "" {
+		return nil, errors.New("K8_MASTER_URI is not defined")
+	}
+
+	token := os.Getenv("K8S_MASTER_TOKEN")
+	if token == "" {
+		return nil, errors.New("K8_MASTER_TOKEN is not defined")
+	}
+
+	return kubernetes.NewForConfig(&rest.Config{
+		Host:            host,
+		BearerToken:     token,
 		TLSClientConfig: TLSConfigFromEnv(),
 	})
+}
+
+func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, error) {
+	clientset, err := clientSetFromEnv()
+	if err != nil {
+		return nil, nil, err
+	}
 
 	data, err := os.ReadFile(os.Getenv("K8S_NAMESPACE_PATH"))
 	if err != nil {
 		return nil, nil, err
 	}
+
 	namespace := string(data)
 	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: radiusAuthK8Filter})
 	if err != nil {
@@ -152,6 +170,7 @@ func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, e
 			opts.LabelSelector = radiusAuthK8Filter
 		},
 	)
+
 	_, controller := cache.NewInformer( // also take a look at NewSharedIndexInformer
 		watchlist,
 		&v1.Pod{},
@@ -196,9 +215,9 @@ func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, e
 }
 
 func TLSConfigFromEnv() rest.TLSClientConfig {
-	caCerts := []byte(sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_CA_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")))
+	caFile := sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
 	return rest.TLSClientConfig{
-		CAData: caCerts,
+		CAFile: caFile,
 	}
 }
 

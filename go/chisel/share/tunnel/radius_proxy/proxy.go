@@ -106,7 +106,7 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 func addMessageAuthenticator(p *radius.Packet, secret []byte) error {
 	rfc2869.MessageAuthenticator_Del(p)
 	hash := hmac.New(md5.New, secret)
-	rfc2869.MessageAuthenticator_Set(p, []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0})
+	rfc2869.MessageAuthenticator_Set(p, []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	encode, err := p.Encode()
 	if err != nil {
 		return err
