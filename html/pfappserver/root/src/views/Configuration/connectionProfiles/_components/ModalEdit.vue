@@ -334,7 +334,7 @@ const setup = (props, context) => {
 }
 
 export default {
-  name: 'modal-file',
+  name: 'modal-edit',
   components,
   props,
   setup

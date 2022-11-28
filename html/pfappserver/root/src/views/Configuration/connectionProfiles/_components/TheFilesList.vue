@@ -37,8 +37,7 @@
           <icon v-for="(name, n) in item.icons" :key="n"
             :name="name" class="nav-icon" />
 
-          <icon name="file" v-if="!item.not_revertible || !item.not_deletable" />
-          <icon name="regular/file" v-else />
+          <icon :name="(item.isImage) ? 'file-image' : 'file'" />
 
           <inline-name v-if="!item.not_revertible || !item.not_deletable"
             :id="id" :item="item" :entries="entries" />
@@ -81,7 +80,7 @@
             <b-dropdown-header>{{ `${item.path}/${item.name}`.replace('//', '/') }}</b-dropdown-header>
             <b-dropdown-divider />
             <b-dropdown-item @click="onToggleDirectory(item)">{{ $i18n.t('Create New Sub Directory') }}</b-dropdown-item>
-            <b-dropdown-item @click="onToggleFile(item)">{{ $i18n.t('Create New File') }}</b-dropdown-item>
+            <b-dropdown-item @click="onToggleEdit(item)">{{ $i18n.t('Create New File') }}</b-dropdown-item>
             <b-dropdown-item @click="onToggleUpload(item)">
               <base-button-upload
                 @files="onUploadFiles(item, $event)"
@@ -104,15 +103,24 @@
       @hidden="onToggleDirectory"
     />
 
-    <modal-file
-      v-model="isShowFileModal"
+    <modal-edit
+      v-model="isShowEditModal"
       :entries="entries"
       :id="id"
       :path="lastPath"
       @create="onCreateFile($event)"
       @update="onUpdateFile($event)"
       @delete="onDeleteFile($event)"
-      @hidden="onToggleFile"
+      @hidden="onToggleEdit"
+    />
+
+    <modal-view
+      v-model="isShowViewModal"
+      :entries="entries"
+      :id="id"
+      :path="lastPath"
+      @delete="onDeleteFile($event)"
+      @hidden="onToggleView"
     />
 
   </div>
@@ -126,7 +134,8 @@ import {
 import {
   InlineName,
   ModalDirectory,
-  ModalFile,
+  ModalEdit,
+  ModalView,
 } from './'
 
 const components = {
@@ -135,7 +144,8 @@ const components = {
   InlineName,
   InputToggle: BaseFormGroupToggle,
   ModalDirectory,
-  ModalFile,
+  ModalEdit,
+  ModalView,
 }
 
 const props = {
@@ -261,7 +271,9 @@ const setup = (props, context) => {
               }
               break
             case 'file':
-              reduced.push({ ...rest, path, icons })
+              reduced.push({ ...rest, path, icons,
+                isImage: (['gif', 'jpg', 'jpeg', 'png'].includes(name.split('.').reverse()[0].toLowerCase()))
+              })
               break
           }
           return reduced
@@ -292,7 +304,9 @@ const setup = (props, context) => {
                 reduced.push({ ...rest, path, expand: false, icons })
               break
             case 'file':
-              reduced.push({ ...rest, path, icons })
+              reduced.push({ ...rest, path, icons,
+                isImage: (['gif', 'jpg', 'jpeg', 'png'].includes(name.split('.').reverse()[0].toLowerCase()))
+              })
               break
           }
           return reduced
@@ -317,7 +331,17 @@ const setup = (props, context) => {
         expandPath(fullPath)
     }
     else if (type === 'file') {
-      onToggleFile(row)
+      const extension = name.split('.').reverse()[0]
+      switch (extension.toLowerCase()) {
+        case 'gif':
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+          onToggleView(row)
+          break
+        default:
+          onToggleEdit(row)
+      }
     }
   }
 
@@ -342,11 +366,18 @@ const setup = (props, context) => {
     isShowDirectoryModal.value = !isShowDirectoryModal.value
   }
 
-  const isShowFileModal = ref(false)
-  const onToggleFile = (item) => {
+  const isShowEditModal = ref(false)
+  const onToggleEdit = (item) => {
     const { path = '', name = '' } = item || {}
     lastPath.value = `${path}/${name}`.replace('//', '/')
-    isShowFileModal.value = !isShowFileModal.value
+    isShowEditModal.value = !isShowEditModal.value
+  }
+
+  const isShowViewModal = ref(false)
+  const onToggleView = (item) => {
+    const { path = '', name = '' } = item || {}
+    lastPath.value = `${path}/${name}`.replace('//', '/')
+    isShowViewModal.value = !isShowViewModal.value
   }
 
   const isShowUploadModal = ref(false)
@@ -383,7 +414,8 @@ const setup = (props, context) => {
   const onUpdateFile = () => _getFiles()
 
   const onDeleteFile = () => {
-    isShowFileModal.value = false
+    isShowEditModal.value = false
+    isShowViewModal.value = false
     _getFiles()
   }
 
@@ -412,6 +444,7 @@ const setup = (props, context) => {
               url: filename,
               message: i18n.t('{file} uploaded.', { file: `<code>${pathname}/${filename}</code>` })
             })
+
           }).catch(error => {
             const { response: { data: { message = '' } = {} } = {} } = error
             $store.dispatch('notification/danger', {
@@ -420,7 +453,7 @@ const setup = (props, context) => {
               message
             })
             throw error
-          })
+          }).finally(_getFiles)
         })
       }
     })
@@ -445,11 +478,14 @@ const setup = (props, context) => {
     onCreateDirectory,
     onToggleDirectory,
 
-    isShowFileModal,
+    isShowEditModal,
     onCreateFile,
     onUpdateFile,
     onDeleteFile,
-    onToggleFile,
+    onToggleEdit,
+
+    isShowViewModal,
+    onToggleView,
 
     isShowUploadModal,
     onToggleUpload,

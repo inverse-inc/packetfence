@@ -17,7 +17,8 @@ import BaseFormGroupSources from './BaseFormGroupSources'
 import ButtonPreviewPortal from './ButtonPreviewPortal'
 import InlineName from './InlineName'
 import ModalDirectory from './ModalDirectory'
-import ModalFile from './ModalFile'
+import ModalEdit from './ModalEdit'
+import ModalView from './ModalView'
 import TheFilesList from './TheFilesList'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -67,7 +68,8 @@ export {
   ButtonPreviewPortal,
   InlineName,
   ModalDirectory,
-  ModalFile,
+  ModalEdit,
+  ModalView,
   TheFilesList,
   TheForm,
   TheView,
