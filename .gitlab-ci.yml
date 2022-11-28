@@ -470,6 +470,7 @@ variables:
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-export
+    - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-ci-lib
   tags:
     - shell
 
