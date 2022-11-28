@@ -293,7 +293,7 @@ yup.addMethod(yup.string, 'isFilenameWithExtension', function (extensions, messa
     name: 'isFilenameWithExtension',
     message: message || i18n.t('Invalid extension. Must be one of: {extensions}.', { extensions: extensions.join(', ') }),
     test: value => {
-      const re = RegExp('^[a-zA-Z0-9_]+[a-zA-Z0-9_\\-\\.]*\\.(' + extensions.join('|') + ')$')
+      const re = RegExp('^[0-9a-z\xC0-\xff_]+[0-9a-z\xC0-\xff_\\-\\.]*\\.(' + extensions.join('|') + ')$', 'gi')
       return !value || re.test(value)
     }
   })
