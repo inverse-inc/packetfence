@@ -202,6 +202,11 @@ Depends: fingerbank-collector-remote (>= 1.4.1)
 Description: PacketFence Connector
  PacketFence Connector files. This package contains all files related to PacketFence Connector.
 
+Package: packetfence-ci-lib
+Architecture: all
+Description: CI librairies used by PacketFence
+ PacketFence CI librairies. This package contains all files related to PacketFence CI librairies.
+
 Package: packetfence-pfcmd-suid
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
