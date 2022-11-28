@@ -321,6 +321,20 @@ pfconnector_remote_install:
 	make -C $(SRC_GODIR) pfconnector
 	install -v -m 0755 $(SRC_GODIR)/pfconnector $(DESTDIR)$(PFCONNECTOR_BINDIR)/pfconnector
 
+# install -D will automatically create target directories
+# SRC_RELATIVE_CILIBDIR is used to only get relative paths from PF source tree
+# $$file in destination of install command contain relative path
+.PHONY: ci_lib_install
+ci_lib_install:
+	@echo "create directories under $(DESTDIR)$(CIDIR)"
+	install -d -m0755 $(DESTDIR)$(CIDIR)
+	install -d -m0755 $(DESTDIR)$(CILIBDIR)
+
+	@echo "install $(SRC_RELATIVE_CILIBDIR) files"
+	for file in $(shell find $(SRC_RELATIVE_CILIBDIR) -type f); do \
+            install -v -m 0644 $$file -D $(DESTDIR)$(PF_PREFIX)/$$file ; \
+	done
+
 # packetfence-export package
 .PHONY: distclean-packetfence-export
 distclean-packetfence-export:
