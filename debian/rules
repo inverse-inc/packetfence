@@ -77,6 +77,9 @@ install: build
 	# packetfence-pfconnector-remote package
 	make DESTDIR=$(CURDIR)/debian/packetfence-pfconnector-remote pfconnector_remote_install
 
+	# packetfence-ci-lib package
+	make DESTDIR=$(CURDIR)/debian/packetfence-ci-lib ci_lib_install
+
 	# packetfence-config package
 	for i in `find * -path 'lib/pfconfig*' -type d`; do \
 		install -d -m0700 $(CURDIR)/debian/packetfence-config$(PREFIX)/$(NAME)/$$i; \
@@ -347,6 +350,14 @@ binary-arch: build install
 
 	# Addon Stress-tester
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/stress-tester/dhcp_test
+
+	# packetfence-ci-lib
+	chmod 0755 $(CURDIR)/debian/packetfence-ci-lib$(PREFIX)/$(NAME)/ci/lib/build/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-ci-lib$(PREFIX)/$(NAME)/ci/lib/check/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-ci-lib$(PREFIX)/$(NAME)/ci/lib/common/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-ci-lib$(PREFIX)/$(NAME)/ci/lib/release/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-ci-lib$(PREFIX)/$(NAME)/ci/lib/test/*.sh
+	chmod 0755 $(CURDIR)/debian/packetfence-ci-lib$(PREFIX)/$(NAME)/ci/lib/upload/*.sh
 	# packetfence pkg
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.pl
 	chmod 0755 $(CURDIR)/debian/packetfence$(PREFIX)/$(NAME)/addons/*.sh
