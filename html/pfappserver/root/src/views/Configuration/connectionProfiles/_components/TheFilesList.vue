@@ -388,35 +388,35 @@ const setup = (props, context) => {
   }
 
   const onUploadFiles = (item, files) => {
-console.log('onUploadFiles', {item, files})
     const { path, name } = item
     const pathname = `${path}/${name}`.replace('//', '/')
     files.forEach(file => {
-      const exists = !fileNotExists(entries.value, pathname, file.name)
+      const filename = file.name.trim()
+      const exists = !fileNotExists(entries.value, pathname, filename)
       if (exists) {
         $store.dispatch('notification/danger', {
           icon: 'exclamation-triangle',
-          url: file.name,
-          message: i18n.t('{file} exists.', { file: `<code>${pathname}/${file.name}</code>` })
+          url: filename,
+          message: i18n.t('{file} exists.', { file: `<code>${pathname}/${filename}</code>` })
         })
       }
       else {
         $store.dispatch(`${file.storeName}/readSlice`, { start: 0, end: file.size }).then(content => {
           $store.dispatch('$_connection_profiles/createFile', {
             id: id.value,
-            filename: `${pathname}/${file.name}`.replace('//', '/'),
+            filename: `${pathname}/${filename}`.replace('//', '/'),
             content, // file.result
             quiet: true
           }).then(() => {
             $store.dispatch('notification/info', {
-              url: file.name,
-              message: i18n.t('{file} uploaded.', { file: `<code>${pathname}/${file.name}</code>` })
+              url: filename,
+              message: i18n.t('{file} uploaded.', { file: `<code>${pathname}/${filename}</code>` })
             })
           }).catch(error => {
             const { response: { data: { message = '' } = {} } = {} } = error
             $store.dispatch('notification/danger', {
               icon: 'exclamation-triangle',
-              url: file.name,
+              url: filename,
               message
             })
             throw error
