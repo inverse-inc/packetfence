@@ -22,8 +22,8 @@ endif
 .PHONY: run_kaniko
 
 run_kaniko:
-	docker pull gcr.io/kaniko-project/executor:debug
-	docker container run --entrypoint '/busybox/sh' --rm --name "kaniko" --volume="$(SRC_ROOT_DIR)":/workspace -it gcr.io/kaniko-project/executor:debug
+	docker pull ghcr.io/inverse-inc/packetfence/kaniko-build:devel
+	docker container run --entrypoint '/busybox/sh' --rm --name "kaniko" --volume="$(SRC_ROOT_DIR)":/workspace -it ghcr.io/inverse-inc/packetfence/kaniko-build:devel
 
 ### Targets for localdev
 DOCKERFILE_DIRS = $(shell find -type f -name "Dockerfile" -printf "%P\n")
@@ -43,4 +43,4 @@ $(CONTAINER_IMAGES):
 			-e "KNK_REGISTRY_URL=$(KNK_REGISTRY_URL)" \
 			-e "KNK_REGISTRY_USER" -e "KNK_REGISTRY_PASSWORD" \
 			--volume="$(SRC_ROOT_DIR)":/workspace \
-			-it gcr.io/kaniko-project/executor:debug
+			-it ghcr.io/inverse-inc/packetfence/kaniko-build:devel
