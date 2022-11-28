@@ -620,6 +620,12 @@ sub preview_file {
     if (!defined $path) {
         return $self->render_error(404, "'$file' not found");
     }
+
+    if ($path !~ /\.html/) {
+        $self->reply->file($path);
+        return;
+    }
+
     my $profile =
       pf::Connection::ProfileFactory->instantiate( "00:11:22:33:44:55",
         { portal => $self->id } );
