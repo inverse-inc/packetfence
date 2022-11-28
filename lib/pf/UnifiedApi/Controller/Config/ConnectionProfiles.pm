@@ -422,7 +422,7 @@ file_excluded
 
 sub file_excluded {
     my ($file) = @_;
-    return $file !~ /\.(html|mjml)$/ || $file =~ /^\./;
+    return $file !~ /\.(html|mjml|jpg|jpeg|gif|png)$/ || $file =~ /^\./;
 }
 
 sub dir_excluded {
