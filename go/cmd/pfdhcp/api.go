@@ -149,8 +149,6 @@ func handleMac2Ip(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprint(res, string(outgoingJSON))
 		return
 	}
-	unifiedapierrors.Error(res, "Cannot find match for this MAC address", http.StatusNotFound)
-	return
 }
 
 func handleAllStats(res http.ResponseWriter, req *http.Request) {
