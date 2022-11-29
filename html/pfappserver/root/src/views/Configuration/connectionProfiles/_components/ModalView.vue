@@ -120,13 +120,3 @@ export default {
   setup
 }
 </script>
-<style lang="scss" scoped>
-::v-deep {
-  .modal-dialog {
-    & > .modal-content {
-      /* take max height */
-      height: calc(100vh - (2 * 1.75rem)); /* 2 x $modal-dialog-margin-y-sm-up */
-    }
-  }
-}
-</style>

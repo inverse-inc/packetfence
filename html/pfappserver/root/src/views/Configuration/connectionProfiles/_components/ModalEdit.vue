@@ -189,7 +189,7 @@ const setup = (props, context) => {
     else {
       $store.dispatch('$_connection_profiles/getFile', { id: id.value, filename: path.value }).then(response => {
         const { content, meta: { not_deletable, not_revertible } = {} } = response
-        editorContent.value = content
+        editorContent.value = atob(content)
         isDeletable.value = !not_deletable
         isRevertible.value = !not_revertible
       })
@@ -209,7 +209,7 @@ const setup = (props, context) => {
     let params = {
       id: id.value,
       filename: path.value.split('/').filter(u => u).join('/'),
-      content: editorContent.value
+      content: btoa(editorContent.value)
     }
     if (isNew.value)
       params.filename += `/${form.value.name}`

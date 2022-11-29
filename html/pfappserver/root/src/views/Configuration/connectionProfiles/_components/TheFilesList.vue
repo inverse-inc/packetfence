@@ -433,7 +433,7 @@ const setup = (props, context) => {
         })
       }
       else {
-        $store.dispatch(`${file.storeName}/readSlice`, { start: 0, end: file.size }).then(content => {
+        $store.dispatch(`${file.storeName}/readAsDataURL`).then(content => {
           $store.dispatch('$_connection_profiles/createFile', {
             id: id.value,
             filename: `${pathname}/${filename}`.replace('//', '/'),

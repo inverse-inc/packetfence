@@ -65,11 +65,9 @@ export default class FileStore {
               const end = state.offsets[lineIndex + 1] - state.newLine.length
               dispatch('readSlice', { start, end }).then(result => {
                 let decoded = result
-//                if (state.file.type.match(/^text\//i)) { // is text
                   try {
                     decoded = new TextDecoder(state.file.encoding).decode(result)
                   } catch (e) {/* noop */ }
-//                }
                 resolve(decoded)
               }).catch(err => {
                 reject(err)
@@ -97,6 +95,24 @@ export default class FileStore {
           end = Math.min(end, state.file.size)
           const slice = state.blob.slice(start, end, state.file.type)
           reader.readAsArrayBuffer(slice)
+        })
+      },
+      readAsDataURL: ({ commit, state }) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onerror = (event) => {
+            const { target: { error } = {} } = event
+            commit('SET_ERROR', error)
+            reader.abort()
+            reject(error)
+          }
+          reader.onload = (event) => {
+            const { target: { result } = {} } = event
+            // eslint-disable-next-line no-unused-vars
+            const [ dataString, base64 ] = result.split(',', 2)
+            resolve(base64)
+          }
+          reader.readAsDataURL(state.blob)
         })
       },
       buildOffset: ({ commit, state, dispatch }, lineIndex) => {
