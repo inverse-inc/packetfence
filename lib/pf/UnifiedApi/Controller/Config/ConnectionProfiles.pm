@@ -621,7 +621,11 @@ sub preview_file {
         return $self->render_error(404, "'$file' not found");
     }
 
-    if ($path !~ /\.html/) {
+    if ($path !~ /\.html$/) {
+        my $type = $self->app->types->file_type($path);
+        if ($type) {
+            $self->res->headers->content_type($type);
+        }
         $self->reply->file($path);
         return;
     }
