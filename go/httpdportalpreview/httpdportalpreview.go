@@ -130,6 +130,7 @@ func (p *Proxy) ServeStatic(r *http.Response) error {
 
 	boeuf := bytes.NewBuffer(buffer)
 	r.Body = ioutil.NopCloser(boeuf)
+	r.Header["Content-Length"] = []string{fmt.Sprint(boeuf.Len())}
 	return nil
 }
 
