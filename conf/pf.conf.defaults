@@ -1367,6 +1367,14 @@ local_auth=disabled
 #
 # Process bandwidth accounting.
 process_bandwidth_accounting = disabled
+# radius_configuration.pfacct_workers
+#
+# The number of workers proccessing accounting packets.
+pfacct_workers = 5
+# radius_configuration.pfacct_work_queue_size
+#
+# The size of the queue for each worker.
+pfacct_work_queue_size = 1000
 
 [dns_configuration]
 #
