@@ -51,8 +51,7 @@ export default {
     })
   },
   file: params => {
-    const method = params.quiet ? 'getQuiet' : 'get'
-    return apiCall[method](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/').filter(p => p)], { ...params, nocache: true }).then(response => {
+    return apiCall.getQuiet(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/').filter(p => p)], { ...params, nocache: true }).then(response => {
       return response.data
     })
   },

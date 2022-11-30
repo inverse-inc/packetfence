@@ -86,3 +86,5 @@ export const filters = {
     types: [pfFieldType.SUBSTRING]
   }
 }
+
+export const acceptMimes = 'text/*, image/*'

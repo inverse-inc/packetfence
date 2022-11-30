@@ -40,6 +40,7 @@
           <icon :name="(item.isImage) ? 'file-image' : 'file'" />
 
           <inline-name v-if="!item.not_revertible || !item.not_deletable"
+            :key="`${item.path}/${item.name}`"
             :id="id" :item="item" :entries="entries" />
           <span v-else
             >{{ item.name }}</span>
@@ -84,7 +85,7 @@
             <b-dropdown-item @click="onToggleUpload(item)">
               <base-button-upload
                 @files="onUploadFiles(item, $event)"
-                :accept="uploadAccept"
+                :accept="acceptMimes"
                 multiple
               >{{ $i18n.t('Upload File(s)') }}</base-button-upload>
             </b-dropdown-item>
@@ -191,6 +192,8 @@ const tableFields = [
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
+import { reAscii } from '@/utils/regex'
+import { acceptMimes } from '../config'
 import { fileNotExists } from '../schema'
 
 const setup = (props, context) => {
@@ -424,6 +427,13 @@ const setup = (props, context) => {
     const pathname = `${path}/${name}`.replace('//', '/')
     files.forEach(file => {
       const filename = file.name.trim()
+      if(!reAscii(filename)) {
+        return $store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: filename,
+          message: i18n.t('Upload skipped. {filename} contains non-ASCII characters and is not a valid filename.', { filename: `<code>${filename}</code>` })
+        })
+      }
       const exists = !fileNotExists(entries.value, pathname, filename)
       if (exists) {
         $store.dispatch('notification/danger', {
@@ -459,8 +469,6 @@ const setup = (props, context) => {
     })
   }
 
-  const uploadAccept = '*/*'
-
   return {
     sortBy,
     sortDesc,
@@ -494,7 +502,7 @@ const setup = (props, context) => {
     hideDefaultFiles,
 
     onUploadFiles,
-    uploadAccept,
+    acceptMimes,
   }
 }
 

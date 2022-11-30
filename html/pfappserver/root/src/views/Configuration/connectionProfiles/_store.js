@@ -237,10 +237,9 @@ const actions = {
   renameFile: ({ commit, dispatch }, params) => {
     const { to, from, ...options } = params
     commit('FILE_REQUEST')
-    return api.file(from).then(content => {
-      return api.createFile({
-        ...to, ...options, content
-      }).then(() => {
+    return api.file(from).then(response => {
+      const { message: content = '' } = response
+      return api.createFile({ ...to, ...options, content }).then(() => {
         return api.deleteFile({ ...from, ...options }).then(() => {
           return dispatch('files', { id: from.id })
         }).catch(err => {

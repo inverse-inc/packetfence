@@ -1,7 +1,9 @@
 <template>
   <div @click.stop class="d-flex flex-grow-1">
     <template v-if="!rename">
-      <span style="cursor: text;" @click.stop="onShow">{{ item.name }}</span>
+      <span style="cursor: text;" @click.stop="onShow"
+        v-b-tooltip.hover.top.d300 :title="$i18n.t('Click to rename')"
+      >{{ item.name }}</span>
     </template>
     <template v-else>
       <b-form @submit.prevent="onRename" ref="formRef"
@@ -10,16 +12,21 @@
           class="p-0 my-1 w-100"
           :form="form"
           :schema="schema"
-          :isLoading="isLoading"
+          :isLoading="isLoading || isRenaming"
         >
           <input-name namespace="name" ref="inputRef"
             class="w-100" :placeholder="item.name"
             @click.stop.prevent
           />
         </base-form>
-        <b-button :disabled="isLoading || !canRename"
-          size="sm" variant="primary" class="ml-1 my-1" @click="onRename">{{ $i18n.t('Rename') }}</b-button>
-        <b-button :disabled="isLoading"
+        <b-button :disabled="isLoading || isRenaming || !canRename"
+          size="sm" variant="primary" class="ml-1 my-1 py-0" @click="onRename">
+            <template v-if="!isRenaming"
+              >{{ $i18n.t('Rename') }}</template>
+            <icon v-else
+              name="circle-notch" spin />
+        </b-button>
+        <b-button :disabled="isLoading || isRenaming"
           size="sm" variant="danger" class="ml-1 my-1" @click.stop="onCancel">{{ $i18n.t('Cancel') }}</b-button>
       </b-form>
     </template>
@@ -113,14 +120,18 @@ const setup = (props, context) => {
   }
 
   const isLoading = computed(() => $store.getters['$_connection_profiles/isLoadingFiles'])
+  const isRenaming = ref(false)
   const onRename = () => {
     if (isValid.value) {
+      isRenaming.value = true
       const { path } = item.value
       return $store.dispatch(`$_connection_profiles/renameFile`, {
         from: { id: id.value, filename: `${path}/${item.value.name}`.replace('//', '/') },
         to: { id: id.value, filename: `${path}/${form.value.name}`.replace('//', '/')  },
         quiet: true
-      }).then(onCancel)
+      })
+        .then(onCancel)
+        .finally(() => isRenaming.value = false)
     }
   }
 
@@ -135,6 +146,7 @@ const setup = (props, context) => {
     schema,
 
     isLoading,
+    isRenaming,
     rename,
     onShow,
     onCancel,

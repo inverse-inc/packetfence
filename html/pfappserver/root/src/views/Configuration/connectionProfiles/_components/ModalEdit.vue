@@ -188,8 +188,8 @@ const setup = (props, context) => {
     }
     else {
       $store.dispatch('$_connection_profiles/getFile', { id: id.value, filename: path.value }).then(response => {
-        const { content, meta: { not_deletable, not_revertible } = {} } = response
-        editorContent.value = atob(content)
+        const { content: { message }, meta: { not_deletable, not_revertible } = {} } = response
+        editorContent.value = atob(message)
         isDeletable.value = !not_deletable
         isRevertible.value = !not_revertible
       })
