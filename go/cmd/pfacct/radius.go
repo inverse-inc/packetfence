@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
+	"github.com/VividCortex/mysqlerr"
 	cache "github.com/fdurand/go-cache"
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
@@ -534,6 +536,38 @@ func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
 	}
 }
 
+func isErrorRetryable(err error) bool {
+	driverErr, ok := err.(*mysql.MySQLError)
+	if !ok {
+		return false
+	}
+
+	return driverErr.Number == mysqlerr.ER_LOCK_DEADLOCK || driverErr.Number == mysqlerr.ER_LOCK_WAIT_TIMEOUT
+}
+
+func tryExecute(retry int, pause time.Duration, stmt *sql.Stmt, args ...interface{}) (sql.Result, error) {
+	var err error
+	var res sql.Result
+	for retry >= 0 {
+		retry--
+		res, err = stmt.Exec(args...)
+		if err == nil {
+			break
+		}
+
+		if isErrorRetryable(err) {
+			if pause != 0 {
+				time.Sleep(pause)
+			}
+			continue
+		}
+
+		break
+	}
+
+	return res, err
+}
+
 func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.switchLookup, `
 		SELECT nasname, secret, tenant_id, unique_session_attributes
@@ -693,7 +727,10 @@ func (h *PfAcct) SwitchLookup(mac, srcIp, nasIp string) (*SwitchInfo, error) {
 }
 
 func (rs *RadiusStatements) InsertBandwidthAccounting(node_id uint64, tenant_id int, mac string, unique_session uint64, bucket time.Time, in_bytes int64, out_bytes int64) error {
-	_, err := rs.insertBandwidthAccounting.Exec(
+	_, err := tryExecute(
+		3,
+		time.Millisecond*10,
+		rs.insertBandwidthAccounting,
 		node_id,
 		tenant_id,
 		mac,
@@ -705,6 +742,7 @@ func (rs *RadiusStatements) InsertBandwidthAccounting(node_id uint64, tenant_id 
 		unique_session,
 		bucket,
 	)
+
 	return err
 }
 
