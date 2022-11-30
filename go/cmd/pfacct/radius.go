@@ -12,7 +12,9 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
+	"github.com/VividCortex/mysqlerr"
 	cache "github.com/fdurand/go-cache"
+	"github.com/go-sql-driver/mysql"
 
 	"github.com/inverse-inc/go-radius"
 	"github.com/inverse-inc/go-radius/dictionary"
@@ -580,6 +582,38 @@ func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
 	}
 }
 
+func isErrorRetryable(err error) bool {
+	driverErr, ok := err.(*mysql.MySQLError)
+	if !ok {
+		return false
+	}
+
+	return driverErr.Number == mysqlerr.ER_LOCK_DEADLOCK || driverErr.Number == mysqlerr.ER_LOCK_WAIT_TIMEOUT
+}
+
+func tryExecute(retry int, pause time.Duration, stmt *sql.Stmt, args ...interface{}) (sql.Result, error) {
+	var err error
+	var res sql.Result
+	for retry >= 0 {
+		retry--
+		res, err = stmt.Exec(args...)
+		if err == nil {
+			break
+		}
+
+		if isErrorRetryable(err) {
+			if pause != 0 {
+				time.Sleep(pause)
+			}
+			continue
+		}
+
+		break
+	}
+
+	return res, err
+}
+
 func (rs *RadiusStatements) Setup(db *sql.DB) {
 	setupStmt(db, &rs.switchLookup, `
 		SELECT nasname, secret, unique_session_attributes
@@ -770,7 +804,10 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 	var err error
 	if status == rfc2866.AcctStatusType_Value_Start {
 		h.SetAcctSession(node_id, unique_session, &AcctSession{in_bytes: in_bytes, out_bytes: out_bytes})
-		_, err = h.insertBandwidthAccountingStart.Exec(
+		_, err = tryExecute(
+			3,
+			time.Millisecond*10,
+			h.insertBandwidthAccountingStart,
 			node_id,
 			mac,
 			unique_session,
@@ -788,7 +825,10 @@ func (h *PfAcct) InsertBandwidthAccounting(status rfc2866.AcctStatusType, node_i
 		}
 
 		h.SetAcctSession(node_id, unique_session, &AcctSession{in_bytes: in_bytes, out_bytes: out_bytes})
-		_, err = h.insertBandwidthAccountingUpdate.Exec(
+		_, err = tryExecute(
+			3,
+			time.Millisecond*10,
+			h.insertBandwidthAccountingUpdate,
 			node_id,
 			mac,
 			unique_session,
