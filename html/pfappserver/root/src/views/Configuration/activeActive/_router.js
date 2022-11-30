@@ -10,11 +10,16 @@ export const beforeEnter = (to, from, next = () => {}) => {
   next()
 }
 
+const can = () => !store.getters['system/isSaas']
+
 export default [
   {
     path: 'active_active',
     name: 'active_active',
     component: TheView,
+    meta: {
+      can
+    },
     beforeEnter
   }
 ]

@@ -68,6 +68,7 @@ const getters = {
   version: state => state.summary.version,
   gateway: state => state.gateway,
   git_commit_id: state => state.summary.git_commit_id,
+  isSaas: state => true, //state.summary.saas
 }
 
 const actions = {

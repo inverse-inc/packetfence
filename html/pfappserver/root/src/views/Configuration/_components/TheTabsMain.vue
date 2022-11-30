@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab v-for="(tab, index) in tabs" :key="index"
-        :title="$t(tab.title)" @click="tabIndex = index">
+        :title-item-class="tab.class" :title="$t(tab.title)" @click="tabIndex = index">
         <component :is="tab.component" />
       </b-tab>
     </b-tabs>
@@ -43,7 +43,8 @@ const tabs = {
   },
   services: {
     title: 'Services', // i18n defer
-    component: ServicesView
+    component: ServicesView,
+    class: 'no-saas'
   }
 }
 

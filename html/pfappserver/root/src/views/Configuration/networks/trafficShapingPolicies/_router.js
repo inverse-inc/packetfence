@@ -12,23 +12,34 @@ export const useRouter = $router => {
   }
 }
 
+const can = () => !store.getters['system/isSaas']
+
 export default [
   {
     path: 'traffic_shapings',
     name: 'traffic_shapings',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'traffic_shapings' })
   },
   {
     path: 'traffic_shaping/new/:role',
     name: 'newTrafficShaping',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ isNew: true, role: route.params.role })
   },
   {
     path: 'traffic_shaping/:id',
     name: 'traffic_shaping',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       store.dispatch('$_traffic_shaping_policies/getTrafficShapingPolicy', to.params.id).then(() => {

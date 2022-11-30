@@ -99,6 +99,7 @@
             :isLoading="isLoading"
           >
             <form-group-lets-encrypt namespace="lets_encrypt"
+              class="no-saas"
               :column-label="$i18n.t(`Use Let's Encrypt`)"
             />
 

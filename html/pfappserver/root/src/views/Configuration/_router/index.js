@@ -74,6 +74,8 @@ export const beforeEnter = (to, from, next = () => { }) => {
   next()
 }
 
+const can = () => !store.getters['system/isSaas']
+
 const route = {
   path: '/configuration',
   name: 'configuration',
@@ -151,7 +153,10 @@ const route = {
      */
     {
       path: 'network_configuration',
-      component: NetworkConfigurationSection
+      component: NetworkConfigurationSection,
+      meta: {
+        can
+      }
     },
     ...NetworksRoutes,
     ...FloatingDevicesRoutes,

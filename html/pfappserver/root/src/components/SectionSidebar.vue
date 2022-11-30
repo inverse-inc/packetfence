@@ -29,7 +29,7 @@
             <template v-if="section.collapsable">
               <template v-if="can(section)">
                 <component class="section-sidenav-group" :is="section.path ? 'router-link': 'div'"
-                  :key="`${section.name}_btn`" :to="section.path"
+                  :key="`${section.name}_btn`" :to="section.path" :class="section.class"
                   v-b-toggle="$sanitizedClass(section.name)">
                   <icon class="position-absolute mx-3" :name="section.icon" scale="1.25" v-if="section.icon" />
                   <text-highlight class="ml-5" :queries="[filter]">{{ section.name }}</text-highlight>
@@ -64,7 +64,7 @@
               </template>
             </template>
             <!-- non-collapsable section with items -->
-            <b-nav v-else-if="section.items" class="section-sidenav my-2" :key="section.name" vertical>
+            <b-nav v-else-if="section.items" class="section-sidenav my-2" :class="section.class" :key="section.name" vertical>
               <template v-if="can(section)">
                 <div class="section-sidenav-group">
                   <text-highlight :queries="[filter]">{{ section.name }}</text-highlight>

@@ -1,5 +1,5 @@
 <template>
-  <b-tab :active="active" class="p-0">
+  <b-tab :active="active" :title-item-class="titleItemClass" class="p-0">
     <template v-slot:title>
       <icon scale=".5" :class="isCertKeyMatch ? 'text-success' : 'text-danger'" name="circle"></icon>
       <icon scale=".5" :class="isChainValid ? 'text-success' : 'text-danger'" name="circle" class="fa-overlap mr-1" ></icon>
@@ -26,6 +26,9 @@ export const props = {
     type: Boolean
   },
   id: {
+    type: String
+  },
+  titleItemClass: {
     type: String
   }
 }
