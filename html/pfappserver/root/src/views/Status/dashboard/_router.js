@@ -20,6 +20,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
     next()
 }
 
+const can = () => !store.getters['system/isSaas']
+
 export default [
   {
     path: 'dashboard',
@@ -28,7 +30,7 @@ export default [
     props: { storeName: '$_status' },
     beforeEnter,
     meta: {
-      isFailRoute: true
+      can
     }
   }
 ]

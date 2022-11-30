@@ -23,7 +23,7 @@ const setup = () => {
     {
       name: i18n.t('Dashboard'),
       path: '/status/dashboard',
-      can: 'master tenant'
+      class: 'no-saas'
     },
     {
       name: i18n.t('Assets'),
@@ -43,14 +43,6 @@ const setup = () => {
       saveSearchNamespace: 'nodes',
       can: 'read nodes',
     },
-    /*
-    {
-      name: i18n.t('Network View'),
-      path: '/status/network',
-      saveSearchNamespace: 'network',
-      can: 'read nodes'
-    },
-    */
     {
       name: i18n.t('Services'),
       path: '/status/services',
