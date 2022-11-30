@@ -12,6 +12,7 @@ require (
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/OneOfOne/xxhash v1.2.7
 	github.com/Sereal/Sereal v0.0.0-20200729022450-08708a3c86f3
+	github.com/VividCortex/mysqlerr v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.35.9
 	github.com/captncraig/cors v0.0.0-20170507232344-153f484dcf3d
 	github.com/cenkalti/backoff/v4 v4.1.0
