@@ -19,7 +19,7 @@ Vue.use(Router)
 
 const DefaultRoute = {
   path: '*',
-  redirect: () => (store.getters['system/isSaas']) ? '/reports' : '/status'
+  redirect: '/status'
 }
 
 let router = new Router({
