@@ -168,8 +168,8 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
 	}
 
-	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctWorker, 10, 64); err != nil {
-		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_worker defaulting to '%d'", RadiusConfiguration.PfacctWorker, pfAcct.RadiusWorkers))
+	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctWorkers, 10, 64); err != nil {
+		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_worker defaulting to '%d'", RadiusConfiguration.PfacctWorkers, pfAcct.RadiusWorkers))
 	} else {
 		pfAcct.RadiusWorkers = int(i)
 	}
