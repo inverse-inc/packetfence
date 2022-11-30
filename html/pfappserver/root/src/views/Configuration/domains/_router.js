@@ -30,11 +30,16 @@ export const beforeEnter = (to, from, next = () => {}) => {
   next()
 }
 
+const can = () => !store.getters['system/isSaas']
+
 export default [
   {
     path: 'domains',
     name: 'domains',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: (route) => ({ tab: 'domains', autoJoinDomain: route.params.autoJoinDomain }),
     beforeEnter
   },
@@ -42,6 +47,9 @@ export default [
     path: 'domains/new',
     name: 'newDomain',
     component: TheView,
+    meta: {
+      can
+    },
     props: () => ({ isNew: true }),
     beforeEnter
   },
@@ -49,6 +57,9 @@ export default [
     path: 'domain/:id',
     name: 'domain',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       beforeEnter()
@@ -61,6 +72,9 @@ export default [
     path: 'domain/:id/clone',
     name: 'cloneDomain',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ id: route.params.id, isClone: true }),
     beforeEnter: (to, from, next) => {
       beforeEnter()

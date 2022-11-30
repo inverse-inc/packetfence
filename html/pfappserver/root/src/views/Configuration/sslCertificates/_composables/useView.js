@@ -1,4 +1,4 @@
-import { customRef, toRefs } from '@vue/composition-api'
+import { customRef, onMounted, toRefs } from '@vue/composition-api'
 import { useViewProps as useBaseViewProps } from '@/composables/useView'
 import { certificates } from '../config'
 
@@ -12,7 +12,7 @@ const useViewProps = {
 
 const useView = (props, context) => {
 
-  const { root: { $router } = {} } = context
+  const { root: { $store, $router } = {} } = context
 
   const {
     id
@@ -28,6 +28,12 @@ const useView = (props, context) => {
       trigger()
     }
   }))
+
+  onMounted(() => {
+    if ($store.getters['system/isSaas']) {
+      tabIndex.value = 1 // focus RADIUS (HTTP is hidden)
+    }
+  })
 
   return {
     tabIndex
