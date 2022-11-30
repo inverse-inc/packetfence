@@ -67,6 +67,16 @@
       :text="$i18n.t('Enables processing of bandwidth accounting. Requires a restart of pfacct to be effective')"
     />
 
+    <form-group-pfacct-workers namespace="pfacct_workers"
+      :column-label="$i18n.t('Pfacct workers')"
+      :text="$i18n.t('The number of processing accounting packets. Requires a restart of pfacct to be effective')"
+    />
+
+    <form-group-pfacct-work-queue-size namespace="pfacct_work_queue_size"
+      :column-label="$i18n.t('Pfacct Work Queue Size')"
+      :text="$i18n.t('The size of the queue for each worker. Requires a restart of pfacct to be effective')"
+    />
+
     <form-group-radius-attributes namespace="radius_attributes"
       :column-label="$i18n.t('RADIUS attributes')"
       :text="$i18n.t('List of RADIUS attributes that can be used in the sources configuration.')"
@@ -120,7 +130,9 @@ import {
   FormGroupRadiusAttributes,
   FormGroupNormalizeRadiusMachineAuthUsername,
   FormGroupProcessBandwidthAccounting,
-  FormGroupUsernameAttributes
+  FormGroupUsernameAttributes,
+  FormGroupPfacctWorkers,
+  FormGroupPfacctWorkQueueSize
 } from './'
 
 const components = {
@@ -142,7 +154,9 @@ const components = {
   FormGroupRadiusAttributes,
   FormGroupNormalizeRadiusMachineAuthUsername,
   FormGroupProcessBandwidthAccounting,
-  FormGroupUsernameAttributes
+  FormGroupUsernameAttributes,
+  FormGroupPfacctWorkers,
+  FormGroupPfacctWorkQueueSize
 }
 
 export const props = {
