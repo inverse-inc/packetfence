@@ -1,5 +1,6 @@
 import * as yup from 'yup'
 import { parse, format, isValid, compareAsc } from 'date-fns'
+import mime from 'mime-types'
 import i18n from './locale'
 import {
   reAlphaNumeric,
@@ -295,6 +296,27 @@ yup.addMethod(yup.string, 'isFilenameWithExtension', function (extensions, messa
     test: value => {
       const re = RegExp('^[0-9a-z\xC0-\xff_]+[0-9a-z\xC0-\xff_\\-\\.]*\\.(' + extensions.join('|') + ')$', 'gi')
       return !value || re.test(value)
+    }
+  })
+})
+
+yup.addMethod(yup.string, 'isFilenameWithContentType', function (contentTypes, message) {
+  return this.test({
+    name: 'isFilenameWithContentType',
+    message: message || i18n.t('Invalid content-type. Must be one of: {contentTypes}.', { contentTypes: contentTypes.join(', ') }),
+    test: value => {
+      const contentType = mime.lookup(value)
+      if (!contentType)
+        return false
+      const [ contentTypeMs, contentTypeLs ] = contentType.split('/')
+      return contentTypes.reduce((valid, allowed) => {
+        if (allowed === '*/*')
+          return true
+        const [ allowedMs, allowedLs ] = allowed.split('/')
+        if (contentTypeMs === allowedMs && (allowedLs === '*' || contentTypeLs === allowedLs))
+          return true
+        return valid
+      }, false)
     }
   })
 })

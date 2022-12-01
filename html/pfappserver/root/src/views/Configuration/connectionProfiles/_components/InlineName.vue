@@ -58,6 +58,7 @@ const props = {
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import i18n from '@/utils/locale'
+import mime from 'mime-types'
 import { yup } from '../schema'
 
 const setup = (props, context) => {
@@ -70,29 +71,16 @@ const setup = (props, context) => {
     entries,
   } = toRefs(props)
 
-  const allowedExtensions = computed(() => {
+
+  const contentType = computed(() => {
     const { name } = item.value
-    const extension = name.split('.').reverse()[0] || 'html'
-    switch (extension.toLowerCase()) {
-      case 'gif':
-        return ['gif']
-        // break
-      case 'jpg':
-      case 'jpeg':
-        return ['jpg', 'jpeg']
-        // break
-      case 'png':
-        return ['png']
-        //  break
-      default:
-        return ['html', 'mjml']
-    }
+    return mime.lookup(name)
   })
 
   const schema = computed(() => yup.object({
     name: yup.string()
       .required(i18n.t('Filename required.'))
-      .isFilenameWithExtension(allowedExtensions.value)
+      .isFilenameWithContentType([contentType.value])
       .fileNotExists(entries.value, item.value.path, i18n.t('File exists.'), item.value.name)
   }))
 

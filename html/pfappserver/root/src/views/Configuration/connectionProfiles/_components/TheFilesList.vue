@@ -85,7 +85,7 @@
             <b-dropdown-item @click="onToggleUpload(item)">
               <base-button-upload
                 @files="onUploadFiles(item, $event)"
-                :accept="acceptMimes"
+                :accept="acceptMimes.join(',')"
                 multiple
               >{{ $i18n.t('Upload File(s)') }}</base-button-upload>
             </b-dropdown-item>
@@ -191,6 +191,7 @@ const tableFields = [
 ]
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import mime from 'mime-types'
 import i18n from '@/utils/locale'
 import { reAscii } from '@/utils/regex'
 import { acceptMimes } from '../config'
@@ -258,6 +259,8 @@ const setup = (props, context) => {
           let { entries: childEntries = [], ...rest } = entry || {}
           const { type, name } = rest || {}
           const fullPath = `${path}/${name}`.replace('//', '/')
+          const contentType = mime.lookup(name)
+          const isImage = /^image\//.test(contentType)
           switch(type) {
             case 'dir':
               childEntries = childEntries.filter(visibleFilter)
@@ -274,9 +277,7 @@ const setup = (props, context) => {
               }
               break
             case 'file':
-              reduced.push({ ...rest, path, icons,
-                isImage: (['gif', 'jpg', 'jpeg', 'png'].includes(name.split('.').reverse()[0].toLowerCase()))
-              })
+              reduced.push({ ...rest, path, icons, isImage })
               break
           }
           return reduced
@@ -294,6 +295,8 @@ const setup = (props, context) => {
           const { entries: childEntries = [], ...rest } = entry || {}
           const { type, name } = rest || {}
           const fullPath = `${path}/${name}`.replace('//', '/')
+          const contentType = mime.lookup(name)
+          const isImage = /^image\//.test(contentType)
           switch(type) {
             case 'dir':
               if (expandPaths.value.includes(fullPath)) {
@@ -307,9 +310,7 @@ const setup = (props, context) => {
                 reduced.push({ ...rest, path, expand: false, icons })
               break
             case 'file':
-              reduced.push({ ...rest, path, icons,
-                isImage: (['gif', 'jpg', 'jpeg', 'png'].includes(name.split('.').reverse()[0].toLowerCase()))
-              })
+              reduced.push({ ...rest, path, icons, isImage })
               break
           }
           return reduced
@@ -334,17 +335,11 @@ const setup = (props, context) => {
         expandPath(fullPath)
     }
     else if (type === 'file') {
-      const extension = name.split('.').reverse()[0]
-      switch (extension.toLowerCase()) {
-        case 'gif':
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-          onToggleView(row)
-          break
-        default:
-          onToggleEdit(row)
-      }
+      const contentType = mime.lookup(name)
+      if (/^image\//.test(contentType))
+        onToggleView(row)
+      else
+        onToggleEdit(row)
     }
   }
 

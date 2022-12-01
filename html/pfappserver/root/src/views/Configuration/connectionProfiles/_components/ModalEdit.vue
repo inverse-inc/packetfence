@@ -120,6 +120,7 @@ import { createDebouncer } from 'promised-debounce'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
+import { acceptTextMimes } from '../config'
 import { yup } from '../schema'
 
 const defaults = () => ({
@@ -140,7 +141,7 @@ const setup = (props, context) => {
   const schema = computed(() => yup.object({
     name: yup.string()
       .required(i18n.t('File name required.'))
-      .isFilenameWithExtension(['html', 'mjml'])
+      .isFilenameWithContentType(acceptTextMimes)
       .fileNotExists(entries.value, path.value, i18n.t('File exists.'))
   }))
 
