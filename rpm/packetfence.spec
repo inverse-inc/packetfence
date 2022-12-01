@@ -1247,6 +1247,7 @@ fi
 
 # html dir
 %dir                    /usr/local/pf/html
+                        /usr/local/pf/html/common
 %dir                    /usr/local/pf/html/pfappserver
                         /usr/local/pf/html/pfappserver/root
 /usr/local/pf/html/pfappserver/lib
