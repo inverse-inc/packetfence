@@ -79,11 +79,12 @@ func New(c Config) *Tunnel {
 	radiusProxy, stop, err := radiusProxyFromKubernetes(t)
 
 	if err != nil {
-		t.Errorf("Error getting pod info: %s", err.Error())
+		t.Infof("Error getting pod info: %s", err.Error())
 	} else {
 		t.radiusProxy = radiusProxy
 		t.k8ControllerDrop = stop
 		go radiusProxy.Cleanup(stop)
+		t.Infof("Radius Proxy setup is done")
 	}
 
 	t.activatingConn.Add(1)

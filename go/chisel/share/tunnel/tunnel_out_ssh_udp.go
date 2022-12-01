@@ -92,7 +92,7 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 		if h.udpConns.len() <= maxConns {
 			go h.handleRead(p, conn)
 		} else {
-			h.Errorf("exceeded max udp connections (%d)", maxConns)
+			h.Infof("exceeded max udp connections (%d)", maxConns)
 		}
 	}
 	// TODO: Only apply this to remotes that are specific to RADIUS
