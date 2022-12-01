@@ -44,35 +44,13 @@ Note that you cannot use the full locale in the template name (i.e. `aup_text.en
 
 ===== Logo
 
-WARNING: If you perform an upgrade from a 11.X version, these steps have been handled by an upgrade script.
+In order to customize the default logo that is shown on the captive portal, go in _Configuration->Policies And Access Control->Connection Profiles->default->Files_. Next, upload your logo at the root of the files. Once it has been uploaded, go in the _Captive Portal_ section of the connection profile and change the Logo field to `/profile-templates/default/filename-of-your-logo.png`.
 
-In order to display your own logo on captive portal, you need to follow these
-steps on your PacketFence server (or on first node of your cluster):
+Alternatively, you could also delete the existing `logo.png` in the files, then upload your logo and rename it to `logo.png`. Doing so will not require to alter the value of 'Logo' in the connection profile.
 
-. Upload your logo through SSH in [filename]`/tmp/my_logo.png`
-. Run following commands:
+You can also have a different logo per connection profile. In order to do so, upload your logo in the appropriate connection profile, then edit it's 'Logo' value to be `/profile-templates/CONNECTION_PROFILE_ID/filename-of-your-logo.png`.
 
-.Standalone and clusters
-[source,bash]
-----
-mkdir /usr/local/pf/html/captive-portal/profile-templates/default
-cp /tmp/my_logo.png /usr/local/pf/html/captive-portal/profile-templates/default/my_logo.png
-----
-
-.Clusters only
-[source,bash]
-----
-cat >> /usr/local/pf/conf/cluster-files.txt << EOF
-/usr/local/pf/conf/cluster-files.txt
-/usr/local/pf/html/captive-portal/profile-templates/default/my_logo.png
-EOF
-/usr/local/pf/bin/cluster/sync --as-master
-----
-
-Once done, connect to PacketFence web admin and configure `default` connection
-profile (_Configuration -> Policies and Access control -> Connection profiles_) like this:
-
-* Logo: [filename]`/profile-templates/default/logo.png`
+For the best results, your logo size should be approximately 330x75 pixels.
 
 ===== CSS
 
