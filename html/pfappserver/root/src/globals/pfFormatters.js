@@ -94,5 +94,5 @@ export const pfFormatters = {
   },
   shortDateTime: (value) => {
     return filters.shortDateTime(parseInt(value) * 1000)
-  },
+  }
 }

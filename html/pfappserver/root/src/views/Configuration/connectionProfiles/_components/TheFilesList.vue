@@ -435,37 +435,26 @@ const setup = (props, context) => {
         })
       }
       const exists = !fileNotExists(entries.value, pathname, filename)
+      let method = 'createFile'
+      let message = i18n.t('{file} uploaded.', { file: `<code>${pathname}/${filename}</code>` })
       if (exists) {
-        $store.dispatch('notification/danger', {
-          icon: 'exclamation-triangle',
-          url: filename,
-          message: i18n.t('{file} exists.', { file: `<code>${pathname}/${filename}</code>` })
-        })
+        method = 'updateFile'
+        message = i18n.t('{file} replaced.', { file: `<code>${pathname}/${filename}</code>` })
       }
-      else {
-        $store.dispatch(`${file.storeName}/readAsDataURL`).then(content => {
-          $store.dispatch('$_connection_profiles/createFile', {
-            id: id.value,
-            filename: `${pathname}/${filename}`.replace('//', '/'),
-            content, // file.result
-            quiet: true
-          }).then(() => {
-            $store.dispatch('notification/info', {
-              url: filename,
-              message: i18n.t('{file} uploaded.', { file: `<code>${pathname}/${filename}</code>` })
-            })
-
-          }).catch(error => {
-            const { response: { data: { message = '' } = {} } = {} } = error
-            $store.dispatch('notification/danger', {
-              icon: 'exclamation-triangle',
-              url: filename,
-              message
-            })
-            throw error
-          }).finally(_getFiles)
-        })
-      }
+      $store.dispatch(`${file.storeName}/readAsDataURL`).then(content => {
+        $store.dispatch(`$_connection_profiles/${method}`, {
+          id: id.value,
+          filename: `${pathname}/${filename}`.replace('//', '/'),
+          content,
+          quiet: true
+        }).then(() => {
+          $store.dispatch('notification/info', { url: filename, message })
+        }).catch(error => {
+          const { response: { data: { message = '' } = {} } = {} } = error
+          $store.dispatch('notification/danger', { icon: 'exclamation-triangle', url: filename, message })
+          throw error
+        }).finally(_getFiles)
+      })
     })
   }
 
