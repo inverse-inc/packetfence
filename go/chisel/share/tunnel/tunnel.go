@@ -3,10 +3,14 @@ package tunnel
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"sync"
 	"time"
@@ -124,11 +128,17 @@ func clientSetFromEnv() (*kubernetes.Clientset, error) {
 		return nil, errors.New("K8_MASTER_TOKEN is not defined")
 	}
 
-	return kubernetes.NewForConfig(&rest.Config{
-		Host:            host,
-		BearerToken:     token,
-		TLSClientConfig: TLSConfigFromEnv(),
-	})
+	return kubernetes.NewForConfigAndClient(
+		&rest.Config{
+			Host:        host,
+			BearerToken: token,
+		},
+		&http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: TLSConfigFromEnv(),
+			},
+		},
+	)
 }
 
 func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, error) {
@@ -214,10 +224,26 @@ func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, e
 	return radiusProxy, stop, nil
 }
 
-func TLSConfigFromEnv() rest.TLSClientConfig {
+func TLSConfigFromEnv_() rest.TLSClientConfig {
 	caFile := sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
 	return rest.TLSClientConfig{
 		CAFile: caFile,
+	}
+}
+
+func TLSConfigFromEnv() *tls.Config {
+	caCerts := []byte(sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_CA_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")))
+	rootCAs, _ := x509.SystemCertPool()
+	if rootCAs == nil {
+		rootCAs = x509.NewCertPool()
+	}
+
+	if ok := rootCAs.AppendCertsFromPEM(caCerts); !ok {
+		fmt.Println("No K8S CA cert appended, using system certs only")
+	}
+
+	return &tls.Config{
+		RootCAs: rootCAs,
 	}
 }
 
