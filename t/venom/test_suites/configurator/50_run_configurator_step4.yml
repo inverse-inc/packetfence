@@ -32,8 +32,9 @@ testcases:
 # no API call usable
 - name: restart_pfperl_api_service
   steps:
-  - type: pf_api_service_restart_async
-    service: 'pfperl-api'
+  - type: systemctl_service_restart
+    service: 'packetfence-pfperl-api'
+    time_to_sleep: 10
 
 - name: start_pf_services
   steps:
