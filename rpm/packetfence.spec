@@ -655,11 +655,14 @@ gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /etc/pki/rp
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
+cd /usr/local/pf
 
 #Make ssl certificate
-cd /usr/local/pf
 make conf/ssl/server.pem
 chown pf /usr/local/pf/conf/ssl/server.key
+
+#Make configurable logo in default profile templates
+make html/captive-portal/profile-templates/default/logo.png
 
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then

@@ -358,3 +358,8 @@ material: DESTDIR=result
 material:
 	mkdir -p $(CURDIR)/$(DESTDIR)
 	perl $(SRC_ADDONSDIR)/dev-helpers/bin/switch_options_table.pl > $(CURDIR)/$(DESTDIR)/material.html
+
+html/captive-portal/profile-templates/default/logo.png:
+	mkdir -p html/captive-portal/profile-templates/default
+	cp html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
+
