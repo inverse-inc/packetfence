@@ -44,7 +44,7 @@ Note that you cannot use the full locale in the template name (i.e. `aup_text.en
 
 ===== Logo
 
-In order to customize the default logo that is shown on the captive portal, go in _Configuration->Policies And Access Control->Connection Profiles->default->Files_. Next, upload your logo at the root of the files. Once it has been uploaded, go in the _Captive Portal_ section of the connection profile and change the Logo field to `/profile-templates/default/filename-of-your-logo.png`.
+In order to customize the default logo that is shown on the captive portal, go in _Configuration->Policies And Access Control->Connection Profiles->default->Files_. Next, upload your logo at the root of the files. Once it has been uploaded, go in the _Captive Portal_ section of the connection profile and change the 'Logo' field value to `/profile-templates/default/filename-of-your-logo.png`.
 
 Alternatively, you could also delete the existing `logo.png` in the files, then upload your logo and rename it to `logo.png`. Doing so will not require to alter the value of 'Logo' in the connection profile.
 
