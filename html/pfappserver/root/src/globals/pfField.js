@@ -345,7 +345,8 @@ import {
   BaseInputGroupMultiplier,
   BaseInputNumber,
   BaseInputChosenMultiple,
-  BaseInputChosenOne
+  BaseInputChosenOne,
+  BaseInputToggle,
 } from '@/components/new'
 
 export const useField = (field) => {
@@ -390,6 +391,10 @@ export const useField = (field) => {
 
         case pfComponentType.INTEGER:
           return { is: BaseInputNumber, ...props }
+          // break
+
+        case pfComponentType.TOGGLE:
+          return { is: BaseInputToggle, ...props }
           // break
 
         case pfComponentType.HIDDEN:
