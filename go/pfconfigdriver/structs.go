@@ -719,6 +719,8 @@ type PfConfRadiusConfiguration struct {
 	UsernameAttributes                 []string `json:"username_attributes"`
 	ForwardKeyBalanced                 string   `json:"forward_key_balanced"`
 	ProcessBandwidthAccounting         string   `json:"process_bandwidth_accounting"`
+	PfacctWorkers                      string   `json:"pfacct_workers"`
+	PfacctWorkQueueSize                string   `json:"pfacct_work_queue_size"`
 }
 
 type Certificate struct {
