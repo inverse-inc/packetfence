@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 
 	cache "github.com/fdurand/go-cache"
@@ -22,6 +23,8 @@ import (
 )
 
 const DefaultTimeDuration = 5 * time.Minute
+const DefaultRadiusWorkers = 5
+const DefaultRadiusWorkQueueSize = 1000
 
 type radiusRequest struct {
 	w          radius.ResponseWriter
@@ -29,7 +32,6 @@ type radiusRequest struct {
 	switchInfo *SwitchInfo
 	status     rfc2866.AcctStatusType
 	mac        mac.Mac
-	done       chan struct{}
 }
 
 type PfAcct struct {
@@ -56,6 +58,8 @@ type PfAcct struct {
 	radiusdAcctEnabled   bool
 	AllNetworks          bool
 	ProcessBandwidthAcct bool
+	RadiusWorkers        int
+	RadiusWorkQueueSize  int
 }
 
 func NewPfAcct() *PfAcct {
@@ -75,7 +79,12 @@ func NewPfAcct() *PfAcct {
 		err = Database.Ping()
 	}
 
-	pfAcct := &PfAcct{Db: Database, TimeDuration: DefaultTimeDuration}
+	pfAcct := &PfAcct{
+		Db:                  Database,
+		TimeDuration:        DefaultTimeDuration,
+		RadiusWorkers:       DefaultRadiusWorkers,
+		RadiusWorkQueueSize: DefaultRadiusWorkQueueSize,
+	}
 	pfAcct.SwitchInfoCache = cache.New(5*time.Minute, 10*time.Minute)
 	pfAcct.NodeSessionCache = cache.New(cache.NoExpiration, cache.NoExpiration)
 	pfAcct.AcctSessionCache = cache.New(5*time.Minute, 10*time.Minute)
@@ -83,7 +92,7 @@ func NewPfAcct() *PfAcct {
 	pfAcct.RadiusStatements.Setup(pfAcct.Db)
 
 	pfAcct.SetupConfig(ctx)
-	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, 5, 10)
+	pfAcct.radiusRequests = makeRadiusRequests(pfAcct, pfAcct.RadiusWorkers, pfAcct.RadiusWorkQueueSize)
 	pfAcct.AAAClient = jsonrpc2.NewAAAClientFromConfig(ctx)
 	//pfAcct.Dispatcher = NewDispatcher(16, 128)
 	pfAcct.runPing()
@@ -154,8 +163,21 @@ func (pfAcct *PfAcct) SetupConfig(ctx context.Context) {
 	var RadiusConfiguration pfconfigdriver.PfConfRadiusConfiguration
 	pfconfigdriver.FetchDecodeSocket(ctx, &RadiusConfiguration)
 	pfAcct.ProcessBandwidthAcct = sharedutils.IsEnabled(RadiusConfiguration.ProcessBandwidthAccounting)
+
 	if !pfAcct.ProcessBandwidthAcct {
 		logInfo(ctx, "Not processing bandwidth accounting records. To enable set radius_configuration.process_bandwidth_accounting = enabled")
+	}
+
+	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctWorkers, 10, 64); err != nil {
+		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_worker defaulting to '%d'", RadiusConfiguration.PfacctWorkers, pfAcct.RadiusWorkers))
+	} else {
+		pfAcct.RadiusWorkers = int(i)
+	}
+
+	if i, err := strconv.ParseInt(RadiusConfiguration.PfacctWorkQueueSize, 10, 64); err != nil {
+		logWarn(ctx, fmt.Sprintf("Invalid number '%s' pfacct_work_queue_size defaulting to '%d'", RadiusConfiguration.PfacctWorkQueueSize, pfAcct.RadiusWorkQueueSize))
+	} else {
+		pfAcct.RadiusWorkQueueSize = int(i)
 	}
 
 	localSecret := pfconfigdriver.LocalSecret{}
