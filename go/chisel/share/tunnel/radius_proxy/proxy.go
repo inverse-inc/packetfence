@@ -66,6 +66,7 @@ func (rp *Proxy) DeleteBackend(addr string) {
 }
 
 func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string, error) {
+	rp.Debugf("Finding backend to proxy to")
 	packet, err := radius.Parse(payload, rp.secret)
 	if err != nil {
 		return nil, "", err
