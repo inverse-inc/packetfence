@@ -3,6 +3,7 @@ package radius_proxy
 import (
 	"crypto/hmac"
 	"crypto/md5"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -99,6 +100,10 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 	}
 
 	be := rp.backends.getBackend(packet)
+	if be == nil {
+		return nil, "", errors.New("No backend available")
+	}
+
 	rp.Debugf("Proxy to %s for connector %s", be.addr, connectorID)
 	return b2, be.addr, nil
 }

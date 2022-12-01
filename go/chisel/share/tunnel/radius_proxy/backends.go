@@ -56,6 +56,10 @@ func (b *Backends) getBackend(p *radius.Packet) *Backend {
 func (b *Backends) pickBackend(p *radius.Packet) *Backend {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
+	if len(b.backends) == 0 {
+		return nil
+	}
+
 	i := b.loadBalanceIndex(p)
 	return b.backends[b.keys[i]]
 }
