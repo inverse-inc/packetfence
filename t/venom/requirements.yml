@@ -1,6 +1,6 @@
 roles:
   - src: inverse_inc.gitlab_buildpkg_tools
-    version: v1.3.2
+    version: v1.3.4
 
 # For roles, to test locally
 # Ansible will create an export, not a symlink to git repository
@@ -19,7 +19,7 @@ collections:
   - name: inverse_inc.cumulus
     version: 1.1.1
   - name: inverse_inc.utils
-    version: 1.1.1
+    version: 1.1.2
   - name: inverse_inc.wireless
     version: 0.2.2
 
