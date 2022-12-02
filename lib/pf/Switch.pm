@@ -3253,6 +3253,37 @@ sub cache_distributed {
     return pf::CHI->new( namespace => 'switch_distributed' );
 }
 
+=item radius_cache_distributed
+
+Returns the radius distributed cache for the switch namespace
+
+=cut
+
+sub radius_cache_distributed {
+    my ( $self ) = @_;
+    return pf::CHI->new( namespace => 'radius' );
+}
+
+=item setRadiusSession
+
+Create a radius session id.
+
+=cut
+
+sub setRadiusSession {
+    my($self, $args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = generate_session_id(6);
+    my $chi = $self->radius_cache_distributed;
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+        acl => exists($args->{acl}) ? $args->{acl} : (),
+    });
+    return $session_id;
+}
+
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access

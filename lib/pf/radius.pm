@@ -808,7 +808,7 @@ sub switch_access {
         . "connection_type => " . connection_type_to_str($connection_type) . ","
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => ".( defined($port) ? "($port)" : "(Unknown)" ).", username => \"$user_name\"" );
 
-    if ( !$switch->canDoCliAccess && !$switch->supportsVPN()) {
+    if ( !$switch->canDoCliAccess && !$switch->supportsVPN() && !$connection->isServiceTemplate && !$connection->isACLDownload)  {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI or VPN Access is not allowed by PacketFence on this switch") ];
     }
@@ -825,6 +825,7 @@ sub switch_access {
         radius_request => $radius_request,
         switch_group => $switch->{_group},
         switch_id => $switch->{_id},
+        connection => $connection,
     };
 
     my $options = {};
@@ -845,12 +846,19 @@ sub switch_access {
     if ($connection->isVPN()) {
         $return = $self->vpn($args, $options, \@sources, \$extra, \$otp, \$password);
         return $return if (ref($return) eq 'ARRAY');
-    }
-    else {
+    } elsif ($connection->isServiceTemplate || $connection->isACLDownload) {
+        return  $self->advancedAccess($args, $options);
+    } else {
         $return = $self->cli($args, $options, \@sources, \$extra, \$otp, \$password);
         return $return if (ref($return) eq 'ARRAY');
     }
 }
+
+sub advancedAccess {
+    my ($self, $args, $options) = @_;
+    return $args->{'switch'}->returnRadiusAdvanced($args, $options);
+}
+
 
 sub authenticate {
     my ($self, $args, $sources, $source_id, $extra, $otp, $password) = @_;
