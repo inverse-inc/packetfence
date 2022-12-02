@@ -107,7 +107,7 @@ sub returnRadiusAdvanced {
     my $radius_reply_ref = ();
     my @av_pairs;
     if ($args->{'connection'}->isServiceTemplate) {
-        push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=i".$args->{'user_name'});
+        push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_name'});
     } elsif ($args->{'connection'}->isACLDownload) {
         my $cache = $self->radius_cache_distributed;
         my $session = $cache->get($session_id);
