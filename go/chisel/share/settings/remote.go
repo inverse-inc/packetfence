@@ -40,6 +40,7 @@ type Remote struct {
 	LocalHost, LocalPort, LocalProto    string
 	RemoteHost, RemotePort, RemoteProto string
 	Dynamic, Socks, Reverse, Stdio      bool
+	Handler                             string
 }
 
 const revPrefix = "R:"
@@ -50,11 +51,13 @@ func DecodeRemote(s string) (*Remote, error) {
 		s = strings.TrimPrefix(s, revPrefix)
 		reverse = true
 	}
+
 	parts := regexp.MustCompile(`(\[[^\[\]]+\]|[^\[\]:]+):?`).FindAllStringSubmatch(s, -1)
 	if len(parts) <= 0 || len(parts) >= 5 {
 		return nil, errors.New("Invalid remote")
 	}
-	r := &Remote{Reverse: reverse}
+
+	r := &Remote{Reverse: reverse, Handler: "raw"}
 	//parse from back to front, to set 'remote' fields first,
 	//then to set 'local' fields second (allows the 'remote' side
 	//to provide the defaults)
@@ -70,14 +73,18 @@ func DecodeRemote(s string) (*Remote, error) {
 			r.Stdio = true
 			continue
 		}
-		p, proto := L4Proto(p)
+
+		p, proto, handler := L4Proto(p)
 		if proto != "" {
 			if r.RemotePort == "" {
 				r.RemoteProto = proto
 			} else if r.LocalProto == "" {
 				r.LocalProto = proto
 			}
+
+			r.Handler = handler
 		}
+
 		if isPort(p) {
 			if !r.Socks && r.RemotePort == "" {
 				r.RemotePort = p
@@ -85,12 +92,15 @@ func DecodeRemote(s string) (*Remote, error) {
 			r.LocalPort = p
 			continue
 		}
+
 		if !r.Socks && (r.RemotePort == "" && r.LocalPort == "") {
 			return nil, errors.New("Missing ports")
 		}
+
 		if !isHost(p) {
 			return nil, errors.New("Invalid host")
 		}
+
 		if !r.Socks && r.RemoteHost == "" {
 			r.RemoteHost = p
 		} else {
@@ -155,15 +165,23 @@ func isHost(s string) bool {
 	return true
 }
 
-var l4Proto = regexp.MustCompile(`(?i)\/(tcp|udp)$`)
+var l4Proto = regexp.MustCompile(`(?i)\/(tcp|udp)(|.*)?$`)
 
 //L4Proto extacts the layer-4 protocol from the given string
-func L4Proto(s string) (head, proto string) {
+func L4Proto(s string) (string, string, string) {
+	handler := "raw"
 	if l4Proto.MatchString(s) {
+		split := strings.SplitN(s, "|", 2)
+		if len(split) > 1 {
+			s = split[0]
+			handler = split[1]
+		}
+
 		l := len(s)
-		return strings.ToLower(s[:l-4]), s[l-3:]
+		return strings.ToLower(s[:l-4]), s[l-3:], handler
 	}
-	return s, ""
+
+	return s, "", handler
 }
 
 //implement Stringer
