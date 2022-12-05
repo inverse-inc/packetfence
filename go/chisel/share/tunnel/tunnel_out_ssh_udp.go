@@ -17,7 +17,7 @@ import (
 
 var udpCloseOnReply = sharedutils.IsEnabled(sharedutils.EnvOrDefault("PFCONNECTOR_UDP_CLOSE_ON_REPLY", "disabled"))
 
-func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort string) error {
+func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort string, handler string) error {
 	conns := &udpConns{
 		Logger: l,
 		m:      map[string]*udpConn{},
@@ -28,6 +28,7 @@ func (t *Tunnel) handleUDP(l *cio.Logger, rwc io.ReadWriteCloser, hostPort strin
 		connectorID: t.ConnectorID,
 		Logger:      l,
 		hostPort:    hostPort,
+		handler:     handler,
 		udpChannel: &udpChannel{
 			r: gob.NewDecoder(rwc),
 			w: gob.NewEncoder(rwc),
@@ -51,6 +52,7 @@ type udpHandler struct {
 	radiusProxy *radius_proxy.Proxy
 	*udpChannel
 	*udpConns
+	handler string
 }
 
 func (h *udpHandler) isRadius(p *udpPacket) bool {
