@@ -135,7 +135,7 @@ PacketFence Connector released with PacketFence 12.0.0 was not packaged.
 In order to upgrade your PacketFence Connector to a packaged version, you need
 to run following commands:
 
-[source,bash]
+[source,bash,subs="attributes"]
 ----
 echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
@@ -157,7 +157,7 @@ systemctl restart packetfence-pfconnector-remote
 
 In order to upgrade PacketFence Connector, you need to run following commands:
 
-[source,bash]
+[source,bash,subs="attributes"]
 ----
 echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
 /etc/apt/sources.list.d/packetfence-pfconnector-remote.list
