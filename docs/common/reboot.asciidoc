@@ -1,4 +1,4 @@
-If you need to reboot a standalone server or one server from a cluster after services
+If you need to reboot a standalone server or a server from a cluster after services
 have been stopped, make sure you set the systemd target to `multi-user.target`
 before rebooting:
 
