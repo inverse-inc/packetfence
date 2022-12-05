@@ -83,6 +83,13 @@ For all PacketFence versions prior to 11.0.0, follow the steps described in the 
 
 == Apply maintenance patches
 
+=== Important note for cluster environments
+
+In cluster environments, you need to perform following steps on **one server
+at a time**. To avoid multiple moves of the virtual IP addresses, you can start with
+nodes which don't own any virtual IP addresses first. You must ensure all
+services have been restarted correctly before moving to the next node.
+
 === Disable monit alerts (only if monit is installed)
 
 If `monit` is installed and running, shut it down with:
@@ -112,6 +119,10 @@ include::common/upgrade_packages.asciidoc[]
 === New versions of config files
 
 include::common/new_config_files.asciidoc[]
+
+=== Rebooting after services have been stopped (optional)
+
+include::common/reboot.asciidoc[]
 
 === Restart PacketFence services
 
