@@ -223,7 +223,7 @@ NameVirtualHost [% vhost %]:80
      [% IF captive_portal.secure_redirect %]
      RewriteEngine On
      RewriteCond %{REQUEST_URI} !^/access.* [NC]
-     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+     RewriteCond %{HTTP:X-Forwarded-Proto} !https
      RewriteCond %{HTTP:X-Forwarded-For-PacketFence} =""
      RewriteCond %{HTTPS} !=on
      RewriteRule ^/?(.*) https://%{SERVER_NAME}/$1 [R,L]
