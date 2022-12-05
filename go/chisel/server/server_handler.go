@@ -196,6 +196,8 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		return tunnel.BindRemotes(ctx, serverInbound)
 	})
 	if user != nil {
+		l.Infof("Connector %s has just connected to this server", user.Name)
+		settings.ClearActiveDynReverseConnector(ctx, user.Name)
 		activeTunnels.Store(user.Name, tunnel)
 		res := s.redis.Set(fmt.Sprintf("%s%s", s.redisTunnelsNamespace, user.Name), fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String()), 0)
 		if res.Err() != nil {
