@@ -97,15 +97,18 @@ sub returnRadiusAdvanced {
         # Need to send back a challenge since there is still acl to download
         if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session->{'acl'}} > 1 ) {
             $status = $RADIUS::RLM_MODULE_HANDLED;
-            $radius_reply_ref->{'control:Packet-Type'} = 11;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
             $radius_reply_ref->{'state'} = $session_id;
-            my $acl = shift @{$session->{'acl'}};
-            push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
-            $session->{'acl_num'} ++;
-            $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+            my @a = (1..64);
+            for my $i (@a){
+                last if (scalar @{$session->{'acl'}} == 1);
+                my $acl = shift @{$session->{'acl'}};
+                push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
+                $session->{'acl_num'} ++;
+                $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+                $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+            }
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
             $self->setRadiusSession($session);
             return [$status, %$radius_reply_ref];
         }
