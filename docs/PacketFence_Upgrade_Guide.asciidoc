@@ -87,7 +87,7 @@ For all PacketFence versions prior to 11.0.0, follow the steps described in the 
 
 In cluster environments, you need to perform following steps on **one server
 at a time**. To avoid multiple moves of the virtual IP addresses, you can start with
-node(s) which didn't own any virtual IP addresses first. You must ensure all
+nodes which don't own any virtual IP addresses first. You must ensure all
 services have been restarted correctly before moving to next nodes.
 
 === Disable monit alerts (only if monit is installed)
