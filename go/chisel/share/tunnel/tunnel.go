@@ -161,7 +161,9 @@ func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, e
 
 	servers := []string{}
 	for _, p := range pods.Items {
-		servers = append(servers, p.Status.PodIP+":1812")
+		addr := p.Status.PodIP + ":1812"
+		t.Infof("Adding address %s", addr)
+		servers = append(servers, addr)
 	}
 
 	radiusProxy := radius_proxy.NewProxy(
