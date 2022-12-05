@@ -38,7 +38,7 @@ func (t *Tunnel) handleSSHChannel(ch ssh.NewChannel) {
 	}
 	remote := string(ch.ExtraData())
 	//extract protocol
-	hostPort, proto := settings.L4Proto(remote)
+	hostPort, proto, handler := settings.L4Proto(remote)
 	udp := proto == "udp"
 	socks := hostPort == "socks"
 	if socks && t.socksServer == nil {
@@ -62,7 +62,7 @@ func (t *Tunnel) handleSSHChannel(ch ssh.NewChannel) {
 	if socks {
 		err = t.handleSocks(stream)
 	} else if udp {
-		err = t.handleUDP(l, stream, hostPort)
+		err = t.handleUDP(l, stream, hostPort, handler)
 	} else {
 		err = t.handleTCP(l, stream, hostPort)
 	}
