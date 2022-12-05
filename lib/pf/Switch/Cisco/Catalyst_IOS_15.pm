@@ -99,7 +99,7 @@ sub returnRadiusAdvanced {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Packet-Type'} = 11;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
-            $radius_reply_ref->{'state'} = "bob";
+            $radius_reply_ref->{'state'} = $session_id;
             my $acl = shift @{$session->{'acl'}};
             push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
             $session->{'acl_num'} ++;
