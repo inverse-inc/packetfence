@@ -3273,13 +3273,14 @@ Create a radius session id.
 sub setRadiusSession {
     my($self, $args) = @_;
     my $mac = $args->{'mac'};
-    my $session_id = generate_session_id(6);
+    my $session_id = ( exists($args->{'id_session'}) ? $args->{'id_session'} : generate_session_id(6) );
     my $chi = $self->radius_cache_distributed;
     $chi->set($session_id,{
         client_mac => $mac,
         wlan => $args->{'ssid'},
         switch_id => $args->{'switch'}->{'_id'},
-        acl => exists($args->{acl}) ? $args->{acl} : (),
+        acl => exists($args->{'acl'}) ? $args->{acl} : (),
+        acl_num => exists($args->{'acl_num'}) ? $args->{'acl_num'} : (),
     });
     return $session_id;
 }
@@ -3922,6 +3923,21 @@ sub radius_deauth_connection_info {
     };
 
     return $connection_info;
+}
+
+=head2 compute_action
+
+define based on the sub switch module if we have to compute role/acl/url/vpn attributes
+
+=cut
+
+sub compute_action {
+    my ($self, $args) = @_;
+    $$args->{'compute_vlan'} = (exists($$args->{'compute_vlan'}) ? $$args->{'compute_vlan'} : $TRUE );
+    $$args->{'compute_role'} = (exists($$args->{'compute_role'}) ? $$args->{'compute_role'} : $TRUE );
+    $$args->{'compute_acl'} = (exists($$args->{'compute_acl'}) ? $$args->{'compute_acl'} : $TRUE );
+    $$args->{'compute_url'} = (exists($$args->{'compute_url'}) ? $$args->{'compute_url'} : $TRUE );
+    $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
 }
 
 =back

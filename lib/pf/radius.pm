@@ -180,6 +180,8 @@ sub authorize {
         connection_type => $connection_type,
         connection_sub_type => $connection_sub_type,
         radius_request => $radius_request,
+        scope => "packetfence.post-auth",
+        connection => $connection,
     };
 
     $logger->trace( sub { "received a radius authorization request with parameters: ".
@@ -468,6 +470,8 @@ sub accounting {
             ssid => $ssid,
             node_info => $node_obj,
             owner => person_view_simple($node_obj->{'pid'})
+            scope => "packetfence.accounting",
+            connection => $connection,
         };
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'}, $args);
@@ -826,6 +830,7 @@ sub switch_access {
         switch_group => $switch->{_group},
         switch_id => $switch->{_id},
         connection => $connection,
+        scope => "packetfence.post-auth",
     };
 
     my $options = {};
@@ -1255,9 +1260,9 @@ sub handleConnectionTypeChange {
     }
 }
 
-=head2 radius_proxy
+=head2 radius_filter
 
-Handle radius proxy request (pre-proxy and post-proxy)
+Handle radius filter request
 
 =cut
 
@@ -1283,7 +1288,8 @@ sub radius_filter {
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
-        return [$RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Mac is empty")];
+        #define manually the mac since in radius_filter it's not something mandatory
+        $mac = "00:11:22:33:44:55";
     }
     Log::Log4perl::MDC->put( 'mac', $mac );
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
@@ -1321,7 +1327,15 @@ sub radius_filter {
         ssid => $ssid,
         node_info => $node_obj,
         owner => person_view_simple($node_obj->{'pid'}),
+        scope => $scope,
+        connection => $connection,
     };
+
+    # Exception for cisco DACL
+    if ($connection->isServiceTemplate || $connection->isACLDownload) {
+        return  $self->advancedAccess($args, $options);
+    }
+
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test($scope, $args);
     my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);
