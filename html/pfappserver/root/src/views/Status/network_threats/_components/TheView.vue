@@ -101,8 +101,11 @@
           <span v-b-tooltip.right.d300 :title="$t('open')" v-if="value === 'open'">
             <icon name="circle" class="text-danger" />
           </span>
-          <span v-b-tooltip.right.d300 :title="$t('closed')" v-else>
+          <span v-b-tooltip.right.d300 :title="$t('closed')" v-if="value === 'closed'">
             <icon name="circle" class="text-light" />
+          </span>
+          <span v-b-tooltip.right.d300 :title="$t('pending')" v-if="value === 'pending'">
+            <icon name="circle" class="text-warning" />
           </span>
         </template>
         <template #cell(mac)="{ value }">
@@ -197,8 +200,10 @@ const setup = (props, context) => {
 
   const totalOpen = computed(() => $store.state.$_network_threats.totalOpen)
   const totalClosed = computed(() => $store.state.$_network_threats.totalClosed)
+  const totalPending = computed(() => $store.state.$_network_threats.totalPending)
   const perDeviceClassOpen = computed(() => $store.getters['$_network_threats/perDeviceClassOpen'])
   const perDeviceClassClosed = computed(() => $store.getters['$_network_threats/perDeviceClassClosed'])
+  const perDeviceClassPending = computed(() => $store.getters['$_network_threats/perDeviceClassPending'])
 
   const tableRef = ref(null)
   let selected = useBootstrapTableSelected(tableRef, items, null)
@@ -236,6 +241,7 @@ const setup = (props, context) => {
     totalClosed,
     perDeviceClassOpen,
     perDeviceClassClosed,
+    perDeviceClassPending,
 
     tableRef,
     ...selected,
