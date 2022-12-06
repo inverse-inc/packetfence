@@ -7,7 +7,7 @@ before rebooting:
 systemctl set-default multi-user.target
 ----
 
-This will make sure your services don't start up after the reboot.
+This will make sure your services don't start up after the reboot. It's also the case for `packetfence-mariadb` service.
 
 Set it back to previous target after it boots up:
 
