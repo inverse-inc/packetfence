@@ -210,6 +210,8 @@ sub replace_file {
     my $content = decode_base64($self->req->body);
 
     eval {
+        my (undef, $file_parent_dir, undef) = splitpath($path);
+        pf_make_dir($file_parent_dir);
         write_file($path, {atomic=> 1, binmode => ':raw', no_clobber => 1}, $content);
     };
     if ($@) {
