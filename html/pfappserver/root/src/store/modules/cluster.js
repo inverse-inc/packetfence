@@ -568,6 +568,7 @@ const mutations = {
   SERVICE_SUCCESS: (state, { server, id, service }) => {
     service.pid = parseInt(service.pid)
     state.status = types.SUCCESS
+    state.message = ''
     Vue.set(state.servers[server].services, id, { ...state.servers[server].services[id], ...service, status: types.SUCCESS })
   },
   SERVICE_DISABLING: (state, { server, id }) => {
