@@ -187,7 +187,7 @@ yup.addMethod(yup.string, 'isCommonNameOrFQDNOrMAC', function (message) {
   return this.test({
     name: 'isCommonNameOrFQDNOrMAC',
     message: message || i18n.t('Invalid common name.'),
-    test: (value) => (isCommonName(value) || isFQDN(value) || value.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12)
+    test: (value) => (isCommonName(value) || isFQDN(value) || `${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length === 12)
   })
 })
 
@@ -458,7 +458,7 @@ yup.addMethod(yup.string, 'mysql', function(columnSchema) {
           break
 
         case (type === MysqlMac):
-          if (value.toLowerCase().replace(/[^0-9a-f]/g, '').length !== 12)
+          if (`${value}`.toLowerCase().replace(/[^0-9a-f]/g, '').length !== 12)
             return this.createError({ message: i18n.t('Invalid MAC.') })
           break
       }
