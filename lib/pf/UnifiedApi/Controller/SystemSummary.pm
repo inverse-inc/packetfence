@@ -36,6 +36,7 @@ sub get {
            db_version => do {my $v = eval { pf::version::version_get_last_db_version() }; $v},
            os => pf::util::host_os_detection(),
            send_anonymous_stats => (isenabled($Config{general}{send_anonymous_stats}) ? $self->json_true : $self->json_false),
+           saas => (isenabled($ENV{PF_SAAS}) ? $self->json_true : $self->json_false),
         }
     );
 
