@@ -827,7 +827,7 @@ schedule=@every 1m
 # batch
 #
 # How many bandwidth_accounting entries to clean up in one run
-batch=100
+batch=1000
 #
 # timeout
 #
