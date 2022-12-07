@@ -6,13 +6,12 @@ input:
 steps:
 - type: exec
   script: '{{.input.sudo}} systemctl {{.input.unit_command}} {{.input.service}}'
-
   vars:
     status_lines:
       from: result.systemout
 
 - type: exec
-  script: echo -n '{{.status_lines}}' | sed -nr 's/.*(Loaded.*CPU).*/\1/p'
+  script: echo -n '{{.status_lines}}' | sed -nr 's/.*(Loaded.*Memory).*/\1/p'
   vars:
    first_lines:
      from: result.systemout
