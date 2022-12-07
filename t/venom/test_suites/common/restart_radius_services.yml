@@ -5,6 +5,5 @@ testcases:
   - type: pf_api_service_restart_async
     service: 'radiusd-auth'
 
-  - type: http
-    method: pf_api_service_restart_async
+  - type: pf_api_service_restart_async
     service: 'pfacct'
