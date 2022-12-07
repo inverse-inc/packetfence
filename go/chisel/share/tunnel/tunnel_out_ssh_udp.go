@@ -66,14 +66,15 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 	}
 
 	packet, hostPort := p.Payload, h.hostPort
-	if h.isRadius(p) {
+	switch h.handler {
+	default:
+		h.Debugf("Proxying raw UDP")
+	case "radius":
 		h.Debugf("Proxying RADIUS")
 		packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID)
 		if err != nil {
 			return err
 		}
-	} else {
-		h.Debugf("Proxying raw UDP")
 	}
 	//dial now, we know we must write
 	conn, exists, err := h.udpConns.dial(p.Src, hostPort)
