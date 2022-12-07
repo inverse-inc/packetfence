@@ -88,6 +88,7 @@ sub returnRadiusAdvanced {
     my ($mac, $session_id) = split('-', $args->{'user_name'});
     my $radius_reply_ref = ();
     my @av_pairs;
+    $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
     if ($args->{'connection'}->isServiceTemplate) {
         push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_name'});
     } elsif ($args->{'connection'}->isACLDownload) {
