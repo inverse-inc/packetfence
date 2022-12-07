@@ -5,14 +5,48 @@ package tunnel
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
+	"fmt"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel/radius_proxy"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 )
+
+const radiusAuthK8Filter = "app=radiusd-auth"
+
+func clientSetFromEnv() (*kubernetes.Clientset, error) {
+	host := os.Getenv("K8S_MASTER_URI")
+	if host == "" {
+		return nil, errors.New("K8_MASTER_URI is not defined")
+	}
+
+	token := os.Getenv("K8S_MASTER_TOKEN")
+	if token == "" {
+		return nil, errors.New("K8_MASTER_TOKEN is not defined")
+	}
+
+	return kubernetes.NewForConfigAndClient(
+		&rest.Config{
+			Host:        host,
+			BearerToken: token,
+		},
+		&http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: TLSConfigFromEnv(),
+			},
+		},
+	)
+}
 
 func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, error) {
 	clientset, err := clientSetFromEnv()
@@ -97,4 +131,27 @@ func radiusProxyFromKubernetes(t *Tunnel) (*radius_proxy.Proxy, chan struct{}, e
 	go controller.Run(stop)
 
 	return radiusProxy, stop, nil
+}
+
+func TLSConfigFromEnv_() rest.TLSClientConfig {
+	caFile := sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
+	return rest.TLSClientConfig{
+		CAFile: caFile,
+	}
+}
+
+func TLSConfigFromEnv() *tls.Config {
+	caCerts := []byte(sharedutils.ReadFromFileOrStr(sharedutils.EnvOrDefault("KUBERNETES_CA_PATH", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")))
+	rootCAs, _ := x509.SystemCertPool()
+	if rootCAs == nil {
+		rootCAs = x509.NewCertPool()
+	}
+
+	if ok := rootCAs.AppendCertsFromPEM(caCerts); !ok {
+		fmt.Println("No K8S CA cert appended, using system certs only")
+	}
+
+	return &tls.Config{
+		RootCAs: rootCAs,
+	}
 }
