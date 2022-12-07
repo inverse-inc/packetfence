@@ -70,10 +70,15 @@ func (h *udpHandler) handleWrite(p *udpPacket) error {
 	default:
 		h.Debugf("Proxying raw UDP")
 	case "radius":
-		h.Debugf("Proxying RADIUS")
-		packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID)
-		if err != nil {
-			return err
+		if h.radiusProxy != nil {
+			h.Debugf("Proxying RADIUS")
+			packet, hostPort, err = h.radiusProxy.ProxyPacket(packet, h.connectorID)
+			if err != nil {
+				return err
+			}
+		} else {
+			h.Infof("Radius Proxy not config properly")
+			h.Debugf("Proxying raw UDP")
 		}
 	}
 	//dial now, we know we must write
