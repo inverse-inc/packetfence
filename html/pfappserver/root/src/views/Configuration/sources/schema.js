@@ -84,8 +84,6 @@ export const schema = (props) => {
 
   const {
     cert_file_upload,
-    client_cert_file_upload,
-    client_key_file_upload,
     idp_ca_cert_path_upload,
     idp_cert_path_upload,
     idp_metadata_path_upload,
@@ -126,19 +124,9 @@ export const schema = (props) => {
           : yup.string().nullable()
       }),
     cert_id: yup.string().label(i18n.t('ID')),
-    client_cert_file: yup.string()
-      .when('client_cert_file_upload', () => {
-        return (!client_cert_file_upload)
-          ? yup.string().nullable().required(i18n.t('Client certificate required.'))
-          : yup.string().nullable()
-      }),
+    client_cert_file: yup.string().nullable().label(i18n.t('Client certificate')),
     client_id: yup.string().label(i18n.t('Client ID')),
-    client_key_file: yup.string()
-      .when('client_key_file_upload', () => {
-        return (!client_key_file_upload)
-          ? yup.string().nullable().required(i18n.t('Client key required.'))
-          : yup.string().nullable()
-      }),
+    client_key_file: yup.string().nullable().label(i18n.t('Client key')),
     client_secret: yup.string().label(i18n.t('Secret')),
     description: yup.string().label(i18n.t('Description')),
     domains: yup.string().label(i18n.t('Domains')),
