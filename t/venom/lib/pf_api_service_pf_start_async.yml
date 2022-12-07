@@ -13,7 +13,7 @@ steps:
 
 - type: pf_api_service_status
   service: "radiusd-auth"
-  retry: "120"
-  delay: "15"
+  retry: 600
+  delay: 3
   assertions:
     - result.pf_api_service_status_json.alive ShouldEqual 1

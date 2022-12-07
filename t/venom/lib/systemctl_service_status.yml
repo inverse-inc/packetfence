@@ -3,8 +3,8 @@ input:
   service: "" 
   sudo: ""
   substring: "active (running)"
-  i_retry: 24
-  i_delay: 5
+  i_retry: 40
+  i_delay: 3
 steps:
 - type: systemctl_service
   unit_command: status

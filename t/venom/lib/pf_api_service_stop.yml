@@ -11,7 +11,7 @@ steps:
 
 - type: pf_api_service_status
   service: "{{.input.service}}"
-  retry: 25
+  retry: 40
   delay: 3
   assertions:
     - result.pf_api_service_status_json.pid ShouldEqual 0
