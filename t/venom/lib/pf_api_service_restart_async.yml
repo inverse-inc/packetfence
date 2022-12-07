@@ -2,7 +2,7 @@ executor: pf_api_service_restart_async
 input:
   service: ""
   time_to_sleep: 0
-  i_retry: 48
+  i_retry: 40
   i_delay: 3
   time_to_sleep_before_status: 0
 steps:
@@ -22,11 +22,10 @@ steps:
     task_token:
       from: result.pf_api_service__token
 
-- type: pf_api_poll_with_token
+- type: pf_api_poll
   i_task_id: "{{.task_id}}"
   i_retry: "{{.input.i_retry}}"
   i_delay: "{{.input.i_delay}}"
-  i_token: "{{.task_token}}"
 
 - type: sleep
   time_to_sleep: "{{.input.time_to_sleep_before_status}}"
