@@ -1,0 +1,19 @@
+executor: pf_api_service_pf_start_async
+steps:
+- type: pf_api_service_action
+  service: "pf"
+  action: "start"
+  method: POST
+  time_to_sleep: "0"
+  status_code: 202
+  body: >-
+    {
+      "async": "true"
+    }
+
+- type: pf_api_service_status
+  service: "radiusd-auth"
+  retry: "120"
+  delay: "15"
+  assertions:
+    - result.pf_api_service_status_json.alive ShouldEqual 1
