@@ -16,3 +16,7 @@ COPY --from=0 /usr/local/fingerbank/db/fingerbank_Local.db /usr/local/fingerbank
 
 RUN curl --fail --retry 3 -H "Authorization: Bearer ${FINGERBANK_BUILD_API_KEY}" https://api.fingerbank.org/api/v2/download/db > /usr/local/fingerbank/db/fingerbank_Upstream.db
 
+# Delete the unknown MAC vendors, they aren't useful in this image (meant to be used for the SaaS)
+RUN sqlite3 /usr/local/fingerbank/db/fingerbank_Upstream.db "delete from mac_vendor where name like 'Unknown%';"
+RUN sqlite3 /usr/local/fingerbank/db/fingerbank_Upstream.db "VACUUM;"
+
