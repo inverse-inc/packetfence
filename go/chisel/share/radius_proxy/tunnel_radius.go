@@ -9,7 +9,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
@@ -41,7 +40,7 @@ func isPodReady(pod *v1.Pod) bool {
 func clientSetFromEnv() (*kubernetes.Clientset, error) {
 	host := os.Getenv("K8S_MASTER_URI")
 	if host == "" {
-		return nil, errors.New("K8_MASTER_URI is not defined")
+		return nil, errors.New("K8S_MASTER_URI is not defined")
 	}
 
 	token := os.Getenv("K8S_MASTER_TOKEN")
@@ -49,15 +48,11 @@ func clientSetFromEnv() (*kubernetes.Clientset, error) {
 		return nil, errors.New("K8_MASTER_TOKEN is not defined")
 	}
 
-	return kubernetes.NewForConfigAndClient(
+	return kubernetes.NewForConfig(
 		&rest.Config{
-			Host:        host,
-			BearerToken: token,
-		},
-		&http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: TLSConfigFromEnv(),
-			},
+			Host:            host,
+			BearerToken:     token,
+			TLSClientConfig: TLSClientConfigFromEnv(),
 		},
 	)
 }
@@ -147,7 +142,7 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 	return radiusProxy, stop, nil
 }
 
-func TLSConfigFromEnv_() rest.TLSClientConfig {
+func TLSClientConfigFromEnv() rest.TLSClientConfig {
 	caFile := sharedutils.EnvOrDefault("K8S_MASTER_CA_FILE", "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt")
 	return rest.TLSClientConfig{
 		CAFile: caFile,
