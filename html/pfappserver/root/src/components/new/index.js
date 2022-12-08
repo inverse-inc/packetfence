@@ -6,6 +6,7 @@ import BaseButtonRefresh from './BaseButtonRefresh'
 import BaseButtonSave from './BaseButtonSave'
 import BaseButtonSaveSearch from './BaseButtonSaveSearch'
 import BaseButtonService from './BaseButtonService'
+import BaseButtonSystemService from './BaseButtonSystemService'
 import BaseButtonUpload from './BaseButtonUpload'
 import BaseContainerLoading from './BaseContainerLoading'
 import BaseCsvImport from './BaseCsvImport'
@@ -150,6 +151,7 @@ export {
   BaseButtonSave,
   BaseButtonSaveSearch,
   BaseButtonService,
+  BaseButtonSystemService,
   BaseButtonUpload,
 
   // containers
