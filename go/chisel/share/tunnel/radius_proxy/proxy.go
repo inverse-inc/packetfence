@@ -72,6 +72,11 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 		return nil, "", err
 	}
 
+	rp.IfDebugHandle(func(l *cio.Logger) {
+		l.Printf("Payload to Proxy")
+		LogPacket(l, packet)
+	})
+
 	added := rp.addProxyState(packet)
 	_ = added
 	connectorAttr, err := radius.NewString(connectorID)
@@ -106,6 +111,10 @@ func (rp *Proxy) ProxyPacket(payload []byte, connectorID string) ([]byte, string
 	}
 
 	rp.Debugf("Proxy to %s for connector %s", be.addr, connectorID)
+	rp.IfDebugHandle(func(l *cio.Logger) {
+		l.Printf("Payload Proxied")
+		LogPacket(l, packet)
+	})
 	return b2, be.addr, nil
 }
 

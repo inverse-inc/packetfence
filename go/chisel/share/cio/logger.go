@@ -29,6 +29,10 @@ func NewLoggerFlag(prefix string, flag int) *Logger {
 	return l
 }
 
+func (l *Logger) Printf(f string, args ...interface{}) {
+	l.logger.Printf(l.prefix+": "+f, args...)
+}
+
 func (l *Logger) Infof(f string, args ...interface{}) {
 	if l.IsInfo() {
 		l.logger.Printf(l.prefix+": "+f, args...)
