@@ -18,8 +18,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
-
-	v1 "k8s.io/api/core/v1"
 )
 
 // Config a Tunnel
@@ -29,6 +27,7 @@ type Config struct {
 	Outbound     bool
 	Socks        bool
 	RadiusSecret string
+	RadiusProxy  *radius_proxy.Proxy
 	KeepAlive    time.Duration
 	// The source IP for the packets that come into the remote
 	SrcIP net.IP
@@ -67,7 +66,7 @@ func New(c Config) *Tunnel {
 	t := &Tunnel{
 		Config: c,
 	}
-	radiusProxy, stop, err := radiusProxyFromKubernetes(t)
+	radiusProxy, stop, err := radius_proxy.NewRadiusProxyFromKubernetes(c.Logger, c.RadiusSecret)
 
 	if err != nil {
 		t.Infof("Error getting pod info: %s", err.Error())
@@ -91,20 +90,6 @@ func New(c Config) *Tunnel {
 	}
 	t.Debugf("Created%s", extra)
 	return t
-}
-
-func isPodReady(pod *v1.Pod) bool {
-	if pod.DeletionTimestamp != nil {
-		return false
-	}
-
-	for _, cond := range pod.Status.Conditions {
-		if cond.Type == v1.PodReady {
-			return cond.Status == v1.ConditionTrue
-		}
-	}
-
-	return false
 }
 
 // BindSSH provides an active SSH for use for tunnelling
