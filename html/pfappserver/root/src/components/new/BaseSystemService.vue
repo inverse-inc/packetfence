@@ -9,50 +9,20 @@
             <b-col cols="6" class="text-nowrap">{{ $i18n.t('Alive') }}</b-col>
             <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.alive && service.pid) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
           </b-row>
-          <b-row class="row-nowrap py-1" cols="2">
-            <b-col cols="6" class="text-nowrap">{{ $i18n.t('Enabled') }}</b-col>
-            <b-col cols="auto" class="text-right ml-auto"><icon :class="(service.enabled) ? 'text-success' : 'text-danger'" name="circle"/></b-col>
-          </b-row>
         </b-col>
         <b-col cols="5" class="text-wrap" v-if="isAllowed">
-          <b-button v-if="enable && !service.enabled"
-            @click="doEnable(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-            <icon name="toggle-on" class="mr-1" /> {{ $i18n.t('Enable') }}
-          </b-button>
-          <b-button v-if="disable && service.enabled"
-            @click="doDisable(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
-            <icon name="toggle-off" class="mr-1" /> {{ $i18n.t('Disable') }}
-          </b-button>
           <b-button v-if="restart && service.alive && service.pid"
             @click="doRestart(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
             <icon name="redo" class="mr-1" /> {{ $i18n.t('Restart') }}
           </b-button>
-          <b-button v-if="start && !(service.alive && service.pid) && !isProtected"
+          <b-button v-if="start && !(service.alive && service.pid)"
             @click="doStart(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
             <icon name="play" class="mr-1" /> {{ $i18n.t('Start') }}
           </b-button>
-          <b-button v-if="stop && service.alive && service.pid && !isProtected"
+          <b-button v-if="stop && service.alive && service.pid"
             @click="doStop(server)" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary mr-1">
             <icon name="stop" class="mr-1" /> {{ $i18n.t('Stop') }}
           </b-button>
-        </b-col>
-      </b-row>
-      <b-row v-if="isProtected"
-        class="mt-2 mx-0">
-        <b-col cols="auto" class="small text-info text-wrap">
-          <icon name="info-circle" scale="1.5" class="mr-1" /> {{ $i18n.t('Service {name} is required for this page to function. If there is any error performing the action on this service, this page will stop working which will require CLI access to remediate.', { name: service.id }) }}
-        </b-col>
-      </b-row>
-      <b-row v-if="!service.alive && service.managed"
-        class="mt-2 mx-0">
-        <b-col cols="auto" class="small text-danger text-wrap">
-          <icon name="info-circle" scale="1.5" class="mr-1" /> {{ $i18n.t('Service {name} is required with this configuration.', { name: service.id }) }}
-        </b-col>
-      </b-row>
-      <b-row v-if="service.alive && !service.managed"
-        class="mt-2 mx-0">
-        <b-col cols="auto" class="small text-danger text-wrap">
-          <icon name="info-circle" scale="1.5" class="mr-1" /> {{ $i18n.t('Service {name} is not required with this configuration.', { name: service.id }) }}
         </b-col>
       </b-row>
       <b-row v-if="service.message"
@@ -67,8 +37,6 @@
         <b-col cols="auto">
           <b-media class="text-gray text-uppercase font-weight-bold">
             <template v-slot:aside><icon name="circle-notch" spin scale="1.5" /></template>
-            <p v-if="service.status === 'disabling'" class="mb-0">{{ $i18n.t('Disabling') }}</p>
-            <p v-if="service.status === 'enabling'" class="mb-0">{{ $i18n.t('Enabling') }}</p>
             <p v-if="service.status === 'restarting'" class="mb-0">{{ $i18n.t('Restarting') }}</p>
             <p v-if="service.status === 'starting'" class="mb-0">{{ $i18n.t('Starting') }}</p>
             <p v-if="service.status === 'stopping'" class="mb-0">{{ $i18n.t('Stopping') }}</p>
@@ -111,10 +79,9 @@ const props = {
 }
 
 import { computed, toRefs, watch } from '@vue/composition-api'
-import { protectedServices } from '@/store/modules/cluster'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import { localeStrings } from '../config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const setup = (props, context) => {
 
@@ -139,47 +106,30 @@ const setup = (props, context) => {
   watch([id, server], () => {
     if (id.value && server.value && isAllowed.value && !lazy.value) {
       $store.dispatch('system/getHostname').then(() => {
-        $store.dispatch('cluster/getService', { server: server.value, id: id.value })
+        $store.dispatch('cluster/getSystemService', { server: server.value, id: id.value })
       })
     }
   }, { immediate: true })
-  const service = computed(() => $store.state.cluster.servers[server.value].services[id.value] || {})
-  const isProtected = computed(() => !!protectedServices.find(listed => listed === id.value))
+  const service = computed(() => $store.state.cluster.servers[server.value].system_services[id.value] || {})
   const isCluster = computed(() => $store.getters['cluster/isCluster'])
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
 
-  const doEnable = () => $store.dispatch('cluster/enableService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${id.value}</code>` }) })
-    emit('enable', { server, id: id.value })
-  }).catch(() => {
-    const message = i18n.t((isProtected.value) ? localeStrings.SERVICES_PROTECTED_ENABLED_ERROR : localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${id.value}</code>` })
-    $store.dispatch('notification/danger', { url: server.value, message })
-  })
-
-  const doDisable = () => $store.dispatch('cluster/disableService', { server: server.value, id: id.value }).then(() => {
-    $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${id.value}</code>` }) })
-    emit('disable', { server, id: id.value })
-  }).catch(() => {
-    const message = i18n.t((isProtected.value) ? localeStrings.SERVICES_PROTECTED_DISABLED_ERROR : localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${id.value}</code>` })
-    $store.dispatch('notification/danger', { url: server.value, message })
-  })
-
-  const doRestart = () => $store.dispatch('cluster/restartService', { server: server.value, id: id.value }).then(() => {
+  const doRestart = () => $store.dispatch('cluster/restartSystemService', { server: server.value, id: id.value }).then(() => {
     $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('restart', { server, id: id.value })
   }).catch(() => {
-    const message = i18n.t((isProtected.value) ? localeStrings.SERVICES_PROTECTED_RESTARTED_ERROR : localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${id.value}</code>` })
+    const message = i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${id.value}</code>` })
     $store.dispatch('notification/danger', { url: server.value, message })
   })
 
-  const doStart = () => $store.dispatch('cluster/startService', { server: server.value, id: id.value }).then(() => {
+  const doStart = () => $store.dispatch('cluster/startSystemService', { server: server.value, id: id.value }).then(() => {
     $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('start', { server, id: id.value })
   }).catch(() => {
     $store.dispatch('notification/danger', { url: server.value, message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${id.value}</code>` }) })
   })
 
-  const doStop = () => $store.dispatch('cluster/stopService', { server: server.value, id: id.value }).then(() => {
+  const doStop = () => $store.dispatch('cluster/stopSystemService', { server: server.value, id: id.value }).then(() => {
     $store.dispatch('notification/info', { url: server.value, message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${id.value}</code>` }) })
     emit('stop', { server, id: id.value })
   }).catch(() => {
@@ -190,12 +140,9 @@ const setup = (props, context) => {
     service,
 
     isAllowed,
-    isProtected,
     isCluster,
     isLoading,
 
-    doEnable,
-    doDisable,
     doRestart,
     doStart,
     doStop,
@@ -204,7 +151,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-service',
+  name: 'base-system-service',
   props,
   setup
 }

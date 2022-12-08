@@ -67,6 +67,8 @@ import BaseSearchInputAdvanced from './BaseSearchInputAdvanced'
 import BaseSearchInputColumns from './BaseSearchInputColumns'
 import BaseSearchInputLimit from './BaseSearchInputLimit'
 import BaseSearchInputPage from './BaseSearchInputPage'
+import BaseService from './BaseService'
+import BaseSystemService from './BaseSystemService'
 import BaseTableEmpty from './BaseTableEmpty'
 import BaseTableSortable from './BaseTableSortable'
 import BaseUpload from './BaseUpload'
@@ -164,6 +166,10 @@ export {
   BaseSearchInputColumns,
   BaseSearchInputLimit,
   BaseSearchInputPage,
+
+  // services
+  BaseService,
+  BaseSystemService,
 
   // tables
   BaseTableEmpty,

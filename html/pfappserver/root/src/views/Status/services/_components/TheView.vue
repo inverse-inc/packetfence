@@ -95,10 +95,10 @@
 
 <script>
 import {
+  BaseService,
   BaseTableEmpty
 } from '@/components/new/'
 import BaseButtonBulkActions from './BaseButtonBulkActions'
-import BaseService from './BaseService'
 
 const components = {
   BaseButtonBulkActions,
@@ -109,7 +109,7 @@ const components = {
 import { computed, customRef, onMounted, ref } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import i18n from '@/utils/locale'
-import { localeStrings } from '../config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const setup = (props, context) => {
 

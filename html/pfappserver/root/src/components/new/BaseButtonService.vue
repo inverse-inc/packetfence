@@ -65,7 +65,7 @@
   </b-dropdown>
 </template>
 <script>
-import BaseService from '@/views/Status/services/_components/BaseService'
+import BaseService from './BaseService'
 
 const components = {
   BaseService
@@ -74,7 +74,7 @@ const components = {
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import { localeStrings } from '@/views/Status/services/config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const props = {
   service: {
