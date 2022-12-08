@@ -11,8 +11,8 @@ import (
 
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
+	"github.com/inverse-inc/packetfence/go/chisel/share/radius_proxy"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
-	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel/radius_proxy"
 )
 
 var udpCloseOnReply = sharedutils.IsEnabled(sharedutils.EnvOrDefault("PFCONNECTOR_UDP_CLOSE_ON_REPLY", "disabled"))
