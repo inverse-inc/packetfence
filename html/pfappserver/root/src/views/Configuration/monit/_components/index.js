@@ -5,6 +5,7 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
+import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -18,7 +19,8 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupStatus,
   BaseFormGroupInput                  as FormGroupSubjectPrefix,
 
-  BaseViewResource                    as BaseView,
+  BaseViewResource as BaseView,
+  AlertServices,
   TheForm,
   TheView
 }
