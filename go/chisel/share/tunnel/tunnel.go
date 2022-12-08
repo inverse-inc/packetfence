@@ -14,8 +14,8 @@ import (
 	"github.com/armon/go-socks5"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/radius_proxy"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
-	"github.com/inverse-inc/packetfence/go/chisel/share/tunnel/radius_proxy"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 

@@ -11,7 +11,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/jpillora/sizestr"
@@ -93,7 +92,6 @@ func (u *udpListener) runInbound(ctx context.Context) error {
 		//read from inbound udp
 		u.inbound.SetReadDeadline(time.Now().Add(time.Second))
 		n, addr, err := u.inbound.ReadFromUDP(buff)
-		spew.Dump("runInbound", addr)
 		if e, ok := err.(net.Error); ok && (e.Timeout() || e.Temporary()) {
 			continue
 		}
@@ -145,7 +143,6 @@ func (u *udpListener) runOutbound(ctx context.Context) error {
 		if err != nil {
 			return u.Errorf("resolve error: %w", err)
 		}
-		spew.Dump("runOutbound", addr)
 		n, err := u.inbound.WriteToUDP(p.Payload, addr)
 		if err != nil {
 			return u.Errorf("write error: %w", err)
