@@ -241,48 +241,40 @@ testcases:
 
 - name: restart_iptables
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-iptables
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: iptables
 
-- name: restart_pfdns_service
+- name: restart_pfdns
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-pfdns
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: pfdns
 
-- name: restart_pfdhcp_service
+- name: restart_pfdhcp
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-pfdhcp
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: pfdhcp
 
-- name: restart_haproxy-portal_service
+- name: restart_haproxy-portal
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-haproxy-portal
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: haproxy-portal
 
-- name: restart_keepalived_service
+- name: restart_keepalived
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-keepalived
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: keepalived
 
-- name: restart_pfdhcplistener_service
+- name: restart_pfdhcplistener
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-pfdhcplistener
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: pfdhcplistener
 
-- name: restart_pfacct_service
+- name: restart_pfacct
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-pfacct
-    time_to_sleep: 5
+  - type: pf_api_service_restart
+    service: pfacct
 
 - name: restart_pfqueue_service
   steps:
-  - type: systemctl_service_restart
-    service: packetfence-pfqueue
-    time_to_sleep: 5
+  - type: pf_api_service_restart 
+    service: pfqueue
