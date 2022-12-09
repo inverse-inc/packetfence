@@ -5,11 +5,7 @@ const TheView = () => import(/* webpackChunkName: "Status" */ './_components/The
 
 export const beforeEnter = (to, from, next = () => {}) => {
   if (acl.$can('read', 'system')) {
-    store.dispatch('system/getHostname').then(() => {
-      store.dispatch('cluster/getConfig').then(() => {
-        store.dispatch('$_status/allCharts').finally(() => next())
-      }).catch(() => next())
-    })
+    store.dispatch('system/getHostname').finally(() => next())
   }
   else
     next()
@@ -17,8 +13,8 @@ export const beforeEnter = (to, from, next = () => {}) => {
 
 export default [
   {
-    path: 'services',
-    name: 'statusServices',
+    path: 'services_saas',
+    name: 'statusServicesSaas',
     component: TheView,
     beforeEnter,
     meta: {

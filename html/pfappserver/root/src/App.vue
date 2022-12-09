@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'is-saas': isSaas }">
+  <div :class="{ 'is-saas': isSaas, 'no-saas': !isSaas }">
     <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
       <b-navbar-brand>
