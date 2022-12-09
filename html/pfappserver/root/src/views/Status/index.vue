@@ -46,7 +46,14 @@ const setup = () => {
     {
       name: i18n.t('Services'),
       path: '/status/services',
-      can: 'read services'
+      can: 'read services',
+      class: 'no-saas'
+    },
+    {
+      name: i18n.t('Services'),
+      path: '/status/services_saas',
+      can: 'read services',
+      class: 'is-saas'
     },
     {
       name: i18n.t('Local Queue'),

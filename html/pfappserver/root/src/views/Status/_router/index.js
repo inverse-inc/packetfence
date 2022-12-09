@@ -9,6 +9,7 @@ import QueueRoutes from '../queue/_router'
 import NetworkCommunicationRoutes from '../network_communication/_router'
 import NetworkThreatsRoutes from '../network_threats/_router'
 import ServicesRoutes from '../services/_router'
+import ServicesSaasRoutes from '../services_saas/_router'
 
 const beforeEnter = (to, from, next) => {
   if (!store.state.$_status) {
@@ -25,6 +26,7 @@ const children = [
   ...NetworkCommunicationRoutes,
   ...NetworkThreatsRoutes,
   ...ServicesRoutes,
+  ...ServicesSaasRoutes,
 ]
 
 const path = '/status'
