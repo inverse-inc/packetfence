@@ -91,7 +91,7 @@ const props = {
   },
   acl: {
     type: String,
-    default: 'SERVICES_READ'
+    default: 'SYSTEM_READ'
   }
 }
 
