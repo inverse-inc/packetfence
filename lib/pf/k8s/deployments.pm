@@ -26,7 +26,7 @@ sub list {
 
 sub get {
     my ($self, $deployment, $params) = @_;
-    return $self->execute_request(HTTP::Request::Common::GET($self->build_uri("/apis/apps/v1/namespaces/".$self->namespace."/deployment/".$deployment, $params)));
+    return $self->execute_request(HTTP::Request::Common::GET($self->build_uri("/apis/apps/v1/namespaces/".$self->namespace."/deployments/".$deployment, $params)));
 }
 
 sub rollout_restart {

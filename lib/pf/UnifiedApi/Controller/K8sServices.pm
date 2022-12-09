@@ -16,18 +16,60 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::error qw(is_error);
+use pf::k8s;
+use POSIX::AtFork;
+
+my $k8s_deployments;
+my $k8s_pods;
+
+sub CLONE {
+    $k8s_deployments = pf::k8s->env_build()->api_module("pf::k8s::deployments");
+    $k8s_pods = pf::k8s->env_build()->api_module("pf::k8s::pods");
+}
+POSIX::AtFork->add_to_child(\&CLONE);
+CLONE();
 
 sub resource {
     my ($self) = @_;
     return 1;
 }
 
-sub list {
+sub status_all {
     my ($self) = @_;
+    my ($success, $res) = $k8s_deployments->list();
+    if($success) {
+        my $items = {};
+        for my $deployment (@{$res->{items}}) {
+            $items->{$deployment->{metadata}->{name}} = $self->_service_status($deployment);
+        }
+        $self->render(json => {items => $items});
+    }
+    else {
+        $self->k8s_api_error($res);
+    }
 }
 
 sub status {
     my ($self) = @_;
+    my $service_id = $self->param('service_id');
+    my ($success, $res) = $k8s_deployments->get($service_id);
+    if($success) {
+        $self->render(json => $self->_service_status($res));
+    }
+    else {
+        $self->k8s_api_error($res);
+    }
+}
+
+sub _service_status {
+    my ($self, $deployment) = @_;
+    my $status = $deployment->{status};
+    return {
+        available => (($status->{availableReplicas} >= 1) ? $self->json_true : $self->json_false),
+        total_replicas => $status->{replicas},
+        updated_replicas => $status->{updatedReplicas},
+        is_fully_updated => (($status->{updatedReplicas} == $status->{replicas}) ? $self->json_true : $self->json_false),
+    };
 }
 
 =head1 AUTHOR
