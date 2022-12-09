@@ -34,6 +34,17 @@ sub resource {
     return 1;
 }
 
+sub list {
+    my ($self) = @_;
+    my ($success, $res) = $k8s_deployments->list();
+    if($success) {
+        $self->render(json => {items => [map {$_->{metadata}->{name}} @{$res->{items}}]});
+    }
+    else {
+        $self->k8s_api_error($res);
+    }
+}
+
 sub status_all {
     my ($self) = @_;
     my ($success, $res) = $k8s_deployments->list();
