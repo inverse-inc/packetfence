@@ -302,6 +302,23 @@ pass=[% ENV.env_or_default("PF_MYSQL_PASS", "packet") %]
 # Path to the database UNIX socket
 unix_socket=[% ENV.env_or_default("PF_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.sock") %]
 
+[database_proxysql]
+#
+# database_proxysql.status
+#
+#
+status=disabled
+#
+# database_proxysql.cacert
+#
+#
+cacert=
+#
+# database_proxysql.backend
+#
+#
+backend=
+
 [database_advanced]
 #
 # database_advanced.key_buffer_size
