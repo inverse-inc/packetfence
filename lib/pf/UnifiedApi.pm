@@ -2001,7 +2001,7 @@ sub setup_api_v1_k8s_services_routes {
     $collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
     $collection_route->register_sub_actions({actions => [qw(status_all)], method => 'GET'});
     my $resource_route = $root->under("/k8s-service/#service_id")->to("K8sServices#resource")->name("api.v1.Config.K8sServices.resource");
-    $self->add_subroutes($resource_route, "K8sServices", "GET", qw(status rollout_status));
+    $self->add_subroutes($resource_route, "K8sServices", "GET", qw(status));
     $self->add_subroutes($resource_route, "K8sServices", "POST", qw(restart));
 
     return ($collection_route, $resource_route);

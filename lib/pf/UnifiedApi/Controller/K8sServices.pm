@@ -61,6 +61,18 @@ sub status {
     }
 }
 
+sub restart {
+    my ($self) = @_;
+    my $service_id = $self->param('service_id');
+    my ($success, $res) = $k8s_deployments->rollout_restart($service_id);
+    if($success) {
+        $self->render(json => {accepted => $self->json_true});
+    }
+    else {
+        $self->k8s_api_error($res);
+    }
+}
+
 sub _service_status {
     my ($self, $deployment) = @_;
     my $status = $deployment->{status};

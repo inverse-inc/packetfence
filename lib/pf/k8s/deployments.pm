@@ -15,6 +15,7 @@ Module to manage access to the deployments API of a K8S control plane
 
 use pf::constants qw($TRUE);
 use HTTP::Request::Common;
+use JSON::MaybeXS qw(encode_json);
 
 use Moo;
 extends "pf::k8s";
@@ -30,7 +31,24 @@ sub get {
 }
 
 sub rollout_restart {
-
+    my ($self, $deployment) = @_;
+    my $format = DateTime::Format::RFC3339->new();
+    my $payload = {
+        "spec" => {
+            "template" => {
+                "metadata" => {
+                    "annotations" => {
+                        "kubectl.kubernetes.io/restartedAt" => $format->format_datetime(DateTime->now(time_zone => "UTC")),
+                    }
+                }
+            }
+        }
+    };
+    return $self->execute_request(HTTP::Request::Common::PATCH(
+        $self->build_uri("/apis/apps/v1/namespaces/".$self->namespace."/deployments/".$deployment."?fieldManager=kubectl-rollout&pretty=true"),
+        "Content-Type" => "application/strategic-merge-patch+json",
+        Content => encode_json($payload),
+    ));
 }
 
 =head1 AUTHOR
