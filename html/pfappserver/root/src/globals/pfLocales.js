@@ -32,4 +32,7 @@ export const localeStrings = {
 
   SERVICES_STOPPED_SUCCESS: 'Stopped services {services}.', // i18n defer
   SERVICES_STOPPED_ERROR: 'Failed to stop services {services}. See the server error logs for more information.', // i18n defer
+
+  SYSTEMD_UPDATED_SUCCESS: 'Updated systemd for {service}.', // i18n defer
+  SYSTEMD_UPDATED_ERROR: 'Failed to update systemd for {service}. See the server error logs for more information.', // i18n defer
 }
