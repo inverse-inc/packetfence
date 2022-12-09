@@ -84,6 +84,11 @@ sub _service_status {
     };
 }
 
+sub k8s_api_error {
+    my ($self, $err) = @_;
+    $self->render_error(500, $err);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
