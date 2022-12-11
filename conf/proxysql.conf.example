@@ -66,6 +66,8 @@ mysql_variables=
     commands_stats=true
     sessions_sort=true
 
+[% mysql_ssl_p2s_capath %]
+
 [% monitor %]
 
     monitor_galera_healthcheck_interval=2000
