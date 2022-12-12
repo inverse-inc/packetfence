@@ -53,9 +53,9 @@
         </template>
         <template v-slot:cell(status)="{ item }">
           <div>
-            <b-progress :max="item.total_replicas" height="2em">
+            <b-progress :max="item.total_replicas" height="2em" :animated="item.updated_replicas !== item.total_replicas">
               <b-progress-bar :value="item.updated_replicas" :precision="2" variant="success" :show-value="false"></b-progress-bar>
-              <b-progress-bar :value="item.total_replicas - item.updated_replicas" :precision="2" variant="warning" :show-value="false"></b-progress-bar>
+              <b-progress-bar :value="item.total_replicas - item.updated_replicas" :precision="2" variant="warning" :show-value="false" striped></b-progress-bar>
             </b-progress>
             <small>{{ item.updated_replicas }}/{{ item.total_replicas }} {{ $i18n.t('Replicas') }}</small>
           </div>
@@ -79,11 +79,9 @@ import {
   BaseTableEmpty
 } from '@/components/new/'
 import BaseButtonBulkActions from './BaseButtonBulkActions'
-import BaseService from './BaseService'
 
 const components = {
   BaseButtonBulkActions,
-  BaseService,
   BaseTableEmpty
 }
 
@@ -144,7 +142,7 @@ const setup = (props, context) => {
   }, []))
 
   const tableRef = ref(null)
-  const selected = useBootstrapTableSelected(tableRef, services, 'service')
+  const selected = useBootstrapTableSelected(tableRef, servicesDecorated, 'service')
 
   const doRestart = ({ service }) => $store.dispatch('k8s/restartService', service)
 
