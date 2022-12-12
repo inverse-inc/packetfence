@@ -31,6 +31,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Bug Fixes
 
+ * Force the destination IP for UDP packets going through the pfconnector (#7323)
+
 == Version 12.1.0 released on 2022-11-22
 
 === New Features
