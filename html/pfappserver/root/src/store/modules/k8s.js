@@ -37,8 +37,8 @@ const initialState = () => {
   }
 }
 
-const delay = 1E3 // 1s
-const grace = 3E3 // 3s
+const delay = 3E3 // 1s
+const grace = 5E3 // 3s
 
 const getters = {
   isLoading: state => state.status === types.LOADING,
