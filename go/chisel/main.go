@@ -412,7 +412,7 @@ func client(args []string) {
 	flags.StringVar(&config.SrcIP, "src-ip", "", "")
 	hostname := flags.String("hostname", "", "")
 	pid := flags.Bool("pid", false, "")
-	verbose := flags.Bool("v", false, "")
+	verbose := flags.Bool("v", (strings.ToLower(os.Getenv("LOG_LEVEL")) == "debug"), "")
 	flags.Usage = func() {
 		fmt.Print(clientHelp)
 		os.Exit(0)
