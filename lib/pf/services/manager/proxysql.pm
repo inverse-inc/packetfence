@@ -58,7 +58,6 @@ sub generateConfig {
     my ($package, $filename, $line) = caller();
 
     my %tags;
-    my $single_server = 0;
     $tags{'template'} = $self->proxysql_config_template;
     $tags{'geoDB'} = $FALSE;
     $tags{'mysql_servers'} = "";
@@ -73,23 +72,7 @@ EOT
 EOT
 
     my $i = 100;
-    my $database_proxysql = $pf::config::Config{database_proxysql};
-
-    if (isenabled($database_proxysql->{status})) {
-        my $cacert = $database_proxysql->{cacert};
-        if ($cacert) {
-            $tags{'mysql_ssl_p2s_capath'} = << "EOT";
-    mysql-ssl_p2s_capath = "$cacert";
-EOT
-        }
-
-        $single_server = 1;
-        my $backend = $database_proxysql->{backend};
-        my $ssl = $cacert ? 1 : 0;
-        $tags{mysql_servers} .= << "EOT";
-    { address="$backend" , port=3306 , hostgroup=10, max_connections=1000, weight=$i, use_ssl=$ssl },
-EOT
-    } elsif (pf::cluster::getWriteDB()) {
+    if (pf::cluster::getWriteDB()) {
         $tags{'geoDB'} = $TRUE;
         my @mysql_write_backend = pf::cluster::getWriteDB();
         my @mysql_read_backend = pf::cluster::getReadDB();
@@ -122,11 +105,8 @@ EOT
         }
     }
 
-
-
     my @mysql_servers = pf::cluster::mysql_servers();
-
-    $tags{'single_server'} = $single_server || (scalar(@mysql_servers) == 1);
+    $tags{'single_server'} = (scalar(@mysql_servers) == 1);
 
     $tags{'mysql_pf_user'} = $DB_Config->{user};
     $tags{'mysql_pf_user'} =~ s/"/\\"/g;
