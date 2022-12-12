@@ -11,6 +11,8 @@ steps:
       "async": "true"
     }
 
+# radiusd-auth is a service with a lot of service dependencies
+# so, one of the lastest vital services to start
 - type: pf_api_service_status
   service: "radiusd-auth"
   retry: 600

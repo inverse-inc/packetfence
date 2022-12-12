@@ -19,4 +19,3 @@ steps:
 
 output: 
   pf_api_service_action_: "{{.service_temp}}"
-  pf_api_service__token: "{{.result.pf_api_action__token}}"

@@ -18,11 +18,8 @@ steps:
   vars:
     task_id:
       from: result.pf_api_service_action_json.task_id
-    task_token:
-      from: result.pf_api_service__token
 
-- type: pf_api_poll_with_token
+- type: pf_api_poll
   i_task_id: "{{.task_id}}"
   i_retry: "{{.input.i_retry}}"
   i_delay: "{{.input.i_delay}}"
-  i_token: "{{.task_token}}"

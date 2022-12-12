@@ -19,8 +19,6 @@ steps:
   vars:
     task_id:
       from: result.pf_api_service_action_json.task_id
-    task_token:
-      from: result.pf_api_service__token
 
 - type: pf_api_poll
   i_task_id: "{{.task_id}}"
