@@ -15,6 +15,7 @@
 <script>
 import DatabaseGeneralView from '../database/general/_components/TheView'
 import DatabaseAdvancedView from '../database/advanced/_components/TheView'
+import DatabaseProxySQLView from '../database/proxysql/_components/TheView'
 
 const tabs = {
   database_general: {
@@ -24,6 +25,10 @@ const tabs = {
   database_advanced: {
     title: 'Advanced Configuration', // i18n defer
     component: DatabaseAdvancedView
+  },
+  database_proxysql: {
+    title: 'ProxySQL Configuration', // i18n defer
+    component: DatabaseProxySQLView
   }
 }
 
