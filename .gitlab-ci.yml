@@ -25,7 +25,8 @@ stages:
 ################################################################################
 variables:
   # synced with Pipeline timeout in GitLab UI
-  PIPELINE_TIMEOUT: 170m
+  PIPELINE_TIMEOUT_SCRIPT: 160m
+  PIPELINE_TIMEOUT_AFTER_SCRIPT: 10m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
@@ -274,7 +275,7 @@ variables:
 .build_img_docker_job:
   stage: build_img
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${PACKERDIR} build_img_docker_pfbuild
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${PACKERDIR} build_img_docker_pfbuild
   tags:
     - shell
 
@@ -295,9 +296,9 @@ variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} clean
+    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
     - shell
     - inverse.ca
@@ -465,8 +466,7 @@ variables:
     name: sourceforge
     url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
   after_script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} clean
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} clean_cache
+    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${ZENDIR} clean_all
   dependencies: []
   tags:
     - shell
@@ -476,7 +476,7 @@ variables:
   environment:
     name: sourceforge
   after_script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ISODIR} clean
+    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${ISODIR} clean
   dependencies: []
   tags:
     - shell
@@ -487,9 +487,9 @@ variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
   after_script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${VAGRANT_IMG_DIR} clean
+    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} clean
   dependencies: []
   tags:
     - inverse.ca
@@ -507,9 +507,9 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
   after_script:
-    - timeout ${PIPELINE_TIMEOUT} ${TESTCIDIR}/clean-test-environment.sh
+    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} ${TESTCIDIR}/clean-test-environment.sh
 
 ################################################################################
 # JOBS
@@ -1417,13 +1417,13 @@ build_pf_img_zen_devel_branches_and_maintenance:
     - .build_pf_img_zen_job
     - .build_pf_img_zen_devel_branches_and_maintenance_rules
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} zen-deb11
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ZENDIR} zen-deb11
 
 build_pf_img_zen_release:
   extends:
     - .build_pf_img_zen_job
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ZENDIR} zen-deb11
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ZENDIR} zen-deb11
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
@@ -1438,7 +1438,7 @@ build_pf_img_iso_devel_branches_and_maintenance:
   environment:
     url: ${SF_ISO_REPO_URL}/${CI_COMMIT_REF_SLUG}
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} iso
 
 build_pf_img_iso_release:
   extends:
@@ -1448,7 +1448,7 @@ build_pf_img_iso_release:
   environment:
     url: ${SF_ISO_REPO_URL}/${CI_COMMIT_TAG}
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${ISODIR} iso
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${ISODIR} iso
   # workaround for https://forum.gitlab.com/t/specify-when-at-job-level-with-a-job-that-has-rules/4769
   rules:
     - if: '$CI_COMMIT_TAG'
