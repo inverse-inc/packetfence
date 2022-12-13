@@ -3,8 +3,8 @@ input:
   id: ""
   username: ""
   password: ""
-  i_retry: 24
-  i_delay: 5
+  i_retry: 40
+  i_delay: 3
 steps:
 - type: pf_api_domain_action
   method: POST
