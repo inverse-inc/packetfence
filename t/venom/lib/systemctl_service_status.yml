@@ -3,12 +3,16 @@ input:
   service: "" 
   sudo: ""
   substring: "active (running)"
+  i_retry: 40
+  i_delay: 3
 steps:
 - type: systemctl_service
   unit_command: status
   service: "{{.input.service}}"
   sudo: "{{.input.sudo}}"
+  retry: "{{.input.i_retry}}"
+  delay: "{{.input.i_delay}}"
   assertions:
-    - result.service_systemout ShouldContainSubstring '{{.input.substring}}'
+    - result.service_first_lines ShouldContainSubstring '{{.input.substring}}'
 output:
   service_status_systemout: "{{.result.service_systemout}}"

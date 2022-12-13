@@ -16,3 +16,21 @@
         rsync_opts:
           - "--exclude=vars/local.yml"
 
+    - name: Set users term linux
+      ansible.builtin.lineinfile:
+        path: /etc/environment
+        regexp: '^TERM='
+        line: TERM=linux
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Set root term linux
+      ansible.builtin.lineinfile:
+        path: /root/.profile
+        regexp: '^export TERM='
+        line: export TERM=linux
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Add vim
+      ansible.builtin.package:
+        name: vim
+        state: present
