@@ -24,5 +24,12 @@ export default [
     component: TheTabs,
     props: () => ({ tab: 'database_advanced' }),
     beforeEnter
+  },
+  {
+    path: 'database_proxysql',
+    name: 'database_proxysql',
+    component: TheTabs,
+    props: () => ({ tab: 'database_proxysql' }),
+    beforeEnter
   }
 ]
