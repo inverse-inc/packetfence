@@ -222,7 +222,7 @@ func main() {
 	http.Handle("/", httpauth.SimpleBasicAuth(webservices.User, webservices.Pass)(router))
 
 	srv := &http.Server{
-		Addr:        "127.0.0.1:22222",
+		Addr:        ":22222",
 		IdleTimeout: 5 * time.Second,
 		Handler:     router,
 	}

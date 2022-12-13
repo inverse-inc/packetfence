@@ -1,7 +1,7 @@
 import { types } from '@/store'
 
 export default class FileStore {
-  constructor (blob, encoding) {
+  constructor(blob, encoding) {
     this.blob = blob
     this.encoding = encoding
   }
@@ -30,6 +30,7 @@ export default class FileStore {
           encoding: this.encoding || 'utf-8', // user defined character encoding
           percent: 0, // FileReader onprogress percent
           result: null, // FileReader onload result
+          end: false, // FileReader onloadend
           error: null // FileReader onerror error
         }
       }
@@ -63,7 +64,10 @@ export default class FileStore {
               const start = state.offsets[lineIndex]
               const end = state.offsets[lineIndex + 1] - state.newLine.length
               dispatch('readSlice', { start, end }).then(result => {
-                const decoded = new TextDecoder(state.file.encoding).decode(result)
+                let decoded = result
+                  try {
+                    decoded = new TextDecoder(state.file.encoding).decode(result)
+                  } catch (e) {/* noop */ }
                 resolve(decoded)
               }).catch(err => {
                 reject(err)
@@ -91,6 +95,24 @@ export default class FileStore {
           end = Math.min(end, state.file.size)
           const slice = state.blob.slice(start, end, state.file.type)
           reader.readAsArrayBuffer(slice)
+        })
+      },
+      readAsDataURL: ({ commit, state }) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onerror = (event) => {
+            const { target: { error } = {} } = event
+            commit('SET_ERROR', error)
+            reader.abort()
+            reject(error)
+          }
+          reader.onload = (event) => {
+            const { target: { result } = {} } = event
+            // eslint-disable-next-line no-unused-vars
+            const [ dataString, base64 ] = result.split(',', 2)
+            resolve(base64)
+          }
+          reader.readAsDataURL(state.blob)
         })
       },
       buildOffset: ({ commit, state, dispatch }, lineIndex) => {
@@ -154,6 +176,9 @@ export default class FileStore {
         const { target: { result } = {} } = event
         state.file.result = result
       },
+      READER_LOADEND: (state) => {
+        state.file.end = true
+      },
       READER_ERROR: (state, event) => {
         state.status = types.ERROR
         const { target: { error: { code, message, name } = {} } = {} } = event
@@ -170,6 +195,9 @@ export default class FileStore {
         }
         reader.onload = (event) => {
           commit('READER_LOAD', event)
+        }
+        reader.onloadend = (event) => {
+          commit('READER_LOADEND', event)
         }
         reader.onerror = (event) => {
           commit('READER_ERROR', event)

@@ -74,7 +74,10 @@
         reverse
         @click="onDelete"
       >{{ $t('Revert') }}</button-revert>
-      <b-button class="mr-1" variant="secondary" @click="onHide">{{ $t('Cancel') }}</b-button>
+      <b-button v-if="isNew"
+        class="mr-1" variant="secondary" @click="onHide">{{ $t('Cancel') }}</b-button>
+      <b-button v-else
+        class="mr-1" variant="secondary" @click="onHide">{{ $t('Close') }}</b-button>
     </template>
   </b-modal>
 </template>
@@ -117,6 +120,7 @@ import { createDebouncer } from 'promised-debounce'
 import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 import i18n from '@/utils/locale'
+import { acceptTextMimes } from '../config'
 import { yup } from '../schema'
 
 const defaults = () => ({
@@ -134,12 +138,12 @@ const setup = (props, context) => {
     value,
   } = toRefs(props)
 
-  const schema = yup.object({
+  const schema = computed(() => yup.object({
     name: yup.string()
       .required(i18n.t('File name required.'))
-      .isFilenameWithExtension(['html', 'mjml'])
-      .pathNotExists(entries, path, i18n.t('Filename exists.'))
-  })
+      .isFilenameWithContentType(acceptTextMimes)
+      .fileNotExists(entries.value, path.value, i18n.t('File exists.'))
+  }))
 
   const form = ref(defaults())
   const formRef = ref(null)
@@ -185,8 +189,8 @@ const setup = (props, context) => {
     }
     else {
       $store.dispatch('$_connection_profiles/getFile', { id: id.value, filename: path.value }).then(response => {
-        const { content, meta: { not_deletable, not_revertible } = {} } = response
-        editorContent.value = content
+        const { content: { message }, meta: { not_deletable, not_revertible } = {} } = response
+        editorContent.value = atob(message)
         isDeletable.value = !not_deletable
         isRevertible.value = !not_revertible
       })
@@ -206,7 +210,7 @@ const setup = (props, context) => {
     let params = {
       id: id.value,
       filename: path.value.split('/').filter(u => u).join('/'),
-      content: editorContent.value
+      content: btoa(editorContent.value)
     }
     if (isNew.value)
       params.filename += `/${form.value.name}`
@@ -331,7 +335,7 @@ const setup = (props, context) => {
 }
 
 export default {
-  name: 'modal-file',
+  name: 'modal-edit',
   components,
   props,
   setup

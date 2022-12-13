@@ -15,12 +15,13 @@ pf::UnifiedApi::Controller::Config::ConnectionProfiles
 use strict;
 use warnings;
 use captiveportal::DynamicRouting::Application;
+use Mojo::Asset;
 use Mojo::Base qw(pf::UnifiedApi::Controller::Config);
 use pf::ConfigStore::Profile;
 use pf::UnifiedApi::Request;
 use pfappserver::Form::Config::Profile;
 use pfappserver::Form::Config::Profile::Default;
-use File::Slurp qw(write_file);
+use File::Slurp qw(read_file write_file);
 use POSIX qw(:errno_h);
 use JSON::MaybeXS qw();
 use File::Find;
@@ -38,6 +39,7 @@ use pf::file_paths qw(
 );
 use pf::error qw(is_error);
 use pfconfig::git_storage;
+use MIME::Base64 qw(encode_base64 decode_base64);
 
 has 'config_store_class' => 'pf::ConfigStore::Profile';
 has 'form_class' => 'pfappserver::Form::Config::Profile';
@@ -141,7 +143,13 @@ sub get_file {
         return $self->render_error(404, "'$file' not found");
     }
 
-    return $self->reply->file($path);
+    my $content = read_file($path);
+    my $encoded = encode_base64($content);
+
+    my $asset = Mojo::Asset::Memory->new;
+    $asset->add_chunk($encoded);
+
+    return $self->reply->asset($asset);
 }
 
 =head2 new_file
@@ -162,11 +170,11 @@ sub new_file {
        return $self->render_error(412, "'$file' already exists");
     }
 
-    my $content = $self->req->text;
+    my $content = decode_base64($self->req->body);
     eval {
         my (undef, $file_parent_dir, undef) = splitpath($path);
         pf_make_dir($file_parent_dir);
-        write_file($path, {binmode => ':utf8', no_clobber => 1}, $content);
+        write_file($path, {binmode => ':raw', no_clobber => 1}, $content);
     };
     if ($@) {
        pf::log::get_logger->error("Error writing file: $@");
@@ -199,10 +207,12 @@ sub replace_file {
     }
 
     my $path = profileFilePath($id, $file);
-    my $content = $self->req->text;
+    my $content = decode_base64($self->req->body);
 
     eval {
-        write_file($path, {atomic=> 1, binmode => ':utf8', no_clobber => 0}, $content);
+        my (undef, $file_parent_dir, undef) = splitpath($path);
+        pf_make_dir($file_parent_dir);
+        write_file($path, {atomic=> 1, binmode => ':raw', no_clobber => 1}, $content);
     };
     if ($@) {
        pf::log::get_logger->error("Error writing file: $@");
@@ -422,7 +432,7 @@ file_excluded
 
 sub file_excluded {
     my ($file) = @_;
-    return $file !~ /\.(html|mjml)$/ || $file =~ /^\./;
+    return $file !~ /\.(html|mjml|jpg|jpeg|gif|png|svg|json|js|css|scss|otf|ttf|woff|woff2)$/ || $file =~ /^\./;
 }
 
 sub dir_excluded {
@@ -620,6 +630,16 @@ sub preview_file {
     if (!defined $path) {
         return $self->render_error(404, "'$file' not found");
     }
+
+    if ($path !~ /\.html$/) {
+        my $type = $self->app->types->file_type($path);
+        if ($type) {
+            $self->res->headers->content_type($type);
+        }
+        $self->reply->file($path);
+        return;
+    }
+
     my $profile =
       pf::Connection::ProfileFactory->instantiate( "00:11:22:33:44:55",
         { portal => $self->id } );

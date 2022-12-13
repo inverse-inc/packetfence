@@ -170,6 +170,7 @@ const setup = (props, context) => {
     }
     let createdUsers = ref([])
     let promises = []
+    $store.commit('$_users/CREATED_USERS_REPLACED', [])
     for (let i = 0; i < base.quantity; i++) {
       let _form = {
         ...base,
@@ -178,20 +179,24 @@ const setup = (props, context) => {
       }
       promises.push($store.dispatch('$_users/exists', _form.pid).then(() => {
         // user exists
+        completed.value += 1/3
         return $store.dispatch('$_users/updateUser', _form).then(() => {
-          completed.value += 0.5
+          completed.value += 1/3
           return $store.dispatch('$_users/updatePassword', _form).then(() => {
+            completed.value += 1/3
             createdUsers.value.push(_form)
-            completed.value += 0.5
+            $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
           })
         })
       }).catch(() => {
         // user not exist
+        completed.value += 1/3
         return $store.dispatch('$_users/createUser', _form).then(() => {
-          completed.value += 0.5
+          completed.value += 1/3
           return $store.dispatch('$_users/createPassword', _form).then(() => {
+            completed.value += 1/3
             createdUsers.value.push(_form)
-            completed.value += 0.5
+            $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
           })
         })
       }))
@@ -204,7 +209,6 @@ const setup = (props, context) => {
         skipped: null,
         failed: null
       })
-      $store.commit('$_users/CREATED_USERS_REPLACED', createdUsers.value)
     })
   }
 

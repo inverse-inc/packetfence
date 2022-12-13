@@ -1,0 +1,21 @@
+executor: pf_api_service_pf_start_async
+steps:
+- type: pf_api_service_action
+  service: "pf"
+  action: "start"
+  method: POST
+  time_to_sleep: "0"
+  status_code: 202
+  body: >-
+    {
+      "async": "true"
+    }
+
+# radiusd-auth is a service with a lot of service dependencies
+# so, one of the lastest vital services to start
+- type: pf_api_service_status
+  service: "radiusd-auth"
+  retry: 600
+  delay: 3
+  assertions:
+    - result.pf_api_service_status_json.alive ShouldEqual 1

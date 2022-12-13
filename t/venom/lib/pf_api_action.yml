@@ -39,3 +39,4 @@ output:
   pf_api_action__node_unregdate: "{{.http_json.item.unregdate}}" 
   pf_api_action__node_security_event_id: "{{.http_json.items.items0.security_event_id}}" 
   pf_api_action__items: "{{.http_json.items}}" 
+  pf_api_action__token: "{{.result.token}}" 

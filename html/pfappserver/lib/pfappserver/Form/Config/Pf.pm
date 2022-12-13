@@ -43,6 +43,7 @@ sub field_list {
     my $list = [];
     my $section = $self->section;
     return [] if !defined $section;
+    push @$list, id => { id => 'id', type => 'Text'};
     my $default_pf_config = pf::IniFiles->new(-file => $pf_default_file, -allowempty => 1);
     my @section_fields = $default_pf_config->Parameters($section);
     foreach my $name (@section_fields) {
@@ -249,7 +250,20 @@ sub field_list {
                 $field->{element_attr} = {'data-placeholder' => 'No selection'};
                 my @options = ({value => '', label => 'None' }, map { { value => $_, label => $_ } } get_sms_source_ids());
                 $field->{options} = \@options;
-            }
+            };
+            $type eq 'path' && do {
+                my $old_name = $name;
+                $field->{type} = 'Path';
+                push(@$list, $name => $field);
+                $name .= "_upload";
+                $field = {
+                    id => $name,
+                    type => 'PathUpload',
+                    accessor => $old_name,
+                    config_prefix => $doc_section->{ext},
+                    upload_namespace => $name,
+                };
+            };
         }
         if ($field->{type} eq 'Text') {
             if (exists $doc_section->{minimum_length}) {
