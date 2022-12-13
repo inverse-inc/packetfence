@@ -51,22 +51,24 @@ export default {
     })
   },
   file: params => {
-    const get = params.quiet ? 'getQuiet' : 'get'
-    return apiCall[get](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/').filter(p => p)], { nocache: true }).then(response => {
+    return apiCall.getQuiet(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/').filter(p => p)], { ...params, nocache: true }).then(response => {
       return response.data
     })
   },
   createFile: params => {
-    return apiCall.put(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')], params.content).then(response => {
+    const method = params.quiet ? 'putQuiet' : 'put'
+    return apiCall[method](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')], params.content).then(response => {
       return response.data
     })
   },
   updateFile: params => {
-    return apiCall.patch(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')], params.content).then(response => {
+    const method = params.quiet ? 'patchQuiet' : 'patch'
+    return apiCall[method](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')], params.content).then(response => {
       return response.data
     })
   },
   deleteFile: params => {
-    return apiCall.delete(['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')])
+    const method = params.quiet ? 'deleteQuiet' : 'delete'
+    return apiCall[method](['config', 'connection_profile', params.id, 'files', ...params.filename.split('/')])
   }
 }

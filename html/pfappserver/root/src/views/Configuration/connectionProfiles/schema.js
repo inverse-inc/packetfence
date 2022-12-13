@@ -18,34 +18,34 @@ yup.addMethod(yup.string, 'connectionProfileIdNotExistsExcept', function (except
   })
 })
 
-yup.addMethod(yup.string, 'pathNotExists', function (entries, path, message) {
+const fileNotExists = (entries, path, filename, except) => {
+  // traverse tree using path parts
+  let parts = ['/', ...path.split('/').filter(p => p)]
+  while (parts.length > 0) {
+    for (let e = 0; e < entries.length; e++) {
+      const { name, entries: childEntries = [] } = entries[e]
+      if (name === parts[0]) {
+        // update pointer
+        entries = childEntries
+        break
+      }
+    }
+    parts = parts.slice(1)
+  }
+  for (let e = 0; e < entries.length; e++) {
+    const { name } = entries[e]
+    if (name === filename.trim())
+      return (name === except)
+  }
+  return true
+}
+
+yup.addMethod(yup.string, 'fileNotExists', function (entries, path, message, except) {
   return this.test({
-    name: 'pathNotExists',
+    name: 'fileNotExists',
     message: message || i18n.t('File exists.'),
     test: (value) => {
-      if (!value)
-        return true
-      // point @ primitive
-      let ptrEntries = entries.value
-      // traverse tree using path parts
-      let parts = ['/', ...path.value.split('/').filter(p => p)]
-      while (parts.length > 0) {
-        for (let e = 0; e < ptrEntries.length; e++) {
-          const { name, entries: childEntries = [] } = ptrEntries[e]
-          if (name === parts[0]) {
-            // update pointer
-            ptrEntries = childEntries
-            break
-          }
-        }
-        parts = parts.slice(1)
-      }
-      for (let e = 0; e < ptrEntries.length; e++) {
-        const { name } = ptrEntries[e]
-        if (name === value.trim())
-          return false
-      }
-      return true
+      return !value || fileNotExists(entries, path, value, except)
     }
   })
 })
@@ -107,4 +107,7 @@ export default (props) => {
   })
 }
 
-export { yup }
+export {
+  yup,
+  fileNotExists
+}
