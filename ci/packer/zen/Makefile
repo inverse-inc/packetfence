@@ -32,6 +32,9 @@ zen:
 	VM_NAME=$(VM_NAME) \
 	./build-and-upload.sh
 
+.PHONY: clean_all
+clean_all: clean clean_cache
+
 .PHONY: clean
 clean:
 	rm -rf $(RESULT_DIR)
