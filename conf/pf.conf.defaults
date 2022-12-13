@@ -307,17 +307,17 @@ unix_socket=[% ENV.env_or_default("PF_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.
 # database_proxysql.status
 #
 #
-status=disabled
+status=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_STATUS", "disabled") %]
 #
 # database_proxysql.cacert
 #
 #
-cacert=
+cacert=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_CACERT", "") %]
 #
 # database_proxysql.backend
 #
 #
-backend=
+backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
 
 [database_advanced]
 #
