@@ -14,6 +14,10 @@
                                 <array>
                                         <integer>[% provisioner.eap_type %]</integer>
                                 </array>
+                                <key>TLSTrustedServerNames</key>
+                                <array>
+                                  <string>[% server_cn %]</string>
+                                </array>
                                 <key>EAPFASTProvisionPAC</key>
                                 <false/>
                                 <key>EAPFASTProvisionPACAnonymously</key>
