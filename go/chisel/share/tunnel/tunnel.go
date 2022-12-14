@@ -14,29 +14,32 @@ import (
 	"github.com/armon/go-socks5"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/radius_proxy"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/sync/errgroup"
 )
 
-//Config a Tunnel
+// Config a Tunnel
 type Config struct {
 	*cio.Logger
-	Inbound   bool
-	Outbound  bool
-	Socks     bool
-	KeepAlive time.Duration
+	Inbound      bool
+	Outbound     bool
+	Socks        bool
+	RadiusSecret string
+	RadiusProxy  *radius_proxy.Proxy
+	KeepAlive    time.Duration
 	// The source IP for the packets that come into the remote
 	SrcIP net.IP
 }
 
-//Tunnel represents an SSH tunnel with proxy capabilities.
-//Both chisel client and server are Tunnels.
-//chisel client has a single set of remotes, whereas
-//chisel server has multiple sets of remotes (one set per client).
-//Each remote has a 1:1 mapping to a proxy.
-//Proxies listen, send data over ssh, and the other end of the ssh connection
-//communicates with the endpoint and returns the response.
+// Tunnel represents an SSH tunnel with proxy capabilities.
+// Both chisel client and server are Tunnels.
+// chisel client has a single set of remotes, whereas
+// chisel server has multiple sets of remotes (one set per client).
+// Each remote has a 1:1 mapping to a proxy.
+// Proxies listen, send data over ssh, and the other end of the ssh connection
+// communicates with the endpoint and returns the response.
 type Tunnel struct {
 	Config
 	//ssh connection
@@ -52,14 +55,28 @@ type Tunnel struct {
 	connectionCtx context.Context
 
 	IsRemoteConnector bool
+	ConnectorID       string
+	radiusProxy       *radius_proxy.Proxy
+	k8ControllerDrop  chan struct{}
 }
 
-//New Tunnel from the given Config
+// New Tunnel from the given Config
 func New(c Config) *Tunnel {
 	c.Logger = c.Logger.Fork("tun")
 	t := &Tunnel{
 		Config: c,
 	}
+	radiusProxy, stop, err := radius_proxy.NewRadiusProxyFromKubernetes(c.Logger, c.RadiusSecret)
+
+	if err != nil {
+		t.Infof("Error getting pod info: %s", err.Error())
+	} else {
+		t.radiusProxy = radiusProxy
+		t.k8ControllerDrop = stop
+		go radiusProxy.Cleanup(stop)
+		t.Infof("Radius Proxy setup is done")
+	}
+
 	t.activatingConn.Add(1)
 	//setup socks server (not listening on any port!)
 	extra := ""
@@ -75,7 +92,7 @@ func New(c Config) *Tunnel {
 	return t
 }
 
-//BindSSH provides an active SSH for use for tunnelling
+// BindSSH provides an active SSH for use for tunnelling
 func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Request, chans <-chan ssh.NewChannel) error {
 	//link ctx to ssh-conn
 	t.connectionCtx = ctx
@@ -112,7 +129,7 @@ func (t *Tunnel) BindSSH(ctx context.Context, c ssh.Conn, reqs <-chan *ssh.Reque
 	return err
 }
 
-//getSSH blocks while connecting
+// getSSH blocks while connecting
 func (t *Tunnel) getSSH(ctx context.Context) ssh.Conn {
 	//cancelled already?
 	if isDone(ctx) {
@@ -153,8 +170,8 @@ func (t *Tunnel) BindDynamicRemotes(remotes []*settings.Remote) error {
 	return t.BindRemotes(t.connectionCtx, remotes)
 }
 
-//BindRemotes converts the given remotes into proxies, and blocks
-//until the caller cancels the context or there is a proxy error.
+// BindRemotes converts the given remotes into proxies, and blocks
+// until the caller cancels the context or there is a proxy error.
 func (t *Tunnel) BindRemotes(ctx context.Context, remotes []*settings.Remote) error {
 	if len(remotes) == 0 {
 		return errors.New("no remotes")

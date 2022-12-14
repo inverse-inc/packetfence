@@ -17,6 +17,7 @@ import (
 	"github.com/inverse-inc/packetfence/go/chisel/share/ccrypto"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cio"
 	"github.com/inverse-inc/packetfence/go/chisel/share/cnet"
+	"github.com/inverse-inc/packetfence/go/chisel/share/radius_proxy"
 	"github.com/inverse-inc/packetfence/go/chisel/share/settings"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -53,6 +54,7 @@ type Server struct {
 	redisTunnelsNamespace string
 	connectorsIndexes     map[string]int
 	connectorIndexesLock  *sync.Mutex
+	radiusProxy           *radius_proxy.Proxy
 }
 
 var upgrader = websocket.Upgrader{
