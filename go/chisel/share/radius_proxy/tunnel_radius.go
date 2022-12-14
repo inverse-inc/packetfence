@@ -21,7 +21,7 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const radiusAuthK8Filter = "app=radiusd-auth"
+const defaultRadiusAuthK8Filter = "app=radiusd-auth"
 
 func isPodReady(pod *v1.Pod) bool {
 	if pod.DeletionTimestamp != nil {
@@ -35,6 +35,30 @@ func isPodReady(pod *v1.Pod) bool {
 	}
 
 	return false
+}
+
+func getPodHostPort(pod *v1.Pod) string {
+	port, err := getPodPort(pod)
+	if err != nil {
+		return pod.Status.PodIP + ":1812"
+	}
+
+	return fmt.Sprintf("%s:%d", pod.Status.PodIP, port)
+}
+
+func getPodPort(pod *v1.Pod) (int, error) {
+	if len(pod.Spec.Containers) == 0 {
+		return -1, errors.New("No Containers found")
+	}
+
+	ports := pod.Spec.Containers[0].Ports
+
+	if len(ports) == 0 {
+		return -1, errors.New("No port found")
+	}
+
+	return int(ports[0].ContainerPort), nil
+
 }
 
 func clientSetFromEnv() (*kubernetes.Clientset, error) {
@@ -57,6 +81,14 @@ func clientSetFromEnv() (*kubernetes.Clientset, error) {
 	)
 }
 
+func getRadiusAuthFilter() string {
+	if filter := os.Getenv("K8S_RADIUS_AUTH_FILTER"); filter != "" {
+		return filter
+	}
+
+	return defaultRadiusAuthK8Filter
+}
+
 func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, chan struct{}, error) {
 	clientset, err := clientSetFromEnv()
 	if err != nil {
@@ -68,15 +100,17 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 		return nil, nil, err
 	}
 
+	filter := getRadiusAuthFilter()
+
 	namespace := string(data)
-	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: radiusAuthK8Filter})
+	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{LabelSelector: filter})
 	if err != nil {
 		return nil, nil, err
 	}
 
 	servers := []string{}
 	for _, p := range pods.Items {
-		addr := p.Status.PodIP + ":1812"
+		addr := getPodHostPort(&p)
 		l.Infof("Adding address %s", addr)
 		servers = append(servers, addr)
 	}
@@ -95,7 +129,7 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 		string(v1.ResourcePods),
 		namespace,
 		func(opts *metav1.ListOptions) {
-			opts.LabelSelector = radiusAuthK8Filter
+			opts.LabelSelector = filter
 		},
 	)
 
@@ -107,7 +141,7 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 			AddFunc: func(obj interface{}) {
 				pod := obj.(*v1.Pod)
 				if isPodReady(pod) {
-					address := pod.Status.PodIP + ":1812"
+					address := getPodHostPort(pod)
 					l.Infof("Adding %s", address)
 					radiusProxy.AddBackend(address)
 					return
@@ -115,21 +149,21 @@ func NewRadiusProxyFromKubernetes(l *cio.Logger, radiusSecret string) (*Proxy, c
 			},
 			DeleteFunc: func(obj interface{}) {
 				pod := obj.(*v1.Pod)
-				address := pod.Status.PodIP + ":1812"
+				address := getPodHostPort(pod)
 				l.Infof("Removing %s", address)
 				radiusProxy.DeleteBackend(address)
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				pod := newObj.(*v1.Pod)
 				if isPodReady(pod) {
-					address := pod.Status.PodIP + ":1812"
+					address := getPodHostPort(pod)
 					l.Infof("Adding %s", address)
 					radiusProxy.AddBackend(address)
 					return
 				}
 
 				if pod.DeletionTimestamp != nil {
-					address := pod.Status.PodIP + ":1812"
+					address := getPodHostPort(pod)
 					l.Infof("%s is terminating removing", address)
 					radiusProxy.DeleteBackend(address)
 				}
