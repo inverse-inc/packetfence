@@ -71,7 +71,7 @@ cp -a $tmpdir/packetfence/conf $dst_dir/
 cp -a $tmpdir/packetfence/raddb $dst_dir/
 
 mkdir -p $dst_dir/html/captive-portal/profile-templates/
-touch $dst_dir/html/captive-portal/profile-templates/.gitignore
+touch $dst_dir/html/captive-portal/profile-templates/.empty
 
 mkdir -p $dst_dir/fingerbank
 cp -a $tmpdir/fingerbank/conf $dst_dir/fingerbank/
