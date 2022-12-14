@@ -10,9 +10,8 @@
       label-right
     />
     
-    <!--- TODO: make this conditional to saas being enabled after the merge of feature/k8s-services --->
     <div
-      class="alert alert-warning"
+      class="alert alert-warning is-saas"
     >{{ $t(`Changes to connection profiles files require a restart of the httpd-portal deployment`) }}</div>
 
     <b-table :items="tableItems" :fields="tableFields" :sort-by="sortBy" :sort-desc="sortDesc"
