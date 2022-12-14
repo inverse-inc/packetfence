@@ -10,6 +10,7 @@ RUN mkdir -p /usr/local/pf/var/control/ && \
 COPY lib lib
 COPY containers/environment.template containers/environment.template
 COPY bin/pfcmd.pl bin/pfcmd.pl
+COPY db db
 
 RUN ln -s /usr/local/pf/bin/pfcmd.pl /usr/local/pf/bin/pfcmd
 
