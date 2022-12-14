@@ -1,4 +1,5 @@
 SET sql_mode = "NO_ENGINE_SUBSTITUTION";
+
 --
 -- Setting the major/minor version of the DB
 --
