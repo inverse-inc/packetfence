@@ -19,5 +19,7 @@ WORKDIR /usr/local/pf/
 
 COPY --from=0 /usr/local/pf/go/pfacct /usr/local/pf/sbin/pfacct
 
+RUN apt update && apt install freeradius-utils -y
+
 ENTRYPOINT /usr/local/pf/sbin/pfacct
 
