@@ -55,9 +55,14 @@ halt:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt
 
-clean:
+clean: clean_pf clean_cache
+	
+clean_pf:
 	RESULT_DIR=$(RESULT_DIR) \
 	./test-wrapper.sh teardown
+
+clean_cache:
+	sudo sync; echo 1 > sudo /proc/sys/vm/drop_caches
 
 ### Pristine images
 # use pristine images to install PacketFence from scratch
