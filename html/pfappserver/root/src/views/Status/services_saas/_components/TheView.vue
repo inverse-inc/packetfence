@@ -4,7 +4,6 @@
       <h4 class="d-inline mb-0" v-t="'Services'"></h4>
     </b-card-header>
     <div class="card-body">
-
       <b-table ref="tableRef"
         :busy="isLoading"
         :hover="servicesDecorated.length > 0"

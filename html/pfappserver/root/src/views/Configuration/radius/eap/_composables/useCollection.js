@@ -97,3 +97,5 @@ export const useSearch = makeSearch('radiusEap', {
   ],
   sortBy: 'id'
 })
+
+export { useServices } from '../../_composables/useResource'

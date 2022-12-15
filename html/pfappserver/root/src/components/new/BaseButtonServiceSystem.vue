@@ -50,17 +50,17 @@
          {{ server }}
         </template>
         <b-dropdown-form style="width: 400px;">
-          <base-system-service :id="service.id" :server="server" v-bind="{ acl, restart, start, stop }" />
+          <base-service-system :id="service.id" :server="server" v-bind="{ acl, restart, start, stop }" />
         </b-dropdown-form>
       </b-dropdown-group>
     </template>
   </b-dropdown>
 </template>
 <script>
-import BaseSystemService from './BaseSystemService'
+import BaseServiceSystem from './BaseServiceSystem'
 
 const components = {
-  BaseSystemService
+  BaseServiceSystem
 }
 
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
@@ -152,27 +152,6 @@ const setup = (props, context) => {
     }
   })
 
-  const doRestart = server => $store.dispatch('cluster/restartSystemService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('restart', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doStart = server => $store.dispatch('cluster/startSystemService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('start', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doStop = server => $store.dispatch('cluster/stopSystemService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('stop', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
   const doRestartAll = () => $store.dispatch('cluster/restartSystemServiceCluster', service.value).then(() => {
     $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('restart', { id: service.value })
@@ -207,18 +186,15 @@ const setup = (props, context) => {
     cluster,
     tooltip,
 
-    doRestart,
     doRestartAll,
-    doStart,
     doStartAll,
-    doStop,
     doStopAll
   }
 }
 
 // @vue/component
 export default {
-  name: 'base-button-system-service',
+  name: 'base-button-service-system',
   inheritAttrs: false,
   components,
   props,

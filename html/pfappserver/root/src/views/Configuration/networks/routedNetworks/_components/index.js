@@ -9,7 +9,6 @@ import {
 import {
   BaseFormGroupToggleZeroOneIntegerAsOffOn
 } from '@/views/Configuration/_components/new/'
-import AlertServices from '../../_components/AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -40,7 +39,6 @@ export {
   BaseFormGroupChosenOne                    as FormGroupType,
 
   BaseViewCollectionItem                    as BaseView,
-  AlertServices,
   TheForm,
   TheView
 }

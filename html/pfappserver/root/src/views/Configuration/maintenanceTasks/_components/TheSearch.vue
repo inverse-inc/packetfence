@@ -1,14 +1,11 @@
 <template>
   <b-card no-body>
     <b-card-header>
-      <h4>{{ $t('Maintenance Tasks') }}</h4>
-      <p class="mb-0" v-t="'Enabling or disabling a task as well as modifying its interval requires a restart of pfcron to be fully effective.'"></p>
+      <h4 class="mb-0">{{ $t('Maintenance Tasks') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
-      <base-search :use-search="useSearch">
-        <base-button-service service="pfcron" restart start stop
-          :disabled="isLoading" class="mr-1" />
-      </base-search>
+      <base-search :use-search="useSearch" />
       <b-table ref="tableRef"
         :busy="isLoading"
         :hover="items.length > 0"
@@ -81,9 +78,9 @@
 import {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 import ToggleStatus from './ToggleStatus'
@@ -91,9 +88,9 @@ import ToggleStatus from './ToggleStatus'
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty,
   ToggleStatus
 }
@@ -102,7 +99,7 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter } from '../_composables/useCollection'
+import { useSearch, useRouter, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -128,20 +125,23 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  const services = useServices()
+
   return {
     useSearch,
     tableRef,
     ...router,
     ...selected,
     ...toRefs(search),
-    onBulkExport
+    onBulkExport,
+    services,
   }
 }
 
 // @vue/component
 export default {
   name: 'the-search',
-  inheritAttrs: false,
+  inheritAttrs: true,
   components,
   setup
 }

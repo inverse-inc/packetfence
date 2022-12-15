@@ -19,6 +19,16 @@ export const useItemTitle = (props) => {
   })
 }
 
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying a routed network requires services restart.'),
+    services: ['keepalived', 'iptables', 'pfdhcp', 'pfdns'],
+    system_services: [],
+    k8s_services: [],
+    systemd: false
+  }
+})
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'

@@ -8,7 +8,6 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggleDisabledEnabled,
 } from '@/components/new/'
-import AlertServices from '../../_components/AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -29,7 +28,6 @@ export {
   BaseFormGroupChosenOne              as FormGroupPoolBackend,
   BaseFormGroupInput                  as FormGroupPortalFqdn,
 
-  AlertServices,
   TheForm,
   TheView
 }

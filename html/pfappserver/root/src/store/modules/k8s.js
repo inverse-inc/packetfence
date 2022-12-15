@@ -45,7 +45,7 @@ const getters = {
 }
 
 const actions = {
-  getServices: ({ state, commit }) => {
+  getServices: ({ state, commit, dispatch }) => {
     commit('K8S_REQUEST')
     const aside = () => api.services().then(services => {
       commit('K8S_SERVICES_SUCCESS', services)
@@ -54,14 +54,14 @@ const actions = {
       const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', error)
       throw err
-    })
+    }).finally(() => dispatch('pollServices'))
     if (state.services) {
       aside()
       return state.services
     }
     return aside()
   },
-  getService: ({ state, commit }, service) => {
+  getService: ({ state, commit, dispatch }, service) => {
     commit('K8S_REQUEST')
     const aside = () => api.service(service).then(response => {
       commit('K8S_SERVICE_SUCCESS', { service, response })
@@ -70,7 +70,7 @@ const actions = {
       const { response: { data: error } = {} } = err
       commit('SERVICE_ERROR', error)
       throw err
-    })
+    }).finally(() => dispatch('pollServices'))
     if (state.services) {
       aside()
       return state.services[service]
@@ -122,12 +122,17 @@ const mutations = {
   },
   K8S_SERVICES_SUCCESS: (state, services) => {
     state.status = types.SUCCESS
-    state.services = services
+    // avoid squashing w/ merge
+    state.services = Object.entries(services).reduce((merged, [id, service]) => {
+      merged[id] = { ...state.services[id], id, ...service }
+      return merged
+    }, {})
     state.message = ''
   },
   K8S_SERVICE_SUCCESS: (state, { service, response }) => {
     state.status = types.SUCCESS
-    state.services[service] = response
+    // avoid squashing w/ merge
+    state.services[service] = { ...state.services[service], ...response }
     state.message = ''
   },
   K8S_ERROR: (state, error) => {

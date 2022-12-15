@@ -10,7 +10,8 @@ import {
   BaseFormGroupTextarea,
   BaseFormGroupToggle,
   BaseFormGroupToggleDisabledEnabled,
-  BaseFormGroupToggleNoYes
+  BaseFormGroupToggleNoYes,
+  BaseServices,
 } from '@/components/new/'
 import {
   BaseFormGroupIntervalUnit
@@ -158,6 +159,7 @@ export {
   BaseFormGroupChosenOne                    as FormGroupEduroamRadiusAuthProxyType,
   BaseFormGroupInput                        as FormGroupEduroamOperatorName,
 
+  BaseServices,
   ButtonSamlMetaData,
   TheForm,
   TheView

@@ -82,16 +82,9 @@
             <icon name="exchange-alt" class="text-primary mr-1" size="lg"></icon> {{ highlightedRoute }}
           </b-col>
         </b-row>
+        <base-services v-bind="servicesLayer2Networks" class="mt-3 mb-0" variant="info" />
       </b-card-header>
       <div class="card-body">
-        <b-row align-h="end" align-v="start" class="mb-3">
-          <b-col cols="auto" class="mr-auto"></b-col>
-          <b-col cols="auto">
-            <base-button-service service="iptables" restart start stop class="mr-1" />
-            <base-button-service service="pfdhcp" restart start stop class="mr-1" />
-            <base-button-service service="pfdns" restart start stop class="mr-1" />
-          </b-col>
-        </b-row>
         <b-table class="table-clickable"
           :items="layer2Networks"
           :fields="fieldsLayer2Network"
@@ -128,17 +121,12 @@
             <icon name="exchange-alt" class="text-primary mr-1" size="lg"></icon> {{ highlightedRoute }}
           </b-col>
         </b-row>
+        <base-services v-bind="servicesRoutedNetworks" class="mt-3 mb-0" variant="info" />
       </b-card-header>
       <div class="card-body">
         <b-row align-h="end" align-v="start" class="mb-3">
           <b-col cols="auto" class="mr-auto">
             <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('New Routed Network') }}</b-button>
-          </b-col>
-          <b-col cols="auto">
-            <base-button-service service="keepalived" restart start stop class="mr-1" />
-            <base-button-service service="iptables" restart start stop class="mr-1" />
-            <base-button-service service="pfdhcp" restart start stop class="mr-1" />
-            <base-button-service service="pfdns" restart start stop class="mr-1" />
           </b-col>
         </b-row>
         <b-table class="table-clickable"
@@ -183,14 +171,14 @@
 <script>
 import {
   BaseButtonConfirm,
-  BaseButtonService,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 import { ToggleStatus } from '@/views/Configuration/networks/interfaces/_components/'
 
 const components = {
   BaseButtonConfirm,
-  BaseButtonService,
+  BaseServices,
   BaseTableEmpty,
   ToggleStatus
 }
@@ -201,6 +189,8 @@ import network from '@/utils/network'
 import { columns as columnsInterface } from '@/views/Configuration/networks/interfaces/config'
 import { columns as columnsLayer2Network } from '@/views/Configuration/networks/layer2Networks/config'
 import { columns as columnsRoutedNetwork } from '@/views/Configuration/networks/routedNetworks/config'
+import { useServices as useServicesLayer2Networks } from '@/views/Configuration/networks/layer2Networks/_composables/useCollection'
+import { useServices as useServicesRoutedNetworks } from '@/views/Configuration/networks/routedNetworks/_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -327,6 +317,9 @@ const setup = (props, context) => {
     $store.dispatch('$_layer2_networks/all')
   })
 
+  const servicesLayer2Networks = useServicesLayer2Networks()
+  const servicesRoutedNetworks = useServicesRoutedNetworks()
+
   return {
     highlightedRoute,
 
@@ -350,6 +343,7 @@ const setup = (props, context) => {
     fieldsLayer2Network,
     onRowClickLayer2Network,
     onRowHoverLayer2Network,
+    servicesLayer2Networks,
 
     // routed networks
     isRoutedNetworksLoading,
@@ -359,7 +353,8 @@ const setup = (props, context) => {
     cloneRoutedNetwork,
     removeRoutedNetwork,
     onRowClickRoutedNetwork,
-    onRowHoverRoutedNetwork
+    onRowHoverRoutedNetwork,
+    servicesRoutedNetworks,
   }
 }
 

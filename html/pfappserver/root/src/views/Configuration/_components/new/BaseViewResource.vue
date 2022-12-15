@@ -24,28 +24,33 @@
         @reset="onReset"
         @save="onSave"
       />
+      <base-services :value="isModified"
+        v-bind="services" :title="$i18n.t('Warning')" class="mt-3 mb-0" />
       <slot name="buttonsAppend" v-if="$scopedSlots.buttonsAppend" v-bind="scopedSlotProps" />
     </b-card-footer>
   </b-card>
 </template>
 <script>
-import { BaseButtonHelp } from '@/components/new/'
-import { useViewResourceProps as props } from '../../_composables/useViewResource'
+import {
+  useViewResourceComponents as components,
+  useViewResourceProps as props
+} from '../../_composables/useViewResource'
 
 // @vue/component
 export default {
   name: 'base-view-resource',
   inheritAttrs: false,
-  components: { // component stubs
+  components: {
+    'base-services': undefined,
     'form-button-bar': undefined,
     'the-form': undefined,
-    BaseButtonHelp
+    ...components,
   },
   props,
   setup: () => ({ // prop stubs
     rootRef: undefined,
     title: undefined,
-    titleHelpUrl: undefined,
+    titleHelp: undefined,
     form: undefined,
     meta: undefined,
     isLoading: undefined,

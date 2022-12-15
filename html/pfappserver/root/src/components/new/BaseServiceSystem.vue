@@ -54,12 +54,6 @@ const props = {
   server: {
     type: String
   },
-  enable: {
-    type: Boolean
-  },
-  disable: {
-    type: Boolean
-  },
   restart: {
     type: Boolean
   },
@@ -151,7 +145,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-system-service',
+  name: 'base-service-system',
   props,
   setup
 }

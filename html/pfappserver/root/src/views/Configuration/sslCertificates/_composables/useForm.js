@@ -2,7 +2,6 @@ import { computed, ref, toRefs, watch } from '@vue/composition-api'
 import i18n from '@/utils/locale'
 import schemaFn from '../schema'
 import {
-  certificateServices,
   strings,
   sortSslKeys,
 } from '../config'
@@ -99,8 +98,6 @@ const useForm = (form, props, context) => {
     isShowCsr.value = false
   }
 
-  const services = computed(() => certificateServices[id.value] || [])
-
   // cosmetic props only
   const isFindIntermediateCas = ref(false)
 
@@ -120,7 +117,6 @@ const useForm = (form, props, context) => {
     certificationAuthorityLocale,
     intermediateCertificatesLocale,
     title,
-    services,
 
     isShowCsr,
     doShowCsr,

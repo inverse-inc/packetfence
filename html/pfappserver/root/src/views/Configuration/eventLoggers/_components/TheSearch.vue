@@ -2,6 +2,7 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="mb-0">{{ $t('Event Loggers') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch">
@@ -10,9 +11,6 @@
             :to="{ name: 'newEventLogger', params: { eventLoggerType: value } }"
           >{{ text }}</b-dropdown-item>
         </b-dropdown>
-        <base-button-system-service
-          service="packetfence-mariadb" restart start stop
-          class="ml-1" />
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -98,18 +96,18 @@
 import {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonSystemService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonSystemService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 }
 
@@ -117,7 +115,7 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { useSearch, useStore, useRouter, useServices } from '../_composables/useCollection'
 import { typeOptions } from '../config'
 
 const setup = (props, context) => {
@@ -157,6 +155,8 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  const services = useServices(props)
+
   return {
     useSearch,
     tableRef,
@@ -165,7 +165,8 @@ const setup = (props, context) => {
     ...router,
     ...selected,
     ...toRefs(search),
-    typeOptions
+    typeOptions,
+    services,
   }
 }
 

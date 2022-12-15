@@ -35,4 +35,7 @@ export const localeStrings = {
 
   SYSTEMD_UPDATED_SUCCESS: 'Updated systemd for {service}.', // i18n defer
   SYSTEMD_UPDATED_ERROR: 'Failed to update systemd for {service}. See the server error logs for more information.', // i18n defer
+
+  SERVICES_K8S_RESTARTED_SUCCESS: 'Restarted services {services}.', // i18n defer
+  SERVICES_K8S_RESTARTED_ERROR: 'Failed to restart services {services}. See the server error logs for more information.', // i18n defer
 }

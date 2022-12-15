@@ -63,3 +63,4 @@ export const useSearch = makeSearch('radiusSsl', {
   sortBy: 'id'
 })
 
+export { useServices } from '../../_composables/useResource'

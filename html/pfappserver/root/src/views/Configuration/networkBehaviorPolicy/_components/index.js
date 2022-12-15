@@ -10,7 +10,6 @@ import {
 import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
-import AlertServices from './AlertServices'
 import BaseFormGroupDeviceAttributesDiffThresholdOverrides from './BaseFormGroupDeviceAttributesDiffThresholdOverrides'
 import BaseFormGroupDevices from './BaseFormGroupDevices'
 import TheForm from './TheForm'
@@ -36,7 +35,6 @@ export {
   BaseFormGroupChosenMultiple                         as FormGroupWatchedDeviceAttributes,
   BaseFormGroupInput                                  as FormGroupWhitelistedIps,
 
-  AlertServices,
   TheForm,
   TheView,
   ToggleStatus

@@ -47,6 +47,14 @@ export const useItemTitleBadge = (props, context, form) => {
   })
 }
 
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying the event logging configuration requires system services restart.'),
+    system_services: ['packetfence-mariadb'],
+    k8s_services: ['mariadb', 'proxysql']
+  }
+})
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'

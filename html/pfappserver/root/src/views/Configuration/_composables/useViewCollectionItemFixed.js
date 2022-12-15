@@ -14,6 +14,8 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
   const {
     useItemTitle,
     useStore: _useStore = () => {},
+    useServices = () => { },
+    useTitleHelp = () => {},
   } = collection
 
   // merge props w/ params in useStore methods
@@ -28,7 +30,9 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
   // state
   const form = ref({})
   const title = useItemTitle(props, context, form)
+  const titleHelp = useTitleHelp(props)
   const isModified = ref(false)
+  const services = useServices(props, context, form)
 
   // unhandled custom props
   const customProps = ref(context.attrs)
@@ -76,6 +80,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
     rootRef,
     form,
     title,
+    titleHelp,
     isModified,
     customProps,
     isDeletable,
@@ -83,6 +88,7 @@ export const useViewCollectionItemFixed = (collection, props, context) => {
     isLoading,
     onReset,
     onSave,
+    services,
 
     // to overload
     scopedSlotProps: props,

@@ -62,3 +62,5 @@ export const useSearch = makeSearch('radiusOcsp', {
   ],
   sortBy: 'id'
 })
+
+export { useServices } from '../../_composables/useResource'

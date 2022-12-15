@@ -1,6 +1,5 @@
 <template>
   <b-container fluid class="p-0">
-    <alert-services :show="isModified" :disabled="isLoading" :services="services" class="m-3" />
     <b-tabs v-model="tabIndex" card>
 
       <!--
@@ -11,6 +10,8 @@
           <b-card-header>
             <h5 class="mb-0 d-inline">{{ title.value }} {{ $i18n.t('{name} Server Certificate', { name }) }}</h5>
             <b-button v-t="'Generate Signing Request (CSR)'" class="float-right" size="sm" variant="outline-secondary" @click="doShowCsr"/>
+            <base-services :value="isModified"
+              v-bind="services" class="mt-3 mb-0" variant="info" />
           </b-card-header>
           <base-container-loading v-if="isLoading"
             :title="$i18n.t('Loading Certificate')"
@@ -165,6 +166,8 @@
             @reset="onReset"
             @save="onSaveWrapper"
           />
+          <base-services :value="isModified"
+            v-bind="services" :title="$i18n.t('Warning')" class="mt-3 mb-0" />
         </b-card-footer>
       </b-tab>
 
@@ -184,10 +187,10 @@ import {
   BaseContainerLoading,
   BaseForm,
   BaseFormButtonBar,
-  BaseFormGroupToggleFalseTrue as FormGroupFindIntermediateCas
+  BaseFormGroupToggleFalseTrue as FormGroupFindIntermediateCas,
+  BaseServices,
 } from '@/components/new/'
 import {
-  AlertServices,
   FormGroupCa,
   FormGroupCertificate,
   FormGroupCheckChain,
@@ -199,10 +202,10 @@ import {
 } from './'
 
 const components = {
-  AlertServices,
   BaseContainerLoading,
   BaseForm,
   BaseFormButtonBar,
+  BaseServices,
   FormGroupCa,
   FormGroupCertificate,
   FormGroupCheckChain,
@@ -243,6 +246,7 @@ const setup = (props, context) => {
   const {
     rootRef,
     form,
+    services,
     title,
     isModified,
     customProps,
@@ -257,7 +261,6 @@ const setup = (props, context) => {
     certificateLocale,
     certificationAuthorityLocale,
     intermediateCertificatesLocale,
-    services,
 
     isShowCsr,
     doShowCsr,
@@ -293,6 +296,7 @@ const setup = (props, context) => {
     rootRef,
     form,
     meta: undefined,
+    services,
     title,
     isModified,
     customProps,
@@ -305,7 +309,6 @@ const setup = (props, context) => {
     certificateLocale,
     certificationAuthorityLocale,
     intermediateCertificatesLocale,
-    services,
     isShowCsr,
     doShowCsr,
     doHideCsr,
