@@ -4,7 +4,7 @@
     :size="size"
     :text="service"
     no-flip
-    variant="outline-primary"
+    :variant="(available) ? 'outline-primary' : 'outline-secondary'"
     v-b-tooltip.hover.top.d300 :title="tooltip"
     v-bind="$attrs"
   >
@@ -90,6 +90,10 @@ const setup = (props, context) => {
   }, { immediate: true })
   const isLoading = computed(() => $store.getters['k8s/isLoading'])
   const isDisabled = computed(() => disabled.value || !isAllowed.value)
+  const available = computed(() => {
+    const { [service.value]: { available } = {} } = $store.state.k8s.services
+    return available
+  })
   const replicas = computed(() => {
     const { [service.value]: { total_replicas, updated_replicas } = {} } = $store.state.k8s.services
     // eslint-disable-next-line no-unused-vars
@@ -115,6 +119,7 @@ const setup = (props, context) => {
   })
 
   return {
+    available,
     replicas,
 
     buttonRef,

@@ -98,7 +98,7 @@ const actions = {
           // grace period
           return setTimeout(pollServices, delay)
         }
-        if (Object.values(services).filter(service => service.total_replicas !== service.updated_replicas).length > 0) {
+        if (Object.values(services).filter(service => service.total_replicas !== service.updated_replicas || !service.available).length > 0) {
           // waiting
           return setTimeout(pollServices, delay)
         }
