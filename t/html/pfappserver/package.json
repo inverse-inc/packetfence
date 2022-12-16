@@ -2,7 +2,7 @@
   "name": "packetfence-e2e",
   "version": "0.99.0",
   "private": true,
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.20.2",
     "@babel/preset-env": "^7.20.2",
     "@cypress/webpack-preprocessor": "^5.15.3",
