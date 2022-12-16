@@ -62,7 +62,7 @@ clean_pf:
 	./test-wrapper.sh teardown
 
 clean_cache:
-	sudo sync; echo 1 > sudo /proc/sys/vm/drop_caches
+	sudo /bin/sync; echo 1 | sudo /usr/bin/tee /proc/sys/vm/drop_caches
 
 ### Pristine images
 # use pristine images to install PacketFence from scratch
