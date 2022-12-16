@@ -37,7 +37,7 @@ CREATE TABLE class (
   `external_command` varchar(255) DEFAULT NULL,
   PRIMARY KEY (security_event_id),
   KEY password_target_category (target_category)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'; 
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `person`
@@ -80,7 +80,7 @@ CREATE TABLE person (
   `otp` MEDIUMTEXT NULL DEFAULT NULL,
   `sponsored_date` DATETIME DEFAULT NULL,
   PRIMARY KEY (`pid`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'; 
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `node_category`
@@ -99,7 +99,7 @@ CREATE TABLE `node_category` (
   `inherit_web_auth_url` varchar(50) default NULL,
   PRIMARY KEY (`category_id`),
   UNIQUE KEY node_category_name (`name`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4'; 
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Insert 'default' category
@@ -176,7 +176,7 @@ CREATE TABLE node (
   KEY `node_bypass_role_id` (`bypass_role_id`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` ( `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `action`
@@ -187,7 +187,7 @@ CREATE TABLE action (
   `action` varchar(255) NOT NULL,
   PRIMARY KEY (security_event_id,action),
   CONSTRAINT `FOREIGN` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `security_event`
@@ -209,7 +209,7 @@ CREATE TABLE security_event (
   CONSTRAINT `mac_fkey_node` FOREIGN KEY (`mac`) REFERENCES `node` (`mac`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `security_event_id_fkey_class` FOREIGN KEY (`security_event_id`) REFERENCES `class` (`security_event_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `ip4log`
@@ -224,7 +224,7 @@ CREATE TABLE ip4log (
   KEY ip4log_mac_end_time (mac,end_time),
   KEY ip4log_mac_start_time (mac, start_time),
   KEY ip4log_end_time (end_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Trigger to insert old record from 'ip4log' in 'ip4log_history' before updating the current one
@@ -256,7 +256,7 @@ CREATE TABLE ip4log_history (
   KEY ip4log_history_mac_end_time (mac,end_time),
   KEY end_time (end_time),
   KEY start_time (start_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `ip4log_archive`
@@ -270,7 +270,7 @@ CREATE TABLE ip4log_archive (
   `end_time` datetime NOT NULL,
   KEY end_time (end_time),
   KEY start_time (start_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `ip6log`
@@ -285,7 +285,7 @@ CREATE TABLE ip6log (
   PRIMARY KEY (ip),
   KEY ip6log_mac_end_time (mac,end_time),
   KEY ip6log_end_time (end_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Trigger to insert old record from 'ip6log' in 'ip6log_history' before updating the current one
@@ -318,7 +318,7 @@ CREATE TABLE ip6log_history (
   KEY ip6log_history_mac_end_time (mac,end_time),
   KEY end_time (end_time),
   KEY start_time (start_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `ip6log_archive`
@@ -333,7 +333,7 @@ CREATE TABLE ip6log_archive (
   `end_time` datetime NOT NULL,
   KEY end_time (end_time),
   KEY start_time (start_time)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 
 CREATE TABLE `locationlog` (
@@ -362,7 +362,7 @@ CREATE TABLE `locationlog` (
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
   KEY `locationlog_switch_ip_int` (`switch_ip_int`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 CREATE TABLE `locationlog_history` (
   `id` BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -391,7 +391,7 @@ CREATE TABLE `locationlog_history` (
   KEY `locationlog_ssid` (`ssid`),
   KEY `locationlog_session_id_end_time` (`session_id`, `end_time`),
   KEY `locationlog_switch_ip_int` (`switch_ip_int`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 DELIMITER /
 DROP TRIGGER IF EXISTS locationlog_insert_in_history_after_insert;
@@ -446,7 +446,7 @@ CREATE TABLE `password` (
   PRIMARY KEY (pid),
   KEY password_category (category),
   UNIQUE KEY pid_password_unique (pid)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Insert default users
@@ -591,7 +591,7 @@ CREATE TABLE radius_nas (
   PRIMARY KEY nasname (nasname),
   KEY id (id),
   INDEX radius_nas_start_ip_end_ip (start_ip, end_ip)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 -- Adding RADIUS accounting table
 
@@ -654,7 +654,7 @@ CREATE TABLE radacct_log (
   KEY nasipaddress (nasipaddress),
   KEY timestamp (timestamp),
   KEY acctuniqueid (acctuniqueid)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 -- Adding RADIUS radreply table
 
@@ -666,7 +666,7 @@ CREATE TABLE radreply (
   `value` varchar(253) NOT NULL default '',
   PRIMARY KEY (id),
   KEY (`username`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 INSERT INTO radreply (username, attribute, value, op) values ('00:00:00:00:00:00','User-Name','*', '=*');
 
@@ -971,7 +971,7 @@ CREATE TABLE scan (
   `status` varchar(255) NOT NULL,
   `report_id` varchar(255) NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `billing`
@@ -989,7 +989,7 @@ CREATE TABLE billing (
   `price` varchar(255) NOT NULL,
   `person` varchar(255) NOT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for wrix
@@ -1034,7 +1034,7 @@ CREATE TABLE wrix (
   `UTC_Timezone` varchar(16) NULL DEFAULT NULL,
   `MAC_Address` varchar(32) NULL DEFAULT NULL,
    PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `activation`
@@ -1057,7 +1057,7 @@ CREATE TABLE activation (
   KEY `mac` (mac),
   KEY `identifier` (pid, mac),
   KEY `activation` (activation_code, status)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 
 --
@@ -1068,13 +1068,13 @@ CREATE TABLE keyed (
   `id` VARCHAR(255),
   `value` LONGBLOB,
   PRIMARY KEY(id)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table 'pf_version'
 --
 
-CREATE TABLE pf_version (`id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY, `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+CREATE TABLE pf_version (`id` INT NOT NULL PRIMARY KEY, `version` VARCHAR(11) NOT NULL UNIQUE KEY, `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table 'radius_audit_log'
@@ -1125,7 +1125,7 @@ CREATE TABLE radius_audit_log (
   KEY `ip` (ip),
   KEY `user_name` (user_name),
   KEY `auth_status` (auth_status, created_at)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `dhcp_option82`
@@ -1142,7 +1142,7 @@ CREATE TABLE `dhcp_option82` (
   `module` varchar(255) default NULL,
   `host` varchar(255) default NULL,
   UNIQUE KEY mac (mac)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `dhcp_option82_history`
@@ -1160,7 +1160,7 @@ CREATE TABLE `dhcp_option82_history` (
   `module` varchar(255) default NULL,
   `host` varchar(255) default NULL,
   INDEX (mac)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Trigger to archive dhcp_option82 entries to the history table after an update
@@ -1215,7 +1215,7 @@ CREATE TABLE auth_log (
   KEY pid (pid),
   KEY attempted_at (attempted_at),
   KEY completed_at (completed_at)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Creating chi_cache table
@@ -1227,7 +1227,7 @@ CREATE TABLE `chi_cache` (
   `expires_at` REAL,
   PRIMARY KEY (`key`),
   KEY chi_cache_expires_at (expires_at)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Dumping routines for database 'pf'
@@ -1259,7 +1259,7 @@ CREATE TABLE key_value_storage (
   `id` VARCHAR(255),
   `value` BLOB,
   PRIMARY KEY(id)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `user_preference`
@@ -1270,7 +1270,7 @@ CREATE TABLE user_preference (
   `id` varchar(255) NOT NULL,
   `value` LONGBLOB,
   PRIMARY KEY ( `pid`, `id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `dns_audit_log`
@@ -1288,7 +1288,7 @@ CREATE TABLE `dns_audit_log` (
    KEY `created_at` (`created_at`),
    KEY `mac` (`mac`),
    KEY `ip` (`ip`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `admin_api_audit_log`
@@ -1325,7 +1325,7 @@ CREATE TABLE dhcppool (
   UNIQUE KEY dhcppool_poolname_idx (pool_name, idx),
   KEY mac (mac),
   KEY released (released)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `pki_cas`
@@ -1503,7 +1503,7 @@ CREATE TABLE `pki_revoked_certs` (
   KEY `ca_name` (`ca_name`),
   KEY `organisation` (`organisation`),
   KEY `revoked` (`revoked`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `bandwidth_accounting`
@@ -1525,7 +1525,7 @@ CREATE TABLE bandwidth_accounting (
     KEY bandwidth_last_updated_source_type_time_bucket (last_updated, source_type, time_bucket),
     KEY bandwidth_node_id_unique_session_id_last_updated (node_id, unique_session_id, last_updated),
     KEY bandwidth_accounting_mac_last_updated (mac, last_updated)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
 -- Table structure for table `bandwidth_accounting_history`
@@ -1541,7 +1541,7 @@ CREATE TABLE bandwidth_accounting_history (
     PRIMARY KEY (node_id, time_bucket),
     KEY bandwidth_aggregate_buckets (time_bucket, node_id, in_bytes, out_bytes),
     KEY bandwidth_accounting_mac (mac)
-) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 DROP FUNCTION IF EXISTS ROUND_TO_HOUR;
 CREATE FUNCTION ROUND_TO_HOUR (d DATETIME)
