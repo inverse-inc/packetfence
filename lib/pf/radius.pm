@@ -674,7 +674,7 @@ sub _handleStaticPortSecurityMovement {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($args->{'mac'});
     #Nothing to do if there is no location log
-    unless( defined($locationlog_mac) ){
+    if ( !defined($locationlog_mac) || $locationlog_mac eq "0" ) {
         return undef;
     }
 
