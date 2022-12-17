@@ -33,9 +33,10 @@ use Test::NoWarnings;
 {
     runSql(
         'TRUNCATE security_event',
+		'DROP TABLE IF EXISTS security_event_maintenance_test_mac_delay',
         q[
-			CREATE OR REPLACE TABLE security_event_maintenance_test_mac_delay
-WITH first_mac AS (
+			CREATE TABLE security_event_maintenance_test_mac_delay
+WITH RECURSIVE first_mac AS (
     (
     SELECT
       LOWER(CONCAT_WS( ':', LPAD(HEX(((cur + 1) >> 40) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 32) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 24) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 16) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 8) & 255), 2, '0'), LPAD(HEX((cur + 1) & 255), 2, '0') )) AS mac, cur + 1 as start_int
@@ -59,7 +60,8 @@ WITH first_mac AS (
         SELECT "00:00:00:00:00:01", 1
     )
     LIMIT 1
-)
+),
+seq_0_to_49 AS (SELECT 0 AS seq UNION ALL SELECT seq + 1 FROM  seq_0_to_49 where seq < 49)
 
 SELECT
     LOWER(CONCAT_WS(
@@ -113,8 +115,9 @@ FROM first_mac JOIN seq_0_to_49;
 {
     runSql(
         'TRUNCATE security_event',
-        q[CREATE OR REPLACE TABLE security_event_maintenance_test_mac_open
-WITH first_mac AS (
+        q[DROP TABLE IF EXISTS security_event_maintenance_test_mac_open],
+        q[CREATE TABLE security_event_maintenance_test_mac_open
+WITH RECURSIVE first_mac AS (
     (
     SELECT
       LOWER(CONCAT_WS( ':', LPAD(HEX(((cur + 1) >> 40) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 32) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 24) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 16) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 8) & 255), 2, '0'), LPAD(HEX((cur + 1) & 255), 2, '0') )) AS mac, cur + 1 as start_int
@@ -138,7 +141,8 @@ WITH first_mac AS (
         SELECT "00:00:00:00:00:01", 1
     )
     LIMIT 1
-)
+),
+seq_0_to_99 AS (SELECT 0 AS seq UNION ALL SELECT seq + 1 FROM  seq_0_to_99 where seq < 99)
 
 SELECT
     LOWER(CONCAT_WS(
@@ -190,9 +194,10 @@ q[SELECT COUNT(*) FROM security_event WHERE mac IN (SELECT mac from security_eve
 {
     runSql(
 			'TRUNCATE security_event',
+            'DROP TABLE IF EXISTS security_event_maintenance_test_mac_mixed',
 		q[	
-CREATE OR REPLACE TABLE security_event_maintenance_test_mac_mixed
-WITH first_mac AS (
+CREATE TABLE security_event_maintenance_test_mac_mixed
+WITH RECURSIVE first_mac AS (
     (
     SELECT
       LOWER(CONCAT_WS( ':', LPAD(HEX(((cur + 1) >> 40) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 32) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 24) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 16) & 255), 2, '0'), LPAD(HEX(((cur + 1) >> 8) & 255), 2, '0'), LPAD(HEX((cur + 1) & 255), 2, '0') )) AS mac, cur + 1 as start_int
@@ -216,7 +221,8 @@ WITH first_mac AS (
         SELECT "00:00:00:00:00:01", 1
     )
     LIMIT 1
-)
+),
+seq_0_to_99 AS (SELECT 0 AS seq UNION ALL SELECT seq + 1 FROM  seq_0_to_99 where seq < 99)
 
 SELECT
     LOWER(CONCAT_WS(
