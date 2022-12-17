@@ -72,6 +72,17 @@ END {
     $DBH = undef;
 }
 
+
+sub set_session {
+    my ($dbh) = @_;
+    $dbh->do("SET SESSION sql_mode='NO_ENGINE_SUBSTITUTION';");
+    return;
+}
+
+our %CALLBACKS = (
+    connected => \&set_session,
+);
+
 tie %$DB_Config, 'pfconfig::cached_hash', 'resource::Database';
 
 =head1 SUBROUTINES
@@ -92,7 +103,7 @@ sub db_connect {
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
     my ($dsn, $user, $pass) = db_data_source_info();
     # make sure we have a database handle
-    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1 })) {
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, Callbacks => \%CALLBACKS })) {
         $logger->debug("connected");
         return on_connect($DBH);
     }
