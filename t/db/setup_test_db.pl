@@ -48,6 +48,7 @@ sub apply_schema {
     }
     system("mysql -h$config->{host} -P$config->{port} -u$config->{user} -p$config->{pass} $config->{db} < $schema");
     if ($?) {
+        print STDERR "mysql -h$config->{host} -P$config->{port} -u$config->{user} -p\"$config->{pass}\" $config->{db} < $schema\n";
         die "Unable to apply schema\n";
     }
 }
@@ -75,7 +76,7 @@ sub create_db {
     my ($dbh, $config) = @_;
     my $db = $config->{db};
     $dbh->do("DROP DATABASE IF EXISTS $db;") or die "Cannot drop database $db: " . $dbh->errstr  . "\n";
-    $dbh->do("CREATE DATABASE $db DEFAULT CHARACTER SET = 'utf8mb4';") or die "Cannot create database $db: " . $dbh->errstr  . "\n";
+    $dbh->do("CREATE DATABASE $db DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;") or die "Cannot create database $db: " . $dbh->errstr  . "\n";
 }
 
 sub load_standard_data {
