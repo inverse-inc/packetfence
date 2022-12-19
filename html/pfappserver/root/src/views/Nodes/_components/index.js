@@ -28,5 +28,6 @@ export {
   BaseFormGroupTextarea         as FormGroupNotes,
   
   BaseFormGroupInput            as FormGroupMac,
+  BaseFormGroupInput            as FormGroupComputername,
   
 }
