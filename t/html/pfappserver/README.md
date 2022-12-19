@@ -39,7 +39,7 @@ make install
 
 ## ENV Variables
 
-See `/usr/local/pf/t/html/pfappserver/Makefile` for usage.
+See [`Makefile`](Makefile) for usage.
 
 * __DEBUG__: Cypress debug (example: DEBUG=cypress:*, default: none), (see https://docs.cypress.io/guides/references/troubleshooting#Log-sources).
 * __BASE_URL__: Base URL used within tests (default: BASE_URL=https://localhost:1443).
@@ -51,7 +51,7 @@ See `/usr/local/pf/t/html/pfappserver/Makefile` for usage.
 
 ## Local Development Setup
 
-Define ENV variables passed to Cypress. Edit `/usr/local/pf/t/html/pfappserver/.local_env`.
+Define ENV variables passed to Cypress. Edit [`t/html/pfappserver/.local_env`](.local_env).
 
 ```bash
 #DEBUG=cypress:*
@@ -145,4 +145,4 @@ DEBUG= \
 Recorded Run: https://cloud.cypress.io/projects/f00b4r/runs/298
 ```
 
-Results are not saved on disk but are uploaded and available at the URL provided at the tail of the test. These assets are counted towards the Cypress Cloud Account defined in the `PROJECT_ID`.
+Results are not saved on disk but are uploaded and available at the URL provided at the tail of the test. These uploaded artifacts are counted towards the Cypress Cloud Account defined in the `PROJECT_ID`.
