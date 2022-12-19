@@ -7,6 +7,9 @@
     >
       <form-group-mac namespace="mac"
         :column-label="$t('MAC')"
+      />      
+      <form-group-computername namespace="computername"
+        :column-label="$t('ComputerName')"
       />
       <form-group-pid namespace="pid"
         :column-label="$i18n.t('Owner')"
@@ -49,6 +52,7 @@ import {
 } from '@/components/new/'
 import {
   FormGroupMac,
+  FormGroupComputername,
   FormGroupPid,
   FormGroupStatus,
   FormGroupRole,
@@ -61,6 +65,7 @@ const components = {
   BaseFormButtonBar,
 
   FormGroupMac,
+  FormGroupComputername,
   FormGroupPid,
   FormGroupStatus,
   FormGroupRole,
