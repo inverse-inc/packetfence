@@ -64,6 +64,7 @@ BEGIN {
         machine_account
         bypass_role_id
         last_seen
+        online_time
     );
 
     %DEFAULTS = (
@@ -98,6 +99,7 @@ BEGIN {
         machine_account => undef,
         bypass_role_id => undef,
         last_seen => '0000-00-00 00:00:00',
+        online_time => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -132,6 +134,7 @@ BEGIN {
         machine_account
         bypass_role_id
         last_seen
+        online_time
     );
 
     %FIELDS_META = (
@@ -329,6 +332,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
+        online_time => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
     );
 
     @PRIMARY_KEYS = qw(
@@ -367,6 +376,7 @@ BEGIN {
         node.machine_account
         node.bypass_role_id
         node.last_seen
+        node.online_time
     );
 
 }
