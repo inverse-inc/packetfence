@@ -1,4 +1,4 @@
-# End To End (E2E) Testing - Pfappserver
+# Cypress End To End (E2E) Testing - Pfappserver
 
 ## Installation
 
@@ -146,3 +146,7 @@ Recorded Run: https://cloud.cypress.io/projects/f00b4r/runs/298
 ```
 
 Results are not saved on disk but are uploaded and available at the URL provided at the tail of the test. These uploaded artifacts are counted towards the Cypress Cloud Account defined in the `PROJECT_ID`.
+
+## Ansible and Venom
+
+See the [Venom E2E Testing README](../../../t/venom/scenarios/pfappserver/README.md) for more information about running the tests with Ansible and Venom.
