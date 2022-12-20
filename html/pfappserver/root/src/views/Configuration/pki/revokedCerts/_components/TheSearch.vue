@@ -4,11 +4,7 @@
       <h4 class="mb-0">{{ $t('Revoked Certificates') }}</h4>
     </b-card-header>
     <div class="card-body">
-      <base-search :use-search="useSearch" :disabled="!isServiceAlive">
-        <base-button-service
-          service="pfpki" restart start stop
-          class="ml-1" />
-      </base-search>
+      <base-search :use-search="useSearch" :disabled="!isServiceAlive" />
       <b-table ref="tableRef"
         :busy="isLoading || !isServiceAlive"
         :hover="items.length > 0"
@@ -87,7 +83,6 @@
 <script>
 import {
   BaseButtonConfirm,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty
@@ -95,7 +90,6 @@ import {
 
 const components = {
   BaseButtonConfirm,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty
