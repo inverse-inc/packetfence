@@ -1,7 +1,8 @@
 import {
   BaseFormButtonBar,
   BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupToggleDisabledEnabled,
+  BaseFormGroupInputNumber
 } from '@/components/new/'
 import { BaseViewResource } from '../../../_components/new/'
 import TheForm from './TheForm'
@@ -27,6 +28,8 @@ export {
   BaseFormGroupTextarea               as FormGroupRadiusAttributes,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNormalizeRadiusMachineAuthUsername,
   BaseFormGroupTextarea               as FormGroupUsernameAttributes,
+  BaseFormGroupInputNumber            as FormGroupPfacctWorkers,
+  BaseFormGroupInputNumber            as FormGroupPfacctWorkQueueSize,
 
   BaseViewResource                    as BaseView,
   TheForm,

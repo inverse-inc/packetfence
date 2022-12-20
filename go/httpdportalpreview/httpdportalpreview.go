@@ -6,10 +6,12 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"mime"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -114,10 +116,21 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (p *Proxy) ServeStatic(r *http.Response) error {
 	apiClient := unifiedapiclient.NewFromConfig(context.Background())
 	params, _ := getParams(`/config/profile/(?P<Profile>.*)/preview/(?P<File>.*)`, p.Uri)
+	file := params["File"]
+	buffer, _ := apiClient.CallSimpleHtml(p.Ctx, "GET", "/api/v1/config/connection_profile/"+params["Profile"]+"/preview/"+file, "")
+	ext := filepath.Ext(file)
+	if strings.HasSuffix(file, ".html") {
+		return p.RewriteAnswer(r, buffer)
+	}
 
-	buffer, _ := apiClient.CallSimpleHtml(p.Ctx, "GET", "/api/v1/config/connection_profile/"+params["Profile"]+"/preview/"+params["File"], "")
+	mimeType := mime.TypeByExtension(ext)
+	if mimeType != "" {
+		r.Header["Content-Type"] = []string{mimeType}
+	}
 
-	p.RewriteAnswer(r, buffer)
+	boeuf := bytes.NewBuffer(buffer)
+	r.Body = ioutil.NopCloser(boeuf)
+	r.Header["Content-Length"] = []string{fmt.Sprint(boeuf.Len())}
 	return nil
 }
 

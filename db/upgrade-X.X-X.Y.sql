@@ -1,3 +1,5 @@
+SET sql_mode = "NO_ENGINE_SUBSTITUTION";
+
 --
 -- PacketFence SQL schema upgrade from 11.0 to 11.1
 --

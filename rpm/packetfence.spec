@@ -461,6 +461,7 @@ done
 %{__install} -d %{buildroot}/etc/cron.d
 %{__install} -d %{buildroot}/etc/docker
 %{__install} -d %{buildroot}/usr/local/pf/html
+%{__install} -d %{buildroot}/usr/local/pf/html/common
 %{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
 %{__install} -d %{buildroot}/usr/local/pf/html/captive-portal
 touch %{buildroot}/usr/local/pf/var/cache_control
@@ -507,6 +508,7 @@ cp -r containers %{buildroot}/usr/local/pf
 # temp
 cp -r html/pfappserver %{buildroot}/usr/local/pf/html
 cp -r html/captive-portal %{buildroot}/usr/local/pf/html
+cp -r html/common %{buildroot}/usr/local/pf/html
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
@@ -655,11 +657,14 @@ gpg --no-default-keyring --keyring /root/.gnupg/pubring.kbx --import /etc/pki/rp
 # Remove the monit service from the multi-user target if its there
 rm -f /etc/systemd/system/multi-user.target.wants/monit.service
 
+cd /usr/local/pf
 
 #Make ssl certificate
-cd /usr/local/pf
 make conf/ssl/server.pem
 chown pf /usr/local/pf/conf/ssl/server.key
+
+#Make configurable logo in default profile templates
+make html/captive-portal/profile-templates/default/logo.png
 
 # Create server local RADIUS secret
 if [ ! -f /usr/local/pf/conf/local_secret ]; then
@@ -918,6 +923,7 @@ fi
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfstats
 %attr(0755, pf, pf)     /usr/local/pf/sbin/pfconfig
 %attr(0755, pf, pf)     /usr/local/pf/sbin/sdnotify-proxy
+%attr(0755, pf, pf)     /usr/local/pf/sbin/signal-proxy
 %attr(0755, pf, pf)     /usr/local/pf/sbin/api-frontend-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.aaa-docker-wrapper
 %attr(0755, pf, pf)     /usr/local/pf/sbin/httpd.dispatcher-docker-wrapper
@@ -1244,6 +1250,7 @@ fi
 
 # html dir
 %dir                    /usr/local/pf/html
+                        /usr/local/pf/html/common
 %dir                    /usr/local/pf/html/pfappserver
                         /usr/local/pf/html/pfappserver/root
 /usr/local/pf/html/pfappserver/lib

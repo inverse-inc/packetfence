@@ -9,9 +9,14 @@
       label-class="d-none"
       label-right
     />
+    
+    <div
+      class="alert alert-warning is-saas"
+    >{{ $t(`Changes to connection profiles files require a restart of the httpd-portal deployment`) }}</div>
+
     <b-table :items="tableItems" :fields="tableFields" :sort-by="sortBy" :sort-desc="sortDesc"
       class="the-files-list"
-      small hover striped show-empty no-local-sorting no-select-on-click borderless
+      small hover responsive striped show-empty no-local-sorting no-select-on-click borderless
       @sort-changed="onSortChanged($event)"
       @row-clicked="onRowClicked($event)"
     >
@@ -22,7 +27,7 @@
           :disabled="false"
         >
           <icon v-for="(name, n) in item.icons" :key="n"
-            :name="name" class="nav-icon"/>
+            :name="name" class="nav-icon" />
 
           <icon v-if="item.expand"
             name="regular/folder-open"/>
@@ -32,13 +37,18 @@
         <div v-else
           class="d-flex align-items-center"
           variant="link"
+          :class="{ 'text-primary': !item.not_revertible || !item.not_deletable }"
         >
           <icon v-for="(name, n) in item.icons" :key="n"
-            :name="name" class="nav-icon"/>
+            :name="name" class="nav-icon" />
 
-          <icon name="file" v-if="!item.not_revertible || !item.not_deletable"/>
-          <icon name="regular/file" v-else/>
-          {{ item.name }}
+          <icon :name="(item.isImage) ? 'file-image' : 'file'" />
+
+          <inline-name v-if="!item.not_revertible || !item.not_deletable"
+            :key="`${item.path}/${item.name}`"
+            :id="id" :item="item" :entries="entries" />
+          <span v-else
+            >{{ item.name }}</span>
         </div>
       </template>
       <template v-slot:cell(buttons)="{ item }">
@@ -69,10 +79,21 @@
         <div v-else-if="item.type === 'dir'"
           class="text-right text-nowrap">
 
-          <b-dropdown :text="$i18n.t('Create')"
-            size="sm" variant="outline-primary" class="my-1" right>
-            <b-dropdown-item @click="onToggleDirectory(item)">New Sub Directory</b-dropdown-item>
-            <b-dropdown-item @click="onToggleFile(item)">New File</b-dropdown-item>
+          <b-dropdown size="sm" variant="outline-primary" class="my-1" right>
+            <template #button-content>
+              <icon name="plus-circle" />
+            </template>
+            <b-dropdown-header>{{ `${item.path}/${item.name}`.replace('//', '/') }}</b-dropdown-header>
+            <b-dropdown-divider />
+            <b-dropdown-item @click="onToggleDirectory(item)">{{ $i18n.t('Create New Sub Directory') }}</b-dropdown-item>
+            <b-dropdown-item @click="onToggleEdit(item)">{{ $i18n.t('Create New File') }}</b-dropdown-item>
+            <b-dropdown-item @click="onToggleUpload(item)">
+              <base-button-upload
+                @files="onUploadFiles(item, $event)"
+                :accept="acceptMimes.join(',')"
+                multiple
+              >{{ $i18n.t('Upload File(s)') }}</base-button-upload>
+            </b-dropdown-item>
           </b-dropdown>
 
         </div>
@@ -88,15 +109,24 @@
       @hidden="onToggleDirectory"
     />
 
-    <modal-file
-      v-model="isShowFileModal"
+    <modal-edit
+      v-model="isShowEditModal"
       :entries="entries"
       :id="id"
       :path="lastPath"
       @create="onCreateFile($event)"
       @update="onUpdateFile($event)"
       @delete="onDeleteFile($event)"
-      @hidden="onToggleFile"
+      @hidden="onToggleEdit"
+    />
+
+    <modal-view
+      v-model="isShowViewModal"
+      :entries="entries"
+      :id="id"
+      :path="lastPath"
+      @delete="onDeleteFile($event)"
+      @hidden="onToggleView"
     />
 
   </div>
@@ -104,18 +134,24 @@
 <script>
 import {
   BaseButtonConfirm,
+  BaseButtonUpload,
   BaseFormGroupToggle
 } from '@/components/new/'
 import {
+  InlineName,
   ModalDirectory,
-  ModalFile
+  ModalEdit,
+  ModalView,
 } from './'
 
 const components = {
   BaseButtonConfirm,
+  BaseButtonUpload,
+  InlineName,
   InputToggle: BaseFormGroupToggle,
   ModalDirectory,
-  ModalFile
+  ModalEdit,
+  ModalView,
 }
 
 const props = {
@@ -160,6 +196,11 @@ const tableFields = [
 ]
 
 import { computed, ref, toRefs, watch } from '@vue/composition-api'
+import mime from 'mime-types'
+import i18n from '@/utils/locale'
+import { reAscii } from '@/utils/regex'
+import { acceptMimes } from '../config'
+import { fileNotExists } from '../schema'
 
 const setup = (props, context) => {
 
@@ -171,7 +212,6 @@ const setup = (props, context) => {
 
   const sortBy = ref(undefined)
   const sortDesc = ref(false)
-  const entries = ref([])
 
   const expandPaths = ref(['/'])
   const expandPath = (path) => {
@@ -187,6 +227,15 @@ const setup = (props, context) => {
 
   const tableItems = ref([])
   const isLoading = computed(() => $store.getters['$_connection_profiles/isLoadingFiles'])
+  //const entries = ref([])
+  const entries = computed(() => {
+    const { [id.value]: { entries = [] } = {} } = $store.state.$_connection_profiles.files.cache
+    return [{
+      name: '/',
+      type: 'dir',
+      entries: JSON.parse(JSON.stringify(entries))
+    }]
+  })
 
   const _getFiles = () => {
     let sort = ['type']
@@ -196,13 +245,7 @@ const setup = (props, context) => {
     }
     else
       sort.push('name')
-    $store.dispatch('$_connection_profiles/files', { id: id.value, sort }).then(response => {
-      entries.value = [{
-        name: '/',
-        type: 'dir',
-        entries: JSON.parse(JSON.stringify(response.entries))
-      }]
-    })
+    $store.dispatch('$_connection_profiles/files', { id: id.value, sort })
   }
 
   watch([sortBy, sortDesc], () => _getFiles(), { immediate: true })
@@ -221,6 +264,8 @@ const setup = (props, context) => {
           let { entries: childEntries = [], ...rest } = entry || {}
           const { type, name } = rest || {}
           const fullPath = `${path}/${name}`.replace('//', '/')
+          const contentType = mime.lookup(name)
+          const isImage = /^image\//.test(contentType)
           switch(type) {
             case 'dir':
               childEntries = childEntries.filter(visibleFilter)
@@ -237,7 +282,7 @@ const setup = (props, context) => {
               }
               break
             case 'file':
-              reduced.push({ ...rest, path, icons })
+              reduced.push({ ...rest, path, icons, isImage })
               break
           }
           return reduced
@@ -255,6 +300,8 @@ const setup = (props, context) => {
           const { entries: childEntries = [], ...rest } = entry || {}
           const { type, name } = rest || {}
           const fullPath = `${path}/${name}`.replace('//', '/')
+          const contentType = mime.lookup(name)
+          const isImage = /^image\//.test(contentType)
           switch(type) {
             case 'dir':
               if (expandPaths.value.includes(fullPath)) {
@@ -268,7 +315,7 @@ const setup = (props, context) => {
                 reduced.push({ ...rest, path, expand: false, icons })
               break
             case 'file':
-              reduced.push({ ...rest, path, icons })
+              reduced.push({ ...rest, path, icons, isImage })
               break
           }
           return reduced
@@ -293,19 +340,17 @@ const setup = (props, context) => {
         expandPath(fullPath)
     }
     else if (type === 'file') {
-      onToggleFile(row)
+      const contentType = mime.lookup(name)
+      if (/^image\//.test(contentType))
+        onToggleView(row)
+      else
+        onToggleEdit(row)
     }
   }
 
   const onDelete = (item) => {
     const { path, name } = item
-    $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}`.replace('//', '/') }).then(response => {
-      entries.value = entries.value = [{
-        name: '/',
-        type: 'dir',
-        entries: JSON.parse(JSON.stringify(response.entries))
-      }]
-    })
+    $store.dispatch('$_connection_profiles/deleteFile', { id: id.value, filename: `${path}/${name}`.replace('//', '/') })
   }
 
   const previewUrl = (item) => {
@@ -324,11 +369,25 @@ const setup = (props, context) => {
     isShowDirectoryModal.value = !isShowDirectoryModal.value
   }
 
-  const isShowFileModal = ref(false)
-  const onToggleFile = (item) => {
+  const isShowEditModal = ref(false)
+  const onToggleEdit = (item) => {
     const { path = '', name = '' } = item || {}
     lastPath.value = `${path}/${name}`.replace('//', '/')
-    isShowFileModal.value = !isShowFileModal.value
+    isShowEditModal.value = !isShowEditModal.value
+  }
+
+  const isShowViewModal = ref(false)
+  const onToggleView = (item) => {
+    const { path = '', name = '' } = item || {}
+    lastPath.value = `${path}/${name}`.replace('//', '/')
+    isShowViewModal.value = !isShowViewModal.value
+  }
+
+  const isShowUploadModal = ref(false)
+  const onToggleUpload = (item) => {
+    const { path = '', name = '' } = item || {}
+    lastPath.value = `${path}/${name}`.replace('//', '/')
+    isShowUploadModal.value = !isShowUploadModal.value
   }
 
   const onCreateDirectory = (name) => {
@@ -358,8 +417,45 @@ const setup = (props, context) => {
   const onUpdateFile = () => _getFiles()
 
   const onDeleteFile = () => {
-    isShowFileModal.value = false
+    isShowEditModal.value = false
+    isShowViewModal.value = false
     _getFiles()
+  }
+
+  const onUploadFiles = (item, files) => {
+    const { path, name } = item
+    const pathname = `${path}/${name}`.replace('//', '/')
+    files.forEach(file => {
+      const filename = file.name.trim()
+      if(!reAscii(filename)) {
+        return $store.dispatch('notification/danger', {
+          icon: 'exclamation-triangle',
+          url: filename,
+          message: i18n.t('Upload skipped. {filename} contains non-ASCII characters and is not a valid filename.', { filename: `<code>${filename}</code>` })
+        })
+      }
+      const exists = !fileNotExists(entries.value, pathname, filename)
+      let method = 'createFile'
+      let message = i18n.t('{file} uploaded.', { file: `<code>${pathname}/${filename}</code>` })
+      if (exists) {
+        method = 'updateFile'
+        message = i18n.t('{file} replaced.', { file: `<code>${pathname}/${filename}</code>` })
+      }
+      $store.dispatch(`${file.storeName}/readAsDataURL`).then(content => {
+        $store.dispatch(`$_connection_profiles/${method}`, {
+          id: id.value,
+          filename: `${pathname}/${filename}`.replace('//', '/'),
+          content,
+          quiet: true
+        }).then(() => {
+          $store.dispatch('notification/info', { url: filename, message })
+        }).catch(error => {
+          const { response: { data: { message = '' } = {} } = {} } = error
+          $store.dispatch('notification/danger', { icon: 'exclamation-triangle', url: filename, message })
+          throw error
+        }).finally(_getFiles)
+      })
+    })
   }
 
   return {
@@ -379,14 +475,23 @@ const setup = (props, context) => {
     onCreateDirectory,
     onToggleDirectory,
 
-    isShowFileModal,
+    isShowEditModal,
     onCreateFile,
     onUpdateFile,
     onDeleteFile,
-    onToggleFile,
+    onToggleEdit,
+
+    isShowViewModal,
+    onToggleView,
+
+    isShowUploadModal,
+    onToggleUpload,
 
     lastPath,
-    hideDefaultFiles
+    hideDefaultFiles,
+
+    onUploadFiles,
+    acceptMimes,
   }
 }
 

@@ -54,10 +54,14 @@ case "$1" in
         VERSIONSQL=$(ls pf-schema-* |sort --version-sort -r | head -1)
         ln -f -s $VERSIONSQL ./pf-schema.sql
 
-        #Make ssl certificate
         cd /usr/local/pf
+
+        #Make ssl certificate
         make conf/ssl/server.pem
         chown pf $PACKETFENCE/conf/ssl/server.key
+
+        #Make configurable logo in default profile templates
+        make html/captive-portal/profile-templates/default/logo.png
 
         # Stop packetfence-config during upgrade process to ensure
         # it is started with latest code
@@ -97,6 +101,9 @@ case "$1" in
         else
             echo "pf.conf already exists, won't touch it!"
         fi
+
+        mkdir -p /usr/local/pf/html/captive-portal/profile-templates/default
+        cp /usr/local/pf/html/common/packetfence-cp.png /usr/local/pf/html/captive-portal/profile-templates/default/logo.png
 
         # managing services
         set +e

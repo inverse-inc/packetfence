@@ -43,7 +43,14 @@ export const importFields = [
     types: [fieldType.YESNO],
     required: false,
     formatter: formatter.yesNoFromString,
-    validator: validatorFromColumnSchemas(MysqlDatabase.node.autoreg)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.autoreg),
+    props: {
+      options: [
+        { value: 'no', label: i18n.t('No') },
+        { value: 'yes', label: i18n.t('Yes'), color: 'var(--primary)' }
+      ],
+      labelRight: true
+    }
   },
   {
     value: 'bandwidth_balance',
@@ -120,7 +127,14 @@ export const importFields = [
     types: [fieldType.YESNO],
     required: false,
     formatter: formatter.yesNoFromString,
-    validator: validatorFromColumnSchemas(MysqlDatabase.node.voip)
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.voip),
+    props: {
+      options: [
+        { value: 'no', label: i18n.t('No') },
+        { value: 'yes', label: i18n.t('Yes'), color: 'var(--primary)' }
+      ],
+      labelRight: true
+    }
   }
 ]
 

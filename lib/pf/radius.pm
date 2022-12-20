@@ -674,7 +674,7 @@ sub _handleStaticPortSecurityMovement {
     #determine if $mac is authorized elsewhere
     my $locationlog_mac = locationlog_view_open_mac($args->{'mac'});
     #Nothing to do if there is no location log
-    unless( defined($locationlog_mac) ){
+    if ( !defined($locationlog_mac) || $locationlog_mac eq "0" ) {
         return undef;
     }
 
@@ -806,7 +806,7 @@ sub switch_access {
 
     $logger->info("handling radius autz request: from switch_ip => ($switch_ip), "
         . "connection_type => " . connection_type_to_str($connection_type) . ","
-        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => $port, username => \"$user_name\"" );
+        . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => ".( defined($port) ? "($port)" : "(Unknown)" ).", username => \"$user_name\"" );
 
     if ( !$switch->canDoCliAccess && !$switch->supportsVPN()) {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");

@@ -29,7 +29,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Allow proxysql to be configure to connect to a single external database.
+ * Allow image files to be uploaded in a connection profile.
+
 === Bug Fixes
+
+ * Force the destination IP for UDP packets going through the pfconnector (#7323)
+ * Clear the active dynamic reverses that exist when a pfconnector reconnects
 
 == Version 12.1.0 released on 2022-11-22
 

@@ -24,6 +24,7 @@ configure_and_check() {
                            -not -path "*/pfdebian/*" \
                            -not -path "*/radiusd/*" \
                            -not -path "*/pfconnector-*/*" \
+                           -not -path "*/kaniko-build/*" \
                            -printf "%P\n")
 
     for file in ${DOCKERFILE_DIRS}; do

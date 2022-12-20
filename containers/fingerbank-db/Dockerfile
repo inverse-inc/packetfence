@@ -8,7 +8,7 @@ FROM alpine
 
 ARG FINGERBANK_BUILD_API_KEY
 
-RUN apk update && apk add curl
+RUN apk update && apk add curl sqlite
 
 RUN mkdir -p /usr/local/fingerbank/db
 

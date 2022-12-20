@@ -1,21 +1,19 @@
 <template>
   <b-modal v-model="show" size="lg" :title="$t('Create Users')"
-    centered no-close-on-backdrop no-close-on-esc lazy scrollable
+    centered lazy scrollable
   >
-    <template v-slot:modal-header v-if="isLoading">
-      <h4>{{ $i18n.t('Creating Users') }}</h4>
+    <template v-slot:modal-header>
+      <div v-if="Math.round(progress) < 100"
+        class="w-100 text-small mt-3">
+        {{ $i18n.t('Creating {quantity} users:', { quantity }) }} {{ Math.round(progress) }}%
+        <b-progress :max="100" height="4px">
+          <b-progress-bar :value="progress" :precision="2" variant="success" :show-value="false"></b-progress-bar>
+          <b-progress-bar :value="100 - progress" :precision="2" variant="light" :show-value="false" style="opacity: 0.2"></b-progress-bar>
+        </b-progress>
+      </div>
+      <h4 v-else>{{ $i18n.t('Created {quantity} users', { quantity }) }}</h4>
     </template>
-    <template v-slot:modal-header v-else>
-      <h4>{{ $i18n.t('The following users have been created') }}</h4>
-    </template>
-    <div v-if="progress < 100" class="text-small">
-      {{ Math.round(progress) }}%
-      <b-progress :max="100" height="4px">
-        <b-progress-bar :value="progress" :precision="2" variant="success" :show-value="false"></b-progress-bar>
-        <b-progress-bar :value="100 - progress" :precision="2" variant="light" :show-value="false" style="opacity: 0.2"></b-progress-bar>
-      </b-progress>
-    </div>
-    <b-table v-else
+    <b-table
       :items="users"
       :fields="visibleUsersFields"
       :sortBy="usersSortBy"
@@ -23,13 +21,14 @@
       show-empty responsive striped>
       <template v-slot:empty>
         <slot name="emptySearch" v-bind="{ isLoading }">
-        <base-table-empty :is-loading="isLoading">{{ $t('No users created') }}</base-table-empty>
+          <base-table-empty :is-loading="isLoading">{{ $t('No users created') }}</base-table-empty>
         </slot>
       </template>
     </b-table>
     <template v-slot:modal-footer>
-      <div class="w-100">
-        <b-button :disabled="isLoading" variant="primary" class="float-right" @click="goToPreview">{{ $i18n.t('Preview') }}</b-button>
+      <div class="w-100 text-right">
+        <b-button variant="secondary" class="mr-1" @click="show = false;">{{ $i18n.t('Close') }}</b-button>
+        <b-button variant="primary" class="mr-1" @click="goToPreview">{{ $i18n.t('Preview Messages') }}</b-button>
       </div>
     </template>
   </b-modal>

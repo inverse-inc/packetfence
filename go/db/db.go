@@ -16,6 +16,7 @@ import (
 const (
 	charset   = "utf8mb4"
 	collation = "utf8mb4_bin"
+	sqlMode   = "NO_ENGINE_SUBSTITUTION"
 )
 
 func DbFromConfig(ctx context.Context, dbName ...string) (*sql.DB, error) {
@@ -94,15 +95,17 @@ func ReturnURI(ctx context.Context, user, pass, host, port, dbName string) strin
 		host = host + ":" + port
 	}
 
-	Configuration := mysql.NewConfig()
+	Config := mysql.NewConfig()
 
-	Configuration.User = user
-	Configuration.Passwd = pass
-	Configuration.Net = proto
-	Configuration.Addr = host
-	Configuration.DBName = dbName
-	Configuration.Collation = collation
-	Configuration.ParseTime = true
-	Configuration.Loc = location
-	return Configuration.FormatDSN()
+	Config.User = user
+	Config.Passwd = pass
+	Config.Net = proto
+	Config.Addr = host
+	Config.DBName = dbName
+	Config.Collation = collation
+	Config.ParseTime = true
+	Config.Loc = location
+	Config.Params = map[string]string{"sql_mode": sqlMode}
+
+	return Config.FormatDSN()
 }

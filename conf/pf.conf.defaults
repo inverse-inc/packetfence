@@ -302,6 +302,23 @@ pass=[% ENV.env_or_default("PF_MYSQL_PASS", "packet") %]
 # Path to the database UNIX socket
 unix_socket=[% ENV.env_or_default("PF_MYSQL_UNIX_SOCKET", "/var/lib/mysql/mysql.sock") %]
 
+[database_proxysql]
+#
+# database_proxysql.status
+#
+#
+status=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_STATUS", "disabled") %]
+#
+# database_proxysql.cacert
+#
+#
+cacert=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_CACERT", "") %]
+#
+# database_proxysql.backend
+#
+#
+backend=[% ENV.env_or_default("PF_DATABASE_PROXYSQL_BACKEND", "") %]
+
 [database_advanced]
 #
 # database_advanced.key_buffer_size
@@ -1367,6 +1384,14 @@ local_auth=disabled
 #
 # Process bandwidth accounting.
 process_bandwidth_accounting = disabled
+# radius_configuration.pfacct_workers
+#
+# The number of workers proccessing accounting packets.
+pfacct_workers = 5
+# radius_configuration.pfacct_work_queue_size
+#
+# The size of the queue for each worker.
+pfacct_work_queue_size = 1000
 
 [dns_configuration]
 #

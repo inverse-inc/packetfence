@@ -28,11 +28,11 @@ use pf::config qw(%Config);
 my $PF_DIR = '/usr/local/pf';
 my $schema = "$PF_DIR/db/pf-schema-X.Y.sql";
 my $db_name = "pf_smoke_test_isutf8$$";
-my ($dbuser, $dbpass) = @{$Config{database}}{qw(user pass)};
-my $dbh     = DBI->connect( "DBI:mysql:host=localhost", $dbuser, $dbpass, { RaiseError => 1 } );
+my ($dbuser, $dbpass, $host, $port) = @{$Config{database}}{qw(user pass host port)};
+my $dbh     = DBI->connect( "DBI:mysql:host=$host;port=$port", $dbuser, $dbpass, { RaiseError => 1 } );
 $dbh->do("DROP DATABASE IF EXISTS $db_name;") or bail_out($dbh->errstr);
 $dbh->do("CREATE DATABASE $db_name;")         or bail_out($dbh->errstr);
-system("mysql -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
+system("mysql -h\"$host\" -P\"$port\" -u\"$dbuser\" -p\"$dbpass\" $db_name < $schema");
 $dbh->do("USE $db_name;") or bail_out($dbh->errstr);
 use Data::Dumper;
 my $sql =qq(

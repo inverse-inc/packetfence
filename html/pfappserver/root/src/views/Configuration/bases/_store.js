@@ -286,6 +286,40 @@ const actions = {
       throw err
     })
   },
+  getDatabaseProxySQL: ({ state, commit }) => {
+    if (state.cache['database_proxysql']) {
+      return Promise.resolve(state.cache['database_proxysql']).then(cache => JSON.parse(JSON.stringify(cache)))
+    }
+    commit('ITEM_REQUEST')
+    return api.base('database_proxysql').then(item => {
+      commit('ITEM_REPLACED', item)
+      return JSON.parse(JSON.stringify(item))
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  optionsDatabaseProxySQL: ({ commit }) => {
+    commit('ITEM_REQUEST')
+    return api.baseOptions('database_proxysql').then(response => {
+      commit('ITEM_SUCCESS')
+      return response
+    }).catch((err) => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
+  updateDatabaseProxySQL: ({ commit }, data) => {
+    commit('ITEM_REQUEST')
+    data.id = 'database_proxysql'
+    return api.updateBase(data).then(response => {
+      commit('ITEM_REPLACED', data)
+      return response
+    }).catch(err => {
+      commit('ITEM_ERROR', err.response)
+      throw err
+    })
+  },
   getDatabaseEncryption: ({ state, commit }) => {
     if (state.cache['database_encryption']) {
       return Promise.resolve(state.cache['database_encryption']).then(cache => JSON.parse(JSON.stringify(cache)))

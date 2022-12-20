@@ -149,6 +149,22 @@ packetfence_export_deploy() {
     done
 }
 
+packetfence_ci_lib_deploy() {
+    # Deb (only)
+    for release_name in $(ls $DEB_RESULT_DIR); do
+        src_dir="$DEB_RESULT_DIR/${release_name}"
+        dst_repo="$DEB_BASE_DIR/debian"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
+        pf_ci_lib_deb_file=$(basename $(ls $src_dir/packetfence-ci-lib*))
+        pf_ci_lib_deb_dest_name=${PF_CI_LIB_DEB_DEST_NAME:-"packetfence-ci-lib_${PF_MINOR_RELEASE}.deb"}
+        declare -p src_dir dst_dir pf_ci_lib_deb_file pf_ci_lib_deb_dest_name
+
+        echo "scp: ${src_dir}/${pf_ci_lib_deb_file} -> ${dst_dir}/${pf_ci_lib_deb_dest_name}"
+        scp "${src_dir}/${pf_ci_lib_deb_file}" "${dst_dir}/${pf_ci_lib_deb_dest_name}" \
+            || die "scp failed"
+    done
+}
+
 ppa_deploy() {
     # warning: slashs at end of dirs are significant for rsync
     src_dir="$PUBLIC_DIR/"
@@ -185,6 +201,7 @@ case $1 in
     deb) deb_deploy ;;
     packetfence-release) packetfence_release_deploy ;;
     packetfence-export) packetfence_export_deploy ;;
+    packetfence-ci-lib) packetfence_ci_lib_deploy ;;
     ppa) ppa_deploy ;;
     website) website_deploy ;;
     *)   die "Wrong argument"

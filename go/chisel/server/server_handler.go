@@ -171,15 +171,19 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 	}
+
+	localSecret := pfconfigdriver.LocalSecret{}
+	pfconfigdriver.FetchDecodeSocket(req.Context(), &localSecret)
 	//successfuly validated config!
 	r.Reply(true, nil)
 	//tunnel per ssh connection
 	tunnel := tunnel.New(tunnel.Config{
-		Logger:    l,
-		Inbound:   s.config.Reverse,
-		Outbound:  true, //server always accepts outbound
-		Socks:     s.config.Socks5,
-		KeepAlive: s.config.KeepAlive,
+		Logger:       l,
+		Inbound:      s.config.Reverse,
+		Outbound:     true, //server always accepts outbound
+		Socks:        s.config.Socks5,
+		KeepAlive:    s.config.KeepAlive,
+		RadiusSecret: localSecret.Element,
 	})
 	//bind
 	eg, ctx := errgroup.WithContext(req.Context())
@@ -197,10 +201,13 @@ func (s *Server) handleWebsocket(w http.ResponseWriter, req *http.Request) {
 		return tunnel.BindRemotes(ctx, serverInbound)
 	})
 	if user != nil {
+		l.Infof("Connector %s has just connected to this server", user.Name)
+		settings.ClearActiveDynReverseConnector(ctx, user.Name)
 		activeTunnels.Store(user.Name, tunnel)
+		tunnel.ConnectorID = user.Name
 		res := s.redis.Set(fmt.Sprintf("%s%s", s.redisTunnelsNamespace, user.Name), fmt.Sprintf("%s://%s", s.listenProto, req.Context().Value(http.LocalAddrContextKey).(net.Addr).String()), 0)
 		if res.Err() != nil {
-			l.Errorf("Unable to write tunnel info to Redis: %s", res.Err())
+			l.Infof("Unable to write tunnel info to Redis: %s", res.Err())
 		}
 	}
 	err = eg.Wait()
@@ -332,9 +339,9 @@ func (s *Server) handleRemoteBinds(w http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(w).Encode(gin.H{"binds": []string{
 			fmt.Sprintf("80:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_80", fmt.Sprintf("%s:80", managementIP))),
 			fmt.Sprintf("443:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_443", fmt.Sprintf("%s:443", managementIP))),
-			fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp", managementIP))),
-			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp", managementIP))),
-			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp", managementIP))),
+			fmt.Sprintf("1812:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1812", fmt.Sprintf("%s:1812/udp|radius", managementIP))),
+			fmt.Sprintf("1813:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1813", fmt.Sprintf("%s:1813/udp|radius", managementIP))),
+			fmt.Sprintf("1815:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_1815", fmt.Sprintf("%s:1815/udp|radius", managementIP))),
 			fmt.Sprintf("127.0.0.1:9090:%s", sharedutils.EnvOrDefault("PFCONNECTOR_BINDS_HOST_PORT_9090", fmt.Sprintf("%s:9090", managementIP))),
 		}})
 	} else {
