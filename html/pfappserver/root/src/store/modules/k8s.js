@@ -52,7 +52,7 @@ const actions = {
       return state.services
     }).catch(err => {
       const { response: { data: error } = {} } = err
-      commit('SERVICE_ERROR', error)
+      commit('K8S_SERVICES_ERROR', error)
       throw err
     }).finally(() => dispatch('pollServices'))
     if (state.services) {
@@ -68,7 +68,7 @@ const actions = {
       return state.services[service]
     }).catch(err => {
       const { response: { data: error } = {} } = err
-      commit('SERVICE_ERROR', error)
+      commit('K8S_SERVICE_ERROR', { service, error })
       throw err
     }).finally(() => dispatch('pollServices'))
     if (state.services) {
@@ -85,7 +85,7 @@ const actions = {
       return dispatch('pollServices')
     }).catch(err => {
       const { response: { data: error } = {} } = err
-      commit('SERVICE_ERROR', error)
+      commit('K8S_SERVICE_ERROR', { service, error })
       throw err
     })
   },
@@ -129,13 +129,20 @@ const mutations = {
     }, {})
     state.message = ''
   },
+  K8S_SERVICES_ERROR: (state, error) => {
+    state.status = types.ERROR
+    state.message = error
+  },
   K8S_SERVICE_SUCCESS: (state, { service, response }) => {
     state.status = types.SUCCESS
+    if (!state.services) {
+      state.services = {}
+    }
     // avoid squashing w/ merge
     state.services[service] = { ...state.services[service], ...response }
     state.message = ''
   },
-  K8S_ERROR: (state, error) => {
+  K8S_SERVICE_ERROR: (state, { error }) => {
     state.status = types.ERROR
     state.message = error
   },
@@ -148,10 +155,16 @@ const mutations = {
 
   K8S_RESTARTING: (state, service) => {
     state.status = types.LOADING
+    if (!state.services) {
+      state.services = {}
+    }
     state.services[service].status = types.LOADING
   },
   K8S_RESTARTED: (state, { service }) => {
     state.status = types.SUCCESS
+    if (!state.services) {
+      state.services = {}
+    }
     state.services[service].status = types.SUCCESS
   },
 }

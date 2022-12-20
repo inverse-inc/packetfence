@@ -69,7 +69,7 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['k8s/isLoading'])
   const message = computed(() => $store.state.k8s.message)
   const services = computed(() => $store.state.k8s.services)
-  const service = computed(() => services.value[id.value])
+  const service = computed(() => ({ total_replicas: 0, updates_replicas: 0, ...services.value[id.value] }))
 
   const doRestart = () => $store.dispatch('k8s/restartService', id.value).then(() => {
     $store.dispatch('notification/info', { url: id.value, message: i18n.t(localeStrings.SERVICES_K8S_RESTARTED_SUCCESS, { services: `<code>${id.value}</code>` }) })
