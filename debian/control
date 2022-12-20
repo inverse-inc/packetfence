@@ -21,8 +21,9 @@ Pre-Depends:  ca-certificates,
  fingerbank-collector (>= 1.4.1), fingerbank-collector (<< 2.0.0),
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-perl (>= 1.2.1),
- netdata (= 1:1.10.0-1),
- libmariadbd-dev (>= 10.1)
+ netdata (= 1:1.10.0-1)
+# Removed for now
+# libmariadbd-dev (>= 10.1), libmariadbd-dev (<< 10.5.18)
 Breaks: libdata-alias-perl
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
@@ -30,8 +31,8 @@ Depends: ${misc:Depends}, vlan,
  packetfence-archive-keyring (>= ${source:Version}),
  gpg,
  jq,
- mariadb-server (>= 10.5.15),
- mariadb-client (>= 10.5.15),
+ mariadb-server (>= 10.5.15), mariadb-server (<< 10.5.18),
+ mariadb-client (>= 10.5.15), mariadb-client (<< 10.5.18),
  snmp, snmptrapfmt, snmptrapd, snmp-mibs-downloader, conntrack, rsyslog,
 # for import/export scripts
  ipcalc, ipcalc-ng,
