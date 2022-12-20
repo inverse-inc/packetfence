@@ -1,18 +1,20 @@
 <template>
   <b-container fluid>
-    <b-progress :max="service.total_replicas" height="2em" :animated="service.updated_replicas !== service.total_replicas">
-      <b-progress-bar :value="service.updated_replicas" :precision="2" variant="success" :show-value="false"></b-progress-bar>
-      <b-progress-bar :value="service.total_replicas - service.updated_replicas" :precision="2" variant="warning" :show-value="false" striped></b-progress-bar>
-    </b-progress>
-    <small>{{ service.updated_replicas }}/{{ service.total_replicas }} {{ $i18n.t('Replicas') }}</small>
-
-    <b-button v-if="isAllowed && restart"
-      @click="doRestart" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary">
-      <icon name="redo" class="mt-3 mr-1" /> {{ $i18n.t('Restart') }}
-    </b-button>
-
+    <b-row class="mx-0">
+      <b-progress :max="service.total_replicas" class="w-100" height="2em" :animated="service.updated_replicas !== service.total_replicas">
+        <b-progress-bar :value="service.updated_replicas" :precision="2" variant="success" :show-value="false"></b-progress-bar>
+        <b-progress-bar :value="service.total_replicas - service.updated_replicas" :precision="2" variant="warning" :show-value="false" striped></b-progress-bar>
+      </b-progress>
+      <small>{{ service.updated_replicas }}/{{ service.total_replicas }} {{ $i18n.t('Replicas') }}</small>
+    </b-row>
+    <b-row class="mx-0">
+      <b-button v-if="isAllowed && restart"
+        @click="doRestart" :disabled="isLoading" variant="link" size="sm" class="text-nowrap text-secondary p-0">
+        <icon name="redo" class="mt-3 mr-1" /> {{ $i18n.t('Restart') }}
+      </b-button>
+    </b-row>
     <b-row v-if="message"
-      class="mt-3 mx-0">
+      class="mx-0">
       <b-col cols="12" class="small text-danger text-wrap">
         <icon name="info-circle" scale="1.5" class="mr-1" /> {{ message }}
       </b-col>
