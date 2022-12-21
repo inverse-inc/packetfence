@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"hash"
 	"net"
@@ -123,6 +124,11 @@ func (h *PfAcct) handleAccountingRequest(rr radiusRequest) {
 	out_bytes += giga_out_bytes << 32
 	in_bytes += giga_in_bytes << 32
 	unique_session_id := h.accountingUniqueSessionId(r)
+	err := h.updateNodeOnlineOfflineOnline(status, mac, unique_session_id)
+	if err != nil {
+		logError(ctx, fmt.Sprintf("Error updating online offline status: %s", err.Error()))
+	}
+
 	timestamp, err := rfc2869.EventTimestamp_Lookup(r.Packet)
 	if err != nil {
 		timestamp = time.Now()
@@ -573,6 +579,8 @@ type RadiusStatements struct {
 	isNodeBandwidthBalanceZero      *sql.Stmt
 	isUnreg                         *sql.Stmt
 	closeSession                    *sql.Stmt
+	nodeOnlineOffLineStartUpdate    *sql.Stmt
+	nodeOnlineOffLineStop           *sql.Stmt
 }
 
 func setupStmt(db *sql.DB, stmt **sql.Stmt, sql string) {
@@ -696,6 +704,41 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
         UPDATE bandwidth_accounting SET last_updated = '0000-00-00 00:00:00' WHERE node_id = ? AND unique_session_id = ?;
 	`)
 
+	setupStmt(db, &rs.nodeOnlineOffLineStop, `
+        UPDATE node_current_session SET online_time = '0000-00-00 00:00:00' WHERE mac = ? AND last_session_id = ?;
+       `)
+
+	setupStmt(db, &rs.nodeOnlineOffLineStartUpdate, `
+		INSERT INTO node_current_session (mac, online_time, last_session_id) VALUES (?, NOW(), ?)
+        ON DUPLICATE KEY UPDATE online_time = VALUES(online_time), last_session_id = VALUES(last_session_id);
+       `)
+
+}
+
+func (rs *RadiusStatements) updateNodeOnlineOfflineOnline(status rfc2866.AcctStatusType, mac mac.Mac, session_id uint64) error {
+	var err error = nil
+	switch status {
+	default:
+		err = errors.New("Invalid status")
+	case rfc2866.AcctStatusType_Value_Start, rfc2866.AcctStatusType_Value_InterimUpdate:
+		_, err = tryExecute(
+			3,
+			10*time.Millisecond,
+			rs.nodeOnlineOffLineStartUpdate,
+			mac.String(),
+			session_id,
+		)
+	case rfc2866.AcctStatusType_Value_Stop:
+		_, err = tryExecute(
+			3,
+			10*time.Millisecond,
+			rs.nodeOnlineOffLineStop,
+			mac.String(),
+			session_id,
+		)
+	}
+
+	return err
 }
 
 func (rs *RadiusStatements) IsUnreg(mac string) (bool, error) {
