@@ -228,9 +228,9 @@ sub rewrite_security_event_status_count {
     return (200, \["EXISTS ($sql)", @bind]);
 }
 
-our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
-our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
-our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by ba.last_updated DESC LIMIT 1)';
+our $ON_QUERY = "EXISTS (SELECT 1 from node_current_session as ncs WHERE ncs.mac = node.mac AND online_time != '0000-00-00 00:00:00')";
+our $OFF_QUERY = "EXISTS (SELECT 1 from node_current_session as ncs WHERE ncs.mac = node.mac AND online_time = '0000-00-00 00:00:00')";
+our $NOT_UNKNOWN_QUERY = "EXISTS (SELECT 1 from node_current_session as ncs WHERE ncs.mac = node.mac)";
 our $UNKNOWN_QUERY = "NOT $NOT_UNKNOWN_QUERY";
 
 sub rewrite_online_query {
