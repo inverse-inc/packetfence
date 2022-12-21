@@ -165,8 +165,6 @@ CREATE TABLE node (
   machine_account varchar(255) default NULL,
   bypass_role_id int default NULL,
   last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
-  online_time DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
-  last_session_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),
@@ -176,6 +174,17 @@ CREATE TABLE node (
   KEY `node_bypass_role_id` (`bypass_role_id`),
   CONSTRAINT `0_57` FOREIGN KEY (`pid`) REFERENCES `person` ( `pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `node_category_key` FOREIGN KEY (`category_id`) REFERENCES `node_category` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+
+--
+-- Table structure for table `node_current_session`
+--
+
+CREATE TABLE node_current_session (
+  `mac` varchar(17) NOT NULL,
+  `online_time` DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
+  `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (mac)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
 
 --
