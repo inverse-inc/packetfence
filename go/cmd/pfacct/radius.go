@@ -705,12 +705,12 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 	`)
 
 	setupStmt(db, &rs.nodeOnlineOffLineStop, `
-        UPDATE node_current_session SET online_time = '0000-00-00 00:00:00' WHERE mac = ? AND last_session_id = ?;
+        UPDATE node_current_session SET is_online = 0 WHERE mac = ? AND last_session_id = ?;
        `)
 
 	setupStmt(db, &rs.nodeOnlineOffLineStartUpdate, `
-		INSERT INTO node_current_session (mac, online_time, last_session_id) VALUES (?, NOW(), ?)
-        ON DUPLICATE KEY UPDATE online_time = VALUES(online_time), last_session_id = VALUES(last_session_id);
+		INSERT INTO node_current_session (mac, last_session_id, updated, is_online) VALUES (?, ?, NOW(), 1)
+        ON DUPLICATE KEY UPDATE updated = VALUES(updated), last_session_id = VALUES(last_session_id);
        `)
 
 }
