@@ -3,6 +3,15 @@ import { useDebouncedWatchHandler } from '@/composables/useDebounce'
 import useEventJail from '@/composables/useEventJail'
 import { usePropsWrapper } from '@/composables/useProps'
 
+import {
+  BaseButtonHelp,
+  BaseServices
+} from '@/components/new/'
+export const useViewResourceComponents = {
+  BaseButtonHelp,
+  BaseServices,
+}
+
 export const useViewResourceProps = {}
 
 export const useViewResource = (resource, props, context) => {
@@ -11,6 +20,7 @@ export const useViewResource = (resource, props, context) => {
     useTitle,
     useTitleHelp = () => {},
     useStore: _useStore = () => {},
+    useServices = () => {},
   } = resource
 
   // merge props w/ params in useStore methods
@@ -28,6 +38,7 @@ export const useViewResource = (resource, props, context) => {
   const title = useTitle(props)
   const titleHelp = useTitleHelp(props)
   const isModified = ref(false)
+  const services = useServices(props)
 
   // unhandled custom props
   const customProps = ref(context.attrs)
@@ -94,6 +105,7 @@ export const useViewResource = (resource, props, context) => {
     isValid,
     onReset,
     onSave,
+    services,
 
     // to overload
     scopedSlotProps: props

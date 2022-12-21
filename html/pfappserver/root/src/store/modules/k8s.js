@@ -32,41 +32,45 @@ const initialState = () => {
   return {
     services: false,
     message: '',
-    status: ''
+    status: '',
+    ts: 0
   }
 }
+
+const delay = 3E3 // 1s
+const grace = 5E3 // 3s
 
 const getters = {
   isLoading: state => state.status === types.LOADING,
 }
 
 const actions = {
-  getServices: ({ state, commit }) => {
+  getServices: ({ state, commit, dispatch }) => {
     commit('K8S_REQUEST')
     const aside = () => api.services().then(services => {
       commit('K8S_SERVICES_SUCCESS', services)
       return state.services
     }).catch(err => {
       const { response: { data: error } = {} } = err
-      commit('SERVICE_ERROR', error)
+      commit('K8S_SERVICES_ERROR', error)
       throw err
-    })
+    }).finally(() => dispatch('pollServices'))
     if (state.services) {
       aside()
       return state.services
     }
     return aside()
   },
-  getService: ({ state, commit }, service) => {
+  getService: ({ state, commit, dispatch }, service) => {
     commit('K8S_REQUEST')
     const aside = () => api.service(service).then(response => {
       commit('K8S_SERVICE_SUCCESS', { service, response })
       return state.services[service]
     }).catch(err => {
       const { response: { data: error } = {} } = err
-      commit('SERVICE_ERROR', error)
+      commit('K8S_SERVICE_ERROR', { service, error })
       throw err
-    })
+    }).finally(() => dispatch('pollServices'))
     if (state.services) {
       aside()
       return state.services[service]
@@ -74,34 +78,41 @@ const actions = {
     return aside()
 
   },
-  restartService: ({ commit }, service) => {
-    const pollStatus = (service) => {
-      return api.service(service).then(response => {
-        commit('K8S_SERVICE_SUCCESS', { service, response })
-        const { total_replicas, updated_replicas } = response
-        if (updated_replicas !== total_replicas) {
-          pollStatusDelayed(service)
-        }
-      })
-    }
-    const pollStatusDelayed = (service) => {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          pollStatus(service)
-            .then(resolve)
-            .catch(reject)
-        }, 1000)
-      })
-    }
+  restartService: ({ commit, dispatch }, service) => {
     commit('K8S_RESTARTING', service)
     return api.restart(service).then(response => {
       commit('K8S_RESTARTED', { service, response })
-      return pollStatusDelayed(service)
+      return dispatch('pollServices')
     }).catch(err => {
       const { response: { data: error } = {} } = err
-      commit('SERVICE_ERROR', error)
+      commit('K8S_SERVICE_ERROR', { service, error })
       throw err
     })
+  },
+  pollServices: ({ commit, state }) => {
+    const pollServices = () => {
+      return api.services().then(services => {
+        commit('K8S_SERVICES_SUCCESS', services)
+        const ts = Date.now()
+        if (ts < state.ts + grace) {
+          // grace period
+          return setTimeout(pollServices, delay)
+        }
+        if (Object.values(services).filter(service => service.total_replicas !== service.updated_replicas || !service.available).length > 0) {
+          // waiting
+          return setTimeout(pollServices, delay)
+        }
+        // done
+        commit('K8S_POLL_STOP')
+      })
+    }
+    if (!state.ts) { // singleton
+      commit('K8S_POLL_START')
+      pollServices()
+    }
+    else { // bump ts
+      commit('K8S_POLL_START')
+    }
   }
 }
 
@@ -111,25 +122,49 @@ const mutations = {
   },
   K8S_SERVICES_SUCCESS: (state, services) => {
     state.status = types.SUCCESS
-    state.services = services
+    // avoid squashing w/ merge
+    state.services = Object.entries(services).reduce((merged, [id, service]) => {
+      merged[id] = { ...state.services[id], id, ...service }
+      return merged
+    }, {})
     state.message = ''
+  },
+  K8S_SERVICES_ERROR: (state, error) => {
+    state.status = types.ERROR
+    state.message = error
   },
   K8S_SERVICE_SUCCESS: (state, { service, response }) => {
     state.status = types.SUCCESS
-    state.services[service] = response
+    if (!state.services) {
+      state.services = {}
+    }
+    // avoid squashing w/ merge
+    state.services[service] = { ...state.services[service], ...response }
     state.message = ''
   },
-  K8S_ERROR: (state, error) => {
+  K8S_SERVICE_ERROR: (state, { error }) => {
     state.status = types.ERROR
     state.message = error
+  },
+  K8S_POLL_START: (state) => {
+    state.ts = Date.now()
+  },
+  K8S_POLL_STOP: (state) => {
+    state.ts = 0
   },
 
   K8S_RESTARTING: (state, service) => {
     state.status = types.LOADING
+    if (!state.services) {
+      state.services = {}
+    }
     state.services[service].status = types.LOADING
   },
   K8S_RESTARTED: (state, { service }) => {
     state.status = types.SUCCESS
+    if (!state.services) {
+      state.services = {}
+    }
     state.services[service].status = types.SUCCESS
   },
 }

@@ -22,6 +22,14 @@ export const useItemTitle = (props) => {
   })
 }
 
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying a network behavior policy requires to restart the fingerbank-collector service.'),
+    services: ['fingerbank-collector'],
+    k8s_services: ['fingerbank-collector']
+  }
+})
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'

@@ -5,14 +5,12 @@
         {{ $t('Realms') }}
         <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_default_domain_configuration" />
       </h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
       <div class="alert alert-warning">{{ $t(`Any changes to the realms requires to restart radiusd-auth`) }}</div>
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew">{{ $t('New Realm') }}</b-button>
-        <base-button-service
-          service="radiusd-auth" restart start stop
-          class="ml-1" />
       </base-search>
       <the-table class="mt-3"
         :isLoading="isLoading"
@@ -29,9 +27,9 @@
 import {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableSortable
 } from '@/components/new/'
 import TheTable from './TheTable'
@@ -39,15 +37,15 @@ import TheTable from './TheTable'
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableSortable,
   TheTable
 }
 
 import { toRefs } from '@vue/composition-api'
-import { useRouter, useSearch } from '../_composables/useCollection'
+import { useRouter, useSearch, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -57,10 +55,13 @@ const setup = (props, context) => {
 
   const search = useSearch()
 
+  const services = useServices()
+
   return {
     useSearch,
     ...router,
-    ...toRefs(search)
+    ...toRefs(search),
+    services
   }
 }
 

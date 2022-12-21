@@ -11,3 +11,11 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_fingerbank/setGeneralSettings', params)
   }
 }
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying the general configuration requires to restart the fingerbank-collector service.'),
+    services: ['fingerbank-collector'],
+    k8s_services: ['fingerbank-collector']
+  }
+})

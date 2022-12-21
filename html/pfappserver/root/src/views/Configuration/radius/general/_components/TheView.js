@@ -1,5 +1,4 @@
 import {
-  AlertServices,
   BaseView,
 
   FormButtonBar,
@@ -11,36 +10,17 @@ const components = {
   TheForm
 }
 
-import { computed } from '@vue/composition-api'
-import { renderHOCWithScopedSlots } from '@/components/new/'
 import { useViewResource, useViewResourceProps as props } from '../../../_composables/useViewResource'
+
 import * as resource from '../_composables/useResource'
-
-const setup = (props, context) => {
-
-  const viewResource = useViewResource(resource, props, context)
-  const {
-    isLoading,
-    isModified
-  } = viewResource
-
-  const scopedSlotProps = computed(() => ({ ...props, isLoading: isLoading.value, isModified: isModified.value }))
-
-  return {
-    ...viewResource,
-    scopedSlotProps
-  }
-}
-
-const render = renderHOCWithScopedSlots(BaseView, { components, props, setup }, {
-  buttonsPrepend: AlertServices
-})
+const setup = (props, context) => useViewResource(resource, props, context)
 
 // @vue/component
 export default {
   name: 'the-view',
   extends: BaseView,
   inheritAttrs: false,
+  components,
   props,
-  render
+  setup
 }

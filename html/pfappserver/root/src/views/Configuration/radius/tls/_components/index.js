@@ -4,9 +4,6 @@ import {
   BaseFormGroupInput
 } from '@/components/new/'
 import { BaseViewCollectionItem } from '../../../_components/new/'
-import {
-  AlertServices
-} from '../../_components/'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -24,7 +21,6 @@ export {
   BaseFormGroupChosenOne          as FormGroupOcsp,
 
   BaseViewCollectionItem          as BaseView,
-  AlertServices,
   TheForm,
   TheView
 }

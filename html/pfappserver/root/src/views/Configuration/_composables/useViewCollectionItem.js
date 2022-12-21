@@ -6,6 +6,15 @@ import useEventJail from '@/composables/useEventJail'
 import { useDefaultsFromMeta } from '@/composables/useMeta'
 import { usePropsWrapper } from '@/composables/useProps'
 
+import {
+  BaseButtonHelp,
+  BaseServices
+} from '@/components/new/'
+export const useViewCollectionItemComponents = {
+  BaseButtonHelp,
+  BaseServices,
+}
+
 export const useViewCollectionItemProps = {
   id: {
     type: String
@@ -36,7 +45,9 @@ export const useViewCollectionItem = (collection, props, context) => {
     useItemTitleBadge = () => {},
     useRouter: _useRouter = () => {},
     useStore: _useStore = () => {},
+    useServices = () => {},
     useResponse = response => response, // store responses merged into form
+    useTitleHelp = () => {},
   } = collection
 
   // merge props w/ params in useRouter method
@@ -60,8 +71,10 @@ export const useViewCollectionItem = (collection, props, context) => {
   const meta = ref({})
   const title = useItemTitle(props, context, form)
   const titleBadge = useItemTitleBadge(props, context, form)
+  const titleHelp = useTitleHelp(props)
   const isModified = ref(false)
   const confirmSave = useItemConfirmSave(props, context, form)
+  const services = useServices(props, context, form)
 
   // unhandled custom props
   const customProps = ref(context.attrs)
@@ -193,6 +206,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     meta,
     title,
     titleBadge,
+    titleHelp,
     isModified,
     customProps,
     actionKey,
@@ -207,6 +221,7 @@ export const useViewCollectionItem = (collection, props, context) => {
     onReset,
     onSave,
     confirmSave,
+    services,
 
     // to overload
     scopedSlotProps: props

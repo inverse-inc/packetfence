@@ -18,7 +18,7 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupStatus,
   BaseFormGroupInput                  as FormGroupSubjectPrefix,
 
-  BaseViewResource                    as BaseView,
+  BaseViewResource as BaseView,
   TheForm,
   TheView
 }

@@ -65,7 +65,7 @@
   </b-dropdown>
 </template>
 <script>
-import BaseService from '@/views/Status/services/_components/BaseService'
+import BaseService from './BaseService'
 
 const components = {
   BaseService
@@ -74,7 +74,7 @@ const components = {
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import { localeStrings } from '@/views/Status/services/config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const props = {
   service: {
@@ -166,41 +166,6 @@ const setup = (props, context) => {
     }
   })
 
-  const doEnable = server => $store.dispatch('cluster/enableService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('enable', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doDisable = server => $store.dispatch('cluster/disableService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('disable', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doRestart = server => $store.dispatch('cluster/restartService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('restart', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doStart = server => $store.dispatch('cluster/startService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('start', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doStop = server => $store.dispatch('cluster/stopService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('stop', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
   const doEnableAll = () => $store.dispatch('cluster/enableServiceCluster', service.value).then(() => {
     $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('enable', { id: service.value })
@@ -249,15 +214,10 @@ const setup = (props, context) => {
     cluster,
     tooltip,
 
-    doEnable,
     doEnableAll,
-    doDisable,
     doDisableAll,
-    doRestart,
     doRestartAll,
-    doStart,
     doStartAll,
-    doStop,
     doStopAll
   }
 }

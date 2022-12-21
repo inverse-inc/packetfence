@@ -114,7 +114,7 @@ import { computed, toRefs, watch } from '@vue/composition-api'
 import { protectedServices } from '@/store/modules/cluster'
 import acl from '@/utils/acl'
 import i18n from '@/utils/locale'
-import { localeStrings } from '../config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const setup = (props, context) => {
 

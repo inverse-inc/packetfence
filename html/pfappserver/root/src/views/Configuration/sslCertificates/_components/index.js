@@ -7,7 +7,6 @@ import {
   BaseFormGroupToggleDisabledEnabled,
   BaseFormGroupToggleFalseTrue
 } from '@/components/new/'
-import AlertServices from './AlertServices'
 import BaseFormGroupCertificate from './BaseFormGroupCertificate'
 import BaseFormGroupPrivateKey from './BaseFormGroupPrivateKey'
 import BaseFormGroupLetsEncryptCommonName from './BaseFormGroupLetsEncryptCommonName'
@@ -33,7 +32,6 @@ export {
   BaseFormGroupInput                              as FormGroupCsrOrganizationName,
   BaseFormGroupInput                              as FormGroupCsrCommonName,
 
-  AlertServices,
   TheCsr,
   TheForm,
   TheView

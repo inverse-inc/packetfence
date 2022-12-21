@@ -106,6 +106,17 @@ const api = (state, server = store.state.system.hostname) => {
           })
         })
     },
+    systemService: id => {
+      return apiCall.getQuiet(['system_service', id, 'status'], { headers }).then(response => {
+        return response.data
+      }).catch(error => {
+        // 500 response error w/ not running
+        if (error.response && (!['ERR_BAD_RESPONSE'].includes(error.code) || ![500].includes(error.response.status))) {
+          throw error
+        }
+        return error.response.data
+      })
+    },
     restartSystem: id => {
       return apiCall.postQuiet(['system_service', id, 'restart'], { async: true }, { headers })
         .then(response => {
@@ -144,6 +155,7 @@ const types = {
   RESTARTING: 'restarting',
   STARTING: 'starting',
   STOPPING: 'stopping',
+  UPDATING: 'updating',
   SUCCESS: 'success',
   ERROR: 'error'
 }
@@ -196,7 +208,50 @@ const getters = {
         }
       }, sorted)
     }, {})
-  }
+  },
+  systemServicesByServer: state => {
+    return Object.entries(state.servers).reduce((sorted, [server, {system_services = {}}]) => {
+      return Object.entries(system_services).reduce((sorted, [id, service]) => {
+        return {
+          ...sorted,
+          [id]: {
+            servers: {
+               ...((id in sorted) ? sorted[id].servers : {} ),
+              [server]: {
+                ...service,
+                isDisabling: service.status === types.DISABLING,
+                isEnabling: service.status === types.ENABLING,
+                isRestarting: service.status === types.RESTARTING,
+                isStarting: service.status === types.STARTING,
+                isStopping: service.status === types.STOPPING,
+              }
+            },
+            hasAlive: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && service.alive && service.pid) > -1,
+            hasDead: Object.values(state.servers).findIndex(({ services: { [id]: service } }) => service && !(service.alive || service.pid)) > -1,
+          }
+        }
+      }, sorted)
+    }, {})
+  },
+  systemdByServer: state => {
+    return Object.entries(state.servers).reduce((sorted, [server, {systemd = {}}]) => {
+      return Object.entries(systemd).reduce((sorted, [id, service]) => {
+        return {
+          ...sorted,
+          [id]: {
+            servers: {
+               ...((id in sorted) ? sorted[id].servers : {} ),
+              [server]: {
+                ...service,
+                isUpdating: service.status === types.UPDATING,
+              }
+            }
+          }
+        }
+      }, sorted)
+    }, {})
+  },
+  servers: state => Object.keys(state.servers),
 }
 
 const actions = {
@@ -285,7 +340,7 @@ const actions = {
   disableServiceCluster: ({ state, dispatch }, id) => {
     return new Promise((resolve, reject) => {
       dispatch('getConfig').then(() => {
-        // async requests
+        // serialize async requests
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
@@ -325,7 +380,7 @@ const actions = {
   enableServiceCluster: ({ state, dispatch }, id) => {
     return new Promise((resolve, reject) => {
       dispatch('getConfig').then(() => {
-        // async requests
+        // serialize async requests
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
@@ -365,7 +420,7 @@ const actions = {
   restartServiceCluster: ({ state, dispatch }, id) => {
     return new Promise((resolve, reject) => {
       dispatch('getConfig').then(() => {
-        // async requests
+        // serialize async requests
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
@@ -405,7 +460,7 @@ const actions = {
   startServiceCluster: ({ state, dispatch }, id) => {
     return new Promise((resolve, reject) => {
       dispatch('getConfig').then(() => {
-        // async requests
+        // serialize async requests
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
@@ -445,7 +500,7 @@ const actions = {
   stopServiceCluster: ({ state, dispatch }, id) => {
     return new Promise((resolve, reject) => {
       dispatch('getConfig').then(() => {
-        // async requests
+        // serialize async requests
         const async = (idx = 0) => {
           const server = Object.keys(state.servers)[idx]
           const next = () => {
@@ -471,42 +526,154 @@ const actions = {
     })
   },
 
-  restartSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+
+  getSystemService: ({ state, commit }, { server, id }) => {
+    commit('SYSTEM_SERVICE_REQUEST', { server, id })
+    return api(state, server).systemService(id).then(service => {
+      commit('SYSTEM_SERVICE_SUCCESS', { server, id, service })
+      return state.servers[server].services[id]
+    }).catch(err => {
+      const { response: { data: { message: error } = {} } = {} } = err
+      commit('SYSTEM_SERVICE_ERROR', { server, id, error })
+      throw err
+    })
+  },
+  getSystemServiceCluster: ({ state, dispatch }, id) => {
+    return dispatch('getConfig').then(() => {
+      let promises = []
+      Object.keys(state.servers).map(server => {
+        promises.push(dispatch('getSystemService', { server, id }))
+      })
+      return Promise.all(promises).then(servers => {
+        return servers.reduce((assoc, service, index) => {
+          const server = Object.keys(state.servers)[index]
+          return { ...assoc, [server]: state.servers[server].system_services[id] }
+        }, {})
+      })
+    })
+  },
+  restartSystemService: ({ state, commit, dispatch }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_RESTARTING', { server, id })
     return api(state, server).restartSystem(id).then(response => {
       commit('SYSTEM_SERVICE_RESTARTED', { server, id, response })
-      return state.servers[server].services[id]
+      return state.servers[server].system_services[id]
     }).catch(err => {
       const { response: { data: error } = {} } = err
       commit('SYSTEM_SERVICE_ERROR', { server, id, error })
       throw err
+    }).finally(() => dispatch('getSystemService', { server, id }))
+  },
+  restartSystemServiceCluster: ({ state, dispatch }, id) => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // serialize async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
+            if (idx < Object.keys(state.servers).length-1) {
+              async(++idx)
+            }
+            else {
+              resolve()
+            }
+          }
+          const { [server]: { system_services: { [id]: { alive = false, pid = false } = {} } = {} } = {} } = state.servers
+          if (alive && pid) {
+            dispatch('restartSystemService', { server, id })
+             .catch(err => reject(err))
+              .then(() => next())
+          }
+          else {
+             next()
+          }
+        }
+        async()
+      })
     })
   },
-  startSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+  startSystemService: ({ state, commit, dispatch }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_STARTING', { server, id })
     return api(state, server).startSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STARTED', { server, id, response })
-      return state.servers[server].services[id]
+      return state.servers[server].system_services[id]
     }).catch(err => {
       const { response: { data: error } = {} } = err
       commit('SYSTEM_SERVICE_ERROR', { server, id, error })
       throw err
+    }).finally(() => dispatch('getSystemService', { server, id }))
+  },
+  startSystemServiceCluster: ({ state, dispatch }, id) => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // serialize async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
+            if (idx < Object.keys(state.servers).length - 1) {
+              async(++idx)
+            }
+            else {
+              resolve()
+            }
+          }
+          const { [server]: { system_services: { [id]: { alive = false, pid = false } = {} } = {} } = {} } = state.servers
+          if (!(alive && pid)) {
+            dispatch('startSystemService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
+      })
     })
   },
-  stopSystemService: ({ state, commit }, { id, server = store.state.system.hostname }) => {
+  stopSystemService: ({ state, commit, dispatch }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEM_SERVICE_REQUEST', { server, id })
     commit('SYSTEM_SERVICE_STOPPING', { server, id })
     return api(state, server).stopSystem(id).then(response => {
       commit('SYSTEM_SERVICE_STOPPED', { server, id, response })
-      return state.servers[server].services[id]
+      return state.servers[server].system_services[id]
     }).catch(err => {
       const { response: { data: error } = {} } = err
       commit('SYSTEM_SERVICE_ERROR', { server, id, error })
       throw err
+    }).finally(() => dispatch('getSystemService', { server, id }))
+  },
+  stopSystemServiceCluster: ({ state, dispatch }, id) => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // serialize async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
+            if (idx < Object.keys(state.servers).length - 1) {
+              async(++idx)
+            }
+            else {
+              resolve()
+            }
+          }
+          const { [server]: { system_services: { [id]: { alive = false, pid = false } = {} } = {} } = {} } = state.servers
+          if (alive && pid) {
+            dispatch('stopSystemService', { server, id })
+             .catch(err => reject(err))
+             .then(() => next())
+          }
+          else {
+            next()
+          }
+        }
+        async()
+      })
     })
   },
+
+
   updateSystemd: ({ state, commit }, { id, server = store.state.system.hostname }) => {
     commit('SYSTEMD_REQUEST', { server, id })
     return api(state, server).updateSystemd(id).then(response => {
@@ -516,6 +683,28 @@ const actions = {
       const { response: { data: error } = {} } = err
       commit('SYSTEMD_ERROR', { server, id, error })
       throw err
+    })
+  },
+  updateSystemdCluster: ({ state, dispatch }, id) => {
+    return new Promise((resolve, reject) => {
+      dispatch('getConfig').then(() => {
+        // serialize async requests
+        const async = (idx = 0) => {
+          const server = Object.keys(state.servers)[idx]
+          const next = () => {
+            if (idx < Object.keys(state.servers).length - 1) {
+              async(++idx)
+            }
+            else {
+              resolve()
+            }
+          }
+          dispatch('updateSystemd', { server, id })
+            .catch(err => reject(err))
+            .then(() => next())
+        }
+        async()
+      })
     })
   },
 }
@@ -529,7 +718,7 @@ const mutations = {
   },
   CONFIG_SUCCESS: (state, items) => {
     items.map(server => {
-      Vue.set(state.servers, server.host, { services: {}, system_services: {}, ...state.servers[server.host], ...server })
+      Vue.set(state.servers, server.host, { services: {}, system_services: {}, systemd: {}, ...state.servers[server.host], ...server })
     })
     state.status = types.SUCCESS
     state.message = ''
@@ -561,7 +750,7 @@ const mutations = {
 
   SERVICE_REQUEST: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {} })
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {}, systemd: {} })
     Vue.set(state.servers[server].services, id, state.servers[server].services[id] || {})
     Vue.set(state.servers[server].services[id], 'status', types.LOADING)
   },
@@ -639,9 +828,18 @@ const mutations = {
 
   SYSTEM_SERVICE_REQUEST: (state, { server, id }) => {
     state.status = types.LOADING
-    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {} })
-    Vue.set(state.servers[server].system_services, id, state.servers[server].services[id] || {})
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {}, systemd: {} })
+    Vue.set(state.servers[server].system_services, id, state.servers[server].system_services[id] || {})
     Vue.set(state.servers[server].system_services[id], 'status', types.LOADING)
+  },
+  SYSTEM_SERVICE_SUCCESS: (state, { server, id, service }) => {
+    service.id = id
+    service.pid = parseInt(service.pid)
+    service.alive = !!(service.pid)
+    service.message = ''
+    state.status = types.SUCCESS
+    state.message = ''
+    Vue.set(state.servers[server].system_services, id, { ...state.servers[server].system_services[id], ...service, status: types.SUCCESS })
   },
   SYSTEM_SERVICE_RESTARTING: (state, { server, id }) => {
     state.status = types.LOADING
@@ -673,17 +871,23 @@ const mutations = {
     Vue.set(state.servers[server].system_services[id], 'status', types.ERROR)
   },
 
-  SYSTEMD_REQUEST: state => {
+  SYSTEMD_REQUEST: (state, { server, id }) => {
     state.status = types.LOADING
+    Vue.set(state.servers, server, state.servers[server] || { services: {}, system_services: {}, systemd: {} })
+    Vue.set(state.servers[server].systemd, id, state.servers[server].systemd[id] || {})
+    Vue.set(state.servers[server].systemd[id], 'status', types.UPDATING)
   },
-  SYSTEMD_SUCCESS: state => {
+  SYSTEMD_SUCCESS: (state, { server, id }) => {
     state.status = types.SUCCESS
     state.message = ''
+    Vue.set(state.servers[server].systemd, id, { ...state.servers[server].systemd[id], status: types.SUCCESS })
   },
-  SYSTEMD_ERROR: (state, error) => {
+  SYSTEMD_ERROR: (state, { server, id, error }) => {
     state.status = types.ERROR
     state.message = error
+    Vue.set(state.servers[server].systemd[id], 'status', types.ERROR)
   },
+
   $RESET: (state) => {
     // eslint-disable-next-line no-unused-vars
     state = initialState()

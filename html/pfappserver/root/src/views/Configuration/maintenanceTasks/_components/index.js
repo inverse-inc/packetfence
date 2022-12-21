@@ -11,7 +11,6 @@ import {
 import {
   BaseFormGroupIntervalUnit
 } from '@/views/Configuration/_components/new/'
-import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 import ToggleStatus from './ToggleStatus'
@@ -44,7 +43,6 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupVoip,
   BaseFormGroupIntervalUnit           as FormGroupWindow,
 
-  AlertServices,
   TheForm,
   TheView,
   ToggleStatus

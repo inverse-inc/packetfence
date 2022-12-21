@@ -1,6 +1,5 @@
 import {
   BaseView,
-
   FormButtonBar,
   TheForm
 } from './'
@@ -23,8 +22,8 @@ const setup = (props, context) => useViewCollectionItem(collection, props, conte
 // @vue/component
 export default {
   name: 'the-view',
-  extends: BaseView,
   inheritAttrs: false,
+  extends: BaseView,
   components,
   props,
   setup

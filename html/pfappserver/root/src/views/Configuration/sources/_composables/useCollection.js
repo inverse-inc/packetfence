@@ -47,6 +47,31 @@ export const useItemTitleBadge = (props, context, form) => {
   })
 }
 
+export const useServices = (props, context, form) => {
+  return computed(() => {
+    const {
+      sourceType
+    } = toRefs(props)
+    const type = sourceType.value || form.value.type
+    const message = i18n.t('Some services must be restarted after updating this source.')
+    return (() => {
+      switch (type) {
+        case 'Email':
+        case 'SponsorEmail':
+          return {
+            message,
+            services: ['haproxy-portal'],
+            k8s_services: ['haproxy-portal']
+          }
+          //break
+        default:
+          return {}
+          //break
+      }
+    })()
+  })
+}
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'

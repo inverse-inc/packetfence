@@ -1,3 +1,7 @@
+import { computed, toRefs } from '@vue/composition-api'
+import { renderHOCWithScopedSlots } from '@/components/new/'
+import { useViewCollectionItem, useViewCollectionItemComponents, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
+import * as collection from '../_composables/useCollection'
 import {
   BaseView,
   ButtonSamlMetaData,
@@ -6,14 +10,10 @@ import {
 } from './'
 
 const components = {
+  ...useViewCollectionItemComponents,
   FormButtonBar,
   TheForm
 }
-
-import { computed, toRefs } from '@vue/composition-api'
-import { renderHOCWithScopedSlots } from '@/components/new/'
-import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
-import * as collection from '../_composables/useCollection'
 
 const props = {
   ...useViewCollectionItemProps,

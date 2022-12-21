@@ -19,7 +19,16 @@ Vue.use(Router)
 
 const DefaultRoute = {
   path: '*',
-  redirect: '/status'
+  name: 'default',
+  component: {
+    render: () => { /* noop */ },
+    name: 'default',
+  },
+  beforeEnter: (to, from, next) => {
+    store.dispatch('system/getSummary').then(() => { // wait for summary
+      next({ path: '/status' }) // graceful redirect
+    })
+  }
 }
 
 let router = new Router({

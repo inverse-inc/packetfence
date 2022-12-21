@@ -69,3 +69,5 @@ export const useSearch = makeSearch('radiusFast', {
   ],
   sortBy: 'id'
 })
+
+export { useServices } from '../../_composables/useResource'

@@ -2,12 +2,12 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="mb-0">{{ $t('Network Behaviour Policies') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
+      <div v-if="!canUseNbaEndpoints"
+        class="alert alert-warning mt-3 mb-0"
+      >{{ $t(`Your Fingerbank account currently doesn't have access to the network behavior analysis API endpoints. Get in touch with info@inverse.ca for a quote. Without these API endpoints, you will not be able to use the anomaly detection feature.`) }}</div>
     </b-card-header>
     <div class="card-body">
-      <div v-if="!canUseNbaEndpoints"
-        class="alert alert-warning"
-      >{{ $t(`Your Fingerbank account currently doesn't have access to the network behavior analysis API endpoints. Get in touch with info@inverse.ca for a quote. Without these API endpoints, you will not be able to use the anomaly detection feature.`) }}</div>
-
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew">{{ $t('New Network Behaviour Policy') }}</b-button>
       </base-search>
@@ -101,6 +101,7 @@ import {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 import ToggleStatus from './ToggleStatus'
@@ -110,6 +111,7 @@ const components = {
   BaseButtonHelp,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty,
   ToggleStatus
 }
@@ -118,7 +120,7 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { useSearch, useStore, useRouter, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -164,6 +166,8 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  const services = useServices()
+
   return {
     canUseNbaEndpoints,
     useSearch,
@@ -173,7 +177,8 @@ const setup = (props, context) => {
     ...toRefs(search),
     goToPreview,
     onBulkExport,
-    onRemove
+    onRemove,
+    services,
   }
 }
 

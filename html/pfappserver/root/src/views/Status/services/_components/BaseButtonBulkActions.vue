@@ -38,7 +38,7 @@ const props = {
 
 import { computed, nextTick, ref, toRefs } from '@vue/composition-api'
 import i18n from '@/utils/locale'
-import { localeStrings } from '../config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const setup = (props, context) => {
 

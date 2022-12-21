@@ -11,3 +11,11 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_bases/updateCaptivePortal', params)
   }
 }
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Some services must be restarted to load the new settings.'),
+    services: ['haproxy-portal', 'httpd.portal'],
+    k8s_services: ['haproxy-portal', 'httpd-portal']
+  }
+})

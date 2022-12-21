@@ -194,6 +194,7 @@ sub setup_api_v1_routes {
     $self->setup_api_v1_dynamic_reports_routes($api_v1_route);
     $self->setup_api_v1_current_user_routes($api_v1_route);
     $self->setup_api_v1_services_routes($api_v1_route);
+    $self->setup_api_v1_k8s_services_routes($api_v1_route);
     $self->setup_api_v1_cluster_routes($api_v1_route);
     $self->setup_api_v1_authentication_routes($api_v1_route);
     $self->setup_api_v1_queues_routes($api_v1_route);
@@ -1984,6 +1985,24 @@ sub setup_api_v1_services_routes {
     $cs_collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
     my $cs_resource_route = $root->under("/services/cluster_status/#server_id")->to("Services::ClusterStatuses#resource")->name("api.v1.Config.Services.ClusterStatuses.resource");
     $cs_resource_route->register_sub_action({action => 'get', path => '', method => 'GET'});
+
+    return ($collection_route, $resource_route);
+}
+
+=head2 setup_api_v1_k8s_services_routes
+
+setup_api_v1_k8s_services_routes
+
+=cut
+
+sub setup_api_v1_k8s_services_routes {
+    my ($self, $root) = @_;
+    my $collection_route = $root->any("/k8s-services")->to(controller => "K8sServices")->name("api.v1.Config.K8sServices");
+    $collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
+    $collection_route->register_sub_actions({actions => [qw(status_all)], method => 'GET'});
+    my $resource_route = $root->under("/k8s-service/#service_id")->to("K8sServices#resource")->name("api.v1.Config.K8sServices.resource");
+    $self->add_subroutes($resource_route, "K8sServices", "GET", qw(status));
+    $self->add_subroutes($resource_route, "K8sServices", "POST", qw(restart));
 
     return ($collection_route, $resource_route);
 }
