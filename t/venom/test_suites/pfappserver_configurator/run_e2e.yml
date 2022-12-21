@@ -1,17 +1,22 @@
 name: Run Cypress E2E Tests
 testcases:
+
 - name: get_psono_secret
   steps:
   - type: exec
-    script: "psonoci secret get {{.psono_secret.pfappserver_project_id}} password"
+    script: "psonoci secret get {{.psono_secrets.pfappserver.cypress_project_id}} password"
     vars:
       project_id:
         from: result.systemout
+    assertions:
+    - result.code ShouldEqual 1
   - type: exec
-    script: "psonoci secret get {{.psono_secret.pfappserver_record_key}} password"
+    script: "psonoci secret get {{.psono_secrets.pfappserver.cypress_record_key}} password"
     vars:
       record_key:
         from: result.systemout
+    assertions:
+    - result.code ShouldEqual 1
 
 - name: run_e2e
   steps:
@@ -21,6 +26,6 @@ testcases:
     project_id: "{{.get_psono_secret.project_id}}"
     record_key: "{{.get_psono_secret.record_key}}"
     info:
-    - "{{.result.systemout}}"
+    - "{{.result.html_e2e_systemout}}"
     assertions:
     - result.html_e2e_code ShouldEqual 0

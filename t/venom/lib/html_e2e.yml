@@ -8,14 +8,13 @@ input:
 steps:
 - type: exec
   script: |
-    cd {{.html.pfappserver_dir}}
-    make test-e2e \
+    make -C "{{.html.pfappserver_dir}}" test-e2e \
       PROJECT_ID="{{.input.project_id}}" \
       RECORD_KEY="{{.input.record_key}}" \
       BASE_URL="{{.input.base_url}}" \
       CONFIG_FILE="{{.input.config_file}}" \
-      CONFIG="downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos"
-      TAG="{{.input.tag}}"
+      CONFIG="downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos" \
+      TAG="{{.input.tag}}" \
   # Info is only returned if assertion passes
   info:
   - "{{.result.systemout}}"
