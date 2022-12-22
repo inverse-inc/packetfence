@@ -932,3 +932,45 @@ window=1h
 #
 # Local task
 local=1
+
+[node_current_session_cleanup]
+#
+# type
+#
+# Task type
+type=node_current_session_cleanup
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Cleanup node current session.
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# batch
+#
+# How many auth_log_cleanup entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a auth_log_cleanup job can run
+timeout=10s
+#
+# window
+#
+# How long to keep a auth_log_cleanup entry before deleting it
+window=1d
+#
+# local
+#
+# Local task
+local=0
