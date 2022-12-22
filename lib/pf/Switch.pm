@@ -68,6 +68,7 @@ use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
+    -DownloadableListBasedEnforcement
     -Cdp
     -ExternalPortal
     -FloatingDevice
