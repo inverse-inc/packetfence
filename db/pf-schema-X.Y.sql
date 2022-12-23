@@ -165,6 +165,7 @@ CREATE TABLE node (
   machine_account varchar(255) default NULL,
   bypass_role_id int default NULL,
   last_seen DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00",
+  `bypass_acl` MEDIUMTEXT DEFAULT NULL,
   PRIMARY KEY (mac),
   KEY pid (pid),
   KEY category_id (category_id),

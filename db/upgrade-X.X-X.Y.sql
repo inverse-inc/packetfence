@@ -53,6 +53,10 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
+\! echo "Updating node table"
+ALTER TABLE `node`
+    ADD COLUMN IF NOT EXISTS `bypass_acl` MEDIUMTEXT DEFAULT NULL;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
