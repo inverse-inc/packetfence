@@ -48,6 +48,12 @@ export const search = {
       icon: 'project-diagram'
     },
     {
+      value: 'bypass_acls',
+      text: 'Bypass ACLS', // i18n defer
+      types: [conditionType.SUBSTRING],
+      icon: 'project-diagram'
+    },
+    {
       value: 'computername',
       text: 'Computer Name', // i18n defer
       types: [conditionType.SUBSTRING],
