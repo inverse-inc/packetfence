@@ -199,6 +199,12 @@ export const search = {
       sortable: true
     },
     {
+      key: 'bypass_acls',
+      label: 'Bypass ACLS', // i18n defer
+      searchable: false,
+      sortable: true
+    },
+    {
       key: 'bypass_role_id',
       label: 'Bypass Role', // i18n defer
       searchable: false,

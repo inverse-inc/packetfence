@@ -496,6 +496,11 @@ export const nodeFields = [
     sortable: true
   },
   {
+    key: 'bypass_acls',
+    label: i18n.t('Bypass ACLS'),
+    sortable: false
+  },
+  {
     key: 'bypass_role_id',
     label: i18n.t('Bypass Role'),
     sortable: true,
