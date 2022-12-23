@@ -33,11 +33,11 @@
       <form-group-bypass-vlan namespace="bypass_vlan"
         :column-label="$i18n.t('Bypass VLAN')"
       />
-      <form-group-bypass-acls namespace="bypass_acls"
-        :column-label="$i18n.t('Bypass ACLS')"
-      />
       <form-group-bypass-role namespace="bypass_role_id"
         :column-label="$i18n.t('Bypass Role')"
+      />
+      <form-group-bypass-acls namespace="bypass_acls"
+        :column-label="$i18n.t('Bypass ACLS')"
       />
       <form-group-notes namespace="notes"
         :column-label="$i18n.t('Notes')"
