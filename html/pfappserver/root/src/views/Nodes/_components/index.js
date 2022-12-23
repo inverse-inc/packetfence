@@ -26,6 +26,7 @@ export {
   BaseFormGroupInput            as FormGroupBypassVlan,
   BaseFormGroupRolesOptional    as FormGroupBypassRole,
   BaseFormGroupTextarea         as FormGroupNotes,
+  BaseFormGroupTextarea         as FormGroupBypassAcls,
   
   BaseFormGroupInput            as FormGroupMac,
   
