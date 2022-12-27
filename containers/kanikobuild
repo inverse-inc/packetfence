@@ -53,6 +53,12 @@ detect_multi_tags() {
     multi_tags=$(echo $IMAGE_TAGS|grep -o ','|wc -l)
 }
 
+sanitize_tag() {
+    local tag=$1
+    echo $tag | tr A-Z a-z | tr -c a-z0-9\\n -
+}
+
+
 # support multi-tags
 # https://github.com/GoogleContainerTools/kaniko/issues/217
 generate_destinations() {
@@ -61,16 +67,18 @@ generate_destinations() {
     # Multi-tags detected, parsing ${IMAGE_TAGS}"
     TAGS=$(echo $IMAGE_TAGS | tr ',' ' ')
     for tag in ${TAGS}; do
+      tag_slug=$(sanitize_tag $tag)
       # just to handle case of first iteration
       if [ -z "$destinations" ]; then 
-        destinations="--destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
+        destinations="--destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag_slug}"
       else
-        destinations="$destinations --destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag}"
+        destinations="$destinations --destination ${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag_slug}"
       fi
     done
     else
       # Only one tag detected, using ${IMAGE_TAG} as tag
-      IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+      tag_slug=$(sanitize_tag ${IMAGE_TAG})
+      IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag_slug}"
       destinations="--destination ${IMAGE_DEST}"
     fi
     echo "$destinations"
