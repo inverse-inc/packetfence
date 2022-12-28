@@ -240,10 +240,13 @@ sub identifyConnectionType {
     } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(admin-login)$/i ) {
         $connection->isVPN($FALSE);
         $connection->isCLI($TRUE);
+    } elsif ( (@require == @found) && $radius_request->{'Connect-Info'} =~ /^(web-auth)$/i ) {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($FALSE);
     } else {
         # Default to CLI
         $connection->isVPN($FALSE);
-        $connection->isCLI($TRUE);
+        $connection->isCLI($FALSE);
     }
 }
 
