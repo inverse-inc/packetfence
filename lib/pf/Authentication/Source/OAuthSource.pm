@@ -42,7 +42,7 @@ sub available_actions {
 
 sub available_attributes {
     my $self = shift;
-    return([@{$self->SUPER::available_attributes}, {value => 'username', type => $Conditions::SUBSTRING }]);
+    return([@{$self->SUPER::available_attributes}]);
 }
 
 =head2 match_in_subclass
