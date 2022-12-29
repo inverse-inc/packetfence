@@ -469,7 +469,7 @@ sub accounting {
             radius_request => $radius_request,
             ssid => $ssid,
             node_info => $node_obj,
-            owner => person_view_simple($node_obj->{'pid'})
+            owner => person_view_simple($node_obj->{'pid'}),
             scope => "packetfence.accounting",
             connection => $connection,
         };
