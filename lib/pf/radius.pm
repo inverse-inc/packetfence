@@ -1331,6 +1331,18 @@ sub radius_filter {
         connection => $connection,
     };
 
+    my $options = {};
+
+    $options->{'last_connection_sub_type'} = $connection_sub_type;
+    $options->{'last_connection_type'}     = connection_type_to_str($connection_type);
+    $options->{'last_switch'}              = $switch->{_id};
+    $options->{'last_port'}                = $port if defined $port && length($port);
+    $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
+    $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
+    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'username'}));
+    $options->{'realm'}                    = $args->{'realm'} if (defined($args->{'realm'}));
+    $options->{'radius_request'}           = $args->{'radius_request'};
+
     # Exception for cisco DACL
     if ($connection->isServiceTemplate || $connection->isACLDownload) {
         return  $self->advancedAccess($args, $options);
