@@ -1,40 +1,33 @@
-package pf::Switch::Cisco::Catalyst_IOS_15;
+package pf::Switch::Dell::N1500_6_8;
+
+
 =head1 NAME
 
-pf::Switch::Cisco::Catalyst_IOS_15
+pf::Switch::Dell::N1500_6_8
 
-=head1 DESCRIPTION
+=head1 SYNOPSIS
 
-Object oriented module to access and configure Cisco Catalyst IOS_15 switches
+pf::Switch::Dell::N1500_6_8 module manages access to Dell N1500 Series FW version 6.8
+Tested on Firmware >= 6.8.0
 
 =head1 STATUS
 
-This module is currently only a placeholder, see L<pf::Switch::Cisco::Cisco_IOS_15> for relevant support items.
 
-This module implement support for a different radius logicfor the IOS_15.
-
-=head1 BUGS AND LIMITATIONS
-
-Most of the code is shared with the 2960 make sure to check the BUGS AND
-LIMITATIONS section of L<pf::Switch::Cisco::Catalyst_2960>.
 
 =cut
 
 use strict;
 use warnings;
-
 use pf::log;
-use pf::util;
+
+use base ('pf::Switch::Dell::N1500');
 use pf::constants;
+use pf::util;
 
-use base ('pf::Switch::Cisco::Catalyst_2960');
-
-sub description { 'Cisco Catalyst IOS 15' }
+sub description { 'N1500 Series FW 6.8' }
 
 # CAPABILITIES
-# inherited from 2960
-
-=head1 METHODS
+# inherited from N1500
 
 =head2 returnRadiusAccessAccept
 
@@ -60,12 +53,12 @@ sub returnRadiusAccessAccept {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
-                my $mac = lc($args->{'mac'});
+                my $mac = $args->{'mac'};
                 $mac =~ s/://g;
                 my @acl = split("\n", $access_list);
                 $args->{'acl'} = \@acl;
                 $args->{'acl_num'} = '101';
-                push(@av_pairs, "subscriber:service-name=$mac-".$self->setRadiusSession($args));
+                push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$self->setRadiusSession($args));
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
@@ -89,9 +82,7 @@ sub returnRadiusAdvanced {
     my $radius_reply_ref = ();
     my @av_pairs;
     $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
-    if ($args->{'connection'}->isServiceTemplate) {
-        push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_name'});
-    } elsif ($args->{'connection'}->isACLDownload) {
+    if ($args->{'connection'}->isACLDownload) {
         my $cache = $self->radius_cache_distributed;
         my $session = $cache->get($session_id);
         $session->{'id_session'} = $session_id;
@@ -111,6 +102,7 @@ sub returnRadiusAdvanced {
             }
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             $self->setRadiusSession($session);
+            push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$session_id);
             return [$status, %$radius_reply_ref];
         }
         if (scalar @{$session->{'acl'}} == 1) {
@@ -119,7 +111,8 @@ sub returnRadiusAdvanced {
             $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             $self->setRadiusSession($session);
-        } elsif (scalar @{$session->{'acl'}} == 1) {
+            push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$session_id);
+	} elsif (scalar @{$session->{'acl'}} == 1) {
             $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ".$args->{'user_role'});
         } else {
             $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
@@ -134,7 +127,6 @@ sub returnRadiusAdvanced {
 Determine Connection Type based on radius attributes
 
 =cut
-
 
 sub identifyConnectionType {
     my ( $self, $connection, $radius_request ) = @_;
@@ -152,22 +144,22 @@ sub identifyConnectionType {
                         $foundvsa ++;
                     }
                 }
-	    }
+            }
         }
     }
-
-    if ( (@require == @found) && $radius_request->{'Cisco-AVPair'} =~ /^(download-request=service-template)$/i ) {
-        $connection->isServiceTemplate($TRUE);
-        $connection->isCLI($FALSE);
-        $connection->isVPN($FALSE);
-    } elsif ($foundvsa) {
+    @require = qw(NAS-Port-Type);
+    @found = grep {exists $radius_request->{$_}} @require;
+    if ($foundvsa) {
         $connection->isACLDownload($TRUE);
         $connection->isVPN($FALSE);
         $connection->isCLI($FALSE);
+    } elsif (@require != @found) {
+        $connection->isVPN($FALSE);
+        $connection->isCLI($TRUE);
+        $connection->isMacAuth($FALSE);
+        $connection->transport("Virtual");
     }
 }
-
-=back
 
 =head1 AUTHOR
 
