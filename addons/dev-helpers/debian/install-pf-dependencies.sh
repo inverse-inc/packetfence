@@ -4,7 +4,7 @@ set -o nounset -o pipefail -o errexit
 export DEBIAN_FRONTEND=noninteractive
 
 # syntax: pkg1|pkg2|pkg3
-PKGS_TO_EXCLUDE=${PKGS_TO_EXCLUDE:-packetfence}
+PKGS_TO_EXCLUDE=${PKGS_TO_EXCLUDE:-packetfence libmariadbd-dev}
 
 # This script will install all PacketFence runtime dependencies
 
