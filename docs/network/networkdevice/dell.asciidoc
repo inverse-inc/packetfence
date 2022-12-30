@@ -125,6 +125,7 @@ Global config settings
   dot1x system-auth-control
   aaa authentication dot1x default radius
   aaa authorization network default radius
+  radius server vsa send authentication
   dot1x dynamic-vlan enable
   voice vlan
   aaa server radius dynamic-author
