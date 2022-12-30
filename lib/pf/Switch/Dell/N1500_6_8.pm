@@ -58,7 +58,7 @@ sub returnRadiusAccessAccept {
                 my @acl = split("\n", $access_list);
                 $args->{'acl'} = \@acl;
                 $args->{'acl_num'} = '101';
-                push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$self->setRadiusSession($args));
+                push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#$mac-".$self->setRadiusSession($args));
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
