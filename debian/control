@@ -22,7 +22,7 @@ Pre-Depends:  ca-certificates,
  packetfence-redis-cache (>= ${source:Version}),
  packetfence-perl (>= 1.2.1),
  netdata (= 1:1.10.0-1)
-Breaks: libdata-alias-perl
+Breaks: libdata-alias-perl, libmariadbd-dev (>= 10.5.10)
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
