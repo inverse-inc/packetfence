@@ -8,6 +8,17 @@ source /usr/local/pf/addons/full-upgrade/helpers.functions
 source /usr/local/pf/addons/full-upgrade/database.functions
 source /usr/local/pf/addons/full-upgrade/configuration.functions
 
+function get_libmariadb_dev() {
+    libmariadb_version=$(dpkg -l libmariadb-dev|grep '^ii'|cut -d ':' -f 2 | cut -d '+' -f 1)
+    if [ -n "${libmariadb_version}" ]; then
+        echo ${libmariadb_version}
+    else
+        # 1 = false
+        return 1
+    fi
+}
+
+
 function backup_git_commit_id() {
   if [ `cat /usr/local/pf/conf/git_commit_id` = "%{git_commit}" ]; then
     echo "Broken git_commit_id detected, will have to guess which commit ID this build is based on"
@@ -32,10 +43,24 @@ function backup_pf_release() {
 }
 
 function upgrade_packetfence_package() {
+  local include_os_update=$1
   if is_rpm_based; then
-    yum_upgrade_packetfence_package $1
+    yum_upgrade_packetfence_package $include_os_update
   elif is_deb_based; then
-    apt_upgrade_packetfence_package $1
+    if get_libmariadb_dev; then
+        if dpkg --compare-versions "${libmariadb_version}" le "10.5.15"; then
+            echo "libmariadb-dev ${libmariadb_version} detected"
+            echo "OS upgrade can't be performed until libmariadb-dev is uninstalled"
+            include_os_update=no
+        # cover fresh installations performed on Debian 11.6 before libmariadb-dev dependencies was removed
+        else
+            echo "libmariadb-dev ${libmariadb_version} detected"
+            echo "OS upgrade can occur"
+        fi
+    else
+        echo "Unable to detect a libmariadb-dev package, upgrade will continue"
+    fi
+    apt_upgrade_packetfence_package $include_os_update
   else
     echo "Unable to detect package manager to upgrade PacketFence"
     exit 1
