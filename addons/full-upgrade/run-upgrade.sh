@@ -76,6 +76,7 @@ function apt_upgrade_packetfence_package() {
   else
     DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
   fi
+  DEBIAN_FRONTEND=noninteractive apt autoremove -q -y
 }
 
 function yum_upgrade_packetfence_package() {
