@@ -156,6 +156,8 @@ Depends: ${misc:Depends}, vlan,
  libgraph-perl,
 # SAML
  liblasso-perl,
+# ACL
+ libcisco-accesslist-parser-perl,
 # for packaging
  lsb-release,
 # nthash cache
