@@ -103,6 +103,18 @@ Web authentication is a method on the switch that forwards HTTP traffic of the d
 With this mode, your device will never change of VLAN ID but only the ACL associated to your device will change.
 Refer to the Network Devices Configuration Guide to see a sample web auth configuration on a Cisco WLC.
 
+===== Downloadable ACLs
+
+Downloadable ACLs is a method that can be used when the ACL list is greater than the size of a RADIUS access-accept.
+Some vendor support it, like Cisco Switches (IOS 15) and Dell (n1500 fw 6.8)
+
+The RADIUS flow is something close to the normal one but in the Access-Accept reply there is an extra RADIUS attribute that tell the equipment that it need to trigger another RADIUS request to retreive the ACL.
+
+Another RADIUS request is made with the ACL name as a value of the username and multiples Access-Challenges are made in order to retreive the whole content of the ACL.
+
+To enable it you need first to enable the RADIUS filter in the PacketFence authorize section. To do that go in Configuration -> System Configuration -> RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then restart RADIUS Auth service.
+
+
 ===== Port-security and SNMP
 
 Relies on the port-security SNMP Traps. A fake static MAC address is assigned to all the ports this way any MAC address will generate a security violation and a trap will be sent to PacketFence. The system will authorize the MAC and set the port in the right VLAN. VoIP support is possible but tricky. It varies a lot depending on the switch vendor. Cisco is well supported but isolation of a PC behind an IP Phone leads to an interesting dilemma: either you shut the port (and the phone at the same time) or you change the data VLAN but the PC doesn't do DHCP (didn't detect link was down) so it cannot reach the captive portal.

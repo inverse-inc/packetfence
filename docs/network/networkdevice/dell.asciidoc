@@ -173,6 +173,7 @@ Global config settings:
   aaa authentication dot1x default radius
   aaa authorization network default radius
   aaa accounting dot1x default start-stop radius
+  ip device tracking
   authentication dynamic-vlan enable
   radius server auth 192.168.1.5
   key useStrongerSecret
@@ -223,6 +224,32 @@ Web-Auth:
   1000 deny ip any 192.168.1.5 0.0.0.0
   1010 permit tcp any any eq http
   1020 permit tcp any any eq 443
+
+==== N1500 Series (FW >= 6.8.0)
+
+Downloadable ACLs:
+
+This configuration has been tested on FW 6.8.1.
+Important, even if "authentication allow-srcipanyacl enable" has been enable on the switch, it doesn't support ACL with source ip and the ACL direction are only in.
+So per example you have this configured in PacketFence:
+
+ permit ip 10.0.0.1 host 192.168.3.1
+ permit ip any any
+
+Then you have to convert it to:
+
+ permit ip any host 192.168.3.1
+ permit ip any any
+
+
+The configuration needs to be done is the one above (N1500 Series (FW >= 6.6.0.17))
+
+Troubleshooting command:
+
+ debug console
+ debug authentication event Gigabitethernet 1/0/1
+ terminal monitor
+ show authentication clients gigabitethernet 1/0/1
 
 ==== N2000 Series (N2024P)
 

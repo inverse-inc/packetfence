@@ -522,7 +522,7 @@ PacketFence switch configuration
 * The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
 * Screenshots of this configuration are available in the Cisco WLC section of this guide.
 
-===== Downloadable ACLs
+===== Dynamic ACLs
 
 The Catalyst 2960 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
 
@@ -572,7 +572,16 @@ Or also you could restrict your users to use only your DNS server where 192.168.
 image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
 
 
-===== Web auth and Downloadable ACLs
+===== Downloadable ACLs
+
+Coming in IOS 15, Cisco switches supports Downloadable ACLs.
+The size of the radius packet limit the number of ACLs a switch can receive from a single Access-Accept answer, so Cisco Switches supports Downloadable ACLs which mean that the RADIUS server will do multiples Access-Challenges to send the whole ACL list.
+
+Use the Cisco::Catalyst_IOS_15 switch module to use the DACLs method and use the same Global settings from the section above.
+
+
+
+===== Web auth and Dynamic ACLs
 
 It's possible to mix web authentication and downloadable ACLs starting from version 12.2 of the IOS, each roles can be configured to forward the device to the captive portal for an http or an https and only allow specific traffic with the ACL.
 To do that, you need to configure PacketFence with Role by Web Auth URL and with Role by access list (For each role you need).
