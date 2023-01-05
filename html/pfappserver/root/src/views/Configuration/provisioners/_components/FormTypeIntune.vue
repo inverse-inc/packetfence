@@ -121,6 +121,7 @@ import {
   FormGroupProtocol,
   FormGroupRoleToApply,
   FormGroupTenantIdentifier,
+  FormGroupNonComplianceSecurityEvent,
   FormGroupWindowsAgentDownloadUri
 } from './'
 
@@ -146,6 +147,7 @@ const components = {
   FormGroupProtocol,
   FormGroupRoleToApply,
   FormGroupTenantIdentifier,
+  FormGroupNonComplianceSecurityEvent,
   FormGroupWindowsAgentDownloadUri
 }
 
