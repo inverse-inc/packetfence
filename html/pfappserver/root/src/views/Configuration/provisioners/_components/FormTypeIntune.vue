@@ -72,6 +72,11 @@
       :column-label="$i18n.t('Login URL')"
     />
 
+    <form-group-non-compliance-security-event namespace="non_compliance_security_event"
+     :column-label="$i18n.t('Non compliance security event')"
+     :text="$i18n.t('Which security event should be raised when non compliance is detected.')"
+   />
+
     <form-group-android-agent-download-uri namespace="android_agent_download_uri"
       :column-label="$i18n.t('Android agent download URI')"
     />

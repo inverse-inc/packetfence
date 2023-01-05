@@ -285,7 +285,6 @@ sub verify_compliance {
     my $azuremac = uc($mac);
     $azuremac =~ s/://g;
 
-
     if($info != $pf::provisioner::COMMUNICATION_FAILED){
         my $not_compliant = $FALSE;
         foreach my $entry (@{$info->{value}}) {
@@ -294,7 +293,12 @@ sub verify_compliance {
                 if ($entry->{complianceState} eq 'compliant') {
                     $logger->info("Device $mac is compliant.");
                     return $TRUE;
-                } else {
+                } 
+                elsif ($entry->{complianceState} eq 'inGracePeriod') {
+					$logger->info("Device $mac is InGracePeriod.");
+                    return $TRUE;
+			    }
+                else {
                     $not_compliant = $TRUE;
                 }
             }
