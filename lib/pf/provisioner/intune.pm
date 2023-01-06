@@ -295,9 +295,9 @@ sub verify_compliance {
                     return $TRUE;
                 } 
                 elsif ($entry->{complianceState} eq 'inGracePeriod') {
-					$logger->info("Device $mac is InGracePeriod.");
-                    return $TRUE;
-			    }
+                       $logger->info("Device $mac is InGracePeriod.");
+                       return $TRUE;
+                }
                 else {
                     $not_compliant = $TRUE;
                 }
