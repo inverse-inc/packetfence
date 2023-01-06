@@ -120,7 +120,7 @@ all:
               memory: 16384
             pfdeb11dev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.0.20220114143906
+              box_version: 11.0.20230106065033
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -163,7 +163,7 @@ all:
               memory: 16384
             pfdeb11localdev:
               box: inverse-inc/pfdeb11dev
-              box_version: 11.0.20220114143906
+              box_version: 11.0.20230106065033
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfdeb11localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
