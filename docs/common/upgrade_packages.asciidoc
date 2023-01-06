@@ -1,17 +1,32 @@
 In order to upgrade your PacketFence packages to latest version, you can run following commands:
 
-.RHEL-based systems
+==== RHEL-based systems
+
 [source,bash]
 ----
 yum clean all --enablerepo=packetfence
 yum update --enablerepo=packetfence
 ----
 
-.Debian-based systems
+==== Debian-based systems
+
+If `libmariadb-dev` is installed on your system at a version prior to 10.5.18, you will need to run following commands:
+
+[source,bash]
+----
+apt update
+apt install packetfence
+apt autoremove
+apt upgrade
+----
+
+In all other cases, you can simply run:
+
 [source,bash]
 ----
 apt update
 apt upgrade
 ----
 
-
+NOTE: In order to get `libmariadb-dev` package version, you can run following command: `dpkg -l | grep libmariadb-dev`.
+If previous command doesn't return anything, `libmariadb-dev` is not installed.
