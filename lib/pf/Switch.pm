@@ -172,7 +172,7 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
-        '_DownloadableACLs'             => 'disabled',
+        '_UseDownloadableACLs'          => 'disabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3940,6 +3940,12 @@ sub compute_action {
     $$args->{'compute_acl'} = (exists($$args->{'compute_acl'}) ? $$args->{'compute_acl'} : $TRUE );
     $$args->{'compute_url'} = (exists($$args->{'compute_url'}) ? $$args->{'compute_url'} : $TRUE );
     $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
+}
+
+sub useDownloadableACLs {
+    my ($self) = @_;
+    return $self->supportsDownloadableListBasedEnforcement() &&
+        isenabled($self->{_UseDownloadableACLs});
 }
 
 =back
