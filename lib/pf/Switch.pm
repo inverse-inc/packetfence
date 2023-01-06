@@ -68,8 +68,8 @@ use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
-    -DownloadableListBasedEnforcement
     -Cdp
+    -DownloadableListBasedEnforcement
     -ExternalPortal
     -FloatingDevice
     -Lldp
@@ -172,6 +172,7 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_DownloadableACLs'             => 'disabled',
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
