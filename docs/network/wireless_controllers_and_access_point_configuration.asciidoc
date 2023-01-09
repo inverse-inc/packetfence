@@ -185,6 +185,10 @@ include::networkdevice/ruckus.asciidoc[]
 
 include::networkdevice/ruckus_smartzone.asciidoc[]
 
+=== Ruckus Unleashed
+
+include::networkdevice/ruckus_unleashed.asciidoc[]
+
 === Trapeze
 
 include::networkdevice/trapeze.asciidoc[]

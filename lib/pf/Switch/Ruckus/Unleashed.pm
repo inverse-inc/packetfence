@@ -28,7 +28,6 @@ use pf::log;
 sub description { 'Ruckus Unleashed' }
 use pf::SwitchSupports qw(
     WirelessMacAuth
-    -WebFormRegistration
 );
 
 =over

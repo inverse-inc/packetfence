@@ -1,0 +1,75 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Ruckus Unleashed
+
+[float]
+==== Web Authentication
+
+In order to use PacketFence as an external captive portal for web authentication, you will need to configure first your RADIUS authentication and accounting server (see steps above).
+
+[float]
+===== Hotspot configuration
+
+Create a new Wi-Fi networks, define the SSID name, select Usage Type as "Hotspot Service", Authentication Method to "Open" and Encryption Method to "None".
+
+image::ruckus_unleashed_hotspot-1.png[scaledwidth="100%",alt="Hotspot Service"]
+
+Configure the Hotspot service profile to redirect devices to your PacketFence portal. Click on the + next tro Hotspot Services.
+
+image::ruckus_unleashed_hotspot-2.png[scaledwidth="100%",alt="Hotspot Service"]
+
+ 1 - Name of your Hotspot service
+ 2 - Login Page: Url of PacketFence portal interface (http://192.168.1.5/Ruckus::Unleashed)
+ 3 - Start Page: redirect to the URL that the user intends to visit.
+
+In the Authentication Tab, click + next to Authentication server and define the RADIUS server.
+
+image::ruckus_unleashed_hotspot-3.png[scaledwidth="100%",alt="Hotspot Service"]
+
+In the Authentication Tab, click + next to Accounting server and define the RADIUS server.
+
+image::ruckus_unleashed_hotspot-4.png[scaledwidth="100%",alt="Hotspot Service"]
+
+Save your configuration.
+
+==== MAC Authentication
+
+.Open SSID
+* Enter a Name/SSID
+* Select *Standard* as the Type
+* Select *MAC Address* as the authentication method
+* Select *Open* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+
+image::ruckus_unleashed_mac_auth.png[scaledwidth="100%",alt="Mac Auth"]
+
+==== 802.1X Configuration
+
+.Secure SSID
+* Enter a Name/SSID
+* Select *Standard* as the Type
+* Select *802.1X EAP* as the authentication method
+* Select *WAP2* as the encryption method
+* Select the proper RADIUS server as the authentication server
+* Select the proper RADIUS server as the accounting server
+* In Advanced Options -> WLAN Priority check "Enable Dynamic VLAN"
+
+image::ruckus_unleashed_secure-1.png[scaledwidth="100%",alt="802.1x"]
