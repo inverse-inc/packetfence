@@ -396,7 +396,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
-    GITLAB_DEPLOY_DIR: ${CI_PIPELINE_ID}
+    PPA_ID: ${CI_PIPELINE_ID}
   tags:
     - shell
 
