@@ -632,7 +632,8 @@ func revokeNeeded(cn string, profile string, allowTime int, c *gorm.DB) (bool, e
 			return true, nil
 		}
 	}
-	return false, errors.New("Certificate with this Subject already exist")
+
+	return false, errors.New("Certificate with this Subject already exist: " + cn)
 
 }
 
