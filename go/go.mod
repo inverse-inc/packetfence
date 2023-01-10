@@ -57,7 +57,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
-	github.com/inverse-inc/scep v0.0.0-20220118174727-8740e4914ad6
+	github.com/inverse-inc/scep v0.0.0-20221012121248-d6b471ca5508
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
@@ -92,9 +92,9 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
-	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1
-	golang.org/x/text v0.3.6
+	golang.org/x/net v0.0.0-20221004154528-8021a29435af
+	golang.org/x/sys v0.0.0-20221010170243-090e33056c14
+	golang.org/x/text v0.3.7
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1
