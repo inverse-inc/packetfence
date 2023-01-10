@@ -173,6 +173,7 @@ sub new {
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
         '_UseDownloadableACLs'          => 'disabled',
+        '_DownloadableACLsLimit'        => 0,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3957,6 +3958,19 @@ sub useDownloadableACLs {
     my ($self) = @_;
     return $self->supportsDownloadableListBasedEnforcement() &&
         isenabled($self->{_UseDownloadableACLs});
+}
+
+sub defaultACLsLimit {
+    30
+}
+
+sub defaultDownloadableACLsLimit {
+    30
+}
+
+sub DownloadableACLsLimit {
+    my ($self) = @_;
+    return $self->{_DownloadableACLsLimit} || $self->defaultDownloadableACLsLimit();
 }
 
 =back
