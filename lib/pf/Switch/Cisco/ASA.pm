@@ -60,6 +60,7 @@ sub description { 'Cisco ASA Firewall' }
 # access technology supported
 use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
+    DownloadableListBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
     RoleBasedEnforcement
@@ -516,6 +517,10 @@ sub returnRoleAttribute {
     my ($self) = @_;
 
     return 'Filter-Id';
+}
+
+sub defaultDownloadableACLsLimit {
+    384
 }
 
 =back

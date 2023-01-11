@@ -43,7 +43,6 @@ cliTransport = Telnet
 cliUser = 
 cliPwd = 
 cliEnablePwd = 
-
 #
 # SNMP section
 #
@@ -94,3 +93,8 @@ useCoA=Y
 radiusDeauthUseConnector=Y
 VoIPLLDPDetect=Y
 PostMfaValidation=N
+
+
+# Downloadable ACLs
+UseDownloadableACLs = disabled
+DownloadableACLsLimit = 0

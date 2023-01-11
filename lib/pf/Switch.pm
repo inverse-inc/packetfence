@@ -50,7 +50,7 @@ use pf::cluster;
 use pf::radius::constants;
 use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
-use pf::Switch::constants;
+use pf::error::switch;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
@@ -3971,6 +3971,47 @@ sub defaultDownloadableACLsLimit {
 sub DownloadableACLsLimit {
     my ($self) = @_;
     return $self->{_DownloadableACLsLimit} || $self->defaultDownloadableACLsLimit();
+}
+
+sub _checkRoleACLs {
+    my ($self, $name, $role) = @_;
+    my $count = @{$role->{acls} // []};
+    if ($self->useDownloadableACLs()) {
+        if ($count > $self->DownloadableACLsLimit()) {
+            return {code => $pf::error::switch::DownloadACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErr, switch_id => $self->{_id}};
+        }
+
+        return undef;
+    }
+
+    if ($self->supportsAccessListBasedEnforcement()) {
+        if ($count > $self->defaultACLsLimit()) {
+            return {code => $pf::error::switch::ACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErr, switch_id => $self->{_id}};
+        }
+    }
+
+    return undef;
+}
+
+sub checkRoleACLs {
+    my ($self, $roles) = @_;
+    if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
+        return undef;
+    }
+
+    my @warnings;
+    while (my ($name, $role) = each %$roles) {
+        my $warning = $self->_checkRoleACLs($name, $role);
+        if (defined $warning) {
+            push @warnings, $warning;
+        }
+    }
+
+    if (@warnings) {
+        return \@warnings
+    }
+
+    return undef;
 }
 
 =back

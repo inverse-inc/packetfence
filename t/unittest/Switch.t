@@ -21,8 +21,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 14;
+use Test::More tests => 19;
 use pf::Switch;
+use pf::Switch::Cisco::ASA;
+use pf::error::switch;
 
 #This test will running last
 use Test::NoWarnings;
@@ -69,6 +71,40 @@ is(
     undef,
     "getAccessListByName undef",
 );
+
+is(
+    $switch->checkRoleACLs({}),
+    undef,
+);
+
+is(
+    $switch->checkRoleACLs({ r1 => { acls => [("accept") x 31]}}),
+    undef,
+);
+
+{
+    my $switch = pf::Switch::Cisco::ASA->new({});
+    is_deeply(
+        $switch->checkRoleACLs({ r1 => { acls => [("accept") x 31]}}),
+        [{ role_name => 'r1', code => $pf::error::switch::ACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErr, switch_id => undef}],
+    );
+}
+
+{
+    my $switch = pf::Switch::Cisco::ASA->new({UseDownloadableACLs => 'enabled'});
+    is_deeply(
+        $switch->checkRoleACLs({ r1 => { acls => [("accept") x 31]}}),
+        undef,
+    );
+}
+
+{
+    my $switch = pf::Switch::Cisco::ASA->new({UseDownloadableACLs => 'enabled'});
+    is_deeply(
+        $switch->checkRoleACLs({ r1 => { acls => [("accept") x 385]}}),
+        [{ role_name => 'r1', code => $pf::error::switch::DownloadACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErr, switch_id => undef}],
+    );
+}
 
 is(pf::Switch::_parentRoleForVlan("r3"), "r2", "parent role for vlan r3 is r2");
 is(pf::Switch::_parentRoleForVlan("r2"), "r1", "parent role for vlan r2 is r1");
