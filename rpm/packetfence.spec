@@ -460,6 +460,7 @@ done
 %{__install} -d %{buildroot}/etc/cron.d
 %{__install} -d %{buildroot}/etc/docker
 %{__install} -d %{buildroot}/usr/local/pf/html
+%{__install} -d %{buildroot}/usr/local/pf/html/common
 %{__install} -d %{buildroot}/usr/local/pf/html/pfappserver
 %{__install} -d %{buildroot}/usr/local/pf/html/captive-portal
 touch %{buildroot}/usr/local/pf/var/cache_control
@@ -506,6 +507,7 @@ cp -r containers %{buildroot}/usr/local/pf
 # temp
 cp -r html/pfappserver %{buildroot}/usr/local/pf/html
 cp -r html/captive-portal %{buildroot}/usr/local/pf/html
+cp -r html/common %{buildroot}/usr/local/pf/html
 
 cp -r lib %{buildroot}/usr/local/pf/
 cp -r go %{buildroot}/usr/local/pf/
@@ -1212,6 +1214,7 @@ fi
 
 # html dir
 %dir                    /usr/local/pf/html
+                        /usr/local/pf/html/common
 %dir                    /usr/local/pf/html/pfappserver
                         /usr/local/pf/html/pfappserver/root
 /usr/local/pf/html/pfappserver/lib
