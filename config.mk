@@ -117,6 +117,7 @@ symlink_files = $(shell find $(SRC_HTML_PFAPPDIR) \
 
 # all directories and files to include in packetfence package
 # $(SRC_ROOT_DIR)/* to exclude SRC_ROOT_DIR himself
+# if you exclude a subdirectory be sure to not include a top level directory
 files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-maxdepth 0 \
 	-not -path "$(SRC_CIDIR)" \
@@ -124,8 +125,6 @@ files_to_include = $(shell find $(SRC_ROOT_DIR)/* \
 	-not -path "$(SRC_ROOT_DIR)/packetfence-$(PF_PATCH_RELEASE)" \
 	-not -path "$(SRC_ROOT_DIR)/public" \
 	-not -path "$(SRC_RPMDIR)" \
-	-not -path "$(SRC_HTMLDIR_COMMONDIR)" \
-	-not -path "$(SRC_HTMLDIR_PARKINGDIR)" \
 	-not -path "$(SRC_TESTDIR)" )
 
 # all directories and files to include in packetfence-test package
