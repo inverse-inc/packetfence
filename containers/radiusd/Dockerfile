@@ -66,7 +66,8 @@ WORKDIR /usr/local/pf/
 COPY lib lib
 
 RUN mkdir -p /usr/local/pf/bin  && \
-    mkdir -p /usr/local/pf/conf
+    mkdir -p /usr/local/pf/conf && \
+    mkdir -p /usr/local/pf/logs
 
 # Minimal configuration files needed to start freeradius
 
@@ -90,6 +91,9 @@ COPY ./config.mk /usr/local/pf/config.mk
 
 RUN mkdir -p /usr/local/pf/var/run && \
     chown -R pf: /usr/local/pf/var
+
+RUN chown -R pf: /usr/local/pf/logs && \
+    chmod 664 -R /usr/local/pf/logs
 
 RUN sed -i 's#^socket\s*=.*#socket=/var/lib/mysql/mysql.sock#' /etc/mysql/my.cnf
 
