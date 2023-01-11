@@ -23,6 +23,7 @@ use pf::log;
 use base ('pf::Switch::Dell::N1500');
 use pf::constants;
 use pf::util;
+use Cisco::AccessList::Parser;
 
 sub description { 'N1500 Series FW 6.8' }
 
@@ -55,6 +56,7 @@ sub returnRadiusAccessAccept {
             if ($access_list) {
                 my $mac = $args->{'mac'};
                 $mac =~ s/://g;
+                $access_list = $self->acl_chewer($access_list);
                 my @acl = split("\n", $access_list);
                 $args->{'acl'} = \@acl;
                 $args->{'acl_num'} = '101';
@@ -160,6 +162,23 @@ sub identifyConnectionType {
         $connection->transport("Virtual");
     }
 }
+
+sub acl_chewer {
+    my ($self, $acl) = @_;
+
+    my $acls = "ip access-list extended packetfence\n";
+    $acls .= $acl;
+    my $p = Cisco::AccessList::Parser->new();
+    my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
+
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl->{'protocol'} =~ s/\(\)//;
+        $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}."\n";
+    }
+    return $acl_chewed;
+}
+
 
 =head1 AUTHOR
 
