@@ -23,6 +23,20 @@ has '+widget_name_space' => ( default => 'pfappserver::Form::Widget' );
 has '+language_handle' => ( builder => '_build_language_handler', lazy => 1 );
 has languages => ( is => 'rw', default => sub { [] });
 
+has 'pf_warnings' => (
+    traits     => ['Array'],
+    is         => 'rw',
+    isa        => 'ArrayRef',
+    default    => sub { [] },
+    handles   => {
+        all_pf_warnings  => 'elements',
+        add_pf_warning => 'push',
+        num_pf_warnings => 'count',
+        has_pf_warnings => 'count',
+        clear_pf_warnings => 'clear',
+    }
+);
+
 =head2 _build_language_handler
 
 =cut
