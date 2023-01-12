@@ -1285,6 +1285,7 @@ sub setup_api_v1_config_roles_routes {
     );
 
     $resource_route->register_sub_action({action => 'reassign', method => 'PATCH'});
+    $resource_route->register_sub_action({action => 'bulk_reevaluate_access', method => 'POST'});
     return ($collection_route, $resource_route);
 }
 

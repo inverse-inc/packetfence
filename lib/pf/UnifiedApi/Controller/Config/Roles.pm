@@ -318,6 +318,49 @@ sub check_reassign_args {
     }
 
 }
+
+sub bulk_reevaluate_access {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    if ($data->{async}) {
+        my $task_id = $self->task_id;
+        my $subprocess = Mojo::IOLoop->subprocess;
+        $subprocess->run(
+            sub {
+                my ($subprocess) = @_;
+                my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+                $updater->start;
+                my $results = $self->do_bulk_reevaluate_access($data, $updater);
+                $updater->completed({items => $results});
+                return;
+            },
+            sub { } # Do nothing
+        );
+
+        return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    } else {
+        my $results = $self->do_bulk_reevaluate_access($data);
+        return $self->render(json => { items => $results });
+    }
+}
+
+sub do_bulk_reevaluate_access {
+    my ($self, $data, $updater) = @_;
+    my @items;
+    my $id = $self->id;
+    for my $mac (get_nodes_for_roles($id)) {
+        my %item = (mac => $mac);
+        my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
+        $item{status} = $result ? "success" : "failed";
+        push @items, \%item;
+    }
+
+    return \@items;
+}
  
 =head1 AUTHOR
 
