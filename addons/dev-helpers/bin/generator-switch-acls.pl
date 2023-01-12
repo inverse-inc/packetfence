@@ -32,7 +32,7 @@ my %ACLsSupports;
 for my $s (@supports) {
     for my $k (keys %supportTypes) {
         if (any { $_ eq $k } @{$s->{supports}}) {
-            $ACLsSupports{$k}{$s->{label}} = 1;
+            $ACLsSupports{$k}{$s->{value}} = 1;
         }
     }
 }

@@ -24,25 +24,27 @@ our %ACLsSupports;
 
 %ACLsSupports = (
                   'AccessListBasedEnforcement' => {
-                                                    'Aruba 2930M Series' => 1,
-                                                    'Aruba 5400 Switch' => 1,
-                                                    'Aruba CX Switch' => 1,
-                                                    'Cisco ASA Firewall' => 1,
-                                                    'Cisco Catalyst 2960' => 1,
-                                                    'Cisco Catalyst 2960G' => 1,
-                                                    'Cisco Catalyst 2970' => 1,
-                                                    'Cisco Catalyst 3550' => 1,
-                                                    'Cisco Catalyst 3560' => 1,
-                                                    'Cisco Catalyst 3560G' => 1,
-                                                    'Cisco Catalyst 3750' => 1,
-                                                    'Cisco Catalyst 3750G' => 1,
-                                                    'Cisco Catalyst 4500 Series' => 1,
-                                                    'Cisco Catalyst 6500 Series' => 1,
-                                                    'Cisco SG300' => 1,
-                                                    'N1500 Series' => 1
+                                                    'Aruba::2930M' => 1,
+                                                    'Aruba::5400' => 1,
+                                                    'Aruba::CX' => 1,
+                                                    'Cisco::ASA' => 1,
+                                                    'Cisco::Catalyst_2960' => 1,
+                                                    'Cisco::Catalyst_2960G' => 1,
+                                                    'Cisco::Catalyst_2970' => 1,
+                                                    'Cisco::Catalyst_3550' => 1,
+                                                    'Cisco::Catalyst_3560' => 1,
+                                                    'Cisco::Catalyst_3560G' => 1,
+                                                    'Cisco::Catalyst_3750' => 1,
+                                                    'Cisco::Catalyst_3750G' => 1,
+                                                    'Cisco::Catalyst_4500' => 1,
+                                                    'Cisco::Catalyst_6500' => 1,
+                                                    'Cisco::Catalyst_IOS_15' => 1,
+                                                    'Cisco::SG300' => 1,
+                                                    'Dell::N1500' => 1,
+                                                    'Dell::N1500_6_8' => 1
                                                   },
                   'DownloadableListBasedEnforcement' => {
-                                                          'Cisco ASA Firewall' => 1
+                                                          'Cisco::ASA' => 1
                                                         }
                 );
 
