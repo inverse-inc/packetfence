@@ -12,7 +12,7 @@ require (
 	github.com/DataDog/zstd v1.4.5 // indirect
 	github.com/OneOfOne/xxhash v1.2.7
 	github.com/Sereal/Sereal v0.0.0-20200729022450-08708a3c86f3
-	github.com/VividCortex/mysqlerr v1.0.0
+	github.com/VividCortex/mysqlerr v1.0.0 // indirect
 	github.com/aws/aws-sdk-go v1.35.9
 	github.com/captncraig/cors v0.0.0-20170507232344-153f484dcf3d
 	github.com/cenkalti/backoff/v4 v4.1.0
@@ -57,7 +57,7 @@ require (
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20201019132414-82756e2d8d47
 	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
-	github.com/inverse-inc/scep v0.0.0-20221012121248-d6b471ca5508
+	github.com/inverse-inc/scep v0.0.0-20220118174727-8740e4914ad6
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
 	github.com/jinzhu/gorm v1.9.16
@@ -92,9 +92,9 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.uber.org/zap v1.14.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/net v0.0.0-20221004154528-8021a29435af
-	golang.org/x/sys v0.0.0-20221010170243-090e33056c14
-	golang.org/x/text v0.3.7
+	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
+	golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44
+	golang.org/x/text v0.3.6
 	google.golang.org/api v0.29.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1
