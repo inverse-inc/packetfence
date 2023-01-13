@@ -357,7 +357,7 @@ sub do_bulk_reevaluate_access {
     my ($self, $data, $updater) = @_;
     my @items;
     my $id = $self->id;
-    for my $mac (@{get_nodes_for_roles($id)}) {
+    for my $mac (@{get_nodes_for_role($id)}) {
         my %item = (mac => $mac);
         my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
         $item{status} = $result ? "success" : "failed";
@@ -367,7 +367,7 @@ sub do_bulk_reevaluate_access {
     return \@items;
 }
 
-sub get_nodes_for_roles {
+sub get_nodes_for_role {
     my ($name) = @_;
     my ($status, $sth) = pf::dal::node->db_execute($NODES_IN_CATGEORY, $name);
     if (is_error($status)) {
