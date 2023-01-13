@@ -29,6 +29,7 @@ use pf::config qw(%ConfigRoles);
 use pfconfig::cached_hash;
 use pf::dal::node;
 use pf::dal::person;
+use pf::enforcement;
 use pf::ConfigStore::AdminRoles;
 use pf::ConfigStore::Scan;
 use pf::ConfigStore::Provisioning;
@@ -98,6 +99,10 @@ SELECT
         EXISTS (SELECT 1 FROM node, node_category WHERE (node.bypass_role_id = node_category.category_id ) AND node_category.name = ? LIMIT 1) as node_bypass_role_id,
         EXISTS (SELECT 1 FROM password, node_category WHERE password.category = node_category.category_id AND node_category.name = ? LIMIT 1) as password_category
 ) AS x;
+SQL
+
+my $NODES_IN_CATGEORY = <<SQL;
+SELECT mac FROM node WHERE category_id IS NOT NULL && category_id IN (SELECT node_category.category_id FROM node_category WHERE name = ? );
 SQL
 
 my %IN_USE_MESSAGE = (
@@ -352,7 +357,7 @@ sub do_bulk_reevaluate_access {
     my ($self, $data, $updater) = @_;
     my @items;
     my $id = $self->id;
-    for my $mac (get_nodes_for_roles($id)) {
+    for my $mac (@{get_nodes_for_roles($id)}) {
         my %item = (mac => $mac);
         my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
         $item{status} = $result ? "success" : "failed";
@@ -361,7 +366,21 @@ sub do_bulk_reevaluate_access {
 
     return \@items;
 }
- 
+
+sub get_nodes_for_roles {
+    my ($name) = @_;
+    my ($status, $sth) = pf::dal::node->db_execute($NODES_IN_CATGEORY, $name);
+    if (is_error($status)) {
+        get_logger()->error("Unable to get nodes in the database");
+        return [];
+    }
+
+    my $nodes = $sth->fetchall_arrayref([0]);
+    $sth->finish;
+    my $n = [map {$_->[0]} @{$nodes}];
+    return $n;
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
