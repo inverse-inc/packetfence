@@ -48,7 +48,9 @@ run_tests:
 	SCENARIOS_TO_RUN="$(SCENARIOS_TO_RUN)" \
 	./test-wrapper.sh run_tests
 
-halt:
+halt: halt_pf clean_cache
+
+halt_pf:
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
 	CLUSTER_NAME="$(CLUSTER_NAME)" \
 	RESULT_DIR=$(RESULT_DIR) \
