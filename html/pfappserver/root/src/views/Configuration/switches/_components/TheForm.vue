@@ -154,21 +154,21 @@
           <b-card v-show="supports(['AccessListBasedEnforcement'])"
             class="mb-3 pb-0" no-body
           >
-            <b-card v-show="supports(['DownloadableListBasedEnforcement'])"
-              class="mb-3 pb-0" no-body
-            >
-              <b-card-header>
-                <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
-              </b-card-header>
-              <form-group-use-downloadable-acls namespace="UseDownloadableACLs"
-                :column-label="$i18n.t('Use downloadable ACLs instead of Dynamic ACLs')"
-                :text="$i18n.t('This option parameter will allow you to do enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
-              />
-              <form-group-downloadable-acls-limit namespace="DownloadableACLsLimit"
-                :column-label="$i18n.t('Maximum number of ACLs PacketFence can return')"
-                :text="$i18n.t('This option parameter will allow you to do define the maximum number of ACLs PacketFence can send to the switch.')"
-              />
-            </b-card>
+            <b-card-header>
+              <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
+            </b-card-header>
+              <b-card v-show="supports(['DownloadableListBasedEnforcement'])"
+                class="mb-3 pb-0" no-body
+              >
+                <form-group-use-downloadable-acls namespace="UseDownloadableACLs"
+                  :column-label="$i18n.t('Use downloadable ACLs instead of Dynamic ACLs')"
+                  :text="$i18n.t('This option parameter will allow you to do enable the Downloadable ACLs radius feature instead of using the Dynamic ACLs.')"
+                />
+                <form-group-downloadable-acls-limit namespace="DownloadableACLsLimit"
+                  :column-label="$i18n.t('Maximum number of ACLs PacketFence can return')"
+                  :text="$i18n.t('This option parameter will allow you to do define the maximum number of ACLs PacketFence can send to the switch.')"
+                />
+              </b-card>
             <div class="card-body pb-0">
               <form-group-toggle-access-list-map namespace="AccessListMap"
                 :column-label="$i18n.t('Role by Access List')"
