@@ -44,6 +44,9 @@ use warnings;
 use Net::SNMP;
 
 use base ('pf::Switch::Cisco::Catalyst_2960');
+use pf::SwitchSupports qw(
+    -DownloadableListBasedEnforcement
+);
 
 sub description { 'Cisco Catalyst 3550' }
 

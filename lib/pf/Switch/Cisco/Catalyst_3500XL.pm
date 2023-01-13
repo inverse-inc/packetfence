@@ -28,6 +28,9 @@ use base ('pf::Switch::Cisco');
 use Carp;
 use Net::SNMP;
 use Data::Dumper;
+use pf::SwitchSupports qw(
+    -DownloadableListBasedEnforcement
+);
 
 use pf::Switch::constants;
 
