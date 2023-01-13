@@ -38,6 +38,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Clear the active dynamic reverses that exist when a pfconnector reconnects
  * OpenID Authentication Source -Duplicated Username (#7399)
  * Unable to upgrade to Debian 11.6 with PF 11.X and 12.X (#7438)
+ * Trust server certificates when provisioning Apple devices for EAP-TLS (#7428)
+ * Use WPA2 in place of WPA when provisioning Apple devices (#7428)
 
 == Version 12.1.0 released on 2022-11-22
 
