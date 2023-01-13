@@ -3958,9 +3958,9 @@ sub DownloadableACLsLimit {
     return $self->{_DownloadableACLsLimit} || $self->defaultDownloadableACLsLimit();
 }
 
-sub _checkRoleACLs {
-    my ($self, $name, $role) = @_;
-    my $count = @{$role->{acls} // []};
+sub checkRoleACLs {
+    my ($self, $name, $acls) = @_;
+    my $count = @{$acls // []};
     if ($self->useDownloadableACLs()) {
         if ($count > $self->DownloadableACLsLimit()) {
             return {code => $pf::error::switch::DownloadACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErr, switch_id => $self->{_id}};
@@ -3978,7 +3978,7 @@ sub _checkRoleACLs {
     return undef;
 }
 
-sub checkRoleACLs {
+sub checkRolesACLs {
     my ($self, $roles) = @_;
     if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
         return undef;
@@ -3986,7 +3986,7 @@ sub checkRoleACLs {
 
     my @warnings;
     while (my ($name, $role) = each %$roles) {
-        my $warning = $self->_checkRoleACLs($name, $role);
+        my $warning = $self->checkRoleACLs($name, $role->{acls});
         if (defined $warning) {
             push @warnings, $warning;
         }

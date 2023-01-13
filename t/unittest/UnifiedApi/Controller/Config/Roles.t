@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 28;
+use Test::More tests => 33;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -38,22 +38,22 @@ my $collection_base_url = '/api/v1/config/roles';
 
 my $base_url = '/api/v1/config/role';
 
-#{
-#    my $id = "test_role_${$}_1";
-#    my $acl = <<ACL;
-#permit any any
-#ACL
-#    $t->post_ok($collection_base_url => json => { id => $id, acl => $acl })
-#      ->status_is(201);
-#}
-#
-#{
-#    my $id = "test_role_${$}_2";
-#    my $acl = "permit any any\n" x 80;
-#    $t->post_ok($collection_base_url => json => { id => $id, acl => $acl })
-#      ->status_is(201)
-#      ->json_has('/warnings');
-#}
+{
+    my $id = "test_role_${$}_1";
+    my $acl = <<ACL;
+permit any any
+ACL
+    $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
+      ->status_is(201);
+}
+
+{
+    my $id = "test_role_${$}_2";
+    my $acl = "permit any any\n" x 80;
+    $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
+      ->status_is(201)
+      ->json_has('/warnings');
+}
 
 $t->get_ok($collection_base_url)
   ->status_is(200);

@@ -687,7 +687,7 @@ sub validate {
                 }
             }
 
-            my $warnings = $switch->checkRoleACLs(\%ConfigRoles);
+            my $warnings = $switch->checkRolesACLs(\%ConfigRoles);
             if (defined $warnings) {
                 $self->add_pf_warning(@$warnings);
             }
