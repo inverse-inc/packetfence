@@ -3939,21 +3939,6 @@ sub radius_deauth_connection_info {
     return $connection_info;
 }
 
-=head2 compute_action
-
-define based on the sub switch module if we have to compute role/acl/url/vpn attributes
-
-=cut
-
-sub compute_action {
-    my ($self, $args) = @_;
-    $$args->{'compute_vlan'} = (exists($$args->{'compute_vlan'}) ? $$args->{'compute_vlan'} : $TRUE );
-    $$args->{'compute_role'} = (exists($$args->{'compute_role'}) ? $$args->{'compute_role'} : $TRUE );
-    $$args->{'compute_acl'} = (exists($$args->{'compute_acl'}) ? $$args->{'compute_acl'} : $TRUE );
-    $$args->{'compute_url'} = (exists($$args->{'compute_url'}) ? $$args->{'compute_url'} : $TRUE );
-    $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
-}
-
 sub useDownloadableACLs {
     my ($self) = @_;
     return $self->supportsDownloadableListBasedEnforcement() &&

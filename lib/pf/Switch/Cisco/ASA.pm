@@ -153,8 +153,6 @@ sub returnAuthorizeVPN {
     my $logger = $self->logger;
 
     $args->{'unfiltered'} = $TRUE;
-    $args->{'compute_acl'} = $FALSE;
-    $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
@@ -197,12 +195,22 @@ sub returnAuthorizeVPN {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
-                my $mac = lc($args->{'mac'});
-                $mac =~ s/://g;
-                my @acl = split("\n", $access_list);
-                $args->{'acl'} = \@acl;
-                $args->{'acl_num'} = '101';
-                push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_name'}."-".$self->setRadiusSession($args));
+                if ($self->useDownloadableACLs) {
+                    my $mac = lc($args->{'mac'});
+                    $mac =~ s/://g;
+                    my @acl = split("\n", $access_list);
+                    $args->{'acl'} = \@acl;
+                    $args->{'acl_num'} = '101';
+                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_name'}."-".$self->setRadiusSession($args));
+                } else {
+                    my $acl_num = 101;
+                    while($access_list =~ /([^\n]+)\n?/g){
+                        push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                        $acl_num ++;
+                        $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                    }
+                    $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+	        }
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }

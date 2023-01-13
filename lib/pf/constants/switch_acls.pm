@@ -38,13 +38,13 @@ our %ACLsSupports;
                                                     'Cisco::Catalyst_3750G' => 1,
                                                     'Cisco::Catalyst_4500' => 1,
                                                     'Cisco::Catalyst_6500' => 1,
-                                                    'Cisco::Catalyst_IOS_15' => 1,
                                                     'Cisco::SG300' => 1,
                                                     'Dell::N1500' => 1,
-                                                    'Dell::N1500_6_8' => 1
                                                   },
                   'DownloadableListBasedEnforcement' => {
-                                                          'Cisco::ASA' => 1
+                                                          'Cisco::ASA' => 1,
+                                                          'Cisco::Catalyst_2960' => 1,
+                                                          'Dell::N1500' => 1,
                                                         }
                 );
 
