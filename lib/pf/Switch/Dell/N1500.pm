@@ -48,6 +48,7 @@ use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
     Lldp
     AccessListBasedEnforcement
+    DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
 );

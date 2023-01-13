@@ -39,12 +39,21 @@ our %ACLsSupports;
                                                     'Cisco::Catalyst_4500' => 1,
                                                     'Cisco::Catalyst_6500' => 1,
                                                     'Cisco::SG300' => 1,
-                                                    'Dell::N1500' => 1,
+                                                    'Dell::N1500' => 1
                                                   },
                   'DownloadableListBasedEnforcement' => {
                                                           'Cisco::ASA' => 1,
                                                           'Cisco::Catalyst_2960' => 1,
-                                                          'Dell::N1500' => 1,
+                                                          'Cisco::Catalyst_2960G' => 1,
+                                                          'Cisco::Catalyst_2970' => 1,
+                                                          'Cisco::Catalyst_3550' => 1,
+                                                          'Cisco::Catalyst_3560' => 1,
+                                                          'Cisco::Catalyst_3560G' => 1,
+                                                          'Cisco::Catalyst_3750' => 1,
+                                                          'Cisco::Catalyst_3750G' => 1,
+                                                          'Cisco::Catalyst_4500' => 1,
+                                                          'Cisco::Catalyst_6500' => 1,
+                                                          'Dell::N1500' => 1
                                                         }
                 );
 

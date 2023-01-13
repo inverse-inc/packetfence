@@ -35,6 +35,9 @@ use warnings;
 use base ('pf::Switch::Cisco::Catalyst_2960');
 use pf::util qw(clean_mac);
 use pf::log;
+use pf::SwitchSupports qw(
+    -DownloadableListBasedEnforcement
+);
 
 sub description { 'Cisco SG300' }
 
