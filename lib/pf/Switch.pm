@@ -3946,11 +3946,11 @@ sub useDownloadableACLs {
 }
 
 sub defaultACLsLimit {
-    30
+    20
 }
 
 sub defaultDownloadableACLsLimit {
-    30
+    20
 }
 
 sub DownloadableACLsLimit {
