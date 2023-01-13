@@ -210,7 +210,7 @@ sub returnAuthorizeVPN {
                         $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
                     }
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-	        }
+                }
             } else {
                 $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
             }
