@@ -711,6 +711,13 @@ sub _parentRoleForVlan {
 sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+    my $node = node_view($mac);
+    if ($node) {
+        my $acls = $node->{bypass_acls};
+        if (defined $acls && $acls ne '') {
+            return $acls;
+        }
+    }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
