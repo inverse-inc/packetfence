@@ -64,7 +64,7 @@ BEGIN {
         machine_account
         bypass_role_id
         last_seen
-        bypass_acl
+        bypass_acls
     );
 
     %DEFAULTS = (
@@ -99,7 +99,7 @@ BEGIN {
         machine_account => undef,
         bypass_role_id => undef,
         last_seen => '0000-00-00 00:00:00',
-        bypass_acl => undef,
+        bypass_acls => undef,
     );
 
     @INSERTABLE_FIELDS = qw(
@@ -134,7 +134,7 @@ BEGIN {
         machine_account
         bypass_role_id
         last_seen
-        bypass_acl
+        bypass_acls
     );
 
     %FIELDS_META = (
@@ -332,7 +332,7 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 0,
         },
-        bypass_acl => {
+        bypass_acls => {
             type => 'MEDIUMTEXT',
             is_auto_increment => 0,
             is_primary_key => 0,
@@ -376,7 +376,7 @@ BEGIN {
         node.machine_account
         node.bypass_role_id
         node.last_seen
-        node.bypass_acl
+        node.bypass_acls
     );
 
 }

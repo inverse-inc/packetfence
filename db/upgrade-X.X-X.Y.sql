@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS node_current_session (
 
 \! echo "Updating node table"
 ALTER TABLE `node`
-    ADD COLUMN IF NOT EXISTS `bypass_acl` MEDIUMTEXT DEFAULT NULL;
+    ADD COLUMN IF NOT EXISTS `bypass_acls` MEDIUMTEXT DEFAULT NULL;
 
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
