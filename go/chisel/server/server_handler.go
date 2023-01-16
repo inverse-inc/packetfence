@@ -266,12 +266,15 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 
 		remote.Dynamic = true
 		remote.LastTouched = time.Now()
+		settings.ActiveDynReverse.Store(cacheKey, remote)
 		go func() {
-			// TODO: handle an error
-			tun.BindRemotes(context.Background(), []*settings.Remote{remote})
+			ctx := context.Background()
+			if err := tun.BindRemotes(ctx, []*settings.Remote{remote}); err != nil {
+				log.LoggerWContext(ctx).Error(fmt.Sprintf("Error binding remote %s: %s", remote, err))
+				settings.ActiveDynReverse.Delete(cacheKey)
+			}
 		}()
 
-		settings.ActiveDynReverse.Store(cacheKey, remote)
 		json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
 	} else {
 		w.WriteHeader(http.StatusNotFound)
