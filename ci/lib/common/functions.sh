@@ -23,9 +23,15 @@ log_subsection() {
 }
 
 get_pf_release() {
-    PF_RELEASE_PATH=$(readlink -e ${PF_SRC_DIR}/conf/pf-release)
-    PF_MINOR_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' ${PF_RELEASE_PATH})
-    PF_PATCH_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+\.\d+)/)' ${PF_RELEASE_PATH})
+    if [ -f "${PF_SRC_DIR}/conf/pf-release" ]; then
+        PF_RELEASE_PATH=$(readlink -e ${PF_SRC_DIR}/conf/pf-release)
+        PF_MINOR_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+)./)' ${PF_RELEASE_PATH})
+        PF_PATCH_RELEASE=$(perl -ne 'print $1 if (m/.*?(\d+\.\d+\.\d+)/)' ${PF_RELEASE_PATH})
+    else
+        echo "We are not in a PacketFence tree, reading variables from environment"
+        PF_MINOR_RELEASE=${PF_MINOR_RELEASE:-99.9}
+        PF_PATCH_RELEASE=${PF_PATCH_RELEASE:-99.9.9}
+    fi
 }
 
 # https://newbedev.com/how-to-urlencode-data-for-curl-command
