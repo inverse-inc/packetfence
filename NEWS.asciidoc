@@ -33,6 +33,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Allow image files to be uploaded in a connection profile.
  * Added System Service and Systemd buttons in Admin UI.
  * Online/offline doesn't rely on recording the bandwidth accounting data anymore 
+ * Pending security events added to network threats visualization
  
 === Bug Fixes
 
