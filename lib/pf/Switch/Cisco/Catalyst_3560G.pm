@@ -66,9 +66,6 @@ use strict;
 use warnings;
 
 use Net::SNMP;
-use pf::SwitchSupports qw(
-    -DownloadableListBasedEnforcement
-);
 
 use base ('pf::Switch::Cisco::Catalyst_3560');
 use pf::SwitchSupports qw(
