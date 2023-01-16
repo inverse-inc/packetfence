@@ -53,6 +53,18 @@ DROP PROCEDURE IF EXISTS ValidateVersion;
 -- UPGRADE STATEMENTS GO HERE
 --
 
+--
+-- Table structure for table `node_current_session`
+--
+
+CREATE TABLE IF NOT EXISTS node_current_session (
+  `mac` varchar(17) NOT NULL,
+  `updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `is_online` BOOLEAN DEFAULT 1,
+  PRIMARY KEY (mac)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 

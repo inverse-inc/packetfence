@@ -73,7 +73,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-                "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online",
+                "CASE IFNULL( (SELECT online_time from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
             ],
         ],
         'Return the columns'
@@ -647,7 +647,7 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
             200,
             [
                 'node.mac',
-"CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+                "CASE IFNULL( (SELECT online_time from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
             ]
         ],
         'Return the columns'
