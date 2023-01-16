@@ -16,14 +16,10 @@
             name="circle-notch" spin class="text-primary fa-overlap mr-1" />
           <icon v-else-if="service.status === 'error'" :key="`icon-${server}`"
             name="exclamation-triangle" class="text-danger fa-overlap mr-1" />
-          <icon v-else-if="service.isDisabling || service.isEnabling || service.isRestarting || service.isStarting || service.isStopping"  :key="`icon-${server}`"
+          <icon v-else-if="service.isRestarting || service.isStarting || service.isStopping"  :key="`icon-${server}`"
             class="fa-overlap mr-1">
             <icon name="circle" class="text-white" />
-            <icon v-if="service.isDisabling"
-              name="toggle-off" class="text-primary" scale="0.5" />
-            <icon v-else-if="service.isEnabling"
-              name="toggle-on" class="text-primary" scale="0.5" />
-            <icon v-else-if="service.isRestarting"
+            <icon v-if="service.isRestarting"
               name="redo" class="text-primary" scale="0.5" />
             <icon v-else-if="service.isStarting"
               name="play" class="text-primary" scale="0.5" />
@@ -39,10 +35,6 @@
 
     <b-dropdown-group v-if="isAllowed && isCluster"
       :header="$i18n.t('CLUSTER')">
-      <b-dropdown-item v-if="enable && cluster.hasDisabled"
-        @click="doEnableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-on" class="mr-1" /> {{ $t('Enable All Sequentially') }}</b-dropdown-item>
-      <b-dropdown-item v-if="disable && cluster.hasEnabled"
-        @click="doDisableAll" @click.stop="onClick" :disabled="isLoading"><icon name="toggle-off" class="mr-1" /> {{ $t('Disable All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="restart && cluster.hasAlive"
         @click="doRestartAll" @click.stop="onClick" :disabled="isLoading"><icon name="redo" class="mr-1" /> {{ $t('Restart All Sequentially') }}</b-dropdown-item>
       <b-dropdown-item v-if="start && cluster.hasDead"
@@ -58,17 +50,17 @@
          {{ server }}
         </template>
         <b-dropdown-form style="width: 400px;">
-          <base-service :id="service.id" :server="server" v-bind="{ acl, enable, disable, restart, start, stop }" />
+          <base-system-service :id="service.id" :server="server" v-bind="{ acl, restart, start, stop }" />
         </b-dropdown-form>
       </b-dropdown-group>
     </template>
   </b-dropdown>
 </template>
 <script>
-import BaseService from './BaseService'
+import BaseSystemService from './BaseSystemService'
 
 const components = {
-  BaseService
+  BaseSystemService
 }
 
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
@@ -79,12 +71,6 @@ import { localeStrings } from '@/globals/pfLocales'
 const props = {
   service: {
     type: String
-  },
-  enable: {
-    type: Boolean
-  },
-  disable: {
-    type: Boolean
   },
   restart: {
     type: Boolean
@@ -105,7 +91,7 @@ const props = {
   },
   acl: {
     type: String,
-    default: 'SERVICES_READ'
+    default: 'SYSTEM_READ'
   }
 }
 
@@ -138,12 +124,12 @@ const setup = (props, context) => {
   })
 
   const servers = computed(() => {
-    const { [service.value]: { servers = {} } = {} } = $store.getters['cluster/servicesByServer']
+    const { [service.value]: { servers = {} } = {} } = $store.getters['cluster/systemServicesByServer']
     return servers
   })
   watch(service, () => {
     if (isAllowed.value) {
-      $store.dispatch('cluster/getServiceCluster', service.value)
+      $store.dispatch('cluster/getSystemServiceCluster', service.value)
     }
   }, { immediate: true })
 
@@ -151,7 +137,7 @@ const setup = (props, context) => {
   const isLoading = computed(() => $store.getters['cluster/isLoading'])
   const isDisabled = computed(() => disabled.value || !isAllowed.value || !Object.keys(servers.value).length)
   const cluster = computed(() => {
-    const { [service.value]: cluster = {} } = $store.getters['cluster/servicesByServer']
+    const { [service.value]: cluster = {} } = $store.getters['cluster/systemServicesByServer']
     return cluster
   })
 
@@ -166,70 +152,42 @@ const setup = (props, context) => {
     }
   })
 
-  const doEnable = server => $store.dispatch('cluster/enableService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('enable', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doDisable = server => $store.dispatch('cluster/disableService', { server, id: service.value }).then(() => {
-    $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('disable', { server, id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doRestart = server => $store.dispatch('cluster/restartService', { server, id: service.value }).then(() => {
+  const doRestart = server => $store.dispatch('cluster/restartSystemService', { server, id: service.value }).then(() => {
     $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('restart', { server, id: service.value })
   }).catch(() => {
     $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${service.value}</code>` }) })
   })
 
-  const doStart = server => $store.dispatch('cluster/startService', { server, id: service.value }).then(() => {
+  const doStart = server => $store.dispatch('cluster/startSystemService', { server, id: service.value }).then(() => {
     $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('start', { server, id: service.value })
   }).catch(() => {
     $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${service.value}</code>` }) })
   })
 
-  const doStop = server => $store.dispatch('cluster/stopService', { server, id: service.value }).then(() => {
+  const doStop = server => $store.dispatch('cluster/stopSystemService', { server, id: service.value }).then(() => {
     $store.dispatch('notification/info', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('stop', { server, id: service.value })
   }).catch(() => {
     $store.dispatch('notification/danger', { url: server, message: i18n.t(localeStrings.SERVICES_STOPPED_ERROR, { services: `<code>${service.value}</code>` }) })
   })
 
-  const doEnableAll = () => $store.dispatch('cluster/enableServiceCluster', service.value).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('enable', { id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_ENABLED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doDisableAll = () => $store.dispatch('cluster/disableServiceCluster', service.value).then(() => {
-    $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_SUCCESS, { services: `<code>${service.value}</code>` }) })
-    emit('disable', { id: service.value })
-  }).catch(() => {
-    $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_DISABLED_ERROR, { services: `<code>${service.value}</code>` }) })
-  })
-
-  const doRestartAll = () => $store.dispatch('cluster/restartServiceCluster', service.value).then(() => {
+  const doRestartAll = () => $store.dispatch('cluster/restartSystemServiceCluster', service.value).then(() => {
     $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('restart', { id: service.value })
   }).catch(() => {
     $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_RESTARTED_ERROR, { services: `<code>${service.value}</code>` }) })
   })
 
-  const doStartAll = () => $store.dispatch('cluster/startServiceCluster', service.value).then(() => {
+  const doStartAll = () => $store.dispatch('cluster/startSystemServiceCluster', service.value).then(() => {
     $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('start', { id: service.value })
   }).catch(() => {
     $store.dispatch('notification/danger', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STARTED_ERROR, { services: `<code>${service.value}</code>` }) })
   })
 
-  const doStopAll = () => $store.dispatch('cluster/stopServiceCluster', service.value).then(() => {
+  const doStopAll = () => $store.dispatch('cluster/stopSystemServiceCluster', service.value).then(() => {
     $store.dispatch('notification/info', { url: 'CLUSTER', message: i18n.t(localeStrings.SERVICES_STOPPED_SUCCESS, { services: `<code>${service.value}</code>` }) })
     emit('stop', { id: service.value })
   }).catch(() => {
@@ -249,10 +207,6 @@ const setup = (props, context) => {
     cluster,
     tooltip,
 
-    doEnable,
-    doEnableAll,
-    doDisable,
-    doDisableAll,
     doRestart,
     doRestartAll,
     doStart,
@@ -264,7 +218,7 @@ const setup = (props, context) => {
 
 // @vue/component
 export default {
-  name: 'base-button-service',
+  name: 'base-button-system-service',
   inheritAttrs: false,
   components,
   props,

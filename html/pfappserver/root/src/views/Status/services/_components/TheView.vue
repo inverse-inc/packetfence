@@ -4,6 +4,9 @@
       <h4 class="d-inline mb-0" v-t="'Services'"></h4>
     </b-card-header>
     <div class="card-body">
+      <div class="d-flex mb-3">
+        <base-button-systemd-update class="ml-1" />
+      </div>
       <b-table ref="tableRef"
         :busy="isLoading"
         :hover="serviceItems.length > 0"
@@ -95,13 +98,15 @@
 
 <script>
 import {
+  BaseButtonSystemdUpdate,
+  BaseService,
   BaseTableEmpty
 } from '@/components/new/'
 import BaseButtonBulkActions from './BaseButtonBulkActions'
-import BaseService from './BaseService'
 
 const components = {
   BaseButtonBulkActions,
+  BaseButtonSystemdUpdate,
   BaseService,
   BaseTableEmpty
 }
@@ -109,7 +114,7 @@ const components = {
 import { computed, customRef, onMounted, ref } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import i18n from '@/utils/locale'
-import { localeStrings } from '../config'
+import { localeStrings } from '@/globals/pfLocales'
 
 const setup = (props, context) => {
 
