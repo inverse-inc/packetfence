@@ -507,8 +507,7 @@ sub returnRadiusAdvanced {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
             $radius_reply_ref->{'state'} = $session_id;
-            my @a = (1..64);
-            for my $i (@a){
+            for ( my $loops = 0; $loops < $self->defaultACLsLimit; $loops++ ) {
                 last if (scalar @{$session->{'acl'}} == 1);
                 my $acl = shift @{$session->{'acl'}};
                 if ($acl !~ /^permit/i && $acl !~ /^deny/i) {
