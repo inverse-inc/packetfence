@@ -36,7 +36,6 @@ sub description { 'N1500 Series' }
 use pf::Switch::constants;
 use pf::util::radius qw(perform_coa perform_disconnect);
 use pf::util;
-use Cisco::AccessList::Parser;
 
 # CAPABILITIES
 # access technology supported
@@ -347,8 +346,8 @@ sub returnRadiusAccessAccept {
                 if ($self->useDownloadableACLs) {
                     my $mac = $args->{'mac'};
                     $mac =~ s/://g;
-                    $access_list = $self->acl_chewer($access_list);
                     my @acl = split("\n", $access_list);
+                    $access_list = $self->acl_chewer($access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
                     push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#$mac-".$self->setRadiusSession($args));
@@ -579,22 +578,6 @@ sub identifyConnectionType {
         $connection->isMacAuth($FALSE);
         $connection->transport("Virtual");
     }
-}
-
-sub acl_chewer {
-    my ($self, $acl) = @_;
-
-    my $acls = "ip access-list extended packetfence\n";
-    $acls .= $acl;
-    my $p = Cisco::AccessList::Parser->new();
-    my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
-
-    my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        $acl->{'protocol'} =~ s/\(\)//;
-        $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}."\n";
-    }
-    return $acl_chewed;
 }
 
 =head1 AUTHOR

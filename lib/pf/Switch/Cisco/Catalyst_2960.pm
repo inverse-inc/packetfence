@@ -503,6 +503,7 @@ sub returnRadiusAccessAccept {
                     my $mac = lc($args->{'mac'});
                     $mac =~ s/://g;
                     my @acl = split("\n", $access_list);
+                    $access_list = $self->acl_chewer($access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
                     push(@av_pairs, "subscriber:service-name=$mac-".$self->setRadiusSession($args));

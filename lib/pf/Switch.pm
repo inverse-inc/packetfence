@@ -66,6 +66,7 @@ use JSON::MaybeXS;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
+use Cisco::AccessList::Parser;
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
     -Cdp
@@ -4005,6 +4006,22 @@ sub checkRolesACLs {
     }
 
     return undef;
+}
+
+sub acl_chewer {
+    my ($self, $acl) = @_;
+
+    my $acls = "ip access-list extended packetfence\n";
+    $acls .= $acl;
+    my $p = Cisco::AccessList::Parser->new();
+    my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
+
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl->{'protocol'} =~ s/\(\)//;
+        $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}."\n";
+    }
+    return $acl_chewed;
 }
 
 =back
