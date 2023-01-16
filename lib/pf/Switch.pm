@@ -3898,17 +3898,6 @@ sub fingerbank_dynamic_acl {
     return \@acls;
 }
 
-=head2 acl_chewer
-
-Format ACL to match with the expected switch format.
-
-=cut
-
-sub acl_chewer {
-    my ($self, $acl) = @_;
-    return $acl;
-}
-
 =head2 find_user_by_psk
 
 Attempts to find a local user by matching the PSK to the attributes in the RADIUS request
@@ -4007,6 +3996,12 @@ sub checkRolesACLs {
 
     return undef;
 }
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
 
 sub acl_chewer {
     my ($self, $acl) = @_;
