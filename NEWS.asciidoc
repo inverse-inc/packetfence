@@ -31,7 +31,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Allow proxysql to be configure to connect to a single external database.
  * Allow image files to be uploaded in a connection profile.
-
+ * Added System Service and Systemd buttons in Admin UI.
+ 
 === Bug Fixes
 
  * Force the destination IP for UDP packets going through the pfconnector (#7323)
@@ -40,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Unable to upgrade to Debian 11.6 with PF 11.X and 12.X (#7438)
  * Trust server certificates when provisioning Apple devices for EAP-TLS (#7428)
  * Use WPA2 in place of WPA when provisioning Apple devices (#7428)
+ * Creating/modifying/deleting a syslog forwarder should prompt to restart rsyslog in the admin (#6532)
 
 == Version 12.1.0 released on 2022-11-22
 
