@@ -32,6 +32,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Allow proxysql to be configure to connect to a single external database.
  * Allow image files to be uploaded in a connection profile.
  * Added System Service and Systemd buttons in Admin UI.
+ * Online/offline doesn't rely on recording the bandwidth accounting data anymore 
  
 === Bug Fixes
 
