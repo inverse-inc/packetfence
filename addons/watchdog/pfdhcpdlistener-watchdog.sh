@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2005-2022 Inverse inc.
+# Copyright (C) 2005-2023 Inverse inc.
 #
 # Author: Inverse inc. <info@inverse.ca>
 #
