@@ -509,9 +509,13 @@ sub returnRadiusAccessAccept {
                 } else {
                     my $acl_num = 101;
                     while($access_list =~ /([^\n]+)\n?/g){
-                        push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                       my $acl = $1;
+                       if ($acl !~ /^permit/i && $acl !~ /^deny/i) {
+                            next;
+                        }
+                        push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$acl);
                         $acl_num ++;
-                        $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                        $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
                     }
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
                 }
