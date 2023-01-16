@@ -5,6 +5,7 @@ use URI;
 use pf::api::unifiedapiclient;
 use POSIX::AtFork;
 use pf::config qw(%Config);
+use pf::log;
 
 has id => (is => 'rw');
 
@@ -61,6 +62,9 @@ sub dynreverse {
     if($ENV{IS_A_CLASSIC_PF_CONTAINER}) {
         $connector_conn->{host} = "containers-gateway.internal";
     }
+    
+    get_logger->debug("Using pfconnector dynreverse ".$connector_conn->{host}.":".$connector_conn->{port}." via ".$self->id);
+
     return $connector_conn;
 }
 
