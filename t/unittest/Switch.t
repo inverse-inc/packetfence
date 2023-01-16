@@ -83,15 +83,15 @@ is(
 );
 
 {
-    my $switch = pf::Switch::Cisco::ASA->new({});
+    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1'});
     is_deeply(
         $switch->checkRolesACLs({ r1 => { acls => [("accept") x 31]}}),
-        [{ role_name => 'r1', code => $pf::error::switch::ACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErr, switch_id => undef}],
+        [{ role_name => 'r1', code => $pf::error::switch::ACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => 'test1'}],
     );
 }
 
 {
-    my $switch = pf::Switch::Cisco::ASA->new({UseDownloadableACLs => 'enabled'});
+    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'enabled'});
     is_deeply(
         $switch->checkRolesACLs({ r1 => { acls => [("accept") x 31]}}),
         undef,
@@ -99,10 +99,10 @@ is(
 }
 
 {
-    my $switch = pf::Switch::Cisco::ASA->new({UseDownloadableACLs => 'enabled'});
+    my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'enabled'});
     is_deeply(
         $switch->checkRolesACLs({ r1 => { acls => [("accept") x 385]}}),
-        [{ role_name => 'r1', code => $pf::error::switch::DownloadACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErr, switch_id => undef}],
+        [{ role_name => 'r1', code => $pf::error::switch::DownloadACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => 'test1'}],
     );
 }
 

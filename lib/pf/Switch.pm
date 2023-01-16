@@ -3970,7 +3970,7 @@ sub checkRoleACLs {
     my $count = @{$acls // []};
     if ($self->useDownloadableACLs()) {
         if ($count > $self->DownloadableACLsLimit()) {
-            return {code => $pf::error::switch::DownloadACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErr, switch_id => $self->{_id}};
+            return {code => $pf::error::switch::DownloadACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => $self->{_id}};
         }
 
         return undef;
@@ -3978,7 +3978,7 @@ sub checkRoleACLs {
 
     if ($self->supportsAccessListBasedEnforcement()) {
         if ($count > $self->defaultACLsLimit()) {
-            return {code => $pf::error::switch::ACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErr, switch_id => $self->{_id}};
+            return {code => $pf::error::switch::ACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => $self->{_id}};
         }
     }
 
