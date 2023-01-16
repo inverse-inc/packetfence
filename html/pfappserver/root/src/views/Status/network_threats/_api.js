@@ -16,6 +16,11 @@ export default {
       return response.data
     })
   },
+  totalPending: () => {
+    return apiCall.get('security_events/total_pending').then(response => {
+      return response.data
+    })
+  },
   perDeviceClassOpen: () => {
     return apiCall.get('security_events/per_device_class_open').then(response => {
       return response.data
@@ -26,6 +31,11 @@ export default {
       return response.data
     })
   },
+  perDeviceClassPending: () => {
+    return apiCall.get('security_events/per_device_class_pending').then(response => {
+      return response.data
+    })
+  },
   perSecurityEventOpen: () => {
     return apiCall.get('security_events/per_security_event_id_open').then(response => {
       return response.data
@@ -33,6 +43,11 @@ export default {
   },
   perSecurityEventClosed: () => {
     return apiCall.get('security_events/per_security_event_id_closed').then(response => {
+      return response.data
+    })
+  },
+  perSecurityEventPending: () => {
+    return apiCall.get('security_events/per_security_event_id_pending').then(response => {
       return response.data
     })
   },
