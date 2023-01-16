@@ -3,6 +3,7 @@ import i18n from '@/utils/locale'
 export const types = {
   BarracudaNG:      i18n.t('BarracudaNG'),
   Checkpoint:       i18n.t('Checkpoint'),
+  ContentKeeper:    i18n.t('ContentKeeper'),
   CiscoIsePic:      i18n.t('Cisco ISE-PIC'),
   FamilyZone:       i18n.t('FamilyZone'),
   FortiGate:        i18n.t('FortiGate'),
