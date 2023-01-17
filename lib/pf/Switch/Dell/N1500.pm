@@ -346,8 +346,8 @@ sub returnRadiusAccessAccept {
                 if ($self->useDownloadableACLs) {
                     my $mac = $args->{'mac'};
                     $mac =~ s/://g;
-                    my @acl = split("\n", $access_list);
                     $access_list = $self->acl_chewer($access_list);
+                    my @acl = split("\n", $access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
                     push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#$mac-".$self->setRadiusSession($args));
