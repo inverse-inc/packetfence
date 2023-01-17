@@ -103,6 +103,7 @@ require (
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.1.3
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
+	github.com/VividCortex/mysqlerr v1.0.0
 )
 
 require (
@@ -114,7 +115,6 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.0 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.5.1 // indirect
-	github.com/VividCortex/mysqlerr v1.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bifurcation/mint v0.0.0-20180715133206-93c51c6ce115 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
