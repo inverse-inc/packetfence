@@ -463,6 +463,10 @@ has_field DownloadableACLsLimit => (
     type => 'PosInteger',
 );
 
+has_field ACLsLimit => (
+    type => 'PosInteger',
+);
+
 sub _validate_acl {
     my ($field) = @_;
     my $acl = $field->value;
