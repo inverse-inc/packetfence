@@ -6,6 +6,10 @@
   vars:
     nodejs_version: "14.x"
     npm_config_unsafe_perm: "true"
+    docker_images:
+      - pfdebian
+      - radiusd
+      - pfbuild-debian-bullseye
 
   roles:
     # nodejs is already installed on Debian during build of Vagrant images
@@ -20,6 +24,7 @@
         file: /usr/local/pf/t/html/pfappserver/Makefile
       become: yes
       when: ansible_facts['os_family'] == "Debian"
+      tags: cypress
 
     - name: Install Cypress dependencies on el8
       community.general.make:
@@ -35,3 +40,38 @@
         target: install
         file: /usr/local/pf/t/html/pfappserver/Makefile
       become: yes
+      tags: cypress
+
+    - name: Create localdev .local_env, mounts /usr/local/pf/html/pfappserver/root
+      copy:
+        dest: "/usr/local/pf/containers/.local_env"
+        content: |
+          LOCAL_DEV=true
+          HTML_PFAPPSERVER_ROOT_MOUNT=/usr/local/pf/html/pfappserver/root
+      when: lookup("env", "CI") != 'true'
+
+    - name: Install python3-docker for images
+      ansible.builtin.package:
+        name: python3-docker
+        state: present
+      when: lookup("env", "CI") != 'true'
+
+    - name: Pull images
+      community.docker.docker_image:
+        name: "ghcr.io/inverse-inc/packetfence/{{ item }}"
+        tag: devel
+        source: pull
+      loop: "{{ docker_images }}"
+      when: lookup("env", "CI") != 'true'
+
+    - name: Tag and push images
+      community.docker.docker_image:
+        name: "ghcr.io/inverse-inc/packetfence/{{ item }}"
+        repository: "packetfence/{{ item }}"
+        tag: devel
+        source: local
+      loop: "{{ docker_images }}"
+      when: lookup("env", "CI") != 'true'
+
+
+
