@@ -94,6 +94,11 @@
       :column-label="$i18n.t('Rate limiting threshold')"
       :text="$i18n.t('Amount of requests on invalid URLs after which the rate limiting will kick in for this device. Requires to restart haproxy-portal in order to apply the change.')"
     />
+    
+    <form-group-expose-fingerbank-info-all-templates namespace="expose_fingerbank_info_all_templates"
+      :column-label="$i18n.t('Expose fingerbank_info in all portal templates')"
+      :text="$i18n.t('Expose the fingerbank_info to all the captive portal templates. Increases the response time of the portal due to it being slightly expensive to compute.')"
+    />
 
     <form-group-other-domain-names namespace="other_domain_names"
       :column-label="$i18n.t('Other domain name')"
@@ -108,6 +113,7 @@ import {
 } from '@/components/new/'
 import schemaFn from '../schema'
 import {
+  FormGroupExposeFingerbankInfoAllTemplates,
   FormGroupIpAddress,
   FormGroupNetworkDetection,
   FormGroupNetworkDetectionIp,
@@ -130,6 +136,7 @@ import {
 const components = {
   BaseForm,
 
+  FormGroupExposeFingerbankInfoAllTemplates,
   FormGroupIpAddress,
   FormGroupNetworkDetection,
   FormGroupNetworkDetectionIp,
