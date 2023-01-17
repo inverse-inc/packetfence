@@ -895,7 +895,11 @@ rate_limiting_threshold = 48
 #
 # Other domain names under which the captive portal responds
 other_domain_names=
-
+#
+# captive_portal.expose_fingerbank_info_all_templates
+#
+# Expose the fingerbank_info to all the captive portal templates. Increases the response time of the portal due to it being slightly expensive to compute.
+expose_fingerbank_info_all_templates = disabled
 
 [advanced]
 #

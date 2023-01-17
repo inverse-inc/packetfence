@@ -389,6 +389,10 @@ sub render {
         %saved_fields,
     };
 
+    if(isenabled($Config{captive_portal}{expose_fingerbank_info_all_templates})) {
+        $layout_args->{fingerbank_info} = pf::node::fingerbank_info($self->current_mac, $self->root_module->node_info);
+    }
+
     $args->{layout} //= $TRUE;
     $args->{raw} //= $FALSE;
     if($args->{raw}){
