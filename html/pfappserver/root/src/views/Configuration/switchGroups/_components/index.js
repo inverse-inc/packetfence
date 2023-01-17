@@ -71,6 +71,7 @@ export {
   BaseFormGroupToggleNYDefault            as FormGroupUseCoa,
   BaseFormGroupToggleNYDefault            as FormGroupUseDownloadableAcls,
   BaseFormGroupInput                      as FormGroupDownloadableAclsLimit,
+  BaseFormGroupInput                      as FormGroupAclsLimit,
   BaseFormGroupToggleNYDefault            as FormGroupDeauthOnPrevious,
   BaseFormGroupToggleNYDefault            as FormGroupToggleAccessListMap,
   BaseFormGroupToggleNYDefault            as FormGroupToggleRoleMap,

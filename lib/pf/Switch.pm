@@ -175,6 +175,7 @@ sub new {
         '_VpnMap'                       => 'enabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
+        '_ACLsLimit'                    => 0,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -3954,6 +3955,11 @@ sub defaultDownloadableACLsLimit {
 sub DownloadableACLsLimit {
     my ($self) = @_;
     return $self->{_DownloadableACLsLimit} || $self->defaultDownloadableACLsLimit();
+}
+
+sub ACLsLimit {
+    my ($self) = @_;
+    return $self->{_ACLsLimit} || $self->defaultACLsLimit();
 }
 
 sub checkRoleACLs {

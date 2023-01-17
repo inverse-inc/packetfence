@@ -166,6 +166,10 @@
                   :text="$i18n.t('This option parameter will allow you to do define the maximum number of ACLs PacketFence can send to the switch.')"
                 />
               </b-card>
+                <form-group-acls-limit namespace="ACLsLimit"
+                  :column-label="$i18n.t('Maximum number of ACLs PacketFence can return in one RADIUS reply')"
+                  :text="$i18n.t('This option parameter will allow you to do define the maximum number of ACLs PacketFence can send to the switch in a single RADIUS reply.')"
+                />
             <div class="card-body pb-0">
               <form-group-toggle-access-list-map namespace="AccessListMap"
                 :column-label="$i18n.t('Role by Access List')"
@@ -520,6 +524,7 @@ import {
   FormGroupUseCoa,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
+  FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
@@ -595,6 +600,7 @@ const components = {
   FormGroupUseCoa,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
+  FormGroupAclsLimit,
   FormGroupDeauthOnPrevious,
   FormGroupVoipEnabled,
   FormGroupVoipLldpDetect,
