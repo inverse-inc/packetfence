@@ -3974,7 +3974,7 @@ sub checkRoleACLs {
     }
 
     if ($self->supportsAccessListBasedEnforcement()) {
-        if ($count > $self->defaultACLsLimit()) {
+        if ($count > $self->ACLsLimit()) {
             return {code => $pf::error::switch::ACLsLimitErrCode, role_name => $name, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => $self->{_id}};
         }
     }
