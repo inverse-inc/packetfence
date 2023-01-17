@@ -717,7 +717,7 @@ sub getAccessListByName {
     if ($node) {
         my $acls = $node->{bypass_acls};
         chomp($acls) if defined $acls;
-        if (defined $acls && length($acls ne '') {
+        if (defined $acls && $acls ne '') {
             return $acls;
         }
     }

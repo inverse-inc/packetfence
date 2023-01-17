@@ -25,7 +25,8 @@ use pf::config qw(
     $MAC
     $SSID
     $ALWAYS
-);;
+);
+use Cisco::AccessList::Parser;
 use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
@@ -462,8 +463,21 @@ has_field DownloadableACLsLimit => (
     type => 'PosInteger',
 );
 
+sub _validate_acl {
+    my ($field) = @_;
+    my $acl = $field->value;
+    if ($acl) {
+        my $parser = Cisco::AccessList::Parser->new();
+        my $acl = "ip access-list extended packetfence\n$acl";
+        my ($a, $b, $e) = $parser->parse( 'input' => $acl);
+        if (@$e) {
+            $field->add_error(@$e);
+        }
+    }
+}
+
 sub addRoleMapping {
-    my ($namespace, $key) = @_;
+    my ($namespace, $key, $additional_info) = @_;
     has_field "$namespace" => (
         type => 'Repeatable',
     );
@@ -471,6 +485,7 @@ sub addRoleMapping {
     has_field "$namespace.$key" => (
         type => 'Text',
         required => 0,
+        @{$additional_info // []},
     );
 
     has_field "$namespace.role" => (
@@ -483,7 +498,7 @@ sub addRoleMapping {
 addRoleMapping("VlanMapping", "vlan");
 addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
-addRoleMapping("AccessListMapping", "accesslist");
+addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl ]);
 addRoleMapping("VpnMapping", "vpn");
 
 sub options_roles {
