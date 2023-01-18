@@ -26,7 +26,7 @@ RUN chmod a+x /usr/local/bin/pf-git-crypt-unlock
 RUN apt update && apt install git-crypt
 >>>>>>> b8914d3af6 (adjust user in git-sync)
 
-RUN echo "git-crypt unlock /var/run/git-crypt-key/git-crypt.key" > /usr/local/bin/pf-git-crypt-unlock
+COPY containers/git-sync/pf-git-crypt-unlock /usr/local/bin/pf-git-crypt-unlock
 RUN chmod a+x /usr/local/bin/pf-git-crypt-unlock
 
 USER 65533:65533
