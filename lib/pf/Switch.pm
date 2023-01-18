@@ -4019,7 +4019,7 @@ sub acl_chewer {
 
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        $acl->{'protocol'} =~ s/\(\)//;
+        $acl->{'protocol'} =~ s/\(\d?\)//;
         $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}."\n";
     }
     return $acl_chewed;

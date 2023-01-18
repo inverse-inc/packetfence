@@ -575,11 +575,13 @@ image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS AC
 ===== Downloadable ACLs
 
 Coming in IOS 15.2, Cisco switches supports Downloadable ACLs.
-The size of the radius packet limit the number of ACLs a switch can receive from a single Access-Accept answer, so Cisco Switches supports Downloadable ACLs which mean that the RADIUS server will do multiples Access-Challenges to send the whole ACL list.
+The size of the radius packet limit the number of ACLs a switch can receive from a single Access-Accept answer, so Cisco Switches supports Downloadable ACLs which mean that the RADIUS server will do multiples Access-Challenge to send the complete ACL.
 
-Use the Cisco::Catalyst_IOS_15 switch module to use the DACLs method and use the same Global settings from the section above.
+Use the Cisco::Catalyst_2960 switch module to use the DACLs method and use the same Global settings from the section above.
 
+Add the following configuration setting on the global level
 
+   ip device tracking
 
 ===== Web auth and Dynamic ACLs
 

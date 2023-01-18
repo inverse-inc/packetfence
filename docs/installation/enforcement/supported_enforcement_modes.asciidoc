@@ -105,12 +105,12 @@ Refer to the Network Devices Configuration Guide to see a sample web auth config
 
 ===== Downloadable ACLs
 
-Downloadable ACLs is a method that can be used when the ACL list is greater than the size of a RADIUS access-accept.
-Some vendor support it, like Cisco Switches (IOS 15) and Dell (n1500 fw 6.8)
+Downloadable ACLs is a method that can be used when the ACL list is greater than the size of a RADIUS access-accept paquet.
+Some vendor support it, like Cisco Switches (IOS 15.2) and Dell (n1500 fw 6.8)
 
-The RADIUS flow is something close to the normal one but in the Access-Accept reply there is an extra RADIUS attribute that tell the equipment that it need to trigger another RADIUS request to retreive the ACL.
+The RADIUS flow is something close to the normal one but in the Access-Accept reply there is an extra RADIUS attribute that tell the equipment to trigger another RADIUS request to retreive the ACL.
 
-Another RADIUS request is made with the ACL name as a value of the username and multiples Access-Challenges are made in order to retreive the whole content of the ACL.
+A second RADIUS request is made with the ACL name as a value of the username and multiples Access-Challenge are made in order to retreive the complete ACL.
 
 To enable it you need first to enable the RADIUS filter in the PacketFence authorize section. To do that go in Configuration -> System Configuration -> RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then restart RADIUS Auth service.
 
