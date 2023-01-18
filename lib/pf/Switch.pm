@@ -4019,8 +4019,12 @@ sub acl_chewer {
 
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        $acl->{'protocol'} =~ s/\(\d?\)//;
-        $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}."\n";
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        } else {
+            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        }
     }
     return $acl_chewed;
 }
