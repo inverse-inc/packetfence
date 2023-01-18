@@ -474,7 +474,7 @@ sub _validate_acl {
         my $parser = Cisco::AccessList::Parser->new();
         my $acl = "ip access-list extended packetfence\n$acl";
         my ($a, $b, $e) = $parser->parse( 'input' => $acl);
-        if (@$e) {
+        if (@{$e // []}) {
             $field->add_error(@$e);
         }
     }
