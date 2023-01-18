@@ -6,6 +6,7 @@ FROM registry.k8s.io/git-sync/git-sync:v4.2.4
 
 USER 0:0
 
+<<<<<<< HEAD
 COPY --from=builder /usr/bin/mawk /usr/bin/awk
 COPY --from=builder /usr/bin/gpg /usr/bin/
 COPY --from=builder /usr/bin/gpg-agent /usr/bin/
@@ -21,6 +22,9 @@ COPY --from=builder /usr/lib/x86_64-linux-gnu/libgpg-error.so* /usr/lib/x86_64-l
 
 COPY containers/git-sync/pf-git-crypt-unlock /usr/local/bin/pf-git-crypt-unlock
 RUN chmod a+x /usr/local/bin/pf-git-crypt-unlock
+=======
+RUN apt update && apt install git-crypt
+>>>>>>> b8914d3af6 (adjust user in git-sync)
 
 RUN echo "git-crypt unlock /var/run/git-crypt-key/git-crypt.key" > /usr/local/bin/pf-git-crypt-unlock
 RUN chmod a+x /usr/local/bin/pf-git-crypt-unlock
