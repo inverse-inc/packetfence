@@ -212,7 +212,7 @@ sub returnAuthorizeVPN {
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
                 }
             } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
             }
         }
     }
@@ -282,9 +282,9 @@ sub returnRadiusAdvanced {
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             $self->setRadiusSession($session);
         } elsif (scalar @{$session->{'acl'}} == 1) {
-            $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ".$args->{'user_role'});
+            $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
         } else {
-            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
         }
     }
     $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
