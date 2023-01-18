@@ -643,6 +643,7 @@ pfdeb_based_dev:
           - "pfldapexplorer"
           - "kafka"
           - "ntlm-auth-api"
+          - "git-sync"
 
 img_dev:
   extends:
@@ -726,6 +727,7 @@ pfdeb_based_br_maint:
           - "pfldapexplorer"
           - "kafka"
           - "ntlm-auth-api"
+          - "git-sync"
 
 img_br_maint:
   extends:
