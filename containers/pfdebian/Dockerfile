@@ -25,7 +25,7 @@ COPY addons/dev-helpers/debian/install-pf-dependencies.sh /usr/local/pf/addons/d
 RUN /usr/local/pf/addons/dev-helpers/debian/install-pf-dependencies.sh && \
       rm -f /usr/local/fingerbank/db/fingerbank_*.db
 
-RUN apt-get install -y freeradius-common
+RUN apt-get install -y freeradius-common git-crypt
 
 RUN useradd -U -r -d "/usr/local/pf" -s /bin/sh -c "PacketFence" -M pf
 
