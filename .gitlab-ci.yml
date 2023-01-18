@@ -648,6 +648,7 @@ pfdeb_based_dev:
           - "kafka"
           - "ntlm-auth-api"
           - "netdata"
+          - "git-sync"
 
 img_dev:
   extends:
@@ -744,6 +745,7 @@ pfdeb_based_br_maint:
           - "kafka"
           - "ntlm-auth-api"
           - "netdata"
+          - "git-sync"
 
 img_br_maint:
   extends:
