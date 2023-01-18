@@ -22,5 +22,8 @@ COPY --from=builder /usr/lib/x86_64-linux-gnu/libgpg-error.so* /usr/lib/x86_64-l
 COPY containers/git-sync/pf-git-crypt-unlock /usr/local/bin/pf-git-crypt-unlock
 RUN chmod a+x /usr/local/bin/pf-git-crypt-unlock
 
+RUN echo "git-crypt unlock /var/run/git-crypt-key/git-crypt.key" > /usr/local/bin/pf-git-crypt-unlock
+RUN chmod a+x /usr/local/bin/pf-git-crypt-unlock
+
 USER 65533:65533
 
