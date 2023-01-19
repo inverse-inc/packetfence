@@ -34,14 +34,6 @@
       become: yes
       when: ansible_facts['os_family'] == "RedHat"
 
-    - name: Install Cypress
-      community.general.make:
-        chdir: /usr/local/pf/t/html/pfappserver
-        target: install
-        file: /usr/local/pf/t/html/pfappserver/Makefile
-      become: yes
-      tags: cypress
-
     - name: Create localdev .local_env, mounts /usr/local/pf/html/pfappserver/root
       copy:
         dest: "/usr/local/pf/containers/.local_env"
@@ -72,6 +64,3 @@
         source: local
       loop: "{{ docker_images }}"
       when: lookup("env", "CI") != 'true'
-
-
-
