@@ -201,7 +201,7 @@ sub returnAuthorizeVPN {
                     my @acl = split("\n", $access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';
-                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=".$args->{'user_name'}."-".$self->setRadiusSession($args));
+                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#".$args->{'user_name'}."-".$self->setRadiusSession($args));
                 } else {
                     my $acl_num = 101;
                     while($access_list =~ /([^\n]+)\n?/g){
@@ -258,14 +258,16 @@ sub returnRadiusAdvanced {
         my $session = $cache->get($session_id);
         $session->{'id_session'} = $session_id;
         # Need to send back a challenge since there is still acl to download
-        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence.authorize' && scalar @{$session->{'acl'}} > 1 ) {
+        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence-cli.authorize' && scalar @{$session->{'acl'}} > 1 ) {
             $status = $RADIUS::RLM_MODULE_HANDLED;
             $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
             $radius_reply_ref->{'state'} = $session_id;
-            my @a = (1..64);
-            for my $i (@a){
+            for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
                 last if (scalar @{$session->{'acl'}} == 1);
                 my $acl = shift @{$session->{'acl'}};
+                if ($acl !~ /^permit/i && $acl !~ /^deny/i) {
+                    next;
+                }
                 push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
                 $session->{'acl_num'} ++;
                 $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
@@ -277,11 +279,15 @@ sub returnRadiusAdvanced {
         }
         if (scalar @{$session->{'acl'}} == 1) {
             my $acl = shift @{$session->{'acl'}};
-            push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
-            $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
-            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-            $self->setRadiusSession($session);
-        } elsif (scalar @{$session->{'acl'}} == 1) {
+            if ($acl =~ /^permit/i || $acl =~ /^deny/i) {
+                push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
+                $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+                $self->setRadiusSession($session);
+            } else {
+                $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
+            }
+        } elsif (scalar @{$session->{'acl'}} == 0) {
             $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
         } else {
             $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
