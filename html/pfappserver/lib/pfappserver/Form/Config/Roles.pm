@@ -22,6 +22,7 @@ use HTTP::Status qw(:constants is_success);
 use pf::config qw(%ConfigRoles);
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
+use Cisco::AccessList::Parser;
 pf::SwitchFactory->preloadAllModules();
 
 has_field 'id' =>
@@ -80,6 +81,7 @@ has_field 'fingerbank_dynamic_access_list' => (
 has_field 'acls' => (
     type => 'TextArea',
     label => 'ACLs',
+    validate_method => \&_validate_acl,
 );
 
 has_field 'inherit_vlan' => (
@@ -105,6 +107,19 @@ has_field 'inherit_web_auth_url' => (
     unchecked_value => 'disabled',
     default => 'disabled',
 );
+
+sub _validate_acl {
+    my ($field) = @_;
+    my $acl = $field->value;
+    if ($acl) {
+        my $parser = Cisco::AccessList::Parser->new();
+        my $acl = "ip access-list extended packetfence\n$acl";
+        my ($a, $b, $e) = $parser->parse( 'input' => $acl);
+        if (@{$e // []}) {
+            $field->add_error(@$e);
+        }
+    }
+}
 
 =head2 validate
 
