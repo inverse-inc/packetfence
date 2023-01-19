@@ -41,7 +41,7 @@ my $base_url = '/api/v1/config/role';
 {
     my $id = "test_role_${$}_1";
     my $acl = <<ACL;
-permit any any
+permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154
 ACL
     $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
       ->status_is(201);
@@ -49,7 +49,7 @@ ACL
 
 {
     my $id = "test_role_${$}_2";
-    my $acl = "permit any any\n" x 80;
+    my $acl = "permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154\n" x 80;
     $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
       ->status_is(201)
       ->json_has('/warnings');
