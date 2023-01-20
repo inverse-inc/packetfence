@@ -83,12 +83,12 @@ deb_deploy() {
     for release_name in $(ls $DEB_RESULT_DIR); do
         src_dir="$DEB_RESULT_DIR/${release_name}"
         dst_repo="$DEB_BASE_DIR/$DEB_DEPLOY_DIR/$PF_MINOR_RELEASE"
-        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$DEB_UPLOAD_DIR"
+        dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$DEB_UPLOAD_DIR/$CI_ENV_NAME"
         changes_file=$(basename $(ls $DEB_RESULT_DIR/${release_name}/*.changes | tail -1))
         declare -p src_dir dst_dir changes_file
 
-        # dest repo need to exist + conf directory
-        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf"
+        # dest repo need to exist + conf directory + subdirectory in upload queue
+        mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf $DEB_UPLOAD_DIR/$CI_ENV_NAME"
         echo "running following command: $mkdir_cmd"
         ssh $mkdir_cmd \
             || die "remote mkdir failed"
