@@ -13,6 +13,13 @@
       tags: nodejs
 
   tasks:
+    - name: Synchronize t/html/pfappserver
+      ansible.posix.synchronize:
+        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../html/pfappserver"
+        dest: '/usr/local/pf/t/html/'
+        archive: yes
+        delete: yes
+
     - name: Install Cypress dependencies on debian
       community.general.make:
         chdir: /usr/local/pf/t/html/pfappserver

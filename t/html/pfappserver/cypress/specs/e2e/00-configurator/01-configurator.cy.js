@@ -3,7 +3,7 @@
 // API async w/ pfqueue polling,
 // instead of poll tracking request chains, just wait a while and intercept final request
 // TODO: improve intercepts w/ pfqueue polling
-let waitForPfqueuePolling = { timeout: 90E3 } // 90 seconds
+let waitForPfqueuePolling = { timeout: 300E3 } // 5 minutes (90 seconds is too short)
 
 describe('Configurator', () => {
 
