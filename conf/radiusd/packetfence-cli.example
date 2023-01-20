@@ -116,7 +116,9 @@ authorize {
 	#
 	#pap
 	packetfence-base64-password
-	rest-cli
+	if (&control:Response-Packet-Type != Access-Challenge) {
+		rest-cli
+	}
 	if (updated || ok || noop) {
 		update {
 			&control:Auth-Type := Accept
@@ -322,6 +324,12 @@ post-auth {
 	#update {
 	#	&reply: += &session-state:
 	#}
+	if ("%{%{control:PacketFence-Authorization-Status}:-Allow}" == "deny") {
+		packetfence-audit-log-reject
+		reject
+	} else {
+		packetfence-audit-log-accept
+	}
 
 	if (! EAP-Type || (EAP-Type != TTLS  && EAP-Type != PEAP) ) {
 		packetfence-audit-log-accept

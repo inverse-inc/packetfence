@@ -878,7 +878,7 @@ sub authenticate {
 
     if ( !( defined($return) && $return == $TRUE ) ) {
         $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
     }
 }
 
