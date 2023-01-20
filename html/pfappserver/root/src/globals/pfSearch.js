@@ -32,6 +32,7 @@ export const pfSearchConditionType = {
   ROLE:                    'role',
   SOURCE:                  'source',
   SWITCH_GROUP:            'switch_group',
+  SECURITY_EVENT:          'security_event',
 }
 
 export const pfSearchConditionValue = {
@@ -144,6 +145,10 @@ pfConditionOperators[pfSearchConditionType.SOURCE] = {
   'not_equals':            pfSearchConditionValue.SELECT
 }
 pfConditionOperators[pfSearchConditionType.SWITCH_GROUP] = {
+  'equals':                pfSearchConditionValue.SELECT,
+  'not_equals':            pfSearchConditionValue.SELECT
+}
+pfConditionOperators[pfSearchConditionType.SECURITY_EVENT] = {
   'equals':                pfSearchConditionValue.SELECT,
   'not_equals':            pfSearchConditionValue.SELECT
 }
@@ -296,6 +301,15 @@ pfSearchConditionValues[pfSearchConditionType.SOURCE] = (store) => {
 pfSearchConditionValues[pfSearchConditionType.SWITCH_GROUP] = (store) => {
   store.dispatch('config/getSwitchGroups')
   return store.getters['config/switchGroupsList']
+}
+pfSearchConditionValues[pfSearchConditionType.SECURITY_EVENT] = (store) => {
+  store.dispatch('config/getSecurityEvents')
+  return store.getters['config/sortedSecurityEvents']
+    .map(securityEvent => {
+      const { id: value, desc: text } = securityEvent
+      return { text, value }
+    })
+    .filter(option => option.text)
 }
 
 export const pfSearchConditionFormatter = {

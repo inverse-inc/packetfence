@@ -85,6 +85,17 @@ our @SECURITY_EVENT_CLOSED_JOIN = (
     'security_event|security_event_close',
 );
 
+our @SECURITY_EVENT_DELAYED_JOIN = (
+    {
+        operator  => '=>',
+        condition => {
+            'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+            'security_event_delay.status' => { '=' => "delayed" },
+        },
+    },
+    'security_event|security_event_delay',
+);
+
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
         join_spec     => \@IP4LOG_JOIN,
@@ -172,7 +183,7 @@ sub rewrite_security_event_security_event_id_status {
         return (422, { message => "value cannot be null for $q->{field} field" });
     }
 
-    if ($op ne 'equals') {
+    if ($op ne 'equals' && $op ne 'not_equals') {
         return (422, { message => "$op is not valid for $q->{field} field" });
     }
 
@@ -282,7 +293,7 @@ sub map_dal_field_to_join_spec {
         namespace => $table,
         (defined $where_spec ? (where_spec => $where_spec) : () ),
         column_spec => make_join_column_spec($table, $field),
-   } 
+   }
 }
 
 sub make_join_column_spec {
