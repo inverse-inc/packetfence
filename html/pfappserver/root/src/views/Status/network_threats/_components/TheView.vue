@@ -239,6 +239,7 @@ const setup = (props, context) => {
 
     totalOpen,
     totalClosed,
+    totalPending,
     perDeviceClassOpen,
     perDeviceClassClosed,
     perDeviceClassPending,
