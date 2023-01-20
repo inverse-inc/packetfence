@@ -40,7 +40,7 @@ use pf::constants::config qw($DEFAULT_SMTP_PORT $DEFAULT_SMTP_PORT_SSL $DEFAULT_
 use IO::Socket::SSL qw(SSL_VERIFY_NONE);
 use pf::constants::config qw($TIME_MODIFIER_RE);
 use pf::constants::realm;
-use Encode qw(encode);
+use Encode qw(encode encode_utf8);
 use File::Basename;
 use Net::MAC::Vendor;
 use Net::SMTP;
@@ -146,8 +146,8 @@ sub pfmailer_now {
     my $subject = $Config{'alerting'}{'subjectprefix'} . $host_prefix . " " . $data{'subject'} . " ($date)";
     my $msg = MIME::Lite->new(
         To      => $to,
-        Subject => $subject,
-        Data    => $data{message} . "\r\n",
+        Subject => encode_utf8($subject),
+        Data    => encode_utf8($data{message} . "\r\n"),
     );
     return send_mime_lite($msg);
 }
@@ -203,6 +203,7 @@ sub build_email {
         ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
     $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
+    $msg->data(encode_utf8($msg->data));
     if ($old_locale) {
         POSIX::setlocale(POSIX::LC_MESSAGES, $old_locale);
     }
