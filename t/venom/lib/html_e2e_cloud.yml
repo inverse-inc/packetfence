@@ -1,12 +1,16 @@
-executor: html_e2e
+executor: html_e2e_cloud
 input:
-  base_url: "{{.pfserver_webadmin_url}}"
+  base_url: ""
   config_file: "cypress/config/cypress.config.js"
-  tag: "html_e2e"
+  project_id: ""
+  record_key: ""
+  tag: "html_e2e_cloud"
 steps:
 - type: exec
   script: |
-    make -C {{.html.pfappserver_dir}} test \
+    make -C {{.html.pfappserver_dir}} test-e2e \
+      PROJECT_ID={{.input.project_id}} \
+      RECORD_KEY={{.input.record_key}} \
       BASE_URL={{.input.base_url}} \
       CONFIG_FILE={{.input.config_file}} \
       CONFIG="downloadsFolder={{.test_suite_results_dir}}/downloads,screenshotsFolder={{.test_suite_results_dir}}/screenshots,videosFolder={{.test_suite_results_dir}}/videos" \

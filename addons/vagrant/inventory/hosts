@@ -1190,9 +1190,6 @@ all:
           fingerbank_api_key:
             secret_id: '1ec6dc22-39c8-4ae8-99c8-01403c6cb247'
             email: 'dsatkuna@akamai.com'
-          psono_secrets:
-            cypress_project_id: '4c81fde5-be04-4eba-bab3-8bbfea1fcafa'
-            cypress_record_key: 'd3d28327-16b9-47f0-8206-1c04fc0bebae'
         networks:
           - name: mgmt_route_dsatkunas
             subnet: '172.18.125.0/24'
