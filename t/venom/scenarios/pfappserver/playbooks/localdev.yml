@@ -1,0 +1,69 @@
+---
+- hosts: pfservers
+  name: Setup localdev
+  become: True
+
+  vars:
+    docker_images:
+      - pfdebian
+      - radiusd
+      - pfbuild-debian-bullseye
+
+  tasks:
+    - name: Install python3-docker for images
+      ansible.builtin.package:
+        name: python3-docker
+        state: present
+
+    - name: Pull images
+      community.docker.docker_image:
+        name: "ghcr.io/inverse-inc/packetfence/{{ item }}"
+        tag: devel
+        source: pull
+      loop: "{{ docker_images }}"
+
+    - name: Tag and push images
+      community.docker.docker_image:
+        name: "ghcr.io/inverse-inc/packetfence/{{ item }}"
+        repository: "packetfence/{{ item }}"
+        tag: devel
+        source: local
+      loop: "{{ docker_images }}"
+
+    - name: Create localdev .local_env, mounts /usr/local/pf/html/pfappserver/root
+      copy:
+        dest: "/usr/local/pf/containers/.local_env"
+        content: |
+          LOCAL_DEV=true
+          HTML_PFAPPSERVER_ROOT_MOUNT=/usr/local/pf/html/pfappserver/root
+
+    - name: Synchronize t/html/pfappserver
+      ansible.posix.synchronize:
+        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../html/pfappserver"
+        dest: '/usr/local/pf/t/html/'
+        archive: yes
+        delete: yes
+
+    - name: Synchronize html/pfappserver/root/dist
+      ansible.posix.synchronize:
+        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../../html/pfappserver/root/dist"
+        dest: '/usr/local/pf/html/pfappserver/root/'
+        archive: yes
+        delete: yes
+
+    - name: Synchronize docs for --build httpd.admin_dispatcher
+      ansible.posix.synchronize:
+        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../../docs"
+        dest: '/usr/local/pf/'
+        archive: yes
+        delete: yes
+
+    - name: restart packetfence-httpd.admin_dispatcher
+      ansible.builtin.service:
+        name: packetfence-httpd.admin_dispatcher
+        state: restarted
+
+    - name: Wait for build httpd.admin_dispatcher:8890
+      wait_for:
+        host: "localhost"
+        port: 8890

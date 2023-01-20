@@ -8,41 +8,6 @@
     - pfappserver_configurator
 
   tasks:
-    - name: Synchronize t/html/pfappserver
-      ansible.posix.synchronize:
-        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../html/pfappserver"
-        dest: '/usr/local/pf/t/html/'
-        archive: yes
-        delete: yes
-      when: lookup("env", "CI") != 'true'
-
-    - name: Synchronize html/pfappserver/root/dist
-      ansible.posix.synchronize:
-        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../../html/pfappserver/root/dist"
-        dest: '/usr/local/pf/html/pfappserver/root/'
-        archive: yes
-        delete: yes
-      when: lookup("env", "CI") != 'true'
-
-    - name: Synchronize docs for --build httpd.admin_dispatcher
-      ansible.posix.synchronize:
-        src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../../docs"
-        dest: '/usr/local/pf/'
-        archive: yes
-        delete: yes
-      when: lookup("env", "CI") != 'true'
-
-    - name: restart packetfence-httpd.admin_dispatcher
-      ansible.builtin.service:
-        name: packetfence-httpd.admin_dispatcher
-        state: restarted
-      when: lookup("env", "CI") != 'true'
-
-    - name: Wait for build httpd.admin_dispatcher:8890
-      wait_for:
-        host: "localhost"
-        port: 8890
-
     - name: Install Cypress
       community.general.make:
         chdir: /usr/local/pf/t/html/pfappserver
