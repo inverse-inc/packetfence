@@ -49,7 +49,7 @@ rpm_deploy() {
         base_repo="$RPM_BASE_DIR/RHEL$release_name/$RPM_DEPLOY_DIR"
         rpm_dir="$base_repo/RPMS"
         dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$rpm_dir"
-        deploy_cmd="/usr/local/bin/ci-repo-deploy rpm $base_repo $CI_ENV_NAME"
+        deploy_cmd="/usr/local/bin/ci-repo-deploy-new rpm $base_repo $CI_ENV_NAME"
         declare -p src_dir dst_dir
 
         # dest repo + subdirectories RPMS need to exist
@@ -97,7 +97,7 @@ deb_deploy() {
         scp $src_dir/* $dst_dir/ \
             || die "scp failed"
 
-        deploy_cmd="/usr/local/bin/ci-repo-deploy deb $dst_repo $CI_ENV_NAME"
+        deploy_cmd="/usr/local/bin/ci-repo-deploy-new deb $dst_repo $CI_ENV_NAME"
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
         extra_args="${release_name} ${changes_file}"
         echo "running following command: $dst_cmd $extra_args"
