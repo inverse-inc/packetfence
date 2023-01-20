@@ -96,5 +96,6 @@ PostMfaValidation=N
 
 
 # Downloadable ACLs
-UseDownloadableACLs = disabled
-DownloadableACLsLimit = 0
+DownloadableACLsLimit=384
+UseDownloadableACLs=N
+ACLsLimit=20
