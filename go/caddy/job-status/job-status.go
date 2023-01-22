@@ -127,23 +127,9 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 
 	updatesKey := h.jobStatusUpdatesKey(jobId)
 
-	sub := h.redis.Subscribe(updatesKey)
-	defer sub.Close()
+	h.redis.BRPop(POLL_TIMEOUT*time.Second, updatesKey)
+	h.handleStatus(w, r, p)
 
-	_, err = sub.Receive()
-	if err != nil {
-		msg := "Unable to get job status from redis database"
-		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
-		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
-	} else {
-		ch := sub.Channel()
-
-		select {
-		case <-ch:
-		case <-time.After(POLL_TIMEOUT * time.Second):
-		}
-		h.handleStatus(w, r, p)
-	}
 }
 
 func (h JobStatusHandler) jobStatusKey(jobId string) string {

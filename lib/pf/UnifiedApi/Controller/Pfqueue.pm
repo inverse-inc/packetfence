@@ -26,11 +26,8 @@ sub poll {
         return $self->render(json => $response , status => $status);
     }
 
-    my @topics = ("$job_id-Status-Updates");
-    my $savecallback = sub {};
-    $redis->subscribe(@topics, $savecallback);
-    $redis->wait_for_messages($POLL_TIMEOUT);
-    $redis->unsubscribe(@topics, $savecallback);
+    my $list_id = "$job_id-Status-Updates";
+    $redis->brpop($list_id, $POLL_TIMEOUT);
     return $self->_send_status($job_id, $redis);
 }
 
