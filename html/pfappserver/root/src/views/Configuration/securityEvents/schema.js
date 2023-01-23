@@ -87,12 +87,37 @@ const schemaWhiteListedRole = yup.string().nullable()
 
 const schemaWhiteListedRoles = yup.array().ensure().of(schemaWhiteListedRole)
 
+const schemaIntervalUnit = intervalUnit => {
+  // fix: #7420
+  // interval and unit are mutually required
+  //  if interval is defined then unit is required
+  //  if unit is defined then interval is required
+  const { interval, unit } = intervalUnit || {}
+  return yup.object({
+    interval: ((unit)
+      ? yup.string().nullable().required(i18n.t('Interval required.'))
+      : yup.string().nullable()
+    ),
+    unit: ((interval)
+      ? yup.string().nullable().required(i18n.t('Unit required.'))
+      : yup.string().nullable()
+    ),
+  })
+}
+
 export const schema = (props) => {
   const {
+    form,
     id,
     isNew,
-    isClone
+    isClone,
   } = props
+
+  const {
+    grace,
+    window,
+    delay_by
+  } = form || {}
 
   return yup.object({
     id: yup.string()
@@ -105,7 +130,10 @@ export const schema = (props) => {
       .required(i18n.t('Description required.'))
       .label(i18n.t('Description')),
     priority: yup.string().nullable().label(i18n.t('Priority')),
-    whitelisted_roles: schemaWhiteListedRoles
+    whitelisted_roles: schemaWhiteListedRoles,
+    grace: schemaIntervalUnit(grace),
+    window: schemaIntervalUnit(window),
+    delay_by: schemaIntervalUnit(delay_by),
   })
 }
 
