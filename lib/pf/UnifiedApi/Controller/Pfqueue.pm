@@ -15,7 +15,7 @@ use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::util::pfqueue qw(consumer_redis_client);
 use pf::error qw(is_success is_error);
-my $POLL_TIMEOUT = 10;
+my $POLL_TIMEOUT = 30;
 
 sub poll {
     my ($self) = @_;

@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -27,7 +27,7 @@ const STATUS_COMPLETED_STR = "200"
 const STATUS_PENDING_STR = "202"
 const STATUS_FAILED_STR = "400"
 
-const POLL_TIMEOUT = 15
+const POLL_TIMEOUT = 30
 
 // Register the plugin in caddy
 func init() {
@@ -115,11 +115,12 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 	ctx := r.Context()
 	jobId := p.ByName("job_id")
 
-	data, err := h.redis.HGetAll(h.jobStatusKey(jobId)).Result()
+	data, err := h.redis.HGetAll(ctx, h.jobStatusKey(jobId)).Result()
 	if err != nil {
 		msg := "Unable to get job status from redis database"
 		h.writeMessage(ctx, http.StatusInternalServerError, msg, w)
 		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
+		return
 	} else if status := data["status"]; status == STATUS_COMPLETED_STR || status == STATUS_FAILED_STR {
 		h.sendResults(w, data)
 		return
@@ -127,9 +128,15 @@ func (h JobStatusHandler) handleStatusPoll(w http.ResponseWriter, r *http.Reques
 
 	updatesKey := h.jobStatusUpdatesKey(jobId)
 
-	h.redis.BRPop(POLL_TIMEOUT*time.Second, updatesKey)
-	h.handleStatus(w, r, p)
+	_, err = h.redis.BRPop(ctx, POLL_TIMEOUT*time.Second, updatesKey).Result()
+	if err == redis.Nil {
+		log.LoggerWContext(ctx).Info(fmt.Sprintf("Request %s Timed out", jobId))
+	} else if err != nil {
+		msg := "Problem waiting for update"
+		log.LoggerWContext(ctx).Error(msg + ": " + err.Error())
+	}
 
+	h.handleStatus(w, r, p)
 }
 
 func (h JobStatusHandler) jobStatusKey(jobId string) string {
@@ -150,7 +157,7 @@ func (h JobStatusHandler) writeMessage(ctx context.Context, statusCode int, mess
 }
 
 func (h JobStatusHandler) keyExists(ctx context.Context, key string) (bool, error) {
-	data, err := h.redis.Exists(key).Result()
+	data, err := h.redis.Exists(ctx, key).Result()
 
 	if err != nil {
 		return false, err
@@ -160,7 +167,7 @@ func (h JobStatusHandler) keyExists(ctx context.Context, key string) (bool, erro
 }
 
 func (h JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w http.ResponseWriter) error {
-	data, err := h.redis.HGetAll(h.jobStatusKey(jobId)).Result()
+	data, err := h.redis.HGetAll(ctx, h.jobStatusKey(jobId)).Result()
 
 	if err != nil {
 		msg := "Unable to get job status from redis database"
