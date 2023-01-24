@@ -50,6 +50,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Creating/modifying/deleting a syslog forwarder should prompt to restart rsyslog in the admin (#6532)
  * Fixed utf8 encoding in email body (#7422)
  * Escape quotes in LDAP passwords (AD source: too complex password prevent RADIUS to start #3976)
+ * Use the proper file extensions when uploading SAML config files. (ZEN 12.1 - XML File Renamed on upload.  #7439)
 
 == Version 12.1.0 released on 2022-11-22
 
