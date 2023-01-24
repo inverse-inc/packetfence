@@ -6,8 +6,8 @@ import store from '@/store'
 import { format } from 'date-fns'
 
 const locales = {
-  en: require('date-fns/locale/en'),
-  fr: require('date-fns/locale/fr')
+  en: require('date-fns/locale/en-US'),
+  fr: require('date-fns/locale/fr-CA')
 }
 
 export const pfFormatters = {

@@ -152,13 +152,14 @@ const setup = (props, context) => {
       { title: i18n.t('6 months'),   text: '6M',  value: 60 * 60 * 24 * 31 * 6 } ,
       { title: i18n.t('1 year'),     text: '1Y',  value: 60 * 60 * 24 * 365 }
     ].filter(({ value }) => {
-      return !date_limit || value < duration2seconds(date_limit)
+      return !date_limit || value <= duration2seconds(date_limit)
     })
   })
 
   const setRangeByPeriod = period => {
     showPeriod.value = false
     emit('input', {
+      ...value.value,
       start_date: format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'),
       end_date: format(new Date(), 'YYYY-MM-DD HH:mm:ss')
     })
@@ -166,6 +167,7 @@ const setup = (props, context) => {
 
   const clearRange = () => {
     emit('input', {
+      ...value.value,
       start_date: undefined,
       end_date: undefined
     })
