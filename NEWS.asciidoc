@@ -38,6 +38,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Online/offline doesn't rely on recording the bandwidth accounting data anymore 
  * Pending security events added to network threats visualization
  * Allow to expose the fingerbank_info variable to all HTML portal templates (#7460)
+ * VLAN filters actions can now be done synchronously (#7351)
  
 === Bug Fixes
 
