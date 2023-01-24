@@ -3964,6 +3964,10 @@ sub ACLsLimit {
 
 sub checkRoleACLs {
     my ($self, $name, $acls) = @_;
+    if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
+        return $self->makeACLsError($name, $pf::error::switch::ACLsNotSupportedErrCode);
+    }
+
     my $count = @{$acls // []};
     if ($self->useDownloadableACLs()) {
         if ($count > $self->DownloadableACLsLimit()) {
@@ -3989,9 +3993,13 @@ sub makeACLsError {
 
 sub checkRolesACLs {
     my ($self, $roles) = @_;
+    if (!defined $roles || keys %$roles == 0) {
+        return undef;
+    }
+
     my @warnings;
     if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
-        return undef;
+        return [ map {$self->makeACLsError($_, $pf::error::switch::ACLsNotSupportedErrCode) } keys %$roles ];
     }
 
     while (my ($name, $role) = each %$roles) {

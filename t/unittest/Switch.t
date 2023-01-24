@@ -77,9 +77,9 @@ is(
     undef,
 );
 
-is(
+is_deeply(
     $switch->checkRolesACLs({ r1 => { acls => [("accept") x 31]}}),
-    undef,
+    [{switch_id => 'test', role_name => 'r1', code => 10003, message => $pf::error::switch::ACLsNotSupportedMsg}],
 );
 
 {
