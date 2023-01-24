@@ -28,6 +28,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === New Features
 
  * Content Keeper firewall SSO support
+ * Added support for Unifi OS controllers (#7368)
 
 === Enhancements
 
