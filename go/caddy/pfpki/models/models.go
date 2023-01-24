@@ -37,6 +37,7 @@ import (
 	"io/ioutil"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certstore"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/certutils"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
@@ -1314,6 +1315,10 @@ func (c Cert) Download(params map[string]string) (types.Info, error) {
 	var CaCert []*x509.Certificate
 
 	CaCert = append(CaCert, cacert)
+	// Load all the certificates from PacketFence configuration
+	for _, cert := range certstore.ExtractAllFromPacketFence() {
+		CaCert = append(CaCert, cert)
+	}
 
 	var password string
 	if val, ok := params["password"]; ok {
