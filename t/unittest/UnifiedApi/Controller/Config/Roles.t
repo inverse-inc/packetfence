@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 33;
+use Test::More tests => 36;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
