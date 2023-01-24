@@ -51,6 +51,13 @@ has_field 'run_actions' => (
    default => 'enabled'
 );
 
+has_field 'actions_synchronous' => (
+   type => 'Toggle',
+   checkbox_value => 'enabled',
+   unchecked_value => 'disabled',
+   default => 'disabled'
+);
+
 =head2 actions
 
 The list of action
