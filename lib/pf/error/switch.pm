@@ -13,9 +13,22 @@ pf::error::switch
 use strict;
 use warnings;
 
-our $ACLsLimitErrMsg = 'ACLs limit reach';
+our $ACLsLimitErrMsg = 'ACLs limit reached for switch';
+our $ACLsNotSupportedMsg = 'ACLs not supported for switch';
 our $DownloadACLsLimitErrCode = 10001;
 our $ACLsLimitErrCode = 10002;
+our $ACLsNotSupportedErrCode = 10003;
+
+our %MESSAGES = (
+   $DownloadACLsLimitErrCode => $ACLsLimitErrMsg,
+   $ACLsLimitErrCode => $ACLsLimitErrMsg,
+   $ACLsNotSupportedErrCode => $ACLsNotSupportedMsg,
+);
+
+sub makeACLsError {
+    my ($switch, $role, $code) = @_;
+    return { code => $code, role_name => $role, message => $MESSAGES{$code}, switch_id => $switch->{_id} };
+}
 
 =head1 AUTHOR
 
@@ -45,4 +58,3 @@ USA.
 =cut
 
 1;
-
