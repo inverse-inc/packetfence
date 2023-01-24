@@ -339,32 +339,49 @@ sub bulk_reevaluate_access {
                 my ($subprocess) = @_;
                 my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
                 $updater->start;
-                my $results = $self->do_bulk_reevaluate_access($data, $updater);
-                $updater->completed({items => $results});
+                my ($status, $results) = $self->do_bulk_reevaluate_access($data, $updater);
+                if (is_error($status)) {
+                    $updater->failed({ message => $results });
+                    return;
+                }
+
+                $updater->completed($results);
                 return;
             },
             sub { } # Do nothing
         );
 
         return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
-    } else {
-        my $results = $self->do_bulk_reevaluate_access($data);
-        return $self->render(json => { items => $results });
     }
+
+    ($status, my $results) = $self->do_bulk_reevaluate_access($data);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $results,
+        );
+    }
+
+    return $self->render(json => $results);
 }
 
 sub do_bulk_reevaluate_access {
     my ($self, $data, $updater) = @_;
     my @items;
     my $id = $self->id;
-    for my $mac (@{get_nodes_for_role($id)}) {
+    my ($status, $nodes) = get_nodes_for_role($id);
+    if (is_error($status)) {
+        return ($status, "Unable to get nodes");
+    }
+
+    for my $mac (@{$nodes}) {
         my %item = (mac => $mac);
         my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
         $item{status} = $result ? "success" : "failed";
         push @items, \%item;
     }
 
-    return \@items;
+    return ($status, {items => \@items });
 }
 
 sub get_nodes_for_role {
@@ -372,13 +389,13 @@ sub get_nodes_for_role {
     my ($status, $sth) = pf::dal::node->db_execute($NODES_IN_CATGEORY, $name);
     if (is_error($status)) {
         get_logger()->error("Unable to get nodes in the database");
-        return [];
+        return ($status, []);
     }
 
     my $nodes = $sth->fetchall_arrayref([0]);
     $sth->finish;
     my $n = [map {$_->[0]} @{$nodes}];
-    return $n;
+    return ($status, $n);
 }
 
 =head1 AUTHOR
