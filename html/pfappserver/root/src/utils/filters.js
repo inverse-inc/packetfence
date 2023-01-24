@@ -8,10 +8,10 @@ const filters = {
     } else {
       let localeObject, localeFormat
       if (i18n.locale === 'fr') {
-        localeObject = require('date-fns/locale/fr')
+        localeObject = require('date-fns/locale/fr-CA')
         localeFormat = 'dddd, D MMMM, YYYY, HH:mm:ss'
       } else {
-        localeObject = require('date-fns/locale/en')
+        localeObject = require('date-fns/locale/en-US')
         localeFormat = 'dddd, MMMM D, YYYY, hh:mm:ss a'
       }
       return format(parse(value), localeFormat, { locale: localeObject })
@@ -23,10 +23,10 @@ const filters = {
     } else {
       let localeObject, localeFormat
       if (i18n.locale === 'fr') {
-        localeObject = require('date-fns/locale/fr')
+        localeObject = require('date-fns/locale/fr-CA')
         localeFormat = 'DD/MM/YY HH:mm'
       } else {
-        localeObject = require('date-fns/locale/en')
+        localeObject = require('date-fns/locale/en-US')
         localeFormat = 'MM/DD/YY hh:mm a'
       }
       return format(parse(value), localeFormat, { locale: localeObject })
@@ -40,9 +40,9 @@ const filters = {
     } else {
       let localeObject
       if (i18n.locale === 'fr') {
-        localeObject = require('date-fns/locale/fr')
+        localeObject = require('date-fns/locale/fr-CA')
       } else {
-        localeObject = require('date-fns/locale/en')
+        localeObject = require('date-fns/locale/en-US')
       }
       return distanceInWordsToNow(parse(value), { locale: localeObject })
     }

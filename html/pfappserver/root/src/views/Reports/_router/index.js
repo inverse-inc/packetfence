@@ -2,6 +2,7 @@ import acl from '@/utils/acl'
 import store from '@/store'
 import TheIndex from '../'
 import StoreModule from '../_store'
+import BasesStoreModule from '@/views/Configuration/bases/_store'
 import { analytics } from '../config'
 
 const TheView = () => import(/* webpackChunkName: "Reports" */ '../_components/TheView')
@@ -20,6 +21,7 @@ const route = {
     if (!store.state.$_reports) {
       // Register store module only once
       store.registerModule('$_reports', StoreModule)
+      store.registerModule('$_bases', BasesStoreModule)
     }
     next()
   },

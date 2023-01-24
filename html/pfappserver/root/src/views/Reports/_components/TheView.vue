@@ -1,6 +1,8 @@
 <template>
   <b-card no-body id="card">
     <b-card-header>
+      <base-input-toggle-false-true v-model="useLocalTimezone" :label-left="true" :label-right="false" :options="timezoneOptions"
+        class="float-right" />
       <h4 class="mb-0">
         {{ id.split('::').join(' / ') }}
         <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_reports" />
@@ -31,6 +33,7 @@
         </b-tabs>
         <the-table
           :meta="meta"
+          :timezone="timezone"
         >
           <b-row align-v="center">
             <b-col cols="auto" class="pr-0">
@@ -58,7 +61,8 @@
 <script>
 import {
   BaseButtonHelp,
-  BaseContainerLoading
+  BaseContainerLoading,
+  BaseInputToggleFalseTrue,
 } from '@/components/new/'
 import BaseInputDateRange from './BaseInputDateRange'
 import TheSearch from './TheSearch'
@@ -67,6 +71,7 @@ const components = {
   BaseButtonHelp,
   BaseContainerLoading,
   BaseInputDateRange,
+  BaseInputToggleFalseTrue,
   TheSearch,
   TheTable
 }
@@ -85,6 +90,8 @@ const props = {
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useSearchFactory } from '../_search'
 import { useStore } from '../_store'
+import i18n from '@/utils/locale'
+import { format } from 'date-fns'
 
 const setup = (props, context) => {
 
@@ -108,9 +115,32 @@ const setup = (props, context) => {
   const meta = ref({})
   const isLoaded = ref(false)
 
+  const useLocalTimezone = ref(false)
+  const localTimezone = computed(() => {
+    const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
+    return timeZone
+  })
+  const serverTimezone = ref(undefined)
+  $store.dispatch('$_bases/getGeneral').then(general => {
+    const { timezone } = general
+    serverTimezone.value = timezone
+  })
+  const timezoneOptions = computed(() => [
+    { value: false, label: i18n.t('Use server timezone ({timezone})', { timezone: serverTimezone.value })},
+    { value: true, label: i18n.t('Use local timezone ({timezone})', { timezone: localTimezone.value }), color: 'var(--primary)'  }
+  ])
+  const timezone = computed(() => ((useLocalTimezone.value) ? localTimezone.value : serverTimezone.value))
+
   const dateRange = ref({})
-  watch(dateRange, () => {
-    const { start_date, end_date } = dateRange.value
+  watch([dateRange, useLocalTimezone], () => {
+    let { start_date, end_date } = dateRange.value
+    if (localTimezone.value !== serverTimezone.value && useLocalTimezone.value) {
+      // offset local ISO date from local timezone to server timezone
+      const isoDateFn = date => format(new Date(date).toLocaleString('en-US', { timeZone: serverTimezone.value }), 'YYYY-MM-DD HH:mm:ss')
+      // offset start_date, end_date
+      start_date = isoDateFn(start_date)
+      end_date = isoDateFn(end_date)
+    }
     // append dates to meta, consumed by search::requestInterceptor
     meta.value = { ...meta.value, start_date, end_date }
     // wait for meta prop to propagate
@@ -233,7 +263,11 @@ const setup = (props, context) => {
     chartComponent,
     chartName,
     chartProps,
-    chartIcon
+    chartIcon,
+
+    useLocalTimezone,
+    timezoneOptions,
+    timezone
   }
 }
 
