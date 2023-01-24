@@ -46,6 +46,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Trust server certificates when provisioning Apple devices for EAP-TLS (#7428)
  * Use WPA2 in place of WPA when provisioning Apple devices (#7428)
  * Creating/modifying/deleting a syslog forwarder should prompt to restart rsyslog in the admin (#6532)
+ * Fixed utf8 encoding in email body (#7422)
+
 
 == Version 12.1.0 released on 2022-11-22
 
