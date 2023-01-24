@@ -26,7 +26,7 @@ require (
 	github.com/gin-gonic/gin v1.7.0
 	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-errors/errors v1.0.1
-	github.com/go-kit/kit v0.10.0
+	github.com/go-kit/kit v0.10.0 // indirect
 	github.com/go-redis/redis v0.0.0-20190325112110-a679e614427a
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
@@ -93,10 +93,6 @@ require (
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.19.2
-	k8s.io/apimachinery v0.19.2
-	k8s.io/client-go v0.19.2
-	k8s.io/klog v1.0.0
 	software.sslmate.com/src/go-pkcs12 v0.0.0-20190322163127-6e380ad96778
 )
 
@@ -104,6 +100,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.1.3
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
 	github.com/VividCortex/mysqlerr v1.0.0
+	github.com/go-kit/log v0.2.1
 )
 
 require (
@@ -124,18 +121,14 @@ require (
 	github.com/dimchansky/utfbom v1.1.0 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/go-logfmt/logfmt v0.5.0 // indirect
-	github.com/go-logr/logr v0.2.0 // indirect
+	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
-	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
 	github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
@@ -156,7 +149,6 @@ require (
 	github.com/pkg/browser v0.0.0-20210115035449-ce105d075bb4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/procfs v0.2.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tinylib/msgp v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	go.opencensus.io v0.22.3 // indirect
@@ -166,12 +158,7 @@ require (
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
-	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
-	k8s.io/klog/v2 v2.2.0 // indirect
-	k8s.io/utils v0.0.0-20200729134348-d5654de09c73 // indirect
-	sigs.k8s.io/structured-merge-diff/v4 v4.0.1 // indirect
-	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 require (
@@ -183,12 +170,10 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
