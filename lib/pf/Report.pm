@@ -168,7 +168,7 @@ sub options_query_fields {
 
 sub options_columns {
     my ($self) = @_;
-    return [ map { $self->format_options_column($_) } @{ $self->{columns} } ];
+    return [ map { $self->format_options_column($_) } @{ $self->{columns} // [] } ];
 }
 
 sub format_options_column {
