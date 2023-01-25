@@ -2,11 +2,9 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="mb-0">{{ $t('Syslog Entries') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
-      <div
-        class="alert alert-warning"
-      >{{ $t(`Creating, modifying or deleting an syslog entry requires to restart the rsyslog service using the following command: systemctl restart rsyslog`) }}</div>
       <base-search :use-search="useSearch">
         <b-button variant="outline-primary" @click="goToNew({ syslogForwarderType: 'server' })">{{ $t('New Syslog Entry') }}</b-button>
       </base-search>
@@ -93,6 +91,7 @@ import {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 
@@ -100,6 +99,7 @@ const components = {
   BaseButtonConfirm,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 }
 
@@ -107,7 +107,7 @@ import { ref, toRefs } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useStore, useRouter } from '../_composables/useCollection'
+import { useSearch, useStore, useRouter, useServices } from '../_composables/useCollection'
 
 const setup = (props, context) => {
 
@@ -145,6 +145,8 @@ const setup = (props, context) => {
       .then(() => reSearch())
   }
 
+  const services = useServices(props)
+
   return {
     useSearch,
     tableRef,
@@ -152,7 +154,8 @@ const setup = (props, context) => {
     onRemove,
     ...router,
     ...selected,
-    ...toRefs(search)
+    ...toRefs(search),
+    services,
   }
 }
 

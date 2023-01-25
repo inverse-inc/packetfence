@@ -11,3 +11,11 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_bases/updateAdvanced', params)
   }
 }
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying the advanced configuration requires to restart the api-frontend service.'),
+    services: ['api-frontend'],
+    k8s_services: ['api-frontend']
+  }
+})

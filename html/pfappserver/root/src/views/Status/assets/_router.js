@@ -10,6 +10,7 @@ export default [
     name: 'assets',
     component: TheView,
     meta: {
+      isFailRoute: true,
       can: 'read nodes'
     },
     beforeEnter: (to, from, next) => {

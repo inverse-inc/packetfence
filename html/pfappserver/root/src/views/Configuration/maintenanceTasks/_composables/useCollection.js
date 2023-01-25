@@ -8,6 +8,16 @@ export const useItemTitle = (props) => {
   return computed(() => i18n.t('Maintenance Task <code>{id}</code>', { id: id.value }))
 }
 
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Enabling or disabling a task as well as modifying its interval requires a restart of pfcron to be fully effective.'),
+    services: ['pfcron'],
+    system_services: [],
+    k8s_services: [],
+    systemd: false
+  }
+})
+
 export { useRouter } from '../_router'
 
 export { useStore } from '../_store'

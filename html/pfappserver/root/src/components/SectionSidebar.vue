@@ -29,7 +29,7 @@
             <template v-if="section.collapsable">
               <template v-if="can(section)">
                 <component class="section-sidenav-group" :is="section.path ? 'router-link': 'div'"
-                  :key="`${section.name}_btn`" :to="section.path"
+                  :key="`${section.path}_btn`" :to="section.path" :class="section.class"
                   v-b-toggle="$sanitizedClass(section.name)">
                   <icon class="position-absolute mx-3" :name="section.icon" scale="1.25" v-if="section.icon" />
                   <text-highlight class="ml-5" :queries="[filter]">{{ section.name }}</text-highlight>
@@ -38,42 +38,42 @@
                   <icon v-else
                     class="mx-1 mt-1" name="chevron-down" />
                 </component>
-                <b-collapse :id="$sanitizedClass(section.name)" :key="section.name" :accordion="accordion(section.name)" :visible="isActive(section.name)">
+                <b-collapse :id="$sanitizedClass(section.name)" :key="section.path" :accordion="accordion(section.name)" :visible="isActive(section.name)">
                   <template v-for="item in section.items">
                     <!-- single link -->
-                    <section-sidebar-item v-if="item.path" :key="item.name" :item="item" :filter="filter" />
+                    <section-sidebar-item v-if="item.path" :key="item.path" :item="item" :filter="filter" />
                     <!-- collapsable (2nd level) -->
                     <template v-else-if="item.collapsable">
-                      <div class="section-sidenav-group" :key="`${item.name}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
+                      <div class="section-sidenav-group" :key="`${item.path}_btn`" v-b-toggle="$sanitizedClass(`${section.name}_${item.name}`)">
                         <text-highlight class="ml-5" :queries="[filter]">{{ item.name }}</text-highlight>
                         <icon class="mx-1" name="angle-double-down" />
                       </div>
-                      <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.name" :visible="isActive(item.name)">
-                        <section-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent />
+                      <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.path" :visible="isActive(item.name)">
+                        <section-sidebar-item v-for="subitem in item.items" :key="subitem.path" :item="subitem" :filter="filter" indent />
                       </b-collapse>
                     </template>
                     <!-- non-collapsable section with items (2nd level) -->
-                    <b-nav class="section-sidenav my-2" v-else :key="item.name" vertical>
+                    <b-nav class="section-sidenav my-2" v-else :key="item.path" vertical>
                         <div class="section-sidenav-group">
                           <text-highlight :queries="[filter]">{{ $t(item.name) }}</text-highlight>
                         </div>
-                        <section-sidebar-item v-for="subitem in item.items" :key="subitem.name" :item="subitem" :filter="filter" indent />
+                        <section-sidebar-item v-for="subitem in item.items" :key="subitem.path" :item="subitem" :filter="filter" indent />
                     </b-nav>
                   </template>
                 </b-collapse>
               </template>
             </template>
             <!-- non-collapsable section with items -->
-            <b-nav v-else-if="section.items" class="section-sidenav my-2" :key="section.name" vertical>
+            <b-nav v-else-if="section.items" class="section-sidenav my-2" :class="section.class" :key="section.path" vertical>
               <template v-if="can(section)">
                 <div class="section-sidenav-group">
                   <text-highlight :queries="[filter]">{{ section.name }}</text-highlight>
                 </div>
-                <section-sidebar-item v-for="item in section.items" :key="item.name" :item="item" :filter="filter" indent />
+                <section-sidebar-item v-for="item in section.items" :key="item.path" :item="item" :filter="filter" indent />
               </template>
             </b-nav>
             <!-- single link -->
-            <section-sidebar-item v-else :key="section.name" :item="section" :filter="filter" />
+            <section-sidebar-item v-else :key="section.path" :item="section" :filter="filter" />
           </template>
           <slot />
         </b-nav>

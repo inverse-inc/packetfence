@@ -10,11 +10,16 @@ export const beforeEnter = (to, from, next = () => {}) => {
   next()
 }
 
+const can = () => !store.getters['system/isSaas']
+
 export default [
   {
     path: 'services',
     name: 'services',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'services' }),
     beforeEnter
   }

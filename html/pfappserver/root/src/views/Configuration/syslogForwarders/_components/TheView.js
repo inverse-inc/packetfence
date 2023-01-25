@@ -43,8 +43,9 @@ const render = renderHOCWithScopedSlots(BaseView, { components, props, setup }, 
 // @vue/component
 export default {
   name: 'the-view',
-  extends: BaseView,
   inheritAttrs: false,
+  extends: BaseView,
+  components,
   props,
   render
 }

@@ -20,16 +20,7 @@ export default [
     path: 'services',
     name: 'statusServices',
     component: TheView,
-    beforeEnter: (to, from, next) => {
-      beforeEnter()
-      if (acl.$can('read', 'system')) {
-        store.dispatch('system/getHostname').then(() => {
-          store.dispatch('cluster/getConfig').finally(() => next())
-        })
-      }
-      else
-        next()
-    },
+    beforeEnter,
     meta: {
       can: 'read services',
       isFailRoute: true

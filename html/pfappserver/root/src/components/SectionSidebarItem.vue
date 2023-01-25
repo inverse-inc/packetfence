@@ -4,7 +4,7 @@
 
 -->
 <template>
-  <div>
+  <div :class="item.class">
     <b-nav-item
       exact-active-class="active"
       v-if="visible"

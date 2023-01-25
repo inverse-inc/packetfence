@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="{ 'w-saas': isSaas, 'wo-saas': !isSaas }">
     <b-navbar toggleable="md" fixed="top" type="dark" class="navbar-expand-md bg-dark" :class="{ 'alert-danger': warnings.length > 0 }">
       <b-nav-toggle target="navbar"></b-nav-toggle>
       <b-navbar-brand>
@@ -102,6 +102,7 @@ const setup = (props, context) => {
   const { root: { $can, $router, $store } = {} } = context
 
   const isDebug = process.env.VUE_APP_DEBUG === 'true'
+  const isSaas = computed(() => $store.getters['system/isSaas'])
 
   const documentationViewerClass = ref(null)
   const showDocumentationViewer = computed(() => $store.getters['documentation/showViewer'])
@@ -238,6 +239,7 @@ const setup = (props, context) => {
 
   return {
     isDebug,
+    isSaas,
     isAuthenticated,
     isConfiguratorActive,
     warnings,

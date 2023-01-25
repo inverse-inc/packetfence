@@ -9,9 +9,6 @@
           <b-dropdown-header>{{ $t('Choose Certificate Authority - Template') }}</b-dropdown-header>
           <b-dropdown-item v-for="profile in profilesSorted" :key="profile.id" :to="{ name: 'newPkiCert', params: { profile_id: profile.id } }">{{ profile.ca_name }} - {{ profile.name }}</b-dropdown-item>
         </b-dropdown>
-        <base-button-service
-          service="pfpki" restart start stop
-          class="ml-1" />
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading || !isServiceAlive"
@@ -115,7 +112,6 @@
 <script>
 import {
   BaseButtonConfirm,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty
@@ -129,7 +125,6 @@ import {
 
 const components = {
   BaseButtonConfirm,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
   BaseTableEmpty,

@@ -11,3 +11,11 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_bases/updateGeneral', params)
   }
 }
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Modifying the general configuration requires to restart the haproxy-portal service.'),
+    services: ['haproxy-portal'],
+    k8s_services: ['haproxy-portal']
+  }
+})

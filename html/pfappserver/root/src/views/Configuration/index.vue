@@ -28,7 +28,7 @@ const setup = () => {
         { name: i18n.t('Roles'), path: '/configuration/roles' },
         { name: i18n.t('Domains'),
           items: [
-            { name: i18n.t('Active Directory Domains'), path: '/configuration/domains' },
+            { name: i18n.t('Active Directory Domains'), path: '/configuration/domains', class: 'no-saas' },
             { name: i18n.t('Realms'), path: '/configuration/realms' }
           ]
         },
@@ -113,6 +113,7 @@ const setup = () => {
       path: '/configuration/network_configuration',
       icon: 'project-diagram',
       collapsable: true,
+      class: 'no-saas',
       items: [
         { name: i18n.t('Networks'),
           items: [
@@ -138,10 +139,10 @@ const setup = () => {
           items: [
             { name: i18n.t('General Configuration'), path: '/configuration/general' },
             { name: i18n.t('Alerting'), path: '/configuration/alerting' },
-            { name: i18n.t('Monit'), path: '/configuration/monit' },
+            { name: i18n.t('Monit'), path: '/configuration/monit', class: 'no-saas' },
             { name: i18n.t('Advanced'), path: '/configuration/advanced' },
             { name: i18n.t('Maintenance'), path: '/configuration/maintenance_tasks' },
-            { name: i18n.t('Services'), path: '/configuration/services' }
+            { name: i18n.t('Services'), path: '/configuration/services', class: 'no-saas' }
           ]
         },
         { name: i18n.t('Database'),
@@ -151,7 +152,7 @@ const setup = () => {
             { name: i18n.t('ProxySQL'), path: '/configuration/database_proxysql' }
           ]
         },
-        { name: i18n.t('Cluster'), path: '/configuration/active_active' },
+        { name: i18n.t('Cluster'), path: '/configuration/active_active', class: 'no-saas' },
         { name: i18n.t('RADIUS'),
           items: [
             { name: i18n.t('General'), path: '/configuration/radius/general' },

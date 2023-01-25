@@ -9,6 +9,11 @@
       label-class="d-none"
       label-right
     />
+    
+    <div
+      class="alert alert-warning is-saas"
+    >{{ $t(`Changes to connection profiles files require a restart of the httpd-portal deployment`) }}</div>
+
     <b-table :items="tableItems" :fields="tableFields" :sort-by="sortBy" :sort-desc="sortDesc"
       class="the-files-list"
       small hover responsive striped show-empty no-local-sorting no-select-on-click borderless

@@ -7,7 +7,6 @@ import {
 } from '@/components/new/'
 import { BaseViewCollectionItem } from '../../../_components/new/'
 import {
-  AlertServices,
   BaseFormGroupToggleNoYesDefault
 } from '../../_components/'
 import TheForm from './TheForm'
@@ -29,7 +28,6 @@ export {
   BaseFormGroupChosenOne          as FormGroupFastConfig,
 
   BaseViewCollectionItem          as BaseView,
-  AlertServices,
   TheForm,
   TheView
 }

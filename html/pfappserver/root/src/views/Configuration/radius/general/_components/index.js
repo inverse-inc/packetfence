@@ -5,7 +5,6 @@ import {
   BaseFormGroupInputNumber
 } from '@/components/new/'
 import { BaseViewResource } from '../../../_components/new/'
-import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -32,7 +31,6 @@ export {
   BaseFormGroupInputNumber            as FormGroupPfacctWorkers,
   BaseFormGroupInputNumber            as FormGroupPfacctWorkQueueSize,
 
-  AlertServices,
   BaseViewResource                    as BaseView,
   TheForm,
   TheView

@@ -5,7 +5,7 @@
     </b-card-header>
     <b-tabs ref="tabs" v-model="tabIndex" card lazy>
       <b-tab v-for="(tab, index) in tabs" :key="index"
-        :title="$t(tab.title)" @click="tabIndex = index">
+        :title-item-class="tab.class" :title="$t(tab.title)" @click="tabIndex = index">
         <component :is="tab.component" v-bind="('props' in tab) ? tab.props($props) : {}"/>
       </b-tab>
     </b-tabs>
@@ -20,7 +20,8 @@ const tabs = {
   domains: {
     title: 'Active Directory Domains', // i18n defer
     component: DomainsSearch,
-    props: ({ autoJoinDomain }) => ({ autoJoinDomain })
+    props: ({ autoJoinDomain }) => ({ autoJoinDomain }),
+    class: 'no-saas'
   },
   realms: {
     title: 'Realms', // i18n defer

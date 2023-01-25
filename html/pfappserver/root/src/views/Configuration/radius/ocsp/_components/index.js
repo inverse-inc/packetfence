@@ -5,7 +5,6 @@ import {
 } from '@/components/new/'
 import { BaseViewCollectionItem } from '../../../_components/new/'
 import {
-  AlertServices,
   BaseFormGroupToggleNoYesDefault
 } from '../../_components/'
 import TheForm from './TheForm'
@@ -23,7 +22,6 @@ export {
   BaseFormGroupToggleNoYesDefault as FormGroupOcspSoftfail,
 
   BaseViewCollectionItem          as BaseView,
-  AlertServices,
   TheForm,
   TheView
 }

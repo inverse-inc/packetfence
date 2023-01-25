@@ -2,14 +2,12 @@
   <b-card no-body>
     <b-card-header>
       <h4 class="mb-0">{{ $t('Certificate Authorities') }}</h4>
+      <base-services v-bind="services" class="mt-3 mb-0" variant="info" />
     </b-card-header>
     <div class="card-body">
       <base-search :use-search="useSearch" :disabled="!isServiceAlive">
         <b-button :disabled="isLoading || !isServiceAlive"
           variant="outline-primary" @click="goToNew">{{ $t('New Certificate Authority') }}</b-button>
-        <base-button-service
-          service="pfpki" restart start stop
-          class="ml-1" />
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading || !isServiceAlive"
@@ -102,17 +100,17 @@
 <script>
 import {
   BaseButtonConfirm,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 } from '@/components/new/'
 
 const components = {
   BaseButtonConfirm,
-  BaseButtonService,
   BaseSearch,
   BaseSearchInputColumns,
+  BaseServices,
   BaseTableEmpty
 }
 
@@ -120,7 +118,7 @@ import { computed, onMounted, ref, toRefs, watch } from '@vue/composition-api'
 import { useBootstrapTableSelected } from '@/composables/useBootstrap'
 import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
-import { useSearch, useRouter } from '../_composables/useCollection'
+import { useSearch, useRouter, useServices } from '../_composables/useCollection'
 import i18n from '@/utils/locale'
 
 const setup = (props, context) => {
@@ -174,6 +172,8 @@ const setup = (props, context) => {
     useDownload(filename, csv, 'text/csv')
   }
 
+  const services = useServices()
+
   return {
     useSearch,
     isServiceAlive,
@@ -182,7 +182,8 @@ const setup = (props, context) => {
     onBulkExport,
     ...router,
     ...selected,
-    ...toRefs(search)
+    ...toRefs(search),
+    services,
   }
 }
 

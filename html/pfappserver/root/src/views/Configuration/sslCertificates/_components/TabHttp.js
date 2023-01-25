@@ -6,6 +6,10 @@ const props = {
   id: {
     type: String,
     default: 'http'
+  },
+  titleItemClass: {
+    type: String,
+    default: 'no-saas'
   }
 }
 

@@ -11,3 +11,5 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_bases/updateRadiusConfiguration', params)
   }
 }
+
+export { useServices } from '../../_composables/useResource'

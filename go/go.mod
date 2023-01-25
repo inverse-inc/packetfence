@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/Azure/azure-sdk-for-go v40.6.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.11.10
-	github.com/Azure/go-autorest/autorest/adal v0.9.5 // indirect
+	github.com/Azure/go-autorest/autorest v0.11.27
+	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3
 	github.com/OneOfOne/xxhash v1.2.7
 	github.com/Sereal/Sereal v0.0.0-20200729022450-08708a3c86f3
@@ -31,8 +31,8 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d
 	github.com/golang/protobuf v1.5.2
-	github.com/google/go-cmp v0.5.5
-	github.com/google/uuid v1.1.1
+	github.com/google/go-cmp v0.5.8
+	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/rpc v0.0.0-20160927134711-22c016f3df3f
 	github.com/gorilla/schema v1.1.0
@@ -45,7 +45,7 @@ require (
 	github.com/inverse-inc/dhcp4 v0.0.0-20200625173842-2c4d1e50d7ca
 	github.com/inverse-inc/go-ipset/v2 v2.2.4
 	github.com/inverse-inc/go-radius v0.0.0-20220811032638-9fee2fa31606
-	github.com/inverse-inc/go-utils v0.0.0-20210420024101-48a17e73abae
+	github.com/inverse-inc/go-utils v0.0.0-20221121145914-6c624c4f08c4
 	github.com/inverse-inc/scep v0.0.0-20221012121248-d6b471ca5508
 	github.com/jcuga/golongpoll v1.1.0
 	github.com/jimstudt/http-authentication v0.0.0-20140401203705-3eca13d6893a
@@ -85,14 +85,17 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20221010170243-090e33056c14
 	golang.org/x/text v0.3.7
-	google.golang.org/api v0.29.0
-	google.golang.org/grpc v1.29.1
+	google.golang.org/api v0.57.0
+	google.golang.org/grpc v1.40.0
 	gopkg.in/DataDog/dd-trace-go.v1 v1.27.1
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/ldap.v2 v2.0.0-20171123045618-bb7a9ca6e4fb
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/api v0.25.4
+	k8s.io/apimachinery v0.25.4
+	k8s.io/client-go v0.25.4
 	software.sslmate.com/src/go-pkcs12 v0.0.0-20190322163127-6e380ad96778
 )
 
@@ -104,14 +107,16 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.56.0 // indirect
+	cloud.google.com/go v0.97.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.0.0 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/azure/cli v0.4.2 // indirect
 	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
-	github.com/Azure/go-autorest/logger v0.2.0 // indirect
+	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.5.1 // indirect
+	github.com/PuerkitoBio/purell v1.1.1 // indirect
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bifurcation/mint v0.0.0-20180715133206-93c51c6ce115 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
@@ -119,46 +124,66 @@ require (
 	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dimchansky/utfbom v1.1.0 // indirect
-	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
+	github.com/emicklei/go-restful/v3 v3.8.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
+	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-openapi/jsonpointer v0.19.5 // indirect
+	github.com/go-openapi/jsonreference v0.19.5 // indirect
+	github.com/go-openapi/swag v0.19.14 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.1+incompatible // indirect
-	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/google/gnostic v0.5.7-v3refs // indirect
+	github.com/google/gofuzz v1.1.0 // indirect
+	github.com/googleapis/gax-go/v2 v2.1.0 // indirect
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda // indirect
 	github.com/inverse-inc/pkcs7 v0.0.0-20221012121123-778f83870ec7 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
-	github.com/kr/text v0.1.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lucas-clemente/aes12 v0.0.0-20171027163421-cd47fb39b79f // indirect
 	github.com/lucas-clemente/quic-go-certificates v0.0.0-20160823095156-d2f86524cced // indirect
+	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mdlayher/netlink v0.0.0-20190313131330-258ea9dff42c // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/opentracing-contrib/go-observer v0.0.0-20170622124052-a52f23424492 // indirect
 	github.com/pkg/browser v0.0.0-20210115035449-ce105d075bb4 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/procfs v0.2.0 // indirect
 	github.com/tinylib/msgp v1.1.2 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
-	go.opencensus.io v0.22.3 // indirect
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
-	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
+	go.opencensus.io v0.23.0 // indirect
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
+	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/appengine v1.6.5 // indirect
-	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto v0.0.0-20210924002016-3dee208752a0 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+	k8s.io/klog/v2 v2.70.1 // indirect
+	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
+	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect
+	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
+	sigs.k8s.io/yaml v1.2.0 // indirect
 )
 
 require (
@@ -168,7 +193,7 @@ require (
 	github.com/andrew-d/go-termutil v0.0.0-20150726205930-009166a695a2 // indirect
 	github.com/cheekybits/genny v1.0.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/golang/snappy v0.0.1 // indirect
+	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jpillora/ansi v1.0.2 // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
@@ -179,6 +204,10 @@ require (
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/square/go-jose.v2 v2.3.1 // indirect
 )
+
+require layeh.com/radius v0.0.0-00010101000000-000000000000
+
+replace layeh.com/radius => github.com/inverse-inc/go-radius v0.0.0-20221114145510-67bfba021ae4
 
 replace github.com/inverse-inc/packetfence => ../
 

@@ -20,6 +20,14 @@ function base_args {
   args="$args -eFINGERBANK_UID=`id -u fingerbank` -e FINGERBANK_GID=`id -g fingerbank`"
   args="$args -eIS_A_CLASSIC_PF_CONTAINER=yes"
 
+  if [ -f /usr/local/pf/containers/.local_env ]; then
+    args="$args --env-file /usr/local/pf/containers/.local_env"
+  fi
+
+  if ! [ -z "$K8S_MASTER_CA_FILE" ]; then
+    args="$args -v$K8S_MASTER_CA_FILE:$K8S_MASTER_CA_FILE"
+  fi
+
   # Check to mount /tmp dir
   if [ "${PF_MOUNT_TMP}" == "yes" ]; then
     args="$args -v /tmp:/tmp"

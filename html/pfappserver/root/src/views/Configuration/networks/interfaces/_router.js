@@ -22,17 +22,25 @@ export const useRouter = $router => {
   }
 }
 
+const can = () => !store.getters['system/isSaas']
+
 export default [
   {
     path: 'interfaces',
     name: 'interfaces',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'interfaces' })
   },
   {
     path: 'interface/:id',
     name: 'interface',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ id: route.params.id }),
     beforeEnter: (to, from, next) => {
       store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
@@ -44,6 +52,9 @@ export default [
     path: 'interface/:id/clone',
     name: 'cloneInterface',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ id: route.params.id, isClone: true }),
     beforeEnter: (to, from, next) => {
       store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {
@@ -55,6 +66,9 @@ export default [
     path: 'interface/:id/new',
     name: 'newInterface',
     component: TheView,
+    meta: {
+      can
+    },
     props: (route) => ({ id: route.params.id, isNew: true }),
     beforeEnter: (to, from, next) => {
       store.dispatch('$_interfaces/getInterface', to.params.id).then(() => {

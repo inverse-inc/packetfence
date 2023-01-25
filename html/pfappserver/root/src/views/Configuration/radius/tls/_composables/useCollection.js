@@ -77,3 +77,4 @@ export const useSearch = makeSearch('radiusTls', {
   sortBy: 'id'
 })
 
+export { useServices } from '../../_composables/useResource'

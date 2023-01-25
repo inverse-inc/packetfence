@@ -13,35 +13,52 @@ import TrafficShapingPoliciesRoutes from './trafficShapingPolicies/_router'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworks')
 
+const can = () => !store.getters['system/isSaas']
+
 const routes = [
   {
     path: 'networks',
     name: 'networks',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'network' })
   },
   {
     path: 'network',
     name: 'network',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'network' })
   },
   {
     path: 'inline',
     name: 'inline',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'inline' })
   },
   {
     path: 'fencing',
     name: 'fencing',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'fencing' })
   },
   {
     path: 'parking',
     name: 'parking',
     component: TheTabs,
+    meta: {
+      can
+    },
     props: () => ({ tab: 'parking' })
   },
 

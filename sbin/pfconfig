@@ -123,6 +123,10 @@ $pfconfig::constants::CONFIG_FILE_PATH = $args{c} if($args{c});
 my $socket_path = $args{s};
 unlink($socket_path);
 
+my $cache = pfconfig::manager->new;
+$cache->{pfconfig_server} = 1;
+$cache->preload_all();
+
 #Ensure that the file permissions of the socket is correct 0770
 umask(0007);
 
@@ -146,10 +150,6 @@ if($config->get_proto eq "tcp") {
 }
 
 umask(0);
-
-my $cache = pfconfig::manager->new;
-$cache->{pfconfig_server} = 1;
-$cache->preload_all();
 
 our %DISPATCH = (
     'expire'             => \&expire,

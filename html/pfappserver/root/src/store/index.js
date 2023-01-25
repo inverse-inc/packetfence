@@ -4,6 +4,7 @@ import analytics from './modules/analytics'
 import config from './modules/config'
 import cluster from './modules/cluster'
 import documentation from './modules/documentation'
+import k8s from './modules/k8s'
 import lookup from './modules/lookup'
 import notification from './modules/notification'
 import performance from './modules/performance'
@@ -41,6 +42,7 @@ const store = new Vuex.Store({
     config,
     cluster,
     documentation,
+    k8s,
     lookup,
     notification,
     performance,

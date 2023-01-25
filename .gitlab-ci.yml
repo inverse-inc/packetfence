@@ -132,7 +132,16 @@ variables:
     - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+
+# run this job on cloud nac branches if not canceled by BUILD_IMG_CONTAINER=no or commit message build_img_container=no
+.build_img_container_cloud_nac_rules:
+  rules:
+    - if: '$BUILD_IMG_CONTAINER == "no"'
+      when: never
+    - if: '$CI_COMMIT_MESSAGE =~ /build_img_container=no/'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # only run this job on devel branch with BUILD_IMG_DOCKER variable defined or build_img_docker in commit message
 .build_img_docker_devel_rules:
@@ -145,7 +154,14 @@ variables:
     - if: '$BUILD_IMG_DOCKER == "no"'
       when: never
     - if: '$CI_COMMIT_REF_NAME =~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
-    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+    - if: '$CI_COMMIT_REF_NAME != "devel" && $CI_COMMIT_REF_NAME !~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_REF_NAME !~ /^maintenance\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
+
+# run this job on cloud nac branches if not canceled by BUILD_IMG_DOCKER=no
+.build_img_docker_cloud_nac_rules:
+  rules:
+    - if: '$BUILD_IMG_DOCKER == "no"'
+      when: never
+    - if: '$CI_COMMIT_REF_NAME =~ /^cloud-nac\/[[:digit:]]+\.[[:digit:]]+$/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "web")'
 
 # run jobs only when:
 # - on devel branch (push,web,schedule) if variable BUILD_IMG_VAGRANT sets to yes or if CI_COMMIT_MESSAGE contains "build_img_vagrant=yes".
@@ -292,6 +308,15 @@ variables:
   stage: build_img_container
   dependencies: []
   image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}
+  script:
+    - /bin/kanikobuild
+  tags:
+    - docker
+
+.build_img_container_job_cloud_nac:
+  stage: build_img_container
+  dependencies: []
+  image: ${KANIKOBUILD_IMG}:${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   script:
     - /bin/kanikobuild
   tags:
@@ -587,6 +612,7 @@ pfdeb_based_dev:
           - "httpd.dispatcher"
           - "httpd.portal"
           - "api-frontend"
+          - "pfacct"
           - "pfcmd"
           - "pfqueue"
           - "httpd.aaa"
@@ -662,6 +688,7 @@ pfdeb_based_br_maint:
           - "httpd.dispatcher"
           - "httpd.portal"
           - "api-frontend"
+          - "pfacct"
           - "pfcmd"
           - "pfqueue"
           - "httpd.aaa"
@@ -696,6 +723,82 @@ rad_based_br_maint:
   needs: ["pfdeb_based_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "radiusd-auth"
+          - "radiusd-acct"
+          - "radiusd-cli"
+          - "radiusd-load-balancer"
+          - "radiusd-eduroam"
+
+# cloud nac
+kaniko_cloud_nac:
+  extends:
+    - .build_img_container_kanikobuild_job
+    - .build_img_container_cloud_nac_rules
+  variables:
+    IMAGE_NAME: "kaniko-build"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+
+pfdeb_cloud_nac:
+  extends:
+    - .build_img_container_job_cloud_nac
+    - .build_img_container_cloud_nac_rules
+  needs: ["kaniko_cloud_nac"]
+  variables:
+    IMAGE_NAME: "pfdebian"
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+
+pfdeb_based_cloud_nac:
+  extends:
+    - .build_img_container_job_cloud_nac
+    - .build_img_container_cloud_nac_rules
+  needs: ["pfdeb_cloud_nac"]
+  variables:
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "pfconfig"
+          - "httpd.dispatcher"
+          - "httpd.portal"
+          - "api-frontend"
+          - "pfacct"
+          - "pfcmd"
+          - "pfqueue"
+          - "httpd.aaa"
+          - "httpd.admin_dispatcher"
+          - "httpd.webservices"
+          - "radiusd"
+          - "pfsso"
+          - "pfperl-api"
+          - "pfconnector"
+          - "pfpki"
+          - "pfcron"
+          - "haproxy-portal"
+          - "haproxy-admin"
+          - "proxysql"
+
+img_cloud_nac:
+  extends:
+    - .build_img_container_job_cloud_nac
+    - .build_img_container_cloud_nac_rules
+  needs: ["pfdeb_cloud_nac"]
+  variables:
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - "fingerbank-db"
+
+rad_based_cloud_nac:
+  extends:
+    - .build_img_container_job_cloud_nac
+    - .build_img_container_cloud_nac_rules
+  needs: ["pfdeb_based_cloud_nac"]
+  variables:
+    IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   parallel:
     matrix:
       - IMAGE_NAME:
@@ -844,6 +947,23 @@ build_img_docker_deb11_release:
     ANSIBLE_CENTOS8_GROUP: stable_centos8
     ANSIBLE_DEBIAN_GROUP: common_debian
     ANSIBLE_RUBYGEMS_GROUP: stable_rubygems
+    ACTIVE_BUILDS: 'pfbuild-bullseye'
+
+### build Docker images on cloud nac branches
+build_img_docker_el8_cloud_nac:
+  extends:
+    - .build_img_docker_job
+    - .build_img_docker_cloud_nac_rules
+  variables:
+    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+    ACTIVE_BUILDS: 'pfbuild-centos-8'
+
+build_img_docker_deb11_cloud_nac:
+  extends:
+    - .build_img_docker_job
+    - .build_img_docker_cloud_nac_rules
+  variables:
+    DOCKER_TAGS: ${CI_COMMIT_REF_SLUG},${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     ACTIVE_BUILDS: 'pfbuild-bullseye'
 
 ### build_img_vagrant jobs
