@@ -47,8 +47,6 @@ export const useServices = () => computed(() => {
   return {
     message: i18n.t('Creating or modifying the syslog forwarders requires to restart the rsyslog system service.'),
     system_services: ['rsyslog'],
-    k8s_services: [],
-    systemd: false
   }
 })
 

@@ -11,3 +11,10 @@ export const useStore = $store => {
     updateItem: params => $store.dispatch('$_bases/updateFencing', params)
   }
 }
+
+export const useServices = () => computed(() => {
+  return {
+    message: i18n.t('Creating or modifying the syslog forwarders requires to restart the rsyslog system service.'),
+    services: ['pfdns', 'iptables'],
+  }
+})

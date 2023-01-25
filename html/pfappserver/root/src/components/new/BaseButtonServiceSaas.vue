@@ -96,7 +96,7 @@ const setup = (props, context) => {
   })
   const replicas = computed(() => {
     const { [service.value]: { total_replicas, updated_replicas } = {} } = $store.state.k8s.services
-    // eslint-disable-next-line no-unused-vars
+     
     return [ ...Array(total_replicas) ].map((_, i) => (i < updated_replicas))
   })
 

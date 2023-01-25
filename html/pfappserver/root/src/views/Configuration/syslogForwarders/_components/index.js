@@ -7,7 +7,6 @@ import {
   BaseFormGroupInputNumber,
   BaseFormGroupToggleDisabledEnabled
 } from '@/components/new/'
-import AlertServices from './AlertServices'
 import TheForm from './TheForm'
 import TheView from './TheView'
 
@@ -22,7 +21,6 @@ export {
   BaseFormGroupInputNumber            as FormGroupPort,
   BaseFormGroupChosenOne              as FormGroupProto,
 
-  AlertServices,
   TheForm,
   TheView
 }
