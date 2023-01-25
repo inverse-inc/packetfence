@@ -6,12 +6,8 @@ import BaseButtonRefresh from './BaseButtonRefresh'
 import BaseButtonSave from './BaseButtonSave'
 import BaseButtonSaveSearch from './BaseButtonSaveSearch'
 import BaseButtonService from './BaseButtonService'
-<<<<<<< HEAD
 import BaseButtonServiceSaas from './BaseButtonServiceSaas'
 import BaseButtonServiceSystem from './BaseButtonServiceSystem'
-=======
-import BaseButtonSystemService from './BaseButtonSystemService'
->>>>>>> origin/devel
 import BaseButtonSystemdUpdate from './BaseButtonSystemdUpdate'
 import BaseButtonUpload from './BaseButtonUpload'
 import BaseContainerLoading from './BaseContainerLoading'
