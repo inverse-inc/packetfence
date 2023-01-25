@@ -52,7 +52,15 @@ use pf::util::networking qw(send_data_with_length);
 use Linux::Systemd::Daemon 'sd_ready';
 use POSIX 'WNOHANG';
 use pfconfig::git_storage;
+use Tie::IxHash;
+
 our $RUNNING = 1;
+
+sub Tie::IxHash::TO_JSON {
+    my %hash;
+    @hash{@{$_[0][1]}} = @{$_[0][2]};
+    return \%hash;
+}
 
 ## All pfconfig objects implementing TO_JSON must be imported here
 use pfconfig::objects::NetAddr::IP;
