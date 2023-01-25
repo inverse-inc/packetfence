@@ -5,6 +5,6 @@ source /usr/local/pf/containers/systemd-service
 name=pfpki
 
 args=`base_args $name`
-args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 22225:22225"
+args="$args -v /usr/local/pf/raddb/certs:/usr/local/pf/raddb/certs -v /usr/local/pf/conf:/usr/local/pf/conf -p 22225:22225"
 
 run $name "$args"
