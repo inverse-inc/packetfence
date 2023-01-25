@@ -36,7 +36,7 @@ has_field 'sp_key_path' => (
 has_field 'sp_key_path_upload' => (
    type => 'PathUpload',
    accessor => 'sp_key_path',
-   config_prefix => '.crt',
+   config_prefix => '.key',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -71,7 +71,7 @@ has_field 'idp_metadata_path' => (
 has_field 'idp_metadata_path_upload' => (
    type => 'PathUpload',
    accessor => 'idp_metadata_path',
-   config_prefix => '.crt',
+   config_prefix => '.xml',
    required => 0,
    upload_namespace => 'sources',
 );
@@ -142,7 +142,7 @@ sub options_sources {
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

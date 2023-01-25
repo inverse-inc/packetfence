@@ -111,7 +111,12 @@ sub dispatchActions {
     if (isenabled($run_actions)) {
         for my $action (@{$rule->{actions}//[]}) {
             my $param = $self->evalActionParams($action->{'api_parameters'}, $args);
-            $apiclient->notify($action->{'api_method'}, @{$param});
+            if(isenabled($rule->{actions_synchronous})) {
+                $apiclient->call($action->{'api_method'}, @{$param});
+            }
+            else {
+                $apiclient->notify($action->{'api_method'}, @{$param});
+            }
         }
     }
 }
@@ -186,7 +191,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

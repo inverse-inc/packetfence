@@ -28,7 +28,6 @@ import (
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/health"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/hosts"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/k8s_external"
-	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/kubernetes"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/loadbalance"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/log"
 	_ "github.com/inverse-inc/packetfence/go/coredns/plugin/logger"

@@ -660,12 +660,12 @@ const getters = {
   switchGroupsList: state => {
     if (!state.switchGroups) return []
     return state.switchGroups.map((item) => {
-      return { value: item.id, text: item.id + " - (" + item.description + ")" }
+      return { value: item.id, text: `${item.id} - ${item.description}` }
     })
   },
   switchesList: state => {
     if (!state.switches) return []
-    return [...(new Set([state.switches]))]
+    return [...(new Set(state.switches))]
       .sort((a, b) => {
         if (+a.id === 0) {
           return 1
@@ -676,7 +676,7 @@ const getters = {
         return a.description.localeCompare(b.description)
       })
       .map((item) => {
-        return { value: item.id, text: item.description }
+        return { value: item.id, text: `${item.id} - ${item.description}` }
       })
   },
   securityEventsList: state => {

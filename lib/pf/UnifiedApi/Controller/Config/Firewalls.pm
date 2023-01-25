@@ -35,6 +35,7 @@ use pfappserver::Form::Config::Firewall_SSO::LightSpeedRocket;
 use pfappserver::Form::Config::Firewall_SSO::SmoothWall;
 use pfappserver::Form::Config::Firewall_SSO::FamilyZone;
 use pfappserver::Form::Config::Firewall_SSO::CiscoIsePic;
+use pfappserver::Form::Config::Firewall_SSO::ContentKeeper;
 
 our %TYPES_TO_FORMS = (
     map { $_ => "pfappserver::Form::Config::Firewall_SSO::$_" } qw(
@@ -50,6 +51,7 @@ our %TYPES_TO_FORMS = (
       SmoothWall
       FamilyZone
       CiscoIsePic
+      ContentKeeper
     )
 );
 
@@ -63,7 +65,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

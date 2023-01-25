@@ -42,7 +42,7 @@ sub available_actions {
 
 sub available_attributes {
     my $self = shift;
-    return([@{$self->SUPER::available_attributes}, {value => 'username', type => $Conditions::SUBSTRING }]);
+    return([@{$self->SUPER::available_attributes}]);
 }
 
 =head2 match_in_subclass
@@ -88,7 +88,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

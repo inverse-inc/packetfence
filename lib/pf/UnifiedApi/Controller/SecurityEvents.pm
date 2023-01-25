@@ -63,6 +63,11 @@ sub total_closed {
     return $self->_total_status('closed');
 }
 
+sub total_pending {
+    my ($self) = @_;
+    return $self->_total_status('pending');
+}
+
 sub _per_device_class_status {
     my ($self, $status) = @_;
     return $self->_db_execute_response(
@@ -89,6 +94,11 @@ sub per_security_event_id_open {
     return $self->_per_security_event_id_status('open');
 }
 
+sub per_security_event_id_pending {
+    my ($self) = @_;
+    return $self->_per_security_event_id_status('pending');
+}
+
 sub per_device_class_open {
     my ($self) = @_;
     return $self->_per_device_class_status('open');
@@ -99,13 +109,18 @@ sub per_device_class_closed {
     return $self->_per_device_class_status('closed');
 }
 
+sub per_device_class_pending {
+    my ($self) = @_;
+    return $self->_per_device_class_status('pending');
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

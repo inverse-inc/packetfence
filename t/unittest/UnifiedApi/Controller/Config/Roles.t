@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 24;
+use Test::More tests => 27;
 use Test::Mojo;
 use Utils;
 use pf::ConfigStore::Roles;
@@ -56,8 +56,18 @@ $t->delete_ok("$base_url/default")
 $t->patch_ok("$base_url/gaming/reassign" => json => {})
   ->status_is(422);
 
-$t->post_ok($collection_base_url => json => { id => 'bob' })
+my $acls = <<EOS;
+permit ip 172.16.1.0 0.0.0.255 host 192.168.3.181
+permit ip 172.16.1.0 0.0.0.255 host 192.168.3.182
+permit ip 172.16.1.0 0.0.0.255 host 192.168.3.183
+EOS
+
+$t->post_ok($collection_base_url => json => { id => 'bob', acls => $acls})
   ->status_is(201);
+
+$t->get_ok("$base_url/bob")
+  ->status_is(200)
+  ->json_is("/item/acls", $acls);
 
 $t->patch_ok("$base_url/r1" => json => { parent_id => 'r2' })
   ->status_is(422);
@@ -77,7 +87,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

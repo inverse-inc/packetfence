@@ -421,7 +421,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
-    GITLAB_DEPLOY_DIR: ${CI_PIPELINE_ID}
+    PPA_ID: ${CI_PIPELINE_ID}
   tags:
     - shell
 
@@ -1541,6 +1541,7 @@ deploy_devel_pkg_friendly_names:
     # PKG_DEST_NAME:
     # PF_EXPORT_RPM_DEST_NAME:
     # PF_EXPORT_DEB_DEST_NAME:
+    PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_devel.deb
 
 deploy_branches_pkg_friendly_names:
   extends:
@@ -1552,6 +1553,7 @@ deploy_branches_pkg_friendly_names:
     PKG_DEST_NAME: packetfence-release-branches.el8.noarch.rpm
     PF_EXPORT_RPM_DEST_NAME: packetfence-export-branches.el8.noarch.rpm
     PF_EXPORT_DEB_DEST_NAME: packetfence-export_branches.deb
+    PF_CI_LIB_DEB_DEST_NAME: packetfence-ci-lib_branches.deb
 
 deploy_release_pkg_friendly_names:
   extends:

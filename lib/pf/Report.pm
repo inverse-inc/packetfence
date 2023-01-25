@@ -168,7 +168,7 @@ sub options_query_fields {
 
 sub options_columns {
     my ($self) = @_;
-    return [ map { $self->format_options_column($_) } @{ $self->{columns} } ];
+    return [ map { $self->format_options_column($_) } @{ $self->{columns} // [] } ];
 }
 
 sub format_options_column {
@@ -234,7 +234,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

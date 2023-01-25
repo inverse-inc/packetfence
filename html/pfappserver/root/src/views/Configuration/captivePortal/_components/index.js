@@ -13,6 +13,7 @@ import TheView from './TheView'
 export {
   BaseFormButtonBar                   as FormButtonBar,
 
+  BaseFormGroupToggleDisabledEnabled  as FormGroupExposeFingerbankInfoAllTemplates,
   BaseFormGroupInput                  as FormGroupIpAddress,
   BaseFormGroupToggleDisabledEnabled  as FormGroupNetworkDetection,
   BaseFormGroupInput                  as FormGroupNetworkDetectionIp,

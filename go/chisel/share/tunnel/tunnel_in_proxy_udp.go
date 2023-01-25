@@ -95,6 +95,10 @@ func (u *udpListener) runInbound(ctx context.Context) error {
 		if e, ok := err.(net.Error); ok && (e.Timeout() || e.Temporary()) {
 			continue
 		}
+		if ctx.Err() != nil {
+			u.Debugf("Reading on a canceled remote")
+			return nil
+		}
 		if err != nil {
 			return u.Errorf("read error: %w", err)
 		}
@@ -224,11 +228,11 @@ func (u *udpListener) monitorInactivity(ctx context.Context, cancel func()) erro
 
 			u.Infof("Closing due to inactivity timeout")
 
+			cancel()
 			u.inbound.Close()
 			if u.outbound != nil && u.outbound.c != nil {
 				u.outbound.c.Close()
 			}
-			cancel()
 			return nil
 		}
 	}

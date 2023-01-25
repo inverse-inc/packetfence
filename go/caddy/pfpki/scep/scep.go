@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"os"
 
-	kitlog "github.com/go-kit/kit/log"
-	kitloglevel "github.com/go-kit/kit/log/level"
+	kitlog "github.com/go-kit/log"
+	kitloglevel "github.com/go-kit/log/level"
 	"github.com/gorilla/mux"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/cloud"

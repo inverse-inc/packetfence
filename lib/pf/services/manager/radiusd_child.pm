@@ -779,7 +779,7 @@ EOT
             $edir_options = '';
         }
 
-        if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
+        if (scalar @{$ConfigAuthenticationLdap{$ldap}->{searchattributes}//[]}) {
             foreach my $searchattribute (@{$ConfigAuthenticationLdap{$ldap}->{searchattributes}}) {
                 $searchattributes .= '('.$searchattribute.'=%{User-Name})('.$searchattribute.'=%{Stripped-User-Name})';
             }
@@ -791,6 +791,8 @@ EOT
             $server_list .= "    server          = $ldap_server\n";
         }
         my $append = '';
+        my $password = $ConfigAuthenticationLdap{$ldap}{password};
+        $password =~ s/"/\\"/g;
         if (defined($ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes})) {
             $append = $ConfigAuthenticationLdap{$ldap}->{append_to_searchattributes};
         }
@@ -800,7 +802,7 @@ ldap $ldap {
 $server_list
     port            = "$ConfigAuthenticationLdap{$ldap}->{port}"
     identity        = "$ConfigAuthenticationLdap{$ldap}->{binddn}"
-    password        = "$ConfigAuthenticationLdap{$ldap}->{password}"
+    password        = "$password"
     base_dn         = "$ConfigAuthenticationLdap{$ldap}->{basedn}"
     filter          = "(userPrincipalName=%{User-Name})"
     scope           = "$ConfigAuthenticationLdap{$ldap}->{scope}"
@@ -1687,7 +1689,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

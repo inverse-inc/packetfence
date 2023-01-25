@@ -179,6 +179,18 @@ CREATE TABLE node (
 ) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_general_ci';
 
 --
+-- Table structure for table `node_current_session`
+--
+
+CREATE TABLE node_current_session (
+  `mac` varchar(17) NOT NULL,
+  `updated` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_session_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  `is_online` BOOLEAN DEFAULT 1,
+  PRIMARY KEY (mac)
+) ENGINE=InnoDB DEFAULT CHARACTER SET = 'utf8mb4';
+
+--
 -- Table structure for table `action`
 --
 

@@ -29,6 +29,7 @@ func NewFactory(ctx context.Context) Factory {
 	f.typeRegistry["JuniperSRX"] = reflect.TypeOf(&JuniperSRX{}).Elem()
 	f.typeRegistry["FamilyZone"] = reflect.TypeOf(&FamilyZone{}).Elem()
 	f.typeRegistry["CiscoIsePic"] = reflect.TypeOf(&CiscoIsePic{}).Elem()
+	f.typeRegistry["ContentKeeper"] = reflect.TypeOf(&ContentKeeper{}).Elem()
 	return f
 }
 

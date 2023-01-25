@@ -14,10 +14,13 @@ const state = () => {
 
     totalOpen: 0,
     totalClosed: 0,
+    totalPending: 0,
     perDeviceClassOpen: false,
     perDeviceClassClosed: false,
+    perDeviceClassPending: false,
     perSecurityEventOpen: {},
     perSecurityEventClosed: {},
+    perSecurityEventPending: {},
   }
 }
 
@@ -31,37 +34,54 @@ const getters = {
   perDeviceClassClosed: state => state.perDeviceClassClosed.reduce((assoc, { count = 0, device_class = '' }) => {
     return { ...assoc, [device_class]: count }
   }, {}),
+  perDeviceClassPending: state => state.perDeviceClassPending.reduce((assoc, { count = 0, device_class = '' }) => {
+    return { ...assoc, [device_class]: count }
+  }, {}),
   perSecurityEventOpen: state => state.perSecurityEventOpen.reduce((assoc, { count = 0, security_event_id = '' }) => {
     return { ...assoc, [security_event_id]: count }
   }, {}),
   perSecurityEventClosed: state => state.perSecurityEventClosed.reduce((assoc, { count = 0, security_event_id = '' }) => {
     return { ...assoc, [security_event_id]: count }
   }, {}),
+  perSecurityEventPending: state => state.perSecurityEventPending.reduce((assoc, { count = 0, security_event_id = '' }) => {
+    return { ...assoc, [security_event_id]: count }
+  }, {}),
 }
 
 const actions = {
   stat: ({ commit }) => {
-    const p1 = securityEventsApi.totalOpen().then(response => {
-      const { items: [ { count = 0 } ] } = response
-      commit('TOTAL_OPEN', count)
-    })
-    const p2 = securityEventsApi.totalClosed().then(response => {
-      const { items: [ { count = 0 } ] } = response
-      commit('TOTAL_CLOSED', count)
-    })
-    const p3 = securityEventsApi.perDeviceClassOpen().then(response => {
-      commit('PER_DEVICE_CLASS_OPEN', response.items)
-    })
-    const p4 = securityEventsApi.perDeviceClassClosed().then(response => {
-      commit('PER_DEVICE_CLASS_CLOSED', response.items)
-    })
-    const p5 = securityEventsApi.perSecurityEventOpen().then(response => {
-      commit('PER_SECURITY_EVENT_OPEN', response.items)
-    })
-    const p6 = securityEventsApi.perSecurityEventClosed().then(response => {
-      commit('PER_SECURITY_EVENT_CLOSED', response.items)
-    })
-    return Promise.all([p1, p2, p3, p4, p5, p6])
+    return Promise.all([
+      securityEventsApi.totalOpen().then(response => {
+        const { items: [ { count = 0 } ] } = response
+        commit('TOTAL_OPEN', count)
+      }),
+      securityEventsApi.totalClosed().then(response => {
+        const { items: [ { count = 0 } ] } = response
+        commit('TOTAL_CLOSED', count)
+      }),
+      securityEventsApi.totalPending().then(response => {
+        const { items: [ { count = 0 } ] } = response
+        commit('TOTAL_PENDING', count)
+      }),
+      securityEventsApi.perDeviceClassOpen().then(response => {
+        commit('PER_DEVICE_CLASS_OPEN', response.items)
+      }),
+      securityEventsApi.perDeviceClassClosed().then(response => {
+        commit('PER_DEVICE_CLASS_CLOSED', response.items)
+      }),
+      securityEventsApi.perDeviceClassPending().then(response => {
+        commit('PER_DEVICE_CLASS_PENDING', response.items)
+      }),
+      securityEventsApi.perSecurityEventOpen().then(response => {
+        commit('PER_SECURITY_EVENT_OPEN', response.items)
+      }),
+      securityEventsApi.perSecurityEventClosed().then(response => {
+        commit('PER_SECURITY_EVENT_CLOSED', response.items)
+      }),
+      securityEventsApi.perSecurityEventPending().then(response => {
+        commit('PER_SECURITY_EVENT_PENDING', response.items)
+      }),
+    ])
   },
   get: ({ commit }, params) => {
     let { nodes } = params
@@ -123,18 +143,27 @@ const mutations = {
   TOTAL_CLOSED: (state, count) => {
     state.totalClosed = count
   },
+  TOTAL_PENDING: (state, count) => {
+    state.totalPending = count
+  },
   PER_DEVICE_CLASS_OPEN: (state, deviceClasses) => {
     state.perDeviceClassOpen = deviceClasses
   },
   PER_DEVICE_CLASS_CLOSED: (state, deviceClasses) => {
     state.perDeviceClassClosed = deviceClasses
   },
+  PER_DEVICE_CLASS_PENDING: (state, deviceClasses) => {
+    state.perDeviceClassPending = deviceClasses
+  },
   PER_SECURITY_EVENT_OPEN: (state, securityEvents) => {
     state.perSecurityEventOpen = securityEvents
   },
   PER_SECURITY_EVENT_CLOSED: (state, securityEvents) => {
     state.perSecurityEventClosed = securityEvents
-  }
+  },
+  PER_SECURITY_EVENT_PENDING: (state, securityEvents) => {
+    state.perSecurityEventPending = securityEvents
+  },
 }
 
 export default {

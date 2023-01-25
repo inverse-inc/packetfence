@@ -732,10 +732,13 @@ sub setup_api_v1_security_events_routes {
         qw(
             total_open
             total_closed
+            total_pending
             per_device_class_open
             per_device_class_closed
+            per_device_class_pending
             per_security_event_id_open
             per_security_event_id_closed
+            per_security_event_id_pending
           )
         ],
     });
@@ -2343,7 +2346,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

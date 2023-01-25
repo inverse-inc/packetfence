@@ -27,15 +27,32 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Content Keeper firewall SSO support
+ * Added support for Unifi OS controllers (#7368)
+
 === Enhancements
 
  * Allow proxysql to be configure to connect to a single external database.
  * Allow image files to be uploaded in a connection profile.
-
+ * Added System Service and Systemd buttons in Admin UI.
+ * Online/offline doesn't rely on recording the bandwidth accounting data anymore 
+ * Pending security events added to network threats visualization
+ * Allow to expose the fingerbank_info variable to all HTML portal templates (#7460)
+ * VLAN filters actions can now be done synchronously (#7351)
+ * Support for wired connection on Ruckus SmartZone
+ 
 === Bug Fixes
 
  * Force the destination IP for UDP packets going through the pfconnector (#7323)
  * Clear the active dynamic reverses that exist when a pfconnector reconnects
+ * OpenID Authentication Source -Duplicated Username (#7399)
+ * Unable to upgrade to Debian 11.6 with PF 11.X and 12.X (#7438)
+ * Trust server certificates when provisioning Apple devices for EAP-TLS (#7428)
+ * Use WPA2 in place of WPA when provisioning Apple devices (#7428)
+ * Creating/modifying/deleting a syslog forwarder should prompt to restart rsyslog in the admin (#6532)
+ * Fixed utf8 encoding in email body (#7422)
+ * Escape quotes in LDAP passwords (AD source: too complex password prevent RADIUS to start #3976)
+ * Use the proper file extensions when uploading SAML config files. (ZEN 12.1 - XML File Renamed on upload.  #7439)
 
 == Version 12.1.0 released on 2022-11-22
 

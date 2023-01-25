@@ -25,6 +25,21 @@ sub importConfigFile { $roles_default_config_file }
 
 sub pfconfigNamespace {'config::Roles'}
 
+=head2 cleanupAfterRead
+
+Clean up realm data
+
+=cut
+
+sub cleanupAfterRead {
+    my ($self, $id, $data) = @_;
+    # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
+    if(ref($data->{acls}) eq 'ARRAY'){
+        $data->{acls} = join("\n", @{$data->{acls}}, "");
+    }
+}
+
+
 =item commit
 
 Repopulate the node_category table after commiting
@@ -47,7 +62,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

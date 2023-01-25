@@ -40,6 +40,8 @@
             variant="danger" class="ml-1">{{ item._open }} {{ $i18n.t('open') }}</b-badge>
           <b-badge v-if="item._closed"
             variant="light" class="ml-1">{{ item._closed }} {{ $i18n.t('closed') }}</b-badge>
+          <b-badge v-if="item._pending"
+            variant="warning" class="ml-1">{{ item._pending }} {{ $i18n.t('pending') }}</b-badge>
         </b-col>
       </b-row>
     </div>
@@ -75,6 +77,7 @@ const setup = (props, context) => {
 
   const perSecurityEventOpen = computed(() => $store.getters['$_network_threats/perSecurityEventOpen'])
   const perSecurityEventClosed = computed(() => $store.getters['$_network_threats/perSecurityEventClosed'])
+  const perSecurityEventPending = computed(() => $store.getters['$_network_threats/perSecurityEventPending'])
 
   const items = ref([])
   onMounted(() => {
@@ -88,8 +91,9 @@ const setup = (props, context) => {
     const { id } = item
     const _open = perSecurityEventOpen.value[id] || 0
     const _closed = perSecurityEventClosed.value[id] || 0
+    const _pending = perSecurityEventPending.value[id] || 0
     return { ...item,
-      _open, _closed }
+      _open, _closed, _pending }
   }))
 
   const filter = ref('')

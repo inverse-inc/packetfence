@@ -9,7 +9,11 @@
                         <key>AutoJoin</key>
                         <true/>
                         <key>EncryptionType</key>
+                        [% IF for_ios AND provisioner.security_type == 'WPA' %]
+                        <string>WPA2</string>
+                        [% ELSE %]
                         <string>[% provisioner.security_type %]</string>
+                        [% END %]
                         <key>HIDDEN_NETWORK</key>
                         [% IF provisioner.broadcast %]
                         <false/>

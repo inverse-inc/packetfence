@@ -1,4 +1,5 @@
 import {
+  AlertServices,
   BaseView,
   FormButtonBar,
   TheForm
@@ -9,6 +10,8 @@ const components = {
   TheForm
 }
 
+import { computed } from '@vue/composition-api'
+import { renderHOCWithScopedSlots } from '@/components/new/'
 import { useViewCollectionItem, useViewCollectionItemProps } from '../../_composables/useViewCollectionItem'
 import * as collection from '../_composables/useCollection'
 
@@ -17,7 +20,25 @@ const props = {
   ...collection.useItemProps
 }
 
-const setup = (props, context) => useViewCollectionItem(collection, props, context)
+const setup = (props, context) => {
+
+  const viewCollectionItem = useViewCollectionItem(collection, props, context)
+  const {
+    isLoading,
+    isModified
+  } = viewCollectionItem
+
+  const scopedSlotProps = computed(() => ({ ...props, isLoading: isLoading.value, isModified: isModified.value }))
+
+  return {
+    ...viewCollectionItem,
+    scopedSlotProps
+  }
+}
+
+const render = renderHOCWithScopedSlots(BaseView, { components, props, setup }, {
+  buttonsPrepend: AlertServices
+})
 
 // @vue/component
 export default {
@@ -26,5 +47,5 @@ export default {
   extends: BaseView,
   components,
   props,
-  setup
+  render
 }

@@ -11,6 +11,9 @@
             :to="{ name: 'newEventLogger', params: { eventLoggerType: value } }"
           >{{ text }}</b-dropdown-item>
         </b-dropdown>
+        <base-button-system-service
+          service="packetfence-mariadb" restart start stop
+          class="ml-1" />
       </base-search>
       <b-table ref="tableRef"
         :busy="isLoading"
@@ -96,6 +99,7 @@
 import {
   BaseButtonConfirm,
   BaseButtonHelp,
+  BaseButtonSystemService,
   BaseSearch,
   BaseSearchInputColumns,
   BaseServices,
@@ -105,6 +109,7 @@ import {
 const components = {
   BaseButtonConfirm,
   BaseButtonHelp,
+  BaseButtonSystemService,
   BaseSearch,
   BaseSearchInputColumns,
   BaseServices,

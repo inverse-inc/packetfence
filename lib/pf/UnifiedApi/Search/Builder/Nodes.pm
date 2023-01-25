@@ -85,6 +85,17 @@ our @SECURITY_EVENT_CLOSED_JOIN = (
     'security_event|security_event_close',
 );
 
+our @SECURITY_EVENT_DELAYED_JOIN = (
+    {
+        operator  => '=>',
+        condition => {
+            'node.mac' => { '=' => { -ident => '%2$s.mac' } },
+            'security_event_delay.status' => { '=' => "delayed" },
+        },
+    },
+    'security_event|security_event_delay',
+);
+
 our %ALLOWED_JOIN_FIELDS = (
     'ip4log.ip' => {
         join_spec     => \@IP4LOG_JOIN,
@@ -99,7 +110,7 @@ our %ALLOWED_JOIN_FIELDS = (
     'online' => {
         namespace     => 'online',
         rewrite_query => \&rewrite_online_query,
-        column_spec   => "CASE IFNULL( (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by last_updated DESC LIMIT 1), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN '0000-00-00 00:00:00' THEN 'off' ELSE 'on' END|online"
+        column_spec   => "CASE IFNULL( (SELECT is_online from node_current_session as ncs WHERE ncs.mac = node.mac), 'unknown') WHEN 'unknown' THEN 'unknown' WHEN 0 THEN 'off' ELSE 'on' END|online"
     },
     'node_category.name' => {
         join_spec   => \@NODE_CATEGORY_JOIN,
@@ -172,7 +183,7 @@ sub rewrite_security_event_security_event_id_status {
         return (422, { message => "value cannot be null for $q->{field} field" });
     }
 
-    if ($op ne 'equals') {
+    if ($op ne 'equals' && $op ne 'not_equals') {
         return (422, { message => "$op is not valid for $q->{field} field" });
     }
 
@@ -228,9 +239,9 @@ sub rewrite_security_event_status_count {
     return (200, \["EXISTS ($sql)", @bind]);
 }
 
-our $ON_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) != '0000-00-00 00:00:00')";
-our $OFF_QUERY = "EXISTS (SELECT MAX(last_updated) as last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac group by ba.last_updated HAVING MAX(last_updated) = '0000-00-00 00:00:00')";
-our $NOT_UNKNOWN_QUERY = 'EXISTS (SELECT last_updated from bandwidth_accounting as ba WHERE ba.mac = node.mac order by ba.last_updated DESC LIMIT 1)';
+our $ON_QUERY = "EXISTS (SELECT 1 from node_current_session as ncs WHERE ncs.mac = node.mac AND is_online)";
+our $OFF_QUERY = "EXISTS (SELECT 1 from node_current_session as ncs WHERE ncs.mac = node.mac AND NOT is_online)";
+our $NOT_UNKNOWN_QUERY = "EXISTS (SELECT 1 from node_current_session as ncs WHERE ncs.mac = node.mac)";
 our $UNKNOWN_QUERY = "NOT $NOT_UNKNOWN_QUERY";
 
 sub rewrite_online_query {
@@ -282,7 +293,7 @@ sub map_dal_field_to_join_spec {
         namespace => $table,
         (defined $where_spec ? (where_spec => $where_spec) : () ),
         column_spec => make_join_column_spec($table, $field),
-   } 
+   }
 }
 
 sub make_join_column_spec {
@@ -310,7 +321,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

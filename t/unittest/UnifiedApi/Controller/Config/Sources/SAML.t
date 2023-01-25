@@ -83,7 +83,7 @@ $t->post_ok("$collection_base_url" =>
     }
   )
   ->status_is(201)
-  ->json_is("/sp_key_path", "/usr/local/pf/conf/uploads/sources/${id1}_sp_key_path_upload.crt");
+  ->json_is("/sp_key_path", "/usr/local/pf/conf/uploads/sources/${id1}_sp_key_path_upload.key");
   ;
 
 =head1 AUTHOR
@@ -92,7 +92,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

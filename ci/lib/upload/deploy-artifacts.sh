@@ -21,6 +21,9 @@ DEPLOY_HOST=${DEPLOY_HOST:-web.inverse.ca}
 
 PUBLIC_REPO_BASE_DIR=${PUBLIC_REPO_BASE_DIR:-/var/www/inverse.ca/downloads/PacketFence}
 
+# CI
+CI_PLATFORM=${CI_PLATFORM:-gitlab}
+
 # RPM
 DEPLOY_SRPMS=${DEPLOY_SRPMS:-no}
 RPM_BASE_DIR=${RPM_BASE_DIR:-"${PUBLIC_REPO_BASE_DIR}"}
@@ -34,7 +37,7 @@ DEB_DEPLOY_DIR=${DEB_DEPLOY_DIR:-foo}
 DEB_RESULT_DIR=${DEB_RESULT_DIR:-"${RESULT_DIR}/debian"}
 
 # Maintenance
-GITLAB_DEPLOY_DIR=${GITLAB_DEPLOY_DIR:-tmp}
+PPA_ID=${PPA_ID:-tmp}
 
 # CI
 # automatically set up by CI based on environment
@@ -168,7 +171,7 @@ packetfence_ci_lib_deploy() {
 ppa_deploy() {
     # warning: slashs at end of dirs are significant for rsync
     src_dir="$PUBLIC_DIR/"
-    dst_repo="$PUBLIC_REPO_BASE_DIR/gitlab/$GITLAB_DEPLOY_DIR/"
+    dst_repo="$PUBLIC_REPO_BASE_DIR/$CI_PLATFORM/$PPA_ID/"
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
     echo "rsync: $src_dir -> $dst_dir"

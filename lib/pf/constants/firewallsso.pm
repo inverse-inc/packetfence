@@ -36,6 +36,7 @@ Readonly::Scalar our $FIREWALL_TYPES => [
     "SmoothWall",
     "FamilyZone",
     "CiscoIsePic",
+    "ContentKeeper",
 ];
 
 =head1 AUTHOR
@@ -44,7 +45,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

@@ -111,10 +111,10 @@ const setup = (props, context) => {
   const onHideModal = () => { isShowModal.value = false }
   const isValid = useDebouncedWatchHandler([form, isShowModal], () => (!rootRef.value || rootRef.value.$el.querySelectorAll('.is-invalid').length === 0))
   const onDownload = () => {
-    const { ca_id, profile_id } = cert.value
+    const { ca_id, profile_id, cn } = cert.value
     $store.dispatch('$_pkis/getProfile', profile_id).then(profile => {
       $store.dispatch('$_pkis/getCa', ca_id).then(ca => {
-        const filename = `${ca.cn}-${profile.name}-${cert.cn}.p12`
+        const filename = `${ca.cn}-${profile.name}-${cn}.p12`
         const { password } = form.value || {}
         $store.dispatch('$_pkis/downloadCert', { id: id.value, password }).then(arrayBuffer => {
           if (clipboard.value) {
@@ -151,7 +151,9 @@ const setup = (props, context) => {
     isShowModal,
     onShowModal,
     onHideModal,
-    onDownload
+    onDownload,
+
+    cert
   }
 }
 

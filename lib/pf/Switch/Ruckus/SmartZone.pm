@@ -35,6 +35,8 @@ use pf::config qw (
     $WEBAUTH_WIRELESS
     $WIRELESS_MAC_AUTH
     %connection_type_to_str
+    $WIRED_802_1X
+    $WIRED_MAC_AUTH
 );
 use pf::util::radius qw(perform_disconnect);
 use pf::log;
@@ -46,6 +48,8 @@ sub description { 'Ruckus SmartZone Wireless Controllers' }
 use pf::SwitchSupports qw(
     WirelessMacAuth
     -WebFormRegistration
+    WiredMacAuth
+    WirelessDot1x
 );
 
 =over
@@ -372,6 +376,69 @@ sub check_if_radius_request_psk_matches {
     );
 }
 
+=head2 wiredeauthTechniques
+
+Return the reference to the deauth technique or the default deauth technique.
+
+=cut
+
+sub wiredeauthTechniques {
+   my ($self, $method, $connection_type) = @_;
+   my $logger = $self->logger;
+
+    if ($connection_type == $WIRED_802_1X) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacDefault',
+        );
+
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    elsif ($connection_type == $WIRED_MAC_AUTH) {
+        my $default = $SNMP::RADIUS;
+        my %tech = (
+            $SNMP::RADIUS => 'deauthenticateMacDefault',
+        );
+        if (!defined($method) || !defined($tech{$method})) {
+            $method = $default;
+        }
+        return $method,$tech{$method};
+    }
+    else{
+        $logger->error("This authentication mode is not supported");
+    }
+
+}
+
+=item deauthenticateMacDefault
+
+De-authenticate a MAC address from wire network (including 802.1x).
+
+New implementation using RADIUS Disconnect-Request.
+
+=cut
+
+sub deauthenticateMacDefault {
+    my ( $self, $ifindex, $mac, $is_dot1x ) = @_;
+    my $logger = $self->logger;
+
+    if ( !$self->isProductionMode() ) {
+        $logger->info("not in production mode... we won't perform deauthentication");
+        return 1;
+    }
+
+    #Fetching the acct-session-id
+    my $dynauth = node_accounting_dynauth_attr($mac);
+
+    $logger->debug("deauthenticate $mac using RADIUS Disconnect-Request deauth method");
+    return $self->radiusDisconnect(
+        $mac, { 'User-Name' => $dynauth->{'username'} },
+    );
+}
+
 =back
 
 =head1 AUTHOR
@@ -380,7 +447,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

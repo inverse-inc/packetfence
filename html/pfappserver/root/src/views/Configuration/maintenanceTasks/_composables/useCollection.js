@@ -27,6 +27,7 @@ import makeSearch from '@/store/factory/search'
 import api from '../_api'
 export const useSearch = makeSearch('maintenanceTasks', {
   api,
+  limit: 50,
   sortBy: null, // use natural order (sortable)
   columns: [ // output uses natural order (w/ sortable drag-drop), ensure NO columns are 'sortable: true'
     {
