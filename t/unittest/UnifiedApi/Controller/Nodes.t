@@ -30,7 +30,7 @@ use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 107;
+use Test::More tests => 109;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -157,8 +157,17 @@ sub test_mac {
 $t->post_ok('/api/v1/nodes' => json => { mac => "" })
   ->status_is(422);
 
-$t->post_ok('/api/v1/nodes' => json => { mac => undef })
-  ->status_is(422);
+{
+    my $test_mac = Utils::test_mac();
+    $t->post_ok('/api/v1/nodes' => json => { mac => $test_mac, bypass_acls => "bad acl" })
+     ->status_is(422);
+}
+
+{
+    my $test_mac = Utils::test_mac();
+    $t->post_ok('/api/v1/nodes' => json => { mac => $test_mac, bypass_acls => "permit ip any any" })
+     ->status_is(201);
+}
 
 $t->delete_ok('/api/v1/node/11:22:33:44:55:66');
 
