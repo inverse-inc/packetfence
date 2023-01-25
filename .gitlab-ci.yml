@@ -632,7 +632,7 @@ img_dev:
   extends:
     - .build_img_container_job_dev
     - .build_img_container_devel_rules
-  needs: ["kaniko_dev"]
+  needs: ["pfdeb_dev"]
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
@@ -708,7 +708,7 @@ img_br_maint:
   extends:
     - .build_img_container_job_br_maint
     - .build_img_container_branches_and_maintenance_rules
-  needs: ["kaniko_br_maint"]
+  needs: ["pfdeb_br_maint"]
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
@@ -859,7 +859,7 @@ img_rel:
   extends:
     - .build_img_container_job_rel
     - .release_only_rules
-  needs: ["kaniko_rel"]
+  needs: ["pfdeb_rel"]
   variables:
    IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
