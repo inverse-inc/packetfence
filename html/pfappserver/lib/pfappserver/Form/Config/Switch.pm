@@ -36,6 +36,7 @@ use pf::error qw(is_success);
 use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
+use pfappserver::Util::ACLs qw(_validate_acl);
 
 ## Definition
 has_field 'id' =>
@@ -466,19 +467,6 @@ has_field DownloadableACLsLimit => (
 has_field ACLsLimit => (
     type => 'PosInteger',
 );
-
-sub _validate_acl {
-    my ($field) = @_;
-    my $acl = $field->value;
-    if ($acl) {
-        my $parser = Cisco::AccessList::Parser->new();
-        my $acl = "ip access-list extended packetfence\n$acl";
-        my ($a, $b, $e) = $parser->parse( 'input' => $acl);
-        if (@{$e // []}) {
-            $field->add_error(@$e);
-        }
-    }
-}
 
 sub addRoleMapping {
     my ($namespace, $key, $additional_info) = @_;
