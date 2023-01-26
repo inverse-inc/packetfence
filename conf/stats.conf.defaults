@@ -36,7 +36,7 @@ management=false
 type=mysql_query
 statsd_type=gauge
 statsd_ns=source.packetfence.devices.registered_per_role
-mysql_query=select name, count(distinct node.mac) from node_category left join node on node.category_id=node_category.category_id and node.status='reg' group by node_category.category_id
+mysql_query=select name, count(distinct node.mac) from node_category left join node on node.category_id=node_category.category_id and node.status='reg' and (unregdate >= NOW() or unregdate = '0000-00-00 00:00:00') group by node_category.category_id
 interval=60s
 randomize=true
 management=true
