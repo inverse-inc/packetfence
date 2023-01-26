@@ -25,7 +25,7 @@ my $fsso = pf::IniFiles->new( -file => $firewall_sso_config_file, -allowempty =>
 if (length ($fsso->Sections()) > 0) {
     for my $section ($fsso->Sections()) {
         if (!($fsso->exists($section, "use_connector"))) {
-            $fsso->newval($section, 'use_connector', 'enabled');
+            $fsso->newval($section, 'use_connector', '1');
         } else {
             print "The section $section has already the option use_connector defined"
         }
