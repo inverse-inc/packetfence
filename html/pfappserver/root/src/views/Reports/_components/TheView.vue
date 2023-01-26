@@ -1,8 +1,9 @@
 <template>
   <b-card no-body id="card">
     <b-card-header>
-      <base-input-toggle-false-true v-model="useLocalTimezone" :label-left="true" :label-right="false" :options="timezoneOptions"
-        class="float-right" />
+      <base-input-toggle v-model="timezone" :options="timezoneOptions"
+         :label-left="true" :label-right="false"
+         class="float-right" />
       <h4 class="mb-0">
         {{ id.split('::').join(' / ') }}
         <base-button-help class="text-black-50 ml-1" url="PacketFence_Installation_Guide.html#_reports" />
@@ -17,7 +18,8 @@
         >
           <base-input-date-range v-if="hasDateRange"
             v-model="dateRange"
-            :disabled="isLoading" />
+            :disabled="isLoading"
+            :timezone="timezone" />
         </the-search>
         <b-tabs v-if="charts.length"
           card lazy>
@@ -39,7 +41,8 @@
             <b-col cols="auto" class="pr-0">
               <base-input-date-range v-if="hasDateRange"
                 v-model="dateRange"
-                :disabled="isLoading" />
+                :disabled="isLoading"
+                :timezone="timezone" />
             </b-col>
             <b-col cols="auto" class="pl-0 mr-auto" v-if="dateLimit">
               <small class="text-danger">
@@ -62,7 +65,7 @@
 import {
   BaseButtonHelp,
   BaseContainerLoading,
-  BaseInputToggleFalseTrue,
+  BaseInputToggle,
 } from '@/components/new/'
 import BaseInputDateRange from './BaseInputDateRange'
 import TheSearch from './TheSearch'
@@ -71,7 +74,7 @@ const components = {
   BaseButtonHelp,
   BaseContainerLoading,
   BaseInputDateRange,
-  BaseInputToggleFalseTrue,
+  BaseInputToggle,
   TheSearch,
   TheTable
 }
@@ -90,8 +93,8 @@ const props = {
 import { computed, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { useSearchFactory } from '../_search'
 import { useStore } from '../_store'
+import { offsetFormat } from '@/utils/date'
 import i18n from '@/utils/locale'
-import { format } from 'date-fns'
 
 const setup = (props, context) => {
 
@@ -115,34 +118,41 @@ const setup = (props, context) => {
   const meta = ref({})
   const isLoaded = ref(false)
 
-  const useLocalTimezone = ref(false)
-  const localTimezone = computed(() => {
-    const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
-    return timeZone
-  })
-  const serverTimezone = ref(undefined)
-  $store.dispatch('$_bases/getGeneral').then(general => {
-    const { timezone } = general
-    serverTimezone.value = timezone
-  })
+  const localTimezone = $store.getters['$_bases/localTimezone']
+  const serverTimezone = $store.getters['$_bases/serverTimezone']
+
+  const timezone = ref('UTC')
   const timezoneOptions = computed(() => [
-    { value: false, label: i18n.t('Use server timezone ({timezone})', { timezone: serverTimezone.value })},
-    { value: true, label: i18n.t('Use local timezone ({timezone})', { timezone: localTimezone.value }), color: 'var(--primary)'  }
+    { value: 'UTC', label: i18n.t('Use UTC timezone (UTC)', { timezone: 'UTC' }), color: 'var(--primary)' },
+    { value: serverTimezone, label: i18n.t('Use server timezone ({timezone})', { timezone: serverTimezone }), color: 'var(--secondary)'},
+    { value: localTimezone, label: i18n.t('Use local timezone ({timezone})', { timezone: localTimezone }), color: 'var(--secondary)'},
   ])
-  const timezone = computed(() => ((useLocalTimezone.value) ? localTimezone.value : serverTimezone.value))
+
+  watch(timezone, (a, b) => {
+    if (a !== b) {
+      const { start_date, end_date } = dateRange.value
+      if (start_date && start_date.charAt(0) !== '0') {
+        dateRange.value.start_date = offsetFormat(new Date(start_date), b, a)
+      }
+      if (end_date && end_date.charAt(0) !== '0') {
+        dateRange.value.end_date = offsetFormat(new Date(end_date), b, a)
+      }
+    }
+  })
 
   const dateRange = ref({})
-  watch([dateRange, useLocalTimezone], () => {
+  watch(dateRange, () => {
     let { start_date, end_date } = dateRange.value
-    if (localTimezone.value !== serverTimezone.value && useLocalTimezone.value) {
-      // offset local ISO date from local timezone to server timezone
-      const isoDateFn = date => format(new Date(date).toLocaleString('en-US', { timeZone: serverTimezone.value }), 'YYYY-MM-DD HH:mm:ss')
-      // offset start_date, end_date
-      start_date = isoDateFn(start_date)
-      end_date = isoDateFn(end_date)
+    if (timezone.value !== serverTimezone) {
+      if (start_date && start_date.charAt(0) !== '0') {
+        start_date = offsetFormat(new Date(start_date), timezone.value, serverTimezone)
+      }
+      if (end_date && end_date.charAt(0) !== '0') {
+        end_date = offsetFormat(new Date(end_date), timezone.value, serverTimezone)
+      }
     }
     // append dates to meta, consumed by search::requestInterceptor
-    meta.value = { ...meta.value, start_date, end_date }
+    meta.value = { ...meta.value, start_date, end_date, timezone: timezone.value }
     // wait for meta prop to propagate
     nextTick(() => {
       // trigger reSearch
@@ -150,7 +160,7 @@ const setup = (props, context) => {
       const search = useSearch()
       search.reSearch()
     })
-  })
+  }, { deep: true })
 
   const dateLimit = ref(false)
   watch(id, () => {
@@ -164,6 +174,12 @@ const setup = (props, context) => {
           dateLimit.value = date_limit
           start_date = default_start_date || start_date
           end_date = default_end_date || end_date
+          if (start_date && start_date.charAt(0) !== '0') {
+            start_date = offsetFormat(new Date(start_date), serverTimezone, timezone.value)
+          }
+          if (end_date && end_date.charAt(0) !== '0') {
+            end_date = offsetFormat(new Date(end_date), serverTimezone, timezone.value)
+          }
           dateRange.value = { start_date, end_date, date_limit }
         }
         else {
@@ -265,9 +281,8 @@ const setup = (props, context) => {
     chartProps,
     chartIcon,
 
-    useLocalTimezone,
     timezoneOptions,
-    timezone
+    timezone,
   }
 }
 

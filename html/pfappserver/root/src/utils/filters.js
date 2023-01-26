@@ -1,5 +1,5 @@
 import i18n from '@/utils/locale'
-import { parse, format, distanceInWordsToNow } from 'date-fns'
+import { parse, format, formatDistanceToNow } from 'date-fns'
 
 const filters = {
   longDateTime (value) {
@@ -44,7 +44,7 @@ const filters = {
       } else {
         localeObject = require('date-fns/locale/en-US')
       }
-      return distanceInWordsToNow(parse(value), { locale: localeObject })
+      return formatDistanceToNow(parse(value), { locale: localeObject })
     }
   }
 }

@@ -18,11 +18,14 @@ const route = {
   },
   beforeEnter: (to, from, next) => {
     if (!store.state.$_reports) {
-      // Register store module only once
       store.registerModule('$_reports', StoreModule)
+    }
+    if (!store.state.$_bases) {
       store.registerModule('$_bases', BasesStoreModule)
     }
-    next()
+    // fetch server's timezone
+    store.dispatch('$_bases/getGeneral')
+      .then(next)
   },
   children: [
     {

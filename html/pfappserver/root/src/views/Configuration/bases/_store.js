@@ -3,7 +3,9 @@
 */
 import Vue from 'vue'
 import api from './_api'
+import i18n from '@/utils/locale'
 import store, { types } from '@/store'
+import { offsetFormat, offsetFormatTz, offsetLocale, isoDateTimeFormat, isoDateTimeFormatTz } from '@/utils/date'
 
 // Default values
 const state = () => {
@@ -17,7 +19,19 @@ const state = () => {
 const getters = {
   isWaiting: state => [types.LOADING, types.DELETING].includes(state.itemStatus),
   isLoading: state => state.itemStatus === types.LOADING,
-  general: state => state.cache.general
+  general: state => state.cache.general,
+
+  // client Date()
+  clientTimezone: () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+  clientDateToTimezoneFormat: (state, getters) => (date, toZone, format = isoDateTimeFormat) => offsetFormat(date, getters.clientTimezone, toZone, format),
+  clientDateToTimezoneFormatTz: (state, getters) => (date, toZone, format = isoDateTimeFormatTz) => offsetFormatTz(date, getters.clientTimezone, toZone, format),
+  clientDateToTimezoneLocale: (state, getters) => (date, toZone, locale = i18n.locale) => offsetLocale(date, getters.clientTimezone, toZone, locale),
+
+  // server Date()
+  serverTimezone: state => state.cache.general.timezone,
+  serverDateToTimezoneFormat: (state, getters) => (date, toZone, format = isoDateTimeFormat) => offsetFormat(date, getters.serverTimezone, toZone, format),
+  serverDateToTimezoneFormatTz: (state, getters) => (date, toZone, format = isoDateTimeFormatTz) => offsetFormatTz(date, getters.serverTimezone, toZone, format),
+  serverDateToTimezoneLocale: (state, getters) => (date, toZone, locale = i18n.locale) => offsetLocale(date, getters.serverTimezone, toZone, locale),
 }
 
 const actions = {
