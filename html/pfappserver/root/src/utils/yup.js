@@ -192,7 +192,7 @@ yup.addMethod(yup.string, 'isCommonNameOrFQDNOrMAC', function (message) {
   })
 })
 
-yup.addMethod(yup.string, 'isDateCompare', function (comparison, date = new Date(), dateFormat = 'YYYY-MM-DD HH:mm:ss', message) {
+yup.addMethod(yup.string, 'isDateCompare', function (comparison, date = new Date(), dateFormat = 'yyyy-MM-dd HH:mm:ss', message) {
   return this.test({
     name: 'isDateCompare',
     message: i18n.t('Invalid date.'),
@@ -205,9 +205,9 @@ yup.addMethod(yup.string, 'isDateCompare', function (comparison, date = new Date
       if ([0, '0'].includes(date))
         date = new Date(8640000000000000)
       // round date/value using date-fns format
-      const _date = format((date instanceof Date && isValid(date) ? date : parse(date)), dateFormat)
-      const _value = format((value instanceof Date && isValid(value) ? value : parse(value)), dateFormat)
-      const cmp = compareAsc(parse(_value), parse(_date))
+      const _date = format((date instanceof Date && isValid(date) ? date : parse(date, 'yyyy-MM-dd HH:mm:ss', new Date())), dateFormat)
+      const _value = format((value instanceof Date && isValid(value) ? value : parse(value, 'yyyy-MM-dd HH:mm:ss', new Date())), dateFormat)
+      const cmp = compareAsc(parse(_value), parse(_date, 'yyyy-MM-dd HH:mm:ss', new Date()))
       switch (true) {
         case ['>', 'gt'].includes(comparison) && !(cmp > 0):
         case ['>=', 'gte'].includes(comparison) && !(cmp >= 0):
@@ -224,7 +224,7 @@ yup.addMethod(yup.string, 'isDateCompare', function (comparison, date = new Date
   })
 })
 
-yup.addMethod(yup.string, 'isDateFormat', function (message, dateFormat = 'YYYY-MM-DD HH:mm:ss') {
+yup.addMethod(yup.string, 'isDateFormat', function (message, dateFormat = 'yyyy-MM-dd HH:mm:ss') {
   return this.test({
     name: 'isDateFormat',
     message: message || i18n.t('Invalid date, use format "{dateFormat}".', { dateFormat }),
@@ -237,7 +237,7 @@ yup.addMethod(yup.string, 'isDateFormat', function (message, dateFormat = 'YYYY-
   })
 })
 
-yup.addMethod(yup.string, 'isDateFormatOrZero', function (message, dateFormat = 'YYYY-MM-DD HH:mm:ss') {
+yup.addMethod(yup.string, 'isDateFormatOrZero', function (message, dateFormat = 'yyyy-MM-dd HH:mm:ss') {
   return this.test({
     name: 'isDateFormatOrZero',
     message: message || i18n.t('Invalid date, use format "{dateFormat}".', { dateFormat }),
@@ -447,7 +447,7 @@ yup.addMethod(yup.string, 'mysql', function(columnSchema) {
       if (['', null, undefined].includes(value))
         return true
       const { type, maxLength, min, max,
-        format = 'YYYY-MM-DD HH:mm:ss',
+        format = 'yyyy-MM-dd HH:mm:ss',
         ['enum']: _enum = [] // reserved word
       } = columnSchema
 

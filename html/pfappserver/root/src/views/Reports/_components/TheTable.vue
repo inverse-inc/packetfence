@@ -25,7 +25,7 @@
     <b-table ref="tableRef"
       :busy="isLoading"
       :hover="(items || []).length > 0"
-      :items="decoratedItems"
+      :items="items"
       :fields="visibleColumns"
       class="mb-0"
       no-local-sorting
@@ -60,7 +60,7 @@
       <template v-for="dateField in dateFields"
         v-slot:[`head(${dateField})`]="{ label }">
         {{ label }} <b-badge v-if="timezone"
-          :key="`head-${dateField}`" class="mx-1" variant="secondary">TZ | {{ timezone }}</b-badge>
+          :key="`head-${dateField}`" class="mx-1 mb-1" variant="secondary">{{ timezone }}</b-badge>
       </template>
       <template v-for="nodeField in nodeFields"
         v-slot:[`cell(${nodeField})`]="{ value }">
@@ -76,6 +76,10 @@
         v-slot:[`cell(${roleField})`]="{ value }">
         <router-link :key="roleField"
           :to="{ path: `/configuration/role/${value}` }">{{ value }}</router-link>
+      </template>
+      <template v-for="dateField in dateFields"
+        v-slot:[`cell(${dateField})`]="{ value }">
+        {{ value }} {{ tz }}
       </template>
       <template #cell(selected)="{ index, rowSelected }">
         <span @click.stop="onItemSelected(index)">
@@ -120,7 +124,8 @@ const props = {
     type: Object
   },
   timezone: {
-    type: String
+    type: String,
+    default: 'UTC'
   },
 }
 
@@ -130,16 +135,15 @@ import { useTableColumnsItems } from '@/composables/useCsv'
 import { useDownload } from '@/composables/useDownload'
 import acl from '@/utils/acl'
 import { useSearchFactory } from '../_search'
-import { formatInTimeZone, zonedTimeToUtc } from 'date-fns-tz'
 
 const setup = (props, context) => {
 
   const {
     meta,
-    timezone
+    timezone,
   } = toRefs(props)
 
-  const { root: { $router, $store } = {} } = context
+  const { root: { $router } = {} } = context
 
   const useSearch = useSearchFactory(meta)
   const search = useSearch()
@@ -180,32 +184,6 @@ const setup = (props, context) => {
     items,
     visibleColumns
   } = toRefs(search)
-
-  const serverTimezone = ref(undefined)
-  $store.dispatch('$_bases/getGeneral').then(general => {
-    const { timezone } = general
-    serverTimezone.value = timezone
-  })
-
-  // offset dates
-  const decoratedItems = computed(() => {
-    return items.value.map(item => {
-      if (!timezone.value) {
-        return items.value
-      }
-      return Object.entries(item).reduce((item, [k, date]) => {
-        if (dateFields.value.includes(k)) {
-          const utcDate = zonedTimeToUtc(date, serverTimezone.value)
-          const tzDate = formatInTimeZone(utcDate, timezone.value, 'yyyy-MM-dd HH:mm:ss zzz')
-          item[k] = tzDate
-        }
-        else {
-          item[k] = date
-        }
-        return item
-      }, {})
-    })
-  })
 
   const tableRef = ref(null)
   let selected = useBootstrapTableSelected(tableRef, items, null)
@@ -252,6 +230,8 @@ const setup = (props, context) => {
         .map(column => column.name)
   })
 
+  const tz = computed(() => $store.getters['$_bases/clientDateToTimezoneFormat'](new Date(), timezone.value, 'zzz'))
+
   return {
     hasCursor,
     hasQuery,
@@ -266,8 +246,7 @@ const setup = (props, context) => {
     personFields,
     roleFields,
     dateFields,
-
-    decoratedItems,
+    tz,
   }
 }
 // @vue/component

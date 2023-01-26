@@ -109,8 +109,8 @@ const setup = props => {
     const sFields = fields.value.split(':')
     return filteredItems.value.reduce((min, item) => {
       const { [sFields[0]]: value } = item
-      const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
-      const date = format(parsed, 'YYYY-MM-DD HH:mm:ss')
+      const parsed = parse(value, 'yyyy-MM-dd HH:mm:ss', new Date())
+      const date = format(parsed, 'yyyy-MM-dd HH:mm:ss')
       return (!min || date < min) ? date : min
     }, '')
   })
@@ -119,8 +119,8 @@ const setup = props => {
     const sFields = fields.value.split(':')
     return filteredItems.value.reduce((max, item) => {
       const { [sFields[0]]: value } = item
-      const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
-      const date = format(parsed, 'YYYY-MM-DD HH:mm:ss')
+      const parsed = parse(value, 'yyyy-MM-dd HH:mm:ss', new Date())
+      const date = format(parsed, 'yyyy-MM-dd HH:mm:ss')
       return (!max || date > max) ? date : max
     }, '')
   })
@@ -137,12 +137,12 @@ const setup = props => {
   const _standardDim = () => {
     const sFields = fields.value.split(':')
     return [
-      { name: 'by year', normalize: 'YYYY-01-01 00:00:00' },
-      { name: 'by month', normalize: 'YYYY-MM-01 00:00:00' },
-      { name: 'by day', normalize: 'YYYY-MM-DD 00:00:00' },
-      { name: 'by hour', normalize: 'YYYY-MM-DD HH:00:00' },
-      { name: 'by minute', normalize: 'YYYY-MM-DD HH:mm:00' },
-      { name: 'by second', normalize: 'YYYY-MM-DD HH:mm:ss' }
+      { name: 'by year', normalize: 'yyyy-01-01 00:00:00' },
+      { name: 'by month', normalize: 'yyyy-MM-01 00:00:00' },
+      { name: 'by day', normalize: 'yyyy-MM-dd 00:00:00' },
+      { name: 'by hour', normalize: 'yyyy-MM-dd HH:00:00' },
+      { name: 'by minute', normalize: 'yyyy-MM-dd HH:mm:00' },
+      { name: 'by second', normalize: 'yyyy-MM-dd HH:mm:ss' }
     ].map((dimension, index) => {
       const { name, normalize } = dimension
       const color = colorsFull[index]
@@ -158,7 +158,7 @@ const setup = props => {
           count = 1
         }
         if (value && value[0] !== '0') { // ignore zero dates
-          const parsed = parse(value, 'YYYY-MM-DD HH:mm:ss')
+          const parsed = parse(value, 'yyyy-MM-dd HH:mm:ss', new Date())
           let date = format(parsed, normalize)
           if (date < minDate.value) {
             // limit re-scaled date to within min/max, otherwise date pollutes the charts minimum y-scale

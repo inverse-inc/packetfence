@@ -35,7 +35,7 @@ export const passwordOptions = {
 }
 
 const commonForm = {
-  valid_from: format((new Date().setHours(0,0,0,0)), 'YYYY-MM-DD HH:mm:ss'), // BOD (Fixes #6271)
+  valid_from: format((new Date().setHours(0,0,0,0)), 'yyyy-MM-dd HH:mm:ss'), // BOD (Fixes #6271)
   expiration: null,
   actions: [{ 'type': 'set_access_level' }]
 }

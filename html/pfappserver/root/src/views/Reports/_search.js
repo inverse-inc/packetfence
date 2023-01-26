@@ -1,5 +1,6 @@
 import makeSearch from '@/store/factory/search'
 import { pfSearchConditionType as conditionType } from '@/globals/pfSearch'
+import store from '@/store'
 import i18n from '@/utils/locale'
 import api from './_api'
 
@@ -33,6 +34,25 @@ export const useSearchFactory = (meta) => {
       }
       // append id to api request(s)
       return { ...request, id }
+    },
+    responseInterceptor: response => {
+      let { items = [] } = response
+      const { timezone } = meta.value
+      const dateFields = columns
+        .filter(column => column.is_date)
+        .map(column => column.name)
+      return { items: items.map(item => {
+        return Object.entries(item).reduce((item, [k, date]) => {
+          if (dateFields.includes(k)) {
+            // server => utc => timezone
+            item[k] = store.getters['$_bases/serverDateToTimezoneFormat'](date, timezone)
+          }
+          else {
+            item[k] = date
+          }
+          return item
+        }, {})
+      }) }
     },
     // build search string from query_fields
     useString: searchString => {
