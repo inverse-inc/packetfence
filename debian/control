@@ -23,6 +23,8 @@ Pre-Depends:  ca-certificates,
  packetfence-perl (>= 1.2.1),
  netdata (= 1:1.10.0-1)
 Breaks: libdata-alias-perl
+Conflicts: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript
+Replaces: packetfence-captive-portal-javascript, packetfence-doc, packetfence-pfappserver-javascript
 Depends: ${misc:Depends}, vlan,
  packetfence-ntlm-wrapper (>= ${source:Version}), packetfence-golang-daemon (>= ${source:Version}),
  openssl,
