@@ -52,6 +52,12 @@
       :column-label="$i18n.t('Default realm')"
       :text="$i18n.t('The default realm to be used while formatting the username when no realm can be extracted from the username.')"
     />
+
+    <form-group-use-connector namespace="use_connector"
+      :column-label="$i18n.t('Use Connector')"
+      :text="$i18n.t('Use the available PacketFence connectors to connect to this firewall.')"
+    />
+
   </base-form>
 </template>
 <script>
@@ -65,6 +71,7 @@ import {
   FormGroupNetworks,
   FormGroupPassword,
   FormGroupPort,
+  FormGroupUseConnector,
   FormGroupUsername,
   FormGroupUsernameFormat,
 } from './'
@@ -80,6 +87,7 @@ const components = {
   FormGroupNetworks,
   FormGroupPassword,
   FormGroupPort,
+  FormGroupUseConnector,
   FormGroupUsername,
   FormGroupUsernameFormat,
 }
