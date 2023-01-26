@@ -41,6 +41,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * VLAN filters actions can now be done synchronously (#7351)
  * Support for wired connection on Ruckus SmartZone
  * Improve support of WebAuth on Aruba AP (#7470)
+ * Allow configurability of using the connector during firewall SSO
  
 === Bug Fixes
 
