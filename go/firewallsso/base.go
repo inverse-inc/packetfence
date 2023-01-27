@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -248,6 +249,9 @@ func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, to
 		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
 		if err != nil {
 			panic(fmt.Sprintf("Unable to obtain dynreverse for %s on port %s", toIP, toPort))
+		}
+		if os.Getenv("IS_A_CLASSIC_PF_CONTAINER") == "yes" {
+			return fmt.Sprintf("%s:%s", "containers-gateway.internal", connInfo.Port)
 		}
 		return fmt.Sprintf("%s:%s", connInfo.Host, connInfo.Port)
 	} else {
