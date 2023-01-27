@@ -401,7 +401,7 @@ Where :
 * *Path to Identity Provider cert* Upload the certificate you previously downloaded from Azure.
 * *Path to Identity Provider CA cert* Upload the certificate you previously downloaded from Azure (the same as the section above).
 * *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The one that can be used with Azure is this one http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name who return the "Unique User Identifier" (Edit the section 2 of the Azure SAML configuration detail to see which attribute you can use).
-* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The 'Authentication' section of this document contains explanations on how to configure an LDAP source which can then be used here.
+* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user or also the access level of the PacketFence's administration GUI (if you have configured the "Advanced Access Control For Admin Login"). The 'Authentication' section of this document contains explanations on how to configure an Azure source which can then be used here.
 
 ==== Passthroughs
 
