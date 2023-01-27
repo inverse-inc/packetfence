@@ -38,7 +38,7 @@ $(CONTAINER_IMAGES):
 			--rm --name "$@_build" \
 			-e "CI_PROJECT_DIR=/workspace" \
 			-e "IMAGE_NAME=$@" \
-			-e "IMAGE_TAGS=$(DEV_ENV)_$(KNK_REGISTRY_USER)" \
+			-e "IMAGE_TAGS=$(DEV_ENV)-$(KNK_REGISTRY_USER)" \
 			-e "KNK_REGISTRY=$(KNK_REGISTRY)" \
 			-e "KNK_REGISTRY_URL=$(KNK_REGISTRY_URL)" \
 			-e "KNK_REGISTRY_USER" -e "KNK_REGISTRY_PASSWORD" \
