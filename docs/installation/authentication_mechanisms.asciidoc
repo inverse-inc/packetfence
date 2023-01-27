@@ -311,6 +311,8 @@ For this use case, there is no need to create a connection profile in PacketFenc
 
 === SAML Authentication
 
+==== Common SAML configuration
+
 PacketFence supports SAML authentication in the captive portal in combination with another internal source to define the level of authorization of the user.
 
 First, transfer the Identity Provider metadata on the PacketFence server. In this example, it will be under the path [filename]`/usr/local/pf/conf/idp-metadata.xml`.
@@ -346,6 +348,60 @@ In the case of SimpleSAMLPHP, the following configuration was used in `metadata/
   );
 
 NOTE: PacketFence does not support logoff on the SAML Identity Provider. You can still define the URL in the metadata but it will not be used.
+
+==== Azure SAML configuration
+
+===== Azure Portal
+
+You need to make some configuration on the Azure portal in order to create the IDP.
+
+First create a new Entreprise application:
+
+image::azure_saml_ent_app.png[scaledwidth="100%",alt="Azure SAML Entreprise Application"]
+
+Create your own application:
+
+image::azure_saml_custom_app.png[scaledwidth="100%",alt="Azure SAML Entreprise Own Application"]
+
+Define a name and create:
+
+image::azure_saml_app_name.png[scaledwidth="100%",alt="Azure SAML Application Name"]
+
+Once the applicate have been created click on Single sign-on
+
+image::azure_saml_sso.png[scaledwidth="100%",alt="Azure SAML SSO"]
+
+Click on SAML:
+
+image::azure_saml_sso_method.png[scaledwidth="100%",alt="Azure SAML SSO Method"]
+
+Then fill the information required in the section 1 (Note that the Identifier will need to match with what you will define in PacketFence):
+
+On this page you have to download the Certificate (base64) and the Federation Metadata XML and copy the Azure AD Identifier.
+
+image::azure_saml_sso_details.png[scaledwidth="100%",alt="Azure SSO Details"]
+
+Last thing to do is to define which users can use this application, to do that go in "Users and Groups" section do add users or groups.
+
+image::azure_saml_sso_users_and_groups.png[scaledwidth="100%",alt="Azure SSO Details"]
+
+===== Azure SAML Source
+
+On the PacketFence side, create a new Authentication Source SAML:
+
+image::azure_saml_source.png[scaledwidth="100%",alt="Azure SAML SSO"]
+
+Where :
+
+[options="compact"]
+* *Service Provider entity ID* is the identifier of the Service Provider (PacketFence). In this example it's "https://radius.accessportal.page".
+* *Path to Service Provider key* is the path to the key that will be used by PacketFence to sign its messages to the Identity Provider. A default one is provided under the path : `/usr/local/pf/conf/ssl/server.key`
+* *Path to Service Provider cert* is the path to the certificate associated to the key above. A self-signed one is provided under the path : `/usr/local/pf/conf/ssl/server.crt`
+* *Path to Identity Provider metadata* Upload the XML file you previously downloaded from Azure.
+* *Path to Identity Provider cert* Upload the certificate you previously downloaded from Azure.
+* *Path to Identity Provider CA cert* Upload the certificate you previously downloaded from Azure (the same as the section above).
+* *Attribute of the username in the SAML response* is the attribute that contains the username in the SAML assertion returned by your Identity Provider. The one that can be used with Azure is this one http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name who return the "Unique User Identifier" (Edit the section 2 of the Azure SAML configuration detail to see which attribute you can use).
+* *Authorization source* is the source that will be used to match the username against the rules defined in it. This allows to set the role and access duration of the user. The 'Authentication' section of this document contains explanations on how to configure an LDAP source which can then be used here.
 
 ==== Passthroughs
 
