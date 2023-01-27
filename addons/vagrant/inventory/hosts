@@ -1673,10 +1673,10 @@ all:
             ip_iso: '172.18.157.34'
       _abprasa:
         vars:
-          rhel_sub_secret_id: ''
+          rhel_sub_secret_id: '05e7cadd-ea00-4d98-8097-60c14c674afc'
           fingerbank_api_key:
-            secret_id: ''
-            email: ''
+            secret_id: 'caf645c1-4134-46f2-9e6e-5469e0274b7e'
+            email: 'abprasa@akamai.com'
         networks:
           - name: mgmt_route_abprasa
             subnet: '172.18.160.0/24'
