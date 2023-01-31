@@ -16,6 +16,8 @@ use strict;
 use warnings;
 use Mojo::Base 'pf::UnifiedApi::Controller::RestRoute';
 use pf::error qw(is_error);
+use pf::util qw(isenabled);
+use pf::constants qw($TRUE);
 use pf::k8s;
 use POSIX::AtFork;
 
@@ -23,11 +25,25 @@ my $k8s_deployments;
 my $k8s_pods;
 
 sub CLONE {
+    if (!isenabled($ENV{PF_SAAS}) ) {
+        return;
+    }
+
     $k8s_deployments = pf::k8s->env_build()->api_module("pf::k8s::deployments");
     $k8s_pods = pf::k8s->env_build()->api_module("pf::k8s::pods");
 }
+
 POSIX::AtFork->add_to_child(\&CLONE);
 CLONE();
+
+sub allowed {
+    my ($self) = @_;
+    if (isenabled($ENV{PF_SAAS})) {
+        return $TRUE;
+    }
+
+    return $self->render_error(401, "Kubernetes services are not enabled");
+}
 
 sub resource {
     my ($self) = @_;

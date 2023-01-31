@@ -2001,7 +2001,7 @@ setup_api_v1_k8s_services_routes
 
 sub setup_api_v1_k8s_services_routes {
     my ($self, $root) = @_;
-    my $collection_route = $root->any("/k8s-services")->to(controller => "K8sServices")->name("api.v1.Config.K8sServices");
+    my $collection_route = $root->under("/k8s-services")->to(controller => "K8sServices", action => "allowed")->name("api.v1.Config.K8sServices");
     $collection_route->register_sub_action({action => 'list', path => '', method => 'GET'});
     $collection_route->register_sub_actions({actions => [qw(status_all)], method => 'GET'});
     my $resource_route = $root->under("/k8s-service/#service_id")->to("K8sServices#resource")->name("api.v1.Config.K8sServices.resource");
