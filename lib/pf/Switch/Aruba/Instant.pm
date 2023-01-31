@@ -23,6 +23,7 @@ use warnings;
 
 use base ('pf::Switch::Aruba');
 use pf::constants qw($TRUE);
+use pf::constants::config qw($WEBAUTH_WIRELESS);
 use pf::util::radius qw(perform_disconnect perform_coa);
 use Try::Tiny;
 
