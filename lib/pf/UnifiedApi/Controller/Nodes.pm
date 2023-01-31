@@ -39,6 +39,7 @@ use pf::Connection::ProfileFactory;
 use pf::log;
 use pf::enforcement;
 use pf::person;
+use Cisco::AccessList::Parser;
 
 our %STATUS_TO_MSG = (
     %pf::UnifiedApi::Controller::STATUS_TO_MSG,
@@ -1033,6 +1034,20 @@ sub validate {
         }
     } elsif (!valid_mac($mac)) {
         push @errors, { field => 'mac', message => "Invalid mac" };
+    }
+
+    my $bypass_acls = $json->{bypass_acls};
+    if (defined $bypass_acls) {
+        $bypass_acls =~ s/^\s+//;
+        $bypass_acls =~ s/\s+$//;
+        if ($bypass_acls ne '') {
+            my $parser = Cisco::AccessList::Parser->new();
+            my $acl = "ip access-list extended packetfence\n$bypass_acls";
+            my ($a, $b, $e) = $parser->parse( 'input' => $acl);
+            if (@{$e // []}) {
+                push @errors, {field => 'bypass_acls', message => join("\n", @$e)};
+            }
+        }
     }
 
     if (@errors) {

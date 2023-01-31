@@ -21,6 +21,10 @@ use HTTP::Status qw(:constants is_success);
 
 use pf::config qw(%ConfigRoles);
 use pf::constants::role qw(@ROLES);
+use pf::SwitchFactory;
+use pfappserver::Util::ACLs qw(_validate_acl);
+
+pf::SwitchFactory->preloadAllModules();
 
 has_field 'id' =>
   (
@@ -78,6 +82,7 @@ has_field 'fingerbank_dynamic_access_list' => (
 has_field 'acls' => (
     type => 'TextArea',
     label => 'ACLs',
+    validate_method => \&_validate_acl,
 );
 
 has_field 'inherit_vlan' => (
@@ -134,6 +139,23 @@ sub validate {
             $parent_id = $ConfigRoles{$parent_id}{parent_id};
         }
 
+    }
+
+    my $acls = $self->field('acls')->value;
+    if (!defined $acls ) {
+        return;
+    }
+    $acls = [split(/\n/, $acls)];
+    while (my ($switch_id, $data) = each %pf::SwitchFactory::SwitchConfig) {
+        my $type = $data->{type};
+        next if !defined $type || $type eq '';
+        my $module = pf::SwitchFactory::getModule($type);
+        next if !defined $module;
+        my $switch = $module->new({ id => $switch_id, %$data});
+        my $warnings = $switch->checkRoleACLs($id, $acls);
+        if (defined $warnings) {
+            $self->add_pf_warning($warnings);
+        }
     }
 
 }

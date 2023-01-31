@@ -183,6 +183,11 @@ export const MysqlDatabase = {
       maxLength: 50,
       default: null
     },
+    bypass_acls: {
+      type: MysqlString,
+      maxLength: 255,
+      default: null
+    },
     voip: {
       type: MysqlEnum,
       enum: ['no', 'yes'],

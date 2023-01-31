@@ -22,9 +22,10 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 27;
+use Test::More tests => 36;
 use Test::Mojo;
 use Utils;
+use pf::dal::node;
 use pf::ConfigStore::Roles;
 
 my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Roles");
@@ -36,6 +37,23 @@ my $t = Test::Mojo->new('pf::UnifiedApi');
 my $collection_base_url = '/api/v1/config/roles';
 
 my $base_url = '/api/v1/config/role';
+
+{
+    my $id = "test_role_${$}_1";
+    my $acl = <<ACL;
+permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154
+ACL
+    $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
+      ->status_is(201);
+}
+
+{
+    my $id = "test_role_${$}_2";
+    my $acl = "permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154\n" x 80;
+    $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
+      ->status_is(201)
+      ->json_has('/warnings');
+}
 
 $t->get_ok($collection_base_url)
   ->status_is(200);
@@ -80,6 +98,27 @@ $t->delete_ok("$base_url/r1" => json => {  })
 
 $t->delete_ok("$base_url/r3" => json => {  })
   ->status_is(200);
+
+
+pf::dal::node->remove_items(
+    -where => {
+        "category_id" => {
+            -in => \['SELECT node_category.category_id FROM node_category WHERE name = ?', 'r2'],
+        },
+    },
+);
+
+for my $i (1...10) {
+    my $mac = Utils::test_mac();
+    pf::node::node_add($mac, category => 'r2', pid => 'default');
+}
+
+$t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => {  })
+  ->status_is(200);
+
+$t->post_ok("$base_url/r2/bulk_reevaluate_access" => json => { async => \1 })
+  ->status_is(202);
+
 
 =head1 AUTHOR
 

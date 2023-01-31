@@ -25,15 +25,18 @@ use pf::config qw(
     $MAC
     $SSID
     $ALWAYS
-);;
+);
+use Cisco::AccessList::Parser;
 use pf::Switch::constants;
 use pf::constants::role qw(@ROLES);
 use pf::SwitchFactory;
 use pf::util;
+use pf::config qw(%ConfigRoles);
 use pf::error qw(is_success);
 use List::MoreUtils qw(any uniq);
 use pf::ConfigStore::SwitchGroup;
 use pf::ConfigStore::Switch;
+use pfappserver::Util::ACLs qw(_validate_acl);
 
 ## Definition
 has_field 'id' =>
@@ -453,8 +456,20 @@ has_field coaPort =>
     },
   );
 
+has_field UseDownloadableACLs => (
+    type => 'Toggle',
+);
+
+has_field DownloadableACLsLimit => (
+    type => 'PosInteger',
+);
+
+has_field ACLsLimit => (
+    type => 'PosInteger',
+);
+
 sub addRoleMapping {
-    my ($namespace, $key) = @_;
+    my ($namespace, $key, $additional_info) = @_;
     has_field "$namespace" => (
         type => 'Repeatable',
     );
@@ -462,6 +477,7 @@ sub addRoleMapping {
     has_field "$namespace.$key" => (
         type => 'Text',
         required => 0,
+        @{$additional_info // []},
     );
 
     has_field "$namespace.role" => (
@@ -474,7 +490,7 @@ sub addRoleMapping {
 addRoleMapping("VlanMapping", "vlan");
 addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
-addRoleMapping("AccessListMapping", "accesslist");
+addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl ]);
 addRoleMapping("VpnMapping", "vpn");
 
 sub options_roles {
@@ -662,10 +678,11 @@ sub validate {
         my $type = 'pf::Switch::'. $value->{type};
         if ($type->require() || $TemplateSwitches{$value->{type}}) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
+            my $switch = $type->new($value);
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my %capabilities;
-                @capabilities{$type->new()->inlineCapabilities()} = ();
+                @capabilities{$switch->inlineCapabilities()} = ();
                 if (keys %capabilities) {
                     my @unsupported = grep {!exists $capabilities{$_} } @triggers;
                     if (@unsupported) {
@@ -676,6 +693,12 @@ sub validate {
                     $self->field('type')->add_error("The chosen type doesn't support inline mode.");
                 }
             }
+
+            my $warnings = $switch->checkRolesACLs(\%ConfigRoles);
+            if (defined $warnings) {
+                $self->add_pf_warning(@$warnings);
+            }
+
         } else {
             $self->field('type')->add_error("The chosen type (" . $value->{type} . ") is not supported.");
         }

@@ -76,6 +76,13 @@ export const importFields = [
     validator: validatorFromColumnSchemas(MysqlDatabase.node.bypass_vlan)
   },
   {
+    value: 'bypass_acls',
+    text: i18n.t('Bypass ACLS'),
+    types: [fieldType.SUBSTRING],
+    required: false,
+    validator: validatorFromColumnSchemas(MysqlDatabase.node.bypass_acls)
+  },
+  {
     value: 'computername',
     text: i18n.t('Computer Name'),
     types: [fieldType.SUBSTRING],

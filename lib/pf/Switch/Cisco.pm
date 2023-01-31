@@ -1784,6 +1784,10 @@ sub cmnMacChangedNotificationTrapNormalizer {
     return $trapHashRef;
 }
 
+sub defaultDownloadableACLsLimit {
+    384
+}
+
 =back
 
 =head1 AUTHOR

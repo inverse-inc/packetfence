@@ -68,11 +68,21 @@ our @EXPORT_OK = qw(
   $WEBAUTH_WIRELESS
   $VIRTUAL_VPN
   $VIRTUAL_CLI
+  $SERVICETEMPLATE_WIRELESS_802_1X
+  $DACL_WIRELESS_802_1X
+  $SERVICETEMPLATE_WIRELESS_MAC_AUTH
+  $DACL_WIRELESS_MAC_AUTH
+  $SERVICETEMPLATE_WIRED_802_1X
+  $DACL_WIRED_802_1X
+  $SERVICETEMPLATE_WIRED_MAC_AUTH
+  $DACL_WIRED_MAC_AUTH
 
   $WIRELESS
   $WIRED
   $EAP
   $VIRTUAL
+  $SERVICETEMPLATE
+  $DACL
 
   %connection_type
   %connection_type_to_str
@@ -146,24 +156,35 @@ Readonly our %ALERTING_PORTS => (
 # 6 : WebAuth
 # 7 : VIRTUAL
 
-Readonly our $WIRELESS_802_1X     => 0b11000000000;
-Readonly our $WIRELESS_MAC_AUTH   => 0b10000000001;
-Readonly our $WIRED_802_1X        => 0b01100000010;
-Readonly our $WIRED_MAC_AUTH      => 0b00100000011;
-Readonly our $WIRED_SNMP_TRAPS    => 0b00101000100;
-Readonly our $INLINE              => 0b00010000101;
-Readonly our $UNKNOWN             => 0b00000000000;
-Readonly our $WEBAUTH_WIRELESS    => 0b10000100111;
-Readonly our $WEBAUTH_WIRED       => 0b00100101000;
-Readonly our $VIRTUAL_VPN         => 0b00000011001;
-Readonly our $VIRTUAL_CLI         => 0b00000011010;
+Readonly our $WIRELESS_802_1X                   => 0b1100000000000000;
+Readonly our $WIRELESS_MAC_AUTH                 => 0b1000000000000001;
+Readonly our $WIRED_802_1X                      => 0b0110000000000010;
+Readonly our $WIRED_MAC_AUTH                    => 0b0010000000000011;
+Readonly our $WIRED_SNMP_TRAPS                  => 0b0010100000000100;
+Readonly our $INLINE                            => 0b0001000000000101;
+Readonly our $UNKNOWN                           => 0b0000000000000000;
+Readonly our $WEBAUTH_WIRELESS                  => 0b1000010000000111;
+Readonly our $WEBAUTH_WIRED                     => 0b0010010000001000;
+Readonly our $VIRTUAL_VPN                       => 0b0000001000001001;
+Readonly our $VIRTUAL_CLI                       => 0b0000001000001010;
+Readonly our $SERVICETEMPLATE_WIRELESS_802_1X   => 0b1100000100001011;
+Readonly our $DACL_WIRELESS_802_1X              => 0b1100000010001100;
+Readonly our $SERVICETEMPLATE_WIRELESS_MAC_AUTH => 0b1000000100001101;
+Readonly our $DACL_WIRELESS_MAC_AUTH            => 0b1000000010001110;
+Readonly our $SERVICETEMPLATE_WIRED_802_1X      => 0b0110000100001111;
+Readonly our $DACL_WIRED_802_1X                 => 0b0110000010010000;
+Readonly our $SERVICETEMPLATE_WIRED_MAC_AUTH    => 0b0010000100010001;
+Readonly our $DACL_WIRED_MAC_AUTH               => 0b0010000010010010;
 
 # masks to be used on connection types
-Readonly our $WIRELESS   => 0b10000000000;
-Readonly our $WIRED      => 0b00100000000;
-Readonly our $EAP        => 0b01000000000;
-Readonly our $WEBAUTH    => 0b00000100000;
-Readonly our $VIRTUAL    => 0b00000010000;
+Readonly our $WIRELESS        => 0b1000000000000000;
+Readonly our $WIRED           => 0b0010000000000000;
+Readonly our $EAP             => 0b0100000000000000;
+Readonly our $WEBAUTH         => 0b0000010000000000;
+Readonly our $VIRTUAL         => 0b0000001000000000;
+Readonly our $SERVICETEMPLATE => 0b0000000100000000;
+Readonly our $DACL            => 0b0000000010000000;
+
 
 # TODO we should build a connection data class with these hashes and related constants
 # String to constant hash

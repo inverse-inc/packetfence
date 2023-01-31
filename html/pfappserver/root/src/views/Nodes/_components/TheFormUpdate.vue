@@ -36,6 +36,9 @@
       <form-group-bypass-role namespace="bypass_role_id"
         :column-label="$i18n.t('Bypass Role')"
       />
+      <form-group-bypass-acls namespace="bypass_acls"
+        :column-label="$i18n.t('Bypass ACLS')"
+      />
       <form-group-notes namespace="notes"
         :column-label="$i18n.t('Notes')"
       />
@@ -85,6 +88,7 @@ import {
   FormGroupBandwidthBalance,
   FormGroupVoip,
   FormGroupBypassVlan,
+  FormGroupBypassAcls,
   FormGroupBypassRole,
   FormGroupNotes
 } from './'
@@ -102,6 +106,7 @@ const components = {
   FormGroupBandwidthBalance,
   FormGroupVoip,
   FormGroupBypassVlan,
+  FormGroupBypassAcls,
   FormGroupBypassRole,
   FormGroupNotes
 }

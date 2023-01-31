@@ -29,3 +29,6 @@ RUN mkdir -p /usr/local/pf/lib/
 RUN ln -s /usr/local/fingerbank/lib/fingerbank /usr/local/pf/lib/fingerbank
 
 RUN chown -R pf: /usr/local/pf
+
+# To be removed
+RUN apt-get install -y libcisco-accesslist-parser-perl libparse-eyapp-perl

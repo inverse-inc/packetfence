@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 64;
+use Test::More tests => 70;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -94,6 +94,14 @@ Test2::Tools::Compare::is(
     },
     "Placeholders for VlanMapping is correct"
 );
+
+$t->post_ok($collection_base_url => json => { id => "172.16.9.1", type => 'Cisco::ASA', description => "ss"})
+  ->status_is(201)
+  ->json_is( '/warnings/0/code', 10002);
+
+$t->post_ok($collection_base_url => json => { id => "172.16.9.2", type => 'Cisco::ASA', description => "ss", UseDownloadableACLs => 'enabled'})
+  ->status_is(201)
+  ->json_is( '/warnings/0/code', 10001);
 
 $t->post_ok($collection_base_url => json => { id => "blahasas", description => "ss"})
   ->status_is(422);

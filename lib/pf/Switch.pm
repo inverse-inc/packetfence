@@ -50,7 +50,7 @@ use pf::cluster;
 use pf::radius::constants;
 use pf::roles::custom $ROLES_API_LEVEL;
 # SNMP constants (several standard-based and vendor-based namespaces)
-use pf::Switch::constants;
+use pf::error::switch;
 use pf::util;
 use pf::util::radius qw(perform_disconnect);
 use List::MoreUtils qw(any all);
@@ -66,9 +66,11 @@ use JSON::MaybeXS;
 use pf::constants::switch qw($DEFAULT_ACL_TEMPLATE);
 use pf::factory::connector;
 use pf::config::cluster qw($cluster_enabled);
+use Cisco::AccessList::Parser;
 use pf::SwitchSupports qw(
     -AccessListBasedEnforcement
     -Cdp
+    -DownloadableListBasedEnforcement
     -ExternalPortal
     -FloatingDevice
     -Lldp
@@ -171,6 +173,9 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_UseDownloadableACLs'          => 'disabled',
+        '_DownloadableACLsLimit'        => 0,
+        '_ACLsLimit'                    => 0,
         map { "_".$_ => $argv->{$_} } keys %$argv,
     }, $class;
     return $self;
@@ -708,6 +713,14 @@ sub _parentRoleForVlan {
 sub getAccessListByName {
     my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
+    my $node = node_view($mac);
+    if ($node) {
+        my $acls = $node->{bypass_acls};
+        chomp($acls) if defined $acls;
+        if (defined $acls && $acls ne '') {
+            return $acls;
+        }
+    }
 
     if (defined($self->{'_access_lists'}->{$access_list_name})) {
         $logger->debug("Using ACL from the switch entry instead of the one defined in the role");
@@ -3253,6 +3266,38 @@ sub cache_distributed {
     return pf::CHI->new( namespace => 'switch_distributed' );
 }
 
+=item radius_cache_distributed
+
+Returns the radius distributed cache for the switch namespace
+
+=cut
+
+sub radius_cache_distributed {
+    my ( $self ) = @_;
+    return pf::CHI->new( namespace => 'radius' );
+}
+
+=item setRadiusSession
+
+Create a radius session id.
+
+=cut
+
+sub setRadiusSession {
+    my($self, $args) = @_;
+    my $mac = $args->{'mac'};
+    my $session_id = ( exists($args->{'id_session'}) ? $args->{'id_session'} : generate_session_id(6) );
+    my $chi = $self->radius_cache_distributed;
+    $chi->set($session_id,{
+        client_mac => $mac,
+        wlan => $args->{'ssid'},
+        switch_id => $args->{'switch'}->{'_id'},
+        acl => exists($args->{'acl'}) ? $args->{acl} : (),
+        acl_num => exists($args->{'acl_num'}) ? $args->{'acl_num'} : (),
+    });
+    return $session_id;
+}
+
 =item returnAuthorizeWrite
 
 Return radius attributes to allow write access
@@ -3891,6 +3936,110 @@ sub radius_deauth_connection_info {
     };
 
     return $connection_info;
+}
+
+sub useDownloadableACLs {
+    my ($self) = @_;
+    return $self->supportsDownloadableListBasedEnforcement() &&
+        isenabled($self->{_UseDownloadableACLs});
+}
+
+sub defaultACLsLimit {
+    20
+}
+
+sub defaultDownloadableACLsLimit {
+    20
+}
+
+sub DownloadableACLsLimit {
+    my ($self) = @_;
+    return $self->{_DownloadableACLsLimit} || $self->defaultDownloadableACLsLimit();
+}
+
+sub ACLsLimit {
+    my ($self) = @_;
+    return $self->{_ACLsLimit} || $self->defaultACLsLimit();
+}
+
+sub checkRoleACLs {
+    my ($self, $name, $acls) = @_;
+    if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
+        return $self->makeACLsError($name, $pf::error::switch::ACLsNotSupportedErrCode);
+    }
+
+    my $count = @{$acls // []};
+    if ($self->useDownloadableACLs()) {
+        if ($count > $self->DownloadableACLsLimit()) {
+            return $self->makeACLsError($name, $pf::error::switch::DownloadACLsLimitErrCode);
+        }
+
+        return undef;
+    }
+
+    if ($self->supportsAccessListBasedEnforcement()) {
+        if ($count > $self->ACLsLimit()) {
+            return $self->makeACLsError($name, $pf::error::switch::ACLsLimitErrCode)
+        }
+    }
+
+    return undef;
+}
+
+sub makeACLsError {
+    my ($self, $role, $code) = @_;
+    return pf::error::switch::makeACLsError($self, $role, $code);
+}
+
+sub checkRolesACLs {
+    my ($self, $roles) = @_;
+    if (!defined $roles || keys %$roles == 0) {
+        return undef;
+    }
+
+    my @warnings;
+    if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
+        return [ map {$self->makeACLsError($_, $pf::error::switch::ACLsNotSupportedErrCode) } keys %$roles ];
+    }
+
+    while (my ($name, $role) = each %$roles) {
+        my $warning = $self->checkRoleACLs($name, $role->{acls});
+        if (defined $warning) {
+            push @warnings, $warning;
+        }
+    }
+
+    if (@warnings) {
+        return \@warnings
+    }
+
+    return undef;
+}
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl) = @_;
+
+    my $acls = "ip access-list extended packetfence\n";
+    $acls .= $acl;
+    my $p = Cisco::AccessList::Parser->new();
+    my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
+
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        } else {
+            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        }
+    }
+    return $acl_chewed;
 }
 
 =back

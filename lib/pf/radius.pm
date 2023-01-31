@@ -180,6 +180,8 @@ sub authorize {
         connection_type => $connection_type,
         connection_sub_type => $connection_sub_type,
         radius_request => $radius_request,
+        scope => "packetfence.post-auth",
+        connection => $connection,
     };
 
     $logger->trace( sub { "received a radius authorization request with parameters: ".
@@ -467,7 +469,9 @@ sub accounting {
             radius_request => $radius_request,
             ssid => $ssid,
             node_info => $node_obj,
-            owner => person_view_simple($node_obj->{'pid'})
+            owner => person_view_simple($node_obj->{'pid'}),
+            scope => "packetfence.accounting",
+            connection => $connection,
         };
         my $filter = pf::access_filter::radius->new;
         my $rule = $filter->test($headers->{'X-FreeRADIUS-Server'}.".".$headers->{'X-FreeRADIUS-Section'}, $args);
@@ -808,7 +812,7 @@ sub switch_access {
         . "connection_type => " . connection_type_to_str($connection_type) . ","
         . "switch_mac => ".( defined($switch_mac) ? "($switch_mac)" : "(Unknown)" ).", mac => [$mac], port => ".( defined($port) ? "($port)" : "(Unknown)" ).", username => \"$user_name\"" );
 
-    if ( !$switch->canDoCliAccess && !$switch->supportsVPN()) {
+    if ( !$switch->canDoCliAccess && !$switch->supportsVPN() && !$connection->isServiceTemplate && !$connection->isACLDownload)  {
         $logger->warn("CLI Access is not permit on this switch $switch->{_id}");
         return [ $RADIUS::RLM_MODULE_FAIL, ('Reply-Message' => "CLI or VPN Access is not allowed by PacketFence on this switch") ];
     }
@@ -825,6 +829,8 @@ sub switch_access {
         radius_request => $radius_request,
         switch_group => $switch->{_group},
         switch_id => $switch->{_id},
+        connection => $connection,
+        scope => "packetfence.post-auth",
     };
 
     my $options = {};
@@ -845,12 +851,19 @@ sub switch_access {
     if ($connection->isVPN()) {
         $return = $self->vpn($args, $options, \@sources, \$extra, \$otp, \$password);
         return $return if (ref($return) eq 'ARRAY');
-    }
-    else {
+    } elsif ($connection->isServiceTemplate || $connection->isACLDownload) {
+        return  $self->advancedAccess($args, $options);
+    } else {
         $return = $self->cli($args, $options, \@sources, \$extra, \$otp, \$password);
         return $return if (ref($return) eq 'ARRAY');
     }
 }
+
+sub advancedAccess {
+    my ($self, $args, $options) = @_;
+    return $args->{'switch'}->returnRadiusAdvanced($args, $options);
+}
+
 
 sub authenticate {
     my ($self, $args, $sources, $source_id, $extra, $otp, $password) = @_;
@@ -865,7 +878,7 @@ sub authenticate {
 
     if ( !( defined($return) && $return == $TRUE ) ) {
         $logger->info("User $args->{'username'} tried to login in $args->{'switch'}{'_id'} but authentication failed");
-        return [ $RADIUS::RLM_MODULE_FAIL, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
+        return [ $RADIUS::RLM_MODULE_USERLOCK, ( 'Reply-Message' => "Authentication failed on PacketFence" ) ];
     }
 }
 
@@ -1247,9 +1260,9 @@ sub handleConnectionTypeChange {
     }
 }
 
-=head2 radius_proxy
+=head2 radius_filter
 
-Handle radius proxy request (pre-proxy and post-proxy)
+Handle radius filter request
 
 =cut
 
@@ -1275,7 +1288,8 @@ sub radius_filter {
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $switch->parseRequest($radius_request);
 
     if (!$mac) {
-        return [$RADIUS::RLM_MODULE_NOOP, ('Reply-Message' => "Mac is empty")];
+        #define manually the mac since in radius_filter it's not something mandatory
+        $mac = "00:11:22:33:44:55";
     }
     Log::Log4perl::MDC->put( 'mac', $mac );
     my ($status_code, $node_obj) = pf::dal::node->find_or_create({"mac" => $mac});
@@ -1313,7 +1327,27 @@ sub radius_filter {
         ssid => $ssid,
         node_info => $node_obj,
         owner => person_view_simple($node_obj->{'pid'}),
+        scope => $scope,
+        connection => $connection,
     };
+
+    my $options = {};
+
+    $options->{'last_connection_sub_type'} = $connection_sub_type;
+    $options->{'last_connection_type'}     = connection_type_to_str($connection_type);
+    $options->{'last_switch'}              = $switch->{_id};
+    $options->{'last_port'}                = $port if defined $port && length($port);
+    $options->{'last_vlan'}                = $args->{'vlan'} if (defined($args->{'vlan'}));
+    $options->{'last_ssid'}                = $args->{'ssid'} if (defined($args->{'ssid'}));
+    $options->{'last_dot1x_username'}      = $args->{'user_name'} if (defined($args->{'username'}));
+    $options->{'realm'}                    = $args->{'realm'} if (defined($args->{'realm'}));
+    $options->{'radius_request'}           = $args->{'radius_request'};
+
+    # Exception for cisco DACL
+    if ($connection->isServiceTemplate || $connection->isACLDownload) {
+        return  $self->advancedAccess($args, $options);
+    }
+
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test($scope, $args);
     my ($reply, $status) = $filter->handleAnswerInRule($rule,$args,\%RAD_REPLY_REF);

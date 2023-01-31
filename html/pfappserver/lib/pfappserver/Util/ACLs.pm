@@ -1,0 +1,59 @@
+package pfappserver::Util::ACLs;
+
+=head1 NAME
+
+pfappserver::Util::ACLs -
+
+=head1 DESCRIPTION
+
+pfappserver::Util::ACLs
+
+=cut
+
+use strict;
+use warnings;
+use Exporter qw(import);
+use Cisco::AccessList::Parser;
+our @EXPORT = qw(_validate_acl);
+
+sub _validate_acl {
+    my ($field) = @_;
+    my $acl = $field->value;
+    if ($acl) {
+        my $parser = Cisco::AccessList::Parser->new();
+        my $acl = "ip access-list extended packetfence\n$acl";
+        my ($a, $b, $e) = $parser->parse( 'input' => $acl);
+        if (@{$e // []}) {
+            $field->add_error(@$e);
+        }
+    }
+}
+
+=head1 AUTHOR
+
+Inverse inc. <info@inverse.ca>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2023 Inverse inc.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
+USA.
+
+=cut
+
+1;

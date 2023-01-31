@@ -14,17 +14,19 @@ use pf::config qw(
 );
 use pf::log;
 
-has 'type'          => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
-has 'subType'       => (is => 'rw', isa => 'Str');                  # Printable string to display the sub type of a connection
-has 'transport'     => (is => 'rw', isa => 'Str');                  # Wired or Wireless or Virtual
-has 'isEAP'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
-has 'isSNMP'        => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
-has 'isMacAuth'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAuth | 1: MacAuth
-has 'is8021X'       => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
-has 'isVPN'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoVPN | 1: VPN
-has 'isCLI'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoCLI | 1: CLI
-has '8021XAuth'     => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
-has 'enforcement'   => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
+has 'type'              => (is => 'rw', isa => 'Str');                  # Printable string to display the type of a connection
+has 'subType'           => (is => 'rw', isa => 'Str');                  # Printable string to display the sub type of a connection
+has 'transport'         => (is => 'rw', isa => 'Str');                  # Wired or Wireless or Virtual
+has 'isEAP'             => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoEAP / 1: EAP
+has 'isSNMP'            => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoSNMP | 1: SNMP
+has 'isMacAuth'         => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoMacAuth | 1: MacAuth
+has 'is8021X'           => (is => 'rw', isa => 'Bool', default => 0);   # 0: No8021X | 1: 8021X
+has 'isVPN'             => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoVPN | 1: VPN
+has 'isCLI'             => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoCLI | 1: CLI
+has 'isServiceTemplate' => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoServiceTemplete | 1: ServiceTemplate
+has 'isACLDownload'     => (is => 'rw', isa => 'Bool', default => 0);   # 0: NoACLDownload | 1: ACLDownload
+has '8021XAuth'         => (is => 'rw', isa => 'Str');                  # Authentication used for 8021X connection
+has 'enforcement'       => (is => 'rw', isa => 'Str');                  # PacketFence enforcement technique
 
 
 our $logger = get_logger();
@@ -62,6 +64,12 @@ sub _attributesToString {
     # Handling CLI
     $type .= ( $self->isCLI ) ? "-CLI" : "";
 
+    # Handling isServiceTemplate
+    $type .= ( $self->isServiceTemplate ) ? "-ServiceTemplate" : "";
+
+    # Handling ACLDownload
+    $type .= ( $self->isACLDownload ) ? "-ACLDownload" : "";
+
     $self->type($type);
 }
 
@@ -78,7 +86,7 @@ sub _stringToAttributes {
     ( lc($type) =~ /^wireless/ ) ? $self->transport("Wireless") : $self->transport("Wired");
 
     if (lc($type) =~/^virtual/ ) {
-            $self->transport("Virtual");
+        $self->transport("Virtual");
     }
 
     # We check if SNMP
@@ -99,6 +107,13 @@ sub _stringToAttributes {
 
     # We check if CLI
     ( lc($type) =~ /^cli/ ) ? $self->isCLI($TRUE) : $self->isCLI($FALSE);
+
+    # We check if serviceTemplate
+    ( lc($type) =~ /^servicetemplate/ ) ? $self->isServiceTemplate($TRUE) : $self->isACLDownload($FALSE);
+
+    # We check if ACLDownload
+    ( lc($type) =~ /^acldownload/ ) ? $self->isACLDownload($TRUE) : $self->isServiceTemplate($FALSE);
+
 }
 
 =head2 backwardCompatibleToAttributes
@@ -147,6 +162,12 @@ sub backwardCompatibleToAttributes {
     if ( lc($type) =~ /cli$/ ) {
         $self->isMacAuth($FALSE);
         $self->isCLI($TRUE);
+    }
+    if ( lc($type) =~ /servicetemplate$/ ) {
+        $self->isServiceTemplate($TRUE);
+    }
+    if ( lc($type) =~ /acldownload$/ ) {
+        $self->isACLDownload($TRUE);
     }
 }
 

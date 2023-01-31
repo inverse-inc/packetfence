@@ -43,6 +43,7 @@ use pf::config qw(
 use pf::web::util;
 use pf::util;
 use pf::node;
+use pf::constants;
 use pf::util::radius qw(perform_coa);
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
@@ -59,6 +60,7 @@ sub description { 'Cisco ASA Firewall' }
 # access technology supported
 use pf::SwitchSupports qw(
     RadiusDynamicVlanAssignment
+    DownloadableListBasedEnforcement
     AccessListBasedEnforcement
     ExternalPortal
     RoleBasedEnforcement
@@ -76,14 +78,30 @@ sub identifyConnectionType {
 
     my @require = qw(ASA-TunnelGroupName);
     my @found = grep {exists $radius_request->{$_}} @require;
+
+    my @require_dacl = qw(Cisco-AVPair);
+    my @found_dacl = grep {exists $radius_request->{$_}} @require;
+    my $foundvsa = 0;
+    my @vsa = qw(aaa:service=vpn aaa:event=acl-download);
+    if (exists $radius_request->{'Cisco-AVPair'}) {
+        if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
+            foreach my $item (@{$radius_request->{'Cisco-AVPair'}}) {
+                foreach my $vsa (@vsa) {
+                    if ($vsa eq $item) {
+                        $foundvsa ++;
+                    }
+                }
+            }
+        }
+    }
+    # Detect VPN access
     if (@require == @found) {
         $connection->isVPN($TRUE);
         $connection->isCLI($FALSE);
-    } else {
-        $connection->isVPN($FALSE);
+    } elsif (scalar @vsa == $foundvsa) {
+        $connection->isACLDownload($TRUE);
     }
 }
-
 
 =item deauthenticateMacDefault
 
@@ -177,19 +195,27 @@ sub returnAuthorizeVPN {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
-                my $acl_num = 101;
-                while($access_list =~ /([^\n]+)\n?/g){
-                    push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
-                    $acl_num ++;
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                if ($self->useDownloadableACLs) {
+                    my $mac = lc($args->{'mac'});
+                    $mac =~ s/://g;
+                    my @acl = split("\n", $access_list);
+                    $args->{'acl'} = \@acl;
+                    $args->{'acl_num'} = '101';
+                    push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=#ACSACL#".$args->{'user_name'}."-".$self->setRadiusSession($args));
+                } else {
+                    my $acl_num = 101;
+                    while($access_list =~ /([^\n]+)\n?/g){
+                        push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                        $acl_num ++;
+                        $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                    }
+                    $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
                 }
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
             }
         }
     }
-
     if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}) ) ) {
             $args->{'session_id'} = "sid".$self->setSession($args);
@@ -216,6 +242,58 @@ sub returnAuthorizeVPN {
     my $filter = pf::access_filter::radius->new;
     my $rule = $filter->test('returnRadiusAccessAccept', $args);
     ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
+sub returnRadiusAdvanced {
+    my ($self, $args, $options) = @_;
+    my $logger = $self->logger;
+    my $status = $RADIUS::RLM_MODULE_OK;
+    my ($mac, $session_id) = split('-', $args->{'user_name'});
+    my $radius_reply_ref = ();
+    my @av_pairs;
+    $radius_reply_ref->{'control:Proxy-To-Realm'} = 'LOCAL';
+    if ($args->{'connection'}->isACLDownload) {
+        my $cache = $self->radius_cache_distributed;
+        my $session = $cache->get($session_id);
+        $session->{'id_session'} = $session_id;
+        # Need to send back a challenge since there is still acl to download
+        if (exists $args->{'scope'} && $args->{'scope'} eq 'packetfence-cli.authorize' && scalar @{$session->{'acl'}} > 1 ) {
+            $status = $RADIUS::RLM_MODULE_HANDLED;
+            $radius_reply_ref->{'control:Response-Packet-Type'} = 11;
+            $radius_reply_ref->{'state'} = $session_id;
+            for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
+                last if (scalar @{$session->{'acl'}} == 1);
+                my $acl = shift @{$session->{'acl'}};
+                if ($acl !~ /^permit/i && $acl !~ /^deny/i) {
+                    next;
+                }
+                push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
+                $session->{'acl_num'} ++;
+                $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+                $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+            }
+            $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+            $self->setRadiusSession($session);
+            return [$status, %$radius_reply_ref];
+        }
+        if (scalar @{$session->{'acl'}} == 1) {
+            my $acl = shift @{$session->{'acl'}};
+            if ($acl =~ /^permit/i || $acl =~ /^deny/i) {
+                push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
+                $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+                $self->setRadiusSession($session);
+            } else {
+                $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
+            }
+        } elsif (scalar @{$session->{'acl'}} == 0) {
+            $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
+        } else {
+            $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
+        }
+    }
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
     return [$status, %$radius_reply_ref];
 }
 

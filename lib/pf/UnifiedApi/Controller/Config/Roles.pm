@@ -29,6 +29,7 @@ use pf::config qw(%ConfigRoles);
 use pfconfig::cached_hash;
 use pf::dal::node;
 use pf::dal::person;
+use pf::enforcement;
 use pf::ConfigStore::AdminRoles;
 use pf::ConfigStore::Scan;
 use pf::ConfigStore::Provisioning;
@@ -98,6 +99,10 @@ SELECT
         EXISTS (SELECT 1 FROM node, node_category WHERE (node.bypass_role_id = node_category.category_id ) AND node_category.name = ? LIMIT 1) as node_bypass_role_id,
         EXISTS (SELECT 1 FROM password, node_category WHERE password.category = node_category.category_id AND node_category.name = ? LIMIT 1) as password_category
 ) AS x;
+SQL
+
+my $NODES_IN_CATGEORY = <<SQL;
+SELECT mac FROM node WHERE category_id IS NOT NULL && category_id IN (SELECT node_category.category_id FROM node_category WHERE name = ? );
 SQL
 
 my %IN_USE_MESSAGE = (
@@ -318,7 +323,81 @@ sub check_reassign_args {
     }
 
 }
- 
+
+sub bulk_reevaluate_access {
+    my ($self) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    if ($data->{async}) {
+        my $task_id = $self->task_id;
+        my $subprocess = Mojo::IOLoop->subprocess;
+        $subprocess->run(
+            sub {
+                my ($subprocess) = @_;
+                my $updater = pf::pfqueue::status_updater::redis->new( connection => consumer_redis_client(), task_id => $task_id );
+                $updater->start;
+                my ($status, $results) = $self->do_bulk_reevaluate_access($data, $updater);
+                if (is_error($status)) {
+                    $updater->failed({ message => $results });
+                    return;
+                }
+
+                $updater->completed($results);
+                return;
+            },
+            sub { } # Do nothing
+        );
+
+        return $self->render( json => {status => 202, task_id => $task_id }, status => 202);
+    }
+
+    ($status, my $results) = $self->do_bulk_reevaluate_access($data);
+    if (is_error($status)) {
+        return $self->render_error(
+            $status,
+            $results,
+        );
+    }
+
+    return $self->render(json => $results);
+}
+
+sub do_bulk_reevaluate_access {
+    my ($self, $data, $updater) = @_;
+    my @items;
+    my $id = $self->id;
+    my ($status, $nodes) = get_nodes_for_role($id);
+    if (is_error($status)) {
+        return ($status, "Unable to get nodes");
+    }
+
+    for my $mac (@{$nodes}) {
+        my %item = (mac => $mac);
+        my $result = pf::enforcement::reevaluate_access($mac, "admin_modify");
+        $item{status} = $result ? "success" : "failed";
+        push @items, \%item;
+    }
+
+    return ($status, {items => \@items });
+}
+
+sub get_nodes_for_role {
+    my ($name) = @_;
+    my ($status, $sth) = pf::dal::node->db_execute($NODES_IN_CATGEORY, $name);
+    if (is_error($status)) {
+        get_logger()->error("Unable to get nodes in the database");
+        return ($status, []);
+    }
+
+    my $nodes = $sth->fetchall_arrayref([0]);
+    $sth->finish;
+    my $n = [map {$_->[0]} @{$nodes}];
+    return ($status, $n);
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>
