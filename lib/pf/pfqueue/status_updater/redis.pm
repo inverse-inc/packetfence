@@ -204,11 +204,13 @@ sub set_in_status_hash {
         return;
     }
 
+    my $publish_key = $self->status_publish_key;
     my $connection = $self->connection;
     $connection->multi(\&empty);
     $connection->hmset($status_key, @data, \&empty);
     $connection->expire($status_key, $self->status_ttl, \&empty);
-    $connection->publish($self->status_publish_key, 1, \&empty);
+    $connection->del($publish_key, \&empty);
+    $connection->rpush($publish_key, 1, \&empty);
     $connection->exec(\&empty);
     $connection->wait_all_responses();
 }
