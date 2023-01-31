@@ -56,6 +56,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Escape quotes in LDAP passwords (AD source: too complex password prevent RADIUS to start #3976)
  * Use the proper file extensions when uploading SAML config files. (ZEN 12.1 - XML File Renamed on upload.  #7439)
  * Return immediately after an async job is complete (Rework pfqueue results polling #7175)
+ * Fixed issue with Aruba DACL, only the first acl was shown in the port
 
 == Version 12.1.0 released on 2022-11-22
 
