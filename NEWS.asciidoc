@@ -29,6 +29,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
  * Content Keeper firewall SSO support
  * Added support for Unifi OS controllers (#7368)
+ * Added support for downloadable ACLs on Cisco switches
 
 === Enhancements
 
@@ -42,6 +43,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Support for wired connection on Ruckus SmartZone
  * Improve support of WebAuth on Aruba AP (#7470)
  * Allow configurability of using the connector during firewall SSO
+ * New api call /api/v1/config/role/{role_id}/bulk_reevaluate_access
+ * Add warnings/errors when updating ACLs for roles and switches.
  
 === Bug Fixes
 
