@@ -112,7 +112,7 @@ The RADIUS flow is something close to the normal one but in the Access-Accept re
 
 A second RADIUS request is made with the ACL name as a value of the username and multiples Access-Challenge are made in order to retreive the complete ACL.
 
-To enable it you need first to enable the RADIUS filter in the PacketFence authorize section. To do that go in Configuration -> System Configuration -> RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then restart RADIUS Auth service.
+To enable it you need first to enable the RADIUS filter in the PacketFence authorize section. To do that go in Configuration -> System Configuration -> RADIUS -> General and enable "Use RADIUS filters in packetfence authorize" then restart the `radiusd-auth` service.
 
 
 ===== Port-security and SNMP

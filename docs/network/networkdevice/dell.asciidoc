@@ -231,7 +231,7 @@ Downloadable ACLs:
 
 This configuration has been tested on FW 6.8.1.
 Important, even if "authentication allow-srcipanyacl enable" has been enable on the switch, it doesn't support ACL with source ip and the ACL direction are only in.
-So per example you have this configured in PacketFence:
+So, for example, if you have this configured in PacketFence:
 
  permit ip 10.0.0.1 host 192.168.3.1
  permit ip any any
