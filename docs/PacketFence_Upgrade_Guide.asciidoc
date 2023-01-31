@@ -1825,6 +1825,10 @@ If you modify a config file directly from the filesystem then you have to do the
 
 == Upgrading from a version prior to X.Y.Z
 
+=== Changed dynamic ACL attribute for Aruba modules
+
+The attribute used for dynamic ACLs on Aruba/HP switches has been changed to `Aruba-NAS-Filter-Rule`. Make sure you are running a recent firmware for these switches so that this attribute is honored.
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
