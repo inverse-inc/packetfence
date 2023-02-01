@@ -35,6 +35,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Profile");
 
 use Test::More tests => 56;
 use Test::Mojo;
+use MIME::Base64 qw(encode_base64 decode_base64);
 #This test will running last
 use Test::NoWarnings;
 my $t = Test::Mojo->new('pf::UnifiedApi');
@@ -46,6 +47,7 @@ my $base_url = '/api/v1/config/connection_profile';
 
 sub test_file_patch {
     my ($t, $profile, $file, $content) = @_;
+    $content = encode_base64($content);
     $t->patch_ok("$base_url/$profile/files/$file" => {} => $content)
       ->status_is(200);
 
@@ -58,12 +60,12 @@ sub test_file_patch {
 $t->post_ok($collection_base_url => json => { id => $test_profile_name, root_module => 'default_policy', advanced_filter => undef, filter => [ {type => 'ssid', match => 'bob'}], })
   ->status_is(201);
 
-$t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => "bob")
+$t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => encode_base64("bob"))
   ->status_is(200);
 
 $t->get_ok("$base_url/$test_profile_name/files/bob.html")
   ->status_is(200)
-  ->content_is('bob');
+  ->content_is(encode_base64('bob'));
 
 $t->put_ok("$base_url/$test_profile_name/files/bob.html" => {} => "bob2")
   ->status_is(412);
