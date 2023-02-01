@@ -35,6 +35,8 @@ use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
 use pf::dal::bandwidth_accounting;
+use pf::dal::node_current_session;
+
 use pf::util;
 my $t = Test::Mojo->new('pf::UnifiedApi');
 
@@ -51,36 +53,17 @@ for my $m ($mac1, $mac2, $mac3) {
 my $node_id2 = make_node_id(1, $mac2);
 my $node_id3 = make_node_id(1, $mac3);
 
-my $status = pf::dal::bandwidth_accounting->create({
-    node_id => $node_id2,
-    unique_session_id  => 1,
-    time_bucket => \['DATE_ADD(DATE(NOW()), INTERVAL HOUR(NOW()) HOUR)'],
-    source_type => 'radius',
-    in_bytes => 100,
-    out_bytes => 100,
+pf::dal::node_current_session->create({
     mac => $mac2,
+    last_session_id => 1,
+    is_online => 1,
 });
 
-$status = pf::dal::bandwidth_accounting->create({
-    node_id => $node_id3,
-    unique_session_id  => 1,
-    time_bucket => \['DATE_ADD(DATE(NOW()), INTERVAL HOUR(NOW()) HOUR)'],
-    source_type => 'radius',
-    in_bytes => 100,
-    out_bytes => 100,
+pf::dal::node_current_session->create({
     mac => $mac3,
-    last_updated => '0000-00-00 00:00:00',
+    last_session_id => 1,
+    is_online => 0,
 });
-
-pf::dal::bandwidth_accounting->update_items(
-    -set => {
-        last_updated => '0000-00-00 00:00:00',
-    },
-    -where => {
-        node_id => $node_id3,
-        unique_session_id => 1,
-    },
-);
 
 $t->post_ok( '/api/v1/nodes/search' => json =>
       {
