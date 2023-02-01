@@ -42,6 +42,7 @@ const grace = 5E3 // 3s
 
 const getters = {
   isLoading: state => state.status === types.LOADING,
+  services: state => state.services,
 }
 
 const actions = {
