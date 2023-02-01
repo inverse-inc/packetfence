@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 ### rlm_perl logger ###
-log4perl.rootLogger = INFO, RLM_PERL
+log4perl.rootLogger = sub { ($ENV{PF_LOG_LEVEL} || 'INFO' ) . ", RLM_PERL" }
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels

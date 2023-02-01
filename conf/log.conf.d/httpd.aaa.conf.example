@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 ### httpd.aaa logger ###
-log4perl.rootLogger = INFO, HTTPD_AAA
+log4perl.rootLogger = sub { ($ENV{PF_LOG_LEVEL} || 'INFO' ) . ", HTTPD_AAA" }
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
@@ -11,13 +11,13 @@ log4perl.appender.HTTPD_AAA.layout                         = PatternLayout
 
 ### Fingerbank logger ###
 ## Used to separate Fingerbank logs in a different log file
-log4perl.category.fingerbank = INFO, AAA_FINGERBANK
+log4perl.category.fingerbank = sub { ($ENV{PF_LOG_LEVEL} || 'INFO' ) . ", AAA_FINGERBANK" }
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.fingerbank = 0
 
 ### DHCP processing logger ###
 ## Used to separate the DHCP processing into a different log file
-log4perl.category.pf.dhcp = INFO, AAA_DHCP
+log4perl.category.pf.dhcp = sub { ($ENV{PF_LOG_LEVEL} || 'INFO' ) . ", AAA_DHCP" }
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.pf.dhcp = 0
 #
