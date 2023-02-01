@@ -1836,10 +1836,10 @@ all:
             ip_iso: '172.18.162.34'
       _zma:
         vars:
-          rhel_sub_secret_id: ''
+          rhel_sub_secret_id: 'bb5ea639-b4aa-4c93-b86f-25d14c80bb53'
           fingerbank_api_key:
-            secret_id: ''
-            email: ''
+            secret_id: 'eb7a9c9b-545e-41b0-90d3-80b6a96b742c'
+            email: 'zma@akamai.com'
         networks:
           - name: mgmt_route_zma
             subnet: '172.18.170.0/24'
