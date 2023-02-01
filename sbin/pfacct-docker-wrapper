@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=pfacct
+
+args=`base_args $name`
+args="$args -v /usr/local/pf/raddb:/usr/local/pf/raddb -v /usr/share/freeradius:/usr/share/freeradius"
+
+run $name "$args"
