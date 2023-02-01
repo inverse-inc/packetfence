@@ -6,7 +6,8 @@ import {
   BaseFormGroupInput,
   BaseFormGroupInputNumber,
   BaseFormGroupInputPassword,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupToggle,
+  BaseFormGroupToggleDisabledEnabled,
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -26,6 +27,7 @@ export {
   BaseFormGroupInputPassword          as FormGroupPassword,
   BaseFormGroupInputNumber            as FormGroupPort,
   BaseFormGroupChosenOne              as FormGroupTransport,
+  BaseFormGroupToggle                 as FormGroupUseConnector,
   BaseFormGroupInput                  as FormGroupUsername,
   BaseFormGroupInput                  as FormGroupUsernameFormat,
   BaseFormGroupInput                  as FormGroupVsys,
