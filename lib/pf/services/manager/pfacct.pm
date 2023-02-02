@@ -65,7 +65,7 @@ sub generate_container_environments {
            PFACCT_LISTEN_PORT => $port,
        },
     };
-    $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/pfacct.env") or die $tt->error();
+    $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
 }
 
 =head1 AUTHOR
