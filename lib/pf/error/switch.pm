@@ -14,13 +14,14 @@ use strict;
 use warnings;
 
 our $ACLsLimitErrMsg = 'ACLs limit reached for switch';
+our $DownloadACLsErrMsg = 'Downloadable ACLs limit reached for switch';
 our $ACLsNotSupportedMsg = 'ACLs not supported for switch';
 our $DownloadACLsLimitErrCode = 10001;
 our $ACLsLimitErrCode = 10002;
 our $ACLsNotSupportedErrCode = 10003;
 
 our %MESSAGES = (
-   $DownloadACLsLimitErrCode => $ACLsLimitErrMsg,
+   $DownloadACLsLimitErrCode => $DownloadACLsErrMsg,
    $ACLsLimitErrCode => $ACLsLimitErrMsg,
    $ACLsNotSupportedErrCode => $ACLsNotSupportedMsg,
 );
