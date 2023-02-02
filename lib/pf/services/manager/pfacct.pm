@@ -14,11 +14,59 @@ use strict;
 use warnings;
 use pf::util;
 use Moo;
+use Template;
+use pf::cluster;
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::env_golang_service';
 
 has '+name' => ( default => sub { 'pfacct' } );
+
+=head2 generateConfig
+
+Generate the configuration for pfacct
+
+=cut
+
+sub generateConfig {
+    my ($self, $quick) = @_;
+
+    $self->_generateConfig();
+    return 1;
+}
+
+=head2 _generateConfig
+
+Generate the configuration files for pfacct processes
+
+=cut
+
+sub _generateConfig {
+    my ($self,$quick) = @_;
+    my $tt = Template->new(ABSOLUTE => 1);
+    $self->generate_container_environments($tt);
+}
+
+=head2 generate_container_environments
+
+Generate the environment variables for running the container
+
+=cut
+
+sub generate_container_environments {
+    my ($self, $tt) = @_;
+
+    my $port = '1813';
+    if ($cluster_enabled) {
+        $port = '1823';
+    }
+    my $vars = {
+       env_dict => {
+           PFACCT_LISTEN_PORT => $port,
+       },
+    };
+    $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/pfacct.env") or die $tt->error();
+}
 
 =head1 AUTHOR
 
