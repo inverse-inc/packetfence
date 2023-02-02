@@ -22,6 +22,8 @@ use pf::util;
 use pf::log;
 use Symbol 'gensym';
 use IPC::Open3;
+use Socket;
+use Net::IP;
 our $IPT_NETFLOW_VERSION;
 our $os = pf::util::os_detection();
 if ($os eq 'rhel') {
@@ -49,7 +51,14 @@ sub _run {
     system("/usr/sbin/dkms", "-q", "install", "-m", "ipt-netflow", "-v", $IPT_NETFLOW_VERSION);
     system("/sbin/modprobe", "ipt_NETFLOW");
     local $SIG{PIPE} = sub {};
-    $pid = open3('>&STDIN', '>&STDOUT', $stderr = gensym,'/sbin/sysctl',"net.netflow.destination=$Config{services}{netflow_address}:$Config{ports}{pfacct_netflow}");
+    my @destination = split(':',$Config{services}{netflow_target_host_port});
+    my $destination_ip;
+    if (Net::IP::ip_is_ipv4($destination[0])) {
+        $destination_ip = $destination[0];
+    } else {
+        $destination_ip = inet_ntoa(inet_aton($destination[0]));
+    }
+    $pid = open3('>&STDIN', '>&STDOUT', $stderr = gensym,'/sbin/sysctl',"net.netflow.destination=$destination_ip:$destination[1]");
     waitpid($pid, 0);
     $child_exit_status = $? >> 8;
     if ($child_exit_status) {

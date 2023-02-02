@@ -710,6 +710,12 @@ tracking-config_binary=/dev/null
 netflow_address=0.0.0.0
 
 #
+# services.netflow_target_host_port
+#
+# NetFlow Target Host Port
+netflow_target_host_port=[% ENV.env_or_default("NETFLOW_TARGET_HOST_PORT", "containers-gateway.internal:2056") %]
+
+#
 # services.mysql-probe
 #
 # Should mysql-probe be managed by PacketFence?
