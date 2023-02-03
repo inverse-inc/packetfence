@@ -49,6 +49,7 @@ function backup_pf_release() {
 
 function upgrade_packetfence_package() {
   local include_os_update=$1
+  canceled_update=no
   if is_rpm_based; then
     yum_upgrade_packetfence_package $include_os_update
   elif is_deb_based; then
@@ -56,6 +57,7 @@ function upgrade_packetfence_package() {
         echo "Packages to remove detected"
         echo "OS upgrade can't be performed until ${packages_to_remove} are removed"
         include_os_update=no
+        canceled_update=yes
     else
         echo "Unable to detect packages to remove"
     fi
@@ -64,6 +66,7 @@ function upgrade_packetfence_package() {
             echo "libmariadb-dev ${libmariadb_version} detected"
             echo "OS upgrade can't be performed until libmariadb-dev is uninstalled"
             include_os_update=no
+            canceled_update=yes
         # cover fresh installations performed on Debian 11.6 before libmariadb-dev dependencies was removed
         else
             echo "libmariadb-dev ${libmariadb_version} detected"
@@ -114,6 +117,13 @@ function apt_upgrade_packetfence_package() {
     DEBIAN_FRONTEND=noninteractive apt install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" packetfence -y
   fi
   DEBIAN_FRONTEND=noninteractive apt autoremove -q -y
+  # OS upgrade was requested initially but has been canceled
+  # We performed it now once packetfence packages have been upgraded
+  if is_enabled $canceled_update; then
+    apt-mark hold packetfence-upgrade
+    DEBIAN_FRONTEND=noninteractive apt upgrade -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y
+    apt-mark unhold packetfence-upgrade
+  fi
 }
 
 function yum_upgrade_packetfence_package() {
