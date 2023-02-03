@@ -61,6 +61,7 @@ type configStruct struct {
 		DHCPInts          DHCPInts
 		DNSInts           DNSInts
 		RADIUSInts        RADIUSInts
+		AdditionalListen  AdditionalListen
 	}
 	PfConf struct {
 		Advanced      PfConfAdvanced
@@ -356,6 +357,16 @@ type RADIUSInts struct {
 	PfconfigHostnameOverlay string `val:"yes"`
 	Element                 []interface{}
 }
+
+type AdditionalListen struct {
+	StructConfig
+	PfconfigMethod          string `val:"element"`
+	PfconfigNS              string `val:"resource::additional_listen_interfaces"`
+	PfconfigArray           string `val:"yes"`
+	PfconfigHostnameOverlay string `val:"yes"`
+	Element                 []string
+}
+
 type PfClusterIp struct {
 	StructConfig
 	PfconfigMethod             string `val:"hash_element"`
@@ -435,6 +446,7 @@ type RessourseNetworkConf struct {
 	IpReserved               string    `json:"ip_reserved"`
 	IpAssigned               string    `json:"ip_assigned"`
 	Interface                Interface `json:"interface"`
+	Dev                      string    `json:"dev"`
 	PortalFQDN               string    `json:"portal_fqdn"`
 	PoolBackend              string    `json:"pool_backend"`
 	Algorithm                string    `json:"algorithm"`

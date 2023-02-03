@@ -123,6 +123,11 @@
           :column-label="$i18n.t('Client Gateway')"
           :disabled="isFakeMacEnabled"
         />
+        <form-group-dev namespace="dev"
+          :column-label="$i18n.t('Additional interface')"
+          :text="$i18n.t('Define a network interface to associate it with the dhcp scope.(In most cases you don\'t need to do it).')"
+          :disabled="isFakeMacEnabled"
+        />
       </base-form-tab>
       <base-form-tab :title="$i18n.t('Routing')" v-if="isType('vlan-isolation', 'vlan-registration', 'dns-enforcement', 'inlinel3')">
         <form-group-next-hop namespace="next_hop"
@@ -144,6 +149,7 @@ import {
   FormGroupAlgorithm,
   FormGroupCoa,
   FormGroupDescription,
+  FormGroupDev,
   FormGroupDhcpd,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,
@@ -172,6 +178,7 @@ const components = {
   FormGroupAlgorithm,
   FormGroupCoa,
   FormGroupDescription,
+  FormGroupDev,
   FormGroupDhcpd,
   FormGroupDhcpDefaultLeaseTime,
   FormGroupDhcpEnd,

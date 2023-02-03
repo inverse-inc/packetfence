@@ -94,14 +94,19 @@ has_field 'coa' => (
     label => 'Enable CoA',
 );
 
-has_field 'dhcpd' =>
-  (
+has_field 'dhcpd' => (
    type => 'Toggle',
    checkbox_value => "enabled",
    unchecked_value => "disabled",
    default => "enabled",
    label => 'DHCP server',
-   );
+);
+
+has_field 'dev' => (
+   type => 'Text',
+   default => "",
+   label => 'Assign to the Network interface',
+);
 
 =head2 update_fields
 
@@ -145,6 +150,7 @@ sub validate {
     my $type = $self->value->{type};
     if ($type ne $pf::config::NET_TYPE_OTHER) {
         my $interface = $interface_model->interfaceForDestination($self->value->{next_hop});
+        $interface = $self->value->{dev} if (defined($self->value->{dev}));
         unless ($interface) {
             $self->field('next_hop')->add_error("The router IP has no gateway on a network interface.");
         }

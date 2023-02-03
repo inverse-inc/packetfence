@@ -18,6 +18,7 @@ export {
   BaseFormGroupChosenOne                    as FormGroupAlgorithm,
   BaseFormGroupToggleDisabledEnabled        as FormGroupCoa,
   BaseFormGroupInput                        as FormGroupDescription,
+  BaseFormGroupInput                        as FormGroupDev,
   BaseFormGroupToggleDisabledEnabled        as FormGroupDhcpd,
   BaseFormGroupInput                        as FormGroupDhcpDefaultLeaseTime,
   BaseFormGroupInput                        as FormGroupDhcpEnd,
