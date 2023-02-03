@@ -1,6 +1,6 @@
 # Copyright (C) Inverse inc.
 ### pfdhcplistener logger ###
-log4perl.rootLogger = sub { ($ENV{PF_LOG_LEVEL} || 'INFO' ) . ", PFDHCPLISTENER" }
+log4perl.rootLogger = sub { ($ENV{LOG_LEVEL} || 'INFO' ) . ", PFDHCPLISTENER" }
 
 ### Categories ###
 # Below, you can specify different categories (based on package names) for different logging levels
