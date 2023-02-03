@@ -18,6 +18,11 @@ function get_libmariadb_dev() {
     fi
 }
 
+function get_packages_to_remove() {
+    packages_to_remove='packetfence-captive-portal-javascript packetfence-doc packetfence-pfappserver-javascript'
+    dpkg -s ${packages_to_remove} &>/dev/null
+}
+
 
 function backup_git_commit_id() {
   if [ `cat /usr/local/pf/conf/git_commit_id` = "%{git_commit}" ]; then
@@ -47,6 +52,13 @@ function upgrade_packetfence_package() {
   if is_rpm_based; then
     yum_upgrade_packetfence_package $include_os_update
   elif is_deb_based; then
+    if get_packages_to_remove; then
+        echo "Packages to remove detected"
+        echo "OS upgrade can't be performed until ${packages_to_remove} are removed"
+        include_os_update=no
+    else
+        echo "Unable to detect packages to remove"
+    fi
     if get_libmariadb_dev; then
         if dpkg --compare-versions "${libmariadb_version}" le "10.5.15"; then
             echo "libmariadb-dev ${libmariadb_version} detected"
