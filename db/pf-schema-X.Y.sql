@@ -1403,6 +1403,7 @@ CREATE TABLE `pki_certs` (
   `profile_id` int(10) unsigned DEFAULT NULL,
   `profile_name` varchar(255) DEFAULT NULL,
   `valid_until` datetime NULL DEFAULT NULL,
+  `not_before` datetime DEFAULT NULL,
   `date` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   `serial_number` varchar(255) DEFAULT NULL,
   `dns_names` varchar(255) DEFAULT NULL,

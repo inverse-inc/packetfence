@@ -101,6 +101,12 @@ export const useSearch = makeSearch('pkiCerts', {
       visible: true
     },
     {
+      key: 'not_before',
+      label: 'Not Before', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'scep',
       label: 'SCEP', // i18n defer
       required: true,
