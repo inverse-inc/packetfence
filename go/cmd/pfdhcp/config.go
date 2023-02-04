@@ -5,6 +5,7 @@ import (
 	"math"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -75,6 +76,9 @@ func (d *Interfaces) readConfig() {
 	var DHCPinterfaces pfconfigdriver.DHCPInts
 	pfconfigdriver.FetchDecodeSocket(ctx, &DHCPinterfaces)
 
+	var Additionalinterfaces pfconfigdriver.AdditionalListen
+	pfconfigdriver.FetchDecodeSocket(ctx, &Additionalinterfaces)
+
 	var keyConfNet pfconfigdriver.PfconfigKeys
 	keyConfNet.PfconfigNS = "config::Network"
 	keyConfNet.PfconfigHostnameOverlay = "yes"
@@ -89,6 +93,9 @@ func (d *Interfaces) readConfig() {
 
 	var intDhcp []string
 
+	var interfacesDhcp []string
+	interfacesDhcp = sharedutils.RemoveDuplicates(append(interfaces.Element, Additionalinterfaces.Element...))
+
 	for _, vi := range DHCPinterfaces.Element {
 		for key, dhcpint := range vi.(map[string]interface{}) {
 			if key == "int" {
@@ -98,7 +105,7 @@ func (d *Interfaces) readConfig() {
 	}
 
 	wg := &sync.WaitGroup{}
-	for _, v := range sharedutils.RemoveDuplicates(append(interfaces.Element, intDhcp...)) {
+	for _, v := range sharedutils.RemoveDuplicates(append(interfacesDhcp, intDhcp...)) {
 
 		eth, err := net.InterfaceByName(v)
 
@@ -119,17 +126,17 @@ func (d *Interfaces) readConfig() {
 		ethIf.listenPort = bootpServer
 
 		adresses, _ := eth.Addrs()
-
+		added := false
 		for _, adresse := range adresses {
 
 			var NetIP *net.IPNet
 			var IP net.IP
 			IP, NetIP, _ = net.ParseCIDR(adresse.String())
 
-			a, b := NetIP.Mask.Size()
-			if a == b {
-				continue
-			}
+			// a, b := NetIP.Mask.Size()
+			// if a == b {
+			// 	continue
+			// }
 
 			if IsIPv6(IP) {
 				ethIf.Ipv6 = IP
@@ -148,12 +155,13 @@ func (d *Interfaces) readConfig() {
 					continue
 				}
 
-				if (NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) {
+				NetInt := strings.Split(ConfNet.Dev, ",")
+				if !added && ((NetIP.Contains(net.ParseIP(ConfNet.DhcpStart)) && NetIP.Contains(net.ParseIP(ConfNet.DhcpEnd))) || NetIP.Contains(net.ParseIP(ConfNet.NextHop)) || (stringInSlice(ethIf.Name, NetInt))) {
 					if int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpStart).To4())) > int(binary.BigEndian.Uint32(net.ParseIP(ConfNet.DhcpEnd).To4())) {
 						log.LoggerWContext(ctx).Error("Wrong configuration, check your network " + key)
 						continue
 					}
-
+					added = true
 					// IP per role
 					if ConfNet.SplitNetwork == "enabled" {
 						var keyConfRoles pfconfigdriver.PfconfigKeys
