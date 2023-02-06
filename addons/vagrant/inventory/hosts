@@ -1671,3 +1671,329 @@ all:
             netmask: '255.255.255.0'
             ip_reg: '172.18.156.34'
             ip_iso: '172.18.157.34'
+      _abprasa:
+        vars:
+          rhel_sub_secret_id: '05e7cadd-ea00-4d98-8097-60c14c674afc'
+          fingerbank_api_key:
+            secret_id: 'caf645c1-4134-46f2-9e6e-5469e0274b7e'
+            email: 'abprasa@akamai.com'
+        networks:
+          - name: mgmt_route_abprasa
+            subnet: '172.18.160.0/24'
+            forward_mode: 'route'
+          - name: reg_isolated_abprasa
+            subnet: '172.18.161.0/24'
+            forward_mode: 'none'
+          - name: iso_isolated_abprasa
+            subnet: '172.18.162.0/24'
+            forward_mode: 'none'
+          - name: inline_isolated_abprasa
+            subnet: '172.18.163.0/24'
+            forward_mode: 'none'
+          - name: inline_l3_abprasa
+            subnet: '172.18.164.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.160.23'
+            ip_reg: '172.18.161.23'
+            ip_iso: '172.18.162.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.160.27'
+            ip_reg: '172.18.161.27'
+            ip_iso: '172.18.162.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.160.31'
+            ip_reg: '172.18.161.31'
+            ip_iso: '172.18.162.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.160.35'
+            ip_reg: '172.18.161.35'
+            ip_iso: '172.18.162.35'
+        vms:
+          switch01:
+            ip: '172.18.160.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.18.163.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.18.164.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.18.160.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.18.160.252'
+            netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.160.253'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.18.160.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.18.160.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.18.160.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.18.160.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.18.160.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.18.160.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.18.160.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.18.160.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.18.160.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.18.160.15'
+            netmask: '255.255.255.0'
+          el8localdev:
+            ip: '172.18.160.8'
+            netmask: '255.255.255.0'
+          deb11localdev:
+            ip: '172.18.160.9'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.18.160.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.18.160.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.18.160.18'
+            netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.160.20'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.20'
+            ip_iso: '172.18.162.20'
+          pf2el8dev:
+            ip: '172.18.160.21'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.21'
+            ip_iso: '172.18.162.21'
+          pf3el8dev:
+            ip: '172.18.160.22'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.22'
+            ip_iso: '172.18.162.22'
+          pf1el8localdev:
+            ip: '172.18.160.24'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.24'
+            ip_iso: '172.18.162.24'
+          pf2el8localdev:
+            ip: '172.18.160.25'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.25'
+            ip_iso: '172.18.162.25'
+          pf3el8localdev:
+            ip: '172.18.160.26'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.26'
+            ip_iso: '172.18.162.26'
+          pf1deb11dev:
+            ip: '172.18.160.28'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.28'
+            ip_iso: '172.18.162.28'
+          pf2deb11dev:
+            ip: '172.18.160.29'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.29'
+            ip_iso: '172.18.162.29'
+          pf3deb11dev:
+            ip: '172.18.160.30'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.30'
+            ip_iso: '172.18.162.30'
+          pf1deb11localdev:
+            ip: '172.18.160.32'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.32'
+            ip_iso: '172.18.162.32'
+          pf2deb11localdev:
+            ip: '172.18.160.33'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.33'
+            ip_iso: '172.18.162.33'
+          pf3deb11localdev:
+            ip: '172.18.160.34'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.161.34'
+            ip_iso: '172.18.162.34'
+      _zma:
+        vars:
+          rhel_sub_secret_id: 'bb5ea639-b4aa-4c93-b86f-25d14c80bb53'
+          fingerbank_api_key:
+            secret_id: 'eb7a9c9b-545e-41b0-90d3-80b6a96b742c'
+            email: 'zma@akamai.com'
+        networks:
+          - name: mgmt_route_zma
+            subnet: '172.18.170.0/24'
+            forward_mode: 'route'
+          - name: reg_isolated_zma
+            subnet: '172.18.171.0/24'
+            forward_mode: 'none'
+          - name: iso_isolated_zma
+            subnet: '172.18.172.0/24'
+            forward_mode: 'none'
+          - name: inline_isolated_zma
+            subnet: '172.18.173.0/24'
+            forward_mode: 'none'
+          - name: inline_l3_zma
+            subnet: '172.18.174.0/24'
+        clusters:
+          cluster_el8dev:
+            ip_mgmt: '172.18.170.23'
+            ip_reg: '172.18.171.23'
+            ip_iso: '172.18.172.23'
+          cluster_el8localdev:
+            ip_mgmt: '172.18.170.27'
+            ip_reg: '172.18.171.27'
+            ip_iso: '172.18.172.27'
+          cluster_deb11dev:
+            ip_mgmt: '172.18.170.31'
+            ip_reg: '172.18.171.31'
+            ip_iso: '172.18.172.31'
+          cluster_deb11localdev:
+            ip_mgmt: '172.18.170.35'
+            ip_reg: '172.18.171.35'
+            ip_iso: '172.18.172.35'
+        vms:
+          switch01:
+            ip: '172.18.170.201'
+            netmask: '255.255.255.0'
+            inline_ip: '172.18.173.3'
+            inline_netmask: '255.255.255.0'
+            inline_l3_ip: '172.18.174.4'
+            inline_l3_netmask: '255.255.255.0'
+          node01:
+            ip: '172.18.170.251'
+            netmask: '255.255.255.0'
+          node02:
+            ip: '172.18.170.252'
+            netmask: '255.255.255.0'
+          node03:
+            ip: '172.18.170.253'
+            netmask: '255.255.255.0'
+          ad:
+            ip: '172.18.170.100'
+            netmask: '255.255.255.0'
+          wireless01:
+            ip: '172.18.170.210'
+            netmask: '255.255.255.0'
+          linux01:
+            ip: '172.18.170.101'
+            netmask: '255.255.255.0'
+          linux02:
+            ip: '172.18.170.102'
+            netmask: '255.255.255.0'
+          pfel8dev:
+            ip: '172.18.170.10'
+            netmask: '255.255.255.0'
+          el8dev:
+            ip: '172.18.170.11'
+            netmask: '255.255.255.0'
+          pfdeb11dev:
+            ip: '172.18.170.12'
+            netmask: '255.255.255.0'
+          deb11dev:
+            ip: '172.18.170.13'
+            netmask: '255.255.255.0'
+          localhost:
+            ip: ''
+            netmask: '255.255.255.0'
+          pfel8localdev:
+            ip: '172.18.170.14'
+            netmask: '255.255.255.0'
+          pfdeb11localdev:
+            ip: '172.18.170.15'
+            netmask: '255.255.255.0'
+          el8localdev:
+            ip: '172.18.170.8'
+            netmask: '255.255.255.0'
+          deb11localdev:
+            ip: '172.18.170.9'
+            netmask: '255.255.255.0'
+          pfel8stable:
+            ip: '172.18.170.16'
+            netmask: '255.255.255.0'
+          pfdeb9stable:
+            ip: '172.18.170.17'
+            netmask: '255.255.255.0'
+          pfdeb11stable:
+            ip: '172.18.170.18'
+            netmask: '255.255.255.0'
+          pf1el8dev:
+            ip: '172.18.170.20'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.20'
+            ip_iso: '172.18.172.20'
+          pf2el8dev:
+            ip: '172.18.170.21'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.21'
+            ip_iso: '172.18.172.21'
+          pf3el8dev:
+            ip: '172.18.170.22'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.22'
+            ip_iso: '172.18.172.22'
+          pf1el8localdev:
+            ip: '172.18.170.24'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.24'
+            ip_iso: '172.18.172.24'
+          pf2el8localdev:
+            ip: '172.18.170.25'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.25'
+            ip_iso: '172.18.172.25'
+          pf3el8localdev:
+            ip: '172.18.170.26'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.26'
+            ip_iso: '172.18.172.26'
+          pf1deb11dev:
+            ip: '172.18.170.28'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.28'
+            ip_iso: '172.18.172.28'
+          pf2deb11dev:
+            ip: '172.18.170.29'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.29'
+            ip_iso: '172.18.172.29'
+          pf3deb11dev:
+            ip: '172.18.170.30'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.30'
+            ip_iso: '172.18.172.30'
+          pf1deb11localdev:
+            ip: '172.18.170.32'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.32'
+            ip_iso: '172.18.172.32'
+          pf2deb11localdev:
+            ip: '172.18.170.33'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.33'
+            ip_iso: '172.18.172.33'
+          pf3deb11localdev:
+            ip: '172.18.170.34'
+            netmask: '255.255.255.0'
+            ip_reg: '172.18.171.34'
+            ip_iso: '172.18.172.34'
