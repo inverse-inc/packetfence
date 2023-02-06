@@ -30,7 +30,7 @@ use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 109;
+use Test::More tests => 118;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -114,6 +114,18 @@ $t->post_ok('/api/v1/nodes/bulk_apply_bypass_vlan' => json => { bypass_vlan => u
   ->status_is(200)
   ->json_is('/items/0/mac', $mac)
   ->json_is('/items/0/status', 'success');
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => "permit ip any any",  items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'success');
+
+$t->get_ok("/api/v1/node/$mac")
+  ->status_is(200)
+  ->json_is('/item/bypass_acls', 'permit ip any any');
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => "permit ip any",  items => [$mac] })
+  ->status_is(422);
 
 $t->post_ok('/api/v1/nodes/search' => json => { fields => [qw(mac security_event.open_count)] })
   ->status_is(200)

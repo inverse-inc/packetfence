@@ -153,10 +153,11 @@ bulk_init_results
 =cut
 
 sub bulk_init_results {
-    my ($items) = @_;
+    my ($items, $status) = @_;
+    $status //= 'skipped';
     my $i = 0;
     my %index = map { $_ => $i++ } @$items;
-    my @results = map { { mac => $_, status => 'skipped'} } @$items;
+    my @results = map { { mac => $_, status => $status} } @$items;
     return (\%index, \@results);
 }
 
@@ -481,6 +482,29 @@ sub bulk_apply_bypass_role {
     return $self->do_bulk_update_field('bypass_role_id');
 }
 
+sub validate_bypass_acls {
+    my ($self, $value) = @_;
+    my $parser = Cisco::AccessList::Parser->new();
+    my $acl = "ip access-list extended packetfence\n$value";
+    my ($a, $b, $e) = $parser->parse( 'input' => $acl);
+    if (@{$e // []}) {
+        return (422, "Invalid bypass_acls");
+    }
+
+    return (200, undef);
+}
+
+=head2 bulk_apply_bypass_acls
+
+bulk update bypass_acls
+
+=cut
+
+sub bulk_apply_bypass_acls {
+    my ($self) = @_;
+    return $self->do_bulk_update_field2('bypass_acls', \&validate_bypass_acls);
+}
+
 =head2 bulk_apply_bypass_vlan
 
 bulk update bypass_vlan
@@ -499,7 +523,7 @@ do_bulk_update_field
 =cut
 
 sub do_bulk_update_field {
-    my ($self, $field) = @_;
+    my ($self, $field, $field_validator) = @_;
     my ($status, $data) = $self->parse_json;
     if (is_error($status)) {
         return $self->render(json => $data, status => $status);
@@ -507,6 +531,12 @@ sub do_bulk_update_field {
 
     my $items = $data->{items} // [];
     my $value = $data->{$field};
+    if (defined $field_validator) {
+        my ($status, $err) = $field_validator->($self, $value);
+        if (is_error($status)) {
+            return $self->render_error($status, $err);
+        }
+    }
     ($status, my $iter) = $self->dal->search(
         -columns => [qw(mac)],
         -where => {
@@ -532,6 +562,46 @@ sub do_bulk_update_field {
             $results->[$indexes->{$mac}]{status} = "failed";
         }
     }
+
+    return $self->render( status => 200, json => { items => $results } );
+}
+
+=head2 do_bulk_update_field
+
+do_bulk_update_field2
+
+=cut
+
+sub do_bulk_update_field2 {
+    my ($self, $field, $field_validator) = @_;
+    my ($status, $data) = $self->parse_json;
+    if (is_error($status)) {
+        return $self->render(json => $data, status => $status);
+    }
+
+    my $items = $data->{items} // [];
+    my $value = $data->{$field};
+    if (defined $field_validator) {
+        my ($status, $err) = $field_validator->($self, $value);
+        if (is_error($status)) {
+            return $self->render_error($status, $err);
+        }
+    }
+    ($status, my $iter) = $self->dal->update_items(
+        -where => {
+            mac => { -in => $items },
+            $field => [ {"!=" => $value}, defined $value ? ({"=" => undef} ) : () ],
+        },
+        -set => {
+            $field => $value,
+        },
+    );
+    if (is_error($status)) {
+        return $self->render_error($status, "Error finding nodes");
+    }
+
+    my ($indexes, $results) = bulk_init_results($items, 'success');
+
 
     return $self->render( status => 200, json => { items => $results } );
 }
