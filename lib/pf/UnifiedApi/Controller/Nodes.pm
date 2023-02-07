@@ -484,6 +484,10 @@ sub bulk_apply_bypass_role {
 
 sub validate_bypass_acls {
     my ($self, $value) = @_;
+    if (!defined $value || $value eq '') {
+        return (200, undef);
+    }
+
     my $parser = Cisco::AccessList::Parser->new();
     my $acl = "ip access-list extended packetfence\n$value";
     my ($a, $b, $e) = $parser->parse( 'input' => $acl);
