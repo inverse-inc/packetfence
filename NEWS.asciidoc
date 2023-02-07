@@ -46,6 +46,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * New api call /api/v1/config/role/{role_id}/bulk_reevaluate_access
  * Add warnings/errors when updating ACLs for roles and switches.
  * Azure SAML integration documentation
+ * Change log levels of Perl services using environment variable (#7487)
+ * Containerization `pfacct` service
+ * Add not_before to PKI certificates (#7454)
  
 === Bug Fixes
 
