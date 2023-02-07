@@ -71,6 +71,11 @@ CREATE TABLE IF NOT EXISTS node_current_session (
 ALTER TABLE `node`
     ADD COLUMN IF NOT EXISTS `bypass_acls` MEDIUMTEXT DEFAULT NULL;
 
+\! echo "Updating pki_certs table"
+ALTER TABLE `pki_certs`
+    ADD COLUMN IF NOT EXISTS `not_before` datetime DEFAULT NULL AFTER `valid_until`;
+UPDATE pki_certs SET not_before = created_at WHERE 1;
+
 \! echo "Incrementing PacketFence schema version...";
 INSERT IGNORE INTO pf_version (id, version, created_at) VALUES (@VERSION_INT, CONCAT_WS('.', @MAJOR_VERSION, @MINOR_VERSION), NOW());
 
