@@ -11,7 +11,7 @@ log4perl.additivity.Catalyst = 0
 
 ### Fingerbank logger ###
 ## Used to separate Fingerbank logs in a different log file
-log4perl.rootLogger = sub { ($ENV{LOG_LEVEL} || 'INFO' ) . ", PORTAL_FINGERBANK" }
+log4perl.category.fingerbank = sub { ($ENV{LOG_LEVEL} || 'INFO' ) . ", PORTAL_FINGERBANK" }
 ## Prevent the message from bubbling up to it's parents
 log4perl.additivity.fingerbank = 0
 
