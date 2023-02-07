@@ -30,7 +30,7 @@ use pf::dal::locationlog;
 
 #insert known data
 #run tests
-use Test::More tests => 118;
+use Test::More tests => 132;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -123,6 +123,24 @@ $t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => "
 $t->get_ok("/api/v1/node/$mac")
   ->status_is(200)
   ->json_is('/item/bypass_acls', 'permit ip any any');
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => undef,  items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'success');
+
+$t->get_ok("/api/v1/node/$mac")
+  ->status_is(200)
+  ->json_is('/item/bypass_acls', undef);
+
+$t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => '',  items => [$mac] })
+  ->status_is(200)
+  ->json_is('/items/0/mac', $mac)
+  ->json_is('/items/0/status', 'success');
+
+$t->get_ok("/api/v1/node/$mac")
+  ->status_is(200)
+  ->json_is('/item/bypass_acls', '');
 
 $t->post_ok('/api/v1/nodes/bulk_apply_bypass_acls' => json => { bypass_acls => "permit ip any",  items => [$mac] })
   ->status_is(422);
