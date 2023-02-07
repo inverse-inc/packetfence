@@ -15,6 +15,7 @@ pf::log
 use strict;
 use warnings;
 use Log::Log4perl;
+use Log::Log4perl::Config;
 use Log::Log4perl::Level;
 use Log::Log4perl::Layout::PatternLayout;
 use pf::file_paths qw($log_conf_dir $log_config_file);
@@ -23,6 +24,11 @@ use File::Basename qw(basename);
 use Carp;
 
 STDOUT->autoflush(1);
+
+Log::Log4perl::Config->allow_code('restrictive');
+Log::Log4perl::Config->vars_shared_with_safe_compartment(
+    main => ['%ENV'],
+);
 
 Log::Log4perl->wrapper_register(__PACKAGE__);
 
