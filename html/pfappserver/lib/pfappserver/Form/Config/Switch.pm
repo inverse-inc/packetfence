@@ -675,10 +675,10 @@ sub validate {
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
     if ($value->{type}) {
-        my $type = 'pf::Switch::'. $value->{type};
-        if ($type->require() || $TemplateSwitches{$value->{type}}) {
+        my $module = pf::Switchfactory::getModule($value->{type});
+        if ($module->require() ) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
-            my $switch = $type->new($value);
+            my $switch = $module->new($value);
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my %capabilities;
