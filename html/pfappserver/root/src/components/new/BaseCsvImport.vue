@@ -75,7 +75,7 @@
                 {{ $t('Field Mappings') }}
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
-                <b-col class="text-nowrap" :key="`col-${colIndex}`">
+                <b-col class="col text-nowrap" :key="`col-${colIndex}`">
                   <template v-if="((perPage * page) - perPage + colIndex + 1) <= (linesCount - ((parseConfig.header) ? 1 : 0))">
                     {{ $t('Line') }} #{{ (perPage * page) - perPage + colIndex + 1 }}
                   </template>
@@ -119,7 +119,7 @@
                 </b-form-group>
               </b-col>
               <template v-for="(_, colIndex) in new Array(perPage)">
-                <b-col class="col-overflow-hidden" :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="`col-${colIndex}`">
+                <b-col class="col col-overflow-hidden" :class="(importMapping[rowIndex]) ? 'text-black' : 'text-black-50'" :key="`col-${colIndex}`">
                   <template v-if="importMappingState[colIndex][rowIndex] === false">
                     <!-- invalid -->
                     <icon name="exclamation-circle" class="text-danger mr-1"/> {{ getPreview(colIndex, rowIndex) }}
