@@ -675,7 +675,7 @@ sub validate {
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
     if ($value->{type}) {
-        my $module = pf::Switchfactory::getModule($value->{type});
+        my $module = pf::SwitchFactory::getModule($value->{type});
         if ($module->require() ) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
             my $switch = $module->new($value);
