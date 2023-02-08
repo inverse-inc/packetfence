@@ -88,6 +88,12 @@ const mutations = {
       notification = Object.assign(base, data)
     }
     if (notification) {
+      const filtered = state.all.filter(({ message, url }) => {
+        return message !== notification.message || url !== notification.url
+      })
+      if (state.all.length !== filtered.length) {
+        state.all = filtered
+      }
       notification.id = uuidv4()
       state.all.splice(0, 0, notification)
       setTimeout(() => {
