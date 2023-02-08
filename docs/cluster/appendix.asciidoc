@@ -372,6 +372,15 @@ provided in
 <<PacketFence_Upgrade_Guide.asciidoc#_restart_packetfence_services,Restart
 PacketFence services section>>.
 
+`haproxy-admin` service need to be restarted manually on both nodes
+after all services have been restarted:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd service haproxy-admin restart
+----
+
+
 ==== Restart node C
 
 Now, you should restart PacketFence on node C using the instructions provided
