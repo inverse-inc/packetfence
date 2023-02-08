@@ -142,9 +142,10 @@ sub validate {
     }
 
     my $acls = $self->field('acls')->value;
-    if (!defined $acls ) {
+    if (!defined $acls || $acls eq '' ) {
         return;
     }
+
     $acls = [split(/\n/, $acls)];
     while (my ($switch_id, $data) = each %pf::SwitchFactory::SwitchConfig) {
         my $type = $data->{type};
