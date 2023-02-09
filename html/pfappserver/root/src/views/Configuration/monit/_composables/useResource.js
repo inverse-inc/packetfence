@@ -15,9 +15,7 @@ export const useStore = $store => {
 export const useServices = () => computed(() => {
   return {
     message: i18n.t('Creating or modifying the monit configuration requires to restart the monit service.'),
-    services: [],
     system_services: ['monit'],
-    k8s_services: [],
     systemd: true
   }
 })

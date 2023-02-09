@@ -13,7 +13,7 @@
         :service="service" restart start stop
         class="mr-1" :size="size" />
       <base-button-service-system v-for="service in systemServicesSorted" :key="`system-service-${service}`"
-        :service="service" restart
+        :service="service" restart start stop
         class="mr-1" :size="size" />
       <base-button-systemd-update v-if="systemd"
         class="ml-1" />
