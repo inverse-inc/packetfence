@@ -83,6 +83,12 @@ export const useSearch = makeSearch('pkiRevokedCerts', {
       visible: true
     },
     {
+      key: 'not_before',
+      label: 'Not Before', // i18n defer
+      sortable: true,
+      visible: true
+    },
+    {
       key: 'crl_reason',
       label: 'Reason', // i18n defer
       sortable: true,
