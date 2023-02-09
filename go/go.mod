@@ -23,7 +23,7 @@ require (
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gdey/jsonpath v0.0.0-20151203210429-124c978a1ffc
-	github.com/gin-gonic/gin v1.7.0
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-acme/lego v2.5.0+incompatible
 	github.com/go-errors/errors v1.0.1
 	github.com/go-kit/kit v0.10.0 // indirect
