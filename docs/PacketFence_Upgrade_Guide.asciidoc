@@ -1829,6 +1829,13 @@ If you modify a config file directly from the filesystem then you have to do the
 
 The attribute used for dynamic ACLs on Aruba/HP switches has been changed to `Aruba-NAS-Filter-Rule`. Make sure you are running a recent firmware for these switches so that this attribute is honored.
 
+=== Accounting requests sent by network devices
+
+Due to containerization of `pfacct` service, network devices must send a RADIUS `NAS-IP-Address` attribute in Accounting-Request packets.
+Value of this attribute needs to be an IP address, defined in _Switches_ menu (or part of a CIDR declaration).
+
+If this RADIUS attribute is not sent by your network devices, you need to declare them in _Switches_ menu using MAC Addresses (value of RADIUS `Called-Station-Id` attribute).
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
