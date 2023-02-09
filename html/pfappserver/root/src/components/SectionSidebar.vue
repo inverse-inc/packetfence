@@ -38,7 +38,7 @@
                   <icon v-else
                     class="mx-1 mt-1" name="chevron-down" />
                 </component>
-                <b-collapse :id="$sanitizedClass(section.name)" :key="section.path" :accordion="accordion(section.name)" :visible="isActive(section.name)">
+                <b-collapse :id="$sanitizedClass(section.name)" :key="JSON.stringify(section.path)" :accordion="accordion(section.name)" :visible="isActive(section.name)">
                   <template v-for="item in section.items">
                     <!-- single link -->
                     <section-sidebar-item v-if="item.path" :key="item.path" :item="item" :filter="filter" />
@@ -49,7 +49,7 @@
                         <icon class="mx-1" name="angle-double-down" />
                       </div>
                       <b-collapse :id="$sanitizedClass(`${section.name}_${item.name}`)" :key="item.path" :visible="isActive(item.name)">
-                        <section-sidebar-item v-for="subitem in item.items" :key="subitem.path" :item="subitem" :filter="filter" indent />
+                        <section-sidebar-item v-for="subitem in item.items" :key="JSON.stringify(subitem.path)" :item="subitem" :filter="filter" indent />
                       </b-collapse>
                     </template>
                     <!-- non-collapsable section with items (2nd level) -->
