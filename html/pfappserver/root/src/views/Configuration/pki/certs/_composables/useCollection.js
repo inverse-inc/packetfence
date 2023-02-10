@@ -95,14 +95,14 @@ export const useSearch = makeSearch('pkiCerts', {
       visible: true
     },
     {
-      key: 'valid_until',
-      label: 'Valid Until', // i18n defer
+      key: 'not_before',
+      label: 'Not Before', // i18n defer
       sortable: true,
       visible: true
     },
     {
-      key: 'not_before',
-      label: 'Not Before', // i18n defer
+      key: 'valid_until',
+      label: 'Valid Until', // i18n defer
       sortable: true,
       visible: true
     },
