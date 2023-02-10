@@ -332,3 +332,45 @@ func TestAcctCleanup(t *testing.T) {
 		},
 	)
 }
+
+func TestNodeCurrentSessionCleanup(t *testing.T) {
+	testWindowSqlCleanup(
+		t,
+		"node_current_session_cleanup",
+		map[string]interface{}{
+			"timeout": 10.0,
+			"batch":   100.0,
+			"window":  float64(12 * 60 * 60),
+		},
+		[]string{
+			"DELETE FROM node_current_session",
+			`INSERT INTO node_current_session (mac, updated, last_session_id, is_online) VALUES
+				( "00:11:22:33:44:55", DATE_SUB(NOW(), INTERVAL 1 DAY), 1, 1 ),
+				( "00:11:22:33:44:56", DATE_SUB(NOW(), INTERVAL 1 DAY), 1, 1 ),
+				( "00:11:22:33:44:57", DATE_SUB(NOW(), INTERVAL 1 DAY), 1, 1 ),
+				( "00:11:22:33:44:58", DATE_SUB(NOW(), INTERVAL 1 DAY), 1, 1 ),
+				( "00:11:22:33:44:59", DATE_SUB(NOW(), INTERVAL 1 DAY), 1, 1 ),
+				( "00:11:22:33:44:5a", DATE_SUB(NOW(), INTERVAL 1 DAY), 1, 1 ),
+				( "00:11:22:33:44:5b", NOW(), 1, 1 ),
+				( "00:11:22:33:44:5c", NOW(), 1, 1 ),
+				( "00:11:22:33:44:5d", NOW(), 1, 1 ),
+				( "00:11:22:33:44:5e", NOW(), 1, 1 ),
+				( "00:11:22:33:44:5f", NOW(), 1, 1 ),
+				( "00:11:22:33:44:54", NOW(), 1, 1 ),
+				( "00:11:22:33:44:53", NOW(), 1, 1 ),
+				( "00:11:22:33:44:52", NOW(), 1, 1 )
+			   `,
+		},
+		0,
+		[]sqlCountTest{
+			sqlCountTest{
+				name:          "node_current_session entries left",
+				sql:           ` SELECT COUNT(*) FROM node_current_session`,
+				expectedCount: 8,
+			},
+		},
+		[]string{
+			"DELETE FROM node_current_session",
+		},
+	)
+}
