@@ -78,22 +78,48 @@ is(
 );
 
 is_deeply(
-    $switch->checkRolesACLs({ r1 => { acls => [("accept") x 31]}}),
-    [{switch_id => 'test', role_name => 'r1', code => 10003, message => $pf::error::switch::ACLsNotSupportedMsg}],
+    $switch->checkRolesACLs({
+        r1 => {
+            acls => [("accept") x 31]
+        }
+    }),
+    [
+        {
+            switch_id => 'test',
+            role_name => 'r1',
+            code => 10003,
+            message => $pf::error::switch::ACLsNotSupportedMsg
+        }
+    ],
 );
 
 {
     my $switch = pf::Switch::Cisco::ASA->new({id => 'test1'});
     is_deeply(
-        $switch->checkRolesACLs({ r1 => { acls => [("accept") x 31]}}),
-        [{ role_name => 'r1', code => $pf::error::switch::ACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => 'test1'}],
+        $switch->checkRolesACLs({
+            r1 => {
+                acls => [("accept") x 31]}
+            }
+        ),
+        [
+            {
+                role_name => 'r1',
+                code => $pf::error::switch::ACLsLimitErrCode,
+                message => $pf::error::switch::ACLsLimitErrMsg,
+                switch_id => 'test1',
+            }
+        ],
     );
 }
 
 {
     my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'enabled'});
     is_deeply(
-        $switch->checkRolesACLs({ r1 => { acls => [("accept") x 31]}}),
+        $switch->checkRolesACLs({
+            r1 => {
+                acls => [("accept") x 31]}
+            }
+        ),
         undef,
     );
 }
@@ -101,8 +127,19 @@ is_deeply(
 {
     my $switch = pf::Switch::Cisco::ASA->new({id => 'test1', UseDownloadableACLs => 'enabled'});
     is_deeply(
-        $switch->checkRolesACLs({ r1 => { acls => [("accept") x 385]}}),
-        [{ role_name => 'r1', code => $pf::error::switch::DownloadACLsLimitErrCode, message => $pf::error::switch::ACLsLimitErrMsg, switch_id => 'test1'}],
+        $switch->checkRolesACLs({
+            r1 => {
+                acls => [("accept") x 385]
+            }
+        }),
+        [
+            {
+                role_name => 'r1',
+                code => $pf::error::switch::DownloadACLsLimitErrCode,
+                message => $pf::error::switch::DownloadACLsErrMsg,
+                switch_id => 'test1'
+            }
+        ],
     );
 }
 
