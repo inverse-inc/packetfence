@@ -699,7 +699,7 @@ func (rs *RadiusStatements) Setup(db *sql.DB) {
 
 	setupStmt(db, &rs.nodeOnlineOffLineStartUpdate, `
 		INSERT INTO node_current_session (mac, last_session_id, updated, is_online) VALUES (?, ?, NOW(), 1)
-        ON DUPLICATE KEY UPDATE updated = VALUES(updated), last_session_id = VALUES(last_session_id);
+        ON DUPLICATE KEY UPDATE updated = VALUES(updated), last_session_id = VALUES(last_session_id), is_online =1 ;
        `)
 
 }
