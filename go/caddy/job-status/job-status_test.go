@@ -23,7 +23,9 @@ func TestJobStatusHandleStatus(t *testing.T) {
 		nil,
 	)
 
-	_, err := jobStatus.redis.FlushAll().Result()
+	ctx := context.Background()
+
+	_, err := jobStatus.redis.FlushAll(ctx).Result()
 	sharedutils.CheckError(err)
 
 	recorder := httptest.NewRecorder()
@@ -34,7 +36,7 @@ func TestJobStatusHandleStatus(t *testing.T) {
 	}
 
 	jobId := "test"
-	_, err = jobStatus.redis.HSet(jobId, "something", "todo").Result()
+	_, err = jobStatus.redis.HSet(ctx, jobId, "something", "todo").Result()
 	sharedutils.CheckError(err)
 
 	recorder = httptest.NewRecorder()
@@ -55,7 +57,7 @@ func TestJobStatusHandleStatus(t *testing.T) {
 		t.Error("Wrong data for job status")
 	}
 
-	_, err = jobStatus.redis.HSet(jobStatus.jobStatusKey(jobId), "status", "200").Result()
+	_, err = jobStatus.redis.HSet(ctx, jobStatus.jobStatusKey(jobId), "status", "200").Result()
 	sharedutils.CheckError(err)
 
 	recorder = httptest.NewRecorder()
@@ -75,7 +77,7 @@ func TestJobStatusHandleStatus(t *testing.T) {
 		t.Error("Wrong data for job status")
 	}
 
-	_, err = jobStatus.redis.FlushAll().Result()
+	_, err = jobStatus.redis.FlushAll(ctx).Result()
 	sharedutils.CheckError(err)
 
 	recorder = httptest.NewRecorder()
