@@ -150,7 +150,7 @@ ok ( $value =~ /\d{4}-\d\d-\d\d \d\d:\d\d:\d\d/, "Value returned by set_access_d
 $source_id_ref = undef;
 
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
-my $date = sprintf("%04d-02-02", $year+1900);
+my $date = sprintf("%04d-02-02", $year+1901);
 is(pf::authentication::match("htpasswd1", { username => 'set_unreg_date_test', rule_class => 'authentication', context => $pf::constants::realm::ADMIN_CONTEXT }, 'set_unreg_date'), $date, "Set unreg date test");
 
 is_deeply(
