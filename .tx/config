@@ -1,20 +1,21 @@
 [main]
 host = https://www.transifex.com
 
-[packetfence.packetfencepo]
-file_filter = conf/locale/<lang>/LC_MESSAGES/packetfence.po
-source_file = conf/locale/en/LC_MESSAGES/packetfence.po
-source_lang = en
-type = PO
-
-[packetfence.pfappserver]
-file_filter = html/pfappserver/lib/pfappserver/I18N/<lang>.po
-source_file = html/pfappserver/lib/pfappserver/I18N/i_default.po
-source_lang = en
-type = PO
-
-[packetfence.api]
+[o:inverse:p:packetfence:r:api]
 file_filter = conf/I18N/api/<lang>.po
 source_file = conf/I18N/api/en.po
 source_lang = en
-type = PO
+type        = PO
+
+[o:inverse:p:packetfence:r:packetfencepo]
+file_filter = conf/locale/<lang>/LC_MESSAGES/packetfence.po
+source_file = conf/locale/en/LC_MESSAGES/packetfence.po
+source_lang = en
+type        = PO
+
+[o:inverse:p:packetfence:r:pfappserver]
+file_filter = html/pfappserver/lib/pfappserver/I18N/<lang>.po
+source_file = html/pfappserver/lib/pfappserver/I18N/i_default.po
+source_lang = en
+type        = PO
+
