@@ -968,7 +968,7 @@ timeout=10s
 # window
 #
 # How long to keep a auth_log_cleanup entry before deleting it
-window=1d
+window=24h
 #
 # local
 #

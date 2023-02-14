@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/inverse-inc/go-radius/rfc2866"
 	"github.com/inverse-inc/go-utils/mac"
@@ -26,8 +28,9 @@ func TestOnOffOnlne(t *testing.T) {
 	)
 
 	online := 0
-	row := db.QueryRow("select is_online from node_current_session where mac = ?", mac.String())
-	err = row.Scan(&online)
+	updated := time.Time{}
+	row := db.QueryRow("select is_online, updated from node_current_session where mac = ?", mac.String())
+	err = row.Scan(&online, &updated)
 	if err != nil {
 		t.Fatalf("Scan error: %s", err.Error())
 	}
@@ -36,32 +39,50 @@ func TestOnOffOnlne(t *testing.T) {
 		t.Fatalf("node %s is not online", mac.String())
 	}
 
+	fmt.Printf("updated:%s\n", updated.String())
+	time.Sleep(1 * time.Second)
+
 	rs.updateNodeOnlineOfflineOnline(
 		rfc2866.AcctStatusType_Value_Stop,
 		mac,
 		1,
 	)
+	updated2 := time.Time{}
 
-	row = db.QueryRow("select is_online from node_current_session where mac = ?", mac.String())
-	err = row.Scan(&online)
+	row = db.QueryRow("select is_online, updated from node_current_session where mac = ?", mac.String())
+	err = row.Scan(&online, &updated2)
 	if err != nil {
 		t.Fatalf("Scan error: %s", err.Error())
+	}
+
+	if updated.Equal(updated2) {
+		t.Fatalf("%s updated does not work\n", mac.String())
 	}
 
 	if online != 0 {
 		t.Fatalf("node %s is online", mac.String())
 	}
 
+	fmt.Printf("updated:%s\n", updated2.String())
+	time.Sleep(1 * time.Second)
+
+	updated3 := time.Time{}
 	rs.updateNodeOnlineOfflineOnline(
 		rfc2866.AcctStatusType_Value_Start,
 		mac,
 		1,
 	)
-	row = db.QueryRow("select is_online from node_current_session where mac = ?", mac.String())
-	err = row.Scan(&online)
+	row = db.QueryRow("select is_online, updated from node_current_session where mac = ?", mac.String())
+	err = row.Scan(&online, &updated3)
 	if err != nil {
 		t.Fatalf("Scan error: %s", err.Error())
 	}
+
+	if updated2.Equal(updated3) {
+		t.Fatalf("%s updated does not work\n", mac.String())
+	}
+
+	fmt.Printf("updated:%s\n", updated3.String())
 
 	if online == 0 {
 		t.Fatalf("node %s is not online", mac.String())
