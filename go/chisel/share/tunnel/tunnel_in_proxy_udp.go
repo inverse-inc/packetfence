@@ -59,6 +59,10 @@ type udpListener struct {
 	sent, recv  int64
 }
 
+func (u *udpListener) Addr() net.Addr {
+	return u.inbound.LocalAddr()
+}
+
 func (u *udpListener) run(ctx context.Context) error {
 	defer u.inbound.Close()
 	//udp doesnt accept connections,
