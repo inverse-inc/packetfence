@@ -527,7 +527,7 @@ sub returnRadiusAccessAccept {
     }
 
     my $role = $self->getRoleByName($args->{'user_role'});
-    if ( $args->{'compute_url'} && isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
             my $mac = $args->{'mac'};
             $args->{'session_id'} = "sid".$self->setSession($args);
