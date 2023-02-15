@@ -45,7 +45,7 @@
           <b-overlay :show="isInitializing" variant="white">
             <!-- HTML document -->
             <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="documentation-frame"
-              :src="`${documentationPath}/${path}`"
+              :src="`${documentationPath}/${path}#${hash}`"
               @load="initDocument()"
             />
             <b-container class="documentation-frame my-5" v-if="isLoading">
