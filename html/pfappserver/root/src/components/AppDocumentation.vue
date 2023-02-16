@@ -135,6 +135,7 @@ const setup = (props, context) => {
       nextTick(() => _scrollToTop())
     }
   })
+  const hash = computed(() => $store.getters['documentation/hash'])
   const title = computed(() => $store.getters['documentation/title'])
 
   const showImageModal = ref(false)
@@ -296,6 +297,7 @@ const setup = (props, context) => {
     index,
     fullscreen,
     path,
+    hash,
     title,
     showImageModal,
     image,
