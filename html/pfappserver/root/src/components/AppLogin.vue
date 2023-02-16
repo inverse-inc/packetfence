@@ -42,17 +42,17 @@
                 <b-button class="ml-2" variant="primary" @click="onExtendSession" v-t="'Extend Session'" />
               </template>
               <template v-else>
-                <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
-                  {{ $t('Login') }}
-                </base-button-save>
+                <b-button-group>
+                  <base-button-save type="submit" :isLoading="isLoading" :disabled="!validForm" variant="primary">
+                    {{ $t('Login') }}
+                  </base-button-save>
+                  <b-button v-if="ssoEnabled"
+                    :href="ssoLoginUrl" variant="outline-secondary">
+                    {{ $t(ssoLoginButtonText) }} <icon class="ml-1" name="user-lock" />
+                  </b-button>
+                </b-button-group>
                 <b-link class="ml-2" variant="outline-secondary" @click="onLogout" v-if="modal">{{ $t('Use a different username') }}</b-link>
               </template>
-            </b-col>
-            <b-col v-if="!sessionTime && ssoEnabled"
-              cols="5" md="5" class="text-right">
-              <b-button :href="ssoLoginUrl" variant="outline-primary">
-                {{ $t(ssoLoginButtonText) }} <icon class="ml-1" name="user-lock" />
-              </b-button>
             </b-col>
           </b-row>
         </b-container>
