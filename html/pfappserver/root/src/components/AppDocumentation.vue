@@ -42,29 +42,31 @@
           </div>
         </b-col>
         <b-col md="9" xl="10">
-          <!-- HTML document -->
-          <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="documentation-frame"
-            :src="`${documentationPath}/${path}`"
-            @load="initDocument()"
-          />
-          <b-container class="documentation-frame my-5" v-if="isLoading">
-            <b-row class="justify-content-md-center text-secondary h-100">
-              <b-col cols="12" md="auto" class="align-self-center">
-                <b-media>
-                  <template v-slot:aside><icon name="circle-notch" scale="2" spin /></template>
-                  <h4>{{ $t('Loading Documentation') }}</h4>
-                  <p class="font-weight-light">{{ title }}</p>
-                </b-media>
-              </b-col>
-            </b-row>
-          </b-container>
-          <!-- IMG viewer -->
-          <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
-            <template v-slot:modal-title>{{ image.alt }}</template>
-            <div class="p-3 text-center">
-              <img :src="image.src" :alt="image.alt" style="width: 100%; height: auto;" />
-            </div>
-          </b-modal>
+          <b-overlay :show="isInitializing" variant="white">
+            <!-- HTML document -->
+            <iframe v-show="!isLoading" v-if="path" ref="refDocument" name="documentFrame" frameborder="0" class="documentation-frame"
+              :src="`${documentationPath}/${path}#${hash}`"
+              @load="initDocument()"
+            />
+            <b-container class="documentation-frame my-5" v-if="isLoading">
+              <b-row class="justify-content-md-center text-secondary h-100">
+                <b-col cols="12" md="auto" class="align-self-center">
+                  <b-media>
+                    <template v-slot:aside><icon name="circle-notch" scale="2" spin /></template>
+                    <h4>{{ $t('Loading Documentation') }}</h4>
+                    <p class="font-weight-light">{{ title }}</p>
+                  </b-media>
+                </b-col>
+              </b-row>
+            </b-container>
+            <!-- IMG viewer -->
+            <b-modal v-model="showImageModal" size="xl" centered id="imageModal" scrollable hide-footer>
+              <template v-slot:modal-title>{{ image.alt }}</template>
+              <div class="p-3 text-center">
+                <img :src="image.src" :alt="image.alt" style="width: 100%; height: auto;" />
+              </div>
+            </b-modal>
+          </b-overlay>
         </b-col>
       </b-row>
     </b-card>
@@ -106,8 +108,6 @@ const setup = (props, context) => {
       }
       nextTick(() => _scrollToTop())
       refs.refDocumentList.scrollTop = 0
-      if (_hash.value)
-        nextTick(() => _scrollToSection(_hash.value))
     }
   })
   const fullscreen = computed(() => $store.getters['documentation/fullscreen'])
@@ -128,28 +128,28 @@ const setup = (props, context) => {
   watch(path, a => {
     if (a) {
       isLoading.value = true
-      isLoadingTimeout = setTimeout(() => {
-        isLoading.value = false // in case of error
+      isInitializingTimeout = setTimeout(() => {
+        // in case of error
+        isInitializing.value = false
       }, 3000)
       nextTick(() => _scrollToTop())
     }
   })
-  const _hash = computed(() => $store.getters['documentation/hash'])
-  watch(_hash, a => {
-    if (a)
-      nextTick(() => _scrollToSection(a))
-  })
+  const hash = computed(() => $store.getters['documentation/hash'])
   const title = computed(() => $store.getters['documentation/title'])
 
   const showImageModal = ref(false)
   const image = ref(false)
   const isLoading = ref(false)
-  let isLoadingTimeout
+  let isInitializingTimeout
+  const isInitializing = ref(false)
 
   const loadDocument = document => {
     $store.dispatch('documentation/setPath', document.name)
   }
   const initDocument = () => {
+    isLoading.value = false
+    isInitializing.value = true
     const here = new URL(window.location.href)
     const documentFrame = window.frames['documentFrame'].document.body
     documentFrame.addEventListener('click', () => { // iframe clicks blur the parent window
@@ -229,17 +229,16 @@ const setup = (props, context) => {
           case url.hostname === here.hostname:
             if (re.test(url.pathname)) { // link to other local document
               link.classList.add('internal-link') // add class to style document links
-              link.target = '_self'
-              link.href = 'javascript:void(0);' // disable default link
               const _path = url.pathname.replace(`${documentationPath}/`, '')
               if (_path !== path.value) {
+                link.target = '_self'
+                link.href = 'javascript:void(0);' // disable default link
                 link.addEventListener('click', (event) => {
                   event.preventDefault()
                   $store.dispatch('documentation/setPath', _path)
                 })
               } else if (url.hash.charAt(0) === '#') {
-                link.addEventListener('click', (event) => {
-                  event.preventDefault()
+                link.addEventListener('click', () => {
                   $store.dispatch('documentation/setHash', url.hash.substr(1))
                 })
               }
@@ -272,29 +271,14 @@ const setup = (props, context) => {
         })
       }
     })
-    if (isLoadingTimeout)
-      clearTimeout(isLoadingTimeout)
-    isLoading.value = false
-    if (_hash.value)
-      nextTick(() => _scrollToSection(_hash.value))
+    if (isInitializingTimeout)
+      clearTimeout(isInitializingTimeout)
+    isInitializing.value = false
   }
   const openExternal = () => window.open(`${documentationPath}/${path.value}`, '_blank')
   const openViewer = () => $store.dispatch('documentation/openViewer')
   const closeViewer = () => $store.dispatch('documentation/closeViewer')
   const toggleFullscreen = () => $store.dispatch('documentation/toggleFullscreen')
-  const _scrollToSection = section => {
-    const iframeDocument = refs.refDocument.contentWindow.document
-    if (iframeDocument) {
-      const iframeHtml = iframeDocument.querySelector('html')
-      if (iframeHtml) {
-        VueScrollTo.scrollTo(iframeDocument.getElementById(section), 300, { // animated scroll to hash in iframe
-          container: iframeHtml,
-          cancelable: false
-        })
-      }
-    }
-    return false
-  }
   const _scrollToTop = () => {
     VueScrollTo.scrollTo('.navbar', 300, { // animated scroll to top of page
       cancelable: false
@@ -313,11 +297,13 @@ const setup = (props, context) => {
     index,
     fullscreen,
     path,
+    hash,
     title,
     showImageModal,
     image,
     isLoading,
     loadDocument,
+    isInitializing,
     initDocument,
     openExternal,
     openViewer,

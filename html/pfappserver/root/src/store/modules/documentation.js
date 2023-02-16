@@ -109,6 +109,7 @@ const actions = {
   setPath: ({ commit, state }, path) => {
     if (state.path !== path) {
       commit('SET_PATH', path)
+      commit('SET_HASH', null)
       store.dispatch('analytics/trackEvent', ['Documentation Path', { path }])
     }
   },

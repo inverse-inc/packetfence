@@ -31,7 +31,7 @@ configure_and_check() {
 	# remove /Dockerfile suffix
 	CONTAINERS_IMAGES+=" ${file%/Dockerfile}"
     done
-    
+
     echo "$(date) - Images detected:"
     for img in ${CONTAINERS_IMAGES}; do
 	echo "- $img"
@@ -48,6 +48,8 @@ pull_images() {
 tag_images() {
     for img in ${CONTAINERS_IMAGES}; do
 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:${TAG_OR_BRANCH_NAME}
+#	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${img}:latest
+# 	docker tag ${KNK_REGISTRY_URL}/${img}:${TAG_OR_BRANCH_NAME} ${LOCAL_REGISTRY}/${img}:latest
     done
 
     # The pfconnector-server and pfconnector-client images point to the local pfconnector image
