@@ -51,6 +51,7 @@ use File::Spec::Functions;
 use File::Slurp qw(read_dir);
 use List::MoreUtils qw(all any uniq);
 use Try::Tiny;
+use Scalar::Util qw(looks_like_number);
 use pf::file_paths qw(
     $html_dir
 );
@@ -175,7 +176,6 @@ sub build_email {
     require pf::web;
 
     my %TmplOptions = (
-        ENCODING     => 'utf8',
         %{$tmpoptions // {}},
     );
     my $locale = delete $TmplOptions{__locale};
@@ -185,12 +185,19 @@ sub build_email {
         POSIX::setlocale(POSIX::LC_MESSAGES, $locale);
     }
 
+    while (my ($k, $v) = each %$data) {
+        if (!ref $v && !looks_like_number($v)) {
+            $data->{$k} = encode_utf8($v);
+        }
+    }
+
     add_standard_include_path(\%TmplOptions);
     my %vars = (
         i18n        => \&i18n,
         i18n_format => \&i18n_format,
         %$data,
     );
+
     utf8::decode($subject);
     my $msg = MIME::Lite::TT->new(
         To          => $email,
@@ -202,11 +209,12 @@ sub build_email {
         TmplParams  => \%vars,
         ( $data->{'from'} ? ( From => $data->{'from'} ) : () ),
     );
+
     $msg->attr( "Content-Type" => "text/html; charset=UTF-8" );
-    $msg->data(encode_utf8($msg->data));
     if ($old_locale) {
         POSIX::setlocale(POSIX::LC_MESSAGES, $old_locale);
     }
+
     return $msg;
 }
 
