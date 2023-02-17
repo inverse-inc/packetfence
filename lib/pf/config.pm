@@ -32,7 +32,6 @@ use Net::Interface;
 use pfconfig::objects::Net::Netmask;
 use POSIX;
 use Readonly;
-use threads;
 use Try::Tiny;
 use File::Which;
 use Socket;
