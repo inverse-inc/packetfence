@@ -41,6 +41,10 @@ my $GENERATOR = Data::UUID->new;
 use Mojo::JSON qw(decode_json);
 use pf::util;
 
+sub after_dispatch {
+
+}
+
 sub log {
     my ($self) = @_;
     return $self->app->log;

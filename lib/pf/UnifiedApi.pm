@@ -92,7 +92,13 @@ sub startup {
         #$self->preload_namespaces(['pf::UnifiedApi::Controller']);
     }
 
+    $self->hook(after_dispatch => \&after_dispatch);
     return;
+}
+
+sub after_dispatch {
+    my ($c) = @_;
+    $c->after_dispatch;
 }
 
 =head2 before_render_cb
