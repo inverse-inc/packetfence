@@ -93,9 +93,14 @@ sub startup {
     }
 
     $self->hook(before_server_start => \&before_server_start);
+    $self->hook(after_dispatch => \&after_dispatch);
     return;
 }
 
+sub after_dispatch {
+    my ($c) = @_;
+    $c->after_dispatch;
+}
 
 sub before_server_start {
     my ($server, $app) = @_;
