@@ -51,9 +51,26 @@ sub build_options {
             value => $_->id,
             label => $_->id,
         }
-    } $self->fingerbank_model->all();
+    } $self->get_from_cache();
     return \@options;
 };
+
+
+our %CACHED;
+
+sub clear_cache {
+    %CACHED = ();
+}
+
+sub get_from_cache {
+    my ($self) = @_;
+    my $model = $self->fingerbank_model;
+    if (!exists $CACHED{$model}) {
+         $CACHED{$model} = [$model->all]
+    }
+
+    return @{$CACHED{$model}}
+}
 
 =head2 after value
 
