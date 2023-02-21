@@ -198,6 +198,7 @@ const mutations = {
       Vue.set(state.joins, id, {})
     }
     Vue.set(state.joins[id], 'status', null)
+    Vue.set(state.joins[id], 'message', null)
   },
   TEST_SUCCESS: (state, data) => {
     Vue.set(state.joins[data.id], 'status', true)
@@ -216,9 +217,8 @@ const mutations = {
     Vue.set(state.joins[id], 'message', null)
   },
   JOIN_SUCCESS: (state, data) => {
-    Vue.set(state.joins[data.id], 'status', true)
-    Vue.set(state.joins[data.id], 'message', data.response.message)
-    Vue.set(state, 'joins', { [data.id]: state.joins[data.id] }) // clear other cache
+    // clear all join items except this one
+    Vue.set(state, 'joins', { [data.id]: { ...state.joins[data.id], status: true, message: data.response.message } })
   },
   JOIN_ERROR: (state, data) => {
     Vue.set(state.joins[data.id], 'status', false)
@@ -232,9 +232,8 @@ const mutations = {
     Vue.set(state.joins[id], 'message', null)
   },
   UNJOIN_SUCCESS: (state, data) => {
-    Vue.set(state.joins[data.id], 'status', false)
-    Vue.set(state.joins[data.id], 'message', data.response.message)
-    Vue.set(state, 'joins', { [data.id]: state.joins[data.id] }) // clear other cache
+    // clear all join items except this one
+    Vue.set(state, 'joins', { [data.id]: { ...state.joins[data.id], status: false, message: data.response.message } })
   },
   UNJOIN_ERROR: (state, data) => {
     Vue.set(state.joins[data.id], 'status', true)
