@@ -23,6 +23,7 @@ use Mojo::JSON qw(encode_json);
 has activity_timeout => 300;
 has 'openapi_generator_class' => undef;
 use Data::UUID;
+use pfappserver::Form::Field::FingerbankSelect;
 
 our $ERROR_400_MSG = "Bad Request. One of the submitted parameters has an invalid format";
 our $ERROR_404_MSG = "Not Found. The requested resource could not be found";
@@ -40,6 +41,10 @@ my $GENERATOR = Data::UUID->new;
 
 use Mojo::JSON qw(decode_json);
 use pf::util;
+
+sub after_dispatch {
+    pfappserver::Form::Field::FingerbankSelect->clear_cache();
+}
 
 sub log {
     my ($self) = @_;
