@@ -138,16 +138,15 @@ const setup = (props, context) => {
   const { root: { $router, $store } = {} } = context
 
   const isServiceAlive = computed(() => {
-    if($store.getters['system/isSaas']) {
+    if ($store.getters['system/isSaas']) {
       const { pfpki: { available = false } = {} } = $store.getters['k8s/services']
       return available
     }
-    else {
-      return $store.dispatch('cluster/getServiceCluster', 'pfpki').then(() => {
-        const { pfpki: { hasAlive = false } = {} } = $store.getters['cluster/servicesByServer']
-        return hasAlive
-      })
+    else if ($store.getters['cluster/servicesByServer']) {
+      const { pfpki: { hasAlive = false } = {} } = $store.getters['cluster/servicesByServer']
+      return hasAlive
     }
+    return false
   })
   watch(isServiceAlive, () => {
     if (isServiceAlive.value)

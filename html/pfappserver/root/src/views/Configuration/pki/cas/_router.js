@@ -7,7 +7,8 @@ const TheView = () => import(/* webpackChunkName: "Configuration" */ './_compone
 const beforeEnter = (to, from, next = () => { }) => {
   if (!store.state.$_pkis)
     store.registerModule('$_pkis', StoreModule)
-  next()
+  store.dispatch('cluster/getServiceCluster', 'pfpki')
+    .then(next)
 }
 
 export const useRouter = $router => {
