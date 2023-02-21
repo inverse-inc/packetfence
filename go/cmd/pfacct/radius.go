@@ -822,7 +822,7 @@ func (h *PfAcct) SwitchLookup(mac, srcIp, nasIp string) (*SwitchInfo, error) {
 	}
 
 	switchInfo := &SwitchInfo{}
-	err := h.switchLookup.QueryRow(mac, srcIp, nasIp).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.RadiusAttributes)
+	err := h.switchLookup.QueryRow(mac, nasIp, srcIp).Scan(&switchInfo.Nasname, &switchInfo.Secret, &switchInfo.RadiusAttributes)
 	if err != nil {
 		return nil, err
 	}
