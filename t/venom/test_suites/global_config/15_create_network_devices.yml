@@ -139,7 +139,7 @@ testcases:
 # workaround to make accounting working:
 # NAS-IP-Address is not included in accounting packets before VX 4.0
 # with controllerIP set, no need to create switch by IP
-- name: create_wired_switch_by_mac
+- name: create_wired_switch_by_mac_node01
   steps:
   - type: http
     method: POST
@@ -148,6 +148,24 @@ testcases:
     body: >-
       {
         "id": "{{.cumulus_switch.id2}}",
+        "group": "{{.cumulus_switch_group.id}}",
+        "description": "{{.cumulus_switch.description}}"
+      }
+    headers:
+      "Authorization": "{{.get_login_token.result.token}}"
+      "Content-Type": "application/json"
+    assertions:
+      - result.statuscode ShouldEqual 201
+
+- name: create_wired_switch_by_mac_node03
+  steps:
+  - type: http
+    method: POST
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/switches'
+    ignore_verify_ssl: true
+    body: >-
+      {
+        "id": "{{.cumulus_switch.id3}}",
         "group": "{{.cumulus_switch_group.id}}",
         "description": "{{.cumulus_switch.description}}"
       }
