@@ -1,6 +1,8 @@
 executor: perl_iptables_restart 
 input:
   backup_file: "/root/iptables.bak"
+  i_retry: 5
+  i_delay: 3
 steps:
 - type: pf_api_service_status
   service: "iptables"
