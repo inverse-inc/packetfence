@@ -20,21 +20,21 @@ use pfconfig::util qw($undef_element);
 sub compute_with_undef {
     my ($self, $key, $on_miss, $options) = @_;
     my $return = $self->get($key);
-    if(defined($return) && ref($return) eq "pfconfig::undef_element"){
+    if (defined($return) && ref($return) eq "pfconfig::undef_element") {
         return undef;
     }
-    elsif(defined($return)){
+
+    if (defined($return)) {
         return $return;
     }
 
     my $result = $on_miss->();
-    if(defined($result)){
+    if (defined($result)) {
         $self->set($key,$result,$options);
-    }
-    else {
-        $self->set($key, $undef_element,$options);
+        return $result;
     }
 
+    $self->set($key, $undef_element,$options);
     return $result;
 }
 
