@@ -327,9 +327,6 @@ func (h *PfAcct) radiusListen(w *sync.WaitGroup) *radius.PacketServer {
 	for _, adresse := range sharedutils.RemoveDuplicates(ipRADIUS) {
 
 		port := "1813"
-		if pfconfigdriver.GetClusterSummary(ctx).ClusterEnabled == 1 {
-			port = "1823"
-		}
 
 		addr, err := net.ResolveUDPAddr("udp4", adresse+":"+port)
 		if err != nil {
