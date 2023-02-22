@@ -43,6 +43,7 @@ make devel
 make conf/ssl/server.pem
 mkdir -p /usr/local/pf/var/ssl_mutex
 mkdir -p /usr/local/pf/logs
+mkdir -p /usr/local/pf/conf/ssl/acme-challenge
 # to keep settings set up during configurator
 cp /usr/local/pf-pkg/conf/pf.conf conf/
 cp /usr/local/pf-pkg/conf/pfconfig.conf conf/
