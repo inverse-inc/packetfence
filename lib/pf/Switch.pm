@@ -324,6 +324,7 @@ sub disconnectRead {
     }
     $logger->debug( "closing SNMP v" . $self->{_SNMPVersion} . " read connection to $self->{_id}" );
     $self->{_sessionRead}->close;
+    $self->{_sessionRead} = undef;
     return 1;
 }
 
