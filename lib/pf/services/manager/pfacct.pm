@@ -16,6 +16,9 @@ use pf::util;
 use Moo;
 use Template;
 use pf::cluster;
+use pf::config qw(
+    $management_network
+);
 
 extends 'pf::services::manager';
 with 'pf::services::manager::roles::env_golang_service';
@@ -55,6 +58,7 @@ Generate the environment variables for running the container
 
 sub generate_container_environments {
     my ($self, $tt) = @_;
+    my $management_ip = $management_network->tag('ip');
 
     my $port = '1813';
     if ($cluster_enabled) {
@@ -62,7 +66,7 @@ sub generate_container_environments {
     }
     my $vars = {
        env_dict => {
-           PFACCT_LISTEN_PORT => $port,
+           PFACCT_ADDRESS=> "$management_ip:$port",
        },
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
