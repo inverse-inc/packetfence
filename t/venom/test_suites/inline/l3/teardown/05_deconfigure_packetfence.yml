@@ -83,12 +83,7 @@ testcases:
 
 - name: restart_iptables
   steps:
-  - type: exec
-    script: systemctl restart packetfence-iptables
-
-    # let service restarts
-  - type: exec
-    script: sleep 5
+  - type: perl_iptables_restart
 
 - name: restart_pfdns_service
   steps:
