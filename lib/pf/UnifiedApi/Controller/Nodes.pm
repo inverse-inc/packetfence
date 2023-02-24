@@ -482,7 +482,7 @@ sub bulk_apply_bypass_role {
     return $self->do_bulk_update_field('bypass_role_id');
 }
 
-sub validate_bypass_acls {
+sub validate_bulk_bypass_acls {
     my ($self, $value) = @_;
     if (!defined $value || $value eq '') {
         return (200, undef);
@@ -506,7 +506,7 @@ bulk update bypass_acls
 
 sub bulk_apply_bypass_acls {
     my ($self) = @_;
-    return $self->do_bulk_update_field2('bypass_acls', \&validate_bypass_acls);
+    return $self->do_bulk_update_field2('bypass_acls', \&validate_bulk_bypass_acls);
 }
 
 =head2 bulk_apply_bypass_vlan
@@ -1074,6 +1074,10 @@ sub import_item_check_for_errors {
         }
     }
 
+    if (exists $item->{bypass_acls}) {
+        push @errors, $self->validate_bypass_acls($item->{bypass_acls});
+    }
+
     return @errors;
 }
 
@@ -1110,18 +1114,8 @@ sub validate {
         push @errors, { field => 'mac', message => "Invalid mac" };
     }
 
-    my $bypass_acls = $json->{bypass_acls};
-    if (defined $bypass_acls) {
-        $bypass_acls =~ s/^\s+//;
-        $bypass_acls =~ s/\s+$//;
-        if ($bypass_acls ne '') {
-            my $parser = Cisco::AccessList::Parser->new();
-            my $acl = "ip access-list extended packetfence\n$bypass_acls";
-            my ($a, $b, $e) = $parser->parse( 'input' => $acl);
-            if (@{$e // []}) {
-                push @errors, {field => 'bypass_acls', message => join("\n", @$e)};
-            }
-        }
+    if (exists $json->{bypass_acls}) {
+        push @errors, $self->validate_bypass_acls($json->{bypass_acls});
     }
 
     if (@errors) {
@@ -1136,6 +1130,26 @@ sub validate {
     }
 
     return 200, undef;
+}
+
+
+sub validate_bypass_acls {
+    my ($self, $bypass_acls) = @_;
+    my @errors;
+    if (defined $bypass_acls) {
+        $bypass_acls =~ s/^\s+//;
+        $bypass_acls =~ s/\s+$//;
+        if ($bypass_acls ne '') {
+            my $parser = Cisco::AccessList::Parser->new();
+            my $acl = "ip access-list extended packetfence\n$bypass_acls";
+            my ($a, $b, $e) = $parser->parse( 'input' => $acl);
+            if (@{$e // []}) {
+                push @errors, {field => 'bypass_acls', message => join("\n", @$e)};
+            }
+        }
+    }
+
+    return @errors;
 }
 
 sub do_get {
