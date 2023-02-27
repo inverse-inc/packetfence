@@ -4058,7 +4058,7 @@ Returns the attribute to use when pushing an ACL using RADIUS
 sub returnAccessListAttribute {
     my ($self, $acl_num, $acl) = @_;
     if ($acl =~ /^out\|(.*)/) {
-        if ($self->SupportOutAcl) {
+        if ($self->supportsOutAcl) {
             return $TRUE, $self->returnOutAccessListAttribute.$acl_num."=".$1;
         } else {
             return $FALSE, '';
