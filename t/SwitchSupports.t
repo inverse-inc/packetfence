@@ -45,7 +45,15 @@ BEGIN {
     );
 }
 
-use Test::More tests => 7;
+{
+    package m4;
+    use base qw(m1);
+    use pf::SwitchSupports qw(
+        ~RadiusDynamicVlanAssignment
+    );
+}
+
+use Test::More tests => 10;
 
 #This test will running last
 use Test::NoWarnings;
@@ -61,6 +69,12 @@ ok(exists &m1::supportsVPN, "m1->supportsVPN exists");
 ok(exists &m2::supportsRadiusDynamicVlanAssignment, "m2->supportsRadiusDynamicVlanAssignment exists");
 
 ok(!exists &m3::supportsRadiusDynamicVlanAssignment, "m3->supportsRadiusDynamicVlanAssignment does not exists");
+
+ok(m3->supportsRadiusDynamicVlanAssignmentTested, "tested m3->supportsRadiusDynamicVlanAssignmentTested");
+
+ok(m4->supportsRadiusDynamicVlanAssignment, "m4->supportsRadiusDynamicVlanAssignment +");
+
+ok(!m4->supportsRadiusDynamicVlanAssignmentTested, "not tested m4->supportsRadiusDynamicVlanAssignmentTested");
 
 =head1 AUTHOR
 

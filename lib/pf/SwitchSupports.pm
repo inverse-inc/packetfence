@@ -34,13 +34,24 @@ sub import {
                         $FALSE
                     };
                 }
-            } elsif ($s =~ /^\?(.*)$/) {
+                next;
+            }
+            if ($s =~ /^\?(.*)$/) {
                 my $n = $1;
                 push @supports, $n;
-            } else {
-                *{"${package}::supports$s"} = \&support;
-                push @supports, $s;
+                next;
             }
+
+            my $tested = \&tested;
+
+            if ($s =~ /^~(.*)$/) {
+                $s = $1;
+                $tested = \&untested;
+            }
+
+            *{"${package}::supports$s"} = \&support;
+            *{"${package}::supports${s}Tested"} = $tested;
+            push @supports, $s;
         }
         push @supports, keys %parents;
         @supports = uniq @supports;
@@ -50,6 +61,10 @@ sub import {
 }
 
 sub support { $TRUE }
+
+sub tested { $TRUE }
+
+sub untested { $FALSE }
 
 =head1 AUTHOR
 
