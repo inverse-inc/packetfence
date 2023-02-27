@@ -358,7 +358,7 @@ sub returnRadiusAccessAccept {
                         if ($acl !~ /^permit/i && $acl !~ /^deny/i && $acl !~ /^in\|/i && $acl !~ /^out\|/i) {
                             next;
                         }
-                        my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl));
+                        my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
                         if ($test) {
                             push(@av_pairs, $formated_acl);
                         } else {
@@ -517,7 +517,7 @@ sub returnRadiusAdvanced {
                 if ($acl !~ /^permit/i && $acl !~ /^deny/i && $acl !~ /^in\|/i && $acl !~ /^out\|/i) {
                     next;
                 }
-                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl));
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
                 } else {
@@ -535,16 +535,16 @@ sub returnRadiusAdvanced {
         if (scalar @{$session->{'acl'}} == 1) {
             my $acl = shift @{$session->{'acl'}};
             if ($acl =~ /^permit/i || $acl =~ /^deny/i || $acl =~ /^in\|/i || $acl =~ /^out\|/i) {
-                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl));
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
                     $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
                     $self->setRadiusSession($session);
                     push(@av_pairs, "ACS:CiscoSecure-Defined-ACL=$mac-".$session_id);
-                else {
+                } else {
                     $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
-		}
+                }
             }
         } elsif (scalar @{$session->{'acl'}} == 0) {
             $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
