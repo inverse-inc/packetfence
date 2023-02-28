@@ -20,6 +20,9 @@ sub _validate_acl {
     my ($field) = @_;
     my $acl = $field->value;
     if ($acl) {
+        $acl =~ s/^\s*//mg;
+        $acl =~ s/\s*$//mg;
+        $acl =~ s/^\s*(in|out)\|//mg;
         my $parser = Cisco::AccessList::Parser->new();
         my $acl = "ip access-list extended packetfence\n$acl";
         my ($a, $b, $e) = $parser->parse( 'input' => $acl);

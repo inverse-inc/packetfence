@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 36;
+use Test::More tests => 38;
 use Test::Mojo;
 use Utils;
 use pf::dal::node;
@@ -53,6 +53,17 @@ ACL
     $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
       ->status_is(201)
       ->json_has('/warnings');
+}
+
+{
+    my $id = "test_role_${$}_3";
+    my $acl = <<ACL;
+in|permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154
+out|permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154
+  out|permit ip 172.16.1.0 0.0.0.255 host 192.168.3.154
+ACL
+    $t->post_ok($collection_base_url => json => { id => $id, acls => $acl })
+      ->status_is(201);
 }
 
 $t->get_ok($collection_base_url)
