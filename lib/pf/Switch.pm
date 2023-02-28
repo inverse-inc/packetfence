@@ -86,6 +86,7 @@ use pf::SwitchSupports qw(
     -WiredMacAuth
     -WirelessDot1x
     -WirelessMacAuth
+    -OutAcl
 
      RadiusDynamicVlanAssignment
 );
@@ -4032,22 +4033,34 @@ sub acl_chewer {
     my ($self, $acl) = @_;
 
     my $acls = "ip access-list extended packetfence\n";
-    $acls .= $acl;
+    my $i = 0;
+    my @direction;
+    while($acl =~ /([^\n]+)\n?/g) {
+        my $acl_line = $1;
+        if ($acl_line =~ /(in\||out\|)?(.*)/) {
+            $acls .= $2."\n";
+            $direction[$i] = $1;
+        } else {
+            $acls .= $acl_line."\n";
+            $direction[$i] = "";
+        }
+        $i++;
+    }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
-
+    $i = 0;
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         } else {
-            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         }
+        $i++;
     }
     return $acl_chewed;
 }
-
 
 =head2 returnAccessListAttribute
 
