@@ -23,6 +23,7 @@ use pf::constants;
 use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
+    ~AccessListBasedEnforcement
 );
 sub description { 'Juniper EX 2200 Series running Junos 15' }
 

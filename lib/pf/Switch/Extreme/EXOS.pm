@@ -34,6 +34,7 @@ use pf::radius::constants qw(%NAS_port_type);
 use pf::SwitchSupports qw(
     RoleBasedEnforcement
     ExternalPortal
+    ~AccessListBasedEnforcement
 );
 
 sub description { "Extreme EXOS" } 

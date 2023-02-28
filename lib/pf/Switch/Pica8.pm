@@ -78,6 +78,7 @@ use pf::SwitchSupports qw(
     WiredMacAuth
     RadiusDynamicVlanAssignment
     ExternalPortal
+    ~AccessListBasedEnforcement
 );
 
 =item setAdminStatus - bounce host port with radius CoA technique

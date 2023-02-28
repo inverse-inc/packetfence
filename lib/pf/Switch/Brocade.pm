@@ -97,6 +97,7 @@ use pf::SwitchSupports qw(
     Lldp
     FloatingDevice
     MABFloatingDevices
+    ~AccessListBasedEnforcement
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$PORT); }

@@ -41,6 +41,7 @@ sub description { 'FortiSwitch' }
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
+    ~AccessListBasedEnforcement
 );
 
 =head2 wiredeauthTechniques
