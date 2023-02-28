@@ -300,9 +300,9 @@ sub returnRadiusAdvanced {
                     $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
                     $self->setRadiusSession($session);
-	        } else {
+                } else {
                     $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
-		}
+                }
             } else {
                 $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
             }

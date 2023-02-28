@@ -514,7 +514,7 @@ sub returnRadiusAccessAccept {
                        if ($acl !~ /^permit/i && $acl !~ /^deny/i && $acl !~ /^in\|/i && $acl !~ /^out\|/i) {
                             next;
                         }
-			my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
+                        my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
                         if ($test) {
                             push(@av_pairs, $formated_acl);
                         } else {
