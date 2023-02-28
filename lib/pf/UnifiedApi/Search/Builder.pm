@@ -213,6 +213,7 @@ sub make_join_specs {
             push @join_specs, $self->format_join_spec($jf->{join_spec}, $s);
         }
     }
+
     return @join_specs;
 }
 
@@ -236,11 +237,11 @@ Make the SQL::Abstract::More columns from the search_info
 sub make_columns {
     my ( $self, $s ) = @_;
     my $cols = $s->{fields} // [];
-    my @errors = map { {message => "$_ is an invalid field" } } grep { !$self->is_valid_field($s, $_) } @$cols;
+    my @errors = $self->check_valid_colums($s, $cols);
     if (@errors) {
         return 422,
           {
-            message    => "Invalid column(s) defined",
+            message    => "Invalid field(s) defined",
             errors => \@errors
           };
     }
@@ -262,6 +263,17 @@ sub make_columns {
     }
 
     return 200, $cols;
+}
+
+sub check_valid_colums {
+    my ($self, $s, $cols) = @_;
+    my @errors;
+    for my $col (@$cols) {
+        next if $self->is_valid_field($s, $col);
+        push @errors, {scope => 'fields', value => $col, message => "invalid field" };
+    }
+
+    return @errors;
 }
 
 sub default_columns {
@@ -289,7 +301,7 @@ sub check_for_duplicated_fields {
         return 422,
           {
             message    => "Duplicated column(s) found",
-            errors => [ map { { message => "Column $_ duplicated" } } @duplicated ],
+            errors => [ map { { scope => 'fields', value => $_, message => "Column duplicated" } } @duplicated ],
           };
     }
 
@@ -402,7 +414,14 @@ sub verify_query {
     my ($self, $s, $query) = @_;
     my $op = $query->{op} // '(null)';
     if (!$self->is_valid_op($op)) {
-        return 422, {message => "op '$op' is not valid"};
+        return
+            422,
+            {
+                message => 'Invalid query',
+                errors => [
+                    {scope => 'op', message => "op is not valid", value => $op}
+                ],
+            };
     }
 
     if (pf::UnifiedApi::Search::is_sub_query($op)) {
@@ -419,7 +438,14 @@ sub verify_query {
         my $field = $query->{field};
         my $err_msg = $self->valid_query($s, $query);
         if ( defined $err_msg ) {
-            return 422, {message => $err_msg};
+            return
+                422,
+                {
+                    message => 'Invalid query',
+                    errors => [
+                        {message => $err_msg, scope => 'query'}
+                    ],
+                }
         }
 
         push @{$s->{found_fields}}, $field;
@@ -596,7 +622,7 @@ sub make_order_by {
         if (defined $order_by) {
             push @order_by_specs, $order_by;
         } else {
-            push @errors, {message => "$sort_spec is invalid"};
+            push @errors, {scope => 'sort',message => "sort_spec is invalid", value => $sort_spec};
         }
     }
 

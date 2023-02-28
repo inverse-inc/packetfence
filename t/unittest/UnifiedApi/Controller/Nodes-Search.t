@@ -30,7 +30,7 @@ use Test2::Tools::Compare qw(bag hash item end field etc array);
 
 #insert known data
 #run tests
-use Test::More tests => 31;
+use Test::More tests => 39;
 use Test::Mojo;
 use Test::NoWarnings;
 use Utils;
@@ -64,6 +64,47 @@ pf::dal::node_current_session->create({
     last_session_id => 1,
     is_online => 0,
 });
+
+$t->post_ok( '/api/v1/nodes/search' => json =>
+      {
+          fields => [qw(mac online)],
+          query => {
+              op => 'or',
+              values => [
+                  map {{ field => 'f1', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
+              ]
+          }
+      }
+  )
+  ->status_is(422)
+  ->json_has('/errors');
+
+$t->post_ok( '/api/v1/nodes/search' => json =>
+      {
+          fields => [qw(mac f1)],
+          query => {
+              op => 'or',
+              values => [
+                  map {{ field => 'f1', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
+              ]
+          }
+      }
+  )
+  ->status_is(422)
+  ->json_has('/errors');
+
+$t->post_ok( '/api/v1/nodes/search' => json =>
+      {
+          sort => [qw(mac f1)],
+          query => {
+              op => 'or',
+              values => [
+                  map {{ field => 'mac', op => 'equals', value => $_ }} ($mac1, $mac2, $mac3)
+              ]
+          }
+      }
+  )
+  ->status_is(422);
 
 $t->post_ok( '/api/v1/nodes/search' => json =>
       {
