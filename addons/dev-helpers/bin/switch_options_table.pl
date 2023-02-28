@@ -148,9 +148,9 @@ foreach my $name (@list_name_infos) {
   $td.="".$nl.$t4.$t4.$t4."</td>".$nl;
   for my $type (@list_of_types) {
     if (exists $switch_info->{"${type}"} && defined $switch_info->{"${type}"}){
-      if ($switch_info->{"${type}"} == "true") {
+      if ($switch_info->{"${type}"} eq "true") {
         $td.=$t4.$t4.$t4.'<td class="'.$type.'"><i class="check icon"></i></td>'.$nl
-      } elsif ($switch_info->{"${type}"} == "not_tested"){
+      } elsif ($switch_info->{"${type}"} eq "not_tested"){
         $td.=$t4.$t4.$t4.'<td class="'.$type.'"><i class="check icon" style="color:orange"></i></td>'.$nl
       } else {
         $td.=$t4.$t4.$t4.'<td class="'.$type.'">This should never be here</td>'.$nl
@@ -287,24 +287,28 @@ $html .= '
         return filters;
       }
 
-      function inSearch(device,txt) {
-        var name = $(device).find("a").attr("name");
-        var tab_txt = name.toLowerCase().includes(txt.toLowerCase()).split(" ");
+      function inSearch(device,txt,active) {
+        var name = $(device).find("a").attr("name").toLowerCase();
         if (txt === ""){
           return true;
-        } else if (tab_txt.length>0) {
-          var flag = false;
-          for (var i = 0; i < tab_txt.length; i++) {
-            if (flag === false && name.toLowerCase().includes(tab_txt[i].toLowerCase())){
-              flag = true;
-            } else if (flag === true && !name.toLowerCase().includes(tab_txt[i].toLowerCase())) {
-              flag = false;
-            }
-          }
-          return flag;
         } else {
-         return false;
+          txt = txt.replace(/\s\s+/g, ' ');
+          var tab_txt = txt.toLowerCase().split(" ");
+          if (tab_txt.length>0) {
+            var flag = true;
+            for (var i = 0; i < tab_txt.length; i++) {
+              if (tab_txt[i] != ""){
+                if (!name.includes(tab_txt[i].toLowerCase())){
+                  flag = false;
+                } else {
+                  console.log("name: "+name);
+                }
+              }
+            }
+            return flag;
+          }
         }
+        return false;
       };
 
       function deviceType(device,type) {
@@ -326,7 +330,8 @@ $html .= '
         var txt = $("#switches-filter-input").val();
         var noresult = true;
         $(".device").each(function() {
-          if ( deviceType($(this),filters) && inSearch($(this),txt)){
+            if ( deviceType($(this),filters) &&
+                      inSearch($(this),txt,$(this).is(":visible"))){
             $(this).show();
             noresult = false;
           } else {
@@ -350,7 +355,8 @@ $html .= '
         setShowHide();
       });
 
-      $("#clearButton").click(function () {
+      $("#resetButton").click(function () {
+            console.log({window,document})
         $.each(ids, function(k, v) {
           $(`#${k}`).prop("checked", true);
         });
