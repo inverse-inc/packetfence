@@ -121,18 +121,26 @@ my $sb = pf::UnifiedApi::Search::Builder::Fingerbank->new();
         'Return the columns'
     );
 
+    my @where = $sb->make_where(\%search_info);
     is_deeply(
         [
-            $sb->make_where(\%search_info)
+            @where
         ],
         [
             422,
             {
-                message => 'mac_garbge is an invalid field',
+                'message' => 'Invalid query',
+                'errors'  => [
+                    {
+                        'scope'   => 'query',
+                        'message' => 'mac_garbge is an invalid field'
+                    }
+                ]
             },
         ],
         'Where',
     );
+
 
 }
 
