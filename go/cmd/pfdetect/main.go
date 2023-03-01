@@ -17,10 +17,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
-type RunnerConfig struct {
-	DetectType string
-}
-
 type ParseRunner struct {
 	PipePath string
 	File     *os.File
