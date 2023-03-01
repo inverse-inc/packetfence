@@ -136,9 +136,16 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [ $sb->make_where(\%search_info) ],
         [
             422,
-            {
-                message => "op '(null)' is not valid",
-            }
+              {
+                'errors' => [
+                              {
+                                'value' => '(null)',
+                                'scope' => 'op',
+                                'message' => 'op is not valid'
+                              }
+                            ],
+                'message' => 'Invalid query'
+              }
         ],
         'No op provided'
     );
@@ -264,7 +271,13 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             422,
             {
-                message => 'value for greater_than cannot be null',
+                'message' => 'Invalid query',
+                'errors'  => [
+                    {
+                        'message' => 'value for greater_than cannot be null',
+                        'scope'   => 'query'
+                    }
+                ]
             }
         ],
         'Return the joined tables'
@@ -302,7 +315,13 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             422,
             {
-                message => 'values for between cannot be null',
+                'message' => 'Invalid query',
+                'errors'  => [
+                    {
+                        'message' => 'values for between cannot be null',
+                        'scope'   => 'query'
+                    }
+                ]
             }
         ],
         'values cannot be null'
@@ -314,7 +333,13 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             422,
             {
-                message => 'between values must be an array of size 2',
+                'errors' => [
+                    {
+                        'scope'   => 'query',
+                        'message' => 'between values must be an array of size 2'
+                    }
+                ],
+                'message' => 'Invalid query'
             }
         ],
         'values must be an array of 2'
@@ -327,7 +352,14 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             422,
             {
-                message => 'between values must be an array of size 2',
+                'errors' => [
+                    {
+                        'message' =>
+                          'between values must be an array of size 2',
+                        'scope' => 'query'
+                    }
+                ],
+                'message' => 'Invalid query'
             }
         ],
         'values must be an array of 2'
@@ -351,7 +383,14 @@ my $sb = pf::UnifiedApi::Search::Builder::Nodes->new();
         [
             422,
             {
-                message => 'between values must be an array of size 2',
+                'message' => 'Invalid query',
+                'errors'  => [
+                    {
+                        'message' =>
+                          'between values must be an array of size 2',
+                        'scope' => 'query'
+                    }
+                ]
             }
         ],
         'values must be an array of 2'
