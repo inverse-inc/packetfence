@@ -76,6 +76,13 @@ for my $g (@groups) {
         $switch_info->{"SaveConfig"}="true"                        if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
         $switch_info->{"RoleBasedEnforcement"}="true"              if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
         #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+	
+	# Clean the name to something simple, need to start with a letter
+        my $name_cleaned = lc($switch_info->{"label"});
+	$name_cleaned =~ s/\s+/-/g;
+	$name_cleaned =~ s/\//-/g;
+	$name_cleaned =~ s/-{2,}/-/g;
+        $switch_info->{"name_cleaned"}="zayme_".$name_cleaned;
 
         $dict_name_infos{$name}=$switch_info;
         push(@list_name_infos,$name);
@@ -127,7 +134,7 @@ foreach my $name (@list_name_infos) {
 
   my $switch_info = $dict_name_infos{$name};
 
-  my $td=$t4.$t4.$t4.'<td class="single line ui left aligned"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br>';
+  my $td=$t4.$t4.$t4.'<td class="single line ui left aligned"><a name="'.$switch_info->{"name_cleaned"}.'"></a>'.$switch_info->{"label"}.'<br>';
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
     $td.=' <i class="wifi icon"></i>';
   }
@@ -209,50 +216,56 @@ my $html = '
 
         <p style="margin-bottom:20px;"></p>
       </div>
-      <div class="sixteen wide column" n0style="margin-bottom:20px;">
-        <h4 class="ui horizontal header red divider">Devices</h4>
-        <form class="ui form">
-          <div class="field">
-            <div class="ui centered grid">
-              <div class="five column center aligned row">
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="wiredButton" checked> <label>Wired</label>
+      <div class="sixteen wide column" style="margin-bottom:20px;">
+        <div id="searchBar">
+          <h4 class="ui horizontal header red divider">Devices</h4>
+          <form class="ui form">
+            <div class="field">
+              <div class="ui centered grid">
+                <div class="five column center aligned row">
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="wiredButton" checked=""> <label>Wired</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="apButton" checked> <label>Access point</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="apButton" checked=""> <label>Access point</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="controllersButton" checked> <label>Controllers</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="controllersButton" checked=""> <label>Controllers</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="vpnButton" checked> <label>VPN</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="vpnButton" checked=""> <label>VPN</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="templateButton" checked> <label>Templates</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="templateButton" checked=""> <label>Templates</label>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div class="field">
+              <input type="text" id="switches-filter-input" placeholder="Search for device model">
+            </div>
+            <button class="ui button" id="resetButton">
+              Reset
+            </button>
+          </form>
+          <div id="switchesDivFixed" class="ui container h-scroll">
+            <table id="switches-fixed" class="ui very basic sticky-column celled table">
+            </table>
           </div>
 
-          <div class="field">
-            <input type="text" id="switches-filter-input" placeholder="Search for device model">
-          </div>
-          <button class="ui button" id="clearButton">
-            Reset
-          </button>
-        </form>
-
-        <div class="ui container h-scroll">
+        </div>
+        <div id="switchesDiv" class="ui container h-scroll">
 ';
 
 $html .= $tab;
@@ -266,7 +279,48 @@ $html .= '
 </div>
       </div>
     </div>
+    <style>
+      .stickier {
+        position: fixed;
+        top: 0;
+        z-index: 999;
+        background: white;
+        padding-top: 10px;
+      }
+    </style>
     <script>
+    // Get the searchBar and the table Fixed
+    var $searchBar = document.getElementById("searchBar");
+    var $searchBarT = $searchBar.getBoundingClientRect().top;
+    var $searchBarW = $("#searchBar").width();
+    var $nameSize = $("#switches").find("th:first-child").width();
+
+    var $theader = $("#switches > thead").clone();
+    var $fixedHeader = $("#switches-fixed").append($theader);
+    $("#switches-fixed").find("th:first-child").width($nameSize-10);
+
+    $(window).bind("scroll", function() {
+      var offset = $(this).scrollTop();
+
+      if (offset >= $searchBarT && $fixedHeader.is(":hidden")) {
+        $searchBar.classList.add("stickier", "ui", "center", "aligned");
+        $("#searchBar").width($searchBarW);
+        $fixedHeader.show();
+      } else if (offset < $searchBarT) {
+        $searchBar.classList.remove("stickier", "ui", "center", "aligned");
+        $fixedHeader.hide();
+      }
+    });
+    
+    $(document).ready(function() {
+      $("#switchesDiv").on("scroll", function() {
+        $("#switchesDivFixed").scrollLeft($(this).scrollLeft());
+      });
+      $("#switchesDivFixed").on("scroll", function() {
+        $("#switchesDiv").scrollLeft($(this).scrollLeft());
+      });
+    });
+    
     // Script to search names with filters or not
     window.onload = () => {
       var ids= {
@@ -289,10 +343,11 @@ $html .= '
 
       function inSearch(device,txt,active) {
         var name = $(device).find("a").attr("name").toLowerCase();
+        name = name.replace("zayme_", "");
         if (txt === ""){
           return true;
         } else {
-          txt = txt.replace(/\s\s+/g, ' ');
+          txt = txt.replace(/\s\s+/g, " ");
           var tab_txt = txt.toLowerCase().split(" ");
           if (tab_txt.length>0) {
             var flag = true;
