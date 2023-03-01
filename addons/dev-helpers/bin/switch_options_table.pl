@@ -216,7 +216,7 @@ my $html = '
 
         <p style="margin-bottom:20px;"></p>
       </div>
-      <div class="sixteen wide column" style="margin-bottom:20px;">
+      <div id="defaultWidth" class="sixteen wide column" style="margin-bottom:20px;">
         <div id="searchBar">
           <h4 class="ui horizontal header red divider">Devices</h4>
           <form class="ui form">
@@ -291,28 +291,37 @@ $html .= '
     <script>
     // Get the searchBar and the table Fixed
     var $searchBar = document.getElementById("searchBar");
-    var $searchBarT = $searchBar.getBoundingClientRect().top;
-    var $searchBarW = $("#searchBar").width();
-    var $nameSize = $("#switches").find("th:first-child").width();
-
-    var $theader = $("#switches > thead").clone();
-    var $fixedHeader = $("#switches-fixed").append($theader);
-    $("#switches-fixed").find("th:first-child").width($nameSize-10);
+    var $searchBarT = 1200;
 
     $(window).bind("scroll", function() {
+      var $nameSize = $("#switches").find("th:first-child").width();
+      $("#switches-fixed").find("th:first-child").width($nameSize);
+    
+      var $fixedHeader = $("#switches-fixed");
+      var $searchBarW = $("#defaultWidth").width();
       var offset = $(this).scrollTop();
+      
+      if (offset<=10){
+        $searchBarT = $searchBar.getBoundingClientRect().top;
+      }
 
       if (offset >= $searchBarT && $fixedHeader.is(":hidden")) {
-        $searchBar.classList.add("stickier", "ui", "center", "aligned");
+        //$searchBar.classList.add("stickier", "ui", "center", "aligned", "container");
+        $searchBar.classList.add("stickier");
         $("#searchBar").width($searchBarW);
         $fixedHeader.show();
       } else if (offset < $searchBarT) {
-        $searchBar.classList.remove("stickier", "ui", "center", "aligned");
+        $searchBar.classList.remove("stickier");
         $fixedHeader.hide();
+        $("#searchBar").removeAttr("width");
       }
     });
     
     $(document).ready(function() {
+      var $theader = $("#switches > thead").clone();
+      var $fixedHeader = $("#switches-fixed").append($theader);
+      $fixedHeader.hide();
+
       $("#switchesDiv").on("scroll", function() {
         $("#switchesDivFixed").scrollLeft($(this).scrollLeft());
       });
@@ -320,6 +329,7 @@ $html .= '
         $("#switchesDiv").scrollLeft($(this).scrollLeft());
       });
     });
+
     
     // Script to search names with filters or not
     window.onload = () => {
