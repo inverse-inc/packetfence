@@ -3967,12 +3967,28 @@ sub ACLsLimit {
 sub checkRoleACLs {
     my ($self, $name, $acls) = @_;
     my $count = @{$acls // []};
-
+    
     if ($count == 0) {
         return undef;
     }
+    
+    my @acsl;
+    foreach (@{$acls}) {
+        my $acl_line = $_;
+        if ($acl_line =~ /^(in\||out\|)(.*)/) {
+            if ($self->supportsOutAcl) {
+                push @acls, $acl_line;
+            } else {
+                if ($acl_line !~ /^out\|(.*)/) {
+                    push @acls, $acl_line;
+                }
+            }
+        }
+    }
 
-    if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
+    $count = @acls;
+
+    if (!$self->suppertsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
         return $self->makeACLsError($name, $pf::error::switch::ACLsNotSupportedErrCode);
     }
 
