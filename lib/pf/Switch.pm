@@ -3972,7 +3972,7 @@ sub checkRoleACLs {
         return undef;
     }
     
-    my @acsl;
+    my @acls;
     foreach (@{$acls}) {
         my $acl_line = $_;
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
