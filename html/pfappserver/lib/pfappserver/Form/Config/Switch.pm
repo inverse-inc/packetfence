@@ -490,8 +490,40 @@ sub addRoleMapping {
 addRoleMapping("VlanMapping", "vlan");
 addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
-addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl ]);
+addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl_switch ]);
 addRoleMapping("VpnMapping", "vpn");
+
+sub _validate_acl_switch {
+    my ($field) = @_;
+    my $switch = $field->form->getSwitch();
+    if ($switch) {
+       my $role_field = $field->parent()->field('role');
+       my $error = $switch->checkRoleACLs(
+           $role_field->value,
+           [split /\n/, $field->value],
+       );
+       if ($error) {
+           $field->add_error($error->{message});
+       }
+    }
+}
+
+sub getSwitch {
+    my ($self) = @_;
+    my $type_field = $self->field('type');
+    my $type = $type_field->value;
+    if (!defined $type) {
+        return undef;
+    }
+
+    my $value = $self->value;
+    my $module = pf::SwitchFactory::getModule($type);
+    if ($module->require() ) {
+        return $module->new($value);
+    }
+
+    return undef;
+}
 
 sub options_roles {
     my $self = shift;
@@ -675,10 +707,9 @@ sub validate {
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
     if ($value->{type}) {
-        my $module = pf::SwitchFactory::getModule($value->{type});
-        if ($module->require() ) {
+        my $switch = $self->getSwitch();
+        if ($switch) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
-            my $switch = $module->new($value);
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my %capabilities;
