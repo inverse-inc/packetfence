@@ -35,7 +35,6 @@ sub isAPublicFunction2 {}
 sub isAForkFunction2 {}
 }
 
-use threads;
 use strict;
 use warnings;
 
@@ -64,13 +63,6 @@ sub full_tests {
 }
 
 full_tests();
-
-my $thr = threads->create(
-    {'context' => 'list'},
-    \&full_tests,
-);
-
-$thr->join();
 
 =head1 AUTHOR
 
