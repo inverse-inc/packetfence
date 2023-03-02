@@ -3967,11 +3967,11 @@ sub ACLsLimit {
 sub checkRoleACLs {
     my ($self, $name, $acls) = @_;
     my $count = @{$acls // []};
-    
+
     if ($count == 0) {
         return undef;
     }
-    
+
     my @acls;
     foreach (@{$acls}) {
         my $acl_line = $_;
