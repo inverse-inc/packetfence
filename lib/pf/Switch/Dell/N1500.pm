@@ -355,7 +355,7 @@ sub returnRadiusAccessAccept {
                     my $acl_num = 101;
                     while($access_list =~ /([^\n]+)\n?/g){
                         my $acl = $1;
-                        if ($acl !~ /^permit/i && $acl !~ /^deny/i && $acl !~ /^in\|/i && $acl !~ /^out\|/i) {
+                        if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
                             next;
                         }
                         my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
@@ -514,7 +514,7 @@ sub returnRadiusAdvanced {
             for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
                 last if (scalar @{$session->{'acl'}} == 1);
                 my $acl = shift @{$session->{'acl'}};
-                if ($acl !~ /^permit/i && $acl !~ /^deny/i && $acl !~ /^in\|/i && $acl !~ /^out\|/i) {
+                if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
                     next;
                 }
                 my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
@@ -534,7 +534,7 @@ sub returnRadiusAdvanced {
         }
         if (scalar @{$session->{'acl'}} == 1) {
             my $acl = shift @{$session->{'acl'}};
-            if ($acl =~ /^permit/i || $acl =~ /^deny/i || $acl =~ /^in\|/i || $acl =~ /^out\|/i) {
+            if ($acl =~ /^((in|out)\|)?(permit|deny)/i) {
                 my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
                 if ($test) {
                     push(@av_pairs, $formated_acl);
