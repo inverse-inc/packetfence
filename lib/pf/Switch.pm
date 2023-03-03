@@ -3975,7 +3975,7 @@ sub checkRoleACLs {
     my @acls;
     foreach (@{$acls}) {
         my $acl_line = $_;
-        if ($acl_line =~ /^(in\||out\|)(.*)/) {
+        if ($acl_line =~ /^(in\||out\|)?(.*)/) {
             if ($self->supportsOutAcl) {
                 push @acls, $acl_line;
             } else {
