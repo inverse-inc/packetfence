@@ -182,25 +182,39 @@ yum install --enablerepo=packetfence packetfence
 
 ===== Debian-based systems
 
-In order to use the repository, create a file named [filename]`/etc/apt/sources.list.d/packetfence.list`:
+To get packetfence from the repository for Debian systems follow these instructions.
 
-// subs=attributes allow to substitute {release_minor} in code block
-[source,bash,subs="attributes"]
-----
-echo 'deb http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' > \
-/etc/apt/sources.list.d/packetfence.list
-----
-
-Once the repository is defined, you can install PacketFence with all its
-dependencies, and the required external services (Database
-server, DHCP server, RADIUS server) using:
+Install gpg and sudo:
 
 [source,bash]
 ----
 apt install gnupg sudo
-wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo apt-key add -
-apt-get update
-apt-get install packetfence
+----
+
+Make sure works for your user like described in the link:https://wiki.debian.org/sudo[Debian wiki]. It is adviced to continue using a non-root user.
+
+Create the file containing the information about the repository:
+
+// subs=attributes allow to substitute {release_minor} in code block
+[source,bash,subs="attributes"]
+----
+echo 'deb [signed-by=/usr/share/keyrings/inverse.ca.pgp] http://inverse.ca/downloads/PacketFence/debian/{release_minor} bullseye bullseye' | \
+sudo tee /etc/apt/sources.list.d/packetfence.list
+----
+
+Add the public key for the repository to your key database:
+
+[source,bash]
+----
+wget -q -O - https://inverse.ca/downloads/GPG_PUBLIC_KEY | sudo gpg -o /usr/share/keyrings/inverse.ca.pgp --dearmor
+----
+
+Once the repository is defined, you can install PacketFence with all its dependencies, and the required external services (Database server, DHCP server, RADIUS server) using:
+
+[source,bash]
+----
+sudo apt-get update
+sudo apt-get install packetfence
 ----
 
 === Installing PacketFence on Linode
