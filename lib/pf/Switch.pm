@@ -3988,7 +3988,7 @@ sub checkRoleACLs {
 
     $count = @acls;
 
-    if (!$self->suppertsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
+    if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
         return $self->makeACLsError($name, $pf::error::switch::ACLsNotSupportedErrCode);
     }
 
