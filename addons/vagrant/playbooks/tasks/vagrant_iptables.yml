@@ -17,4 +17,8 @@
 
       # allow Smocker interface on management interface
       -A input-management-if --protocol tcp --match tcp --dport {{ smocker__port_config }} --jump ACCEPT
+
+      # allow RADIUS mock ports on management interface
+      -A input-management-if --protocol tcp --match tcp --dport {{ radius_mock__api_port }} --jump ACCEPT
+      -A input-management-if --protocol udp --match udp --dport {{ radius_mock__radius_port }} --jump ACCEPT
     marker: "# {mark} ANSIBLE MANAGED BLOCK - mailhog"

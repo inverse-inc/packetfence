@@ -1,0 +1,3 @@
+---
+radius_mock__api_port: 8183
+radius_mock__radius_port: 8184
