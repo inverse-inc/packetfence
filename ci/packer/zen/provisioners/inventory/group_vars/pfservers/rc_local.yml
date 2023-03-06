@@ -11,7 +11,14 @@ rc_local_commands:
     fi
     make -C /usr/local/pf conf/ssl/server.pem
     make -C /usr/local/pf conf/local_secret
-    make -C /usr/local/pf/raddb/certs
+
+    if [ ! -f /usr/local/pf/raddb/certs/dh ]; then
+        echo "Building default RADIUS certificates..."
+        make -C /usr/local/pf/raddb/certs
+    else
+       echo "DH already exists, won't touch it!"
+    fi
+
     /usr/local/pf/bin/pfcmd fixpermissions
 
     echo "" > /etc/issue
