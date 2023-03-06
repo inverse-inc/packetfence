@@ -49,6 +49,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Change log levels of Perl services using environment variable (#7487)
  * Containerization `pfacct` service
  * Add not_before to PKI certificates (#7454)
+ * Support for out acls if the switch support it (#7560)
  
 === Bug Fixes
 
