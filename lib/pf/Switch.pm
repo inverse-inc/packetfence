@@ -86,6 +86,7 @@ use pf::SwitchSupports qw(
     -WiredMacAuth
     -WirelessDot1x
     -WirelessMacAuth
+    -OutAcl
 
      RadiusDynamicVlanAssignment
 );
@@ -3971,6 +3972,22 @@ sub checkRoleACLs {
         return undef;
     }
 
+    my @acls;
+    foreach (@{$acls}) {
+        my $acl_line = $_;
+        if ($acl_line =~ /^(in\||out\|)?(.*)/) {
+            if ($self->supportsOutAcl) {
+                push @acls, $acl_line;
+            } else {
+                if ($acl_line !~ /^out\|(.*)/) {
+                    push @acls, $acl_line;
+                }
+            }
+        }
+    }
+
+    $count = @acls;
+
     if (!$self->supportsAccessListBasedEnforcement() && !$self->supportsDownloadableListBasedEnforcement()) {
         return $self->makeACLsError($name, $pf::error::switch::ACLsNotSupportedErrCode);
     }
@@ -3984,7 +4001,8 @@ sub checkRoleACLs {
     }
 
     if ($self->supportsAccessListBasedEnforcement()) {
-        if ($count > $self->ACLsLimit()) {
+        my $limit = $self->ACLsLimit();
+        if ($count > $limit) {
             return $self->makeACLsError($name, $pf::error::switch::ACLsLimitErrCode)
         }
     }
@@ -4032,21 +4050,88 @@ sub acl_chewer {
     my ($self, $acl) = @_;
 
     my $acls = "ip access-list extended packetfence\n";
-    $acls .= $acl;
+    my $i = 0;
+    my @direction;
+    while($acl =~ /([^\n]+)\n?/g) {
+        my $acl_line = $1;
+        if ($acl_line =~ /^(in\||out\|)(.*)/) {
+            my $direction = $1;
+	    my $raw_acl = $2;
+            if ($self->supportsOutAcl && $direction eq "out|") {
+                $acls .= $raw_acl."\n";
+                $direction[$i] = $direction;
+	    } elsif ($direction eq "in|") {
+                $acls .= $raw_acl."\n";
+                $direction[$i] = $direction;
+            } else {
+                next;
+	    }
+        } else {
+            $acls .= $acl_line."\n";
+            $direction[$i] = "";
+        }
+        $i++;
+    }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
-
+    $i = 0;
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         } else {
-            $acl_chewed .= $acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         }
+        $i++;
     }
     return $acl_chewed;
 }
+
+=head2 returnAccessListAttribute
+
+Returns the attribute to use when pushing an ACL using RADIUS
+
+=cut
+
+sub returnAccessListAttribute {
+    my ($self, $acl_num, $acl) = @_;
+    if ($acl =~ /^out\|(.*)/) {
+        if ($self->supportsOutAcl) {
+            return $TRUE, $self->returnOutAccessListAttribute.$acl_num."=".$1;
+        } else {
+            return $FALSE, '';
+        }
+    } elsif ($acl =~ /^in\|(.*)/) {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num."=".$1;
+    } else {
+        return $TRUE, $self->returnInAccessListAttribute.$acl_num."=".$acl;
+    }
+}
+
+=head2 returnInAccessListAttribute
+
+Returns the attribute to use when pushing an input ACL using RADIUS
+
+=cut
+
+sub returnInAccessListAttribute {
+    my ($self) = @_;
+    return "in#";
+}
+
+
+=head2 returnOutAccessListAttribute
+
+Returns the attribute to use when pushing an output ACL using RADIUS
+
+=cut
+
+sub returnOutAccessListAttribute {
+    my ($self) = @_;
+    return "out#";
+}
+
 
 =back
 

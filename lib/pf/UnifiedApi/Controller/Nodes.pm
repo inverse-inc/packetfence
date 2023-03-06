@@ -1139,6 +1139,7 @@ sub validate_bypass_acls {
     if (defined $bypass_acls) {
         $bypass_acls =~ s/^\s+//;
         $bypass_acls =~ s/\s+$//;
+        $bypass_acls =~ s/^\s*(in|out)//mg;
         if ($bypass_acls ne '') {
             my $parser = Cisco::AccessList::Parser->new();
             my $acl = "ip access-list extended packetfence\n$bypass_acls";

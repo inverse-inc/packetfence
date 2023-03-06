@@ -493,6 +493,38 @@ addRoleMapping("ControllerRoleMapping", "controller_role");
 addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl ]);
 addRoleMapping("VpnMapping", "vpn");
 
+sub _validate_acl_switch {
+    my ($field) = @_;
+    my $switch = $field->form->getSwitch();
+    if ($switch) {
+       my $role_field = $field->parent()->field('role');
+       my $error = $switch->checkRoleACLs(
+           $role_field->value,
+           [split /\n/, $field->value],
+       );
+       if ($error) {
+           $field->add_error($error->{message});
+       }
+    }
+}
+
+sub getSwitch {
+    my ($self) = @_;
+    my $type_field = $self->field('type');
+    my $type = $type_field->value;
+    if (!defined $type) {
+        return undef;
+    }
+
+    my $value = $self->value;
+    my $module = pf::SwitchFactory::getModule($type);
+    if ($module->require() ) {
+        return $module->new($value);
+    }
+
+    return undef;
+}
+
 sub options_roles {
     my $self = shift;
     my @roles = map {  { label => $_, value  => $_ } } (@ROLES, map { $_->{name} }  @{$self->form->roles // []});
@@ -675,10 +707,9 @@ sub validate {
     my @triggers;
     my $always = any { $_->{type} eq $ALWAYS } @{$value->{inlineTrigger}};
     if ($value->{type}) {
-        my $module = pf::SwitchFactory::getModule($value->{type});
-        if ($module->require() ) {
+        my $switch = $self->getSwitch();
+        if ($switch) {
             @triggers = map { $_->{type} } @{$value->{inlineTrigger}};
-            my $switch = $module->new($value);
             if ( @triggers && !$always) {
                 # Make sure the selected switch type supports the selected inline triggers.
                 my %capabilities;
@@ -698,6 +729,8 @@ sub validate {
             if (defined $warnings) {
                 $self->add_pf_warning(@$warnings);
             }
+
+            $self->validateAccessListMapping($switch);
 
         } else {
             $self->field('type')->add_error("The chosen type (" . $value->{type} . ") is not supported.");
@@ -729,6 +762,22 @@ sub validate {
     #        $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
     #    }
     #}
+}
+
+sub validateAccessListMapping {
+    my ($self, $switch) = @_;
+    my $accessListMapping = $self->field('AccessListMapping');
+    for my $parent ($accessListMapping->fields()) {
+       my $role_field = $parent->field('role');
+       my $accesslist_field = $parent->field('accesslist');
+       my $error = $switch->checkRoleACLs(
+           $role_field->value,
+           [split /\n/, $accesslist_field->value],
+       );
+       if ($error) {
+           $accesslist_field->add_error($error->{message});
+       }
+   }
 }
 
 =head1 COPYRIGHT

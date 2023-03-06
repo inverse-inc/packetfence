@@ -511,12 +511,17 @@ sub returnRadiusAccessAccept {
                     my $acl_num = 101;
                     while($access_list =~ /([^\n]+)\n?/g){
                        my $acl = $1;
-                       if ($acl !~ /^permit/i && $acl !~ /^deny/i) {
+                       if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
                             next;
                         }
-                        push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$acl);
+                        my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
+                        if ($test) {
+                            push(@av_pairs, $formated_acl);
+                        } else {
+                            next;
+                        }
                         $acl_num ++;
-                        $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+                        $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                     }
                     $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
                 }
@@ -585,12 +590,17 @@ sub returnRadiusAdvanced {
             for ( my $loops = 0; $loops < $self->ACLsLimit; $loops++ ) {
                 last if (scalar @{$session->{'acl'}} == 1);
                 my $acl = shift @{$session->{'acl'}};
-                if ($acl !~ /^permit/i && $acl !~ /^deny/i) {
+                if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
                     next;
                 }
-                push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
+                if ($test) {
+                    push(@av_pairs, $formated_acl);
+                } else {
+                    next;
+                }
                 $session->{'acl_num'} ++;
-                $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
+                $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
                 $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
             }
             $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
@@ -599,11 +609,16 @@ sub returnRadiusAdvanced {
         }
         if (scalar @{$session->{'acl'}} == 1) {
             my $acl = shift @{$session->{'acl'}};
-            if ($acl =~ /^permit/i || $acl =~ /^deny/i) {
-                push(@av_pairs, $self->returnAccessListAttribute($session->{'acl_num'})."=".$acl);
-                $logger->info("(".$self->{'_id'}.") Adding access list : $acl to the RADIUS reply");
-                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-                $self->setRadiusSession($session);
+            if ($acl =~ /^((in|out)\|)?(permit|deny)/i) {
+                my ($test, $formated_acl) = $self->returnAccessListAttribute($session->{'acl_num'},$acl);
+                if ($test) {
+                    push(@av_pairs, $formated_acl);
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
+                    $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+                    $self->setRadiusSession($session);
+                } else {
+                    $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
+                }
             } else {
                 $logger->info("(".$self->{'_id'}.") No more access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
             }
@@ -653,17 +668,6 @@ sub identifyConnectionType {
         $connection->isVPN($FALSE);
         $connection->isCLI($FALSE);
     }
-}
-
-=head2 returnAccessListAttribute
-
-Returns the attribute to use when pushing an ACL using RADIUS
-
-=cut
-
-sub returnAccessListAttribute {
-    my ($self, $acl_num) = @_;
-    return "ip:inacl#$acl_num";
 }
 
 =head2 returnRoleAttribute

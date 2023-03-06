@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 70;
+use Test::More tests => 74;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -46,6 +46,37 @@ my $false = bless( do{\(my $o = 0)}, 'JSON::PP::Boolean' );
 my $true = bless( do{\(my $o = 1)}, 'JSON::PP::Boolean' );
 my $cs  = pf::ConfigStore::Switch->new();
 my $defaults = $cs->read('defaults');
+
+
+{
+
+    $t->post_ok(
+        $collection_base_url => json => {
+            type => 'Cisco::Catalyst_2960',
+            id                     => "33:44:55:22:33:44",
+            voiceVlan              => '222',
+            description            => "Bob",
+            registrationAccessList => "permit ip any any\n" x 80,
+
+        }
+    )->status_is(422);
+}
+
+{
+
+    $t->post_ok(
+        $collection_base_url => json => {
+            type => 'Cisco::Catalyst_2960',
+            id                     => "33:44:55:22:33:99",
+            voiceVlan              => '222',
+            description            => "Bob",
+            ACLsLimit              => 80,
+            registrationAccessList => "permit ip any any\n" x 80,
+
+        }
+    )->status_is(201);
+}
+
 $t->options_ok($collection_base_url)
   ->status_is(200);
 

@@ -1788,6 +1788,30 @@ sub defaultDownloadableACLsLimit {
     384
 }
 
+=head2 returnInAccessListAttribute
+
+Returns the attribute to use when pushing an input ACL using RADIUS
+
+=cut
+
+sub returnInAccessListAttribute {
+    my ($self) = @_;
+    return "ip:inacl#";
+}
+
+
+=head2 returnOutAccessListAttribute
+
+Returns the attribute to use when pushing an output ACL using RADIUS
+
+=cut
+
+sub returnOutAccessListAttribute {
+    my ($self) = @_;
+    return "ip:outacl#";
+}
+
+
 =back
 
 =head1 AUTHOR
