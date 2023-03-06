@@ -22,7 +22,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 72;
+use Test::More tests => 74;
 use List::Util qw(first);
 use Test::Mojo;
 use Utils;
@@ -60,6 +60,21 @@ my $defaults = $cs->read('defaults');
 
         }
     )->status_is(422);
+}
+
+{
+
+    $t->post_ok(
+        $collection_base_url => json => {
+            type => 'Cisco::Catalyst_2960',
+            id                     => "33:44:55:22:33:99",
+            voiceVlan              => '222',
+            description            => "Bob",
+            ACLsLimit              => 80,
+            registrationAccessList => "permit ip any any\n" x 80,
+
+        }
+    )->status_is(201);
 }
 
 $t->options_ok($collection_base_url)

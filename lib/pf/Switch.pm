@@ -4001,7 +4001,8 @@ sub checkRoleACLs {
     }
 
     if ($self->supportsAccessListBasedEnforcement()) {
-        if ($count > $self->ACLsLimit()) {
+        my $limit = $self->ACLsLimit();
+        if ($count > $limit) {
             return $self->makeACLsError($name, $pf::error::switch::ACLsLimitErrCode)
         }
     }

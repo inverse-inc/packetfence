@@ -490,7 +490,7 @@ sub addRoleMapping {
 addRoleMapping("VlanMapping", "vlan");
 addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
-addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl_switch ]);
+addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl ]);
 addRoleMapping("VpnMapping", "vpn");
 
 sub _validate_acl_switch {
@@ -730,6 +730,8 @@ sub validate {
                 $self->add_pf_warning(@$warnings);
             }
 
+            $self->validateAccessListMapping($switch);
+
         } else {
             $self->field('type')->add_error("The chosen type (" . $value->{type} . ") is not supported.");
         }
@@ -760,6 +762,22 @@ sub validate {
     #        $self->field('uplink')->add_error("The uplinks must be a list of ports numbers.");
     #    }
     #}
+}
+
+sub validateAccessListMapping {
+    my ($self, $switch) = @_;
+    my $accessListMapping = $self->field('AccessListMapping');
+    for my $parent ($accessListMapping->fields()) {
+       my $role_field = $parent->field('role');
+       my $accesslist_field = $parent->field('accesslist');
+       my $error = $switch->checkRoleACLs(
+           $role_field->value,
+           [split /\n/, $accesslist_field->value],
+       );
+       if ($error) {
+           $accesslist_field->add_error($error->{message});
+       }
+   }
 }
 
 =head1 COPYRIGHT
