@@ -192,14 +192,14 @@ sub walk {
 
     # Flags
     my @flags;
-    push @flags, @{ $route->over || [] } ? 'C' : '.';
+    push @flags, @{ $route->requires || [] } ? 'C' : '.';
     push @flags, ( my $partial = $route->partial ) ? 'D' : '.';
     push @flags, $route->inline       ? 'U' : '.';
     push @flags, $route->is_websocket ? 'W' : '.';
     push @$row, join( '', @flags ) if $verbose;
 
     # Methods
-    my $via = $route->via;
+    my $via = $route->methods;
     push @$row, !$via ? '*' : uc join ',', @$via;
     $info{methods} = $via;
     $info{operationId} = $info{name} = $route->name;
