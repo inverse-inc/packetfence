@@ -53,7 +53,7 @@ BEGIN {
     );
 }
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 #This test will running last
 use Test::NoWarnings;
@@ -63,6 +63,8 @@ is_deeply([m1->supports()], [qw(VPN)], "");
 is_deeply([m2->supports()], [qw(RadiusDynamicVlanAssignment VPN)], "");
 
 is_deeply([m3->supports()], [qw(RadiusDynamicVlanAssignment VPN)], "");
+
+is_deeply([m4->supports()], [qw(RadiusDynamicVlanAssignment VPN)], "");
 
 ok(exists &m1::supportsVPN, "m1->supportsVPN exists");
 

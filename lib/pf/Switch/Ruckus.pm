@@ -65,6 +65,7 @@ use pf::SwitchSupports qw(
     WirelessMacAuth
     ExternalPortal
     RoleBasedEnforcement
+    ?WebFormRegistration
 );
 
 # inline capabilities
@@ -78,6 +79,7 @@ Will be activated only if HTTP is selected as a deauth method
 
 sub supportsWebFormRegistration {
     my ($self) = @_;
+    return $TRUE if !ref($self);
     return ($self->{_deauthMethod} // '') eq $SNMP::HTTP ? $TRUE : $FALSE;
 }
 

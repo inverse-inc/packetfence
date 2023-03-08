@@ -36,13 +36,15 @@ sub import {
                 }
                 next;
             }
+            my $tested = \&tested;
+
             if ($s =~ /^\?(.*)$/) {
                 my $n = $1;
                 push @supports, $n;
+                *{"${package}::supports${n}Tested"} = $tested;
                 next;
             }
 
-            my $tested = \&tested;
 
             if ($s =~ /^~(.*)$/) {
                 $s = $1;

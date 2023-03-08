@@ -46,6 +46,7 @@ for my $g (@groups) {
             close($fh);
         }
         my $aSupports= $switch_info->{supports};
+        my %supportsLookup = map { $_ => 1 } @$aSupports;
         my $supports = join( ',', @$aSupports);
         if ($supports =~ /VPN/) {
           $switch_info->{"vpn"}="true";
@@ -58,26 +59,21 @@ for my $g (@groups) {
         } else {
           print("$name \t$supports\n");
         }
-        $switch_info->{"WiredMacAuth"}="true"                      if ($supports =~ /WiredMacAuth/ && $supports !~ /-WiredMacAuth/) ;
-        $switch_info->{"WiredDot1x"}="true"                        if ($supports =~ /WiredDot1x/ && $supports !~ /-WiredDot1x/) ;
-        $switch_info->{"WirelessMacAuth"}="true"                   if ($supports =~ /WirelessMacAuth/ && $supports !~ /-WirelessMacAuth/) ;
-        $switch_info->{"WirelessDot1x"}="true"                     if ($supports =~ /WirelessDot1x/ && $supports !~ /-WirelessDot1x/) ;
-        $switch_info->{"RadiusDynamicVlanAssignment"}="true"       if ($supports =~ /RadiusDynamicVlanAssignment/ && $supports !~ /-RadiusDynamicVlanAssignment/) ;
-        $switch_info->{"ExternalPortal"}="true"                    if ($supports =~ /ExternalPortal/ && $supports !~ /-ExternalPortal/) ;
-        $switch_info->{"MABFloatingDevices"}="true"                if ($supports =~ /MABFloatingDevices/ && $supports !~ /-MABFloatingDevices/) ;
-        $switch_info->{"WebFormRegistration"}="true"               if ($supports =~ /WebFormRegistration/ && $supports !~ /-WebFormRegistration/) ;
-        $switch_info->{"AccessListBasedEnforcement"}="not_tested"  if ($supports =~ /~AccessListBasedEnforcement/ && $supports !~ /-AccessListBasedEnforcement/) ;
-        $switch_info->{"AccessListBasedEnforcement"}="true"        if ($supports =~ /AccessListBasedEnforcement/ && $supports !~ /-AccessListBasedEnforcement/ && not exists $switch_info->{"AccessListBasedEnforcement"}) ;
-        $switch_info->{"RadiusVoip"}="true"                        if ($supports =~ /RadiusVoip/ && $supports !~ /-RadiusVoip/) ;
-        $switch_info->{"FloatingDevice"}="true"                    if ($supports =~ /FloatingDevice/ && $supports !~ /-FloatingDevice/) ;
-        $switch_info->{"Cdp"}="true"                               if ($supports =~ /Cdp/ && $supports !~ /-Cdp/) ;
-        $switch_info->{"Lldp"}="true"                              if ($supports =~ /Lldp/ && $supports !~ /-Lldp/) ;
-        $switch_info->{"RoamingAccounting"}="true"                 if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
-        $switch_info->{"SaveConfig"}="true"                        if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
-        $switch_info->{"RoleBasedEnforcement"}="true"              if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
-        #$switch_info->{"SNMP"}="true"                             if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+        for my $supportedItem (qw(WiredMacAuth WiredDot1x WirelessMacAuth WirelessDot1x RadiusDynamicVlanAssignment ExternalPortal MABFloatingDevices WebFormRegistration AccessListBasedEnforcement RadiusVoip FloatingDevice Cdp Lldp RoamingAccounting SaveConfig RoleBasedEnforcement)) {
+            next if !$supportsLookup{$supportedItem};
+            if ($switch_info->{is_template}) {
+                $switch_info->{$supportedItem} = "true";
+                next;
+            }
 
-        # Clean the name to something simple, need to start with a letter
+            my $supports = "supports${supportedItem}";
+            my $supportsTested = "supports${supportedItem}Tested";
+            next if !$module->$supports;
+            $switch_info->{$supportedItem} = $module->$supportsTested ? "true" : "not_tested";
+        }
+        #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+	
+	# Clean the name to something simple, need to start with a letter
         my $name_cleaned = lc($switch_info->{"label"});
         $name_cleaned =~ s/\s+/-/g;
         $name_cleaned =~ s/\//-/g;
