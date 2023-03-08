@@ -67,6 +67,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Fixed issue with Aruba DACL, only the first ACL was shown in the port
  * ZEN 12.1 installations will generate a new RADIUS key after a reboot (#7568)
  * Disable DNS lookup in sudo to prevent API timeouts and interfaces not detected (#7403)
+ * RADIUS source+pfconnector is not working in admin context (#7550)
 
 == Version 12.1.0 released on 2022-11-22
 
