@@ -14,6 +14,7 @@
 # inverse <support@inverse.ca>, 2013-2014,2016,2018,2021
 # inverse <support@inverse.ca>, 2012-2013
 # jgoimard <jgoimard@inverse.ca>, 2021
+# jgoimard <jgoimard@inverse.ca>, 2022
 # Louis Munro <git@louismunro.com>, 2016
 # lzammit <lzammit@inverse.ca>, 2014,2016,2018,2021
 # lzammit <lzammit@inverse.ca>, 2014,2016,2018
@@ -32,7 +33,7 @@ msgstr ""
 "Project-Id-Version: PacketFence\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2011-11-16 20:16+0000\n"
-"Last-Translator: inverse <support@inverse.ca>, 2013-2014,2016,2018,2021\n"
+"Last-Translator: jgoimard <jgoimard@inverse.ca>, 2022\n"
 "Language-Team: French (http://www.transifex.com/inverse/packetfence/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -238,7 +239,7 @@ msgstr "À l'écran<i> Fin de l'assistant d'importation de certificat</i>, appuy
 
 # html/captive-portal/templates/mfa/TOTP.html
 msgid "Authentication code"
-msgstr ""
+msgstr "Code d'identification"
 
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
@@ -359,7 +360,7 @@ msgstr "Navigateur de fichiers Chrome"
 
 # html/captive-portal/templates/provisioner/kandji.html
 msgid "Click here to access the enrollment page"
-msgstr ""
+msgstr "Cliquez ici pour accéder à la page d'inscription"
 
 # pf::person::FIELDS
 msgid "Company"
@@ -478,23 +479,23 @@ msgstr "Déclaré perdu ou volé"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_provisioning_policy
 msgid "Default Provisioning policy"
-msgstr ""
+msgstr "Stratégie de provisionnement par défaut"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_admin_sso_policy
 msgid "Default admin SSO policy"
-msgstr ""
+msgstr "Stratégie d'authentification unique par défaut de l'administrateur"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_pending_policy
 msgid "Default pending policy"
-msgstr ""
+msgstr "Stratégie d'attente par défaut"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_policy
 msgid "Default portal policy"
-msgstr ""
+msgstr "Stratégie de portail par défaut"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_registration_policy
 msgid "Default registration policy"
-msgstr ""
+msgstr "Politique d'enregistrement par défaut"
 
 # html/captive-portal/templates/ssl_inspection/windows.html
 msgid ""
@@ -621,11 +622,11 @@ msgstr "Courriel"
 
 # html/captive-portal/templates/activation/email.html
 msgid "Email activation code has been verified. Access granted until : %s"
-msgstr ""
+msgstr "Le code d'activation courriel a été vérifié. Accès autorisé jusqu'au : %s"
 
 # /usr/local/pf/conf/authentication.conf.example email
 msgid "Email-based registration"
-msgstr ""
+msgstr "Enregistrement par Mail"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Enter a valid telephone number"
@@ -701,7 +702,7 @@ msgstr "Requête d’accès invité"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_guest_policy
 msgid "Guest signup"
-msgstr ""
+msgstr "Enregistrement Invité"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Has an active subscription"
@@ -897,11 +898,11 @@ msgstr "Nom"
 
 # /usr/local/pf/conf/authentication.conf.example file1
 msgid "Legacy Source"
-msgstr ""
+msgstr "Source héritée"
 
 # /usr/local/pf/conf/authentication.conf.example local
 msgid "Local Users"
-msgstr ""
+msgstr "Utilisateurs locaux"
 
 # html/captive-portal/templates/activation/sponsor_login.html
 # html/captive-portal/templates/oauth2/landing.html
@@ -934,7 +935,7 @@ msgstr "Adresse MAC"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_mfa_policy
 msgid "MFA policy"
-msgstr ""
+msgstr "Politique MFA"
 
 # html/captive-
 # portal/lib/captiveportal/PacketFence/DynamicRouting/Module/SSL_Inspection.pm
@@ -959,7 +960,7 @@ msgstr "Gérer"
 
 # html/captive-portal/templates/max-nodes-reached.html
 msgid "Manage your devices"
-msgstr ""
+msgstr "Gérez vos appareils"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Form/Authentication.pm
 msgid "Mobile provider"
@@ -1026,11 +1027,11 @@ msgstr "Pas d'abonnement actif"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
 msgid "Not allowed to deregister %s"
-msgstr ""
+msgstr "Non autorisé à désenregistrer %s"
 
 # html/captive-portal/lib/captiveportal/PacketFence/Controller/Node/Manager.pm
 msgid "Not logged in or node ID %s is not known"
-msgstr ""
+msgstr "Non connecté ou l'ID de nœud %s n'est pas connu"
 
 # pf::person::FIELDS
 msgid "Notes"
@@ -1038,11 +1039,11 @@ msgstr "Notes"
 
 # /usr/local/pf/conf/authentication.conf.example null
 msgid "Null Source"
-msgstr ""
+msgstr "Source nulle"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_oauth_policy
 msgid "OAuth login"
-msgstr ""
+msgstr "Connexion OAuth"
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "OS"
@@ -1130,7 +1131,7 @@ msgstr "Un des champ mot de passe n'a pas été rempli"
 msgid ""
 "Open the two-factor authentication app on your device to view your "
 "authentication code and verify your identity."
-msgstr ""
+msgstr "Ouvrez l'application d'authentification à deux facteurs sur votre appareil pour afficher votre code d'authentification et vérifier votre identité."
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid ""
@@ -1166,7 +1167,7 @@ msgstr "Autre"
 
 # pf::person::FIELDS
 msgid "Otp"
-msgstr ""
+msgstr "Otp"
 
 # html/captive-portal/templates/sms/validate.html
 msgid "PIN"
@@ -1245,7 +1246,7 @@ msgstr "Veuillez installer le certificat."
 
 # html/captive-portal/templates/mfa/TOTP.html
 msgid "Please scan the code below in your favorite authenticator app"
-msgstr ""
+msgstr "Veuillez scanner le code ci-dessous dans votre application d'authentification préférée"
 
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
 msgid "Please select the account you would like to manage"
@@ -1279,7 +1280,7 @@ msgstr "Psk"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_blackhole_policy
 msgid "Refuse Login"
-msgstr ""
+msgstr "Refuser la connexion"
 
 # html/captive-portal/templates/device-registration/registration.html
 msgid "Register"
@@ -1308,7 +1309,7 @@ msgstr "Renvoyer le code PIN"
 
 # html/captive-portal/templates/max-nodes-reached.html
 msgid "Retry signup"
-msgstr ""
+msgstr "Réessayez de vous inscrire"
 
 # html/captive-portal/templates/status/menu.html
 msgid "Return to device list"
@@ -1330,11 +1331,11 @@ msgstr "Authentification SAML"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_saml_policy
 msgid "SAML login"
-msgstr ""
+msgstr "Connexion SAML"
 
 # /usr/local/pf/conf/authentication.conf.example sms
 msgid "SMS-based registration"
-msgstr ""
+msgstr "Enregistrement par SMS"
 
 # html/captive-portal/templates/provisioner/dpsk.html
 msgid "SSID: "
@@ -1366,7 +1367,7 @@ msgstr "Sélectionnez le rôle d'enregistrement"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_show_local_account
 msgid "Show local account"
-msgstr ""
+msgstr "Montrer compte local."
 
 # pf::person::FIELDS
 msgid "Source"
@@ -1387,11 +1388,11 @@ msgstr "Demande acceptée par votre sponsor."
 
 # /usr/local/pf/conf/authentication.conf.example sponsor
 msgid "Sponsor-based registration"
-msgstr ""
+msgstr "Inscription basée sur le parrainage"
 
 # pf::person::FIELDS
 msgid "Sponsored_date"
-msgstr ""
+msgstr "Date de parrainage"
 
 # html/captive-portal/templates/emails/emails-billing_confirmation.html
 # html/captive-portal/templates/stripe-customer-portal/select-account.html
@@ -1736,7 +1737,7 @@ msgstr "Pour finaliser votre accès au réseau, vous devez installer le client J
 msgid ""
 "To complete your network activation you need to install the Kandji MDM "
 "client."
-msgstr ""
+msgstr "Pour terminer votre activation réseau, vous devez installer le client Kandji MDM."
 
 # html/captive-portal/templates/provisioner/opswat.html
 msgid ""
@@ -1812,7 +1813,7 @@ msgstr "Impossible de trouver une source Stripe avec ce profil de connexion"
 # html/captive-
 # portal/lib/captiveportal/PacketFence/Controller/Activate/Email.pm
 msgid "Unable to register the device: %s"
-msgstr ""
+msgstr "Impossible d'enregistrer le périphérique: %s"
 
 # html/captive-portal/templates/status.html
 msgid "Unregister"
@@ -1821,7 +1822,7 @@ msgstr "Désenregistrer"
 # html/captive-portal/templates/status.html
 msgid ""
 "Unregister %s? The device will be immediately disconnected from the network."
-msgstr ""
+msgstr "Voulez-vous vraiment désenregistrer %s ? L'appareil sera immédiatement déconnecté du réseau."
 
 # html/captive-portal/templates/emails/emails-guest_sponsor_activation.html
 msgid ""
@@ -1853,7 +1854,7 @@ msgstr "Nom d'utilisateur"
 
 # /usr/local/pf/conf/portal_modules.conf.defaults default_login_policy
 msgid "Username/password login"
-msgstr ""
+msgstr "Connexion par Identifiant/Mot de passe "
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid "Utilities folder from the Finder"
@@ -1932,7 +1933,7 @@ msgstr "Vous pouvez également modifier le mot de passe."
 # html/captive-portal/templates/lost_stolen.html
 msgid ""
 "You do not own this device %s, you can not declare it as lost or stolen."
-msgstr ""
+msgstr "Cet appareil %s ne vous appartient pas, vous ne pouvez pas le déclarer perdu ou volé."
 
 # html/captive-portal/templates/emails/emails-security_event-triggered.html
 msgid "You have been detected doing malicious activity on the network."
@@ -1946,7 +1947,7 @@ msgstr "Vous n'avez pas d'appareil enregistré."
 msgid ""
 "You have reached the maximum amount of endpoints you can register with this "
 "username."
-msgstr ""
+msgstr "Vous avez atteint le nombre maximum de dispositifs que vous pouvez enregistrer avec ce nom d'utilisateur. "
 
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid ""
@@ -2042,7 +2043,7 @@ msgstr "Vous n'êtes pas connecté au réseau, mais il vous reste <strong id = '
 
 # html/captive-portal/templates/status.html
 msgid "Your WPA Wi-Fi key: "
-msgstr ""
+msgstr "Votre clé Wi-Fi WPA :"
 
 # html/captive-portal/templates/provisioner/android.html
 # html/captive-portal/templates/provisioner/mobileconfig.html
