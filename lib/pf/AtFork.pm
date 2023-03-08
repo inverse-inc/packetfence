@@ -1,44 +1,38 @@
-package pf::Syslog;
+package pf::AtFork;
 
 =head1 NAME
 
-pf::Syslog -
+pf::AtFork -
 
 =head1 DESCRIPTION
 
-pf::Syslog
+pf::AtFork
 
 =cut
 
 use strict;
 use warnings;
-use CHI;
-use Log::Any::Adapter;
-Log::Any::Adapter->set('Log4perl');
-use pf::AtFork;
-use Net::Syslog;
+our @child_callbacks;
 
-our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
-
-=head2 new
-
-Will create a Redis::Fast connection or a shared one
-
-=cut
-
-sub new {
-    my ($self, $key, $args) = @_;
-    return $CHI_CACHE->compute($key, sub { return Net::Syslog->new(%$args) });
+sub add_to_child {
+    my ($class, @cbs) = @_;
+    push @child_callbacks, @cbs;
 }
 
-=head2 CLONE
 
-Will clear out the redis cache
+sub run_child_child_callbacks {
+    for my $cb (@child_callbacks) {
+        $cb->();
+    }
+}
 
-=cut
+sub pf_fork {
+    my $pid = fork();
+    if (defined $pid && $pid == 0) {
+         run_child_child_callbacks();   
+    }
 
-sub CLONE {
-    $CHI_CACHE->clear;
+    return $pid;
 }
 
 =head1 AUTHOR
@@ -47,7 +41,7 @@ Inverse inc. <info@inverse.ca>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2022 Inverse inc.
+Copyright (C) 2005-2023 Inverse inc.
 
 =head1 LICENSE
 

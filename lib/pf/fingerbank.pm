@@ -40,7 +40,7 @@ use pf::dal::node;
 use pf::StatsD::Timer;
 use fingerbank::Config;
 use fingerbank::Collector;
-use POSIX::AtFork;
+use pf::AtFork;
 use DateTime;
 use DateTime::Format::RFC3339;
 use pf::config qw(%Config);
@@ -638,7 +638,7 @@ sub CLONE {
     $api_client = undef;
 }
 
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 
 =head1 AUTHOR
 

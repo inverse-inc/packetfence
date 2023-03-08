@@ -22,7 +22,7 @@ Log::Any::Adapter->set('Log4perl');
 use Net::LDAP;
 use Net::LDAPS;
 use pf::util::networking qw(set_write_timeout set_read_timeout);
-use POSIX::AtFork;
+use pf::AtFork;
 use pf::Authentication::constants qw($DEFAULT_LDAP_READ_TIMEOUT $DEFAULT_LDAP_WRITE_TIMEOUT);
 # available encryption
 use constant {
@@ -169,7 +169,7 @@ sub CLONE {
     $CHI_CACHE->clear;
 }
 
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 
 =head1 AUTHOR
 

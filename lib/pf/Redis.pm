@@ -19,7 +19,7 @@ use Redis::Fast;
 use CHI;
 use Log::Any::Adapter;
 Log::Any::Adapter->set('Log4perl');
-use POSIX::AtFork;
+use pf::AtFork;
 
 our $CHI_CACHE = CHI->new(driver => 'RawMemory', datastore => {});
 
@@ -61,7 +61,7 @@ sub CLONE {
     $CHI_CACHE->clear;
 }
 
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 
 =head2 compute_redis
 

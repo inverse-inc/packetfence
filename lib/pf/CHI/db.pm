@@ -12,7 +12,7 @@ pf::CHI::db
 
 use strict;
 use warnings;
-use POSIX::AtFork;
+use pf::AtFork;
 use DBI;
 use pf::log;
 use pf::IniFiles;
@@ -116,7 +116,7 @@ sub sectionData {
     return \%args;
 }
 
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 
 END {
     $DBH->disconnect if $DBH;

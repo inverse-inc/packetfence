@@ -26,7 +26,7 @@ use pf::config;
 use pfconfig::cached_hash;
 use pf::StatsD::Timer;
 use pf::util::statsd qw(called);
-use POSIX::AtFork;
+use pf::AtFork;
 use pf::CHI;
 
 my $CHI_READONLY = pf::CHI->new(driver => 'RawMemory', datastore => {});
@@ -65,7 +65,7 @@ sub CLONE {
     }
 }
 
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 
 END {
     $DBH->disconnect if $DBH;
