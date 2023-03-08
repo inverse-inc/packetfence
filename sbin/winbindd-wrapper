@@ -37,6 +37,7 @@ use pf::config qw(%Config %ConfigDomain);
 use pf::constants qw($FALSE $TRUE);
 use pf::services;
 use pf::util;
+use pf::AtFork;
 use pf::services::util;
 use pf::StatsD;
 use pf::person;
@@ -222,7 +223,7 @@ sub run_winbindd {
     my $config_file = "/etc/samba/$id.conf";
     my $log_directory = "/var/log/samba$id";
 
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     if (!defined $pid) {
         $logger->error("Unable to fork child for '$id' retrying : Error($!)");
         register_task($id);

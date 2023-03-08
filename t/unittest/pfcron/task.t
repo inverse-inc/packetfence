@@ -50,6 +50,7 @@ use Net::SMTP::Server;
 use Net::SMTP::Server::Client;
 use Carp;
 use Utils;
+use pf::AtFork;
 use pf::password;
 use pf::node qw(node_add);
 use IO::Handle;
@@ -105,7 +106,7 @@ for my $test (@TESTS) {
 
 sub startSMTP {
     pipe(my $reader, my $writer);
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     BAIL_OUT("Cannot fork") if ( !defined $pid );
     if ($pid) {
         close($writer);

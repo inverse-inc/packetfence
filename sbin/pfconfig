@@ -34,6 +34,7 @@ BEGIN {
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
 use JSON::MaybeXS;
 use pfconfig::manager;
+use pf::AtFork;
 use Data::Dumper;
 use Time::HiRes;
 use List::MoreUtils qw(first_index any);
@@ -459,7 +460,7 @@ This happens async and the response will be sent after the process forks success
 sub pull_expire {
     my ($query, $socket) = @_;
     $logger->info("Forking to pull git conf");
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     if ($pid == 0) {
         my $res = pfconfig::git_storage->update();
         if(!$res) {

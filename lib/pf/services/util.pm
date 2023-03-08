@@ -25,6 +25,7 @@ use pf::file_paths qw(
 );
 use File::Basename qw(basename);
 use Fcntl qw(:flock);
+use pf::AtFork;
 
 
 =head2 daemonize
@@ -45,7 +46,7 @@ sub daemonize {
         or $logger->logdie("Can't open /dev/null: $!");
     my ($login,$pass,$uid,$gid) = getpwnam('pf')
         or die "pf not in passwd file";
-    defined( my $pid = fork ) or $logger->logdie("$service could not fork: $!");
+    defined (my $pid = pf::AtFork::pf_fork()) or $logger->logdie("$service could not fork: $!");
     POSIX::_exit(0) if ($pid);
     Log::Log4perl::MDC->put( 'tid', $$ );
     if ( !POSIX::setsid() ) {

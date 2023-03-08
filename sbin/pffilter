@@ -30,6 +30,7 @@ BEGIN {
 use Getopt::Std;
 use File::Basename qw(basename);
 use POSIX qw(:signal_h pause :sys_wait_h SIG_BLOCK SIG_UNBLOCK);
+use pf::AtFork;
 use Pod::Usage;
 use Fcntl qw(:flock);
 use Errno qw(EINTR EAGAIN);
@@ -252,7 +253,7 @@ creates a new child to run a task
 sub runtask {
     my ($task) = @_;
     db_disconnect();
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
     }

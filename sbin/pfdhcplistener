@@ -50,6 +50,7 @@ use pf::util::dhcp;
 use pf::StatsD;
 use List::MoreUtils qw(any uniq);
 use NetAddr::IP;
+use pf::AtFork;
 use MIME::Base64();
 use NetPacket::Ethernet qw(ETH_TYPE_IP ETH_TYPE_IPv6);
 use NetPacket::IP;
@@ -450,7 +451,7 @@ creates a new child to run a task
 
 sub runtask {
     my ($task) = @_;
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
     }

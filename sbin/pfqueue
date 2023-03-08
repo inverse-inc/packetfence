@@ -48,12 +48,12 @@ use pf::dal;
 use pf::client;
 use pf::CHI::Request;
 pf::client::setClient("pf::api::can_fork");
-use threads;
 use pf::factory::task;
 use pf::services::manager::pfdetect;
 use pf::services::manager::snmptrapd;
 use Linux::Systemd::Daemon 'sd_ready';
 use pfconfig::refresh_last_touch_cache;
+use pf::AtFork;
 
 
 # initialization
@@ -260,7 +260,7 @@ creates a new child to run a task
 sub run_task {
     my ($task) = @_;
     db_disconnect();
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     if ($pid) {
         $CHILDREN{$pid} = $task;
     } elsif ($pid == 0) {
