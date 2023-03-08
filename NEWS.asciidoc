@@ -50,6 +50,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Containerization `pfacct` service
  * Add not_before to PKI certificates (#7454)
  * Support for out acls if the switch support it (#7560)
+ * Improvements and support for dACL in supported material (#7561)
  
 === Bug Fixes
 
