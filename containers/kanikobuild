@@ -14,6 +14,7 @@ setup_vars() {
     fi
 
     # necessary if variables are not defined in kaniko_vars or in environment
+    CI_COMMIT_TAG=${CI_COMMIT_TAG:-}
     DOCKFILE_PATH=${DOCKFILE_PATH:-"$CI_PROJECT_DIR/containers/$IMAGE_NAME/Dockerfile"}
     DOCKFILE_VARS=${DOCKFILE_VARS:-}
     KNK_CACHE=${KNK_CACHE:-true}
@@ -76,8 +77,13 @@ generate_destinations() {
       fi
     done
     else
-      # Only one tag detected, using ${IMAGE_TAG} as tag
-      tag_slug=$(sanitize_tag ${IMAGE_TAG})
+      # only sanitize tag if we are not in a release process
+      if [ -z "$CI_COMMIT_TAG" ]; then
+          # Only one tag detected, using ${IMAGE_TAG} as tag
+          tag_slug=$(sanitize_tag ${IMAGE_TAG})
+      else
+          tag_slug=${IMAGE_TAG}
+      fi
       IMAGE_DEST="${KNK_REGISTRY_URL}/${IMAGE_NAME}:${tag_slug}"
       destinations="--destination ${IMAGE_DEST}"
     fi
