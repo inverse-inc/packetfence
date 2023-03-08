@@ -26,7 +26,7 @@ use Moo;
 use MIME::Base64;
 use pf::log;
 use pf::cluster;
-use POSIX::AtFork;
+use pf::AtFork;
 use pf::api::unifiedapiclient;
 use pf::config qw(%Config);
 use pf::StatsD::Timer;
@@ -108,7 +108,7 @@ sub CLONE {
     $default_client->unified_api_client->timeout_ms($Config{pfdhcp}{timeout_ms});
     $default_client->unified_api_client->connect_timeout_ms($Config{pfdhcp}{connect_timeout_ms});
 }
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 CLONE();
 
 =head1 AUTHOR

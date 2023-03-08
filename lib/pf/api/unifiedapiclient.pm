@@ -33,7 +33,7 @@ use Moo;
 use HTTP::Status qw(:constants);
 use pf::error qw(is_success);
 use pf::constants::api;
-use POSIX::AtFork;
+use pf::AtFork;
 use pf::cluster;
 
 =head1 Attributes
@@ -123,7 +123,7 @@ sub CLONE {
     $default_client = pf::api::unifiedapiclient->new;
     $management_client = pf::api::unifiedapiclient->new(host => pf::cluster::management_cluster_ip())
 }
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 CLONE();
 
 =head1 METHODS
