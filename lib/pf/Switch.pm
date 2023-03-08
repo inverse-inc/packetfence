@@ -4056,16 +4056,16 @@ sub acl_chewer {
         my $acl_line = $1;
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
-	    my $raw_acl = $2;
+            my $raw_acl = $2;
             if ($self->supportsOutAcl && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
                 $direction[$i] = $direction;
-	    } elsif ($direction eq "in|") {
+            } elsif ($direction eq "in|") {
                 $acls .= $raw_acl."\n";
                 $direction[$i] = $direction;
             } else {
                 next;
-	    }
+            }
         } else {
             $acls .= $acl_line."\n";
             $direction[$i] = "";
