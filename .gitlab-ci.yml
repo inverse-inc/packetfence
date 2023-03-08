@@ -840,6 +840,7 @@ pfdeb_based_rel:
           - "httpd.dispatcher"
           - "httpd.portal"
           - "api-frontend"
+          - "pfacct"
           - "pfcmd"
           - "pfqueue"
           - "httpd.aaa"
