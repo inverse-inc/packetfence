@@ -1836,6 +1836,20 @@ Value of this attribute needs to be an IP address, defined in _Switches_ menu (o
 
 If this RADIUS attribute is not sent by your network devices, you need to declare them in _Switches_ menu using MAC Addresses (value of RADIUS `Called-Station-Id` attribute).
 
+=== ZEN 12.1 installations only: manual patch to apply
+
+A link:https://github.com/inverse-inc/packetfence/issues/7568[bug] has been identified on ZEN 12.1 installations.
+
+If you perform a ZEN 12.1 installation, you need to patch your setup using following instructions:
+
+[source,bash]
+----
+cd /tmp/
+wget https://github.com/inverse-inc/packetfence/files/10897043/rc-local.patch
+patch /etc/rc.local /tmp/rc-local.patch
+----
+
+
 == Archived upgrade notes
 
 include::upgrade-notes/archived_upgrade_notes.asciidoc[]
