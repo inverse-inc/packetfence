@@ -3,7 +3,7 @@ package pf::connector;
 use Moo;
 use URI;
 use pf::api::unifiedapiclient;
-use POSIX::AtFork;
+use pf::AtFork;
 use pf::config qw(%Config);
 use pf::log;
 
@@ -19,7 +19,7 @@ sub CLONE {
     %connections = ();
     $redis = undef;
 }
-POSIX::AtFork->add_to_child(\&CLONE);
+pf::AtFork->add_to_child(\&CLONE);
 CLONE();
 
 sub connect_redis {
