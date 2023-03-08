@@ -19,6 +19,7 @@ use strict;
 use warnings;
 use pf::log;
 use pf::util::webapi;
+use pf::AtFork;
 use POSIX;
 use Moo;
 
@@ -46,7 +47,7 @@ sub notify {
     my ($self, $method, @args) = @_;
     my $pid;
     if (pf::api->shouldFork($method)) {
-        $pid = fork;
+        $pid = pf::AtFork::pf_fork();
         unless (defined $pid) {
             $logger->error("Error fork $!");
             return;
