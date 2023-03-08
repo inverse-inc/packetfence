@@ -53,6 +53,7 @@ use pf::SwitchSupports qw(
     ExternalPortal
     WebFormRegistration
     WiredMacAuth
+    ~AccessListBasedEnforcement
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }

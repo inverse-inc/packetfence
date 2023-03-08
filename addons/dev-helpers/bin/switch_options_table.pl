@@ -58,23 +58,31 @@ for my $g (@groups) {
         } else {
           print("$name \t$supports\n");
         }
-        $switch_info->{"WiredMacAuth"}="true"                if ($supports =~ /WiredMacAuth/ && $supports !~ /-WiredMacAuth/) ;
-        $switch_info->{"WiredDot1x"}="true"                  if ($supports =~ /WiredDot1x/ && $supports !~ /-WiredDot1x/) ;
-        $switch_info->{"WirelessMacAuth"}="true"             if ($supports =~ /WirelessMacAuth/ && $supports !~ /-WirelessMacAuth/) ;
-        $switch_info->{"WirelessDot1x"}="true"               if ($supports =~ /WirelessDot1x/ && $supports !~ /-WirelessDot1x/) ;
-        $switch_info->{"RadiusDynamicVlanAssignment"}="true" if ($supports =~ /RadiusDynamicVlanAssignment/ && $supports !~ /-RadiusDynamicVlanAssignment/) ;
-        $switch_info->{"ExternalPortal"}="true"              if ($supports =~ /ExternalPortal/ && $supports !~ /-ExternalPortal/) ;
-        $switch_info->{"MABFloatingDevices"}="true"          if ($supports =~ /MABFloatingDevices/ && $supports !~ /-MABFloatingDevices/) ;
-        $switch_info->{"WebFormRegistration"}="true"         if ($supports =~ /WebFormRegistration/ && $supports !~ /-WebFormRegistration/) ;
-        $switch_info->{"AccessListBasedEnforcement"}="true"  if ($supports =~ /AccessListBasedEnforcement/ && $supports !~ /-AccessListBasedEnforcement/) ;
-        $switch_info->{"RadiusVoip"}="true"                  if ($supports =~ /RadiusVoip/ && $supports !~ /-RadiusVoip/) ;
-        $switch_info->{"FloatingDevice"}="true"              if ($supports =~ /FloatingDevice/ && $supports !~ /-FloatingDevice/) ;
-        $switch_info->{"Cdp"}="true"                         if ($supports =~ /Cdp/ && $supports !~ /-Cdp/) ;
-        $switch_info->{"Lldp"}="true"                        if ($supports =~ /Lldp/ && $supports !~ /-Lldp/) ;
-        $switch_info->{"RoamingAccounting"}="true"           if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
-        $switch_info->{"SaveConfig"}="true"                  if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
-        $switch_info->{"RoleBasedEnforcement"}="true"        if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
+        $switch_info->{"WiredMacAuth"}="true"                      if ($supports =~ /WiredMacAuth/ && $supports !~ /-WiredMacAuth/) ;
+        $switch_info->{"WiredDot1x"}="true"                        if ($supports =~ /WiredDot1x/ && $supports !~ /-WiredDot1x/) ;
+        $switch_info->{"WirelessMacAuth"}="true"                   if ($supports =~ /WirelessMacAuth/ && $supports !~ /-WirelessMacAuth/) ;
+        $switch_info->{"WirelessDot1x"}="true"                     if ($supports =~ /WirelessDot1x/ && $supports !~ /-WirelessDot1x/) ;
+        $switch_info->{"RadiusDynamicVlanAssignment"}="true"       if ($supports =~ /RadiusDynamicVlanAssignment/ && $supports !~ /-RadiusDynamicVlanAssignment/) ;
+        $switch_info->{"ExternalPortal"}="true"                    if ($supports =~ /ExternalPortal/ && $supports !~ /-ExternalPortal/) ;
+        $switch_info->{"MABFloatingDevices"}="true"                if ($supports =~ /MABFloatingDevices/ && $supports !~ /-MABFloatingDevices/) ;
+        $switch_info->{"WebFormRegistration"}="true"               if ($supports =~ /WebFormRegistration/ && $supports !~ /-WebFormRegistration/) ;
+        $switch_info->{"AccessListBasedEnforcement"}="not_tested"  if ($supports =~ /~AccessListBasedEnforcement/ && $supports !~ /-AccessListBasedEnforcement/) ;
+        $switch_info->{"AccessListBasedEnforcement"}="true"        if ($supports =~ /AccessListBasedEnforcement/ && $supports !~ /-AccessListBasedEnforcement/ && not exists $switch_info->{"AccessListBasedEnforcement"}) ;
+        $switch_info->{"RadiusVoip"}="true"                        if ($supports =~ /RadiusVoip/ && $supports !~ /-RadiusVoip/) ;
+        $switch_info->{"FloatingDevice"}="true"                    if ($supports =~ /FloatingDevice/ && $supports !~ /-FloatingDevice/) ;
+        $switch_info->{"Cdp"}="true"                               if ($supports =~ /Cdp/ && $supports !~ /-Cdp/) ;
+        $switch_info->{"Lldp"}="true"                              if ($supports =~ /Lldp/ && $supports !~ /-Lldp/) ;
+        $switch_info->{"RoamingAccounting"}="true"                 if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
+        $switch_info->{"SaveConfig"}="true"                        if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
+        $switch_info->{"RoleBasedEnforcement"}="true"              if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
         #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+	
+	# Clean the name to something simple, need to start with a letter
+        my $name_cleaned = lc($switch_info->{"label"});
+	$name_cleaned =~ s/\s+/-/g;
+	$name_cleaned =~ s/\//-/g;
+	$name_cleaned =~ s/-{2,}/-/g;
+        $switch_info->{"name_cleaned"}="zayme_".$name_cleaned;
 
         $dict_name_infos{$name}=$switch_info;
         push(@list_name_infos,$name);
@@ -126,7 +134,7 @@ foreach my $name (@list_name_infos) {
 
   my $switch_info = $dict_name_infos{$name};
 
-  my $td=$t4.$t4.$t4.'<td class="single line ui left aligned"><a name="'.$name.'"></a>'.$switch_info->{"label"}.'<br>';
+  my $td=$t4.$t4.$t4.'<td class="single line ui left aligned"><a name="'.$switch_info->{"name_cleaned"}.'"></a>'.$switch_info->{"label"}.'<br>';
   if ($switch_info->{"wireless"} || $switch_info->{"wired_wireless"}) {
     $td.=' <i class="wifi icon"></i>';
   }
@@ -146,8 +154,14 @@ foreach my $name (@list_name_infos) {
   }
   $td.="".$nl.$t4.$t4.$t4."</td>".$nl;
   for my $type (@list_of_types) {
-    if ($switch_info->{"${type}"}) {
-      $td.=$t4.$t4.$t4.'<td class="'.$type.'"><i class="check icon"></i></td>'.$nl
+    if (exists $switch_info->{"${type}"} && defined $switch_info->{"${type}"}){
+      if ($switch_info->{"${type}"} eq "true") {
+        $td.=$t4.$t4.$t4.'<td class="'.$type.'"><i class="check icon"></i></td>'.$nl
+      } elsif ($switch_info->{"${type}"} eq "not_tested"){
+        $td.=$t4.$t4.$t4.'<td class="'.$type.'"><i class="check icon" style="color:orange"></i></td>'.$nl
+      } else {
+        $td.=$t4.$t4.$t4.'<td class="'.$type.'">This should never be here</td>'.$nl
+      }
     } else {
       $td.=$t4.$t4.$t4.'<td class="'.$type.'"></td>'.$nl
     }
@@ -177,7 +191,8 @@ my $html = '
           <i class="arrows alternate icon"></i> means wireless controller.<br>
           <i class="sitemap icon"></i> means wired device.<br>
           <i class="th icon"></i> means VPN device.<br>
-          <i class="copy icon"></i> means a template.
+          <i class="copy icon"></i> means a template.<br>
+          <i class="check icon" style="color:orange"></i> means possible but never tested
         </p>
         <h2 class="ui red header">Wired Support</h2>
 
@@ -201,50 +216,56 @@ my $html = '
 
         <p style="margin-bottom:20px;"></p>
       </div>
-      <div class="sixteen wide column" n0style="margin-bottom:20px;">
-        <h4 class="ui horizontal header red divider">Devices</h4>
-        <form class="ui form">
-          <div class="field">
-            <div class="ui centered grid">
-              <div class="five column center aligned row">
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="wiredButton" checked> <label>Wired</label>
+      <div id="defaultWidth" class="sixteen wide column" style="margin-bottom:20px;">
+        <div id="searchBar">
+          <h4 class="ui horizontal header red divider">Devices</h4>
+          <form class="ui form">
+            <div class="field">
+              <div class="ui centered grid">
+                <div class="five column center aligned row">
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="wiredButton" checked=""> <label>Wired</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="apButton" checked> <label>Access point</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="apButton" checked=""> <label>Access point</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="controllersButton" checked> <label>Controllers</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="controllersButton" checked=""> <label>Controllers</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="vpnButton" checked> <label>VPN</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="vpnButton" checked=""> <label>VPN</label>
+                    </div>
                   </div>
-                </div>
-                <div class="column">
-                  <div class="ui checked checkbox">
-                    <input type="checkbox" name="public" id="templateButton" checked> <label>Templates</label>
+                  <div class="column">
+                    <div class="ui checked checkbox">
+                      <input type="checkbox" name="public" id="templateButton" checked=""> <label>Templates</label>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div class="field">
+              <input type="text" id="switches-filter-input" placeholder="Search for device model">
+            </div>
+            <button class="ui button" id="resetButton">
+              Reset
+            </button>
+          </form>
+          <div id="switchesDivFixed" class="ui container h-scroll">
+            <table id="switches-fixed" class="ui very basic sticky-column celled table">
+            </table>
           </div>
 
-          <div class="field">
-            <input type="text" id="switches-filter-input" placeholder="Search for device model">
-          </div>
-          <button class="ui button" id="clearButton">
-            Reset
-          </button>
-        </form>
-
-        <div class="ui container h-scroll">
+        </div>
+        <div id="switchesDiv" class="ui container h-scroll">
 ';
 
 $html .= $tab;
@@ -258,7 +279,58 @@ $html .= '
 </div>
       </div>
     </div>
+    <style>
+      .stickier {
+        position: fixed;
+        top: 0;
+        z-index: 999;
+        background: white;
+        padding-top: 10px;
+      }
+    </style>
     <script>
+    // Get the searchBar and the table Fixed
+    var $searchBar = document.getElementById("searchBar");
+    var $searchBarT = 1200;
+
+    $(window).bind("scroll", function() {
+      var $nameSize = $("#switches").find("th:first-child").width();
+      $("#switches-fixed").find("th:first-child").width($nameSize);
+    
+      var $fixedHeader = $("#switches-fixed");
+      var $searchBarW = $("#defaultWidth").width();
+      var offset = $(this).scrollTop();
+      
+      if (offset<=10){
+        $searchBarT = $searchBar.getBoundingClientRect().top;
+      }
+
+      if (offset >= $searchBarT && $fixedHeader.is(":hidden")) {
+        //$searchBar.classList.add("stickier", "ui", "center", "aligned", "container");
+        $searchBar.classList.add("stickier");
+        $("#searchBar").width($searchBarW);
+        $fixedHeader.show();
+      } else if (offset < $searchBarT) {
+        $searchBar.classList.remove("stickier");
+        $fixedHeader.hide();
+        $("#searchBar").removeAttr("width");
+      }
+    });
+    
+    $(document).ready(function() {
+      var $theader = $("#switches > thead").clone();
+      var $fixedHeader = $("#switches-fixed").append($theader);
+      $fixedHeader.hide();
+
+      $("#switchesDiv").on("scroll", function() {
+        $("#switchesDivFixed").scrollLeft($(this).scrollLeft());
+      });
+      $("#switchesDivFixed").on("scroll", function() {
+        $("#switchesDiv").scrollLeft($(this).scrollLeft());
+      });
+    });
+
+    
     // Script to search names with filters or not
     window.onload = () => {
       var ids= {
@@ -279,13 +351,29 @@ $html .= '
         return filters;
       }
 
-      function inSearch(device,txt) {
-        var name = $(device).find("a").attr("name");
-        if (txt === "" || name.toLowerCase().includes(txt.toLowerCase())) {
+      function inSearch(device,txt,active) {
+        var name = $(device).find("a").attr("name").toLowerCase();
+        name = name.replace("zayme_", "");
+        if (txt === ""){
           return true;
         } else {
-         return false;
+          txt = txt.replace(/\s\s+/g, " ");
+          var tab_txt = txt.toLowerCase().split(" ");
+          if (tab_txt.length>0) {
+            var flag = true;
+            for (var i = 0; i < tab_txt.length; i++) {
+              if (tab_txt[i] != ""){
+                if (!name.includes(tab_txt[i].toLowerCase())){
+                  flag = false;
+                } else {
+                  console.log("name: "+name);
+                }
+              }
+            }
+            return flag;
+          }
         }
+        return false;
       };
 
       function deviceType(device,type) {
@@ -307,7 +395,8 @@ $html .= '
         var txt = $("#switches-filter-input").val();
         var noresult = true;
         $(".device").each(function() {
-          if ( deviceType($(this),filters) && inSearch($(this),txt)){
+            if ( deviceType($(this),filters) &&
+                      inSearch($(this),txt,$(this).is(":visible"))){
             $(this).show();
             noresult = false;
           } else {
@@ -331,7 +420,8 @@ $html .= '
         setShowHide();
       });
 
-      $("#clearButton").click(function () {
+      $("#resetButton").click(function () {
+            console.log({window,document})
         $.each(ids, function(k, v) {
           $(`#${k}`).prop("checked", true);
         });
