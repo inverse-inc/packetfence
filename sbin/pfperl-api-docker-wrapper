@@ -2,7 +2,9 @@
 
 source /usr/local/pf/containers/systemd-service
 source /usr/local/pf/containers/setup-vars
-DOCKER_NETWORK_IS_HOST=yes
+
+# see lib/pf/connector.pm
+export DOCKER_NETWORK_IS_HOST=yes
 
 name=pfperl-api
 
