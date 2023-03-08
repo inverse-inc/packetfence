@@ -38,7 +38,7 @@ sub isAForkFunction2 {}
 use strict;
 use warnings;
 
-use Test::More tests => 1 + 2 * (17);                      # last test to print
+use Test::More tests => 18;                      # last test to print
 
 use Test::NoWarnings;
 
