@@ -143,6 +143,7 @@ Once this is done proceed to restart the following services on nodes A and B **o
 /usr/local/pf/bin/pfcmd service pfdhcplistener restart
 /usr/local/pf/bin/pfcmd service haproxy-admin restart
 /usr/local/pf/bin/pfcmd service haproxy-db restart
+/usr/local/pf/bin/pfcmd service proxysql restart
 /usr/local/pf/bin/pfcmd service haproxy-portal restart
 /usr/local/pf/bin/pfcmd service keepalived restart
 ----
