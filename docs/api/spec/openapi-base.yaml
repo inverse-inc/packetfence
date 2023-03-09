@@ -19,7 +19,7 @@ servers:
     description: Secure PacketFence API
     variables:
       hostname:
-        default: 127.0.0.1
+        default: localhost
         description: Hostname or IP address of the PacketFence API
       port:
         default: 9999
