@@ -144,7 +144,7 @@ func (h *JobStatusHandler) writeMessage(ctx context.Context, statusCode int, mes
 }
 
 func (h *JobStatusHandler) keyExists(ctx context.Context, key string) (bool, error) {
-	data, err := h.redis.Exists(key).Result()
+	data, err := h.redis.Exists(ctx, key).Result()
 
 	if err != nil {
 		return false, err
@@ -154,7 +154,7 @@ func (h *JobStatusHandler) keyExists(ctx context.Context, key string) (bool, err
 }
 
 func (h *JobStatusHandler) writeJobStatus(ctx context.Context, jobId string, w http.ResponseWriter) error {
-	data, err := h.redis.HGetAll(h.jobStatusKey(jobId)).Result()
+	data, err := h.redis.HGetAll(ctx, h.jobStatusKey(jobId)).Result()
 
 	if err != nil {
 		msg := "Unable to get job status from redis database"
