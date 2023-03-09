@@ -4,8 +4,8 @@ SET sql_mode = "NO_ENGINE_SUBSTITUTION";
 -- Setting the major/minor version of the DB
 --
 
-SET @MAJOR_VERSION = 12;
-SET @MINOR_VERSION = 2;
+SET @MAJOR_VERSION = 13;
+SET @MINOR_VERSION = 0;
 
 --
 -- The VERSION_INT to ensure proper ordering of the version in queries

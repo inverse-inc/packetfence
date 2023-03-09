@@ -1849,6 +1849,7 @@ wget https://github.com/inverse-inc/packetfence/files/10897043/rc-local.patch
 patch /etc/rc.local /tmp/rc-local.patch
 ----
 
+== Upgrading from a version prior to X.Y.Z
 
 == Archived upgrade notes
 
