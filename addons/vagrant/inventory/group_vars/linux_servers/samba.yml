@@ -1,0 +1,16 @@
+---
+samba__global: 
+-	dns forwarder = 170.187.237.108 # own ip address
+	dns forwarder = 1.1.1.1 # perhaps needed
+	netbios name = DC1
+	realm = SAMBAAD.LAN
+	server role = active directory domain controller
+	workgroup = SAMBAAD 
+
+[sysvol]
+	path = /var/lib/samba/sysvol
+	read only = No
+
+[netlogon]
+	path = /var/lib/samba/sysvol/sambaad.lan/scripts
+	read only = No
