@@ -23,3 +23,7 @@
   index index.html
 }
 
+:8891/oas {
+  root /usr/local/pf/html/swagger-ui
+  index index.html
+}
