@@ -161,7 +161,7 @@ sub get_access_token {
     my ($self) = @_;
 
     my $ua = LWP::UserAgent->new();
-    my $request = POST $self->host.":".$self->port."/api/v1/auth/token"
+    my $request = POST $self->host.":".$self->port."/api/v1/auth/token";
 
     $request->authorization_basic($self->api_username, $self->api_password);
  
