@@ -21,3 +21,4 @@ mysql-probe
 Caddyfile
 acct-tester/db-tester/db-tester
 acct-tester/radius-tester/radius-tester
+.idea
