@@ -71,7 +71,7 @@ sub parseRequest {
     my ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc) = $self->SUPER::parseRequest($radius_request);
 
     # if NAS-Port-Type is defined and is not virtual or async, we do SNMP queries
-    if (defined($nas_port_type) && ($RADIUS::NAS_port_type{$nas_port_type} ne "Virtual" || $RADIUS::NAS_port_type{$nas_port_type} ne "Async")) {
+    if (defined($nas_port_type) && ($RADIUS::NAS_port_type{$nas_port_type} ne "Virtual" && $RADIUS::NAS_port_type{$nas_port_type} ne "Async")) {
         $ifDesc = $ifDesc || $self->findIfdescUsingSNMP($port);
     }
     return ($nas_port_type, $eap_type, $mac, $port, $user_name, $nas_port_id, $session_id, $ifDesc);
