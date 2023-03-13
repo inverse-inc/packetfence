@@ -3,6 +3,9 @@
 source /usr/local/pf/containers/systemd-service
 source /usr/local/pf/containers/setup-vars
 
+# see lib/pf/connector.pm
+export DOCKER_NETWORK_IS_HOST=yes
+
 name=pfperl-api
 
 args=`base_args $name`
@@ -15,6 +18,7 @@ args="$args -v /etc/network:/etc/network"
 args="$args -v /etc/resolv.conf:/etc/resolv.conf"
 args="$args --network=host"
 args="$args -e HOST_OS"
+args="$args -e DOCKER_NETWORK_IS_HOST"
 args="$args -v/usr/local/pf/var/conf/:/usr/local/pf/var/conf/"
 
 cd /usr/local/pf/
