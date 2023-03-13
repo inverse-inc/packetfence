@@ -75,13 +75,13 @@ for my $g (@groups) {
         $switch_info->{"RoamingAccounting"}="true"                 if ($supports =~ /RoamingAccounting/ && $supports !~ /-RoamingAccounting/) ;
         $switch_info->{"SaveConfig"}="true"                        if ($supports =~ /SaveConfig/ && $supports !~ /-SaveConfig/) ;
         $switch_info->{"RoleBasedEnforcement"}="true"              if ($supports =~ /RoleBasedEnforcement/ && $supports !~ /-RoleBasedEnforcement/) ;
-        #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
-	
-	# Clean the name to something simple, need to start with a letter
+        #$switch_info->{"SNMP"}="true"                             if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
+
+        # Clean the name to something simple, need to start with a letter
         my $name_cleaned = lc($switch_info->{"label"});
-	$name_cleaned =~ s/\s+/-/g;
-	$name_cleaned =~ s/\//-/g;
-	$name_cleaned =~ s/-{2,}/-/g;
+        $name_cleaned =~ s/\s+/-/g;
+        $name_cleaned =~ s/\//-/g;
+        $name_cleaned =~ s/-{2,}/-/g;
         $switch_info->{"name_cleaned"}="zayme_".$name_cleaned;
 
         $dict_name_infos{$name}=$switch_info;
