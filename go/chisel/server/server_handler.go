@@ -30,6 +30,11 @@ import (
 var activeTunnels = sync.Map{}
 var apiPrefix = "/api/v1/pfconnector"
 
+const (
+	DYNREVERSE_BIND_ATTEMPTS = 10
+	DYNREVERSE_ERR_WAIT      = 50 * time.Millisecond
+)
+
 // handleClientHandler is the main http websocket handler for the chisel server
 func (s *Server) handleClientHandler(w http.ResponseWriter, r *http.Request) {
 	log.LoggerWContext(r.Context()).Info(fmt.Sprintf("Handling %s %s", r.Method, r.URL.Path))
@@ -248,34 +253,72 @@ func (s *Server) handleDynReverse(w http.ResponseWriter, req *http.Request) {
 
 	connectorId := payload.ConnectorID
 	if o, ok := activeTunnels.Load(connectorId); ok {
-		tun := o.(*tunnel.Tunnel)
-		dynPort, err := freeport.GetFreePort()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to find available port: %s", err)})
-			return
-		}
-		to := payload.To
-		remoteStr := fmt.Sprintf("R:%d:%s", dynPort, to)
-		remote, err := settings.DecodeRemote(remoteStr)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err)})
-			return
-		}
-
-		remote.Dynamic = true
-		remote.LastTouched = time.Now()
-		settings.ActiveDynReverse.Store(cacheKey, remote)
-		go func() {
-			ctx := context.Background()
-			if err := tun.BindRemotes(ctx, []*settings.Remote{remote}); err != nil {
-				log.LoggerWContext(ctx).Error(fmt.Sprintf("Error binding remote %s: %s", remote, err))
-				settings.ActiveDynReverse.Delete(cacheKey)
+		for i := 0; i < DYNREVERSE_BIND_ATTEMPTS; i++ {
+			tun := o.(*tunnel.Tunnel)
+			dynPort, err := freeport.GetFreePort()
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to find available port: %s", err)})
+				return
 			}
-		}()
+			to := payload.To
+			remoteStr := fmt.Sprintf("R:%d:%s", dynPort, to)
+			remote, err := settings.DecodeRemote(remoteStr)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusBadRequest, Message: fmt.Sprintf("The format for the remote (%s) is invalid: %s", to, err)})
+				return
+			}
 
-		json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
+			remote.Dynamic = true
+			remote.LastTouched = time.Now()
+			settings.ActiveDynReverse.Store(cacheKey, remote)
+			bindErrChan := make(chan error)
+			go func() {
+				ctx := context.Background()
+				if err := tun.BindRemotes(ctx, []*settings.Remote{remote}); err != nil {
+					log.LoggerWContext(ctx).Error(fmt.Sprintf("Error binding remote %s: %s", remote, err))
+					settings.ActiveDynReverse.Delete(cacheKey)
+					bindErrChan <- err
+				} else {
+					bindErrChan <- nil
+				}
+			}()
+
+			doneChan := make(chan error)
+			go func() {
+				sentOnce := false
+				var err error
+				for {
+					select {
+					case <-time.After(DYNREVERSE_ERR_WAIT):
+						if !sentOnce {
+							doneChan <- err
+							sentOnce = true
+						}
+					case err = <-bindErrChan:
+						if !sentOnce {
+							doneChan <- err
+						}
+						// We're all done waiting if bindErrChan has sent something
+						return
+					}
+				}
+			}()
+
+			err = <-doneChan
+
+			if err == nil {
+				json.NewEncoder(w).Encode(gin.H{"host": host, "port": dynPort, "message": fmt.Sprintf("Setup remote %s", remoteStr)})
+				return
+			} else {
+				log.LoggerWContext(req.Context()).Error(fmt.Sprintf("Failed to bind remote, will try again. Error: %s", err))
+			}
+		}
+		// If we're here, then we failed multiple times at creating the remote. There must be something terribly wrong
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusInternalServerError, Message: fmt.Sprintf("Unable to create dynreverse remote")})
+		return
 	} else {
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(unifiedapiclient.ErrorReply{Status: http.StatusNotFound, Message: fmt.Sprintf("Unable to find active connector tunnel: %s", connectorId)})
