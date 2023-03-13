@@ -10,6 +10,7 @@ PartOf=packetfence-docker-iptables.service
 
 [Service]
 Type=notify
+TimeoutStartSec=180
 TimeoutStopSec=60
 NotifyAccess=all
 LimitNOFILE=8192
