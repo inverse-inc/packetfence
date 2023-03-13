@@ -493,6 +493,7 @@ cp -r sbin %{buildroot}/usr/local/pf/
 cp -r conf %{buildroot}/usr/local/pf/
 cp -r raddb %{buildroot}/usr/local/pf/
 mv packetfence.sudoers %{buildroot}/etc/sudoers.d/packetfence
+mv disable-dns-lookup.sudoers %{buildroot}/etc/sudoers.d/disable-dns-lookup
 mv packetfence.cron.d %{buildroot}/etc/cron.d/packetfence
 mv containers/daemon.json %{buildroot}/etc/docker/daemon.json
 cp -r ChangeLog %{buildroot}/usr/local/pf/
@@ -853,6 +854,7 @@ fi
 
 %dir %attr(0750,root,root) %{_sysconfdir}/sudoers.d
 %config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/packetfence
+%config %attr(0440,root,root) %{_sysconfdir}/sudoers.d/disable-dns-lookup
 %config %attr(0644,root,root) %{_sysconfdir}/logrotate.d/packetfence
 %config %attr(0600,root,root) %{_sysconfdir}/cron.d/packetfence
 %config %attr(0644,root,root) %{_sysconfdir}/docker/daemon.json
