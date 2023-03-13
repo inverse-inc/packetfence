@@ -24,6 +24,7 @@ use Test::More tests => 1 + 20*7;
 #use Test::SharedFork;
 use Test::NoWarnings;
 use pf::db;
+use pf::AtFork;
 
 for my $iteration ( 1 .. 20 ) {
     db_set_max_statement_timeout(1);
@@ -35,7 +36,7 @@ for my $iteration ( 1 .. 20 ) {
     ok( !$dbh->{InactiveDestroy}, 'dbh InactiveDestroy is off before fork' );
     my ($name, $current_timeout) = $dbh->selectrow_array("SHOW VARIABLES WHERE Variable_name in ('max_statement_time', 'max_execution_time')");
     ok($current_timeout, "Current timeout is set");
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
     if ( !defined $pid ) {
         die "Can't fork: $!\n";
     }
@@ -53,7 +54,7 @@ for my $iteration ( 1 .. 20 ) {
     } else {
         my $builder = Test::More->builder;
         $builder->reset();
-        $builder->_indent($builder->_indent . '  ');
+        #        $builder->_indent($builder->_indent . '  ');
         local $Test::More::Level = $Test::More::Level + 1;
         my $child_dbh = db_connect();
         isa_ok( $child_dbh, 'DBI::db' );
