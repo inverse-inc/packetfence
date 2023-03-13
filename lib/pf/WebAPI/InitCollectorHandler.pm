@@ -19,7 +19,7 @@ use Apache2::RequestRec ();
 use pf::log;
 use pf::Redis;
 use JSON::MaybeXS;
-
+use pf::AtFork;
 use Apache2::Const -compile => 'OK';
 
 sub handler {
@@ -40,6 +40,7 @@ sub child_init {
     my $redis = pf::Redis->new(server => '127.0.0.1:6379');
     #Avoid child processes having the same random seed
     srand();
+    pf::AtFork::run_child_child_callbacks();
     return Apache2::Const::OK;
 }
 
