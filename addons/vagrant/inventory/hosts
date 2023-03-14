@@ -88,7 +88,7 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 512
-	linux03:
+        linux03:
           box: debian/bullseye64
           box_version: 11.20221219.1
           mgmt_ip: "{{ users_vars[dict_name]['vms']['linux03']['ip'] }}"
