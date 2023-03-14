@@ -216,6 +216,13 @@ inline_l2_and_radius_deb11:
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
 
+samba_deb11:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+        INT_TEST_VM_NAMES="linux03" \
+        SCENARIOS_TO_RUN=samba \
+        $(MAKE_TARGET)
+
 example_el8: SCENARIOS_TO_RUN=example
 example_el8:
 	make \
