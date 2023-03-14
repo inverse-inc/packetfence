@@ -8,5 +8,160 @@
     - debops.roles02
     - debops.roles03
 
-  roles:
-    - role: samba 
+  #roles:
+  #  - role: samba
+
+  tasks:
+  - name: Disable IPV6
+    ansible.posix.sysctl:
+      name: "{{ item }}"
+      value: '1'
+      sysctl_set: true
+    loop:
+    - "net.ipv6.conf.all.disable_ipv6"
+    - "net.ipv6.conf.default.disable_ipv6"
+    - "net.ipv6.conf.lo.disable_ipv6"
+
+  - name: Install Samba packages
+    ansible.builtin.package:
+      name: '{{ item }}'
+      state: 'present'
+    loop:
+    - gnupg
+    - lsb-release
+    - python3-pexpect
+
+  - name: Reboot
+    ansible.builtin.reboot:
+
+  - name: Wait for the reboot and reconnect 
+    wait_for_connection:
+
+  - name: Download file with check (sha256)
+    ansible.builtin.get_url:
+      url: http://samba.tranquil.it/tissamba-pubkey.gpg
+      dest: /root/tissamba-pubkey.gpg
+      checksum: sha256:bd0f7140edd098031fcb36106b24a6837b067f1c847f72cf262fa012f14ce2dd
+    delay: 5
+    retries: 5 
+
+  - name: Add samba gpg
+    ansible.builtin.apt_key:
+      file: /root/tissamba-pubkey.gpg
+      state: present
+    
+  - name: add apt source
+    ansible.builtin.apt_repository:
+      repo: "deb https://samba.tranquil.it/debian/samba-4.16/ bullseye main"
+      state: present
+
+  - name: update and upgrade
+    ansible.builtin.apt:
+      upgrade: yes
+      update_cache: yes
+
+  - name: Install Samba packages
+    ansible.builtin.package:
+      name: '{{ item }}'
+      state: 'present'
+    loop: '{{ samba__base_packages }}'
+
+  - name: Stop and Mask Services
+    ansible.builtin.systemd:
+      enabled: no
+      state: stopped
+      masked:  yes
+      name: "{{ item }}"
+    loop: "{{ samba__services_to_stop }}"
+
+  - name: Remove config files
+    file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+      - "/etc/samba/smb.conf"
+      - "/etc/krb5.conf"
+
+  - name: change krb5.conf
+    ansible.builtin.blockinfile:
+      create: true
+      dest: /etc/krb5.conf
+      content: |
+         [libdefaults]
+            default_realm = "{{ samba__global_custom.realm }}"
+            dns_lookup_kdc = true
+            dns_lookup_realm = false
+         
+         [realms]
+            SAMBAAD.LAN = {
+              admin_server = LINUX03.SAMBAAD.LAN
+              kdc = LINUX03.SAMBAAD.LAN
+         }
+         
+         [domain_realm]
+           sambaad.lan = SAMBAAD.LAN
+           .sambaad.lan = SAMBAAD.LAN
+
+  - name: Replace a localhost entry with our own
+    ansible.builtin.lineinfile:
+      path: /etc/dhcp/dhclient.conf 
+      line: prepend domain-name-servers 127.0.0.1;
+      state: present
+      create: true
+
+  - name: Configure Samba
+    ansible.builtin.shell:
+      cmd: "{{ item }}"
+    loop:
+    - "samba-tool domain provision --realm={{ samba__global_custom.realm }} --domain {{ samba__global_custom.workgroup }} --server-role=dc"
+
+  - name: Configure Samba admin password
+    ansible.builtin.expect:
+      command: "{{ item }}"
+      responses:
+        (?i)new\s(?i)password: "MySekretPa$$word"
+        (?i)retype\s(?i)password: "MySekretPa$$word"
+    loop:
+    - "samba-tool user setpassword administrator"
+
+  - name: Remove config files
+    file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+    - "/var/lib/samba/private/krb5.conf"
+
+  - name: Creating a symlink
+    ansible.builtin.file:
+      src: "/etc/krb5.conf"
+      dest: "/var/lib/samba/private/krb5.conf"
+      state: link
+
+  - name: Unmask and start Services
+    ansible.builtin.systemd:
+      enabled: yes
+      state: restarted
+      masked: no
+      name: "{{ item }}"
+    loop:
+    - "samba-ad-dc" 
+
+  - name: Reboot
+    ansible.builtin.reboot:
+
+  - name: Wait for the reboot and reconnect
+    wait_for_connection:
+
+  - name: Load kinit with admin password
+    ansible.builtin.expect:
+      command: "{{ item }}"
+      responses:
+        (?i)password.*: "MySekretPa$$word"
+    loop:
+    - "kinit administrator"
+
+  - name: Configure Samba
+    ansible.builtin.shell:
+      cmd: "{{ item }}"
+    loop:
+    - "klist"

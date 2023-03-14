@@ -1,16 +1,21 @@
 ---
-samba__global: 
-  dns forwarder = 170.187.237.108 # own ip address
-  dns forwarder = 1.1.1.1 # perhaps needed 
-  netbios name = DC1
-  realm = SAMBAAD.LAN
-  server role = active directory domain controller
-  workgroup: SAMBAAD 
+samba__base_packages:
+  - 'samba'
+  - 'winbind'
+  - 'libnss-winbind'
+  - 'krb5-user'
+  - 'smbclient'
+  - 'ldb-tools'
+  - 'python3-cryptography'
 
-[sysvol]
-	path = /var/lib/samba/sysvol
-	read only = No
+samba__services_to_stop:
+  - 'samba-ad-dc.service'
+  - 'smbd.service'
+  - 'nmbd.service'
+  - 'winbind.service'
+  #- 'systemd-resolved'
 
-[netlogon]
-	path = /var/lib/samba/sysvol/sambaad.lan/scripts
-	read only = No
+samba__global_custom:
+  netbios_name: DC1
+  workgroup: SAMBAAD
+  realm: "SAMBAAD.LAN"
