@@ -195,6 +195,7 @@ sub returnAuthorizeVPN {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
+                $access_list = $self->acl_chewer($acl);
                 if ($self->useDownloadableACLs) {
                     my $mac = lc($args->{'mac'});
                     $mac =~ s/://g;
@@ -550,6 +551,31 @@ sub returnRoleAttribute {
     my ($self) = @_;
 
     return 'Filter-Id';
+}
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->SUPER::acl_chewer($acl);
+
+    my $i = 0;
+    my $acl_chewed;
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        } else {
+            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+        }
+        $i++;
+    }
+    return $acl_chewed;
 }
 
 =back
