@@ -114,7 +114,7 @@ all:
       hosts:
         linux02: {}
 
-    service_samba4:
+    service_samba:
       hosts:
         linux03: {}
 

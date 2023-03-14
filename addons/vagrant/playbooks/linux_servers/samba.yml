@@ -1,0 +1,12 @@
+- hosts: service_samba
+  name: Manage Samba service
+  become: True
+
+  collections:
+    - debops.debops
+    - debops.roles01
+    - debops.roles02
+    - debops.roles03
+
+  roles:
+    - role: samba 
