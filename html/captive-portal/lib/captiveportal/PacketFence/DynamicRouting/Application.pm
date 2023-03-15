@@ -597,7 +597,8 @@ return $TRUE if the root module ia a RootSSO
 
 sub isRootSSO {
     my ($self) = @_;
-    return $self->root_module->isa("captiveportal::DynamicRouting::Module::RootSSO")
+    my $root_module = $self->root_module;
+    return defined $root_module && $root_module->isa("captiveportal::DynamicRouting::Module::RootSSO")
 }
 
 =head1 AUTHOR
