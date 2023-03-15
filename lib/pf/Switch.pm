@@ -4044,7 +4044,6 @@ sub checkRolesACLs {
     return undef;
 }
 
-
 =head2 acl_chewer
 
 Format ACL to match with the expected switch format.
@@ -4064,10 +4063,10 @@ sub acl_chewer {
             my $raw_acl = $2;
             if ($self->supportsOutAcl && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
-                $direction[$i] = $direction;
+                $direction[$i] = "out";
             } elsif ($direction eq "in|") {
                 $acls .= $raw_acl."\n";
-                $direction[$i] = $direction;
+                $direction[$i] = "in";
             } else {
                 next;
             }

@@ -86,7 +86,6 @@ sub radiusDisconnect {
     try {
         my $connection_info = $self->radius_deauth_connection_info($send_disconnect_to);
         $connection_info->{nas_port} = $nas_port;
-
         my $locationlog = locationlog_view_open_mac($mac);
         $logger->debug("network device supports roles. Evaluating role to be returned");
         my $roleResolver = pf::roles::custom->instance();
@@ -198,14 +197,15 @@ sub acl_chewer {
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= $acl->{'action'}." ".(defined($direction[$i]) ? $direction[$i] : "")." ".$acl->{'protocol'}." from any to any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n"; 
         } else {
-            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= $acl->{'action'}." ".(defined($direction[$i]) ? $direction[$i] : "")." ".$acl->{'protocol'}." from any to ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         }
         $i++;
     }
     return $acl_chewed;
 }
+
 
 =back
 
