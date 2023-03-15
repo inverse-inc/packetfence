@@ -1,0 +1,7 @@
+name: Delete iptable rule
+testcases:
+# temp, as a workaround
+- name: delete_iptable_rule
+  steps:
+  - type: exec
+    script: 'iptables -t nat -D PREROUTING --protocol udp -s 100.64.0.0/10 -d {{.pfserver_mgmt_ip}} --jump DNAT --to 100.64.0.1'
