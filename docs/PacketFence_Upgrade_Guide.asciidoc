@@ -1747,7 +1747,7 @@ If you suspect that using ProxySQL causes issues in your deployment, you can rev
 === Bandwidth accounting is now disabled by default.
 
 Tracking the bandwidth accounting information is now disabled by default.
-If you rely on bandwidth reports, security events or online/offline then enable it by doing the following.
+If you rely on bandwidth reports or security events then enable it by doing the following.
 Go to _Configuration -> System Configuration -> RADIUS -> General_
 Then enable 'Process Bandwidth Accounting'. `pfacct` service needs to be restarted to apply changes.
 
