@@ -218,7 +218,7 @@ inline_l2_and_radius_deb11:
 
 samba_deb11:
 	make \
-	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
         INT_TEST_VM_NAMES="linux03" \
         SCENARIOS_TO_RUN=samba \
         $(MAKE_TARGET)
