@@ -15,12 +15,15 @@
   <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
   <script>
     window.onload = () => {
-      window.ui = SwaggerUIBundle({
+      const ui = SwaggerUIBundle({
         url: '/static/doc/api/spec/openapi.json',
         dom_id: '#swagger-ui',
         defaultModelsExpandDepth: -1,
         onComplete: function() {
-          ui.preauthorizeApiKey('bearerAuth', localStorage.getItem('user-token'))
+          const token = localStorage.getItem('user-token')
+          if (token) {
+            ui.preauthorizeApiKey('bearerAuth', token)
+          }
         },
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl,
@@ -32,11 +35,11 @@
                   wrapActions: {
                     updateJsonSpec: function(cb) {
                       return (spec) => {
-                            spec.servers = spec.servers.map(server => {
-                              server.variables.hostname.default = window.location.hostname
-                              return server
-                            })
-                            return cb(spec)
+                        spec.servers = spec.servers.map(server => {
+                          server.variables.hostname.default = window.location.hostname
+                          return server
+                        })
+                        return cb(spec)
                       }
                     }
                   }
