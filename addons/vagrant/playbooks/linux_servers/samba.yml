@@ -42,8 +42,8 @@
       url: http://samba.tranquil.it/tissamba-pubkey.gpg
       dest: /root/tissamba-pubkey.gpg
       checksum: sha256:bd0f7140edd098031fcb36106b24a6837b067f1c847f72cf262fa012f14ce2dd
-    delay: 5
-    retries: 5 
+    register: result
+    until: "result.status_code == 200"
 
   - name: Add samba gpg
     ansible.builtin.apt_key:
