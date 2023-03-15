@@ -17,13 +17,13 @@ source ${FUNCTIONS_FILE}
 
 
 configure_and_check() {
-    CI_JOB_STATUS=${CI_JOB_STATUS:-}
+    JOB_STATUS=${JOB_STATUS:-}
     CI_JOB_NAME=${CI_JOB_NAME:-}
     KEEP_VMS=${KEEP_VMS:-no}
 
-    if [ "$CI_JOB_STATUS" = "success" ]; then
+    if [ "$JOB_STATUS" -eq 0 ]; then
         echo "Passed tests"
-        if [ "KEEP_VMS" = "yes" ]; then
+        if [ "$KEEP_VMS" = "yes" ]; then
             echo "Keeping VM according to 'KEEP_VMS' value"
             MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
         else
@@ -34,9 +34,10 @@ configure_and_check() {
         echo 'Failed tests: cancelling jobs not started and halting VM'
         ${PF_SRC_DIR}/ci/lib/test/cancel-created-jobs.sh
         MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+        exit $JOB_STATUS
     fi
 
-    declare -p CI_JOB_STATUS CI_JOB_NAME
+    declare -p JOB_STATUS CI_JOB_NAME
     declare -p TEST_DIR
 }
 
