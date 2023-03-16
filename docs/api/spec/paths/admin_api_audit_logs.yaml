@@ -1,0 +1,21 @@
+/admin_api_audit_logs:
+  description: pf::UnifiedApi::Controller::AdminApiAuditLogs
+  get:
+    description: List items
+    operationId: api.v1.AdminApiAuditLogs.list
+    parameters:
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminApiAuditLogsList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

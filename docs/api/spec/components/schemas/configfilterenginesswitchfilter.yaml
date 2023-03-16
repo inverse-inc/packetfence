@@ -1,0 +1,61 @@
+ConfigFilterEnginesSwitchFilter:
+  properties:
+    condition:
+      description: Condition
+      properties:
+        field:
+          description: Field
+          type: string
+        op:
+          description: Value
+          type: string
+        value:
+          description: Value
+          type: string
+        values:
+          description: Values
+          items:
+            description: Value
+            type: string
+          type: array
+      type: object
+    description:
+      description: Description
+      type: string
+    id:
+      description: Rule Name
+      type: string
+    log:
+      description: Log
+      type: string
+    params:
+      description: Params
+      items:
+        description: Param
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    scopes:
+      description: Scopes
+      items:
+        description: Scopes
+        type: string
+      type: array
+    status:
+      description: Enable Rule
+      type: string
+    switch:
+      description: Switch
+      type: string
+  required:
+  - id
+  - description
+  - condition
+  - scopes
+  type: object

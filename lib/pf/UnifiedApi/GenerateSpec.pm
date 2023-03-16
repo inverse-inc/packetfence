@@ -129,7 +129,7 @@ sub fieldType {
 
 sub isArrayType {
     my ($field, $not_array) = @_;
-    return $field->isa('HTML::FormHandler::Field::Repeatable') || 
+    return $field->isa('HTML::FormHandler::Field::Repeatable') ||
         ($field->isa('HTML::FormHandler::Field::Select') && $field->multiple && !$not_array );
 }
 
@@ -147,13 +147,13 @@ sub fieldDescription {
 sub listSchema {
     my ($name) = @_;
     return {
-        '$ref'     => '#/components/schemas/Iterable',
+        '$ref'     => '#/static/components/schemas/Iterable',
         type       => 'object',
         properties => {
             items => {
                 type    => 'array',
                 'items' => {
-                    '$ref' => "#/components/schemas/$name"
+                    '$ref' => "#/static/components/schemas/$name"
                 },
                 description => "List",
             }

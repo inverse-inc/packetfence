@@ -1,0 +1,70 @@
+/config/network_behavior_policy/{network_behavior_policy_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config.NetworkBehaviorPolicies.resource.remove
+    parameters:
+    - in: path
+      name: network_behavior_policy_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: pf::UnifiedApi::Controller::Config::NetworkBehaviorPolicies
+  get:
+    description: Get an item
+    operationId: api.v1.Config.NetworkBehaviorPolicies.resource.get
+    parameters:
+    - in: path
+      name: network_behavior_policy_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigNetworkBehaviorPolicy'
+        description: Item
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config.NetworkBehaviorPolicies.resource.update
+    parameters:
+    - in: path
+      name: network_behavior_policy_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigNetworkBehaviorPolicy'
+    responses:
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config.NetworkBehaviorPolicies.resource.replace
+    parameters:
+    - in: path
+      name: network_behavior_policy_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigNetworkBehaviorPolicy'
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

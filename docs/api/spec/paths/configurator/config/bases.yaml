@@ -1,0 +1,21 @@
+/configurator/config/bases:
+  description: |-
+    pf::UnifiedApi::Controller::Config::Bases
+
+      fields_to_mask
+        fields_to_mask
+  get:
+    description: List items
+    operationId: api.v1.Config.Bases.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigBasesList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

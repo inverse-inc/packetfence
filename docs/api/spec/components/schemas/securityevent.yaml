@@ -1,0 +1,19 @@
+SecurityEvent:
+  properties:
+    id:
+      type: integer
+    mac:
+      type: string
+    notes:
+      type: string
+    release_date:
+      type: string
+    security_event_id:
+      type: integer
+    start_date:
+      type: string
+    status:
+      type: string
+    ticket_ref:
+      type: string
+  type: object

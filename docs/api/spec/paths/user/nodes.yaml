@@ -2,12 +2,12 @@
   description: pf::UnifiedApi::Controller::Users::Nodes
   get:
     description: List items
-    operationId: api.v1.Users.Nodes.list
+    operationId: api.v1.Users.resource.Users.Nodes.list
     parameters:
-    - $ref: '#/components/parameters/cursor'
-    - $ref: '#/components/parameters/limit'
-    - $ref: '#/components/parameters/fields'
-    - $ref: '#/components/parameters/sort'
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
     - in: path
       name: user_id
       schema:
@@ -20,12 +20,12 @@
               $ref: '#/components/schemas/UsersNodesList'
         description: List
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   post:
     description: Create an item
-    operationId: api.v1.Users.Nodes.create
+    operationId: api.v1.Users.resource.Users.Nodes.create
     parameters:
     - in: path
       name: user_id
@@ -39,10 +39,10 @@
       description: Create item
     responses:
       '201':
-        $ref: '#/components/responses/Created'
+        $ref: '#/static/components/responses/Created'
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '409':
-        $ref: '#/components/responses/Duplicate'
+        $ref: '#/static/components/responses/Duplicate'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

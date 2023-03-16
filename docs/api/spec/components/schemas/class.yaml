@@ -22,13 +22,13 @@ Class:
       type: integer
     redirect_url:
       type: string
+    security_event_id:
+      type: integer
     target_category:
       type: string
     template:
       type: string
     vclose:
-      type: integer
-    vid:
       type: integer
     vlan:
       type: string

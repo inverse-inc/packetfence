@@ -1,0 +1,26 @@
+/configurator/user/{user_id}/nodes/search:
+  description: pf::UnifiedApi::Controller::Users::Nodes
+  post:
+    operationId: api.v1.Configurator.Users.resource.Users.Nodes.search
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/static/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersNodesList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

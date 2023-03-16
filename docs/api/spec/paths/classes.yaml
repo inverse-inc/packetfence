@@ -4,10 +4,10 @@
     description: List items
     operationId: api.v1.Classes.list
     parameters:
-    - $ref: '#/components/parameters/cursor'
-    - $ref: '#/components/parameters/limit'
-    - $ref: '#/components/parameters/fields'
-    - $ref: '#/components/parameters/sort'
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
     responses:
       '200':
         content:
@@ -16,6 +16,6 @@
               $ref: '#/components/schemas/ClassesList'
         description: List
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

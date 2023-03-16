@@ -1,0 +1,106 @@
+ConfigMfa:
+  discriminator:
+    propertyName: type
+  oneOf:
+  - properties:
+      app_id:
+        description: App id
+        type: string
+      cache_duration:
+        description: Cache duration
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      callback_url:
+        description: Callback url
+        type: string
+      host:
+        description: Host
+        type: string
+      id:
+        description: Id
+        type: string
+      post_mfa_validation_cache_duration:
+        description: Post mfa validation cache duration
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      radius_mfa_method:
+        description: Radius mfa method
+        type: string
+      scope:
+        description: Scope
+        type: string
+      signing_key:
+        description: Signing key
+        type: string
+      split_char:
+        description: Split char
+        type: string
+      type:
+        description: Type
+        type: string
+      verify_key:
+        description: Verify key
+        type: string
+    required:
+    - id
+    - split_char
+    - app_id
+    - signing_key
+    - verify_key
+    - host
+    - callback_url
+    - radius_mfa_method
+    type: object
+  - properties:
+      cache_duration:
+        description: Cache duration
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      id:
+        description: Id
+        type: string
+      post_mfa_validation_cache_duration:
+        description: Post mfa validation cache duration
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      radius_mfa_method:
+        description: Radius mfa method
+        type: string
+      scope:
+        description: Scope
+        type: string
+      split_char:
+        description: Split char
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - split_char
+    - radius_mfa_method
+    type: object

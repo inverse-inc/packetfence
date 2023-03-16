@@ -1,6 +1,6 @@
 ConfigDomainsList:
   allOf:
-  - $ref: '#/components/schemas/Iterable'
+  - $ref: '#/static/components/schemas/Iterable'
   - properties:
       items:
         description: List

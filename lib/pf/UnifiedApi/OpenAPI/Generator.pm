@@ -155,7 +155,7 @@ extract text from pod
 
 sub extract_text_from_pod {
     my ($self, $class, $sections) = @_;
-    my $file = pod_where( { -inc => 1 }, $class); 
+    my $file = pod_where( { -inc => 1 }, $class);
 
     if (!defined $file) {
         return undef;
@@ -165,7 +165,7 @@ sub extract_text_from_pod {
     open(my $fh, ">", \$pod);
     podselect({-output => $fh, sections => $sections }, $file);
     if (!$pod) {
-       return undef; 
+       return undef;
     }
 
     return $pod;

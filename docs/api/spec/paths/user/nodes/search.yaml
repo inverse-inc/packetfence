@@ -1,7 +1,7 @@
 /user/{user_id}/nodes/search:
   description: pf::UnifiedApi::Controller::Users::Nodes
   post:
-    operationId: api.v1.Users.Nodes.search
+    operationId: api.v1.Users.resource.Users.Nodes.search
     parameters:
     - in: path
       name: user_id
@@ -11,7 +11,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Search'
+            $ref: '#/static/components/schemas/Search'
       description: Search for items
     responses:
       '200':
@@ -21,6 +21,6 @@
               $ref: '#/components/schemas/UsersNodesList'
         description: List
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

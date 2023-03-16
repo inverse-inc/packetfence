@@ -1,7 +1,7 @@
 /config/traffic_shaping_policy/{traffic_shaping_policy_id}:
   delete:
     description: Remove an item
-    operationId: api.v1.Config::TrafficShapingPolicies.remove
+    operationId: api.v1.Config.TrafficShapingPolicies.resource.remove
     parameters:
     - in: path
       name: traffic_shaping_policy_id
@@ -13,7 +13,7 @@
   description: pf::UnifiedApi::Controller::Config::TrafficShapingPolicies
   get:
     description: Get an item
-    operationId: api.v1.Config::TrafficShapingPolicies.get
+    operationId: api.v1.Config.TrafficShapingPolicies.resource.get
     parameters:
     - in: path
       name: traffic_shaping_policy_id
@@ -27,12 +27,12 @@
               $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
         description: Item
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   patch:
     description: Update an item
-    operationId: api.v1.Config::TrafficShapingPolicies.update
+    operationId: api.v1.Config.TrafficShapingPolicies.resource.update
     parameters:
     - in: path
       name: traffic_shaping_policy_id
@@ -45,12 +45,12 @@
             $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
     responses:
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
-    operationId: api.v1.Config::TrafficShapingPolicies.replace
+    operationId: api.v1.Config.TrafficShapingPolicies.resource.replace
     parameters:
     - in: path
       name: traffic_shaping_policy_id
@@ -63,8 +63,8 @@
             $ref: '#/components/schemas/ConfigTrafficShapingPolicy'
     responses:
       '201':
-        $ref: '#/components/responses/Created'
+        $ref: '#/static/components/responses/Created'
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

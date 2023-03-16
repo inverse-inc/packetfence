@@ -1,0 +1,17 @@
+/config/clouds:
+  description: pf::UnifiedApi::Controller::Config::Clouds
+  get:
+    description: List items
+    operationId: api.v1.Config.Clouds.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigCloudsList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

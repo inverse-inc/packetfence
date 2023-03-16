@@ -46,6 +46,8 @@ RadiusAuditLog:
       type: string
     profile:
       type: string
+    radius_ip:
+      type: string
     radius_reply:
       type: string
     radius_request:
@@ -72,8 +74,6 @@ RadiusAuditLog:
       type: string
     switch_mac:
       type: string
-    tenant_id:
-      type: integer
     user_name:
       type: string
     uuid:

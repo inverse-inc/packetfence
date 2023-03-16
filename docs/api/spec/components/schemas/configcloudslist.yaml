@@ -1,0 +1,11 @@
+ConfigCloudsList:
+  allOf:
+  - $ref: '#/static/components/schemas/Iterable'
+  - properties:
+      items:
+        description: List
+        items:
+          $ref: '#/components/schemas/ConfigCloud'
+        type: array
+    type: object
+  description: List

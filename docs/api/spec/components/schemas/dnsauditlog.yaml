@@ -1,0 +1,19 @@
+DnsAuditLog:
+  properties:
+    answer:
+      type: string
+    created_at:
+      type: string
+    id:
+      type: integer
+    ip:
+      type: string
+    mac:
+      type: string
+    qname:
+      type: string
+    qtype:
+      type: string
+    scope:
+      type: string
+  type: object

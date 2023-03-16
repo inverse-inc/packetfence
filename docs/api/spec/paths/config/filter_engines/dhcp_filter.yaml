@@ -1,0 +1,70 @@
+/config/filter_engines/dhcp_filter/{dhcp_filter_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config.FilterEngines.DHCP.resource.remove
+    parameters:
+    - in: path
+      name: dhcp_filter_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: Configure dhcp filters
+  get:
+    description: Get an item
+    operationId: api.v1.Config.FilterEngines.DHCP.resource.get
+    parameters:
+    - in: path
+      name: dhcp_filter_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigFilterEnginesDHCPFilter'
+        description: Item
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config.FilterEngines.DHCP.resource.update
+    parameters:
+    - in: path
+      name: dhcp_filter_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigFilterEnginesDHCPFilter'
+    responses:
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config.FilterEngines.DHCP.resource.replace
+    parameters:
+    - in: path
+      name: dhcp_filter_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigFilterEnginesDHCPFilter'
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

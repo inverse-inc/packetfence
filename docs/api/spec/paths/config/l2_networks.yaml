@@ -1,0 +1,17 @@
+/config/l2_networks:
+  description: pf::UnifiedApi::Controller::Config::L2Networks
+  get:
+    description: List items
+    operationId: api.v1.Config.L2Networks.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigL2NetworksList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

@@ -1,0 +1,84 @@
+ConfigNetworkBehaviorPolicy:
+  properties:
+    blacklisted_ip_hosts_threshold:
+      description: Blacklisted ip hosts threshold
+      type: integer
+    blacklisted_ip_hosts_window:
+      description: Blacklisted ip hosts window
+      properties:
+        interval:
+          description: Interval
+          type: integer
+        unit:
+          description: Unit
+          type: string
+      type: object
+    blacklisted_ports:
+      description: Blacklisted ports
+      type: string
+    blacklisted_ports_window:
+      description: Blacklisted ports window
+      properties:
+        interval:
+          description: Interval
+          type: integer
+        unit:
+          description: Unit
+          type: string
+      type: object
+    description:
+      description: Description
+      type: string
+    device_attributes_diff_score:
+      description: Device attributes diff score
+      type: integer
+    device_attributes_diff_threshold_overrides:
+      description: Device attributes diff threshold overrides
+      items:
+        description: Device attributes diff threshold override
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    devices_excluded:
+      description: Devices excluded
+      items:
+        description: Devices excluded
+        type: string
+      type: array
+    devices_included:
+      description: Devices included
+      items:
+        description: Devices included
+        type: string
+      type: array
+    id:
+      description: Id
+      type: string
+    status:
+      description: Status
+      type: string
+    watch_blacklisted_ips:
+      description: Watch blacklisted ips
+      type: string
+    watched_device_attributes:
+      description: Watched device attributes
+      items:
+        description: Watched device attributes
+        type: string
+      type: array
+    whitelisted_ips:
+      description: Whitelisted ips
+      type: string
+  required:
+  - id
+  - status
+  - watch_blacklisted_ips
+  - blacklisted_ip_hosts_threshold
+  - device_attributes_diff_score
+  type: object

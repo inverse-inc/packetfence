@@ -1,0 +1,22 @@
+/auth_logs/search:
+  description: pf::UnifiedApi::Controller::AuthLogs
+  post:
+    operationId: api.v1.AuthLogs.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/static/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogsList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

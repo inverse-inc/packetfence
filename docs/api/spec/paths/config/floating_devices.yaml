@@ -2,7 +2,7 @@
   description: Configure floating devices
   get:
     description: List items
-    operationId: api.v1.Config::FloatingDevices.list
+    operationId: api.v1.Config.FloatingDevices.list
     parameters: []
     responses:
       '200':
@@ -12,6 +12,6 @@
               $ref: '#/components/schemas/ConfigFloatingDevicesList'
         description: List
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

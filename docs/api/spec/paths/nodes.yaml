@@ -23,11 +23,11 @@
       fingerbank_refresh
         fingerbank_refresh
 
-      bulk_close_violations
-        bulk_close_violations
+      bulk_close_security_events
+        bulk_close_security_events
 
-      close_violation
-        close_violation
+      close_security_event
+        close_security_event
 
       create_error_msg
         create_error_msg
@@ -38,14 +38,17 @@
       bulk_fingerbank_refresh
         bulk_fingerbank_refresh
 
+      post_update
+        post_update
+
       bulk_restart_switchport
         bulk_restart_switchport
 
-      bulk_apply_violation
-        bulk_apply_violation
+      bulk_apply_security_event
+        bulk_apply_security_event
 
-      apply_violation
-        apply_violation
+      apply_security_event
+        apply_security_event
 
       bulk_apply_role
         bulk_apply_role
@@ -53,8 +56,17 @@
       bulk_apply_bypass_role
         bulk_apply_bypass_role
 
+      bulk_apply_bypass_acls
+        bulk update bypass_acls
+
+      bulk_apply_bypass_vlan
+        bulk update bypass_vlan
+
       do_bulk_update_field
         do_bulk_update_field
+
+      do_bulk_update_field
+        do_bulk_update_field2
 
       restart_switchport
         restart_switchport
@@ -64,14 +76,65 @@
 
       reevaluate_access
         reevaluate_access
+
+      rapid7
+        rapid7
+
+      security_events
+        security_events
+
+      park
+        park
+
+      unpark
+        unpark
+
+      network_graph
+        network_graph
+
+      build_network_graph_info
+        build_network_graph_info
+
+      network_graph_search_builder
+        network_graph_search_builder
+
+      pf_network_graph_node
+        pf_network_graph_node
+
+      map_to_network_graph
+        map_to_network_graph
+
+      add_switch_to_network_graph
+        add_switch_to_network_graph
+
+      add_swith_group_to_network_graph
+        add_swith_group_to_network_graph
+
+      pf_network_graph_switch_info
+        pf_network_graph_switch_info
+
+      get_switch_data
+        get_switch_data
+
+      bulk_import
+        bulk_import
+
+      validate
+        validate
+
+      _do_remove
+        _do_remove
+
+      create_data_update
+        create_data_update
   get:
     description: List items
     operationId: api.v1.Nodes.list
     parameters:
-    - $ref: '#/components/parameters/cursor'
-    - $ref: '#/components/parameters/limit'
-    - $ref: '#/components/parameters/fields'
-    - $ref: '#/components/parameters/sort'
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
     responses:
       '200':
         content:
@@ -80,9 +143,9 @@
               $ref: '#/components/schemas/NodesList'
         description: List
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   post:
     description: Create an item
     operationId: api.v1.Nodes.create
@@ -95,10 +158,10 @@
       description: Create item
     responses:
       '201':
-        $ref: '#/components/responses/Created'
+        $ref: '#/static/components/responses/Created'
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '409':
-        $ref: '#/components/responses/Duplicate'
+        $ref: '#/static/components/responses/Duplicate'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

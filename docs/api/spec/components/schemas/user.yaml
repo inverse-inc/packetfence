@@ -46,6 +46,8 @@ User:
       type: string
     notes:
       type: string
+    otp:
+      type: string
     pid:
       type: string
     portal:
@@ -60,10 +62,10 @@ User:
       type: string
     sponsor:
       type: string
+    sponsored_date:
+      type: string
     telephone:
       type: string
-    tenant_id:
-      type: integer
     title:
       type: string
     work_phone:

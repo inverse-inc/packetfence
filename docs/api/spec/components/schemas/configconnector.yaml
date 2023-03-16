@@ -1,0 +1,22 @@
+ConfigConnector:
+  properties:
+    description:
+      description: Description
+      type: string
+    id:
+      description: Id
+      type: string
+    networks:
+      description: Networks
+      items:
+        description: Network
+        type: string
+      type: array
+    secret:
+      description: Secret
+      type: string
+  required:
+  - id
+  - description
+  - secret
+  type: object

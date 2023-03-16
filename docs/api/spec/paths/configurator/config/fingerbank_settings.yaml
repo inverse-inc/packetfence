@@ -1,0 +1,21 @@
+/configurator/config/fingerbank_settings:
+  description: |-
+    pf::UnifiedApi::Controller::Config::FingerbankSettings
+
+      fields_to_mask
+        fields_to_mask
+  get:
+    description: List items
+    operationId: api.v1.Config.FingerbankSettings.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigFingerbankSettingsList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

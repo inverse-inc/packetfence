@@ -1,0 +1,76 @@
+/security_event/{security_event_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.SecurityEvents.resource.remove
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Item deleted
+  description: pf::UnifiedApi::Controller::SecurityEvents
+  get:
+    description: Get an item
+    operationId: api.v1.SecurityEvents.resource.get
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              description: Item
+              properties:
+                item:
+                  $ref: '#/components/schemas/SecurityEvent'
+              type: object
+        description: Get item
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.SecurityEvents.resource.update
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SecurityEvent'
+    responses:
+      '200':
+        $ref: '#/static/components/responses/Message'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.SecurityEvents.resource.replace
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SecurityEvent'
+    responses:
+      '200':
+        $ref: '#/static/components/responses/Message'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

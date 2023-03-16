@@ -9,6 +9,16 @@ ConfigSyslogParser:
       path:
         description: Alert pipe
         type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
       status:
         description: Enabled
         type: string
@@ -27,6 +37,16 @@ ConfigSyslogParser:
       path:
         description: Alert pipe
         type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
       status:
         description: Enabled
         type: string
@@ -42,8 +62,145 @@ ConfigSyslogParser:
       id:
         description: Detector
         type: string
-      loglines:
-        description: Loglines
+      path:
+        description: Alert pipe
+        type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      status:
+        description: Enabled
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - path
+    - type
+    type: object
+  - properties:
+      id:
+        description: Detector
+        type: string
+      path:
+        description: Alert pipe
+        type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      status:
+        description: Enabled
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - path
+    - type
+    type: object
+  - properties:
+      id:
+        description: Detector
+        type: string
+      path:
+        description: Alert pipe
+        type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      status:
+        description: Enabled
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - path
+    - type
+    type: object
+  - properties:
+      id:
+        description: Detector
+        type: string
+      path:
+        description: Alert pipe
+        type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      status:
+        description: Enabled
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - path
+    - type
+    type: object
+  - properties:
+      id:
+        description: Detector
+        type: string
+      path:
+        description: Alert pipe
+        type: string
+      rate_limit:
+        description: Rate limit requests.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      status:
+        description: Enabled
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - path
+    - type
+    type: object
+  - properties:
+      id:
+        description: Detector
         type: string
       path:
         description: Alert pipe
@@ -76,83 +233,21 @@ ConfigSyslogParser:
             name:
               description: Name
               type: string
+            rate_limit:
+              description: Rate limit requests.
+              properties:
+                interval:
+                  description: Interval
+                  type: integer
+                unit:
+                  description: Unit
+                  type: string
+              type: object
             regex:
               description: Regex
               type: string
           type: object
         type: array
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
-      status:
-        description: Enabled
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - path
-    - type
-    type: object
-  - properties:
-      id:
-        description: Detector
-        type: string
-      path:
-        description: Alert pipe
-        type: string
       status:
         description: Enabled
         type: string

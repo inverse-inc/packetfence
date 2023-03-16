@@ -1,0 +1,53 @@
+ConfigSelfService:
+  properties:
+    description:
+      description: Description
+      type: string
+    device_registration_access_duration:
+      description: The access duration to assign to devices registered from the self-service
+        portal. If zero is specified, the access duration of the registrant is used.
+      properties:
+        interval:
+          description: Interval
+          type: integer
+        unit:
+          description: Unit
+          type: string
+      type: object
+    device_registration_allowed_devices:
+      description: List of OS which will be allowed to be registered via the self
+        service portal.
+      items:
+        description: List of OS which will be allowed to be registered via the self
+          service portal.
+        type: string
+      type: array
+    device_registration_roles:
+      description: The role to assign to devices registered from the self-service
+        portal. If none is specified, the role of the registrant is used. If multiples
+        are defined then the user will have to choose
+      items:
+        description: The role to assign to devices registered from the self-service
+          portal. If none is specified, the role of the registrant is used. If multiples
+          are defined then the user will have to choose
+        type: string
+      type: array
+    dynamic_pre_shared_key:
+      description: Dynamic pre shared key
+      type: string
+    id:
+      description: Profile Name
+      type: string
+    roles_allowed_to_unregister:
+      description: The list of roles that are allowed to unregister devices using
+        the self-service portal. Leaving this empty will allow all users to unregister
+        their devices.
+      items:
+        description: The list of roles that are allowed to unregister devices using
+          the self-service portal. Leaving this empty will allow all users to unregister
+          their devices.
+        type: string
+      type: array
+  required:
+  - id
+  type: object

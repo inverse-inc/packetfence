@@ -1,7 +1,19 @@
 NodeCategory:
   properties:
+    acls:
+      type: string
     category_id:
       type: integer
+    fingerbank_dynamic_access_list:
+      type: string
+    include_parent_acls:
+      type: string
+    inherit_role:
+      type: string
+    inherit_vlan:
+      type: string
+    inherit_web_auth_url:
+      type: string
     max_nodes_per_pid:
       type: integer
     name:

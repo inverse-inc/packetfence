@@ -1,0 +1,11 @@
+ConfigSecurityEventsList:
+  allOf:
+  - $ref: '#/static/components/schemas/Iterable'
+  - properties:
+      items:
+        description: List
+        items:
+          $ref: '#/components/schemas/ConfigSecurityEvent'
+        type: array
+    type: object
+  description: List

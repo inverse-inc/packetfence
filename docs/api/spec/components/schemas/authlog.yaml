@@ -1,0 +1,21 @@
+AuthLog:
+  properties:
+    attempted_at:
+      type: string
+    completed_at:
+      type: string
+    id:
+      type: integer
+    mac:
+      type: string
+    pid:
+      type: string
+    process_name:
+      type: string
+    profile:
+      type: string
+    source:
+      type: string
+    status:
+      type: string
+  type: object
