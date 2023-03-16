@@ -1,0 +1,10 @@
+SMSCarriersList:
+  allOf:
+  - $ref: '#/static/components/schemas/Iterable'
+  - properties:
+      items:
+        description: Items
+        items:
+          $ref: '#/components/schemas/SMSCarrier'
+        type: array
+    type: object

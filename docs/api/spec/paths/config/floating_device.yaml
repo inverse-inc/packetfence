@@ -1,7 +1,7 @@
 /config/floating_device/{floating_device_id}:
   delete:
     description: Remove an item
-    operationId: api.v1.Config::FloatingDevices.remove
+    operationId: api.v1.Config.FloatingDevices.resource.remove
     parameters:
     - in: path
       name: floating_device_id
@@ -13,7 +13,7 @@
   description: Configure floating devices
   get:
     description: Get an item
-    operationId: api.v1.Config::FloatingDevices.get
+    operationId: api.v1.Config.FloatingDevices.resource.get
     parameters:
     - in: path
       name: floating_device_id
@@ -27,12 +27,12 @@
               $ref: '#/components/schemas/ConfigFloatingDevice'
         description: Item
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   patch:
     description: Update an item
-    operationId: api.v1.Config::FloatingDevices.update
+    operationId: api.v1.Config.FloatingDevices.resource.update
     parameters:
     - in: path
       name: floating_device_id
@@ -45,12 +45,12 @@
             $ref: '#/components/schemas/ConfigFloatingDevice'
     responses:
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
-    operationId: api.v1.Config::FloatingDevices.replace
+    operationId: api.v1.Config.FloatingDevices.resource.replace
     parameters:
     - in: path
       name: floating_device_id
@@ -63,8 +63,8 @@
             $ref: '#/components/schemas/ConfigFloatingDevice'
     responses:
       '201':
-        $ref: '#/components/responses/Created'
+        $ref: '#/static/components/responses/Created'
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

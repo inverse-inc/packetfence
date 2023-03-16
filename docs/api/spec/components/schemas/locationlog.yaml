@@ -8,8 +8,6 @@ Locationlog:
       type: string
     end_time:
       type: string
-    id:
-      type: integer
     ifDesc:
       type: string
     mac:
@@ -32,10 +30,12 @@ Locationlog:
       type: string
     switch_ip:
       type: string
+    switch_ip_int:
+      type: integer
     switch_mac:
       type: string
-    tenant_id:
-      type: integer
     vlan:
+      type: string
+    voip:
       type: string
   type: object

@@ -1,0 +1,92 @@
+/configurator/users:
+  description: |-
+    pf::UnifiedApi::Controller::User
+
+      create_data_update
+        create_data_update
+
+      cleanup_item
+        Remove the password field from the item
+
+      unassign_nodes
+        unassign user nodes
+
+      security_events
+        security_events
+
+      bulk_register
+        bulk_register
+
+      bulk_deregister
+        bulk_deregister
+
+      bulk_close_security_events
+        bulk_close_security_events
+
+      close_security_events
+        close_security_events
+
+      bulk_apply_security_event
+        bulk_apply_security_event
+
+      bulk_reevaluate_access
+        bulk_reevaluate_access
+
+      bulk_init_results
+        bulk_init_results
+
+      bulk_fingerbank_refresh
+        bulk_fingerbank_refresh
+
+      do_bulk_update_field
+        do_bulk_update_field
+
+      bulk_apply_role
+        bulk_apply_role
+
+      bulk_apply_bypass_role
+        bulk_apply_bypass_role
+
+      bulk_delete
+        bulk_delete
+
+      bulk_import
+        bulk_import
+  get:
+    description: List items
+    operationId: api.v1.Configurator.Users.list
+    parameters:
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  post:
+    description: Create an item
+    operationId: api.v1.Configurator.Users.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+      description: Create item
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '409':
+        $ref: '#/static/components/responses/Duplicate'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

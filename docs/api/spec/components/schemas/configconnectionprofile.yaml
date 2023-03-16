@@ -8,7 +8,23 @@ ConfigConnectionProfile:
       type: string
     advanced_filter:
       description: Advanced filter
-      type: string
+      properties:
+        field:
+          description: Field
+          type: string
+        op:
+          description: Value
+          type: string
+        value:
+          description: Value
+          type: string
+        values:
+          description: Values
+          items:
+            description: Value
+            type: string
+          type: array
+      type: object
     always_use_redirecturl:
       description: Under most circumstances we can redirect the user to the URL he
         originally intended to visit. However, you may prefer to force the captive
@@ -44,20 +60,13 @@ ConfigConnectionProfile:
     description:
       description: Profile Description
       type: string
-    device_registration:
-      description: Device registration
-      type: string
     dot1x_recompute_role_from_portal:
       description: When enabled, PacketFence will not use the role initialy computed
         on the portal but will use the dot1x username to recompute the role.
       type: string
-    mac_auth_recompute_role_from_portal:
-      description: When enabled, PacketFence will not use the role initialy computed
-        on the portal but will use an authorize source if defined to recompute the role.
-      type: string
     dot1x_unset_on_unmatch:
-      description: When enabled, PacketFence will unset the role of the device if no
-        authentication sources returned one.
+      description: When enabled, PacketFence will unset the role of the device if
+        no authentication sources returned one.
       type: string
     dpsk:
       description: This enables the Dynamic PSK feature on this connection profile.
@@ -96,6 +105,19 @@ ConfigConnectionProfile:
     logo:
       description: Logo
       type: string
+    mac_auth_recompute_role_from_portal:
+      description: When enabled, PacketFence will not use the role initialy computed
+        on the portal but will use an authorized source if defined to recompute the
+        role.
+      type: string
+    network_logoff:
+      description: This allows users to access the network logoff page (http://172.105.97.105.nip.io/networklogoff)
+        in order to terminate their network access (switch their device back to unregistered)
+      type: string
+    network_logoff_popup:
+      description: When the "Network Logoff" feature is enabled, this will have it
+        opened in a popup at the end of the registration process.
+      type: string
     preregistration:
       description: This activates preregistration on the connection profile. Meaning,
         instead of applying the access to the currently connected device, it displays
@@ -111,7 +133,7 @@ ConfigConnectionProfile:
       type: array
     redirecturl:
       description: Default URL to redirect to on registration/mitigation release.
-        This is only used if a per-violation redirect URL is not defined.
+        This is only used if a per security event redirect URL is not defined.
       type: string
     reuse_dot1x_credentials:
       description: This option emulates SSO when someone needs to face the captive
@@ -134,6 +156,12 @@ ConfigConnectionProfile:
         description: Scan
         type: string
       type: array
+    self_service:
+      description: Self service
+      type: string
+    show_manage_devices_on_max_nodes:
+      description: Show manage devices on max nodes
+      type: string
     sms_pin_retry_limit:
       description: Maximum number of times a user can retry a SMS PIN before having
         to request another PIN. A value of 0 disables the limit.
@@ -151,14 +179,15 @@ ConfigConnectionProfile:
     status:
       description: Enable profile
       type: string
+    unbound_dpsk:
+      description: Unbound dpsk
+      type: string
     unreg_on_acct_stop:
       description: This activates automatic deregistation of devices for the profile
         if PacketFence receives a RADIUS accounting stop.
       type: string
     vlan_pool_technique:
-      description: 'The algorithm used to calculate the VLAN in a VLAN pool. <a
-        target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_roles_management"><i
-        class="icon-question-circle-o"></i></a> '
+      description: The Vlan Pool Technique to use
       type: string
   required:
   - id

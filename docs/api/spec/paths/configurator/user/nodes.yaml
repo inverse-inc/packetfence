@@ -1,0 +1,48 @@
+/configurator/user/{user_id}/nodes:
+  description: pf::UnifiedApi::Controller::Users::Nodes
+  get:
+    description: List items
+    operationId: api.v1.Configurator.Users.resource.Users.Nodes.list
+    parameters:
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersNodesList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  post:
+    description: Create an item
+    operationId: api.v1.Configurator.Users.resource.Users.Nodes.create
+    parameters:
+    - in: path
+      name: user_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UsersNode'
+      description: Create item
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '409':
+        $ref: '#/static/components/responses/Duplicate'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

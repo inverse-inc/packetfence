@@ -1,8 +1,12 @@
 /config/maintenance_tasks:
-  description: pf::UnifiedApi::Controller::Config::MaintenanceTasks
+  description: |-
+    pf::UnifiedApi::Controller::Config::MaintenanceTasks
+
+      form_process_parameters_for_cleanup
+        form_process_parameters_for_cleanup
   get:
     description: List items
-    operationId: api.v1.Config::MaintenanceTasks.list
+    operationId: api.v1.Config.MaintenanceTasks.list
     parameters: []
     responses:
       '200':
@@ -12,6 +16,6 @@
               $ref: '#/components/schemas/ConfigMaintenanceTasksList'
         description: List
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

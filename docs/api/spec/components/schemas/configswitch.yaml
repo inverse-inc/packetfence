@@ -1,10 +1,45 @@
 ConfigSwitch:
   properties:
+    ACLsLimit:
+      description: ACLsLimit
+      type: integer
     AccessListMap:
       description: Role by access list
       type: string
+    AccessListMapping:
+      description: AccessListMapping
+      items:
+        description: AccessListMapping
+        properties:
+          accesslist:
+            description: Accesslist
+            type: string
+          role:
+            description: Role
+            type: string
+        type: object
+      type: array
+    ControllerRoleMapping:
+      description: ControllerRoleMapping
+      items:
+        description: ControllerRoleMapping
+        properties:
+          controller_role:
+            description: Controller role
+            type: string
+          role:
+            description: Role
+            type: string
+        type: object
+      type: array
+    DownloadableACLsLimit:
+      description: DownloadableACLsLimit
+      type: integer
     ExternalPortalEnforcement:
-      description: Enable external portal enforcement when supported by network equipment
+      description: ExternalPortalEnforcement
+      type: string
+    PostMfaValidation:
+      description: PostMfaValidation
       type: string
     RoleMap:
       description: Role by Switch Role
@@ -57,6 +92,9 @@ ConfigSwitch:
     SNMPPrivProtocolWrite:
       description: Priv Protocol Write
       type: string
+    SNMPUseConnector:
+      description: SNMPUseConnector
+      type: string
     SNMPUserNameRead:
       description: User Name Read
       type: string
@@ -75,21 +113,66 @@ ConfigSwitch:
     UrlMap:
       description: Role by Web Auth URL
       type: string
+    UrlMapping:
+      description: UrlMapping
+      items:
+        description: UrlMapping
+        properties:
+          role:
+            description: Role
+            type: string
+          url:
+            description: Url
+            type: string
+        type: object
+      type: array
+    UseDownloadableACLs:
+      description: UseDownloadableACLs
+      type: string
     VlanMap:
       description: Role by VLAN ID
       type: string
+    VlanMapping:
+      description: VlanMapping
+      items:
+        description: VlanMapping
+        properties:
+          role:
+            description: Role
+            type: string
+          vlan:
+            description: Vlan
+            type: string
+        type: object
+      type: array
     VoIPCDPDetect:
-      description: Detect VoIP with a SNMP request in the CDP MIB
+      description: VoIPCDPDetect
       type: string
     VoIPDHCPDetect:
-      description: Detect VoIP with the DHCP Fingerprint
+      description: VoIPDHCPDetect
       type: string
     VoIPEnabled:
       description: VoIP
       type: string
     VoIPLLDPDetect:
-      description: Detect VoIP with a SNMP request in the LLDP MIB
+      description: VoIPLLDPDetect
       type: string
+    VpnMap:
+      description: Role by Vpn Role
+      type: string
+    VpnMapping:
+      description: VpnMapping
+      items:
+        description: VpnMapping
+        properties:
+          role:
+            description: Role
+            type: string
+          vpn:
+            description: Vpn
+            type: string
+        type: object
+      type: array
     always_trigger:
       description: Always trigger
       type: string
@@ -119,6 +202,9 @@ ConfigSwitch:
     deauthMethod:
       description: Deauthentication Method
       type: string
+    deauthOnPrevious:
+      description: DeauthOnPrevious
+      type: string
     description:
       description: Description
       type: string
@@ -130,7 +216,6 @@ ConfigSwitch:
       type: string
     id:
       description: IP Address/MAC Address/Range (CIDR)
-      type: string
       type: string
     inlineTrigger:
       description: InlineTrigger
@@ -160,6 +245,9 @@ ConfigSwitch:
     port_trigger:
       description: Port trigger
       type: integer
+    radiusDeauthUseConnector:
+      description: RadiusDeauthUseConnector
+      type: string
     radiusSecret:
       description: Secret Passphrase
       type: string

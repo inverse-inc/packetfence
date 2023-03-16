@@ -1,8 +1,9 @@
 WrixLocationsList:
   allOf:
-  - $ref: '#/components/schemas/Iterable'
+  - $ref: '#/static/components/schemas/Iterable'
   - properties:
       items:
+        description: Items
         items:
           $ref: '#/components/schemas/WrixLocation'
         type: array

@@ -1,0 +1,45 @@
+ConfigFilterEnginesDNSFilter:
+  properties:
+    answer:
+      description: Answer
+      type: string
+    condition:
+      description: Condition
+      properties:
+        field:
+          description: Field
+          type: string
+        op:
+          description: Value
+          type: string
+        value:
+          description: Value
+          type: string
+        values:
+          description: Values
+          items:
+            description: Value
+            type: string
+          type: array
+      type: object
+    description:
+      description: Description
+      type: string
+    id:
+      description: Rule Name
+      type: string
+    scopes:
+      description: Scopes
+      items:
+        description: Scopes
+        type: string
+      type: array
+    status:
+      description: Enable Rule
+      type: string
+  required:
+  - id
+  - description
+  - condition
+  - scopes
+  type: object

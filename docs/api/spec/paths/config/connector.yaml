@@ -1,0 +1,70 @@
+/config/connector/{connector_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config.Connectors.resource.remove
+    parameters:
+    - in: path
+      name: connector_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: pf::UnifiedApi::Controller::Config::Connectors
+  get:
+    description: Get an item
+    operationId: api.v1.Config.Connectors.resource.get
+    parameters:
+    - in: path
+      name: connector_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigConnector'
+        description: Item
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config.Connectors.resource.update
+    parameters:
+    - in: path
+      name: connector_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigConnector'
+    responses:
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config.Connectors.resource.replace
+    parameters:
+    - in: path
+      name: connector_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigConnector'
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

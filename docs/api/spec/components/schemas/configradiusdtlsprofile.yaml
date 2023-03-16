@@ -1,0 +1,35 @@
+ConfigRadiusdTLSProfile:
+  properties:
+    ca_path:
+      description: Ca path
+      type: string
+    certificate_profile:
+      description: Certificate profile
+      type: string
+    cipher_list:
+      description: Cipher list
+      type: string
+    dh_file:
+      description: Dh file
+      type: string
+    disable_tlsv1_2:
+      description: Disable tlsv1 2
+      type: string
+    ecdh_curve:
+      description: Ecdh curve
+      type: string
+    id:
+      description: Profile Name
+      type: string
+    ocsp:
+      description: Ocsp
+      type: string
+    tls_max_version:
+      description: Tls max version
+      type: string
+    tls_min_version:
+      description: Tls min version
+      type: string
+  required:
+  - id
+  type: object

@@ -1,0 +1,17 @@
+/config/radiusd/tls_profiles:
+  description: Configure floating devices
+  get:
+    description: List items
+    operationId: api.v1.Config.Radiusd.TLSProfiles.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigRadiusdTLSProfilesList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

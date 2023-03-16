@@ -1,0 +1,23 @@
+ConfigCloud:
+  properties:
+    client_id:
+      description: Client ID
+      type: string
+    client_secret:
+      description: Client Secret
+      type: string
+    id:
+      description: Name
+      type: string
+    tenant_id:
+      description: Tenant ID
+      type: string
+    type:
+      description: Type
+      type: string
+  required:
+  - id
+  - tenant_id
+  - client_id
+  - client_secret
+  type: object

@@ -1,0 +1,10 @@
+DnsAuditLogsList:
+  allOf:
+  - $ref: '#/static/components/schemas/Iterable'
+  - properties:
+      items:
+        description: Items
+        items:
+          $ref: '#/components/schemas/DnsAuditLog'
+        type: array
+    type: object

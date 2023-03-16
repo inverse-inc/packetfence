@@ -1,0 +1,42 @@
+components
+├── parameters
+│   ├── base.yaml
+│   └── users.yaml
+├── responses
+│   ├── base.yaml
+│   ├── dhcp.yaml
+│   ├── ipset.yaml
+│   ├── queues.yaml
+│   └── services.yaml
+├── schemas
+│   ├── base.yaml
+│   ├── cluster.yaml
+│   ├── configcertificate.yaml
+│   ├── configdeviceregistrationslist.yaml
+│   ├── configdeviceregistration.yaml
+│   ├── configinterface.yaml
+│   ├── configsyslogparser_dry_run.yaml
+│   ├── configwmiruleslist.yaml
+│   ├── configwmirule.yaml
+│   ├── dhcp.yaml
+│   ├── dynamicreportsearch.yaml
+│   ├── dynamicreports.yaml
+│   ├── ipset.yaml
+│   ├── password.yaml
+│   ├── person.yaml
+│   ├── preferenceslist.yaml
+│   ├── preference.yaml
+│   ├── query.yaml
+│   ├── queues.yaml
+│   ├── reports.yaml
+│   ├── search.yaml
+│   ├── services.yaml
+│   ├── tenantslist.yaml
+│   ├── tenant.yaml
+│   ├── usersnodeslocationlogslist.yaml
+│   └── usersnodeslocationlog.yaml
+├── securitySchemes
+│   └── bearerAuth.yaml
+└── tree
+
+4 directories, 35 files

@@ -1,0 +1,41 @@
+ConfigRadiusdEAPProfile:
+  properties:
+    cisco_accounting_username_bug:
+      description: Cisco accounting username bug
+      type: string
+    default_eap_type:
+      description: Default EAP Type
+      type: string
+    eap_authentication_types:
+      description: Eap authentication types
+      items:
+        description: Eap authentication types
+        type: string
+      type: array
+    fast_config:
+      description: Fast config
+      type: string
+    id:
+      description: Profile Name
+      type: string
+    ignore_unknown_eap_types:
+      description: Ignore unknown eap types
+      type: string
+    max_sessions:
+      description: Max sessions
+      type: string
+    peap_tlsprofile:
+      description: Peap tlsprofile
+      type: string
+    timer_expire:
+      description: Timer expire
+      type: string
+    tls_tlsprofile:
+      description: Tls tlsprofile
+      type: string
+    ttls_tlsprofile:
+      description: Ttls tlsprofile
+      type: string
+  required:
+  - id
+  type: object

@@ -4,6 +4,8 @@ UsersNode:
       type: string
     bandwidth_balance:
       type: integer
+    bypass_acls:
+      type: string
     bypass_role_id:
       type: integer
     bypass_vlan:
@@ -54,8 +56,6 @@ UsersNode:
       type: string
     status:
       type: string
-    tenant_id:
-      type: integer
     time_balance:
       type: integer
     unregdate:

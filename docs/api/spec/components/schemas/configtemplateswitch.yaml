@@ -1,0 +1,141 @@
+ConfigTemplateSwitch:
+  properties:
+    acceptRole:
+      description: AcceptRole
+      items:
+        description: AcceptRole
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    acceptVlan:
+      description: AcceptVlan
+      items:
+        description: AcceptVlan
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    acl_template:
+      description: Acl template
+      type: string
+    bounce:
+      description: Bounce
+      items:
+        description: Bounce
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    cliAuthorizeRead:
+      description: CliAuthorizeRead
+      items:
+        description: CliAuthorizeRead
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    cliAuthorizeWrite:
+      description: CliAuthorizeWrite
+      items:
+        description: CliAuthorizeWrite
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    coa:
+      description: Coa
+      items:
+        description: Coa
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    description:
+      description: Description
+      type: string
+    disconnect:
+      description: Disconnect
+      items:
+        description: Disconnect
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    id:
+      description: Id
+      type: string
+    nasPortToIfindex:
+      description: NasPort To Ifindex template
+      type: string
+    radiusDisconnect:
+      description: RADIUS Disconnect Method
+      type: string
+    reject:
+      description: Reject
+      items:
+        description: Reject
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+    snmpDisconnect:
+      description: SnmpDisconnect
+      type: string
+    voip:
+      description: Voip
+      items:
+        description: Voip
+        properties:
+          type:
+            description: Type
+            type: string
+          value:
+            description: Value
+            type: string
+        type: object
+      type: array
+  required:
+  - id
+  - description
+  type: object

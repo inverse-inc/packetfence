@@ -1,0 +1,81 @@
+/config/routed_network/{network_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config.RoutedNetworks.resource.remove
+    parameters:
+    - in: path
+      name: network_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: |-
+    pf::UnifiedApi::Controller::Config::RoutedNetworks
+
+      get_json
+        Override parent method to set the id to the network value as it is
+        required for validation in pf::UnifiedApi::Controller::Config
+
+      form
+        Override to add the network ID in the form args if its defined
+
+      cleanup_item
+        Override to remove the network key from the items in favor of id
+  get:
+    description: Get an item
+    operationId: api.v1.Config.RoutedNetworks.resource.get
+    parameters:
+    - in: path
+      name: network_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigRoutedNetwork'
+        description: Item
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config.RoutedNetworks.resource.update
+    parameters:
+    - in: path
+      name: network_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigRoutedNetwork'
+    responses:
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config.RoutedNetworks.resource.replace
+    parameters:
+    - in: path
+      name: network_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigRoutedNetwork'
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

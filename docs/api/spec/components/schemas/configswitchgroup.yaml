@@ -1,28 +1,48 @@
 ConfigSwitchGroup:
   properties:
+    ACLsLimit:
+      description: ACLsLimit
+      type: integer
     AccessListMap:
       description: Role by access list
       type: string
+    AccessListMapping:
+      description: AccessListMapping
+      items:
+        description: AccessListMapping
+        properties:
+          accesslist:
+            description: Accesslist
+            type: string
+          role:
+            description: Role
+            type: string
+        type: object
+      type: array
+    ControllerRoleMapping:
+      description: ControllerRoleMapping
+      items:
+        description: ControllerRoleMapping
+        properties:
+          controller_role:
+            description: Controller role
+            type: string
+          role:
+            description: Role
+            type: string
+        type: object
+      type: array
+    DownloadableACLsLimit:
+      description: DownloadableACLsLimit
+      type: integer
     ExternalPortalEnforcement:
-      description: Enable external portal enforcement when supported by network equipment
+      description: ExternalPortalEnforcement
       type: string
-    REJECTAccessList:
-      description: REJECT
-      type: string
-    REJECTRole:
-      description: REJECT
-      type: string
-    REJECTUrl:
-      description: REJECT
-      type: string
-    REJECTVlan:
-      description: REJECT
+    PostMfaValidation:
+      description: PostMfaValidation
       type: string
     RoleMap:
       description: Role by Switch Role
-      type: string
-    VpnMap:
-      description: Role by Vpn Role
       type: string
     SNMPAuthPasswordRead:
       description: Auth Password Read
@@ -72,6 +92,9 @@ ConfigSwitchGroup:
     SNMPPrivProtocolWrite:
       description: Priv Protocol Write
       type: string
+    SNMPUseConnector:
+      description: SNMPUseConnector
+      type: string
     SNMPUserNameRead:
       description: User Name Read
       type: string
@@ -90,21 +113,66 @@ ConfigSwitchGroup:
     UrlMap:
       description: Role by Web Auth URL
       type: string
+    UrlMapping:
+      description: UrlMapping
+      items:
+        description: UrlMapping
+        properties:
+          role:
+            description: Role
+            type: string
+          url:
+            description: Url
+            type: string
+        type: object
+      type: array
+    UseDownloadableACLs:
+      description: UseDownloadableACLs
+      type: string
     VlanMap:
       description: Role by VLAN ID
       type: string
+    VlanMapping:
+      description: VlanMapping
+      items:
+        description: VlanMapping
+        properties:
+          role:
+            description: Role
+            type: string
+          vlan:
+            description: Vlan
+            type: string
+        type: object
+      type: array
     VoIPCDPDetect:
-      description: Detect VoIP with a SNMP request in the CDP MIB
+      description: VoIPCDPDetect
       type: string
     VoIPDHCPDetect:
-      description: Detect VoIP with the DHCP Fingerprint
+      description: VoIPDHCPDetect
       type: string
     VoIPEnabled:
       description: VoIP
       type: string
     VoIPLLDPDetect:
-      description: Detect VoIP with a SNMP request in the LLDP MIB
+      description: VoIPLLDPDetect
       type: string
+    VpnMap:
+      description: Role by Vpn Role
+      type: string
+    VpnMapping:
+      description: VpnMapping
+      items:
+        description: VpnMapping
+        properties:
+          role:
+            description: Role
+            type: string
+          vpn:
+            description: Vpn
+            type: string
+        type: object
+      type: array
     always_trigger:
       description: Always trigger
       type: string
@@ -134,17 +202,8 @@ ConfigSwitchGroup:
     deauthMethod:
       description: Deauthentication Method
       type: string
-    defaultAccessList:
-      description: default
-      type: string
-    defaultRole:
-      description: default
-      type: string
-    defaultUrl:
-      description: default
-      type: string
-    defaultVlan:
-      description: default
+    deauthOnPrevious:
+      description: DeauthOnPrevious
       type: string
     description:
       description: Description
@@ -152,41 +211,8 @@ ConfigSwitchGroup:
     disconnectPort:
       description: For Disconnect request, if we have to send to another port
       type: integer
-    gamingAccessList:
-      description: gaming
-      type: string
-    gamingRole:
-      description: gaming
-      type: string
-    gamingUrl:
-      description: gaming
-      type: string
-    gamingVlan:
-      description: gaming
-      type: string
-    group:
-      description: Group
-      type: string
-    guestAccessList:
-      description: guest
-      type: string
-    guestRole:
-      description: guest
-      type: string
-    guestUrl:
-      description: guest
-      type: string
-    guestVlan:
-      description: guest
-      type: string
     id:
       description: Group name
-      type: string
-    inlineAccessList:
-      description: inline
-      type: string
-    inlineRole:
-      description: inline
       type: string
     inlineTrigger:
       description: InlineTrigger
@@ -201,24 +227,6 @@ ConfigSwitchGroup:
             type: string
         type: object
       type: array
-    inlineUrl:
-      description: inline
-      type: string
-    inlineVlan:
-      description: inline
-      type: string
-    isolationAccessList:
-      description: isolation
-      type: string
-    isolationRole:
-      description: isolation
-      type: string
-    isolationUrl:
-      description: isolation
-      type: string
-    isolationVlan:
-      description: isolation
-      type: string
     macSearchesMaxNb:
       description: Maximum number of MAC addresses retrived from a port
       type: integer
@@ -234,20 +242,11 @@ ConfigSwitchGroup:
     port_trigger:
       description: Port trigger
       type: integer
+    radiusDeauthUseConnector:
+      description: RadiusDeauthUseConnector
+      type: string
     radiusSecret:
       description: Secret Passphrase
-      type: string
-    registrationAccessList:
-      description: registration
-      type: string
-    registrationRole:
-      description: registration
-      type: string
-    registrationUrl:
-      description: registration
-      type: string
-    registrationVlan:
-      description: registration
       type: string
     ssid_trigger:
       description: Ssid trigger
@@ -264,18 +263,6 @@ ConfigSwitchGroup:
     useCoA:
       description: Use CoA when available to deauthenticate the user. When disabled,
         RADIUS Disconnect will be used instead if it is available.
-      type: string
-    voiceAccessList:
-      description: voice
-      type: string
-    voiceRole:
-      description: voice
-      type: string
-    voiceUrl:
-      description: voice
-      type: string
-    voiceVlan:
-      description: voice
       type: string
     wsPwd:
       description: Password

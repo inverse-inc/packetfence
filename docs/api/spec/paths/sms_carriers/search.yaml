@@ -1,0 +1,22 @@
+/sms_carriers/search:
+  description: pf::UnifiedApi::Controller::SMSCarriers
+  post:
+    operationId: api.v1.SMSCarriers.search
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/static/components/schemas/Search'
+      description: Search for items
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SMSCarriersList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

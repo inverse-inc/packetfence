@@ -1,0 +1,17 @@
+/config/event_loggers:
+  description: Configure event loggers
+  get:
+    description: List items
+    operationId: api.v1.Config.EventLoggers.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigEventLoggersList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

@@ -4,24 +4,98 @@ ConfigRealm:
       description: Should the usernames matching this realm be stripped when used
         on the administration interface
       type: string
+    azuread_source_ttls_pap:
+      description: Azuread source ttls pap
+      type: string
     domain:
       description: The domain to use for the authentication in that realm
+      type: string
+    eap:
+      description: The EAP configuration to use for this realm
+      type: string
+    edir_source:
+      description: The eDirectory Server to use for EAP PEAP authentication and authorization
+      type: string
+    eduroam_options:
+      description: You can add FreeRADIUS options in the realm definition
+      type: string
+    eduroam_radius_acct:
+      description: The RADIUS Server(s) to proxy accounting
+      items:
+        description: The RADIUS Server(s) to proxy accounting
+        type: string
+      type: array
+    eduroam_radius_acct_proxy_type:
+      description: Home server pool type
+      type: string
+    eduroam_radius_auth:
+      description: The RADIUS Server(s) to proxy authentication
+      items:
+        description: The RADIUS Server(s) to proxy authentication
+        type: string
+      type: array
+    eduroam_radius_auth_compute_in_pf:
+      description: Should we forward the request to PacketFence to have a dynamic
+        answer or do we use the remote proxy server answered attributes ?
+      type: string
+    eduroam_radius_auth_proxy_type:
+      description: Home server pool type
       type: string
     id:
       description: Realm
       type: string
+    ldap_source:
+      description: The LDAP Server to query the custom attributes
+      type: string
+    ldap_source_ttls_pap:
+      description: The LDAP Server to use for EAP TTLS PAP authentication and authorization
+      type: string
     options:
       description: You can add FreeRADIUS options in the realm definition
+      type: string
+    permit_custom_attributes:
+      description: Allow to use custom attributes to authenticate 802.1x users (attributes
+        are defined in the source)
       type: string
     portal_strip_username:
       description: Should the usernames matching this realm be stripped when used
         on the captive portal
+      type: string
+    radius_acct:
+      description: The RADIUS Server(s) to proxy accounting
+      items:
+        description: The RADIUS Server(s) to proxy accounting
+        type: string
+      type: array
+    radius_acct_proxy_type:
+      description: Home server pool type
+      type: string
+    radius_auth:
+      description: The RADIUS Server(s) to proxy authentication
+      items:
+        description: The RADIUS Server(s) to proxy authentication
+        type: string
+      type: array
+    radius_auth_compute_in_pf:
+      description: Should we forward the request to PacketFence to have a dynamic
+        answer or do we use the remote proxy server answered attributes ?
+      type: string
+    radius_auth_proxy_type:
+      description: Home server pool type
       type: string
     radius_strip_username:
       description: Should the usernames matching this realm be stripped when used
         in the authorization phase of 802.1x. Note that this doesn't control the stripping
         in FreeRADIUS, use the options above for that.
       type: string
+    regex:
+      description: PacketFence will use this Realm configuration if the regex match
+        with the UserName (optional)
+      type: string
   required:
   - id
+  - radius_auth_proxy_type
+  - radius_acct_proxy_type
+  - eduroam_radius_auth_proxy_type
+  - eduroam_radius_acct_proxy_type
   type: object

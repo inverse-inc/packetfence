@@ -1,0 +1,17 @@
+ConfigRadiusdFastProfile:
+  properties:
+    authority_identity:
+      description: Authority identity
+      type: string
+    id:
+      description: Profile Name
+      type: string
+    pac_opaque_key:
+      description: Pac opaque key
+      type: string
+    tls:
+      description: Tls
+      type: string
+  required:
+  - id
+  type: object

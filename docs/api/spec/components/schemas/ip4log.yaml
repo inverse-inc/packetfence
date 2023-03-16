@@ -8,6 +8,4 @@ Ip4log:
       type: string
     start_time:
       type: string
-    tenant_id:
-      type: integer
   type: object

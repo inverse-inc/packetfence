@@ -1,0 +1,40 @@
+/sms_carriers:
+  description: pf::UnifiedApi::Controller::SMSCarriers
+  get:
+    description: List items
+    operationId: api.v1.SMSCarriers.list
+    parameters:
+    - $ref: '#/static/components/parameters/cursor'
+    - $ref: '#/static/components/parameters/limit'
+    - $ref: '#/static/components/parameters/fields'
+    - $ref: '#/static/components/parameters/sort'
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SMSCarriersList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  post:
+    description: Create an item
+    operationId: api.v1.SMSCarriers.create
+    parameters: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SMSCarrier'
+      description: Create item
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '409':
+        $ref: '#/static/components/responses/Duplicate'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

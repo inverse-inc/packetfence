@@ -1,0 +1,38 @@
+ConfigEventLogger:
+  properties:
+    description:
+      description: Description
+      type: string
+    facility:
+      description: Facility
+      type: string
+    host:
+      description: Host
+      type: string
+    id:
+      description: Id
+      type: string
+    namespaces:
+      description: Namespaces
+      items:
+        description: Namespaces
+        type: string
+      type: array
+    port:
+      description: Port
+      type: integer
+    priority:
+      description: Priority
+      type: string
+    type:
+      description: Type
+      type: string
+  required:
+  - id
+  - description
+  - type
+  - facility
+  - priority
+  - port
+  - host
+  type: object

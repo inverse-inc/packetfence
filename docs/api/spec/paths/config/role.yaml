@@ -1,7 +1,7 @@
 /config/role/{role_id}:
   delete:
     description: Remove an item
-    operationId: api.v1.Config::Roles.remove
+    operationId: api.v1.Config.Roles.resource.remove
     parameters:
     - in: path
       name: role_id
@@ -13,7 +13,7 @@
   description: pf::UnifiedApi::Controller::Config::Roles
   get:
     description: Get an item
-    operationId: api.v1.Config::Roles.get
+    operationId: api.v1.Config.Roles.resource.get
     parameters:
     - in: path
       name: role_id
@@ -27,12 +27,12 @@
               $ref: '#/components/schemas/ConfigRole'
         description: Item
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   patch:
     description: Update an item
-    operationId: api.v1.Config::Roles.update
+    operationId: api.v1.Config.Roles.resource.update
     parameters:
     - in: path
       name: role_id
@@ -45,12 +45,12 @@
             $ref: '#/components/schemas/ConfigRole'
     responses:
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
-    operationId: api.v1.Config::Roles.replace
+    operationId: api.v1.Config.Roles.resource.replace
     parameters:
     - in: path
       name: role_id
@@ -63,8 +63,8 @@
             $ref: '#/components/schemas/ConfigRole'
     responses:
       '201':
-        $ref: '#/components/responses/Created'
+        $ref: '#/static/components/responses/Created'
       '400':
-        $ref: '#/components/responses/BadRequest'
+        $ref: '#/static/components/responses/BadRequest'
       '422':
-        $ref: '#/components/responses/UnprocessableEntity'
+        $ref: '#/static/components/responses/UnprocessableEntity'

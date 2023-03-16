@@ -1,0 +1,21 @@
+AdminApiAuditLog:
+  properties:
+    action:
+      type: string
+    created_at:
+      type: string
+    id:
+      type: integer
+    method:
+      type: string
+    object_id:
+      type: string
+    request:
+      type: string
+    status:
+      type: string
+    url:
+      type: string
+    user_name:
+      type: string
+  type: object

@@ -1,0 +1,26 @@
+ConfigSSLCertificate:
+  properties:
+    ca:
+      description: Ca
+      type: string
+    cert:
+      description: Cert
+      type: string
+    id:
+      description: SSL Profile Name
+      type: string
+    intermediate:
+      description: Intermediate
+      type: string
+    key:
+      description: Key
+      type: string
+    private_key_password:
+      description: Private Key Password
+      type: string
+  required:
+  - id
+  - cert
+  - key
+  - intermediate
+  type: object

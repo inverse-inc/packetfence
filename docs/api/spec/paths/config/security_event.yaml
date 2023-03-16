@@ -1,0 +1,77 @@
+/config/security_event/{security_event_id}:
+  delete:
+    description: Remove an item
+    operationId: api.v1.Config.SecurityEvents.resource.remove
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Deleted a config item
+  description: |-
+    pf::UnifiedApi::Controller::Config::SecurityEvents
+
+      id_field_default
+        id_field_default
+
+      form_parameters
+        form_parameters
+  get:
+    description: Get an item
+    operationId: api.v1.Config.SecurityEvents.resource.get
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSecurityEvent'
+        description: Item
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  patch:
+    description: Update an item
+    operationId: api.v1.Config.SecurityEvents.resource.update
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigSecurityEvent'
+    responses:
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'
+  put:
+    description: Replace an item
+    operationId: api.v1.Config.SecurityEvents.resource.replace
+    parameters:
+    - in: path
+      name: security_event_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConfigSecurityEvent'
+    responses:
+      '201':
+        $ref: '#/static/components/responses/Created'
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

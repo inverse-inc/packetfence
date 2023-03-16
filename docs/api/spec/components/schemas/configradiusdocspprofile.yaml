@@ -1,0 +1,26 @@
+ConfigRadiusdOCSPProfile:
+  properties:
+    id:
+      description: Profile Name
+      type: string
+    ocsp_enable:
+      description: Ocsp enable
+      type: string
+    ocsp_override_cert_url:
+      description: Ocsp override cert url
+      type: string
+    ocsp_softfail:
+      description: Ocsp softfail
+      type: string
+    ocsp_timeout:
+      description: Ocsp timeout
+      type: string
+    ocsp_url:
+      description: Ocsp url
+      type: string
+    ocsp_use_nonce:
+      description: Ocsp use nonce
+      type: string
+  required:
+  - id
+  type: object

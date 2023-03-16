@@ -1,0 +1,17 @@
+/config/connectors:
+  description: pf::UnifiedApi::Controller::Config::Connectors
+  get:
+    description: List items
+    operationId: api.v1.Config.Connectors.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigConnectorsList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

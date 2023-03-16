@@ -9,73 +9,6 @@ ConfigScan:
           description: Nodes with the selected roles will be affected
           type: string
         type: array
-      domain:
-        description: Domain
-        type: string
-      duration:
-        description: Approximate duration of a scan. User being scanned on registration
-          are presented a progress bar for this duration, afterwards the browser refreshes
-          until scan is complete.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      id:
-        description: Name
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Password
-        type: string
-      post_registration:
-        description: If this option is enabled, the PF system will scan host after
-          on the production vlan.
-        type: string
-      pre_registration:
-        description: If this option is enabled, the PF system will scan host before
-          the registration.
-        type: string
-      registration:
-        description: If this option is enabled, the PF system will scan each host
-          after registration is complete.
-        type: string
-      type:
-        description: Type
-        type: string
-      username:
-        description: Username
-        type: string
-      wmi_policy:
-        description: Name of the policy to use
-        type: string
-      wmi_rules:
-        description: Wmi rules
-        items:
-          description: Wmi rule
-          type: string
-        type: array
-    required:
-    - id
-    - username
-    - password
-    - domain
-    type: object
-  - properties:
-      categories:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
       duration:
         description: Approximate duration of a scan. User being scanned on registration
           are presented a progress bar for this duration, afterwards the browser refreshes
@@ -93,12 +26,15 @@ ConfigScan:
         type: string
       ip:
         description: Hostname or IP Address
+        type: string
+      openvas_alertid:
+        description: ID of the alert configuration on the OpenVAS server
         type: string
       openvas_configid:
         description: ID of the scanning configuration on the OpenVAS server
         type: string
       openvas_reportformatid:
-        description: ID of the .NBE report format on the OpenVAS server
+        description: ID of the "CSV Results" report format on the OpenVAS server
         type: string
       oses:
         description: Nodes with the selected OS will be affected
@@ -114,7 +50,8 @@ ConfigScan:
         type: integer
       post_registration:
         description: If this option is enabled, the PF system will scan host after
-          on the production vlan.
+          on the production vlan. This will not work for devices that are in an inline
+          VLAN.
         type: string
       pre_registration:
         description: If this option is enabled, the PF system will scan host before
@@ -178,7 +115,8 @@ ConfigScan:
         type: integer
       post_registration:
         description: If this option is enabled, the PF system will scan host after
-          on the production vlan.
+          on the production vlan. This will not work for devices that are in an inline
+          VLAN.
         type: string
       pre_registration:
         description: If this option is enabled, the PF system will scan host before
@@ -199,6 +137,81 @@ ConfigScan:
     - username
     - password
     - ip
+    type: object
+  - properties:
+      categories:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      duration:
+        description: Approximate duration of a scan. User being scanned on registration
+          are presented a progress bar for this duration, afterwards the browser refreshes
+          until scan is complete.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      engine_id:
+        description: The identifier of the scan engine to use when scanning the devices.
+        type: string
+      host:
+        description: Hostname or IP Address
+        type: string
+      id:
+        description: Name
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      password:
+        description: Password
+        type: string
+      port:
+        description: If you use an alternative port, please specify
+        type: integer
+      post_registration:
+        description: If this option is enabled, the PF system will scan host after
+          on the production vlan. This will not work for devices that are in an inline
+          VLAN.
+        type: string
+      pre_registration:
+        description: If this option is enabled, the PF system will scan host before
+          the registration.
+        type: string
+      registration:
+        description: If this option is enabled, the PF system will scan each host
+          after registration is complete.
+        type: string
+      site_id:
+        description: The identifier of the site to scan (the site where the hosts
+          are located)
+        type: string
+      template_id:
+        description: The scan template to use for scanning the clients.
+        type: string
+      type:
+        description: Type
+        type: string
+      username:
+        description: Username
+        type: string
+      verify_hostname:
+        description: Verify hostname of server when connecting to the API
+        type: string
+    required:
+    - id
+    - username
+    - password
+    - host
     type: object
   - properties:
       categories:
@@ -242,7 +255,8 @@ ConfigScan:
         type: integer
       post_registration:
         description: If this option is enabled, the PF system will scan host after
-          on the production vlan.
+          on the production vlan. This will not work for devices that are in an inline
+          VLAN.
         type: string
       pre_registration:
         description: If this option is enabled, the PF system will scan host before

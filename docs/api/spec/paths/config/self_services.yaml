@@ -1,0 +1,17 @@
+/config/self_services:
+  description: pf::UnifiedApi::Controller::Config::SelfServices
+  get:
+    description: List items
+    operationId: api.v1.Config.SelfServices.list
+    parameters: []
+    responses:
+      '200':
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigSelfServicesList'
+        description: List
+      '400':
+        $ref: '#/static/components/responses/BadRequest'
+      '422':
+        $ref: '#/static/components/responses/UnprocessableEntity'

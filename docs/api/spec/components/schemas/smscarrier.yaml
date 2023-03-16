@@ -1,0 +1,13 @@
+SMSCarrier:
+  properties:
+    created:
+      type: string
+    email_pattern:
+      type: string
+    id:
+      type: integer
+    modified:
+      type: string
+    name:
+      type: string
+  type: object

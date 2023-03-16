@@ -1,0 +1,4 @@
+Config:
+  discriminator:
+    propertyName: type
+  oneOf: []

@@ -74,5 +74,4 @@ WrixLocation:
       type: string
     id:
       type: string
-  required: []
   type: object

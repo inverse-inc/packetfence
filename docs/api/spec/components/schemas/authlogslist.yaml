@@ -1,0 +1,10 @@
+AuthLogsList:
+  allOf:
+  - $ref: '#/static/components/schemas/Iterable'
+  - properties:
+      items:
+        description: Items
+        items:
+          $ref: '#/components/schemas/AuthLog'
+        type: array
+    type: object
