@@ -131,10 +131,10 @@ sub createResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -159,10 +159,10 @@ sub listResponses {
             },
         },
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -187,10 +187,10 @@ sub getResponses {
             },
         },
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -210,7 +210,7 @@ sub generateSchemas {
         $list_path => {
             description => "List",
             allOf => [
-                { '$ref' => "#/static/components/schemas/Iterable" },
+                { '$ref' => "#/components/schemas/Iterable" },
                 {
                     "properties" => {
                         "items" => {
@@ -239,13 +239,13 @@ sub replaceResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "201" => {
-            "\$ref" => "#/static/components/responses/Created"
+            "\$ref" => "#/components/responses/Created"
         },
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -260,10 +260,10 @@ sub updateResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }

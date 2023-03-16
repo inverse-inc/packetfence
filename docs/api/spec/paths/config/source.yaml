@@ -46,9 +46,9 @@
               $ref: '#/components/schemas/ConfigSource'
         description: Item
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'
   patch:
     description: Update an item
     operationId: api.v1.Config.Source.resource.update
@@ -64,9 +64,9 @@
             $ref: '#/components/schemas/ConfigSource'
     responses:
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
     operationId: api.v1.Config.Source.resource.replace
@@ -82,8 +82,8 @@
             $ref: '#/components/schemas/ConfigSource'
     responses:
       '201':
-        $ref: '#/static/components/responses/Created'
+        $ref: '#/components/responses/Created'
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'

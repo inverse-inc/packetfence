@@ -83,9 +83,9 @@
               type: object
         description: Get item
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'
   patch:
     description: Update an item
     operationId: api.v1.Users.resource.update
@@ -101,11 +101,11 @@
             $ref: '#/components/schemas/User'
     responses:
       '200':
-        $ref: '#/static/components/responses/Message'
+        $ref: '#/components/responses/Message'
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'
   put:
     description: Replace an item
     operationId: api.v1.Users.resource.replace
@@ -121,8 +121,8 @@
             $ref: '#/components/schemas/User'
     responses:
       '200':
-        $ref: '#/static/components/responses/Message'
+        $ref: '#/components/responses/Message'
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'

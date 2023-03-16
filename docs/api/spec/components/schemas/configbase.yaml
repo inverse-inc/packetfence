@@ -3,128 +3,6 @@ ConfigBase:
     propertyName: type
   oneOf:
   - properties:
-      aaa:
-        description: httpd listening port for AAA webservice
-        type: string
-      admin:
-        description: Port the administrative interface listens on.
-        type: string
-      collector:
-        description: Port of the collector webservice.
-        type: string
-      httpd_portal_modstatus:
-        description: Port the mod_status for httpd.portal listens on.
-        type: string
-      id:
-        description: Id
-        type: string
-      pfacct_netflow:
-        description: port for listening to netflow
-        type: string
-      soap:
-        description: Port of the soap webservice.
-        type: string
-      unifiedapi:
-        description: port to use for accessing the Unified API
-        type: string
-    type: object
-  - properties:
-      connection_type_change_detection:
-        description: Will identify if a device switches from wired to wireless (or
-          the opposite) and send an e-mail with these changes.This can help detect
-          MAC spoofing.
-        type: string
-      dhcp_process_ipv6:
-        description: Enable/disable ipv6 dhcp packets processing by pfdhcplistener.
-        type: string
-      dhcp_rate_limiting:
-        description: Will rate-limit DHCP packets that contain the same information.For
-          example, a DHCPREQUEST for the same MAC/IP will only be processed once in
-          the timeframe configured below.This is independant of the DHCP server/relay
-          handling the packet and is only based on the IP, MAC Address and DHCP type
-          inside the packet.A value of 0 will disable the rate limitation.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      dhcpdetector:
-        description: If enabled, PacketFence will monitor DHCP-specific items such
-          as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname
-          resolution, and (optionnally) option-82 location-based information. The
-          monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts,
-          meaning a span port is not necessary.  This feature is highly recommended
-          if the internal network is DHCP-based.
-        type: string
-      dhcpoption82logger:
-        description: 'If enabled PacketFence will monitor DHCP option82 location-based
-          information. This feature is only available if the dhcpdetector is activated.
-          <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_dhcp_option_82"><i
-          class="icon-question-circle-o"></i></a> '
-        type: string
-      force_listener_update_on_ack:
-        description: This will only do the iplog update and other DHCP related task
-          on a DHCPACK.You need to make sure the UDP reflector is in place so this
-          works on the production network.This is implicitly activated on registration
-          interfaces on which dhcpd runs.
-        type: string
-      hostname_change_detection:
-        description: Will identify hostname changes and send an e-mail with these
-          changes.This can help detect MAC spoofing.
-        type: string
-      id:
-        description: Id
-        type: string
-      interfaceSNAT:
-        description: Choose interface(s) where you want to enable SNAT for passthroughs
-          (by default it's the management interface)
-        type: string
-      rogue_dhcp_detection:
-        description: Tries to identify Rogue DHCP Servers and triggers the 1100010
-          violation if one is found. This feature is only available if the dhcpdetector
-          is activated.
-        type: string
-      rogueinterval:
-        description: When rogue DHCP server detection is enabled, this parameter defines
-          how often to email administrators.  With its default setting of 10, it will
-          email administrators the details of the previous 10 DHCP offers.
-        type: integer
-      staticroutes:
-        description: This will add the static routes you defined here on the system
-          (managed by keepalived)
-        items:
-          description: Staticroute
-          type: string
-        type: array
-    type: object
-  - properties:
-      db:
-        description: Name of the MySQL database used by PacketFence.
-        type: string
-      host:
-        description: Server the MySQL server is running on.
-        type: string
-      id:
-        description: Id
-        type: string
-      pass:
-        description: Password for the MySQL database used by PacketFence.
-        type: string
-      port:
-        description: Port the MySQL server is running on.
-        type: string
-      unix_socket:
-        description: The path to the UNIX socket for the database
-        type: string
-      user:
-        description: Username of the account with access to the MySQL database used
-          by PacketFence.
-        type: string
-    type: object
-  - properties:
       id:
         description: Id
         type: string
@@ -209,6 +87,73 @@ ConfigBase:
           if you know what you are doing. Will only affect a locally running MySQL
           server.
         type: integer
+    type: object
+  - properties:
+      id:
+        description: Id
+        type: string
+      interception_proxy:
+        description: If enabled, we will intercept proxy request on the specified
+          ports to forward to the captive portal.
+        type: string
+      interception_proxy_port:
+        description: Comma-delimited list of port used by proxy interception.
+        type: string
+      isolation_passthrough:
+        description: When enabled, PacketFence uses pfdns if you defined <i>Isolation
+          Passthroughs</i> to allow trapped devices in isolation state to reach web
+          sites. Modifying this parameter requires to restart pfdns and iptables to
+          be fully effective.
+        type: string
+      isolation_passthroughs:
+        description: 'Comma-delimited list of domains to allow access from the isolation
+          VLAN.If no port is specified for the domain (ex: example.com), it opens
+          TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25)
+          which opens port 25 in TCP. When no protocol is specified (ex: example.com:25),
+          this opens the port for both the UDP and TCP protocol.You can specify the
+          same domain with a different port multiple times and they will be combined.The
+          configuration parameter <i>isolation_passthrough</i> must be enabled for
+          passthroughs to be effective.'
+        type: string
+      passthrough:
+        description: 'When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i>
+          or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow trapped
+          devices to reach web sites. Modifying this parameter requires to restart
+          pfdns and iptables to be fully effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_passthroughs_2"><i
+          class="icon-question-circle-o"></i></a> '
+        type: string
+      passthroughs:
+        description: 'Comma-delimited list of domains to allow access from the registration
+          VLAN.If no port is specified for the domain (ex: example.com), it opens
+          TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25)
+          which opens port 25 in TCP. When no protocol is specified (ex: example.com:25),
+          this opens the port for both the UDP and TCP protocol.You can specify the
+          same domain with a different port multiple times and they will be combined.The
+          configuration parameter <i>passthrough</i> must be enabled for passthroughs
+          to be effective.These passthroughs are only effective in registration networks,
+          for passthroughs in isolation, use fencing.isolation_passthroughs.'
+        type: string
+      proxy_passthroughs:
+        description: 'Comma-delimited list of domains to be used with Apache passthroughs.
+          The configuration parameter <i>passthrough</i> must be enabled for passthroughs
+          to be effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_apache_mod_proxy_passthroughs"><i
+          class="icon-question-circle-o"></i></a> '
+        type: string
+      range:
+        description: Address ranges/CIDR blocks that PacketFence will monitor/detect/trap
+          on.  Gateway, network, and broadcast addresses are ignored. Comma-delimited
+          entries should be of the form <ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>
+        type: string
+      wait_for_redirect:
+        description: How many seconds the webservice should wait before deassociating
+          or reassigning VLAN. If we don't wait, the device may switch VLAN before
+          it has a chance to load the redirection page.
+        type: integer
+      whitelist:
+        description: Comma-delimited list of MAC addresses that are immune to isolation.
+          In inline Level 2 enforcement, the firewall is opened for them as if they
+          were registered. This <i>feature</i> will probably be reworked in the future.
+        type: string
     type: object
   - properties:
       api-frontend:
@@ -381,6 +326,258 @@ ConfigBase:
         type: string
     type: object
   - properties:
+      id:
+        description: Id
+        type: string
+      lease_length:
+        description: Lease length (in seconds) when a device is in parking
+        type: integer
+      place_in_dhcp_parking_group:
+        description: Place the device in the DHCP parking group when it is detected
+          doing parking
+        type: string
+      show_parking_portal:
+        description: Show the parking portal to the device instead of the usual portal
+        type: string
+      threshold:
+        description: The threshold (in seconds) after which a device will be placed
+          in parking.A value of 0 deactivates the parking detection.The detection
+          works by looking at the time in seconds a device has been in the registration
+          role and comparing it with this threshold.
+        type: integer
+    type: object
+  - properties:
+      category:
+        description: Default category to assign to imported nodes.
+        type: string
+      id:
+        description: Id
+        type: string
+      pid:
+        description: Default pid value to assign to imported nodes.
+        type: string
+      voip:
+        description: By default is an imported node a Voice over IP device or not?
+        type: string
+    type: object
+  - properties:
+      filter_in_eduroam_authorize:
+        description: Send the radius request in the radius filter from the radius
+          eduroam.authorize section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_eduroam_post_proxy:
+        description: Send the radius request in the radius filter from the radius
+          eduroam.post_proxy section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_eduroam_pre_proxy:
+        description: Send the radius request in the radius filter from the radius
+          eduroam.pre_proxy section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_eduroam_preacct:
+        description: Send the radius request in the radius filter from the radius
+          eduroam.preacct section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_packetfence-tunnel_authorize:
+        description: Send the radius request in the radius filter from the radius
+          packetfence-tunnel.authorize section.Requires a restart of radiusd to be
+          effective.
+        type: string
+      filter_in_packetfence_accounting:
+        description: Send the radius request in the radius filter from the radius
+          packetfence.accounting section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_packetfence_authorize:
+        description: Send the radius request in the radius filter from the radius
+          packetfence.authorize section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_packetfence_post_proxy:
+        description: Send the radius request in the radius filter from the radius
+          packetfence.post_proxy section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_packetfence_pre_proxy:
+        description: Send the radius request in the radius filter from the radius
+          packetfence.pre_proxy section.Requires a restart of radiusd to be effective.
+        type: string
+      filter_in_packetfence_preacct:
+        description: Send the radius request in the radius filter from the radius
+          packetfence.preacct section.Requires a restart of radiusd to be effective.
+        type: string
+      forward_key_balanced:
+        description: Send in the proxy request the attribute PacketFence-KeyBalanced
+          to randomize the load balance in the next PacketFence RADIUS server.Useful
+          when you have multiple radius servers chained like 1-2-2 the default modulo
+          result will be the same on each server.
+        type: string
+      id:
+        description: Id
+        type: string
+      local_auth:
+        description: Field described in JS files
+        type: string
+      normalize_radius_machine_auth_username:
+        description: Use the RADIUS username instead of the TLS certificate common
+          name when doing machine authentication.
+        type: string
+      ntlm_redis_cache:
+        description: Enables a Redis driven cache for NTLM authentication.In order
+          for this to work, you need to setup proper NT hash syncronization between
+          your PacketFence server and your AD.Refer to the Administration guide for
+          more details.Applying this requires a restart of radiusd.
+        type: string
+      pfacct_work_queue_size:
+        description: The size of the queue for each worker.
+        type: integer
+      pfacct_workers:
+        description: The number of workers proccessing accounting packets.
+        type: integer
+      process_bandwidth_accounting:
+        description: Process bandwidth accounting.
+        type: string
+      radius_attributes:
+        description: List of RADIUS attributes that can be used in the sources configuration
+        type: string
+      record_accounting_in_sql:
+        description: Record the accounting data in the SQL tables.Requires a restart
+          of radiusd to be effective.
+        type: string
+      username_attributes:
+        description: Which attributes to use to get the username from a RADIUS request.The
+          order of the attributes are listed in this configuration parameter is followed
+          while performing the lookup.
+        type: string
+    type: object
+  - properties:
+      emailaddr:
+        description: Comma-delimited list of email addresses to which notifications
+          of rogue DHCP servers, violations with an action of <i>email</i>, or any
+          other PacketFence-related message goes to.
+        type: string
+      fromaddr:
+        description: Email address from which notifications of rogue DHCP servers,
+          violations with an action of <i>email</i>, or any other PacketFence-related
+          message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>.
+        type: string
+      id:
+        description: Id
+        type: string
+      smtp_encryption:
+        description: Encryption style when connecting to the SMTP server.
+        type: string
+      smtp_password:
+        description: The password used to connect to the SMTP server
+        type: string
+      smtp_port:
+        description: 'The port of the SMTP server. If the port is set to 0 then port
+          is calculated by the encryption type. none: 25, ssl: 465, starttls: 587'
+        type: integer
+      smtp_timeout:
+        description: The timeout in seconds for sending an email
+        type: integer
+      smtp_username:
+        description: The username used to connect to the SMTP server
+        type: string
+      smtp_verifyssl:
+        description: Verify SSL connection
+        type: string
+      smtpserver:
+        description: Server through which to send messages. The default is localhost
+          - besure you're running an SMTP host locally if you don't change it.
+        type: string
+      subjectprefix:
+        description: Subject prefix for email notifications of rogue DHCP servers,
+          violations with an action of <i>email</i>, or any other PacketFence-related
+          message.
+        type: string
+    type: object
+  - properties:
+      device_class_whitelist:
+        description: 'Which device class changes are allowed in conjunction with trigger_on_device_class_changeComma
+          delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code>
+          where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in
+          the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android
+          OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive,
+          Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter
+          Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming
+          Console</b> = 6</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet
+          of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b>
+          = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> =
+          8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network
+          Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone,
+          Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point
+          of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b>
+          = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router,
+          Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch
+          and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video
+          Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows
+          OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>'
+        type: string
+      enable:
+        description: Whether or not the Fingerbank device change feature is enabled
+        type: string
+      id:
+        description: Id
+        type: string
+      trigger_on_device_class_change:
+        description: Whether or not internal::fingerbank_device_change should be triggered
+          when we detect a device class change in Fingerbank
+        type: string
+      triggers:
+        description: 'Which changes (changing from a device class to another) should
+          trigger internal::fingerbank_device_change. This setting is independant
+          from trigger_on_device_class_change and allows to specify exactly which
+          transitions should trigger internal::fingerbank_device_change. Comma delimited
+          transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code>
+          where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in
+          the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android
+          OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive,
+          Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter
+          Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming
+          Console</b> = 6</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet
+          of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b>
+          = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> =
+          8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network
+          Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone,
+          Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point
+          of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b>
+          = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router,
+          Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch
+          and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video
+          Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows
+          OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>'
+        type: string
+    type: object
+  - properties:
+      aaa:
+        description: httpd listening port for AAA webservice
+        type: string
+      admin:
+        description: Port the administrative interface listens on.
+        type: string
+      collector:
+        description: Port of the collector webservice.
+        type: string
+      httpd_portal_modstatus:
+        description: Port the mod_status for httpd.portal listens on.
+        type: string
+      id:
+        description: Id
+        type: string
+      pfacct_netflow:
+        description: port for listening to netflow
+        type: string
+      soap:
+        description: Port of the soap webservice.
+        type: string
+      unifiedapi:
+        description: port to use for accessing the Unified API
+        type: string
+    type: object
+  - properties:
+      id:
+        description: Id
+        type: string
+    type: object
+  - properties:
       auth_on_management:
         description: Process RADIUS authentication requests on the management server
           (the current load balancer).Disabling it will make the management server
@@ -459,149 +656,189 @@ ConfigBase:
         type: string
     type: object
   - properties:
-      detection_mecanism_bypass:
-        description: Bypass the captive-portal detection mechanism of some browsers
-          / end-points by proxying the detection request.
-        type: string
-      detection_mecanism_urls:
-        description: Comma-delimited list of URLs known to be used by devices to detect
-          the presence of a captive portal and trigger their captive portal mechanism.
-        type: string
-      expose_fingerbank_info_all_templates:
-        description: Expose the fingerbank_info to all the captive portal templates.
-          Increases the response time of the portal due to it being slightly expensive
-          to compute.
-        type: string
       id:
         description: Id
         type: string
-      image_path:
-        description: This is the path where the gif is on the webserver to detect
-          if the network accesshas been enabled.
+      pass:
+        description: The webservices password
         type: string
-      ip_address:
-        description: The IP address the portal uses in the registration and isolation
-          networks.Do not change unless you know what you are doing.
-        type: string
-      loadbalancers_ip:
-        description: 'If the captive portal is put behind load-balancer(s) that act
-          at Layer 7 (HTTP level) effectively doing reverse proxying then the captive
-          portal no longer sees the IP of the node trying to access the portal. In
-          that case, the load-balancers must do SSL offloading and add a X-Forwarded-By
-          header in the HTTP traffic they forward to PacketFence. Most do by default.
-          Then in this parameter you must specify the IP of the various load balancers.
-          This will instruct the captive portal to look for client IPs in the X-Forwarded-For
-          instead of the actual TCP session when it matches an IP in the list. Format
-          is a comma separated list of IPs. Note: Apache access log format is not
-          changed to automatically log the X-Forwarded-By header. Modify conf/httpd.conf.d/captive-portal-common.conf
-          to use load balanced combined instead of combined in CustomLog statement.'
-        type: string
-      network_detection:
-        description: Enable the automatic network detection feature for registration
-          auto-redirect
-        type: string
-      network_detection_initial_delay:
-        description: The amount of time before network connectivity detection is started.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      network_detection_ip:
-        description: This IP is used as the webserver who hosts the common/network-access-detection.gif
-          which is used to detect if network access was enabled. It cannot be a domain
-          name since it is used in registration or quarantine where DNS is blackholed.
-          It is recommended that you allow your users to reach your PacketFence server
-          and put your LAN's PacketFence IP. By default we will make this reach PacketFence's
-          website as an easy solution.
-        type: string
-      network_detection_retry_delay:
-        description: The amount of time between network connectivity detection checks.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      network_redirect_delay:
-        description: How long to display the progress bar during trap release. Default
-          value is based on VLAN enforcement techniques. Inline enforcement only users
-          could lower the value.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      other_domain_names:
-        description: Other domain names under which the captive portal responds.Requires
-          to restart haproxy-portal to be fully effective.
-        type: string
-      rate_limiting:
-        description: Temporarily deny access to a user that performs too many requests
-          on the captive portal on invalid URLsRequires to restart haproxy-portal
-          in order to apply the change.
-        type: string
-      rate_limiting_threshold:
-        description: Amount of requests on invalid URLs after which the rate limiting
-          will kick in for this device.Requires to restart haproxy-portal in order
-          to apply the change.
-        type: integer
-      request_timeout:
-        description: The amount of seconds before a request times out in the captive
-          portal
-        type: integer
-      secure_redirect:
-        description: Force the captive portal to use HTTPS for all portal clients.Note
-          that clients will be forced to use HTTPS on all URLs.This requires a restart
-          of the httpd.portal process to be fully effective.
-        type: string
-      status_only_on_production:
-        description: When enabled the /status page will only be available on theproduction
-          network. By default this is disabled
-        type: string
-      wispr_redirection:
-        description: Enable or disable WISPr redirection capabilities on the captive-portal
+      user:
+        description: The webservices user name
         type: string
     type: object
   - properties:
-      autoconfig:
-        description: Enable or Disable the generation of a pre-built XML mobile configuration
-          profile for iPhone, iPad, or iPod users
-        type: string
-      category:
-        description: Apply to node that are members of the following category
-        type: string
-      certificate:
-        description: Path of the ca certificate
+      enabled:
+        description: Enable MSE
         type: string
       id:
         description: Id
         type: string
-      ssid:
-        description: The hidden SSID where the user should connect to after registration
+      pass:
+        description: Password for MSE service
+        type: string
+      url:
+        description: URL of MSE service
+        type: string
+      user:
+        description: Username for MSE service
         type: string
     type: object
   - properties:
-      category:
-        description: Default category to assign to imported nodes.
+      dhcpservers:
+        description: Comma-delimited list of DHCP servers.
+        type: string
+      domain:
+        description: Domain name of PacketFence system. Changing this requires to
+          restart haproxy-portal.
+        type: string
+      hostname:
+        description: Hostname of PacketFence system. This is concatenated with the
+          domain in Apache rewriting rules and therefore must be resolvable by clients.
+          Changing this requires to restart haproxy-portal.
         type: string
       id:
         description: Id
         type: string
-      pid:
-        description: Default pid value to assign to imported nodes.
+      send_anonymous_stats:
+        description: Whether or not to send anonymous statistics on how you use PacketFence
         type: string
-      voip:
-        description: By default is an imported node a Voice over IP device or not?
+      timezone:
+        description: System's timezone in string format. List generated from Perl
+          library DataTime::TimeZoneWhen left empty, it will use the timezone of the
+          server
         type: string
+    type: object
+  - properties:
+      connection_type_change_detection:
+        description: Will identify if a device switches from wired to wireless (or
+          the opposite) and send an e-mail with these changes.This can help detect
+          MAC spoofing.
+        type: string
+      dhcp_process_ipv6:
+        description: Enable/disable ipv6 dhcp packets processing by pfdhcplistener.
+        type: string
+      dhcp_rate_limiting:
+        description: Will rate-limit DHCP packets that contain the same information.For
+          example, a DHCPREQUEST for the same MAC/IP will only be processed once in
+          the timeframe configured below.This is independant of the DHCP server/relay
+          handling the packet and is only based on the IP, MAC Address and DHCP type
+          inside the packet.A value of 0 will disable the rate limitation.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      dhcpdetector:
+        description: If enabled, PacketFence will monitor DHCP-specific items such
+          as rogue DHCP services, DHCP-based OS fingerprinting, computername/hostname
+          resolution, and (optionnally) option-82 location-based information. The
+          monitored DHCP packets are DHCPDISCOVERs and DHCPREQUESTs - both are broadcasts,
+          meaning a span port is not necessary.  This feature is highly recommended
+          if the internal network is DHCP-based.
+        type: string
+      dhcpoption82logger:
+        description: 'If enabled PacketFence will monitor DHCP option82 location-based
+          information. This feature is only available if the dhcpdetector is activated.
+          <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_dhcp_option_82"><i
+          class="icon-question-circle-o"></i></a> '
+        type: string
+      force_listener_update_on_ack:
+        description: This will only do the iplog update and other DHCP related task
+          on a DHCPACK.You need to make sure the UDP reflector is in place so this
+          works on the production network.This is implicitly activated on registration
+          interfaces on which dhcpd runs.
+        type: string
+      hostname_change_detection:
+        description: Will identify hostname changes and send an e-mail with these
+          changes.This can help detect MAC spoofing.
+        type: string
+      id:
+        description: Id
+        type: string
+      interfaceSNAT:
+        description: Choose interface(s) where you want to enable SNAT for passthroughs
+          (by default it's the management interface)
+        type: string
+      rogue_dhcp_detection:
+        description: Tries to identify Rogue DHCP Servers and triggers the 1100010
+          violation if one is found. This feature is only available if the dhcpdetector
+          is activated.
+        type: string
+      rogueinterval:
+        description: When rogue DHCP server detection is enabled, this parameter defines
+          how often to email administrators.  With its default setting of 10, it will
+          email administrators the details of the previous 10 DHCP offers.
+        type: integer
+      staticroutes:
+        description: This will add the static routes you defined here on the system
+          (managed by keepalived)
+        items:
+          description: Staticroute
+          type: string
+        type: array
+    type: object
+  - properties:
+      id:
+        description: Id
+        type: string
+      interfaceSNAT:
+        description: Comma-delimited list of interfaces used to SNAT inline level
+          2 traffic
+        type: string
+      ports_redirect:
+        description: Ports to intercept and redirect for trapped and unregistered
+          systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp
+          (SSL) will work, although users might get certificate errors if you didn't
+          install a valid certificate or if you don't use DNS (although IP-based certificates
+          supposedly exist). Redirecting 53/udp (DNS) seems to have issues and is
+          also not recommended.
+        type: string
+      should_reauth_on_vlan_change:
+        description: Should have to reauthenticate the node if vlan change
+        type: string
+    type: object
+  - properties:
+      bounce_duration:
+        description: Delay to wait between the shut / no-shut on a port. Some OS need
+          a higher value than others. Default should be reasonable for almost every
+          OS but is too long for the usual proprietary OS.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      id:
+        description: Id
+        type: string
+      trap_limit:
+        description: Controls whether or not the trap limit feature is enabled. Trap
+          limiting is a way to limit the damage done by malicious users or misbehaving
+          switch that sends too many traps to PacketFence causing it to be overloaded.
+          Trap limiting is controlled by the trap limit threshold and trap limit action
+          parameters. Default is enabled.
+        type: string
+      trap_limit_action:
+        description: Action that PacketFence will take if the snmp_traps.trap_limit_threshold
+          is reached. Defaults to none. email will send an email every hour if the
+          limit's still reached. shut will shut the port on the switch and will also
+          send an email even if email is not specified.
+        items:
+          description: Action that PacketFence will take if the snmp_traps.trap_limit_threshold
+            is reached. Defaults to none. email will send an email every hour if the
+            limit's still reached. shut will shut the port on the switch and will
+            also send an email even if email is not specified.
+          type: string
+        type: array
+      trap_limit_threshold:
+        description: Maximum number of SNMP traps that a switchport can send to PacketFence
+          within a minute without being flagged as DoS. Defaults to 100.
+        type: integer
     type: object
   - properties:
       accounting_timebucket_size:
@@ -741,81 +978,21 @@ ConfigBase:
         type: string
     type: object
   - properties:
+      autoconfig:
+        description: Enable or Disable the generation of a pre-built XML mobile configuration
+          profile for iPhone, iPad, or iPod users
+        type: string
+      category:
+        description: Apply to node that are members of the following category
+        type: string
+      certificate:
+        description: Path of the ca certificate
+        type: string
       id:
         description: Id
         type: string
-      pass:
-        description: The webservices password
-        type: string
-      user:
-        description: The webservices user name
-        type: string
-    type: object
-  - properties:
-      id:
-        description: Id
-        type: string
-      interception_proxy:
-        description: If enabled, we will intercept proxy request on the specified
-          ports to forward to the captive portal.
-        type: string
-      interception_proxy_port:
-        description: Comma-delimited list of port used by proxy interception.
-        type: string
-      isolation_passthrough:
-        description: When enabled, PacketFence uses pfdns if you defined <i>Isolation
-          Passthroughs</i> to allow trapped devices in isolation state to reach web
-          sites. Modifying this parameter requires to restart pfdns and iptables to
-          be fully effective.
-        type: string
-      isolation_passthroughs:
-        description: 'Comma-delimited list of domains to allow access from the isolation
-          VLAN.If no port is specified for the domain (ex: example.com), it opens
-          TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25)
-          which opens port 25 in TCP. When no protocol is specified (ex: example.com:25),
-          this opens the port for both the UDP and TCP protocol.You can specify the
-          same domain with a different port multiple times and they will be combined.The
-          configuration parameter <i>isolation_passthrough</i> must be enabled for
-          passthroughs to be effective.'
-        type: string
-      passthrough:
-        description: 'When enabled, PacketFence uses pfdns if you defined <i>Passthroughs</i>
-          or Apache mod-proxy if you defined <i>Proxy passthroughs</i> to allow trapped
-          devices to reach web sites. Modifying this parameter requires to restart
-          pfdns and iptables to be fully effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_passthroughs_2"><i
-          class="icon-question-circle-o"></i></a> '
-        type: string
-      passthroughs:
-        description: 'Comma-delimited list of domains to allow access from the registration
-          VLAN.If no port is specified for the domain (ex: example.com), it opens
-          TCP 80 and 443.You can specify a specific port to open (ex: example.com:tcp:25)
-          which opens port 25 in TCP. When no protocol is specified (ex: example.com:25),
-          this opens the port for both the UDP and TCP protocol.You can specify the
-          same domain with a different port multiple times and they will be combined.The
-          configuration parameter <i>passthrough</i> must be enabled for passthroughs
-          to be effective.These passthroughs are only effective in registration networks,
-          for passthroughs in isolation, use fencing.isolation_passthroughs.'
-        type: string
-      proxy_passthroughs:
-        description: 'Comma-delimited list of domains to be used with Apache passthroughs.
-          The configuration parameter <i>passthrough</i> must be enabled for passthroughs
-          to be effective. <a target="_blank" href="/static/doc/PacketFence_Installation_Guide.html#_apache_mod_proxy_passthroughs"><i
-          class="icon-question-circle-o"></i></a> '
-        type: string
-      range:
-        description: Address ranges/CIDR blocks that PacketFence will monitor/detect/trap
-          on.  Gateway, network, and broadcast addresses are ignored. Comma-delimited
-          entries should be of the form <ul><li>a.b.c.0/24</li><li>a.b.c.0-255</li><li>a.b.c.0-a.b.c.255</li><li>a.b.c.d</li></ul>
-        type: string
-      wait_for_redirect:
-        description: How many seconds the webservice should wait before deassociating
-          or reassigning VLAN. If we don't wait, the device may switch VLAN before
-          it has a chance to load the redirection page.
-        type: integer
-      whitelist:
-        description: Comma-delimited list of MAC addresses that are immune to isolation.
-          In inline Level 2 enforcement, the firewall is opened for them as if they
-          were registered. This <i>feature</i> will probably be reworked in the future.
+      ssid:
+        description: The hidden SSID where the user should connect to after registration
         type: string
     type: object
   - properties:
@@ -868,169 +1045,73 @@ ConfigBase:
         type: string
     type: object
   - properties:
-      dhcpservers:
-        description: Comma-delimited list of DHCP servers.
+      db:
+        description: Name of the MySQL database used by PacketFence.
         type: string
-      domain:
-        description: Domain name of PacketFence system. Changing this requires to
-          restart haproxy-portal.
-        type: string
-      hostname:
-        description: Hostname of PacketFence system. This is concatenated with the
-          domain in Apache rewriting rules and therefore must be resolvable by clients.
-          Changing this requires to restart haproxy-portal.
+      host:
+        description: Server the MySQL server is running on.
         type: string
       id:
         description: Id
         type: string
-      send_anonymous_stats:
-        description: Whether or not to send anonymous statistics on how you use PacketFence
+      pass:
+        description: Password for the MySQL database used by PacketFence.
         type: string
-      timezone:
-        description: System's timezone in string format. List generated from Perl
-          library DataTime::TimeZoneWhen left empty, it will use the timezone of the
-          server
+      port:
+        description: Port the MySQL server is running on.
+        type: string
+      unix_socket:
+        description: The path to the UNIX socket for the database
+        type: string
+      user:
+        description: Username of the account with access to the MySQL database used
+          by PacketFence.
         type: string
     type: object
   - properties:
-      id:
-        description: Id
+      detection_mecanism_bypass:
+        description: Bypass the captive-portal detection mechanism of some browsers
+          / end-points by proxying the detection request.
         type: string
-    type: object
-  - properties:
-      filter_in_eduroam_authorize:
-        description: Send the radius request in the radius filter from the radius
-          eduroam.authorize section.Requires a restart of radiusd to be effective.
+      detection_mecanism_urls:
+        description: Comma-delimited list of URLs known to be used by devices to detect
+          the presence of a captive portal and trigger their captive portal mechanism.
         type: string
-      filter_in_eduroam_post_proxy:
-        description: Send the radius request in the radius filter from the radius
-          eduroam.post_proxy section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_eduroam_pre_proxy:
-        description: Send the radius request in the radius filter from the radius
-          eduroam.pre_proxy section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_eduroam_preacct:
-        description: Send the radius request in the radius filter from the radius
-          eduroam.preacct section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_packetfence-tunnel_authorize:
-        description: Send the radius request in the radius filter from the radius
-          packetfence-tunnel.authorize section.Requires a restart of radiusd to be
-          effective.
-        type: string
-      filter_in_packetfence_accounting:
-        description: Send the radius request in the radius filter from the radius
-          packetfence.accounting section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_packetfence_authorize:
-        description: Send the radius request in the radius filter from the radius
-          packetfence.authorize section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_packetfence_post_proxy:
-        description: Send the radius request in the radius filter from the radius
-          packetfence.post_proxy section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_packetfence_pre_proxy:
-        description: Send the radius request in the radius filter from the radius
-          packetfence.pre_proxy section.Requires a restart of radiusd to be effective.
-        type: string
-      filter_in_packetfence_preacct:
-        description: Send the radius request in the radius filter from the radius
-          packetfence.preacct section.Requires a restart of radiusd to be effective.
-        type: string
-      forward_key_balanced:
-        description: Send in the proxy request the attribute PacketFence-KeyBalanced
-          to randomize the load balance in the next PacketFence RADIUS server.Useful
-          when you have multiple radius servers chained like 1-2-2 the default modulo
-          result will be the same on each server.
+      expose_fingerbank_info_all_templates:
+        description: Expose the fingerbank_info to all the captive portal templates.
+          Increases the response time of the portal due to it being slightly expensive
+          to compute.
         type: string
       id:
         description: Id
         type: string
-      local_auth:
-        description: Field described in JS files
+      image_path:
+        description: This is the path where the gif is on the webserver to detect
+          if the network accesshas been enabled.
         type: string
-      normalize_radius_machine_auth_username:
-        description: Use the RADIUS username instead of the TLS certificate common
-          name when doing machine authentication.
+      ip_address:
+        description: The IP address the portal uses in the registration and isolation
+          networks.Do not change unless you know what you are doing.
         type: string
-      ntlm_redis_cache:
-        description: Enables a Redis driven cache for NTLM authentication.In order
-          for this to work, you need to setup proper NT hash syncronization between
-          your PacketFence server and your AD.Refer to the Administration guide for
-          more details.Applying this requires a restart of radiusd.
+      loadbalancers_ip:
+        description: 'If the captive portal is put behind load-balancer(s) that act
+          at Layer 7 (HTTP level) effectively doing reverse proxying then the captive
+          portal no longer sees the IP of the node trying to access the portal. In
+          that case, the load-balancers must do SSL offloading and add a X-Forwarded-By
+          header in the HTTP traffic they forward to PacketFence. Most do by default.
+          Then in this parameter you must specify the IP of the various load balancers.
+          This will instruct the captive portal to look for client IPs in the X-Forwarded-For
+          instead of the actual TCP session when it matches an IP in the list. Format
+          is a comma separated list of IPs. Note: Apache access log format is not
+          changed to automatically log the X-Forwarded-By header. Modify conf/httpd.conf.d/captive-portal-common.conf
+          to use load balanced combined instead of combined in CustomLog statement.'
         type: string
-      pfacct_work_queue_size:
-        description: The size of the queue for each worker.
-        type: integer
-      pfacct_workers:
-        description: The number of workers proccessing accounting packets.
-        type: integer
-      process_bandwidth_accounting:
-        description: Process bandwidth accounting.
+      network_detection:
+        description: Enable the automatic network detection feature for registration
+          auto-redirect
         type: string
-      radius_attributes:
-        description: List of RADIUS attributes that can be used in the sources configuration
-        type: string
-      record_accounting_in_sql:
-        description: Record the accounting data in the SQL tables.Requires a restart
-          of radiusd to be effective.
-        type: string
-      username_attributes:
-        description: Which attributes to use to get the username from a RADIUS request.The
-          order of the attributes are listed in this configuration parameter is followed
-          while performing the lookup.
-        type: string
-    type: object
-  - properties:
-      emailaddr:
-        description: Comma-delimited list of email addresses to which notifications
-          of rogue DHCP servers, violations with an action of <i>email</i>, or any
-          other PacketFence-related message goes to.
-        type: string
-      fromaddr:
-        description: Email address from which notifications of rogue DHCP servers,
-          violations with an action of <i>email</i>, or any other PacketFence-related
-          message are sent.Empty means <code>root@&lt;server-domain-name&gt;</code>.
-        type: string
-      id:
-        description: Id
-        type: string
-      smtp_encryption:
-        description: Encryption style when connecting to the SMTP server.
-        type: string
-      smtp_password:
-        description: The password used to connect to the SMTP server
-        type: string
-      smtp_port:
-        description: 'The port of the SMTP server. If the port is set to 0 then port
-          is calculated by the encryption type. none: 25, ssl: 465, starttls: 587'
-        type: integer
-      smtp_timeout:
-        description: The timeout in seconds for sending an email
-        type: integer
-      smtp_username:
-        description: The username used to connect to the SMTP server
-        type: string
-      smtp_verifyssl:
-        description: Verify SSL connection
-        type: string
-      smtpserver:
-        description: Server through which to send messages. The default is localhost
-          - besure you're running an SMTP host locally if you don't change it.
-        type: string
-      subjectprefix:
-        description: Subject prefix for email notifications of rogue DHCP servers,
-          violations with an action of <i>email</i>, or any other PacketFence-related
-          message.
-        type: string
-    type: object
-  - properties:
-      bounce_duration:
-        description: Delay to wait between the shut / no-shut on a port. Some OS need
-          a higher value than others. Default should be reasonable for almost every
-          OS but is too long for the usual proprietary OS.
+      network_detection_initial_delay:
+        description: The amount of time before network connectivity detection is started.
         properties:
           interval:
             description: Interval
@@ -1039,145 +1120,64 @@ ConfigBase:
             description: Unit
             type: string
         type: object
-      id:
-        description: Id
+      network_detection_ip:
+        description: This IP is used as the webserver who hosts the common/network-access-detection.gif
+          which is used to detect if network access was enabled. It cannot be a domain
+          name since it is used in registration or quarantine where DNS is blackholed.
+          It is recommended that you allow your users to reach your PacketFence server
+          and put your LAN's PacketFence IP. By default we will make this reach PacketFence's
+          website as an easy solution.
         type: string
-      trap_limit:
-        description: Controls whether or not the trap limit feature is enabled. Trap
-          limiting is a way to limit the damage done by malicious users or misbehaving
-          switch that sends too many traps to PacketFence causing it to be overloaded.
-          Trap limiting is controlled by the trap limit threshold and trap limit action
-          parameters. Default is enabled.
+      network_detection_retry_delay:
+        description: The amount of time between network connectivity detection checks.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      network_redirect_delay:
+        description: How long to display the progress bar during trap release. Default
+          value is based on VLAN enforcement techniques. Inline enforcement only users
+          could lower the value.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      other_domain_names:
+        description: Other domain names under which the captive portal responds.Requires
+          to restart haproxy-portal to be fully effective.
         type: string
-      trap_limit_action:
-        description: Action that PacketFence will take if the snmp_traps.trap_limit_threshold
-          is reached. Defaults to none. email will send an email every hour if the
-          limit's still reached. shut will shut the port on the switch and will also
-          send an email even if email is not specified.
-        items:
-          description: Action that PacketFence will take if the snmp_traps.trap_limit_threshold
-            is reached. Defaults to none. email will send an email every hour if the
-            limit's still reached. shut will shut the port on the switch and will
-            also send an email even if email is not specified.
-          type: string
-        type: array
-      trap_limit_threshold:
-        description: Maximum number of SNMP traps that a switchport can send to PacketFence
-          within a minute without being flagged as DoS. Defaults to 100.
+      rate_limiting:
+        description: Temporarily deny access to a user that performs too many requests
+          on the captive portal on invalid URLsRequires to restart haproxy-portal
+          in order to apply the change.
+        type: string
+      rate_limiting_threshold:
+        description: Amount of requests on invalid URLs after which the rate limiting
+          will kick in for this device.Requires to restart haproxy-portal in order
+          to apply the change.
         type: integer
-    type: object
-  - properties:
-      enabled:
-        description: Enable MSE
-        type: string
-      id:
-        description: Id
-        type: string
-      pass:
-        description: Password for MSE service
-        type: string
-      url:
-        description: URL of MSE service
-        type: string
-      user:
-        description: Username for MSE service
-        type: string
-    type: object
-  - properties:
-      id:
-        description: Id
-        type: string
-      lease_length:
-        description: Lease length (in seconds) when a device is in parking
+      request_timeout:
+        description: The amount of seconds before a request times out in the captive
+          portal
         type: integer
-      place_in_dhcp_parking_group:
-        description: Place the device in the DHCP parking group when it is detected
-          doing parking
+      secure_redirect:
+        description: Force the captive portal to use HTTPS for all portal clients.Note
+          that clients will be forced to use HTTPS on all URLs.This requires a restart
+          of the httpd.portal process to be fully effective.
         type: string
-      show_parking_portal:
-        description: Show the parking portal to the device instead of the usual portal
+      status_only_on_production:
+        description: When enabled the /status page will only be available on theproduction
+          network. By default this is disabled
         type: string
-      threshold:
-        description: The threshold (in seconds) after which a device will be placed
-          in parking.A value of 0 deactivates the parking detection.The detection
-          works by looking at the time in seconds a device has been in the registration
-          role and comparing it with this threshold.
-        type: integer
-    type: object
-  - properties:
-      id:
-        description: Id
-        type: string
-      interfaceSNAT:
-        description: Comma-delimited list of interfaces used to SNAT inline level
-          2 traffic
-        type: string
-      ports_redirect:
-        description: Ports to intercept and redirect for trapped and unregistered
-          systems.  Defaults to 80/tcp (HTTP), 443/tcp (HTTPS). Redirecting 443/tcp
-          (SSL) will work, although users might get certificate errors if you didn't
-          install a valid certificate or if you don't use DNS (although IP-based certificates
-          supposedly exist). Redirecting 53/udp (DNS) seems to have issues and is
-          also not recommended.
-        type: string
-      should_reauth_on_vlan_change:
-        description: Should have to reauthenticate the node if vlan change
-        type: string
-    type: object
-  - properties:
-      device_class_whitelist:
-        description: 'Which device class changes are allowed in conjunction with trigger_on_device_class_changeComma
-          delimited transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code>
-          where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in
-          the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android
-          OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive,
-          Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter
-          Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming
-          Console</b> = 6</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet
-          of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b>
-          = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> =
-          8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network
-          Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone,
-          Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point
-          of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b>
-          = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router,
-          Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch
-          and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video
-          Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows
-          OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>'
-        type: string
-      enable:
-        description: Whether or not the Fingerbank device change feature is enabled
-        type: string
-      id:
-        description: Id
-        type: string
-      trigger_on_device_class_change:
-        description: Whether or not internal::fingerbank_device_change should be triggered
-          when we detect a device class change in Fingerbank
-        type: string
-      triggers:
-        description: 'Which changes (changing from a device class to another) should
-          trigger internal::fingerbank_device_change. This setting is independant
-          from trigger_on_device_class_change and allows to specify exactly which
-          transitions should trigger internal::fingerbank_device_change. Comma delimited
-          transitions using the following format: <code>$PREVIOUS_DEVICE_CLASS_ID-&gt;$NEW_DEVICE_CLASS_ID</code>
-          where $PREVIOUS_DEVICE_CLASS_ID and $NEW_DEVICE_CLASS_ID are the IDs in
-          the Fingerbank database.<br><br>Valid device classes IDs are: <ul><li><b>Android
-          OS</b> = 33453</li><li><b>Audio, Imaging or Video Equipment</b> = 7</li><li><b>Automotive,
-          Energy and Tools</b> = 73235</li><li><b>Blackberry OS</b> = 33471</li><li><b>Datacenter
-          Appliance</b> = 23</li><li><b>Firewall and Security Appliance</b> = 33738</li><li><b>Gaming
-          Console</b> = 6</li><li><b>Hardware Manufacturer</b> = 16861</li><li><b>Internet
-          of Things (IoT)</b> = 15</li><li><b>iOS</b> = 33450</li><li><b>Linux OS</b>
-          = 5</li><li><b>Mac OS X or macOS</b> = 2</li><li><b>Medical Device</b> =
-          8238</li><li><b>Monitoring and Testing Device</b> = 12</li><li><b>Network
-          Boot Agent</b> = 17</li><li><b>Operating System</b> = 16879</li><li><b>Phone,
-          Tablet or Wearable</b> = 11</li><li><b>Physical Security</b> = 22</li><li><b>Point
-          of Sale Device</b> = 24</li><li><b>Printer or Scanner</b> = 8</li><li><b>Projector</b>
-          = 20</li><li><b>Robotics and Industrial Automation</b> = 16842</li><li><b>Router,
-          Access Point or Femtocell</b> = 4</li><li><b>Storage Device</b> = 10</li><li><b>Switch
-          and Wireless Controller</b> = 9</li><li><b>Thin Client</b> = 21</li><li><b>Video
-          Conferencing</b> = 13</li><li><b>VoIP Device</b> = 3</li><li><b>Windows
-          OS</b> = 1</li><li><b>Windows Phone OS</b> = 33507</li></ul>'
+      wispr_redirection:
+        description: Enable or disable WISPr redirection capabilities on the captive-portal
         type: string
     type: object

@@ -3,262 +3,6 @@ ConfigMaintenanceTask:
     propertyName: type
   oneOf:
   - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-      window:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      type:
-        description: Type
-        type: string
-      window:
-        description: Window to apply the job to. In the case of a deletion, setting
-          this to 7 days would delete affected data older than 7 days.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      delete_window:
-        description: How long can an unregistered node be inactive on the network
-          before being deleted.<br>This shouldn't be used if you are using port-security
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-      unreg_window:
-        description: How long can a registered node be inactive on the network before
-          it becomes unregistered
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      voip:
-        description: Enable voip device cleanup
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
       batch:
         description: Amount of items that will be processed in each batch of this
           task. Batches are executed until there is no more items to process or until
@@ -297,162 +41,6 @@ ConfigMaintenanceTask:
             description: Unit
             type: string
         type: object
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      type:
-        description: Type
-        type: string
-      window:
-        description: Window to apply the job to. In the case of a deletion, setting
-          this to 7 days would delete affected data older than 7 days.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      type:
-        description: Type
-        type: string
-      window:
-        description: Window
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      id:
-        description: Pfcron Name
-        type: string
-      schedule:
-        description: The schedule for maintenance task (cron like spec).
-        type: string
-      status:
-        description: Whether or not this task is enabled.<br>Requires a restart of
-          pfcron to be effective.
-        type: string
-      type:
-        description: Type
-        type: string
     required:
     - id
     - type
@@ -564,6 +152,436 @@ ConfigMaintenanceTask:
             description: Unit
             type: string
         type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+      window:
+        description: Window to apply the job to. In the case of a deletion, setting
+          this to 7 days would delete affected data older than 7 days.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+      window:
+        description: Window to apply the job to. In the case of a deletion, setting
+          this to 7 days would delete affected data older than 7 days.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
+      window:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      certificates:
+        description: SSL certificate(s) to monitor. Comma-delimited list
+        type: string
+      delay:
+        description: Minimum gap before certificate expiration date (will the certificate
+          expires in ...)
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+      window:
+        description: Window
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      rotate:
+        description: Enable or disable ip6log rotation (moving ip6log_history records
+          to ip6log_archive)<br>If disabled, this task will delete from the ip6log_history
+          table rather than the ip6log_archive.
+        type: string
+      rotate_batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      rotate_timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      rotate_window:
+        description: How long to keep ip6log history entry before rotating it to ip6log
+          archive.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+      window:
+        description: How long to keep a ip6log archive entry before deleting it (or
+          ip6log history if rotation is disabled)
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+      window:
+        description: Window to apply the job to. In the case of a deletion, setting
+          this to 7 days would delete affected data older than 7 days.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      batch:
+        description: Amount of items that will be processed in each batch of this
+          task. Batches are executed until there is no more items to process or until
+          the timeout is reached.
+        type: integer
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      timeout:
+        description: Maximum amount of time this task can run.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
     required:
     - id
     - type
@@ -691,10 +709,6 @@ ConfigMaintenanceTask:
       id:
         description: Pfcron Name
         type: string
-      process_switchranges:
-        description: Whether or not a switch range should be expanded to process each
-          of its IPs
-        type: string
       schedule:
         description: The schedule for maintenance task (cron like spec).
         type: string
@@ -710,20 +724,6 @@ ConfigMaintenanceTask:
     - type
     type: object
   - properties:
-      certificates:
-        description: SSL certificate(s) to monitor. Comma-delimited list
-        type: string
-      delay:
-        description: Minimum gap before certificate expiration date (will the certificate
-          expires in ...)
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
       id:
         description: Pfcron Name
         type: string
@@ -788,6 +788,10 @@ ConfigMaintenanceTask:
       id:
         description: Pfcron Name
         type: string
+      process_switchranges:
+        description: Whether or not a switch range should be expanded to process each
+          of its IPs
+        type: string
       schedule:
         description: The schedule for maintenance task (cron like spec).
         type: string
@@ -803,11 +807,6 @@ ConfigMaintenanceTask:
     - type
     type: object
   - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
       id:
         description: Pfcron Name
         type: string
@@ -818,74 +817,28 @@ ConfigMaintenanceTask:
         description: Whether or not this task is enabled.<br>Requires a restart of
           pfcron to be effective.
         type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
       type:
         description: Type
         type: string
-      window:
-        description: Window to apply the job to. In the case of a deletion, setting
-          this to 7 days would delete affected data older than 7 days.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
     required:
     - id
     - type
     type: object
   - properties:
-      batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
+      delete_window:
+        description: How long can an unregistered node be inactive on the network
+          before being deleted.<br>This shouldn't be used if you are using port-security
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
       id:
         description: Pfcron Name
         type: string
-      rotate:
-        description: Enable or disable ip6log rotation (moving ip6log_history records
-          to ip6log_archive)<br>If disabled, this task will delete from the ip6log_history
-          table rather than the ip6log_archive.
-        type: string
-      rotate_batch:
-        description: Amount of items that will be processed in each batch of this
-          task. Batches are executed until there is no more items to process or until
-          the timeout is reached.
-        type: integer
-      rotate_timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      rotate_window:
-        description: How long to keep ip6log history entry before rotating it to ip6log
-          archive.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
       schedule:
         description: The schedule for maintenance task (cron like spec).
         type: string
@@ -893,22 +846,12 @@ ConfigMaintenanceTask:
         description: Whether or not this task is enabled.<br>Requires a restart of
           pfcron to be effective.
         type: string
-      timeout:
-        description: Maximum amount of time this task can run.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
       type:
         description: Type
         type: string
-      window:
-        description: How long to keep a ip6log archive entry before deleting it (or
-          ip6log history if rotation is disabled)
+      unreg_window:
+        description: How long can a registered node be inactive on the network before
+          it becomes unregistered
         properties:
           interval:
             description: Interval
@@ -917,6 +860,63 @@ ConfigMaintenanceTask:
             description: Unit
             type: string
         type: object
+      voip:
+        description: Enable voip device cleanup
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      id:
+        description: Pfcron Name
+        type: string
+      schedule:
+        description: The schedule for maintenance task (cron like spec).
+        type: string
+      status:
+        description: Whether or not this task is enabled.<br>Requires a restart of
+          pfcron to be effective.
+        type: string
+      type:
+        description: Type
+        type: string
     required:
     - id
     - type

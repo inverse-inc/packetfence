@@ -31,61 +31,7 @@ ConfigFirewall:
           : 192.168.0.0/24'
         type: string
       password:
-        description: Secret or Key
-        type: string
-      port:
-        description: If you use an alternative port, please specify
-        type: integer
-      type:
-        description: Type
-        type: string
-      uid:
-        description: UID type
-        type: string
-      use_connector:
-        description: Use connector
-        type: string
-      username_format:
-        description: Defines how to format the username that is sent to your firewall.
-          $username represents the username and $realm represents the realm of your
-          user if applicable. $pf_username represents the unstripped username as it
-          is stored in the PacketFence database. If left empty, it will use the username
-          as stored in PacketFence (value of $pf_username).
-        type: string
-    required:
-    - id
-    - password
-    type: object
-  - properties:
-      cache_timeout:
-        description: Adjust the "Cache timeout" to half the expiration delay in your
-          firewall.<br/>Your DHCP renewal interval should match this value.
-        type: integer
-      cache_updates:
-        description: Enable this to debounce updates to the Firewall.<br/>By default,
-          PacketFence will send a SSO on every DHCP request for every device. Enabling
-          this enables "sleep" periods during which the update is not sent if the
-          informations stay the same.
-        type: string
-      categories:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      default_realm:
-        description: The default realm to be used while formatting the username when
-          no realm can be extracted from the username.
-        type: string
-      id:
-        description: Hostname or IP Address
-        type: string
-      networks:
-        description: 'Comma delimited list of networks on which the SSO applies.<br/>Format
-          : 192.168.0.0/24'
-        type: string
-      password:
-        description: Secret or Key
+        description: Secret
         type: string
       port:
         description: If you use an alternative port, please specify
@@ -261,6 +207,59 @@ ConfigFirewall:
       use_connector:
         description: Use connector
         type: string
+      username_format:
+        description: Defines how to format the username that is sent to your firewall.
+          $username represents the username and $realm represents the realm of your
+          user if applicable. $pf_username represents the unstripped username as it
+          is stored in the PacketFence database. If left empty, it will use the username
+          as stored in PacketFence (value of $pf_username).
+        type: string
+    required:
+    - id
+    type: object
+  - properties:
+      cache_timeout:
+        description: Adjust the "Cache timeout" to half the expiration delay in your
+          firewall.<br/>Your DHCP renewal interval should match this value.
+        type: integer
+      cache_updates:
+        description: Enable this to debounce updates to the Firewall.<br/>By default,
+          PacketFence will send a SSO on every DHCP request for every device. Enabling
+          this enables "sleep" periods during which the update is not sent if the
+          informations stay the same.
+        type: string
+      categories:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      default_realm:
+        description: The default realm to be used while formatting the username when
+          no realm can be extracted from the username.
+        type: string
+      id:
+        description: Hostname or IP Address
+        type: string
+      networks:
+        description: 'Comma delimited list of networks on which the SSO applies.<br/>Format
+          : 192.168.0.0/24'
+        type: string
+      password:
+        description: Password
+        type: string
+      port:
+        description: If you use an alternative port, please specify
+        type: integer
+      type:
+        description: Type
+        type: string
+      uid:
+        description: UID type
+        type: string
+      use_connector:
+        description: Use connector
+        type: string
       username:
         description: Username
         type: string
@@ -300,12 +299,15 @@ ConfigFirewall:
       id:
         description: Hostname or IP Address
         type: string
+      nac_name:
+        description: Should match the NAC name from the Iboss configuration
+        type: string
       networks:
         description: 'Comma delimited list of networks on which the SSO applies.<br/>Format
           : 192.168.0.0/24'
         type: string
       password:
-        description: Secret
+        description: Change the default key if necessary
         type: string
       port:
         description: If you use an alternative port, please specify
@@ -409,6 +411,60 @@ ConfigFirewall:
         description: The default realm to be used while formatting the username when
           no realm can be extracted from the username.
         type: string
+      id:
+        description: Hostname or IP Address
+        type: string
+      networks:
+        description: 'Comma delimited list of networks on which the SSO applies.<br/>Format
+          : 192.168.0.0/24'
+        type: string
+      password:
+        description: Secret or Key
+        type: string
+      port:
+        description: If you use an alternative port, please specify
+        type: integer
+      type:
+        description: Type
+        type: string
+      uid:
+        description: UID type
+        type: string
+      use_connector:
+        description: Use connector
+        type: string
+      username_format:
+        description: Defines how to format the username that is sent to your firewall.
+          $username represents the username and $realm represents the realm of your
+          user if applicable. $pf_username represents the unstripped username as it
+          is stored in the PacketFence database. If left empty, it will use the username
+          as stored in PacketFence (value of $pf_username).
+        type: string
+    required:
+    - id
+    - password
+    type: object
+  - properties:
+      cache_timeout:
+        description: Adjust the "Cache timeout" to half the expiration delay in your
+          firewall.<br/>Your DHCP renewal interval should match this value.
+        type: integer
+      cache_updates:
+        description: Enable this to debounce updates to the Firewall.<br/>By default,
+          PacketFence will send a SSO on every DHCP request for every device. Enabling
+          this enables "sleep" periods during which the update is not sent if the
+          informations stay the same.
+        type: string
+      categories:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      default_realm:
+        description: The default realm to be used while formatting the username when
+          no realm can be extracted from the username.
+        type: string
       deviceid:
         description: Please define the device id.
         type: string
@@ -468,15 +524,12 @@ ConfigFirewall:
       id:
         description: Hostname or IP Address
         type: string
-      nac_name:
-        description: Should match the NAC name from the Iboss configuration
-        type: string
       networks:
         description: 'Comma delimited list of networks on which the SSO applies.<br/>Format
           : 192.168.0.0/24'
         type: string
       password:
-        description: Change the default key if necessary
+        description: Password
         type: string
       port:
         description: If you use an alternative port, please specify
@@ -490,6 +543,9 @@ ConfigFirewall:
       use_connector:
         description: Use connector
         type: string
+      username:
+        description: Username
+        type: string
       username_format:
         description: Defines how to format the username that is sent to your firewall.
           $username represents the username and $realm represents the realm of your
@@ -500,6 +556,7 @@ ConfigFirewall:
     required:
     - id
     - password
+    - username
     type: object
   - properties:
       cache_timeout:
@@ -592,7 +649,7 @@ ConfigFirewall:
           : 192.168.0.0/24'
         type: string
       password:
-        description: Password
+        description: Secret or Key
         type: string
       port:
         description: If you use an alternative port, please specify
@@ -605,9 +662,6 @@ ConfigFirewall:
         type: string
       use_connector:
         description: Use connector
-        type: string
-      username:
-        description: Username
         type: string
       username_format:
         description: Defines how to format the username that is sent to your firewall.
@@ -619,60 +673,6 @@ ConfigFirewall:
     required:
     - id
     - password
-    - username
-    type: object
-  - properties:
-      cache_timeout:
-        description: Adjust the "Cache timeout" to half the expiration delay in your
-          firewall.<br/>Your DHCP renewal interval should match this value.
-        type: integer
-      cache_updates:
-        description: Enable this to debounce updates to the Firewall.<br/>By default,
-          PacketFence will send a SSO on every DHCP request for every device. Enabling
-          this enables "sleep" periods during which the update is not sent if the
-          informations stay the same.
-        type: string
-      categories:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      default_realm:
-        description: The default realm to be used while formatting the username when
-          no realm can be extracted from the username.
-        type: string
-      id:
-        description: Hostname or IP Address
-        type: string
-      networks:
-        description: 'Comma delimited list of networks on which the SSO applies.<br/>Format
-          : 192.168.0.0/24'
-        type: string
-      password:
-        description: Password
-        type: string
-      port:
-        description: If you use an alternative port, please specify
-        type: integer
-      type:
-        description: Type
-        type: string
-      uid:
-        description: UID type
-        type: string
-      use_connector:
-        description: Use connector
-        type: string
-      username_format:
-        description: Defines how to format the username that is sent to your firewall.
-          $username represents the username and $realm represents the realm of your
-          user if applicable. $pf_username represents the unstripped username as it
-          is stored in the PacketFence database. If left empty, it will use the username
-          as stored in PacketFence (value of $pf_username).
-        type: string
-    required:
-    - id
     type: object
   - properties:
       cache_timeout:

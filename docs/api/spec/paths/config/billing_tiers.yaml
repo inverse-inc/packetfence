@@ -12,6 +12,6 @@
               $ref: '#/components/schemas/ConfigBillingTiersList'
         description: List
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'
