@@ -1,6 +1,6 @@
 ConfigTrafficShapingPoliciesList:
   allOf:
-  - $ref: '#/static/components/schemas/Iterable'
+  - $ref: '#/components/schemas/Iterable'
   - properties:
       items:
         description: List

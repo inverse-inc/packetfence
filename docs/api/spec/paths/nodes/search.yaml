@@ -134,7 +134,7 @@
       content:
         application/json:
           schema:
-            $ref: '#/static/components/schemas/Search'
+            $ref: '#/components/schemas/Search'
       description: Search for items
     responses:
       '200':
@@ -144,6 +144,6 @@
               $ref: '#/components/schemas/NodesList'
         description: List
       '400':
-        $ref: '#/static/components/responses/BadRequest'
+        $ref: '#/components/responses/BadRequest'
       '422':
-        $ref: '#/static/components/responses/UnprocessableEntity'
+        $ref: '#/components/responses/UnprocessableEntity'

@@ -171,10 +171,10 @@ sub dalToOpenAPISchemaProperties {
 
 our %OPERATION_PARAMETERS_LOOKUP = (
     list => [
-        { "\$ref" => '#/static/components/parameters/cursor' },
-        { "\$ref" => '#/static/components/parameters/limit' },
-        { "\$ref" => '#/static/components/parameters/fields' },
-        { "\$ref" => '#/static/components/parameters/sort' },
+        { "\$ref" => '#/components/parameters/cursor' },
+        { "\$ref" => '#/components/parameters/limit' },
+        { "\$ref" => '#/components/parameters/fields' },
+        { "\$ref" => '#/components/parameters/sort' },
     ],
 );
 
@@ -208,10 +208,10 @@ sub getResponses {
             },
         },
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -261,16 +261,16 @@ sub createResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         '201' => {
-            "\$ref" => '#/static/components/responses/Created'
+            "\$ref" => '#/components/responses/Created'
         },
         '400' => {
-            "\$ref" => '#/static/components/responses/BadRequest'
+            "\$ref" => '#/components/responses/BadRequest'
         },
         '409' => {
-            "\$ref" => '#/static/components/responses/Duplicate'
+            "\$ref" => '#/components/responses/Duplicate'
         },
         '422' => {
-            "\$ref" => '#/static/components/responses/UnprocessableEntity'
+            "\$ref" => '#/components/responses/UnprocessableEntity'
         },
     };
 }
@@ -299,7 +299,7 @@ sub searchRequestBody {
         content => {
             "application/json" => {
                 schema => {
-                    "\$ref" => "#/static/components/schemas/Search",
+                    "\$ref" => "#/components/schemas/Search",
                 }
             }
         }
@@ -326,10 +326,10 @@ sub listResponses {
             },
         },
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -396,13 +396,13 @@ sub updateResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            "\$ref" => "#/static/components/responses/Message"
+            "\$ref" => "#/components/responses/Message"
         },
         "400" => {
-            "\$ref" => "#/static/components/responses/BadRequest"
+            "\$ref" => "#/components/responses/BadRequest"
         },
         "422" => {
-            "\$ref" => "#/static/components/responses/UnprocessableEntity"
+            "\$ref" => "#/components/responses/UnprocessableEntity"
         }
     };
 }
@@ -495,7 +495,7 @@ sub generateListSchema {
     my ($self, $controller, $actions) = @_;
     return {
         allOf => [
-            { '$ref' => "#/static/components/schemas/Iterable" },
+            { '$ref' => "#/components/schemas/Iterable" },
             {
                 "properties" => {
                     "items" => {

@@ -147,13 +147,13 @@ sub fieldDescription {
 sub listSchema {
     my ($name) = @_;
     return {
-        '$ref'     => '#/static/components/schemas/Iterable',
+        '$ref'     => '#/components/schemas/Iterable',
         type       => 'object',
         properties => {
             items => {
                 type    => 'array',
                 'items' => {
-                    '$ref' => "#/static/components/schemas/$name"
+                    '$ref' => "#/components/schemas/$name"
                 },
                 description => "List",
             }

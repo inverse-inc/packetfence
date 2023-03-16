@@ -6,6 +6,26 @@ ConfigSyslogForwarder:
       all_logs:
         description: All logs
         type: string
+      id:
+        description: Syslog Name
+        type: string
+      logs:
+        description: Logs
+        items:
+          description: Logs
+          type: string
+        type: array
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      all_logs:
+        description: All logs
+        type: string
       host:
         description: Host
         type: string
@@ -33,24 +53,4 @@ ConfigSyslogForwarder:
     - proto
     - host
     - port
-    type: object
-  - properties:
-      all_logs:
-        description: All logs
-        type: string
-      id:
-        description: Syslog Name
-        type: string
-      logs:
-        description: Logs
-        items:
-          description: Logs
-          type: string
-        type: array
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
     type: object

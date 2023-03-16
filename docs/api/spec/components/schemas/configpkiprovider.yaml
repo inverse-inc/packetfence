@@ -4,97 +4,6 @@ ConfigPkiProvider:
   oneOf:
   - properties:
       ca_cert_path:
-        description: Path of the CA that will generate your certificates
-        type: string
-      ca_cert_path_upload:
-        description: Ca cert path upload
-        type: file
-      cn_attribute:
-        description: Defines what attribute of the node to use as the common name
-          during the certificate generation.
-        type: string
-      cn_format:
-        description: Defines how the common name will be formated. %s will expand
-          to the defined Common Name Attribute value
-        type: string
-      country:
-        description: Country for the certificate
-        type: string
-      id:
-        description: Id
-        type: string
-      locality:
-        description: Locality for the certificate
-        type: string
-      organization:
-        description: Organization for the certificate
-        type: string
-      organizational_unit:
-        description: Organizational unit for the certificate
-        type: string
-      password:
-        description: Password for the username filled in above
-        type: string
-      server_cert_path:
-        description: Path of the RADIUS server authentication certificate
-        type: string
-      server_cert_path_upload:
-        description: Server cert path upload
-        type: file
-      state:
-        description: State for the certificate
-        type: string
-      type:
-        description: Type
-        type: string
-      url:
-        description: The url used to connect to the SCEP PKI service
-        type: string
-      username:
-        description: Username to connect to the SCEP PKI Service
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      ca_cert_path:
-        description: Path of the CA certificate used to generate client certificate/key
-          combination
-        type: string
-      ca_cert_path_upload:
-        description: Ca cert path upload
-        type: file
-      client_cert_path:
-        description: Path of the client cert that will be used to generate the p12
-        type: string
-      client_cert_path_upload:
-        description: Client cert path upload
-        type: file
-      client_key_path:
-        description: Path of the client key that will be used to generate the p12
-        type: string
-      client_key_path_upload:
-        description: Client key path upload
-        type: file
-      id:
-        description: Id
-        type: string
-      server_cert_path:
-        description: Path of the RADIUS server authentication certificate
-        type: string
-      server_cert_path_upload:
-        description: Server cert path upload
-        type: file
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      ca_cert_path:
         description: Path of the CA certificate that will generate your certificates
         type: string
       ca_cert_path_upload:
@@ -159,6 +68,97 @@ ConfigPkiProvider:
         type: string
       username:
         description: Username to connect to the PKI
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      ca_cert_path:
+        description: Path of the CA certificate used to generate client certificate/key
+          combination
+        type: string
+      ca_cert_path_upload:
+        description: Ca cert path upload
+        type: file
+      client_cert_path:
+        description: Path of the client cert that will be used to generate the p12
+        type: string
+      client_cert_path_upload:
+        description: Client cert path upload
+        type: file
+      client_key_path:
+        description: Path of the client key that will be used to generate the p12
+        type: string
+      client_key_path_upload:
+        description: Client key path upload
+        type: file
+      id:
+        description: Id
+        type: string
+      server_cert_path:
+        description: Path of the RADIUS server authentication certificate
+        type: string
+      server_cert_path_upload:
+        description: Server cert path upload
+        type: file
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      ca_cert_path:
+        description: Path of the CA that will generate your certificates
+        type: string
+      ca_cert_path_upload:
+        description: Ca cert path upload
+        type: file
+      cn_attribute:
+        description: Defines what attribute of the node to use as the common name
+          during the certificate generation.
+        type: string
+      cn_format:
+        description: Defines how the common name will be formated. %s will expand
+          to the defined Common Name Attribute value
+        type: string
+      country:
+        description: Country for the certificate
+        type: string
+      id:
+        description: Id
+        type: string
+      locality:
+        description: Locality for the certificate
+        type: string
+      organization:
+        description: Organization for the certificate
+        type: string
+      organizational_unit:
+        description: Organizational unit for the certificate
+        type: string
+      password:
+        description: Password for the username filled in above
+        type: string
+      server_cert_path:
+        description: Path of the RADIUS server authentication certificate
+        type: string
+      server_cert_path_upload:
+        description: Server cert path upload
+        type: file
+      state:
+        description: State for the certificate
+        type: string
+      type:
+        description: Type
+        type: string
+      url:
+        description: The url used to connect to the SCEP PKI service
+        type: string
+      username:
+        description: Username to connect to the SCEP PKI Service
         type: string
     required:
     - id
