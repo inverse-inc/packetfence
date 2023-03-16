@@ -3,17 +3,11 @@ ConfigProvisioning:
     propertyName: type
   oneOf:
   - properties:
-      access_token:
-        description: Access token
+      api_password:
+        description: API password
         type: string
-      android_agent_download_uri:
-        description: Android agent download uri
-        type: string
-      applicationID:
-        description: ApplicationID
-        type: string
-      applicationSecret:
-        description: Application Secret
+      api_username:
+        description: API username
         type: string
       apply_role:
         description: When enabled, this will apply the configured role to the endpoint
@@ -32,10 +26,6 @@ ConfigProvisioning:
       description:
         description: Description
         type: string
-      domains:
-        description: Comma-separated list of domains that will be resolved with the
-          correct IP addresses.
-        type: string
       enforce:
         description: Whether or not the provisioner should be enforced. This will
           trigger checks to validate the device is compliant with the provisioner
@@ -47,14 +37,8 @@ ConfigProvisioning:
       id:
         description: Provisioning ID
         type: string
-      ios_agent_download_uri:
-        description: Ios agent download uri
-        type: string
-      loginUrl:
-        description: LoginUrl
-        type: string
       mac_osx_agent_download_uri:
-        description: Mac osx agent download uri
+        description: Mac OSX agent download URI
         type: string
       non_compliance_security_event:
         description: Which security event should be raised when non compliance is
@@ -83,29 +67,28 @@ ConfigProvisioning:
         description: Whether or not the PID (username) should be synchronized from
           the provisioner to PacketFence.
         type: string
-      tenantID:
-        description: Tenant ID
-        type: string
       type:
         description: Provisioning type
         type: string
       windows_agent_download_uri:
-        description: Windows agent download uri
+        description: Windows agent download URI
         type: string
     required:
     - id
     - type
-    - tenantID
-    - applicationID
-    - applicationSecret
     - port
+    - api_username
+    - api_password
     - windows_agent_download_uri
     - mac_osx_agent_download_uri
-    - ios_agent_download_uri
-    - android_agent_download_uri
-    - domains
     type: object
   - properties:
+      agent_download_uri:
+        description: Agent download uri
+        type: string
+      api_uri:
+        description: Api uri
+        type: string
       apply_role:
         description: When enabled, this will apply the configured role to the endpoint
           if it is authorized in the provisioner.
@@ -128,6 +111,9 @@ ConfigProvisioning:
           trigger checks to validate the device is compliant with the provisioner
           during RADIUS authentication and on the captive portal.
         type: string
+      host:
+        description: Host
+        type: string
       id:
         description: Provisioning ID
         type: string
@@ -141,6 +127,95 @@ ConfigProvisioning:
           description: Nodes with the selected OS will be affected
           type: string
         type: array
+      password:
+        description: Client Secret
+        type: string
+      pki_provider:
+        description: PKI Provider
+        type: string
+      port:
+        description: Port
+        type: integer
+      protocol:
+        description: Protocol
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      type:
+        description: Provisioning type
+        type: string
+      username:
+        description: Username
+        type: string
+    required:
+    - id
+    - type
+    - username
+    - password
+    - host
+    - port
+    - agent_download_uri
+    type: object
+  - properties:
+      android_download_uri:
+        description: Android download uri
+        type: string
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
+        type: string
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
+        type: string
+      boarding_host:
+        description: Boarding host
+        type: string
+      boarding_port:
+        description: Boarding port
+        type: integer
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      host:
+        description: Host
+        type: string
+      id:
+        description: Provisioning ID
+        type: string
+      ios_download_uri:
+        description: Ios download uri
+        type: string
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      password:
+        description: Password
+        type: string
       pki_provider:
         description: PKI Provider
         type: string
@@ -155,9 +230,23 @@ ConfigProvisioning:
       type:
         description: Provisioning type
         type: string
+      username:
+        description: Username
+        type: string
+      windows_phone_download_uri:
+        description: Windows phone download uri
+        type: string
     required:
     - id
     - type
+    - username
+    - password
+    - host
+    - android_download_uri
+    - ios_download_uri
+    - windows_phone_download_uri
+    - boarding_host
+    - boarding_port
     type: object
   - properties:
       apply_role:
@@ -174,6 +263,9 @@ ConfigProvisioning:
           description: Nodes with the selected roles will be affected
           type: string
         type: array
+      customer_id:
+        description: Customer id
+        type: string
       description:
         description: Description
         type: string
@@ -181,6 +273,9 @@ ConfigProvisioning:
         description: Whether or not the provisioner should be enforced. This will
           trigger checks to validate the device is compliant with the provisioner
           during RADIUS authentication and on the captive portal.
+        type: string
+      host:
+        description: Host
         type: string
       id:
         description: Provisioning ID
@@ -198,9 +293,18 @@ ConfigProvisioning:
       pki_provider:
         description: PKI Provider
         type: string
+      port:
+        description: Port
+        type: string
+      protocol:
+        description: Protocol
+        type: string
       role_to_apply:
         description: When "Apply role" is enabled, this defines the role to apply
           when the device is authorized with the provisioner.
+        type: string
+      service_account:
+        description: Service account
         type: string
       sync_pid:
         description: Whether or not the PID (username) should be synchronized from
@@ -209,9 +313,14 @@ ConfigProvisioning:
       type:
         description: Provisioning type
         type: string
+      user:
+        description: User
+        type: string
     required:
     - id
     - type
+    - service_account
+    - user
     type: object
   - properties:
       apply_role:
@@ -319,6 +428,86 @@ ConfigProvisioning:
     - id
     - type
     - ssid
+    type: object
+  - properties:
+      agent_download_uri:
+        description: Agent download uri
+        type: string
+      api_uri:
+        description: Api uri
+        type: string
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
+        type: string
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
+        type: string
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      host:
+        description: Host
+        type: string
+      id:
+        description: Provisioning ID
+        type: string
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      password:
+        description: Client Secret
+        type: string
+      pki_provider:
+        description: PKI Provider
+        type: string
+      port:
+        description: Port
+        type: integer
+      protocol:
+        description: Protocol
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      type:
+        description: Provisioning type
+        type: string
+      username:
+        description: Username
+        type: string
+    required:
+    - id
+    - type
+    - username
+    - password
+    - host
+    - port
+    - agent_download_uri
     type: object
   - properties:
       apply_role:
@@ -451,9 +640,6 @@ ConfigProvisioning:
       description:
         description: Description
         type: string
-      device_type_detection:
-        description: Automatic device detection
-        type: string
       enforce:
         description: Whether or not the provisioner should be enforced. This will
           trigger checks to validate the device is compliant with the provisioner
@@ -484,12 +670,6 @@ ConfigProvisioning:
       protocol:
         description: Protocol
         type: string
-      query_computers:
-        description: Query JAMF computers inventory
-        type: string
-      query_mobiledevices:
-        description: Query JAMF mobile devices inventory
-        type: string
       role_to_apply:
         description: When "Apply role" is enabled, this defines the role to apply
           when the device is authorized with the provisioner.
@@ -497,6 +677,9 @@ ConfigProvisioning:
       sync_pid:
         description: Whether or not the PID (username) should be synchronized from
           the provisioner to PacketFence.
+        type: string
+      tenant_code:
+        description: Tenant code
         type: string
       type:
         description: Provisioning type
@@ -507,375 +690,7 @@ ConfigProvisioning:
     - port
     - api_username
     - api_password
-    type: object
-  - properties:
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      customer_id:
-        description: Customer id
-        type: string
-      description:
-        description: Description
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      host:
-        description: Host
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      pki_provider:
-        description: PKI Provider
-        type: string
-      port:
-        description: Port
-        type: string
-      protocol:
-        description: Protocol
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      service_account:
-        description: Service account
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-      user:
-        description: User
-        type: string
-    required:
-    - id
-    - type
-    - service_account
-    - user
-    type: object
-  - properties:
-      agent_download_uri:
-        description: Agent download uri
-        type: string
-      api_uri:
-        description: Api uri
-        type: string
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      description:
-        description: Description
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      host:
-        description: Host
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Client Secret
-        type: string
-      pki_provider:
-        description: PKI Provider
-        type: string
-      port:
-        description: Port
-        type: integer
-      protocol:
-        description: Protocol
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-      username:
-        description: Username
-        type: string
-    required:
-    - id
-    - type
-    - username
-    - password
-    - host
-    - port
-    - agent_download_uri
-    type: object
-  - properties:
-      agent_download_uri:
-        description: Agent download uri
-        type: string
-      api_uri:
-        description: Api uri
-        type: string
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      description:
-        description: Description
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      host:
-        description: Host
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Client Secret
-        type: string
-      pki_provider:
-        description: PKI Provider
-        type: string
-      port:
-        description: Port
-        type: integer
-      protocol:
-        description: Protocol
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-      username:
-        description: Username
-        type: string
-    required:
-    - id
-    - type
-    - username
-    - password
-    - host
-    - port
-    - agent_download_uri
-    type: object
-  - properties:
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      description:
-        description: Description
-        type: string
-      dpsk_use_local_password:
-        description: Dpsk use local password
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      pki_provider:
-        description: PKI Provider
-        type: string
-      psk_size:
-        description: This is the length of the PSK key you want to generate. The minimum
-          length is eight characters.
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      ssid:
-        description: SSID
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-    required:
-    - id
-    - type
-    type: object
-  - properties:
-      api_token:
-        description: Api token
-        type: string
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      description:
-        description: Description
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      enroll_url:
-        description: Enroll url
-        type: string
-      host:
-        description: Host
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      pki_provider:
-        description: PKI Provider
-        type: string
-      port:
-        description: Port
-        type: integer
-      protocol:
-        description: Protocol
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-    required:
-    - id
-    - type
-    - api_token
-    - host
+    - tenant_code
     type: object
   - properties:
       apply_role:
@@ -1074,12 +889,114 @@ ConfigProvisioning:
     - alt_agent_download_uri
     type: object
   - properties:
-      api_password:
-        description: API password
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
         type: string
-      api_username:
-        description: API username
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
         type: string
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      id:
+        description: Provisioning ID
+        type: string
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      pki_provider:
+        description: PKI Provider
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      type:
+        description: Provisioning type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
+        type: string
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
+        type: string
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      id:
+        description: Provisioning ID
+        type: string
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      pki_provider:
+        description: PKI Provider
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      type:
+        description: Provisioning type
+        type: string
+    required:
+    - id
+    - type
+    type: object
+  - properties:
       apply_role:
         description: When enabled, this will apply the configured role to the endpoint
           if it is authorized in the provisioner.
@@ -1108,8 +1025,169 @@ ConfigProvisioning:
       id:
         description: Provisioning ID
         type: string
-      mac_osx_agent_download_uri:
-        description: Mac OSX agent download URI
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      password:
+        description: Password
+        type: string
+      pki_provider:
+        description: PKI Provider
+        type: string
+      protocol:
+        description: Protocol
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      table_for_agent:
+        description: Table for agent
+        type: string
+      table_for_mac:
+        description: Table for mac
+        type: string
+      type:
+        description: Provisioning type
+        type: string
+      username:
+        description: Username
+        type: string
+    required:
+    - id
+    - type
+    - username
+    - password
+    - host
+    - table_for_mac
+    - table_for_agent
+    type: object
+  - properties:
+      api_password:
+        description: API password
+        type: string
+      api_username:
+        description: API username
+        type: string
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
+        type: string
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
+        type: string
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      device_type_detection:
+        description: Automatic device detection
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      host:
+        description: Host
+        type: string
+      id:
+        description: Provisioning ID
+        type: string
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      pki_provider:
+        description: PKI Provider
+        type: string
+      port:
+        description: Port
+        type: integer
+      protocol:
+        description: Protocol
+        type: string
+      query_computers:
+        description: Query JAMF computers inventory
+        type: string
+      query_mobiledevices:
+        description: Query JAMF mobile devices inventory
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      type:
+        description: Provisioning type
+        type: string
+    required:
+    - id
+    - type
+    - port
+    - api_username
+    - api_password
+    type: object
+  - properties:
+      api_token:
+        description: Api token
+        type: string
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
+        type: string
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
+        type: string
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      enroll_url:
+        description: Enroll url
+        type: string
+      host:
+        description: Host
+        type: string
+      id:
+        description: Provisioning ID
         type: string
       non_compliance_security_event:
         description: Which security event should be raised when non compliance is
@@ -1141,17 +1219,114 @@ ConfigProvisioning:
       type:
         description: Provisioning type
         type: string
+    required:
+    - id
+    - type
+    - api_token
+    - host
+    type: object
+  - properties:
+      access_token:
+        description: Access token
+        type: string
+      android_agent_download_uri:
+        description: Android agent download uri
+        type: string
+      applicationID:
+        description: ApplicationID
+        type: string
+      applicationSecret:
+        description: Application Secret
+        type: string
+      apply_role:
+        description: When enabled, this will apply the configured role to the endpoint
+          if it is authorized in the provisioner.
+        type: string
+      autoregister:
+        description: Whether or not devices should be automatically registered on
+          the network if they are authorized in the provisioner.
+        type: string
+      category:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      description:
+        description: Description
+        type: string
+      domains:
+        description: Comma-separated list of domains that will be resolved with the
+          correct IP addresses.
+        type: string
+      enforce:
+        description: Whether or not the provisioner should be enforced. This will
+          trigger checks to validate the device is compliant with the provisioner
+          during RADIUS authentication and on the captive portal.
+        type: string
+      host:
+        description: Host
+        type: string
+      id:
+        description: Provisioning ID
+        type: string
+      ios_agent_download_uri:
+        description: Ios agent download uri
+        type: string
+      loginUrl:
+        description: LoginUrl
+        type: string
+      mac_osx_agent_download_uri:
+        description: Mac osx agent download uri
+        type: string
+      non_compliance_security_event:
+        description: Which security event should be raised when non compliance is
+          detected
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      pki_provider:
+        description: PKI Provider
+        type: string
+      port:
+        description: Port
+        type: integer
+      protocol:
+        description: Protocol
+        type: string
+      role_to_apply:
+        description: When "Apply role" is enabled, this defines the role to apply
+          when the device is authorized with the provisioner.
+        type: string
+      sync_pid:
+        description: Whether or not the PID (username) should be synchronized from
+          the provisioner to PacketFence.
+        type: string
+      tenantID:
+        description: Tenant ID
+        type: string
+      type:
+        description: Provisioning type
+        type: string
       windows_agent_download_uri:
-        description: Windows agent download URI
+        description: Windows agent download uri
         type: string
     required:
     - id
     - type
+    - tenantID
+    - applicationID
+    - applicationSecret
     - port
-    - api_username
-    - api_password
     - windows_agent_download_uri
     - mac_osx_agent_download_uri
+    - ios_agent_download_uri
+    - android_agent_download_uri
+    - domains
     type: object
   - properties:
       access_token:
@@ -1242,98 +1417,6 @@ ConfigProvisioning:
     - agent_download_uri
     type: object
   - properties:
-      android_download_uri:
-        description: Android download uri
-        type: string
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      boarding_host:
-        description: Boarding host
-        type: string
-      boarding_port:
-        description: Boarding port
-        type: integer
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      description:
-        description: Description
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      host:
-        description: Host
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      ios_download_uri:
-        description: Ios download uri
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Password
-        type: string
-      pki_provider:
-        description: PKI Provider
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-      username:
-        description: Username
-        type: string
-      windows_phone_download_uri:
-        description: Windows phone download uri
-        type: string
-    required:
-    - id
-    - type
-    - username
-    - password
-    - host
-    - android_download_uri
-    - ios_download_uri
-    - windows_phone_download_uri
-    - boarding_host
-    - boarding_port
-    type: object
-  - properties:
-      api_password:
-        description: API password
-        type: string
-      api_username:
-        description: API username
-        type: string
       apply_role:
         description: When enabled, this will apply the configured role to the endpoint
           if it is authorized in the provisioner.
@@ -1351,13 +1434,13 @@ ConfigProvisioning:
       description:
         description: Description
         type: string
+      dpsk_use_local_password:
+        description: Dpsk use local password
+        type: string
       enforce:
         description: Whether or not the provisioner should be enforced. This will
           trigger checks to validate the device is compliant with the provisioner
           during RADIUS authentication and on the captive portal.
-        type: string
-      host:
-        description: Host
         type: string
       id:
         description: Provisioning ID
@@ -1375,22 +1458,20 @@ ConfigProvisioning:
       pki_provider:
         description: PKI Provider
         type: string
-      port:
-        description: Port
-        type: integer
-      protocol:
-        description: Protocol
+      psk_size:
+        description: This is the length of the PSK key you want to generate. The minimum
+          length is eight characters.
         type: string
       role_to_apply:
         description: When "Apply role" is enabled, this defines the role to apply
           when the device is authorized with the provisioner.
         type: string
+      ssid:
+        description: SSID
+        type: string
       sync_pid:
         description: Whether or not the PID (username) should be synchronized from
           the provisioner to PacketFence.
-        type: string
-      tenant_code:
-        description: Tenant code
         type: string
       type:
         description: Provisioning type
@@ -1398,85 +1479,4 @@ ConfigProvisioning:
     required:
     - id
     - type
-    - port
-    - api_username
-    - api_password
-    - tenant_code
-    type: object
-  - properties:
-      apply_role:
-        description: When enabled, this will apply the configured role to the endpoint
-          if it is authorized in the provisioner.
-        type: string
-      autoregister:
-        description: Whether or not devices should be automatically registered on
-          the network if they are authorized in the provisioner.
-        type: string
-      category:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      description:
-        description: Description
-        type: string
-      enforce:
-        description: Whether or not the provisioner should be enforced. This will
-          trigger checks to validate the device is compliant with the provisioner
-          during RADIUS authentication and on the captive portal.
-        type: string
-      host:
-        description: Host
-        type: string
-      id:
-        description: Provisioning ID
-        type: string
-      non_compliance_security_event:
-        description: Which security event should be raised when non compliance is
-          detected
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Password
-        type: string
-      pki_provider:
-        description: PKI Provider
-        type: string
-      protocol:
-        description: Protocol
-        type: string
-      role_to_apply:
-        description: When "Apply role" is enabled, this defines the role to apply
-          when the device is authorized with the provisioner.
-        type: string
-      sync_pid:
-        description: Whether or not the PID (username) should be synchronized from
-          the provisioner to PacketFence.
-        type: string
-      table_for_agent:
-        description: Table for agent
-        type: string
-      table_for_mac:
-        description: Table for mac
-        type: string
-      type:
-        description: Provisioning type
-        type: string
-      username:
-        description: Username
-        type: string
-    required:
-    - id
-    - type
-    - username
-    - password
-    - host
-    - table_for_mac
-    - table_for_agent
     type: object

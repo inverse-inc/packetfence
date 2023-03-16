@@ -1,6 +1,7 @@
 /config/device_registrations:
   description: pf::UnifiedApi::Controller::Config::DeviceRegistrations
   get:
+    deprecated: true
     description: List items
     operationId: api.v1.Config::DeviceRegistrations.list
     parameters: []

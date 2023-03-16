@@ -27,77 +27,6 @@ ConfigScan:
       ip:
         description: Hostname or IP Address
         type: string
-      nessus_clientpolicy:
-        description: Name of the policy to use on the nessus server
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Password
-        type: string
-      port:
-        description: If you use an alternative port, please specify
-        type: integer
-      post_registration:
-        description: If this option is enabled, the PF system will scan host after
-          on the production vlan. This will not work for devices that are in an inline
-          VLAN.
-        type: string
-      pre_registration:
-        description: If this option is enabled, the PF system will scan host before
-          the registration.
-        type: string
-      registration:
-        description: If this option is enabled, the PF system will scan each host
-          after registration is complete.
-        type: string
-      scannername:
-        description: Name of the scanner to use on the nessus server
-        type: string
-      type:
-        description: Type
-        type: string
-      username:
-        description: Username
-        type: string
-      verify_hostname:
-        description: Verify hostname of server
-        type: string
-    required:
-    - id
-    - username
-    - password
-    - ip
-    type: object
-  - properties:
-      categories:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      duration:
-        description: Approximate duration of a scan. User being scanned on registration
-          are presented a progress bar for this duration, afterwards the browser refreshes
-          until scan is complete.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      id:
-        description: Name
-        type: string
-      ip:
-        description: Hostname or IP Address
-        type: string
       openvas_alertid:
         description: ID of the alert configuration on the OpenVAS server
         type: string
@@ -106,71 +35,6 @@ ConfigScan:
         type: string
       openvas_reportformatid:
         description: ID of the "CSV Results" report format on the OpenVAS server
-        type: string
-      oses:
-        description: Nodes with the selected OS will be affected
-        items:
-          description: Nodes with the selected OS will be affected
-          type: string
-        type: array
-      password:
-        description: Password
-        type: string
-      port:
-        description: If you use an alternative port, please specify
-        type: integer
-      post_registration:
-        description: If this option is enabled, the PF system will scan host after
-          on the production vlan. This will not work for devices that are in an inline
-          VLAN.
-        type: string
-      pre_registration:
-        description: If this option is enabled, the PF system will scan host before
-          the registration.
-        type: string
-      registration:
-        description: If this option is enabled, the PF system will scan each host
-          after registration is complete.
-        type: string
-      type:
-        description: Type
-        type: string
-      username:
-        description: Username
-        type: string
-    required:
-    - id
-    - username
-    - password
-    - ip
-    type: object
-  - properties:
-      categories:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      duration:
-        description: Approximate duration of a scan. User being scanned on registration
-          are presented a progress bar for this duration, afterwards the browser refreshes
-          until scan is complete.
-        properties:
-          interval:
-            description: Interval
-            type: integer
-          unit:
-            description: Unit
-            type: string
-        type: object
-      id:
-        description: Name
-        type: string
-      ip:
-        description: Hostname or IP Address
-        type: string
-      nessus_clientpolicy:
-        description: Name of the policy to use on the nessus server
         type: string
       oses:
         description: Nodes with the selected OS will be affected
@@ -283,4 +147,140 @@ ConfigScan:
     - username
     - password
     - host
+    type: object
+  - properties:
+      categories:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      duration:
+        description: Approximate duration of a scan. User being scanned on registration
+          are presented a progress bar for this duration, afterwards the browser refreshes
+          until scan is complete.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      id:
+        description: Name
+        type: string
+      ip:
+        description: Hostname or IP Address
+        type: string
+      nessus_clientpolicy:
+        description: Name of the policy to use on the nessus server
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      password:
+        description: Password
+        type: string
+      port:
+        description: If you use an alternative port, please specify
+        type: integer
+      post_registration:
+        description: If this option is enabled, the PF system will scan host after
+          on the production vlan. This will not work for devices that are in an inline
+          VLAN.
+        type: string
+      pre_registration:
+        description: If this option is enabled, the PF system will scan host before
+          the registration.
+        type: string
+      registration:
+        description: If this option is enabled, the PF system will scan each host
+          after registration is complete.
+        type: string
+      type:
+        description: Type
+        type: string
+      username:
+        description: Username
+        type: string
+    required:
+    - id
+    - username
+    - password
+    - ip
+    type: object
+  - properties:
+      categories:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      duration:
+        description: Approximate duration of a scan. User being scanned on registration
+          are presented a progress bar for this duration, afterwards the browser refreshes
+          until scan is complete.
+        properties:
+          interval:
+            description: Interval
+            type: integer
+          unit:
+            description: Unit
+            type: string
+        type: object
+      id:
+        description: Name
+        type: string
+      ip:
+        description: Hostname or IP Address
+        type: string
+      nessus_clientpolicy:
+        description: Name of the policy to use on the nessus server
+        type: string
+      oses:
+        description: Nodes with the selected OS will be affected
+        items:
+          description: Nodes with the selected OS will be affected
+          type: string
+        type: array
+      password:
+        description: Password
+        type: string
+      port:
+        description: If you use an alternative port, please specify
+        type: integer
+      post_registration:
+        description: If this option is enabled, the PF system will scan host after
+          on the production vlan. This will not work for devices that are in an inline
+          VLAN.
+        type: string
+      pre_registration:
+        description: If this option is enabled, the PF system will scan host before
+          the registration.
+        type: string
+      registration:
+        description: If this option is enabled, the PF system will scan each host
+          after registration is complete.
+        type: string
+      scannername:
+        description: Name of the scanner to use on the nessus server
+        type: string
+      type:
+        description: Type
+        type: string
+      username:
+        description: Username
+        type: string
+      verify_hostname:
+        description: Verify hostname of server
+        type: string
+    required:
+    - id
+    - username
+    - password
+    - ip
     type: object

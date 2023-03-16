@@ -1,6 +1,7 @@
 /config/wmi_rules:
   description: Configure floating devices
   get:
+    deprecated: true
     description: List items
     operationId: api.v1.Config.WMIRules.list
     parameters: []
