@@ -21,7 +21,12 @@ configure_and_check() {
     CI_JOB_NAME=${CI_JOB_NAME:-}
     KEEP_VMS=${KEEP_VMS:-no}
 
-    if [ "$JOB_STATUS" -eq 0 ]; then
+    declare -p JOB_STATUS CI_JOB_NAME
+    declare -p TEST_DIR
+
+    # if test was a success, JOB_STATUS is unset
+    # so we test is has zero length
+    if [ -z "$JOB_STATUS" ]; then
         echo "Passed tests"
         if [ "$KEEP_VMS" = "yes" ]; then
             echo "Keeping VM according to 'KEEP_VMS' value"
@@ -31,14 +36,12 @@ configure_and_check() {
             MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
         fi
     else
-        echo 'Failed tests: cancelling jobs not started and halting VM'
+        echo "Failed tests: cancelling jobs not started and halting VM"
         ${PF_SRC_DIR}/ci/lib/test/cancel-pending-jobs.sh
+        echo "Stopping VM"
         MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
         exit $JOB_STATUS
     fi
-
-    declare -p JOB_STATUS CI_JOB_NAME
-    declare -p TEST_DIR
 }
 
 
