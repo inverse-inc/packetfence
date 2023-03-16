@@ -1,5 +1,6 @@
 /tenant/{tenant_id}:
   delete:
+    deprecated: true
     description: Remove an item
     operationId: api.v1.Tenants.remove
     parameters:
@@ -12,6 +13,7 @@
         description: Item deleted
   description: pf::UnifiedApi::Controller::Tenants
   get:
+    deprecated: true
     description: Get an item
     operationId: api.v1.Tenants.get
     parameters:
@@ -35,6 +37,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    deprecated: true
     description: Update an item
     operationId: api.v1.Tenants.update
     parameters:
@@ -55,6 +58,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    deprecated: true
     description: Replace an item
     operationId: api.v1.Tenants.replace
     parameters:

@@ -1,5 +1,6 @@
 /config/device_registration/{device_registration_id}:
   delete:
+    deprecated: true
     description: Remove an item
     operationId: api.v1.Config::DeviceRegistrations.remove
     parameters:
@@ -12,6 +13,7 @@
         description: Deleted a config item
   description: pf::UnifiedApi::Controller::Config::DeviceRegistrations
   get:
+    deprecated: true
     description: Get an item
     operationId: api.v1.Config::DeviceRegistrations.get
     parameters:
@@ -31,6 +33,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    deprecated: true
     description: Update an item
     operationId: api.v1.Config::DeviceRegistrations.update
     parameters:
@@ -49,6 +52,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    deprecated: true
     description: Replace an item
     operationId: api.v1.Config::DeviceRegistrations.replace
     parameters:

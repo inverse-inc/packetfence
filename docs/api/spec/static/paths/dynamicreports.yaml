@@ -1,5 +1,6 @@
 /dynamic_reports:
   get:
+    deprecated: true
     description: Get all the dynamic reports
     operationId: api.v1.DynamicReports.list
     parameters:
@@ -23,6 +24,7 @@
 
 /dynamic_report/{report_id}:
   get:
+    deprecated: true
     description: Get a dynamic report
     operationId: api.v1.DynamicReports.resource.get
     parameters:
@@ -47,6 +49,7 @@
 /dynamic_report/{report_id}/search:
   description: Search through a dynamic report
   post:
+    deprecated: true
     operationId: api.v1.DynamicReports.resource.search
     parameters: []
     requestBody:

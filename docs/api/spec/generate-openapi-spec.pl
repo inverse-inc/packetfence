@@ -11,14 +11,18 @@ use Data::Dumper;
 use JSON::MaybeXS qw();
 use YAML::XS qw(:all);
 use JSON::PP qw();
+use Hash::Merge qw(merge);
 $YAML::XS::Boolean = "JSON::PP";
 my $base_path = "$install_dir/docs/api/spec";
 
 my $spec = LoadFile("$base_path/openapi-base.yaml");
 
 merge_yaml_into_paths($spec->{paths}, "paths");
+merge_yaml_into_paths($spec->{paths}, "static/paths");
 
-$spec->{components} = merge_yaml_components("components");
+my $components = hash_yaml_dir("components");
+my $components_static = hash_yaml_dir("static/components");
+$spec->{components} = merge($components, $components_static);
 
 common_parameters(
     $spec,
@@ -77,7 +81,7 @@ sub insert_search_parameters {
     }
 }
 
-sub merge_yaml_components {
+sub hash_yaml_dir {
     my ($dir) = @_;
     my %all;
     my $full_path = "$base_path/$dir";
@@ -95,6 +99,7 @@ sub merge_yaml_components {
     }
     return \%all;
 }
+
 
 sub merge_yaml_into_paths {
     my ($component, $path) = @_;

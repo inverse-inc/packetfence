@@ -1,5 +1,6 @@
 /config/wmi_rule/{wmi_rule_id}:
   delete:
+    deprecated: true
     description: Remove an item
     operationId: api.v1.Config.WMIRules.resource.remove
     parameters:
@@ -12,6 +13,7 @@
         description: Deleted a config item
   description: Configure floating devices
   get:
+    deprecated: true
     description: Get an item
     operationId: api.v1.Config.WMIRules.resource.get
     parameters:
@@ -31,6 +33,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   patch:
+    deprecated: true
     description: Update an item
     operationId: api.v1.Config.WMIRules.resource.update
     parameters:
@@ -49,6 +52,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   put:
+    deprecated: true
     description: Replace an item
     operationId: api.v1.Config.WMIRules.resource.replace
     parameters:
