@@ -32,7 +32,7 @@ configure_and_check() {
         fi
     else
         echo 'Failed tests: cancelling jobs not started and halting VM'
-        ${PF_SRC_DIR}/ci/lib/test/cancel-created-jobs.sh
+        ${PF_SRC_DIR}/ci/lib/test/cancel-pending-jobs.sh
         MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
         exit $JOB_STATUS
     fi

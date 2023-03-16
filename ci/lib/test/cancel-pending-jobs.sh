@@ -22,7 +22,8 @@ configure_and_check() {
     [ -n "${GITLAB_API_TOKEN}" ] || die "not set: GITLAB_API_TOKEN"
 }
 
-get_created_jobs() {
+# get ID of 100 pending jobs of current pipeline
+get_pending_jobs() {
     curl --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
          -s "https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/jobs?scope[]=pending&per_page=100" \
         | jq -r '.[].id'
@@ -37,7 +38,7 @@ cancel_job() {
 }
 
 cancel_jobs() {
-    jobs_id=$(get_created_jobs)
+    jobs_id=$(get_pending_jobs)
     if [ -z "$jobs_id" ]; then
 	echo "No jobs to cancel"
     else
