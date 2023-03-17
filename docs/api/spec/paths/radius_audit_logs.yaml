@@ -23,6 +23,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs
   post:
     description: Create an item
     operationId: api.v1.RadiusAuditLogs.create
@@ -42,3 +44,5 @@
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs

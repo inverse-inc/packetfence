@@ -14,6 +14,8 @@
     responses:
       '204':
         description: Item deleted
+    tags:
+    - Users::Nodes
   description: pf::UnifiedApi::Controller::Users::Nodes
   get:
     description: Get an item
@@ -42,6 +44,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users::Nodes
   patch:
     description: Update an item
     operationId: api.v1.Configurator.Users.resource.Users.Nodes.resource.update
@@ -66,6 +70,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users::Nodes
   put:
     description: Replace an item
     operationId: api.v1.Configurator.Users.resource.Users.Nodes.resource.replace
@@ -90,3 +96,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users::Nodes

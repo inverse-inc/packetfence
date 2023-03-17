@@ -19,6 +19,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::L2Networks
   patch:
     description: Update an item
     operationId: api.v1.Config.L2Networks.update
@@ -37,6 +39,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::L2Networks
   put:
     description: Replace an item
     operationId: api.v1.Config.L2Networks.replace
@@ -57,3 +61,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::L2Networks

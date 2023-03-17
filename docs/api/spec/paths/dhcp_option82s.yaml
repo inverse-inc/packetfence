@@ -19,6 +19,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - DhcpOption82s
   post:
     description: Create an item
     operationId: api.v1.DhcpOption82s.create
@@ -38,3 +40,5 @@
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - DhcpOption82s

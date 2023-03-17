@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Item deleted
+    tags:
+    - Ip4logs
   description: pf::UnifiedApi::Controller::Ip4logs
   get:
     description: Get an item
@@ -34,6 +36,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Ip4logs
   patch:
     description: Update an item
     operationId: api.v1.Ip4logs.resource.update
@@ -54,6 +58,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Ip4logs
   put:
     description: Replace an item
     operationId: api.v1.Ip4logs.resource.replace
@@ -74,3 +80,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Ip4logs

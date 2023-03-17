@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::MaintenanceTasks
   description: |-
     pf::UnifiedApi::Controller::Config::MaintenanceTasks
 
@@ -34,6 +36,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::MaintenanceTasks
   patch:
     description: Update an item
     operationId: api.v1.Config.MaintenanceTasks.resource.update
@@ -52,6 +56,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::MaintenanceTasks
   put:
     description: Replace an item
     operationId: api.v1.Config.MaintenanceTasks.resource.replace
@@ -72,3 +78,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::MaintenanceTasks

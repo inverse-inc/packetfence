@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::Switches
   description: |-
     pf::UnifiedApi::Controller::Config::Switches
 
@@ -37,6 +39,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Switches
   patch:
     description: Update an item
     operationId: api.v1.Config.Switches.resource.update
@@ -55,6 +59,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Switches
   put:
     description: Replace an item
     operationId: api.v1.Config.Switches.resource.replace
@@ -75,3 +81,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Switches

@@ -358,6 +358,19 @@ sub operationId {
     return $a->{operationId};
 }
 
+=head2 operationTags
+
+operation tags
+
+=cut
+
+sub operationTags {
+    my ($self, $scope, $c, $m, $a) = @_;
+    my @tags;
+    push @tags, $a->{controller};
+    return \@tags;
+}
+
 =head2 schemaItemPath
 
 schema Item Path

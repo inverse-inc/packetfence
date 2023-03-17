@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::BillingTiers
   description: pf::UnifiedApi::Controller::Config::BillingTiers
   get:
     description: Get an item
@@ -30,6 +32,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::BillingTiers
   patch:
     description: Update an item
     operationId: api.v1.Config.BillingTiers.resource.update
@@ -48,6 +52,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::BillingTiers
   put:
     description: Replace an item
     operationId: api.v1.Config.BillingTiers.resource.replace
@@ -68,3 +74,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::BillingTiers

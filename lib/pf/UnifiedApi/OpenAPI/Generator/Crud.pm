@@ -47,6 +47,12 @@ our %OPERATION_GENERATORS = (
             map { $_ => "operationId" }
               qw(create search list get replace update remove)
         )
+    },
+    tags => {
+        (
+            map { $_ => "operationTags" }
+              qw(create search list get replace update remove)
+        )
     }
 );
 

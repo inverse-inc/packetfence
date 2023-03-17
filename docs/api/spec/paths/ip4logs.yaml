@@ -19,6 +19,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Ip4logs
   post:
     description: Create an item
     operationId: api.v1.Ip4logs.create
@@ -38,3 +40,5 @@
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Ip4logs
