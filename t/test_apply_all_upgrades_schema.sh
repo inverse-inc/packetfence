@@ -26,7 +26,7 @@ MYSQL="mysql -upf_smoke_tester -ppacket -h$HOST"
 
 MYSQLDUMP="mysqldump -upf_smoke_tester -h$HOST --no-data -a --skip-comments --routines -ppacket"
 
-CURRENT_SCHEMA="$PF_DIR/db/pf-schema-X.Y.Z.sql"
+CURRENT_SCHEMA="$PF_DIR/db/pf-schema-X.Y.sql"
 FIRST_SCHEMA="$PF_DIR/db/pf-schema-2.0.0.sql"
 
 #if [ ! -e "$CURRENT_SCHEMA" ]; then
