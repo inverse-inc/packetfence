@@ -17,13 +17,19 @@ source ${FUNCTIONS_FILE}
 
 
 configure_and_check() {
-    CI_JOB_STATUS=${CI_JOB_STATUS:-}
+    JOB_STATUS=${JOB_STATUS:-}
     CI_JOB_NAME=${CI_JOB_NAME:-}
     KEEP_VMS=${KEEP_VMS:-no}
+    CI_PIPELINE_SOURCE=${CI_PIPELINE_SOURCE:-}
 
-    if [ "$CI_JOB_STATUS" = "success" ]; then
+    declare -p JOB_STATUS CI_JOB_NAME
+    declare -p TEST_DIR
+
+    # if test was a success, JOB_STATUS is unset
+    # so we test is has zero length
+    if [ -z "$JOB_STATUS" ]; then
         echo "Passed tests"
-        if [ "KEEP_VMS" = "yes" ]; then
+        if [ "$KEEP_VMS" = "yes" ]; then
             echo "Keeping VM according to 'KEEP_VMS' value"
             MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
         else
@@ -31,12 +37,17 @@ configure_and_check() {
             MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
         fi
     else
-        echo 'Failed tests, only halting VM'
+        echo "Failed tests"
+        # We don't want other jobs to be canceled when running a manual pipeline
+        if [ "$CI_PIPELINE_SOURCE" = "schedule" ]; then
+            echo "Cancelling jobs not started and halting VM"
+            ${PF_SRC_DIR}/ci/lib/test/cancel-pending-jobs.sh
+        else
+            echo "Halting VM"
+        fi
         MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+        exit $JOB_STATUS
     fi
-
-    declare -p CI_JOB_STATUS CI_JOB_NAME
-    declare -p TEST_DIR
 }
 
 
