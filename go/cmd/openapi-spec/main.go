@@ -77,27 +77,27 @@ type OpenAPISchema struct {
 	Enum                 []interface{}             `json:"enum,omitempty" yaml:"enum,omitempty"`
 	Items                *OpenAPISchema            `json:"items,omitempty" yaml:"items,omitempty"`
 	Properties           map[string]*OpenAPISchema `json:"properties,omitempty" yaml:"properties,omitempty"`
-	AdditionalProperties *OpenAPISchema            `json:"additionalProperties,omitempty" yaml:"additional_properties,omitempty"`
-	MinLength            *int                      `json:"minLength,omitempty" yaml:"min_length,omitempty"`
-	MaxLength            *int                      `json:"maxLength,omitempty" yaml:"max_length,omitempty"`
+	AdditionalProperties *OpenAPISchema            `json:"additionalProperties,omitempty" yaml:"additionalProperties,omitempty"`
+	MinLength            *int                      `json:"minLength,omitempty" yaml:"minLength,omitempty"`
+	MaxLength            *int                      `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
 	Pattern              string                    `json:"pattern,omitempty" yaml:"pattern,omitempty"`
 	Minimum              *float64                  `json:"minimum,omitempty" yaml:"minimum,omitempty"`
 	Maximum              *float64                  `json:"maximum,omitempty" yaml:"maximum,omitempty"`
-	ExclusiveMinimum     *float64                  `json:"exclusiveMinimum,omitempty" yaml:"exclusive_minimum,omitempty"`
-	ExclusiveMaximum     *float64                  `json:"exclusiveMaximum,omitempty" yaml:"exclusive_maximum,omitempty"`
-	MultipleOf           *float64                  `json:"multipleOf,omitempty" yaml:"multiple_of,omitempty"`
+	ExclusiveMinimum     *float64                  `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"`
+	ExclusiveMaximum     *float64                  `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"`
+	MultipleOf           *float64                  `json:"multipleOf,omitempty" yaml:"multipleOf,omitempty"`
 	Required             []string                  `json:"required,omitempty" yaml:"required,omitempty"`
-	MinItems             *int                      `json:"minItems,omitempty" yaml:"min_items,omitempty"`
-	MaxItems             *int                      `json:"maxItems,omitempty" yaml:"max_items,omitempty"`
-	UniqueItems          bool                      `json:"uniqueItems,omitempty" yaml:"unique_items,omitempty"`
-	AllOf                []*OpenAPISchema          `json:"allOf,omitempty" yaml:"all_of,omitempty"`
-	OneOf                []*OpenAPISchema          `json:"oneOf,omitempty" yaml:"one_of,omitempty"`
-	AnyOf                []*OpenAPISchema          `json:"anyOf,omitempty" yaml:"any_of,omitempty"`
+	MinItems             *int                      `json:"minItems,omitempty" yaml:"minItems,omitempty"`
+	MaxItems             *int                      `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
+	UniqueItems          bool                      `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
+	AllOf                []*OpenAPISchema          `json:"allOf,omitempty" yaml:"allOf,omitempty"`
+	OneOf                []*OpenAPISchema          `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
+	AnyOf                []*OpenAPISchema          `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
 	Not                  *OpenAPISchema            `json:"not,omitempty" yaml:"not,omitempty"`
-	ReadOnly             bool                      `json:"readOnly,omitempty" yaml:"read_only,omitempty"`
-	WriteOnly            bool                      `json:"writeOnly,omitempty" yaml:"write_only,omitempty"`
+	ReadOnly             bool                      `json:"readOnly,omitempty" yaml:"readOnly,omitempty"`
+	WriteOnly            bool                      `json:"writeOnly,omitempty" yaml:"writeOnly,omitempty"`
 	Nullable             bool                      `json:"nullable,omitempty" yaml:"nullable,omitempty"`
-	Ref                  string                    `json:"$ref,omitempty" yaml:"ref,omitempty"`
+	Ref                  string                    `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 }
 
 type Person struct {
