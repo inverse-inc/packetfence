@@ -195,12 +195,12 @@
       content: |
         # Copyright (C) Inverse inc.
         [Unit]
-        Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
+        Description=RADIUS test service
         Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
          
         [Service]
         Type=notify
-        WatchdogSec=10
+        WatchdogSec=20
         StartLimitBurst=3
         StartLimitInterval=10
         ExecStart=/usr/sbin/freeradius -d /usr/local/pf/raddb  -n test -fm
@@ -213,12 +213,12 @@
       content: |
         # Copyright (C) Inverse inc.
         [Unit]
-        Description=PacketFence FreeRADIUS authentication multi-protocol authentication server
+        Description=RADIUS test service
         Documentation=man:radiusd(8) man:radiusd.conf(5) http://wiki.freeradius.org/ http://networkradius.com/doc/
         
         [Service]
         Type=notify
-        WatchdogSec=10
+        WatchdogSec=20
         StartLimitBurst=3
         StartLimitInterval=10
         ExecStart=/usr/sbin/radiusd -d /usr/local/pf/raddb  -n test -fm
