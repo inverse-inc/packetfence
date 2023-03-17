@@ -27,7 +27,7 @@ use Test::NoWarnings;
 use DBI;
 use pf::config qw(%Config);
 my $PF_DIR = '/usr/local/pf';
-my $schema = "$PF_DIR/db/pf-schema-X.Y.Z.sql";
+my $schema = "$PF_DIR/db/pf-schema-X.Y.sql";
 my $db_name = "pf_smoke_test__no_timestamp_$$";
 my ($dbuser, $dbpass) = @{$Config{database}}{qw(user pass)};
 my $dbh     = DBI->connect( "DBI:mysql:host=localhost", $dbuser, $dbpass, { RaiseError => 1 } );
@@ -40,12 +40,11 @@ my $sql =
 "SELECT TABLE_NAME, COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS where TABLE_SCHEMA = '$db_name' and lower(COLUMN_TYPE) LIKE 'timestamp%' ORDER BY TABLE_NAME, ORDINAL_POSITION";
 
 my $columns = $dbh->selectall_arrayref($sql, { Slice => {} });
+plan tests => scalar @$columns + 1;
+
 for my $c (@$columns) {
     fail("$c->{TABLE_NAME}.$c->{COLUMN_NAME} is a timestamp type '$c->{COLUMN_TYPE}'");
 }
-
-done_testing( scalar @$columns + 1 );
-
 
 =head1 AUTHOR
 
