@@ -26,7 +26,6 @@ stages:
 variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
-  PIPELINE_TIMEOUT_AFTER_SCRIPT: 10m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
@@ -297,8 +296,9 @@ variables:
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
-    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} clean
+    - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
     - shell
     - inverse.ca
@@ -465,8 +465,9 @@ variables:
   environment:
     name: sourceforge
     url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
-    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${ZENDIR} clean_all
+    - make -e -C ${ZENDIR} clean_all
   dependencies: []
   tags:
     - shell
@@ -475,8 +476,9 @@ variables:
   stage: build_pf_img
   environment:
     name: sourceforge
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
-    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${ISODIR} clean
+    - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
     - shell
@@ -488,8 +490,9 @@ variables:
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
-    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} clean
+    - make -e -C ${VAGRANT_IMG_DIR} clean
   dependencies: []
   tags:
     - inverse.ca
@@ -507,9 +510,9 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
-    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
-  after_script:
-    - timeout ${PIPELINE_TIMEOUT_AFTER_SCRIPT} ${TESTCIDIR}/clean-test-environment.sh
+    # || EXIT_CODE=$? prevents script to finish at first command
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
+    - JOB_STATUS=$EXIT_CODE ${TESTCIDIR}/clean-test-environment.sh
 
 ################################################################################
 # JOBS
