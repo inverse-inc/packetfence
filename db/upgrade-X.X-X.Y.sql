@@ -112,6 +112,10 @@ ALTER TABLE billing
 ALTER TABLE dhcp_option82
     CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
+\! echo "Altering table dhcp_option82_history"
+ALTER TABLE dhcp_option82_history
+    CHANGE COLUMN `created_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
 \! echo "Altering table scan"
 ALTER TABLE scan
    CHANGE COLUMN `update_date` `update_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP;
