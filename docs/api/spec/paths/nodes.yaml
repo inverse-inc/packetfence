@@ -146,6 +146,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Nodes
   post:
     description: Create an item
     operationId: api.v1.Nodes.create
@@ -165,3 +167,5 @@
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Nodes

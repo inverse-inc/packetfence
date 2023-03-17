@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::SecurityEvents
   description: |-
     pf::UnifiedApi::Controller::Config::SecurityEvents
 
@@ -37,6 +39,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::SecurityEvents
   patch:
     description: Update an item
     operationId: api.v1.Config.SecurityEvents.resource.update
@@ -55,6 +59,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::SecurityEvents
   put:
     description: Replace an item
     operationId: api.v1.Config.SecurityEvents.resource.replace
@@ -75,3 +81,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::SecurityEvents

@@ -27,14 +27,8 @@ ConfigScan:
       ip:
         description: Hostname or IP Address
         type: string
-      openvas_alertid:
-        description: ID of the alert configuration on the OpenVAS server
-        type: string
-      openvas_configid:
-        description: ID of the scanning configuration on the OpenVAS server
-        type: string
-      openvas_reportformatid:
-        description: ID of the "CSV Results" report format on the OpenVAS server
+      nessus_clientpolicy:
+        description: Name of the policy to use on the nessus server
         type: string
       oses:
         description: Nodes with the selected OS will be affected
@@ -201,11 +195,17 @@ ConfigScan:
         description: If this option is enabled, the PF system will scan each host
           after registration is complete.
         type: string
+      scannername:
+        description: Name of the scanner to use on the nessus server
+        type: string
       type:
         description: Type
         type: string
       username:
         description: Username
+        type: string
+      verify_hostname:
+        description: Verify hostname of server
         type: string
     required:
     - id
@@ -238,8 +238,14 @@ ConfigScan:
       ip:
         description: Hostname or IP Address
         type: string
-      nessus_clientpolicy:
-        description: Name of the policy to use on the nessus server
+      openvas_alertid:
+        description: ID of the alert configuration on the OpenVAS server
+        type: string
+      openvas_configid:
+        description: ID of the scanning configuration on the OpenVAS server
+        type: string
+      openvas_reportformatid:
+        description: ID of the "CSV Results" report format on the OpenVAS server
         type: string
       oses:
         description: Nodes with the selected OS will be affected
@@ -266,17 +272,11 @@ ConfigScan:
         description: If this option is enabled, the PF system will scan each host
           after registration is complete.
         type: string
-      scannername:
-        description: Name of the scanner to use on the nessus server
-        type: string
       type:
         description: Type
         type: string
       username:
         description: Username
-        type: string
-      verify_hostname:
-        description: Verify hostname of server
         type: string
     required:
     - id

@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::Sources
   description: |-
     pf::UnifiedApi::Controller::Config::Sources
 
@@ -49,6 +51,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Sources
   patch:
     description: Update an item
     operationId: api.v1.Config.Source.resource.update
@@ -67,6 +71,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Sources
   put:
     description: Replace an item
     operationId: api.v1.Config.Source.resource.replace
@@ -87,3 +93,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Sources

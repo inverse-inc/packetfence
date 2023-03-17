@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Item deleted
+    tags:
+    - WrixLocations
   description: pf::UnifiedApi::Controller::WrixLocations
   get:
     description: Get an item
@@ -34,6 +36,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - WrixLocations
   patch:
     description: Update an item
     operationId: api.v1.WrixLocations.resource.update
@@ -54,6 +58,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - WrixLocations
   put:
     description: Replace an item
     operationId: api.v1.WrixLocations.resource.replace
@@ -74,3 +80,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - WrixLocations

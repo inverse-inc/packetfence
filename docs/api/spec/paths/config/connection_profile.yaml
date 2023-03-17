@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::ConnectionProfiles
   description: |-
     pf::UnifiedApi::Controller::Config::ConnectionProfiles
 
@@ -97,6 +99,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::ConnectionProfiles
   patch:
     description: Update an item
     operationId: api.v1.Config.ConnectionProfiles.resource.update
@@ -115,6 +119,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::ConnectionProfiles
   put:
     description: Replace an item
     operationId: api.v1.Config.ConnectionProfiles.resource.replace
@@ -135,3 +141,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::ConnectionProfiles

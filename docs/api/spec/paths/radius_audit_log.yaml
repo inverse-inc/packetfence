@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Item deleted
+    tags:
+    - RadiusAuditLogs
   description: |-
     pf::UnifiedApi::Controller::RadiusAuditLogs
 
@@ -38,6 +40,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs
   patch:
     description: Update an item
     operationId: api.v1.RadiusAuditLogs.resource.update
@@ -58,6 +62,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs
   put:
     description: Replace an item
     operationId: api.v1.RadiusAuditLogs.resource.replace
@@ -78,3 +84,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - RadiusAuditLogs

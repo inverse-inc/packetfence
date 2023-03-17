@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::Domains
   description: |-
     pf::UnifiedApi::Controller::Config::Domains
 
@@ -53,6 +55,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Domains
   patch:
     description: Update an item
     operationId: api.v1.Config.Domains.resource.update
@@ -71,6 +75,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Domains
   put:
     description: Replace an item
     operationId: api.v1.Config.Domains.resource.replace
@@ -91,3 +97,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::Domains

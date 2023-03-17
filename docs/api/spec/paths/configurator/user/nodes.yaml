@@ -23,6 +23,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users::Nodes
   post:
     description: Create an item
     operationId: api.v1.Configurator.Users.resource.Users.Nodes.create
@@ -46,3 +48,5 @@
         $ref: '#/components/responses/Duplicate'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Users::Nodes

@@ -10,6 +10,8 @@
     responses:
       '204':
         description: Deleted a config item
+    tags:
+    - Config::RoutedNetworks
   description: |-
     pf::UnifiedApi::Controller::Config::RoutedNetworks
 
@@ -41,6 +43,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::RoutedNetworks
   patch:
     description: Update an item
     operationId: api.v1.Config.RoutedNetworks.resource.update
@@ -59,6 +63,8 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::RoutedNetworks
   put:
     description: Replace an item
     operationId: api.v1.Config.RoutedNetworks.resource.replace
@@ -79,3 +85,5 @@
         $ref: '#/components/responses/BadRequest'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+    - Config::RoutedNetworks

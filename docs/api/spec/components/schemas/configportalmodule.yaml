@@ -16,6 +16,222 @@ ConfigPortalModule:
               type: string
           type: object
         type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      multi_source_ids:
+        description: Multi source ids
+        items:
+          description: Multi source id
+          type: string
+        type: array
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      type:
+        description: Type
+        type: string
+      username:
+        description: Defines the username used for all authentications
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - signup_template
+    - username
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      landing_template:
+        description: The template to use for the signup
+        type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - landing_template
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      multi_source_ids:
+        description: Multi source ids
+        items:
+          description: Multi source id
+          type: string
+        type: array
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - signup_template
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      skipable:
+        description: Whether or not, this redirection can be skipped.
+        type: string
+      type:
+        description: Type
+        type: string
+      url:
+        description: The URL on which the user should be redirected.
+        type: string
+    required:
+    - id
+    - description
+    - url
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
       description:
         description: The description that will be displayed to users
         type: string
@@ -34,6 +250,352 @@ ConfigPortalModule:
     required:
     - id
     - description
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      survey_id:
+        description: The survey to use in this portal module. Surveys are defined
+          in survey.conf
+        type: string
+      template:
+        description: The template to use to display the message
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - description
+    type: object
+  - properties:
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      multi_source_ids:
+        description: Multi source ids
+        items:
+          description: Multi source id
+          type: string
+        type: array
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      landing_template:
+        description: The template to use for the signup
+        type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - landing_template
+    type: object
+  - properties:
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      modules:
+        description: Modules
+        items:
+          description: Module
+          type: string
+        type: array
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - description
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      landing_template:
+        description: The template to use prior to the redirection to the SAML provider
+        type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - signup_template
+    - landing_template
+    type: object
+  - properties:
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      template:
+        description: The template to use
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - description
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      stone_roles:
+        description: Nodes with the selected roles will be affected
+        items:
+          description: Nodes with the selected roles will be affected
+          type: string
+        type: array
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - description
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      landing_template:
+        description: The template to use for the signup
+        type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - landing_template
     type: object
   - properties:
       actions:
@@ -95,304 +657,6 @@ ConfigPortalModule:
     - description
     - aup_template
     - signup_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      survey_id:
-        description: The survey to use in this portal module. Surveys are defined
-          in survey.conf
-        type: string
-      template:
-        description: The template to use to display the message
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - description
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      landing_template:
-        description: The template to use for the signup
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - landing_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      landing_template:
-        description: The template to use for the signup
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - landing_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - signup_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - description
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      landing_template:
-        description: The template to use for the signup
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - landing_template
     type: object
   - properties:
       actions:
@@ -558,335 +822,6 @@ ConfigPortalModule:
       id:
         description: Identifier
         type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - signup_template
-    type: object
-  - properties:
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      modules:
-        description: Modules
-        items:
-          description: Module
-          type: string
-        type: array
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - description
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - signup_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      message:
-        description: The message that will be displayed to the user. Use with caution
-          as the HTML contained in this field will NOT be escaped.
-        type: string
-      skipable:
-        description: Whether or not, this message can be skipped
-        type: string
-      template:
-        description: The template to use to display the message
-        type: string
-      type:
-        description: Type
-        type: string
-      with_layout:
-        description: Enable Layout
-        type: string
-    required:
-    - id
-    - description
-    - message
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      stone_roles:
-        description: Nodes with the selected roles will be affected
-        items:
-          description: Nodes with the selected roles will be affected
-          type: string
-        type: array
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - description
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      modules:
-        description: Modules
-        items:
-          description: Module
-          type: string
-        type: array
-      type:
-        description: Type
-        type: string
-    required:
-    - id
-    - description
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - signup_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      id:
-        description: Identifier
-        type: string
-      skipable:
-        description: Whether or not, this redirection can be skipped.
-        type: string
-      type:
-        description: Type
-        type: string
-      url:
-        description: The URL on which the user should be redirected.
-        type: string
-    required:
-    - id
-    - description
-    - url
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
       landing_template:
         description: The template to use for the signup
         type: string
@@ -913,6 +848,22 @@ ConfigPortalModule:
     - landing_template
     type: object
   - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
       custom_fields:
         description: The additionnal fields that should be required for registration
         items:
@@ -931,10 +882,61 @@ ConfigPortalModule:
       id:
         description: Identifier
         type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
       source_id:
         description: The sources to use in the module. If no sources are specified,
           all the sources on the Connection Profile will be used
         type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - signup_template
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      admin_role:
+        description: Which roles should have access to this module to select the role
+        items:
+          description: Which roles should have access to this module to select the
+            role
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      list_role:
+        description: Which roles can be select
+        items:
+          description: Which roles can be select
+          type: string
+        type: array
       template:
         description: The template to use
         type: string
@@ -946,6 +948,63 @@ ConfigPortalModule:
     - description
     type: object
   - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - signup_template
+    type: object
+  - properties:
       description:
         description: The description that will be displayed to users
         type: string
@@ -964,189 +1023,6 @@ ConfigPortalModule:
     required:
     - id
     - description
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      multi_source_ids:
-        description: Multi source ids
-        items:
-          description: Multi source id
-          type: string
-        type: array
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      type:
-        description: Type
-        type: string
-      username:
-        description: Defines the username used for all authentications
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - signup_template
-    - username
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      landing_template:
-        description: The template to use for the signup
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - landing_template
-    type: object
-  - properties:
-      actions:
-        description: Actions
-        items:
-          description: Action
-          properties:
-            type:
-              description: Type
-              type: string
-            value:
-              description: Value
-              type: string
-          type: object
-        type: array
-      aup_template:
-        description: The template to use for the AUP
-        type: string
-      custom_fields:
-        description: The additionnal fields that should be required for registration
-        items:
-          description: The additionnal fields that should be required for registration
-          type: string
-        type: array
-      description:
-        description: The description that will be displayed to users
-        type: string
-      fields_to_save:
-        description: These fields will be saved through the registration process
-        items:
-          description: These fields will be saved through the registration process
-          type: string
-        type: array
-      id:
-        description: Identifier
-        type: string
-      landing_template:
-        description: The template to use for the signup
-        type: string
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
-      signup_template:
-        description: The template to use for the signup
-        type: string
-      source_id:
-        description: The sources to use in the module. If no sources are specified,
-          all the sources on the Connection Profile will be used
-        type: string
-      type:
-        description: Type
-        type: string
-      with_aup:
-        description: Require the user to accept the AUP
-        type: string
-    required:
-    - id
-    - description
-    - aup_template
-    - landing_template
     type: object
   - properties:
       actions:
@@ -1239,15 +1115,75 @@ ConfigPortalModule:
               type: string
           type: object
         type: array
+      aup_template:
+        description: The template to use for the AUP
+        type: string
+      custom_fields:
+        description: The additionnal fields that should be required for registration
+        items:
+          description: The additionnal fields that should be required for registration
+          type: string
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      fields_to_save:
+        description: These fields will be saved through the registration process
+        items:
+          description: These fields will be saved through the registration process
+          type: string
+        type: array
+      id:
+        description: Identifier
+        type: string
+      pid_field:
+        description: Which field should be used as the PID.
+        type: string
+      signup_template:
+        description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
+        type: string
+      type:
+        description: Type
+        type: string
+      with_aup:
+        description: Require the user to accept the AUP
+        type: string
+    required:
+    - id
+    - description
+    - aup_template
+    - signup_template
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
       description:
         description: The description that will be displayed to users
         type: string
       id:
         description: Identifier
         type: string
-      skipable:
-        description: Whether or not, the provisioning can be skipped
-        type: string
+      modules:
+        description: Modules
+        items:
+          description: Module
+          type: string
+        type: array
       type:
         description: Type
         type: string
@@ -1291,7 +1227,7 @@ ConfigPortalModule:
         description: Identifier
         type: string
       landing_template:
-        description: The template to use prior to the redirection to the SAML provider
+        description: The template to use for the signup
         type: string
       pid_field:
         description: Which field should be used as the PID.
@@ -1313,7 +1249,6 @@ ConfigPortalModule:
     - id
     - description
     - aup_template
-    - signup_template
     - landing_template
     type: object
   - properties:
@@ -1351,17 +1286,18 @@ ConfigPortalModule:
       id:
         description: Identifier
         type: string
-      multi_source_ids:
-        description: Multi source ids
-        items:
-          description: Multi source id
-          type: string
-        type: array
+      landing_template:
+        description: The template to use for the signup
+        type: string
       pid_field:
         description: Which field should be used as the PID.
         type: string
       signup_template:
         description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
         type: string
       type:
         description: Type
@@ -1373,7 +1309,7 @@ ConfigPortalModule:
     - id
     - description
     - aup_template
-    - signup_template
+    - landing_template
     type: object
   - properties:
       actions:
@@ -1389,27 +1325,11 @@ ConfigPortalModule:
               type: string
           type: object
         type: array
-      admin_role:
-        description: Which roles should have access to this module to select the role
-        items:
-          description: Which roles should have access to this module to select the
-            role
-          type: string
-        type: array
       description:
         description: The description that will be displayed to users
         type: string
       id:
         description: Identifier
-        type: string
-      list_role:
-        description: Which roles can be select
-        items:
-          description: Which roles can be select
-          type: string
-        type: array
-      template:
-        description: The template to use
         type: string
       type:
         description: Type
@@ -1419,6 +1339,90 @@ ConfigPortalModule:
     - description
     type: object
   - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      skipable:
+        description: Whether or not, the provisioning can be skipped
+        type: string
+      type:
+        description: Type
+        type: string
+    required:
+    - id
+    - description
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
+      description:
+        description: The description that will be displayed to users
+        type: string
+      id:
+        description: Identifier
+        type: string
+      message:
+        description: The message that will be displayed to the user. Use with caution
+          as the HTML contained in this field will NOT be escaped.
+        type: string
+      skipable:
+        description: Whether or not, this message can be skipped
+        type: string
+      template:
+        description: The template to use to display the message
+        type: string
+      type:
+        description: Type
+        type: string
+      with_layout:
+        description: Enable Layout
+        type: string
+    required:
+    - id
+    - description
+    - message
+    type: object
+  - properties:
+      actions:
+        description: Actions
+        items:
+          description: Action
+          properties:
+            type:
+              description: Type
+              type: string
+            value:
+              description: Value
+              type: string
+          type: object
+        type: array
       aup_template:
         description: The template to use for the AUP
         type: string
@@ -1440,17 +1444,12 @@ ConfigPortalModule:
       id:
         description: Identifier
         type: string
-      multi_source_ids:
-        description: Multi source ids
-        items:
-          description: Multi source id
-          type: string
-        type: array
-      pid_field:
-        description: Which field should be used as the PID.
-        type: string
       signup_template:
         description: The template to use for the signup
+        type: string
+      source_id:
+        description: The sources to use in the module. If no sources are specified,
+          all the sources on the Connection Profile will be used
         type: string
       type:
         description: Type
@@ -1462,4 +1461,5 @@ ConfigPortalModule:
     - id
     - description
     - aup_template
+    - signup_template
     type: object
