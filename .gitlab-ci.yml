@@ -23,8 +23,14 @@ stages:
 # VARIABLES
 ################################################################################
 variables:
-  PFBUILD_CENTOS_8_IMG: inverseinc/pfbuild-centos-8
-  PFBUILD_DEB_BULLSEYE_IMG: inverseinc/pfbuild-debian-bullseye
+  # synced with Pipeline timeout in GitLab UI
+  PIPELINE_TIMEOUT_SCRIPT: 160m
+  BUILD_PFAPPSERVER_VUE: "yes"
+  PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
+  PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
+  KANIKO_DEBUG_IMG: gcr.io/kaniko-project/executor:debug
+  KNK_REGISTRY: ghcr.io
+  KNK_REGISTRY_URL: ${KNK_REGISTRY}/inverse-inc/packetfence
   PFBUILD_DEFAULT_DEV_TAG: latest
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT: 170m
@@ -203,7 +209,8 @@ variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
@@ -357,10 +364,21 @@ variables:
   stage: build_pf_img
   environment:
     name: sourceforge
-    url: ${SF_REPO_URL}/${CI_COMMIT_REF_NAME}
+    url: ${SF_ZEN_REPO_URL}/${CI_COMMIT_REF_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
-    - make -e -C ${ZENDIR} clean
-    - make -e -C ${ZENDIR} clean_cache
+    - make -e -C ${ZENDIR} clean_all
+  dependencies: []
+  tags:
+    - shell
+
+.build_pf_img_iso_job:
+  stage: build_pf_img
+  environment:
+    name: sourceforge
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
+  after_script:
+    - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
     - shell
@@ -371,7 +389,8 @@ variables:
     RESULT_DIR: /var/local/gitlab-runner/vagrant_img
     BOX_DESC: ${CI_PIPELINE_URL}
   script:
-    - make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${VAGRANT_IMG_DIR} ${BOX_NAME}
+  # implicit timeout = 5 minutes, see https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2716
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   dependencies: []
@@ -391,10 +410,9 @@ variables:
   variables:
     VAGRANT_COMMON_DOTFILE_PATH: /var/local/gitlab-runner/vagrant/vagrant-common-${CI_COMMIT_REF_SLUG}
   script:
-    - timeout ${PIPELINE_TIMEOUT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME}
-  after_script:
-    - ${TESTCIDIR}/clean-test-environment.sh
-
+    # || EXIT_CODE=$? prevents script to finish at first command
+    - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
+    - JOB_STATUS=$EXIT_CODE ${TESTCIDIR}/clean-test-environment.sh
 
 ################################################################################
 # JOBS
