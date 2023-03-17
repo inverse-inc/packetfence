@@ -23,7 +23,8 @@ configure_and_check() {
     COMMIT_REF_NAME_ENCODED=$(urlencode "$CI_COMMIT_REF_NAME")
     COMMIT_SHA=$(git rev-parse HEAD~0)
 
-    [ -n "${GITLAB_API_TOKEN}" ] && die "not set: GITLAB_API_TOKEN"
+    # if no token defined, we die
+    [ -n "${GITLAB_API_TOKEN}" ] || die "not set: GITLAB_API_TOKEN"
     
     # get SHA of latest pipeline scheduled with status=succes for that branch
     SHA_LATEST_PIPELINE=$(curl --header "PRIVATE-TOKEN: ${GITLAB_API_TOKEN}" \
