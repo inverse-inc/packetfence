@@ -48,6 +48,14 @@ ad_domain_admin_password: VagrantPass1
 ad_base_dn: dc=example,dc=lan
 ad_domain_user: packetfence
 
+linux03_domain_upper: EXAMPLE
+linux03_dns_domain: example.lan
+linux03_dns_domain_upper: "{{.linux03_domain_upper}}.LAN"
+linux03_domain_admin_user: administrator
+linux03_domain_admin_password: VagrantPass1
+linux03_base_dn: dc=example,dc=lan
+linux03_domain_user: packetfence
+
 # switchs variables
 switch01.api.url: "https://{{.switch01_mgmt_ip}}:8080"
 switch01.api.user: cumulus

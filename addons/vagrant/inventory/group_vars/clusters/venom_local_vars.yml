@@ -47,6 +47,9 @@ venom_local_vars:
   - name: 'ad_mgmt_ip'
     value: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
 
+  - name: 'linux03_mgmt_ip'
+    value: "{{ users_vars[dict_name]['vms']['linux03']['ip'] }}"
+
   - name: 'switch01_mgmt_ip'
     value: "{{ users_vars[dict_name]['vms']['switch01']['ip'] }}"
 

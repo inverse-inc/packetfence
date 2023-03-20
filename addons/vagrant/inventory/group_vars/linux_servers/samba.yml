@@ -17,5 +17,9 @@ samba__services_to_stop:
 
 samba__global_custom:
   netbios_name: DC1
-  workgroup: SAMBAAD
-  realm: "SAMBAAD.LAN"
+  workgroup: EXAMPLE
+
+domain_setup__username: administrator
+domain_setup__password: VagrantPass1
+domain_setup__kdc: yes
+domain_setup__realm: false

@@ -90,23 +90,23 @@
       dest: /etc/krb5.conf
       content: |
          [libdefaults]
-            default_realm = "{{ samba__global_custom.realm }}"
-            dns_lookup_kdc = true
-            dns_lookup_realm = false
+            default_realm = "{{ dns_domain_upper }}"
+            dns_lookup_kdc = "{{ domain_setup__kdc }}"
+            dns_lookup_realm = "{{ domain_setup__realm }}"
          
          [realms]
-            SAMBAAD.LAN = {
-              admin_server = LINUX03.SAMBAAD.LAN
-              kdc = LINUX03.SAMBAAD.LAN
+            "{{ dns_domain_upper }}" = {
+              "admin_server = LINUX03.{{ dns_domain_upper }}"
+              "kdc = LINUX03.{{ dns_domain_upper }}"
          }
          
          [domain_realm]
-           sambaad.lan = SAMBAAD.LAN
-           .sambaad.lan = SAMBAAD.LAN
+           "{{ dns_domain }} = {{ dns_domain_upper }}"
+           ".{{ dns_domain }} = {{ dns_domain_upper }}"
 
-  - name: Replace a localhost entry with our own
+  - name: Adding localhost in resolv.conf
     ansible.builtin.lineinfile:
-      path: /etc/dhcp/dhclient.conf 
+      path: /etc/dhcp/dhclient.conf
       line: prepend domain-name-servers 127.0.0.1;
       state: present
       create: true
@@ -115,16 +115,16 @@
     ansible.builtin.shell:
       cmd: "{{ item }}"
     loop:
-    - "samba-tool domain provision --realm={{ samba__global_custom.realm }} --domain {{ samba__global_custom.workgroup }} --server-role=dc"
+    - "samba-tool domain provision --realm={{ dns_domain_upper }} --domain {{ samba__global_custom.workgroup }} --server-role=dc"
 
   - name: Configure Samba admin password
     ansible.builtin.expect:
       command: "{{ item }}"
       responses:
-        (?i)new\s(?i)password: "MySekretPa$$word"
-        (?i)retype\s(?i)password: "MySekretPa$$word"
+        (?i)new\s(?i)password: "{{ domain_setup__password }}"
+        (?i)retype\s(?i)password: "{{ domain_setup__password }}"
     loop:
-    - "samba-tool user setpassword administrator"
+    - "samba-tool user setpassword {{ domain_setup__username }}"
 
   - name: Remove config files
     file:
@@ -162,7 +162,7 @@
     ansible.builtin.expect:
       command: "{{ item }}"
       responses:
-        (?i)password.*: "MySekretPa$$word"
+        (?i)password.*: "{{ domain_setup__password }}"
     loop:
     - "kinit administrator"
 
