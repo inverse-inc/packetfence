@@ -66,11 +66,35 @@ has_field 'allowed_roles' =>
              help => 'List of roles available to the admin user to assign to a user. If none are provided then all roles are available' },
   );
 
+has_field 'allowed_bypass_roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Allowed user roles',
+   options_method => \&options_roles,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a role' },
+   tags => { after_element => \&help,
+             help => 'List of roles available to the admin user to assign to a user. If none are provided then all roles are available' },
+  );
+
 has_field 'allowed_node_roles' =>
   (
    type => 'Select',
    multiple => 1,
    label => 'Allowed node roles',
+   options_method => \&options_roles,
+   element_class => ['chzn-select'],
+   element_attr => {'data-placeholder' => 'Click to add a role' },
+   tags => { after_element => \&help,
+             help => 'List of roles available to the admin user to assign to a node. If none are provided then all roles are available' },
+  );
+
+has_field 'allowed_node_bypass_roles' =>
+  (
+   type => 'Select',
+   multiple => 1,
+   label => 'Allowed user roles',
    options_method => \&options_roles,
    element_class => ['chzn-select'],
    element_attr => {'data-placeholder' => 'Click to add a role' },
