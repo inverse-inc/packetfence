@@ -64,6 +64,11 @@ sub allowed_user_roles {
     return $self->_allowed_roles('allowed_roles');
 }
 
+sub allowed_user_bypass_roles {
+    my ($self) = @_;
+    return $self->_allowed_roles('allowed_bypass_roles');
+}
+
 sub allowed_user_access_levels {
     my ($self) = @_;
     return $self->_allowed_options('allowed_access_levels', 'access_level', sub { sort keys %ADMIN_ROLES } );
@@ -82,6 +87,11 @@ sub allowed_user_access_durations {
 sub allowed_node_roles {
     my ($self) = @_;
     return $self->_allowed_roles('allowed_node_roles');
+}
+
+sub allowed_node_bypass_roles {
+    my ($self) = @_;
+    return $self->_allowed_roles('allowed_node_bypass_roles');
 }
 
 sub render_items {
