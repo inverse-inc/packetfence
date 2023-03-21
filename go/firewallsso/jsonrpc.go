@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/rpc/v2/json2"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 	"net/http"
 )
 

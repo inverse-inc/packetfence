@@ -12,7 +12,7 @@ import (
 	"regexp"
 
 	"github.com/gorilla/mux"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 type (

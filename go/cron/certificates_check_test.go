@@ -2,6 +2,7 @@ package maint
 
 import (
 	"testing"
+	"time"
 )
 
 func TestCertCheck(t *testing.T) {
@@ -32,7 +33,7 @@ Kj44MrvVS4fJuIO7ADRRh5gQG8xe6Y9PoxDVFnwI
 -----END CERTIFICATE-----
 `
 	c := &CertificatesCheck{}
-	err := c.VerifyContents("", []byte(pem))
+	err := c.VerifyContents("", []byte(pem), time.Now())
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -118,7 +119,7 @@ rP4Jpxt4LoXCDQ+YqlxAs3AXBQc6mM8Gx9FyN5l1xWtHNutODpuUXAGrdHb70EyL
 Kj44MrvVS4fJuIO7ADRRh5gQG8xe6Y9PoxDVFnwI
 -----END CERTIFICATE-----
 `
-	err = c.VerifyContents("", []byte(pem))
+	err = c.VerifyContents("", []byte(pem), time.Now())
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -162,7 +163,7 @@ rP4Jpxt4LoXCDQ+YqlxAs3AXBQc6mM8Gx9FyN5l1xWtHNutODpuUXAGrdHb70EyL
 Kj44MrvVS4fJuIO7ADRRh5gQG8xe6Y9PoxDVFnwI
 -----END CERTIFICATE-----
 `
-	err = c.VerifyContents("", []byte(pem))
+	err = c.VerifyContents("", []byte(pem), time.Now())
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -183,7 +184,7 @@ yecLk/4L1W0l6jQQZnWErXZYe0PNFcmwGXy1Rep83kfBRNKRy5tvocalLlwXLdUk
 AIU+2GKjyT3iMuzZxxFxPFMCAwEAAQ==
 -----END PUBLIC KEY-----
 `
-	err = c.VerifyContents("", []byte(pem))
+	err = c.VerifyContents("", []byte(pem), time.Now())
 	if err == nil {
 		t.Error("Certificate data found")
 	}

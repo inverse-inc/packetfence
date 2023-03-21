@@ -8,7 +8,7 @@ import (
 	"net"
 
 	"github.com/inverse-inc/packetfence/go/galeraautofix/mariadb"
-	"github.com/inverse-inc/packetfence/go/log"
+	"github.com/inverse-inc/go-utils/log"
 )
 
 const (

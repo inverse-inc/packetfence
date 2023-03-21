@@ -3,11 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/coreos/go-systemd/daemon"
-	"github.com/inverse-inc/packetfence/go/cron"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"github.com/robfig/cron/v3"
 	"net"
 	"os"
 	"os/signal"
@@ -16,6 +11,12 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+
+	"github.com/coreos/go-systemd/daemon"
+	"github.com/inverse-inc/go-utils/log"
+	maint "github.com/inverse-inc/packetfence/go/cron"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
+	"github.com/robfig/cron/v3"
 )
 
 func setProcessing() {
@@ -63,50 +64,46 @@ func isMaster(ctx context.Context, management *pfconfigdriver.ManagementNetwork)
 
 var processJobs uint32 = 1
 
-func wrapJob(logger log.PfLogger, j string) cron.Job {
+func wrapJob(logger log.PfLogger, j string, l bool) cron.Job {
 	var ch = make(chan struct{}, 1)
 	ch <- struct{}{}
 	return cron.FuncJob(func() {
-		if atomic.LoadUint32(&processJobs) == 0 {
-			return
-		}
-
 		defer func() {
 			if r := recover(); r != nil {
 				logger.Error(fmt.Sprintf("Job %s panic: %s", j, r))
 			}
 		}()
 
+		if atomic.LoadUint32(&processJobs) == 0 && l == false {
+			logger.Info("Not processing " + j)
+			return
+		}
+
 		select {
 		case v := <-ch:
 			if job := maint.GetJob(j, maint.GetMaintenanceConfig(context.Background())); job != nil {
 				logger.Info("Running " + j)
 				job.Run()
+			} else {
+				logger.Error("Cannot create job " + j)
 			}
 			ch <- v
 		default:
-			logger.Info(j + " Skipped")
+			logger.Info(" Skipped " + j)
 		}
 	})
-}
-
-func mergeArgs(config, args map[string]interface{}) map[string]interface{} {
-	newArgs := make(map[string]interface{})
-	for k, v := range config {
-		newArgs[k] = v
-	}
-
-	for k, v := range args {
-		newArgs[k] = v
-	}
-
-	return newArgs
 }
 
 func runJobNow(name string, additionalArgs map[string]interface{}) int {
 	jobsConfig := maint.GetMaintenanceConfig(context.Background())
 	if config, found := jobsConfig[name]; found {
-		job := maint.BuildJob(name, mergeArgs(config.(map[string]interface{}), additionalArgs))
+		job := maint.BuildJob(
+			name,
+			maint.MergeArgs(
+				config.(map[string]interface{}),
+				additionalArgs,
+			),
+		)
 		if job != nil {
 			job.Run()
 			return 0
@@ -146,16 +143,20 @@ func main() {
 	if len(os.Args) > 1 {
 		jobName := os.Args[1]
 		code := 0
-		if additionalArgs, err := makeArgs(os.Args[2:]); err != nil {
+		additionalArgs, err := makeArgs(os.Args[2:])
+		if err != nil {
 			fmt.Printf("%s\n", err.Error())
-			code = 1
-		} else {
-			code = runJobNow(jobName, additionalArgs)
-			if code == 0 {
-				fmt.Printf("task %s finished\n", jobName)
-			}
+			os.Exit(1)
+			return
 		}
+
+		code = runJobNow(jobName, additionalArgs)
+		if code == 0 {
+			fmt.Printf("task %s finished\n", jobName)
+		}
+
 		os.Exit(code)
+		return
 	}
 
 	ctx := context.Background()
@@ -165,7 +166,7 @@ func main() {
 	)))
 
 	for _, job := range maint.GetConfiguredJobs(maint.GetMaintenanceConfig(ctx)) {
-		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name()))
+		id := c.Schedule(job.Schedule(), wrapJob(logger, job.Name(), job.ForceLocal()))
 		logger.Info(fmt.Sprintf("task '%s' created with id %d with schedule of %s", job.Name(), int64(id), job.ScheduleSpec()))
 	}
 

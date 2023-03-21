@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/inverse-inc/packetfence/go/netflow5"
+	"github.com/inverse-inc/go-utils/netflow5"
 	"testing"
 )
 

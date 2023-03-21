@@ -11,8 +11,8 @@ import (
 	"github.com/diegoguarnieri/go-conntrack/conntrack"
 	"github.com/gorilla/mux"
 	ipset "github.com/inverse-inc/go-ipset"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 type Info struct {

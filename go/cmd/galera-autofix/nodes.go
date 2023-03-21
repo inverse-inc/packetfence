@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/inverse-inc/packetfence/go/galeraautofix/mariadb"
-	"github.com/inverse-inc/packetfence/go/log"
-	"github.com/inverse-inc/packetfence/go/sharedutils"
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/go-utils/sharedutils"
 	ping "github.com/sparrc/go-ping"
 )
 
