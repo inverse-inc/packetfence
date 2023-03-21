@@ -14,16 +14,26 @@
   <div id="swagger-ui"></div>
   <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
   <script>
+    let token = null
+    const syncToken = function(ui) {
+      const storage = localStorage.getItem('user-token')
+      if (storage && !token) {
+        token = storage
+        ui.preauthorizeApiKey('bearerAuth', token)
+      }
+      else if (!storage && token) {
+        token = null
+        ui.preauthorizeApiKey('bearerAuth', token)
+      }
+    }
     window.onload = () => {
       const ui = SwaggerUIBundle({
         url: '/static/doc/api/spec/openapi.json',
         dom_id: '#swagger-ui',
         defaultModelsExpandDepth: -1,
         onComplete: function() {
-          const token = localStorage.getItem('user-token')
-          if (token) {
-            ui.preauthorizeApiKey('bearerAuth', token)
-          }
+          setInterval(function() { syncToken(ui) }, 3000)
+          syncToken(ui)
         },
         plugins: [
           SwaggerUIBundle.plugins.DownloadUrl,
