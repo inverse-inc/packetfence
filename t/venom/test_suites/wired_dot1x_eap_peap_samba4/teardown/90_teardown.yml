@@ -53,7 +53,7 @@ testcases:
   steps:
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.ad_domain_upper}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.linux03_domain_upper}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"
@@ -63,7 +63,7 @@ testcases:
 
   - type: http
     method: DELETE
-    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.ad_dns_domain}}'
+    url: '{{.pfserver_webadmin_url}}/api/v1/config/realm/{{.linux03_dns_domain}}'
     ignore_verify_ssl: true
     headers:
       "Authorization": "{{.get_login_token.result.token}}"

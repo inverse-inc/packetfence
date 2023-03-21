@@ -219,7 +219,7 @@ inline_l2_and_radius_deb11:
 samba4_deb11:
 	make \
 	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
-        INT_TEST_VM_NAMES="linux03" \
+	INT_TEST_VM_NAMES="linux03 switch01 node01 node03 wireless01" \
         SCENARIOS_TO_RUN=dot1x_eap_peap_samba4 \
         $(MAKE_TARGET)
 
