@@ -149,7 +149,7 @@ sub validate {
     $acls = [split(/\n/, $acls)];
     while (my ($switch_id, $data) = each %pf::SwitchFactory::SwitchConfig) {
         my $type = $data->{type};
-        next if !defined $type || $type eq '';
+        next if !defined $type || $type eq '' || $type eq 'PacketFence';
         my $module = pf::SwitchFactory::getModule($type);
         next if !defined $module;
         my $switch = $module->new({ id => $switch_id, %$data});

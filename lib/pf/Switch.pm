@@ -3966,6 +3966,10 @@ sub ACLsLimit {
 
 sub checkRoleACLs {
     my ($self, $name, $acls) = @_;
+    if (($self->{_type} // '') eq 'PacketFence') {
+        return undef;
+    }
+
     my $count = @{$acls // []};
 
     if ($count == 0) {
