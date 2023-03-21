@@ -1,0 +1,22 @@
+name: Test ip6tables rules on portal interface
+testcases:
+
+  - name: check_http
+    steps:
+      - type: http
+        method: GET
+        url: 'http://[fd28:ffd:18:140::14]'
+        ignore_verify_ssl: true
+        assertions:
+          - result.statuscode ShouldEqual 200
+
+  - name: check_https
+    steps:
+      - type: http
+        method: GET
+        url: 'https://[fd28:ffd:18:140::14]'
+        ignore_verify_ssl: true
+        assertions:
+          - result.statuscode ShouldEqual 200
+        
+  - FIXME: un port non autorisé doit retourner un échec

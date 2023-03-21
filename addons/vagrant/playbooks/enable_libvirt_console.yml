@@ -1,4 +1,4 @@
-- hosts: pfservers
+- hosts: pfservers, wireless, linux_servers
   name: Enable console using virsh
   become: True
 

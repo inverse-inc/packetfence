@@ -1,6 +1,14 @@
 ---
+# IPv6 address/prefix variables
+# define here to simplify later assignments
+libvirt_ipv6_cidr_mgmt: "{{ users_vars[dict_name]['networks'][0]['libvirt_ipv6_address'] }}/{{ users_vars[dict_name]['networks'][0]['libvirt_ipv6_prefix'] }}"
+libvirt_ipv6_cidr_reg: "{{ users_vars[dict_name]['networks'][1]['libvirt_ipv6_address'] }}/{{ users_vars[dict_name]['networks'][1]['libvirt_ipv6_prefix'] }}"
+libvirt_ipv6_cidr_iso: "{{ users_vars[dict_name]['networks'][2]['libvirt_ipv6_address'] }}/{{ users_vars[dict_name]['networks'][2]['libvirt_ipv6_prefix'] }}"
+libvirt_ipv6_cidr_inline: "{{ users_vars[dict_name]['networks'][3]['libvirt_ipv6_address'] }}/{{ users_vars[dict_name]['networks'][3]['libvirt_ipv6_prefix'] }}"
+
 # some variables are set during execution
 venom_local_vars:
+  ### IPv4
   - name: 'pfserver_mgmt_ip'
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"
 
@@ -16,7 +24,7 @@ venom_local_vars:
   - name: 'pfserver_mgmt_net'
     value: "{{ packetfence_install__mgmt_interface['ip_mask'] | ansible.netcommon.ipaddr('network')  }}"
 
-  # get second IP (.2) usable without /CIDR
+  # get second IP (.2) usable without netmask
   - name: 'configurator.interfaces.reg.ip'
     value: "{{ users_vars[dict_name]['networks'][1]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
 
@@ -24,7 +32,7 @@ venom_local_vars:
   - name: 'configurator.interfaces.reg.netmask'
     value: "{{ users_vars[dict_name]['networks'][1]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
 
-  # get second IP (.2) usable without /CIDR
+  # get second IP (.2) usable without netmask
   - name: 'configurator.interfaces.iso.ip'
     value: "{{ users_vars[dict_name]['networks'][2]['subnet'] | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
 
@@ -39,6 +47,35 @@ venom_local_vars:
   # get netmask based on CIDR
   - name: 'configurator_inline_l2.interfaces.inline.netmask'
     value: "{{ users_vars[dict_name]['networks'][3]['subnet'] | ansible.netcommon.ipaddr('netmask') }}"
+
+  ### IPv6
+  # inventory_hostname is a special Ansible variable
+  - name: 'pfserver_mgmt_ipv6'
+    value: "{{ users_vars[dict_name]['vms'][inventory_hostname]['ipv6'] }}"
+
+  - name: 'pfserver_mgmt_prefix'
+    value: "{{ users_vars[dict_name]['networks'][0]['libvirt_ipv6_prefix'] }}"
+
+  # get second IP (:2) usable without prefix
+  - name: 'configurator.interfaces.reg.ipv6'
+    value: "{{ libvirt_ipv6_cidr_reg | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+
+  - name: 'configurator.interfaces.reg.prefix'
+    value: "{{ users_vars[dict_name]['networks'][1]['libvirt_ipv6_prefix'] }}"
+
+  # get second IP (:2) usable without prefix
+  - name: 'configurator.interfaces.iso.ipv6'
+    value: "{{ libvirt_ipv6_cidr_iso | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+
+  - name: 'configurator.interfaces.iso.prefix'
+    value: "{{ users_vars[dict_name]['networks'][2]['libvirt_ipv6_prefix'] }}"
+
+  # get second IP (:2) usable without prefix
+  - name: 'configurator_inline_l2.interfaces.inline.ipv6'
+    value: "{{ libvirt_ipv6_cidr_inline | ansible.netcommon.next_nth_usable(2) | ansible.netcommon.ipaddr('address') }}"
+
+  - name: 'configurator_inline_l2.interfaces.inline.prefix'
+    value: "{{ users_vars[dict_name]['networks'][3]['libvirt_ipv6_prefix'] }}"
 
   - name: 'smtp_server'
     value: "{{ packetfence_install__mgmt_interface['ip'] }}"

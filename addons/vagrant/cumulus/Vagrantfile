@@ -107,6 +107,14 @@ node02_netmask = user_vars['vms']['node02']['netmask']
 node03_ip = user_vars['vms']['node03']['ip']
 node03_netmask = user_vars['vms']['node03']['netmask']
 
+# IPv6
+node01_ipv6 = user_vars['vms']['node01']['ipv6']
+node01_prefix = user_vars['networks'][0]['libvirt_ipv6_prefix']
+node02_ipv6 = user_vars['vms']['node02']['ipv6']
+node02_prefix = user_vars['networks'][0]['libvirt_ipv6_prefix']
+node03_ipv6 = user_vars['vms']['node03']['ipv6']
+node03_prefix = user_vars['networks'][0]['libvirt_ipv6_prefix']
+
 Vagrant.configure("2") do |config|
 
   wbid = 1
@@ -136,6 +144,9 @@ Vagrant.configure("2") do |config|
             :ip => user_vars['networks'][0]['subnet'],
             :libvirt__dhcp_enabled => false,
             :libvirt__forward_mode => user_vars['networks'][0]['forward_mode'],
+            :libvirt__guest_ipv6 => "yes",
+            :libvirt__ipv6_address => user_vars['networks'][0]['libvirt_ipv6_address'],
+            :libvirt__ipv6_prefix => user_vars['networks'][0]['libvirt_ipv6_prefix'],
             auto_config: false
       # link for swp2 --> reg_network (vlan 2)
       device.vm.network "private_network",
@@ -144,6 +155,9 @@ Vagrant.configure("2") do |config|
             :ip => user_vars['networks'][1]['subnet'],
             :libvirt__dhcp_enabled => false,
             :libvirt__forward_mode => user_vars['networks'][1]['forward_mode'],
+            :libvirt__guest_ipv6 => "yes",
+            :libvirt__ipv6_address => user_vars['networks'][1]['libvirt_ipv6_address'],
+            :libvirt__ipv6_prefix => user_vars['networks'][1]['libvirt_ipv6_prefix'],
             auto_config: false
       # link for swp3 --> iso_network (vlan 3)
       device.vm.network "private_network",
@@ -152,6 +166,9 @@ Vagrant.configure("2") do |config|
             :ip => user_vars['networks'][2]['subnet'],
             :libvirt__dhcp_enabled => false,
             :libvirt__forward_mode => user_vars['networks'][2]['forward_mode'],
+            :libvirt__guest_ipv6 => "yes",
+            :libvirt__ipv6_address => user_vars['networks'][2]['libvirt_ipv6_address'],
+            :libvirt__ipv6_prefix => user_vars['networks'][2]['libvirt_ipv6_prefix'],
             auto_config: false      
       # link for swp6 --> inline_network (vlan 6)
       device.vm.network "private_network",
@@ -160,6 +177,9 @@ Vagrant.configure("2") do |config|
             :ip => user_vars['networks'][3]['subnet'],
             :libvirt__dhcp_enabled => false,
             :libvirt__forward_mode => user_vars['networks'][3]['forward_mode'],
+            :libvirt__guest_ipv6 => "yes",
+            :libvirt__ipv6_address => user_vars['networks'][3]['libvirt_ipv6_address'],
+            :libvirt__ipv6_prefix => user_vars['networks'][3]['libvirt_ipv6_prefix'],
             auto_config: false
       # link for swp11 --> node01:ens6
       device.vm.network "private_network",
@@ -379,7 +399,7 @@ vagrant_interface_rule
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
     device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node01.sh",
-                        args: [ "#{node01_ip}", "#{node01_netmask}"]
+                        args: [ "#{node01_ip}", "#{node01_netmask}", "#{node01_ipv6}", "#{node01_prefix}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
@@ -480,7 +500,7 @@ vagrant_interface_rule
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
     device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node02.sh",
-                        args: [ "#{node02_ip}", "#{node02_netmask}"]
+                        args: [ "#{node02_ip}", "#{node02_netmask}", "#{node02_ipv6}", "#{node02_prefix}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
@@ -577,7 +597,7 @@ vagrant_interface_rule
     # Run the Config specified in the Node Attributes
     device.vm.provision :shell , privileged: false, :inline => 'echo "$(whoami)" > /tmp/normal_user'
     device.vm.provision "config_node", type: "shell", path: "./helper_scripts/config_node03.sh",
-                        args: [ "#{node03_ip}", "#{node03_netmask}"]
+                        args: [ "#{node03_ip}", "#{node03_netmask}", "#{node03_ipv6}", "#{node03_prefix}"]
 
     # Install Rules for the interface re-map
     device.vm.provision :shell , :inline => <<-delete_udev_directory
