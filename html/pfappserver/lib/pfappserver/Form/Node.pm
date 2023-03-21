@@ -56,7 +56,7 @@ has_field 'bypass_role_id' =>
   (
    type => 'Select',
    label => 'Bypass Role',
-   options_method => \&get_role_options,
+   options_method => \&get_bypass_role_options,
    element_class => ['chzn-deselect'],
    element_attr => {'data-placeholder' => 'No role'},
   );
@@ -280,12 +280,34 @@ Get role options
 
 sub get_role_options {
     my ($self) = @_;
+    return $self->_get_role_options('allowed_node_roles');
+}
+
+=head2 get_bypass_role_options
+
+Get bypass role options
+
+=cut
+
+sub get_bypass_role_options {
+    my ($self) = @_;
+    return $self->_get_role_options('allowed_node_bypass_roles');
+}
+
+=head2 get_role_options
+
+Get role options
+
+=cut
+
+sub _get_role_options {
+    my ($self, $admin_role_field) = @_;
     my $logger = get_logger();
     my $form   = $self->form;
     my $name   = $self->name;
     my $previous_role = $self->init_value // '';
     $logger->trace(sub {"Previous role '$previous_role' for '$name'"});
-    my %allowed_node_roles = map {$_ => undef} $form->_get_allowed_options('allowed_node_roles');
+    my %allowed_node_roles = map {$_ => undef} $form->_get_allowed_options($admin_role_field);
     my @roles;
     my @all_roles = @{$form->roles // []};
 
