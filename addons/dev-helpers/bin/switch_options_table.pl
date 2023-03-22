@@ -72,8 +72,7 @@ for my $g (@groups) {
             $switch_info->{$supportedItem} = $module->$supportsTested ? "true" : "not_tested";
         }
         #$switch_info->{"SNMP"}="true"                        if ($supports =~ /SNMP/ && $supports !~ /-SNMP/) ;
-	
-	# Clean the name to something simple, need to start with a letter
+        # Clean the name to something simple, need to start with a letter
         my $name_cleaned = lc($switch_info->{"label"});
         $name_cleaned =~ s/\s+/-/g;
         $name_cleaned =~ s/\//-/g;
