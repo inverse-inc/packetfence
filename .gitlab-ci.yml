@@ -25,6 +25,7 @@ stages:
 variables:
   # synced with Pipeline timeout in GitLab UI
   PIPELINE_TIMEOUT_SCRIPT: 160m
+  PIPELINE_TIMEOUT_CLEANUP: 10m
   BUILD_PFAPPSERVER_VUE: "yes"
   PFBUILD_CENTOS_8_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-centos-8
   PFBUILD_DEB_BULLSEYE_IMG: ghcr.io/inverse-inc/packetfence/pfbuild-debian-bullseye
@@ -386,7 +387,7 @@ variables:
   script:
     # || EXIT_CODE=$? prevents script to finish at first command
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
-    - JOB_STATUS=$EXIT_CODE ${TESTCIDIR}/clean-test-environment.sh
+    - timeout ${PIPELINE_TIMEOUT_CLEANUP} JOB_STATUS=$EXIT_CODE ${TESTCIDIR}/clean-test-environment.sh
 
 ################################################################################
 # JOBS
