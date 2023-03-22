@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/packetfence/go/caddy/admin-api-audit-log/models"
@@ -14,48 +13,28 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
-type AdminApiAuditLog struct {
+type Wrix struct {
 	DB  *gorm.DB
 	Ctx *context.Context
 }
 
-type RespBody struct {
-	models.DBRes
-	Status  int          `json:"status"`
-	Errors  []models.Err `json:"errors,omitempty"`
-	Message string       `json:"message,omitempty"`
-}
-
-func NewAdminApiAuditLog() *AdminApiAuditLog {
+func NewWrix() *Wrix {
 	DB, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
 	ctx := context.Background()
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(err.Error())
 	}
-	return &AdminApiAuditLog{
+	return &Wrix{
 		DB:  DB,
 		Ctx: &ctx,
 	}
 }
 
-func setError(body *RespBody, err error, status int) {
-	body.Errors = append(body.Errors, models.Err{Message: err.Error()})
-	body.Status = status
-}
-
-func outputResult(w http.ResponseWriter, body RespBody) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(body.Status)
-	res, _ := json.Marshal(body)
-	fmt.Fprintf(w, string(res))
-}
-
-func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *Wrix) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewWrixModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -77,8 +56,8 @@ func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httpro
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *Wrix) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewWrixModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -100,19 +79,13 @@ func (a *AdminApiAuditLog) Search(w http.ResponseWriter, r *http.Request, p http
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *Wrix) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewWrixModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
 
 	id := p.ByName("id")
-	_, err = strconv.Atoi(id)
-	if err != nil {
-		setError(&body, errors.New("invalid format for admin audit log entry ID"), http.StatusBadRequest)
-		outputResult(w, body)
-		return
-	}
 
 	body.DBRes, err = model.GetByID(id)
 	if err != nil {
@@ -127,19 +100,13 @@ func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p htt
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *Wrix) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewWrixModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
 
 	id := p.ByName("id")
-	_, err = strconv.Atoi(id)
-	if err != nil {
-		setError(&body, errors.New("invalid format for admin audit log entry ID"), http.StatusBadRequest)
-		outputResult(w, body)
-		return
-	}
 
 	body.DBRes, err = model.Delete(id)
 	if err != nil {
@@ -156,19 +123,13 @@ func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p 
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *Wrix) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewWrixModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
 
 	id := p.ByName("id")
-	nID, err := strconv.Atoi(id)
-	if err != nil {
-		setError(&body, errors.New("invalid format for admin audit log entry ID"), http.StatusBadRequest)
-		outputResult(w, body)
-		return
-	}
 
 	body.DBRes, err = model.GetByID(id)
 	if err != nil {
@@ -188,7 +149,7 @@ func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p 
 		return
 	}
 	err = json.Unmarshal(payload, &model)
-	model.ID = int64(nID)
+	model.ID = id
 	if err != nil {
 		setError(&body, err, http.StatusUnprocessableEntity)
 		outputResult(w, body)
@@ -202,14 +163,14 @@ func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p 
 		outputResult(w, body)
 		return
 	}
-	body.Message = fmt.Sprintf("id %d updated", nID)
+	body.Message = fmt.Sprintf("id %s updated", id)
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) AddToRouter(r *httprouter.Router) {
-	r.GET("/api/v1/admin_api_audit_logs", a.List)
-	r.POST("/api/v1/admin_api_audit_logs/search", a.Search)
-	r.GET("/api/v1/admin_api_audit_log/:id", a.GetItem)
-	r.DELETE("/api/v1/admin_api_audit_log/:id", a.DeleteItem)
-	r.PATCH("/api/v1/admin_api_audit_log/:id", a.UpdateItem)
+func (a *Wrix) AddToRouter(r *httprouter.Router) {
+	r.GET("/api/v1/wrixes", a.List)
+	r.POST("/api/v1/wrixes/search", a.Search)
+	r.GET("/api/v1/wrix/:id", a.GetItem)
+	r.DELETE("/api/v1/wrix/:id", a.DeleteItem)
+	r.PATCH("/api/v1/wrix/:id", a.UpdateItem)
 }

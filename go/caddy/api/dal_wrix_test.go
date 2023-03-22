@@ -2,52 +2,38 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
+	"github.com/google/uuid"
 	"github.com/inverse-inc/packetfence/go/caddy/admin-api-audit-log/models"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
+	"github.com/julienschmidt/httprouter"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/julienschmidt/httprouter"
 )
 
-func GetGormDB(t *testing.T) *gorm.DB {
-	database, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
-	if err != nil {
-		t.Fatalf("Cannot create a database connection: %s", err.Error())
-		return nil
-	}
+var WrixIDs []string
 
-	return database
-}
-
-var dbEntryIDs []int64
-
-func setupTestCase(t *testing.T) func(t *testing.T) {
+func setupTestCaseWrix(t *testing.T) func(t *testing.T) {
 	//t.Log("setup test case")
-	dbEntryIDs = []int64{}
-	err, entry1 := insertDBTestEntries(t)
+	WrixIDs = []string{}
+	err, entry1 := insertDBTestEntriesWrix(t)
 	if err != nil {
 		t.Fatalf("error in preparing testing data\n")
 	}
-	err, entry2 := insertDBTestEntries(t)
+	err, entry2 := insertDBTestEntriesWrix(t)
 	if err != nil {
 		t.Fatalf("error in preparing testing data\n")
 	}
 
-	dbEntryIDs = append(dbEntryIDs, entry1.ID, entry2.ID)
+	WrixIDs = append(WrixIDs, entry1.ID, entry2.ID)
 
 	return func(t *testing.T) {
 		//t.Log("teardown test case")
-		for _, id := range dbEntryIDs {
-			err := removeDBTestEntries(t, id)
+		for _, id := range WrixIDs {
+			err := removeDBTestEntriesWrix(t, id)
 			if err != nil {
 				t.Fatalf("error in removing test entires\n")
 			}
@@ -55,31 +41,33 @@ func setupTestCase(t *testing.T) func(t *testing.T) {
 	}
 }
 
-func insertDBTestEntries(t *testing.T) (error, admin_api_audit_log.AdminApiAuditLog) {
+func insertDBTestEntriesWrix(t *testing.T) (error, models.Wrix) {
 	db := GetGormDB(t)
 
-	log := admin_api_audit_log.AdminApiAuditLog{
-		UserName: "go_unit_test_user_dummy",
-		Url:      "https://example.com/test",
-		Request:  `{"dummy": "dummy"}`,
-		Method:   "POST",
-		Status:   200,
+	id, _ := uuid.NewUUID()
+	entry := models.Wrix{
+		ID:                 id.String(),
+		ProviderIdentifier: "Cisco",
+		SSIDBroadcasted:    "Yes",
+		MACAddress:         "01:02:03:04:05:06",
 	}
-	err := admin_api_audit_log.Add(db, &log)
-	return err, log
+	results := db.Model(&models.Wrix{}).Create(&entry)
+	err := results.Error
+
+	return err, entry
 }
 
-func removeDBTestEntries(t *testing.T, id int64) error {
+func removeDBTestEntriesWrix(t *testing.T, id string) error {
 	db := GetGormDB(t)
-	l := admin_api_audit_log.AdminApiAuditLog{ID: id}
-	err := admin_api_audit_log.Remove(db, &l)
+	l := models.Wrix{ID: id}
+	err := db.Where("`id` = ?", l.ID).Unscoped().Delete(l).Error
 
 	return err
 }
 
-func dalAdminApiAuditLog() http.HandlerFunc {
+func dalWrix() http.HandlerFunc {
 	router := httprouter.New()
-	NewAdminApiAuditLog().AddToRouter(router)
+	NewWrix().AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json
@@ -92,12 +80,12 @@ func dalAdminApiAuditLog() http.HandlerFunc {
 	})
 }
 
-func TestList(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestListWrixes(t *testing.T) {
+	teardownTestCase := setupTestCaseWrix(t)
 	defer teardownTestCase(t)
 
-	handler := dalAdminApiAuditLog()
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/admin_api_audit_logs", nil)
+	handler := dalWrix()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/wrixes", nil)
 	w := httptest.NewRecorder()
 	handler(w, req)
 	res := w.Result()
@@ -120,7 +108,7 @@ func TestList(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
-		items := []models.AdminApiAuditLog{}
+		items := []models.Wrix{}
 		err = json.Unmarshal(itemsJson, &items)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
@@ -131,17 +119,17 @@ func TestList(t *testing.T) {
 	}
 }
 
-func TestSearch(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestSearchWrix(t *testing.T) {
+	teardownTestCase := setupTestCaseWrix(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(WrixIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
 	type ValueS struct {
 		Op    string `json:"op"`
-		Value int64  `json:"value"`
+		Value string `json:"value"`
 		Field string `json:"field"`
 	}
 	type QueryS struct {
@@ -153,7 +141,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	var values []ValueS
-	for _, v := range dbEntryIDs {
+	for _, v := range WrixIDs {
 		values = append(values, ValueS{Op: "equals", Value: v, Field: "id"})
 	}
 
@@ -166,8 +154,8 @@ func TestSearch(t *testing.T) {
 
 	searchPayloadJson, _ := json.Marshal(payload)
 
-	handler := dalAdminApiAuditLog()
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/admin_api_audit_logs/search", bytes.NewBuffer(searchPayloadJson))
+	handler := dalWrix()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/wrixes/search", bytes.NewBuffer(searchPayloadJson))
 	w := httptest.NewRecorder()
 	handler(w, req)
 	res := w.Result()
@@ -191,7 +179,7 @@ func TestSearch(t *testing.T) {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
 
-		items := []models.AdminApiAuditLog{}
+		items := []models.Wrix{}
 		err = json.Unmarshal(itemsJson, &items)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
@@ -200,8 +188,8 @@ func TestSearch(t *testing.T) {
 			t.Fatalf("unable to retrieve expected data entries")
 		}
 
-		mapEntryIDs := make(map[int64]bool)
-		for _, entryID := range dbEntryIDs {
+		mapEntryIDs := make(map[string]bool)
+		for _, entryID := range WrixIDs {
 			mapEntryIDs[entryID] = true
 		}
 		for _, item := range items {
@@ -211,21 +199,20 @@ func TestSearch(t *testing.T) {
 			}
 		}
 	}
-
 }
 
-func TestGet(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestGetWrix(t *testing.T) {
+	teardownTestCase := setupTestCaseWrix(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(WrixIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
-	expectedEntryID := dbEntryIDs[0]
+	expectedEntryID := WrixIDs[0]
 
-	handler := dalAdminApiAuditLog()
-	URL := fmt.Sprintf("/api/v1/admin_api_audit_log/%d", expectedEntryID)
+	handler := dalWrix()
+	URL := fmt.Sprintf("/api/v1/wrix/%s", expectedEntryID)
 	req := httptest.NewRequest(http.MethodGet, URL, nil)
 
 	w := httptest.NewRecorder()
@@ -252,7 +239,7 @@ func TestGet(t *testing.T) {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
 
-		item := models.AdminApiAuditLog{}
+		item := models.Wrix{}
 		err = json.Unmarshal(itemJson, &item)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
@@ -264,19 +251,19 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestUpdateWrix(t *testing.T) {
+	teardownTestCase := setupTestCaseWrix(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(WrixIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
-	expectedEntryID := dbEntryIDs[0]
-	payloadJson := `{"user_name": "um", "method": "mm"}`
+	expectedEntryID := WrixIDs[0]
+	payloadJson := `{"MAC_Address": "12:34:56:78:90:12", "English_Location_City": "Montreal"}`
 
-	handler := dalAdminApiAuditLog()
-	URL := fmt.Sprintf("/api/v1/admin_api_audit_log/%d", expectedEntryID)
+	handler := dalWrix()
+	URL := fmt.Sprintf("/api/v1/wrix/%s", expectedEntryID)
 	req := httptest.NewRequest(http.MethodPatch, URL, bytes.NewBuffer([]byte(payloadJson)))
 	w := httptest.NewRecorder()
 	handler(w, req)
@@ -301,31 +288,31 @@ func TestUpdate(t *testing.T) {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
 
-		item := models.AdminApiAuditLog{}
+		item := models.Wrix{}
 
 		err = json.Unmarshal(itemJson, &item)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
 		}
 
-		if item.ID != expectedEntryID || item.UserName != "um" || item.Method != "mm" {
+		if item.ID != expectedEntryID || item.MACAddress != "12:34:56:78:90:12" || item.EnglishLocationCity != "Montreal" {
 			t.Fatalf("failed in updating fields")
 		}
 	}
 }
 
-func TestDelete(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestDeleteWrix(t *testing.T) {
+	teardownTestCase := setupTestCaseWrix(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(WrixIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
-	expectedEntryID := dbEntryIDs[0]
+	expectedEntryID := WrixIDs[0]
 
-	handler := dalAdminApiAuditLog()
-	URL := fmt.Sprintf("/api/v1/admin_api_audit_log/%d", expectedEntryID)
+	handler := dalWrix()
+	URL := fmt.Sprintf("/api/v1/wrix/%s", expectedEntryID)
 	req := httptest.NewRequest(http.MethodDelete, URL, nil)
 
 	w := httptest.NewRecorder()

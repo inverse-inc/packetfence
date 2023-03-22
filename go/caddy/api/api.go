@@ -59,6 +59,11 @@ func buildHandler(ctx context.Context) (APIHandler, error) {
 	router.POST("/api/v1/nodes/fingerbank_communications", apiHandler.nodeFingerbankCommunications)
 
 	NewAdminApiAuditLog().AddToRouter(router)
+	NewAuthLog().AddToRouter(router)
+	NewDnsAuditLog().AddToRouter(router)
+	NewRadacctLog().AddToRouter(router)
+	NewRadiusAuditLog().AddToRouter(router)
+	NewWrix().AddToRouter(router)
 
 	apiHandler.router = router
 	return apiHandler, nil

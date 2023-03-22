@@ -2,52 +2,39 @@ package api
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
 	"github.com/inverse-inc/packetfence/go/caddy/admin-api-audit-log/models"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func GetGormDB(t *testing.T) *gorm.DB {
-	database, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
-	if err != nil {
-		t.Fatalf("Cannot create a database connection: %s", err.Error())
-		return nil
-	}
+var dnsAuditLogIDs []int64
 
-	return database
-}
-
-var dbEntryIDs []int64
-
-func setupTestCase(t *testing.T) func(t *testing.T) {
+func setupTestCaseDnsAuditLog(t *testing.T) func(t *testing.T) {
 	//t.Log("setup test case")
-	dbEntryIDs = []int64{}
-	err, entry1 := insertDBTestEntries(t)
+	dnsAuditLogIDs = []int64{}
+	err, entry1 := insertDBTestEntriesDnsAuditLog(t)
 	if err != nil {
 		t.Fatalf("error in preparing testing data\n")
 	}
-	err, entry2 := insertDBTestEntries(t)
+	err, entry2 := insertDBTestEntriesDnsAuditLog(t)
 	if err != nil {
 		t.Fatalf("error in preparing testing data\n")
 	}
 
-	dbEntryIDs = append(dbEntryIDs, entry1.ID, entry2.ID)
+	dnsAuditLogIDs = append(dnsAuditLogIDs, entry1.ID, entry2.ID)
 
 	return func(t *testing.T) {
 		//t.Log("teardown test case")
-		for _, id := range dbEntryIDs {
-			err := removeDBTestEntries(t, id)
+		for _, id := range dnsAuditLogIDs {
+			err := removeDBTestEntriesDnsAuditLog(t, id)
 			if err != nil {
 				t.Fatalf("error in removing test entires\n")
 			}
@@ -55,31 +42,34 @@ func setupTestCase(t *testing.T) func(t *testing.T) {
 	}
 }
 
-func insertDBTestEntries(t *testing.T) (error, admin_api_audit_log.AdminApiAuditLog) {
+func insertDBTestEntriesDnsAuditLog(t *testing.T) (error, models.DnsAuditLog) {
 	db := GetGormDB(t)
 
-	log := admin_api_audit_log.AdminApiAuditLog{
-		UserName: "go_unit_test_user_dummy",
-		Url:      "https://example.com/test",
-		Request:  `{"dummy": "dummy"}`,
-		Method:   "POST",
-		Status:   200,
+	now := time.Now()
+	entry := models.DnsAuditLog{
+		IP:        "192.168.5.5",
+		Mac:       "00:00:00:11:11:11",
+		QName:     "google.com",
+		QType:     "A",
+		CreatedAt: &now,
 	}
-	err := admin_api_audit_log.Add(db, &log)
-	return err, log
+	results := db.Model(&models.DnsAuditLog{}).Create(&entry)
+	err := results.Error
+
+	return err, entry
 }
 
-func removeDBTestEntries(t *testing.T, id int64) error {
+func removeDBTestEntriesDnsAuditLog(t *testing.T, id int64) error {
 	db := GetGormDB(t)
-	l := admin_api_audit_log.AdminApiAuditLog{ID: id}
-	err := admin_api_audit_log.Remove(db, &l)
+	l := models.DnsAuditLog{ID: id}
+	err := db.Where("`id` = ?", l.ID).Unscoped().Delete(l).Error
 
 	return err
 }
 
-func dalAdminApiAuditLog() http.HandlerFunc {
+func dalDnsAuditLog() http.HandlerFunc {
 	router := httprouter.New()
-	NewAdminApiAuditLog().AddToRouter(router)
+	NewDnsAuditLog().AddToRouter(router)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if handle, params, _ := router.Lookup(r.Method, r.URL.Path); handle != nil {
 			// We always default to application/json
@@ -92,12 +82,12 @@ func dalAdminApiAuditLog() http.HandlerFunc {
 	})
 }
 
-func TestList(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestListDnsAuditLog(t *testing.T) {
+	teardownTestCase := setupTestCaseDnsAuditLog(t)
 	defer teardownTestCase(t)
 
-	handler := dalAdminApiAuditLog()
-	req := httptest.NewRequest(http.MethodGet, "/api/v1/admin_api_audit_logs", nil)
+	handler := dalDnsAuditLog()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/dns_audit_logs", nil)
 	w := httptest.NewRecorder()
 	handler(w, req)
 	res := w.Result()
@@ -120,7 +110,7 @@ func TestList(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
-		items := []models.AdminApiAuditLog{}
+		items := []models.DnsAuditLog{}
 		err = json.Unmarshal(itemsJson, &items)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
@@ -131,11 +121,11 @@ func TestList(t *testing.T) {
 	}
 }
 
-func TestSearch(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestSearchDnsAuditLog(t *testing.T) {
+	teardownTestCase := setupTestCaseDnsAuditLog(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(dnsAuditLogIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
@@ -153,7 +143,7 @@ func TestSearch(t *testing.T) {
 	}
 
 	var values []ValueS
-	for _, v := range dbEntryIDs {
+	for _, v := range dnsAuditLogIDs {
 		values = append(values, ValueS{Op: "equals", Value: v, Field: "id"})
 	}
 
@@ -166,8 +156,8 @@ func TestSearch(t *testing.T) {
 
 	searchPayloadJson, _ := json.Marshal(payload)
 
-	handler := dalAdminApiAuditLog()
-	req := httptest.NewRequest(http.MethodPost, "/api/v1/admin_api_audit_logs/search", bytes.NewBuffer(searchPayloadJson))
+	handler := dalDnsAuditLog()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/dns_audit_logs/search", bytes.NewBuffer(searchPayloadJson))
 	w := httptest.NewRecorder()
 	handler(w, req)
 	res := w.Result()
@@ -191,7 +181,7 @@ func TestSearch(t *testing.T) {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
 
-		items := []models.AdminApiAuditLog{}
+		items := []models.DnsAuditLog{}
 		err = json.Unmarshal(itemsJson, &items)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
@@ -201,7 +191,7 @@ func TestSearch(t *testing.T) {
 		}
 
 		mapEntryIDs := make(map[int64]bool)
-		for _, entryID := range dbEntryIDs {
+		for _, entryID := range dnsAuditLogIDs {
 			mapEntryIDs[entryID] = true
 		}
 		for _, item := range items {
@@ -211,21 +201,20 @@ func TestSearch(t *testing.T) {
 			}
 		}
 	}
-
 }
 
-func TestGet(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestGetDnsAuditLog(t *testing.T) {
+	teardownTestCase := setupTestCaseDnsAuditLog(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(dnsAuditLogIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
-	expectedEntryID := dbEntryIDs[0]
+	expectedEntryID := dnsAuditLogIDs[0]
 
-	handler := dalAdminApiAuditLog()
-	URL := fmt.Sprintf("/api/v1/admin_api_audit_log/%d", expectedEntryID)
+	handler := dalDnsAuditLog()
+	URL := fmt.Sprintf("/api/v1/dns_audit_log/%d", expectedEntryID)
 	req := httptest.NewRequest(http.MethodGet, URL, nil)
 
 	w := httptest.NewRecorder()
@@ -252,7 +241,7 @@ func TestGet(t *testing.T) {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
 
-		item := models.AdminApiAuditLog{}
+		item := models.DnsAuditLog{}
 		err = json.Unmarshal(itemJson, &item)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
@@ -264,19 +253,19 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestUpdateDnsAuditLog(t *testing.T) {
+	teardownTestCase := setupTestCaseDnsAuditLog(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(dnsAuditLogIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
-	expectedEntryID := dbEntryIDs[0]
-	payloadJson := `{"user_name": "um", "method": "mm"}`
+	expectedEntryID := dnsAuditLogIDs[0]
+	payloadJson := `{"mac": "12:34:56:78:90:12", "qname": "example.com"}`
 
-	handler := dalAdminApiAuditLog()
-	URL := fmt.Sprintf("/api/v1/admin_api_audit_log/%d", expectedEntryID)
+	handler := dalDnsAuditLog()
+	URL := fmt.Sprintf("/api/v1/dns_audit_log/%d", expectedEntryID)
 	req := httptest.NewRequest(http.MethodPatch, URL, bytes.NewBuffer([]byte(payloadJson)))
 	w := httptest.NewRecorder()
 	handler(w, req)
@@ -301,31 +290,31 @@ func TestUpdate(t *testing.T) {
 			t.Fatalf("Error: %s: ", err.Error())
 		}
 
-		item := models.AdminApiAuditLog{}
+		item := models.DnsAuditLog{}
 
 		err = json.Unmarshal(itemJson, &item)
 		if err != nil {
 			t.Fatalf("unable to decode response database entries")
 		}
 
-		if item.ID != expectedEntryID || item.UserName != "um" || item.Method != "mm" {
+		if item.ID != expectedEntryID || item.Mac != "12:34:56:78:90:12" || item.QName != "example.com" {
 			t.Fatalf("failed in updating fields")
 		}
 	}
 }
 
-func TestDelete(t *testing.T) {
-	teardownTestCase := setupTestCase(t)
+func TestDeleteDnsAuditLog(t *testing.T) {
+	teardownTestCase := setupTestCaseDnsAuditLog(t)
 	defer teardownTestCase(t)
 
-	if len(dbEntryIDs) < 2 {
+	if len(dnsAuditLogIDs) < 2 {
 		t.Fatalf("error in generating test db entries\n")
 	}
 
-	expectedEntryID := dbEntryIDs[0]
+	expectedEntryID := dnsAuditLogIDs[0]
 
-	handler := dalAdminApiAuditLog()
-	URL := fmt.Sprintf("/api/v1/admin_api_audit_log/%d", expectedEntryID)
+	handler := dalDnsAuditLog()
+	URL := fmt.Sprintf("/api/v1/dns_audit_log/%d", expectedEntryID)
 	req := httptest.NewRequest(http.MethodDelete, URL, nil)
 
 	w := httptest.NewRecorder()

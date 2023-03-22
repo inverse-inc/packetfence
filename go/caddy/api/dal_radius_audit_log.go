@@ -18,44 +18,25 @@ import (
 	"strings"
 )
 
-type AdminApiAuditLog struct {
+type RadiusAuditLog struct {
 	DB  *gorm.DB
 	Ctx *context.Context
 }
 
-type RespBody struct {
-	models.DBRes
-	Status  int          `json:"status"`
-	Errors  []models.Err `json:"errors,omitempty"`
-	Message string       `json:"message,omitempty"`
-}
-
-func NewAdminApiAuditLog() *AdminApiAuditLog {
+func NewRadiusAuditLog() *RadiusAuditLog {
 	DB, err := gorm.Open("mysql", db.ReturnURIFromConfig(context.Background()))
 	ctx := context.Background()
 	if err != nil {
 		log.LoggerWContext(ctx).Warn(err.Error())
 	}
-	return &AdminApiAuditLog{
+	return &RadiusAuditLog{
 		DB:  DB,
 		Ctx: &ctx,
 	}
 }
 
-func setError(body *RespBody, err error, status int) {
-	body.Errors = append(body.Errors, models.Err{Message: err.Error()})
-	body.Status = status
-}
-
-func outputResult(w http.ResponseWriter, body RespBody) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(body.Status)
-	res, _ := json.Marshal(body)
-	fmt.Fprintf(w, string(res))
-}
-
-func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *RadiusAuditLog) List(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -77,8 +58,8 @@ func (a *AdminApiAuditLog) List(w http.ResponseWriter, r *http.Request, p httpro
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *RadiusAuditLog) Search(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -100,8 +81,8 @@ func (a *AdminApiAuditLog) Search(w http.ResponseWriter, r *http.Request, p http
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *RadiusAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -109,7 +90,7 @@ func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p htt
 	id := p.ByName("id")
 	_, err = strconv.Atoi(id)
 	if err != nil {
-		setError(&body, errors.New("invalid format for admin audit log entry ID"), http.StatusBadRequest)
+		setError(&body, errors.New("invalid format for radius audit log entry ID"), http.StatusBadRequest)
 		outputResult(w, body)
 		return
 	}
@@ -127,8 +108,8 @@ func (a *AdminApiAuditLog) GetItem(w http.ResponseWriter, r *http.Request, p htt
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *RadiusAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -136,7 +117,7 @@ func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p 
 	id := p.ByName("id")
 	_, err = strconv.Atoi(id)
 	if err != nil {
-		setError(&body, errors.New("invalid format for admin audit log entry ID"), http.StatusBadRequest)
+		setError(&body, errors.New("invalid format for radius audit log entry ID"), http.StatusBadRequest)
 		outputResult(w, body)
 		return
 	}
@@ -156,8 +137,8 @@ func (a *AdminApiAuditLog) DeleteItem(w http.ResponseWriter, r *http.Request, p 
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	model := models.NewAdminApiAuditLogModel(a.DB, a.Ctx)
+func (a *RadiusAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	model := models.NewRadiusAuditLogModel(a.DB, a.Ctx)
 	var body RespBody
 	var err error
 	body.Status = http.StatusOK
@@ -165,7 +146,7 @@ func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p 
 	id := p.ByName("id")
 	nID, err := strconv.Atoi(id)
 	if err != nil {
-		setError(&body, errors.New("invalid format for admin audit log entry ID"), http.StatusBadRequest)
+		setError(&body, errors.New("invalid format for radius audit log entry ID"), http.StatusBadRequest)
 		outputResult(w, body)
 		return
 	}
@@ -206,10 +187,10 @@ func (a *AdminApiAuditLog) UpdateItem(w http.ResponseWriter, r *http.Request, p 
 	outputResult(w, body)
 }
 
-func (a *AdminApiAuditLog) AddToRouter(r *httprouter.Router) {
-	r.GET("/api/v1/admin_api_audit_logs", a.List)
-	r.POST("/api/v1/admin_api_audit_logs/search", a.Search)
-	r.GET("/api/v1/admin_api_audit_log/:id", a.GetItem)
-	r.DELETE("/api/v1/admin_api_audit_log/:id", a.DeleteItem)
-	r.PATCH("/api/v1/admin_api_audit_log/:id", a.UpdateItem)
+func (a *RadiusAuditLog) AddToRouter(r *httprouter.Router) {
+	r.GET("/api/v1/radius_audit_logs", a.List)
+	r.POST("/api/v1/radius_audit_logs/search", a.Search)
+	r.GET("/api/v1/radius_audit_log/:id", a.GetItem)
+	r.DELETE("/api/v1/radius_audit_log/:id", a.DeleteItem)
+	r.PATCH("/api/v1/radius_audit_log/:id", a.UpdateItem)
 }
