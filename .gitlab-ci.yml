@@ -513,7 +513,7 @@ variables:
   script:
     # || EXIT_CODE=$? prevents script to finish at first command
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${TESTDIR} MAKE_TARGET=run ${CI_JOB_NAME} || EXIT_CODE=$?
-    - timeout ${PIPELINE_TIMEOUT_CLEANUP} JOB_STATUS=$EXIT_CODE ${TESTCIDIR}/clean-test-environment.sh
+    - JOB_STATUS=$EXIT_CODE timeout ${PIPELINE_TIMEOUT_CLEANUP} ${TESTCIDIR}/clean-test-environment.sh
 
 ################################################################################
 # JOBS
