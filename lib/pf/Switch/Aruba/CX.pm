@@ -197,9 +197,9 @@ sub acl_chewer {
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= $acl->{'action'}." ".(defined($direction[$i]) ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n"; 
+            $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         } else {
-            $acl_chewed .= $acl->{'action'}." ".(defined($direction[$i]) ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         }
         $i++;
     }
