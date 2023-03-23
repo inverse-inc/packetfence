@@ -166,8 +166,30 @@
     loop:
     - "kinit administrator"
 
-  - name: Configure Samba
+  - name: Klist Samba
     ansible.builtin.shell:
       cmd: "{{ item }}"
     loop:
     - "klist"
+
+  - name: Configure Samba admin password
+    ansible.builtin.expect:
+      command: "{{ item }}"
+      responses:
+        (?i)new\s(?i)password: "P@ck3tF3nc3pass"
+        (?i)retype\s(?i)password: "P@ck3tF3nc3pass"
+    loop:
+    - "samba-tool user add --username=packetfence --mail-address=packetfence@{{ dns_domain }} --workgroup={{ dns_domain_upper }}"
+
+  - name: Configure Samba AD Stuff
+    ansible.builtin.shell:
+      cmd: "{{ item }}"
+    loop:
+    - "samba-tool user setexpiry packetfence --noexpiry"
+    - "samba-tool group add sponsor"
+    - "samba-tool group add IT"
+    - "samba-tool group add sponsor IT"
+    - "samba-tool group addmembers sponsor packetfence"
+    - "samba-tool group addmembers IT packetfence"
+    #- "samba-tool group addmembers Domain Users packetfence"
+
