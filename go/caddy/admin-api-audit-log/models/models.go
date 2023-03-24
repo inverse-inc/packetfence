@@ -24,15 +24,15 @@ type DBRes struct {
 const dbError = "a database error occured. see logs for details"
 
 type AdminApiAuditLog struct {
-	ID        int64     `json:"id,omitempty" gorm:"primary_key"`
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	UserName  string    `json:"user_name,omitempty"`
-	Url       string    `json:"url,omitempty"`
-	Action    string    `json:"action,omitempty"`
-	ObjectId  string    `json:"object_id,omitempty"`
-	Method    string    `json:"method,omitempty"`
-	Request   string    `json:"request,omitempty"`
-	Status    int16     `json:"status,omitempty"`
+	ID        int64      `json:"id,omitempty" gorm:"primary_key"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UserName  string     `json:"user_name,omitempty"`
+	Url       string     `json:"url,omitempty"`
+	Action    string     `json:"action,omitempty"`
+	ObjectId  string     `json:"object_id,omitempty"`
+	Method    string     `json:"method,omitempty"`
+	Request   string     `json:"request,omitempty"`
+	Status    int16      `json:"status,omitempty"`
 
 	DB  *gorm.DB         `json:"-" gorm:"-"`
 	Ctx *context.Context `json:"-" gorm:"-"`
