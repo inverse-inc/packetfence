@@ -107,7 +107,7 @@
   - name: Adding localhost in resolv.conf
     ansible.builtin.lineinfile:
       path: /etc/dhcp/dhclient.conf
-      line: prepend domain-name-servers 127.0.0.1;
+      line: prepend domain-name-servers 127.0.0.1, 8.8.8.8;
       state: present
       create: true
 
@@ -116,6 +116,13 @@
       cmd: "{{ item }}"
     loop:
     - "samba-tool domain provision --realm={{ dns_domain_upper }} --domain {{ samba__global_custom.workgroup }} --server-role=dc"
+
+  - name: Allow ntml auth in samba config
+    ansible.builtin.lineinfile:
+      path: /etc/samba/smb.conf
+      regexp: '^\s*ntlm auth = yes'
+      insertafter: '^\s*workgroup.*'
+      line: "        ntlm auth = yes"
 
   - name: Configure Samba admin password
     ansible.builtin.expect:
