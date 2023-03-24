@@ -8,8 +8,8 @@
     - configurator
     - global_config
     - wired_dot1x_eap_peap_samba4
-   #- wired_dot1x_eap_peap_samba4/teardown
-   #- global_teardown
+    - wired_dot1x_eap_peap_samba4/teardown
+    - global_teardown
 
   tasks:
     - name: Run Venom testsuites
