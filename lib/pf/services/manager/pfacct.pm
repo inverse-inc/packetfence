@@ -18,6 +18,7 @@ use Template;
 use pf::cluster;
 use pf::config qw(
     $management_network
+    @radius_ints
 );
 
 extends 'pf::services::manager';
@@ -64,9 +65,15 @@ sub generate_container_environments {
     if ($cluster_enabled) {
         $port = '1823';
     }
+    my $additional_interfaces = "";
+    foreach my $radius_interface ( @radius_ints ) {
+        my $ip = $radius_interface->tag("ip");
+        $additional_interfaces =. " -p ". $ip.":".$port.":1813/udp";
+    }
     my $vars = {
        env_dict => {
            PFACCT_ADDRESS=> "$management_ip:$port",
+           ADDITIONAL_INTERFACES => $additional_interfaces,
        },
     };
     $tt->process("/usr/local/pf/containers/environment.template", $vars, "/usr/local/pf/var/conf/acct.env") or die $tt->error();
