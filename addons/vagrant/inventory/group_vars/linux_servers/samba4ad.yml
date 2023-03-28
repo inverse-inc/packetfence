@@ -23,3 +23,18 @@ domain_setup__username: administrator
 domain_setup__password: VagrantPass1
 domain_setup__kdc: yes
 domain_setup__realm: false
+
+packetfence_domain_account: 'packetfence'
+packetfence_domain_email: 'packetfence@{{ domain_setup__domain_name }}'
+
+# be careful with password restrictions
+packetfence_domain_password: 'P@ck3tF3nc3pass'
+
+packetfence_domain_default_groups:
+  - Domain Users
+
+# Groups are under CN=Users,DC=example,DC=lan, i.e:
+# cn=sponsor,CN=Users,DC=example,DC=lan
+packetfence_domain_groups:
+  - sponsor
+  - IT
