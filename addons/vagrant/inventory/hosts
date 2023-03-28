@@ -41,17 +41,6 @@ all:
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
 
-    winservers:
-      hosts:
-        ad:
-          box: jborean93/WindowsServer2016
-          box_version: 0.7.0
-          mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
-          mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
-          ansible_host:  "{{ mgmt_ip }}"
-          cpus: 2
-          memory: 2048
-
     wireless:
       hosts:
         wireless01:
@@ -88,11 +77,11 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 512
-        linux03:
+        ad:
           box: debian/bullseye64
           box_version: 11.20221219.1
-          mgmt_ip: "{{ users_vars[dict_name]['vms']['linux03']['ip'] }}"
-          mgmt_netmask: "{{ users_vars[dict_name]['vms']['linux03']['netmask'] }}"
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
@@ -114,9 +103,9 @@ all:
       hosts:
         linux02: {}
 
-    service_samba:
+    service_samba4ad:
       hosts:
-        linux03: {}
+        ad: {}
 
     pfservers:
       children:
@@ -446,9 +435,6 @@ all:
           linux02:
             ip: '172.18.200.102'
             netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.200.103'
-            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.200.10'
             netmask: '255.255.255.0'
@@ -613,9 +599,6 @@ all:
           linux02:
             ip: '172.18.140.102'
             netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.140.103'
-            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.140.10'
             netmask: '255.255.255.0'
@@ -778,9 +761,6 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.115.102'
-            netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.115.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.115.10'
@@ -945,9 +925,6 @@ all:
           linux02:
             ip: '172.18.145.102'
             netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.145.103'
-            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.145.10'
             netmask: '255.255.255.0'
@@ -1110,9 +1087,6 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.120.102'
-            netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.120.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.120.10'
@@ -1277,9 +1251,6 @@ all:
           linux02:
             ip: '172.18.125.102'
             netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.125.103'
-            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.125.10'
             netmask: '255.255.255.0'
@@ -1442,9 +1413,6 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.135.102'
-            netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.135.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.135.10'
@@ -1609,9 +1577,6 @@ all:
           linux02:
             ip: '172.18.155.102'
             netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.155.103'
-            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.155.10'
             netmask: '255.255.255.0'
@@ -1775,9 +1740,6 @@ all:
           linux02:
             ip: '172.18.160.102'
             netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.160.103'
-            netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.160.10'
             netmask: '255.255.255.0'
@@ -1940,9 +1902,6 @@ all:
             netmask: '255.255.255.0'
           linux02:
             ip: '172.18.170.102'
-            netmask: '255.255.255.0'
-          linux03:
-            ip: '172.18.170.103'
             netmask: '255.255.255.0'
           pfel8dev:
             ip: '172.18.170.10'

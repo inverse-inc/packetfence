@@ -13,5 +13,5 @@
 - import_playbook: linux_servers/tinyproxy.yml
   tags: proxy
 
-- import_playbook: linux_servers/samba.yml
-  tags: samba
+- import_playbook: linux_servers/samba4ad.yml
+  tags: samba4ad
