@@ -29,6 +29,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === Enhancements
 
+ * Upgrade coredns libraries (#7197)
+
 === Bug Fixes
 
 == Version 12.2.0 released on 2023-03-08
