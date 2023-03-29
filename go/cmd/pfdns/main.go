@@ -7,6 +7,7 @@ import (
 
 func init() {
 	dnsserver.Directives = append(dnsserver.Directives, "pfdns")
+	dnsserver.Directives = append(dnsserver.Directives, "logger")
 }
 
 func main() {
