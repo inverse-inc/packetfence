@@ -195,7 +195,7 @@ sub returnAuthorizeVPN {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
-                $access_list = $self->acl_chewer($acl);
+                $access_list = $self->acl_chewer($access_list);
                 if ($self->useDownloadableACLs) {
                     my $mac = lc($args->{'mac'});
                     $mac =~ s/://g;
