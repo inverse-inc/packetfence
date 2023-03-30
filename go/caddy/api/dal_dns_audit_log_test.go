@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/admin-api-audit-log/models"
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"io"
 	"io/ioutil"
 	"net/http"

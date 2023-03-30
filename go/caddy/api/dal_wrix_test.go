@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/inverse-inc/packetfence/go/caddy/admin-api-audit-log/models"
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"github.com/julienschmidt/httprouter"
 	"io"
 	"io/ioutil"

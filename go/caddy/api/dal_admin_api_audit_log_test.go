@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
-	"github.com/inverse-inc/packetfence/go/caddy/admin-api-audit-log/models"
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/jinzhu/gorm"
 	"io"
