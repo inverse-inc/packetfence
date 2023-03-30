@@ -196,7 +196,9 @@ sub acl_chewer {
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
-        $acl->{'destination'}->{'port'} =~ s/\w+\s+//;
+        if (defined($acl->{'destination'}->{'port'})) {
+            $acl->{'destination'}->{'port'} =~ s/\w+\s+//;
+        }
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
             $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         } else {
