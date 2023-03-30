@@ -96,8 +96,8 @@
          
          [realms]
             "{{ dns_domain_upper }}" = {
-              "admin_server = LINUX03.{{ dns_domain_upper }}"
-              "kdc = LINUX03.{{ dns_domain_upper }}"
+              "admin_server = AD.{{ dns_domain_upper }}"
+              "kdc = AD.{{ dns_domain_upper }}"
          }
          
          [domain_realm]
