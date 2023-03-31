@@ -3,6 +3,7 @@ include .local_env
 export $(shell sed 's/=.*//' .local_env)
 
 BASE_URL ?= https://localhost:1443
+BROWSER ?= chrome
 CONFIG_FILE ?= cypress/config/cypress.config.js
 CONFIG ?= env={}
 #DEBUG ?= cypress:*
@@ -22,6 +23,7 @@ all:
 	@echo "make test-x11: run tests interactively (w/ X11 \$$DISPLAY)"
 	@echo ""
 	@echo "make [target] DEBUG=cypress:* (see https://docs.cypress.io/guides/references/troubleshooting#Log-sources)"
+	@echo "make [target] BROWSER=firefox:nightly"
 	@echo "make [target] BASE_URL=https://localhost:1443"
 	@echo "make [target] CONFIG_FILE=cypress/config/cypress.config.js"
 	@echo "make [target] CONFIG=downloadsFolder=/tmp/downloads,screenshotsFolder=/tmp/screenshots,videosFolder=/tmp/videos"
@@ -33,10 +35,12 @@ all:
 
 install-rhel:
 	yum install -y xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
+	yum install -y firefox
 
 install-debian:
 	apt-get update
 	apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+	apt-get install -y firefox-esr
 
 install:
 	npm install cypress -g --allow-root --unsafe-perm=true
@@ -48,7 +52,7 @@ test:
 		NO_COLOR=1 \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --headless --env tags=[$(TAGS)] ; \
+		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --headless --env tags=[$(TAGS)] ; \
 
 test-e2e:
 		DEBUG=$(DEBUG) \
@@ -56,9 +60,9 @@ test-e2e:
 		NO_COLOR=1 \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --headless --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
+		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --headless --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
 
 test-x11:
 	DEBUG=$(DEBUG) \
 	CYPRESS_baseUrl=$(BASE_URL) \
-	cypress open --config-file $(CONFIG_FILE) --config $(CONFIG)
+	cypress open --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG)

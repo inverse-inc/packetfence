@@ -5,6 +5,7 @@ testcases:
   steps:
   - type: html_e2e
     base_url: "{{.html.pfappserver_baseurl}}"
+    browser: firefox
     config_file: "cypress/config/cypress.config-configurator.js"
     tag: "pfappserver_configurator"
     info:

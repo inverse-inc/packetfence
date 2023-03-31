@@ -1,6 +1,6 @@
 ---
 - hosts: pfservers
-  name: Use local development sources
+  name: localdev pre run_tests setup
   become: True
 
   vars:
@@ -30,33 +30,34 @@
         source: local
       loop: "{{ docker_images }}"
 
-    - name: Create containers/.local_env, mounts /usr/local/pf/html/pfappserver/root
+    - name: Create containers/.local_env, set LOCAL_DEV, HTML_PFAPPSERVER_ROOT_MOUNT (w/ localdev)
       copy:
         dest: "/usr/local/pf/containers/.local_env"
         content: |
           LOCAL_DEV=true
           HTML_PFAPPSERVER_ROOT_MOUNT=/usr/local/pf/html/pfappserver/root
 
-    - name: Synchronize html/pfappserver/root/dist
+    - name: Synchronize local pfappserver SPA, expose hosts' html/pfappserver/root/dist (w/ localdev)
       ansible.posix.synchronize:
         src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../../html/pfappserver/root/dist"
         dest: '/usr/local/pf/html/pfappserver/root/'
         archive: yes
         delete: yes
 
-    - name: Synchronize docs for --build httpd.admin_dispatcher
+    - name: Synchronize /docs for --build httpd.admin_dispatcher (w/ localdev)
       ansible.posix.synchronize:
         src: "{{ lookup('env', 'VENOM_ROOT_DIR') }}/../../docs"
         dest: '/usr/local/pf/'
         archive: yes
         delete: yes
 
-    - name: Restart packetfence-httpd.admin_dispatcher (rebuild w/ containers/.local_env)
+    - name: Restart packetfence-httpd.admin_dispatcher (w/ localdev)
       ansible.builtin.service:
         name: packetfence-httpd.admin_dispatcher
         state: restarted
 
-    - name: Wait for build httpd.admin_dispatcher:8890
+    - name: Wait for build httpd.admin_dispatcher watching :8890 (limit <= 15m)
       wait_for:
         host: "localhost"
         port: 8890
+        timeout: 900

@@ -44,5 +44,8 @@ module.exports = {
 
   // The number of tests for which snapshots and command data are kept in memory (default: 50).
   // Reduce this number if you are experiencing high memory consumption in your browser during a test run.
-  numTestsKeptInMemory: 50,
+  numTestsKeptInMemory: 1,
+
+  // Enables support for improved memory management within Chromium-based browsers.
+  experimentalMemoryManagement: true,
 };
