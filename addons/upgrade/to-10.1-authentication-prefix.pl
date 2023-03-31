@@ -51,7 +51,7 @@ my $default_pf_config =
 my @radius_attributes_from_config;
 
 if ($config->exists('radius_configuration', 'radius_attributes')) {
-    @radius_attributes_from_config = split(',', $config->val('radius_configuration', 'access_duration_choices'));
+    @radius_attributes_from_config = split(',', $config->val('radius_configuration', 'radius_attributes'));
 } else {
     @radius_attributes_from_config = split(',', $default_pf_config->val('radius_configuration', 'radius_attributes'));
 }
