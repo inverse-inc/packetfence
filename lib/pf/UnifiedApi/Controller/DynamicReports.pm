@@ -21,6 +21,9 @@ use pf::ConfigStore::Report;
 use pf::UnifiedApi::Search;
 use pf::Report;
 use pf::factory::report;
+use pf::UnifiedApi::OpenAPI::Generator::DynamicReports;
+
+has 'openapi_generator_class' => 'pf::UnifiedApi::OpenAPI::Generator::DynamicReports';
 
 =head2 configStore
 
