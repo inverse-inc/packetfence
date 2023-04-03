@@ -281,8 +281,12 @@ sub operation_generation {
         return undef;
     }
 
-    my $method = $generators->{$scope}{$a};
-    return $self->$method($scope, $c, $m, $action);
+    my $generator = $generators->{$scope}{$a};
+    if (ref ($generator) eq 'CODE') {
+        return $self->$generator($scope, $c, $m, $action);
+    }
+
+    return $generator;
 }
 
 =head2 performLookup
