@@ -380,8 +380,10 @@ operation tags
 
 sub operationTags {
     my ($self, $scope, $c, $m, $a) = @_;
+    my $tag = $a->{controller};
+    $tag =~ s/::/\//g;
     my @tags;
-    push @tags, $a->{controller};
+    push @tags, $tag;
     return \@tags;
 }
 
