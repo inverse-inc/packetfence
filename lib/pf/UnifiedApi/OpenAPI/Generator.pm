@@ -282,11 +282,21 @@ sub operation_generation {
     }
 
     my $generator = $generators->{$scope}{$a};
-    if (ref ($generator) eq 'CODE') {
+    if (!defined $generator) {
+        return undef;
+    }
+
+    my $ref_type = ref ($generator);
+    if ($ref_type eq 'CODE' || ($ref_type eq '' && $self->can($generator))) {
         return $self->$generator($scope, $c, $m, $action);
     }
 
-    return $generator;
+    if ($ref_type eq 'HASH') {
+        return $generator;
+    }
+
+    print STDERR "Invalid generator of $a\n";
+    return undef;
 }
 
 =head2 performLookup
