@@ -17,7 +17,6 @@ use warnings;
 
 use JSON::MaybeXS;
 use base qw(pf::api::attributes);
-use threads::shared;
 use pf::log();
 use Module::Load qw();
 use pf::authentication();
