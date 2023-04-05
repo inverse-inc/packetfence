@@ -15,6 +15,7 @@ pf::ConfigStore::Switch;
 use Moo;
 use namespace::autoclean;
 use pf::log;
+use pf::api::queue;
 use pf::file_paths qw($switches_config_file $switches_default_config_file);
 use pf::util;
 use HTTP::Status qw(:constants is_error is_success);
@@ -65,7 +66,8 @@ sub commit {
     my ($self) = @_;
     my ($result, $error) = $self->SUPER::commit();
     pf::log::get_logger->info("commiting via Switch configstore");
-    freeradius_populate_nas_config(pfconfig::manager->new->get_namespace("config::Switch")->build());
+    my $client = pf::api::queue->new(queue => 'priority');
+    $client->notify( 'switch_freeradius_populate_nas_config');
     return ($result, $error);
 }
 

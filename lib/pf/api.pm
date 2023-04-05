@@ -20,6 +20,8 @@ use base qw(pf::api::attributes);
 use threads::shared;
 use pf::log();
 use Module::Load qw();
+use pf::freeradius();
+use pfconfig::manager;
 use pf::authentication();
 use pf::activation();
 use pf::Authentication::constants;
@@ -137,6 +139,12 @@ sub echo : Public {
     require Data::Dumper;
     pf::log::get_logger->info(Data::Dumper::Dumper(\@args));
     return @args;
+}
+
+sub switch_freeradius_populate_nas_config : Public {
+    my ($class) = @_;
+    pf::freeradius::freeradius_populate_nas_config(pfconfig::manager->new->get_namespace("config::Switch")->build());
+    return;
 }
 
 sub radius_authorize : Public {
