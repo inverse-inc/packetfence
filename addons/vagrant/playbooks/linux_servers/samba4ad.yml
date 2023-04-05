@@ -101,6 +101,7 @@
            "{{ dns_domain }} = {{ dns_domain_upper }}"
            ".{{ dns_domain }} = {{ dns_domain_upper }}"
 
+  # to have persistant dns serevrs in resolve.conf 
   - name: Adding localhost in resolv.conf
     ansible.builtin.lineinfile:
       path: /etc/dhcp/dhclient.conf
