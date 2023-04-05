@@ -216,13 +216,6 @@ inline_l2_and_radius_deb11:
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
 
-samba4_deb11:
-	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
-	INT_TEST_VM_NAMES="linux03 switch01 node01 node03 wireless01" \
-        SCENARIOS_TO_RUN=dot1x_eap_peap_samba4 \
-        $(MAKE_TARGET)
-
 example_el8: SCENARIOS_TO_RUN=example
 example_el8:
 	make \
@@ -270,7 +263,6 @@ cli_login_el8_branches: cli_login_el8
 configurator_deb11_branches: configurator_deb11
 configurator_el8_branches: configurator_el8
 dot1x_eap_peap_deb11_branches: dot1x_eap_peap_deb11
-samba4_deb11_branches: samba4_deb11
 dot1x_eap_peap_el8_branches: dot1x_eap_peap_el8
 dot1x_eap_tls_deb11_branches: dot1x_eap_tls_deb11
 dot1x_eap_tls_el8_branches: dot1x_eap_tls_el8
