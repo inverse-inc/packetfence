@@ -88,8 +88,8 @@
       content: |
          [libdefaults]
             default_realm = "{{ dns_domain_upper }}"
-            dns_lookup_kdc = "{{ domain_setup__kdc }}"
-            dns_lookup_realm = "{{ domain_setup__realm }}"
+            dns_lookup_kdc = "{{ samba4ad__kdc }}"
+            dns_lookup_realm = "{{ samba4ad__realm }}"
          
          [realms]
             "{{ dns_domain_upper }}" = {
@@ -126,10 +126,10 @@
     ansible.builtin.expect:
       command: "{{ item }}"
       responses:
-        (?i)new\s(?i)password: "{{ domain_setup__password }}"
-        (?i)retype\s(?i)password: "{{ domain_setup__password }}"
+        (?i)new\s(?i)password: "{{ samba4ad__password }}"
+        (?i)retype\s(?i)password: "{{ samba4ad__password }}"
     loop:
-    - "samba-tool user setpassword {{ domain_setup__username }}"
+    - "samba-tool user setpassword {{ samba4ad__username }}"
 
   - name: Remove config files
     file:
@@ -167,7 +167,7 @@
     ansible.builtin.expect:
       command: "{{ item }}"
       responses:
-        (?i)password.*: "{{ domain_setup__password }}"
+        (?i)password.*: "{{ samba4ad__password }}"
     loop:
     - "kinit administrator"
 
