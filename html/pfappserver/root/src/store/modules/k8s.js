@@ -168,6 +168,12 @@ const mutations = {
     }
     state.services[service].status = types.SUCCESS
   },
+  $RESET: (state) => {
+    const newState = initialState()
+    for (const key of Object.keys(newState)) { // preserve reactivity
+      state[key] = newState[key]
+    }
+  }
 }
 
 export default {
