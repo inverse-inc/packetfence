@@ -13,19 +13,19 @@ samba__services_to_stop:
   - 'smbd.service'
   - 'nmbd.service'
   - 'winbind.service'
-  #- 'systemd-resolved'
 
 samba__global_custom:
   netbios_name: DC1
   workgroup: EXAMPLE
 
-domain_setup__username: administrator
-domain_setup__password: VagrantPass1
-domain_setup__kdc: yes
-domain_setup__realm: false
+samba4ad__domain_name: '{{ dns_domain }}'
+samba4ad__username: administrator
+samba4ad__password: VagrantPass1
+samba4ad__kdc: yes
+samba4ad__realm: false
 
 packetfence_domain_account: 'packetfence'
-packetfence_domain_email: 'packetfence@{{ domain_setup__domain_name }}'
+packetfence_domain_email: 'packetfence@{{ samba4ad_domain_name }}'
 
 # be careful with password restrictions
 packetfence_domain_password: 'P@ck3tF3nc3pass'
