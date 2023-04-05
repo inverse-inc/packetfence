@@ -1,5 +1,5 @@
 ---
-samba__base_packages:
+samba4ad__base_packages:
   - 'samba'
   - 'winbind'
   - 'libnss-winbind'
@@ -8,13 +8,13 @@ samba__base_packages:
   - 'ldb-tools'
   - 'python3-cryptography'
 
-samba__services_to_stop:
+samba4ad__services_to_stop:
   - 'samba-ad-dc.service'
   - 'smbd.service'
   - 'nmbd.service'
   - 'winbind.service'
 
-samba__global_custom:
+samba4ad__global_custom:
   netbios_name: DC1
   workgroup: EXAMPLE
 
