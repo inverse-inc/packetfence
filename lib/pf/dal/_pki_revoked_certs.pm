@@ -53,6 +53,7 @@ BEGIN {
         profile_id
         profile_name
         valid_until
+        not_before
         date
         serial_number
         dns_names
@@ -82,6 +83,7 @@ BEGIN {
         profile_id => undef,
         profile_name => undef,
         valid_until => undef,
+        not_before => undef,
         serial_number => undef,
         dns_names => undef,
         ip_addresses => undef,
@@ -110,6 +112,7 @@ BEGIN {
         profile_id
         profile_name
         valid_until
+        not_before
         serial_number
         dns_names
         ip_addresses
@@ -239,6 +242,12 @@ BEGIN {
             is_primary_key => 0,
             is_nullable => 1,
         },
+        not_before => {
+            type => 'DATETIME',
+            is_auto_increment => 0,
+            is_primary_key => 0,
+            is_nullable => 1,
+        },
         date => {
             type => 'DATETIME',
             is_auto_increment => 0,
@@ -308,6 +317,7 @@ BEGIN {
         pki_revoked_certs.profile_id
         pki_revoked_certs.profile_name
         pki_revoked_certs.valid_until
+        pki_revoked_certs.not_before
         pki_revoked_certs.date
         pki_revoked_certs.serial_number
         pki_revoked_certs.dns_names
