@@ -22,7 +22,7 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 59;                      # last test to print
+use Test::More tests => 60;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -450,6 +450,14 @@ is_deeply(
             { person_field => 'telephone', openid_field => 'phone' },
         ],
         "person_mappings"
+    );
+}
+
+{
+    my $source = pf::authentication::getAuthenticationSource("ClickatellSource");
+    is_deeply(
+        $source->{message},
+        "line1 \$pin\nline2",
     );
 }
 
