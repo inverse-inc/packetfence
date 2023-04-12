@@ -1,0 +1,29 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Developers_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+//== UI Development recipes
+
+To start an `webpack-dev-server` instance for PacketFence admin GUI, follow these steps:
+
+1. Point [command]`webpack-dev-server` to an already running PacketFence API by modifying the `proxy` property in `html/pfappserver/root/vue.config.js`
+
+2. Run [command]`cd ./html/pfappserver/root`
+
+3. Run [command]`npm run serve`
+
+You should now have a running instance `webpack-dev-server` on port 8081.
