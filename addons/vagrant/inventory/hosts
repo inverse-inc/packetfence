@@ -41,17 +41,6 @@ all:
           # only used when run outside Vagrant
           ansible_python_interpreter: '/usr/bin/python3'
 
-    winservers:
-      hosts:
-        ad:
-          box: jborean93/WindowsServer2016
-          box_version: 0.7.0
-          mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
-          mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
-          ansible_host:  "{{ mgmt_ip }}"
-          cpus: 2
-          memory: 2048
-
     wireless:
       hosts:
         wireless01:
@@ -88,6 +77,15 @@ all:
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
           memory: 512
+        ad:
+          box: debian/bullseye64
+          box_version: 11.20221219.1
+          mgmt_ip: "{{ users_vars[dict_name]['vms']['ad']['ip'] }}"
+          mgmt_netmask: "{{ users_vars[dict_name]['vms']['ad']['netmask'] }}"
+          ansible_host:  "{{ mgmt_ip }}"
+          ansible_python_interpreter: '/usr/bin/python3'
+          cpus: 1
+          memory: 512
 
     service_rsyslog:
       hosts:
@@ -104,6 +102,10 @@ all:
     service_tinyproxy:
       hosts:
         linux02: {}
+
+    service_samba4ad:
+      hosts:
+        ad: {}
 
     pfservers:
       children:
