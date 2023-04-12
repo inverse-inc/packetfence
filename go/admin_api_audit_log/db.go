@@ -27,6 +27,11 @@ func Add(db *gorm.DB, log *AdminApiAuditLog) error {
 	return results.Error
 }
 
+func Remove(db *gorm.DB, l *AdminApiAuditLog) error {
+	err := db.Where("`id` = ? ", l.ID).Unscoped().Delete(l)
+	return err.Error
+}
+
 func (l *AdminApiAuditLog) Add(db *gorm.DB) error {
 	return Add(db, l)
 }
