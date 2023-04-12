@@ -1,6 +1,7 @@
 ---
 # common variables to be available for all VM and also for Venom
 dns_domain: 'example.lan'
+dns_domain_upper: 'EXAMPLE.LAN'
 
 # to get name of current cluster
 cluster_name: '{{ lookup("env","CLUSTER_NAME") | d() }}'

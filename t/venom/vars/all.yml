@@ -43,7 +43,7 @@ pfserver_pfqueue_workers: 8
 # ad variables
 ad_domain_upper: EXAMPLE
 ad_dns_domain: example.lan
-ad_domain_admin_user: vagrant-domain
+ad_domain_admin_user: administrator
 ad_domain_admin_password: VagrantPass1
 ad_base_dn: dc=example,dc=lan
 ad_domain_user: packetfence
