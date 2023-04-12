@@ -4,6 +4,11 @@ module.exports = {
   publicPath: '/admin',
   outputDir: 'dist',
   indexPath: 'index.html',
+  devServer: {
+    port: 8081,
+    https: true,
+    proxy: 'https://API_IP:1443'
+  },
   css: {
     sourceMap: process.env.VUE_APP_DEBUG === 'true',
     extract: process.env.VUE_APP_DEBUG !== 'true',
