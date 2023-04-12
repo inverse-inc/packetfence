@@ -191,6 +191,4 @@ func (a *RadiusAuditLog) AddToRouter(r *httprouter.Router) {
 	r.GET("/api/v1/radius_audit_logs", a.List)
 	r.POST("/api/v1/radius_audit_logs/search", a.Search)
 	r.GET("/api/v1/radius_audit_log/:id", a.GetItem)
-	r.DELETE("/api/v1/radius_audit_log/:id", a.DeleteItem)
-	r.PATCH("/api/v1/radius_audit_log/:id", a.UpdateItem)
 }
