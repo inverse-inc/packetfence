@@ -490,7 +490,7 @@ sub addRoleMapping {
 addRoleMapping("VlanMapping", "vlan");
 addRoleMapping("UrlMapping", "url");
 addRoleMapping("ControllerRoleMapping", "controller_role");
-addRoleMapping("AccessListMapping", "accesslist", [validate_method => \&_validate_acl ]);
+addRoleMapping("AccessListMapping", "accesslist");
 addRoleMapping("VpnMapping", "vpn");
 
 sub _validate_acl_switch {
