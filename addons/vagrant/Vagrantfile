@@ -40,10 +40,6 @@ end
 pfservers_vagrantfile = File.expand_path('pfservers/Vagrantfile')
 load pfservers_vagrantfile if File.exists?(pfservers_vagrantfile)
 
-# include ad(s) from Winservers Vagrantfile
-winservers_vagrantfile = File.expand_path('winservers/Vagrantfile')
-load winservers_vagrantfile if File.exists?(winservers_vagrantfile)
-
 # include switch(s) and supplicant(s) from Cumulus Vagrantfile
 cumulus_vagrantfile = File.expand_path('cumulus/Vagrantfile')
 load cumulus_vagrantfile if File.exists?(cumulus_vagrantfile)
