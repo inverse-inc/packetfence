@@ -1,0 +1,40 @@
+---
+samba4ad__base_packages:
+  - 'samba'
+  - 'winbind'
+  - 'libnss-winbind'
+  - 'krb5-user'
+  - 'smbclient'
+  - 'ldb-tools'
+  - 'python3-cryptography'
+
+samba4ad__services_to_stop:
+  - 'samba-ad-dc.service'
+  - 'smbd.service'
+  - 'nmbd.service'
+  - 'winbind.service'
+
+samba4ad__global_custom:
+  netbios_name: DC1
+  workgroup: EXAMPLE
+
+samba4ad__domain_name: '{{ dns_domain }}'
+samba4ad__username: administrator
+samba4ad__password: VagrantPass1
+samba4ad__kdc: yes
+samba4ad__realm: false
+
+packetfence_domain_account: 'packetfence'
+packetfence_domain_email: 'packetfence@{{ samba4ad_domain_name }}'
+
+# be careful with password restrictions
+packetfence_domain_password: 'P@ck3tF3nc3pass'
+
+packetfence_domain_default_groups:
+  - Domain Users
+
+# Groups are under CN=Users,DC=example,DC=lan, i.e:
+# cn=sponsor,CN=Users,DC=example,DC=lan
+packetfence_domain_groups:
+  - sponsor
+  - IT
