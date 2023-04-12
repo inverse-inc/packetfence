@@ -16,17 +16,15 @@ Virtual machine called `ad` will be auto-provisioned with:
 * a DNS domain
 * an Active Directory domain
 * Active Directory Certificate Services (AD CS) with auto-enrollment using a GPO
-* a `vagrant-domain` account, member of Domain admins group, with `VagrantPass1` as password
+* a `administrator` account, member of Domain admins group, with `VagrantPass1` as password
 * a `packetfence` account, member of Domain users group, with `P@ck3tF3nc3pass` as password
 
 Several reboots are necessary before machine can be provisioned by
 Ansible. During initial Ansible provisioning, several reboots will
-occur too. It takes like 10 minutes to have a machine up and running.
+occur too. It takes like few minutes to have a machine up and running.
 
 You can find credentials of AD accounts (domain administrator and PacketFence user) in following files:
-* [filename]`$PF_ROOT/addons/vagrant/inventory/group_vars/winservers/domain_setup.yml`
-* [filename]`$PF_ROOT/addons/vagrant/inventory/group_vars/winservers/init_directory.yml`
-
+* [filename]`$PF_ROOT/addons/vagrant/inventory/group_vars/linux_servers/samba4ad.yml`
 
 ===== Switch01
 
