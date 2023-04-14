@@ -7,7 +7,7 @@ module.exports = {
   devServer: {
     port: 8081,
     https: true,
-    proxy: 'https://API_IP:1443'
+    proxy: `https://${process.env.VUE_APP_API_SOCKET_ADDRESS}`
   },
   css: {
     sourceMap: process.env.VUE_APP_DEBUG === 'true',

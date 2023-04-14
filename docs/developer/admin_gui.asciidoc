@@ -20,7 +20,9 @@ endif::[]
 
 To start an `webpack-dev-server` instance for PacketFence admin GUI, follow these steps:
 
-1. Point [command]`webpack-dev-server` to an already running PacketFence API by modifying the `proxy` property in `html/pfappserver/root/vue.config.js`
+1. Point [command]`webpack-dev-server` to an already running PacketFence API by setting an
+`VUE_APP_API_SOCKET_ADDRESS` environment variable.
+For example, [command]`export VUE_APP_API_SOCKET_ADDRESS=localhost:1443`
 
 2. Run [command]`cd ./html/pfappserver/root`
 
