@@ -43,6 +43,10 @@ include::developer/documentation_info.asciidoc[]
 
 include::developer/dev_env_setup.asciidoc[]
 
+== Administration GUI development setup
+
+include::developer/admin_gui.asciidoc[]
+
 == Golang environment
 
 include::developer/go/README.asciidoc[]
