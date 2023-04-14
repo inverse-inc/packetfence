@@ -43,7 +43,7 @@ Next, run:
 
 [source,bash]
 ----
-dnf module install nodejs:12
+dnf module install nodejs:14
 bash /usr/local/pf/addons/dev-helpers/setup-dev-env.sh
 ----
 
