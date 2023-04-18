@@ -85,7 +85,7 @@ all:
           ansible_host:  "{{ mgmt_ip }}"
           ansible_python_interpreter: '/usr/bin/python3'
           cpus: 1
-          memory: 512
+          memory: 1024
 
     service_rsyslog:
       hosts:
