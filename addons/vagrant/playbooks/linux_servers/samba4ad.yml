@@ -9,190 +9,217 @@
     - debops.roles03
 
   tasks:
-  - name: Disable IPV6
-    ansible.posix.sysctl:
-      name: "{{ item }}"
-      value: '1'
-      sysctl_set: true
-    loop:
-    - "net.ipv6.conf.all.disable_ipv6"
-    - "net.ipv6.conf.default.disable_ipv6"
-    - "net.ipv6.conf.lo.disable_ipv6"
-
-  - name: Install prerequisites for Samba packages
-    ansible.builtin.package:
-      name: '{{ item }}'
-      state: 'present'
-    loop:
-    - gnupg
-    - lsb-release
-    - python3-pexpect
-
-  - name: Reboot
-    ansible.builtin.reboot:
-
-  - name: Wait for the reboot and reconnect 
-    wait_for_connection:
-
-  - name: Pause for 10 seconds after reboot
-    ansible.builtin.pause:
-      seconds: 10
-
-  - name: Download file with check (sha256)
-    ansible.builtin.get_url:
-      url: http://samba.tranquil.it/tissamba-pubkey.gpg
-      dest: /root/tissamba-pubkey.gpg
-      checksum: sha256:bd0f7140edd098031fcb36106b24a6837b067f1c847f72cf262fa012f14ce2dd
-
-  - name: Add samba gpg
-    ansible.builtin.apt_key:
-      file: /root/tissamba-pubkey.gpg
-      state: present
-    
-  - name: add apt source
-    ansible.builtin.apt_repository:
-      repo: "deb https://samba.tranquil.it/debian/samba-4.16/ bullseye main"
-      state: present
-
-  - name: update and upgrade
-    ansible.builtin.apt:
-      upgrade: yes
-      update_cache: yes
-
-  - name: Install Samba packages
-    ansible.builtin.package:
-      name: '{{ item }}'
-      state: 'present'
-    loop: '{{ samba4ad__base_packages }}'
-
-  - name: Stop and Mask Services
-    ansible.builtin.systemd:
-      enabled: no
-      state: stopped
-      masked:  yes
-      name: "{{ item }}"
-    loop: "{{ samba4ad__services_to_stop }}"
-
-  - name: Remove config files
-    file:
-      path: "{{ item }}"
-      state: absent
-    loop:
-      - "/etc/samba/smb.conf"
-      - "/etc/krb5.conf"
-
-  - name: change krb5.conf
-    ansible.builtin.blockinfile:
-      create: true
-      dest: /etc/krb5.conf
-      content: |
-         [libdefaults]
-            default_realm = "{{ dns_domain_upper }}"
-            dns_lookup_kdc = "{{ samba4ad__kdc }}"
-            dns_lookup_realm = "{{ samba4ad__realm }}"
-         
-         [realms]
-            "{{ dns_domain_upper }}" = {
-              "admin_server = AD.{{ dns_domain_upper }}"
-              "kdc = AD.{{ dns_domain_upper }}"
-         }
-         
-         [domain_realm]
-           "{{ dns_domain }} = {{ dns_domain_upper }}"
-           ".{{ dns_domain }} = {{ dns_domain_upper }}"
-
-  # to have persistant dns serevrs in resolve.conf 
-  - name: Adding localhost in resolv.conf
-    ansible.builtin.lineinfile:
-      path: /etc/dhcp/dhclient.conf
-      line: prepend domain-name-servers 127.0.0.1, 8.8.8.8;
-      state: present
-      create: true
-
-  - name: Configure Samba
-    ansible.builtin.shell:
-      cmd: "{{ item }}"
-    loop:
-    - "samba-tool domain provision --realm={{ dns_domain_upper }} --domain {{ samba4ad__global_custom['workgroup'] }} --server-role=dc"
-
-  - name: Allow ntml auth in samba config
+  - name: Check if samba4ad configuration is there
     ansible.builtin.lineinfile:
       path: /etc/samba/smb.conf
-      regexp: '^\s*ntlm auth = yes'
-      insertafter: '^\s*workgroup.*'
       line: "        ntlm auth = yes"
+    check_mode: yes
+    register: check_if_samba
+    ignore_errors: true
+  
+  - name: Install, configure, and start Samba4ad
+    block:
+    - name: Disable IPV6
+      ansible.posix.sysctl:
+        name: "{{ item }}"
+        value: '1'
+        sysctl_set: true
+      loop:
+      - "net.ipv6.conf.all.disable_ipv6"
+      - "net.ipv6.conf.default.disable_ipv6"
+      - "net.ipv6.conf.lo.disable_ipv6"
 
-  - name: Configure Samba admin password
-    ansible.builtin.expect:
-      command: "{{ item }}"
-      responses:
-        (?i)new\s(?i)password: "{{ samba4ad__password }}"
-        (?i)retype\s(?i)password: "{{ samba4ad__password }}"
-    loop:
-    - "samba-tool user setpassword {{ samba4ad__username }}"
+    - name: Install prerequisites for Samba packages
+      ansible.builtin.package:
+        name: '{{ item }}'
+        state: 'present'
+      loop:
+      - gnupg
+      - lsb-release
+      - python3-pexpect
+  
+    - name: Reboot
+      ansible.builtin.reboot:
+  
+    - name: Wait for the reboot and reconnect 
+      wait_for_connection:
+  
+    - name: Pause for 10 seconds after reboot
+      ansible.builtin.pause:
+        seconds: 10
+  
+    - name: Download file with check (sha256)
+      ansible.builtin.get_url:
+        url: http://samba.tranquil.it/tissamba-pubkey.gpg
+        dest: /root/tissamba-pubkey.gpg
+        checksum: sha256:bd0f7140edd098031fcb36106b24a6837b067f1c847f72cf262fa012f14ce2dd
+  
+    - name: Add samba gpg
+      ansible.builtin.apt_key:
+        file: /root/tissamba-pubkey.gpg
+        state: present
+      
+    - name: add apt source
+      ansible.builtin.apt_repository:
+        repo: "deb https://samba.tranquil.it/debian/samba-4.16/ bullseye main"
+        state: present
+  
+    - name: update and upgrade
+      ansible.builtin.apt:
+        upgrade: yes
+        update_cache: yes
+  
+    - name: Install Samba packages
+      ansible.builtin.package:
+        name: '{{ item }}'
+        state: 'present'
+      loop: '{{ samba4ad__base_packages }}'
+  
+    - name: Stop and Mask Services
+      ansible.builtin.systemd:
+        enabled: no
+        state: stopped
+        masked:  yes
+        name: "{{ item }}"
+      loop: "{{ samba4ad__services_to_stop }}"
+  
+    - name: Remove config files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/etc/samba/smb.conf"
+        - "/etc/krb5.conf"
+  
+    - name: change krb5.conf
+      ansible.builtin.blockinfile:
+        create: true
+        dest: /etc/krb5.conf
+        content: |
+           [libdefaults]
+              default_realm = "{{ dns_domain_upper }}"
+              dns_lookup_kdc = "{{ samba4ad__kdc }}"
+              dns_lookup_realm = "{{ samba4ad__realm }}"
+           
+           [realms]
+              "{{ dns_domain_upper }}" = {
+                "admin_server = AD.{{ dns_domain_upper }}"
+                "kdc = AD.{{ dns_domain_upper }}"
+           }
+           
+           [domain_realm]
+             "{{ dns_domain }} = {{ dns_domain_upper }}"
+             ".{{ dns_domain }} = {{ dns_domain_upper }}"
+  
+    # to have persistant dns serevrs in resolve.conf 
+    - name: Adding localhost in resolv.conf
+      ansible.builtin.lineinfile:
+        path: /etc/dhcp/dhclient.conf
+        line: "{{ item }}"
+        state: present
+        create: true
+      loop:
+      - 'prepend domain-search "{{ samba4ad__domain_name }}";'
+      - 'prepend domain-name "{{ samba4ad__domain_name }}";'
+      - "prepend domain-name-servers {{ samba4ad__mgmt_ip }}, 8.8.8.8;"
+  
+    - name: Configure Samba
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+      loop:
+      - "samba-tool domain provision --realm={{ dns_domain_upper }} --domain {{ samba4ad__global_custom['workgroup'] }} --server-role=dc "
 
-  - name: Remove config files
-    file:
-      path: "{{ item }}"
-      state: absent
-    loop:
-    - "/var/lib/samba/private/krb5.conf"
+    - name: Allow ntml auth in samba config
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^{{ samba4ad__mgmt_ip }}\s+ad.example.lan\s+ad'
+        line: "{{ samba4ad__mgmt_ip }} ad.example.lan ad"
+ 
+    - name: Allow ntml auth in samba config
+      ansible.builtin.lineinfile:
+        path: /etc/samba/smb.conf
+        regexp: '^\s*ntlm auth = yes'
+        insertafter: '^\s*workgroup.*'
+        line: "        ntlm auth = yes"
+  
+    - name: Configure Samba admin password
+      ansible.builtin.expect:
+        command: "{{ item }}"
+        responses:
+          (?i)new\s(?i)password: "{{ samba4ad__password }}"
+          (?i)retype\s(?i)password: "{{ samba4ad__password }}"
+      loop:
+      - "samba-tool user setpassword {{ samba4ad__username }}"
+  
+    - name: Remove config files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+      - "/var/lib/samba/private/krb5.conf"
+  
+    - name: Creating a symlink
+      ansible.builtin.file:
+        src: "/etc/krb5.conf"
+        dest: "/var/lib/samba/private/krb5.conf"
+        state: link
+  
+    - name: Unmask and start Services
+      ansible.builtin.systemd:
+        enabled: yes
+        state: restarted
+        masked: no
+        name: "{{ item }}"
+      loop:
+      - "samba-ad-dc" 
+  
+    - name: Reboot
+      ansible.builtin.reboot:
+  
+    - name: Wait for the reboot and reconnect
+      wait_for_connection:
+  
+    - name: Pause for 10 seconds after reboot
+      ansible.builtin.pause:
+        seconds: 10
+  
+    - name: Load kinit with admin password
+      ansible.builtin.expect:
+        command: "{{ item }}"
+        responses:
+          (?i)password.*: "{{ samba4ad__password }}"
+      loop:
+      - "kinit administrator"
+  
+    - name: Klist Samba
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+      loop:
+      - "klist"
+  
+    - name: Configure Samba "{{ packetfence_domain_account }}" user
+      ansible.builtin.expect:
+        command: "{{ item }}"
+        responses:
+          (?i)new\s(?i)password: "{{ packetfence_domain_password }}"
+          (?i)retype\s(?i)password: "{{ packetfence_domain_password }}"
+      loop:
+      - "samba-tool user add {{ packetfence_domain_account }} --username={{ packetfence_domain_account }} --mail-address={{ packetfence_domain_account }}@{{ dns_domain }} --workgroup={{ dns_domain_upper }}"
 
-  - name: Creating a symlink
-    ansible.builtin.file:
-      src: "/etc/krb5.conf"
-      dest: "/var/lib/samba/private/krb5.conf"
-      state: link
+    - name: Configure Samba AD Stuff
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+      loop:
+      - "samba-tool user setexpiry {{ samba4ad__username }} --noexpiry"
+      - "samba-tool user setexpiry {{ packetfence_domain_account }} --noexpiry"
+      - "samba-tool group add sponsor"
+      - "samba-tool group add IT"
+      - "samba-tool group addmembers sponsor {{ packetfence_domain_account }}"
+      - "samba-tool group addmembers IT {{ packetfence_domain_account }}"
 
-  - name: Unmask and start Services
-    ansible.builtin.systemd:
-      enabled: yes
+    when: check_if_samba.failed is true
+
+  - name: Just restart samba4ad service 
+    ansible.builtin.service:
+      name: samba-ad-dc.service
       state: restarted
-      masked: no
-      name: "{{ item }}"
-    loop:
-    - "samba-ad-dc" 
-
-  - name: Reboot
-    ansible.builtin.reboot:
-
-  - name: Wait for the reboot and reconnect
-    wait_for_connection:
-
-  - name: Pause for 10 seconds after reboot
-    ansible.builtin.pause:
-      seconds: 10
-
-  - name: Load kinit with admin password
-    ansible.builtin.expect:
-      command: "{{ item }}"
-      responses:
-        (?i)password.*: "{{ samba4ad__password }}"
-    loop:
-    - "kinit administrator"
-
-  - name: Klist Samba
-    ansible.builtin.shell:
-      cmd: "{{ item }}"
-    loop:
-    - "klist"
-
-  - name: Configure Samba "{{ packetfence_domain_account }}" user
-    ansible.builtin.expect:
-      command: "{{ item }}"
-      responses:
-        (?i)new\s(?i)password: "{{ packetfence_domain_password }}"
-        (?i)retype\s(?i)password: "{{ packetfence_domain_password }}"
-    loop:
-    - "samba-tool user add {{ packetfence_domain_account }} --username={{ packetfence_domain_account }} --mail-address={{ packetfence_domain_account }}@{{ dns_domain }} --workgroup={{ dns_domain_upper }}"
-
-  - name: Configure Samba AD Stuff
-    ansible.builtin.shell:
-      cmd: "{{ item }}"
-    loop:
-    - "samba-tool user setexpiry {{ packetfence_domain_account }} --noexpiry"
-    - "samba-tool group add sponsor"
-    - "samba-tool group add IT"
-    - "samba-tool group addmembers sponsor {{ packetfence_domain_account }}"
-    - "samba-tool group addmembers IT {{ packetfence_domain_account }}"
-
