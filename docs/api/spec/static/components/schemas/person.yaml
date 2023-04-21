@@ -1,27 +1,27 @@
 UsersList:
   allOf:
-    - $ref: "#/components/schemas/Iterable" 
+    - $ref: "#/components/schemas/Iterable"
     - type: object
       properties:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/UserWithLinks"     
+            $ref: "#/components/schemas/UserWithLinks"
 User:
   type: object
   properties:
     pid:
       type: string
-      description: The username.
+      description: Unique user identifier.
     email:
       type: string
-      description: The email of the user.
+      description: Email of the user.
     firstname:
       type: string
-      description: The first name of the user.
+      description: First name of the user.
     lastname:
       type: string
-      description: The last name of the user.
+      description: Last name of the user.
 UserWithLinks:
   allOf:
     - $ref: "#/components/schemas/User"
@@ -29,9 +29,9 @@ UserWithLinks:
       properties:
         nodes_url:
           type: string
-          description: link to the nodes of this user
+          description: URL to the nodes of this user
         password_url:
           type: string
-          description: link to the password (local account) of this user. If there is none, the value will be empty.
-          
+          description: URL to the password (local account) of this user. If there is none, the value will be empty.
+
 
