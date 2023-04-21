@@ -2,12 +2,6 @@
   name: Manage Samba service
   become: True
 
-  collections:
-    - debops.debops
-    - debops.roles01
-    - debops.roles02
-    - debops.roles03
-
   tasks:
   - name: Check if samba4ad configuration is there
     ansible.builtin.lineinfile:
@@ -16,7 +10,7 @@
     check_mode: yes
     register: check_if_samba
     ignore_errors: true
-  
+
   - name: Install, configure, and start Samba4ad
     block:
     - name: Disable IPV6
@@ -28,6 +22,7 @@
       - "net.ipv6.conf.all.disable_ipv6"
       - "net.ipv6.conf.default.disable_ipv6"
       - "net.ipv6.conf.lo.disable_ipv6"
+      register: disable_ipv6
 
     - name: Install prerequisites for Samba packages
       ansible.builtin.package:
@@ -37,16 +32,10 @@
       - gnupg
       - lsb-release
       - python3-pexpect
-  
+
     - name: Reboot
-      ansible.builtin.reboot:
-  
-    - name: Wait for the reboot and reconnect 
-      wait_for_connection:
-  
-    - name: Pause for 10 seconds after reboot
-      ansible.builtin.pause:
-        seconds: 10
+      include_tasks: ./samba4ad_reboot.yml
+      when: disable_ipv6.changed
   
     - name: Download file with check (sha256)
       ansible.builtin.get_url:
@@ -141,6 +130,7 @@
         regexp: '^\s*ntlm auth = yes'
         insertafter: '^\s*workgroup.*'
         line: "        ntlm auth = yes"
+      register: set_samba4ad_conf
   
     - name: Configure Samba admin password
       ansible.builtin.expect:
@@ -172,17 +162,11 @@
         name: "{{ item }}"
       loop:
       - "samba-ad-dc" 
-  
+
     - name: Reboot
-      ansible.builtin.reboot:
-  
-    - name: Wait for the reboot and reconnect
-      wait_for_connection:
-  
-    - name: Pause for 10 seconds after reboot
-      ansible.builtin.pause:
-        seconds: 10
-  
+      include_tasks: ./samba4ad_reboot.yml
+      when: set_samba4ad_conf.changed
+
     - name: Load kinit with admin password
       ansible.builtin.expect:
         command: "{{ item }}"
@@ -217,7 +201,7 @@
       - "samba-tool group addmembers sponsor {{ packetfence_domain_account }}"
       - "samba-tool group addmembers IT {{ packetfence_domain_account }}"
 
-    when: check_if_samba.failed is true
+    when: check_if_samba.failed or check_if_samba.changed
 
   - name: Just restart samba4ad service 
     ansible.builtin.service:

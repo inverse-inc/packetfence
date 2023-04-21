@@ -1,0 +1,10 @@
+---
+- name: Reboot
+  ansible.builtin.reboot:
+
+- name: Wait for the reboot and reconnect
+  wait_for_connection:
+
+- name: Pause for 10 seconds after reboot
+  ansible.builtin.pause:
+    seconds: 10
