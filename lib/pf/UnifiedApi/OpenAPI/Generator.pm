@@ -347,7 +347,7 @@ operation Parameters
 
 sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
-    return $self->performLookup($self->operationParametersLookup, $a->{action}, []);
+    return $self->performLookup($self->operationParametersLookup($scope, $c, $m, $a), $a->{action}, []);
 }
 
 =head2 operationDescription
@@ -370,6 +370,21 @@ operation Id
 sub operationId {
     my ($self, $scope, $c, $m, $a) = @_;
     return $a->{operationId};
+}
+
+=head2 operationTags
+
+operation tags
+
+=cut
+
+sub operationTags {
+    my ($self, $scope, $c, $m, $a) = @_;
+    my $tag = $a->{controller};
+    $tag =~ s/::/\//g;
+    my @tags;
+    push @tags, $tag;
+    return \@tags;
 }
 
 =head2 schemaItemPath

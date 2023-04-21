@@ -16,13 +16,14 @@ Query:
         type: array
         items:
           type: object
+# TODO: remove
   example:
     op: and
     values:
       - field: detect_date
         op: between
-        values: 
-          # A space was voluntarily added at the end of those since the swagger rendering app was transforming those into empty hashes without it.
+        values:
+          # A space was voluntarily added at the end of those since he swagger rendering app was transforming those into empty hashes without it.
           - '2017-01-01 '
           - '2017-01-02 '
       - op: or
