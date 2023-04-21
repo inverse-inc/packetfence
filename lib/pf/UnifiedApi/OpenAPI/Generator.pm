@@ -316,7 +316,13 @@ sub performLookup {
         return $default;
     }
 
-    return $lookup->{$key};
+    my $generator = $lookup->{$key};
+    my $ref_type = ref ($generator);
+    if ($ref_type eq 'CODE' || ($ref_type eq '' && $self->can($generator))) {
+        return $self->$generator();
+    }
+
+    return $generator;
 }
 
 =head2 operationDescriptionsLookup
