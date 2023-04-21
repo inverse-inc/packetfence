@@ -15,6 +15,9 @@ pf::UnifiedApi::OpenAPI::Generator::Crud
 use strict;
 use warnings;
 use Moo;
+$YAML::XS::Boolean = "JSON::PP";
+use JSON::MaybeXS ();
+
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
 our %OPERATION_GENERATORS = (
@@ -33,7 +36,7 @@ our %OPERATION_GENERATORS = (
     parameters => {
         (
             map { $_ => "${_}OperationParameters" }
-              qw(create search list get replace update remove)
+              qw(create list get replace update remove)
         )
     },
     description => {
@@ -102,6 +105,12 @@ sub createOperationParameters {
 
 sub searchOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
+    # return [
+    #     $self->dalToOpFields($c->dal, { in => 'body' }),
+    #     $self->dalToOpSort($c->dal, { in => 'body' }),
+    #     $self->dalToOpLimit($c->dal, { in => 'body' }),
+    #     $self->dalToOpCursor($c->dal, { in => 'body' }),
+    # ];
     return $self->operationParameters( $scope, $c, $m, $a );
 }
 
@@ -175,18 +184,138 @@ sub dalToOpenAPISchemaProperties {
     return \%properties;
 }
 
-our %OPERATION_PARAMETERS_LOOKUP = (
-    list => [
-        { "\$ref" => '#/components/parameters/cursor' },
-        { "\$ref" => '#/components/parameters/limit' },
-        { "\$ref" => '#/components/parameters/fields' },
-        { "\$ref" => '#/components/parameters/sort' },
-    ],
-);
+sub dalToFields {
+    my ( $self, $dal ) = @_;
+    my $meta = $dal->get_meta();
+    my $fields = [];
+    while (my ($key, $value) = each %$meta) {
+        push @$fields, $key;
+    }
+    return \@$fields;
+}
+
+sub dalToSorts {
+    my ( $self, $dal ) = @_;
+    my $meta = $dal->get_meta();
+    my $sorts = [];
+    while (my ($key, $value) = each %$meta) {
+        push @$sorts, $key.' ASC';
+        push @$sorts, $key.' DESC';
+    };
+    return \@$sorts;
+}
+
+sub dalToPK {
+    my ( $self, $dal ) = @_;
+    my $meta = $dal->get_meta();
+    my $pk = undef;
+    while (my ($key, $value) = each %$meta) {
+        if ($value->{is_primary_key}) {
+            $pk = $key;
+        }
+    }
+    return $pk;
+}
+
+sub dalToOpFields {
+    my ($self, $dal, $of) = @_;
+    my $fields = $self->dalToFields($dal);
+    return {
+        allOf => [
+            {
+                name => 'fields',
+                required => JSON::MaybeXS::true,
+                schema => {
+                    type => 'array',
+                    items => {
+                        type => 'string',
+                        enum => \@$fields,
+                    },
+                    example => \@$fields,
+                },
+                style => 'form',
+                explode => JSON::MaybeXS::false,
+                description => 'Comma delimited list of fields to return with each item.'
+            },
+            $of
+        ]
+    };
+}
+
+sub dalToOpSort {
+    my ($self, $dal, $of) = @_;
+    my $sorts = $self->dalToSorts($dal);
+    my $pk = $self->dalToPK($dal);
+    return {
+        allOf => [
+            {
+                name => 'sort',
+                schema => {
+                    type => 'array',
+                    items => {
+                        type => 'string',
+                        enum => \@$sorts,
+                    },
+                    example => [ $pk.' ASC' ],
+                },
+                style => 'form',
+                explode => JSON::MaybeXS::false,
+                description => 'Comma delimited list of fields and respective order to sort items (`default: [ '.$pk.' ASC ]`).',
+            },
+            $of
+        ]
+    };
+}
+
+sub dalToOpLimit {
+    my ($self, $dal, $of) = @_;
+    return {
+        allOf => [
+            {
+                name => 'limit',
+                schema => {
+                    type => 'integer',
+                    minimum => 1,
+                    maximum => 1000,
+                    enum => [1, 5, 10, 25, 50, 100, 250, 500, 1000],
+                    example => 1,
+                },
+                description => 'Maximum number of items to return.',
+            },
+            $of
+        ]
+    };
+}
+
+sub dalToOpCursor {
+    my ($self, $dal, $of) = @_;
+    return {
+        allOf => [
+            {
+                name => 'cursor',
+                schema => {
+                    type => 'string',
+                },
+                description => 'Unique identifier to offset the paginated items using `sort` and `limit` (from `nextCursor` or `previousCursor`).',
+                summary => 'foobar'
+            },
+            $of
+        ]
+    };
+}
 
 sub operationParametersLookup {
-    \%OPERATION_PARAMETERS_LOOKUP
+    my ($self, $scope, $c, $m, $a) = @_;
+    return {
+        list => [
+            $self->dalToOpFields($c->dal, { in => 'query' }),
+            $self->dalToOpSort($c->dal, { in => 'query' }),
+            $self->dalToOpLimit($c->dal, { in => 'query' }),
+            $self->dalToOpCursor($c->dal, { in => 'query' }),
+        ]
+    }
 }
+
 
 =head2 getResponses
 
@@ -300,12 +429,54 @@ The OpenAPI Operation RequestBody for the search action
 
 sub searchRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
+    my $fields = $self->dalToFields($c->dal);
+    my $sorts = $self->dalToSorts($c->dal);
     return {
         description => "Search for items",
         content => {
             "application/json" => {
                 schema => {
-                    "\$ref" => "#/components/schemas/Search",
+                    allOf => [
+                        {
+                            "\$ref" => "#/components/schemas/Search"
+                        },
+                        {
+                            required => [ 'fields' ],
+                            properties => {
+                                cursor => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'string',
+                                },
+                                fields => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+                                        enum => \@$fields,
+                                    },
+                                },
+                                limit => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'integer',
+                                    minimum => 1,
+                                    maximum => 1000,
+                                },
+                                sort => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+                                        enum => \@$sorts,
+                                    },
+                                }
+                            }
+                        },
+
+                    ],
+                },
+                example => {
+                    fields => \@$fields,
+                    limit => 25,
                 }
             }
         }

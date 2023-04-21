@@ -30,6 +30,12 @@ our %OPERATION_GENERATORS = (
         }
 
     },
+    parameters => {
+        (
+            map { $_ => "${_}OperationParameters" }
+              qw(create search list get replace update remove)
+        )
+    },
     responses => {
         search => {
             "400" => {
@@ -39,6 +45,12 @@ our %OPERATION_GENERATORS = (
                 "\$ref" => "#/components/responses/UnprocessableEntity"
             }
         },
+    },
+    tags => {
+        (
+            map { $_ => "operationTags" }
+              qw(create search list get replace update remove)
+        )
     },
 );
 
@@ -70,6 +82,30 @@ sub generateSchemas {
 
 sub operation_generators {
     \%OPERATION_GENERATORS;
+}
+
+=head2 operationParameters
+
+operationParameters
+
+=cut
+
+sub searchOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
+
+=head2 operationParametersLookup
+
+operation Parameters Lookup
+
+=cut
+
+sub operationParametersLookup {
+    return {
+        search => "ABC"
+    }
 }
 
 =head1 AUTHOR

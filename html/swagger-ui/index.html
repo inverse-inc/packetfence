@@ -7,59 +7,79 @@
       name="description"
       content="SwaggerUI"
     />
-    <title>SwaggerUI</title>
-    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+    <title>PacketFence API</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css" />
+    <link rel="stylesheet" href="oas/theme.css" />
   </head>
   <body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
-  <script>
-    let token = null
-    const syncToken = function(ui) {
-      const storage = localStorage.getItem('user-token')
-      if (storage && !token) {
-        token = storage
-        ui.preauthorizeApiKey('bearerAuth', token)
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js" crossorigin></script>
+    <script>
+      let token = null
+      const syncToken = function(ui) {
+        const storage = localStorage.getItem('user-token')
+        if (storage && !token) {
+          token = storage
+          ui.preauthorizeApiKey('bearerAuth', token)
+        }
+        else if (!storage && token) {
+          token = null
+          ui.preauthorizeApiKey('bearerAuth', token)
+        }
       }
-      else if (!storage && token) {
-        token = null
-        ui.preauthorizeApiKey('bearerAuth', token)
-      }
-    }
-    window.onload = () => {
-      const ui = SwaggerUIBundle({
-        url: '/static/doc/api/spec/openapi.json',
-        dom_id: '#swagger-ui',
-        defaultModelsExpandDepth: -1,
-        onComplete: function() {
-          setInterval(function() { syncToken(ui) }, 3000)
-          syncToken(ui)
-        },
-        plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl,
-          // replace the server list with the current url
-          function() {
-            return {
-              statePlugins: {
-                spec: {
-                  wrapActions: {
-                    updateJsonSpec: function(cb) {
-                      return (spec) => {
-                        spec.servers = spec.servers.map(server => {
-                          server.variables.hostname.default = window.location.hostname
-                          return server
-                        })
-                        return cb(spec)
+      window.onload = () => {
+        const ui = SwaggerUIBundle({
+          url: '/static/doc/api/spec/openapi.json',
+          dom_id: '#swagger-ui',
+          defaultModelsExpandDepth: 99,
+          defaultModelExpandDepth: 99,
+          docExpansion: 'none',
+          jsonEditor: true,
+          jsonEditorOptions: {
+              disableProperties: false,
+              disableEditJson: false,
+              removeEmptyProperties: false,
+              noDefaultProperties: false
+          },
+          syntaxHighlight: {
+            theme: 'monokai'
+          },
+          tagsSorter: function(a, b) {
+            if (a == 'default')
+              return -1
+            if (b == 'default')
+              return 1
+            return a - b
+          },
+          onComplete: function() {
+            setInterval(function() { syncToken(ui) }, 1000)
+            syncToken(ui)
+          },
+          plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl,
+            // replace the server list with the current url
+            function() {
+              return {
+                statePlugins: {
+                  spec: {
+                    wrapActions: {
+                      updateJsonSpec: function(cb) {
+                        return (spec) => {
+                          spec.servers = spec.servers.map(server => {
+                            server.variables.hostname.default = window.location.hostname
+                            return server
+                          })
+                          return cb(spec)
+                        }
                       }
                     }
                   }
                 }
               }
             }
-          }
-        ],
-      })
-    }
-  </script>
+          ],
+        })
+      }
+    </script>
   </body>
 </html>
