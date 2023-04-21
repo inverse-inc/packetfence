@@ -17,6 +17,7 @@ use warnings;
 use Moo;
 $YAML::XS::Boolean = "JSON::PP";
 use JSON::MaybeXS ();
+use Clone qw(clone);
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
 
@@ -105,12 +106,10 @@ sub createOperationParameters {
 
 sub searchOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    # return [
-    #     $self->dalToOpFields($c->dal, { in => 'body' }),
-    #     $self->dalToOpSort($c->dal, { in => 'body' }),
-    #     $self->dalToOpLimit($c->dal, { in => 'body' }),
-    #     $self->dalToOpCursor($c->dal, { in => 'body' }),
-    # ];
+            # $self->allOf([$self->dalToOpFields($c->dal), { in => 'query' }]),
+            # $self->allOf([$self->dalToOpSort($c->dal), { in => 'query' }]),
+            # $self->allOf([$self->dalToOpLimit($c->dal), { in => 'query' }]),
+            # $self->allOf([$self->dalToOpCursor($c->dal), { in => 'query' }]),
     return $self->operationParameters( $scope, $c, $m, $a );
 }
 
@@ -144,26 +143,25 @@ sub operationDescriptionsLookup {
 }
 
 my %SQLTYPES_TO_OPENAPI = (
-    BIGINT    => 'integer',
-    INT       => 'integer',
-    TINYINT   => 'integer',
-    DOUBLE    => 'number',
-    LONGBLOB  => 'string',
-    TEXT      => 'string',
-    VARCHAR   => 'string',
-    DATETIME  => 'string',
-    TIMESTAMP => 'string',
-    CHAR      => 'string',
-    ENUM      => 'string',
+    BIGINT    => { type => 'integer' },
+    INT       => { type => 'integer' },
+    TINYINT   => { type => 'integer' },
+    DOUBLE    => { type => 'number' },
+    LONGBLOB  => { type => 'string' },
+    TEXT      => { type => 'string' },
+    VARCHAR   => { type => 'string' },
+    DATETIME  => { type => 'string', format => 'date' },
+    TIMESTAMP => { type => 'string' },
+    CHAR      => { type => 'string' },
+    ENUM      => { type => 'string' },
 );
 
-sub sqlTypeToOpenAPIType {
+sub sqlTypeToOpenAPI {
     my ($type) = @_;
     if (exists $SQLTYPES_TO_OPENAPI{$type}) {
-        return $SQLTYPES_TO_OPENAPI{$type};
+        return clone($SQLTYPES_TO_OPENAPI{$type});
     }
-
-    return "string";
+    return { type => 'string' };
 }
 
 =head2 dalToOpenAPISchemaProperties
@@ -177,8 +175,15 @@ sub dalToOpenAPISchemaProperties {
     my $meta = $dal->get_meta;
     my %properties;
     while (my ($k, $v) = each %$meta) {
-        $properties{$k} = {
-            type => sqlTypeToOpenAPIType($v->{type}),
+        $properties{$k} = sqlTypeToOpenAPI($v->{type});
+        if ($v->{is_primary_key}) {
+            $properties{$k}->{description} = '`PRIMARY KEY`';
+        };
+        if ($v->{is_nullable}) {
+            $properties{$k}->{nullable} = JSON::MaybeXS::true;
+        };
+        if ($v->{enums_values}) {
+            $properties{$k}->{enum} = [ keys %{$v->{enums_values}} ];
         };
     }
     return \%properties;
@@ -218,89 +223,67 @@ sub dalToPK {
 }
 
 sub dalToOpFields {
-    my ($self, $dal, $of) = @_;
+    my ($self, $dal) = @_;
     my $fields = $self->dalToFields($dal);
     return {
-        allOf => [
-            {
-                name => 'fields',
-                required => JSON::MaybeXS::true,
-                schema => {
-                    type => 'array',
-                    items => {
-                        type => 'string',
-                        enum => \@$fields,
-                    },
-                    example => \@$fields,
-                },
-                style => 'form',
-                explode => JSON::MaybeXS::false,
-                description => 'Comma delimited list of fields to return with each item.'
+        name => 'fields',
+        required => JSON::MaybeXS::true,
+        schema => {
+            type => 'array',
+            items => {
+                type => 'string',
+                enum => \@$fields,
             },
-            $of
-        ]
+            example => \@$fields,
+        },
+        style => 'form',
+        explode => JSON::MaybeXS::false,
+        description => 'Comma delimited list of fields to return with each item.'
     };
 }
 
 sub dalToOpSort {
-    my ($self, $dal, $of) = @_;
+    my ($self, $dal) = @_;
     my $sorts = $self->dalToSorts($dal);
     my $pk = $self->dalToPK($dal);
     return {
-        allOf => [
-            {
-                name => 'sort',
-                schema => {
-                    type => 'array',
-                    items => {
-                        type => 'string',
-                        enum => \@$sorts,
-                    },
-                    example => [ $pk.' ASC' ],
-                },
-                style => 'form',
-                explode => JSON::MaybeXS::false,
-                description => 'Comma delimited list of fields and respective order to sort items (`default: [ '.$pk.' ASC ]`).',
+        name => 'sort',
+        schema => {
+            type => 'array',
+            items => {
+                type => 'string',
+                enum => \@$sorts,
             },
-            $of
-        ]
+            example => [ $pk.' ASC' ],
+        },
+        style => 'form',
+        explode => JSON::MaybeXS::false,
+        description => 'Comma delimited list of fields and respective order to sort items (`default: [ '.$pk.' ASC ]`).',
     };
 }
 
 sub dalToOpLimit {
-    my ($self, $dal, $of) = @_;
     return {
-        allOf => [
-            {
-                name => 'limit',
-                schema => {
-                    type => 'integer',
-                    minimum => 1,
-                    maximum => 1000,
-                    enum => [1, 5, 10, 25, 50, 100, 250, 500, 1000],
-                    example => 1,
-                },
-                description => 'Maximum number of items to return.',
-            },
-            $of
-        ]
+        name => 'limit',
+        schema => {
+            type => 'integer',
+            minimum => 1,
+            maximum => 1000,
+            enum => [1, 5, 10, 25, 50, 100, 250, 500, 1000],
+            example => 1,
+        },
+        description => 'Maximum number of items to return.',
     };
 }
 
 sub dalToOpCursor {
-    my ($self, $dal, $of) = @_;
     return {
-        allOf => [
-            {
-                name => 'cursor',
-                schema => {
-                    type => 'string',
-                },
-                description => 'Unique identifier to offset the paginated items using `sort` and `limit` (from `nextCursor` or `previousCursor`).',
-                summary => 'foobar'
-            },
-            $of
-        ]
+        name => 'cursor',
+        schema => {
+            type => 'string',
+        },
+        description => 'Unique identifier to offset the paginated items using `sort` and `limit` (from `nextCursor` or `previousCursor`).',
+        summary => 'foobar'
     };
 }
 
@@ -308,10 +291,10 @@ sub operationParametersLookup {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         list => [
-            $self->dalToOpFields($c->dal, { in => 'query' }),
-            $self->dalToOpSort($c->dal, { in => 'query' }),
-            $self->dalToOpLimit($c->dal, { in => 'query' }),
-            $self->dalToOpCursor($c->dal, { in => 'query' }),
+            { allOf => [ $self->dalToOpFields($c->dal), { in => 'query' } ] },
+            { allOf => [ $self->dalToOpSort($c->dal), { in => 'query' } ] },
+            { allOf => [ $self->dalToOpLimit($c->dal), { in => 'query' } ] },
+            { allOf => [ $self->dalToOpCursor($c->dal), { in => 'query' } ] },
         ]
     }
 }
@@ -556,7 +539,7 @@ sub updateRequestBody {
         "content" => {
             "application/json" => {
                 "schema" => {
-                    "\$ref" => "#" . $self->schemaItemPath($c),
+                    "\$ref" => "#" . $self->schemaItemPath($c)
                 }
             }
         },
