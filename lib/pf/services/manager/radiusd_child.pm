@@ -432,9 +432,7 @@ listen {
 
 EOT
         } else {
-            foreach my $interface ( uniq(@radius_ints) ) {
-                my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-                $tags{'listen'} .= <<"EOT";
+            $tags{'listen'} .= <<"EOT";
 listen {
     ipaddr = *
     port =  $self->{eduroam_port}
@@ -443,7 +441,6 @@ listen {
 }
 
 EOT
-            }
         }
         $tags{'pid_file'} = "$var_dir/run/radiusd-eduroam.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-eduroam.sock";
@@ -668,9 +665,7 @@ listen {
 
 EOT
         } else {
-            foreach my $interface ( uniq(@radius_ints) ) {
-                my $ip = defined($interface->tag('vip')) ? $interface->tag('vip') : $interface->tag('ip');
-                $tags{'listen'} .= <<"EOT";
+            $tags{'listen'} .= <<"EOT";
 listen {
         ipaddr = *
         port = $self->{cli_port}
@@ -679,7 +674,6 @@ listen {
 }
 
 EOT
-            }
         }
         $tags{'pid_file'} = "$var_dir/run/radiusd-cli.pid";
         $tags{'socket_file'} = "$var_dir/run/radiusd-cli.sock";
