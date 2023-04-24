@@ -800,25 +800,27 @@ sub unpretty_bandwidth {
     my ($bw,$unit);
 
     if (!defined($bw[1])) {
-        if ($bw[0] =~ /(\d+)(\w+)/) {
+        if ($bw[0] =~ /(\d+)(\D*)/) {
             $bw = $1;
-            $unit = $2;
+            $unit = uc($2 // '');
         }
     } else {
         $bw = $bw[0];
-        $unit = $bw[1];
+        $unit = uc($bw[1]);
     }
     # Check what units we have, and multiple by 1024 exponent something
-    if ($unit eq 'PB') {
-        return $bw * 1024**5;
-    } elsif ($unit eq 'TB') {
-        return $bw * 1024**4;
-    } elsif ($unit eq 'GB') {
-        return $bw * 1024**3;
-    } elsif ($unit eq 'MB') {
-        return $bw * 1024**2;
-    } elsif ($unit eq 'KB') {
-        return $bw * 1024;
+    if ($unit) {
+        if ($unit eq 'PB') {
+            return $bw * 1024**5;
+        } elsif ($unit eq 'TB') {
+            return $bw * 1024**4;
+        } elsif ($unit eq 'GB') {
+            return $bw * 1024**3;
+        } elsif ($unit eq 'MB') {
+            return $bw * 1024**2;
+        } elsif ($unit eq 'KB') {
+            return $bw * 1024;
+        }
     }
 
     # Not matching, We assume we have bytes then
