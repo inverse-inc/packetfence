@@ -167,20 +167,6 @@
       include_tasks: ./samba4ad_reboot.yml
       when: set_samba4ad_conf.changed
 
-    - name: Load kinit with admin password
-      ansible.builtin.expect:
-        command: "{{ item }}"
-        responses:
-          (?i)password.*: "{{ samba4ad__password }}"
-      loop:
-      - "kinit administrator"
-  
-    - name: Klist Samba
-      ansible.builtin.shell:
-        cmd: "{{ item }}"
-      loop:
-      - "klist"
-  
     - name: Configure Samba "{{ packetfence_domain_account }}" user
       ansible.builtin.expect:
         command: "{{ item }}"
@@ -200,6 +186,20 @@
       - "samba-tool group add IT"
       - "samba-tool group addmembers sponsor {{ packetfence_domain_account }}"
       - "samba-tool group addmembers IT {{ packetfence_domain_account }}"
+
+    - name: Load kinit with admin password
+      ansible.builtin.expect:
+        command: "{{ item }}"
+        responses:
+          (?i)password.*: "{{ samba4ad__password }}"
+      loop:
+      - "kinit administrator"
+
+    - name: Klist Samba
+      ansible.builtin.shell:
+        cmd: "{{ item }}"
+      loop:
+      - "klist"
 
     when: check_if_samba.failed or check_if_samba.changed
 
