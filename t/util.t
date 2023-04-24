@@ -18,7 +18,8 @@ our (
     @EXPAND_CSV_TESTS,
     @VALID_UNREG_DATE_TESTS,
     @MAC2DEC,
-    @NODE_ID_TESTS
+    @NODE_ID_TESTS,
+    @UNPRETTY_BANDWIDTH_TESTS,
 );
 
 BEGIN {
@@ -244,6 +245,73 @@ BEGIN {
             msg => "valid date 0000-00-00",
         },
     );
+    @UNPRETTY_BANDWIDTH_TESTS = (
+        {
+            in => [qw(10240)],
+            out => '10240',
+            msg => 'A simple number stays the same',
+        },
+        {
+            in => [qw(10KB)],
+            out => '10240',
+            msg => '10 kilobytes',
+        },
+        {
+            in => [qw(10kb)],
+            out => '10240',
+            msg => '10 kilobytes lc',
+        },
+        {
+            in => [qw(10MB)],
+            out => 10 * 1024 * 1024,
+            msg => '10 megabytes',
+        },
+        {
+            in => [qw(10GB)],
+            out => 10 * 1024 * 1024 * 1024,
+            msg => '10 gigabytes',
+        },
+        {
+            in => [qw(10TB)],
+            out => 10 * 1024 * 1024 * 1024 * 1024,
+            msg => '10 terabytes',
+        },
+        {
+            in => [qw(10PB)],
+            out => 10 * 1024 * 1024 * 1024 * 1024 * 1024,
+            msg => '10 petabytes',
+        },
+        {
+            in => [qw(10 KB)],
+            out => '10240',
+            msg => '10 kilobytes 2 args',
+        },
+        {
+            in => [qw(10 kb)],
+            out => '10240',
+            msg => '10 kilobytes 2 args - lc',
+        },
+        {
+            in => [qw(10 MB)],
+            out => 10 * 1024 *1024,
+            msg => '10 megabytes 2 args',
+        },
+        {
+            in => [qw(10 GB)],
+            out => 10 * 1024 * 1024 * 1024,
+            msg => '10 gigabytes 2 args',
+        },
+        {
+            in => [qw(10 TB)],
+            out => 10 * 1024 * 1024 * 1024 * 1024,
+            msg => '10 terabytes 2 args',
+        },
+        {
+            in => [qw(10 PB)],
+            out => 10 * 1024 * 1024 * 1024 * 1024 * 1024,
+            msg => '10 petabytes 2 args',
+        },
+    );
 }
 
 use Test::More;
@@ -257,6 +325,7 @@ BEGIN {
       scalar @NORMALIZE_TIME_TESTS +
       scalar @EXPAND_CSV_TESTS +
       scalar @VALID_UNREG_DATE_TESTS +
+      scalar @UNPRETTY_BANDWIDTH_TESTS +
       scalar @MAC2DEC;
 }
 
@@ -419,6 +488,17 @@ for my $test (@MAC2DEC) {
         is($expected_mac, $mac, "split_node_id($node_id) mac");
     }
 
+}
+
+{
+
+    for my $test (@UNPRETTY_BANDWIDTH_TESTS) {
+        is(
+            unpretty_bandwidth(@{$test->{in}}),
+            $test->{out},
+            $test->{msg},
+        );
+    }
 }
 
 {
