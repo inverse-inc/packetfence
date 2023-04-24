@@ -651,6 +651,14 @@ sub security_event_trigger {
         my %data;
 
         my $class = class_view($security_event_id);
+        if (!$class) {
+            $logger->error(
+                "security_event $security_event_id triggered not found." .
+                "Not adding security_event."
+            );
+            next;
+        }
+
         # Check if the security_event is delayed
         if ($class->{'delay_by'}) {
             $data{status} = 'delayed';
