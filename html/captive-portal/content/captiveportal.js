@@ -134,16 +134,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function initForm() {
     var form = false;
-
-    Array.prototype.slice.call(document.querySelectorAll('form input, form select'))
-      .forEach(function (input) {
+    var inputs = Array.prototype.slice.call(document.querySelectorAll('form input, form select'));
+    if (inputs.length) {
+      inputs.forEach(function (input) {
         form = closest(input, function (el) { return el.tagName.toLowerCase() === 'form' });
         var inputHandler = function () { checkForm(form); };
         input.addEventListener('keyup', inputHandler);
         input.addEventListener('change', inputHandler);
       });
-    if (form)
-      checkForm(form);
+      if (form) {
+        checkForm(form);
+      }
+    }
+    else {
+      // no input/select
+      var buttons = Array.prototype.slice.call(document.querySelectorAll('button[type="submit"]'));
+      if (buttons.length == 1) {
+        // single button, enable it
+        buttons[0].removeAttribute('disabled');
+      }
+    }
 
     // Add show/hide button to password field if the 'password-button' template is loaded
     Array.prototype.slice.call(document.querySelectorAll('input[type="password"]')).forEach(function (input) {
