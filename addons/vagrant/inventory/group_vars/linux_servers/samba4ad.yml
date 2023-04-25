@@ -1,5 +1,5 @@
 ---
-samba4ad__mgmt_ip: "{{ packetfence_server_mgmt_ip }}"
+samba4ad__mgmt_ip: "{{ hostvars[inventory_hostname]['mgmt_ip'] }}"
 
 samba4ad__base_packages:
   - 'samba'
