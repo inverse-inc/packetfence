@@ -23,7 +23,7 @@ BEGIN {
 }
 
 
-use Test::More tests => 24;
+use Test::More tests => 25;
 use pf::Connection::ProfileFactory;
 use pf::dal::node;
 use pf::ip4log;
@@ -104,6 +104,9 @@ is($profile->getName, "last_ssid_defined", "Last ssid is defined");
 
 $profile = pf::Connection::ProfileFactory->instantiate($FAKE_MAC, { last_connection_type => 'CLI-Access' });
 is($profile->getName, "cli_login_fake_mac", "CLI login using fake mac");
+
+$profile = pf::Connection::ProfileFactory->instantiate("00:00:00:00:00:00", { last_connection_sub_type => 13 });
+is($profile->getName, "connection_sub_type_1", "connection_sub_type EAP TLS");
 
 =head1 AUTHOR
 
