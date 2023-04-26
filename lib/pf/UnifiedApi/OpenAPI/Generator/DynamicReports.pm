@@ -27,7 +27,25 @@ our %OPERATION_GENERATORS = (
                     }
                 }
             },
-        }
+        },
+        get => {
+            content => {
+                "application/json" => {
+                    schema => {
+                        '$ref' => '#/components/schemas/ReportSearchRequest'
+                    }
+                }
+            },
+        },
+        list => {
+            content => {
+                "application/json" => {
+                    schema => {
+                        '$ref' => '#/components/schemas/ReportSearchRequest'
+                    }
+                }
+            },
+        },
 
     },
     parameters => {
@@ -43,8 +61,18 @@ our %OPERATION_GENERATORS = (
             },
             "422" => {
                 "\$ref" => "#/components/responses/UnprocessableEntity"
-            }
+            },
         },
+        get => {
+            200 => {
+                '$ref'=> '#/components/responses/Blah',
+            },
+        },
+        list => {
+            200 => {
+                '$ref'=> '#/components/responses/Blah',
+            },
+        }
     },
     tags => {
         (
@@ -91,6 +119,16 @@ operationParameters
 =cut
 
 sub searchOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
+sub getOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
+sub listOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->operationParameters( $scope, $c, $m, $a );
 }
