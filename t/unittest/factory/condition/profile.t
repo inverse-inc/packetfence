@@ -24,7 +24,7 @@ BEGIN {
 }
 
 use pf::factory::condition::profile;
-use Test::More tests => 7;
+use Test::More tests => 13;
 use Test::NoWarnings;
 
 {
@@ -74,6 +74,55 @@ use Test::NoWarnings;
             }
         ),
     );
+}
+
+{
+    my $condition = pf::factory::condition::profile->instantiate_advanced(
+        'connection_sub_type == "EAP-TLS"');
+    isa_ok( $condition, "pf::condition::key" );
+
+    is_deeply(
+        $condition,
+        pf::condition::key->new(
+            {
+                key       => 'last_connection_sub_type',
+                condition => pf::condition::equals->new( value => '13' ),
+            }
+        ),
+    );
+}
+
+{
+    my $condition = pf::factory::condition::profile->instantiate_advanced(
+        'connection_sub_type == "13"');
+    isa_ok( $condition, "pf::condition::key" );
+
+    is_deeply(
+        $condition,
+        pf::condition::key->new(
+            {
+                key       => 'last_connection_sub_type',
+                condition => pf::condition::equals->new( value => '13' ),
+            }
+        ),
+    );
+}
+
+{
+    my $condition =
+      pf::factory::condition::profile->instantiate('connection_sub_type:EAP-TLS');
+    isa_ok( $condition, "pf::condition::key" );
+
+    is_deeply(
+        $condition,
+        pf::condition::key->new(
+            {
+                key       => 'last_connection_sub_type',
+                condition => pf::condition::equals->new( value => '13' ),
+            }
+        ),
+    );
+
 }
 
 =head1 AUTHOR
