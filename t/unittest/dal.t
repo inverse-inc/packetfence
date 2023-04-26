@@ -365,7 +365,7 @@ is_deeply(
     $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id, -no_auto_tenant_id => 1});
     is($node->{tenant_id}, $test_tenant_id, "Current tenant is not set use the one provided");
     $node = pf::dal::node->new({mac => $test_mac, tenant_id => $test_tenant_id });
-    is($node->{tenant_id}, $pf::config::tenant::CURRENT_TENANT, "Current tenant is set use even when one is provided $pf::config::tenant::CURRENT_TENANT");
+    is($node->{tenant_id}, $test_tenant_id, "Current tenant is set use even when one is provided $pf::config::tenant::CURRENT_TENANT");
 }
 
 =head1 AUTHOR

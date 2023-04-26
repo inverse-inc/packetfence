@@ -49,6 +49,16 @@ sub set_tenant {
     $CURRENT_TENANT = $tenant_id // $DEFAULT_TENANT_ID;
 }
 
+=head2
+
+    check if global tenant is set
+
+=cut
+
+sub is_global_tenant {
+    $CURRENT_TENANT == 0
+}
+
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

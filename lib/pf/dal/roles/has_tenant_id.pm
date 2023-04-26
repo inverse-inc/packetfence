@@ -15,6 +15,7 @@ pf::dal::roles::has_tenant_id
 use strict;
 use warnings;
 use Role::Tiny;
+use pf::config::tenant;
 
 =head2 update_params_for_select
 
@@ -47,7 +48,7 @@ update_where
 sub update_where {
     my ($self, %args) = @_;
     my $no_auto_tenant_id = delete $args{'-no_auto_tenant_id'};
-    unless ($no_auto_tenant_id) {
+    unless ($no_auto_tenant_id || pf::config::tenant::is_global_tenant()) {
         my $name = $self->table . ".tenant_id";
         my $where = {
             $name => $self->get_tenant,
@@ -81,7 +82,7 @@ Automatically add the current tenant_id to the set clause of the insert statemen
 
 around update_params_for_insert => sub {
     my ($orig, $self, %args) = @_;
-    unless ($args{'-no_auto_tenant_id'}) {
+    unless ($args{'-no_auto_tenant_id'} || pf::config::tenant::is_global_tenant()) {
         my $old_set = delete $args{'-values'} // {};
         $old_set->{tenant_id} = $self->get_tenant;
         $args{'-values'} = $old_set;
@@ -97,7 +98,7 @@ Automatically add the current tenant_id to the set clause of the upsert statemen
 
 around update_params_for_upsert => sub {
     my ($orig, $self, %args) = @_;
-    unless ($args{'-no_auto_tenant_id'}) {
+    unless ($args{'-no_auto_tenant_id'} || pf::config::tenant::is_global_tenant()) {
         my $tenant_id = $self->get_tenant;
         my $old_set = delete $args{'-values'} // {};
         $old_set->{tenant_id} = $tenant_id;
@@ -116,9 +117,10 @@ around update_params_for_upsert => sub {
 around new => sub {
     my ($orig, $proto, $args) = @_;
     $args //= {};
-    unless ($args->{'-no_auto_tenant_id'}) {
+    unless ($args->{'-no_auto_tenant_id'} || pf::config::tenant::is_global_tenant()) {
         $args->{tenant_id} = $proto->get_tenant;
     }
+
     return $proto->$orig($args);
 };
 
@@ -128,6 +130,10 @@ around new => sub {
 
 around build_primary_keys_where_clause => sub {
     my ($orig, $self, $ids) = @_;
+    if (pf::config::tenant::is_global_tenant()) {
+        return $self->$orig({tenant_id => $self->get_tenant, %$ids});
+    }
+
     return $self->$orig({%$ids, tenant_id => $self->get_tenant});
 };
 
