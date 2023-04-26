@@ -124,7 +124,12 @@ sub instantiate {
 
 my %VALUE_FILTERS = (
     connection_sub_type => sub {
-        return $RADIUS_EAP_TYPE_2_VALUES{$_[0]};
+        my $val = $_[0];
+        if (exists $RADIUS_EAP_TYPE_2_VALUES{$val}) {
+            return $RADIUS_EAP_TYPE_2_VALUES{$val};
+        }
+
+        return $val;
     },
 );
 
@@ -201,7 +206,12 @@ sub build_conditions {
 
     } else {
         $key = $operands[0];
-        $sub_condition = $class->new({ value => $operands[1] });
+        my $value = $operands[1];
+        if (exists $VALUE_FILTERS{$key}) {
+            $value = $VALUE_FILTERS{$key}->($value);
+        }
+
+        $sub_condition = $class->new({ value => $value });
     }
 
     my ($first, @keys) = split /\./, $key;
