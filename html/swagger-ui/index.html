@@ -49,7 +49,34 @@
               return -1
             if (b == 'default')
               return 1
-            return a - b
+            return a.localeCompare(b)
+          },
+          operationsSorter: function(a, b) {
+            const explode = (operation) => {
+              const { _root: { entries = [] } = {} } = operation
+              return entries.reduce((entries, entry) => {
+                return { [entry[0]]: entry[1], ...entries }
+              }, {})
+            }
+            const _a = explode(a)
+            const _b = explode(b)
+            const aSplit = _a.path.substr(1).split('/')
+            const bSplit = _b.path.substr(1).split('/')
+            for (let i = 0; i < Math.min(aSplit.length, bSplit.length); i++) {
+              if (aSplit[i] !== bSplit[i]) {
+                switch (true) {
+                  case aSplit[i].indexOf(bSplit[i]) > -1: // b in a
+                    return -1
+                    //break
+                  case bSplit[i].indexOf(aSplit[i]) > -1: // a in b
+                    return 1
+                    //break
+                  default:
+                    return aSplit[i].localeCompare(bSplit[i])
+                }
+              }
+            }
+            return _a.path.localeCompare(_b.path)
           },
           onComplete: function() {
             setInterval(function() { syncToken(ui) }, 1000)
