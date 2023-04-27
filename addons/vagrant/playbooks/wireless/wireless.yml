@@ -3,6 +3,7 @@
   name: Disable APT services
   become: True
   gather_facts: True
+  gather_subset: ['!all']
 
   tasks:
     - import_tasks: ../tasks/disable_apt_services.yml
@@ -47,6 +48,7 @@
   hosts: wireless
   become: true
   gather_facts: true
+  gather_subset: ['!all']
   
   collections:
     - inverse_inc.wireless

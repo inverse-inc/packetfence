@@ -2,6 +2,7 @@
 - name: Install packages used for pre-provisioning
   hosts: nodes
   gather_facts: True
+  gather_subset: ['!all']
   become: True
   collections:
     - debops.debops
