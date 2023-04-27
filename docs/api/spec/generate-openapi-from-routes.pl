@@ -39,7 +39,7 @@ for my $route_info (map { walkRootRoutes($_) } @{ $app->routes->children }) {
         next if !defined $child->{methods} || $child->{path} eq '/*';
         push @{$routes{paths}{$child->{path}}}, $child;
         push @{$routes{controllers}{$child->{controller}}}, $child;
-   } 
+   }
 }
 
 my $openapi_paths = generateOpenAPIPaths($app, $routes{paths} // {});
@@ -178,10 +178,7 @@ sub walk {
         path_type => $path_type,
     );
 
-    if ($depth) {
-        @paths = ( @$parent_paths, ( $path_part ? ($path_part) : () ) );
-    }
-
+    @paths = ( @$parent_paths, ( $path_part ? ($path_part) : () ) );
     $info{path} = join( '', @paths );
 
     # Pattern
