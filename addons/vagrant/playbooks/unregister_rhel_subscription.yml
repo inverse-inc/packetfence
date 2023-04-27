@@ -2,6 +2,7 @@
   name: Unregister RHEL subscription
   become: True
   gather_facts: True
+  gather_subset: ['!all']
   tags: unregister
 
   tasks:
