@@ -2,6 +2,7 @@
   name: upgrade EL OS to latest version
   become: True
   gather_facts: True
+  gather_subset: ['!all']
   tags: upgrade
 
   collections:
