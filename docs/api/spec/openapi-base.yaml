@@ -15,7 +15,7 @@ paths: {}
 components: {}
 
 servers:
-  - url: https://{hostname}:{port}/api/v1
+  - url: https://{hostname}:{port}
     description: Secure PacketFence API
     variables:
       hostname:
@@ -24,7 +24,7 @@ servers:
       port:
         default: 9999
         description: Port of the PacketFence API
-  - url: http://{hostname}:{port}/api/v1
+  - url: http://{hostname}:{port}
     description: Insecure PacketFence API
     variables:
       hostname:
