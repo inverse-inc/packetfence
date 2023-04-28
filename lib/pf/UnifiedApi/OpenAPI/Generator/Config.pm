@@ -73,16 +73,16 @@ sub operation_generators {
 }
 
 my %OPERATION_DESCRIPTIONS = (
+    search => 'Search items',
+    list    => 'List items',
     remove  => 'Delete an item',
     create  => 'Create an item',
-    list    => 'List items',
     get     => 'Get an item',
     replace => 'Replace an item',
     update  => 'Update an item',
-    remove  => 'Remove an item',
 );
 
-sub resoureParameters {
+sub resourceParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
     my $parameter = $self->path_parameter($c->primary_key);
@@ -117,22 +117,22 @@ sub listOperationParameters {
 
 sub getOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
+    return $self->resourceParameters( $scope, $c, $m, $a );
 }
 
 sub replaceOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
+    return $self->resourceParameters( $scope, $c, $m, $a );
 }
 
 sub updateOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
+    return $self->resourceParameters( $scope, $c, $m, $a );
 }
 
 sub removeOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resoureParameters( $scope, $c, $m, $a );
+    return $self->resourceParameters( $scope, $c, $m, $a );
 }
 
 sub operationDescriptionsLookup {
