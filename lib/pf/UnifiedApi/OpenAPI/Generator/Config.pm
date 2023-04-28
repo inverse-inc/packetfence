@@ -85,7 +85,18 @@ my %OPERATION_DESCRIPTIONS = (
 sub resoureParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
-    push @$parameters, $self->path_parameter($c->primary_key);
+    my $parameter = $self->path_parameter($c->primary_key);
+    if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
+        my $ini = Config::IniFiles->new(
+            -file => $c->config_store->importConfigFile,
+        );
+        my $enum = [];
+        for my $section ($ini->Sections) {
+            push @$enum, $section;
+        };
+        $parameter->{schema}->{enum} = \@$enum;
+    }
+    push @$parameters, $parameter;
     return $parameters;
 }
 
