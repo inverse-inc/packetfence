@@ -502,7 +502,6 @@ sub returnRadiusAccessAccept {
                 if ($self->useDownloadableACLs) {
                     my $mac = lc($args->{'mac'});
                     $mac =~ s/://g;
-                    $access_list = $self->acl_chewer($access_list);
                     my @acl = split("\n", $access_list);
                     $args->{'acl'} = \@acl;
                     $args->{'acl_num'} = '101';

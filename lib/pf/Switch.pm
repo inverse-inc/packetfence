@@ -740,7 +740,7 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return join("\n", @$acls, @$fb_acl) ."\n" if @$acls || @$fb_acl;
+    return $self->acl_chewer(join("\n", @$acls, @$fb_acl)) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -4077,7 +4077,7 @@ sub acl_chewer {
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
-    my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
+    my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
     $i = 0;
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
