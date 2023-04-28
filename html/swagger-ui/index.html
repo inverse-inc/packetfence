@@ -18,7 +18,7 @@
       let token = null
       const syncToken = function(ui) {
         const storage = localStorage.getItem('user-token')
-        if (storage && !token) {
+        if (storage && (!token || storage !== token)) {
           token = storage
           ui.preauthorizeApiKey('bearerAuth', token)
         }
