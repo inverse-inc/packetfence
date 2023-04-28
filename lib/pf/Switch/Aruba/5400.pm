@@ -127,7 +127,6 @@ sub returnRadiusAccessAccept {
     if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
         if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
             if ($access_list) {
-                $access_list = $self->acl_chewer($access_list);
                 while($access_list =~ /([^\n]+)\n?/g){
                     push(@acls, $1);
                     $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
