@@ -1,0 +1,24 @@
+- name: "Demonstrate connecting to switches"
+  hosts: switches
+  gather_facts: no
+
+  tasks:
+
+    - name: Parse the IOS acls configuration file
+      cisco.ios.ios_acls:
+        running_config: "{{ lookup('file', acl_config ) }}"
+        state: parsed
+      register: acls
+      when: ansible_network_os == 'cisco.ios.ios'
+
+    - name: Replaces IOS device configuration of listed acls with provided configuration
+      cisco.ios.ios_acls:
+        config: "{{ acls.parsed }}"
+        state: replaced
+      when: ansible_network_os == 'cisco.ios.ios'
+
+    - name: Load new acl into Cisco WLC
+      community.network.aireos_config:
+        src: "{{ acl_config }}"
+        before: acl delete boby
+      when: ansible_network_os == 'aireos'
