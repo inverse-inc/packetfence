@@ -2,6 +2,7 @@
   name: Set venom vars
   become: True
   gather_facts: True
+  gather_subset: ['!all']
 
   tasks:
   # packetfence-test or {{ venom_dir }}/vars/local.yml should exist

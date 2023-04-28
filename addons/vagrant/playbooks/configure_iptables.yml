@@ -2,6 +2,7 @@
   name: Configure iptables
   become: True
   gather_facts: True
+  gather_subset: ['!all']
 
   tasks:
   - import_tasks: tasks/vagrant_iptables.yml

@@ -2,6 +2,7 @@
 - name: Install psonoci
   hosts: pfservers
   gather_facts: True
+  gather_subset: ['!all']
   become: True
   collections:
     - inverse_inc.utils
