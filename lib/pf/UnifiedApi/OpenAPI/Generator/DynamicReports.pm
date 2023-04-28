@@ -12,79 +12,77 @@ pf::UnifiedApi::OpenAPI::Generator::DynamicReports
 
 use strict;
 use warnings;
+use lib qw(/usr/local/pf/lib);
+use lib qw(/usr/local/pf/lib_perl/lib/perl5);
+use Config::IniFiles;
+use pf::file_paths qw($report_default_config_file);
 use Moo;
 $YAML::XS::Boolean = "JSON::PP";
 use JSON::MaybeXS ();
 
 extends qw(pf::UnifiedApi::OpenAPI::Generator);
+
 our %OPERATION_GENERATORS = (
     requestBody => {
-        search => {
-            content => {
-                "application/json" => {
-                    schema => {
-                        '$ref' => '#/components/schemas/ReportSearchRequest'
-                    }
-                }
-            },
-        },
-        get => {
-            content => {
-                "application/json" => {
-                    schema => {
-                        '$ref' => '#/components/schemas/ReportSearchRequest'
-                    }
-                }
-            },
-        },
-        list => {
-            content => {
-                "application/json" => {
-                    schema => {
-                        '$ref' => '#/components/schemas/ReportSearchRequest'
-                    }
-                }
-            },
-        },
-
+        (
+            map { $_ => "${_}OperationRequestBody" }
+              qw(search)
+        )
     },
     parameters => {
         (
             map { $_ => "${_}OperationParameters" }
-              qw(create search list get replace update remove)
+              qw(search list get options)
+        )
+    },
+    description => {
+        (
+            map { $_ => "operationDescription" }
+              qw(search list get options)
         )
     },
     responses => {
         search => {
-            "400" => {
+            400 => {
                 "\$ref" => "#/components/responses/BadRequest"
             },
-            "422" => {
+            422 => {
                 "\$ref" => "#/components/responses/UnprocessableEntity"
             },
         },
         get => {
             200 => {
-                '$ref'=> '#/components/responses/Blah',
+                "\$ref" => "#/components/responses/Message"
             },
         },
         list => {
             200 => {
-                '$ref'=> '#/components/responses/Blah',
+                "\$ref" => "#/components/responses/Message"
+            },
+        },
+        options => {
+            200 => {
+                "\$ref" => "#/components/responses/Message"
             },
         }
+    },
+    operationId => {
+        (
+            map { $_ => "operationId" }
+              qw(search list get options)
+        )
     },
     tags => {
         (
             map { $_ => "operationTags" }
-              qw(create search list get replace update remove)
+              qw(search list get options)
         )
-    },
+    }
 );
 
 sub generateSchemas {
     {
-        '/components/schemas/ReportSearchRequest' => {
+        '/components/schemas/DynamicReportSearchRequest' => {
             properties => {
                 start_date => {
                     type => 'string',
@@ -112,20 +110,66 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
+my %OPERATION_DESCRIPTIONS = (
+    list    => 'List reports',
+    search => 'Search a report',
+    get     => 'Get a report',
+    options => 'Get meta of a report'
+);
+
+=head2 operationRequestBody
+
+operationRequestBody
+
+=cut
+
+sub searchOperationRequestBody {
+    return {
+        content => {
+            "application/json" => {
+                schema => {
+                    '$ref' => '#/components/schemas/DynamicReportSearchRequest'
+                }
+            }
+        },
+    }
+}
+
 =head2 operationParameters
 
 operationParameters
 
 =cut
 
+sub resourceParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    my $parameters = $self->operationParameters( $scope, $c, $m, $a );
+    my $parameter = $self->path_parameter('report_id');
+    my $ini = Config::IniFiles->new(
+        -file => $report_default_config_file,
+    );
+    my $enum = [];
+    for my $section ($ini->Sections) {
+        push @$enum, $section;
+    };
+    $parameter->{schema}->{enum} = \@$enum;
+    push @$parameters, $parameter;
+    return $parameters;
+}
+
 sub searchOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
+    return $self->resourceParameters( $scope, $c, $m, $a );
 }
 
 sub getOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
+    return $self->resourceParameters( $scope, $c, $m, $a );
+}
+
+sub optionsOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->resourceParameters( $scope, $c, $m, $a );
 }
 
 sub listOperationParameters {
@@ -133,17 +177,8 @@ sub listOperationParameters {
     return $self->operationParameters( $scope, $c, $m, $a );
 }
 
-
-=head2 operationParametersLookup
-
-operation Parameters Lookup
-
-=cut
-
-sub operationParametersLookup {
-    return {
-        search => "ABC"
-    }
+sub operationDescriptionsLookup {
+    return \%OPERATION_DESCRIPTIONS;
 }
 
 =head1 AUTHOR
