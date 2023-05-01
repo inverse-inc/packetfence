@@ -4044,13 +4044,13 @@ sub checkRolesACLs {
     return undef;
 }
 
-=head2 acl_chewer
+=head2 format_acl
 
-Format ACL to match with the expected switch format.
+Parse ACL to match with the expected switch format.
 
 =cut
 
-sub acl_chewer {
+sub format_acl {
     my ($self, $acl) = @_;
 
     my $acls = "ip access-list extended packetfence\n";
@@ -4077,8 +4077,20 @@ sub acl_chewer {
         $i++;
     }
     my $p = Cisco::AccessList::Parser->new();
-    my ($acl_ref, $objgrp_ref) = $p->parse( 'input' => $acls );
+    my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
     return ($acl_ref, @direction);
+}
+
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl) = @_;
+    return undef;
 }
 
 =head2 returnAccessListAttribute
