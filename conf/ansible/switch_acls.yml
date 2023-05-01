@@ -1,4 +1,4 @@
-- name: "Demonstrate connecting to switches"
+- name: "Push ACLs on network equipment"
   hosts: switches
   gather_facts: no
 
@@ -20,5 +20,4 @@
     - name: Load new acl into Cisco WLC
       community.network.aireos_config:
         src: "{{ acl_config }}"
-        before: acl delete boby
       when: ansible_network_os == 'aireos'
