@@ -740,7 +740,7 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl)) if @$acls || @$fb_acl;
+    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -4089,7 +4089,7 @@ Format ACL to match with the expected switch format.
 =cut
 
 sub acl_chewer {
-    my ($self, $acl) = @_;
+    my ($self, $acl, $role) = @_;
     return undef;
 }
 

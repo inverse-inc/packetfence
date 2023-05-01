@@ -1818,7 +1818,7 @@ Format ACL to match with the expected switch format.
 =cut
 
 sub acl_chewer {
-    my ($self, $acl) = @_;
+    my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
     my ($acl_ref , @direction) = $self->format_acl($acl);
 
