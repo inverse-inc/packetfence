@@ -2,9 +2,17 @@
 - hosts: dev
   name: install additionnal stuff for dev machines
   become: True
+  gather_facts: False
   tags: build
+
   collections:
     - inverse_inc.packetfence
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   roles:
     - role: geerlingguy.nodejs

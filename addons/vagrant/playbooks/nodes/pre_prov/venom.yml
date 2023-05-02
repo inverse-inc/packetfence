@@ -1,8 +1,9 @@
 ---
 - name: Install Venom
   hosts: nodes
-  gather_facts: False
   become: True
+  gather_facts: False
+
   collections:
     - inverse_inc.utils
 

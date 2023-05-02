@@ -2,8 +2,13 @@
 - hosts: wireless
   name: Disable APT services
   become: True
-  gather_facts: True
-  gather_subset: ['!all']
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
     - import_tasks: ../tasks/disable_apt_services.yml
@@ -12,6 +17,7 @@
 - name: Install packetfence development packages
   hosts: wireless
   become: True
+
   collections:
     - debops.debops
     - debops.roles01
@@ -19,6 +25,11 @@
     - debops.roles03
 
   pre_tasks:
+    - name: Gather min only
+      ansible.builtin.setup:
+        gather_subset:
+          - "!all"
+
     # PPA repositories are removed each day and cause issues when refreshing cache
     - name: Clean previous ppa source file if present
       file:
@@ -47,11 +58,16 @@
 - name: Configure Wireless Linux
   hosts: wireless
   become: true
-  gather_facts: true
-  gather_subset: ['!all']
+  gather_facts: False
   
   collections:
     - inverse_inc.wireless
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   roles:
     - role: mac80211hwsim
