@@ -62,7 +62,7 @@ our %OPERATION_GENERATORS = (
         },
         options => {
             200 => {
-                "\$ref" => "#/components/responses/Message"
+                "\$ref" => "#/components/responses/DynamicReportMeta"
             },
         }
     },

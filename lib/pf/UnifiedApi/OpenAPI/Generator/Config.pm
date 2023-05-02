@@ -216,23 +216,6 @@ sub metaResponses {
                     }
                 }
             },
-            # content => {
-            #     "application/json" => {
-            #         schema => {
-            #             type => 'object',
-            #             properties => {
-            #                 meta => {
-            #                     type => 'object',
-            #                     properties => {
-            #                         id => {
-            #                             type => 'string'
-            #                         }
-            #                     }
-            #                 }
-            #             }
-            #         }
-            #     }
-            # },
         },
     };
 }
