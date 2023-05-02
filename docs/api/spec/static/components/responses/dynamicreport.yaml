@@ -1,0 +1,6 @@
+DynamicReportMeta:
+  description: A response that contains the report meta
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/DynamicReportMeta"
