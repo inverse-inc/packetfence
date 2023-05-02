@@ -101,8 +101,6 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"httpd_aaa_err":                 &apacheErrorMetaExtractor,
 			"httpd_admin_access":            &apacheAccessMetaExtractor,
 			"httpd_admin_err":               &apacheErrorMetaExtractor,
-			"httpd_collector_access":        &apacheAccessMetaExtractor,
-			"httpd_collector_err":           &apacheErrorMetaExtractor,
 			"httpd_portal_access":           &apacheAccessMetaExtractor,
 			"httpd_portal_err":              &apacheErrorMetaExtractor,
 			"httpd_webservices_access":      &apacheAccessMetaExtractor,

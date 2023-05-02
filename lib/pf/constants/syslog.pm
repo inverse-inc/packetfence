@@ -48,7 +48,6 @@ our @SyslogInfo = (
         'description' => 'Apache logs',
         'name'       => 'httpd.apache',
         'conditions' => [
-            '$programname contains "httpd_collector"',
             '$programname == "httpd.aaa-docker-wrapper"',
             '$programname == "httpd.portal-docker-wrapper"',
             '$programname == "httpd.webservices-docker-wrapper"',

@@ -52,8 +52,6 @@
 -A input-management-if --protocol tcp --match tcp --dport %%unifiedapi_port%% --jump ACCEPT
 # httpd.portal modstatus
 -A input-management-if --protocol tcp --match tcp --dport %%httpd_portal_modstatus%% --jump ACCEPT
-# httpd.collector
--A input-management-if --protocol tcp --match tcp --dport %%httpd_collector_port%% --jump ACCEPT
 # haproxy stats (uncomment if activating the haproxy dashboard) - 1025 for haproxy-portal, 1026 for haproxy-db
 #-A input-management-if --protocol tcp --match tcp --dport 1025 --jump ACCEPT
 #-A input-management-if --protocol tcp --match tcp --dport 1026 --jump ACCEPT

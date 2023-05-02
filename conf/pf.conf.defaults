@@ -511,11 +511,6 @@ pfperl-api=enabled
 # Should httpd.webservices be started?
 httpd_webservices=enabled
 #
-# services.httpd_collector
-#
-# Should httpd.collector be started?
-httpd_collector=disabled
-#
 # services.httpd_dispatcher
 #
 # Should httpd.dispatcher be started?
