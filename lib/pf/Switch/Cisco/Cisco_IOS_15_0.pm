@@ -591,7 +591,6 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
-
 =head1 AUTHOR
 
 Inverse inc. <info@inverse.ca>

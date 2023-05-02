@@ -740,7 +740,7 @@ sub getAccessListByName {
         $fb_acl = $self->fingerbank_dynamic_acl($mac);
     }
 
-    return $self->acl_chewer(join("\n", @$acls, @$fb_acl)) if @$acls || @$fb_acl;
+    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
 
     # otherwise log and return undef
     $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
@@ -4044,13 +4044,13 @@ sub checkRolesACLs {
     return undef;
 }
 
-=head2 acl_chewer
+=head2 format_acl
 
-Format ACL to match with the expected switch format.
+Parse ACL to match with the expected switch format.
 
 =cut
 
-sub acl_chewer {
+sub format_acl {
     my ($self, $acl) = @_;
 
     my $acls = "ip access-list extended packetfence\n";
@@ -4063,10 +4063,10 @@ sub acl_chewer {
             my $raw_acl = $2;
             if ($self->supportsOutAcl && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
-                $direction[$i] = $direction;
+                $direction[$i] = "out";
             } elsif ($direction eq "in|") {
                 $acls .= $raw_acl."\n";
-                $direction[$i] = $direction;
+                $direction[$i] = "in";
             } else {
                 next;
             }
@@ -4078,18 +4078,19 @@ sub acl_chewer {
     }
     my $p = Cisco::AccessList::Parser->new();
     my ($acl_ref, $objgrp_ref, $err) = $p->parse( 'input' => $acls );
-    $i = 0;
-    my $acl_chewed;
-    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
-        $acl->{'protocol'} =~ s/\(\d*\)//;
-        if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        } else {
-            $acl_chewed .= (defined($direction[$i]) ? $direction[$i] : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        }
-        $i++;
-    }
-    return $acl_chewed;
+    return ($acl_ref, @direction);
+}
+
+
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    return undef;
 }
 
 =head2 returnAccessListAttribute

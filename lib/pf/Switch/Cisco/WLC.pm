@@ -646,6 +646,65 @@ sub parseExternalPortalRequest {
     return \%params;
 }
 
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
+sub acl_chewer {
+    my ($self, $acl, $role) = @_;
+    my $logger = $self->logger;
+    my ($acl_ref , @direction) = $self->format_acl($acl);
+
+    my $i = 0;
+    my $j = 1;
+    my $acl_chewed;
+    $acl_chewed .= "acl create $role\n";
+    foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
+        $acl_chewed .= "acl rule add $role $j\n";
+        $acl_chewed .= "acl rule action $role $j $acl->{'action'}\n";
+        $acl->{'protocol'} =~ s/\(\d*\)//;
+        switch($acl->{'protocol'}) {
+            case /ip/ { $acl->{'protocol'} = "any"}
+            case /icmp/ { $acl->{'protocol'} = 1}
+            case /igmp/ { $acl->{'protocol'} = 2}
+            case /tcp/ { $acl->{'protocol'} = 6}
+            case /udp/ { $acl->{'protocol'} = 17}
+            case /gre/ { $acl->{'protocol'} = 47}
+            else { $acl->{'protocol'} = "any"}
+        }
+        $acl_chewed .= "acl rule protocol $role $j $acl->{'protocol'}\n";
+
+        if ($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            $acl_chewed .= "acl rule source address $role $j $acl->{'source'}->{'ipv4_addr'} $acl->{'source'}->{'wildcard'}\n";
+        }
+        if ($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            $acl_chewed .= "acl rule destination address $role $j $acl->{'destination'}->{'ipv4_addr'} $acl->{'destination'}->{'wildcard'}\n";
+        }
+        if (defined($acl->{'source'}->{'port'}) ) {
+            if ($acl->{'source'}->{'port'} =~ /(\w+)\s+(\d+)/) {
+                switch($1) {
+                    case /eq/ {$acl_chewed .= "acl rule source port range $role $j $2 $2\n"}
+                    case /gt/ {$acl_chewed .= "acl rule source port range $role $j $2+1 65534\n"}
+                    case /lt/ {$acl_chewed .= "acl rule source port range $role $j 1 $2-1\n"}
+                }
+            }
+        }
+        if (defined($acl->{'destination'}->{'port'}) ) {
+            if ($acl->{'destination'}->{'port'} =~ /(\w+)\s+(\d+)/) {
+                switch($1) {
+                    case /eq/ {$acl_chewed .= "acl rule destination port range $role $j $2 $2\n"}
+                    case /gt/ {my $port = $2+1; $acl_chewed .= "acl rule destination port range $role $j $port 65534\n"}
+                    case /lt/ {my $port = $2-1; $acl_chewed .= "acl rule destination port range $role $j 1 $port\n"}
+                }
+            }
+        }
+        $i++;
+        $j++;
+    }
+    return $acl_chewed;
+}
 
 =back
 
