@@ -1,0 +1,133 @@
+Meta:
+  allOf:
+    - $ref: '#/components/schemas/MetaItem'
+    - type: object
+      properties:
+        item:
+          description: Schema of each item in type array
+          $ref: '#/components/schemas/MetaItem'
+        properties:
+          description: Schema of each item in type object
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/MetaItem'
+
+MetaItem:
+    oneOf:
+      - type: string
+      - type: integer
+      - type: object
+      - type: array
+    description: Meta for each item
+    properties:
+      allow_custom:
+        description: Allow user-defined values
+        type: boolean
+      allowed:
+        description: Allowed options array
+        oneOf:
+          - $ref: '#/components/schemas/MetaAllowedOptions'
+          - $ref: '#/components/schemas/MetaAllowedOptionsGrouped'
+        items:
+          type: object
+          properties:
+            text:
+              description: The option text
+              type: string
+            value:
+              description: The option value
+              type: string
+      allowed_lookup:
+        description: Allowed options with POST URL endpoint
+        type: object
+        properties:
+          field_name:
+            description: The key used for the option text
+            type: string
+          value_name:
+            description: The key used for the option value
+            type: string
+          search_path:
+            description: The URL endpoint
+            type: string
+          base_url:
+            description: Use external URL, if not defined local host/path is used
+            type: string
+      default:
+        description: The default value if not user-defined
+        nullable: true
+        oneOf:
+         - type: string
+         - type: integer
+         - type: object
+         - type: array
+      implied:
+        description: Fixed built-in values, user-defined values are appended
+        type: string
+        nullable: true
+      min_length:
+        description: Minumum string length
+        type: integer
+      max_length:
+        description: Maximum string length
+        type: integer
+      min_value:
+        description: Minimum unsigned integer
+        type: integer
+      max_value:
+        description: Maxiumum unsigned integer
+        type: integer
+      pattern:
+        description: Regular expression value test
+        type: object
+        properties:
+          message:
+            description: Message shown when regular expression fails
+            type: string
+          regex:
+            description: Regular expression
+            type: string
+      placeholder:
+        oneOf:
+         - type: string
+         - type: integer
+         - type: object
+         - type: array
+        description: String shown for the current value, otherwise value is shown
+        nullable: true
+      required:
+        description: If the value is manadatory
+        type: boolean
+      type:
+        description: The field type
+        type: string
+        enum:
+          - string
+          - integer
+          - object
+          - array
+
+MetaAllowedOptions:
+  description: Array of options
+  type: array
+  items:
+    type: object
+    properties:
+      text:
+        type: string
+        description: Text describing the current value
+      value:
+        type: string
+        description: Current value
+
+MetaAllowedOptionsGrouped:
+  description: Array of grouped options
+  type: array
+  items:
+    type: object
+    properties:
+      group:
+        description: Text describing the group
+        type: string
+      options:
+        $ref: '#/components/schemas/MetaAllowedOptions'
