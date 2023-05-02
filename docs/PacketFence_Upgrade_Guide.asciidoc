@@ -1603,9 +1603,6 @@ The option `NTLM cache background job` and its associated parameters have been d
 
 The `pf-maint.pl` script used to get maintenance patches has been deprecated. You can now get maintenance patches using your package manager, see <<#_apply_maintenance_patches,Apply maintenance patches section>>.
 
-=== WMI scan engine deprecated
-
-The WMI scan engines have been deprecated. If you previously used these scan engines, you should migrate to other scan engines.
 
 === TLS 1.0 and 1.1 are disabled by default in FreeRADIUS
 
@@ -1665,7 +1662,6 @@ If you use a cluster, their upgrade isn't yet automated so you will need to foll
 /usr/local/pf/addons/upgrade/to-11.1-cleanup-ntlm-cache-batch-fields.pl
 /usr/local/pf/addons/upgrade/to-11.1-migrate-monit-configuration-to-pf-conf.pl
 /usr/local/pf/addons/upgrade/to-11.1-remove-unused-sources.pl
-/usr/local/pf/addons/upgrade/to-11.1-remove-wmi-scan.pl
 /usr/local/pf/addons/upgrade/to-11.1-update-reports.pl
 ----
 

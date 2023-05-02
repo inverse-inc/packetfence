@@ -18,7 +18,7 @@ endif::[]
 
 //== Performing Compliance Checks
 
-PacketFence supports either Nessus, OpenVAS and WMI as a scanning engine for compliance checks.
+PacketFence supports either Nessus and OpenVAS as a scanning engine for compliance checks.
 Since PacketFence v5.1 you are now able to create multiples scan engines configuration and assign them on specific captive portals.
 It mean per example that you are now able to active a scan for specific Operating System only on a specific SSID.
 
@@ -85,10 +85,6 @@ Navigate to _Configuration -> Report Formats_ and then select the `CSV Results` 
 
 image::openvas/report-format-id.png[alt="OpenVAS report format ID"]
 
-==== WMI
-
-You just have to enable WMI on each Microsoft Windows devices with a GPO from Active Directory.
-
 === Configuration
 
 In order for the compliance checks to correctly work with PacketFence (communication and generate security events inside PacketFence), you need to configure these sections:
@@ -129,20 +125,6 @@ Specific to OpenVAS:
   Scan config ID: the ID of the scanning configuration on the OpenVAS server
   Report format ID: the ID of the report format for the "CSV Results"
 
-Specific to WMI:
-
-  Username: A username from Active Directory that is allowed to connect to wmi
-  Domain: Domain of the Active Directory
-  Password: Password of the account
-  WMI Rules: Ordered list of WMI rules you defined in Configuration -> Compliance -> Scans -> WMI Rules
-
-==== WMI Rules Definition
-
-If you have configured a WMI scan engine then you need to define WMI Rules.
-WMI is a sort of database on each windows devices, to retrieve information on the device you need to know the SQL request.
-In order to help you to find and make a rule you can use a third party tool like WMI Explorer.
-
-Some example rules are defined in [filename]`/usr/local/pf/conf/wmi.conf.example` with their description. You can browse these rules in _Configuration -> Compliance -> WMI Rules_.
 
 ===== Rules syntax
 
@@ -172,12 +154,6 @@ The action bloc is where you will define your logic. All actions available are
 identical to <<_vlan_filter_definition,VLAN filters>>. Take a look at
 [filename]`/usr/local/pf/conf/vlan_filters.conf.example` for all available actions.
 
-==== WMI tab
-
-It is possible to have the result of a WMI scan in the node section. To have
-this, go into the rule configuration and check the box _On Node tab_. Now
-configure your WMI scanner as you would usually do and you will be able to
-have the results in the tab _WMI Rules_ under Node.
 
 ==== Security Events Definition
 
