@@ -1,6 +1,8 @@
 - hosts: dev
   name: Install packetfence development packages
   become: True
+  gather_facts: False
+
   collections:
     - debops.debops
     - debops.roles01
@@ -8,6 +10,11 @@
     - debops.roles03
 
   pre_tasks:
+    - name: Gather min only
+      ansible.builtin.setup:
+        gather_subset:
+          - "!all"
+
     # PPA repositories are removed each day and cause issues when refreshing cache
     - name: Clean previous ppa source file if present (Debian)
       file:

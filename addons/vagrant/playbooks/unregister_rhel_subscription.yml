@@ -1,9 +1,16 @@
 - hosts: pfservers
   name: Unregister RHEL subscription
   become: True
-  gather_facts: True
-  gather_subset: ['!all']
+  gather_facts: False
   tags: unregister
+
+  pre_tasks:
+  - name: Gather distribution only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+        - "!min"
+        - "distribution"
 
   tasks:
     - name: Include tasks to unregister RHEL systems

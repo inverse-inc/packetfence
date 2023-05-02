@@ -1,6 +1,13 @@
 - hosts: service_samba4ad
   name: Manage Samba service
   become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
   - name: Check if samba4ad configuration is there

@@ -1,12 +1,20 @@
 - hosts: service_dhcpd
   name: Manage dhcpd service
   become: True
+  gather_facts: False
 
   collections:
     - debops.debops
     - debops.roles01
     - debops.roles02
     - debops.roles03
+
+  pre_tasks:
+  - name: Gather min and network only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+        - "network"
 
   roles:
     - role: dhcpd

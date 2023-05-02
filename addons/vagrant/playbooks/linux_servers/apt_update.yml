@@ -1,6 +1,13 @@
 - hosts: linux_servers
   name: Update the apt cache
   become: True
+  gather_facts: False
+
+  #  pre_tasks:
+  #  - name: Gather min only
+  #    ansible.builtin.setup:
+  #      gather_subset:
+  #        - "!all"
 
   tasks:
     - name: Update APT repository cache
