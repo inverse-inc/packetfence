@@ -41,29 +41,31 @@ our %OPERATION_GENERATORS = (
         update  => "updateResponses",
         remove  => "removeResponses",
         create  => "createResponses",
+        options => "metaResponses",
+        resource_options => "metaResponses",
     },
     parameters => {
         (
             map { $_ => "${_}OperationParameters" }
-              qw(create search list get replace update remove)
+              qw(create search list get replace update remove resource_options)
         )
     },
     description => {
         (
             map { $_ => "operationDescription" }
-              qw(create search list get replace update remove)
+              qw(create search list options get replace update remove resource_options)
         )
     },
     operationId => {
         (
             map { $_ => "operationId" }
-              qw(create search list get replace update remove)
+              qw(create search list options get replace update remove resource_options)
         )
     },
     tags => {
         (
             map { $_ => "operationTags" }
-              qw(create search list get replace update remove)
+              qw(create search list options get replace update remove resource_options)
         )
     }
 );
@@ -80,6 +82,7 @@ my %OPERATION_DESCRIPTIONS = (
     get     => 'Get an item',
     replace => 'Replace an item',
     update  => 'Update an item',
+    options => 'Get meta of an item'
 );
 
 sub resourceParameters {
@@ -115,6 +118,11 @@ sub listOperationParameters {
     return $self->operationParameters( $scope, $c, $m, $a );
 }
 
+sub optionsOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->operationParameters( $scope, $c, $m, $a );
+}
+
 sub getOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->resourceParameters( $scope, $c, $m, $a );
@@ -131,6 +139,11 @@ sub updateOperationParameters {
 }
 
 sub removeOperationParameters {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->resourceParameters( $scope, $c, $m, $a );
+}
+
+sub resource_optionsOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->resourceParameters( $scope, $c, $m, $a );
 }
@@ -185,6 +198,45 @@ sub listResponses {
     };
 }
 
+=head2 metaResponses
+
+The OpenAPI Operation Repsonses for the meta action
+
+=cut
+
+sub metaResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        "200" => {
+            description => "Meta",
+            content => {
+                "application/json" => {
+                    schema => {
+                        "\$ref" => "#" . $self->schemaMetaPath($c),
+                    }
+                }
+            },
+            # content => {
+            #     "application/json" => {
+            #         schema => {
+            #             type => 'object',
+            #             properties => {
+            #                 meta => {
+            #                     type => 'object',
+            #                     properties => {
+            #                         id => {
+            #                             type => 'string'
+            #                         }
+            #                     }
+            #                 }
+            #             }
+            #         }
+            #     }
+            # },
+        },
+    };
+}
+
 =head2 getresponses
 
 the openapi operation repsonses for the get action
@@ -223,6 +275,7 @@ sub generateSchemas {
     my ($self, $controller, $actions) = @_;
     my $list_path = $self->schemaListPath($controller);
     my $item_path = $self->schemaItemPath($controller);
+    my $meta_path = $self->schemaMetaPath($controller);
     my @forms = buildForms($controller);
     return {
         $list_path => {
@@ -243,7 +296,8 @@ sub generateSchemas {
                 },
             ],
         },
-        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms)
+        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms),
+        $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
     };
 }
 

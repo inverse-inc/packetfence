@@ -52,7 +52,6 @@ sub formsToSchema {
     }
 
     return subTypesSchema(@$forms);
-
 }
 
 sub objectSchema {
@@ -78,6 +77,41 @@ sub formHandlerProperties {
     for my $field (grep { isAllowedField($_) } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
+    }
+
+    return \%properties;
+}
+
+sub formsToMetaSchema {
+    my ($forms) = @_;
+    if (@$forms == 1) {
+        return metaSchema(@$forms);
+    }
+
+    return subTypesSchema(@$forms);
+}
+
+sub metaSchema {
+    my ($form) = @_;
+    return {
+        type       => 'object',
+        properties => {
+            meta => {
+                type => 'object',
+                properties => formHandlerMetaProperties($form)
+            }
+        },
+    }
+}
+
+sub formHandlerMetaProperties {
+    my ($form) = @_;
+    my %properties;
+    for my $field (grep { isAllowedField($_) } $form->fields) {
+        my $name = $field->name;
+        $properties{$name} = {
+            '$ref' => "#/components/schemas/Meta"
+        };
     }
 
     return \%properties;

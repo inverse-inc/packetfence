@@ -427,6 +427,22 @@ sub schemaListPath {
     return join('/', $prefix, join("", @paths, "${name}List"));
 }
 
+=head2 schemaMetaPath
+
+schema Meta Path
+
+=cut
+
+sub schemaMetaPath {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, join("", @paths, "${name}Meta"));
+}
+
 sub path_parameter {
     my ($self, $name, $description) = @_;
     return {
