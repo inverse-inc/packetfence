@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -12,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/dal/models"
 	"github.com/julienschmidt/httprouter"
 )
 

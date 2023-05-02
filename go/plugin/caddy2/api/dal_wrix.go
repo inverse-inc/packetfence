@@ -4,16 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/go-utils/log"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/types"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
-	"github.com/julienschmidt/httprouter"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/dal/models"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/types"
+	"github.com/jinzhu/gorm"
+	"github.com/julienschmidt/httprouter"
 )
 
 type Wrix struct {

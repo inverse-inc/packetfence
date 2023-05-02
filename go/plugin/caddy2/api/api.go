@@ -62,12 +62,12 @@ func (h *APIHandler) Provision(ctx caddy.Context) error {
 	h.router.POST("/api/v1/radius_attributes", h.searchRadiusAttributes)
 	h.router.POST("/api/v1/nodes/fingerbank_communications", h.nodeFingerbankCommunications)
 
-	NewAdminApiAuditLog().AddToRouter(router)
-	NewAuthLog().AddToRouter(router)
-	NewDnsAuditLog().AddToRouter(router)
-	NewRadacctLog().AddToRouter(router)
-	NewRadiusAuditLog().AddToRouter(router)
-	NewWrix().AddToRouter(router)
+	NewAdminApiAuditLog().AddToRouter(h.router)
+	NewAuthLog().AddToRouter(h.router)
+	NewDnsAuditLog().AddToRouter(h.router)
+	NewRadacctLog().AddToRouter(h.router)
+	NewRadiusAuditLog().AddToRouter(h.router)
+	NewWrix().AddToRouter(h.router)
 
 	return nil
 }

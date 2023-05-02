@@ -5,15 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/inverse-inc/packetfence/go/db"
-	"github.com/jinzhu/gorm"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/inverse-inc/packetfence/go/admin_api_audit_log"
+	"github.com/inverse-inc/packetfence/go/db"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/dal/models"
+	"github.com/jinzhu/gorm"
 
 	"github.com/julienschmidt/httprouter"
 )

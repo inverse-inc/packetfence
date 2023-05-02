@@ -3,10 +3,11 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
+	"github.com/jinzhu/gorm"
 )
 
 type RadiusAuditLog struct {

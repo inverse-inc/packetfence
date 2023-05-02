@@ -3,9 +3,10 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"strings"
+
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
+	"github.com/jinzhu/gorm"
 )
 
 type Wrix struct {

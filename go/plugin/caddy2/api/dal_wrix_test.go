@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
-	"github.com/julienschmidt/httprouter"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/dal/models"
+	"github.com/julienschmidt/httprouter"
 )
 
 var WrixIDs []string

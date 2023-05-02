@@ -3,44 +3,45 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/plugin/caddy2/pfpki/sql"
+	"github.com/jinzhu/gorm"
 )
 
-type RadacctLog struct {
-	ID               int64      `json:"id,omitempty" gorm:"primary_key"`
-	AcctSessionID    string     `json:"acctsessionid,omitempty" gorm:"column:acctsessionid;default:''"`
-	UserName         string     `json:"username,omitempty" gorm:"column:username;default:''"`
-	NasIPAddress     string     `json:"nasipaddress,omitempty" gorm:"column:nasipaddress;default:''"`
-	AcctStatusType   string     `json:"acctstatustype,omitempty" gorm:"column:acctstatustype;default:''"`
-	Timestamp        *time.Time `json:"timestamp,omitempty"`
-	AcctInputOctets  int64      `json:"acctinputoctets,omitempty" gorm:"column:acctinputoctets"`
-	AcctOutputOctets int64      `json:"acctoutputoctets,omitempty" gorm:"column:acctoutputoctets"`
-	AcctSessionTime  int        `json:"acctsessiontime,omitempty" gorm:"column:acctsessiontime"`
-	AcctUniqueID     string     `json:"acctuniqueid,omitempty" gorm:"column:acctuniqueid;default:''"`
+type AuthLog struct {
+	ID          int64      `json:"id,omitempty" gorm:"primary_key"`
+	ProcessName string     `json:"process_name,omitempty"`
+	Mac         string     `json:"mac,omitempty"`
+	Pid         string     `json:"pid,omitempty" gorm:"default:'default'"`
+	Status      string     `json:"status,omitempty" gorm:"default:'incomplete'"`
+	AttemptedAt *time.Time `json:"attempted_at"`
+	CompletedAt *time.Time `json:"completed_at"`
+	Source      string     `json:"source,omitempty"`
+	Profile     string     `json:"profile,omitempty"`
 
 	DB  *gorm.DB         `json:"-" gorm:"-"`
 	Ctx *context.Context `json:"-" gorm:"-"`
 }
 
-func (r RadacctLog) TableName() string {
-	return "radacct_log"
+func (a AuthLog) TableName() string {
+	return "auth_log"
 }
 
-// RadacctLog
-func NewRadacctLogModel(db *gorm.DB, ctx *context.Context) *RadacctLog {
-	ret := &RadacctLog{}
+// AuthLog
+func NewAuthLogModel(db *gorm.DB, ctx *context.Context) *AuthLog {
+	ret := &AuthLog{}
 	ret.DB = db
 	ret.Ctx = ctx
 	return ret
 }
-func (a RadacctLog) Paginated(vars sql.Vars) (DBRes, error) {
+
+func (a AuthLog) Paginated(vars sql.Vars) (DBRes, error) {
 	var res = DBRes{}
 	var count int
 
-	a.DB.Model(&RadacctLog{}).Count(&count)
+	a.DB.Model(&AuthLog{}).Count(&count)
 	res.Total = &count
 	res.PrevCursor = &vars.Cursor
 	nextCursor := vars.Cursor + vars.Limit
@@ -51,7 +52,7 @@ func (a RadacctLog) Paginated(vars sql.Vars) (DBRes, error) {
 		if err != nil {
 			return DBRes{}, err
 		}
-		var items []RadacctLog
+		var items []AuthLog
 		db := a.DB.Select(sqls.Select).Order(sqls.Order).Offset(sqls.Offset).Limit(sqls.Limit).Find(&items)
 		if db.Error != nil {
 			return DBRes{}, db.Error
@@ -61,7 +62,7 @@ func (a RadacctLog) Paginated(vars sql.Vars) (DBRes, error) {
 	return res, nil
 }
 
-func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
+func (a AuthLog) Search(vars sql.Vars) (DBRes, error) {
 	res := DBRes{}
 	sqls, err := vars.Sql(a)
 	if err != nil {
@@ -69,8 +70,8 @@ func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
 	}
 
 	var count int
-	var items []RadacctLog
-	a.DB.Model(&RadacctLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
+	var items []AuthLog
+	a.DB.Model(&AuthLog{}).Where(sqls.Where.Query, sqls.Where.Values...).Count(&count)
 
 	if count == 0 {
 		return res, errors.New("entries not found")
@@ -91,9 +92,9 @@ func (a RadacctLog) Search(vars sql.Vars) (DBRes, error) {
 	return res, nil
 }
 
-func (a RadacctLog) GetByID(id string) (DBRes, error) {
+func (a AuthLog) GetByID(id string) (DBRes, error) {
 	res := DBRes{}
-	var item RadacctLog
+	var item AuthLog
 
 	allFields := strings.Join(sql.SqlFields(a)[:], ",")
 	db := a.DB.Select(allFields).Where("`id` = ?", id).First(&item)
@@ -103,9 +104,9 @@ func (a RadacctLog) GetByID(id string) (DBRes, error) {
 	return res, db.Error
 }
 
-func (a RadacctLog) Delete(id string) (DBRes, error) {
+func (a AuthLog) Delete(id string) (DBRes, error) {
 	res := DBRes{}
-	var item RadacctLog
+	var item AuthLog
 	db := a.DB.Where("`id` = ?", id).Find(&item)
 	if db.Error != nil {
 		return res, db.Error
@@ -114,11 +115,11 @@ func (a RadacctLog) Delete(id string) (DBRes, error) {
 	return res, err
 }
 
-func (a RadacctLog) Update() (DBRes, error) {
-	var item RadacctLog
+func (a AuthLog) Update() (DBRes, error) {
+	var item AuthLog
 	res := DBRes{}
 
-	err := a.DB.Model(&RadacctLog{}).Where("id = ?", a.ID).Updates(a).Error
+	err := a.DB.Model(&AuthLog{}).Where("id = ?", a.ID).Updates(a).Error
 
 	if err != nil {
 		return DBRes{}, err
