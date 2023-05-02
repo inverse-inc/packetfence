@@ -1,0 +1,12 @@
+# tested on 10.1.9 OS
+description=Palo Alto PAN-OS (template based)
+coa=
+cliAuthorizeWrite=PaloAlto-Admin-Role = read_write_role
+reject=
+disconnect=
+cliAuthorizeRead=PaloAlto-Admin-Role = read_only_role
+voip=
+acceptRole=
+bounce=
+acceptVlan=
+snmpDisconnect=disabled
