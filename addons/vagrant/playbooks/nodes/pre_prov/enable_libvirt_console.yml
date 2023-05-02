@@ -1,6 +1,13 @@
 - hosts: nodes
   name: Enable console using virsh
   become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
     - name: Start and enable serial-getty service
