@@ -1,9 +1,14 @@
 - hosts: pfservers
   name: Register RHEL subscription
   become: True
-  gather_facts: True
-  gather_subset: ['!all']
+  gather_facts: False
   tags: register
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
     - name: Include tasks to register RHEL systems

@@ -1,11 +1,17 @@
 ---
 - name: Install psonoci
   hosts: pfservers
-  gather_facts: True
-  gather_subset: ['!all']
   become: True
+  gather_facts: False
+
   collections:
     - inverse_inc.utils
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   roles:
     - role: psonoci

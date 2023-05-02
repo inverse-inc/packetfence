@@ -1,8 +1,7 @@
 - hosts: pfservers
   name: upgrade EL OS to latest version
   become: True
-  gather_facts: True
-  gather_subset: ['!all']
+  gather_facts: False
   tags: upgrade
 
   collections:
@@ -10,6 +9,12 @@
     - debops.roles01
     - debops.roles02
     - debops.roles03
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
     - import_tasks: tasks/disable_apt_services.yml
