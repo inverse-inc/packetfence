@@ -1044,6 +1044,11 @@ configurator = enabled
 # Listen to netflow on all networks
 netflow_on_all_networks = disabled
 
+# advanced.netflow_kernel_module
+#
+# netflow_kernel_module
+netflow_kernel_module = enabled
+
 # advanced.accounting_timebucket_size
 #
 # Accounting timebucket size

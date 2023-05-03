@@ -41,12 +41,15 @@ if ($os eq 'rhel') {
 }
 
 sub _run {
-    if (!netflow_enabled()) {
+    my $logger = get_logger();
+    if (!netflow_enabled() || isdisabled($Config{advanced}{netflow_kernel_module})) {
+        $logger->info("netflow is disabled or the netflow kernel module is disabled");
+        system("/sbin/modprobe", "-r", "ipt_NETFLOW");
         return 0;
     }
 
     my $stderr = gensym;
-    my ($pid, $child_exit_status);;
+    my ($pid, $child_exit_status);
 
     system("/usr/sbin/dkms", "-q", "install", "-m", "ipt-netflow", "-v", $IPT_NETFLOW_VERSION);
     system("/sbin/modprobe", "ipt_NETFLOW");
@@ -64,8 +67,10 @@ sub _run {
     if ($child_exit_status) {
         my $error = <$stderr>;
         $error .= "kernel module ipt_NETFLOW is not configured or loaded";
-        get_logger()->error($error);
+        $logger->error($error);
         print STDERR "${error}\n";
+    } else {
+        $logger->info("the netflow kernel module is loaded");
     }
 
     close $stderr;

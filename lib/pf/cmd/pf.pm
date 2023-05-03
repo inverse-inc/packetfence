@@ -16,6 +16,7 @@ pfcmd <command> [options]
   cache                       | manage the cache subsystem
   checkup                     | perform a sanity checkup and report any problems
   class                       | view security event classes
+  confignetflow               | add or remove the ipt_NETFLOW kernel module based on the configuration
   configreload                | reload the configution
   connectionprofileconfig     | query/modify connection profile configuration parameters
   fingerbank                  | Fingerbank related commands
