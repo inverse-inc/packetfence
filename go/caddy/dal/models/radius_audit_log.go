@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
 	"github.com/jinzhu/gorm"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -54,6 +55,15 @@ type RadiusAuditLog struct {
 	Ctx *context.Context `json:"-" gorm:"-"`
 }
 
+func urldecode(s string) string {
+	s = strings.ReplaceAll(s, "=", "%")
+	unescaped, err := url.QueryUnescape(s)
+	if err != nil {
+		return s
+	}
+	return unescaped
+}
+
 func (r RadiusAuditLog) TableName() string {
 	return "radius_audit_log"
 }
@@ -85,6 +95,10 @@ func (a RadiusAuditLog) Paginated(vars sql.Vars) (DBRes, error) {
 		if db.Error != nil {
 			return DBRes{}, db.Error
 		}
+		for k, item := range items {
+			items[k].RadiusRequest = urldecode(item.RadiusRequest)
+			items[k].RadiusReply = urldecode(item.RadiusReply)
+		}
 		res.Items = items
 	}
 	return res, nil
@@ -115,6 +129,10 @@ func (a RadiusAuditLog) Search(vars sql.Vars) (DBRes, error) {
 		if db.Error != nil {
 			return DBRes{}, db.Error
 		}
+		for k, item := range items {
+			items[k].RadiusRequest = urldecode(item.RadiusRequest)
+			items[k].RadiusReply = urldecode(item.RadiusReply)
+		}
 		res.Items = items
 	}
 	return res, nil
@@ -127,6 +145,8 @@ func (a RadiusAuditLog) GetByID(id string) (DBRes, error) {
 	allFields := strings.Join(sql.SqlFields(a)[:], ",")
 	db := a.DB.Select(allFields).Where("`id` = ?", id).First(&item)
 	if db.Error == nil {
+		item.RadiusRequest = urldecode(item.RadiusRequest)
+		item.RadiusReply = urldecode(item.RadiusReply)
 		res.Item = item
 	}
 	return res, db.Error
