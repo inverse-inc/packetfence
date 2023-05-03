@@ -57,7 +57,7 @@ const components = {
   BaseSearch
 }
 
-import { computed, toRefs, watch } from '@vue/composition-api'
+import { computed, onBeforeUnmount, toRefs, watch } from '@vue/composition-api'
 import usePreference from '@/composables/usePreference'
 import { useNodesSearch } from '../_composables/useCollection'
 import icons from '@/assets/icons/fingerbank'
@@ -126,6 +126,8 @@ const setup = (props, context) => {
     }
     reSearch()
   }, { immediate: true })
+
+  onBeforeUnmount(() => search.requestInterceptor = r => r)
 
   const selectedDevices = computed(() => $store.state.$_fingerbank_communication.selectedDevices.value)
   const uniqueItems = computed(() => {
