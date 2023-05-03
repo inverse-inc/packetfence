@@ -210,7 +210,6 @@ sub listScanEngines {
 
     my $req = HTTP::Request->new(GET => $self->buildApiUri("scan_engines"));
     my $response = $self->doRequest($req);
-    
     return $response->is_success ? decode_json($response->decoded_content)->{"resources"} : undef;
 }
 
