@@ -192,6 +192,7 @@ rest {
 		attr_num = 'true'
 		raw_value ='true'
 		chunk = '8192'
+		timeout = 6.000000
 	}
 	pre-proxy {
 		uri = "${..connect_uri}/radius/rest/filter"
