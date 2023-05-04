@@ -1,10 +1,17 @@
 ---
 - name: Install Venom
   hosts: pfservers, service_venom
-  gather_facts: False
   become: True
+  gather_facts: False
+
   collections:
     - inverse_inc.utils
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   roles:
     - role: venom

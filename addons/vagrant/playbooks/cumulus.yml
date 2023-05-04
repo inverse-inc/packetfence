@@ -2,7 +2,7 @@
 - name: configure hostapd on Cumulus Linux
   hosts: cumulus
   become: true
-  gather_facts: no
+  gather_facts: False
   
   collections:
     - inverse_inc.cumulus

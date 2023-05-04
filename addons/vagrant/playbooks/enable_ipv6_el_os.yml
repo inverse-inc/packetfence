@@ -1,8 +1,13 @@
 - hosts: standalones
   name: Enable IPv6 in generic EL images
   become: True
-  gather_facts: True
-  gather_subset: ['!all']
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
     - name: Remove sysctl config defined in upstream Vagrant images

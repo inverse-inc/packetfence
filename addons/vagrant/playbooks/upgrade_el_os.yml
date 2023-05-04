@@ -1,9 +1,14 @@
 - hosts: pfservers
   name: upgrade EL OS to latest version
   become: True
-  gather_facts: True
-  gather_subset: ['!all']
+  gather_facts: False
   tags: upgrade
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
     - name: Install packages missing from EL images

@@ -1,11 +1,19 @@
 - hosts: pfservers, service_venom, nodes
   name: Get Venom logs on all VM
   become: True
+  gather_facts: False
   tags: logs
 
   vars:
     # result_dir = full path to 'results' directory at root of PF sources tree
     result_dir: '{{ lookup("env", "RESULT_DIR") }}'
+
+  pre_tasks:
+  - name: Gather min and network only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
+        - "network"
 
   tasks:
     - name: Sanitize logs
