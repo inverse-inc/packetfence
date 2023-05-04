@@ -29,12 +29,12 @@ our %METHODS_WITH_ID = (
 our %OPERATION_GENERATORS = (
     requestBody => {
         create  => "createRequestBody",
-        search  => sub { undef },
+        search  => "searchRequestBody",
         replace => "replaceRequestBody",
         update  => "updateRequestBody",
     },
     responses => {
-        search  => sub { undef },
+        search  => "searchResponses",
         list    => "listResponses",
         get     => "getResponses",
         replace => "replaceResponses",
@@ -43,6 +43,10 @@ our %OPERATION_GENERATORS = (
         create  => "createResponses",
         options => "metaResponses",
         resource_options => "metaResponses",
+        bulk_update => "getResponses",
+        bulk_delete => "getResponses",
+        bulk_import => "getResponses",
+        sort_items => "getResponses",
     },
     parameters => {
         (
@@ -53,19 +57,19 @@ our %OPERATION_GENERATORS = (
     description => {
         (
             map { $_ => "operationDescription" }
-              qw(create search list options get replace update remove resource_options)
+              qw(create search list bulk_update bulk_delete bulk_import sort_items options get replace update remove resource_options)
         )
     },
     operationId => {
         (
             map { $_ => "operationId" }
-              qw(create search list options get replace update remove resource_options)
+              qw(create search list bulk_update bulk_delete bulk_import sort_items options get replace update remove resource_options)
         )
     },
     tags => {
         (
             map { $_ => "operationTags" }
-              qw(create search list options get replace update remove resource_options)
+              qw(create search list bulk_update bulk_delete bulk_import sort_items options get replace update remove resource_options)
         )
     }
 );
@@ -75,20 +79,26 @@ sub operation_generators {
 }
 
 my %OPERATION_DESCRIPTIONS = (
-    search => 'Search items',
-    list    => 'List items',
-    remove  => 'Delete an item',
-    create  => 'Create an item',
-    get     => 'Get an item',
-    replace => 'Replace an item',
-    update  => 'Update an item',
-    options => 'Get meta of an item'
+    create  => 'Create an item.',
+    search => 'Search items.',
+    list    => 'List items.',
+    bulk_update => 'Update items.',
+    bulk_delete => 'Delete items.',
+    bulk_import => 'Create items.',
+    sort_items => 'Sort items.',
+    remove  => 'Delete an item.',
+    get     => 'Get an item.',
+    replace => 'Replace an item.',
+    update  => 'Update an item.',
+    options => 'Get item meta.',
+    resource_options => 'Get item meta.'
 );
 
 sub resourceParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
     my $parameter = $self->path_parameter($c->primary_key);
+    $parameter->{description} = 'Unique resource identifier.';
     if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
         my $ini = Config::IniFiles->new(
             -file => $c->config_store->importConfigFile,
@@ -161,8 +171,14 @@ The OpenAPI Operation Repsonses for the create action
 sub createResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
+        "201" => {
+            "\$ref" => "#/components/responses/Message"
+        },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
+        },
+        "409" => {
+            "\$ref" => "#/components/responses/Duplicate"
         },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
@@ -180,7 +196,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "List",
+            description => "List items.",
             content => {
                 "application/json" => {
                     schema => {
@@ -198,6 +214,17 @@ sub listResponses {
     };
 }
 
+=head2 searchResponses
+
+The OpenAPI Operation Repsonses for the search action
+
+=cut
+
+sub searchResponses {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->listResponses($scope, $c, $m, $a);
+}
+
 =head2 metaResponses
 
 The OpenAPI Operation Repsonses for the meta action
@@ -208,7 +235,7 @@ sub metaResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "Meta",
+            description => "Get item meta.",
             content => {
                 "application/json" => {
                     schema => {
@@ -230,11 +257,11 @@ sub getResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "Item",
+            description => "Get item.",
             content => {
                 "application/json" => {
                     schema => {
-                        "\$ref" => "#" . $self->schemaItemPath($c),
+                        "\$ref" => "#" . $self->schemaItemWrappedPath($c),
                     }
                 }
             },
@@ -245,42 +272,6 @@ sub getResponses {
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
-    };
-}
-
-=head2 generateSchemas
-
-generate schemas for controller
-
-=cut
-
-sub generateSchemas {
-    my ($self, $controller, $actions) = @_;
-    my $list_path = $self->schemaListPath($controller);
-    my $item_path = $self->schemaItemPath($controller);
-    my $meta_path = $self->schemaMetaPath($controller);
-    my @forms = buildForms($controller);
-    return {
-        $list_path => {
-            description => "List",
-            allOf => [
-                { '$ref' => "#/components/schemas/Iterable" },
-                {
-                    "properties" => {
-                        "items" => {
-                            "items" => {
-                                "\$ref" => "#$item_path",
-                            },
-                            "type" => "array",
-                            "description" => "List",
-                        },
-                    },
-                    "type" => "object"
-                },
-            ],
-        },
-        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms),
-        $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
     };
 }
 
@@ -314,6 +305,9 @@ The OpenAPI Operation Repsonses for the update action
 sub updateResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
+        "201" => {
+            "\$ref" => "#/components/responses/Updated"
+        },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
         },
@@ -332,9 +326,62 @@ The OpenAPI Operation Repsonses for the remove action
 sub removeResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
-        '204' => {
-            description => 'Deleted a config item'
+        '200' => {
+            "\$ref" => "#/components/responses/Deleted"
+        },
+        '404' => {
+            "\$ref" => "#/components/responses/NotFound"
         }
+    };
+}
+
+=head2 generateSchemas
+
+generate schemas for controller
+
+=cut
+
+sub generateSchemas {
+    my ($self, $controller, $actions) = @_;
+    my $list_path = $self->schemaListPath($controller);
+    my $item_path = $self->schemaItemPath($controller);
+    my $item_wrapped_path = $self->schemaItemWrappedPath($controller);
+    my $meta_path = $self->schemaMetaPath($controller);
+    my @forms = buildForms($controller);
+    return {
+        $list_path => {
+            description => "List items.",
+            allOf => [
+                { '$ref' => "#/components/schemas/Iterable" },
+                {
+                    "properties" => {
+                        "items" => {
+                            "items" => {
+                                "\$ref" => "#$item_path",
+                            },
+                            "type" => "array",
+                            "description" => "List",
+                        },
+                    },
+                    "type" => "object"
+                },
+            ],
+        },
+        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms),
+        $item_wrapped_path => {
+            description => "Get an item.",
+            type => "object",
+            properties => {
+                item => {
+                    "\$ref" => "#$item_path"
+                },
+                status => {
+                    description => "Response status.",
+                    type => "integer"
+                }
+            }
+        },
+        $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
     };
 }
 
@@ -363,6 +410,69 @@ sub buildForms {
     }
 
     return map { $_->new() } @form_classes;
+}
+
+=head2 searchRequestBody
+
+The OpenAPI Operation RequestBody for the search action
+
+=cut
+
+sub searchRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        description => "Search for items.",
+        content => {
+            "application/json" => {
+                schema => {
+                    allOf => [
+                        {
+                            "\$ref" => "#/components/schemas/Search"
+                        },
+                        {
+                            required => [ 'fields' ],
+                            properties => {
+                                cursor => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'string',
+                                },
+                                fields => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+#                                        enum => \@$fields,
+                                    },
+                                },
+                                limit => {
+                                    required => JSON::MaybeXS::false,
+                                    type => 'integer',
+                                    minimum => 1,
+                                    maximum => 1000,
+                                },
+                                sort => {
+                                    required => JSON::MaybeXS::true,
+                                    type => 'array',
+                                    items => {
+                                        type => 'string',
+#                                        enum => \@$sorts,
+                                    },
+                                }
+                            }
+                        },
+
+                    ],
+                },
+                example => {
+                    cursor => 0,
+#                    fields => \@$fields,
+                    limit => 25,
+#                    sort => [ $pk.' ASC' ],
+#                    query => $query,
+                }
+            }
+        }
+    };
 }
 
 =head2 createRequestBody
@@ -425,9 +535,9 @@ generate Path excluding search
 
 sub generatePath {
     my ($self, $controller, $actions) = @_;
-    if (@$actions == 1 && $actions->[0]{action} eq 'search') {
-        return undef;
-    }
+    # if (@$actions == 1 && $actions->[0]{action} eq 'search') {
+    #     return undef;
+    # }
 
     return $self->SUPER::generatePath($controller, $actions);
 }

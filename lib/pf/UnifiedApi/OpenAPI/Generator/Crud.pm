@@ -107,10 +107,6 @@ sub createOperationParameters {
 
 sub searchOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
-            # $self->allOf([$self->dalToOpFields($c->dal), { in => 'query' }]),
-            # $self->allOf([$self->dalToOpSort($c->dal), { in => 'query' }]),
-            # $self->allOf([$self->dalToOpLimit($c->dal), { in => 'query' }]),
-            # $self->allOf([$self->dalToOpCursor($c->dal), { in => 'query' }]),
     return $self->operationParameters( $scope, $c, $m, $a );
 }
 
@@ -282,6 +278,7 @@ sub dalToOpCursor {
         name => 'cursor',
         schema => {
             type => 'string',
+            example => '0'
         },
         description => 'Unique identifier to offset the paginated items using `sort` and `limit` (from `nextCursor` or `previousCursor`).',
         summary => 'foobar'
@@ -428,7 +425,7 @@ sub searchRequestBody {
     my $sorts = $self->dalToSorts($c->dal);
     my $query = $self->dalToExampleQuery($c->dal);
     return {
-        description => "Search for items",
+        description => "Search for items.",
         content => {
             "application/json" => {
                 schema => {
