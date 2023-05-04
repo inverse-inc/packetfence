@@ -32,6 +32,7 @@ generate the OpenAPI Path
 sub generatePath {
     my ($self, $controller, $actions) = @_;
     my %path = $self->operations($controller, $actions);
+
     if (!keys %path) {
         return undef;
     }
@@ -411,6 +412,24 @@ sub schemaItemPath {
     my $singular = $noun->singular;
     my $prefix = "/components/schemas";
     return join('/', $prefix, join("", @paths, $singular));
+}
+
+=head2 schemaItemWrappedPath
+
+schema Item Path
+
+=cut
+
+sub schemaItemWrappedPath {
+    my ($self, $controller) = @_;
+    my $class = ref ($controller) || $controller;
+    $class =~ s/pf::UnifiedApi::Controller:://;
+    my @paths = split('::', $class);
+    my $name = pop @paths;
+    my $noun = noun($name);
+    my $singular = $noun->singular;
+    my $prefix = "/components/schemas";
+    return join('/', $prefix, join("", @paths, "${singular}Wrapped"));
 }
 
 =head2 schemaListPath

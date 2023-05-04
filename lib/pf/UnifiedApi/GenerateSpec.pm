@@ -29,7 +29,8 @@ sub formHandlerToSchema {
     $name =~ s/^.*:://;
     return {
         $name => objectSchema($form),
-        "${name}List" => listSchema($name)
+        "${name}List" => listSchema($name),
+        "${name}Meta" => metaSchema($name),
     };
 }
 
@@ -82,19 +83,32 @@ sub formHandlerProperties {
     return \%properties;
 }
 
+sub subTypesMetaSchema {
+    my (@forms) = @_;
+    return {
+        oneOf => [
+            map { metaSchema($_) } @forms
+        ],
+        discriminator => {
+            propertyName => 'type',
+        }
+    };
+}
+
 sub formsToMetaSchema {
     my ($forms) = @_;
     if (@$forms == 1) {
         return metaSchema(@$forms);
     }
 
-    return subTypesSchema(@$forms);
+    return subTypesMetaSchema(@$forms);
 }
+
 
 sub metaSchema {
     my ($form) = @_;
     return {
-        type       => 'object',
+        type => 'object',
         properties => {
             meta => {
                 type => 'object',
