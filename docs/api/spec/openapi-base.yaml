@@ -10,6 +10,12 @@ info:
   license:
     name: GNU General Public License v2.0
 
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
 paths: {}
 
 components: {}
