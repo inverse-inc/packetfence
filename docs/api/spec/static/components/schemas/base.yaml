@@ -2,29 +2,39 @@ Message:
   type: object
   properties:
     message:
-      description: A meaninful user readable message about what happened
+      description: A descriptive message for the user.
       type: string
-      
+    status:
+      description: Response code for item.
+      type: integer
+
+
 ErrorsWithMessage:
   type: object
   properties:
     message:
+      description: A descriptive message for the user.
       type: string
     errors:
+      description: Array of errors.
       type: array
       items:
+        description: An individual error.
         type: object
-      
+    status:
+      description: Response code for item.
+      type: integer
+
 Iterable:
   type: object
   properties:
     previousCursor:
-      description: The cursor to access the data before the one returned in the response
+      description: The cursor to access paginated data for the previous page.
       type: string
     nextCursor:
-      description: The cursor to access the data after the one returned in the response
+      description: The cursor to access paginated data for the next page.
       type: string
     total_count:
-      type: int
-      description: The total count of the query
+      type: integer
+      description: The total count of the query.
 
