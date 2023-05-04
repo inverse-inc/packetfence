@@ -37,7 +37,7 @@ our %OPERATION_GENERATORS = (
     parameters => {
         (
             map { $_ => "${_}OperationParameters" }
-              qw(create list get replace update remove)
+              qw(create list get search replace update remove)
         )
     },
     description => {
@@ -57,7 +57,8 @@ our %OPERATION_GENERATORS = (
             map { $_ => "operationTags" }
               qw(create search list get replace update remove)
         )
-    }
+    },
+
 );
 
 sub operation_generators {
@@ -287,6 +288,16 @@ sub dalToOpCursor {
     };
 }
 
+sub dalToExampleQuery {
+    my ($self, $dal) = @_;
+    my $meta = $dal->get_meta();
+    my $values = [];
+    while (my ($key, $value) = each %$meta) {
+        push @$values, { field => $key, op => 'contains', value => 'foo' };
+    }
+    return { op => 'and', values => [ { op => 'or', values => \@$values } ] };
+}
+
 sub operationParametersLookup {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
@@ -412,8 +423,10 @@ The OpenAPI Operation RequestBody for the search action
 
 sub searchRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
+    my $pk = $self->dalToPK($c->dal);
     my $fields = $self->dalToFields($c->dal);
     my $sorts = $self->dalToSorts($c->dal);
+    my $query = $self->dalToExampleQuery($c->dal);
     return {
         description => "Search for items",
         content => {
@@ -458,8 +471,11 @@ sub searchRequestBody {
                     ],
                 },
                 example => {
+                    cursor => 0,
                     fields => \@$fields,
                     limit => 25,
+                    sort => [ $pk.' ASC' ],
+                    query => $query,
                 }
             }
         }

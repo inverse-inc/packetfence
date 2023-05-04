@@ -245,7 +245,7 @@ sub operation {
     my %op = (
         responses => $responses
     );
-    for my $scope (qw(tags summary description externalDocs operationId parameters requestBody callbacks deprecated security servers)) {
+    for my $scope (qw(tags summary description externalDocs operationId parameters requestBody callbacks deprecated security servers consumes produces)) {
         if (defined(my $value = $self->operation_generation($scope, $c, $m, $action))) {
             $op{$scope} = $value;
         }
@@ -353,7 +353,9 @@ operation Parameters
 
 sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
-    return $self->performLookup($self->operationParametersLookup($scope, $c, $m, $a), $a->{action}, []);
+    my @parameters = @{ $self->performLookup($self->operationParametersLookup($scope, $c, $m, $a), $a->{action}, [])};
+    push @parameters, { "\$ref" => '#/components/parameters/X-PacketFence-Server' };
+    return \@parameters;
 }
 
 =head2 operationDescription
