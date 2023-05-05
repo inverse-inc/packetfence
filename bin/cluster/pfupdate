@@ -13,10 +13,12 @@ use Getopt::Long;
 use pf::util;
 
 my $mode;
+my $vip;
 my $custom_script_path = '/usr/local/bin/pfupdate-packetfence.sh';
 
 GetOptions(
     "mode=s" => \$mode,
+    "vip=s" => \$vip,
 ) ;
 
 if (! ($mode =~ /^master|slave$/)) {
@@ -26,6 +28,6 @@ if (! ($mode =~ /^master|slave$/)) {
 pf_run("pkill -1 pfdhcplistener");
 
 if (-e "$custom_script_path" && -x "$custom_script_path") {
-    print "Running custom script\n";
-    pf_run("$custom_script_path $mode");
+    print "Running $custom_script_path\n";
+    pf_run("$custom_script_path $mode $vip");
 }
