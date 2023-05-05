@@ -190,7 +190,7 @@ sub _connect {
     my $password = $self->{_wsPwd};
 
     my $ua = LWP::UserAgent->new();
-    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
+    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt", autosave => 1, });
     $ua->ssl_opts(verify_hostname => 0);
     $ua->timeout(10);
     $ua->default_header('Content-Type' => "application/json");
