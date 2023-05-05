@@ -17,6 +17,7 @@ EOT
 disconnect=<<EOT
 Calling-Station-Id = ${macToEUI48($mac)}
 NAS-IP-Address = $disconnectIp
+Acct-Session-Id = $last_accounting.acctsessionid
 EOT
 voip = <<EOT
 Tunnel-Medium-Type  = 6
