@@ -34,25 +34,34 @@ our %OPERATION_GENERATORS = (
         update  => "updateRequestBody",
     },
     responses => {
+        create  => "createResponses",
         search  => "searchResponses",
         list    => "listResponses",
-        get     => "getResponses",
-        replace => "replaceResponses",
-        update  => "updateResponses",
-        remove  => "removeResponses",
-        create  => "createResponses",
         options => "metaResponses",
-        resource_options => "metaResponses",
         bulk_update => "getResponses",
         bulk_delete => "getResponses",
         bulk_import => "getResponses",
         sort_items => "getResponses",
+        get     => "getResponses",
+        replace => "replaceResponses",
+        update  => "updateResponses",
+        remove  => "removeResponses",
+        resource_options => "metaResponses",
     },
     parameters => {
-        (
-            map { $_ => "${_}OperationParameters" }
-              qw(create search list get replace update remove resource_options)
-        )
+        create  => "operationParameters",
+        search  => "operationParameters",
+        list    => "operationParameters",
+        options => "operationParameters",
+        bulk_update => "operationParameters",
+        bulk_delete => "operationParameters",
+        bulk_import => "operationParameters",
+        sort_items => "operationParameters",
+        get     => "resourceParameters",
+        replace => "resourceParameters",
+        update  => "resourceParameters",
+        remove  => "resourceParameters",
+        resource_options => "resourceParameters",
     },
     description => {
         (
@@ -78,27 +87,11 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
-my %OPERATION_DESCRIPTIONS = (
-    create  => 'Create an item.',
-    search => 'Search items.',
-    list    => 'List items.',
-    bulk_update => 'Update items.',
-    bulk_delete => 'Delete items.',
-    bulk_import => 'Create items.',
-    sort_items => 'Sort items.',
-    remove  => 'Delete an item.',
-    get     => 'Get an item.',
-    replace => 'Replace an item.',
-    update  => 'Update an item.',
-    options => 'Get item meta.',
-    resource_options => 'Get item meta.'
-);
-
 sub resourceParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     my $parameters = $self->operationParameters( $scope, $c, $m, $a );
     my $parameter = $self->path_parameter($c->primary_key);
-    $parameter->{description} = 'Unique resource identifier.';
+    $parameter->{description} = '`PRIMARY KEY`';
     if (ref($c) =~ /Config::.*(?<!Subtype)$/ && $c->config_store->importConfigFile) {
         my $ini = Config::IniFiles->new(
             -file => $c->config_store->importConfigFile,
@@ -113,58 +106,9 @@ sub resourceParameters {
     return $parameters;
 }
 
-sub createOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub searchOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub listOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub optionsOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->operationParameters( $scope, $c, $m, $a );
-}
-
-sub getOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resourceParameters( $scope, $c, $m, $a );
-}
-
-sub replaceOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resourceParameters( $scope, $c, $m, $a );
-}
-
-sub updateOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resourceParameters( $scope, $c, $m, $a );
-}
-
-sub removeOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resourceParameters( $scope, $c, $m, $a );
-}
-
-sub resource_optionsOperationParameters {
-    my ( $self, $scope, $c, $m, $a ) = @_;
-    return $self->resourceParameters( $scope, $c, $m, $a );
-}
-
-sub operationDescriptionsLookup {
-    return \%OPERATION_DESCRIPTIONS;
-}
-
 =head2 createResponses
 
-The OpenAPI Operation Repsonses for the create action
+The OpenAPI Operation Responses for the create action
 
 =cut
 
@@ -172,10 +116,13 @@ sub createResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "201" => {
-            "\$ref" => "#/components/responses/Message"
+            "\$ref" => "#/components/responses/Created"
         },
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
         },
         "409" => {
             "\$ref" => "#/components/responses/Duplicate"
@@ -188,7 +135,7 @@ sub createResponses {
 
 =head2 listResponses
 
-The OpenAPI Operation Repsonses for the list action
+The OpenAPI Operation Responses for the list action
 
 =cut
 
@@ -196,7 +143,7 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "List items.",
+            description => 'Request successful. Response contains a list of resources.',
             content => {
                 "application/json" => {
                     schema => {
@@ -208,6 +155,9 @@ sub listResponses {
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
         },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
@@ -216,7 +166,7 @@ sub listResponses {
 
 =head2 searchResponses
 
-The OpenAPI Operation Repsonses for the search action
+The OpenAPI Operation Responses for the search action
 
 =cut
 
@@ -227,7 +177,7 @@ sub searchResponses {
 
 =head2 metaResponses
 
-The OpenAPI Operation Repsonses for the meta action
+The OpenAPI Operation Responses for the meta action
 
 =cut
 
@@ -235,7 +185,7 @@ sub metaResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "Get item meta.",
+            description => 'Request successful. Response contains meta for a resource.',
             content => {
                 "application/json" => {
                     schema => {
@@ -243,6 +193,9 @@ sub metaResponses {
                     }
                 }
             },
+        },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
         },
     };
 }
@@ -257,7 +210,7 @@ sub getResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "Get item.",
+            description => 'Request successful. Response contains a specific resource.',
             content => {
                 "application/json" => {
                     schema => {
@@ -269,6 +222,9 @@ sub getResponses {
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
         },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
@@ -277,7 +233,7 @@ sub getResponses {
 
 =head2 replaceResponses
 
-The OpenAPI Operation Repsonses for the replace action
+The OpenAPI Operation Responses for the replace action
 
 =cut
 
@@ -290,6 +246,9 @@ sub replaceResponses {
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
         },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
@@ -298,7 +257,7 @@ sub replaceResponses {
 
 =head2 updateResponses
 
-The OpenAPI Operation Repsonses for the update action
+The OpenAPI Operation Responses for the update action
 
 =cut
 
@@ -311,6 +270,9 @@ sub updateResponses {
         "400" => {
             "\$ref" => "#/components/responses/BadRequest"
         },
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
@@ -319,17 +281,20 @@ sub updateResponses {
 
 =head2 removeResponses
 
-The OpenAPI Operation Repsonses for the remove action
+The OpenAPI Operation Responses for the remove action
 
 =cut
 
 sub removeResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
-        '200' => {
+        "200" => {
             "\$ref" => "#/components/responses/Deleted"
         },
-        '404' => {
+        "401" => {
+            "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
             "\$ref" => "#/components/responses/NotFound"
         }
     };
@@ -350,33 +315,29 @@ sub generateSchemas {
     my @forms = buildForms($controller);
     return {
         $list_path => {
-            description => "List items.",
             allOf => [
                 { '$ref' => "#/components/schemas/Iterable" },
                 {
-                    "properties" => {
-                        "items" => {
-                            "items" => {
+                    properties => {
+                        items => {
+                            items => {
                                 "\$ref" => "#$item_path",
                             },
-                            "type" => "array",
-                            "description" => "List",
+                            type => "array",
                         },
                     },
-                    "type" => "object"
+                    type => "object"
                 },
             ],
         },
         $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms),
         $item_wrapped_path => {
-            description => "Get an item.",
             type => "object",
             properties => {
                 item => {
                     "\$ref" => "#$item_path"
                 },
                 status => {
-                    description => "Response status.",
                     type => "integer"
                 }
             }
@@ -395,6 +356,9 @@ sub buildForms {
     my ($controller, $child) = @_;
     my @form_classes;
     if ( $controller->can("type_lookup") ) {
+
+print Data::Dumper->Dump([keys %{ $controller->type_lookup }]);
+
         @form_classes = values %{ $controller->type_lookup };
     } else {
         my $form_class = $controller->form_class;

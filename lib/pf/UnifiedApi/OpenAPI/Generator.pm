@@ -332,8 +332,36 @@ operation Descriptions Lookup
 
 =cut
 
+my %OPERATION_DESCRIPTIONS = (
+    create  => 'Create a new item.',
+    search => 'Search all items.',
+    list    => 'List all items.',
+    options => 'Get meta for a new item.',
+    sort_items => 'Sort items.',
+
+    bulk_update => 'Update one or more items.',
+    bulk_delete => 'Delete one or more items.',
+    bulk_import => 'Create one or more items.',
+    remove  => 'Delete an item.',
+    get     => 'Get an item.',
+    replace => 'Replace an item.',
+    update  => 'Update an item.',
+    resource_options => 'Get meta for an item.',
+);
+
 sub operationDescriptionsLookup {
-    undef
+    return \%OPERATION_DESCRIPTIONS;
+}
+
+=head2 operationDescription
+
+operationDescription
+
+=cut
+
+sub operationDescription {
+    my ($self, $scope, $c, $m, $a) = @_;
+    return $self->performLookup($self->operationDescriptionsLookup, $a->{action}, undef);
 }
 
 =head2 operationParametersLookup
@@ -357,17 +385,6 @@ sub operationParameters {
     my @parameters = @{ $self->performLookup($self->operationParametersLookup($scope, $c, $m, $a), $a->{action}, [])};
     push @parameters, { "\$ref" => '#/components/parameters/X-PacketFence-Server' };
     return \@parameters;
-}
-
-=head2 operationDescription
-
-operationDescription
-
-=cut
-
-sub operationDescription {
-    my ($self, $scope, $c, $m, $a) = @_;
-    return $self->performLookup($self->operationDescriptionsLookup, $a->{action}, undef);
 }
 
 =head2 operationId
@@ -467,9 +484,10 @@ sub schemaMetaPath {
 sub path_parameter {
     my ($self, $name, $description) = @_;
     return {
-        in     => 'path',
-        schema => { type => 'string' },
-        name   => $name,
+        description => '`PRIMARY KEY`',
+        in          => 'path',
+        schema      => { type => 'string' },
+        name        => $name,
         (defined $description ? (description => $description) : ()),
     };
 }
