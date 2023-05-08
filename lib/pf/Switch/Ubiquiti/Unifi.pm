@@ -208,7 +208,7 @@ sub _connect {
         $base_url .= ":8443";
     }
 
-    my $cache = $self->cache_distributed;
+    my $cache = $self->cache;
 
     my $auth = $cache->get("Ubiquiti-" . $self->{_id} ."-auth");
     if (!defined($auth) || $auth == $FALSE) {
