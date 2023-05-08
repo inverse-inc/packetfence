@@ -65,16 +65,6 @@ sub operation_generators {
     \%OPERATION_GENERATORS;
 }
 
-my %OPERATION_DESCRIPTIONS = (
-    remove  => 'Delete an item',
-    create  => 'Create an item',
-    list    => 'List items',
-    get     => 'Get an item',
-    replace => 'Replace an item',
-    update  => 'Update an item',
-    remove  => 'Remove an item',
-);
-
 =head2 operationParameters
 
 operationParameters
@@ -133,10 +123,6 @@ sub updateOperationParameters {
 sub removeOperationParameters {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return $self->resoureParameters( $scope, $c, $m, $a );
-}
-
-sub operationDescriptionsLookup {
-    return \%OPERATION_DESCRIPTIONS;
 }
 
 my %SQLTYPES_TO_OPENAPI = (
@@ -281,7 +267,6 @@ sub dalToOpCursor {
             example => '0'
         },
         description => 'Unique identifier to offset the paginated items using `sort` and `limit` (from `nextCursor` or `previousCursor`).',
-        summary => 'foobar'
     };
 }
 
@@ -318,11 +303,9 @@ sub getResponses {
     my ($self, $scope, $c, $m, $a) = @_;
     return {
         "200" => {
-            description => "Get item",
             content => {
                 "application/json" => {
                     schema => {
-                        description => "Item",
                         properties => {
                             item => {
                                 "\$ref" => "#" . $self->schemaItemPath($c),
@@ -352,7 +335,7 @@ sub removeResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         '204' => {
-            description => 'Item deleted',
+            description => 'Item deleted.',
         }
     };
 }
@@ -366,7 +349,6 @@ The OpenAPI Operation RequestBody for the create action
 sub createRequestBody {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
-        description => "Create item",
         "content" => {
             "application/json" => {
                 "schema" => {
@@ -425,7 +407,6 @@ sub searchRequestBody {
     my $sorts = $self->dalToSorts($c->dal);
     my $query = $self->dalToExampleQuery($c->dal);
     return {
-        description => "Search for items.",
         content => {
             "application/json" => {
                 schema => {
@@ -489,7 +470,6 @@ sub listResponses {
     my ( $self, $scope, $c, $m, $a ) = @_;
     return {
         "200" => {
-            description => "List",
             content => {
                 "application/json" => {
                     schema => {
@@ -676,7 +656,7 @@ sub generateListSchema {
                             "\$ref" => "#" . $self->schemaItemPath($controller),
                         },
                         "type" => "array",
-                        "description" => "Items",
+                        "description" => "Items.",
                     }
                 },
                 "type" => "object"
