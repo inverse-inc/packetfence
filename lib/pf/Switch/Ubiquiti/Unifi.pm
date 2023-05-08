@@ -210,16 +210,16 @@ sub _connect {
 
     my $cache = $self->cache;
 
-    my $auth = $cache->get("Ubiquiti-" . $self->{_id} ."-auth");
+    my $auth = $cache->get("Ubiquiti-" . $controllerIp ."-auth");
     if (!defined($auth) || $auth == $FALSE) {
         $response = $ua->post($base_url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
 
         unless($response->is_success) {
             $logger->error("Can't login on the Unifi controller: ".$response->status_line);
-            $cache->set("Ubiquiti-" . $self->{_id} ."-auth" , $FALSE );
+            $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $FALSE );
             die;
         }
-        $cache->set("Ubiquiti-" . $self->{_id} ."-auth" , $TRUE ,{ expires_in => "10m" } );
+        $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $TRUE ,{ expires_in => "10m" } );
     }
     return ($ua, $base_url.$api_prefix);
 }
