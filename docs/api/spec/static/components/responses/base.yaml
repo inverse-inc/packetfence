@@ -1,5 +1,5 @@
 Created:
-  description: Resource was successfully created.
+  description: Request successful. A new resource was created.
   content:
     application/json:
       schema:
@@ -10,19 +10,19 @@ Created:
         type: string
       description: The location of the created resource.
 Deleted:
-  description: Resource was successfully deleted
+  description: Request successful. An exisiting resource was deleted.
   content:
     application/json:
       schema:
         $ref: "#/components/schemas/Message"
 Updated:
-  description: Resource was successfully updated.
+  description: Request successful. Resource was updated.
   content:
     application/json:
       schema:
         $ref: "#/components/schemas/Message"
 Message:
-  description: A response that contains a simple message.
+  description: Request successful. Response contains a simple message.
   content:
     application/json:
       schema:
