@@ -17,7 +17,7 @@
     </style>
   </head>
   <body>
-    <div id="swagger-ui"></div>
+    <div id="swagger-ui" />
     <script src="https://unpkg.com/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js" crossorigin></script>
     <script>
       let token = null
@@ -37,7 +37,7 @@
           url: '/static/doc/api/spec/openapi.json',
           dom_id: '#swagger-ui',
           defaultModelsExpandDepth: 99,
-          defaultModelExpandDepth: 99,
+          defaultModelExpandDepth: 3,
           docExpansion: 'none',
           jsonEditor: true,
           jsonEditorOptions: {
