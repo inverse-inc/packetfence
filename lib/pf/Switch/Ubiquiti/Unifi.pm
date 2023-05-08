@@ -200,7 +200,7 @@ sub _connect {
 
     my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
 
-    my $cache = $self->cache_distributed;
+    my $cache = $self->cache;
 
     my $auth = $cache->get("Ubiquiti-" . $self->{_id} ."-auth");
     if (!defined($auth) || $auth == $FALSE) {
