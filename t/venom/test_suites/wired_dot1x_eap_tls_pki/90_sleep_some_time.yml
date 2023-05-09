@@ -3,4 +3,4 @@ testcases:
 - name: sleep_some_time
   steps:
   - type: sleep
-    time_to_sleep: 20
+    time_to_sleep: 40
