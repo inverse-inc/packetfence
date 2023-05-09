@@ -1,0 +1,7 @@
+service:
+  name: service
+  in: path
+  required: true
+  description: Service unique identifier
+  schema:
+    type: string

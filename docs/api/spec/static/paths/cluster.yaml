@@ -1,4 +1,4 @@
-/cluster/servers:
+/api/v1/cluster/servers:
   get:
     summary: Returns a list of the servers in the cluster
     responses:
@@ -8,5 +8,6 @@
           application/json:
             schema:
               $ref: "#/components/schemas/ClusterServers"
-
+    tags:
+      - $Cluster
 

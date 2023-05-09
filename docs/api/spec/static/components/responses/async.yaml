@@ -1,0 +1,13 @@
+Async:
+  description: Request successful. A new asyncrounous task was created.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          task_id:
+            description: A unique identifier for the asyncronous task.
+            type: string
+          status:
+            description: Response code.
+            type: integer

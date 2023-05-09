@@ -1,0 +1,9 @@
+Async:
+  type: object
+  properties:
+    async:
+      description: Run the task asyncronously.
+      type: boolean
+      enum:
+        - true
+        - false

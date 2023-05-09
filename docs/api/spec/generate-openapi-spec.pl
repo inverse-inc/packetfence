@@ -5,6 +5,7 @@ use warnings;
 
 use lib qw(/usr/local/pf/lib /usr/local/pf/lib_perl/lib/perl5);
 use pf::file_paths qw($install_dir);
+use pf::services;
 use File::Find;
 use File::Slurp qw(read_file write_file);
 use Data::Dumper;
@@ -39,6 +40,8 @@ common_parameters(
 );
 
 insert_search_parameters($spec);
+
+$spec->{components}->{parameters}->{service}->{schema}->{enum} = [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ];
 
 YAML::XS::DumpFile("$base_path/openapi.yaml", $spec);
 

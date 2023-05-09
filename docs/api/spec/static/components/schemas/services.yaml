@@ -6,26 +6,59 @@ ServicesList:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/ServiceName"
-            
-ServiceName:
-  type: string
+            $ref: "#/components/schemas/Service"
 
 Service:
+  description: Service unique identifier.
+  type: string
+
+ServicesStatus:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/ServiceStatus"
+    status:
+      $ref: "#/components/schemas/Status"
+
+ServiceStatus:
   type: object
   properties:
     alive:
+      description: Service is running.
       type: integer
-      description: Whether the service is alive or not.
-    managed:
-      type: integer
-      description: Whether the service is managed or not.
+      enum:
+        - 0
+        - 1
     enabled:
+      description: Service is enabled.
       type: integer
-      description: Whether the service is enabled or not.
+      enum:
+        - 0
+        - 1
+    id:
+      description: Unique identifier.
+      type: string
+    managed:
+      description: Service is managed.
+      type: integer
+      enum:
+        - 0
+        - 1
     pid:
+      description: Process identifier.
       type: integer
-      description: The service PID.
+
+ServiceAsync:
+  type: object
+  properties:
+    task_id:
+      description: A unique identifier for the asyncronous task.
+      type: string
+    status:
+      description: Response code for item.
+      type: integer
 
 ServiceStart:
   type: object
@@ -36,6 +69,11 @@ ServiceStart:
     start:
       type: integer
       description: Whether the service was started or not.
+      enum:
+        - 0
+        - 1
+    status:
+      $ref: "#/components/schemas/Status"
 
 ServiceStop:
   type: object
@@ -43,6 +81,11 @@ ServiceStop:
     stop:
       type: integer
       description: Whether the service was stopped or not.
+      enum:
+        - 0
+        - 1
+    status:
+      $ref: "#/components/schemas/Status"
 
 ServiceRestart:
   type: object
@@ -53,17 +96,32 @@ ServiceRestart:
     restart:
       type: integer
       description: Whether the service was restarted or not.
+      enum:
+        - 0
+        - 1
+    status:
+      $ref: "#/components/schemas/Status"
 
 ServiceEnable:
   type: object
   properties:
-    start:
+    enable:
       type: integer
       description: Whether the service was enabled or not.
+      enum:
+        - 0
+        - 1
+    status:
+      $ref: "#/components/schemas/Status"
 
 ServiceDisable:
   type: object
   properties:
-    start:
+    disable:
       type: integer
       description: Whether the service was disabled or not.
+      enum:
+        - 0
+        - 1
+    status:
+      $ref: "#/components/schemas/Status"
