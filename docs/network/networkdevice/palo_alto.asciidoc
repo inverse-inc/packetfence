@@ -1,0 +1,51 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Network_Devices_Configuration_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//=== Palo Alto firewall
+
+==== Palo Alto (PAN-OS) web admin access
+
+You can manage administrator access (through web admin) to Palo Alto firewalls using RADIUS.
+
+===== Palo Alto
+
+You can follow link:https://docs.paloaltonetworks.com/pan-os/10-1/pan-os-admin/authentication/configure-radius-authentication[Palo Alto official documentation]
+with following adjustments to integrate with PacketFence:
+
+* Administrator Use only: `enabled`
+* Authentication Protocol: `PAP`
+* Retrieve user group from RADIUS: `disabled`. You need to speficy `all` in the Allow List of the authentication profile.
+
+At some point, you will need to configure two admin role profiles (which are preconfigured in PacketFence):
+
+* `read_only_role`: you need to adjust permissions to provide read only access to firewall configuration
+* `read_write_role`: you need to adjust permissions to provide read-write access to firewall configuration
+
+
+===== PacketFence
+
+You need to declare your Palo Alto firewall as a switch with:
+
+* Management IP address of firewall as `Identifier`
+* Palo Alto PAN-OS (template based) as `Type`
+* CLI/VPN Access enabled: `Yes`
+
+===== Troubleshooting
+
+On Palo Alto, you can see how RADIUS replies are handled using _Monitor -> Logs -> System_
