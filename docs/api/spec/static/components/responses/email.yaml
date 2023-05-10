@@ -1,0 +1,13 @@
+EmailPreview:
+  description: Request successful. Response contains email preview.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/EmailPreview"
+
+EmailMailer:
+  description: Request successful. Response contains status response code.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/EmailMailer"

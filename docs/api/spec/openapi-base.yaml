@@ -48,6 +48,8 @@ tags:
     description: Manage PacketFence cluster.
   - name: $CurrentUser
     description: Get the current users' allowed roles and actions.
+  - name: $Email
+    description: Send email using SMTP configuration.
   - name: $Services
     description: Manage PacketFence services.
 
