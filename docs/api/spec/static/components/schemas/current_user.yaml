@@ -1,0 +1,111 @@
+CurrentUserAllowedNodeRolesList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/CurrentUserAllowedRole"
+    status:
+      $ref: "#/components/schemas/Status"
+
+CurrentUserAllowedRole:
+  type: object
+  properties:
+    acls:
+      type: string
+    category_id:
+      type: integer
+    fingerbank_dynamic_access_list:
+      type: string
+      oneOf:
+        - const: disabled
+          description: Disabled
+        - const: enabled
+          description: Enabled
+    include_parent_acls:
+      type: string
+      oneOf:
+        - const: disabled
+          description: Disabled
+        - const: enabled
+          description: Enabled
+    inherit_role:
+      type: string
+      nullable: true
+    inherit_vlan:
+      type: string
+      nullable: true
+    inherit_web_auth_url:
+      type: string
+      nullable: true
+    max_nodes_per_pid:
+      type: integer
+    name:
+      type: string
+    notes:
+      type: string
+      nullable: true
+
+CurrentUserAllowedAccessDurationsList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/CurrentUserAllowedAccessDuration"
+    status:
+      $ref: "#/components/schemas/Status"
+
+CurrentUserAllowedAccessDuration:
+  type: object
+  properties:
+    access_duration:
+      type: string
+
+CurrentUserAllowedAccessLevelsList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/CurrentUserAllowedAccessLevel"
+    status:
+      $ref: "#/components/schemas/Status"
+
+CurrentUserAllowedAccessLevel:
+  type: object
+  properties:
+    access_level:
+      type: string
+
+CurrentUserAllowedActionsList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/CurrentUserAllowedAction"
+    status:
+      $ref: "#/components/schemas/Status"
+
+CurrentUserAllowedAction:
+  type: object
+  properties:
+    action:
+      type: string
+
+CurrentUserAllowedUserRolesList:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: "#/components/schemas/CurrentUserAllowedRole"
+    status:
+      $ref: "#/components/schemas/Status"
+
+CurrentUserAllowedUnregDateList:
+  type: object
+  properties:
+    items:
+      type: string
