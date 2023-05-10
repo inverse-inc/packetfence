@@ -41,7 +41,17 @@ common_parameters(
 
 insert_search_parameters($spec);
 
-$spec->{components}->{parameters}->{service}->{schema}->{enum} = [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ];
+# insert service paramters
+$spec->{components}->{parameters}->{service} = {
+  name => 'service',
+  in => 'path',
+  required =>  JSON::MaybeXS::true,
+  description => 'Service unique identifier.',
+  schema => {
+    type => 'string',
+    enum => [ map {$_->name} grep { $_->name ne 'pf' } @pf::services::ALL_MANAGERS ],
+  },
+};
 
 YAML::XS::DumpFile("$base_path/openapi.yaml", $spec);
 
