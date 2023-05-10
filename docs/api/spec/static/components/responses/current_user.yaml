@@ -1,0 +1,42 @@
+CurrentUserAllowedNodeRoles:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CurrentUserAllowedNodeRolesList"
+
+CurrentUserAllowedAccessDurations:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CurrentUserAllowedAccessDurationsList"
+
+CurrentUserAllowedAccessLevels:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CurrentUserAllowedAccessLevelsList"
+
+CurrentUserAllowedActions:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CurrentUserAllowedActionsList"
+
+CurrentUserAllowedUserRoles:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CurrentUserAllowedUserRolesList"
+
+CurrentUserAllowedUnregDate:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CurrentUserAllowedUnregDateList"
+

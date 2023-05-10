@@ -1,6 +1,6 @@
 /api/v1/services/:
   get:
-    summary: List available services.
+    summary: List all available services.
     description: The list of services will be limited to 100 and a cursor will be returned for iterating on other services. Iteration is only needed if the nextCursor is not an empty value.
     parameters:
       - $ref: '#/components/parameters/cursor'

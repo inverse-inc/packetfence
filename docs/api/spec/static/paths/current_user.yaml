@@ -1,0 +1,77 @@
+/api/v1/current_user/allowed_node_roles:
+  get:
+    summary: Get the current users' allowed node roles.
+    responses:
+      '200':
+        $ref: "#/components/responses/CurrentUserAllowedNodeRoles"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $CurrentUser
+
+/api/v1/current_user/allowed_user_access_durations:
+  get:
+    summary: Get the current users' allowed access durations.
+    responses:
+      '200':
+        $ref: "#/components/responses/CurrentUserAllowedAccessDurations"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $CurrentUser
+
+/api/v1/current_user/allowed_user_access_levels:
+  get:
+    summary: Get the current users' allowed access levels.
+    responses:
+      '200':
+        $ref: "#/components/responses/CurrentUserAllowedAccessLevels"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $CurrentUser
+
+/api/v1/current_user/allowed_user_actions:
+  get:
+    summary: Get the current users' allowed actions.
+    responses:
+      '200':
+        $ref: "#/components/responses/CurrentUserAllowedActions"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $CurrentUser
+
+/api/v1/current_user/allowed_user_roles:
+  get:
+    summary: Get the current users' allowed user roles.
+    responses:
+      '200':
+        $ref: "#/components/responses/CurrentUserAllowedUserRoles"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $CurrentUser
+
+/api/v1/current_user/allowed_user_unreg_date:
+  get:
+    summary: Get the current users' allowed maximum unregistration date.
+    responses:
+      '200':
+        $ref: "#/components/responses/CurrentUserAllowedUnregDate"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $CurrentUser
