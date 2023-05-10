@@ -1,0 +1,73 @@
+EmailPreview:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          template:
+            type: string
+            description: Email template from *html/captive-portal/templates/emails/emails-[template].html*.
+            required: true
+          args:
+            type: object
+            description: Key-value map of template values.
+        example:
+          template: guest_local_account_creation
+          args:
+            pid: admin
+            password: OneAkamai
+
+EmailSend:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          template:
+            type: string
+            description: Email template from *html/captive-portal/templates/emails/emails-[template].html*.
+            required: true
+          args:
+            type: object
+            description: Key-value map of template values.
+          to:
+            type: string
+            description: Email address recipient.
+            required: true
+          subject:
+            type: string
+            description: Email subject.
+            required: true
+        example:
+          template: guest_local_account_creation
+          args:
+            pid: admin
+            password: OneAkamai
+          to: noone@example.com
+          subject: Lonely Nigerian Prince
+
+EmailMailer:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          message:
+            type: string
+            description: Email message body.
+            required: true
+          to:
+            type: string
+            description: Email address recipient.
+            required: true
+          subject:
+            type: string
+            description: Email subject.
+            required: true
+        example:
+          message: Please send bitcoins!
+          to: noone@example.com
+          subject: Lonely Nigerian Prince

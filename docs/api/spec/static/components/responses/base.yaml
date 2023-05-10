@@ -27,6 +27,12 @@ Message:
     application/json:
       schema:
         $ref: "#/components/schemas/Message"
+StatusOnly:
+  description: Request successful. Response contains a status response code.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Status"
 ErrorsWithMessage:
   description: A response that contains a message along with explanatory error messages tied to fields.
   content:
@@ -69,4 +75,3 @@ NotFound:
     application/json:
       schema:
         $ref: "#/components/schemas/ErrorsWithMessage"
-

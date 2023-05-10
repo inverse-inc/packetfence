@@ -1,0 +1,44 @@
+/api/v1/email/preview:
+  post:
+    summary: Preview an email template.
+    requestBody:
+      $ref: "#/components/requestBodies/EmailPreview"
+    responses:
+      '200':
+        $ref: "#/components/responses/EmailPreview"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/ErrorsWithMessage"
+      '500':
+        $ref: "#/components/responses/Message"
+    tags:
+      - $Email
+
+/api/v1/email/send:
+  post:
+    summary: Send an email template.
+    requestBody:
+      $ref: "#/components/requestBodies/EmailSend"
+    responses:
+      '200':
+        $ref: "#/components/responses/Message"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/ErrorsWithMessage"
+      '500':
+        $ref: "#/components/responses/Message"
+    tags:
+      - $Email
+
+/api/v1/email/pfmailer:
+  post:
+    summary: Send an email message.
+    requestBody:
+      $ref: "#/components/requestBodies/EmailMailer"
+    responses:
+      '200':
+        $ref: "#/components/responses/EmailMailer"
+    tags:
+      - $Email
