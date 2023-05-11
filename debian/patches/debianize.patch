@@ -24,15 +24,6 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.radiusd_acct
  #
-@@ -518,7 +518,7 @@ httpd_proxy=enabled
- # services.httpd_binary
- #
- # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
--httpd_binary=/usr/sbin/httpd
-+httpd_binary=/usr/sbin/apache2
- #
- # services.snmptrapd
- #
 @@ -616,7 +616,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
@@ -83,23 +74,6 @@ index 59bbf12796..e06af92d10 100644
  ExecReload=/bin/kill -USR1 ${MAINPID}
  ExecStop=/bin/kill -WINCH ${MAINPID}
  # We want systemd to give httpd some time to finish gracefully, but still want
-diff --git a/conf/systemd/packetfence-httpd.proxy.service b/conf/systemd/packetfence-httpd.proxy.service
-index 8399433b77..078e1c5e64 100644
---- a/conf/systemd/packetfence-httpd.proxy.service
-+++ b/conf/systemd/packetfence-httpd.proxy.service
-@@ -10,9 +10,9 @@ After=packetfence-base.target packetfence-config.service packetfence-iptables.se
- StartLimitBurst=3
- StartLimitInterval=10
- Type=notify
--ExecStartPre=/usr/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
--ExecStartPre=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
--ExecStart=/usr/sbin/httpd -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Drhel
-+ExecStartPre=/bin/rm -f /usr/local/pf/var/run/httpd.proxy.pid
-+ExecStartPre=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::httpd_proxy' -e 'pf::services::manager::httpd_proxy->new()->generateConfig()'
-+ExecStart=/usr/sbin/apache2 -f /usr/local/pf/var/conf/httpd.conf.d/httpd.proxy -DFOREGROUND  -Ddebian
- ExecReload=/bin/kill -USR1 ${MAINPID}
- PrivateTmp=true
- Restart=on-failure
 diff --git a/conf/systemd/packetfence-iptables.service b/conf/systemd/packetfence-iptables.service
 index a3ac735600..be76136201 100644
 --- a/conf/systemd/packetfence-iptables.service

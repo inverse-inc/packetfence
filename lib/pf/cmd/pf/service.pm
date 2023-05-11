@@ -25,7 +25,6 @@ Services managed by PacketFence:
   httpd.collector        | Apache Collector daemon
   httpd.dispatcher       | Captive portal dispatcher
   httpd.portal           | Apache Captive Portal
-  httpd.proxy            | Apache Proxy Interception
   httpd.webservices      | Apache Webservices
   iptables               | PacketFence firewall rules
   keepalived             | Virtual IP management

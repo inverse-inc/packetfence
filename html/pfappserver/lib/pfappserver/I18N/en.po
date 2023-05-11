@@ -4256,10 +4256,6 @@ msgstr ""
 msgid "Should httpd.portal be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
-# conf/documentation.conf (services.httpd_proxy)
-msgid "Should httpd.proxy be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
 # conf/documentation.conf (services.httpd_webservices)
 msgid "Should httpd.webservices be started? Keep enabled unless you know what you're doing."
 msgstr ""
@@ -6736,7 +6732,6 @@ msgstr ""
 # conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_dispatcher options)
 # conf/documentation.conf (services.httpd_portal options)
-# conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.ip6tables options)
 # conf/documentation.conf (services.iptables options)
@@ -6939,7 +6934,6 @@ msgstr ""
 # conf/documentation.conf (services.httpd_collector options)
 # conf/documentation.conf (services.httpd_dispatcher options)
 # conf/documentation.conf (services.httpd_portal options)
-# conf/documentation.conf (services.httpd_proxy options)
 # conf/documentation.conf (services.httpd_webservices options)
 # conf/documentation.conf (services.ip6tables options)
 # conf/documentation.conf (services.iptables options)
@@ -8366,10 +8360,6 @@ msgstr "httpd.dispatcher"
 # conf/documentation.conf
 msgid "services.httpd_portal"
 msgstr "httpd.portal"
-
-# conf/documentation.conf
-msgid "services.httpd_proxy"
-msgstr "httpd.proxy"
 
 # conf/documentation.conf
 msgid "services.httpd_webservices"

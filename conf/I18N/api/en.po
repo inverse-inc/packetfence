@@ -13956,10 +13956,6 @@ msgstr ""
 msgid "Should httpd.portal be started? Keep enabled unless you know what you're doing."
 msgstr ""
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:65
-msgid "Should httpd.proxy be started? Keep enabled unless you know what you're doing."
-msgstr ""
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:70
 msgid "Should httpd.webservices be started? Keep enabled unless you know what you're doing."
 msgstr ""
