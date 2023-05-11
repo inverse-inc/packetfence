@@ -3,11 +3,28 @@
   become: True
   gather_facts: False
 
-  #  pre_tasks:
+  pre_tasks:
   #  - name: Gather min only
   #    ansible.builtin.setup:
   #      gather_subset:
   #        - "!all"
+  - name: AD Pretasks
+    block:
+    - name: AD => Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: AD => Ensure samba4ad service is in a running state
+      ansible.builtin.service:
+        name: samba-ad-dc
+        state: started
+      register: sambaDetails
+      until: sambaDetails.status.ActiveState == "active"
+      retries: 15
+      delay: 20
+      when:
+      - "'samba-ad-dc.service' in services"
+    when:
+    - inventory_hostname == 'ad'
 
   tasks:
     - name: Update APT repository cache
