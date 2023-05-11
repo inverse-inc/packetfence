@@ -39,3 +39,22 @@ ServiceDisable:
     application/json:
       schema:
         $ref: "#/components/schemas/ServiceDisable"
+
+ServicesClusterServer:
+  description: List of services on cluster server.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          item:
+            type: object
+            properties:
+              host:
+                type: string
+              services:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceStatus"
+          status:
+            $ref: "#/components/schemas/Status"

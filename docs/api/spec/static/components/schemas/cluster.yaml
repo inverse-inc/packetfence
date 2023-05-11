@@ -1,15 +1,37 @@
+ClusterConfig:
+  type: object
+  properties:
+    item:
+      type: object
+      properties:
+        CLUSTER:
+          $ref: '#/components/schemas/ClusterServer'
+        additionalProperties:
+          $ref: '#/components/schemas/ClusterServer'
+    status:
+      $ref: "#/components/schemas/Status"
+
 ClusterServers:
+  type: object
   properties:
     items:
-      description: Items
       items:
         $ref: '#/components/schemas/ClusterServer'
       type: array
-  type: object
+    status:
+      $ref: "#/components/schemas/Status"
 
 ClusterServer:
+  type: object
   properties:
     host:
       type: string
     management_ip:
       type: string
+    additionalProperties:
+      description: |
+        Key is dynamic (example: `interface eth0`)
+      type: object
+      properties:
+        ip:
+          type: string
