@@ -40,7 +40,11 @@ sub list {
 sub resource {
     my ($self) = @_;
     my $translation_id = $self->stash('translation_id');
-    return exists $languages_list->{$translation_id};
+    if (exists $languages_list->{$translation_id}) {
+        return 1;
+    }
+
+    return $self->render_error(404, "Item ($translation_id) not found");
 }
 
 sub get {
