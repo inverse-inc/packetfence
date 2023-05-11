@@ -1,0 +1,12 @@
+/api/v1/sso_info:
+  get:
+    summary: List servers and the services of each member in the cluster.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+    responses:
+      '200':
+        $ref: "#/components/responses/SsoStatus"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - $SSO

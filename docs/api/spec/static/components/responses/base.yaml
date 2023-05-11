@@ -33,6 +33,12 @@ StatusOnly:
     application/json:
       schema:
         $ref: "#/components/schemas/Status"
+ErrorMessage:
+  description: Request failed. Response contains a simple message.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
 ErrorsWithMessage:
   description: A response that contains a message along with explanatory error messages tied to fields.
   content:

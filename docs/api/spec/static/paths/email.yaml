@@ -11,7 +11,7 @@
       '422':
         $ref: "#/components/responses/ErrorsWithMessage"
       '500':
-        $ref: "#/components/responses/Message"
+        $ref: "#/components/responses/ErrorMessage"
     tags:
       - $Email
 
@@ -28,7 +28,7 @@
       '422':
         $ref: "#/components/responses/ErrorsWithMessage"
       '500':
-        $ref: "#/components/responses/Message"
+        $ref: "#/components/responses/ErrorMessage"
     tags:
       - $Email
 
@@ -40,5 +40,9 @@
     responses:
       '200':
         $ref: "#/components/responses/EmailMailer"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/ErrorsWithMessage"
     tags:
       - $Email

@@ -62,7 +62,6 @@ EmailMailer:
           to:
             type: string
             description: Email address recipient.
-            required: true
           subject:
             type: string
             description: Email subject.
