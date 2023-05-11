@@ -35,6 +35,7 @@ export {
   BaseFormGroupInputNumber            as FormGroupPfperlApiProcesses,
   BaseFormGroupInputNumber            as FormGroupPfperlApiTimeout,
   BaseFormGroupToggleDisabledEnabled  as FormGroupPortalCspSecurityHeaders,
+  BaseFormGroupInput                  as FormGroupPfupdateCustomScriptPath,
   BaseFormGroupToggleDisabledEnabled  as FormGroupScanOnAccounting,
   BaseFormGroupChosenOne              as FormGroupSourceToSendSmsWhenCreatingUsers,
   BaseFormGroupToggleDisabledEnabled  as FormGroupSsoOnAccessReevaluation,
