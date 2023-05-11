@@ -1064,6 +1064,11 @@ zero_trust_network_starting_ip=100.64.0.1
 # The netmask (in numerical bits value) of the Zero Trust network. Only change if you know what you are doing. Changing this value requires to restart all the PacketFence services and requires all the clients of the Zero Trust network to be restarted
 zero_trust_network_netmask=10
 
+# advanced.pfupdate_custom_script_path
+#
+# Path to a custom script called by pfupdate
+pfupdate_custom_script_path=/usr/local/bin/pfupdate-packetfence.sh
+
 [provisioning]
 #
 # provisioning.autoconfig

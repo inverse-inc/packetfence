@@ -11,10 +11,13 @@ use lib (INSTALL_DIR . "/lib", INSTALL_DIR . "/lib_perl/lib/perl5");
 
 use Getopt::Long;
 use pf::util;
+use pf::config qw(
+    %Config
+);
 
 my $mode;
 my $vip;
-my $custom_script_path = '/usr/local/bin/pfupdate-packetfence.sh';
+my $custom_script_path = $Config{'advanced'}{'pfupdate_custom_script_path'};
 
 GetOptions(
     "mode=s" => \$mode,
