@@ -1,0 +1,33 @@
+/api/v1/translations:
+  get:
+    summary: List all translations.
+    responses:
+      '200':
+        $ref: "#/components/responses/Locales"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - $Locales
+
+/api/v1/translation/{locale}:
+  get:
+    summary: Get translation using locale.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+      - name: locale
+        in: path
+        required: true
+        description: The locale.
+        schema:
+          type: string
+          enum:
+            - en
+            - fr
+            - xyz
+    responses:
+      '200':
+        $ref: "#/components/responses/Locale"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - $Locales
