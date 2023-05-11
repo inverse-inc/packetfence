@@ -34,8 +34,6 @@ UsersNodesLocationlog:
       type: string
     switch_mac:
       type: string
-    tenant_id:
-      type: integer
     vlan:
       type: string
   type: object

@@ -3,15 +3,12 @@
     summary: Get information on the current token
     responses:
       '200':
-        description: Successfully found information for the token 
+        description: Successfully found information for the token
         content:
           application/json:
             schema:
               type: object
               properties:
-                tenant_id:
-                  description: The tenant ID associated to this token. When set to 0, it will provide access to all the tenants. When set to -1, the token is prohibited from accessing data from any tenant. 
-                  type: string
                 admin_roles:
                   description: The list of all the admin roles associated to this token
                   type: array
@@ -19,5 +16,5 @@
                     type: string
       '404':
         $ref: "#/components/responses/NotFound"
-        
+
 
