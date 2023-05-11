@@ -24,6 +24,13 @@ ErrorsWithMessage:
       items:
         description: An individual error.
         type: object
+        properties:
+          field:
+            description: The error field.
+            type: string
+          message:
+            description: The error message.
+            type: string
     status:
       description: Response code.
       type: integer

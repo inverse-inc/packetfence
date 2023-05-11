@@ -1,0 +1,6 @@
+SsoStatus:
+  description: Request successful. Response contains SSO stratus.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/SsoStatus"

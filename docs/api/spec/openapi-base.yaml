@@ -52,5 +52,7 @@ tags:
     description: Send email using SMTP configuration.
   - name: $Services
     description: Manage PacketFence services.
+  - name: $SSO
+    description: Single-Sign-On status.
 
 
