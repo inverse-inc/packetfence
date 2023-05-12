@@ -476,7 +476,7 @@ sub _reassignSNMPConnections {
     } # end case PORTSEC
 
     $logger->info( "Flipping admin status on switch (".$switch->{'_id'}.") ifIndex $ifIndex. " );
-    $switch->bouncePort($ifIndex);
+    $switch->bouncePort($ifIndex, $mac);
 }
 
 =head2 _node_determine_and_set_into_VLAN

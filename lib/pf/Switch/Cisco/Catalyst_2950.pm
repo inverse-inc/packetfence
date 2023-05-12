@@ -1015,14 +1015,14 @@ sub dot1xPortReauthenticate {
     # If VoIP isn't enabled on this switch: bounce
     if (!$self->isVoIPEnabled()) {
         $logger->debug("VoIP is diabled on switch at $self->{_ip}. Will bounce ifIndex $ifIndex.");
-        return $self->bouncePort($ifIndex);
+        return $self->bouncePort($ifIndex, $mac);
     }
 
     # If there's no phone on the ifIndex, we also bounce
     my $hasPhone = $self->hasPhoneAtIfIndex($ifIndex);
     if ( !$hasPhone ) {
         $logger->debug("No VoIP is currently connected at $self->{_ip} ifIndex $ifIndex. Boucing ifIndex.");
-        return $self->bouncePort($ifIndex);
+        return $self->bouncePort($ifIndex, $mac);
     }
 
     # there's a phone, we need to fetch the MAC on the ifIndex in order to do a setVlan!

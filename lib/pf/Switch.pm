@@ -1296,8 +1296,8 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 =cut
 
 sub bouncePort {
-    my ($self, $ifIndex) = @_;
-    return $self->bouncePortSNMP($ifIndex);
+    my ($self, $ifIndex, $mac) = @_;
+    return $self->bouncePortSNMP($ifIndex, $mac);
 }
 
 =item bouncePortSNMP
@@ -1308,7 +1308,7 @@ Usually used to force the operating system to do a new DHCP Request after a VLAN
 =cut
 
 sub bouncePortSNMP {
-    my ($self, $ifIndex) = @_;
+    my ($self, $ifIndex, $mac) = @_;
 
     $self->setAdminStatus( $ifIndex, $SNMP::DOWN );
     sleep($Config{'snmp_traps'}{'bounce_duration'});
@@ -2570,7 +2570,7 @@ sub handleReAssignVlanTrapForWiredMacAuth {
     # actually once CoA will be implemented, we should consider offering the same option to users
     # as we currently do with port-security and VoIP which is bounce or not bounce and suffer consequences
     # this should be a choice exposed in configuration and not hidden in code
-    $self->bouncePort($ifIndex);
+    $self->bouncePort($ifIndex, $mac);
 }
 
 =item extractSsid

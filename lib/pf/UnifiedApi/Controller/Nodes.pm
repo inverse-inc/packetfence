@@ -651,7 +651,7 @@ sub do_restart_switchport {
         return ($STATUS::NOT_FOUND, "Unable to instantiate switch $ll->{switch}");
     }
 
-    unless ($switch->bouncePort($ll->{port})) {
+    unless ($switch->bouncePort($ll->{port}, $mac)) {
         return ($STATUS::INTERNAL_SERVER_ERROR, "Couldn't restart port.");
     }
 
