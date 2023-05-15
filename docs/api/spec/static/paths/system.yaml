@@ -1,0 +1,12 @@
+/api/v1/system_summary:
+  get:
+    summary: Get sytem summary.
+    parameters:
+      - $ref: '#/components/parameters/X-PacketFence-Server'
+    responses:
+      '200':
+        $ref: "#/components/responses/SystemSummary"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - $System

@@ -54,6 +54,8 @@ tags:
     description: Manage PacketFence services.
   - name: $SSO
     description: Single-Sign-On status.
+  - name: $System
+    description: System summary.
   - name: $Locales
     description: Locale translations.
 
