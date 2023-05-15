@@ -1,5 +1,5 @@
 SsoStatus:
-  description: Request successful. Response contains SSO stratus.
+  description: Request successful. Response contains SSO status.
   content:
     application/json:
       schema:
