@@ -349,7 +349,6 @@ sub setup_api_v1_config_routes {
     $self->setup_api_v1_config_ssl_certificates_routes($root);
     $self->setup_api_v1_config_template_switches_routes($root);
     $self->setup_api_v1_config_system_routes($root);
-    $self->setup_api_v1_config_traffic_shaping_policies_routes($root);
     $self->setup_api_v1_config_mfas_routes($root);
     $self->setup_api_v1_config_connectors_routes($root);
     return;
@@ -1350,26 +1349,6 @@ sub setup_api_v1_config_syslog_forwarders_routes {
         "/syslog_forwarders",
         "/syslog_forwarder/#syslog_forwarder_id",
         "api.v1.Config.SyslogForwarders"
-    );
-
-    return ($collection_route, $resource_route);
-}
-
-=head2 setup_api_v1_config_traffic_shaping_policies_routes
-
- setup_api_v1_config_traffic_shaping_policies_routes
-
-=cut
-
-sub setup_api_v1_config_traffic_shaping_policies_routes {
-    my ($self, $root) = @_;
-    my ($collection_route, $resource_route) =
-      $self->setup_api_v1_std_config_routes(
-        $root,
-        "Config::TrafficShapingPolicies",
-        "/traffic_shaping_policies",
-        "/traffic_shaping_policy/#traffic_shaping_policy_id",
-        "api.v1.Config.TrafficShapingPolicies"
     );
 
     return ($collection_route, $resource_route);

@@ -28,7 +28,6 @@ use pf::config::trapping_range;
 use pf::ConfigStore::Interface();
 use pf::ConfigStore::Pf();
 use pf::ConfigStore::Roles();
-use pf::ConfigStore::TrafficShaping();
 use pf::ip4log();
 use pf::fingerbank;
 use pf::Connection::ProfileFactory();
@@ -1743,17 +1742,6 @@ sub update_role_configuration : Public :AllowedAsAction(role, $role) {
         return $pf::config::FALSE;
     }
 
-    my $tc_cs = pf::ConfigStore::TrafficShaping->new;
-    if ($postdata{'upload'} == 0 && $postdata{'download'} == 0) {
-        $tc_cs->remove($role);
-    }
-    if ($postdata{'upload'} && $postdata{'download'}) {
-        $tc_cs->update_or_create($role, {upload => $postdata{'upload'}, download => $postdata{'download'}});
-    }
-    $tc_cs->commit();
-    delete $postdata{'upload'};
-    delete $postdata{'download'};
-
     my $hash_ref = {};
     $hash_ref = \%postdata;
 
@@ -1779,13 +1767,7 @@ sub role_detail : Public :AllowedAsAction(role, $role) {
 
 
     my $role_cs = pf::ConfigStore::Roles->new;
-    my $tc_cs = pf::ConfigStore::TrafficShaping->new;
-
-    if (defined($tc_cs->read($postdata{'role'}))) {
-        return merge($role_cs->read($postdata{'role'}), $tc_cs->read($postdata{'role'}));
-    } else {
-        return $role_cs->read($postdata{'role'});
-    }
+    return $role_cs->read($postdata{'role'});
 }
 
 =head2

@@ -130,8 +130,6 @@ var pathAdminRolesMap = []adminRoleMapping{
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_forwarders", role: "SYSLOG"},
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_parser/", role: "PFDETECT"},
 	adminRoleMapping{prefix: configApiPrefix + "/syslog_parsers", role: "PFDETECT"},
-	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policies", role: "TRAFFIC_SHAPING"},
-	adminRoleMapping{prefix: configApiPrefix + "/traffic_shaping_policy/", role: "TRAFFIC_SHAPING"},
 }
 
 var methodSuffixMap = map[string]string{

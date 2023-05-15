@@ -212,9 +212,6 @@ const api = {
   getSyslogParsers () {
     return apiCall({ url: 'config/syslog_parsers', method: 'get' })
   },
-  getTrafficShapingPolicies () {
-    return apiCall({ url: 'config/traffic_shaping_policies', method: 'get' })
-  },
   getWrixLocations () {
     return apiCall({ url: 'wrix_locations', method: 'get' })
   },
@@ -362,8 +359,6 @@ const initialState = () => { // set intitial states to `false` (not `[]` or `{}`
     syslogForwardersStatus: '',
     syslogParsers: false,
     syslogParsersStatus: '',
-    trafficShapingPolicies: false,
-    trafficShapingPoliciesStatus: '',
     wrixLocations: false,
     wrixLocationsStatus: ''
   }
@@ -582,9 +577,6 @@ const getters = {
   },
   isLoadingSyslogParsers: state => {
     return state.syslogParsersStatus === types.LOADING
-  },
-  isLoadingTrafficShapingPolicies: state => {
-    return state.trafficShapingPoliciesStatus === types.LOADING
   },
   isLoadingWrixLocations: state => {
     return state.wrixLocationsStatus === types.LOADING
@@ -1650,20 +1642,6 @@ const actions = {
       return Promise.resolve(state.syslogParsers)
     }
   },
-  getTrafficShapingPolicies: ({ state, getters, commit }) => {
-    if (getters.isLoadingTrafficShapingPolicies) {
-      return Promise.resolve(state.trafficShapingPolicies)
-    }
-    if (!state.trafficShapingPolicies) {
-      commit('TRAFFIC_SHAPING_POLICIES_REQUEST')
-      return api.getTrafficShapingPolicies().then(response => {
-        commit('TRAFFIC_SHAPING_POLICIES_UPDATED', response.data.items)
-        return state.trafficShapingPolicies
-      })
-    } else {
-      return Promise.resolve(state.trafficShapingPolicies)
-    }
-  },
   getWrixLocations: ({ commit, getters, state }) => {
     if (getters.isLoadingWrixLocations) {
       return Promise.resolve(state.wrixLocations)
@@ -2171,13 +2149,6 @@ const mutations = {
   SYSLOG_PARSERS_UPDATED: (state, syslogParsers) => {
     state.syslogParsers = syslogParsers
     state.syslogParsersStatus = types.SUCCESS
-  },
-  TRAFFIC_SHAPING_POLICIES_REQUEST: (state) => {
-    state.trafficShapingPoliciesStatus = types.LOADING
-  },
-  TRAFFIC_SHAPING_POLICIES_UPDATED: (state, trafficShapingPolicies) => {
-    state.trafficShapingPolicies = trafficShapingPolicies
-    state.trafficShapingPoliciesStatus = types.SUCCESS
   },
   WRIX_LOCATIONS_REQUEST: (state) => {
     state.wrixLocationsStatus = types.LOADING
