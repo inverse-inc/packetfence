@@ -1,0 +1,61 @@
+LogsMeta:
+  type: object
+  properties:
+    meta:
+      type: object
+      properties:
+        files:
+          $ref: "#/components/schemas/Meta"
+        filter:
+          $ref: "#/components/schemas/MetaItem"
+        filter_is_regexp:
+          $ref: "#/components/schemas/MetaItem"
+
+LogsCreate:
+  type: object
+  properties:
+    message:
+      description: A descriptive message for the user.
+      type: string
+    session_id:
+      description: Log session identifier.
+      type: string
+
+LogsTail:
+  type: object
+  properties:
+    events:
+      type: array
+      items:
+        type: object
+        properties:
+          category:
+            type: string
+          data:
+            type: object
+            properties:
+              meta:
+                description: Parsed log lines
+                type: object
+                properties:
+                  filename:
+                    type: string
+                  hostname:
+                    type: string
+                  log_level:
+                    type: string
+                  log_without_prefix:
+                    description:
+                    type: string
+                  process:
+                    type: string
+                  syslog_name:
+                    type: string
+                  timestamp:
+                    type: string
+              raw:
+                description: Raw log output
+                type: string
+          timestamp:
+            description: Unix epoch timestamp (seconds).
+            type: integer

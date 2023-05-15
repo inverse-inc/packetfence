@@ -1,0 +1,34 @@
+LogsMeta:
+  description: Request successful. Response contains meta to create a session.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/LogsMeta"
+
+LogsCreate:
+  description: Request successful. A session has been created and the response contains the session identifier.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/LogsCreate"
+
+LogsDelete:
+  description: Request successful. The log-tail session has been destroyed.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
+
+LogsTail:
+  description: Request successful. The response contains a tail of the log(s) and the read pointer has been updated.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/LogsTail"
+
+LogsTouch:
+  description: Request successful. The session has been touched.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
