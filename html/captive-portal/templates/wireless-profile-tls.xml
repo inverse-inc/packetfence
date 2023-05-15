@@ -89,7 +89,7 @@
                         <key>PayloadCertificateFileName</key>
                         <string>[% server_cn %]</string>
                         <key>PayloadContent</key>
-                        [% IF for_windows || for_android%]
+                        [% IF for_android%]
                         <string>[% server_content %]</string>
                         [% ELSE %]
                         <data>[% server_content %]</data>
@@ -145,7 +145,21 @@
                         <string>c83817c4-d7c4-11e4-b9d6-696969696969</string>
                         <key>PayloadVersion</key>
                         <integer>1</integer>
+		</dict>
+                [% IF for_android %]
+                [% FOREACH ca_cert IN other_ca %]
+                <dict>
+                        <key>PayloadCertificateFileName</key>
+                        <string>[% ca_cert.cn %]</string>
+                        <key>PayloadContent</key>
+                        <string>[% ca_cert.base64 %]</string>
+                        <key>PayloadDescription</key>
+                        <string>Provides other ca required for authentication (certificate or identity).</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.other_ca</string>
                 </dict>
+                [% END %]
+                [% END %]
         </array>
         <key>PayloadDescription</key>
         <string>Profile description.</string>
