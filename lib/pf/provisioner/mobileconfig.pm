@@ -21,8 +21,10 @@ use pf::constants;
 use fingerbank::Constant;
 
 use pf::util;
+use pf::ssl qw(cn_from_dn);
 use pf::person;
 use pf::password;
+use pf::services::manager::radiusd_child qw(get_cn_and_cert_radiusd_certificates);
 
 use Crypt::GeneratePassword qw(word);
 
@@ -197,12 +199,7 @@ sub _raw_server_cert_string {
 
 sub _certificate_cn {
     my ($self, $cert) = @_;
-    if($cert->subject =~ /CN=(.*?)(,|$)/g){
-        return $1;
-    }
-    else {
-        return undef;
-    }
+    return pf::ssl::cn_from_dn($cert->subject);
 }
 
 =head2 raw_server_cert_string
@@ -274,6 +271,24 @@ sub ca_cert_cn {
     }
 }
 
+=head2 get_other_radiusd_certificates
+
+Get Other Radius server CA Certificates
+
+=cut
+
+sub get_other_radiusd_certificates {
+    my ($self) = @_;
+    #my @certs = $self->get_cn_and_cert_radiusd_certificates(); #looks llke something is missing in the import
+    my @certs = $self->pf::services::manager::radiusd_child::get_cn_and_cert_radiusd_certificates();
+    if(@certs) {
+        return @certs;
+    }
+    else {
+        get_logger->error("cannot find any other RADIUS CA certificates on PF");
+        return "";
+    }
+}
 
 =head2 authorize
 
