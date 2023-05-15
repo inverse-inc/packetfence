@@ -166,6 +166,7 @@ export const useFormMetaSchema = (meta, schema) => {
 
         break
 
+      case 'integer':
       case 'string':
         schema = yup.string().nullable()
 
