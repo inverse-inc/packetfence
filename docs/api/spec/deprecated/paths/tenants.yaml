@@ -21,6 +21,7 @@
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
   post:
+    deprecated: true
     description: Create an item
     operationId: api.v1.Tenants.create
     parameters: []
