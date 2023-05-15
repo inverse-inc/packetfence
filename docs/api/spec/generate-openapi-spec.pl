@@ -19,6 +19,7 @@ my $base_path = "$install_dir/docs/api/spec";
 my $spec = LoadFile("$base_path/openapi-base.yaml");
 
 merge_yaml_into_paths($spec->{paths}, "paths");
+merge_yaml_into_paths($spec->{paths}, "deprecated/paths");
 merge_yaml_into_paths($spec->{paths}, "static/paths");
 
 my $components = hash_yaml_dir("components");
