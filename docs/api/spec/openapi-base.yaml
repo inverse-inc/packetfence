@@ -50,6 +50,8 @@ tags:
     description: Get the current users' allowed roles and actions.
   - name: $Email
     description: Send email using SMTP configuration.
+  - name: $LiveLogs
+    description: Tail logs in real time.
   - name: $Services
     description: Manage PacketFence services.
   - name: $SSO

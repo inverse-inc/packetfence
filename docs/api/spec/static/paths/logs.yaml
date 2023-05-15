@@ -1,0 +1,75 @@
+/api/v1/logs/tail:
+  options:
+    summary: Meta for log-tail session.
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsMeta"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+    tags:
+      - $LiveLogs
+  post:
+    summary: Create new log-tail session.
+    requestBody:
+      $ref: "#/components/requestBodies/LogsCreate"
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsCreate"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+    tags:
+      - $LiveLogs
+
+/api/v1/logs/tail/{session_id}:
+  parameters:
+  - name: session_id
+    in: path
+    required: true
+    schema :
+      type: string
+  delete:
+    summary: Delete log-tail session.
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsDelete"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+    tags:
+      - $LiveLogs
+  get:
+    summary: Tail existing session, update read pointer.
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsTail"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+    tags:
+      - $LiveLogs
+
+
+/api/v1/logs/tail/{session_id}/touch:
+  parameters:
+  - name: session_id
+    in: path
+    required: true
+    schema :
+      type: string
+  post:
+    summary: Touch session without updating read pointer.
+    responses:
+      '200':
+        $ref: "#/components/responses/LogsTouch"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/BadRequest"
+    tags:
+      - $LiveLogs
