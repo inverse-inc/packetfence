@@ -154,7 +154,7 @@
                         <key>PayloadContent</key>
                         <string>[% ca_cert.base64 %]</string>
                         <key>PayloadDescription</key>
-                        <string>Provides other ca required for authentication (certificate or identity).</string>
+                        <string>Provides other CA required for authentication.</string>
                         <key>PayloadType</key>
                         <string>com.apple.security.other_ca</string>
                 </dict>

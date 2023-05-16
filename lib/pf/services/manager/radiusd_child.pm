@@ -1619,7 +1619,8 @@ sub generate_radiusd_certificates {
 
 =head2 get_cn_and_cert_radiusd_certificates
 
-Extract certificate and ca certificates from radius files and organize them in a table of haches
+Extract all CA certificates from radius files
+Organize them in a table of haches with keys cn and base64
 
 =cut
 
