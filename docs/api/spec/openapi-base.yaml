@@ -52,6 +52,8 @@ tags:
     description: Send email using SMTP configuration.
   - name: $LiveLogs
     description: Tail logs in real time.
+  - name: $Async
+    description: Runs tasks asyncronously.
   - name: $Services
     description: Manage PacketFence services.
   - name: $SSO
