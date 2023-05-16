@@ -52,7 +52,6 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupRedisNtlmCache,
   BaseFormGroupToggleDisabledEnabled  as FormGroupRedisQueue,
   BaseFormGroupToggleDisabledEnabled  as FormGroupSnmpTrapd,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupTc,
   BaseFormGroupToggleDisabledEnabled  as FormGroupTrackingConfig,
   BaseFormGroupToggleDisabledEnabled  as FormGroupWinbindd,
   BaseFormGroupToggleDisabledEnabled  as FormGroupMysqlProbe,
