@@ -43,7 +43,8 @@
     tags:
       - $LiveLogs
   get:
-    summary: Tail existing session, update read pointer.
+    summary: Tail session, update read pointer.
+    summary: Returns immediately if there is at least one entry. Waits for entries until timeout.
     responses:
       '200':
         $ref: "#/components/responses/LogsTail"

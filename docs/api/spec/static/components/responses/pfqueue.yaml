@@ -1,0 +1,6 @@
+PfQueue:
+  description: Request successful. Response contains progress of the task.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PfQueue"

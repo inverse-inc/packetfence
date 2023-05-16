@@ -1,0 +1,18 @@
+/api/v1/pfqueue/task/{task_id}/status/poll:
+  parameters:
+  - name: task_id
+    in: path
+    required: true
+    schema :
+      type: string
+  get:
+    summary: Poll queue.
+    responses:
+      '200':
+        $ref: "#/components/responses/PfQueue"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/ErrorMessage"
+    tags:
+      - $Async
