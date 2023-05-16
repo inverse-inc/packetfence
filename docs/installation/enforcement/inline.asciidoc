@@ -128,11 +128,3 @@ Once a computer has been registered:
 * make sure PacketFence changes the firewall (`ipset -L`) rules so that the user is authorized through. Look into PacketFence log file: `/usr/local/pf/logs/packetfence.log`
 * from the web administrative interface, go under Nodes and make sure you see the computer as 'Registered'.
 * the computer has access to the network and the Internet.
-
-=== Advanced Inline Topics
-
-==== Traffic Shaping
-
-It's possible to enable traffic shaping based on the role of the device. In order to enable it you need to go in 'Configuration -> Network Configuration -> Inline Traffic Shaping' and select the role you want to define a limit. Set a upload and download speed limit and save.
-
-Next restart the `tc` service to apply the new rules.
