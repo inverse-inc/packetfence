@@ -142,7 +142,7 @@ use pf::SwitchSupports qw(
     RadiusVoip
     RadiusDynamicVlanAssignment
     AccessListBasedEnforcement
-    #DownloadableListBasedEnforcement
+    -DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
 );
