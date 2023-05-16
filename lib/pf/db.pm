@@ -103,7 +103,7 @@ sub db_connect {
     $logger->debug("(Re)Connecting to MySQL (pid: $$)");
     my ($dsn, $user, $pass) = db_data_source_info();
     # make sure we have a database handle
-    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, Callbacks => \%CALLBACKS })) {
+    if ( $DBH = DBI->connect($dsn, $user, $pass, { RaiseError => 0, PrintError => 0, mysql_auto_reconnect => 1, mysql_enable_utf8mb4 => 1, mysql_compression => 1, Callbacks => \%CALLBACKS })) {
         $logger->debug("connected");
         return on_connect($DBH);
     }
