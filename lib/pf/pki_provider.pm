@@ -16,7 +16,6 @@ use warnings;
 use Moo;
 use pf::log;
 use pf::constants;
-use pf::ssl qw(cn_from_dn);
 
 has id => (is => 'rw', required => 1);
 
@@ -164,7 +163,14 @@ sub _raw_cert_string {
 
 sub _cert_cn {
     my ($self, $cert) = @_;
-    return pf::ssl::cn_from_dn($cert->subject);
+    if($cert->subject =~ /CN=(.*?)(,|$)/g){
+        return $1;
+    }
+    else {
+        get_logger->error("Cannot find CN of server certificate at ".$self->ca_cert_path);
+        return undef;
+    }
+
 }
 
 =head2 raw_ca_cert_string
