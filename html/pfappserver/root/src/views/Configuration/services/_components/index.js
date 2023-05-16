@@ -23,7 +23,6 @@ export {
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdCollector,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdDispatcher,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdPortal,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdProxy,
   BaseFormGroupToggleDisabledEnabled  as FormGroupHttpdWebservices,
   BaseFormGroupToggleDisabledEnabled  as FormGroupIptables,
   BaseFormGroupToggleDisabledEnabled  as FormGroupIp6tables,
