@@ -87,9 +87,9 @@
         <b-row align-h="end" align-v="start" class="mb-3">
           <b-col cols="auto" class="mr-auto"></b-col>
           <b-col cols="auto">
-            <base-button-service service="iptables" restart start stop class="mr-1" />
-            <base-button-service service="pfdhcp" restart start stop class="mr-1" />
-            <base-button-service service="pfdns" restart start stop class="mr-1" />
+            <base-button-service service="iptables" restart start stop class="mr-1" right />
+            <base-button-service service="pfdhcp" restart start stop class="mr-1" right />
+            <base-button-service service="pfdns" restart start stop class="mr-1" right />
           </b-col>
         </b-row>
         <b-table class="table-clickable"
@@ -135,10 +135,10 @@
             <b-button variant="outline-primary" class="mr-1" :to="{ name: 'newRoutedNetwork' }">{{ $t('New Routed Network') }}</b-button>
           </b-col>
           <b-col cols="auto">
-            <base-button-service service="keepalived" restart start stop class="mr-1" />
-            <base-button-service service="iptables" restart start stop class="mr-1" />
-            <base-button-service service="pfdhcp" restart start stop class="mr-1" />
-            <base-button-service service="pfdns" restart start stop class="mr-1" />
+            <base-button-service service="keepalived" restart start stop class="mr-1" right />
+            <base-button-service service="iptables" restart start stop class="mr-1" right />
+            <base-button-service service="pfdhcp" restart start stop class="mr-1" right />
+            <base-button-service service="pfdns" restart start stop class="mr-1" right />
           </b-col>
         </b-row>
         <b-table class="table-clickable"
