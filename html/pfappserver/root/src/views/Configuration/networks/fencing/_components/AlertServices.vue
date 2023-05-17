@@ -3,9 +3,9 @@
     <h4 class="alert-heading" v-t="'Warning'"/>
     <p>{{ $t('Some services must be restarted to load the new settings.') }}</p>
     <base-button-service service="pfdns" restart start stop
-      :disabled="isLoading" class="mr-1" size="sm"/>
+      :disabled="isLoading" class="mr-1" right size="sm"/>
     <base-button-service service="iptables" restart start stop
-      :disabled="isLoading" class="mr-1" size="sm"/>
+      :disabled="isLoading" class="mr-1" right size="sm"/>
   </b-alert>
 </template>
 <script>

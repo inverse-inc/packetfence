@@ -5,13 +5,13 @@
       <span v-html="$t('Adding or modifying a network requires a restart of the keepalived, iptables, pfdhcp and pfdns services for the changes to take place.')"></span>
     </p>
     <base-button-service service="keepalived" restart start stop
-      :disabled="isLoading" class="mr-1" size="sm"/>
+      :disabled="isLoading" class="mr-1" right size="sm"/>
     <base-button-service service="iptables" restart start stop
-      :disabled="isLoading" class="mr-1" size="sm"/>
+      :disabled="isLoading" class="mr-1" right size="sm"/>
     <base-button-service service="pfdhcp" restart start stop
-      :disabled="isLoading" class="mr-1" size="sm"/>
+      :disabled="isLoading" class="mr-1" right size="sm"/>
     <base-button-service service="pfdns" restart start stop
-      :disabled="isLoading" class="mr-1" size="sm"/>
+      :disabled="isLoading" class="mr-1" right size="sm"/>
   </b-alert>
 </template>
 <script>

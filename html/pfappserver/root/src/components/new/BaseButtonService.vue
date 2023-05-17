@@ -3,6 +3,7 @@
     :disabled="isDisabled"
     :size="size"
     :text="service"
+    :right="right"
     no-flip
     variant="outline-primary"
     v-b-tooltip.hover.top.d300 :title="tooltip"
@@ -106,6 +107,9 @@ const props = {
   acl: {
     type: String,
     default: 'SERVICES_READ'
+  },
+  right: {
+    type: Boolean
   }
 }
 
