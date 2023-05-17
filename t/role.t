@@ -170,9 +170,9 @@ is(
 
 my $filter = pf::access_filter::vlan->new;
 
-my $results = $filter->evalActionParams("key1 = val1, key2 = \$var2", {var2 => 'val2'}, "test eval of parameters");
+my $results = $filter->evalActionParams("key1 = val1, key2 = \$var2, key4 = \${var3.var-4}", {var2 => 'val2', var3 => { 'var-4' => 'val4' }}, "test eval of parameters");
 
-is_deeply($results, [key1 => 'val1', 'key2' => 'val2']);
+is_deeply($results, [key1 => 'val1', 'key2' => 'val2', key4 => 'val4']);
 
 =head1 AUTHOR
 
