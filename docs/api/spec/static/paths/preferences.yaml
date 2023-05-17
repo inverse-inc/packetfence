@@ -1,18 +1,85 @@
-/preferences:
-  description: pf::UnifiedApi::Controller::Preferences
+/api/v1/preferences:
   get:
-    description: List items
+    summary: Get the users preferences.
     operationId: api.v1.Preferences.list
     responses:
       '200':
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PreferencesList'
-        description: List
+        $ref: '#/components/responses/Preferences'
       '400':
         $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - $Session
+
+/api/v1/preference/{preference_id}:
+  delete:
+    summary: Delete user preference.
+    operationId: api.v1.Preferences.resource.remove
+    parameters:
+    - in: path
+      name: preference_id
+      schema:
+        type: string
+    responses:
+      '204':
+        description: Request successful. User preference deleted.
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Session
+  get:
+    summary: Get user preference.
+    operationId: api.v1.Preferences.get
+    parameters:
+    - in: path
+      name: preference_id
+      schema:
+        type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/Preference'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - $Session
+  put:
+    summary: Replace user preference.
+    operationId: api.v1.Preferences.resource.replace
+    parameters:
+    - in: path
+      name: preference_id
+      schema:
+        type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Preference'
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - $Session

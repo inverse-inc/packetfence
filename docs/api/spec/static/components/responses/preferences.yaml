@@ -1,0 +1,17 @@
+Preferences:
+  description: Request successful. Response contains user preferences.
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/Preferences'
+
+Preference:
+  description: Request successful. Response contains user preference.
+  content:
+    application/json:
+      schema:
+        description: Item
+        type: object
+        properties:
+          item:
+            $ref: '#/components/schemas/Preference'

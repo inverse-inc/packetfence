@@ -1,6 +1,6 @@
 /api/v1/current_user/allowed_node_roles:
   get:
-    summary: Get the current users' allowed node roles.
+    summary: Get the allowed node roles.
     responses:
       '200':
         $ref: "#/components/responses/CurrentUserAllowedNodeRoles"
@@ -9,11 +9,11 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $CurrentUser
+      - $Session
 
 /api/v1/current_user/allowed_user_access_durations:
   get:
-    summary: Get the current users' allowed access durations.
+    summary: Get the allowed access durations.
     responses:
       '200':
         $ref: "#/components/responses/CurrentUserAllowedAccessDurations"
@@ -22,11 +22,11 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $CurrentUser
+      - $Session
 
 /api/v1/current_user/allowed_user_access_levels:
   get:
-    summary: Get the current users' allowed access levels.
+    summary: Get the allowed access levels.
     responses:
       '200':
         $ref: "#/components/responses/CurrentUserAllowedAccessLevels"
@@ -35,11 +35,11 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $CurrentUser
+      - $Session
 
 /api/v1/current_user/allowed_user_actions:
   get:
-    summary: Get the current users' allowed actions.
+    summary: Get the allowed actions.
     responses:
       '200':
         $ref: "#/components/responses/CurrentUserAllowedActions"
@@ -48,11 +48,11 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $CurrentUser
+      - $Session
 
 /api/v1/current_user/allowed_user_roles:
   get:
-    summary: Get the current users' allowed user roles.
+    summary: Get the allowed user roles.
     responses:
       '200':
         $ref: "#/components/responses/CurrentUserAllowedUserRoles"
@@ -61,11 +61,11 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $CurrentUser
+      - $Session
 
 /api/v1/current_user/allowed_user_unreg_date:
   get:
-    summary: Get the current users' allowed maximum unregistration date.
+    summary: Get the allowed maximum unregistration date.
     responses:
       '200':
         $ref: "#/components/responses/CurrentUserAllowedUnregDate"
@@ -74,4 +74,4 @@
       '404':
         $ref: "#/components/responses/NotFound"
     tags:
-      - $CurrentUser
+      - $Session
