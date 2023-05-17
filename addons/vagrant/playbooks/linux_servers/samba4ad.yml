@@ -1,6 +1,13 @@
 - hosts: service_samba4ad
   name: Manage Samba service
   become: True
+  gather_facts: False
+
+  pre_tasks:
+  - name: Gather min only
+    ansible.builtin.setup:
+      gather_subset:
+        - "!all"
 
   tasks:
   - name: Check if samba4ad configuration is there
@@ -34,7 +41,7 @@
       - python3-pexpect
 
     - name: Reboot
-      include_tasks: ./samba4ad_reboot.yml
+      include_tasks: ./tasks/samba4ad_reboot_tasks.yml
       when: disable_ipv6.changed
   
     - name: Download file with check (sha256)
@@ -164,7 +171,7 @@
       - "samba-ad-dc" 
 
     - name: Reboot
-      include_tasks: ./samba4ad_reboot.yml
+      include_tasks: ./tasks/samba4ad_reboot_tasks.yml
       when: set_samba4ad_conf.changed
 
     - name: Configure Samba "{{ packetfence_domain_account }}" user

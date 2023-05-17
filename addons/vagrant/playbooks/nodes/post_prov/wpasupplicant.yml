@@ -1,8 +1,8 @@
 ---
 - name: configure wpasupplicant on nodes to test 802.1X
   hosts: nodes
-  become: true
-  gather_facts: no
+  become: True
+  gather_facts: False
   
   collections:
     - inverse_inc.packetfence

@@ -63,7 +63,7 @@ const props = {
   }
 }
 
-import { computed, toRefs, watch } from '@vue/composition-api'
+import { computed, onBeforeUnmount, toRefs, watch } from '@vue/composition-api'
 import usePreference from '@/composables/usePreference'
 import { useSearch } from '../_search'
 import icons from '@/assets/icons/fingerbank'
@@ -137,6 +137,8 @@ const setup = (props, context) => {
     setPage(1)
     reSearch()
   }, { deep: true, immediate: true })
+
+  onBeforeUnmount(() => search.requestInterceptor = r => r)
 
   const onSelectAll = () => {
     selectedDeviceClasses.value = deviceClasses.value.map(item => item.id)
