@@ -1017,19 +1017,6 @@ External captive portal URLs have also changed. Change them accordingly dependin
 Where portal_ip is the IP Address (or DNS name) of your captive portal as it was configured before
 
 
-==== Changes to WMI
-
-
-If you use WMI, you must modify conf/wmi.conf in order to make sure that a namespace parameter is defined for each rule. For example, you could have:
-
-```
-[SCCM]
-request=select * from Win32_Process where name='CcmExec.exe'
-action=[sccm]
-namespace=ROOT\cimv2
-on_tab=1
-```
-
 ==== Changes to default cronjob
 
 
