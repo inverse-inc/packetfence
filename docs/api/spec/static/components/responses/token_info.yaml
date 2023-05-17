@@ -1,0 +1,6 @@
+TokenInfo:
+  description: Successfully found information for the token
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/TokenInfo"
