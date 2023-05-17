@@ -104,6 +104,7 @@ use warnings;
 
 use Net::SNMP;
 use Try::Tiny;
+use Switch;
 
 use base ('pf::Switch::Cisco');
 
