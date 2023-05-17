@@ -30,6 +30,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 === Enhancements
 
  * Upgrade coredns libraries (#7197)
+ * Remove WMI (#7649)
 
 === Bug Fixes
 
@@ -46,7 +47,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Allow ProxySQL to be configured to connect to a single external database
  * Allow image files to be uploaded in a connection profile
  * Added System Service and systemd buttons in Admin UI
- * Online/offline doesn't rely on recording the bandwidth accounting data anymore 
+ * Online/offline doesn't rely on recording the bandwidth accounting data anymore
  * Pending security events added to network threats visualization
  * Allow to expose the fingerbank_info variable to all HTML portal templates (#7460)
  * VLAN filters actions can now be done synchronously (#7351)
@@ -61,7 +62,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Add not_before to PKI certificates (#7454)
  * Support for out acls if the switch support it (#7560)
  * Improvements and support for dACL in supported material (#7561)
- 
+
 === Bug Fixes
 
  * Force the destination IP for UDP packets going through the pfconnector (#7323)
