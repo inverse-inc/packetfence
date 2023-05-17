@@ -1243,6 +1243,10 @@ fi
 %config(noreplace)      /usr/local/pf/conf/template_switches.conf
                         /usr/local/pf/conf/template_switches.conf.defaults
 %dir                    /usr/local/pf/conf/uploads
+%dir                    /usr/local/pf/conf/ansible
+                        /usr/local/pf/conf/ansible/acl.cfg
+                        /usr/local/pf/conf/ansible/inventory.cfg
+                        /usr/local/pf/conf/ansible/switch_acls.yml
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db
                         /usr/local/pf/db/*
