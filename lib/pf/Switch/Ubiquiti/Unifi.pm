@@ -204,7 +204,7 @@ sub _connect {
 
     my $auth = $cache->get("Ubiquiti-" . $controllerIp ."-auth");
     if (!defined($auth) || $auth == $FALSE) {
-        $response = $ua->post($base_url.$login_path, Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
+        my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
 
         unless($response->is_success) {
             $logger->error("Can't login on the Unifi controller: ".$response->status_line);
@@ -215,7 +215,6 @@ sub _connect {
     }
     return ($ua, $base_url);
 }
-
 
 =head2 _deauthenticateMacWithHTTP
 
