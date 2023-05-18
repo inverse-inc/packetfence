@@ -193,18 +193,25 @@ sub _connect {
     my $password = $self->{_wsPwd};
 
     my $ua = LWP::UserAgent->new();
-    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt" });
+    $ua->cookie_jar({ file => "$var_dir/run/.ubiquiti.cookies.txt", autosave => 1, ignore_discard => 1});
     $ua->ssl_opts(verify_hostname => 0);
     $ua->timeout(10);
 
 
     my $base_url = "$transport://$controllerIp:$UNIFI_API_PORT";
 
-    my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'"}');
+    my $cache = $self->cache;
 
-    unless($response->is_success) {
-        $logger->error("Can't login on the Unifi controller: ".$response->status_line);
-        die;
+    my $auth = $cache->get("Ubiquiti-" . $controllerIp ."-auth");
+    if (!defined($auth) || $auth == $FALSE) {
+        my $response = $ua->post("$base_url/api/login", Content => '{"username":"'.$username.'", "password":"'.$password.'", "remember": "true"}');
+
+        unless($response->is_success) {
+            $logger->error("Can't login on the Unifi controller: ".$response->status_line);
+            $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $FALSE );
+            die;
+        }
+        $cache->set("Ubiquiti-" . $controllerIp ."-auth" , $TRUE ,{ expires_in => "10m" } );
     }
     return ($ua, $base_url);
 }
