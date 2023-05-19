@@ -115,7 +115,7 @@ server dynamic_clients {
             }
         }
 
-        sql_map dynamic_clients
+        sql_map_dynamic_clients
         # Assign the following attributes and return OK if we did find a PacketFence-NasName
         if ( &control:PacketFence-NasName != "0" ) {
             update control {

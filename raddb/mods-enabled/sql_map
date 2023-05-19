@@ -1,5 +1,5 @@
 #  Configuration for the SQL based Map (rlm_sql_map)
-sql_map dynamic_clients {
+sql_map sql_map_dynamic_clients {
 	# SQL instance to use (from mods-available/sql)
 	#
 	#  If you have multiple sql instances, such as "sql sql1 {...}",
@@ -51,9 +51,6 @@ sql_map dynamic_clients {
 		control:PacketFence-NasName         := 0
 		control:FreeRADIUS-Client-Secret    := 1
 		control:FreeRADIUS-Client-NAS-Type  := 2
-#		reply:Tunnel-Type		:= 3
-#		reply:Tunnel-Medium-Type	:= 4
-#		reply:Tunnel-Private-Group-ID	:= 5
 	}
 
 	# If the 'query' results in multiple rows, it creates the <radius attr>[*] array entry.
