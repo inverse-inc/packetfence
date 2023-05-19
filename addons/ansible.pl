@@ -54,6 +54,7 @@ foreach my $switch_id (keys(%SwitchConfig)) {
 	    case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
 	    case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
 	    case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
+            case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
     }
     foreach my $role (keys %ConfigRoles) {
         my $acls = $switch->getAccessListByName($role);
