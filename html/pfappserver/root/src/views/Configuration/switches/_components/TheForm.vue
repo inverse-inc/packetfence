@@ -159,6 +159,12 @@
             </b-card-header>
 
             <div class="card-body py-0">
+                <form-group-push-acls v-show="supports(['PushACLs'])"
+                  namespace="PushACLs"
+                  :column-label="$i18n.t('Push ACLs')"
+                  :text="$i18n.t('Enable the Push of the ACLs directly on the equipment.')"
+                />
+
                 <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
                   namespace="UseDownloadableACLs"
                   :column-label="$i18n.t('Downloadable ACLs')"
@@ -457,6 +463,7 @@ import {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupDownloadableAclsLimit,
   FormGroupAclsLimit,
@@ -531,6 +538,7 @@ const components = {
   FormGroupUplink,
   FormGroupUplinkDynamic,
   FormGroupUseCoa,
+  FormGroupPushAcls,
   FormGroupUseDownloadableAcls,
   FormGroupAclsLimit,
   FormGroupDownloadableAclsLimit,

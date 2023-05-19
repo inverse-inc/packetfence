@@ -154,6 +154,14 @@
             <b-card-header>
               <h4 class="mb-0" v-t="'Role mapping by Access List'"></h4>
             </b-card-header>
+              <b-card v-show="supports(['PushACLs'])"
+                class="mb-3 pb-0" no-body
+              >
+               <form-group-push-acls namespace="PushACLs"
+                  :column-label="$i18n.t('Push ACLs')"
+                  :text="$i18n.t('Enable the Push of the ACLs directly on the equipment.')"
+                />
+              </b-card>
               <b-card v-show="supports(['DownloadableListBasedEnforcement'])"
                 class="mb-3 pb-0" no-body
               >
