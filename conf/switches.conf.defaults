@@ -94,6 +94,8 @@ radiusDeauthUseConnector=Y
 VoIPLLDPDetect=Y
 PostMfaValidation=N
 
+# Push ACLs
+PushACLs=N
 
 # Downloadable ACLs
 DownloadableACLsLimit=384

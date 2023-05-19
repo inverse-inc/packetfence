@@ -59,7 +59,7 @@ foreach my $switch_id (keys(%SwitchConfig)) {
     foreach my $role (keys %ConfigRoles) {
         my $acls = $switch->getAccessListByName($role);
 	!next if !defined($acls); 
-        $vars{'switches'}{$switch_id}{'acls'}{$role} = $switch->getAccessListByName($role);
+        $vars{'switches'}{$switch_id}{'acls'}{$role} = $acls;
     }
 
     $tt->process("$conf_dir/ansible/acl.cfg", $vars{'switches'}{$switch_id}, "$conf_dir/ansible/run/$switch_id.cfg") or die $tt->error();

@@ -174,6 +174,7 @@ sub new {
         '_RoleMap'                      => 'enabled',
         '_UrlMap'                       => 'enabled',
         '_VpnMap'                       => 'enabled',
+        '_PushACLs'                     => 'disabled',
         '_UseDownloadableACLs'          => 'disabled',
         '_DownloadableACLsLimit'        => 0,
         '_ACLsLimit'                    => 0,
@@ -3944,6 +3945,12 @@ sub useDownloadableACLs {
     my ($self) = @_;
     return $self->supportsDownloadableListBasedEnforcement() &&
         isenabled($self->{_UseDownloadableACLs});
+}
+
+sub usePushACLs {
+    my ($self) = @_;
+    return $self->supportsPushACLs() &&
+        isenabled($self->{_PushACLs});
 }
 
 sub defaultACLsLimit {
