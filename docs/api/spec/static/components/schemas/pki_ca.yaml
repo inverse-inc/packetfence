@@ -1,0 +1,239 @@
+PkiCa:
+  type: object
+  properties:
+    cert:
+      type: string
+    cn:
+      type: string
+    country:
+      type: string
+    days:
+      type: string
+    digest:
+      $ref: '#/components/schemas/PkiDigest'
+    extended_key_usage:
+      $ref: '#/components/schemas/PkiExtendedKeyUsages'
+    issuer_key_hash:
+      type: string
+    issuer_name_hash:
+      type: string
+    key_size:
+      type: string
+    key_type:
+      $ref: '#/components/schemas/PkiKeyType'
+    key_usage:
+      $ref: '#/components/schemas/PkiKeyUsage'
+    locality:
+      type: string
+    mail:
+      type: string
+    organisation:
+      type: string
+    organisational_unit:
+      type: string
+    state:
+      type: string
+    street_address:
+      type: string
+
+PkiCaForm:
+  allOf:
+    - $ref: '#/components/schemas/PkiCa'
+    - required:
+      - cn
+      - email
+      - organisation
+      - country
+      - state
+      - locality
+      - key_type
+      - key_size
+      - digest
+      - days
+
+PkiCasList:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiCa'
+        password:
+          type: string
+        raw:
+          type: string
+          nullable: true
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
+PkiCasSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - type: object
+      properties:
+        items:
+          description: Certificate Authorities.
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiCa'
+
+PkiCasQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/PkiCasQueryNested'
+    - $ref: '#/components/schemas/PkiCasQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/PkiCasQueryNested'
+      or: '#/components/schemas/PkiCasQueryNested'
+      contains: '#/components/schemas/PkiCasQueryField'
+      not_contains: '#/components/schemas/PkiCasQueryField'
+      match: '#/components/schemas/PkiCasQueryField'
+      not_match: '#/components/schemas/PkiCasQueryField'
+      between: '#/components/schemas/PkiCasQueryField'
+      not_between: '#/components/schemas/PkiCasQueryField'
+      is: '#/components/schemas/PkiCasQueryField'
+      is_not: '#/components/schemas/PkiCasQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+PkiCasQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/PkiCasQuery'
+
+PkiCasQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/PkiCasField'
+    value:
+      description: Search criteria.
+      type: string
+
+PkiCasFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/PkiCasField'
+  example:
+    - id
+    - cert
+    - cn
+    - country
+    - days
+    - digest
+    - extended_key_usage
+    - issuer_key_hash
+    - issuer_name_hash
+    - key_size
+    - key_type
+    - key_usage
+    - locality
+    - mail
+    - organisation
+    - organisational_unit
+    - state
+    - street_address
+
+PkiCasField:
+  type: string
+  example: id
+  enum:
+    - id
+    - cert
+    - cn
+    - country
+    - days
+    - digest
+    - extended_key_usage
+    - issuer_key_hash
+    - issuer_name_hash
+    - key_size
+    - key_type
+    - key_usage
+    - locality
+    - mail
+    - organisation
+    - organisational_unit
+    - state
+    - street_address
+
+PkiCasSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - cert ASC
+      - cert DESC
+      - cn ASC
+      - cn DESC
+      - country ASC
+      - country DESC
+      - days ASC
+      - days DESC
+      - digest ASC
+      - digest DESC
+      - extended_key_usage ASC
+      - extended_key_usage DESC
+      - issuer_key_hash ASC
+      - issuer_key_hash DESC
+      - issuer_name_hash ASC
+      - issuer_name_hash DESC
+      - key_size ASC
+      - key_size DESC
+      - key_type ASC
+      - key_type DESC
+      - key_usage ASC
+      - key_usage DESC
+      - locality ASC
+      - locality DESC
+      - mail ASC
+      - mail DESC
+      - organisation ASC
+      - organisation DESC
+      - organisational_unit ASC
+      - organisational_unit DESC
+      - state ASC
+      - state DESC
+      - street_address ASC
+      - street_address DESC

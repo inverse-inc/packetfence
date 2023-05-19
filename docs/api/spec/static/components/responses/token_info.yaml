@@ -1,5 +1,5 @@
 TokenInfo:
-  description: Successfully found information for the token
+  description: Request successful. Response contains the token info.
   content:
     application/json:
       schema:

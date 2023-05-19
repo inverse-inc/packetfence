@@ -1,0 +1,84 @@
+/api/v1/pki/cas:
+  get:
+    summary: Get PKI Certificate Authorities.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCasList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+  post:
+    summary: Create PKI Certificate Authority.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCa'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCaCreate'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/cas/search:
+  post:
+    summary: Search PKI Certificate Authorities.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCasSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCasSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/ca/{ca_id}:
+  get:
+    summary: Get PKI Certificate Authority.
+    parameters:
+      - name: ca_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCasList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+
+/api/v1/pki/ca/resign/{ca_id}:
+  post:
+    summary: Re-Sign PKI Certificate Authority.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCa'
+    parameters:
+      - name: ca_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCasList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI

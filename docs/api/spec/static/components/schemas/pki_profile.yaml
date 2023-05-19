@@ -1,0 +1,229 @@
+PkiProfile:
+  type: object
+  properties:
+    ca_id:
+      type: string
+    ca_name:
+      type: string
+    days_before_renewal:
+      type: string
+    days_before_renewal_mail:
+      type: string
+    digest:
+      $ref: '#/components/schemas/PkiDigest'
+    extended_key_usage:
+      $ref: '#/components/schemas/PkiExtendedKeyUsages'
+    key_size:
+      type: string
+    key_type:
+      $ref: '#/components/schemas/PkiKeyType'
+    key_usage:
+      $ref: '#/components/schemas/PkiKeyUsage'
+    name:
+      type: string
+    mail:
+      type: string
+    renewal_mail_subject:
+      type: string
+    revoked_valid_until:
+      type: string
+    scep_days_before_renewal:
+      type: string
+    renewal_mail:
+      type: string
+    validity:
+      type: string
+
+PkiProfileForm:
+  allOf:
+    - $ref: '#/components/schemas/PkiProfile'
+    - required:
+      - name
+      - mail
+      - validity
+      - key_type
+      - key_size
+      - digest
+
+PkiProfilesList:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiProfile'
+        password:
+          type: string
+        raw:
+          type: string
+          nullable: true
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
+PkiProfilesSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - type: object
+      properties:
+        items:
+          description: Profiles.
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiProfile'
+
+PkiProfilesQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/PkiProfilesQueryNested'
+    - $ref: '#/components/schemas/PkiProfilesQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/PkiProfilesQueryNested'
+      or: '#/components/schemas/PkiProfilesQueryNested'
+      contains: '#/components/schemas/PkiProfilesQueryField'
+      not_contains: '#/components/schemas/PkiProfilesQueryField'
+      match: '#/components/schemas/PkiProfilesQueryField'
+      not_match: '#/components/schemas/PkiProfilesQueryField'
+      between: '#/components/schemas/PkiProfilesQueryField'
+      not_between: '#/components/schemas/PkiProfilesQueryField'
+      is: '#/components/schemas/PkiProfilesQueryField'
+      is_not: '#/components/schemas/PkiProfilesQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+PkiProfilesQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/PkiProfilesQuery'
+
+PkiProfilesQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/PkiProfilesField'
+    value:
+      description: Search criteria.
+      type: string
+
+PkiProfilesFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/PkiProfilesField'
+  example:
+    - id
+    - ca_id
+    - ca_name
+    - days_before_renewal
+    - days_before_renewal_mail
+    - digest
+    - extended_key_usage
+    - key_size
+    - key_type
+    - key_usage
+    - name
+    - mail
+    - renewal_mail_subject
+    - revoked_valid_until
+    - scep_days_before_renewal
+    - renewal_mail
+    - validity
+
+PkiProfilesField:
+  type: string
+  example: id
+  enum:
+    - id
+    - ca_id
+    - ca_name
+    - days_before_renewal
+    - days_before_renewal_mail
+    - digest
+    - extended_key_usage
+    - key_size
+    - key_type
+    - key_usage
+    - name
+    - mail
+    - renewal_mail_subject
+    - revoked_valid_until
+    - scep_days_before_renewal
+    - renewal_mail
+    - validity
+
+PkiProfilesSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - ca_id ASC
+      - ca_id DESC
+      - ca_name ASC
+      - ca_name DESC
+      - days_before_renewal ASC
+      - days_before_renewal DESC
+      - days_before_renewal_mail ASC
+      - days_before_renewal_mail DESC
+      - digest ASC
+      - digest DESC
+      - extended_key_usage ASC
+      - extended_key_usage DESC
+      - key_size ASC
+      - key_size DESC
+      - key_type ASC
+      - key_type DESC
+      - key_usage ASC
+      - key_usage DESC
+      - name ASC
+      - name DESC
+      - mail ASC
+      - mail DESC
+      - renewal_mail_subject ASC
+      - renewal_mail_subject DESC
+      - revoked_valid_until ASC
+      - revoked_valid_until DESC
+      - scep_days_before_renewal ASC
+      - scep_days_before_renewal DESC
+      - renewal_mail ASC
+      - renewal_mail DESC
+      - validity ASC
+      - validity DESC
