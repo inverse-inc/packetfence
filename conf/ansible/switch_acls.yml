@@ -1,4 +1,4 @@
-- name: "Push ACLs on network equipment"
+- name: "Push ACLs on network equipments"
   hosts: switches
   gather_facts: no
 
@@ -11,7 +11,7 @@
       register: acls
       when: ansible_network_os == 'cisco.ios.ios'
 
-    - name: Replaces IOS device configuration of listed acls with provided configuration
+    - name: Load new acl into Cisco Switch
       cisco.ios.ios_acls:
         config: "{{ acls.parsed }}"
         state: replaced
@@ -21,3 +21,8 @@
       community.network.aireos_config:
         src: "{{ acl_config }}"
       when: ansible_network_os == 'aireos'
+
+    - name: Load new acl in Aruba-CX
+      arubanetworks.aoscx.aoscx_config:
+        src: "{{ acl_config }}"
+      when: ansible_network_os == 'arubanetworks.aoscx.aoscx'
