@@ -1,0 +1,61 @@
+#  Configuration for the SQL based Map (rlm_sql_map)
+sql_map dynamic_clients {
+	# SQL instance to use (from mods-available/sql)
+	#
+	#  If you have multiple sql instances, such as "sql sql1 {...}",
+	#  use the *instance* name here: sql1.
+	sql_module_instance = "sql"
+
+	#  This is duplicative of info available in the SQL module, but
+	#  we have to list it here as we do not yet support nested
+	#  reference expansions.
+	dialect = "mysql"
+
+	# Name of the check item attribute to be used as a key in the SQL queries
+	query = "\
+		SELECT nasname, secret, type\
+		FROM (\
+			SELECT nasname, secret, type, 0 as o FROM radius_nas WHERE nasname = '%{control:Tmp-String-0}'\
+			UNION ALL\
+			( SELECT nasname, secret, type, 1 as o from radius_nas WHERE INET_ATON('%{Packet-Src-IP-Address}') BETWEEN start_ip AND end_ip order by range_length limit 1)\
+			UNION ALL\
+			( SELECT nasname, secret, type, 2 as o from radius_nas WHERE INET_ATON('%{raw:NAS-IP-Address}') BETWEEN start_ip AND end_ip order by range_length limit 1)\
+            UNION ALL \
+            ( SELECT '0' as nasname, '' as secret, '' as type, 3 as o)\
+\
+		) as x ORDER BY o LIMIT 1;\
+    "
+
+	#
+	#  Mapping of SQL columns to RADIUS dictionary attributes.
+	#
+
+	#  WARNING: Although this format is almost identical to the unlang
+	#  update section format, it does *NOT* mean that you can use other
+	#  unlang constructs in module configuration files.
+	#
+	#  Configuration items are in the format:
+	# 	<radius attr> <op> <sql column number>
+	#
+	#  Where:
+	#  	<radius attr>:	Is the destination RADIUS attribute
+	# 			with any valid list and request qualifiers.
+	#  	<op>: 		Is any assignment attribute (=, :=, +=, -=).
+	#  	<column num>:	The column number (not name), starting from 0
+	#
+	#  Request and list qualifiers may also be placed after the 'update'
+	#  section name to set defaults destination requests/lists
+	#  for unqualified RADIUS attributes.
+	#
+	update {
+		control:PacketFence-NasName         := 0
+		control:FreeRADIUS-Client-Secret    := 1
+		control:FreeRADIUS-Client-NAS-Type  := 2
+#		reply:Tunnel-Type		:= 3
+#		reply:Tunnel-Medium-Type	:= 4
+#		reply:Tunnel-Private-Group-ID	:= 5
+	}
+
+	# If the 'query' results in multiple rows, it creates the <radius attr>[*] array entry.
+#	multiple_rows = yes
+}
