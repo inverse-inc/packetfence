@@ -1,0 +1,41 @@
+PkiCasList:
+  description: Request successful. Response contains PKI Certificate Authorities.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCasList"
+
+PkiCaCreate:
+  description: Request successful. The PKI Certificate Authority has been created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCaList"
+
+PkiCasSearch:
+  description: Request successful. The response contains the search result.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCasSearch"
+
+PkiProfilesList:
+  description: Request successful. Response contains PKI Profiles.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfilesList"
+
+PkiProfileCreate:
+  description: Request successful. The PKI Profile has been created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfileList"
+
+PkiProfilesSearch:
+  description: Request successful. The response contains the search result.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfilesSearch"

@@ -1,34 +1,55 @@
 Query:
-  allOf:
-    - $ref: '#/components/schemas/QueryItem'
-    - type: object
-      properties:
-        values:
-          type: array
-          items:
-            $ref: '#/components/schemas/QueryItem'
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/QueryNested'
+    - $ref: '#/components/schemas/QueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/QueryNested'
+      or: '#/components/schemas/QueryNested'
+      contains: '#/components/schemas/QueryField'
+      not_contains: '#/components/schemas/QueryField'
+      match: '#/components/schemas/QueryField'
+      not_match: '#/components/schemas/QueryField'
+      between: '#/components/schemas/QueryField'
+      not_between: '#/components/schemas/QueryField'
+      is: '#/components/schemas/QueryField'
+      is_not: '#/components/schemas/QueryField'
 
-QueryItem:
-  description: An array of simple/complex searches to use with the provided operator. To be used when the operator expects complex values as arguments. Refer to the examples for how to use this efficiently. This field must follow the same structure as this schema.
+QueryNested:
   type: object
   properties:
-    field:
-        description: The field used with search
-        type: string
     op:
-        description: The operator to use against the value of the field
-        type: string
-        enum:
-          - and
-          - or
-          - is
-          - is_not
-          - match
-          - not_match
-          - contains
-          - not_contains
-          - between
-          - not_between
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/Query'
+
+QueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      description: Search field.
+      type: string
     value:
-        description: The search criteria used
-        type: string
+      description: Search criteria.
+      type: string

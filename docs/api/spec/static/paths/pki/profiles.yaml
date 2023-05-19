@@ -1,0 +1,102 @@
+/api/v1/pki/profiles:
+  get:
+    summary: Get PKI Profiles.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfilesList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+  post:
+    summary: Create PKI Profile.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiProfile'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfileCreate'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/profiles/search:
+  post:
+    summary: Search PKI Profiles.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiProfilesSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfilesSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/profile/{profile_id}:
+  get:
+    summary: Get PKI Profile.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfilesList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+  patch:
+    summary: Update PKI Profile.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiProfile'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfilesList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '405':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $PKI
+  delete:
+    summary: Delete PKI Profile.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfilesList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '405':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $PKI

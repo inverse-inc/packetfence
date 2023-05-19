@@ -44,18 +44,20 @@ security:
   - bearerAuth: []
 
 tags:
+  - name: $Async
+    description: Runs tasks asyncronously.
   - name: $Cluster
     description: Manage PacketFence cluster.
-  - name: $CurrentUser
-    description: Get the current users' allowed roles and actions.
   - name: $Email
     description: Send email using SMTP configuration.
   - name: $LiveLogs
     description: Tail logs in real time.
-  - name: $Async
-    description: Runs tasks asyncronously.
+  - name: $PKI
+    description: PacketFence Public Key Infrastructure.
   - name: $Services
     description: Manage PacketFence services.
+  - name: $Session
+    description: Manage session, get the current users' allowed roles and actions.
   - name: $SSO
     description: Single-Sign-On status.
   - name: $System
