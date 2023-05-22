@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
@@ -18,6 +18,9 @@ import (
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"gopkg.in/ldap.v2"
 )
+
+var ApiPrefix = "/api/v1"
+var LdapSearchEndpoint = "/ldap/search"
 
 func init() {
 	caddy.RegisterPlugin("pfldapexplorer", caddy.Plugin{
@@ -51,11 +54,10 @@ func buildPfldapExplorer(ctx context.Context) (Handler, error) {
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
 
-	pfldapexplorer.Router = mux.NewRouter()
-	PFLdapExplorer := &pfldapexplorer
-	api := pfldapexplorer.Router.PathPrefix("/api/v1").Subrouter()
+	pfldapexplorer.Router = chi.NewRouter()
+	ldapSearchUrl := ApiPrefix + LdapSearchEndpoint
 
-	api.Handle("/ldap/search", pfldapexplorer.SearchLDAP(PFLdapExplorer)).Methods("POST")
+	pfldapexplorer.Router.Post(ldapSearchUrl, pfldapexplorer.HandleLDAPSearchRequest)
 
 	return pfldapexplorer, nil
 
@@ -64,7 +66,7 @@ func buildPfldapExplorer(ctx context.Context) (Handler, error) {
 // Handler struct
 type Handler struct {
 	Next   httpserver.Handler
-	Router *mux.Router
+	Router *chi.Mux
 	Ctx    *context.Context
 }
 
@@ -91,11 +93,11 @@ var LdapSources *Sources
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
 	r = r.WithContext(ctx)
-
 	defer panichandler.Http(ctx, w)
+	chiCtx := chi.NewRouteContext()
+	ctx = context.WithValue(ctx, chi.RouteCtxKey, chiCtx)
 
-	routeMatch := mux.RouteMatch{}
-	if h.Router.Match(r, &routeMatch) {
+	if h.Router.Match(chiCtx, r.Method, r.URL.Path) {
 		h.Router.ServeHTTP(w, r)
 
 		// TODO change me and wrap actions into something that handles server errors
@@ -126,19 +128,17 @@ func (s *Sources) readConfig(ctx context.Context) {
 	}
 }
 
-func (h *Handler) SearchLDAP(pfldapexporer *Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		var LdapSearch = Search{}
-		body, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			log.LoggerWContext(*h.Ctx).Info(err.Error())
-		}
+func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Request) {
+	var LdapSearch = Search{}
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.LoggerWContext(*h.Ctx).Info(err.Error())
+	}
 
-		if err = json.Unmarshal(body, &LdapSearch); err != nil {
-			log.LoggerWContext(*h.Ctx).Info(err.Error())
-		}
-		h.search(&LdapSearch, res, req)
-	})
+	if err = json.Unmarshal(body, &LdapSearch); err != nil {
+		log.LoggerWContext(*h.Ctx).Info(err.Error())
+	}
+	h.search(&LdapSearch, res, req)
 }
 
 func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Request) {
