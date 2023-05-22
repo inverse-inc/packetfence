@@ -25,7 +25,7 @@ var LdapSearchEndpoint = "/ldap/search"
 // Setting this higher means that all IP addresses of the server that do not respond will cause a time delay in the UI
 var serverConnectionTimeout = time.Second
 
-type ldapServer struct {
+type LdapServer struct {
 	pfconfigdriver.AuthenticationSourceLdap
 }
 
@@ -98,13 +98,13 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	return h.Next.ServeHTTP(w, r)
 }
 
-func getLdapServerFromConfig(ctx context.Context, serverId string) *ldapServer {
+func getLdapServerFromConfig(ctx context.Context, serverId string) *LdapServer {
 	var sections pfconfigdriver.PfconfigKeys
 	sections.PfconfigNS = "resource::authentication_sources_ldap"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	if slices.Contains(sections.Keys, serverId) {
-		var server ldapServer
+		var server LdapServer
 		server.PfconfigNS = sections.PfconfigNS
 		server.PfconfigHashNS = serverId
 		pfconfigdriver.FetchDecodeSocket(ctx, &server)
@@ -126,7 +126,8 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	}
 
 	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
-	results, err := SearchLdap(&searchQuery, ldapSearchServer, serverConnectionTimeout)
+	ldapSearchClient := LdapSearchClient{LdapServer: ldapSearchServer, Timeout: serverConnectionTimeout, LdapClientFactory: LdapClientFactory{}}
+	results, err := ldapSearchClient.SearchLdap(&searchQuery)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
 	}

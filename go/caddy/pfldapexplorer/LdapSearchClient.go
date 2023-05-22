@@ -18,22 +18,28 @@ type SearchQuery struct {
 	Attributes []string `json:"attributes,omitempty"`
 }
 
-func SearchLdap(query *SearchQuery, ldapServer *ldapServer, timeout time.Duration) (map[string]map[string]interface{}, error) {
-	conn := connect(ldapServer, timeout)
+type LdapSearchClient struct {
+	LdapServer        *LdapServer
+	Timeout           time.Duration
+	LdapClientFactory ILdapClientFactory
+}
+
+func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string]interface{}, error) {
+	conn := sc.connect()
 	if conn == nil {
 		return nil, errors.New("failed to connect to the LDAP server")
 	}
 
 	defer conn.Close()
 
-	scope, ok := scopes[ldapServer.Scope]
+	scope, ok := scopes[sc.LdapServer.Scope]
 
 	if !ok {
-		return nil, errors.New("unknown search scope: " + ldapServer.Scope)
+		return nil, errors.New("unknown search scope: " + sc.LdapServer.Scope)
 	}
 
 	response, err := conn.SearchWithPaging(&ldap.SearchRequest{
-		BaseDN:     ldapServer.BaseDN,
+		BaseDN:     sc.LdapServer.BaseDN,
 		Scope:      scope,
 		Filter:     query.Search,
 		Attributes: query.Attributes,
@@ -51,16 +57,16 @@ func SearchLdap(query *SearchQuery, ldapServer *ldapServer, timeout time.Duratio
 	return transform(response.Entries), nil
 }
 
-func connect(ldapServer *ldapServer, timeout time.Duration) *ldap.Conn {
-	ldap.DefaultTimeout = timeout
+func (sc LdapSearchClient) connect() ILdapConnection {
 	ctx := log.LoggerNewContext(context.Background())
-	sources := ldapServer.Host
-	sslEnabled := ldapServer.Encryption == "ssl"
-	tlsEnabled := ldapServer.Encryption == "starttls"
+	sources := sc.LdapServer.Host
+	sslEnabled := sc.LdapServer.Encryption == "ssl"
+	tlsEnabled := sc.LdapServer.Encryption == "starttls"
 
 	for _, src := range sources {
-		serverSocketAddress := fmt.Sprintf("%s:%s", src, ldapServer.Port)
-		conn, err := checkConnection(serverSocketAddress, sslEnabled)
+		serverSocketAddress := fmt.Sprintf("%s:%s", src, sc.LdapServer.Port)
+		ldapClient := sc.LdapClientFactory.NewLdapClient("tcp", serverSocketAddress, sc.Timeout)
+		conn, err := sc.checkConnection(serverSocketAddress, sslEnabled, ldapClient)
 
 		if err != nil {
 			log.LogInfo(ctx, "Failed to connect to the LDAP server: "+err.Error())
@@ -73,11 +79,13 @@ func connect(ldapServer *ldapServer, timeout time.Duration) *ldap.Conn {
 
 		if err != nil {
 			log.LogInfo(ctx, "Failed to re-connect to an LDAP server using TLS: "+err.Error())
+			conn.Close()
 			continue
 		}
 
-		if err = conn.Bind(ldapServer.BindDN, ldapServer.Password); err != nil {
+		if err = conn.Bind(sc.LdapServer.BindDN, sc.LdapServer.Password); err != nil {
 			log.LogInfo(ctx, "Failed to authenticate to an LDAP server: "+err.Error())
+			conn.Close()
 			continue
 		}
 
@@ -87,13 +95,13 @@ func connect(ldapServer *ldapServer, timeout time.Duration) *ldap.Conn {
 	return nil
 }
 
-func checkConnection(serverSocketAddress string, sslEnabled bool) (conn *ldap.Conn, err error) {
+func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ILdapClient) (conn ILdapConnection, err error) {
 	if sslEnabled {
-		conn, err = ldap.DialTLS("tcp", serverSocketAddress, &tls.Config{
+		conn, err = ldapClient.DialTLS(&tls.Config{
 			InsecureSkipVerify: true,
 		})
 	} else {
-		conn, err = ldap.Dial("tcp", serverSocketAddress)
+		conn, err = ldapClient.Dial()
 	}
 	return conn, err
 }
