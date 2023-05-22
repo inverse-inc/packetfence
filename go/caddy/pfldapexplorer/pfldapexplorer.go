@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/inverse-inc/go-utils/log"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
 	"github.com/inverse-inc/packetfence/go/panichandler"
@@ -119,10 +120,14 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	if err = json.Unmarshal(body, &searchQuery); err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
@@ -130,6 +135,8 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	results, err := ldapSearchClient.SearchLdap(&searchQuery)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
+		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
