@@ -17,10 +17,15 @@ import (
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"gopkg.in/ldap.v2"
+	"k8s.io/utils/strings/slices"
 )
 
 var ApiPrefix = "/api/v1"
 var LdapSearchEndpoint = "/ldap/search"
+
+type ldapServer struct {
+	pfconfigdriver.AuthenticationSourceLdap
+}
 
 func init() {
 	caddy.RegisterPlugin("pfldapexplorer", caddy.Plugin{
@@ -34,7 +39,6 @@ func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
 	pfldapexplorer, err := buildPfldapExplorer(ctx)
-	pfldapexplorer.Refresh(ctx)
 	sharedutils.CheckError(err)
 
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
@@ -76,10 +80,6 @@ type Search struct {
 	Attributes []string `json:"attributes,omitempty"`
 }
 
-type Sources struct {
-	Sources map[string]*pfconfigdriver.AuthenticationSourceLdap
-}
-
 var (
 	scopes = map[string]int{
 		"base": ldap.ScopeBaseObject,
@@ -88,14 +88,12 @@ var (
 	}
 )
 
-var LdapSources *Sources
-
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
-	r = r.WithContext(ctx)
 	defer panichandler.Http(ctx, w)
 	chiCtx := chi.NewRouteContext()
 	ctx = context.WithValue(ctx, chi.RouteCtxKey, chiCtx)
+	r = r.WithContext(ctx)
 
 	if h.Router.Match(chiCtx, r.Method, r.URL.Path) {
 		h.Router.ServeHTTP(w, r)
@@ -106,25 +104,19 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	return h.Next.ServeHTTP(w, r)
 }
 
-// Refresh the configuration
-func (h Handler) Refresh(ctx context.Context) {
-	LdapSources = &Sources{}
-	LdapSources.readConfig(ctx)
-}
-
-func (s *Sources) readConfig(ctx context.Context) {
-
+func getLdapServerFromConfig(ctx context.Context, serverId string) *ldapServer {
 	var sections pfconfigdriver.PfconfigKeys
 	sections.PfconfigNS = "resource::authentication_sources_ldap"
-	sources := make(map[string]*pfconfigdriver.AuthenticationSourceLdap)
+
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
-	for _, src := range sections.Keys {
-		var source pfconfigdriver.AuthenticationSourceLdap
-		source.PfconfigNS = "resource::authentication_sources_ldap"
-		source.PfconfigHashNS = src
-		pfconfigdriver.FetchDecodeSocket(ctx, &source)
-		sources[src] = &source
-		s.Sources = sources
+	if slices.Contains(sections.Keys, serverId) {
+		var server ldapServer
+		server.PfconfigNS = sections.PfconfigNS
+		server.PfconfigHashNS = serverId
+		pfconfigdriver.FetchDecodeSocket(ctx, &server)
+		return &server
+	} else {
+		return nil
 	}
 }
 
@@ -142,8 +134,10 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 }
 
 func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Request) {
+	ldapSearchServer := getLdapServerFromConfig(req.Context(), ldapInfo.Server)
+	fmt.Println(ldapSearchServer)
 
-	conn, err := h.connect(ldapInfo.Server)
+	conn, err := h.connect(ldapSearchServer)
 
 	defer conn.Close()
 
@@ -151,14 +145,14 @@ func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Re
 		log.LoggerWContext(*h.Ctx).Error("Error connecting to LDAP source: " + err.Error())
 	}
 
-	scope, ok := scopes[LdapSources.Sources[ldapInfo.Server].Scope]
+	scope, ok := scopes[ldapSearchServer.Scope]
 
 	if !ok {
-		log.LoggerWContext(*h.Ctx).Error("Unknow Search Scope: " + LdapSources.Sources[ldapInfo.Server].Scope)
+		log.LoggerWContext(*h.Ctx).Error("Unknow Search Scope: " + ldapSearchServer.Scope)
 	}
 
 	response, err := conn.SearchWithPaging(&ldap.SearchRequest{
-		BaseDN:     LdapSources.Sources[ldapInfo.Server].BaseDN,
+		BaseDN:     ldapSearchServer.BaseDN,
 		Scope:      scope,
 		Filter:     ldapInfo.Search,
 		Attributes: ldapInfo.Attributes,
@@ -180,14 +174,14 @@ func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Re
 	}
 }
 
-func (h *Handler) connect(id string) (conn *ldap.Conn, err error) {
-	sources := LdapSources.Sources[id].Host
+func (h *Handler) connect(ldapServer *ldapServer) (conn *ldap.Conn, err error) {
+	sources := ldapServer.Host
 	for _, src := range sources {
 
-		if LdapSources.Sources[id].Encryption != "ssl" {
-			conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, LdapSources.Sources[id].Port))
+		if ldapServer.Encryption != "ssl" {
+			conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, ldapServer.Port))
 		} else {
-			conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", src, LdapSources.Sources[id].Port), &tls.Config{
+			conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", src, ldapServer.Port), &tls.Config{
 				InsecureSkipVerify: true,
 			})
 		}
@@ -196,7 +190,7 @@ func (h *Handler) connect(id string) (conn *ldap.Conn, err error) {
 			log.LoggerWContext(*h.Ctx).Error("Error connecting to LDAP source: " + err.Error())
 		} else {
 			// Reconnect with TLS
-			if LdapSources.Sources[id].Encryption == "starttls" {
+			if ldapServer.Encryption == "starttls" {
 				err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
 
 				if err != nil {
@@ -208,7 +202,7 @@ func (h *Handler) connect(id string) (conn *ldap.Conn, err error) {
 		if err != nil {
 			return
 		}
-		if err = conn.Bind(LdapSources.Sources[id].BindDN, LdapSources.Sources[id].Password); err != nil {
+		if err = conn.Bind(ldapServer.BindDN, ldapServer.Password); err != nil {
 			return
 		}
 		return
