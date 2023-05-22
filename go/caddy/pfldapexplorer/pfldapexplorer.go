@@ -70,8 +70,9 @@ type Handler struct {
 }
 
 type Search struct {
-	Server string `json:"server"`
-	Search string `json:"search"`
+	Server     string   `json:"server"`
+	Search     string   `json:"search"`
+	Attributes []string `json:"attributes,omitempty"`
 }
 
 type Sources struct {
@@ -158,9 +159,10 @@ func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Re
 	}
 
 	response, err := conn.Search(&ldap.SearchRequest{
-		BaseDN: LdapSources.Sources[ldapInfo.Server].BaseDN,
-		Scope:  scope,
-		Filter: ldapInfo.Search,
+		BaseDN:     LdapSources.Sources[ldapInfo.Server].BaseDN,
+		Scope:      scope,
+		Filter:     ldapInfo.Search,
+		Attributes: ldapInfo.Attributes,
 	})
 
 	if err != nil {
