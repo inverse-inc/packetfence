@@ -1,4 +1,4 @@
-package pfldapexplorer_test
+package ldapSearchClient_test
 
 import (
 	"crypto/tls"
@@ -7,7 +7,7 @@ import (
 
 	"gopkg.in/ldap.v2"
 
-	"github.com/inverse-inc/packetfence/go/caddy/pfldapexplorer"
+	"github.com/inverse-inc/packetfence/go/common/ldapClient"
 )
 
 type SpyLdapClient struct {
@@ -15,15 +15,15 @@ type SpyLdapClient struct {
 	DialTLSCallCount int
 }
 
-var DialResponse pfldapexplorer.ILdapConnection
+var DialResponse ldapClient.ILdapConnection
 var DialError error
 
-func (c *SpyLdapClient) DialTLS(config *tls.Config) (pfldapexplorer.ILdapConnection, error) {
+func (c *SpyLdapClient) DialTLS(config *tls.Config) (ldapClient.ILdapConnection, error) {
 	c.DialTLSCallCount++
 	return DialResponse, DialError
 }
 
-func (c *SpyLdapClient) Dial() (pfldapexplorer.ILdapConnection, error) {
+func (c *SpyLdapClient) Dial() (ldapClient.ILdapConnection, error) {
 	c.DialCallCount++
 	return DialResponse, DialError
 }
@@ -35,7 +35,7 @@ type MockLdapClientFactory struct {
 	LdapClientSpy     *SpyLdapClient
 }
 
-func (f *MockLdapClientFactory) NewLdapClient(protocol string, socketAddress string, timeout time.Duration) pfldapexplorer.ILdapClient {
+func (f *MockLdapClientFactory) NewLdapClient(protocol string, socketAddress string, timeout time.Duration) ldapClient.ILdapClient {
 	f.SocketAddressUsed = socketAddress
 	f.ProtocolUsed = protocol
 	f.TimeoutUsed = timeout

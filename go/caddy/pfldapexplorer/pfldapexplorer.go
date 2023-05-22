@@ -13,9 +13,11 @@ import (
 	"github.com/inverse-inc/packetfence/go/api-frontend/unifiedapierrors"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy"
 	"github.com/inverse-inc/packetfence/go/caddy/caddy/caddyhttp/httpserver"
+	"github.com/inverse-inc/packetfence/go/common/ldapClient"
+	"github.com/inverse-inc/packetfence/go/common/ldapSearchClient"
+	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/panichandler"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"gopkg.in/ldap.v2"
 	"k8s.io/utils/strings/slices"
 )
 
@@ -26,8 +28,11 @@ var LdapSearchEndpoint = "/ldap/search"
 // Setting this higher means that all IP addresses of the server that do not respond will cause a time delay in the UI
 var serverConnectionTimeout = time.Second
 
-type LdapServer struct {
-	pfconfigdriver.AuthenticationSourceLdap
+type Handler struct {
+	Next       httpserver.Handler
+	Router     *chi.Mux
+	Ctx        *context.Context
+	connectors *connector.ConnectorsContainer
 }
 
 func init() {
@@ -43,6 +48,8 @@ func setup(c *caddy.Controller) error {
 	pfldapexplorer, err := buildPfldapExplorer(ctx)
 	sharedutils.CheckError(err)
 
+	pfldapexplorer.connectors = connector.NewConnectorsContainer(ctx)
+
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfldapexplorer.Next = next
 		return pfldapexplorer
@@ -56,6 +63,7 @@ func buildPfldapExplorer(ctx context.Context) (Handler, error) {
 	pfldapexplorer := Handler{}
 
 	pfldapexplorer.Ctx = &ctx
+	pfldapexplorer.connectors = connector.NewConnectorsContainer(ctx)
 
 	// Default http timeout
 	http.DefaultClient.Timeout = 10 * time.Second
@@ -68,20 +76,6 @@ func buildPfldapExplorer(ctx context.Context) (Handler, error) {
 	return pfldapexplorer, nil
 
 }
-
-type Handler struct {
-	Next   httpserver.Handler
-	Router *chi.Mux
-	Ctx    *context.Context
-}
-
-var (
-	scopes = map[string]int{
-		"base": ldap.ScopeBaseObject,
-		"one":  ldap.ScopeSingleLevel,
-		"sub":  ldap.ScopeWholeSubtree,
-	}
-)
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) {
 	ctx := r.Context()
@@ -99,13 +93,13 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	return h.Next.ServeHTTP(w, r)
 }
 
-func getLdapServerFromConfig(ctx context.Context, serverId string) *LdapServer {
+func getLdapServerFromConfig(ctx context.Context, serverId string) *ldapSearchClient.LdapServer {
 	var sections pfconfigdriver.PfconfigKeys
 	sections.PfconfigNS = "resource::authentication_sources_ldap"
 
 	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
 	if slices.Contains(sections.Keys, serverId) {
-		var server LdapServer
+		var server ldapSearchClient.LdapServer
 		server.PfconfigNS = sections.PfconfigNS
 		server.PfconfigHashNS = serverId
 		pfconfigdriver.FetchDecodeSocket(ctx, &server)
@@ -116,7 +110,8 @@ func getLdapServerFromConfig(ctx context.Context, serverId string) *LdapServer {
 }
 
 func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Request) {
-	var searchQuery = SearchQuery{}
+	var searchQuery = ldapSearchClient.SearchQuery{}
+	searchQuery.Context = connector.WithConnectorsContainer(req.Context(), h.connectors)
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
@@ -131,7 +126,19 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	}
 
 	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
-	ldapSearchClient := LdapSearchClient{LdapServer: ldapSearchServer, Timeout: serverConnectionTimeout, LdapClientFactory: LdapClientFactory{}}
+	// TODO check connector
+	connectorSetUp := true
+	var factory ldapClient.ILdapClientFactory
+	if connectorSetUp {
+		factory = ldapClient.LdapClientFactory{}
+	} else {
+		factory = ldapClient.ProxyLdapClientFactory{}
+	}
+	ldapSearchClient := ldapSearchClient.LdapSearchClient{
+		LdapServer:        ldapSearchServer,
+		Timeout:           serverConnectionTimeout,
+		LdapClientFactory: factory,
+	}
 	results, err := ldapSearchClient.SearchLdap(&searchQuery)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())

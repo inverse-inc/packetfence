@@ -1,4 +1,4 @@
-package pfldapexplorer
+package ldapSearchClient
 
 import (
 	"context"
@@ -9,20 +9,35 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
+	"github.com/inverse-inc/packetfence/go/common/ldapClient"
+	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"gopkg.in/ldap.v2"
 )
 
 type SearchQuery struct {
-	Server     string   `json:"server"`
-	Search     string   `json:"search"`
-	Attributes []string `json:"attributes,omitempty"`
+	Server     string          `json:"server"`
+	Search     string          `json:"search"`
+	Attributes []string        `json:"attributes,omitempty"`
+	Context    context.Context `json:"context"`
+}
+
+type LdapServer struct {
+	pfconfigdriver.AuthenticationSourceLdap
 }
 
 type LdapSearchClient struct {
 	LdapServer        *LdapServer
 	Timeout           time.Duration
-	LdapClientFactory ILdapClientFactory
+	LdapClientFactory ldapClient.ILdapClientFactory
 }
+
+var (
+	scopes = map[string]int{
+		"base": ldap.ScopeBaseObject,
+		"one":  ldap.ScopeSingleLevel,
+		"sub":  ldap.ScopeWholeSubtree,
+	}
+)
 
 func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string]interface{}, error) {
 	conn := sc.connect()
@@ -57,7 +72,7 @@ func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string
 	return transform(response.Entries), nil
 }
 
-func (sc LdapSearchClient) connect() ILdapConnection {
+func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
 	ctx := log.LoggerNewContext(context.Background())
 	sources := sc.LdapServer.Host
 	sslEnabled := sc.LdapServer.Encryption == "ssl"
@@ -74,6 +89,7 @@ func (sc LdapSearchClient) connect() ILdapConnection {
 		}
 
 		if tlsEnabled {
+			//TODO this uses the exact same port. what about negotiation? we need 2 ports? 389 and 636? was this tested?
 			err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
 		}
 
@@ -95,7 +111,7 @@ func (sc LdapSearchClient) connect() ILdapConnection {
 	return nil
 }
 
-func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ILdapClient) (conn ILdapConnection, err error) {
+func (sc LdapSearchClient) checkConnection(serverSocketAddress string, sslEnabled bool, ldapClient ldapClient.ILdapClient) (conn ldapClient.ILdapConnection, err error) {
 	if sslEnabled {
 		conn, err = ldapClient.DialTLS(&tls.Config{
 			InsecureSkipVerify: true,

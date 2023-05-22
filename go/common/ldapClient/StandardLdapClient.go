@@ -1,4 +1,4 @@
-package pfldapexplorer
+package ldapClient
 
 import (
 	"crypto/tls"
@@ -7,25 +7,9 @@ import (
 	"gopkg.in/ldap.v2"
 )
 
-type ILdapClient interface {
-	Dial() (ILdapConnection, error)
-	DialTLS(config *tls.Config) (ILdapConnection, error)
-}
-
-type ILdapConnection interface {
-	Close()
-	StartTLS(config *tls.Config) error
-	Bind(username, password string) error
-	SearchWithPaging(searchRequest *ldap.SearchRequest, pagingSize uint32) (*ldap.SearchResult, error)
-}
-
 type LdapClient struct {
 	protocol      string
 	socketAddress string
-}
-
-type ILdapClientFactory interface {
-	NewLdapClient(protocol string, socketAddress string, timeout time.Duration) ILdapClient
 }
 
 type LdapClientFactory struct{}

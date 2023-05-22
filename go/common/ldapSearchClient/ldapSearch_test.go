@@ -1,4 +1,4 @@
-package pfldapexplorer_test
+package ldapSearchClient_test
 
 import (
 	"errors"
@@ -7,19 +7,20 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/inverse-inc/packetfence/go/caddy/pfldapexplorer"
+	"github.com/inverse-inc/packetfence/go/common/ldapClient"
+	"github.com/inverse-inc/packetfence/go/common/ldapSearchClient"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 )
 
 var _ = Describe("LdapSearch", func() {
-	var searchQuery *pfldapexplorer.SearchQuery
-	var ldapServer *pfldapexplorer.LdapServer
+	var searchQuery *ldapSearchClient.SearchQuery
+	var ldapServer *ldapSearchClient.LdapServer
 
 	Describe("SearchLdap", func() {
 		Context("when no servers can be reached", func() {
 			var ldapClientSpy *SpyLdapClient
-			var factory pfldapexplorer.ILdapClientFactory
-			var ldapSearchClient pfldapexplorer.LdapSearchClient
+			var factory ldapClient.ILdapClientFactory
+			var searchClientInstance ldapSearchClient.LdapSearchClient
 
 			BeforeEach(func() {
 				ldapClientSpy = &SpyLdapClient{
@@ -29,19 +30,19 @@ var _ = Describe("LdapSearch", func() {
 				factory = &MockLdapClientFactory{LdapClientSpy: ldapClientSpy}
 				DialResponse = nil
 				DialError = errors.New("fake error")
-				searchQuery = &pfldapexplorer.SearchQuery{
+				searchQuery = &ldapSearchClient.SearchQuery{
 					Server:     "fake_configured_server",
 					Search:     "(uid=test_human)",
 					Attributes: []string{"userPrincipalName"},
 				}
-				ldapServer = &pfldapexplorer.LdapServer{
+				ldapServer = &ldapSearchClient.LdapServer{
 					AuthenticationSourceLdap: pfconfigdriver.AuthenticationSourceLdap{
 						Host:           []string{"1.1.1.1", "localhost", "2.2.2.2"},
 						PfconfigNS:     "fake_pfconfig_ns",
 						PfconfigHashNS: "fake_pfconfig_hash_ns",
 					},
 				}
-				ldapSearchClient = pfldapexplorer.LdapSearchClient{
+				searchClientInstance = ldapSearchClient.LdapSearchClient{
 					LdapServer:        ldapServer,
 					Timeout:           time.Duration(0),
 					LdapClientFactory: factory,
@@ -52,7 +53,7 @@ var _ = Describe("LdapSearch", func() {
 				ldapServer.Encryption = "ssl"
 				serverCount := len(ldapServer.AuthenticationSourceLdap.Host)
 
-				results, err := ldapSearchClient.SearchLdap(searchQuery)
+				results, err := searchClientInstance.SearchLdap(searchQuery)
 
 				Expect(results).To(BeNil())
 				Expect(err).ToNot(BeNil())
@@ -64,7 +65,7 @@ var _ = Describe("LdapSearch", func() {
 				ldapServer.Encryption = "starttls"
 				serverCount := len(ldapServer.AuthenticationSourceLdap.Host)
 
-				results, err := ldapSearchClient.SearchLdap(searchQuery)
+				results, err := searchClientInstance.SearchLdap(searchQuery)
 
 				Expect(results).To(BeNil())
 				Expect(err).ToNot(BeNil())
@@ -76,13 +77,13 @@ var _ = Describe("LdapSearch", func() {
 				ldapServer.Host = []string{"fakeHostname"}
 				ldapServer.Port = "389"
 				factory := &MockLdapClientFactory{LdapClientSpy: ldapClientSpy}
-				ldapSearchClient = pfldapexplorer.LdapSearchClient{
+				searchClientInstance = ldapSearchClient.LdapSearchClient{
 					LdapServer:        ldapServer,
 					Timeout:           time.Duration(5),
 					LdapClientFactory: factory,
 				}
 
-				ldapSearchClient.SearchLdap(searchQuery)
+				searchClientInstance.SearchLdap(searchQuery)
 
 				Expect(factory.TimeoutUsed).To(Equal(time.Duration(5)))
 				Expect(factory.ProtocolUsed).To(Equal("tcp"))
@@ -92,7 +93,7 @@ var _ = Describe("LdapSearch", func() {
 		})
 
 		Context("when connection is established", func() {
-			var ldapSeachClient pfldapexplorer.LdapSearchClient
+			var ldapSeachClient ldapSearchClient.LdapSearchClient
 			var connection *ConnectionSpy
 
 			BeforeEach(func() {
@@ -102,8 +103,8 @@ var _ = Describe("LdapSearch", func() {
 				}
 				DialResponse = connection
 				DialError = nil
-				searchQuery = &pfldapexplorer.SearchQuery{}
-				ldapServer = &pfldapexplorer.LdapServer{
+				searchQuery = &ldapSearchClient.SearchQuery{}
+				ldapServer = &ldapSearchClient.LdapServer{
 					AuthenticationSourceLdap: pfconfigdriver.AuthenticationSourceLdap{
 						Host:           []string{"localhost"},
 						PfconfigNS:     "fake_pfconfig_ns",
@@ -113,7 +114,7 @@ var _ = Describe("LdapSearch", func() {
 				}
 				ldapClientSpy := SpyLdapClient{}
 				factory := &MockLdapClientFactory{LdapClientSpy: &ldapClientSpy}
-				ldapSeachClient = pfldapexplorer.LdapSearchClient{
+				ldapSeachClient = ldapSearchClient.LdapSearchClient{
 					LdapServer:        ldapServer,
 					LdapClientFactory: factory,
 				}

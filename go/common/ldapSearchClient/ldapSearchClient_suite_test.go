@@ -1,4 +1,4 @@
-package pfldapexplorer_test
+package ldapSearchClient_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestPfldapexplorer(t *testing.T) {
+func TestLdapSearchClient(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Pfldapexplorer Suite")
+	RunSpecs(t, "LdapSearchClient Suite")
 }
