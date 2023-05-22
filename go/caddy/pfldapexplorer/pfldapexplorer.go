@@ -30,7 +30,7 @@ func init() {
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
-	pfldapexplorer, err := buildPfladpexplorer(ctx)
+	pfldapexplorer, err := buildPfldapExplorer(ctx)
 	pfldapexplorer.Refresh(ctx)
 	sharedutils.CheckError(err)
 
@@ -42,7 +42,7 @@ func setup(c *caddy.Controller) error {
 	return nil
 }
 
-func buildPfladpexplorer(ctx context.Context) (Handler, error) {
+func buildPfldapExplorer(ctx context.Context) (Handler, error) {
 
 	pfldapexplorer := Handler{}
 
