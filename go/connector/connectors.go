@@ -2,6 +2,7 @@ package connector
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
@@ -50,6 +51,19 @@ func (cc *ConnectorsContainer) ForIP(ctx context.Context, ip net.IP) *Connector 
 }
 
 const connectorsContainerContextKey = "ConnectorsContainerContextKey"
+
+func OpenConnectionTo(ctx context.Context, proto string, toIP string, toPort string) (string, error) {
+	if cc := ConnectorsContainerFromContext(ctx); cc != nil {
+		c := cc.ForIP(ctx, net.ParseIP(toIP))
+		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
+		if err != nil {
+			return "", fmt.Errorf("unable to obtain dynreverse for %s on port %s", toIP, toPort)
+		}
+		return fmt.Sprintf("%s:%s", connInfo.Host, connInfo.Port), nil
+	} else {
+		return "", fmt.Errorf("unable to find connectors container in context")
+	}
+}
 
 func ConnectorsContainerFromContext(ctx context.Context) *ConnectorsContainer {
 	if o := ctx.Value(connectorsContainerContextKey); o != nil {
