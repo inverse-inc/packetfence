@@ -126,13 +126,12 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	}
 
 	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
-	// TODO check connector
-	connectorSetUp := true
+
 	var factory ldapClient.ILdapClientFactory
-	if connectorSetUp {
-		factory = ldapClient.LdapClientFactory{}
-	} else {
+	if ldapSearchServer.UseConnector {
 		factory = ldapClient.ProxyLdapClientFactory{}
+	} else {
+		factory = ldapClient.LdapClientFactory{}
 	}
 	ldapSearchClient := ldapSearchClient.LdapSearchClient{
 		LdapServer:        ldapSearchServer,
