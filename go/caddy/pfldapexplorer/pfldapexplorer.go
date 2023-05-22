@@ -2,9 +2,7 @@ package pfldapexplorer
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -23,6 +21,10 @@ import (
 var ApiPrefix = "/api/v1"
 var LdapSearchEndpoint = "/ldap/search"
 
+// Connection timeout needs to be low, because this explorer is used to fill the dropdowns in the admin UI
+// Setting this higher means that all IP addresses of the server that do not respond will cause a time delay in the UI
+var serverConnectionTimeout = time.Second
+
 type ldapServer struct {
 	pfconfigdriver.AuthenticationSourceLdap
 }
@@ -34,7 +36,6 @@ func init() {
 	})
 }
 
-// Setup the pfldapexplorer middleware
 func setup(c *caddy.Controller) error {
 	ctx := log.LoggerNewContext(context.Background())
 
@@ -67,17 +68,10 @@ func buildPfldapExplorer(ctx context.Context) (Handler, error) {
 
 }
 
-// Handler struct
 type Handler struct {
 	Next   httpserver.Handler
 	Router *chi.Mux
 	Ctx    *context.Context
-}
-
-type Search struct {
-	Server     string   `json:"server"`
-	Search     string   `json:"search"`
-	Attributes []string `json:"attributes,omitempty"`
 }
 
 var (
@@ -121,114 +115,25 @@ func getLdapServerFromConfig(ctx context.Context, serverId string) *ldapServer {
 }
 
 func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Request) {
-	var LdapSearch = Search{}
+	var searchQuery = SearchQuery{}
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
 	}
 
-	if err = json.Unmarshal(body, &LdapSearch); err != nil {
+	if err = json.Unmarshal(body, &searchQuery); err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
 	}
-	h.search(&LdapSearch, res, req)
-}
 
-func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Request) {
-	ldapSearchServer := getLdapServerFromConfig(req.Context(), ldapInfo.Server)
-	fmt.Println(ldapSearchServer)
-
-	conn, err := h.connect(ldapSearchServer)
-
-	defer conn.Close()
-
+	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
+	results, err := SearchLdap(&searchQuery, ldapSearchServer, serverConnectionTimeout)
 	if err != nil {
-		log.LoggerWContext(*h.Ctx).Error("Error connecting to LDAP source: " + err.Error())
-	}
-
-	scope, ok := scopes[ldapSearchServer.Scope]
-
-	if !ok {
-		log.LoggerWContext(*h.Ctx).Error("Unknow Search Scope: " + ldapSearchServer.Scope)
-	}
-
-	response, err := conn.SearchWithPaging(&ldap.SearchRequest{
-		BaseDN:     ldapSearchServer.BaseDN,
-		Scope:      scope,
-		Filter:     ldapInfo.Search,
-		Attributes: ldapInfo.Attributes,
-	}, uint32(200))
-
-	if err != nil {
-		log.LoggerWContext(*h.Ctx).Error("Failed Search : " + err.Error())
-	}
-
-	_, err = json.MarshalIndent(transform(response.Entries), "", "  ")
-	if err != nil {
-		log.LoggerWContext(*h.Ctx).Error("Cannot unmarshall: " + err.Error())
+		log.LoggerWContext(*h.Ctx).Info(err.Error())
 	}
 
 	res.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	res.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(res).Encode(transform(response.Entries)); err != nil {
+	if err := json.NewEncoder(res).Encode(results); err != nil {
 		panic(err)
 	}
-}
-
-func (h *Handler) connect(ldapServer *ldapServer) (conn *ldap.Conn, err error) {
-	sources := ldapServer.Host
-	for _, src := range sources {
-
-		if ldapServer.Encryption != "ssl" {
-			conn, err = ldap.Dial("tcp", fmt.Sprintf("%s:%s", src, ldapServer.Port))
-		} else {
-			conn, err = ldap.DialTLS("tcp", fmt.Sprintf("%s:%s", src, ldapServer.Port), &tls.Config{
-				InsecureSkipVerify: true,
-			})
-		}
-
-		if err != nil {
-			log.LoggerWContext(*h.Ctx).Error("Error connecting to LDAP source: " + err.Error())
-		} else {
-			// Reconnect with TLS
-			if ldapServer.Encryption == "starttls" {
-				err = conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
-
-				if err != nil {
-					log.LoggerWContext(*h.Ctx).Crit("Error connecting to LDAP source using TLS: " + err.Error())
-				}
-			}
-		}
-
-		if err != nil {
-			return
-		}
-		if err = conn.Bind(ldapServer.BindDN, ldapServer.Password); err != nil {
-			return
-		}
-		return
-	}
-	return
-}
-
-func transformAttribs(attribs []*ldap.EntryAttribute) map[string]interface{} {
-	res := make(map[string]interface{})
-	for _, attrib := range attribs {
-		switch len(attrib.Values) {
-		case 0:
-			res[attrib.Name] = nil
-		case 1:
-			res[attrib.Name] = attrib.Values[0]
-		default:
-			res[attrib.Name] = attrib.Values
-		}
-	}
-	return res
-}
-
-func transform(entries []*ldap.Entry) map[string]map[string]interface{} {
-	res := make(map[string]map[string]interface{})
-	for _, entry := range entries {
-		res[entry.DN] = transformAttribs(entry.Attributes)
-	}
-	return res
 }
