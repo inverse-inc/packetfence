@@ -1,0 +1,12 @@
+!/bin/bash
+
+source /usr/local/pf/containers/systemd-service
+
+name=pfldapexplorer
+
+args=`base_args $name`
+args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 100.64.0.1:22226:22226 -p 127.0.0.1:22226:22226"
+
+cd /usr/local/pf/
+
+run $name "$args"

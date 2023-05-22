@@ -639,6 +639,7 @@ pfdeb_based_dev:
           - "haproxy-portal"
           - "haproxy-admin"
           - "proxysql"
+          - "pfldapexplorer"
 
 img_dev:
   extends:
@@ -718,6 +719,7 @@ pfdeb_based_br_maint:
           - "haproxy-portal"
           - "haproxy-admin"
           - "proxysql"
+          - "pfldapexplorer"
 
 img_br_maint:
   extends:
@@ -797,6 +799,7 @@ pfdeb_based_cloud_nac:
           - "haproxy-portal"
           - "haproxy-admin"
           - "proxysql"
+          - "pfldapexplorer"
 
 img_cloud_nac:
   extends:
@@ -876,6 +879,7 @@ pfdeb_based_rel:
           - "haproxy-portal"
           - "haproxy-admin"
           - "proxysql"
+          - "pfldapexplorer"
 
 img_rel:
   extends:
