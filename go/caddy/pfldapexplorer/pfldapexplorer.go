@@ -55,7 +55,6 @@ func buildPfladpexplorer(ctx context.Context) (Handler, error) {
 	PFLdapExplorer := &pfldapexplorer
 	api := pfldapexplorer.Router.PathPrefix("/api/v1").Subrouter()
 
-	// CAs (GET: list, POST: create)
 	api.Handle("/ldap/search", pfldapexplorer.SearchLDAP(PFLdapExplorer)).Methods("POST")
 
 	return pfldapexplorer, nil
@@ -158,12 +157,12 @@ func (h *Handler) search(ldapInfo *Search, res http.ResponseWriter, req *http.Re
 		log.LoggerWContext(*h.Ctx).Error("Unknow Search Scope: " + LdapSources.Sources[ldapInfo.Server].Scope)
 	}
 
-	response, err := conn.Search(&ldap.SearchRequest{
+	response, err := conn.SearchWithPaging(&ldap.SearchRequest{
 		BaseDN:     LdapSources.Sources[ldapInfo.Server].BaseDN,
 		Scope:      scope,
 		Filter:     ldapInfo.Search,
 		Attributes: ldapInfo.Attributes,
-	})
+	}, uint32(200))
 
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Error("Failed Search : " + err.Error())

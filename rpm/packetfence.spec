@@ -422,6 +422,7 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-server.service %{buildroot}%{_unitdir}/packetfence-pfconnector-server.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfconnector-client.service %{buildroot}%{_unitdir}/packetfence-pfconnector-client.service
 %{__install} -D -m0644 conf/systemd/packetfence-proxysql.service %{buildroot}%{_unitdir}/packetfence-proxysql.service
+%{__install} -D -m0644 conf/systemd/packetfence-pfldapexplorer.service %{buildroot}%{_unitdir}/packetfence-pfldapexplorer.service
 # systemd path
 %{__install} -D -m0644 conf/systemd/packetfence-tracking-config.path %{buildroot}%{_unitdir}/packetfence-tracking-config.path
 # systemd modules
@@ -771,7 +772,7 @@ if /usr/local/pf/containers/manage-images.sh; then
     /bin/systemctl enable packetfence-iptables
     /bin/systemctl stop packetfence-iptables
     /usr/local/pf/containers/docker-minimal-rules.sh
-    
+
     /usr/local/pf/bin/pfcmd service pf updatesystemd
 
     # Empty root password in order to allow other user to connect as root.
