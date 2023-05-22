@@ -1,0 +1,8 @@
+:22226 {
+  bind 127.0.0.1
+  
+  logger {
+    level INFO
+  }
+  pfldapexplorer
+}
