@@ -126,6 +126,11 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 	}
 
 	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
+	if ldapSearchServer == nil {
+		log.LoggerWContext(*h.Ctx).Info("Server " + searchQuery.Server + " not found")
+		unifiedapierrors.Error(res, "Server "+searchQuery.Server+" not found", http.StatusBadRequest)
+		return
+	}
 
 	var factory ldapClient.ILdapClientFactory
 	if ldapSearchServer.UseConnector {
