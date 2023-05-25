@@ -63,6 +63,7 @@ PkiCasList:
           type: string
         items:
           type: array
+          nullable: true
           items:
             $ref: '#/components/schemas/PkiCa'
         password:

@@ -57,7 +57,7 @@
           type: string
     responses:
       '200':
-        $ref: '#/components/responses/PkiProfilesList'
+        $ref: '#/components/responses/PkiProfile'
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
@@ -75,7 +75,7 @@
       $ref: '#/components/requestBodies/PkiProfile'
     responses:
       '200':
-        $ref: '#/components/responses/PkiProfilesList'
+        $ref: '#/components/responses/PkiProfileUpdate'
       '401':
         $ref: '#/components/responses/Forbidden'
       '405':
@@ -93,10 +93,34 @@
           type: string
     responses:
       '200':
-        $ref: '#/components/responses/PkiProfilesList'
+        $ref: '#/components/responses/PkiProfileDelete'
       '401':
         $ref: '#/components/responses/Forbidden'
       '405':
         $ref: '#/components/responses/NotFound'
+    tags:
+      - $PKI
+
+/api/v1/pki/profile/{profile_id}/sign_csr:
+  post:
+    summary: Sign PKI Profile CSR.
+    parameters:
+      - name: profile_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    requestBody:
+      $ref: '#/components/requestBodies/PkiProfileSignCsr'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiProfileSignCsr'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
     tags:
       - $PKI

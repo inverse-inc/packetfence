@@ -1,0 +1,148 @@
+/api/v1/pki/certs:
+  get:
+    summary: Get PKI Certificates.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+  post:
+    summary: Create PKI Certificate.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCert'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertCreate'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/certs/search:
+  post:
+    summary: Search PKI Certificates.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiCertsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertsSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/cert/{cert_id}:
+  get:
+    summary: Get PKI Certificate.
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCert'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+
+/api/v1/pki/cert/{cert_id}/{reason}:
+  delete:
+    summary: Revoke PKI Certificate.
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+      - name: reason
+        in: path
+        required: true
+        description: |
+          ### Revocation reason.
+          0: Unspecified
+          1: KeyCompromise
+          2: CACompromise
+          3: AffiliationChanged
+          4: Superseded
+          5: CessationOfOperation
+          6: CertificateHold
+          8: RemoveFromCRL
+          9: PrivilegeWithdrawn
+          10: AACompromise
+        schema:
+          $ref: '#/components/schemas/PkiRevokeReasons'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertRevoke'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '422':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $PKI
+
+/api/v1/pki/cert/{cert_id}/download/{password}:
+  get:
+    summary: Download Passworded PKI Certificate.
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+      - name: pasword
+        in: path
+        required: true
+        description: Certificate password.
+        schema:
+          type: string
+          format: password
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertDownload'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $PKI
+
+/api/v1/pki/cert/{cert_id}/email:
+  get:
+    summary: Email PKI Certificate.
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiCertEmail'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $PKI

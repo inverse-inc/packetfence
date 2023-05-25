@@ -1,5 +1,19 @@
+PkiNull:
+  description: Request successful.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiNull"
+
+PkiCa:
+  description: Request successful. The response contains the PKI Certificate Authority.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCasList"
+
 PkiCasList:
-  description: Request successful. Response contains PKI Certificate Authorities.
+  description: Request successful. The response contains PKI Certificate Authorities.
   content:
     application/json:
       schema:
@@ -13,14 +27,21 @@ PkiCaCreate:
         $ref: "#/components/schemas/PkiCaList"
 
 PkiCasSearch:
-  description: Request successful. The response contains the search result.
+  description: Request successful. The response contains the search results.
   content:
     application/json:
       schema:
         $ref: "#/components/schemas/PkiCasSearch"
 
+PkiProfile:
+  description: Request successful. The response contains the PKI Profile.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfilesList"
+
 PkiProfilesList:
-  description: Request successful. Response contains PKI Profiles.
+  description: Request successful. The response contains the PKI Profiles.
   content:
     application/json:
       schema:
@@ -31,11 +52,109 @@ PkiProfileCreate:
   content:
     application/json:
       schema:
-        $ref: "#/components/schemas/PkiProfileList"
+        $ref: "#/components/schemas/PkiProfilesList"
+
+PkiProfileDelete:
+  description: Request successful. The PKI Profile has been deleted.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfilesList"
+
+PkiProfileSignCsr:
+  description: Request successful. The PKI Profile CSR has been signed.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfilesList"
+
+PkiProfileUpdate:
+  description: Request successful. The PKI Profile has been updated.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiProfilesList"
 
 PkiProfilesSearch:
-  description: Request successful. The response contains the search result.
+  description: Request successful. The response contains the search results.
   content:
     application/json:
       schema:
         $ref: "#/components/schemas/PkiProfilesSearch"
+
+PkiCert:
+  description: Request successful. The response contains the PKI Certificate.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCertsList"
+
+PkiCertsList:
+  description: Request successful. The response contains the PKI Certificates.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCertsList"
+
+PkiCertCreate:
+  description: Request successful. The PKI Certificate has been created.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCertsList"
+
+PkiCertDownload:
+  description: Request successful. The response contains the PKI PKCS-12 Certificate.
+  content:
+    application/json:
+      schema:
+        type: string
+        format: binary
+  headers:
+    Content-Disposition:
+      schema:
+        type: string
+        description: Binary PKCS-12 Certficate.
+        example: attachment; filename="certificate.p12"
+
+PkiCertEmail:
+  description: Request successful. The PKI Certificate has been emailed.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiNull"
+
+PkiCertRevoke:
+  description: Request successful. The PKI Certificate has been revoked.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiNull"
+
+PkiCertsSearch:
+  description: Request successful. The response contains the search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiCertsSearch"
+
+PkiRevokedCert:
+  description: Request successful. The response contains the PKI Revoked Certificate.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiRevokedCertsList"
+
+PkiRevokedCertsList:
+  description: Request successful. The response contains the PKI Revoked Certificates.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiRevokedCertsList"
+
+PkiRevokedCertsSearch:
+  description: Request successful. The response contains the search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/PkiRevokedCertsSearch"

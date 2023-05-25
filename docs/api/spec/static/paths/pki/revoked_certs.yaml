@@ -1,0 +1,47 @@
+/api/v1/pki/revokedcerts:
+  get:
+    summary: Get PKI Revoked Certificates.
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiRevokedCertsList'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI
+
+/api/v1/pki/revokedcerts/search:
+  post:
+    summary: Search PKI Revoked Certificates.
+    requestBody:
+      $ref: '#/components/requestBodies/PkiRevokedCertsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiRevokedCertsSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - $PKI
+
+/api/v1/pki/revokedcert/{cert_id}:
+  get:
+    summary: Get PKI Revoked Certificate.
+    parameters:
+      - name: cert_id
+        in: path
+        required: true
+        description: '`PRIMARY KEY`'
+        schema:
+          type: string
+    responses:
+      '200':
+        $ref: '#/components/responses/PkiRevokedCert'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $PKI

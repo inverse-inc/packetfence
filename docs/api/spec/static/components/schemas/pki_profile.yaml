@@ -142,29 +142,6 @@ PkiProfilesQueryField:
       description: Search criteria.
       type: string
 
-PkiProfilesFields:
-  type: array
-  items:
-    $ref: '#/components/schemas/PkiProfilesField'
-  example:
-    - id
-    - ca_id
-    - ca_name
-    - days_before_renewal
-    - days_before_renewal_mail
-    - digest
-    - extended_key_usage
-    - key_size
-    - key_type
-    - key_usage
-    - name
-    - mail
-    - renewal_mail_subject
-    - revoked_valid_until
-    - scep_days_before_renewal
-    - renewal_mail
-    - validity
-
 PkiProfilesField:
   type: string
   example: id

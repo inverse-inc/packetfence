@@ -1,3 +1,25 @@
+PkiNull:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          nullable: true
+        password:
+          type: string
+        raw:
+          type: string
+          nullable: true
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
 PkiDigest:
   type: integer
   description: |
@@ -51,8 +73,7 @@ PkiKeyType:
 PkiKeyUsage:
   type: string
   description: |
-    pipe delimited list
-    --
+    ### pipe delimited list
     1: DigitalSignature
     2: ContentCommitment
     4: KeyEncipherment
@@ -66,8 +87,7 @@ PkiKeyUsage:
 PkiExtendedKeyUsages:
   type: string
   description: |
-    pipe delimited list
-    --
+    ### pipe delimited list
     0: Any
     1: ServerAuth
     2: ClientAuth
@@ -104,7 +124,6 @@ PkiRevokeReasons:
    - 4
    - 5
    - 6
-   - 7
    - 8
    - 9
    - 10
