@@ -1,0 +1,236 @@
+PkiCert:
+  type: object
+  properties:
+    cn:
+      type: string
+    dns_names:
+      type: string
+    ip_addresses:
+      type: string
+    locality:
+      type: string
+    mail:
+      type: string
+    organisation:
+      type: string
+    organisational_unit:
+      type: string
+    profile_id:
+      type: string
+    state:
+      type: string
+    street_address:
+      type: string
+
+PkiCertDecorated:
+  type: object
+  properties:
+    # writeable properties
+    cn:
+      type: string
+    country:
+      type: string
+    dns_names:
+      type: string
+    ip_addresses:
+      type: string
+    locality:
+      type: string
+    mail:
+      type: string
+    organisation:
+      type: string
+    organisational_unit:
+      type: string
+    profile_id:
+      type: string
+    state:
+      type: string
+    street_address:
+      type: string
+    # readonly properties
+    alert:
+      type: boolean
+    ca_id:
+      type: string
+    ca_name:
+      type: string
+    cert:
+      type: string
+    csr:
+      type: boolean
+    date:
+      type: string
+    not_before:
+      type: string
+      format: date-time
+    postal_code:
+      type: string
+    profile_name:
+      type: string
+    scep:
+      type: boolean
+    valid_until:
+      type: string
+      format: date-time
+
+PkiCertForm:
+  allOf:
+    - $ref: '#/components/schemas/PkiCert'
+    - required:
+      - cn
+      - mail
+
+PkiCertsList:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - properties:
+        contentType:
+          type: string
+        error:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiCertDecorated'
+        password:
+          type: string
+        raw:
+          type: string
+          nullable: true
+        serial:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+
+PkiCertsSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Gorm'
+    - type: object
+      properties:
+        items:
+          description: Certs.
+          type: array
+          items:
+            $ref: '#/components/schemas/PkiCertDecorated'
+
+PkiCertsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/PkiCertsQueryNested'
+    - $ref: '#/components/schemas/PkiCertsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/PkiCertsQueryNested'
+      or: '#/components/schemas/PkiCertsQueryNested'
+      contains: '#/components/schemas/PkiCertsQueryField'
+      not_contains: '#/components/schemas/PkiCertsQueryField'
+      match: '#/components/schemas/PkiCertsQueryField'
+      not_match: '#/components/schemas/PkiCertsQueryField'
+      between: '#/components/schemas/PkiCertsQueryField'
+      not_between: '#/components/schemas/PkiCertsQueryField'
+      is: '#/components/schemas/PkiCertsQueryField'
+      is_not: '#/components/schemas/PkiCertsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+PkiCertsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/PkiCertsQuery'
+
+PkiCertsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/PkiCertsField'
+    value:
+      description: Search criteria.
+      type: string
+
+PkiCertsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - cn
+    - mail
+    - ca_id
+    - ca_name
+    - cert
+    - profile_id
+    - profile_name
+    - valid_until
+    - not_before
+    - date
+    - serial_number
+    - scep
+    - csr
+    - alert
+
+PkiCertsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - cn ASC
+      - cn DESC
+      - mail ASC
+      - mail DESC
+      - ca_id ASC
+      - ca_id DESC
+      - ca_name ASC
+      - ca_name DESC
+      - cert ASC
+      - cert DESC
+      - profile_id ASC
+      - profile_id DESC
+      - profile_name ASC
+      - profile_name DESC
+      - valid_until ASC
+      - valid_until DESC
+      - not_before ASC
+      - not_before DESC
+      - date ASC
+      - date DESC
+      - serial_number ASC
+      - serial_number DESC
+      - scep ASC
+      - scep DESC
+      - csr ASC
+      - csr DESC
+      - alert ASC
+      - alert DESC

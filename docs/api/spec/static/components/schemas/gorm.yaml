@@ -11,11 +11,14 @@ Gorm:
             type: integer
           CreatedAt:
             type: string
+            format: date-time
           DeletedAt:
             type: string
+            format: date-time
             nullable: true
           UpdatedAt:
             type: string
+            format: date-time
             nullable: true
           Ctx:
             type: string

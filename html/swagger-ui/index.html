@@ -70,10 +70,10 @@
             for (let i = 0; i < Math.min(aSplit.length, bSplit.length); i++) {
               if (aSplit[i] !== bSplit[i]) {
                 switch (true) {
-                  case aSplit[i].indexOf(bSplit[i]) > -1: // b in a
+                  case aSplit[i].indexOf(bSplit[i]) === 0: // a starts with b
                     return -1
                     //break
-                  case bSplit[i].indexOf(aSplit[i]) > -1: // a in b
+                  case bSplit[i].indexOf(aSplit[i]) === 0: // b starts with a
                     return 1
                     //break
                   default:

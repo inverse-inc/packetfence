@@ -57,7 +57,7 @@
           type: string
     responses:
       '200':
-        $ref: '#/components/responses/PkiCasList'
+        $ref: '#/components/responses/PkiCa'
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
