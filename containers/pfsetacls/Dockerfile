@@ -5,8 +5,10 @@ ENV SEMAPHORE_VERSION="development" SEMAPHORE_ARCH="linux_amd64" \
     APP_ROOT="/go/src/github.com/ansible-semaphore/semaphore/"
 
 # hadolint ignore=DL3013
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+
 RUN apt update
-RUN apt install -y gcc g++ git mariadb-client-10.5 python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs npm bash rsync && \
+RUN apt install -y gcc g++ make git mariadb-client-10.5 python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs bash rsync && \
     apt install -y python3-dev libffi-dev &&\
     rm -rf /var/cache/apt/*
 
@@ -27,13 +29,15 @@ RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
 
 RUN cd $(go env GOPATH) && curl -sL https://taskfile.dev/install.sh | sh
 
+RUN npm install -g npm@9.6.7
+
 RUN git config --global --add safe.directory /go/src/github.com/ansible-semaphore/semaphore
 
 # Copy in app source
 WORKDIR ${APP_ROOT}
 RUN git clone https://github.com/ansible-semaphore/semaphore.git ./
 
-RUN deployment/docker/dev/bin/install
+RUN deployment/docker/ci/bin/install
 
 USER semaphore
 EXPOSE 3000
