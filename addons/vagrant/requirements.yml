@@ -15,13 +15,17 @@ collections:
   - name: inverse_inc.packetfence
     version: 1.2.4
   - name: debops.debops
-    version: 2.3.2
+    version: 3.0.3
   - name: inverse_inc.cumulus
     version: 1.1.1
   - name: inverse_inc.utils
     version: 1.1.2
   - name: inverse_inc.wireless
     version: 0.2.2
+  - name: ansible.netcommon
+    version: 5.1.1
+  - name: ansible.posix
+    version: 1.5.4
 
 # For collections, to test locally with Vagrant (due to --force option)
 # Ansible will create an export, not a symlink to git repository
