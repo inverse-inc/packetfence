@@ -1,0 +1,115 @@
+FingerbankScope:
+  type: string
+  enum:
+    - all
+    - local
+    - upstream
+  default: local
+
+FingerbankScopeLocalOnly:
+  type: string
+  enum:
+    - local
+  default: local
+
+FingerbankAccountInfo:
+  type: object
+  properties:
+    auth_type:
+      type: string
+    blocked:
+      type: boolean
+      nullable: true
+    created_at:
+      type: string
+      format: date-time
+    display_name:
+      type: string
+    email:
+      type: string
+    expiration:
+      type: string
+      format: date-time
+      nullable: true
+    expiration_rfc3339:
+      type: string
+      format: date-time
+      nullable: true
+    id:
+      type: integer
+    key:
+      type: string
+    level:
+      type: integer
+    max_api_keys:
+      type: integer
+      nullable: true
+    montly_limit:
+      type: integer
+    montly_requests:
+      type: integer
+    name:
+      type: string
+    record_monthly_usage:
+      type: boolean
+    requests:
+      type: integer
+    roles:
+      type: string
+    search_count:
+      type: integer
+    status:
+      $ref: '#/components/schemas/Status'
+    timeframed_requests:
+      type: integer
+    timeframed_search_count:
+      type: integer
+    updated_at:
+      type: string
+      format: date-time
+
+FingerbankDeviceClasses:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankDeviceClass'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankDeviceClass:
+  type: object
+  properties:
+    approved:
+      type: integer
+    created_at:
+      type: string
+      format: date-time
+    id:
+      type: integer
+    inherit:
+      type: integer
+    mobile:
+      type: integer
+    name:
+      type: string
+    parent_id:
+      type: integer
+    submitter_id:
+      type: integer
+    tablet:
+      type: integer
+    updated_at:
+      type: string
+      format: date-time
+
+FingerbankNba:
+  type: object
+  properties:
+    result:
+      type: boolean
+      nullable: true
+    status:
+      $ref: '#/components/schemas/Status'
+

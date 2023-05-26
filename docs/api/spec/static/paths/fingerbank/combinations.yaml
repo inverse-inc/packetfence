@@ -1,0 +1,100 @@
+/api/v1/fingerbank/{scope}/combinations:
+  get:
+    summary: Get combinations.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScope'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankCombinations'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+  post:
+    summary: Create local combination.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankCombination'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/{scope}/combinations/search:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScope'
+  post:
+    summary: Search local combinations.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankCombinationsSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankCombinationsSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/{scope}/combination/{combination_id}:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+  - name: combination_id
+    in: path
+    required: true
+    schema:
+      type: string
+  get:
+    summary: Get local combination.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankCombination'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank
+  patch:
+    summary: Update local combination.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankCombination'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank
+  delete:
+    summary: Delete local combination.
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank

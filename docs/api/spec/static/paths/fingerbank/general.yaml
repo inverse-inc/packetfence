@@ -1,0 +1,46 @@
+/api/v1/fingerbank/account_info:
+  get:
+    summary: Account information.
+    externalDocs:
+      description: Fingerbank API Documentation.
+      url: https://api.fingerbank.org/api_doc/2/users/account_info.html
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankAccountInfo'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/all_device_classes:
+  get:
+    summary: Get all device classes.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDeviceClasses'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/can_use_nba_endpoints:
+  get:
+    summary: Can use endpoints for Network Behavioural Analysis.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankNba'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/update_upstream_db:
+  post:
+    summary: Update upstream database.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankUpdateUpstreamDb'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank

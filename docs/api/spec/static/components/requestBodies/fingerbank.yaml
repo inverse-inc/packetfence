@@ -1,0 +1,53 @@
+FingerbankCombination:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankCombinationForm'
+
+FingerbankCombinationsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            required: false
+            type: integer
+          sort:
+            $ref: '#/components/schemas/FingerbankCombinationsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankCombinationsQuery'
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            example: 1
+
+FingerbankDevice:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDeviceForm'
+
+FingerbankDevicesSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            required: false
+            type: integer
+          sort:
+            $ref: '#/components/schemas/FingerbankDevicesSort'
+          query:
+            $ref: '#/components/schemas/FingerbankDevicesQuery'
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            example: 1

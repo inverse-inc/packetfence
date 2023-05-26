@@ -50,6 +50,8 @@ tags:
     description: Manage PacketFence cluster.
   - name: $Email
     description: Send email using SMTP configuration.
+  - name: $Fingerbank
+    description: Fingerbank device discovery.
   - name: $LiveLogs
     description: Tail logs in real time.
   - name: $PKI
