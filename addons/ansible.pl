@@ -26,6 +26,7 @@ use Switch;
 
 use pf::file_paths qw(
     $conf_dir
+    $var_dir
 );
 
 use pf::config::cluster;
@@ -39,6 +40,19 @@ my %vars;
 my $tt = Template->new(
     ABSOLUTE => 1,
 );
+
+if (! -e "$var_dir/conf/pfsetacls") {
+    mkdir("$var_dir/conf/pfsetacls") or die "Can't create $var_dir/conf/pfsetacls/:$!";
+}
+
+if (! -e "$var_dir/conf/pfsetacls/conf") {
+    mkdir("$var_dir/conf/pfsetacls/conf") or die "Can't create $var_dir/conf/pfsetacls/conf:$!";
+}
+
+if (! -e "$var_dir/conf/pfsetacls/db") {
+    mkdir("$var_dir/conf/pfsetacls/db") or die "Can't create $var_dir/conf/pfsetacls/db:$!";
+}
+
 
 foreach my $switch_id (keys(%SwitchConfig)) {
     next if ($switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
@@ -62,10 +76,10 @@ foreach my $switch_id (keys(%SwitchConfig)) {
         $vars{'switches'}{$switch_id}{'acls'}{$role} = $acls;
     }
 
-    $tt->process("$conf_dir/ansible/acl.cfg", $vars{'switches'}{$switch_id}, "$conf_dir/ansible/run/$switch_id.cfg") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id.cfg") or die $tt->error();
 }
 
-$tt->process("$conf_dir/ansible/inventory.cfg", \%vars, "$conf_dir/ansible/run/inventory.yaml") or die $tt->error();
+$tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/inventory.yaml") or die $tt->error();
 
 
 =head1 AUTHOR
