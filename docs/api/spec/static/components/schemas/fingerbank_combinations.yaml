@@ -1,0 +1,246 @@
+FingerbankCombinations:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankCombinationDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankCombinationItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankCombinationDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankCombination:
+  type: object
+  properties:
+    # write-able
+    device_id:
+      type: string
+      required: true
+    dhcp6_enterprise_id:
+      type: string
+      nullable: true
+    dhcp6_fingerprint_id:
+      type: string
+      nullable: true
+    dhcp_fingerprint_id:
+      type: string
+      nullable: true
+    dhcp_vendor_id:
+      type: string
+      nullable: true
+    mac_vendor_id:
+      type: string
+      nullable: true
+    score:
+      type: string
+    user_agent_id:
+      type: string
+      nullable: true
+    version:
+      type: string
+
+FingerbankCombinationDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    submitter_id:
+      type: string
+      nullable: true
+    updated_at:
+      type: string
+      format: date-time
+    # write-able
+    device_id:
+      type: string
+      required: true
+    dhcp6_enterprise_id:
+      type: string
+      nullable: true
+    dhcp6_fingerprint_id:
+      type: string
+      nullable: true
+    dhcp_fingerprint_id:
+      type: string
+      nullable: true
+    dhcp_vendor_id:
+      type: string
+      nullable: true
+    mac_vendor_id:
+      type: string
+      nullable: true
+    score:
+      type: string
+    user_agent_id:
+      type: string
+      nullable: true
+    version:
+      type: string
+
+FingerbankCombinationForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankCombination'
+    - required:
+      - device_id
+
+FingerbankCombinationsSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          description: Combinations.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankCombination'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankCombinationsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankCombinationsQueryNested'
+    - $ref: '#/components/schemas/FingerbankCombinationsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankCombinationsQueryNested'
+      or: '#/components/schemas/FingerbankCombinationsQueryNested'
+      contains: '#/components/schemas/FingerbankCombinationsQueryField'
+      not_contains: '#/components/schemas/FingerbankCombinationsQueryField'
+      match: '#/components/schemas/FingerbankCombinationsQueryField'
+      not_match: '#/components/schemas/FingerbankCombinationsQueryField'
+      between: '#/components/schemas/FingerbankCombinationsQueryField'
+      not_between: '#/components/schemas/FingerbankCombinationsQueryField'
+      is: '#/components/schemas/FingerbankCombinationsQueryField'
+      is_not: '#/components/schemas/FingerbankCombinationsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankCombinationsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankCombinationsQuery'
+
+FingerbankCombinationsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankCombinationsField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankCombinationsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankCombinationsField'
+  example:
+    - id
+    - created_at
+    - submitter_id
+    - updated_at
+    - device_id
+    - dhcp6_enterprise_id
+    - dhcp6_fingerprint_id
+    - dhcp_fingerprint_id
+    - dhcp_vendor_id
+    - mac_vendor_id
+    - score
+    - user_agent_id
+    - version
+
+FingerbankCombinationsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - submitter_id
+    - updated_at
+    - device_id
+    - dhcp6_enterprise_id
+    - dhcp6_fingerprint_id
+    - dhcp_fingerprint_id
+    - dhcp_vendor_id
+    - mac_vendor_id
+    - score
+    - user_agent_id
+    - version
+
+FingerbankCombinationsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - submitter_id ASC
+      - submitter_id DESC
+      - updated_at ASC
+      - updated_at DESC
+      - device_id ASC
+      - device_id DESC
+      - dhcp6_enterprise_id ASC
+      - dhcp6_enterprise_id DESC
+      - dhcp6_fingerprint_id ASC
+      - dhcp6_fingerprint_id DESC
+      - dhcp_fingerprint_id ASC
+      - dhcp_fingerprint_id DESC
+      - dhcp_vendor_id ASC
+      - dhcp_vendor_id DESC
+      - mac_vendor_id ASC
+      - mac_vendor_id DESC
+      - score ASC
+      - score DESC
+      - user_agent_id ASC
+      - user_agent_id DESC
+      - version ASC
+      - version DESC

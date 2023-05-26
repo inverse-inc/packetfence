@@ -1,0 +1,202 @@
+FingerbankDevices:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDeviceDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDeviceItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankDeviceDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankDevice:
+  type: object
+  properties:
+    # write-able
+    name:
+      type: string
+    parent_id:
+      type: string
+
+FingerbankDeviceDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    inherit:
+      type: string
+      nullable: true
+    mobile:
+      type: string
+      nullable: true
+    submitter_id:
+      type: string
+      nullable: true
+    tablet:
+      type: string
+      nullable: true
+    updated_at:
+      type: string
+      format: date-time
+    # write-able
+    name:
+      type: string
+    parent_id:
+      type: string
+
+FingerbankDeviceForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDevice'
+    - required:
+      - name
+
+FingerbankDevicesSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          description: Devices.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDevice'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDevicesQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankDevicesQueryNested'
+    - $ref: '#/components/schemas/FingerbankDevicesQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankDevicesQueryNested'
+      or: '#/components/schemas/FingerbankDevicesQueryNested'
+      contains: '#/components/schemas/FingerbankDevicesQueryField'
+      not_contains: '#/components/schemas/FingerbankDevicesQueryField'
+      match: '#/components/schemas/FingerbankDevicesQueryField'
+      not_match: '#/components/schemas/FingerbankDevicesQueryField'
+      between: '#/components/schemas/FingerbankDevicesQueryField'
+      not_between: '#/components/schemas/FingerbankDevicesQueryField'
+      is: '#/components/schemas/FingerbankDevicesQueryField'
+      is_not: '#/components/schemas/FingerbankDevicesQueryField'
+  example:
+    op: and
+    values:
+      - field: name
+        op: contains
+        value: ""
+
+FingerbankDevicesQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankDevicesQuery'
+
+FingerbankDevicesQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankDevicesField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankDevicesFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankDevicesField'
+  example:
+    - id
+    - name
+    - parent_id
+    - created_at
+    - inherit
+    - mobile
+    - submitter_id
+    - tablet
+    - updated_at
+    - parent_id
+
+FingerbankDevicesField:
+  type: string
+  example: id
+  enum:
+    - id
+    - name
+    - parent_id
+    - created_at
+    - inherit
+    - mobile
+    - submitter_id
+    - tablet
+    - updated_at
+    - parent_id
+
+FingerbankDevicesSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+    - id ASC
+    - id DESC
+    - name ASC
+    - name DESC
+    - parent_id ASC
+    - parent_id DESC
+    - created_at ASC
+    - created_at DESC
+    - inherit ASC
+    - inherit DESC
+    - mobile ASC
+    - mobile DESC
+    - submitter_id ASC
+    - submitter_id DESC
+    - tablet ASC
+    - tablet DESC
+    - updated_at ASC
+    - updated_at DESC
+    - parent_id ASC
+    - parent_id DESC
+

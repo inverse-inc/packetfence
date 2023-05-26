@@ -1,0 +1,100 @@
+/api/v1/fingerbank/{scope}/devices:
+  get:
+    summary: Get devices.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScope'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDevices'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+  post:
+    summary: Create local device.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDevice'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/{scope}/devices/search:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScope'
+  post:
+    summary: Search local devices.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDevicesSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDevicesSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/{scope}/device/{device_id}:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+  - name: device_id
+    in: path
+    required: true
+    schema:
+      type: string
+  get:
+    summary: Get local device.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDevice'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank
+  patch:
+    summary: Update local device.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDevice'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank
+  delete:
+    summary: Delete local device.
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank

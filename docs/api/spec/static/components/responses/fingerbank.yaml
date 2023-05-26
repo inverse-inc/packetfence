@@ -1,0 +1,69 @@
+FingerbankAccountInfo:
+  description: Request successful. The response contains the account information.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankAccountInfo"
+
+FingerbankCombinations:
+  description: Request successful. The response contains the combinations.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinations"
+
+FingerbankCombinationsSearch:
+  description: Request successful. The response contains the combinations search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinationsSearch"
+
+FingerbankCombination:
+  description: Request successful. The response contains the combination.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankCombinationItem"
+
+FingerbankDevices:
+  description: Request successful. The response contains the devices.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDevices"
+
+FingerbankDevicesSearch:
+  description: Request successful. The response contains the devices search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDevicesSearch"
+
+FingerbankDevice:
+  description: Request successful. The response contains the device.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDeviceItem"
+
+FingerbankDeviceClasses:
+  description: Request successful. The response contains the device classes.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDeviceClasses"
+
+FingerbankNba:
+  description: Request successful. The response contains the result.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankNba"
+
+FingerbankUpdateUpstreamDb:
+  description: Request successful. The upstream database is being updated.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/Message"
