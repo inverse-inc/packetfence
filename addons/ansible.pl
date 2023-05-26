@@ -65,7 +65,7 @@ foreach my $switch_id (keys(%SwitchConfig)) {
     $tt->process("$conf_dir/ansible/acl.cfg", $vars{'switches'}{$switch_id}, "$conf_dir/ansible/run/$switch_id.cfg") or die $tt->error();
 }
 
-$tt->process("$conf_dir/ansible/inventory.cfg", \%vars, "$conf_dir/ansible/run/inventory") or die $tt->error();
+$tt->process("$conf_dir/ansible/inventory.cfg", \%vars, "$conf_dir/ansible/run/inventory.yaml") or die $tt->error();
 
 
 =head1 AUTHOR
