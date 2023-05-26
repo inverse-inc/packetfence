@@ -33,10 +33,10 @@ venom_local_vars:
     value: '{{ mailhog__api_port }}'
 
   - name: 'internet_int_ip'
-    value: "{{ ansible_default_ipv4['address'] }}"
+    value: "{{ ansible_default_ipv4.address }}"
 
   - name: 'internet_int_netmask'
-    value: "{{ ansible_default_ipv4['netmask'] }}"
+    value: "{{ ansible_default_ipv4.netmask }}"
   
   - name: 'timezone'
     value: "{{ ansible_date_time['tz'] }}"
