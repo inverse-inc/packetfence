@@ -1,0 +1,161 @@
+FingerbankDhcpFingerprints:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcpFingerprintDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcpFingerprintItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankDhcpFingerprintDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankDhcpFingerprint:
+  type: object
+  properties:
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcpFingerprintDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcpFingerprintForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcpFingerprint'
+    - required:
+      - device_id
+
+FingerbankDhcpFingerprintsSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - type: object
+      properties:
+        items:
+          description: DhcpFingerprints.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcpFingerprint'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcpFingerprintsQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankDhcpFingerprintsQueryNested'
+    - $ref: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankDhcpFingerprintsQueryNested'
+      or: '#/components/schemas/FingerbankDhcpFingerprintsQueryNested'
+      contains: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      not_contains: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      match: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      not_match: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      between: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      not_between: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      is: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      is_not: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankDhcpFingerprintsQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankDhcpFingerprintsQuery'
+
+FingerbankDhcpFingerprintsQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankDhcpFingerprintsField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankDhcpFingerprintsFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankDhcpFingerprintsField'
+  example:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcpFingerprintsField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcpFingerprintsSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - updated_at ASC
+      - updated_at DESC
+      - value ASC
+      - value DESC
