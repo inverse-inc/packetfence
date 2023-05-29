@@ -9,8 +9,6 @@ set -a
 set +a
 
 args=`base_args $name`
-args="$args -v /usr/local/pf/var/conf/pfsetacls/conf/:/etc/semaphore/"
-args="$args -v /usr/local/pf/var/conf/pfsetacls/db/:/var/lib/semaphore/"
 args="$args -v /usr/local/pf/var/conf/pfsetacls/:/opt/semaphore/"
 args="$args -p 3000:3000"
 
