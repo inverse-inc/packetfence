@@ -1,0 +1,100 @@
+/api/v1/fingerbank/{scope}/dhcp6_enterprises:
+  get:
+    summary: Get DHCPv6 Enterprises.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScope'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcp6Enterprises'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+  post:
+    summary: Create local DHCPv6 Enterprise.
+    parameters:
+    - name: scope
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Enterprise'
+    responses:
+      '200':
+        $ref: '#/components/responses/Created'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/{scope}/dhcp6_enterprises/search:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScope'
+  post:
+    summary: Search local DHCPv6 Enterprises.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6EnterprisesSearch'
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcp6EnterprisesSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $Fingerbank
+
+/api/v1/fingerbank/{scope}/dhcp6_enterprise/{dhcp6_enterprise_id}:
+  parameters:
+  - name: scope
+    in: path
+    required: true
+    schema:
+      $ref: '#/components/schemas/FingerbankScopeLocalOnly'
+  - name: dhcp6_enterprise_id
+    in: path
+    required: true
+    schema:
+      type: string
+  get:
+    summary: Get local DHCPv6 Enterprise.
+    responses:
+      '200':
+        $ref: '#/components/responses/FingerbankDhcp6Enterprise'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank
+  patch:
+    summary: Update local DHCPv6 Enterprise.
+    requestBody:
+      $ref: '#/components/requestBodies/FingerbankDhcp6Enterprise'
+    responses:
+      '200':
+        $ref: '#/components/responses/Updated'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank
+  delete:
+    summary: Delete local DHCPv6 Enterprise.
+    responses:
+      '200':
+        $ref: '#/components/responses/Deleted'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+    tags:
+      - $Fingerbank

@@ -1,0 +1,164 @@
+FingerbankDhcp6Enterprises:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcp6EnterpriseDecorated'
+        scope:
+          $ref: '#/components/schemas/FingerbankScope'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcp6EnterpriseItem:
+  type: object
+  properties:
+    item:
+      $ref: '#/components/schemas/FingerbankDhcp6EnterpriseDecorated'
+    scope:
+      $ref: '#/components/schemas/FingerbankScope'
+    status:
+      $ref: '#/components/schemas/Status'
+
+FingerbankDhcp6Enterprise:
+  type: object
+  properties:
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcp6EnterpriseDecorated:
+  type: object
+  properties:
+    # read-only
+    id:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+
+    # write-able
+    value:
+      type: string
+
+FingerbankDhcp6EnterpriseForm:
+  allOf:
+    - $ref: '#/components/schemas/FingerbankDhcp6Enterprise'
+    - required:
+      - device_id
+
+FingerbankDhcp6EnterprisesSearch:
+  allOf:
+    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Flags'
+    - type: object
+      properties:
+        items:
+          description: Dhcp6Enterprises.
+          type: array
+          items:
+            $ref: '#/components/schemas/FingerbankDhcp6Enterprise'
+        status:
+          $ref: '#/components/schemas/Status'
+
+FingerbankDhcp6EnterprisesQuery:
+  type: object
+  oneOf:
+    - $ref: '#/components/schemas/FingerbankDhcp6EnterprisesQueryNested'
+    - $ref: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+  discriminator:
+    propertyName: op
+    mapping:
+      and: '#/components/schemas/FingerbankDhcp6EnterprisesQueryNested'
+      or: '#/components/schemas/FingerbankDhcp6EnterprisesQueryNested'
+      contains: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      not_contains: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      match: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      not_match: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      between: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      not_between: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      is: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+      is_not: '#/components/schemas/FingerbankDhcp6EnterprisesQueryField'
+  example:
+    op: and
+    values:
+      - field: id
+        op: contains
+        value: ""
+
+FingerbankDhcp6EnterprisesQueryNested:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - and
+        - or
+    values:
+      description: Nested child search criteria.
+      type: array
+      items:
+        $ref: '#/components/schemas/FingerbankDhcp6EnterprisesQuery'
+
+FingerbankDhcp6EnterprisesQueryField:
+  type: object
+  properties:
+    op:
+      description: Search operator.
+      type: string
+      enum:
+        - contains
+        - not_contains
+        - match
+        - not_match
+        - between
+        - not_between
+        - is
+        - is_not
+    field:
+      $ref: '#/components/schemas/FingerbankDhcp6EnterprisesField'
+    value:
+      description: Search criteria.
+      type: string
+
+
+FingerbankDhcp6EnterprisesFields:
+  type: array
+  items:
+    $ref: '#/components/schemas/FingerbankDhcp6EnterprisesField'
+  example:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcp6EnterprisesField:
+  type: string
+  example: id
+  enum:
+    - id
+    - created_at
+    - updated_at
+    - value
+
+FingerbankDhcp6EnterprisesSort:
+  type: array
+  items:
+    type: string
+    example: id ASC
+    enum:
+      - id ASC
+      - id DESC
+      - created_at ASC
+      - created_at DESC
+      - updated_at ASC
+      - updated_at DESC
+      - value ASC
+      - value DESC
