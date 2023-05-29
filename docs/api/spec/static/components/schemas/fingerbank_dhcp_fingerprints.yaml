@@ -1,6 +1,7 @@
 FingerbankDhcpFingerprints:
   allOf:
     - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Flags'
     - type: object
       properties:
         items:
@@ -54,6 +55,7 @@ FingerbankDhcpFingerprintForm:
 FingerbankDhcpFingerprintsSearch:
   allOf:
     - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/Flags'
     - type: object
       properties:
         items:

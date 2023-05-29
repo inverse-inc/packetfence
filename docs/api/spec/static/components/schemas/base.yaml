@@ -48,3 +48,19 @@ Iterable:
       type: integer
       description: The total count of the query.
 
+Flags:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          not_deletable:
+            description: The resource can not be deleted.
+            type: boolean
+            default: false
+          not_updatable:
+            description: The resource can not be modified.
+            type: boolean
+            default: false
