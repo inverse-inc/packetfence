@@ -51,3 +51,30 @@ FingerbankDevicesSearch:
             minimum: 1
             maximum: 1000
             example: 1
+
+FingerbankDhcpFingerprint:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcpFingerprintForm'
+
+FingerbankDhcpFingerprintsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            required: false
+            type: integer
+          sort:
+            $ref: '#/components/schemas/FingerbankDhcpFingerprintsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankDhcpFingerprintsQuery'
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            example: 1

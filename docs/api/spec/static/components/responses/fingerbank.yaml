@@ -54,6 +54,27 @@ FingerbankDeviceClasses:
       schema:
         $ref: "#/components/schemas/FingerbankDeviceClasses"
 
+FingerbankDhcpFingerprints:
+  description: Request successful. The response contains the DHCP fingerprints.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpFingerprints"
+
+FingerbankDhcpFingerprintsSearch:
+  description: Request successful. The response contains the DHCP fingerprints search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpFingerprintsSearch"
+
+FingerbankDhcpFingerprint:
+  description: Request successful. The response contains the DHCP fingerprint.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcpFingerprintItem"
+
 FingerbankNba:
   description: Request successful. The response contains the result.
   content:
