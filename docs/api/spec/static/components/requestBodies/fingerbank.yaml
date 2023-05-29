@@ -78,3 +78,30 @@ FingerbankDhcpFingerprintsSearch:
             minimum: 1
             maximum: 1000
             example: 1
+
+FingerbankDhcp6Enterprise:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcp6EnterpriseForm'
+
+FingerbankDhcp6EnterprisesSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            required: false
+            type: integer
+          sort:
+            $ref: '#/components/schemas/FingerbankDhcp6EnterprisesSort'
+          query:
+            $ref: '#/components/schemas/FingerbankDhcp6EnterprisesQuery'
+          limit:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            example: 1

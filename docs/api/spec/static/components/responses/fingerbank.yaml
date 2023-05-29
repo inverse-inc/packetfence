@@ -75,6 +75,27 @@ FingerbankDhcpFingerprint:
       schema:
         $ref: "#/components/schemas/FingerbankDhcpFingerprintItem"
 
+FingerbankDhcp6Enterprises:
+  description: Request successful. The response contains the DHCPv6 enterprises.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6Enterprises"
+
+FingerbankDhcp6EnterprisesSearch:
+  description: Request successful. The response contains the DHCPv6 enterprises search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6EnterprisesSearch"
+
+FingerbankDhcp6Enterprise:
+  description: Request successful. The response contains the DHCPv6 enterprises.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/FingerbankDhcp6EnterpriseItem"
+
 FingerbankNba:
   description: Request successful. The response contains the result.
   content:
