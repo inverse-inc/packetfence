@@ -26,6 +26,11 @@ function vagrant_user_nclu(){
     adduser vagrant netshow
 }
 
+function vagrant_user_nvue(){
+    echo "### Giving Vagrant User Ability to Run NVUE Commands ###"
+    adduser vagrant nvapply
+}
+
 if grep -q -i 'cumulus' /etc/lsb-release &> /dev/null; then
     echo "### RUNNING CUMULUS EXTRA CONFIG ###"
     source /etc/lsb-release
@@ -76,6 +81,11 @@ if grep -q -i 'cumulus' /etc/lsb-release &> /dev/null; then
             disable_remap
             vagrant_user_nclu
             setup_ztp
+        elif [[ $DISTRIB_RELEASE =~ ^5.* ]]; then
+            echo "  INFO: Detected a 5.x Based Release ($DISTRIB_RELEASE)"
+            disable_remap
+            vagrant_user_nvue
+            setup_ztp
         fi
     fi
 fi
@@ -115,13 +125,17 @@ Vagrant.configure("2") do |config|
   ##### DEFINE VM for switch01 #####
   config.vm.define "switch01" do |device|
 
+
+    # Number of seconds to wait for establishing an SSH connection to the guest
+    config.ssh.connect_timeout = 120
+
     device.vm.hostname = "switch01"
 
     device.vm.box = inventory['all']['children']['cumulus']['hosts']['switch01']['box']
     device.vm.box_version = inventory['all']['children']['cumulus']['hosts']['switch01']['box_version']
 
     device.vm.provider :libvirt do |v|
-      v.memory = 768
+      v.memory = 1536
       v.nic_adapter_count = 15
     end
     #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
