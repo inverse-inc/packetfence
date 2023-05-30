@@ -203,16 +203,27 @@ unconfigure() {
 halt() {
     # work as try/catch to continue even if an error has been detected
     # We always want VM to be halted even if Ansible failed
-    if unconfigure; then
-        echo "Ansible teardown succeed"
+    local force=${1:-}
+    if [ -z "$force" ]; then
+	if unconfigure; then
+            echo "Ansible teardown succeed"
+	else
+            echo "Ansible teardown failed"
+	fi
     else
-        echo "Ansible teardown failed"
+	echo "Halt force detected: only halting VM"
     fi
     log_subsection "Halt virtual machine(s)"
+    halt_pf_vm
+    halt_other_vm
+}
 
-    ( cd $VAGRANT_DIR ; \
+halt_pf_vm() {
+   ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_PF_DOTFILE_PATH} vagrant halt -f )
+}
 
+halt_other_vm() {
     ( cd $VAGRANT_DIR ; \
       VAGRANT_DOTFILE_PATH=${VAGRANT_COMMON_DOTFILE_PATH} vagrant halt -f )
 }
@@ -268,6 +279,7 @@ case $1 in
     run) run ;;
     run_tests) run_tests ;;
     halt) halt ;;
+    halt_force) halt force ;;
     delete) delete_ansible_files ;;
     teardown) teardown ;;
     *) die "Wrong argument"

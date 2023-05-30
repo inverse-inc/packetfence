@@ -49,6 +49,7 @@ run_tests:
 	./test-wrapper.sh run_tests
 
 halt: halt_pf clean_cache
+halt_force: halt_pf_force clean_cache
 
 halt_pf:
 	PF_VM_NAMES="$(PF_VM_NAMES)" \
@@ -57,8 +58,15 @@ halt_pf:
 	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
 	./test-wrapper.sh halt
 
+halt_pf_force:
+	PF_VM_NAMES="$(PF_VM_NAMES)" \
+	CLUSTER_NAME="$(CLUSTER_NAME)" \
+	RESULT_DIR=$(RESULT_DIR) \
+	INT_TEST_VM_NAMES="$(INT_TEST_VM_NAMES)" \
+	./test-wrapper.sh halt_force
+
 clean: clean_pf clean_cache
-	
+
 clean_pf:
 	RESULT_DIR=$(RESULT_DIR) \
 	./test-wrapper.sh teardown
