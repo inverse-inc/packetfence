@@ -13,17 +13,13 @@ FingerbankCombinationsSearch:
         type: object
         properties:
           cursor:
-            required: false
-            type: integer
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
           sort:
             $ref: '#/components/schemas/FingerbankCombinationsSort'
           query:
             $ref: '#/components/schemas/FingerbankCombinationsQuery'
           limit:
-            type: integer
-            minimum: 1
-            maximum: 1000
-            example: 1
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
 
 FingerbankDevice:
   required: true
@@ -40,17 +36,13 @@ FingerbankDevicesSearch:
         type: object
         properties:
           cursor:
-            required: false
-            type: integer
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
           sort:
             $ref: '#/components/schemas/FingerbankDevicesSort'
           query:
             $ref: '#/components/schemas/FingerbankDevicesQuery'
           limit:
-            type: integer
-            minimum: 1
-            maximum: 1000
-            example: 1
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
 
 FingerbankDhcpFingerprint:
   required: true
@@ -67,17 +59,36 @@ FingerbankDhcpFingerprintsSearch:
         type: object
         properties:
           cursor:
-            required: false
-            type: integer
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
           sort:
             $ref: '#/components/schemas/FingerbankDhcpFingerprintsSort'
           query:
             $ref: '#/components/schemas/FingerbankDhcpFingerprintsQuery'
           limit:
-            type: integer
-            minimum: 1
-            maximum: 1000
-            example: 1
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
+
+FingerbankDhcpVendor:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcpVendorForm'
+
+FingerbankDhcpVendorsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
+          sort:
+            $ref: '#/components/schemas/FingerbankDhcpVendorsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankDhcpVendorsQuery'
+          limit:
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
 
 FingerbankDhcp6Enterprise:
   required: true
@@ -94,14 +105,80 @@ FingerbankDhcp6EnterprisesSearch:
         type: object
         properties:
           cursor:
-            required: false
-            type: integer
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
           sort:
             $ref: '#/components/schemas/FingerbankDhcp6EnterprisesSort'
           query:
             $ref: '#/components/schemas/FingerbankDhcp6EnterprisesQuery'
           limit:
-            type: integer
-            minimum: 1
-            maximum: 1000
-            example: 1
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
+
+FingerbankDhcp6Fingerprint:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankDhcp6FingerprintForm'
+
+FingerbankDhcp6FingerprintsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
+          sort:
+            $ref: '#/components/schemas/FingerbankDhcp6FingerprintsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankDhcp6FingerprintsQuery'
+          limit:
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
+
+FingerbankMacVendor:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankMacVendorForm'
+
+FingerbankMacVendorsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
+          sort:
+            $ref: '#/components/schemas/FingerbankMacVendorsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankMacVendorsQuery'
+          limit:
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'
+
+
+FingerbankUserAgent:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '#/components/schemas/FingerbankUserAgentForm'
+
+FingerbankUserAgentsSearch:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          cursor:
+            $ref: '#/components/schemas/FingerbankPaginatedCursor'
+          sort:
+            $ref: '#/components/schemas/FingerbankUserAgentsSort'
+          query:
+            $ref: '#/components/schemas/FingerbankUserAgentsQuery'
+          limit:
+            $ref: '#/components/schemas/FingerbankPaginatedLimit'

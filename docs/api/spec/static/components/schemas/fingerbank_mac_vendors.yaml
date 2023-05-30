@@ -1,4 +1,4 @@
-FingerbankDhcpFingerprints:
+FingerbankMacVendors:
   allOf:
     - $ref: '#/components/schemas/FingerbankIterable'
     - $ref: '#/components/schemas/Flags'
@@ -7,30 +7,32 @@ FingerbankDhcpFingerprints:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/FingerbankDhcpFingerprintDecorated'
+            $ref: '#/components/schemas/FingerbankMacVendorDecorated'
         scope:
           $ref: '#/components/schemas/FingerbankScope'
         status:
           $ref: '#/components/schemas/Status'
 
-FingerbankDhcpFingerprintItem:
+FingerbankMacVendorItem:
   type: object
   properties:
     item:
-      $ref: '#/components/schemas/FingerbankDhcpFingerprintDecorated'
+      $ref: '#/components/schemas/FingerbankMacVendorDecorated'
     scope:
       $ref: '#/components/schemas/FingerbankScope'
     status:
       $ref: '#/components/schemas/Status'
 
-FingerbankDhcpFingerprint:
+FingerbankMacVendor:
   type: object
   properties:
     # write-able
-    value:
+    mac:
+      type: string
+    name:
       type: string
 
-FingerbankDhcpFingerprintDecorated:
+FingerbankMacVendorDecorated:
   type: object
   properties:
     # read-only
@@ -43,47 +45,49 @@ FingerbankDhcpFingerprintDecorated:
       type: string
       format: date-time
     # write-able
-    value:
+    mac:
+      type: string
+    name:
       type: string
 
-FingerbankDhcpFingerprintForm:
+FingerbankMacVendorForm:
   allOf:
-    - $ref: '#/components/schemas/FingerbankDhcpFingerprint'
+    - $ref: '#/components/schemas/FingerbankMacVendor'
     - required:
       - device_id
 
-FingerbankDhcpFingerprintsSearch:
+FingerbankMacVendorsSearch:
   allOf:
     - $ref: '#/components/schemas/FingerbankIterable'
     - $ref: '#/components/schemas/Flags'
     - type: object
       properties:
         items:
-          description: DhcpFingerprints.
+          description: MacVendors.
           type: array
           items:
-            $ref: '#/components/schemas/FingerbankDhcpFingerprint'
+            $ref: '#/components/schemas/FingerbankMacVendor'
         status:
           $ref: '#/components/schemas/Status'
 
-FingerbankDhcpFingerprintsQuery:
+FingerbankMacVendorsQuery:
   type: object
   oneOf:
-    - $ref: '#/components/schemas/FingerbankDhcpFingerprintsQueryNested'
-    - $ref: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+    - $ref: '#/components/schemas/FingerbankMacVendorsQueryNested'
+    - $ref: '#/components/schemas/FingerbankMacVendorsQueryField'
   discriminator:
     propertyName: op
     mapping:
-      and: '#/components/schemas/FingerbankDhcpFingerprintsQueryNested'
-      or: '#/components/schemas/FingerbankDhcpFingerprintsQueryNested'
-      contains: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      not_contains: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      match: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      not_match: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      between: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      not_between: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      is: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
-      is_not: '#/components/schemas/FingerbankDhcpFingerprintsQueryField'
+      and: '#/components/schemas/FingerbankMacVendorsQueryNested'
+      or: '#/components/schemas/FingerbankMacVendorsQueryNested'
+      contains: '#/components/schemas/FingerbankMacVendorsQueryField'
+      not_contains: '#/components/schemas/FingerbankMacVendorsQueryField'
+      match: '#/components/schemas/FingerbankMacVendorsQueryField'
+      not_match: '#/components/schemas/FingerbankMacVendorsQueryField'
+      between: '#/components/schemas/FingerbankMacVendorsQueryField'
+      not_between: '#/components/schemas/FingerbankMacVendorsQueryField'
+      is: '#/components/schemas/FingerbankMacVendorsQueryField'
+      is_not: '#/components/schemas/FingerbankMacVendorsQueryField'
   example:
     op: and
     values:
@@ -91,7 +95,7 @@ FingerbankDhcpFingerprintsQuery:
         op: contains
         value: ""
 
-FingerbankDhcpFingerprintsQueryNested:
+FingerbankMacVendorsQueryNested:
   type: object
   properties:
     op:
@@ -104,9 +108,9 @@ FingerbankDhcpFingerprintsQueryNested:
       description: Nested child search criteria.
       type: array
       items:
-        $ref: '#/components/schemas/FingerbankDhcpFingerprintsQuery'
+        $ref: '#/components/schemas/FingerbankMacVendorsQuery'
 
-FingerbankDhcpFingerprintsQueryField:
+FingerbankMacVendorsQueryField:
   type: object
   properties:
     op:
@@ -122,32 +126,34 @@ FingerbankDhcpFingerprintsQueryField:
         - is
         - is_not
     field:
-      $ref: '#/components/schemas/FingerbankDhcpFingerprintsField'
+      $ref: '#/components/schemas/FingerbankMacVendorsField'
     value:
       description: Search criteria.
       type: string
 
 
-FingerbankDhcpFingerprintsFields:
+FingerbankMacVendorsFields:
   type: array
   items:
-    $ref: '#/components/schemas/FingerbankDhcpFingerprintsField'
+    $ref: '#/components/schemas/FingerbankMacVendorsField'
   example:
     - id
     - created_at
     - updated_at
-    - value
+    - mac
+    - name
 
-FingerbankDhcpFingerprintsField:
+FingerbankMacVendorsField:
   type: string
   example: id
   enum:
     - id
     - created_at
     - updated_at
-    - value
+    - mac
+    - name
 
-FingerbankDhcpFingerprintsSort:
+FingerbankMacVendorsSort:
   type: array
   items:
     type: string
@@ -159,5 +165,7 @@ FingerbankDhcpFingerprintsSort:
       - created_at DESC
       - updated_at ASC
       - updated_at DESC
-      - value ASC
-      - value DESC
+      - mac ASC
+      - mac DESC
+      - name ASC
+      - name DESC
