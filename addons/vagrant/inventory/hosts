@@ -11,7 +11,7 @@ all:
           mgmt_ip: "{{ users_vars[dict_name]['vms']['switch01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['switch01']['netmask'] }}"
           box: CumulusCommunity/cumulus-vx
-          box_version: 3.7.12
+          box_version: 5.5.0
           ansible_host: "{{ mgmt_ip }}"
 
     nodes:
