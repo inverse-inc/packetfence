@@ -1,4 +1,4 @@
-package pf::Switch::Cisco::Catalyst_2950;
+package pf::Switch::Cisco::Cisco_IOS_Less_v12_2;
 
 =head1 NAME
 
@@ -103,7 +103,7 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use pf::locationlog;
-sub description { 'Cisco Catalyst 2950' }
+sub description { 'Cisco_IOS_Less_v12_2' }
 
 # importing switch constants
 use pf::Switch::constants;
