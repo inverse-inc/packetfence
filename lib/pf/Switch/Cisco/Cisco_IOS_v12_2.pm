@@ -89,7 +89,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Cisco');
+use base ('pf::Switch::Cisco_IOS_Less_v12_2');
 use Carp;
 use Net::SNMP;
 use Data::Dumper;
