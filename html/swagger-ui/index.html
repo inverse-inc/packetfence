@@ -70,6 +70,9 @@
             for (let i = 0; i < Math.min(aSplit.length, bSplit.length); i++) {
               if (aSplit[i] !== bSplit[i]) {
                 switch (true) {
+                  case aSplit[i].indexOf('configurator') !== bSplit[i].indexOf('configurator'): // /configurator last
+                    return aSplit[i].indexOf('configurator') - bSplit[i].indexOf('configurator')
+                    // break
                   case aSplit[i].indexOf(bSplit[i]) === 0: // a starts with b
                     return -1
                     //break
