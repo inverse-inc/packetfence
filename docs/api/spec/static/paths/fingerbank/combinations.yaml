@@ -7,6 +7,18 @@
       required: true
       schema:
         $ref: '#/components/schemas/FingerbankScope'
+    - name: cursor
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedCursor'
+    - name: limit
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankPaginatedLimit'
+    - name: sort
+      in: query
+      schema:
+        $ref: '#/components/schemas/FingerbankCombinationsSort'
     responses:
       '200':
         $ref: '#/components/responses/FingerbankCombinations'

@@ -1,6 +1,6 @@
 FingerbankDhcp6Enterprises:
   allOf:
-    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/FingerbankIterable'
     - $ref: '#/components/schemas/Flags'
     - type: object
       properties:
@@ -55,7 +55,7 @@ FingerbankDhcp6EnterpriseForm:
 
 FingerbankDhcp6EnterprisesSearch:
   allOf:
-    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/FingerbankIterable'
     - $ref: '#/components/schemas/Flags'
     - type: object
       properties:

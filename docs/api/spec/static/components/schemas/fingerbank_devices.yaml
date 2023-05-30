@@ -1,6 +1,6 @@
 FingerbankDevices:
   allOf:
-    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/FingerbankIterable'
     - $ref: '#/components/schemas/Flags'
     - type: object
       properties:
@@ -70,7 +70,7 @@ FingerbankDeviceForm:
 
 FingerbankDevicesSearch:
   allOf:
-    - $ref: '#/components/schemas/Iterable'
+    - $ref: '#/components/schemas/FingerbankIterable'
     - $ref: '#/components/schemas/Flags'
     - type: object
       properties:

@@ -1,6 +1,6 @@
-/api/v1/fingerbank/{scope}/dhcp_fingerprints:
+/api/v1/fingerbank/{scope}/dhcp_vendors:
   get:
-    summary: Get DHCP Fingerprints.
+    summary: Get DHCP Vendors.
     parameters:
     - name: scope
       in: path
@@ -18,16 +18,16 @@
     - name: sort
       in: query
       schema:
-        $ref: '#/components/schemas/FingerbankDhcpFingerprintsSort'
+        $ref: '#/components/schemas/FingerbankDhcpVendorsSort'
     responses:
       '200':
-        $ref: '#/components/responses/FingerbankDhcpFingerprints'
+        $ref: '#/components/responses/FingerbankDhcpVendors'
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
       - $Fingerbank
   post:
-    summary: Create local DHCP Fingerprint.
+    summary: Create local DHCP Vendor.
     parameters:
     - name: scope
       in: path
@@ -35,7 +35,7 @@
       schema:
         $ref: '#/components/schemas/FingerbankScopeLocalOnly'
     requestBody:
-      $ref: '#/components/requestBodies/FingerbankDhcpFingerprint'
+      $ref: '#/components/requestBodies/FingerbankDhcpVendor'
     responses:
       '200':
         $ref: '#/components/responses/Created'
@@ -44,7 +44,7 @@
     tags:
       - $Fingerbank
 
-/api/v1/fingerbank/{scope}/dhcp_fingerprints/search:
+/api/v1/fingerbank/{scope}/dhcp_vendors/search:
   parameters:
   - name: scope
     in: path
@@ -52,34 +52,34 @@
     schema:
       $ref: '#/components/schemas/FingerbankScope'
   post:
-    summary: Search local DHCP Fingerprints.
+    summary: Search local DHCP Vendors.
     requestBody:
-      $ref: '#/components/requestBodies/FingerbankDhcpFingerprintsSearch'
+      $ref: '#/components/requestBodies/FingerbankDhcpVendorsSearch'
     responses:
       '200':
-        $ref: '#/components/responses/FingerbankDhcpFingerprintsSearch'
+        $ref: '#/components/responses/FingerbankDhcpVendorsSearch'
       '401':
         $ref: '#/components/responses/Forbidden'
     tags:
       - $Fingerbank
 
-/api/v1/fingerbank/{scope}/dhcp_fingerprint/{dhcp_fingerprint_id}:
+/api/v1/fingerbank/{scope}/dhcp_vendor/{dhcp_vendor_id}:
   parameters:
   - name: scope
     in: path
     required: true
     schema:
       $ref: '#/components/schemas/FingerbankScopeLocalOnly'
-  - name: dhcp_fingerprint_id
+  - name: dhcp_vendor_id
     in: path
     required: true
     schema:
       type: string
   get:
-    summary: Get local DHCP Fingerprint.
+    summary: Get local DHCP Vendor.
     responses:
       '200':
-        $ref: '#/components/responses/FingerbankDhcpFingerprint'
+        $ref: '#/components/responses/FingerbankDhcpVendor'
       '401':
         $ref: '#/components/responses/Forbidden'
       '404':
@@ -87,9 +87,9 @@
     tags:
       - $Fingerbank
   patch:
-    summary: Update local DHCP Fingerprint.
+    summary: Update local DHCP Vendor.
     requestBody:
-      $ref: '#/components/requestBodies/FingerbankDhcpFingerprint'
+      $ref: '#/components/requestBodies/FingerbankDhcpVendor'
     responses:
       '200':
         $ref: '#/components/responses/Updated'
@@ -100,7 +100,7 @@
     tags:
       - $Fingerbank
   delete:
-    summary: Delete local DHCP Fingerprint.
+    summary: Delete local DHCP Vendor.
     responses:
       '200':
         $ref: '#/components/responses/Deleted'

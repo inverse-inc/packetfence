@@ -1,3 +1,32 @@
+FingerbankIterable:
+  type: object
+  properties:
+    prevCursor:
+      description: The cursor to access paginated data for the previous page.
+      type: integer
+    nextCursor:
+      description: The cursor to access paginated data for the next page.
+      type: integer
+
+FingerbankPaginatedLimit:
+  description: The maximum amount of entries to get. Use `cursor` for pagination.
+  type: integer
+  enum:
+    - 1
+    - 5
+    - 10
+    - 25
+    - 50
+    - 100
+    - 250
+    - 500
+    - 1000
+  default: 1
+
+FingerbankPaginatedCursor:
+  description: The cursor pointer to fetch paginated results (from `prevCursor` and `nextCursor`).
+  type: integer
+
 FingerbankScope:
   type: string
   enum:
