@@ -1,5 +1,6 @@
 #!/bin/bash
-set -o nounset -o pipefail -o errexit
+# no '-o errexit': errors are managed in script
+set -o nounset -o pipefail
 
 # full path to dir of current script
 SCRIPT_DIR=$(readlink -e $(dirname ${BASH_SOURCE[0]}))
@@ -31,11 +32,15 @@ configure_and_check() {
         echo "Passed tests"
         if [ "$KEEP_VMS" = "yes" ]; then
             echo "Keeping VM according to 'KEEP_VMS' value"
-            MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+            MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME} || halt_force
         else
             echo "Cleaning VM according to 'KEEP_VMS' value"
-            MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+            MAKE_TARGET=clean make -e -C ${TEST_DIR} ${CI_JOB_NAME} || halt_force
         fi
+	# even if tests passed, we want to exit with return code of last command
+	# to detect a potential failure during cleanup
+	# if there is no failure, job must be marked as passed
+	exit $?
     else
         echo "Failed tests"
         # We don't want other jobs to be canceled when running a manual pipeline
@@ -45,10 +50,15 @@ configure_and_check() {
         else
             echo "Halting VM"
         fi
-        MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+        MAKE_TARGET=halt make -e -C ${TEST_DIR} ${CI_JOB_NAME} || halt_force
         exit $JOB_STATUS
     fi
 }
+
+halt_force() {
+    MAKE_TARGET=halt_force make -e -C ${TEST_DIR} ${CI_JOB_NAME}
+}
+
 
 
 log_section "Configure and check"
