@@ -59,11 +59,14 @@ foreach my $switch_id (keys(%SwitchConfig)) {
     
     my $switch = pf::SwitchFactory->instantiate($switch_id);
     next if ($switch->{'_type'} !~ /Cisco/) || !defined($switch->{'_cliUser'});  
+    my $switch_ip = $switch_id;
+    $switch_id =~ s/\./_/g;
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $switch->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $switch->{'_cliTransport'};
     $vars{'switches'}{$switch_id}{'cliUser'} = $switch->{'_cliUser'};
     $vars{'switches'}{$switch_id}{'cliPwd'} = $switch->{'_cliPwd'};
     $vars{'switches'}{$switch_id}{'type'} = $switch->{'_type'};
+    $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
     switch($switch->{'_type'}) {
 	    case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
 	    case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
@@ -79,8 +82,9 @@ foreach my $switch_id (keys(%SwitchConfig)) {
     $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id.cfg") or die $tt->error();
 }
 
-$tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/inventory.yaml") or die $tt->error();
-
+$tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/inventory.yml") or die $tt->error();
+$tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/ansible.cfg") or die $tt->error();
+$tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/switch_acls.yml") or die $tt->error();
 
 =head1 AUTHOR
 
