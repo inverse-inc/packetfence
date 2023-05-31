@@ -3,8 +3,11 @@
     <multiselect ref="inputRef"
                  class="base-input-chosen"
                  :class="{
-                    'is-invalid': invalidFeedback === false,
-                    'is-valid': validFeedback === true,
+                    'is-empty': isEmpty,
+                    'is-blur': !isFocus,
+                    'is-focus': isFocus,
+                    'is-invalid': inputState === false,
+                    'is-valid': inputState === true,
                     'size-sm': size === 'sm',
                     'size-md': size === 'md',
                     'size-lg': size === 'lg'
@@ -91,13 +94,13 @@
         </b-media>
       </template>
     </multiselect>
-    <small v-if="invalidFeedback"
+    <small v-if="inputInvalidFeedback"
       class="invalid-feedback"
-      v-html="invalidFeedback"
+      v-html="inputInvalidFeedback"
     />
-    <small v-if="validFeedback"
+    <small v-if="inputValidFeedback"
       class="valid-feedback"
-      v-html="validFeedback"
+      v-html="inputValidFeedback"
     />
   </div>
 </template>
@@ -163,6 +166,35 @@ export const props = {
 }
 
 export const setup = (props, context) => {
+
+  const metaProps = useInputMeta(props, context)
+
+  const {
+    value,
+  } = useInputValue(metaProps, context)
+
+  const {
+    state,
+    invalidFeedback,
+    validFeedback
+  } = useInputValidator(metaProps, value)
+
+  // used by CSS to show vue-multiselect placeholder
+  const isEmpty = computed(() => [null, undefined].includes(value.value))
+
+   const {
+    isFocus
+  } = useInput(metaProps, context)
+
+  return {
+    isEmpty,
+    isFocus,
+
+    // useInputValidator
+    inputState: state,
+    inputInvalidFeedback: invalidFeedback,
+    inputValidFeedback: validFeedback,
+  }
 }
 
 // @vue/component

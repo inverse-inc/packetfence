@@ -1,19 +1,19 @@
 <template>
-  <SearchInput :on-search="onSearch"
-               :options="inputOptions"
-               :value="inputValue"
-               :label="text"
-               :track-by="text"
-               :single-label="singleLabel"
-               :on-select="onSelect"
-               :loading="isLoading"
-               :placeholder="i18n().t('Search')"
-               :invalid-feedback="searchQueryInvalidFeedback"
-               :valid-feedback="searchQueryValidFeedback"/>
+  <SearchInput v-bind="$props"
+              :on-search="onSearch"
+              :options="inputOptions"
+              :value="inputValue"
+              :label="text"
+              :track-by="text"
+              :single-label="singleLabel"
+              :on-select="onSelect"
+              :loading="isLoading"
+              :placeholder="$i18n.t('Search')"
+  />
 </template>
 
 <script>
-import {BaseInputChosenOneSearchable} from '@/components/new';
+import {BaseInputChosenOneSearchable, BaseInputChosenOneSearchableProps} from '@/components/new';
 import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api';
 import {getFormNamespace, useInputValue} from '@/composables/useInputValue';
 import {computed, inject, ref, toRefs, unref} from '@vue/composition-api';
@@ -24,7 +24,7 @@ import {useInputValidator} from '@/composables/useInputValidator';
 
 
 export const props = {
-  ...BaseInputChosenOneSearchable.props,
+  ...BaseInputChosenOneSearchableProps,
 
   lookup: {
     type: Function,
@@ -56,6 +56,7 @@ function setup(props, context){
   const selectedValue = ref(null);
   const inputOptions = ref([]);
   const searchInput = ref("");
+
   const ldapFilterAttribute = computed(() => {
     let ldapEntryNamespace = props.namespace.split('.')
     ldapEntryNamespace.pop()
@@ -69,7 +70,7 @@ function setup(props, context){
     isLoading.value = true;
     performLdapSearch(form.value, query, ldapFilterAttribute.value).then((searchResults) => {
       inputOptions.value = searchResults
-    }).then(() => {
+    }).finally(() => {
       isLoading.value = false;
     })
   }
@@ -82,8 +83,8 @@ function setup(props, context){
 
   const {
     state,
-    searchQueryInvalidFeedback,
-    searchQueryValidFeedback,
+    invalidFeedback: searchQueryInvalidFeedback,
+    validFeedback: searchQueryValidFeedback,
   } = useInputValidator(metaProps, selectedValue)
 
   const singleLabel = computed(() => {
@@ -108,11 +109,6 @@ function setup(props, context){
 
 export default {
   name: 'ldap-search-input',
-  methods: {
-    i18n() {
-      return i18n
-    }
-  },
   components: {SearchInput},
   setup,
   props,
