@@ -35,7 +35,10 @@ RUN git config --global --add safe.directory /go/src/github.com/ansible-semaphor
 
 # Copy in app source
 WORKDIR ${APP_ROOT}
-RUN git clone https://github.com/ansible-semaphore/semaphore.git ./
+ARG source=https://github.com/ansible-semaphore/semaphore.git
+ARG release=v2.8.90
+
+RUN git clone -qq --depth 1 --single-branch --branch ${release} ${source} ./
 
 RUN deployment/docker/ci/bin/install
 
