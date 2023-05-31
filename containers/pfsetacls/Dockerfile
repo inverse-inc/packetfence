@@ -9,11 +9,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 
 RUN apt update
 RUN apt install -y gcc g++ make git mariadb-client-10.5 python3 pip python3-openssl openssl ca-certificates curl libcurl4-openssl-dev openssh-client tini nodejs bash rsync && \
-    apt install -y python3-dev libffi-dev &&\
+    apt install -y python3-dev libffi-dev python3-paramiko &&\
     rm -rf /var/cache/apt/*
 
 RUN pip3 install --upgrade pip cffi &&\
-    pip3 install ansible
+    pip3 install ansible && pip3 install ansible-pylibssh
 
 RUN adduser --disabled-password -u 1002 --gecos 0 semaphore && \
     mkdir -p /go/src/github.com/ansible-semaphore/semaphore && \
