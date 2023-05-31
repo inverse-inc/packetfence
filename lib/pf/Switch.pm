@@ -21,6 +21,8 @@ use Net::IP;
 use Net::SNMP;
 use pf::log;
 use Try::Tiny;
+use Switch;
+use Template;
 
 our $VERSION = 2.10;
 
@@ -41,6 +43,8 @@ use pf::config qw(
 use Errno qw(EINTR);
 use pf::file_paths qw(
     $control_dir
+    $conf_dir
+    $var_dir
 );
 use pf::dal;
 use pf::locationlog;
@@ -4157,6 +4161,60 @@ sub compute_action {
     $$args->{'compute_acl'} = (exists($$args->{'compute_acl'}) ? $$args->{'compute_acl'} : $TRUE );
     $$args->{'compute_url'} = (exists($$args->{'compute_url'}) ? $$args->{'compute_url'} : $TRUE );
     $$args->{'compute_vpn'} = (exists($$args->{'compute_vpn'}) ? $$args->{'compute_vpn'} : $TRUE );
+}
+
+=head2
+
+Generate Ansible configuration to push ACLs
+
+=cut
+
+sub generateAnsibleConfiguration {
+    my ($self) = @_;
+    my %vars;
+    my $tt = Template->new(
+        ABSOLUTE => 1,
+    );
+
+    return if ($self->{_id} =~ /.*\/.*/ or $self->{_id} =~ /.*\:.*/ or $self->{_id} eq 'default' or $self->{_id} eq '100.64.0.1' or $self->{_id} eq '127.0.0.1');
+    my $switch_id = $self->{_id};
+    return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_PushACLs'}));
+
+    if (! -e "$var_dir/conf/pfsetacls") {
+        mkdir("$var_dir/conf/pfsetacls") or die "Can't create $var_dir/conf/pfsetacls/:$!";
+    }
+    if (! -e "$var_dir/conf/pfsetacls/$switch_id") {
+        mkdir("$var_dir/conf/pfsetacls/$switch_id") or die "Can't create $var_dir/conf/pfsetacls/$switch_id:$!";
+    }
+    if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
+        mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
+    }
+    my $switch_ip = $switch_id;
+    $switch_id =~ s/\./_/g;
+    $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
+    $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
+    $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
+    $vars{'switches'}{$switch_id}{'cliPwd'} = $self->{'_cliPwd'};
+    $vars{'switches'}{$switch_id}{'type'} = $self->{'_type'};
+    $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
+    switch($self->{'_type'}) {
+            case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
+            case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
+            case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
+            case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
+    }
+    foreach my $role (keys %ConfigRoles) {
+        my $acls = $self->getAccessListByName($role);
+        !next if !defined($acls);
+        $vars{'switches'}{$switch_id}{'acls'}{$role} = $acls;
+    }
+
+    $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/$switch_id.cfg") or die $tt->error();
+
+    $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/inventory.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
+    $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
 }
 
 =back
