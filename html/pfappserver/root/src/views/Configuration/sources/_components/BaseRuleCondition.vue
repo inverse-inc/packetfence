@@ -40,7 +40,7 @@ const components = {
 
 import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
 import {
-  pfComponentType as componentType,
+  pfComponentType as componentType, pfFieldType,
   pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeOperators as fieldTypeOperators,
   pfFieldTypeValues as fieldTypeValues
@@ -48,10 +48,11 @@ import {
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useNamespaceMetaAllowed } from '@/composables/useMeta'
+import LdapSearchInput from '@/views/Configuration/sources/_components/LdapSearchInput.vue';
 
 const props = {
   ...useInputMetaProps,
-  ...useInputValueProps
+  ...useInputValueProps,
 }
 
 const setup = (props, context) => {
@@ -123,6 +124,11 @@ const setup = (props, context) => {
   const valueComponent = computed(() => {
     if (attributeValue.value) {
       const { attributes: { 'data-type': type } = {} } = unref(attributeValue) || {}
+
+      if (type === pfFieldType.LDAPATTRIBUTE || type === pfFieldType.LDAPFILTER){
+        return LdapSearchInput
+      }
+
       const component = fieldTypeComponent[type]
       switch (component) {
         case componentType.SELECTMANY:
