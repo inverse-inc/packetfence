@@ -44,16 +44,9 @@ my $tt = Template->new(
 if (! -e "$var_dir/conf/pfsetacls") {
     mkdir("$var_dir/conf/pfsetacls") or die "Can't create $var_dir/conf/pfsetacls/:$!";
 }
-
-if (! -e "$var_dir/conf/pfsetacls/conf") {
-    mkdir("$var_dir/conf/pfsetacls/conf") or die "Can't create $var_dir/conf/pfsetacls/conf:$!";
+if (! -e "$var_dir/conf/pfsetacls/collections") {
+    mkdir("$var_dir/conf/pfsetacls/collections") or die "Can't create $var_dir/conf/pfsetacls/collections:$!";
 }
-
-if (! -e "$var_dir/conf/pfsetacls/db") {
-    mkdir("$var_dir/conf/pfsetacls/db") or die "Can't create $var_dir/conf/pfsetacls/db:$!";
-}
-
-
 foreach my $switch_id (keys(%SwitchConfig)) {
     next if ($switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
     
@@ -85,6 +78,7 @@ foreach my $switch_id (keys(%SwitchConfig)) {
 $tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/inventory.yml") or die $tt->error();
 $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/ansible.cfg") or die $tt->error();
 $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/switch_acls.yml") or die $tt->error();
+$tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/collections/requirements.yml") or die $tt->error();
 
 =head1 AUTHOR
 
