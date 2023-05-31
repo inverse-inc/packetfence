@@ -1,0 +1,5 @@
+collections:
+    - name: arubanetworks.aoscx
+    - name: cisco.ios
+    - name: community.network
+    - name: cisco.asa
