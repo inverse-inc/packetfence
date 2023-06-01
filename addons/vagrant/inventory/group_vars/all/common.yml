@@ -26,3 +26,6 @@ pipeline_id: '{{ lookup("env","CI_PIPELINE_ID") | default("123456789", true) }}'
 # get current PacketFence minor release (X.Y)
 pf_minor_release: '{{ lookup("env", "PF_MINOR_RELEASE") | default("99.9", true) }}'
 
+# Cumulus Invormation
+switch01_api_user: cumulus
+switch01_api_password: CumulusLinux!
