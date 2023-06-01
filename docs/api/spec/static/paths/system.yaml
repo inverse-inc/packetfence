@@ -1,6 +1,6 @@
 /api/v1/system_summary:
   get:
-    summary: Get sytem summary.
+    summary: Get system summary.
     parameters:
       - $ref: '#/components/parameters/X-PacketFence-Server'
     responses:

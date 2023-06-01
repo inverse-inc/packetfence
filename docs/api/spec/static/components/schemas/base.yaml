@@ -1,6 +1,7 @@
 Status:
   description: Response code.
   type: integer
+  default: 200
 
 Message:
   type: object

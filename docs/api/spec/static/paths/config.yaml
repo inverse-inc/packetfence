@@ -1,0 +1,89 @@
+# CRUD not included from generate-openapi-from-routes.pl
+/api/v1/config/system/dns_servers:
+  get:
+    summary: Get system DNS servers.
+    responses:
+      '200':
+        $ref: "#/components/responses/ConfigSystemDnsServers"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - Config/System
+  put:
+    summary: Replace system DNS servers.
+    requestBody:
+      $ref: "#/components/requestBodies/ConfigSystemDnsServers"
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/System
+
+/api/v1/config/system/gateway:
+  get:
+    summary: Get system Gateway.
+    responses:
+      '200':
+        $ref: "#/components/responses/ConfigSystemGateway"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - Config/System
+  put:
+    summary: Replace system Gateway.
+    requestBody:
+      $ref: "#/components/requestBodies/ConfigSystemGateway"
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/System
+
+
+/api/v1/config/system/hostname:
+  get:
+    summary: Get system Hostname.
+    responses:
+      '200':
+        $ref: "#/components/responses/ConfigSystemHostname"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+    tags:
+      - Config/System
+  put:
+    summary: Replace system Hostname.
+    requestBody:
+      $ref: "#/components/requestBodies/ConfigSystemHostname"
+    responses:
+      '200':
+        $ref: '#/components/responses/Message'
+      '400':
+        $ref: '#/components/responses/BadRequest'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/System
+
+/api/v1/config/flatten_condition:
+  post:
+
