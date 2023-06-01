@@ -4205,7 +4205,7 @@ sub generateAnsibleConfiguration {
     }
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getAccessListByName($role);
-        !next if !defined($acls);
+        next if !defined($acls);
         $vars{'switches'}{$switch_id}{'acls'}{$role} = $acls;
     }
 
