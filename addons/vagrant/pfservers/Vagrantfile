@@ -18,6 +18,9 @@ end
 user_vars = inventory['all']['vars']['users_vars'][dict_name]
 
 Vagrant.configure("2") do |config|
+  # Number of seconds to wait for establishing an SSH connection to the guest
+  config.ssh.connect_timeout = 180
+
   # loop on **all** host(s) in pfservers group in inventory to create VM(s)
   inventory['all']['children']['pfservers']['children'].each do |groups, hosts|
     hosts['hosts'].each do |server, details|
