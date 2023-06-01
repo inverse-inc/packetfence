@@ -1,0 +1,18 @@
+# CRUD not included from generate-openapi-from-routes.pl
+ConfigSystemDnsServers:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigSystemDnsServers"
+
+ConfigSystemGateway:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigSystemGateway"
+
+ConfigSystemHostname:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigSystemHostname"

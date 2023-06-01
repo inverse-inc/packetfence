@@ -1,0 +1,46 @@
+# CRUD not included from generate-openapi-from-routes.pl
+ConfigSystemDnsServers:
+  type: object
+  properties:
+    dns_servers:
+      type: array
+      items:
+        type: string
+
+ConfigSystemDnsServersResponse:
+  type: object
+  properties:
+    dns_servers:
+      type: array
+      items:
+        type: string
+    status:
+      $ref: '#/components/schemas/Status'
+
+ConfigSystemGateway:
+  type: object
+  properties:
+    gateway:
+      type: string
+
+ConfigSystemGatewayResponse:
+  type: object
+  properties:
+    item:
+      type: string
+    status:
+      $ref: '#/components/schemas/Status'
+
+ConfigSystemHostname:
+  type: object
+  properties:
+    hostname:
+      type: string
+
+ConfigSystemHostnameResponse:
+  type: object
+  properties:
+    item:
+      type: string
+    status:
+      $ref: '#/components/schemas/Status'

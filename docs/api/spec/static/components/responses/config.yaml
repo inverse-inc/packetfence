@@ -1,0 +1,21 @@
+# CRUD not included from generate-openapi-from-routes.pl
+ConfigSystemDnsServers:
+  description: Request successful. Response contains system DNS servers.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigSystemDnsServersResponse"
+
+ConfigSystemGateway:
+  description: Request successful. Response contains system Gateway.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigSystemGatewayResponse"
+
+ConfigSystemHostname:
+  description: Request successful. Response contains system Hostname.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigSystemHostnameResponse"
