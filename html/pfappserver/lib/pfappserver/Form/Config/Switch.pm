@@ -458,7 +458,7 @@ has_field coaPort =>
 
 has_field PushACLs => (
     type => 'Toggle',
-)
+);
 
 has_field UseDownloadableACLs => (
     type => 'Toggle',
