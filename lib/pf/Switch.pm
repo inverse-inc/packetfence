@@ -4180,6 +4180,9 @@ sub generateAnsibleConfiguration {
     my $switch_id = $self->{_id};
     return unless (defined($self->{'_cliUser'}) && isenabled($self->{'_PushACLs'}));
 
+    my $switch_ip = $switch_id;
+    $switch_id =~ s/\./_/g;
+
     if (! -e "$var_dir/conf/pfsetacls") {
         mkdir("$var_dir/conf/pfsetacls") or die "Can't create $var_dir/conf/pfsetacls/:$!";
     }
@@ -4189,8 +4192,6 @@ sub generateAnsibleConfiguration {
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
     }
-    my $switch_ip = $switch_id;
-    $switch_id =~ s/\./_/g;
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
     $vars{'switches'}{$switch_id}{'cliUser'} = $self->{'_cliUser'};
