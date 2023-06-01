@@ -11,7 +11,7 @@ all:
           mgmt_ip: "{{ users_vars[dict_name]['vms']['switch01']['ip'] }}"
           mgmt_netmask: "{{ users_vars[dict_name]['vms']['switch01']['netmask'] }}"
           box: CumulusCommunity/cumulus-vx
-          box_version: 5.5.0
+          box_version: 4.3.0
           ansible_host: "{{ mgmt_ip }}"
 
     nodes:
@@ -113,7 +113,7 @@ all:
           hosts:
             pf1el8dev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -122,7 +122,7 @@ all:
               memory: 16384
             pf2el8dev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -131,7 +131,7 @@ all:
               memory: 16384
             pf3el8dev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -167,7 +167,7 @@ all:
               memory: 16384
             pf1el8localdev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf1el8localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf1el8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -176,7 +176,7 @@ all:
               memory: 16384
             pf2el8localdev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf2el8localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf2el8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -185,7 +185,7 @@ all:
               memory: 16384
             pf3el8localdev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pf3el8localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pf3el8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -224,7 +224,7 @@ all:
           hosts:
             pfel8dev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -242,7 +242,7 @@ all:
               memory: 16384
             el8dev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -264,7 +264,7 @@ all:
               ansible_connection: local
             pfel8localdev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8localdev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8localdev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -282,7 +282,7 @@ all:
               memory: 16384
             el8localdev:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['el8dev']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['el8dev']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
@@ -300,7 +300,7 @@ all:
               memory: 16384
             pfel8stable:
               box: generic/rhel8
-              box_version: '3.6.4'
+              box_version: '4.2.16'
               mgmt_ip: "{{ users_vars[dict_name]['vms']['pfel8stable']['ip'] }}"
               mgmt_netmask: "{{ users_vars[dict_name]['vms']['pfel8stable']['netmask'] }}"
               ansible_host: "{{ mgmt_ip }}"
