@@ -1,4 +1,4 @@
-package pf::Switch::Cisco::Cisco_IOS_v15_5;
+package pf::Switch::Cisco::Catalyst_2960;
 
 =head1 NAME
 
@@ -130,7 +130,7 @@ use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
-sub description { 'Cisco_IOS_v15_5' }
+sub description { 'Cisco Catalyst 2960' }
 
 # CAPABILITIES
 # access technology supported
