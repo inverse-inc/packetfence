@@ -1,5 +1,5 @@
 <template>
-  <SearchInput v-bind="$props"
+  <SearchInput
               :on-search="onSearch"
               :options="inputOptions"
               :value="inputValue"
@@ -9,18 +9,21 @@
               :on-select="onSelect"
               :loading="isLoading"
               :placeholder="$i18n.t('Search')"
+              :search-query-invalid-feedback="searchQueryInvalidFeedback"
+              :search-query-valid-feedback="''"
+              :state="inputState"
   />
 </template>
 
 <script>
 import {BaseInputChosenOneSearchable, BaseInputChosenOneSearchableProps} from '@/components/new';
 import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api';
-import {getFormNamespace, useInputValue} from '@/composables/useInputValue';
+import {getFormNamespace, setFormNamespace, useInputValue} from '@/composables/useInputValue';
 import {computed, inject, ref, toRefs, unref} from '@vue/composition-api';
 import {useInputMeta} from '@/composables/useMeta';
 import SearchInput from '@/views/Configuration/sources/_components/ldapCondition/SearchInput.vue';
 import i18n from '@/utils/locale';
-import {useInputValidator} from '@/composables/useInputValidator';
+import {namespaceToYupPath, useInputValidator} from '@/composables/useInputValidator';
 
 
 export const props = {
@@ -53,9 +56,12 @@ function performLdapSearch(form, inputValue, attribute) {
 function setup(props, context){
   const tempOptions = ref([]);
   const form = inject('form');
-  const selectedValue = ref(null);
+  const selectedValue = ref({"text": "", "value": null});
   const inputOptions = ref([]);
   const searchInput = ref("");
+  const localValidator = inject('schema');
+
+  const searchQueryInvalidFeedback = ref("");
 
   const ldapFilterAttribute = computed(() => {
     let ldapEntryNamespace = props.namespace.split('.')
@@ -75,17 +81,30 @@ function setup(props, context){
     })
   }
 
+  function validateChoice(){
+    const path = namespaceToYupPath(props.namespace)
+    localValidator.value.validateAt(path, form.value).then(() => {
+      searchQueryInvalidFeedback.value = ""
+    }).catch(ValidationError => { // invalid
+      const {inner = [], message} = ValidationError
+      searchQueryInvalidFeedback.value = message
+    })
+  }
+
+  const inputState = computed(() => {
+    return searchQueryInvalidFeedback.value === ""
+  })
+
   function onSelect(value) {
     selectedValue.value = value;
+    let ldapEntryNamespace = props.namespace.split('.')
+    setFormNamespace(ldapEntryNamespace, form.value, value.value)
+    validateChoice();
   }
 
   const metaProps = useInputMeta(props, context)
 
-  const {
-    state,
-    invalidFeedback: searchQueryInvalidFeedback,
-    validFeedback: searchQueryValidFeedback,
-  } = useInputValidator(metaProps, selectedValue)
+  validateChoice()
 
   const singleLabel = computed(() => {
     return selectedValue.value !== null ? selectedValue.value.text : ""
@@ -101,7 +120,8 @@ function setup(props, context){
     // wrappers
     inputValue: selectedValue,
     searchQueryInvalidFeedback,
-    searchQueryValidFeedback,
+    inputState,
+    form,
 
     tempOptions,
   }
@@ -109,6 +129,7 @@ function setup(props, context){
 
 export default {
   name: 'ldap-search-input',
+  methods: {unref},
   components: {SearchInput},
   setup,
   props,

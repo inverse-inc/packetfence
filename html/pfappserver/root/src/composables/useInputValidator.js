@@ -173,3 +173,11 @@ export const useInputValidator = (props, value, recursive = false) => {
     apiFeedback: localApiFeedback
   }
 }
+
+export const namespaceToYupPath = namespace => {
+  return unref(namespace).split('.').reduce((path, part) => {
+        return (`${+part}` === `${part}`)
+          ? [ ...path.slice(0, path.length -1), `${path[path.length - 1]}[${part}]` ]
+          : [ ...path, part ]
+      }, []).join('.')
+}
