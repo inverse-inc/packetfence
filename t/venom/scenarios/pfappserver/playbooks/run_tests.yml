@@ -8,14 +8,6 @@
     - pfappserver_configurator
 
   tasks:
-    - name: Install Cypress
-      community.general.make:
-        chdir: /usr/local/pf/t/html/pfappserver
-        target: install
-        file: /usr/local/pf/t/html/pfappserver/Makefile
-      become: true
-      tags: cypress
-
     - name: Run Venom testsuites
       command: '{{ venom_dir }}/venom-wrapper.sh {{ venom_dir }}/test_suites/{{ item }}'
       args:
