@@ -119,6 +119,10 @@ node03_netmask = user_vars['vms']['node03']['netmask']
 
 Vagrant.configure("2") do |config|
 
+  # The time in seconds that Vagrant will wait for the machine to gracefully halt when vagrant halt is called.
+  # https://developer.hashicorp.com/vagrant/docs/vagrantfile/machine_settings#config-vm-graceful_halt_timeout
+  config.vm.graceful_halt_timeout = 120
+
   wbid = 1
   offset = wbid * 100
 
