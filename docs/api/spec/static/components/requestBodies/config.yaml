@@ -16,3 +16,15 @@ ConfigSystemHostname:
     application/json:
       schema:
         $ref: "#/components/schemas/ConfigSystemHostname"
+
+ConfigConditionFlatten:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigConditionFlatten"
+
+ConfigConditionParse:
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigConditionParse"
