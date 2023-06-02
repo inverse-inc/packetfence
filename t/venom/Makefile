@@ -224,6 +224,18 @@ inline_l2_and_radius_deb11:
 	SCENARIOS_TO_RUN=inline_l2_and_radius \
 	$(MAKE_TARGET)
 
+pfappserver_el8:
+	make \
+	PF_VM_NAMES=pfel8$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfappserver \
+	$(MAKE_TARGET)
+
+pfappserver_deb11:
+	make \
+	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
+	SCENARIOS_TO_RUN=pfappserver \
+	$(MAKE_TARGET)
+
 example_el8: SCENARIOS_TO_RUN=example
 example_el8:
 	make \
@@ -260,18 +272,6 @@ cluster_el8:
 	PF_VM_NAMES="pf1el8$(DEV_ENV) pf2el8$(DEV_ENV) pf3el8$(DEV_ENV)" \
 	CLUSTER_NAME="$@$(DEV_ENV)" \
 	SCENARIOS_TO_RUN=cluster \
-	$(MAKE_TARGET)
-
-pfappserver_el8:
-	make \
-	PF_VM_NAMES=pfel8$(DEV_ENV) \
-	SCENARIOS_TO_RUN=pfappserver \
-	$(MAKE_TARGET)
-
-pfappserver_deb11:
-	make \
-	PF_VM_NAMES=pfdeb11$(DEV_ENV) \
-	SCENARIOS_TO_RUN=pfappserver \
 	$(MAKE_TARGET)
 
 ### alias to run tests on other branches
