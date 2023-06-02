@@ -87,7 +87,19 @@ systemctl stop packetfence-mariadb
 mysqld_safe --defaults-file=/usr/local/pf/var/conf/mariadb.conf --wsrep-recover
 ----
 
-Once you have identified the node which has the most recent data, run
+In MariaDB log file under [filename]`/usr/local/pf/logs` or in output of `journalctl -u packetfence-mariadb`, you should
+find a line like this:
+
+----
+[Note] WSREP: Recovered position: 220dcdcb-1629-11e4-add3-aec059ad3734:1122
+----
+
+The recovered position is a pair `<cluster state UUID>:<sequence
+number>`. The node with the highest sequence number in its
+recovered position is the most up-to-date, and should be chosen as
+bootstrap candidate.
+
+Once you have identified the most up-to-date node, run
 following commands on it:
 
 [source,bash]
