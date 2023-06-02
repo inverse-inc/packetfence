@@ -1167,7 +1167,7 @@ pfappserver_el8:
   extends:
     - .test_job
     - .test_script_job
-    - .test_branches_only_rules
+    - .test_devel_and_maintenance_rules
 
 pfappserver_deb11:
   variables:
@@ -1175,7 +1175,7 @@ pfappserver_deb11:
   extends:
     - .test_job
     - .test_script_job
-    - .test_branches_only_rules
+    - .test_devel_and_maintenance_rules
 
 dot1x_eap_peap_el8:
   variables:
