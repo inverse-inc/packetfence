@@ -12,13 +12,17 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   # The maximum amount of time to wait for a response
-  config.winrm.timeout = 600
+  config.winrm.timeout = 180
   
   # use same private key on all machines
   config.ssh.insert_key = false
 
   # Number of seconds to wait for establishing an SSH connection to the guest
-  config.ssh.connect_timeout = 180
+  config.ssh.connect_timeout = 90
+
+  # The time in seconds that Vagrant will wait for the machine to gracefully halt when vagrant halt is called.
+  # https://developer.hashicorp.com/vagrant/docs/vagrantfile/machine_settings#config-vm-graceful_halt_timeout
+  config.vm.graceful_halt_timeout = 120
 
   config.vm.provider "libvirt" do |vm|
     vm.default_prefix = DOMAIN_PREFIX
