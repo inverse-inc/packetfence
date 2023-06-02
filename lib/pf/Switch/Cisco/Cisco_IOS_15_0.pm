@@ -1,4 +1,4 @@
-package pf::Switch::Cisco::Catalyst_2960;
+package pf::Switch::Cisco::Cisco_IOS_15_0;
 
 =head1 NAME
 
@@ -116,7 +116,7 @@ use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 
-use base ('pf::Switch::Cisco::Catalyst_2950');
+use base ('pf::Switch::Cisco::Cisco_IOS_12_2');
 use pf::constants;
 use pf::config qw(
     $WIRED_802_1X
@@ -130,7 +130,7 @@ use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
-sub description { 'Cisco Catalyst 2960' }
+sub description { 'Cisco IOS v15.0' }
 
 # CAPABILITIES
 # access technology supported
