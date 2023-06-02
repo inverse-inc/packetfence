@@ -89,7 +89,7 @@ packetfence-audit-log-accept {
     }
     else {
         request-timing
-        %{redis:LPUSH RADIUS_AUDIT_LOG '["accept",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time}]'}
+        %{redis:RPUSH RADIUS_AUDIT_LOG '["accept",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time}]'}
 #        %{redis:LPUSH ACCEPT_RADIUS_AUDIT_LOG 1}
 #       -sql {
 #           fail = 1
@@ -103,7 +103,7 @@ packetfence-audit-log-reject {
     }
     else {
         request-timing
-        %{redis:LPUSH RADIUS_AUDIT_LOG '["reject",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time}]'}
+        %{redis:RPUSH RADIUS_AUDIT_LOG '["reject",%{json_encode:&request:[*]},%{json_encode:&reply:[*]},%{json_encode:control:PacketFence-Computer-Name control:PacketFence-Switch-Id control:PacketFence-Switch-Mac control:PacketFence-Switch-Ip-Address control:PacketFence-IfIndex control:PacketFence-Connection-Type control:Auth-Type control:PacketFence-Role control:PacketFence-Status control:PacketFence-Profile control:PacketFence-Source control:PacketFence-AutoReg control:PacketFence-IsPhone control:PacketFence-Request-Time}]'}
 #       -sql_reject {
 #           fail = 1
 #       }
