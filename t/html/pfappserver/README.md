@@ -48,6 +48,7 @@ See [`Makefile`](Makefile) for usage.
 * __PROJECT_ID__: Cypress Cloud Project ID. Only used in `make test-e2e`.
 * __RECORD_KEY__: Cypress Cloud Recording Key. Only used in `make test-e2e`.
 * __TAG__: Optional Tag shown in Cypress Cloud test runs.
+* __TAGS__: Conditionally run/skip units.
 
 ## Local Development Setup
 
@@ -147,26 +148,38 @@ Recorded Run: https://cloud.cypress.io/projects/f00b4r/runs/298
 
 Results are not saved on disk but are uploaded and available at the URL provided at the tail of the test. These uploaded artifacts are counted towards the Cypress Cloud Account defined in the `PROJECT_ID`.
 
-## Using TAGS
+## Using TAGS to filter tests
 
-[Tags Support](./cypress/support/filter.js) was added to conditionally use specific units (using `describe()`). The function has been rewritten to include a `tags` parameter in the configuration.
+[Tags Support](./cypress/support/filter.js) was added to conditionally filter units (using `describe()`). The `describe` function has been rewritten to include an optional `tags` configuration parameter.
 
 Tests are written as:
 
 ```js
-describe(name, { tags: ['production','!staging'] }, callback)
+describe('demo', { tags: ['production', '!staging'] }, callback)
 ```
 
-Using the ENV `tags` variable we can use complex Javascript expressions:
+Using the ENV `TAGS` variable we can use complex Javascript expressions:
 
 ```bash
 # the unit above will be executed
-make e2e --tags=['production']
+make test TAGS=['production']
 
 #the unit above will be skipped
-make e2e --tags=['staging']
+make test TAGS=['staging']
 ```
 
+Units can be nested to utilize complex conditions:
+
+```js
+// only execute if TAGS includes 'production'.
+describe('demo-outer', { tags: ['production'] }, () => {
+
+	// only execute if TAGS includes 'nightly' and not 'daily'.
+	describe('demo-inner', { tags: ['nightly', '!daily'] }, () => {
+
+	})
+})
+```
 
 ## Ansible and Venom
 
