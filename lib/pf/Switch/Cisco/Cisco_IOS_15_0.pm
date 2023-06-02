@@ -1,4 +1,4 @@
-package pf::Switch::Cisco::Catalyst_2960;
+package pf::Switch::Cisco::Cisco_IOS_15_0;
 
 =head1 NAME
 
@@ -116,7 +116,7 @@ use pf::log;
 use Net::SNMP;
 use Try::Tiny;
 
-use base ('pf::Switch::Cisco::Catalyst_2950');
+use base ('pf::Switch::Cisco::Cisco_IOS_12_2');
 use pf::constants;
 use pf::config qw(
     $WIRED_802_1X
@@ -130,7 +130,7 @@ use pf::web::util;
 use pf::radius::constants;
 use pf::locationlog qw(locationlog_get_session);
 
-sub description { 'Cisco Catalyst 2960' }
+sub description { 'Cisco IOS v15.0' }
 
 # CAPABILITIES
 # access technology supported
@@ -142,7 +142,7 @@ use pf::SwitchSupports qw(
     RadiusVoip
     RadiusDynamicVlanAssignment
     AccessListBasedEnforcement
-    DownloadableListBasedEnforcement
+    -DownloadableListBasedEnforcement
     RoleBasedEnforcement
     ExternalPortal
 );
@@ -475,90 +475,6 @@ sub wiredeauthTechniques {
         }
         return $method,$tech{$method};
     }
-}
-
-=head2 returnRadiusAccessAccept
-
-Prepares the RADIUS Access-Accept reponse for the network device.
-
-Overrides the default implementation to add the dynamic acls
-
-=cut
-
-sub returnRadiusAccessAccept {
-    my ($self, $args) = @_;
-    my $logger = $self->logger;
-    $args->{'unfiltered'} = $TRUE;
-    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
-    my $status = shift @super_reply;
-    my %radius_reply = @super_reply;
-    my $radius_reply_ref = \%radius_reply;
-    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
-    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
-
-    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
-            if ($access_list) {
-                if ($self->useDownloadableACLs) {
-                    my $mac = lc($args->{'mac'});
-                    $mac =~ s/://g;
-                    my @acl = split("\n", $access_list);
-                    $args->{'acl'} = \@acl;
-                    $args->{'acl_num'} = '101';
-                    push(@av_pairs, "subscriber:service-name=$mac-".$self->setRadiusSession($args));
-                } else {
-                    my $acl_num = 101;
-                    while($access_list =~ /([^\n]+)\n?/g){
-                       my $acl = $1;
-                       if ($acl !~ /^((in|out)\|)?(permit|deny)/i) {
-                            next;
-                        }
-                        my ($test, $formated_acl) = $self->returnAccessListAttribute($acl_num,$acl);
-                        if ($test) {
-                            push(@av_pairs, $formated_acl);
-                        } else {
-                            next;
-                        }
-                        $acl_num ++;
-                        $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
-                    }
-                    $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
-                }
-            } else {
-                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ". ( defined($args->{'user_role'}) ? $args->{'user_role'} : 'registration' ));
-            }
-        }
-    }
-
-    my $role = $self->getRoleByName($args->{'user_role'});
-    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
-        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
-            my $mac = $args->{'mac'};
-            $args->{'session_id'} = "sid".$self->setSession($args);
-            my $redirect_url = $self->getUrlByName($args->{'user_role'});
-            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
-            $redirect_url .= $args->{'session_id'};
-            #override role if a role in role map is defined
-            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
-                my $role_map = $self->getRoleByName($args->{'user_role'});
-                $role = $role_map if (defined($role_map));
-                # remove the role if any as we push the redirection ACL along with it's role
-                delete $radius_reply_ref->{$self->returnRoleAttribute()};
-            }
-            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
-            push @av_pairs, "url-redirect-acl=$role";
-            push @av_pairs, "url-redirect=".$redirect_url;
-
-        }
-    }
-
-
-    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
-
-    my $filter = pf::access_filter::radius->new;
-    my $rule = $filter->test('returnRadiusAccessAccept', $args);
-    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
-    return [$status, %$radius_reply_ref];
 }
 
 =head2
