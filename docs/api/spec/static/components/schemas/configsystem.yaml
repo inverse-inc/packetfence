@@ -44,3 +44,41 @@ ConfigSystemHostnameResponse:
       type: string
     status:
       $ref: '#/components/schemas/Status'
+
+ConfigConditionFlatten:
+  type: object
+  properties:
+    condition:
+      $ref: '#/components/schemas/Query'
+
+ConfigConditionFlattenResponse:
+  type: object
+  properties:
+    item:
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/Query'
+        condition_string:
+          type: string
+    status:
+      $ref: '#/components/schemas/Status'
+
+ConfigConditionParse:
+  type: object
+  properties:
+    condition:
+      type: string
+
+ConfigConditionParseResponse:
+  type: object
+  properties:
+    item:
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/Query'
+        condition_string:
+          type: string
+    status:
+      $ref: '#/components/schemas/Status'

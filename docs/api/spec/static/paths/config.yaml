@@ -86,4 +86,41 @@
 
 /api/v1/config/flatten_condition:
   post:
+    summary: Flatten condition object to string.
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigConditionFlatten'
+    responses:
+      '200':
+        $ref: '#/components/responses/ConfigConditionFlatten'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - Config/Helpers
+      - Config/FilterEngines
+
+/api/v1/config/parse_condition:
+  post:
+    summary: Parse condition string to object.
+    requestBody:
+      $ref: '#/components/requestBodies/ConfigConditionParse'
+    responses:
+      '200':
+        $ref: '#/components/responses/ConfigConditionParse'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/BadRequest'
+      '422':
+        $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/BadRequest'
+    tags:
+      - Config/Helpers
+      - Config/FilterEngines
 

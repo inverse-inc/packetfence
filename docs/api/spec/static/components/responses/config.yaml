@@ -19,3 +19,17 @@ ConfigSystemHostname:
     application/json:
       schema:
         $ref: "#/components/schemas/ConfigSystemHostnameResponse"
+
+ConfigConditionFlatten:
+  description: Request successful. Response contains flattened condition.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigConditionFlattenResponse"
+
+ConfigConditionParse:
+  description: Request successful. Response contains parsed condition.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/ConfigConditionParseResponse"
