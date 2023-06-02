@@ -147,6 +147,27 @@ Recorded Run: https://cloud.cypress.io/projects/f00b4r/runs/298
 
 Results are not saved on disk but are uploaded and available at the URL provided at the tail of the test. These uploaded artifacts are counted towards the Cypress Cloud Account defined in the `PROJECT_ID`.
 
+## Using TAGS
+
+[Tags Support](./cypress/support/filter.js) was added to conditionally use specific units (using `describe()`). The function has been rewritten to include a `tags` parameter in the configuration.
+
+Tests are written as:
+
+```js
+describe(name, { tags: ['production','!staging'] }, callback)
+```
+
+Using the ENV `tags` variable we can use complex Javascript expressions:
+
+```bash
+# the unit above will be executed
+make e2e --tags=['production']
+
+#the unit above will be skipped
+make e2e --tags=['staging']
+```
+
+
 ## Ansible and Venom
 
 See the [Venom E2E Testing README](../../../t/venom/scenarios/pfappserver/README.md) for more information about running the tests with Ansible and Venom.

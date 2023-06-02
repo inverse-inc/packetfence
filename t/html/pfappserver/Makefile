@@ -30,6 +30,7 @@ all:
 	@echo "make [target] PROJECT_ID=abcdef"
 	@echo "make [target] RECORD_KEY=01234567-890a-bcde-f012-34567890abcd"
 	@echo "make [target] TAG=production"
+	@echo "make [target] TAGS=foo,bar"
 	@echo ""
 	@echo "DISPLAY=\$$(cat /etc/resolv.conf | grep nameserver | awk '{print \$$2; exit;}'):0.0 make [target]"
 
