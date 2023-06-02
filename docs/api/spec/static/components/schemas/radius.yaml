@@ -1,0 +1,32 @@
+RadiusAttributes:
+  type: object
+  allOf:
+    - $ref: '#/components/schemas/Query'
+    - example:
+
+RadiusAttributesSearch:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          allowed_values:
+            type: array
+            nullable: true
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                value:
+                  type: string
+          vendor:
+            type: string
+    message:
+      type: string
+    status:
+      $ref: '#/components/schemas/Status'

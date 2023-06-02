@@ -56,6 +56,8 @@ tags:
     description: Tail logs in real time.
   - name: $PKI
     description: PacketFence Public Key Infrastructure.
+  - name: $RADIUS
+    description: RADIUS Helpers.
   - name: $Services
     description: Manage PacketFence services.
   - name: $Session
