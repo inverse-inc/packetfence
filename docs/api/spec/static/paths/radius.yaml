@@ -1,0 +1,12 @@
+/api/v1/radius_attributes:
+  post:
+    summary: Search RADIUS Attributes.
+    requestBody:
+      $ref: '#/components/requestBodies/RadiusAttributes'
+    responses:
+      '200':
+        $ref: '#/components/responses/RadiusAttributesSearch'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+    tags:
+      - $RADIUS
