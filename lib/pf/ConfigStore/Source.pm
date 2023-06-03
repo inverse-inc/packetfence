@@ -44,6 +44,14 @@ our %TYPE_TO_EXPANDED_FIELDS = (
     GoogleWorkspaceLDAP => [qw(searchattributes host)],
 );
 
+our %TYPE_TO_FLATTEN = (
+    SMS => [qw(message)],
+    Twilio => [qw(message)],
+    Clickatell => [qw(message)],
+    Email => [qw(allowed_domains banned_domains)],
+    RADIUS => [qw(options)],
+);
+
 sub _fields_expanded {
     my ($self, $item) = @_;
     my $type = $item->{type} // '';
@@ -133,25 +141,18 @@ sub cleanupAfterRead {
         push @{$item->{"${class}_rules"}}, $rule;
     }
     my $type = $item->{type};
-
-    if ($type eq 'SMS' || $type eq "Twilio") {
-        # This can be an array if it's fresh out of the file. We make it separated by newlines so it works fine the frontend
-        if(ref($item->{message}) eq 'ARRAY'){
-            $item->{message} = $self->join_options($item->{message});
-        }
-    } elsif ($type eq 'Email') {
-        for my $f (qw(allowed_domains banned_domains)) {
+    if (exists $TYPE_TO_FLATTEN{$type}) {
+        for my $f (@{$TYPE_TO_FLATTEN{$type}}) {
             next unless exists $item->{$f};
             my $val =  $item->{$f};
             if (ref($val) eq 'ARRAY') {
                 $item->{$f} = $self->join_options($val);
             }
         }
-    } elsif ($type eq 'RADIUS') {
-        if(ref($item->{options}) eq 'ARRAY'){
-            $item->{options} = $self->join_options($item->{options});
-        }
-    } elsif ($type eq 'OpenID') {
+
+    }
+
+    if ($type eq 'OpenID') {
         $self->expand_ordered_array($item, 'person_mappings', 'person_mapping');
     }
 
