@@ -1,10 +1,10 @@
 <template>
   <div class="base-input-chosen-container">
-    <multiselect ref="inputRef"
+    <multiselect
                  class="base-input-chosen"
                  :class="{
-                    'is-empty': isEmpty,
                     'is-invalid': state === false,
+                    'is-focus': isFocused,
                     'size-sm': size === 'sm',
                     'size-md': size === 'md',
                     'size-lg': size === 'lg'
@@ -12,27 +12,11 @@
 
                  :show-no-results="true"
 
-                 :id="id"
                  :options="options"
-                 :multiple="multiple"
                  :track-by="trackBy"
                  :label="label"
 
-                 :searchable="searchable"
-
-                 :clear-on-select="clearOnSelect"
-                 :hide-selected="hideSelected"
-                 :allow-empty="allowEmpty"
-                 :reset-after="resetAfter"
-                 :close-on-select="closeOnSelect"
-                 :custom-label="customLabel"
-                 :taggable="taggable"
-                 :tag-placeholder="tagPlaceholder"
-                 :tag-position="tagPosition"
                  :options-limit="optionsLimit"
-                 :internal-search="internalSearch"
-                 :preserve-search="preserveSearch"
-                 :preselect-first="preselectFirst"
                  :placeholder="placeholder"
                  :name="name"
                  :select-label="selectLabel"
@@ -43,20 +27,22 @@
                  :show-labels="showLabels"
                  :limit="limit"
                  :limit-text="limitText"
-                 :loading="loading"
                  :open-direction="openDirection"
                  :show-pointer="showPointer"
+                 :disabled="isDisabled"
+                 :value="value"
                  @search-change="onSearch"
                  @select="onSelect"
-                 :value="value"
+                 @open="onOpen"
+                 @remove="onRemove"
+                 @close="onClose"
     >
       <template v-slot:singleLabel>
         {{ singleLabel }}
       </template>
-      <template v-slot:tag="{ option, option: { value } = {} }">
+      <template>
         <span class="multiselect__tag bg-secondary">
-          <span v-if="option[label]">{{ option[label] }}</span>
-          <span v-else-if="taggable">{{ value }}</span>
+          <span v-if="value">{{ value.text }}</span>
           <icon v-else
                 name="question-circle" variant="white"/>
           <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon"></i>
@@ -141,6 +127,34 @@ export const props = {
     }
   },
 
+  onOpen: {
+    type: Function,
+    default: () => {
+    }
+  },
+
+  onClose: {
+    type: Function,
+    default: () => {
+    }
+  },
+
+  onRemove: {
+    type: Function,
+    default: () => {
+    }
+  },
+
+  isFocused: {
+    type: Boolean,
+    default: false
+  },
+
+  isDisabled: {
+    type: Boolean,
+    default: false
+  },
+
   singleLabel: {
     type: String,
     default: ''
@@ -169,13 +183,6 @@ export const props = {
 }
 
 export const setup = (props, context) => {
-
-  // used by CSS to show vue-multiselect placeholder
-  const isEmpty = computed(() => [null, undefined].includes(props.value))
-
-  return {
-    isEmpty,
-  }
 }
 
 // @vue/component

@@ -7,6 +7,11 @@
               :track-by="text"
               :single-label="singleLabel"
               :on-select="onSelect"
+              :on-open="onOpen"
+              :on-remove="onRemove"
+              :on-close="onClose"
+              :is-focused="isFocused"
+              :is-disabled="props.disabled"
               :loading="isLoading"
               :placeholder="$i18n.t('Search')"
               :search-query-invalid-feedback="searchQueryInvalidFeedback"
@@ -47,16 +52,26 @@ function performLdapSearch(form, inputValue, attribute) {
     }})
     .then((response) => {
       return Object.values(response.data).map((item) => {
-        return {"text": item[attribute], "value": item[attribute]}
+        return valueToSelectValue(item[attribute])
       })
     })
+}
+
+function valueToSelectValue(value) {
+  return {"text": value, "value": value}
 }
 
 
 function setup(props, context){
   const tempOptions = ref([]);
   const form = inject('form');
-  const selectedValue = ref({"text": "", "value": null});
+  const isFocused = ref(false);
+  //const isLoading = inject('isLoading');
+  const isLoading = ref(false);
+  const isReadonly = inject('isReadonly')
+  const defaultSelectedValue = {"text": "", "value": null}
+  const selectedValue = ref(defaultSelectedValue);
+  selectedValue.value = valueToSelectValue(getFormNamespace(props.namespace.split('.'), form.value)) || defaultSelectedValue
   const inputOptions = ref([]);
   const searchInput = ref("");
   const localValidator = inject('schema');
@@ -69,16 +84,23 @@ function setup(props, context){
     ldapEntryNamespace.push('attribute')
     return getFormNamespace(ldapEntryNamespace, form.value);
   })
-  const isLoading = ref(false);
 
   function onSearch(query) {
     searchInput.value = query;
     isLoading.value = true;
     performLdapSearch(form.value, query, ldapFilterAttribute.value).then((searchResults) => {
       inputOptions.value = searchResults
+      addAlreadySelectedValueToOptions()
     }).finally(() => {
       isLoading.value = false;
     })
+  }
+
+  function addAlreadySelectedValueToOptions() {
+    if (selectedValue.value.value !== null &&
+      !inputOptions.value.find(o => o.text === selectedValue.value.text)) {
+      inputOptions.value.unshift(selectedValue.value)
+    }
   }
 
   function validateChoice(){
@@ -89,6 +111,11 @@ function setup(props, context){
       const {inner = [], message} = ValidationError
       searchQueryInvalidFeedback.value = message
     })
+  }
+
+  function onRemove() {
+    inputOptions.value = []
+    onSelect(defaultSelectedValue)
   }
 
   const inputState = computed(() => {
@@ -102,7 +129,16 @@ function setup(props, context){
     validateChoice();
   }
 
-  const metaProps = useInputMeta(props, context)
+  function onOpen() {
+    if (selectedValue.value.value !== null) {
+      inputOptions.value = [selectedValue.value]
+    }
+    isFocused.value = true
+  }
+
+  function onClose() {
+    isFocused.value = false
+  }
 
   validateChoice()
 
@@ -114,8 +150,13 @@ function setup(props, context){
     // useSingleValueLookupOptions
     inputOptions,
     isLoading,
+    isFocused,
+    isReadonly,
     onSearch,
     onSelect,
+    onOpen,
+    onClose,
+    onRemove,
     singleLabel,
     // wrappers
     inputValue: selectedValue,
