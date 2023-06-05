@@ -4216,6 +4216,9 @@ sub generateAnsibleConfiguration {
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
+    # TODO needs to be in pfqueue
+    my $push_acls = pf::acls_push->new();
+    $push_acls->push_acls( $switch_ip );
 }
 
 =back
