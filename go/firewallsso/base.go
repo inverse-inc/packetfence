@@ -22,6 +22,7 @@ var usernameFormatRegexps = map[string]*regexp.Regexp{
 	"stripped_username": regexp.MustCompile(`\$username`),
 	"realm":             regexp.MustCompile(`\$realm`),
 	"username":          regexp.MustCompile(`\$pf_username`),
+	"computername":      regexp.MustCompile(`\$computername`),
 }
 
 // Basic interface that all FirewallSSO must implement
