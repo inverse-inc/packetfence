@@ -785,12 +785,6 @@ sub generate_interception_rules {
 sub generate_provisioning_passthroughs {
     my $logger = get_logger();
     $logger->debug("Installing passthroughs for provisioning");
-    foreach my $config (tied(%ConfigProvisioning)->search(type => 'sepm')) {
-        $logger->info("Adding passthrough for Symantec Endpoint Manager");
-        my $cmd = untaint_chain("sudo ipset --add pfsession_passthrough $config->{'host'},8014 2>&1");
-        my @lines  = pf_run($cmd);
-    }
-
     foreach my $config (tied(%ConfigProvisioning)->search(type => 'kandji')) {
         $logger->info("Adding passthrough for Kandji");
         my $enroll_host = $config->{enroll_url} ? URI->new($config->{enroll_url})->host : $config->{host};

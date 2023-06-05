@@ -473,7 +473,6 @@ msgid "Access level required."
 msgstr "Niveau d'accès requis."
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:71
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:68
 msgid "Access token"
 msgstr "Code d’accès"
 
@@ -996,7 +995,6 @@ msgstr ""
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeIbm.vue:72
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:79
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:76
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:72
 msgid "Agent download URI"
 msgstr "URI pour télécharger l'agent"
@@ -1255,10 +1253,6 @@ msgstr "Niveaux d’accès autorisés"
 #: html/pfappserver/root/src/views/Configuration/adminRoles/_components/TheForm.vue:32
 msgid "Allowed user roles"
 msgstr "Rôles d'utilisateur autorisés"
-
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:80
-msgid "Alt agent download URI"
-msgstr "URI Alternative pour télécharger l'agent"
 
 #: html/pfappserver/root/src/views/Configuration/switchGroups/config.js:7
 #: html/pfappserver/root/src/views/Configuration/switches/config.js:7
@@ -1549,7 +1543,6 @@ msgstr "Appliquer l'événement de sécurité"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:28
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:30
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:28
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:28
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:28
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:28
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:28
@@ -1837,7 +1830,6 @@ msgstr "Auto enregistrement"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:23
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:25
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:23
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:23
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:23
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:23
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:23
@@ -2818,7 +2810,6 @@ msgid "Client ID"
 msgstr "Identifiant du client"
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:51
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:48
 msgid "Client Key"
 msgstr "Clé du client "
 
@@ -2830,7 +2821,6 @@ msgstr "Fichier Clé Client"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeIbm.vue:47
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:52
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:55
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:52
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:52
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:52
 #: html/pfappserver/root/src/views/Configuration/sources/_components/FormTypeAzureAD.vue:22
@@ -5329,7 +5319,6 @@ msgstr "Désenregistrer un appareil par PID"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:14
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:16
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:14
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:14
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:14
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:14
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:14
@@ -6512,7 +6501,6 @@ msgstr "Appareils"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:18
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:20
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:18
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:18
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:18
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:18
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:18
@@ -7461,7 +7449,6 @@ msgstr "Type de pool de serveurs domestiques."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:56
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:59
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:48
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:56
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:56
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:56
 #: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:44
@@ -11323,7 +11310,6 @@ msgstr "Appareils"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:44
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:46
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:44
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:44
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:44
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:44
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:41
@@ -11364,7 +11350,6 @@ msgstr "Les appareils ayant ces rôles seront impactés."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:39
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:41
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:39
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:39
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:39
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:39
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:39
@@ -11577,7 +11562,6 @@ msgstr "OU"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:43
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:45
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:43
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:43
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:43
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:43
 #: html/pfappserver/root/src/views/Configuration/scanEngines/_components/FormTypeNessus.vue:40
@@ -12620,7 +12604,6 @@ msgstr "Politique Requise."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeKandji.vue:60
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:63
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:52
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:60
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:60
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:60
 #: html/pfappserver/root/src/views/Configuration/provisioners/schema.js:45
@@ -12991,7 +12974,6 @@ msgstr "Le profil existe."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeKandji.vue:52
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:67
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:56
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:64
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:64
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:64
 #: html/pfappserver/root/src/views/Configuration/syslogForwarders/_components/FormTypeServer.vue:14
@@ -13054,7 +13036,6 @@ msgstr "Approvisionnement"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:9
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:11
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:9
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:9
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:9
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:9
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:9
@@ -13526,7 +13507,6 @@ msgid "Refresh [Alt + R]"
 msgstr "Actualiser [Alt + R]"
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:75
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:72
 msgid "Refresh token"
 msgstr "Rafraichir le jeton"
 
@@ -14102,7 +14082,6 @@ msgstr "Rôle requis."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:33
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:35
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:33
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:33
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:33
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:33
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:33
@@ -14148,7 +14127,6 @@ msgstr "Rôle quand isolé"
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:38
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:40
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:38
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:38
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:38
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:38
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:38
@@ -16405,10 +16383,6 @@ msgstr "Commutateurs:"
 #: html/pfappserver/root/src/views/Configuration/provisioners/config.js:17
 msgid "Symantec App Center"
 msgstr "Symantec App Center"
-
-#: html/pfappserver/root/src/views/Configuration/provisioners/config.js:16
-msgid "Symantec Endpoint Protection Manager (SEPM)"
-msgstr "Symantec Endpoint Protection Manager (SEPM)"
 
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeAirwatch.vue:38
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeJamf.vue:38
@@ -19875,7 +19849,6 @@ msgstr "Poids requis."
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:34
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:36
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:34
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:34
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:34
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:34
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:34
@@ -19997,7 +19970,6 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:29
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:31
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:29
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:29
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:29
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:29
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:29
@@ -20111,7 +20083,6 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:24
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:26
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:24
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:24
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:24
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:24
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:24
@@ -20210,7 +20181,6 @@ msgstr ""
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeMobileiron.vue:19
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeOpswat.vue:21
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSentinelone.vue:19
-#: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSepm.vue:19
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeServicenow.vue:19
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeSymantec.vue:19
 #: html/pfappserver/root/src/views/Configuration/provisioners/_components/FormTypeWindows.vue:19

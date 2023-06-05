@@ -907,10 +907,6 @@ msgstr "Passerelle du client"
 msgid "Client ID"
 msgstr "ID Client"
 
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
-msgid "Client Id"
-msgstr "Identifiant du client"
-
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
 msgid "Client Key"
 msgstr "Clé cliente"
@@ -923,7 +919,6 @@ msgstr "Port utilisation du client"
 # html/pfappserver/lib/pfappserver/Form/Config/Cloud/Intune.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/ibm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
 msgid "Client Secret"
 msgstr "Mot de passe du client"
@@ -7963,7 +7958,6 @@ msgstr "heures"
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/intune.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/kandji.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/opswat.pm
-# html/pfappserver/lib/pfappserver/Form/Config/Provisioning/sepm.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/servicenow.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Provisioning/symantec.pm
 # html/pfappserver/lib/pfappserver/Form/Config/Source/HTTP.pm
@@ -9076,10 +9070,6 @@ msgstr "secondes"
 # pf::provisioner (Provisioners)
 msgid "sentinelone"
 msgstr "SentinelOne"
-
-# pf::provisioner (Provisioners)
-msgid "sepm"
-msgstr "Symantec Endpoint Protection Manager (SEPM)"
 
 # pf::Authentication::Source::ADSource (available_attributes)
 # pf::Authentication::Source::EDIRSource (available_attributes)

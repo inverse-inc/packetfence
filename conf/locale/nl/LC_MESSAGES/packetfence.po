@@ -152,10 +152,6 @@ msgid ""
 "the link emailed to you."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "Alternate installer"
-msgstr "Alternatieve installer"
-
 # html/captive-portal/templates/ssl_inspection/osx.html
 msgid "Always trust certificate"
 msgstr ""
@@ -376,7 +372,6 @@ msgstr ""
 # html/captive-portal/templates/provisioner/mobileiron.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/sepm.html
 # html/captive-portal/templates/provisioner/servicenow.html
 # html/captive-portal/templates/provisioner/symantec.html
 # html/captive-portal/templates/provisioner/windows.html
@@ -546,7 +541,6 @@ msgid ""
 "right corner. Then, click the <i>Settings</i> option."
 msgstr ""
 
-# html/captive-portal/templates/provisioner/sepm.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid "Download"
 msgstr ""
@@ -764,10 +758,6 @@ msgid ""
 "<i>Trust</i> the newly installed certificate. Continue with the following "
 "steps."
 msgstr ""
-
-# html/captive-portal/templates/provisioner/sepm.html
-msgid "If you find the program above not working you can try this one:"
-msgstr "Als het bovenstaand programma niet werkt kan je ook dit proberen:"
 
 # html/captive-portal/templates/ssl_inspection/other.html
 msgid ""
@@ -1066,7 +1056,6 @@ msgstr "Eenmaal in onze gebouwen, selecteer de 'guest toegang' op het toegangspo
 # html/captive-portal/templates/provisioner/kandji.html
 # html/captive-portal/templates/provisioner/opswat.html
 # html/captive-portal/templates/provisioner/sentinelone.html
-# html/captive-portal/templates/provisioner/sepm.html
 # html/captive-portal/templates/provisioner/symantec.html
 msgid ""
 "Once the application is installed, click 'Continue' to activate your network"
@@ -1730,12 +1719,6 @@ msgstr ""
 msgid ""
 "To complete your network activation you need to install the SentinelOne "
 "client."
-msgstr ""
-
-# html/captive-portal/templates/provisioner/sepm.html
-msgid ""
-"To complete your network activation you need to install the Symantec "
-"Endpoint Manager"
 msgstr ""
 
 # html/captive-portal/templates/provisioner/symantec.html
