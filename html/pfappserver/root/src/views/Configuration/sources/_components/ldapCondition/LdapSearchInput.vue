@@ -62,7 +62,7 @@ function valueToSelectValue(value) {
 }
 
 
-function setup(props, context) {
+function setup(props, _) { // eslint-disable-line
   const form = inject('form');
   const isFocused = ref(false);
   const isLoading = ref(false);
@@ -108,7 +108,7 @@ function setup(props, context) {
     localValidator.value.validateAt(path, form.value).then(() => {
       searchQueryInvalidFeedback.value = ""
     }).catch(ValidationError => { // invalid
-      const {inner = [], message} = ValidationError
+      const {_, message} = ValidationError // eslint-disable-line
       searchQueryInvalidFeedback.value = message
     })
   }
