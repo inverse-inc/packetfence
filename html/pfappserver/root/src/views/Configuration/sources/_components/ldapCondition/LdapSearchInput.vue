@@ -21,12 +21,12 @@
 </template>
 
 <script>
-import {BaseInputChosenOneSearchableProps} from '@/components/new';
-import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api';
-import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue';
-import {computed, inject, ref, unref} from '@vue/composition-api';
-import MultiselectFacade from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue';
-import {namespaceToYupPath} from '@/composables/useInputValidator';
+import {BaseInputChosenOneSearchableProps} from '@/components/new'
+import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api'
+import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
+import {computed, inject, ref, unref} from '@vue/composition-api'
+import MultiselectFacade from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
+import {namespaceToYupPath} from '@/composables/useInputValidator'
 
 
 export const props = {
@@ -63,36 +63,36 @@ function valueToSelectValue(value) {
 
 
 function setup(props, _) { // eslint-disable-line
-  const form = inject('form');
-  const isFocused = ref(false);
-  const isLoading = ref(false);
-  const isDisabled = inject('isLoading');
+  const form = inject('form')
+  const isFocused = ref(false)
+  const isLoading = ref(false)
+  const isDisabled = inject('isLoading')
   const defaultSelectedValue = {"text": "", "value": null}
-  const selectedValue = ref(defaultSelectedValue);
+  const selectedValue = ref(defaultSelectedValue)
   selectedValue.value = valueToSelectValue(
     getFormNamespace(props.namespace.split('.'), form.value)
   ) || defaultSelectedValue
-  const inputOptions = ref([]);
-  const searchInput = ref("");
-  const localValidator = inject('schema');
+  const inputOptions = ref([])
+  const searchInput = ref("")
+  const localValidator = inject('schema')
 
-  const searchQueryInvalidFeedback = ref("");
+  const searchQueryInvalidFeedback = ref("")
 
   const ldapFilterAttribute = computed(() => {
     let ldapEntryNamespace = props.namespace.split('.')
     ldapEntryNamespace.pop()
     ldapEntryNamespace.push('attribute')
-    return getFormNamespace(ldapEntryNamespace, form.value);
+    return getFormNamespace(ldapEntryNamespace, form.value)
   })
 
   function onSearch(query) {
-    searchInput.value = query;
-    isLoading.value = true;
+    searchInput.value = query
+    isLoading.value = true
     performLdapSearch(form.value, query, ldapFilterAttribute.value).then((searchResults) => {
       inputOptions.value = searchResults
       addAlreadySelectedValueToOptions()
     }).finally(() => {
-      isLoading.value = false;
+      isLoading.value = false
     })
   }
 
@@ -123,10 +123,10 @@ function setup(props, _) { // eslint-disable-line
   })
 
   function onSelect(value) {
-    selectedValue.value = value;
+    selectedValue.value = value
     let ldapEntryNamespace = props.namespace.split('.')
     setFormNamespace(ldapEntryNamespace, form.value, value.value)
-    validateChoice();
+    validateChoice()
   }
 
   function onOpen() {
