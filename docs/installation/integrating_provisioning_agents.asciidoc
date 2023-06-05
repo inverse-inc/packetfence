@@ -30,10 +30,6 @@ include::provisioner/mobileiron.asciidoc[]
 
 include::provisioner/sentinelone.asciidoc[]
 
-=== Symantec SEPM
-
-include::provisioner/sepm.asciidoc[]
-
 === Microsoft Intune
 
 include::provisioner/intune.asciidoc[]
