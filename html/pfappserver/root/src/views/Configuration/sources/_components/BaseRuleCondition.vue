@@ -48,7 +48,7 @@ import {
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useNamespaceMetaAllowed } from '@/composables/useMeta'
-import LdapSearchInput from '@/views/Configuration/sources/_components/LdapSearchInput.vue';
+import LdapSearchInput from '@/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue';
 
 const props = {
   ...useInputMetaProps,

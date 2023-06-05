@@ -1,6 +1,6 @@
 <template>
   <div class="base-input-chosen-container">
-    <multiselect
+    <multiselect ref="inputRef"
                  class="base-input-chosen"
                  :class="{
                     'is-invalid': state === false,
@@ -9,27 +9,22 @@
                     'size-md': size === 'md',
                     'size-lg': size === 'lg'
                  }"
-
-                 :show-no-results="true"
-
-                 :options="options"
-                 :track-by="trackBy"
+                 :disabled="isDisabled"
                  :label="label"
-
+                 :limit="limit"
+                 :limit-text="limitText"
+                 :name="name"
+                 :options="options"
+                 :open-direction="openDirection"
                  :options-limit="optionsLimit"
                  :placeholder="placeholder"
-                 :name="name"
+                 :show-no-results="true"
                  :select-label="selectLabel"
                  :select-group-label="selectGroupLabel"
                  :selected-label="selectedLabel"
-                 :deselect-label="deselectLabel"
-                 :deselect-group-label="deselectGroupLabel"
                  :show-labels="showLabels"
-                 :limit="limit"
-                 :limit-text="limitText"
-                 :open-direction="openDirection"
                  :show-pointer="showPointer"
-                 :disabled="isDisabled"
+                 :track-by="trackBy"
                  :value="value"
                  @search-change="onSearch"
                  @select="onSelect"
@@ -84,29 +79,17 @@
   </div>
 </template>
 <script>
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  toRefs,
-  unref
-} from '@vue/composition-api'
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
+import {useInputProps} from '@/composables/useInput'
+import {useInputMetaProps} from '@/composables/useMeta'
+import {useInputMultiselectProps} from '@/composables/useInputMultiselect'
+import {useInputValidatorProps} from '@/composables/useInputValidator'
+import {useInputValueProps} from '@/composables/useInputValue'
 
 const components = {
   Multiselect
 }
-
-import useEventFnWrapper from '@/composables/useEventFnWrapper'
-import {useInput, useInputProps} from '@/composables/useInput'
-import {useInputMeta, useInputMetaProps} from '@/composables/useMeta'
-import {useOptionsPromise, useOptionsValue} from '@/composables/useInputMultiselect'
-import {useInputValidator, useInputValidatorProps} from '@/composables/useInputValidator'
-import {useInputValue, useInputValueProps} from '@/composables/useInputValue'
-import {useInputMultiselectProps} from '@/composables/useInputMultiselect'
 
 export const props = {
   size: {
@@ -182,17 +165,13 @@ export const props = {
   ...useInputMultiselectProps
 }
 
-export const setup = (props, context) => {
-}
-
-// @vue/component
 export default {
-  name: 'search-input',
+  name: 'multiselect-facade',
   inheritAttrs: false,
   components,
   props,
-  setup
 }
+
 </script>
 <style lang="scss">
 @import '~@/styles/multiselect.scss';

@@ -1,34 +1,32 @@
 <template>
-  <SearchInput
-              :on-search="onSearch"
-              :options="inputOptions"
-              :value="inputValue"
-              :label="text"
-              :track-by="text"
-              :single-label="singleLabel"
-              :on-select="onSelect"
-              :on-open="onOpen"
-              :on-remove="onRemove"
-              :on-close="onClose"
-              :is-focused="isFocused"
-              :is-disabled="props.disabled"
-              :loading="isLoading"
-              :placeholder="$i18n.t('Search')"
-              :search-query-invalid-feedback="searchQueryInvalidFeedback"
-              :search-query-valid-feedback="''"
-              :state="inputState"
+  <MultiselectFacade
+    :on-search="onSearch"
+    :options="inputOptions"
+    :value="inputValue"
+    :label="text"
+    :track-by="text"
+    :single-label="singleLabel"
+    :on-select="onSelect"
+    :on-open="onOpen"
+    :on-remove="onRemove"
+    :on-close="onClose"
+    :is-focused="isFocused"
+    :is-disabled="isDisabled"
+    :loading="isLoading"
+    :placeholder="$i18n.t('Search')"
+    :search-query-invalid-feedback="searchQueryInvalidFeedback"
+    :search-query-valid-feedback="''"
+    :state="inputState"
   />
 </template>
 
 <script>
-import {BaseInputChosenOneSearchable, BaseInputChosenOneSearchableProps} from '@/components/new';
+import {BaseInputChosenOneSearchableProps} from '@/components/new';
 import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api';
-import {getFormNamespace, setFormNamespace, useInputValue} from '@/composables/useInputValue';
-import {computed, inject, ref, toRefs, unref} from '@vue/composition-api';
-import {useInputMeta} from '@/composables/useMeta';
-import SearchInput from '@/views/Configuration/sources/_components/ldapCondition/SearchInput.vue';
-import i18n from '@/utils/locale';
-import {namespaceToYupPath, useInputValidator} from '@/composables/useInputValidator';
+import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue';
+import {computed, inject, ref, unref} from '@vue/composition-api';
+import MultiselectFacade from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue';
+import {namespaceToYupPath} from '@/composables/useInputValidator';
 
 
 export const props = {
@@ -36,7 +34,8 @@ export const props = {
 
   lookup: {
     type: Function,
-    default: () => {},
+    default: () => {
+    },
   }
 
 }
@@ -49,7 +48,8 @@ function performLdapSearch(form, inputValue, attribute) {
     data: {
       server: form.id,
       search: "(" + attribute + "=" + "*" + inputValue + "*)",
-    }})
+    }
+  })
     .then((response) => {
       return Object.values(response.data).map((item) => {
         return valueToSelectValue(item[attribute])
@@ -62,16 +62,16 @@ function valueToSelectValue(value) {
 }
 
 
-function setup(props, context){
-  const tempOptions = ref([]);
+function setup(props, context) {
   const form = inject('form');
   const isFocused = ref(false);
-  //const isLoading = inject('isLoading');
   const isLoading = ref(false);
-  const isReadonly = inject('isReadonly')
+  const isDisabled = inject('isLoading');
   const defaultSelectedValue = {"text": "", "value": null}
   const selectedValue = ref(defaultSelectedValue);
-  selectedValue.value = valueToSelectValue(getFormNamespace(props.namespace.split('.'), form.value)) || defaultSelectedValue
+  selectedValue.value = valueToSelectValue(
+    getFormNamespace(props.namespace.split('.'), form.value)
+  ) || defaultSelectedValue
   const inputOptions = ref([]);
   const searchInput = ref("");
   const localValidator = inject('schema');
@@ -103,7 +103,7 @@ function setup(props, context){
     }
   }
 
-  function validateChoice(){
+  function validateChoice() {
     const path = namespaceToYupPath(props.namespace)
     localValidator.value.validateAt(path, form.value).then(() => {
       searchQueryInvalidFeedback.value = ""
@@ -140,38 +140,34 @@ function setup(props, context){
     isFocused.value = false
   }
 
-  validateChoice()
-
   const singleLabel = computed(() => {
     return selectedValue.value !== null ? selectedValue.value.text : ""
   })
 
+  validateChoice()
+
   return {
-    // useSingleValueLookupOptions
     inputOptions,
+    isDisabled,
     isLoading,
     isFocused,
-    isReadonly,
     onSearch,
     onSelect,
     onOpen,
     onClose,
     onRemove,
     singleLabel,
-    // wrappers
     inputValue: selectedValue,
     searchQueryInvalidFeedback,
     inputState,
     form,
-
-    tempOptions,
   }
 }
 
 export default {
   name: 'ldap-search-input',
   methods: {unref},
-  components: {SearchInput},
+  components: {MultiselectFacade},
   setup,
   props,
 }
