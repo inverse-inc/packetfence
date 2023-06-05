@@ -31,6 +31,7 @@
     "vue": "2.6.14",
     "vue-awesome": "^4.5.0",
     "vue-browser-acl": "^0.15.4",
+    "vue-eslint-parser": "^9.3.0",
     "vue-flatpickr-component": "8.1.7",
     "vue-i18n": "^8.28.2",
     "vue-multiselect": "2.1.6",
@@ -52,17 +53,27 @@
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
     "@vue/eslint-config-standard": "^7.0.0",
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
     "eslint": "^8.0.12",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-vue": "^8.7.1",
+    "https-browserify": "^1.0.0",
     "node-sass": "^7.0.1",
+    "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.14",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1",
     "sass-loader": "^12.6.0",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
     "stylelint": "^13.13.1",
     "stylelint-config-idiomatic-css": "^1.1.0",
+    "url": "^0.11.0",
     "vue-cli-plugin-bootstrap-vue": "^0.8.0",
     "vue-template-compiler": "2.6.14",
     "webpack-bundle-analyzer": "^4.5.0"
@@ -71,5 +82,16 @@
     "plugins": {
       "autoprefixer": {}
     }
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "vue/setup-compiler-macros": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ]
   }
 }
