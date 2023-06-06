@@ -4188,9 +4188,11 @@ sub generateAnsibleConfiguration {
     }
     if (! -e "$var_dir/conf/pfsetacls/$switch_id") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id") or die "Can't create $var_dir/conf/pfsetacls/$switch_id:$!";
+        chmod(0775, "$var_dir/conf/pfsetacls/$switch_id");
     }
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
+        chmod(0775, "$var_dir/conf/pfsetacls/$switch_id/collections");
     }
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
