@@ -293,7 +293,7 @@ variables:
   script:
     - timeout ${PIPELINE_TIMEOUT_SCRIPT} make -e -C ${PACKERDIR} build_img_docker_pfbuild
   tags:
-    - shell
+    - shell-v7
 
 .build_img_container_job_dev:
   stage: build_img_container
@@ -353,7 +353,7 @@ variables:
   after_script:
     - make -e -C ${VAGRANT_IMG_DIR} clean
   tags:
-    - shell
+    - shell-v7
     - inverse.ca
 
 .build_artifacts_pkg_job:
@@ -390,7 +390,7 @@ variables:
   script:
     - ${BUILDDIR}/generate-material.sh
   tags:
-    - shell
+    - shell-v7
 
 .build_artifacts_doc_job:
   stage: build_artifacts
@@ -425,7 +425,7 @@ variables:
     DEPLOY_PORT: 444
     PPA_ID: ${CI_PIPELINE_ID}
   tags:
-    - shell
+    - shell-v7
 
 .test_job:
   stage: test
@@ -449,7 +449,7 @@ variables:
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
   tags:
-    - shell
+    - shell-v7
 
 .deploy_maintenance_deb_job:
   stage: deploy
@@ -462,7 +462,7 @@ variables:
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
   tags:
-    - shell
+    - shell-v7
 
 .deploy_rpm_job:
   stage: deploy
@@ -476,7 +476,7 @@ variables:
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   tags:
-    - shell
+    - shell-v7
 
 .deploy_rpm_maintenance_job:
   stage: deploy
@@ -490,7 +490,7 @@ variables:
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   tags:
-    - shell
+    - shell-v7
 
 .deploy_pkg_friendly_names:
   stage: deploy
@@ -505,7 +505,7 @@ variables:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-export
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-ci-lib
   tags:
-    - shell
+    - shell-v7
 
 .deploy_website_artifacts_job:
   stage: deploy
@@ -519,7 +519,7 @@ variables:
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh website
   tags:
-    - shell
+    - shell-v7
 
 .build_pf_img_zen_job:
   stage: build_pf_img
@@ -531,7 +531,7 @@ variables:
     - make -e -C ${ZENDIR} clean_all
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell-v7
 
 .build_pf_img_iso_job:
   stage: build_pf_img
@@ -542,7 +542,7 @@ variables:
     - make -e -C ${ISODIR} clean
   dependencies: []
   tags:
-    - shell-sourceforge
+    - shell-v7
 
 .build_pf_img_vagrant_release_job:
   stage: build_pf_img
@@ -557,7 +557,7 @@ variables:
   dependencies: []
   tags:
     - inverse.ca
-    - shell
+    - shell-v7
 
 .rpm_script_job:
   script:
@@ -1144,7 +1144,7 @@ sign_devel_release_branches_and_maintenance:
     paths:
       - result/*
   tags:
-    - shell
+    - shell-v7
   extends:
     - .devel_release_branches_and_maintenance_rules
 
