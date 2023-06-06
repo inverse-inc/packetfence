@@ -16,7 +16,7 @@ import (
 
 type SearchQuery struct {
 	Server     string          `json:"server"`
-	Search     string          `json:"search"`
+	Filter     string          `json:"filter"`
 	Attributes []string        `json:"attributes,omitempty"`
 	Context    context.Context `json:"context"`
 }
@@ -56,7 +56,7 @@ func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string
 	response, err := conn.SearchWithPaging(&ldap.SearchRequest{
 		BaseDN:     sc.LdapServer.BaseDN,
 		Scope:      scope,
-		Filter:     query.Search,
+		Filter:     query.Filter,
 		Attributes: query.Attributes,
 	}, uint32(200))
 
