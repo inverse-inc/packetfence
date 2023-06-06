@@ -8,3 +8,5 @@ roles:
 collections:
   - name: inverse_inc.utils
   - name: debops.debops
+  - name: community.general
+    version: 7.0.1
