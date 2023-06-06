@@ -39,7 +39,6 @@ use pfappserver::Form::Config::Provisioning::mobileiron;
 use pfappserver::Form::Config::Provisioning::opswat;
 use pfappserver::Form::Config::Provisioning::sentinelone;
 use pfappserver::Form::Config::Provisioning::sepm;
-use pfappserver::Form::Config::Provisioning::servicenow;
 use pfappserver::Form::Config::Provisioning::symantec;
 use pfappserver::Form::Config::Provisioning::windows;
 
@@ -60,7 +59,6 @@ our %TYPES_TO_FORMS = (
       opswat
       sentinelone
       sepm
-      servicenow
       symantec
       windows
     )
