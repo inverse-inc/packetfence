@@ -15,7 +15,7 @@ use warnings;
 
 use HTML::FormHandler::Moose;
 
-use pfappserver::Form::Config::Pfcron qw(default_field_method window_help_text);
+use pfappserver::Form::Config::Pfcron qw(default_field_method window_help_text timeout_help_text);
 
 extends 'pfappserver::Form::Config::Pfcron';
 with 'pfappserver::Base::Form::Role::Help';
@@ -27,6 +27,12 @@ has_field 'batch' => (
              help => \&batch_help_text },
 );
 
+has_field 'timeout' => (
+    type => 'Duration',
+    default_method => \&default_field_method,
+    tags => { after_element => \&help,
+             help => \&timeout_help_text },
+);
 
 =head1 AUTHOR
 
