@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-to-13.0-remove-provisioner-ibm -
+to-13.0-remove-provisioner
 
 =head1 DESCRIPTION
 
-to-13.0-remove-provisioner-ibm
+to-13.0-remove-provisioner
 
 =cut
 
