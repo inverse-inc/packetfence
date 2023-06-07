@@ -16,8 +16,13 @@ module.exports = {
     setupNodeEvents: (on, config) => {
       on('file:preprocessor', webpackPreprocessor(webpackOptions));
       on('before:browser:launch', (browser = {}, launchOptions) => {
-        if (browser.name == 'chrome') {
-          launchOptions.args.push('--disable-gpu'); // headless
+        switch (browser.name) {
+          case 'chrome':
+            launchOptions.args.push('--disable-gpu'); // headless
+            break;
+          case 'firefox':
+            launchOptions.args.push('-headless'); // headless
+            break;
         }
         return launchOptions;
       });
