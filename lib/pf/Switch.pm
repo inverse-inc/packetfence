@@ -94,6 +94,8 @@ use pf::SwitchSupports qw(
 
      RadiusDynamicVlanAssignment
 );
+use pf::acls_push;
+use File::Find;
 
 #
 # %TRAP_NORMALIZERS
@@ -4172,6 +4174,7 @@ Generate Ansible configuration to push ACLs
 sub generateAnsibleConfiguration {
     my ($self) = @_;
     my %vars;
+    umask(0002);
     my $tt = Template->new(
         ABSOLUTE => 1,
     );
@@ -4188,11 +4191,9 @@ sub generateAnsibleConfiguration {
     }
     if (! -e "$var_dir/conf/pfsetacls/$switch_id") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id") or die "Can't create $var_dir/conf/pfsetacls/$switch_id:$!";
-        chmod(0775, "$var_dir/conf/pfsetacls/$switch_id");
     }
     if (! -e "$var_dir/conf/pfsetacls/$switch_id/collections") {
         mkdir("$var_dir/conf/pfsetacls/$switch_id/collections") or die "Can't create $var_dir/conf/pfsetacls/$switch_id/collections:$!";
-        chmod(0775, "$var_dir/conf/pfsetacls/$switch_id/collections");
     }
     $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $self->{'_cliEnablePwd'};
     $vars{'switches'}{$switch_id}{'cliTransport'} = $self->{'_cliTransport'};
@@ -4218,10 +4219,11 @@ sub generateAnsibleConfiguration {
     $tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/$switch_id/ansible.cfg") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
-    # TODO needs to be in pfqueue
+    find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
     my $push_acls = pf::acls_push->new();
     $push_acls->push_acls( $switch_ip );
 }
+
 
 =back
 
