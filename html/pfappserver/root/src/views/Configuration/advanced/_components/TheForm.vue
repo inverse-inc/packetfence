@@ -130,6 +130,11 @@
       :text="$i18n.t('Enable to bypass the operating system domain join verification.')"
     />
 
+    <form-group-pfupdate-custom-script-path namespace="pfupdate_custom_script_path"
+      :column-label="$i18n.t('Path to a custom script called by pfupdate')"
+      :text="$i18n.t('Path to a custom script called by pfupdate if present.')"
+    />
+
     <form-group-netflow-on-all-networks namespace="netflow_on_all_networks"
       :column-label="$i18n.t('NetFlow on all networks')"
       :text="$i18n.t('Listen to NetFlow on all networks. Changing this requires to restart pfacct.')"
@@ -179,6 +184,7 @@ import {
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
   FormGroupPortalCspSecurityHeaders,
+  FormGroupPfupdateCustomScriptPath,
   FormGroupScanOnAccounting,
   FormGroupSourceToSendSmsWhenCreatingUsers,
   FormGroupSsoOnAccessReevaluation,
@@ -210,6 +216,7 @@ const components = {
   FormGroupPfperlApiProcesses,
   FormGroupPfperlApiTimeout,
   FormGroupPortalCspSecurityHeaders,
+  FormGroupPfupdateCustomScriptPath,
   FormGroupScanOnAccounting,
   FormGroupSourceToSendSmsWhenCreatingUsers,
   FormGroupSsoOnAccessReevaluation,

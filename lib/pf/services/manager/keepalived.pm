@@ -141,9 +141,9 @@ $active_members
 }
 EOT
             }
-            $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master\"\n";
-            $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
-            $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave\"\n";
+            $tags{'vrrp'} .= "  notify_master \"$install_dir/bin/cluster/pfupdate --mode=master --vip=$cluster_ip\"\n";
+            $tags{'vrrp'} .= "  notify_backup \"$install_dir/bin/cluster/pfupdate --mode=slave --vip=$cluster_ip\"\n";
+            $tags{'vrrp'} .= "  notify_fault \"$install_dir/bin/cluster/pfupdate --mode=slave --vip=$cluster_ip\"\n";
 
             $tags{'vrrp'} .= <<"EOT";
   track_script {
