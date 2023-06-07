@@ -14,6 +14,7 @@ describe('Configurator', () => {
   beforeEach(() => {
     // interceptors - step 1
     cy.intercept('GET', '/api/**/config/interfaces?*').as('getInterfaces')
+    cy.intercept('GET', '/api/**/config/interface/*').as('getInterface')
     cy.intercept('PATCH', '/api/**/config/interface/*').as('patchInterface')
     cy.intercept('PUT', '/api/**/config/system/hostname').as('setHostname')
 
@@ -55,16 +56,29 @@ describe('Configurator', () => {
     // next button is disabled
     cy.get('button[type="button"]:contains(Next Step)').should('have.attr', 'disabled', 'disabled')
 
-    // interface table at least 1 row, not contains 'management'
+    // interface table at least 2 rows, not contains 'management'
     cy.get('.card-body table.b-table tbody tr')
-      .should('have.length.to.be.at.least', 1)
+      .should('have.length.to.be.at.least', 2)
       .should('not.contain.text', 'management')
 
-    // detect network button exists, click it
-    cy.get('button:contains(Detect)').should('exist').click()
+    // click the 2nd row of the interfaces table (index: 1)
+    cy.get('.card-body table.b-table tbody tr').eq(1).click()
+
+    // wait for API
+    cy.wait('@getInterface').its('response.statusCode').should('be.oneOf', [200])
+
+    // set the interface type to management
+    cy.get('*[data-namespace="type"]').click() // open dropdown options
+      .get('span.multiselect__option:contains(Management)').click() // select option
+
+    // save the interface
+    cy.get('button:contains(Save)').should('exist').click()
 
     // wait for API
     cy.wait('@patchInterface').its('response.statusCode').should('be.oneOf', [200])
+
+    // go back to interfaces list
+    cy.get('button:contains(Cancel)').should('exist').click()
 
     // interface table contains 'management'
     cy.get('.card-body table.b-table tbody tr').should('contain.text', 'management')
