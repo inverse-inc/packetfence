@@ -118,6 +118,7 @@ BEGIN {
         resolve
         random_mac
         strip_path_for_git_storage
+        chown_pf
     );
 }
 
@@ -1760,6 +1761,12 @@ sub strip_path_for_git_storage {
     $path =~ s|^$install_dir||g;
     $path =~ s|^/||;
     return $path;
+}
+
+sub chown_pf {
+    my $name = $File::Find::name;
+    my $uid = getpwnam "pf";
+    chown $uid, 1002, $name;
 }
 
 =back
