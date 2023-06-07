@@ -1,4 +1,4 @@
-executor: html_e2e_cloud
+executor: html_e2e_project
 input:
   base_url: ""
   config_file: "cypress/config/cypress.config.js"
@@ -8,7 +8,7 @@ input:
 steps:
 - type: exec
   script: |
-    make -C {{.html.pfappserver_dir}} test-e2e \
+    make -C {{.html.pfappserver_dir}} test-project \
       PROJECT_ID={{.input.project_id}} \
       RECORD_KEY={{.input.record_key}} \
       BASE_URL={{.input.base_url}} \

@@ -19,7 +19,7 @@ all:
 	@echo "make install-debian|install-rhel: install libraries"
 	@echo "make install: install cypress"
 	@echo "make test: run tests headless"
-	@echo "make test-e2e: run tests headless, requires PROJECT_ID and RECORD_KEY"
+	@echo "make test-project: run tests headless in a project, requires PROJECT_ID and RECORD_KEY"
 	@echo "make test-x11: run tests interactively (w/ X11 \$$DISPLAY)"
 	@echo ""
 	@echo "make [target] DEBUG=cypress:* (see https://docs.cypress.io/guides/references/troubleshooting#Log-sources)"
@@ -53,15 +53,15 @@ test:
 		NO_COLOR=1 \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --headless --env tags=[$(TAGS)] ; \
+		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config $(CONFIG) --e2e --env tags=[$(TAGS)] ; \
 
-test-e2e:
+test-project:
 		DEBUG=$(DEBUG) \
 		DISPLAY= \
 		NO_COLOR=1 \
 		BROWSERSLIST_IGNORE_OLD_DATA=true \
 		CYPRESS_baseUrl=$(BASE_URL) \
-		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --headless --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
+		cypress run --browser $(BROWSER) --config-file $(CONFIG_FILE) --config projectId=$(PROJECT_ID),$(CONFIG) --e2e --ci-build-id $(CI_PIPELINE_ID) --parallel --record --key $(RECORD_KEY) --tag $(TAG) --env tags=[$(TAGS)] ; \
 
 test-x11:
 	DEBUG=$(DEBUG) \
