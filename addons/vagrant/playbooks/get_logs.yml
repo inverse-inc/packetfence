@@ -27,6 +27,6 @@
     # Store archive into result_dir/results/results-$(hostname).tar.gz
     - name: Get logs on runner
       fetch:
-        src: '{{ venom_dir }}/results-{{ inventory_hostname }}.tar.gz'
+        src: '{{ venom_dir }}/results-{{ ansible_fqdn }}.tar.gz'
         dest: '{{ result_dir }}/'
         flat: True
