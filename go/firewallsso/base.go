@@ -141,7 +141,7 @@ func (fw *FirewallSSO) FormatUsername(ctx context.Context, info map[string]strin
 	for key, re := range usernameFormatRegexps {
 		username = re.ReplaceAllString(username, info[key])
 	}
-
+	log.LoggerWContext(ctx).Debug("USername is '%s'", username)
 	return username
 }
 
