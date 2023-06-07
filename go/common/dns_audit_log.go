@@ -1,6 +1,6 @@
 package common
 
-type DNSLog struct {
+type DNSAuditLog struct {
 	Ip     string `json:"ip"`
 	Mac    string `json:"mac"`
 	Qname  string `json:"qname"`

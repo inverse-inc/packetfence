@@ -821,7 +821,7 @@ func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname stri
 	}
 
 	if pf.recordDNS {
-		data, _ := json.Marshal(&common.DNSLog{
+		data, _ := json.Marshal(&common.DNSAuditLog{
 			Ip:     ip,
 			Mac:    mac,
 			Qname:  strings.TrimRight(qname, "."),
