@@ -94,11 +94,35 @@ has switch_id => (is => 'rw');
 
 =head2 profect_id
 
-The project_id returned ny semaphore
+The project_id returned by semaphore
 
 =cut
 
 has project_id => (is => 'rw');
+
+=head2 key_id
+
+The key_id created on semaphore
+
+=cut
+
+has key_id => (is => 'rw');
+
+=head2 inentory_id
+
+The inventory_id created on semaphore
+
+=cut
+
+has inventory_id => (is => 'rw');
+
+=head2 template_id
+
+The template_id created on semaphore
+
+=cut
+
+has template_id => (is => 'rw');
 
 
 =head2 fetch_token
@@ -134,14 +158,14 @@ sub push_acls {
     $self->fetch_token();
     $self->createProject();
     $self->createAccessKey();
+    $self->getAccessKey();
     $self->createRepository();
     $self->createEnv();
     $self->createInventory();
+    $self->getInventory();
     $self->createTemplate();
+    $self->getTemplate();
     $self->launchTask();
-
-
-
 }
 
 sub createProject {
@@ -171,14 +195,28 @@ sub createAccessKey {
     }
 }
 
+sub getAccessKey {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $res = $self->_do_get("accesskeys");
+    if($res->is_success) {
+        my $info = decode_json($res->decoded_content);
+        foreach my $entry ( @{$info} ) {
+            if ($entry->{name} eq 'none') {
+                $self->key_id($entry->{id});
+            }
+        }
+    } else {
+       $logger->warn(Dumper $res);
+    }
+}
 
 sub createRepository {
     my ($self) = @_;
     my $logger = get_logger();
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
-    # TODO Get the ssh_key_id from a api call
-    my $content = encode_json({name => "Ansible_Switch_".$self->switch_id, project_id => $self->project_id, ssh_key_id => 1, git_url => "/opt/semaphore/$switch_id_path"});
+    my $content = encode_json({name => "Ansible_Switch_".$self->switch_id, project_id => $self->project_id, ssh_key_id => $self->key_id, git_url => "/opt/semaphore/$switch_id_path"});
     my $res = $self->_do_post("repository", $content);
     if($res->is_success) {
         $logger->warn(Dumper $res);
@@ -208,8 +246,7 @@ sub createInventory {
     my $logger = get_logger();
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
-    # TODO Get the ssh_key_id from a api call
-    my $content = encode_json({name => "Switch_INV_".$self->switch_id, project_id => $self->project_id, ssh_key_id => 1, type => "file", inventory => "inventory.yml"});
+    my $content = encode_json({name => "Switch_INV_".$self->switch_id, project_id => $self->project_id, ssh_key_id => $self->key_id, type => "file", inventory => "inventory.yml"});
     my $res = $self->_do_post("inventory", $content);
     if($res->is_success) {
         $logger->warn(Dumper $res);
@@ -218,18 +255,49 @@ sub createInventory {
     }
 }
 
+sub getInventory {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $res = $self->_do_get("inventory");
+    if($res->is_success) {
+        my $info = decode_json($res->decoded_content);
+        foreach my $entry ( @{$info} ) {
+            if ($entry->{name} eq "Switch_INV_".$self->switch_id) {
+                $self->inventory_id($entry->{id});
+            }
+        }
+    } else {
+       $logger->warn(Dumper $res);
+    }
+}
+
 sub createTemplate {
     my ($self) = @_;
     my $logger = get_logger();
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
-    # TODO Get the ssh_key_id and the repository_id from a api call
-    my $content = encode_json({name => "Switch_ACLS_".$self->switch_id, playbook => "switch_acls.yml", inventory_id => 1, repository_id => 1, environment_id => 1, project_id => $self->project_id, type => ""});
+    my $content = encode_json({name => "Switch_ACLS_".$self->switch_id, playbook => "switch_acls.yml", inventory_id => $self->inventory_id, repository_id => 1, environment_id => 1, project_id => $self->project_id, type => ""});
     my $res = $self->_do_post("templates", $content);
     if($res->is_success) {
         $logger->warn(Dumper $res);
     } else {
         $logger->warn(Dumper $res);
+    }
+}
+
+sub getTemplate {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $res = $self->_do_get("templates");
+    if($res->is_success) {
+        my $info = decode_json($res->decoded_content);
+        foreach my $entry ( @{$info} ) {
+            if ($entry->{name} eq "Switch_ACLS_".$self->switch_id) {
+                $self->template_id($entry->{id});
+            }
+        }
+    } else {
+       $logger->warn(Dumper $res);
     }
 }
 
@@ -239,7 +307,7 @@ sub launchTask {
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
     # TODO Get the template_id a api call
-    my $content = encode_json({template_id => "2"});
+    my $content = encode_json({template_id => $self->template_id});
     my $res = $self->_do_post("tasks", $content);
     if($res->is_success) {
         $logger->warn(Dumper $res);
