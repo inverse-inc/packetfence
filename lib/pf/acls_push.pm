@@ -157,6 +157,8 @@ sub push_acls {
     $self->switch_id($switchID);
     my $error = $self->fetch_token();
     return if (!$error);
+    $error = $self->cleanProject();
+    return if (!$error);
     $error = $self->createProject();
     return if (!$error);
     $error = $self->createAccessKey();
@@ -187,20 +189,20 @@ sub cleanProject {
         my $info = decode_json($res->decoded_content);
         foreach my $entry ( @{$info} ) {
             if ($entry->{name} eq "Switch_".$self->switch_id) {
-                $self->key_id($entry->{id});
-                $res = $self->_do_delete("projects");
+                $self->project_id($entry->{id});
+                $res = $self->_do_delete("deleteproject");
                 if($res->is_success) {
                     $logger->info("Project Switch_".$self->switch_id." has been cleaned");
-                    return $TRUE;
                 } else {
                     $logger->error("Project Switch_".$self->switch_id." has not been cleaned");
                     return $FALSE;
                 }
             }
         }
+        return $TRUE;
     } else {
        $logger->error("Not able to get the semaphore projects");
-       return $FALSE;
+       return $TRUE;
     }
 }
 
@@ -275,7 +277,7 @@ sub createEnv {
     my $logger = get_logger();
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
-    my $env_content = encode_json({inventory => "inventory.yml", host_key_checking => "False", timeout => "10", nocows => "1", deprecation_warnings => "False", retry_files_enabled => "False", log_path => "./ansible.log", forks => "10", collections_path => "/opt/semaphore/$switch_id_path/collections/"});
+    my $env_content = encode_json({inventory => "inventory.yml", host_key_checking => "False", timeout => "10", nocows => "1", deprecation_warnings => "False", retry_files_enabled => "False", forks => "10", collections_path => "/opt/semaphore/$switch_id_path/collections/"});
     my $json_content = encode_json({});
     my $content = encode_json({json => $json_content, env => $env_content, project_id => $self->project_id, name => "Switch_ENV_".$self->switch_id});
     my $res = $self->_do_post("environment", $content);
@@ -363,7 +365,6 @@ sub launchTask {
     my $logger = get_logger();
     my $switch_id_path = $self->switch_id;
     $switch_id_path =~ s/\./_/g;
-    # TODO Get the template_id a api call
     my $content = encode_json({template_id => $self->template_id});
     my $res = $self->_do_post("tasks", $content);
     if($res->is_success) {
@@ -442,18 +443,18 @@ sub _build_uri {
         $project_id = $self->project_id;
     }
     my $URIS = {
-        login => "/api/auth/login",
-        tokens => "/api/user/tokens",
-        projects => "/api/projects",
-        accesskeys => "/api/project/".$project_id."/keys",
-        repository => "/api/project/".$project_id."/repositories",
-        environment => "/api/project/".$project_id."/environment",
-        inventory => "/api/project/".$project_id."/inventory",
-        templates => "/api/project/".$project_id."/templates",
-        tasks => "/api/project/".$project_id."/tasks",
+        login         => "/api/auth/login",
+        tokens        => "/api/user/tokens",
+        projects      => "/api/projects",
+        deleteproject => "/api/project/".$project_id."/",
+        accesskeys    => "/api/project/".$project_id."/keys",
+        repository    => "/api/project/".$project_id."/repositories",
+        environment   => "/api/project/".$project_id."/environment",
+        inventory     => "/api/project/".$project_id."/inventory",
+        templates     => "/api/project/".$project_id."/templates",
+        tasks         => "/api/project/".$project_id."/tasks",
     };
     my $path = $URIS->{$type};
-    get_logger->warn($path);
     return $self->protocol."://".$self->host.":".$self->port."$path";
 }
 
