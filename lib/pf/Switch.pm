@@ -4220,8 +4220,10 @@ sub generateAnsibleConfiguration {
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
     find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
+    if (-e "$var_dir/conf/pfsetacls/$switch_id/ansible.log") { unlink "$var_dir/conf/pfsetacls/$switch_id/ansible.log" };
     my %args;
     $args{'switch_id'} = $switch_ip;
+    #Send in the cluster queue
     pf::api::queue_cluster->new(
         queue => "general",
         jsonrpc_args => {
@@ -4230,7 +4232,6 @@ sub generateAnsibleConfiguration {
         }
     )->notify('push_acls', %args);
 }
-
 
 =back
 
