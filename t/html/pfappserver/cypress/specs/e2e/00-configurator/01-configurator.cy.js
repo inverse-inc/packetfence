@@ -78,10 +78,13 @@ describe('Configurator', () => {
     cy.wait('@patchInterface').its('response.statusCode').should('be.oneOf', [200])
 
     // wait for cancel button to be enabled,
-    cy.get('button:contains(Cancel)').should('not.have.attr', 'disabled').click()
+    cy.get('button:contains(Cancel)').should('not.have.attr', 'disabled')
 
     // click and go back to interfaces list
     cy.get('button:contains(Cancel)').click()
+
+    // wait for API
+    cy.wait('@getInterfaces').its('response.statusCode').should('be.oneOf', [200])
 
     // interface table contains 'management'
     cy.get('.card-body table.b-table tbody tr').should('contain.text', 'management')
