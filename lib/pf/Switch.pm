@@ -94,7 +94,7 @@ use pf::SwitchSupports qw(
 
      RadiusDynamicVlanAssignment
 );
-use pf::acls_push;
+use pf::api::queue_cluster;
 use File::Find;
 
 #
@@ -4220,8 +4220,15 @@ sub generateAnsibleConfiguration {
     $tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/switch_acls.yml") or die $tt->error();
     $tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/$switch_id/collections/requirements.yml") or die $tt->error();
     find(\&pf::util::chown_pf, "$var_dir/conf/pfsetacls/$switch_id/");
-    my $push_acls = pf::acls_push->new();
-    $push_acls->push_acls( $switch_ip );
+    my %args;
+    $args{'switch_id'} = $switch_ip;
+    pf::api::queue_cluster->new(
+        queue => "general",
+        jsonrpc_args => {
+            connect_timeout_ms => 500,
+            timeout_ms => 500,
+        }
+    )->notify('push_acls', %args);
 }
 
 
