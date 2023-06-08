@@ -143,11 +143,11 @@ sub fetch_token {
         my $token = $info->{id};
         $logger->debug("Got token : $token");
 	$self->access_token($token);
-        return $token;
+        return $TRUE;
     }
     else {
         $logger->error("Failed to get token from Semaphore API : ".$res->status_line);
-        return undef;
+        return $FALSE;
     }
 }
 
@@ -155,17 +155,53 @@ sub push_acls {
     my ($self, $switchID) = @_;
     my $logger = get_logger();
     $self->switch_id($switchID);
-    $self->fetch_token();
-    $self->createProject();
-    $self->createAccessKey();
-    $self->getAccessKey();
-    $self->createRepository();
-    $self->createEnv();
-    $self->createInventory();
-    $self->getInventory();
-    $self->createTemplate();
-    $self->getTemplate();
-    $self->launchTask();
+    my $error = $self->fetch_token();
+    return if (!$error);
+    $error = $self->createProject();
+    return if (!$error);
+    $error = $self->createAccessKey();
+    return if (!$error);
+    $error = $self->getAccessKey();
+    return if (!$error);
+    $error = $self->createRepository();
+    return if (!$error);
+    $error = $self->createEnv();
+    return if (!$error);
+    $error = $self->createInventory();
+    return if (!$error);
+    $error = $self->getInventory();
+    return if (!$error);
+    $error = $self->createTemplate();
+    return if (!$error);
+    $error = $self->getTemplate();
+    return if (!$error);
+    $error = $self->launchTask();
+    return if (!$error);
+}
+
+sub cleanProject {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $res = $self->_do_get("projects");
+    if($res->is_success) {
+        my $info = decode_json($res->decoded_content);
+        foreach my $entry ( @{$info} ) {
+            if ($entry->{name} eq "Switch_".$self->switch_id) {
+                $self->key_id($entry->{id});
+                $res = $self->_do_delete("projects");
+                if($res->is_success) {
+                    $logger->info("Project Switch_".$self->switch_id." has been cleaned");
+                    return $TRUE;
+                } else {
+                    $logger->error("Project Switch_".$self->switch_id." has not been cleaned");
+                    return $FALSE;
+                }
+            }
+        }
+    } else {
+       $logger->error("Not able to get the semaphore projects");
+       return $FALSE;
+    }
 }
 
 sub createProject {
@@ -176,10 +212,12 @@ sub createProject {
     if($res->is_success) {
         my $info = decode_json($res->decoded_content);
         my $id = $info->{id};
-        $logger->debug("Got project_id : $id");
+        $logger->info("Successfully created project Switch_".$self->switch_id);
         $self->project_id($id);
+        return $TRUE;
     } else {
-        $logger->warn(Dumper $res);
+        $logger->error("Not able to create a project");
+        return $FALSE;
     }
 }
 
@@ -189,9 +227,11 @@ sub createAccessKey {
     my $content = encode_json({name => "none", type => "none", project_id => $self->project_id});
     my $res = $self->_do_post("accesskeys", $content);
     if($res->is_success) {
-       $logger->warn(Dumper $res); 
+        $logger->info("Access Key none has been created");
+        return $TRUE;
     } else {
-       $logger->warn(Dumper $res);
+        $logger->error("Access Key not created");
+        return $FALSE;
     }
 }
 
@@ -204,10 +244,13 @@ sub getAccessKey {
         foreach my $entry ( @{$info} ) {
             if ($entry->{name} eq 'none') {
                 $self->key_id($entry->{id});
+                $logger->info("Access ID retrieved successfully: ".$self->key_id);
+                return $TRUE;
             }
         }
     } else {
-       $logger->warn(Dumper $res);
+       $logger->error("Access ID not retrieved successfully");
+       return $FALSE;
     }
 }
 
@@ -219,9 +262,11 @@ sub createRepository {
     my $content = encode_json({name => "Ansible_Switch_".$self->switch_id, project_id => $self->project_id, ssh_key_id => $self->key_id, git_url => "/opt/semaphore/$switch_id_path"});
     my $res = $self->_do_post("repository", $content);
     if($res->is_success) {
-        $logger->warn(Dumper $res);
+        $logger->info("Repository Ansible_Switch_".$self->switch_id." created successfully");
+        return $TRUE;
     } else {
-        $logger->warn(Dumper $res);
+        $logger->error("Repository Ansible_Switch_".$self->switch_id." not created successfully");
+        return $FALSE;
     }
 }
 
@@ -235,9 +280,11 @@ sub createEnv {
     my $content = encode_json({json => $json_content, env => $env_content, project_id => $self->project_id, name => "Switch_ENV_".$self->switch_id});
     my $res = $self->_do_post("environment", $content);
     if($res->is_success) {
-        $logger->warn(Dumper $res);
+        $logger->info("Environment Switch_ENV_".$self->switch_id." created successfully");
+        return $TRUE;
     } else {
-        $logger->warn(Dumper $res);
+        $logger->error("Environment Switch_ENV_".$self->switch_id." not created successfully");
+        return $FALSE;
     }
 }
 
@@ -249,9 +296,11 @@ sub createInventory {
     my $content = encode_json({name => "Switch_INV_".$self->switch_id, project_id => $self->project_id, ssh_key_id => $self->key_id, type => "file", inventory => "inventory.yml"});
     my $res = $self->_do_post("inventory", $content);
     if($res->is_success) {
-        $logger->warn(Dumper $res);
+        $logger->info("Inventory Switch_INV_".$self->switch_id." created successfully");
+        return $TRUE;
     } else {
-        $logger->warn(Dumper $res);
+        $logger->error("Inventory Switch_INV_".$self->switch_id." not created successfully");
+        return $FALSE;
     }
 }
 
@@ -264,10 +313,13 @@ sub getInventory {
         foreach my $entry ( @{$info} ) {
             if ($entry->{name} eq "Switch_INV_".$self->switch_id) {
                 $self->inventory_id($entry->{id});
+                $logger->info("Inventory Switch_INV_".$self->switch_id." id retrieved successfully: ".$self->inventory_id());
+                return $TRUE;
             }
         }
     } else {
-       $logger->warn(Dumper $res);
+        $logger->info("Inventory Switch_INV_".$self->switch_id." is not retrieved successfully");
+        return $TRUE;
     }
 }
 
@@ -279,9 +331,11 @@ sub createTemplate {
     my $content = encode_json({name => "Switch_ACLS_".$self->switch_id, playbook => "switch_acls.yml", inventory_id => $self->inventory_id, repository_id => 1, environment_id => 1, project_id => $self->project_id, type => ""});
     my $res = $self->_do_post("templates", $content);
     if($res->is_success) {
-        $logger->warn(Dumper $res);
+        $logger->info("Template Switch_ACLS_".$self->switch_id." created successfully");
+        return $TRUE;
     } else {
-        $logger->warn(Dumper $res);
+        $logger->error("Template Switch_ACLS_".$self->switch_id." not created successfully");
+        return $FALSE;
     }
 }
 
@@ -294,10 +348,13 @@ sub getTemplate {
         foreach my $entry ( @{$info} ) {
             if ($entry->{name} eq "Switch_ACLS_".$self->switch_id) {
                 $self->template_id($entry->{id});
+                $logger->info("Template Switch_ACLS_".$self->switch_id." id retrieved successfully: ".$self->template_id());
+                return $TRUE;
             }
         }
     } else {
-       $logger->warn(Dumper $res);
+        $logger->error("Template Switch_ACLS_".$self->switch_id." id not retrieved successfully");
+        return $FALSE;
     }
 }
 
@@ -310,9 +367,11 @@ sub launchTask {
     my $content = encode_json({template_id => $self->template_id});
     my $res = $self->_do_post("tasks", $content);
     if($res->is_success) {
-        $logger->warn(Dumper $res);
+        $logger->info("Task Switch_ACLS_".$self->switch_id." launched successfully");
+        return $TRUE;
     } else {
-        $logger->warn(Dumper $res);
+        $logger->error("Task Switch_ACLS_".$self->switch_id." not launched successfully");
+        return $FALSE;
     }
 }
 
@@ -357,6 +416,18 @@ sub _do_get {
     my ($self, $uri) = @_;
     return $self->_execute_request(HTTP::Request::Common::GET($self->_build_uri($uri)));
 }
+
+=head2 _do_delete
+
+Execute a DELETE request on the Semaphore API
+
+=cut
+
+sub _do_delete {
+    my ($self, $uri) = @_;
+    return $self->_execute_request(HTTP::Request::Common::DELETE($self->_build_uri($uri)));
+}
+
 
 =head2 _build_uri
 
