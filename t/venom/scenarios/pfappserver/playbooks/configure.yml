@@ -12,6 +12,7 @@
     - role: geerlingguy.nodejs
       tags: nodejs
 
+  tasks:
     - name: Install Cypress dependencies on debian
       community.general.make:
         chdir: /usr/local/pf/t/html/pfappserver
