@@ -16,7 +16,7 @@ type ILdapConnection interface {
 	Close()
 	StartTLS(config *tls.Config) error
 	Bind(username, password string) error
-	SearchWithPaging(searchRequest *ldap.SearchRequest, pagingSize uint32) (*ldap.SearchResult, error)
+	Search(searchRequest *ldap.SearchRequest) (*ldap.SearchResult, error)
 }
 
 type ILdapClientFactory interface {

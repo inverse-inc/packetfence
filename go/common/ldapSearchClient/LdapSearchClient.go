@@ -9,16 +9,22 @@ import (
 	"time"
 
 	"github.com/inverse-inc/go-utils/log"
+	common "github.com/inverse-inc/packetfence/go/common/languageUtils"
 	"github.com/inverse-inc/packetfence/go/common/ldapClient"
 	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
 	"gopkg.in/ldap.v2"
 )
 
 type SearchQuery struct {
-	Server     string          `json:"server"`
-	Filter     string          `json:"filter"`
-	Attributes []string        `json:"attributes,omitempty"`
-	Context    context.Context `json:"context"`
+	Server     string   `json:"server"`
+	Filter     string   `json:"filter"`
+	BaseDN     string   `json:"base_dn"`
+	Scope      string   `json:"scope"`
+	SizeLimit  int      `json:"size_limit"`
+	TimeLimit  int      `json:"time_limit"`
+	Attributes []string `json:"attributes,omitempty"`
+	// TODO take a look at how this is used
+	Context context.Context `json:"context"`
 }
 
 type LdapServer struct {
@@ -32,7 +38,7 @@ type LdapSearchClient struct {
 }
 
 var (
-	scopes = map[string]int{
+	scopes = map[string]interface{}{
 		"base": ldap.ScopeBaseObject,
 		"one":  ldap.ScopeSingleLevel,
 		"sub":  ldap.ScopeWholeSubtree,
@@ -47,18 +53,12 @@ func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string
 
 	defer conn.Close()
 
-	scope, ok := scopes[sc.LdapServer.Scope]
-
-	if !ok {
-		return nil, errors.New("unknown search scope: " + sc.LdapServer.Scope)
+	request, err := sc.searchRequestFromSearchQuery(query)
+	if err != nil {
+		return nil, errors.New("failed search: " + err.Error())
 	}
 
-	response, err := conn.SearchWithPaging(&ldap.SearchRequest{
-		BaseDN:     sc.LdapServer.BaseDN,
-		Scope:      scope,
-		Filter:     query.Filter,
-		Attributes: query.Attributes,
-	}, uint32(200))
+	response, err := conn.Search(request)
 
 	if err != nil {
 		return nil, errors.New("failed search: " + err.Error())
@@ -70,6 +70,34 @@ func (sc LdapSearchClient) SearchLdap(query *SearchQuery) (map[string]map[string
 	}
 
 	return transform(response.Entries), nil
+}
+
+func (sc LdapSearchClient) searchRequestFromSearchQuery(query *SearchQuery) (*ldap.SearchRequest, error) {
+	baseDn := query.BaseDN
+	if baseDn == "" {
+		baseDn = sc.LdapServer.BaseDN
+	}
+
+	scope, ok := scopes[sc.LdapServer.Scope].(int)
+	if query.Scope != "" {
+		scope, ok = scopes[query.Scope].(int)
+		if !ok {
+			return nil, errors.New("Invalid scope" + query.Scope + ". Possible scope values are:" + common.MapKeysToString(scopes))
+		}
+	}
+
+	if query.Filter == "" {
+		query.Filter = "(objectClass=*)"
+	}
+
+	return &ldap.SearchRequest{
+		BaseDN:     baseDn,
+		Scope:      scope,
+		Filter:     query.Filter,
+		Attributes: query.Attributes,
+		SizeLimit:  query.SizeLimit,
+		TimeLimit:  query.TimeLimit,
+	}, nil
 }
 
 func (sc LdapSearchClient) connect() ldapClient.ILdapConnection {
