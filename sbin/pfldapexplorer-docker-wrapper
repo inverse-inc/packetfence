@@ -7,7 +7,6 @@ name=pfldapexplorer
 args=`base_args $name`
 args="$args -v /usr/local/pf/conf:/usr/local/pf/conf -p 100.64.0.1:22229:22229 -p 127.0.0.1:22229:22229"
 
-#cd /usr/local/pf/
+cd /usr/local/pf/
 
 run $name "$args"
-# echo $args
