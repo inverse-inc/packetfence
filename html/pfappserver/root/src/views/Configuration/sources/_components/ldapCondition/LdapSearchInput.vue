@@ -25,8 +25,10 @@ import {BaseInputChosenOneSearchableProps} from '@/components/new'
 import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api'
 import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {computed, inject, ref, unref} from '@vue/composition-api'
-import MultiselectFacade from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
+import MultiselectFacade
+  from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
 import {namespaceToYupPath} from '@/composables/useInputValidator'
+import {valueToSelectValue} from '@/utils/convert';
 
 
 export const props = {
@@ -55,10 +57,6 @@ function performLdapSearch(form, inputValue, attribute) {
         return valueToSelectValue(item[attribute])
       })
     })
-}
-
-function valueToSelectValue(value) {
-  return {"text": value, "value": value}
 }
 
 

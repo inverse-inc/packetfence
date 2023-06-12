@@ -17,3 +17,7 @@ const convert = {
 }
 
 export default convert
+
+export function valueToSelectValue(value) {
+  return {"text": value, "value": value}
+}
