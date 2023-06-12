@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"math"
 	"strconv"
 	"sync"
 
@@ -22,11 +23,11 @@ type Mysql struct {
 
 // NewMysqlPool return a new mysql pool
 func NewMysqlPool(context context.Context, capacity uint64, name string, algorithm int, StatsdClient *statsd.Client, sql *sql.DB) (Backend, error) {
-	dp := Mysql{}
+	dp := &Mysql{}
 	dp.PoolName = name
 	dp.SQL = sql
 	dp.NewDHCPPool(context, capacity, algorithm, StatsdClient)
-	return &dp, nil
+	return dp, nil
 }
 
 // NewDHCPPool initialize the DHCPPool
@@ -43,13 +44,67 @@ func (dp *Mysql) NewDHCPPool(context context.Context, capacity uint64, algorithm
 		ctx:       ctx,
 		statsd:    StatsdClient,
 	}
-	rows, _ := dp.SQL.Query("DELETE FROM dhcppool WHERE pool_name=?", dp.PoolName)
-	rows.Close()
-	for i := uint64(0); i < capacity; i++ {
-		rows, _ := dp.SQL.Query("INSERT INTO dhcppool (pool_name, idx, released) VALUES (?, ?, NOW()) ON DUPLICATE KEY UPDATE id=id", dp.PoolName, i)
-		rows.Close()
+
+	_, err := dp.SQL.Exec("DELETE FROM dhcppool WHERE pool_name=?", dp.PoolName)
+	if err != nil {
+		return
 	}
+	dp.initializePool(capacity)
 	dp.DHCPPool = d
+
+}
+
+const maxBatch = 512 * 512
+
+func (dp *Mysql) initializePool(capacity uint64) {
+	start := uint64(0)
+	for capacity > maxBatch {
+		dp.initializeLargePool(start, maxBatch)
+		start += maxBatch
+		capacity -= maxBatch
+	}
+
+	if capacity <= 1000 {
+		_, err := dp.SQL.Exec(
+			`
+INSERT INTO dhcppool (pool_name, idx, released)
+(SELECT ?, num, NOW() FROM (
+	WITH RECURSIVE seq AS (SELECT 0 AS num UNION ALL SELECT num + 1 FROM seq WHERE num < ? - 1)
+	SELECT num + ? as num FROM seq
+) as x)
+`,
+			dp.PoolName,
+			capacity,
+			start,
+		)
+
+		_ = err
+
+		return
+	}
+
+	if capacity <= maxBatch {
+		dp.initializeLargePool(start, capacity)
+	}
+
+}
+
+func (dp *Mysql) initializeLargePool(start, capacity uint64) {
+	split := uint64(math.Ceil(math.Sqrt(float64(capacity))))
+	_, _ = dp.SQL.Exec(
+		`
+	INSERT INTO dhcppool (pool_name, idx, released)
+	(SELECT ?, num + ?, NOW() FROM (
+			WITH RECURSIVE seq AS (SELECT 0 AS num UNION ALL SELECT num + 1 FROM seq WHERE num < ? - 1)
+			SELECT a.num * ? + b.num AS num FROM seq AS a JOIN seq AS b ORDER BY a.num, b.num
+		) as x WHERE num < ?);
+	`,
+		dp.PoolName,
+		start,
+		split,
+		split,
+		capacity,
+	)
 }
 
 // GetDHCPPool return the DHCPPool
@@ -187,6 +242,7 @@ func (dp *Mysql) GetFreeIPIndex(mac string) (uint64, string, error) {
 		return 0, FreeMac, err
 
 	}
+
 	count, err2 := res.RowsAffected()
 
 	if err2 != nil {
