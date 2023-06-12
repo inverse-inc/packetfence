@@ -27,6 +27,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
 
 === New Features
 
+ * Adding end-to-end testing framework to UI for CI/CD pipelines (#7350)
+
 === Enhancements
 
  * Upgrade coredns libraries (#7197)
