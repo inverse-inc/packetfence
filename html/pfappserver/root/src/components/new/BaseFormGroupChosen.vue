@@ -34,6 +34,7 @@
           'size-md': size === 'md',
           'size-lg': size === 'lg'
         }"
+        :data-namespace="namespace"
 
         :value="inputValue"
         :placeholder="inputPlaceholder"

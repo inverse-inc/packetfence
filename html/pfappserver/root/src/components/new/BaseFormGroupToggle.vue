@@ -22,6 +22,7 @@
       class="base-input-range-toggle"
       step="1"
       min="0"
+      :data-namespace="namespace"
       :max="inputMax"
       :disabled="isLocked"
       :hints="hints"

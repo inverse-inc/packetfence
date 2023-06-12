@@ -9,6 +9,7 @@
   >
     <b-form-input ref="input"
       class="base-input"
+      :data-namespace="namespace"
       :disabled="isLocked"
       :readonly="inputReadonly"
       :placeholder="inputPlaceholder"

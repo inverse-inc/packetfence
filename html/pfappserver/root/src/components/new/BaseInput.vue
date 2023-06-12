@@ -6,6 +6,7 @@
         'is-focus': isFocus,
         'is-blur': !isFocus
       }"
+      :data-namespace="namespace"
       :disabled="isLocked"
       :readonly="inputReadonly"
       :state="inputState"

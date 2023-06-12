@@ -1,0 +1,39 @@
+---
+- hosts: pfservers
+  name: Configure Packetfence VM
+  become: True
+
+  vars:
+    nodejs_version: "14.x"
+    npm_config_unsafe_perm: "true"
+
+  roles:
+    # nodejs is already installed on Debian during build of Vagrant images
+    - role: geerlingguy.nodejs
+      tags: nodejs
+
+  tasks:
+    - name: Install Cypress dependencies on debian
+      community.general.make:
+        chdir: /usr/local/pf/t/html/pfappserver
+        target: install-debian
+        file: /usr/local/pf/t/html/pfappserver/Makefile
+      become: yes
+      when: ansible_facts['os_family'] == "Debian"
+      tags: cypress
+
+    - name: Install Cypress dependencies on el8
+      community.general.make:
+        chdir: /usr/local/pf/t/html/pfappserver
+        target: install-rhel
+        file: /usr/local/pf/t/html/pfappserver/Makefile
+      become: yes
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install Cypress
+      community.general.make:
+        chdir: /usr/local/pf/t/html/pfappserver
+        target: install
+        file: /usr/local/pf/t/html/pfappserver/Makefile
+      become: true
+      tags: cypress
