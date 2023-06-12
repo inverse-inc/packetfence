@@ -56,7 +56,7 @@ rpm_deploy() {
         # dest repo + subdirectories RPMS need to exist
         # repodata dir will be created by createrepo command
         mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $rpm_dir"
-        echo "running following command: $mkdir_cmd"
+	echo "running following command (on port $DEPLOY_PORT): $mkdir_cmd"
         ssh -p $DEPLOY_PORT $mkdir_cmd \
             || die "remote mkdir failed"
 
@@ -68,13 +68,13 @@ rpm_deploy() {
         fi
 
         # copy rpm files
-        echo "copy: $src_dir/*.rpm -> $dst_dir"
+	echo "copy (on port $DEPLOY_PORT): $src_dir/*.rpm -> $dst_dir"
         scp -P $DEPLOY_PORT $src_dir/*.rpm $dst_dir \
             || die "scp failed"
 
         # update repository
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
-        echo "running following command: $dst_cmd"
+	echo "running following command (on port $DEPLOY_PORT): $dst_cmd"
         ssh -p $DEPLOY_PORT $dst_cmd \
             || die "update failed"
     done
@@ -90,18 +90,18 @@ deb_deploy() {
 
         # dest repo need to exist + conf directory
         mkdir_cmd="$DEPLOY_USER@$DEPLOY_HOST mkdir -p $dst_repo/conf"
-        echo "running following command: $mkdir_cmd"
+	echo "running following command (on port $DEPLOY_PORT): $mkdir_cmd"
         ssh -p $DEPLOY_PORT $mkdir_cmd \
             || die "remote mkdir failed"
 
-        echo "copy: $src_dir/* -> $dst_dir"
+	echo "copy (on port $DEPLOY_PORT): $src_dir/* -> $dst_dir"
         scp -P $DEPLOY_PORT $src_dir/* $dst_dir/ \
             || die "scp failed"
 
         deploy_cmd="/usr/local/bin/ci-repo-deploy deb $dst_repo $CI_ENV_NAME"
         dst_cmd="$DEPLOY_USER@$DEPLOY_HOST $deploy_cmd"
         extra_args="${release_name} ${changes_file}"
-        echo "running following command: $dst_cmd $extra_args"
+	echo "running following command (on port $DEPLOY_PORT): $dst_cmd $extra_args"
         ssh -p $DEPLOY_PORT $dst_cmd $extra_args \
             || die "update failed"
     done
@@ -117,7 +117,7 @@ packetfence_release_deploy() {
         pkg_dest_name=${PKG_DEST_NAME:-"packetfence-release-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
         declare -p src_dir dst_dir pf_release_rpm_file pkg_dest_name
 
-        echo "scp: ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
+	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_release_rpm_file} -> ${dst_dir}/${pkg_dest_name}"
         scp -P $DEPLOY_PORT "${src_dir}/${pf_release_rpm_file}" "${dst_dir}/${pkg_dest_name}" \
             || die "scp failed"
     done
@@ -134,7 +134,7 @@ packetfence_export_deploy() {
         pf_export_rpm_dest_name=${PF_EXPORT_RPM_DEST_NAME:-"packetfence-export-${PF_MINOR_RELEASE}.el${release_name}.noarch.rpm"}
         declare -p src_dir dst_dir pf_export_rpm_file pf_export_rpm_dest_name
 
-        echo "scp: ${src_dir}/${pf_export_rpm_file} -> ${dst_dir}/${pf_export_rpm_dest_name}"
+	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_export_rpm_file} -> ${dst_dir}/${pf_export_rpm_dest_name}"
         scp -P $DEPLOY_PORT "${src_dir}/${pf_export_rpm_file}" "${dst_dir}/${pf_export_rpm_dest_name}" \
             || die "scp failed"
     done
@@ -147,7 +147,7 @@ packetfence_export_deploy() {
         pf_export_deb_dest_name=${PF_EXPORT_DEB_DEST_NAME:-"packetfence-export_${PF_MINOR_RELEASE}.deb"}
         declare -p src_dir dst_dir pf_export_deb_file pf_export_deb_dest_name
 
-        echo "scp: ${src_dir}/${pf_export_deb_file} -> ${dst_dir}/${pf_export_deb_dest_name}"
+	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_export_deb_file} -> ${dst_dir}/${pf_export_deb_dest_name}"
         scp -P $DEPLOY_PORT "${src_dir}/${pf_export_deb_file}" "${dst_dir}/${pf_export_deb_dest_name}" \
             || die "scp failed"
     done
@@ -163,7 +163,7 @@ packetfence_ci_lib_deploy() {
         pf_ci_lib_deb_dest_name=${PF_CI_LIB_DEB_DEST_NAME:-"packetfence-ci-lib_${PF_MINOR_RELEASE}.deb"}
         declare -p src_dir dst_dir pf_ci_lib_deb_file pf_ci_lib_deb_dest_name
 
-        echo "scp: ${src_dir}/${pf_ci_lib_deb_file} -> ${dst_dir}/${pf_ci_lib_deb_dest_name}"
+	echo "scp (on port $DEPLOY_PORT): ${src_dir}/${pf_ci_lib_deb_file} -> ${dst_dir}/${pf_ci_lib_deb_dest_name}"
         scp -P $DEPLOY_PORT "${src_dir}/${pf_ci_lib_deb_file}" "${dst_dir}/${pf_ci_lib_deb_dest_name}" \
             || die "scp failed"
     done
@@ -175,7 +175,7 @@ ppa_deploy() {
     dst_repo="$PUBLIC_REPO_BASE_DIR/$CI_PLATFORM/$PPA_ID/"
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
-    echo "rsync: $src_dir -> $dst_dir"
+    echo "rsync (on port $DEPLOY_PORT): $src_dir -> $dst_dir"
     rsync -avz -e "ssh -p $DEPLOY_PORT" $src_dir $dst_dir \
         || die "rsync failed"
 }
@@ -187,7 +187,7 @@ website_deploy() {
     dst_repo="$PUBLIC_REPO_BASE_DIR/"
     dst_dir="$DEPLOY_USER@$DEPLOY_HOST:$dst_repo"
     declare -p src_dir dst_dir
-    echo "rsync: $src_dir -> $dst_dir"
+    echo "rsync (on port $DEPLOY_PORT): $src_dir -> $dst_dir"
     rsync -avz  -e "ssh -p $DEPLOY_PORT" $src_dir $dst_dir \
         || die "rsync failed"
 }
