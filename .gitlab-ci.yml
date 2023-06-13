@@ -280,6 +280,7 @@ variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
     GITLAB_DEPLOY_DIR: ${CI_PIPELINE_ID}
+    DEPLOY_PORT: 444
   tags:
     - shell
 
@@ -302,6 +303,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
+    DEPLOY_PORT: 444
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
   tags:
@@ -314,6 +316,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
+    DEPLOY_PORT: 444
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh deb
   tags:
@@ -327,6 +330,7 @@ variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
     DEPLOY_SRPMS: "no"
+    DEPLOY_PORT: 444
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   tags:
@@ -340,6 +344,7 @@ variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
     DEPLOY_SRPMS: "no"
+    DEPLOY_PORT: 444
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh rpm
   tags:
@@ -352,6 +357,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
+    DEPLOY_PORT: 444
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-release
     - ./${UPLOAD_DIR}/deploy-artifacts.sh packetfence-export
@@ -366,6 +372,7 @@ variables:
   variables:
     DEPLOY_USER: reposync
     DEPLOY_HOST: web.inverse.ca
+    DEPLOY_PORT: 444
   script:
     - ./${UPLOAD_DIR}/deploy-artifacts.sh website
   tags:
