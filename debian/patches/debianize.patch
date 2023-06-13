@@ -24,6 +24,15 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.radiusd_acct
  #
+@@ -518,7 +518,7 @@ httpd_proxy=enabled
+ # services.httpd_binary
+ #
+ # Location of the apache binary. Only necessary to change if you are not running the RPMed version.
+-httpd_binary=/usr/sbin/httpd
++httpd_binary=/usr/sbin/apache2
+ #
+ # services.snmptrapd
+ #
 @@ -616,7 +616,7 @@ openssl_binary=/usr/bin/openssl
  # services.arp_binary
  # 
