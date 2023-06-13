@@ -30,7 +30,6 @@ use pfappserver::Form::Config::Provisioning::android;
 use pfappserver::Form::Config::Provisioning::deny;
 use pfappserver::Form::Config::Provisioning::dpsk;
 use pfappserver::Form::Config::Provisioning::google_workspace_chromebook;
-use pfappserver::Form::Config::Provisioning::ibm;
 use pfappserver::Form::Config::Provisioning::intune;
 use pfappserver::Form::Config::Provisioning::jamf;
 use pfappserver::Form::Config::Provisioning::kandji;
@@ -51,7 +50,6 @@ our %TYPES_TO_FORMS = (
       deny
       dpsk
       google_workspace_chromebook
-      ibm
       intune
       jamf
       kandji

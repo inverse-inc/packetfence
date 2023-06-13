@@ -6,7 +6,6 @@ export const provisioningTypes = {
   android:      i18n.t('Android'),
   deny:         i18n.t('Deny'),
   dpsk:         i18n.t('DPSK'),
-  ibm:          i18n.t('IBM'),
   jamf:         i18n.t('Jamf'),
   kandji:       i18n.t('Kandji'),
   mobileconfig: i18n.t('Apple Devices'),
