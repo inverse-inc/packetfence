@@ -584,6 +584,7 @@ if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-config
     /usr/bin/systemctl disable packetfence.service
     /usr/bin/systemctl disable packetfence-haproxy.service
+    /usr/bin/systemctl disable packetfence-httpd.proxy.service
     /usr/bin/systemctl isolate packetfence-base.target
 fi
 

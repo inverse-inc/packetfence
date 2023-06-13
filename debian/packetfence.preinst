@@ -123,6 +123,7 @@ case "$1" in
         disable_service_if_exists packetfence-config.service
         disable_service_if_exists packetfence.service
         disable_service_if_exists packetfence-haproxy.service
+        disable_service_if_exists packetfence-httpd.proxy.service
         exit 0
     ;;
     abort-upgrade)
