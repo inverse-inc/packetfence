@@ -46,7 +46,97 @@ On a cluster which has an issue, once all nodes are back online, you should wait
 
 If your cluster still has issues after that time, you can try to resolve the issue by looking at sections below.
 
-=== Cluster offers database service without all nodes
+=== Manual resolution
+
+If `galera-autofix` service is not able to solve your issue. You can try to solve it manually.
+
+First, you need to perform checks. Then you will be able to identify in which situation you are:
+Cluster offers database service without all nodes or None of the nodes is offering database service.
+
+==== Database checks
+
+NOTE: MariaDB root password has been defined during configurator.
+
+===== Ensure MariaDB is running on each node
+
+Ensure you can connect to MariaDB (through UNIX socket) on *each* node using:
+
+[source,bash]
+----
+mysql -u root -p
+----
+
+===== Check cluster integrity
+
+Once connected to MariaDB, run these commands on *each* node:
+
+[source,sql]
+----
+# Each node in the cluster should provide the same value
+SHOW GLOBAL STATUS LIKE 'wsrep_cluster_state_uuid';
+
+# Each node in the cluster should provide the same value
+SHOW GLOBAL STATUS LIKE 'wsrep_cluster_conf_id';
+
+# Expected value: number of configured nodes in the cluster
+SHOW GLOBAL STATUS LIKE 'wsrep_cluster_size';
+
+# Expected value: Primary
+SHOW GLOBAL STATUS LIKE 'wsrep_cluster_status';
+----
+
+If all checks returned expected values, the cluster is up and has integrity.
+
+===== Check individual node status
+
+Once connected to MariaDB, run these commands on *each* node:
+
+[source,sql]
+----
+# Expected value: ON
+SHOW GLOBAL STATUS LIKE 'wsrep_ready';
+
+# Expected value: ON
+SHOW GLOBAL STATUS LIKE 'wsrep_connected';
+
+# Expected values when node is part of the primary component: Joining, Waiting on SST, Joined, Synced or Donor
+SHOW GLOBAL STATUS LIKE 'wsrep_local_state_comment';
+----
+
+If all checks returned expected values, individual nodes are in working order.
+
+==== PacketFence checks
+
+===== Check PacketFence application can connect to the database
+
+In order to emulate how PacketFence connects to the database, you can run following command:
+
+.For PacketFence versions 11.0.0 and later
+[source,bash]
+----
+mysql -u $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib_perl/lib/perl5 -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+----
+
+.For PacketFence versions prior to 11.0.0
+[source,bash]
+----
+mysql -u $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{user}') -p$(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{pass}') -h $(perl -I/usr/local/pf/lib -Mpf::db -e 'print $pf::db::DB_Config->{host}') pf
+----
+
+If you got a prompt, it means PacketFence must be able to connect to the database.
+
+===== Perform a query using PacketFence codebase
+
+To perform a small query to the database using PacketFence codebase, you can run:
+
+[source,bash]
+----
+/usr/local/pf/bin/pfcmd checkup
+----
+
+If the command doesn't return any database error, PacketFence is able to perform reads on database.
+
+==== Cluster offers database service without all nodes
 
 When at least one of the nodes of the cluster is able to offer database
 service, you can apply the following commands on a broken node to rejoin it to
@@ -67,7 +157,7 @@ After all nodes have joined back cluster, you should verify <<_checking_the_mari
 
 WARNING: After stopping the `packetfence-mariadb` service, be sure there is no more `mysql` process running.
 
-=== None of the nodes is offering database service
+==== None of the nodes is offering database service
 
 When there is no more database service in your cluster, you need to do a full recovery.
 
