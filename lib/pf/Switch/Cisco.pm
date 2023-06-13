@@ -36,6 +36,7 @@ use pf::util::radius qw(perform_coa);
 use pf::SwitchSupports qw(
     SaveConfig
     Cdp
+    PushACLs
 );
 
 #
@@ -1826,11 +1827,28 @@ sub acl_chewer {
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
+        my $dest;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        } else {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." any host ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                $dest = $acl->{'destination'}->{'ipv4_addr'}." ".$acl->{'destination'}->{'wildcard'};
+            } else {
+                $dest = "host ".$acl->{'destination'}->{'ipv4_addr'};
+            }
         }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                $src = $acl->{'source'}->{'ipv4_addr'}." ".$acl->{'source'}->{'wildcard'};
+            } else {
+                $src = "host ".$acl->{'source'}->{'ipv4_addr'};
+            }
+
+        }
+        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." ".$dest ." ".( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         $i++;
     }
     return $acl_chewed;
