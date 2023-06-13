@@ -35,6 +35,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Added Palo Alto switch module to manage web admin login using RADIUS (#7643)
  * Remove WMI (#7649)
  * Allow to call a custom script from pfupdate to handle VIP in cloud environments (#7654)
+ * Remove IBM provisioner (#7686)
 
 === Bug Fixes
 
