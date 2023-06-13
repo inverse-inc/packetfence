@@ -16,6 +16,7 @@ use pf::util;
 use DBI;
 use pf::constants;
 use JSON::MaybeXS;
+use pf::AtFork;
 use pf::CHI;
 use List::MoreUtils qw(any);
 
@@ -127,7 +128,7 @@ Also record the startup method for future usage
 
 sub fork_launch_mysql {
     my ($started_because, @args) = @_;
-    my $pid = fork();
+    my $pid = pf::AtFork::pf_fork();
 
     record_started_because($started_because);
 

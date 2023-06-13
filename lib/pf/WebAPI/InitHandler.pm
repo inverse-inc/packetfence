@@ -21,6 +21,7 @@ use pf::CHI;
 use pf::CHI::Request;
 use pf::SwitchFactory();
 use pf::dal;
+use pf::AtFork;
 use pfconfig::refresh_last_touch_cache;
 
 use Apache2::Const -compile => 'OK';
@@ -44,6 +45,7 @@ sub child_init {
     my ($class, $child_pool, $s) = @_;
     #Avoid child processes having the same random seed
     srand();
+    pf::AtFork::run_child_child_callbacks();
     pf::StatsD->initStatsd;
     #The database initialization can fail on the initial install
     eval {

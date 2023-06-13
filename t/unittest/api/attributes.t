@@ -35,11 +35,10 @@ sub isAPublicFunction2 {}
 sub isAForkFunction2 {}
 }
 
-use threads;
 use strict;
 use warnings;
 
-use Test::More tests => 1 + 2 * (17);                      # last test to print
+use Test::More tests => 18;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -64,13 +63,6 @@ sub full_tests {
 }
 
 full_tests();
-
-my $thr = threads->create(
-    {'context' => 'list'},
-    \&full_tests,
-);
-
-$thr->join();
 
 =head1 AUTHOR
 
