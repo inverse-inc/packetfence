@@ -99,12 +99,18 @@ sub build_child {
                 my $config_value = $rule_config->{$parameter};
                 if ( $parameter =~ m/condition(\d+)/ ) {
                     my ( $attribute, $operator, $value ) = split( ',', $config_value, 3 );
+                    my $type;
+                    if ($attribute =~ /^(.*?):(.*)$/) {
+                        $type = $1;
+                        $attribute = $2;
+                    }
 
                     $current_rule->add_condition(
                         pf::Authentication::Condition->new(
                             {   attribute => $attribute,
                                 operator  => $operator,
-                                value     => $value
+                                value     => $value,
+                                type      => $type,
                             }
                         )
                     );
