@@ -91,7 +91,7 @@ use pf::SwitchSupports qw(
     -WirelessDot1x
     -WirelessMacAuth
     -OutAcl
-
+    -PushACLs
      RadiusDynamicVlanAssignment
 );
 use pf::api::queue_cluster;
