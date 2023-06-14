@@ -135,14 +135,18 @@ sub fetch_token {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my $res = $self->_do_post("login", encode_json({ auth => $self->username, password => $self->password}));
+    my $res = $res = $self->_do_post("tokens");
+
+    if (!$res->is_success) {
+       $res = $self->_do_post("login", encode_json({ auth => $self->username, password => $self->password}));
+    }
 
     if($res->is_success){
         $res = $self->_do_post("tokens");
-	my $info = decode_json($res->decoded_content);
+        my $info = decode_json($res->decoded_content);
         my $token = $info->{id};
         $logger->debug("Got token : $token");
-	$self->access_token($token);
+        $self->access_token($token);
         return $TRUE;
     }
     else {
