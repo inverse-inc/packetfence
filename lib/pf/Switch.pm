@@ -4074,7 +4074,7 @@ sub format_acl {
         if ($acl_line =~ /^(in\||out\|)(.*)/) {
             my $direction = $1;
             my $raw_acl = $2;
-            if ($self->supportsOutAcl && $direction eq "out|") {
+            if (($self->supportsOutAcl || $self->usePushACLs) && $direction eq "out|") {
                 $acls .= $raw_acl."\n";
                 $direction[$i] = "out";
             } elsif ($direction eq "in|") {
@@ -4207,10 +4207,22 @@ sub generateAnsibleConfiguration {
             case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
             case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
     }
+
     foreach my $role (keys %ConfigRoles) {
         my $acls = $self->getAccessListByName($role);
         next if !defined($acls);
-        $vars{'switches'}{$switch_id}{'acls'}{$role} = $acls;
+        my $out_acls;
+        my $in_acls;
+        while($acls =~ /([^\n]+)\n?/g) {
+            my $acl_line = $1;
+            if ($acl_line =~ /^(out\|)(.*)/) {
+                $out_acls .= $2."\n";
+            } else {
+                $in_acls .= $acl_line."\n";
+            }
+        }
+        $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
+        $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
     }
 
     $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/$switch_id.cfg") or die $tt->error();
