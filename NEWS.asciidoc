@@ -36,6 +36,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove WMI (#7649)
  * Allow to call a custom script from pfupdate to handle VIP in cloud environments (#7654)
  * Remove IBM provisioner (#7686)
+ * Remove ServiceNow provisioner (#7699)
 
 === Bug Fixes
 
