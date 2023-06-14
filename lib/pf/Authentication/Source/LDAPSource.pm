@@ -81,6 +81,7 @@ has 'client_key_file' => ( isa => 'Maybe[Str]', is => 'rw', default => "");
 has 'ca_file' => (isa => 'Maybe[Str]', is => 'rw', default => '');
 has 'verify' => ( isa => 'Str', is => 'rw', default => 'none');
 has 'use_connector' => (isa => 'Bool', is => 'rw', default => 1);
+has '_ldap_attributes' => ( isa => 'ArrayRef', is => 'rw', default => sub { [] });
 
 our $logger = get_logger();
 
@@ -125,7 +126,13 @@ get the ldap attributes
 
 sub ldap_attributes {
     my ($self) = @_;
-    return map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}};
+    my @ldap_attributes = (
+        (map { { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } @{$Config{advanced}->{ldap_attributes}}),
+        @{$self->_ldap_attributes},
+    );
+
+    my %seen;
+    return grep { !$seen{$_->{value}}++ } @ldap_attributes;
 }
 
 =head2 common_attributes

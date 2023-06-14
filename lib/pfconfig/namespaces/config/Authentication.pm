@@ -29,6 +29,7 @@ use pf::Authentication::Condition;
 use pf::Authentication::Rule;
 use pf::Authentication::utils;
 use Sort::Naturally qw(nsort);
+use List::MoreUtils qw(uniq);
 use pf::constants::authentication;
 
 use base 'pfconfig::namespaces::config';
@@ -77,6 +78,7 @@ sub build_child {
 
         # Instantiate the source object
         my $current_source = $self->newAuthenticationSource( $type, $source_id, $cfg{$source_id} );
+        my @ldap_attributes;
 
         # Parse rules
         foreach my $rule_id ( $self->GroupMembers($source_id) ) {
@@ -103,6 +105,9 @@ sub build_child {
                     if ($attribute =~ /^(.*?):(.*)$/) {
                         $type = $1;
                         $attribute = $2;
+                        if ( $type eq 'ldap' ) {
+                            push @ldap_attributes, $attribute;
+                        }
                     }
 
                     $current_rule->add_condition(
@@ -137,6 +142,17 @@ sub build_child {
                 } else {
                     $current_rule->{$parameter} = $current_rule_config{$parameter} = $config_value;
                 }
+            }
+
+            if ($current_source->isa("pf::Authentication::Source::LDAPSource")) {
+                my $usernameattribute = $current_source->usernameattribute;
+                if ($usernameattribute) {
+                    push @ldap_attributes, $usernameattribute;
+                }
+
+                my %seen;
+                @ldap_attributes = map {  { value => $_, type => $Conditions::LDAP_ATTRIBUTE } } sort {$a cmp $b} uniq @ldap_attributes;
+                $current_source->_ldap_attributes(\@ldap_attributes);
             }
 
             $current_rule->cache_key($cache_key);
