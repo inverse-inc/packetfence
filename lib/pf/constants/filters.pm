@@ -166,6 +166,7 @@ our @SWITCH_FIELDS = qw(
   switch._wsPwd
   switch._wsTransport
   switch._wsUser
+  switch._group
 );
 
 our @OWNER_FIELDS = qw(
