@@ -4085,7 +4085,7 @@ sub format_acl {
             }
         } else {
             $acls .= $acl_line."\n";
-            $direction[$i] = "";
+            $direction[$i] = "in";
         }
         $i++;
     }
@@ -4217,6 +4217,8 @@ sub generateAnsibleConfiguration {
             my $acl_line = $1;
             if ($acl_line =~ /^(out\|)(.*)/) {
                 $out_acls .= $2."\n";
+            } elsif ($acl_line =~ /^(in\|)(.*)/) {
+                $in_acls .= $2."\n";
             } else {
                 $in_acls .= $acl_line."\n";
             }

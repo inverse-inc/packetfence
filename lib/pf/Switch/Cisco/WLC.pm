@@ -653,6 +653,12 @@ Format ACL to match with the expected switch format.
 
 =cut
 
+=head2 acl_chewer
+
+Format ACL to match with the expected switch format.
+
+=cut
+
 sub acl_chewer {
     my ($self, $acl, $role) = @_;
     my $logger = $self->logger;
@@ -677,11 +683,13 @@ sub acl_chewer {
         }
         $acl_chewed .= "acl rule protocol $role $j $acl->{'protocol'}\n";
 
+        $acl_chewed .= "acl rule direction $role $j $direction[$i]\n";
+
         if ($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
-            $acl_chewed .= "acl rule source address $role $j $acl->{'source'}->{'ipv4_addr'} $acl->{'source'}->{'wildcard'}\n";
+            $acl_chewed .= "acl rule source address $role $j $acl->{'source'}->{'ipv4_addr'} ".norm_net_mask($acl->{'source'}->{'wildcard'})."\n";
         }
         if ($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
-            $acl_chewed .= "acl rule destination address $role $j $acl->{'destination'}->{'ipv4_addr'} $acl->{'destination'}->{'wildcard'}\n";
+            $acl_chewed .= "acl rule destination address $role $j $acl->{'destination'}->{'ipv4_addr'} ".norm_net_mask($acl->{'destination'}->{'wildcard'})."\n";
         }
         if (defined($acl->{'source'}->{'port'}) ) {
             if ($acl->{'source'}->{'port'} =~ /(\w+)\s+(\d+)/) {
