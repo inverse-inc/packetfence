@@ -48,7 +48,7 @@ If your cluster still has issues after that time, you can try to resolve the iss
 
 === Manual resolution
 
-If `galera-autofix` service is not able to solve your issue. You can try to solve it manually.
+If `galera-autofix` service is not able to solve your issue, you can try to solve it manually.
 
 First, you need to perform checks. Then you will be able to identify in which situation you are:
 Cluster offers database service without all nodes or None of the nodes is offering database service.
