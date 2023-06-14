@@ -715,6 +715,17 @@ sub acl_chewer {
     return $acl_chewed;
 }
 
+=head2 implicit_acl
+
+Return implicit acl
+
+=cut
+
+sub implicit_acl {
+    my ($self) = @_;
+    return $FALSE;
+}
+
 =back
 
 =head1 AUTHOR

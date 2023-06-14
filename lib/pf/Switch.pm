@@ -4224,14 +4224,14 @@ sub generateAnsibleConfiguration {
             }
         }
         my $implicit_acl = $self->implicit_acl();
-        if (!defined($in_acls) || ($in_acls eq "" && $implicit_acl)) {
+        if ((!defined($in_acls) || $in_acls eq "") && $implicit_acl) {
             $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
-        } else {
+        } elsif (defined($in_acls)) {
             $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
         }
-        if (!defined($out_acls) || ($out_acls eq "" && $implicit_acl)) {
+        if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
             $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
-        } else {
+        } elsif (defined($out_acls)) {
             $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $in_acls;
         }
     }
