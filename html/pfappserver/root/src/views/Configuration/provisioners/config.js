@@ -16,7 +16,6 @@ export const provisioningTypes = {
   symantec:     i18n.t('Symantec App Center'),
   windows:      i18n.t('Windows'),
   intune:       i18n.t('Microsoft Intune'),
-  servicenow:   i18n.t('ServiceNow'),
   google_workspace_chromebook: i18n.t('Google Workspace Chromebook')
 }
 

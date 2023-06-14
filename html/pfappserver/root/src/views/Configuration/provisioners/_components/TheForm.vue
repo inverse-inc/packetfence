@@ -34,7 +34,6 @@ import FormTypeMobileiron from './FormTypeMobileiron'
 import FormTypeOpswat from './FormTypeOpswat'
 import FormTypeSentinelone from './FormTypeSentinelone'
 import FormTypeSepm from './FormTypeSepm'
-import FormTypeServicenow from './FormTypeServicenow'
 import FormTypeSymantec from './FormTypeSymantec'
 import FormTypeWindows from './FormTypeWindows'
 
@@ -55,7 +54,6 @@ const components = {
   FormTypeOpswat,
   FormTypeSentinelone,
   FormTypeSepm,
-  FormTypeServicenow,
   FormTypeSymantec,
   FormTypeWindows
 }
@@ -83,7 +81,6 @@ export const setup = (props) => {
       case 'opswat':                      return FormTypeOpswat //break
       case 'sentinelone':                 return FormTypeSentinelone //break
       case 'sepm':                        return FormTypeSepm //break
-      case 'servicenow':                  return FormTypeServicenow //break
       case 'symantec':                    return FormTypeSymantec //break
       case 'windows':                     return FormTypeWindows // break
       default:                            return undefined
