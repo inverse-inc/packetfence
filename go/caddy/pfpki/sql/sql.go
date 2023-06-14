@@ -277,8 +277,14 @@ func (vars *Vars) DecodeBodyJson(req *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	if len(body) == 0 {
+		return nil
+	}
+
 	if err := json.Unmarshal(body, &vars); err != nil {
 		return err
 	}
+
 	return nil
 }
