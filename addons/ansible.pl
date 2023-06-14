@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 =head1 NAME
 
-ansible.pl - Generate Ansible configuration
+ansible.pl - Generate Ansible configuration to push ACLs manually
 
 =head1 DESCRIPTION
 
-Generate ansible configuration tu configure switches.
+Generate ansible configuration to configure switches.
 
 =cut
 
@@ -44,41 +44,12 @@ my $tt = Template->new(
 if (! -e "$var_dir/conf/pfsetacls") {
     mkdir("$var_dir/conf/pfsetacls") or die "Can't create $var_dir/conf/pfsetacls/:$!";
 }
-if (! -e "$var_dir/conf/pfsetacls/collections") {
-    mkdir("$var_dir/conf/pfsetacls/collections") or die "Can't create $var_dir/conf/pfsetacls/collections:$!";
-}
+
 foreach my $switch_id (keys(%SwitchConfig)) {
     next if ($switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
-    
     my $switch = pf::SwitchFactory->instantiate($switch_id);
-    next if ($switch->{'_type'} !~ /Cisco/) || !defined($switch->{'_cliUser'});  
-    my $switch_ip = $switch_id;
-    $switch_id =~ s/\./_/g;
-    $vars{'switches'}{$switch_id}{'cliEnablePwd'} = $switch->{'_cliEnablePwd'};
-    $vars{'switches'}{$switch_id}{'cliTransport'} = $switch->{'_cliTransport'};
-    $vars{'switches'}{$switch_id}{'cliUser'} = $switch->{'_cliUser'};
-    $vars{'switches'}{$switch_id}{'cliPwd'} = $switch->{'_cliPwd'};
-    $vars{'switches'}{$switch_id}{'type'} = $switch->{'_type'};
-    $vars{'switches'}{$switch_id}{'id'} = $switch_ip;
-    switch($switch->{'_type'}) {
-	    case /Cisco::ASA/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.asa" }
-	    case /Cisco::WLC/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "aireos" }
-	    case /Cisco::/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "cisco.ios.ios" }
-            case /Aruba::CX/ { $vars{'switches'}{$switch_id}{'ansible_network_os'} = "arubanetworks.aoscx.aoscx" }
-    }
-    foreach my $role (keys %ConfigRoles) {
-        my $acls = $switch->getAccessListByName($role);
-	!next if !defined($acls); 
-        $vars{'switches'}{$switch_id}{'acls'}{$role} = $acls;
-    }
-
-    $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id.cfg") or die $tt->error();
+    $switch->generateAnsibleConfiguration();
 }
-
-$tt->process("$conf_dir/pfsetacls/inventory.cfg", \%vars, "$var_dir/conf/pfsetacls/inventory.yml") or die $tt->error();
-$tt->process("$conf_dir/pfsetacls/ansible.cfg", \%vars, "$var_dir/conf/pfsetacls/ansible.cfg") or die $tt->error();
-$tt->process("$conf_dir/pfsetacls/switch_acls.yml", \%vars, "$var_dir/conf/pfsetacls/switch_acls.yml") or die $tt->error();
-$tt->process("$conf_dir/pfsetacls/collections/requirements.yml", \%vars, "$var_dir/conf/pfsetacls/collections/requirements.yml") or die $tt->error();
 
 =head1 AUTHOR
 
