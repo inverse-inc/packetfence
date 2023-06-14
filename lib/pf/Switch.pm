@@ -4223,8 +4223,17 @@ sub generateAnsibleConfiguration {
                 $in_acls .= $acl_line."\n";
             }
         }
-        $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
-        $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
+        my $implicit_acl = $self->implicit_acl();
+        if (!defined($in_acls) || ($in_acls eq "" && $implicit_acl)) {
+            $vars{'switches'}{$switch_id}{'acls'}{$role} = $implicit_acl;
+        } else {
+            $vars{'switches'}{$switch_id}{'acls'}{$role} = $in_acls;
+        }
+        if (!defined($out_acls) || ($out_acls eq "" && $implicit_acl)) {
+            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
+        } else {
+            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $in_acls;
+        }
     }
 
     $tt->process("$conf_dir/pfsetacls/acl.cfg", $vars{'switches'}{$switch_id}, "$var_dir/conf/pfsetacls/$switch_id/$switch_id.cfg") or die $tt->error();
@@ -4245,6 +4254,17 @@ sub generateAnsibleConfiguration {
             timeout_ms => 500,
         }
     )->notify('push_acls', %args);
+}
+
+=head2 implicit_acl
+
+Return implicit acl
+
+=cut
+
+sub implicit_acl {
+    my ($self) = @_;
+    return $FALSE;
 }
 
 =back
