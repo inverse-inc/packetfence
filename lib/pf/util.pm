@@ -119,6 +119,7 @@ BEGIN {
         random_mac
         strip_path_for_git_storage
         chown_pf
+        norm_net_mask
     );
 }
 
@@ -1767,6 +1768,15 @@ sub chown_pf {
     my $name = $File::Find::name;
     my $uid = getpwnam "pf";
     chown $uid, 1002, $name;
+}
+
+sub norm_net_mask {
+    my ($mask) = @_;
+    my $mask_wild_dotted = $mask;
+    my $mask_wild_packed = pack 'C4', split /\./, $mask_wild_dotted;
+    my $mask_norm_packed = ~$mask_wild_packed;
+    my $mask_norm_dotted = join '.', unpack 'C4', $mask_norm_packed;
+    return $mask_norm_dotted;
 }
 
 =back
