@@ -3,53 +3,54 @@ package models
 import (
 	"context"
 	"errors"
-	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
-	"github.com/jinzhu/gorm"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/pfpki/sql"
+	"github.com/jinzhu/gorm"
 )
 
 type RadiusAuditLog struct {
-	ID                    int64      `json:"id,omitempty" gorm:"primary_key"`
-	CreatedAt             *time.Time `json:"created_at,omitempty"`
-	Mac                   string     `json:"mac,omitempty"`
-	IP                    string     `json:"ip,omitempty"`
-	ComputerName          string     `json:"computer_name,omitempty"`
-	UserName              string     `json:"user_name,omitempty"`
-	StrippedUserName      string     `json:"stripped_user_name,omitempty"`
-	Realm                 string     `json:"realm,omitempty"`
-	EventType             string     `json:"event_type,omitempty"`
-	SwitchID              string     `json:"switch_id,omitempty"`
-	SwitchMAC             string     `json:"switch_mac,omitempty"`
-	SwitchIPAddress       string     `json:"switch_ip_address,omitempty"`
-	RadiusSourceIPAddress string     `json:"radius_source_ip_address,omitempty"`
-	CalledStationID       string     `json:"called_station_id,omitempty"`
-	CallingStationID      string     `json:"calling_station_id,omitempty"`
-	NASPortType           string     `json:"nas_port_type,omitempty"`
-	SSID                  string     `json:"ssid,omitempty" gorm:"column:ssid"`
-	NASPortID             string     `json:"nas_port_id,omitempty" gorm:"column:nas_port_id"`
-	IfIndex               string     `json:"ifindex,omitempty" gorm:"column:ifindex"`
-	NASPort               string     `json:"nas_port,omitempty" gorm:"column:nas_port"`
-	ConnectionType        string     `json:"connection_type,omitempty"`
-	NASIPAddress          string     `json:"nas_ip_address,omitempty" gorm:"column:nas_ip_address"`
-	NASIdentifier         string     `json:"nas_identifier,omitempty" gorm:"column:nas_identifier"`
-	AuthStatus            string     `json:"auth_status,omitempty"`
-	Reason                string     `json:"reason,omitempty"`
-	AuthType              string     `json:"auth_type,omitempty"`
-	EAPType               string     `json:"eap_type,omitempty" gorm:"column:eap_type"`
-	Role                  string     `json:"role,omitempty"`
-	NodeStatus            string     `json:"node_status,omitempty"`
-	Profile               string     `json:"profile,omitempty"`
-	Source                string     `json:"source,omitempty"`
-	AutoReg               string     `json:"auto_reg,omitempty"`
-	IsPhone               string     `json:"is_phone,omitempty"`
-	PFDomain              string     `json:"pf_domain,omitempty" gorm:"column:pf_domain"`
-	UUID                  string     `json:"uuid,omitempty"`
-	RadiusRequest         string     `json:"radius_request,omitempty"`
-	RadiusReply           string     `json:"radius_reply,omitempty"`
-	RequestTime           int        `json:"request_time,omitempty"`
-	RadiusIP              string     `json:"radius_ip,omitempty"`
+	ID                    int64      `json:"id" gorm:"primary_key"`
+	CreatedAt             *time.Time `json:"created_at"`
+	Mac                   string     `json:"mac"`
+	IP                    *string    `json:"ip"`
+	ComputerName          *string    `json:"computer_name"`
+	UserName              *string    `json:"user_name"`
+	StrippedUserName      *string    `json:"stripped_user_name"`
+	Realm                 *string    `json:"realm"`
+	EventType             *string    `json:"event_type"`
+	SwitchID              *string    `json:"switch_id"`
+	SwitchMAC             *string    `json:"switch_mac"`
+	SwitchIPAddress       *string    `json:"switch_ip_address"`
+	RadiusSourceIPAddress *string    `json:"radius_source_ip_address"`
+	CalledStationID       *string    `json:"called_station_id"`
+	CallingStationID      *string    `json:"calling_station_id"`
+	NASPortType           *string    `json:"nas_port_type"`
+	SSID                  *string    `json:"ssid" gorm:"column:ssid"`
+	NASPortID             *string    `json:"nas_port_id" gorm:"column:nas_port_id"`
+	IfIndex               *string    `json:"ifindex" gorm:"column:ifindex"`
+	NASPort               *string    `json:"nas_port" gorm:"column:nas_port"`
+	ConnectionType        *string    `json:"connection_type"`
+	NASIPAddress          *string    `json:"nas_ip_address" gorm:"column:nas_ip_address"`
+	NASIdentifier         *string    `json:"nas_identifier" gorm:"column:nas_identifier"`
+	AuthStatus            *string    `json:"auth_status"`
+	Reason                *string    `json:"reason"`
+	AuthType              *string    `json:"auth_type"`
+	EAPType               *string    `json:"eap_type" gorm:"column:eap_type"`
+	Role                  *string    `json:"role"`
+	NodeStatus            *string    `json:"node_status"`
+	Profile               *string    `json:"profile"`
+	Source                *string    `json:"source"`
+	AutoReg               *string    `json:"auto_reg"`
+	IsPhone               *string    `json:"is_phone"`
+	PFDomain              *string    `json:"pf_domain" gorm:"column:pf_domain"`
+	UUID                  *string    `json:"uuid"`
+	RadiusRequest         *string    `json:"radius_request"`
+	RadiusReply           *string    `json:"radius_reply"`
+	RequestTime           *int       `json:"request_time"`
+	RadiusIP              *string    `json:"radius_ip"`
 
 	DB  *gorm.DB         `json:"-" gorm:"-"`
 	Ctx *context.Context `json:"-" gorm:"-"`
@@ -95,13 +96,22 @@ func (a RadiusAuditLog) Paginated(vars sql.Vars) (DBRes, error) {
 		if db.Error != nil {
 			return DBRes{}, db.Error
 		}
-		for k, item := range items {
-			items[k].RadiusRequest = urldecode(item.RadiusRequest)
-			items[k].RadiusReply = urldecode(item.RadiusReply)
+		for _, item := range items {
+			fixupItem(&item)
 		}
 		res.Items = items
 	}
 	return res, nil
+}
+
+func fixupItem(item *RadiusAuditLog) {
+	if item.RadiusRequest != nil {
+		*item.RadiusRequest = urldecode(*item.RadiusRequest)
+	}
+
+	if item.RadiusReply != nil {
+		*item.RadiusReply = urldecode(*item.RadiusReply)
+	}
 }
 
 func (a RadiusAuditLog) Search(vars sql.Vars) (DBRes, error) {
@@ -129,9 +139,8 @@ func (a RadiusAuditLog) Search(vars sql.Vars) (DBRes, error) {
 		if db.Error != nil {
 			return DBRes{}, db.Error
 		}
-		for k, item := range items {
-			items[k].RadiusRequest = urldecode(item.RadiusRequest)
-			items[k].RadiusReply = urldecode(item.RadiusReply)
+		for _, item := range items {
+			fixupItem(&item)
 		}
 		res.Items = items
 	}
@@ -145,8 +154,7 @@ func (a RadiusAuditLog) GetByID(id string) (DBRes, error) {
 	allFields := strings.Join(sql.SqlFields(a)[:], ",")
 	db := a.DB.Select(allFields).Where("`id` = ?", id).First(&item)
 	if db.Error == nil {
-		item.RadiusRequest = urldecode(item.RadiusRequest)
-		item.RadiusReply = urldecode(item.RadiusReply)
+		fixupItem(&item)
 		res.Item = item
 	}
 	return res, db.Error

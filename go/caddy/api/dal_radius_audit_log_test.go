@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/inverse-inc/packetfence/go/caddy/dal/models"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -46,9 +47,11 @@ func insertDBTestEntriesRadiusAuditLog(t *testing.T) (error, models.RadiusAuditL
 	db := GetGormDB(t)
 
 	now := time.Now()
+	username := "test"
+	SwitchMAC := "01:01:01:01:01:01"
 	entry := models.RadiusAuditLog{
-		UserName:  "test",
-		SwitchMAC: "01:01:01:01:01:01",
+		UserName:  &username,
+		SwitchMAC: &SwitchMAC,
 		CreatedAt: &now,
 	}
 	results := db.Model(&models.RadiusAuditLog{}).Create(&entry)
