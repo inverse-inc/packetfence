@@ -50,6 +50,7 @@ our %TRIGGER_TYPE_TO_CONDITION_TYPE = (
     'suricata_md5'              => {type => 'equals',                   key  => 'last_suricata_md5',       event => $TRUE},
     'role'                      => {type => 'equals',                   key  => 'role'},
     'vlan'                      => {type => 'equals',                   key  => 'last_vlan'},
+    'network'                   => {type => 'network',                  key  => 'last_ip'},
     'switch'                    => {type => 'equals',                   key  => 'last_switch'},
     'switch_group'              => {type => 'switch_group',             key  => 'last_switch'},
     'nexpose_event_contains'    => {type => 'matches',                  key  => 'last_nexpose_event',      event => $TRUE},

@@ -551,6 +551,9 @@ sub info_for_security_event_engine {
 
     my $accounting_history = pf::accounting_events_history->new->latest_mac_history($mac);
 
+
+    my $last_ip = pf::ip4log::mac2ip($mac) || 0;
+
     my $info = {
       device_id => $device_id,
       dhcp_fingerprint_id => $results->{dhcp_fingerprint},
@@ -562,6 +565,7 @@ sub info_for_security_event_engine {
       last_switch => $node_info->{'last_switch'},
       role => $node_info->{category},
       last_vlan => $node_info->{last_vlan},
+      last_ip => $last_ip,
       last_accounting_events => $accounting_history,
     };
 

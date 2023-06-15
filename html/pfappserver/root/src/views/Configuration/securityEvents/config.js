@@ -111,6 +111,11 @@ export const triggerFields = {
     category: triggerCategories.ENDPOINT,
     types: [fieldType.SUBSTRING]
   },
+  network: {
+    text: i18n.t('Network'),
+    category: triggerCategories.ENDPOINT,
+    types: [fieldType.SUBSTRING]
+  },
   suricata_event: {
     text: i18n.t('Suricata Event'),
     category: triggerCategories.EVENT,
