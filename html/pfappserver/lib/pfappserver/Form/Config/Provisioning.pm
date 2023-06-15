@@ -40,6 +40,7 @@ has_field 'type' =>
    label => 'Provisioning type',
    required => 1,
    messages => { required => 'Please select Provisioning type' },
+   default_method => \&default_type,
   );
 
 has_field 'sync_pid',
@@ -146,6 +147,20 @@ has_block definition =>
   (
    render_list => [ qw(id type description category pki_provider oses apply_role role_to_apply autoregister) ],
   );
+
+
+=head2 default_type
+
+Returns the default type of the Provisioning
+
+=cut
+
+sub default_type {
+    my ($self) = @_;
+    my $type = ref($self);
+    $type =~ s/^pfappserver::Form::Config::Provisioning:://;
+    return $type;
+}
 
 =head2 options_pki_provider
 

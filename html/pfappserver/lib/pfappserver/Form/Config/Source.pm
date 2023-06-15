@@ -49,6 +49,7 @@ has_field 'id' =>
 
 has_field 'type' => (
    type => 'Hidden',
+   default_method => \&default_type,
 );
 
 has_field 'description' =>
@@ -489,6 +490,20 @@ sub validate_rules {
     }
 
     return;
+}
+
+
+=head2 default_type
+
+Returns the default type of the Provisioning
+
+=cut
+
+sub default_type {
+    my ($self) = @_;
+    my $type = ref($self);
+    $type =~ s/^pfappserver::Form::Config::Source:://;
+    return $type;
 }
 
 =head1 COPYRIGHT
