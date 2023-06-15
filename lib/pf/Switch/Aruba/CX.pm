@@ -201,19 +201,33 @@ sub acl_chewer {
     my $acl_chewed;
     foreach my $acl (@{$acl_ref->{'packetfence'}->{'entries'}}) {
         $acl->{'protocol'} =~ s/\(\d*\)//;
-        if (defined($acl->{'destination'}->{'port'})) {
-            $acl->{'destination'}->{'port'} =~ s/\w+\s+//;
-        }
+        my $dest;
         if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-            $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        } else {
-            $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
+            $dest = "any";
+        } elsif($acl->{'destination'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'destination'}->{'wildcard'} ne '0.0.0.0') {
+                $dest = $acl->{'destination'}->{'ipv4_addr'}."/".norm_net_mask($acl->{'destination'}->{'wildcard'});
+            } else {
+                $dest = $acl->{'destination'}->{'ipv4_addr'};
+            }
         }
+        my $src;
+        if ($acl->{'source'}->{'ipv4_addr'} eq '0.0.0.0') {
+            $src = "any";
+        } elsif($acl->{'source'}->{'ipv4_addr'} ne '0.0.0.0') {
+            if ($acl->{'source'}->{'wildcard'} ne '0.0.0.0') {
+                $src = $acl->{'source'}->{'ipv4_addr'}."/".norm_net_mask($acl->{'source'}->{'wildcard'});
+            } else {
+                $src = $acl->{'source'}->{'ipv4_addr'};
+            }
+        }
+        my $j = $i + 1;
+        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         $i++;
     }
+
     return $acl_chewed;
 }
-
 
 =back
 
