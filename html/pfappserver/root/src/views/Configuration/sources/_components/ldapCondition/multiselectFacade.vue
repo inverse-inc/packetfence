@@ -13,6 +13,7 @@
                  :label="label"
                  :limit="limit"
                  :limit-text="limitText"
+                 :loading="loading"
                  :name="name"
                  :options="options"
                  :open-direction="openDirection"
