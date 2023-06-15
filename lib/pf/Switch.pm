@@ -4232,7 +4232,7 @@ sub generateAnsibleConfiguration {
         if ((!defined($out_acls) || $out_acls eq "") && $implicit_acl) {
             $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $implicit_acl;
         } elsif (defined($out_acls)) {
-            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $in_acls;
+            $vars{'switches'}{$switch_id}{'acls'}{$role."out"} = $out_acls;
         }
     }
 
