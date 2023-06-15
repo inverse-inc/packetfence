@@ -1,6 +1,9 @@
-import { BaseFormGroupArrayDraggable, BaseFormGroupArrayDraggableProps } from '@/components/new'
+import { BaseFormGroupArrayDraggableProps } from '@/components/new'
 import BaseRuleCondition from './BaseRuleCondition'
 import i18n from '@/utils/locale'
+import BaseFormGroupArrayDraggableStaticButtons
+  from '@/components/new/BaseFormGroupArrayDraggableStaticButtons.vue';
+import LdapRuleCondition from '@/views/Configuration/sources/_components/LdapRuleCondition.vue';
 
 export const props = {
   ...BaseFormGroupArrayDraggableProps,
@@ -30,11 +33,30 @@ export const props = {
       const { doFocus = () => {} } = newComponent
       doFocus()
     }
+  },
+  //TODO do translations
+  buttons: {
+    type: Array,
+    default: () => {return [{
+      label: i18n.t('Add Packetfence Condition'),
+      component: "base-rule-condition",
+      type: "packetfence"
+    },{
+      label: i18n.t('Add LDAP Condition'),
+      component: "ldap-rule-condition",
+      type: "ldap"
+    }]}
   }
+}
+
+const components = {
+  BaseRuleCondition,
+  LdapRuleCondition
 }
 
 export default {
   name: 'base-rule-form-group-conditions',
-  extends: BaseFormGroupArrayDraggable,
-  props
+  extends: BaseFormGroupArrayDraggableStaticButtons,
+  props,
+  components
 }
