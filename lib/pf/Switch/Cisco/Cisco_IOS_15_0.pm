@@ -500,6 +500,23 @@ sub returnRoleAttributes {
     return ($self->returnRoleAttribute() => $role.".in");
 }
 
+=item returnPushAclsRoleAttributes
+
+
+Return the specifics in and out attribute of the switch
+
+=cut
+
+sub returnPushAclsRoleAttributes {
+    my ($self, $role) = @_;
+    my %reply = (
+        $self->returnRoleAttribute() => $role.".in",
+        $self->returnRoleAttribute() => $role."out.out",
+    );
+    return %reply;
+}
+
+
 sub disableMABByIfIndex {
     my ( $self, $ifIndex ) = @_;
     my $logger = get_logger();

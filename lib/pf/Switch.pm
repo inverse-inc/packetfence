@@ -2845,7 +2845,6 @@ sub returnRadiusAccessAccept {
     my $kick = $self->handleRadiusDeny($args);
     return $kick if (defined($kick));
 
-    # Inline Vs. VLAN enforcement
     my $role = "";
     if ( (!$args->{'wasInline'} || ($args->{'wasInline'} && $args->{'vlan'} != 0) ) && isenabled($self->{_VlanMap})) {
         if(defined($args->{'vlan'}) && $args->{'vlan'} ne "" && $args->{'vlan'} ne 0){
@@ -2866,7 +2865,15 @@ sub returnRadiusAccessAccept {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
-        if ( defined($role) && $role ne "" ) {
+        if ((defined($args->{'user_role'}) && $args->{'user_role'} ne "") && $self->usePushACLs) {
+            $radius_reply_ref = {
+                %$radius_reply_ref,
+                $self->returnPushAclsRoleAttributes($args->{'user_role'}),
+            };
+            $logger->info(
+                "(".$self->{'_id'}.") Added role $args->{'user_role'} in and out to the returned RADIUS Access-Accept"
+            );
+        } elsif ( defined($role) && $role ne "" ) {
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes($role),
@@ -2897,6 +2904,19 @@ Return the specific role attribute of the switch.
 =cut
 
 sub returnRoleAttributes {
+    my ($self, $role) = @_;
+    return ($self->returnRoleAttribute() => $role);
+}
+
+
+=item returnPushAclsRoleAttributes
+
+
+Return the specifics in and out attribute of the switch
+
+=cut
+
+sub returnPushAclsRoleAttributes {
     my ($self, $role) = @_;
     return ($self->returnRoleAttribute() => $role);
 }
