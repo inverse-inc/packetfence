@@ -28,7 +28,8 @@ import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
   from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
 import {namespaceToYupPath} from '@/composables/useInputValidator'
-import {valueToSelectValue} from '@/utils/convert';
+import {valueToSelectValue} from '@/utils/convert'
+import _ from 'lodash'
 
 
 export const props = {
@@ -49,23 +50,26 @@ function performLdapSearch(form, inputValue, attribute) {
     baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
     data: {
       server: form.id,
-      search: "(" + attribute + "=" + "*" + inputValue + "*)",
+      filter: "(" + attribute + "=" + "*" + inputValue + "*" + ")",
     }
   })
     .then((response) => {
       return Object.values(response.data).map((item) => {
         return valueToSelectValue(item[attribute])
-      })
+      }).filter((item) => { return Boolean(item.text) })
     })
 }
 
 
-function setup(props, _) { // eslint-disable-line
+const minimumSearchLength = 1 // minimum number of characters to perform search
+const searchAfter = 700 // milliseconds to wait after last keypress before performing search
+
+function setup(props, context) { // eslint-disable-line
   const form = inject('form')
   const isFocused = ref(false)
   const isLoading = ref(false)
   const isDisabled = inject('isLoading')
-  const defaultSelectedValue = {"text": "", "value": null}
+  const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
   selectedValue.value = valueToSelectValue(
     getFormNamespace(props.namespace.split('.'), form.value)
@@ -75,6 +79,7 @@ function setup(props, _) { // eslint-disable-line
   const localValidator = inject('schema')
 
   const searchQueryInvalidFeedback = ref("")
+  const debouncedSearch = _.debounce(performSearch, searchAfter)
 
   const ldapFilterAttribute = computed(() => {
     let ldapEntryNamespace = props.namespace.split('.')
@@ -85,6 +90,16 @@ function setup(props, _) { // eslint-disable-line
 
   function onSearch(query) {
     searchInput.value = query
+    if(query.length < minimumSearchLength) {
+      inputOptions.value = []
+      debouncedSearch.cancel()
+      return
+    }
+
+    debouncedSearch(query)
+  }
+
+  function performSearch(query){
     isLoading.value = true
     performLdapSearch(form.value, query, ldapFilterAttribute.value).then((searchResults) => {
       inputOptions.value = searchResults
