@@ -90,9 +90,11 @@ function setup(props, context) { // eslint-disable-line
 
   function onSearch(query) {
     searchInput.value = query
+    isLoading.value = true
     if(query.length < minimumSearchLength) {
       inputOptions.value = []
       debouncedSearch.cancel()
+      isLoading.value = false
       return
     }
 
@@ -100,7 +102,6 @@ function setup(props, context) { // eslint-disable-line
   }
 
   function performSearch(query){
-    isLoading.value = true
     performLdapSearch(form.value, query, ldapFilterAttribute.value).then((searchResults) => {
       inputOptions.value = searchResults
       addAlreadySelectedValueToOptions()
@@ -110,7 +111,7 @@ function setup(props, context) { // eslint-disable-line
   }
 
   function addAlreadySelectedValueToOptions() {
-    if (selectedValue.value.value !== null &&
+    if (selectedValue.value !== null &&
       !inputOptions.value.find(o => o.text === selectedValue.value.text)) {
       inputOptions.value.unshift(selectedValue.value)
     }
@@ -138,12 +139,16 @@ function setup(props, context) { // eslint-disable-line
   function onSelect(value) {
     selectedValue.value = value
     let ldapEntryNamespace = props.namespace.split('.')
-    setFormNamespace(ldapEntryNamespace, form.value, value.value)
+    if(value){
+      setFormNamespace(ldapEntryNamespace, form.value, value.value)
+    } else {
+      setFormNamespace(ldapEntryNamespace, form.value, defaultSelectedValue)
+    }
     validateChoice()
   }
 
   function onOpen() {
-    if (selectedValue.value.value !== null) {
+    if (selectedValue.value !== null) {
       inputOptions.value = [selectedValue.value]
     }
     isFocused.value = true

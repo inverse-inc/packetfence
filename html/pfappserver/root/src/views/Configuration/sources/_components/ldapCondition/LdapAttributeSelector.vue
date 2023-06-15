@@ -7,6 +7,7 @@
     :single-label="singleLabel"
     :on-select="onSelect"
     :on-remove="onRemove"
+    :on-open="onOpen"
     :on-close="onClose"
     :is-focused="isFocused"
     :is-disabled="isDisabled"
@@ -42,7 +43,7 @@ function setup(props, _) { // eslint-disable-line
   const form = inject('form')
   const isFocused = ref(false)
   const allOptions = computed(() => {
-    return inject('ldapAttributes').value.map(valueToSelectValue)
+    return moveSelectionToTop(inject('ldapAttributes').value.map(valueToSelectValue))
   })
   const isDisabled = inject('isLoading')
   const defaultSelectedValue = null
@@ -53,6 +54,14 @@ function setup(props, _) { // eslint-disable-line
   const localValidator = inject('schema')
 
   const searchQueryInvalidFeedback = ref("")
+
+  function moveSelectionToTop(array){
+    if (selectedValue.value !== null) {
+      array = array.filter((item) => item.value !== selectedValue.value.value)
+      array.unshift(selectedValue.value)
+    }
+    return array
+  }
 
   function validateChoice() {
     const path = namespaceToYupPath(props.namespace)
@@ -75,8 +84,16 @@ function setup(props, _) { // eslint-disable-line
   function onSelect(value) {
     selectedValue.value = value
     let ldapEntryNamespace = props.namespace.split('.')
-    setFormNamespace(ldapEntryNamespace, form.value, value.value)
+    if (value) {
+      setFormNamespace(ldapEntryNamespace, form.value, value.value)
+    } else {
+      setFormNamespace(ldapEntryNamespace, form.value, defaultSelectedValue)
+    }
     validateChoice()
+  }
+
+  function onOpen() {
+    isFocused.value = true
   }
 
   function onClose() {
@@ -94,6 +111,7 @@ function setup(props, _) { // eslint-disable-line
     isDisabled,
     isFocused,
     onSelect,
+    onOpen,
     onClose,
     onRemove,
     singleLabel,
