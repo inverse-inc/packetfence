@@ -561,6 +561,7 @@ sub info_for_security_event_engine {
       mac_vendor_id => $mac_vendor_id,
       last_switch => $node_info->{'last_switch'},
       role => $node_info->{category},
+      last_vlan => $node_info->{last_vlan},
       last_accounting_events => $accounting_history,
     };
 

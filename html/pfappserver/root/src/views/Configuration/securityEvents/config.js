@@ -106,6 +106,11 @@ export const triggerFields = {
     category: triggerCategories.ENDPOINT,
     types: [fieldType.OPTIONS]
   },
+  vlan: {
+    text: i18n.t('VLAN'),
+    category: triggerCategories.ENDPOINT,
+    types: [fieldType.SUBSTRING]
+  },
   suricata_event: {
     text: i18n.t('Suricata Event'),
     category: triggerCategories.EVENT,
