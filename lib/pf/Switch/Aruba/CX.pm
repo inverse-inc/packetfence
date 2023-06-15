@@ -56,6 +56,11 @@ use pf::locationlog;
 
 sub description { 'Aruba CX Switch' }
 
+# CAPABILITIES
+use pf::SwitchSupports qw(
+    PushACLs
+);
+
 sub radiusDisconnect {
     my ($self, $mac, $add_attributes_ref) = @_;
     my $logger = $self->logger;
