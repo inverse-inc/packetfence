@@ -35,7 +35,6 @@ use pfappserver::Form::Config::Provisioning::jamf;
 use pfappserver::Form::Config::Provisioning::kandji;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
-use pfappserver::Form::Config::Provisioning::opswat;
 use pfappserver::Form::Config::Provisioning::sentinelone;
 use pfappserver::Form::Config::Provisioning::sepm;
 use pfappserver::Form::Config::Provisioning::symantec;
@@ -54,7 +53,6 @@ our %TYPES_TO_FORMS = (
       kandji
       mobileconfig
       mobileiron
-      opswat
       sentinelone
       sepm
       symantec
