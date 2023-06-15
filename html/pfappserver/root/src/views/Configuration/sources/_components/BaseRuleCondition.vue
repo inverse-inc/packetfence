@@ -38,9 +38,9 @@ const components = {
   BaseInputChosenOne
 }
 
-import {computed, inject, nextTick, ref, toRefs, unref, watch} from '@vue/composition-api'
+import { computed, nextTick, ref, toRefs, unref, watch } from '@vue/composition-api'
 import {
-  pfComponentType as componentType, pfFieldType,
+  pfComponentType as componentType,
   pfFieldTypeComponent as fieldTypeComponent,
   pfFieldTypeOperators as fieldTypeOperators,
   pfFieldTypeValues as fieldTypeValues
@@ -48,14 +48,10 @@ import {
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
 import { useNamespaceMetaAllowed } from '@/composables/useMeta'
-import LdapSearchInput from '@/views/Configuration/sources/_components/ldapCondition/LdapSearchInput.vue';
-import {internalTypes} from '@/views/Configuration/sources/config';
-import fetchLdapAttributesAD
-  from '@/views/Configuration/sources/_components/ldapCondition/fetchLdapAttributesAD';
 
 const props = {
   ...useInputMetaProps,
-  ...useInputValueProps,
+  ...useInputValueProps
 }
 
 const setup = (props, context) => {
@@ -105,16 +101,7 @@ const setup = (props, context) => {
     }
   )
 
-  const form = inject('form')
-  const attributes = ref([])
-  // TODO there has to be form type enum? make this a composable?
-  if (form.value.type === 'AD'){
-    fetchLdapAttributesAD(form.value.id).then((allAttrs) => {
-      attributes.value = allAttrs
-    })
-  } else {
-    attributes.value = useNamespaceMetaAllowed(`${unref(namespace)}.attribute`)
-  }
+  const attributes = computed(() => unref(useNamespaceMetaAllowed(`${unref(namespace)}.attribute`)))
 
   const attributeValue = computed(() => {
     const { attribute } = unref(inputValue) || {}
@@ -136,11 +123,6 @@ const setup = (props, context) => {
   const valueComponent = computed(() => {
     if (attributeValue.value) {
       const { attributes: { 'data-type': type } = {} } = unref(attributeValue) || {}
-
-      if (type === pfFieldType.LDAPATTRIBUTE || type === pfFieldType.LDAPFILTER){
-        return LdapSearchInput
-      }
-
       const component = fieldTypeComponent[type]
       switch (component) {
         case componentType.SELECTMANY:
