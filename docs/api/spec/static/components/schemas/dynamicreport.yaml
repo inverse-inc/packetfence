@@ -40,12 +40,16 @@ DynamicReportMeta:
         default_end_date:
           description: Default end datetime if no end_date is defined
           type: string
+          format: date-time
+          example: 1970-01-01 00:00:00
         default_limit:
           description: Default query limit
           type: string
         default_start_data:
           description: Default start datetime if no end_date is defined
           type: string
+          format: date-time
+          example: 1970-01-01 00:00:00
         description:
           description: Descriptive text
           type: string
