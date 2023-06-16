@@ -611,7 +611,7 @@ sub security_event_trigger {
 
     my $info = info_for_security_event_engine($mac,$type,$tid);
 
-    $logger->debug(sub { use Data::Dumper; "Infos for security_event engine : ".Dumper($info) });
+    $logger->debug(sub { use pf::Dumper; "Infos for security_event engine : ".Dumper($info) });
     my @security_event_ids = $SECURITY_EVENT_FILTER_ENGINE->match_all($info);
 
     my $addedSecurityEvent = 0;
