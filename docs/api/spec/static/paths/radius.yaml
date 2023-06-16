@@ -1,6 +1,9 @@
 /api/v1/radius_attributes:
   post:
     summary: Search RADIUS Attributes.
+    externalDocs:
+      description: RADIUS Attributes.
+      url: https://freeradius.org/rfc/attributes.html
     requestBody:
       $ref: '#/components/requestBodies/RadiusAttributes'
     responses:
