@@ -10,7 +10,6 @@ export const provisioningTypes = {
   kandji:       i18n.t('Kandji'),
   mobileconfig: i18n.t('Apple Devices'),
   mobileiron:   i18n.t('Mobileiron'),
-  opswat:       i18n.t('OPSWAT'),
   sentinelone:  i18n.t('SentinelOne'),
   sepm:         i18n.t('Symantec Endpoint Protection Manager (SEPM)'),
   windows:      i18n.t('Windows'),

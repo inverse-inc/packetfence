@@ -26,10 +26,6 @@ include::provisioner/packetfence_provisioner.asciidoc[]
 
 include::provisioner/mobileiron.asciidoc[]
 
-=== OPSWAT
-
-include::provisioner/opswat.asciidoc[]
-
 === SentinelOne
 
 include::provisioner/sentinelone.asciidoc[]

@@ -31,7 +31,6 @@ import FormTypeJamf from './FormTypeJamf'
 import FormTypeKandji from './FormTypeKandji'
 import FormTypeMobileconfig from './FormTypeMobileconfig'
 import FormTypeMobileiron from './FormTypeMobileiron'
-import FormTypeOpswat from './FormTypeOpswat'
 import FormTypeSentinelone from './FormTypeSentinelone'
 import FormTypeSepm from './FormTypeSepm'
 import FormTypeWindows from './FormTypeWindows'
@@ -50,7 +49,6 @@ const components = {
   FormTypeKandji,
   FormTypeMobileconfig,
   FormTypeMobileiron,
-  FormTypeOpswat,
   FormTypeSentinelone,
   FormTypeSepm,
   FormTypeWindows
@@ -76,7 +74,6 @@ export const setup = (props) => {
       case 'kandji':                      return FormTypeKandji //break
       case 'mobileconfig':                return FormTypeMobileconfig //break
       case 'mobileiron':                  return FormTypeMobileiron //break
-      case 'opswat':                      return FormTypeOpswat //break
       case 'sentinelone':                 return FormTypeSentinelone //break
       case 'sepm':                        return FormTypeSepm //break
       case 'windows':                     return FormTypeWindows // break
