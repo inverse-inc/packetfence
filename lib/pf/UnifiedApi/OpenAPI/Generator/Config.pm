@@ -32,6 +32,9 @@ our %OPERATION_GENERATORS = (
         search  => "searchRequestBody",
         replace => "replaceRequestBody",
         update  => "updateRequestBody",
+        bulk_update => "bulkUpdateRequestBody",
+        bulk_delete => "bulkDeleteRequestBody",
+        bulk_import => "bulkImportRequestBody",
     },
     responses => {
         create  => "createResponses",
@@ -152,15 +155,9 @@ sub listResponses {
                 }
             },
         },
-        "400" => {
-            "\$ref" => "#/components/responses/BadRequest"
-        },
         "401" => {
             "\$ref" => "#/components/responses/Forbidden"
         },
-        "422" => {
-            "\$ref" => "#/components/responses/UnprocessableEntity"
-        }
     };
 }
 
@@ -197,6 +194,9 @@ sub metaResponses {
         "401" => {
             "\$ref" => "#/components/responses/Forbidden"
         },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
     };
 }
 
@@ -219,15 +219,12 @@ sub getResponses {
                 }
             },
         },
-        "400" => {
-            "\$ref" => "#/components/responses/BadRequest"
-        },
         "401" => {
             "\$ref" => "#/components/responses/Forbidden"
         },
-        "422" => {
-            "\$ref" => "#/components/responses/UnprocessableEntity"
-        }
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
     };
 }
 
@@ -248,6 +245,9 @@ sub replaceResponses {
         },
         "401" => {
             "\$ref" => "#/components/responses/Forbidden"
+        },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
         },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
@@ -273,6 +273,9 @@ sub updateResponses {
         "401" => {
             "\$ref" => "#/components/responses/Forbidden"
         },
+        "404" => {
+            "\$ref" => "#/components/responses/NotFound"
+        },
         "422" => {
             "\$ref" => "#/components/responses/UnprocessableEntity"
         }
@@ -296,7 +299,7 @@ sub removeResponses {
         },
         "404" => {
             "\$ref" => "#/components/responses/NotFound"
-        }
+        },
     };
 }
 
@@ -330,7 +333,7 @@ sub generateSchemas {
                 },
             ],
         },
-        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema(\@forms),
+        $item_path => pf::UnifiedApi::GenerateSpec::formsToSchema($item_path, \@forms),
         $item_wrapped_path => {
             type => "object",
             properties => {
@@ -343,6 +346,8 @@ sub generateSchemas {
             }
         },
         $meta_path => pf::UnifiedApi::GenerateSpec::formsToMetaSchema(\@forms),
+
+        %{pf::UnifiedApi::GenerateSpec::formsToSubTypeSchemas($item_path, \@forms)}
     };
 }
 
@@ -356,9 +361,6 @@ sub buildForms {
     my ($controller, $child) = @_;
     my @form_classes;
     if ( $controller->can("type_lookup") ) {
-
-print Data::Dumper->Dump([keys %{ $controller->type_lookup }]);
-
         @form_classes = values %{ $controller->type_lookup };
     } else {
         my $form_class = $controller->form_class;
@@ -472,9 +474,9 @@ sub updateRequestBody {
     return $self->requestBody( $scope, $c, $m, $a );
 }
 
-=head2 RequestBody
+=head2 requestBody
 
-The generic OpenAPI Operation RequestBody for a config controller
+The generic OpenAPI Operation requestBody for a config controller
 
 =cut
 
@@ -485,6 +487,84 @@ sub requestBody {
             "application/json" => {
                 schema => {
                     "\$ref" => "#" . $self->schemaItemPath($c),
+                }
+            }
+        },
+    };
+}
+
+
+=head2 bulkDeleteRequestBody
+
+The OpenAPI Operation RequestBody for the bulk_delete action
+
+=cut
+
+sub bulkDeleteRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        content => {
+            "application/json" => {
+                schema => {
+                    type => 'object',
+                    properties => {
+                        items => {
+                            type => 'array',
+                            items => {
+                                type => 'string',
+                                description => '`PRIMARY_KEY`'
+                            }
+                        }
+                    }
+                }
+            }
+        },
+    };
+}
+
+=head2 bulkUpdateRequestBody
+
+The OpenAPI Operation RequestBody for the bulk_update action
+
+=cut
+
+sub bulkUpdateRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->bulkRequestBody( $scope, $c, $m, $a );
+}
+
+=head2 bulkImportRequestBody
+
+The OpenAPI Operation RequestBody for the bulk_import action
+
+=cut
+
+sub bulkImportRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return $self->bulkRequestBody( $scope, $c, $m, $a );
+}
+
+=head2 bulkRequestBody
+
+The generic OpenAPI Operation bulk requestBody for a config controller
+
+=cut
+
+sub bulkRequestBody {
+    my ( $self, $scope, $c, $m, $a ) = @_;
+    return {
+        content => {
+            "application/json" => {
+                schema => {
+                    type => 'object',
+                    properties => {
+                        items => {
+                            type => 'array',
+                            items => {
+                                "\$ref" => "#" . $self->schemaItemPath($c),
+                            }
+                        }
+                    }
                 }
             }
         },
