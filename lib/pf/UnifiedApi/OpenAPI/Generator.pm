@@ -383,7 +383,6 @@ operation Parameters
 sub operationParameters {
     my ($self, $scope, $c, $m, $a) = @_;
     my @parameters = @{ $self->performLookup($self->operationParametersLookup($scope, $c, $m, $a), $a->{action}, [])};
-    push @parameters, { "\$ref" => '#/components/parameters/X-PacketFence-Server' };
     return \@parameters;
 }
 
