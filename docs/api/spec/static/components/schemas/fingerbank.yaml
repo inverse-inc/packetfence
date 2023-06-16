@@ -52,6 +52,7 @@ FingerbankAccountInfo:
     created_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
     display_name:
       type: string
     email:
@@ -59,10 +60,12 @@ FingerbankAccountInfo:
     expiration:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
       nullable: true
     expiration_rfc3339:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
       nullable: true
     id:
       type: integer
@@ -96,6 +99,7 @@ FingerbankAccountInfo:
     updated_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
 
 FingerbankDeviceClasses:
   type: object
@@ -115,6 +119,7 @@ FingerbankDeviceClass:
     created_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
     id:
       type: integer
     inherit:
@@ -132,6 +137,7 @@ FingerbankDeviceClass:
     updated_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
 
 FingerbankNba:
   type: object

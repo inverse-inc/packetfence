@@ -41,6 +41,7 @@ FingerbankDeviceDecorated:
     created_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
     inherit:
       type: string
       nullable: true
@@ -56,6 +57,7 @@ FingerbankDeviceDecorated:
     updated_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
     # write-able
     name:
       type: string

@@ -62,12 +62,14 @@ FingerbankCombinationDecorated:
     created_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
     submitter_id:
       type: string
       nullable: true
     updated_at:
       type: string
       format: date-time
+      example: 1970-01-01 00:00:00
 
     # write-able
     device_id:
