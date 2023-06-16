@@ -13,7 +13,6 @@ export const provisioningTypes = {
   opswat:       i18n.t('OPSWAT'),
   sentinelone:  i18n.t('SentinelOne'),
   sepm:         i18n.t('Symantec Endpoint Protection Manager (SEPM)'),
-  symantec:     i18n.t('Symantec App Center'),
   windows:      i18n.t('Windows'),
   intune:       i18n.t('Microsoft Intune'),
   google_workspace_chromebook: i18n.t('Google Workspace Chromebook')
