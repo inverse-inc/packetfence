@@ -16,24 +16,24 @@ DynamicReportMeta:
             description: Column meta
             type: object
             properties:
-            is_cursor:
-              description: Column is used in cursor, can be used as PK
-              type: boolean
-            is_node:
-              description: Column is a node, can be used as PK
-              type: boolean
-            is_person:
-              description: Column is a person, can be used as PK
-              type: boolean
-            is_role:
-              description: Column is a role, can be used as PK
-              type: boolean
-            name:
-              description: Name of the column
-              type: string
-            text:
-                description: Text of the column
+              is_cursor:
+                description: Column is used in cursor, can be used as PK
+                type: boolean
+              is_node:
+                description: Column is a node, can be used as PK
+                type: boolean
+              is_person:
+                description: Column is a person, can be used as PK
+                type: boolean
+              is_role:
+                description: Column is a role, can be used as PK
+                type: boolean
+              name:
+                description: Name of the column
                 type: string
+              text:
+                  description: Text of the column
+                  type: string
         date_limit:
           description: Enforce maximum date range to prevent database full table scans
           type: string

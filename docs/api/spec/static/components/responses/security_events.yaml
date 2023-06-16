@@ -1,0 +1,27 @@
+SecurityEventsTotal:
+  description: Request successful. The response contains the total count.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/SecurityEventsTotal"
+
+SecurityEventsPerDeviceClass:
+  description: Request successful. The response contains the total count per device class.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/SecurityEventsPerDeviceClass"
+
+SecurityEventsPerId:
+  description: Request successful. The response contains the total count per security event.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/SecurityEventsPerId"
+
+SecurityEventsSearch:
+  description: Request successful. The response contains the search results.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/SecurityEventsSearch"

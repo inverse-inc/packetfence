@@ -1,0 +1,80 @@
+SecurityEventsSearch:
+  required: true
+  content:
+    application/json:
+      example:
+        fields:
+          - id
+          - status
+          - mac
+          - security_event_id
+          - start_date
+          - release_date
+          - ticket_ref
+          - notes
+          - node.device_class
+        limit: 1
+        sort:
+          - id ASC
+        query:
+          op: and
+          values:
+            - op: or
+              values:
+                - field: node.device_class
+                  op: equals
+                  value: Linux OS
+      schema:
+        type: object
+        properties:
+          fields:
+            type: array
+            items:
+              type: string
+              enum:
+                - id
+                - status
+                - mac
+                - security_event_id
+                - start_date
+                - release_date
+                - ticket_ref
+                - notes
+                - node.device_class
+          limit:
+            type: integer
+            enum:
+              - 1
+              - 5
+              - 10
+              - 25
+              - 50
+              - 100
+              - 250
+              - 500
+              - 1000
+          sort:
+            type: array
+            items:
+              type: string
+              enum:
+                - id ASC
+                - id DESC
+                - status ASC
+                - status DESC
+                - mac ASC
+                - mac DESC
+                - security_event_id ASC
+                - security_event_id DESC
+                - start_date ASC
+                - start_date DESC
+                - release_date ASC
+                - release_date DESC
+                - ticket_ref ASC
+                - ticket_ref DESC
+                - notes ASC
+                - notes DESC
+                - node.device_class ASC
+                - node.device_class DESC
+          query:
+            $ref: '#/components/schemas/Query'
