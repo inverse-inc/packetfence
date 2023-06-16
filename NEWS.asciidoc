@@ -37,6 +37,8 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Allow to call a custom script from pfupdate to handle VIP in cloud environments (#7654)
  * Remove IBM provisioner (#7686)
  * Remove ServiceNow provisioner (#7699)
+ * Remove Symantec Provisioner (#7700)
+ * Remove OPSWAT Provisioner (#7716)
 
 === Bug Fixes
 
