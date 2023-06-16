@@ -1,0 +1,133 @@
+/api/v1/security_events/search:
+  post:
+    summary: Search security events.
+    requestBody:
+      $ref: "#/components/requestBodies/SecurityEventsSearch"
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsSearch"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/per_device_class_open:
+  get:
+    summary: Get the total count of open security events per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsPerDeviceClass"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/per_device_class_closed:
+  get:
+    summary: Get the total count of closed security events per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsPerDeviceClass"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+
+/api/v1/security_events/per_device_class_pending:
+  get:
+    summary: Get the total count of pending security events per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsPerDeviceClass"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/per_security_event_id_open:
+  get:
+    summary: Get the total count of open security events per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsPerId"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/per_security_event_id_closed:
+  get:
+    summary: Get the total count of closed security events per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsPerId"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/per_security_event_id_pending:
+  get:
+    summary: Get the total count of pending security events per device class.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsPerId"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/total_open:
+  get:
+    summary: Get the total count of open security events.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsTotal"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/total_closed:
+  get:
+    summary: Get the total count of closed security events.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsTotal"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+
+/api/v1/security_events/total_pending:
+  get:
+    summary: Get the total count of pending security events.
+    responses:
+      '200':
+        $ref: "#/components/responses/SecurityEventsTotal"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '404':
+        $ref: "#/components/responses/NotFound"
+    tags:
+      - $SecurityEvents
+

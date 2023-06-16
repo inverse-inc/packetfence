@@ -1,0 +1,50 @@
+SecurityEventsTotal:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          count:
+            description: Total count
+            type: integer
+    status:
+      $ref: "#/components/schemas/Status"
+
+SecurityEventsPerDeviceClass:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          count:
+            description: Total count
+            type: integer
+          device_class:
+            description: Device class
+            type: string
+    status:
+      $ref: "#/components/schemas/Status"
+
+SecurityEventsPerId:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          count:
+            description: Total count
+            type: integer
+          security_event_id:
+            description: Security Event
+            type: integer
+    status:
+      $ref: "#/components/schemas/Status"
+
+SecurityEventsSearch:
+  type: object

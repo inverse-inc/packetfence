@@ -46,6 +46,9 @@ our %OPERATION_GENERATORS = (
             400 => {
                 "\$ref" => "#/components/responses/BadRequest"
             },
+            401 => {
+                "\$ref" => "#/components/responses/Forbidden"
+            },
             422 => {
                 "\$ref" => "#/components/responses/UnprocessableEntity"
             },
@@ -54,15 +57,24 @@ our %OPERATION_GENERATORS = (
             200 => {
                 "\$ref" => "#/components/responses/Message"
             },
+            401 => {
+                "\$ref" => "#/components/responses/Forbidden"
+            },
         },
         list => {
             200 => {
                 "\$ref" => "#/components/responses/Message"
             },
+            401 => {
+                "\$ref" => "#/components/responses/Forbidden"
+            },
         },
         options => {
             200 => {
                 "\$ref" => "#/components/responses/DynamicReportMeta"
+            },
+            401 => {
+                "\$ref" => "#/components/responses/Forbidden"
             },
         }
     },
@@ -84,11 +96,18 @@ sub generateSchemas {
     {
         '/components/schemas/DynamicReportSearchRequest' => {
             properties => {
+                query => {
+                    "\$ref" => "#/components/schemas/Query"
+                },
                 start_date => {
                     type => 'string',
+                    format => 'date-time',
+                    example => '1970-01-01 00:00:00',
                 },
                 end_date => {
                     type => 'string',
+                    format => 'date-time',
+                    example => '1970-01-01 00:00:00',
                 },
                 cursor => {
                     oneOf => [

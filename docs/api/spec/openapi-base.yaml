@@ -58,6 +58,8 @@ tags:
     description: PacketFence Public Key Infrastructure.
   - name: $RADIUS
     description: RADIUS Helpers.
+  - name: $SecurityEvents
+    description: Manage Security Events and Violations.
   - name: $Services
     description: Manage PacketFence services.
   - name: $Session
