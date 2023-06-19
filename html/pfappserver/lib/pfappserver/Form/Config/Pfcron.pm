@@ -152,7 +152,7 @@ Returns the default type of the Provisioning
 sub default_type {
     my ($field) = @_;
     my $type = ref($field->form);
-    $type =~ s/^pfappserver::Form::Config::Source:://;
+    $type =~ s/^pfappserver::Form::Config::Pfcron//;
     return $type;
 }
 
