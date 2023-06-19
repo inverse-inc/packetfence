@@ -49,11 +49,8 @@ sub formsToSubTypeSchemas {
     if (@$forms > 1) {
         while (my ($k, $form) = each @$forms) {
             for my $field (grep { isSubTypeField($_) } $form->fields) {
-                # if ($field->name eq 'type' && $field->value) {
-print $item_path . " <-- " . $field->name . ": " . $field->value . "\n";
-                    my $subTypePath = subTypePath($item_path, $field->value);
-                    $schemas->{$subTypePath} = objectSchema($form, 1);
-                # };
+                my $subTypePath = subTypePath($item_path, $field->value);
+                $schemas->{$subTypePath} = objectSchema($form, 1);
             };
         };
     };
@@ -101,12 +98,10 @@ sub subTypesSchema {
 
 sub subTypeSchemaRef {
     my ($item_path, $form) = @_;
-    for my $field (grep { isAllowedField($_) } $form->fields) {
-        if ($field->name eq 'type' && $field->value) {
-            my $subTypePath = subTypePath($item_path, $field->value);
-            return {
-                '$ref' => '#' . $subTypePath
-            };
+    for my $field (grep { isSubTypeField($_) } $form->fields) {
+        my $subTypePath = subTypePath($item_path, $field->value);
+        return {
+            '$ref' => '#' . $subTypePath
         };
     };
     return;
@@ -284,7 +279,7 @@ sub isRequiredField {
 
 sub isSubTypeField {
     my ($field) = @_;
-    return isRequiredField($field) && $field->value && ($field->get_tag('isSubType') || $field->name eq 'type');
+    return isAllowedField($field) && $field->value && ($field->get_tag('isSubType') || $field->name eq 'type');
 }
 
 =head1 AUTHOR
