@@ -86,8 +86,8 @@ Returns the default type of the Syslog forwarder
 =cut
 
 sub default_type {
-    my ($self) = @_;
-    my $type = ref($self);
+    my ($field) = @_;
+    my $type = ref($field->form);
     $type =~ s/^pfappserver::Form::Config::Syslog:://;
     return $type;
 }
