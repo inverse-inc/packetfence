@@ -63,7 +63,7 @@ func (c *ConnectionSpy) Bind(username, password string) error {
 	return c.bindErr
 }
 
-func (c *ConnectionSpy) SearchWithPaging(searchRequest *ldap.SearchRequest, pagingSize uint32) (*ldap.SearchResult, error) {
+func (c *ConnectionSpy) Search(searchRequest *ldap.SearchRequest) (*ldap.SearchResult, error) {
 	return &c.response, c.err
 }
 

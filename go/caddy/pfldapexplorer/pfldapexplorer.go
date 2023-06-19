@@ -17,8 +17,6 @@ import (
 	"github.com/inverse-inc/packetfence/go/common/ldapSearchClient"
 	"github.com/inverse-inc/packetfence/go/connector"
 	"github.com/inverse-inc/packetfence/go/panichandler"
-	"github.com/inverse-inc/packetfence/go/pfconfigdriver"
-	"k8s.io/utils/strings/slices"
 )
 
 var ApiPrefix = "/api/v1"
@@ -33,6 +31,11 @@ type Handler struct {
 	Router     *chi.Mux
 	Ctx        *context.Context
 	connectors *connector.ConnectorsContainer
+}
+
+type SearchRequest struct {
+	Server      ldapSearchClient.LdapServer  `json:"server"`
+	SearchQuery ldapSearchClient.SearchQuery `json:"search_query"`
 }
 
 func init() {
@@ -93,25 +96,8 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 	return h.Next.ServeHTTP(w, r)
 }
 
-func getLdapServerFromConfig(ctx context.Context, serverId string) *ldapSearchClient.LdapServer {
-	var sections pfconfigdriver.PfconfigKeys
-	sections.PfconfigNS = "resource::authentication_sources_ldap"
-
-	pfconfigdriver.FetchDecodeSocket(ctx, &sections)
-	if slices.Contains(sections.Keys, serverId) {
-		var server ldapSearchClient.LdapServer
-		server.PfconfigNS = sections.PfconfigNS
-		server.PfconfigHashNS = serverId
-		pfconfigdriver.FetchDecodeSocket(ctx, &server)
-		return &server
-	} else {
-		return nil
-	}
-}
-
 func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Request) {
-	var searchQuery = ldapSearchClient.SearchQuery{}
-	searchQuery.Context = connector.WithConnectorsContainer(req.Context(), h.connectors)
+	var searchRequest = SearchRequest{}
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
@@ -119,31 +105,26 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 		return
 	}
 
-	if err = json.Unmarshal(body, &searchQuery); err != nil {
+	if err = json.Unmarshal(body, &searchRequest); err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
 		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	ldapSearchServer := getLdapServerFromConfig(req.Context(), searchQuery.Server)
-	if ldapSearchServer == nil {
-		log.LoggerWContext(*h.Ctx).Info("Server " + searchQuery.Server + " not found")
-		unifiedapierrors.Error(res, "Server "+searchQuery.Server+" not found", http.StatusBadRequest)
-		return
-	}
+	searchRequest.SearchQuery.Context = connector.WithConnectorsContainer(req.Context(), h.connectors)
 
 	var factory ldapClient.ILdapClientFactory
-	if ldapSearchServer.UseConnector {
+	if searchRequest.Server.UseConnector {
 		factory = ldapClient.ProxyLdapClientFactory{}
 	} else {
 		factory = ldapClient.LdapClientFactory{}
 	}
 	ldapSearchClient := ldapSearchClient.LdapSearchClient{
-		LdapServer:        ldapSearchServer,
+		LdapServer:        &searchRequest.Server,
 		Timeout:           serverConnectionTimeout,
 		LdapClientFactory: factory,
 	}
-	results, err := ldapSearchClient.SearchLdap(&searchQuery)
+	results, err := ldapSearchClient.SearchLdap(&searchRequest.SearchQuery)
 	if err != nil {
 		log.LoggerWContext(*h.Ctx).Info(err.Error())
 		unifiedapierrors.Error(res, err.Error(), http.StatusBadRequest)
