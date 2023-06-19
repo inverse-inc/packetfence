@@ -9,6 +9,7 @@
     :on-remove="onRemove"
     :on-open="onOpen"
     :on-close="onClose"
+    :no-connection="noConnection"
     :is-focused="isFocused"
     :is-disabled="isDisabled"
     :placeholder="$i18n.t('Search')"
@@ -26,6 +27,7 @@ import MultiselectFacade
   from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
 import {namespaceToYupPath} from '@/composables/useInputValidator'
 import {valueToSelectValue} from '@/utils/convert';
+import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
 
 
 export const props = {
@@ -43,14 +45,19 @@ function setup(props, _) { // eslint-disable-line
   const form = inject('form')
   const isFocused = ref(false)
   const allOptions = computed(() => {
-    return moveSelectionToTop(inject('ldapAttributes').value.map(valueToSelectValue))
+    return moveSelectionToTop(inject(ProvidedKeys.LdapAttributes).value.map(valueToSelectValue))
   })
+  const noConnection = computed(() =>
+    inject(ProvidedKeys.LdapAttributesError) !== null
+  )
   const isDisabled = inject('isLoading')
   const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
-  selectedValue.value = valueToSelectValue(
-    getFormNamespace(props.namespace.split('.'), form.value)
-  ) || defaultSelectedValue
+
+  const initialValue = getFormNamespace(props.namespace.split('.'), form.value)
+  if (initialValue) {
+    selectedValue.value = valueToSelectValue(initialValue)
+  }
   const localValidator = inject('schema')
 
   const searchQueryInvalidFeedback = ref("")
@@ -110,6 +117,7 @@ function setup(props, _) { // eslint-disable-line
     inputOptions: allOptions,
     isDisabled,
     isFocused,
+    noConnection,
     onSelect,
     onOpen,
     onClose,

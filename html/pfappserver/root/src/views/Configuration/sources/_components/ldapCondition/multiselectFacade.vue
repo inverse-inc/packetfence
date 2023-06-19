@@ -44,14 +44,23 @@
           <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon"></i>
         </span>
       </template>
-      <template v-slot:beforeList>
+      <template v-if="!noConnection" v-slot:beforeList>
         <li v-if="!internalSearch" class="multiselect__element">
           <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">
             {{ $t('Type to search') }}
           </div>
         </li>
       </template>
-      <template v-slot:noOptions>
+      <template v-if="noConnection" v-slot:noOptions>
+        <b-media class="text-secondary" md="auto">
+          <template v-slot:aside>
+            <icon name="exclamation-triangle" scale="1.5" class="mt-2 ml-2"></icon>
+          </template>
+          <strong>{{ $t("Couldn't connect to the LDAP server") }}</strong>
+          <b-form-text class="font-weight-light">{{ $t('Make sure that you provided correct IP/credentials') }}</b-form-text>
+        </b-media>
+      </template>
+      <template v-else v-slot:noOptions>
         <b-media class="text-secondary" md="auto">
           <template v-slot:aside>
             <icon name="search" scale="1.5" class="mt-2 ml-2"></icon>
@@ -97,6 +106,11 @@ export const props = {
     type: String,
     default: 'md',
     validator: value => ['sm', 'md', 'lg'].includes(value)
+  },
+
+  noConnection: {
+    type: Boolean,
+    default: false
   },
 
   onSearch: {

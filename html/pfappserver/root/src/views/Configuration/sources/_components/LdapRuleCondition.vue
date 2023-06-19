@@ -58,10 +58,6 @@ const props = {
 
 const setup = (props, context) => {
 
-  const {
-    namespace
-  } = toRefs(props)
-
   const metaProps = useInputMeta(props, context)
 
   const {
