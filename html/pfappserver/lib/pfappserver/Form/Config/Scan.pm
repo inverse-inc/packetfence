@@ -53,6 +53,7 @@ has_field 'type' =>
    type => 'Select',
    label => 'Scan Type',
    options_method => \&options_type,
+   default_method => \&default_type,
   );
 
 has_field 'categories' =>
@@ -164,6 +165,19 @@ sub options_categories {
     my $result = $self->form->roles;
     my @roles = map { $_->{name} => $_->{name} } @{$result} if ($result);
     return ('' => '', @roles);
+}
+
+=head2 default_type
+
+Returns the default type of the Provisioning
+
+=cut
+
+sub default_type {
+    my ($field) = @_;
+    my $type = ref($field->form);
+    $type =~ s/^pfappserver::Form::Config::Source:://;
+    return $type;
 }
 
 =over
