@@ -83,7 +83,7 @@ sub subTypesSchema {
     my %mapping;
     while (my ($k, $form) = each @forms) {
         for my $field (grep { isSubTypeField($_) } $form->fields) {
-            my $subTypePath = subTypePath($item_path, $field->type);
+            my $subTypePath = subTypePath($item_path, $field->value);
             $mapping{$field->value} = '#' . $subTypePath;
         };
     };
@@ -103,7 +103,7 @@ sub subTypeSchemaRef {
     my ($item_path, $form) = @_;
     for my $field (grep { isAllowedField($_) } $form->fields) {
         if ($field->name eq 'type' && $field->value) {
-            my $subTypePath = subTypePath($item_path, $field->type);
+            my $subTypePath = subTypePath($item_path, $field->value);
             return {
                 '$ref' => '#' . $subTypePath
             };
