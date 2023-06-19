@@ -28,7 +28,9 @@ func (f ProxyLdapClientFactory) NewLdapClient(protocol string, socketAddress str
 	return client
 }
 
-func (c *ProxyLdapClient) Dial() (ILdapConnection, error) {
+func (c *ProxyLdapClient) Dial() (conn ILdapConnection, err error) {
+	defer recoverConnectionError(conn, &err)
+
 	addr, err := c.openProxyConnection()
 	if err != nil {
 		return nil, err
@@ -36,7 +38,9 @@ func (c *ProxyLdapClient) Dial() (ILdapConnection, error) {
 	return ldap.Dial(c.protocol, addr)
 }
 
-func (c *ProxyLdapClient) DialTLS(config *tls.Config) (ILdapConnection, error) {
+func (c *ProxyLdapClient) DialTLS(config *tls.Config) (conn ILdapConnection, err error) {
+	defer recoverConnectionError(conn, &err)
+
 	addr, err := c.openProxyConnection()
 	if err != nil {
 		return nil, err
