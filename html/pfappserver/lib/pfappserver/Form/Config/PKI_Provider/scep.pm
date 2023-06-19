@@ -33,11 +33,11 @@ has_field 'id' =>
    },
   );
 
-has_field 'type' =>
-  (
-   type => 'Hidden',
-   required => 1,
-  );
+has_field 'type' => (
+    type     => 'Hidden',
+    required => 1,
+    default  => 'scep',
+);
 
 has_field 'url' =>
   (

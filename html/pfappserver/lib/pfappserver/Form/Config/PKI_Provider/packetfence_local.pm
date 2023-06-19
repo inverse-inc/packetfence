@@ -29,8 +29,9 @@ has_field 'id' => (
 );
 
 has_field 'type' => (
-    type        => 'Hidden',
-    required    => 1,
+    type     => 'Hidden',
+    required => 1,
+    default  => 'packetfence_local',
 );
 
 has_field 'client_cert_path' => (

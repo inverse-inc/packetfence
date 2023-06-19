@@ -29,8 +29,9 @@ has_field 'id' => (
 );
 
 has_field 'type' => (
-    type        => 'Hidden',
-    required    => 1,
+    type     => 'Hidden',
+    required => 1,
+    default  => 'packetfence_pki',
 );
 
 has_field 'host' => (
