@@ -57,6 +57,11 @@
           @input="setColumns"
         />
       </template>
+      <template v-for="dateField in dateFields"
+        v-slot:[`head(${dateField})`]="{ label }">
+        {{ label }} <b-badge v-if="timezone"
+          :key="`head-${dateField}`" class="mx-1 mb-1" variant="secondary">{{ timezone }}</b-badge>
+      </template>
       <template v-for="nodeField in nodeFields"
         v-slot:[`cell(${nodeField})`]="{ value }">
         <node-dropdown :key="nodeField" :id="value"
@@ -71,6 +76,10 @@
         v-slot:[`cell(${roleField})`]="{ value }">
         <router-link :key="roleField"
           :to="{ path: `/configuration/role/${value}` }">{{ value }}</router-link>
+      </template>
+      <template v-for="dateField in dateFields"
+        v-slot:[`cell(${dateField})`]="{ value }">
+        {{ value }} {{ tz }}
       </template>
       <template #cell(selected)="{ index, rowSelected }">
         <span @click.stop="onItemSelected(index)">
@@ -113,7 +122,11 @@ const components = {
 const props = {
   meta: {
     type: Object
-  }
+  },
+  timezone: {
+    type: String,
+    default: 'UTC'
+  },
 }
 
 import { computed, ref, toRefs } from '@vue/composition-api'
@@ -126,7 +139,8 @@ import { useSearchFactory } from '../_search'
 const setup = (props, context) => {
 
   const {
-    meta
+    meta,
+    timezone,
   } = toRefs(props)
 
   const { root: { $router } = {} } = context
@@ -161,8 +175,8 @@ const setup = (props, context) => {
 
   const columnsIs = computed(() => {
     return columns.reduce((assoc, column) => {
-      const { name, is_node, is_person, is_role } = column
-      return { ...assoc, [name]: { is_node, is_person, is_role }}
+      const { name, is_node, is_person, is_role, is_date } = column
+      return { ...assoc, [name]: { is_node, is_person, is_role, is_date }}
     }, {})
   })
 
@@ -209,6 +223,15 @@ const setup = (props, context) => {
         .map(column => column.name)
   })
 
+  const dateFields = computed(() => {
+      const { columns = [] } = meta.value
+      return columns
+        .filter(column => column.is_date)
+        .map(column => column.name)
+  })
+
+  const tz = computed(() => $store.getters['$_bases/clientDateToTimezoneFormat'](new Date(), timezone.value, 'zzz'))
+
   return {
     hasCursor,
     hasQuery,
@@ -221,7 +244,9 @@ const setup = (props, context) => {
 
     nodeFields,
     personFields,
-    roleFields
+    roleFields,
+    dateFields,
+    tz,
   }
 }
 // @vue/component

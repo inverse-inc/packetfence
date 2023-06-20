@@ -2,6 +2,7 @@ import acl from '@/utils/acl'
 import store from '@/store'
 import TheIndex from '../'
 import StoreModule from '../_store'
+import BasesStoreModule from '@/views/Configuration/bases/_store'
 import { analytics } from '../config'
 
 const TheView = () => import(/* webpackChunkName: "Reports" */ '../_components/TheView')
@@ -18,10 +19,14 @@ const route = {
   },
   beforeEnter: (to, from, next) => {
     if (!store.state.$_reports) {
-      // Register store module only once
       store.registerModule('$_reports', StoreModule)
     }
-    next()
+    if (!store.state.$_bases) {
+      store.registerModule('$_bases', BasesStoreModule)
+    }
+    // fetch server's timezone
+    store.dispatch('$_bases/getGeneral')
+      .then(next)
   },
   children: [
     {

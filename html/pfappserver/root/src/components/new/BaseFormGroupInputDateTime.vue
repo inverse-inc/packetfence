@@ -135,7 +135,7 @@ export const props = {
   },
   dateFormat: {
     type: String,
-    default: 'YYYY-MM-DD'
+    default: 'yyyy-MM-dd'
   },
   timeFormat: {
     type: String,
@@ -224,15 +224,15 @@ export const setup = (props, context) => {
 
   const inputValueDate = computed(() => {
     if (value.value && value.value.charAt(0) !== '0') {
-      const parsed = parse(value.value, `${dateFormat.value} ${timeFormat.value}`)
-      return format(parsed, 'YYYY-MM-DD')
+      const parsed = parse(value.value, `${dateFormat.value} ${timeFormat.value}`, new Date())
+      return format(parsed, 'yyyy-MM-dd')
     }
-    return format(new Date(), 'YYYY-MM-DD')
+    return format(new Date(), 'yyyy-MM-dd')
   })
 
   const inputValueTime = computed(() => {
     if (value.value) {
-      const parsed = parse(value.value, `${dateFormat.value} ${timeFormat.value}`)
+      const parsed = parse(value.value, `${dateFormat.value} ${timeFormat.value}`, new Date())
       return format(parsed, 'HH:mm:ss')
     }
     return '00:00:00'
@@ -240,16 +240,16 @@ export const setup = (props, context) => {
 
   const onDate = newDate => {
     if (newDate && !isFocus.value) {
-      const parsedDate = parse(newDate, 'YYYY-MM-DD')
-      const parsedTime = parse(`1970-01-01 ${inputValueTime.value}`, 'YYYY-MM-DD HH:mm:ss')
+      const parsedDate = parse(newDate, 'yyyy-MM-dd', new Date())
+      const parsedTime = parse(`1970-01-01 ${inputValueTime.value}`, 'yyyy-MM-dd HH:mm:ss', new Date())
       onInput(`${format(parsedDate, dateFormat.value)} ${format(parsedTime, timeFormat.value)}`)
     }
   }
 
   const onTime = newTime => {
     if (newTime && !isFocus.value) {
-      const parsedDate = parse(inputValueDate.value, 'YYYY-MM-DD')
-      const parsedTime = parse(`1970-01-01 ${newTime}`, 'YYYY-MM-DD HH:mm:ss')
+      const parsedDate = parse(inputValueDate.value, 'yyyy-MM-dd', new Date())
+      const parsedTime = parse(`1970-01-01 ${newTime}`, 'yyyy-MM-dd HH:mm:ss', new Date())
       onInput(`${format(parsedDate, dateFormat.value)} ${format(parsedTime, timeFormat.value)}`)
     }
   }

@@ -70,23 +70,23 @@ export const MysqlDatabase = {
     /* Do not validate backend variable, fixes #5509
     detect_date: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     */
     regdate: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     unregdate: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     lastskip: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     time_balance: Object.assign(
@@ -125,12 +125,12 @@ export const MysqlDatabase = {
     },
     last_arp: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     last_dhcp: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     dhcp_fingerprint: {
@@ -217,7 +217,7 @@ export const MysqlDatabase = {
     ),
     last_seen: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     }
   },
@@ -232,12 +232,12 @@ export const MysqlDatabase = {
     },
     valid_from: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     expiration: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: ''
     },
     access_duration: {
@@ -265,7 +265,7 @@ export const MysqlDatabase = {
     ),
     unregdate: {
       type: MysqlDatetime,
-      format: 'YYYY-MM-DD HH:mm:ss',
+      format: 'yyyy-MM-dd HH:mm:ss',
       default: '0000-00-00 00:00:00'
     },
     login_remaining: Object.assign(
@@ -324,13 +324,13 @@ export const MysqlDatabase = {
     anniversary: {
       type: MysqlString,
       maxLength: 255,
-      format: 'YYYY-MM-DD',
+      format: 'yyyy-MM-dd',
       default: null
     },
     birthday: {
       type: MysqlString,
       maxLength: 255,
-      format: 'YYYY-MM-DD',
+      format: 'yyyy-MM-dd',
       default: null
     },
     gender: {

@@ -33,6 +33,8 @@ has 'node_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
 has 'role_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
 
+has 'date_fields' => (is => 'rw', isa => 'ArrayRef[Str]');
+
 has default_limit => (is => 'rw', isa => 'Str', default => 25);
 
 has 'date_limit' => ( is => 'rw', isa => 'Str|Undef');
@@ -118,6 +120,17 @@ sub is_role_field {
     return any { $_ eq $field } @{$self->role_fields};
 }
 
+=head2 is_date_field
+
+Check if a field is part of the date fields
+
+=cut
+
+sub is_date_field {
+    my ($self, $field) = @_;
+    return any { $_ eq $field } @{$self->date_fields};
+}
+
 sub validate_options {
     my ($self, $query) = @_;
     return (422, {message => "unimplemented"});
@@ -186,6 +199,7 @@ sub format_options_column {
         is_node   => ( $self->is_node_field($l) ? $JSON_TRUE : $JSON_FALSE ),
         is_role   => ( $self->is_role_field($l) ? $JSON_TRUE : $JSON_FALSE ),
         is_cursor => ( $self->is_cursor_field($l) ? $JSON_TRUE : $JSON_FALSE ),
+        is_date   => ( $self->is_date_field($l) ? $JSON_TRUE : $JSON_FALSE ),
     };
 }
 

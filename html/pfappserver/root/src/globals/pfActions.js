@@ -13,15 +13,15 @@ const setUnregDateTextFn = value => {
       value = `1970-${m}-${d}`
     }
   }
-  const date = parse(value, 'yyyy-MM-dd')
+  const date = parse(value, 'yyyy-MM-dd', new Date())
   if (date instanceof Date && isValid(date)) {
     const now = new Date()
     if (compareAsc(date, now) < 0) {
       const year = getYear(now)
       const normalized = setYear(date, year)
-      let unreg_date = format(normalized, 'YYYY-MM-DD')
+      let unreg_date = format(normalized, 'yyyy-MM-dd')
       if (compareAsc(normalized, now) < 0) {
-        unreg_date = format(setYear(normalized, year + 1), 'YYYY-MM-DD')
+        unreg_date = format(setYear(normalized, year + 1), 'yyyy-MM-dd')
       }
       return i18n.t(`Past dates dynamically increase up to 1 year in the future (eg ${unreg_date}).`, { unreg_date })
     }

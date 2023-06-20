@@ -38,6 +38,7 @@ bindings=start_date,end_date,start_date,end_date,limit
 has_date_range=enabled
 has_limit=enabled
 cursor_type=none
+date_fields=start_date,end_date
 date_limit=24h
 default_limit=100
 charts=scatter|time_bucket:bytes_in:bytes_out:bytes_total
@@ -195,6 +196,7 @@ base_conditions_operator=any
 person_fields=Owner
 node_fields=MAC Address
 order_fields=-auth_log.attempted_at
+date_fields=Attempted at,Completed at
 
 [Authentication::All Failures]
 type=abstract
@@ -210,6 +212,7 @@ node_fields=MAC Address
 order_fields=-auth_log.attempted_at
 base_conditions=auth_log.status:=:failed
 charts=scatter|Attempted at
+date_fields=Attempted at,Completed at
 
 [Authentication::All Successes]
 type=abstract
@@ -225,6 +228,7 @@ node_fields=MAC Address
 order_fields=-auth_log.attempted_at
 base_conditions=auth_log.status:=:completed
 charts=scatter|Attempted at
+date_fields=Attempted at,Completed at
 
 [Authentication::Top Failures::Connection Profile to Source]
 type=sql
@@ -616,6 +620,7 @@ date_field=start_time
 base_conditions_operator=all
 node_fields=MAC Address
 charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
+date_fields=Start time,End time
 
 [Ip4Log::History]
 type=abstract
@@ -632,6 +637,7 @@ base_conditions_operator=all
 node_fields=MAC Address
 order_fields=-ip4log_history.start_time
 charts=scatter@Ip4Log Start Time|Start time,scatter@Ip4Log End Time|End time
+date_fields=Start time,End time
 
 [Node::Active]
 type=sql
@@ -669,6 +675,7 @@ default_limit=100
 node_fields=mac
 person_fields=pid
 charts=scatter|regdate
+date_fields=start_time,detect_date,regdate,lastskip,last_arp,last_dhcp
 
 [Node::Inactive]
 type=sql
@@ -706,6 +713,7 @@ cursor_default=00:00:00:00:00:00
 default_limit=100
 node_fields=mac
 person_fields=pid
+date_fields=start_time,detect_date,regdate,lastskip,last_arp,last_dhcp
 
 [Node::Registered::Active]
 type=sql
@@ -741,6 +749,7 @@ cursor_default=00:00:00:00:00:00
 default_limit=100
 node_fields=mac
 person_fields=pid
+date_fields=start_time,detect_date,regdate,lastskip,last_arp,last_dhcp
 
 [Node::Registered::All]
 type=sql
@@ -775,6 +784,7 @@ cursor_default=00:00:00:00:00:00
 default_limit=100
 node_fields=mac
 person_fields=pid
+date_fields=start_time,detect_date,regdate,lastskip,last_arp,last_dhcp
 
 [Node::Unregistered::Active]
 type=sql
@@ -810,6 +820,7 @@ cursor_default=00:00:00:00:00:00
 default_limit=100
 node_fields=mac
 person_fields=pid
+date_fields=start_time,detect_date,regdate,lastskip,last_arp,last_dhcp
 
 [Node::Unregistered::All]
 type=sql
@@ -843,6 +854,7 @@ cursor_default=00:00:00:00:00:00
 default_limit=100
 node_fields=mac
 person_fields=pid
+date_fields=start_time,detect_date,regdate,lastskip,last_arp,last_dhcp
 
 [Operating System Class::Active]
 type=sql
@@ -1357,6 +1369,7 @@ person_fields=Owner
 date_field=start_date
 base_conditions=security_event.status:=:closed
 charts=scatter|Release date
+date_fields=Release date
 
 [Security Events::Open]
 type=abstract
@@ -1374,6 +1387,7 @@ date_field=start_date
 base_conditions=security_event.status:=:open
 role_fields=category_id
 charts=scatter|Event date
+date_fields=Event date
 
 [Security Events::Open Active]
 type=sql
@@ -1402,6 +1416,7 @@ cursor_type=none
 node_fields=mac
 person_fields=owner
 charts=scatter|start_date
+date_fields=start_date
 
 [Security Events::Open All]
 type=sql
@@ -1429,6 +1444,7 @@ cursor_type=none
 node_fields=mac
 person_fields=owner
 charts=scatter|start_date
+date_fields=start_date
 
 [SSID::Active]
 type=sql
@@ -1531,6 +1547,7 @@ base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
 order_fields=-activation.expiration
+date_fields=Code expiration,Unreg date
 
 [User::Registration::SMS]
 type=abstract
@@ -1547,6 +1564,7 @@ base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
 order_fields=-activation.expiration
+date_fields=Code expiration
 
 [User::Registration::Sponsor]
 type=abstract
@@ -1561,3 +1579,4 @@ base_conditions=activation.type:=:sponsor
 base_conditions_operator=all
 person_fields=Owner
 node_fields=MAC Address
+date_fields=Registration expiration

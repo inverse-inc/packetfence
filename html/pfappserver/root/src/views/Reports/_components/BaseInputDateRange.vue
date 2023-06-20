@@ -60,21 +60,27 @@ const props = {
   value: {
     type: Object,
     default: () => ({ start_date: undefined, end_date: undefined, date_limit: undefined })
+  },
+  timezone: {
+    type: String,
+    default: 'UTC'
   }
 }
 
 import { computed, customRef, nextTick, ref, toRefs, watch } from '@vue/composition-api'
 import { format, parse, addSeconds, subSeconds, differenceInSeconds } from 'date-fns'
 import i18n from '@/utils/locale'
+import { isoDateTimeFormat, isoDateTimeZeroFormat, isoDateTimeMax } from '@/utils/date'
 import { duration2seconds } from '@/views/Configuration/accessDurations/config'
 
 const setup = (props, context) => {
 
   const {
-    value
+    value,
+    timezone
   } = toRefs(props)
 
-  const { emit } = context
+  const { emit, root: { $store } = {} } = context
 
   const startDate = customRef((track, trigger) => ({
     get() {
@@ -83,7 +89,7 @@ const setup = (props, context) => {
     },
     set(start_date) {
       // only emit valid format
-      if (start_date.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+      if (start_date.replace(/[0-9]/g, '0') === isoDateTimeZeroFormat)
         emit('input', { ...value.value, start_date })
       else if (['', null].includes(start_date))
         emit('input', { ...value.value, start_date: minStartDate.value })
@@ -93,17 +99,17 @@ const setup = (props, context) => {
   const minStartDate = computed(() => {
     const { date_limit } = value.value
     if (date_limit) {
-      const date = parse(endDate.value, 'YYYY-MM-DD HH:mm:ss')
+      const date = parse(endDate.value, isoDateTimeFormat, new Date())
       const seconds = duration2seconds(date_limit)
       const min = subSeconds(date, seconds)
-      return format(min, 'YYYY-MM-DD HH:mm:ss')
+      return format(min, isoDateTimeFormat)
     }
-    return '0000-00-00 00:00:00'
+    return isoDateTimeZeroFormat
   })
   const maxStartDate = computed(() => {
-    if (!endDate.value || endDate.value.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+    if (!endDate.value || endDate.value.replace(/[0-9]/g, '0') === isoDateTimeZeroFormat)
       return endDate.value
-    return '9999-12-12 23:59:59'
+    return isoDateTimeMax
   })
 
   const endDate = customRef((track, trigger) => ({
@@ -113,7 +119,7 @@ const setup = (props, context) => {
     },
     set(end_date) {
       // only emit valid format
-      if (end_date.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+      if (end_date.replace(/[0-9]/g, '0') === isoDateTimeZeroFormat)
         emit('input', { ...value.value, end_date })
       else if (['', null].includes(end_date))
         emit('input', { ...value.value, end_date: maxEndDate.value })
@@ -121,19 +127,19 @@ const setup = (props, context) => {
     }
   }))
   const minEndDate = computed(() => {
-    if (!startDate.value || startDate.value.replace(/[0-9]/g, '0') === '0000-00-00 00:00:00')
+    if (!startDate.value || startDate.value.replace(/[0-9]/g, '0') === isoDateTimeZeroFormat)
       return startDate.value
-    return '0000-00-00 00:00:00'
+    return isoDateTimeZeroFormat
   })
   const maxEndDate = computed(() => {
     const { date_limit } = value.value
     if (date_limit) {
-      const date = parse(startDate.value, 'YYYY-MM-DD HH:mm:ss')
+      const date = parse(startDate.value, isoDateTimeFormat, new Date())
       const seconds = duration2seconds(date_limit)
       const max = addSeconds(date, seconds)
-      return format(max, 'YYYY-MM-DD HH:mm:ss')
+      return format(max, isoDateTimeFormat)
     }
-    return '9999-12-12 23:59:59'
+    return isoDateTimeMax
   })
 
   const showPeriod = ref(false)
@@ -152,20 +158,24 @@ const setup = (props, context) => {
       { title: i18n.t('6 months'),   text: '6M',  value: 60 * 60 * 24 * 31 * 6 } ,
       { title: i18n.t('1 year'),     text: '1Y',  value: 60 * 60 * 24 * 365 }
     ].filter(({ value }) => {
-      return !date_limit || value < duration2seconds(date_limit)
+      return !date_limit || value <= duration2seconds(date_limit)
     })
   })
 
   const setRangeByPeriod = period => {
+    const start_date = $store.getters['$_bases/clientDateToTimezoneFormat'](subSeconds(new Date(), period), timezone.value)
+    const end_date = $store.getters['$_bases/clientDateToTimezoneFormat'](new Date(), timezone.value)
     showPeriod.value = false
     emit('input', {
-      start_date: format(subSeconds(new Date(), period), 'YYYY-MM-DD HH:mm:ss'),
-      end_date: format(new Date(), 'YYYY-MM-DD HH:mm:ss')
+      ...value.value,
+      start_date,
+      end_date
     })
    }
 
   const clearRange = () => {
     emit('input', {
+      ...value.value,
       start_date: undefined,
       end_date: undefined
     })
@@ -173,7 +183,7 @@ const setup = (props, context) => {
 
   const hasDates = computed(() => {
     const { start_date, end_date } = value.value
-    return start_date && start_date !== '0000-00-00 00:00:00' && end_date
+    return start_date && start_date !== isoDateTimeZeroFormat && end_date
   })
 
   const hasDateLimit = computed(() => {
@@ -182,22 +192,22 @@ const setup = (props, context) => {
   })
 
   const previousRange = () => {
-    const start = parse(startDate.value, 'YYYY-MM-DD HH:mm:ss')
-    const end = parse(endDate.value, 'YYYY-MM-DD HH:mm:ss')
+    const start = parse(startDate.value, isoDateTimeFormat, new Date())
+    const end = parse(endDate.value, isoDateTimeFormat, new Date())
     const diff = differenceInSeconds(end, start)
     endDate.value = startDate.value
     nextTick(() => {
-      startDate.value = format(subSeconds(start, diff), 'YYYY-MM-DD HH:mm:ss')
+      startDate.value = format(subSeconds(start, diff), isoDateTimeFormat)
     })
   }
 
   const nextRange = () => {
-    const start = parse(startDate.value, 'YYYY-MM-DD HH:mm:ss')
-    const end = parse(endDate.value, 'YYYY-MM-DD HH:mm:ss')
+    const start = parse(startDate.value, isoDateTimeFormat, new Date())
+    const end = parse(endDate.value, isoDateTimeFormat, new Date())
     const diff = differenceInSeconds(end, start)
     startDate.value = endDate.value
     nextTick(() => {
-      endDate.value = format(addSeconds(end, diff), 'YYYY-MM-DD HH:mm:ss')
+      endDate.value = format(addSeconds(end, diff), isoDateTimeFormat)
     })
   }
 
@@ -208,7 +218,7 @@ const setup = (props, context) => {
     isLocked.value = !isLocked.value
   }
   const bumpEndDate = () => {
-    endDate.value = format(addSeconds(new Date(), timerLocked), 'YYYY-MM-DD HH:mm:ss')
+    endDate.value = format(addSeconds(new Date(), timerLocked), isoDateTimeFormat)
   }
   watch(isLocked, () => {
     if (intervalLocked) {
@@ -220,7 +230,7 @@ const setup = (props, context) => {
     }
   })
   watch(() => value.value.end_date, () => {
-    const end = parse(endDate.value, 'YYYY-MM-DD HH:mm:ss')
+    const end = parse(endDate.value, isoDateTimeFormat, new Date())
     const diff = Math.abs(differenceInSeconds(new Date(), end))
     if (diff <= timerLocked) {
       isLocked.value = true

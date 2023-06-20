@@ -158,7 +158,7 @@ const setup = (props, context) => {
       case 'M': date = addMonths(date, extendedInterval); break
       case 'Y': date = addYears(date, extendedInterval); break
     }
-    return format(date, 'YYYY-MM-DD HH:mm:ss')
+    return format(date, 'yyyy-MM-dd HH:mm:ss')
   })
 
   const intervalComponentRef = ref(null)
