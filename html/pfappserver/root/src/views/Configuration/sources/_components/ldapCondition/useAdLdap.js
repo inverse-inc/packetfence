@@ -5,11 +5,8 @@ import _ from 'lodash';
 function useAdLdap(form) {
 
   const performSearch = (filter = null, scope = null, attributes = null, base_dn = null) => {
-    return apiCall.request({
-      url: 'ldap/search',
-      method: 'post',
-      baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
-      data: {
+    return apiCall.postQuiet('ldap/search',
+      {
         server: {
           ...form.value,
         },
@@ -20,7 +17,7 @@ function useAdLdap(form) {
           base_dn: base_dn,
         }
       }
-    })
+    ).then(response => {delete response.data.quiet; return response})
   }
 
   const getSubSchemaDN = () => {
