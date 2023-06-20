@@ -138,15 +138,25 @@ To install the SSL/TLS certificate, follow these steps:
 
 1. Open the web admin interface.
 2. Go to `Configuration > System Configuration > SSL Certificates > HTTP > Edit HTTP Certificates`.
-image::certificate/1-HTTP.png[scaledwidth="100%",alt="Prompt fields module"]
+
+image::certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
+
 3. Import or open your certificate file (.crt) with a text editor and copy/paste the content into the "HTTPs Server Certificate" field.
-image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Prompt fields module"]
+
+image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
+
 4. Import or open your private key file (.key) and copy/paste the content into the "HTTP Server Private Key" field.
-image::certificate/3-HTTP-Private-key.png[scaledwidth="100%",alt="Prompt fields module"]
+
+image::certificate/3-HTTP-Private-key.png[scaledwidth="100%",alt="Private key"]
+
 5. Turn on the options "Find HTTPs intermediate CA(s) automatically" and "Validate certificate chain".
-image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Prompt fields module"]
+
+image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate chain"]
+
 6. Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: `Status > Services`.
-image::certificate/5-Services.png[scaledwidth="100%",alt="Prompt fields module"]
+
+image::certificate/5-Services.png[scaledwidth="100%",alt="Services"]
+
 Alternatively, you can use the CLI with the following commands:
 [source, shell]
 ----
