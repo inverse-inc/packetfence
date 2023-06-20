@@ -138,15 +138,15 @@ To install the SSL/TLS certificate, follow these steps:
 
 1. Open the web admin interface.
 2. Go to `Configuration > System Configuration > SSL Certificates > HTTP > Edit HTTP Certificates`.
-image::certificate/1-HTTP[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/1-HTTP.png[scaledwidth="100%",alt="Prompt fields module"]
 3. Import or open your certificate file (.crt) with a text editor and copy/paste the content into the "HTTPs Server Certificate" field.
-image::certificate/2-HTTP-Certificate[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Prompt fields module"]
 4. Import or open your private key file (.key) and copy/paste the content into the "HTTP Server Private Key" field.
-image::certificate/3-HTTP-Private-key[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/3-HTTP-Private-key.png[scaledwidth="100%",alt="Prompt fields module"]
 5. Turn on the options "Find HTTPs intermediate CA(s) automatically" and "Validate certificate chain".
-image::certificate/4-HTTP-intermediate-chain[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Prompt fields module"]
 6. Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: `Status > Services`.
-image::certificate/5-Services[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/5-Services.png[scaledwidth="100%",alt="Prompt fields module"]
 Alternatively, you can use the CLI with the following commands:
 [source, shell]
 ----
@@ -161,7 +161,7 @@ By following these steps, you can implement an SSL/TLS certificate for the capti
 ==== 3.1 Information about renewal of SSL/TLS Certificate
 
 SSL/TLS certificates have an expiration date, typically ranging from one to three years. To ensure the captive web portal remains secure, it is important to renew the SSL/TLS certificate before it expires. To renew the SSL/TLS certificate, you can use your previous CSR or generate a new one with the exact same information. You will find all the information you need in `System Configuration > SSL Certificate > View HTTP Certificate`.
-image::certificate/6-HTTP-View[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/6-HTTP-View.png[scaledwidth="100%",alt="Prompt fields module"]
 
 ==== 3.2 Adding the new certificate
 
@@ -172,15 +172,15 @@ To add the new SSL/TLS certificate, follow these steps:
 2. Go to `System Configuration > SSL Certificate > HTTP > Edit HTTP Certificates`.
 
 3. Import the new certificate file (.crt) or paste the content of the new certificate using a text editor into the "HTTPs Server Certificate" field.
-image::certificate/2-HTTP-Certificate[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Prompt fields module"]
 
 4. Turn on the options "Find HTTPs intermediate CA(s) automatically" and "Validate certificate chain".
-image::certificate/4-HTTP-intermediate-chain[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Prompt fields module"]
 
 5. Press "Save" to finish the renewal.
 
 6. Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: Status > Services.
-image::certificate/5-Services[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/5-Services.png[scaledwidth="100%",alt="Prompt fields module"]
 
 Alternatively, you can use the CLI with the following commands:
 [source, shell]
@@ -241,22 +241,22 @@ To install the SSL/TLS certificate on the RADIUS server, follow these steps:
 1. Open the web admin interface.
 
 2. Go to `Configuration > System Configuration > SSL Certificates > RADIUS > Edit RADIUS Certificates`.
-image::certificate/7-Radius-edit[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/7-Radius-edit.png[scaledwidth="100%",alt="Prompt fields module"]
 
 3. Import or open your certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certificate" field.
-image::certificate/8-Radius-certificate[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Prompt fields module"]
 
 4. Import or open your private key file (.key) with a text editor, then copy and paste the key into the "RADIUS Server Private Key" field.
-image::certificate/9-Radius-key[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/9-Radius-key.png[scaledwidth="100%",alt="Prompt fields module"]
 
 5. Import or open your certification authority certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certification Authority Certificate" field.
-image::certificate/10-Radius-CA[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/10-Radius-CA.png[scaledwidth="100%",alt="Prompt fields module"]
 
 6. Turn on the "Find RADIUS Server intermediate CA(s) automatically" and "Validate certificate chain" option.
-image::certificate/13-Radius-intermediate-chain[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Prompt fields module"]
 
 7. Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to `Status > Services`.
-image::certificate/11-Services[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/11-Services.png[scaledwidth="100%",alt="Prompt fields module"]
 
 Alternatively, you can use the following commands in the command-line interface (CLI):
 
@@ -272,7 +272,7 @@ bin/pfcmd service radiusd restart
 ==== 5.1 Information about Renewal of SSL/TLS Certificate
 
 To renew the SSL/TLS certificate for RADIUS, you can use your previous Certificate Signing Request (CSR) or generate a new one with the exact same information. You can find all the necessary information in `System Configuration > SSL Certificate > View RADIUS Certificate`. It's important not to use a wildcard certificate for RADIUS.
-image::certificate/12-Radius-status[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/12-Radius-status.png[scaledwidth="100%",alt="Prompt fields module"]
 
 ==== 5.2 Renewal of SSL/TLS Certificate
 
@@ -281,18 +281,18 @@ To renew the SSL/TLS certificate for RADIUS, follow these steps:
 1. Open the PacketFence web admin interface `System Configuration > SSL Certificate > RADIUS > Edit RADIUS Certificates`.
 
 2. Import the new certificate file (.crt) or paste the content of the new certificate using a text editor into the "RADIUS Server Certificate" field.
-image::certificate/8-Radius-certificate[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Prompt fields module"]
 
 3. Add the new Certification Authority certificate.
-image::certificate/10-Radius-CA[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/10-Radius-CA.png[scaledwidth="100%",alt="Prompt fields module"]
 
 4. Turn on the "Find RADIUS Server intermediate CA(s) automatically" and "Validate certificate chain" option.
-image::certificate/13-Radius-intermediate-chain[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Prompt fields module"]
 
 5. Press "Save" to finish the renewal.
 
 6. Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to Status > Services.
-image::certificate/11-Services[scaledwidth="100%",alt="Prompt fields module"]
+image::certificate/11-Services.png[scaledwidth="100%",alt="Prompt fields module"]
 
 Alternatively, you can use the following commands in the command-line interface (CLI):
 
