@@ -1,9 +1,10 @@
-import {computed, inject, provide, ref} from '@vue/composition-api'
+import {computed, inject, provide, ref, watch} from '@vue/composition-api'
 import {useNamespaceMetaAllowed} from '@/composables/useMeta'
 import BaseFormGroupRules from './BaseFormGroupRules'
 import {authenticationRuleActionsFromSourceType} from '../config'
-import fetchLdapAttributesAD
-  from '@/views/Configuration/sources/_components/ldapCondition/fetchLdapAttributesAD';
+import _ from 'lodash';
+import useAdLdap
+  from '@/views/Configuration/sources/_components/ldapCondition/useAdLdap';
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
 
 const setup = () => {
@@ -15,25 +16,50 @@ const setup = () => {
     return {...type, options}
   }))
 
+  const form = computed(() => inject('form'))
+  const ldapClient = getLdapClient(form.value)
+
+  function connectionCheck() {
+    ldapClient.checkConnection().then((connected) => {
+      connectedToLdap.value = connected
+    })
+  }
+
+  const debouncedConnectionCheck = _.debounce(connectionCheck, 1000)
+  const connectedToLdap = ref(false)
   const ldapAttributes = ref([])
-  const ldapAttributesError = ref(null)
-  getAttributesByForm(inject('form')).then((attributes) => {
-    ldapAttributes.value = attributes
-  }).catch((error) => {
-    if (error.response?.status.toString().startsWith("4")) {
-      ldapAttributesError.value = error.message
+  const ldapAttributesLoading = ref(false)
+
+  watch(form, debouncedConnectionCheck, {deep: true})
+
+  watch(connectedToLdap, (newConnectionState, oldConnectionState) => {
+    if (newConnectionState === true) {
+      ldapAttributesLoading.value = true
+      ldapClient.getAttributes().then((attributes) => {
+        ldapAttributes.value = attributes
+        ldapAttributesLoading.value = false
+      })
+    } else {
+      ldapAttributes.value = []
     }
   })
+
+  ldapClient.checkConnection().then((connected) => {connectedToLdap.value = connected})
   provide(ProvidedKeys.LdapAttributes, ldapAttributes)
-  provide(ProvidedKeys.LdapAttributesError, ldapAttributesError)
+  provide(ProvidedKeys.connectedToLdap, connectedToLdap)
+  provide(ProvidedKeys.LdapAttributesLoading, ldapAttributesLoading)
   provide('actions', actions)
+
+  return {form, connectedToLdap}
 }
 
-function getAttributesByForm(form) {
+
+
+function getLdapClient(form) {
   switch (form.value.type) {
     // TODO form type should be an enum somewhere
     case "AD":
-      return fetchLdapAttributesAD(form.value.id)
+      return useAdLdap(form)
     // TODO add openLdap and eDirectory
     default:
       return new Promise(() => [])

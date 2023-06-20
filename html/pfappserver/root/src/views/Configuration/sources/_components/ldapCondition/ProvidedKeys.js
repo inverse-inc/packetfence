@@ -1,6 +1,7 @@
 const ProvidedKeys = {
   LdapAttributes: 'ldapAttributes',
-  LdapAttributesError: 'ldapAttributesError',
+  connectedToLdap: 'connectedToLdap',
+  LdapAttributesLoading: 'ldapAttributesLoading',
 }
 
 export default ProvidedKeys

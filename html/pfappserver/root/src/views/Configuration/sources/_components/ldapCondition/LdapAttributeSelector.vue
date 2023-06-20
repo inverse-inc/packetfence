@@ -3,6 +3,7 @@
     :options="inputOptions"
     :value="inputValue"
     :label="text"
+    :loading="isLoading"
     :track-by="text"
     :single-label="singleLabel"
     :on-select="onSelect"
@@ -44,12 +45,14 @@ export const props = {
 function setup(props, _) { // eslint-disable-line
   const form = inject('form')
   const isFocused = ref(false)
+  const isLoading = computed(() => inject(ProvidedKeys.LdapAttributesLoading).value)
+  const noConnection = computed(() => !inject(ProvidedKeys.connectedToLdap).value)
   const allOptions = computed(() => {
+    if (noConnection.value) {
+      return []
+    }
     return moveSelectionToTop(inject(ProvidedKeys.LdapAttributes).value.map(valueToSelectValue))
   })
-  const noConnection = computed(() =>
-    inject(ProvidedKeys.LdapAttributesError) !== null
-  )
   const isDisabled = inject('isLoading')
   const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
@@ -117,6 +120,7 @@ function setup(props, _) { // eslint-disable-line
     inputOptions: allOptions,
     isDisabled,
     isFocused,
+    isLoading,
     noConnection,
     onSelect,
     onOpen,
