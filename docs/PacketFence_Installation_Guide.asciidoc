@@ -165,4 +165,6 @@ include::includes/license.asciidoc[]
 
 include::installation/appendix.asciidoc[]
 
+include::installation/certificate.asciidoc[]
+
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:
