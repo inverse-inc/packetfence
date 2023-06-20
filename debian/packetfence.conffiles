@@ -52,7 +52,6 @@
 /usr/local/pf/conf/switch_filters.conf
 /usr/local/pf/conf/syslog.conf
 /usr/local/pf/conf/template_switches.conf
-/usr/local/pf/conf/traffic_shaping.conf
 /usr/local/pf/conf/ui.conf
 /usr/local/pf/conf/vlan_filters.conf
 /usr/local/pf/conf/locale/de/LC_MESSAGES/packetfence.po
