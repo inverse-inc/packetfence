@@ -6,6 +6,7 @@ import _ from 'lodash';
 import useAdLdap
   from '@/views/Configuration/sources/_components/ldapCondition/useAdLdap';
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
+import useOpenLdap from '@/views/Configuration/sources/_components/ldapCondition/useOpenLdap';
 
 const setup = () => {
   const sourceType = inject('sourceType', null)
@@ -61,8 +62,8 @@ function getLdapClient(form) {
     case "AD":
       return useAdLdap(form)
     // TODO add openLdap and eDirectory
-    default:
-      return new Promise(() => [])
+    case "LDAP":
+      return useOpenLdap(form)
   }
 }
 
