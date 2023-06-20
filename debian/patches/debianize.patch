@@ -42,17 +42,6 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.netdata
  #
-@@ -634,8 +634,8 @@ tc=enabled
- #
- # services.tc_binary
- #
--# location of the yc binary. only necessary to change if you are not running the rpmed version.
--tc_binary=/usr/sbin/tc
-+# location of the tc binary. only necessary to change if you are not running the rpmed version.
-+tc_binary=/sbin/tc
- # services.pfdns
- #
- # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
 index 8045a372d3..7437d09bae 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
