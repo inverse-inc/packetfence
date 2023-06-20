@@ -101,8 +101,11 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - Config/Helpers
-      - Config/FilterEngines
+      - Config/FilterEngines/DHCPFilters
+      - Config/FilterEngines/DNSFilters
+      - Config/FilterEngines/RADIUSFilters
+      - Config/FilterEngines/SwitchFilters
+      - Config/FilterEngines/VlanFilters
 
 /api/v1/config/parse_condition:
   post:
@@ -121,6 +124,9 @@
       '500':
         $ref: '#/components/responses/BadRequest'
     tags:
-      - Config/Helpers
-      - Config/FilterEngines
+      - Config/FilterEngines/DHCPFilters
+      - Config/FilterEngines/DNSFilters
+      - Config/FilterEngines/RADIUSFilters
+      - Config/FilterEngines/SwitchFilters
+      - Config/FilterEngines/VlanFilters
 
