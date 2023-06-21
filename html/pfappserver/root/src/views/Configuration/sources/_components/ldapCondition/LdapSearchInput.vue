@@ -71,9 +71,10 @@ function setup(props, context) { // eslint-disable-line
   const isDisabled = inject('isLoading')
   const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
-  selectedValue.value = valueToSelectValue(
-    getFormNamespace(props.namespace.split('.'), form.value)
-  ) || defaultSelectedValue
+  const initialValue = getFormNamespace(props.namespace.split('.'), form.value)
+  if (initialValue) {
+    selectedValue.value = valueToSelectValue(initialValue)
+  }
   const inputOptions = ref([])
   const searchInput = ref("")
   const localValidator = inject('schema')
