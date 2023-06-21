@@ -386,7 +386,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.aaa.service %{buildroot}%{_unitdir}/packetfence-httpd.aaa.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.collector.service %{buildroot}%{_unitdir}/packetfence-httpd.collector.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.portal.service %{buildroot}%{_unitdir}/packetfence-httpd.portal.service
-%{__install} -D -m0644 conf/systemd/packetfence-httpd.proxy.service %{buildroot}%{_unitdir}/packetfence-httpd.proxy.service
 %{__install} -D -m0644 conf/systemd/packetfence-httpd.webservices.service %{buildroot}%{_unitdir}/packetfence-httpd.webservices.service
 %{__install} -D -m0644 conf/systemd/packetfence-docker-iptables.service %{buildroot}%{_unitdir}/packetfence-docker-iptables.service
 %{__install} -D -m0644 conf/systemd/packetfence-iptables.service %{buildroot}%{_unitdir}/packetfence-iptables.service
@@ -585,6 +584,7 @@ if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-config
     /usr/bin/systemctl disable packetfence.service
     /usr/bin/systemctl disable packetfence-haproxy.service
+    /usr/bin/systemctl disable packetfence-httpd.proxy.service
     /usr/bin/systemctl isolate packetfence-base.target
 fi
 
@@ -1190,8 +1190,6 @@ fi
                         /usr/local/pf/conf/httpd.conf.d/httpd.aaa.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.portal.tt.example
-%config                 /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt
-                        /usr/local/pf/conf/httpd.conf.d/httpd.proxy.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt
                         /usr/local/pf/conf/httpd.conf.d/httpd.webservices.tt.example
 %config                 /usr/local/pf/conf/httpd.conf.d/httpd.collector.tt

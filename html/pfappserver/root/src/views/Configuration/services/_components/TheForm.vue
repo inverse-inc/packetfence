@@ -60,11 +60,6 @@
       :text="$i18n.t(`Should httpd.portal be started? Keep enabled unless you know what you're doing.`)"
     />
 
-    <form-group-httpd-proxy namespace="httpd_proxy"
-      column-label="httpd.proxy"
-      :text="$i18n.t(`Should httpd.proxy be started? Keep enabled unless you know what you're doing.`)"
-    />
-
     <form-group-httpd-webservices namespace="httpd_webservices"
       column-label="httpd.webservices"
       :text="$i18n.t(`Should httpd.webservices be started? Keep enabled unless you know what you're doing.`)"
@@ -245,7 +240,6 @@ import {
   FormGroupHttpdCollector,
   FormGroupHttpdDispatcher,
   FormGroupHttpdPortal,
-  FormGroupHttpdProxy,
   FormGroupHttpdWebservices,
   FormGroupIptables,
   FormGroupIp6tables,
@@ -295,7 +289,6 @@ const components = {
   FormGroupHttpdCollector,
   FormGroupHttpdDispatcher,
   FormGroupHttpdPortal,
-  FormGroupHttpdProxy,
   FormGroupHttpdWebservices,
   FormGroupIptables,
   FormGroupIp6tables,

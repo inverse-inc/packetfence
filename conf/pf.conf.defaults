@@ -531,11 +531,6 @@ httpd_admin_dispatcher=enabled
 # Should httpd.aaa be started?
 httpd_aaa=enabled
 #
-# services.httpd_proxy
-#
-# Should httpd.proxy be started?
-httpd_proxy=enabled
-#
 # services.httpd_binary
 #
 # Location of the apache binary. Only necessary to change if you are not running the RPMed version.

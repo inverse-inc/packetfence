@@ -191,7 +191,6 @@ type PfConfServices struct {
 	HttpdAdminDispatcher string `json:"httpd_admin_dispatcher"`
 	HttpdDispatcher      string `json:"httpd_dispatcher"`
 	HttpdPortal          string `json:"httpd_portal"`
-	HttpdProxy           string `json:"httpd_proxy"`
 	HttpdWebservices     string `json:"httpd_webservices"`
 	Iptables             string `json:"iptables"`
 	Keepalived           string `json:"keepalived"`
