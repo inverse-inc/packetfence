@@ -49,7 +49,7 @@ function performLdapSearch(form, inputValue, attribute) {
     method: 'post',
     baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
     data: {
-      server: form.id,
+      server: form,
       filter: "(" + attribute + "=" + "*" + inputValue + "*" + ")",
     }
   })
