@@ -739,12 +739,14 @@ sub node_deregister {
         return (0);
     }
 
-    eval {
-        pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/mac/".$mac,{});
-    };
+    if (isenabled($Config{services}{pfdhcp})) {
+        eval {
+            pf::api::unifiedapiclient->default_client->call("DELETE", "/api/v1/dhcp/mac/".$mac,{});
+        };
 
-    if ($@) {
-        $logger->error("Error releasing ip for $mac : $@");
+        if ($@) {
+            $logger->error("Error releasing ip for $mac : $@");
+        }
     }
 
     return (1);
