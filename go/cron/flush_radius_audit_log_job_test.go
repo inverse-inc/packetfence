@@ -2,7 +2,6 @@ package maint
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 )
 
@@ -22,12 +21,11 @@ func TestFlushRadiusAuditLog(t *testing.T) {
 	})
 
 	j := job.(*FlushRadiusAuditLogJob)
-	sql, args, err := j.buildQuery(entries)
+	_, _, err := j.buildQuery(entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
 
-	fmt.Printf("%s, %#v\n", sql, args)
 	db, err := getDb()
 	if err != nil {
 		t.Fatalf("No database %s", err.Error())

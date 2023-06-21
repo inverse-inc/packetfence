@@ -55,8 +55,8 @@ func (j *FlushRadiusAuditLogJob) Run() {
 		i++
 		data := j.redis.LPopCount(ctx, "", j.Batch)
 		if err := data.Err(); err != nil {
-			//logError(err.Error())
-			return
+			log.LogError(ctx, fmt.Sprintf("%s error running: %s", j.Name(), err.Error()))
+			break
 		}
 
 		a := data.Val()
@@ -73,7 +73,7 @@ func (j *FlushRadiusAuditLogJob) Run() {
 			break
 		}
 	}
-	if rows_affected > -1 {
+	if rows_affected > 0 {
 		log.LogInfo(ctx, fmt.Sprintf("%s called times %d and handled %d items", j.Name(), i, rows_affected))
 	}
 }
