@@ -36,6 +36,11 @@ export const triggerFields = {
     category: triggerCategories.PROFILING,
     types: [fieldType.OPTIONS]
   },
+  device_is_not: {
+    text: i18n.t('Device is not'),
+    category: triggerCategories.PROFILING,
+    types: [fieldType.OPTIONS]
+  },
   dhcp_fingerprint: {
     text: i18n.t('DHCP Fingerprint'),
     category: triggerCategories.PROFILING,
