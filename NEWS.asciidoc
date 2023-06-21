@@ -39,6 +39,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove ServiceNow provisioner (#7699)
  * Remove Symantec Provisioner (#7700)
  * Remove OPSWAT Provisioner (#7716)
+ * Remove httpd.proxy service (#7668)
 
 === Bug Fixes
 
