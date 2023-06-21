@@ -21,17 +21,17 @@ function useOpenLdap(form) {
   }
 
   const getSubSchemaDN = () => {
-    return performSearch(null, "base", null, "cn=schema,cn=config")
+    return performSearch(null, "base", ["subSchemaSubEntry"], form.value.basedn)
       .then((response) => {
         var firstAttribute = response.data[Object.keys(response.data)[0]]
-        return firstAttribute["subSchemaSubEntry"]
+        return firstAttribute["subschemaSubentry"]
       })
   }
 
   const fetchAttributeTypes = (subSchemaDN) => {
     return performSearch("(objectclass=subschema)",
       "base",
-      ["attributetypes"],
+      ["attributeTypes"],
       subSchemaDN)
       .then((response) => {
         return response.data[Object.keys(response.data)[0]]["attributeTypes"]
@@ -56,10 +56,31 @@ function useOpenLdap(form) {
 }
 
 function extractAttributeNames(attributes) {
-  return attributes.map((attribute) => {
+  let attributeNames = []
+  attributes.forEach((attribute) => {
     const properties = attribute.split(" ")
-    return _.trim(properties[properties.indexOf("NAME") + 1], "'")
+    const attributeName = properties[properties.indexOf("NAME") + 1]
+    if(attributeName === "(") {
+      attributeNames.push(...extractAttributeNameAliases(properties))
+    } else {
+      attributeNames.push(_.trim(attributeName, "'"))
+    }
   })
+  return attributeNames
+}
+
+function extractAttributeNameAliases(attributeProperties) {
+  const aliases = []
+  let currentAlias = ""
+
+  for(let i = 1; i++;) {
+    currentAlias = attributeProperties[attributeProperties.indexOf("NAME") + i]
+    if(currentAlias === ")") {
+      break
+    }
+    aliases.push(_.trim(currentAlias, "'"))
+  }
+  return aliases
 }
 
 export default useOpenLdap
