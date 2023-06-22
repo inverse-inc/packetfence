@@ -41,8 +41,9 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove OPSWAT Provisioner (#7716)
  * Remove httpd.proxy service (#7668)
  * Remove unused service httpd.collector (#7667)
- * Remove Traffic Shaping (7666)
- * Optimize pfdhcp (7710)
+ * Remove Traffic Shaping (#7666)
+ * Optimize pfdhcp (#7710)
+ * Allow the OS to pick the port instead doing retrying. (#7596)
 
 === Bug Fixes
 
