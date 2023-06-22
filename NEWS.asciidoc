@@ -39,10 +39,13 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove ServiceNow provisioner (#7699)
  * Remove Symantec Provisioner (#7700)
  * Remove OPSWAT Provisioner (#7716)
+ * Remove httpd.proxy service (#7668)
+ * Remove unused service httpd.collector (#7667)
 
 === Bug Fixes
 
  * Remove the use of pthread_atfork (#7538)
+ * Don't delete a node from pfdhcp if it is disabled on node deregister (#7525)
 
 == Version 12.2.0 released on 2023-03-08
 

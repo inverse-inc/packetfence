@@ -583,10 +583,6 @@ ConfigBase:
         description: Should httpd.portal be started? Keep enabled unless you know
           what you're doing.
         type: string
-      httpd_proxy:
-        description: Should httpd.proxy be started? Keep enabled unless you know what
-          you're doing.
-        type: string
       httpd_webservices:
         description: Should httpd.webservices be started? Keep enabled unless you
           know what you're doing.

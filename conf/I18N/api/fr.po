@@ -15308,14 +15308,6 @@ msgstr ""
 "Est-ce que httpd.portal doit être démarré ? Gardez le activé sauf si vous "
 "savez ce que vous faites."
 
-#: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:65
-msgid ""
-"Should httpd.proxy be started? Keep enabled unless you know what you're "
-"doing."
-msgstr ""
-"Est-ce que https.proxy doit être démarré ? Gardez le activé sauf si vous "
-"savez ce que vous faites."
-
 #: html/pfappserver/root/src/views/Configuration/services/_components/TheForm.vue:70
 msgid ""
 "Should httpd.webservices be started? Keep enabled unless you know what "
