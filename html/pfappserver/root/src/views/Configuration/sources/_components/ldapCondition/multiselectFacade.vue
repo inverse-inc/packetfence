@@ -15,7 +15,7 @@
                  :limit-text="limitText"
                  :loading="loading"
                  :name="name"
-                 :options="options"
+                 :options="selectOptions"
                  :open-direction="openDirection"
                  :options-limit="optionsLimit"
                  :placeholder="placeholder"
@@ -53,10 +53,10 @@
       </template>
       <template v-if="noConnection" v-slot:noOptions>
         <b-media class="text-secondary" md="auto">
-          <template v-slot:aside>
+          <template #aside>
             <icon name="exclamation-triangle" scale="1.5" class="mt-2 ml-2"></icon>
           </template>
-          <strong>{{ $t("Couldn't connect to the LDAP server") }}</strong>
+          <strong>{{ $t("LDAP connection failed") }}</strong>
           <b-form-text class="font-weight-light">{{ $t('Make sure that you provided correct IP/credentials') }}</b-form-text>
         </b-media>
       </template>
@@ -96,6 +96,7 @@ import {useInputMetaProps} from '@/composables/useMeta'
 import {useInputMultiselectProps} from '@/composables/useInputMultiselect'
 import {useInputValidatorProps} from '@/composables/useInputValidator'
 import {useInputValueProps} from '@/composables/useInputValue'
+import {computed} from '@vue/composition-api';
 
 const components = {
   Multiselect
@@ -180,10 +181,24 @@ export const props = {
   ...useInputMultiselectProps
 }
 
+function setup(props, context){
+  const selectOptions = computed(() => {
+    if(props.noConnection) {
+      return []
+    } else {
+      return props.options
+    }
+  })
+  return {
+    selectOptions
+  }
+}
+
 export default {
   name: 'multiselect-facade',
   inheritAttrs: false,
   components,
+  setup,
   props,
 }
 
