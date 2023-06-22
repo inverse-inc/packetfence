@@ -42,6 +42,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove httpd.proxy service (#7668)
  * Remove unused service httpd.collector (#7667)
  * Remove Traffic Shaping (7666)
+ * Optimize pfdhcp (7710)
 
 === Bug Fixes
 
