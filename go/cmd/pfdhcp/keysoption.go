@@ -9,12 +9,21 @@ func MysqlInsert(key string, value string) bool {
 	if err := MySQLdatabase.PingContext(ctx); err != nil {
 		log.LoggerWContext(ctx).Error("Unable to ping database, reconnect: " + err.Error())
 	}
-	rows, err := MySQLdatabase.Query("replace into key_value_storage values(?,?)", "/dhcpd/"+key, value)
-	defer rows.Close()
+
+	_, err := MySQLdatabase.Exec(
+		`
+INSERT into key_value_storage values(?,?)
+ON DUPLICATE KEY UPDATE value = VALUES(value)
+		`,
+		"/dhcpd/"+key,
+		value,
+	)
+
 	if err != nil {
 		log.LoggerWContext(ctx).Error("Error while inserting into MySQL: " + err.Error())
 		return false
 	}
+
 	return true
 }
 
