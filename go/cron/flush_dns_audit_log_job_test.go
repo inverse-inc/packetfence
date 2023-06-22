@@ -23,12 +23,10 @@ func TestFlushRadiusAuditLog(t *testing.T) {
 	})
 
 	j := job.(*FlushDNSAuditLog)
-	sql, args, err := j.buildQuery(entries)
+	_, _, err := j.buildQuery(entries)
 	if err != nil {
 		t.Fatalf("Cannot flush logs %s", err.Error())
 	}
-	_ = sql
-	_ = args
 
 	db, err := getDb()
 	if err != nil {

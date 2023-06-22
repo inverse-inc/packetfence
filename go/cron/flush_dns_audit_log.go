@@ -37,7 +37,7 @@ func (j *FlushDNSAuditLog) Run() {
 		data := j.redis.LPopCount(ctx, "DNS_AUDIT_LOG", j.Batch)
 		if err := data.Err(); err != nil {
 			log.LogError(ctx, err.Error())
-			return
+			break
 		}
 
 		a := data.Val()
@@ -54,7 +54,8 @@ func (j *FlushDNSAuditLog) Run() {
 			break
 		}
 	}
-	if rows_affected > -1 {
+
+	if rows_affected > 0 {
 		log.LogInfo(ctx, fmt.Sprintf("%s called times %d and handled %d items", j.Name(), i, rows_affected))
 	}
 }
