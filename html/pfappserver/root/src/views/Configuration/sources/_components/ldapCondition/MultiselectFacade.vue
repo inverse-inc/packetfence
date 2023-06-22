@@ -13,7 +13,7 @@
                  :label="label"
                  :limit="limit"
                  :limit-text="limitText"
-                 :loading="loading"
+                 :loading="isLoading"
                  :name="name"
                  :options="selectOptions"
                  :open-direction="openDirection"
@@ -44,14 +44,14 @@
           <i aria-hidden="true" tabindex="1" class="multiselect__tag-icon"></i>
         </span>
       </template>
-      <template v-if="!noConnection" v-slot:beforeList>
+      <template v-if="isConnected" v-slot:beforeList>
         <li v-if="!internalSearch" class="multiselect__element">
           <div class="col-form-label py-1 px-2 text-dark text-left bg-light border-bottom">
             {{ $t('Type to search') }}
           </div>
         </li>
       </template>
-      <template v-if="noConnection" v-slot:noOptions>
+      <template v-if="!isConnected" v-slot:noOptions>
         <b-media class="text-secondary" md="auto">
           <template #aside>
             <icon name="exclamation-triangle" scale="1.5" class="mt-2 ml-2"></icon>
@@ -69,7 +69,7 @@
           <b-form-text class="font-weight-light">{{ $t('Type to search results.') }}</b-form-text>
         </b-media>
       </template>
-      <template v-if="!loading" v-slot:noResult>
+      <template v-if="!isLoading" v-slot:noResult>
         <b-media class="text-secondary" md="auto">
           <template v-slot:aside>
             <icon name="search" scale="1.5" class="mt-2 ml-2"></icon>
@@ -109,10 +109,6 @@ export const props = {
     validator: value => ['sm', 'md', 'lg'].includes(value)
   },
 
-  noConnection: {
-    type: Boolean,
-    default: false
-  },
 
   onSearch: {
     type: Function,
@@ -144,6 +140,11 @@ export const props = {
     }
   },
 
+  isConnected: {
+    type: Boolean,
+    default: true
+  },
+
   isFocused: {
     type: Boolean,
     default: false
@@ -154,14 +155,14 @@ export const props = {
     default: false
   },
 
+  isLoading: {
+    type: Boolean,
+    default: false
+  },
+
   singleLabel: {
     type: String,
     default: ''
-  },
-
-  loading: {
-    type: Boolean,
-    default: false
   },
 
   searchQueryInvalidFeedback: {

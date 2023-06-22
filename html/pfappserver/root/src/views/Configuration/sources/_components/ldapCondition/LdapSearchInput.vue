@@ -10,10 +10,10 @@
     :on-open="onOpen"
     :on-remove="onRemove"
     :on-close="onClose"
-    :no-connection="noConnection"
+    :is-connected="isConnected"
     :is-focused="isFocused"
     :is-disabled="isDisabled"
-    :loading="isLoading"
+    :isLoading="isLoading"
     :placeholder="$i18n.t('Search')"
     :search-query-invalid-feedback="searchQueryInvalidFeedback"
     :search-query-valid-feedback="''"
@@ -26,14 +26,11 @@ import {BaseInputChosenOneSearchableProps} from '@/components/new'
 import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
-  from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
+  from '@/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue'
 import {namespaceToYupPath} from '@/composables/useInputValidator'
 import {valueToSelectValue} from '@/utils/convert'
 import _ from 'lodash'
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
-import {
-  parseLdapStringToArray
-} from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 
 export const props = {
@@ -79,7 +76,7 @@ function setup(props, context) { // eslint-disable-line
   const isLoading = ref(false)
   const isDisabled = inject('isLoading')
   const sendLdapSearchRequest = inject(ProvidedKeys.performSearch)
-  const noConnection = computed(() => !inject(ProvidedKeys.connectedToLdap).value)
+  const isConnected = computed(() => inject(ProvidedKeys.connectedToLdap).value)
   const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
   const initialValue = getFormNamespace(props.namespace.split('.'), form.value)
@@ -182,7 +179,7 @@ function setup(props, context) { // eslint-disable-line
     isDisabled,
     isLoading,
     isFocused,
-    noConnection,
+    isConnected,
     onSearch,
     onSelect,
     onOpen,

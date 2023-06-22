@@ -3,14 +3,14 @@
     :options="inputOptions"
     :value="inputValue"
     :label="text"
-    :loading="isLoading"
+    :isLoading="isLoading"
     :track-by="text"
     :single-label="singleLabel"
     :on-select="onSelect"
     :on-remove="onRemove"
     :on-open="onOpen"
     :on-close="onClose"
-    :no-connection="noConnection"
+    :is-connected="isConnected"
     :is-focused="isFocused"
     :is-disabled="isDisabled"
     :placeholder="$i18n.t('Search')"
@@ -25,7 +25,7 @@ import {BaseInputChosenOneSearchableProps} from '@/components/new'
 import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
-  from '@/views/Configuration/sources/_components/ldapCondition/multiselectFacade.vue'
+  from '@/views/Configuration/sources/_components/ldapCondition/MultiselectFacade.vue'
 import {namespaceToYupPath} from '@/composables/useInputValidator'
 import {valueToSelectValue} from '@/utils/convert';
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
@@ -46,9 +46,9 @@ function setup(props, _) { // eslint-disable-line
   const form = inject('form')
   const isFocused = ref(false)
   const isLoading = computed(() => inject(ProvidedKeys.LdapAttributesLoading).value)
-  const noConnection = computed(() => !inject(ProvidedKeys.connectedToLdap).value)
+  const isConnected = computed(() => inject(ProvidedKeys.connectedToLdap).value)
   const allOptions = computed(() => {
-    if (noConnection.value) {
+    if (!isConnected.value) {
       return []
     }
     return moveSelectionToTop(inject(ProvidedKeys.LdapAttributes).value.map(valueToSelectValue))
@@ -121,7 +121,7 @@ function setup(props, _) { // eslint-disable-line
     isDisabled,
     isFocused,
     isLoading,
-    noConnection,
+    isConnected,
     onSelect,
     onOpen,
     onClose,
