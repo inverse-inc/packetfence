@@ -33,7 +33,7 @@ const setup = () => {
 
   watch(form, debouncedConnectionCheck, {deep: true})
 
-  watch(connectedToLdap, (newConnectionState, oldConnectionState) => {
+  watch(connectedToLdap, (newConnectionState) => {
     if (newConnectionState === true) {
       ldapAttributesLoading.value = true
       ldapClient.getAttributes().then((attributes) => {

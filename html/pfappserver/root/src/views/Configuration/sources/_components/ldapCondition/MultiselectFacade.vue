@@ -182,6 +182,7 @@ export const props = {
   ...useInputMultiselectProps
 }
 
+// eslint-disable-next-line no-unused-vars
 function setup(props, context){
   const selectOptions = computed(() => {
     if(props.noConnection) {

@@ -1,17 +1,17 @@
 <template>
   <div class="base-flex-wrap" align-v="center">
     <ldap-attribute-selector ref="attributeComponentRef"
-      :namespace="`${namespace}.attribute`"
+                             :namespace="`${namespace}.attribute`"
     />
 
     <base-input-chosen-one ref="operatorComponentRef" v-if="attributeValue"
-      :namespace="`${namespace}.operator`"
-      :options="operatorOptions"
+                           :namespace="`${namespace}.operator`"
+                           :options="operatorOptions"
     />
 
     <component :is="valueComponent" ref="valueComponentRef" v-if="operatorValue"
-      :namespace="`${namespace}.value`"
-      v-bind="valueBind"
+               :namespace="`${namespace}.value`"
+               v-bind="valueBind"
     />
 
   </div>
@@ -26,7 +26,7 @@ import {
   BaseInputPassword,
   BaseInputRange
 } from '@/components/new'
-import {computed, nextTick, ref, toRefs, unref, watch} from '@vue/composition-api'
+import {computed, nextTick, ref, unref, watch} from '@vue/composition-api'
 import {
   pfComponentType,
   pfFieldType,
@@ -72,12 +72,15 @@ const setup = (props, context) => {
   watch( // when `attribute` is mutated
     () => unref(inputValue) && unref(inputValue).attribute,
     () => {
-      const { isFocus = false } = attributeComponentRef.value
+      const {isFocus = false} = attributeComponentRef.value
       if (isFocus) { // and `attribute` isFocus
-        onChange({ ...unref(inputValue), operator: undefined, value: undefined }) // clear `operator` and `value`
+        onChange({...unref(inputValue), operator: undefined, value: undefined}) // clear `operator` and `value`
 
         nextTick(() => {
-          const { doFocus = () => {} } = operatorComponentRef.value || {}
+          const {
+            doFocus = () => {
+            }
+          } = operatorComponentRef.value || {}
           doFocus() // focus `operator` component
         })
       }
@@ -87,12 +90,15 @@ const setup = (props, context) => {
   watch( // when `operator` is mutated
     () => unref(inputValue) && unref(inputValue).operator,
     () => {
-      const { isFocus = false } = operatorComponentRef.value
+      const {isFocus = false} = operatorComponentRef.value
       if (isFocus) { // and `operator` isFocus
-        onChange({ ...unref(inputValue), value: undefined }) // clear `value`
+        onChange({...unref(inputValue), value: undefined}) // clear `value`
 
         nextTick(() => {
-          const { doFocus = () => {} } = valueComponentRef.value || {}
+          const {
+            doFocus = () => {
+            }
+          } = valueComponentRef.value || {}
           doFocus() // focus `value` component
         })
       }
@@ -100,43 +106,44 @@ const setup = (props, context) => {
   )
 
   const attributeValue = computed(() => {
-    const { attribute } = unref(inputValue) || {}
+    const {attribute} = unref(inputValue) || {}
     return attribute
   })
 
   const operatorOptions = computed(() => {
-    const { attributes: { 'data-type': type } = {} } = unref(attributeValue) || {}
     return fieldTypeOperators[pfFieldType.LDAPATTRIBUTE]
   })
 
   const operatorValue = computed(() => {
-    const { operator } = unref(inputValue) || {}
+    const {operator} = unref(inputValue) || {}
     return operator
   })
 
   const valueComponent = computed(() => {
     if (attributeValue.value) {
-      const { attributes: { 'data-type': type } = {} } = unref(attributeValue) || {}
-
       return LdapSearchInput
-      }
-    return undefined
+    } else {
+      return undefined
+    }
   })
 
   const valueBind = computed(() => {
-    const { attributes: { 'data-type': type } = {} } = unref(attributeValue) || {}
+    const {attributes: {'data-type': type} = {}} = unref(attributeValue) || {}
     if (type && type in fieldTypeValues) {
       const options = fieldTypeValues[type]()
       if (0 in options && 'group' in options[0]) // grouped
-        return { groupSelect: true, groupLabel: 'group', groupValues: 'options', options }
+        return {groupSelect: true, groupLabel: 'group', groupValues: 'options', options}
       else // non-grouped
-        return { options }
+        return {options}
     }
     return undefined
   })
 
   const doFocus = () => {
-    const { doFocus = () => {} } = attributeComponentRef.value || {}
+    const {
+      doFocus = () => {
+      }
+    } = attributeComponentRef.value || {}
     doFocus() // focus `attribute` component
   }
 
