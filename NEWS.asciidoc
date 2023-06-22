@@ -40,6 +40,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove Symantec Provisioner (#7700)
  * Remove OPSWAT Provisioner (#7716)
  * Remove httpd.proxy service (#7668)
+ * Remove unused service httpd.collector (#7667)
 
 === Bug Fixes
 
