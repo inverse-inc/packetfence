@@ -49,6 +49,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Remove the use of pthread_atfork (#7538)
  * Don't delete a node from pfdhcp if it is disabled on node deregister (#7525)
  * Accurately display the number of registered nodes per role and the overall total of registered nodes. (ZEN 12.1 Odd maths problem on the status page graphics #7471)
+ * Move freeradius refresh to pfqueue (#7620)
 
 == Version 12.2.0 released on 2023-03-08
 
