@@ -1,35 +1,19 @@
-import apiCall from '@/utils/api';
 import _ from 'lodash';
 import {
-  parseLdapStringToArray
+  parseLdapStringToArray, sendLdapSearchRequest
 } from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 
 function useOpenLdap(form) {
 
-  const performSearch = (filter = null, scope = null, attributes = null, base_dn = null) => {
-    return apiCall.postQuiet('ldap/search',
-      {
-        server: {
-          ...form.value,
-        },
-        search_query: {
-          filter: filter,
-          scope: scope,
-          attributes: attributes,
-          base_dn: base_dn,
-        }
-      }
-    ).then(response => {
-      delete response.data.quiet;
-      return response
-    })
+  const performSearch = (filter, scope, attributes, base_dn) => {
+    return sendLdapSearchRequest({...form.value}, filter, scope, attributes, base_dn)
   }
 
   const getSubSchemaDN = () => {
     return performSearch(null, "base", ["subSchemaSubEntry"], form.value.basedn)
       .then((response) => {
-        var firstAttribute = response.data[Object.keys(response.data)[0]]
+        let firstAttribute = response.data[Object.keys(response.data)[0]]
         return firstAttribute["subschemaSubentry"]
       })
   }
