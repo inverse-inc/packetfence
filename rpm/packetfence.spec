@@ -413,7 +413,6 @@ done
 %{__install} -D -m0644 conf/systemd/packetfence-redis_ntlm_cache.service %{buildroot}%{_unitdir}/packetfence-redis_ntlm_cache.service
 %{__install} -D -m0644 conf/systemd/packetfence-redis_queue.service %{buildroot}%{_unitdir}/packetfence-redis_queue.service
 %{__install} -D -m0644 conf/systemd/packetfence-snmptrapd.service %{buildroot}%{_unitdir}/packetfence-snmptrapd.service
-%{__install} -D -m0644 conf/systemd/packetfence-tc.service %{buildroot}%{_unitdir}/packetfence-tc.service
 %{__install} -D -m0644 conf/systemd/packetfence-winbindd.service %{buildroot}%{_unitdir}/packetfence-winbindd.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfdhcp.service %{buildroot}%{_unitdir}/packetfence-pfdhcp.service
 %{__install} -D -m0644 conf/systemd/packetfence-pfipset.service %{buildroot}%{_unitdir}/packetfence-pfipset.service
@@ -583,6 +582,7 @@ if [ "$1" = "2"   ]; then
     /usr/bin/systemctl disable packetfence-config
     /usr/bin/systemctl disable packetfence.service
     /usr/bin/systemctl disable packetfence-haproxy.service
+    /usr/bin/systemctl disable packetfence-tc.service
     /usr/bin/systemctl disable packetfence-httpd.proxy.service
     /usr/bin/systemctl disable packetfence-httpd.collector.service
     /usr/bin/systemctl isolate packetfence-base.target
@@ -1240,8 +1240,6 @@ fi
                         /usr/local/pf/conf/report.conf.example
 %config(noreplace)      /usr/local/pf/conf/template_switches.conf
                         /usr/local/pf/conf/template_switches.conf.defaults
-%config(noreplace)      /usr/local/pf/conf/traffic_shaping.conf
-                        /usr/local/pf/conf/traffic_shaping.conf.example
 %dir                    /usr/local/pf/conf/uploads
 %doc                    /usr/local/pf/COPYING
 %dir                    /usr/local/pf/db

@@ -638,15 +638,7 @@ netdata=enabled
 #
 # Location of the netdata binary. Only necessary to change if you are not running the RPMed version.
 netdata_binary=/usr/sbin/netdata
-# services.tc
 #
-# Should tc be managed by PacketFence?
-tc=enabled
-#
-# services.tc_binary
-#
-# location of the yc binary. only necessary to change if you are not running the rpmed version.
-tc_binary=/usr/sbin/tc
 # services.pfdns
 #
 # Should pfdns be managed by PacketFence?

@@ -1,6 +1,5 @@
 import store from '@/store'
 import RolesStoreModule from './_store'
-import TrafficShapingPoliciesStoreModule from '../networks/trafficShapingPolicies/_store'
 
 const TheSearch = () => import(/* webpackChunkName: "Configuration" */ './_components/TheSearch')
 const TheView = () => import(/* webpackChunkName: "Configuration" */ './_components/TheView')
@@ -19,8 +18,6 @@ export const useRouter = $router => {
 export const beforeEnter = (to, from, next = () => {}) => {
   if (!store.state.$_roles)
     store.registerModule('$_roles', RolesStoreModule)
-  if (!store.state.$_traffic_shaping_policies)
-    store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStoreModule)
   next()
 }
 

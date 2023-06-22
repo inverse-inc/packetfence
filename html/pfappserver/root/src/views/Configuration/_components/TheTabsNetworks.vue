@@ -16,7 +16,6 @@
 import NetworkView from '../networks/network/_components/TheView'
 import InterfacesList from '../networks/interfaces/_components/TheList'
 import InlineView from '../networks/inline/_components/TheView'
-import TrafficShapingPoliciesSearch from '../networks/trafficShapingPolicies/_components/TheSearch'
 import FencingView from '../networks/fencing/_components/TheView'
 import ParkingView from '../networks/parking/_components/TheView'
 
@@ -32,10 +31,6 @@ const tabs = {
   inline: {
     title: 'Inline', // i18n defer
     component: InlineView
-  },
-  traffic_shapings: {
-    title: 'Inline Traffic Shaping', // i18n defer
-    component: TrafficShapingPoliciesSearch
   },
   fencing: {
     title: 'Fencing', // i18n defer

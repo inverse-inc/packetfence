@@ -195,11 +195,6 @@
       :text="$i18n.t(`Should snmptrapd be started? Keep enabled unless you know what you're doing.`)"
     />
 
-    <form-group-tc namespace="tc"
-      column-label="tc"
-      :text="$i18n.t('Should traffic shaping be managed by PacketFence?')"
-    />
-
     <form-group-tracking-config namespace="tracking-config"
       column-label="tracking-config"
       :text="$i18n.t('Should tracking-config be managed by PacketFence?')"
@@ -262,7 +257,6 @@ import {
   FormGroupRedisNtlmCache,
   FormGroupRedisQueue,
   FormGroupSnmpTrapd,
-  FormGroupTc,
   FormGroupTrackingConfig,
   FormGroupWinbindd,
   FormGroupMysqlProbe
@@ -310,7 +304,6 @@ const components = {
   FormGroupRedisNtlmCache,
   FormGroupRedisQueue,
   FormGroupSnmpTrapd,
-  FormGroupTc,
   FormGroupTrackingConfig,
   FormGroupWinbindd,
   FormGroupMysqlProbe

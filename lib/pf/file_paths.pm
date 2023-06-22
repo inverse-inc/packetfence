@@ -103,7 +103,6 @@ our (
     $switch_filters_config_file,
     $stats_config_file,
     $stats_config_default_file,
-    $traffic_shaping_config_file,
     $pf_admin_i18n_dir,
     $syslog_config_file,
     $syslog_default_config_file,
@@ -205,7 +204,6 @@ BEGIN {
         $switch_filters_config_file
         $stats_config_file
         $stats_config_default_file
-        $traffic_shaping_config_file
         $pf_admin_i18n_dir
         $syslog_config_file
         $syslog_default_config_file
@@ -280,7 +278,6 @@ $provisioning_config_file = catfile($conf_dir, 'provisioning.conf');
 $self_service_config_file = catfile($conf_dir,"self_service.conf");
 $self_service_default_config_file = catfile($conf_dir,"self_service.conf.defaults");
 $pki_provider_config_file  = catfile($conf_dir,"pki_provider.conf");
-$traffic_shaping_config_file  = catfile($conf_dir,"traffic_shaping.conf");
 $syslog_config_file  = catfile($conf_dir, "syslog.conf");
 $syslog_default_config_file  = catfile($conf_dir, "syslog.conf.defaults");
 $rsyslog_packetfence_config_file  = "/etc/rsyslog.d/packetfence.conf";
@@ -407,7 +404,6 @@ $connectors_config_file = catdir($conf_dir,"connectors.conf");
     $dns_filters_config_file,
     $switch_filters_config_file,
     $stats_config_file,
-    $traffic_shaping_config_file,
     $syslog_config_file,
     $realm_config_file,
     $fingerbank_collector_env_defaults_file,

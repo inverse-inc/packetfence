@@ -74,10 +74,6 @@
               size="sm" variant="outline-primary" class="mr-1"
               @click.stop.prevent="goToClone(item)"
             >{{ $t('Clone') }}</b-button>
-            <b-button v-if="isInline"
-              size="sm" variant="outline-primary" class="mr-1"
-              :to="trafficShapingRoute(item.id)"
-            >{{ $t('Traffic Shaping') }}</b-button>
           </span>
         </template>
         <template #cell(id)="{ item }">
@@ -232,18 +228,6 @@ const setup = (props, context) => {
       })
   }
 
-  const _trafficShapingPolicies = ref([])
-  $store.dispatch('$_traffic_shaping_policies/all')
-    .then(response => {
-      _trafficShapingPolicies.value = response.map(policy => policy.id)
-    })
-
-  const trafficShapingRoute = id => {
-    return (_trafficShapingPolicies.value.includes(id))
-      ? { name: 'traffic_shaping', params: { id } } // exists
-      : { name: 'newTrafficShaping', params: { role: id } } // not exists
-  }
-
   const isInline = computed(() => $store.getters['system/isInline'])
 
   const {
@@ -268,7 +252,6 @@ const setup = (props, context) => {
     reassignableRoles,
     reasons,
     reAssign,
-    trafficShapingRoute,
     isInline,
 
     collapsedNodes,

@@ -42,17 +42,6 @@ index 5492ed51f1..d2237bc88e 100644
  #
  # services.netdata
  #
-@@ -634,8 +634,8 @@ tc=enabled
- #
- # services.tc_binary
- #
--# location of the yc binary. only necessary to change if you are not running the rpmed version.
--tc_binary=/usr/sbin/tc
-+# location of the tc binary. only necessary to change if you are not running the rpmed version.
-+tc_binary=/sbin/tc
- # services.pfdns
- #
- # Should pfdns be managed by PacketFence?
 diff --git a/conf/systemd/packetfence-haproxy-db.service b/conf/systemd/packetfence-haproxy-db.service
 index 8045a372d3..7437d09bae 100644
 --- a/conf/systemd/packetfence-haproxy-db.service
@@ -193,18 +182,3 @@ index 8e2e760d54..306af96f9d 100644
  ExecStart=/usr/sbin/snmptrapd -f -n -c /usr/local/pf/var/conf/snmptrapd.conf -C -A -Lf /usr/local/pf/logs/snmptrapd.log -p /usr/local/pf/var/run/snmptrapd.pid -On 
  ExecReload=/bin/kill -HUP $MAINPID
  Slice=packetfence.slice
-diff --git a/conf/systemd/packetfence-tc.service b/conf/systemd/packetfence-tc.service
-index c3c86ed225..360cd0de29 100644
---- a/conf/systemd/packetfence-tc.service
-+++ b/conf/systemd/packetfence-tc.service
-@@ -9,8 +9,8 @@ StartLimitBurst=3
- StartLimitInterval=10
- Type=oneshot
- RemainAfterExit=yes
--ExecStart=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
--ExecStop=/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
-+ExecStart=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 -Mpf::db -Mpf::services::manager::tc -e 'my $db ; while(!$db) { eval { $db = db_connect() } ; sleep 1 } ; pf::services::manager::tc->new()->_start()'
-+ExecStop=/usr/bin/perl -I/usr/local/pf/lib -I/usr/local/pf/lib_perl/lib/perl5 '-Mpf::services::manager::tc' -e 'pf::services::manager::tc->new()->_stop()'
- Slice=packetfence.slice
- 
- [Install]

@@ -4,12 +4,10 @@ import RolesStoreModule from '../roles/_store'
 import InterfacesStoreModule from './interfaces/_store'
 import Layer2NetworksStoreModule from './layer2Networks/_store'
 import RoutedNetworksStoreModule from './routedNetworks/_store'
-import TrafficShapingPoliciesStoreModule from './trafficShapingPolicies/_store'
 
 import InterfacesRoutes from './interfaces/_router'
 import Layer2NetworksRoutes from './layer2Networks/_router'
 import RoutedNetworksRoutes from './routedNetworks/_router'
-import TrafficShapingPoliciesRoutes from './trafficShapingPolicies/_router'
 
 const TheTabs = () => import(/* webpackChunkName: "Configuration" */ '../_components/TheTabsNetworks')
 
@@ -65,7 +63,6 @@ const routes = [
   ...InterfacesRoutes,
   ...Layer2NetworksRoutes,
   ...RoutedNetworksRoutes,
-  ...TrafficShapingPoliciesRoutes
 ]
 
 const routesWithStore = routes.map(route => {
@@ -86,9 +83,6 @@ const routesWithStore = routes.map(route => {
 
     if (!store.state.$_routed_networks)
       store.registerModule('$_routed_networks', RoutedNetworksStoreModule)
-
-    if (!store.state.$_traffic_shaping_policies)
-      store.registerModule('$_traffic_shaping_policies', TrafficShapingPoliciesStoreModule)
 
     if (beforeEnter)
       beforeEnter(to, from, next)
