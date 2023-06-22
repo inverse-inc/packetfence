@@ -1,4 +1,5 @@
 package pf::cmd::pf::service;
+
 =head1 NAME
 
 pf::cmd::pf::service add documentation
@@ -22,7 +23,6 @@ Services managed by PacketFence:
   haproxy-portal         | haproxy portal daemon
   httpd.aaa              | Apache AAA webservice
   httpd.admin_dispatcher | Admin GUI dispatcher
-  httpd.collector        | Apache Collector daemon
   httpd.dispatcher       | Captive portal dispatcher
   httpd.portal           | Apache Captive Portal
   httpd.webservices      | Apache Webservices
