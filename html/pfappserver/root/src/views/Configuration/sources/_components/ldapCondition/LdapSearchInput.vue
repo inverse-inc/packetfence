@@ -10,6 +10,7 @@
     :on-open="onOpen"
     :on-remove="onRemove"
     :on-close="onClose"
+    :no-connection="noConnection"
     :is-focused="isFocused"
     :is-disabled="isDisabled"
     :loading="isLoading"
@@ -30,6 +31,7 @@ import MultiselectFacade
 import {namespaceToYupPath} from '@/composables/useInputValidator'
 import {valueToSelectValue} from '@/utils/convert'
 import _ from 'lodash'
+import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
 
 
 export const props = {
@@ -69,6 +71,7 @@ function setup(props, context) { // eslint-disable-line
   const isFocused = ref(false)
   const isLoading = ref(false)
   const isDisabled = inject('isLoading')
+  const noConnection = computed(() => !inject(ProvidedKeys.connectedToLdap).value)
   const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
   const initialValue = getFormNamespace(props.namespace.split('.'), form.value)
@@ -170,6 +173,7 @@ function setup(props, context) { // eslint-disable-line
     isDisabled,
     isLoading,
     isFocused,
+    noConnection,
     onSearch,
     onSelect,
     onOpen,
