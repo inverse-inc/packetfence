@@ -1,4 +1,4 @@
-package pf::Switch::Cisco::Cisco_IOS_12_2;
+package pf::Switch::Cisco::Cisco_IOS.pm;
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Cisco_IOS');
+use base ('pf::Switch::Cisco');
 use Carp;
 use Net::SNMP;
 use Data::Dumper;
@@ -103,7 +103,7 @@ use pf::config qw(
     $WIRED_MAC_AUTH
 );
 use pf::locationlog;
-sub description { 'Cisco IOS v12.2' }
+sub description { 'Cisco IOS' }
 
 # importing switch constants
 use pf::Switch::constants;
