@@ -17,7 +17,10 @@ function useAdLdap(form) {
           base_dn: base_dn,
         }
       }
-    ).then(response => {delete response.data.quiet; return response})
+    ).then(response => {
+      delete response.data.quiet;
+      return response
+    })
   }
 
   const getSubSchemaDN = () => {
@@ -52,7 +55,11 @@ function useAdLdap(form) {
     return getSubSchemaDN().then(() => true).catch(() => false)
   }
 
-  return {getAttributes: getAttributes, checkConnection: checkConnection}
+  return {
+    getAttributes: getAttributes,
+    checkConnection: checkConnection,
+    performSearch: performSearch
+  }
 }
 
 function extractAttributeNames(attributes) {

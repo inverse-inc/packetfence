@@ -49,6 +49,7 @@ const setup = () => {
   provide(ProvidedKeys.LdapAttributes, ldapAttributes)
   provide(ProvidedKeys.connectedToLdap, connectedToLdap)
   provide(ProvidedKeys.LdapAttributesLoading, ldapAttributesLoading)
+  provide(ProvidedKeys.performSearch, ldapClient.performSearch)
   provide('actions', actions)
 
   return {form, connectedToLdap}

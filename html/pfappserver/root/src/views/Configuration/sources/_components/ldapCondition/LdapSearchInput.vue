@@ -23,7 +23,6 @@
 
 <script>
 import {BaseInputChosenOneSearchableProps} from '@/components/new'
-import apiCall, {baseURL, baseURL as apiBaseURL} from '@/utils/api'
 import {getFormNamespace, setFormNamespace} from '@/composables/useInputValue'
 import {computed, inject, ref, unref} from '@vue/composition-api'
 import MultiselectFacade
@@ -32,6 +31,9 @@ import {namespaceToYupPath} from '@/composables/useInputValidator'
 import {valueToSelectValue} from '@/utils/convert'
 import _ from 'lodash'
 import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
+import {
+  parseLdapStringToArray
+} from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 
 export const props = {
@@ -45,21 +47,26 @@ export const props = {
 
 }
 
-function performLdapSearch(form, inputValue, attribute) {
-  return apiCall.request({
-    url: 'ldap/search',
-    method: 'post',
-    baseURL: (baseURL || baseURL === '') ? baseURL : apiBaseURL,
-    data: {
-      server: form,
-      filter: "(" + attribute + "=" + "*" + inputValue + "*" + ")",
+function parseLdapResponse(response, ldapAttribute) {
+  const ldapEntries = Object.values(response.data)
+  let parsedEntries = new Set()
+  for (let i = 0; i < ldapEntries.length; i++) {
+    let value = ldapEntries[i][ldapAttribute]
+    if (_.isArray(value)){
+      parsedEntries = new Set([...parsedEntries, ...value])
+    } else {
+      parsedEntries.add(value)
     }
+  }
+  return Array.from(parsedEntries).filter((item) => {
+    return Boolean(item)
+  }).map((item) => {
+    return valueToSelectValue(item)
   })
-    .then((response) => {
-      return Object.values(response.data).map((item) => {
-        return valueToSelectValue(item[attribute])
-      }).filter((item) => { return Boolean(item.text) })
-    })
+}
+
+function createFilter(searchInput, attribute) {
+  return "(" + attribute + "=" + "*" + searchInput + "*" + ")"
 }
 
 
@@ -71,6 +78,7 @@ function setup(props, context) { // eslint-disable-line
   const isFocused = ref(false)
   const isLoading = ref(false)
   const isDisabled = inject('isLoading')
+  const sendLdapSearchRequest = inject(ProvidedKeys.performSearch)
   const noConnection = computed(() => !inject(ProvidedKeys.connectedToLdap).value)
   const defaultSelectedValue = null
   const selectedValue = ref(defaultSelectedValue)
@@ -95,7 +103,7 @@ function setup(props, context) { // eslint-disable-line
   function onSearch(query) {
     searchInput.value = query
     isLoading.value = true
-    if(query.length < minimumSearchLength) {
+    if (query.length < minimumSearchLength) {
       inputOptions.value = []
       debouncedSearch.cancel()
       isLoading.value = false
@@ -105,9 +113,10 @@ function setup(props, context) { // eslint-disable-line
     debouncedSearch(query)
   }
 
-  function performSearch(query){
-    performLdapSearch(form.value, query, ldapFilterAttribute.value).then((searchResults) => {
-      inputOptions.value = searchResults
+  function performSearch(query) {
+    const filter = createFilter(query, ldapFilterAttribute.value)
+    sendLdapSearchRequest(filter).then((searchResponse) => {
+      inputOptions.value = parseLdapResponse(searchResponse, ldapFilterAttribute.value)
       addAlreadySelectedValueToOptions()
     }).finally(() => {
       isLoading.value = false
@@ -143,7 +152,7 @@ function setup(props, context) { // eslint-disable-line
   function onSelect(value) {
     selectedValue.value = value
     let ldapEntryNamespace = props.namespace.split('.')
-    if(value){
+    if (value) {
       setFormNamespace(ldapEntryNamespace, form.value, value.value)
     } else {
       setFormNamespace(ldapEntryNamespace, form.value, defaultSelectedValue)

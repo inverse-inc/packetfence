@@ -1,5 +1,8 @@
 import apiCall from '@/utils/api';
 import _ from 'lodash';
+import {
+  parseLdapStringToArray
+} from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 
 function useOpenLdap(form) {
@@ -17,7 +20,10 @@ function useOpenLdap(form) {
           base_dn: base_dn,
         }
       }
-    ).then(response => {delete response.data.quiet; return response})
+    ).then(response => {
+      delete response.data.quiet;
+      return response
+    })
   }
 
   const getSubSchemaDN = () => {
@@ -52,7 +58,11 @@ function useOpenLdap(form) {
     return getSubSchemaDN().then(() => true).catch(() => false)
   }
 
-  return {getAttributes: getAttributes, checkConnection: checkConnection}
+  return {
+    getAttributes: getAttributes,
+    checkConnection: checkConnection,
+    performSearch: performSearch
+  }
 }
 
 function extractAttributeNames(attributes) {
@@ -60,7 +70,7 @@ function extractAttributeNames(attributes) {
   attributes.forEach((attribute) => {
     const properties = attribute.split(" ")
     const attributeName = properties[properties.indexOf("NAME") + 1]
-    if(attributeName === "(") {
+    if (attributeName === "(") {
       attributeNames.push(...extractAttributeNameAliases(properties))
     } else {
       attributeNames.push(_.trim(attributeName, "'"))
@@ -70,17 +80,12 @@ function extractAttributeNames(attributes) {
 }
 
 function extractAttributeNameAliases(attributeProperties) {
-  const aliases = []
-  let currentAlias = ""
+  const attributeStartIndex = attributeProperties.indexOf("NAME") + 1
+  attributeProperties = attributeProperties.slice(attributeStartIndex)
+  attributeProperties = attributeProperties.slice(0, attributeProperties.indexOf(")") + 1)
+  const attributeString = attributeProperties.join(" ")
 
-  for(let i = 1; i++;) {
-    currentAlias = attributeProperties[attributeProperties.indexOf("NAME") + i]
-    if(currentAlias === ")") {
-      break
-    }
-    aliases.push(_.trim(currentAlias, "'"))
-  }
-  return aliases
+  return parseLdapStringToArray(attributeString).map((item) => _.trim(item, "'"))
 }
 
 export default useOpenLdap
