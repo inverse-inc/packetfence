@@ -125,7 +125,7 @@ Warning: The list of subroutine is incomplete
 # special features
 use pf::SwitchSupports qw(
     FloatingDevice
-    WiredDot1x
+    -WiredDot1x
     -RadiusDynamicVlanAssignment
     RadiusVoip
     Lldp
