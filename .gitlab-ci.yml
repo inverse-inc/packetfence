@@ -54,6 +54,26 @@ variables:
   ANSIBLE_FORCE_COLOR: 1
   ANSIBLE_STDOUT_CALLBACK: yaml
   VAGRANT_FORCE_COLOR: "true"
+  PFDEB_BASED_IMGS:
+    - "pfconfig"
+    - "httpd.dispatcher"
+    - "httpd.portal"
+    - "api-frontend"
+    - "pfacct"
+    - "pfcmd"
+    - "pfqueue"
+    - "httpd.aaa"
+    - "httpd.admin_dispatcher"
+    - "httpd.webservices"
+    - "radiusd"
+    - "pfsso"
+    - "pfperl-api"
+    - "pfconnector"
+    - "pfpki"
+    - "pfcron"
+    - "haproxy-portal"
+    - "haproxy-admin"
+    - "proxysql"
 
 
 ################################################################################
@@ -694,26 +714,7 @@ pfdeb_based_br_maint:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
     matrix:
-      - IMAGE_NAME:
-          - "pfconfig"
-          - "httpd.dispatcher"
-          - "httpd.portal"
-          - "api-frontend"
-          - "pfacct"
-          - "pfcmd"
-          - "pfqueue"
-          - "httpd.aaa"
-          - "httpd.admin_dispatcher"
-          - "httpd.webservices"
-          - "radiusd"
-          - "pfsso"
-          - "pfperl-api"
-          - "pfconnector"
-          - "pfpki"
-          - "pfcron"
-          - "haproxy-portal"
-          - "haproxy-admin"
-          - "proxysql"
+      - $PFDEB_BASED_IMGS
 
 img_br_maint:
   extends:
