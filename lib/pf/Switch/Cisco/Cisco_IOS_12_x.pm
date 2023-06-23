@@ -1,4 +1,4 @@
-package pf::Switch::Cisco::Cisco_IOS_12_x.pm;
+package pf::Switch::Cisco::Cisco_IOS_12_x;
 
 =head1 NAME
 
@@ -89,7 +89,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Cisco');
+use base ('pf::Switch::Cisco::Cisco_IOS');
 use Carp;
 use Net::SNMP;
 use Data::Dumper;
