@@ -89,7 +89,7 @@ This switch can parse SNMP traps and change a VLAN on a switch port using SNMP.
 use strict;
 use warnings;
 
-use base ('pf::Switch::Cisco_IOS');
+use base ('pf::Switch::Cisco');
 use Carp;
 use Net::SNMP;
 use Data::Dumper;
@@ -125,7 +125,7 @@ Warning: The list of subroutine is incomplete
 # special features
 use pf::SwitchSupports qw(
     FloatingDevice
-    -WiredDot1x
+    WiredDot1x
     -RadiusDynamicVlanAssignment
     RadiusVoip
     Lldp
