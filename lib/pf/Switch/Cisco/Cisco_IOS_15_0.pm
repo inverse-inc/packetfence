@@ -28,7 +28,7 @@ Earlier IOS were not explicitly tested.
 The RADIUS part of this module also works with IOS XE switches.
 It has been tested on IOS XE version 03.07.02E
 
-This module extends pf::Switch::Cisco::Catalyst_Cisco_IOS_12_x.
+This module extends pf::Switch::Cisco::Cisco_IOS_12_x.
 
 =head1 PRODUCT LINES
 
