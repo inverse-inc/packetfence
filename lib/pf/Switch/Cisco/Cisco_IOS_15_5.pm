@@ -2,7 +2,7 @@ package pf::Switch::Cisco::Cisco_IOS_15_5;
 
 =head1 NAME
 
-pf::Switch::Cisco::Catalyst_2960 - Object oriented module to access and configure Cisco Catalyst 2960 switches
+pf::Switch::Cisco::Cisco_IOS_15_5 - Object oriented module to access and configure Cisco Catalyst 2960 switches
 
 =head1 STATUS
 
@@ -28,7 +28,7 @@ Earlier IOS were not explicitly tested.
 The RADIUS part of this module also works with IOS XE switches.
 It has been tested on IOS XE version 03.07.02E
 
-This module extends pf::Switch::Cisco::Catalyst_2950.
+This module extends pf::Switch::Cisco::Cisco_IOS_12_x.
 
 =head1 PRODUCT LINES
 
@@ -135,7 +135,7 @@ sub description { 'Cisco IOS v15.5' }
 # CAPABILITIES
 # access technology supported
 # VoIP technology supported
-# override 2950's FALSE
+# override Cisco_IOS_12_x's FALSE
 use pf::SwitchSupports qw(
     WiredMacAuth
     WiredDot1x
