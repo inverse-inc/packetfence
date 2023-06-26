@@ -31,7 +31,7 @@ if (@ARGV) {
 }
 
 our %types = (
-    'Cisco::Catalyst_2950' => 'Cisco::Cisco_IOS',
+    'Cisco::Catalyst_2950' => 'Cisco::Cisco_IOS_12_x',
     'Cisco::Catalyst_2960' => 'Cisco::Cisco_IOS_15_0',
 );
 
