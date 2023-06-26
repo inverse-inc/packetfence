@@ -30,7 +30,7 @@
           :column-label="$i18n.t('Matches')"
           :label-cols="2" class="mb-1"
         />
-        <form-group-conditions :namespace="`${namespace}.conditions`"
+        <component :is="conditionsComponent" :namespace="`${namespace}.conditions`"
           :column-label="$i18n.t('Conditions')"
           :label-cols="2" class="mb-1"
         />
@@ -43,7 +43,7 @@
   </div>
 </template>
 <script>
-import { computed, unref } from '@vue/composition-api'
+import {computed, inject, unref} from '@vue/composition-api'
 import {
   BaseFormGroupInput,
   BaseFormGroupChosenOne,
@@ -80,6 +80,7 @@ const props = {
 }
 
 const setup = (props, context) => {
+  const conditionsComponent = inject('conditionsComponent', components.FormGroupConditions)
 
   const metaProps = useInputMeta(props, context)
 
@@ -125,7 +126,8 @@ const setup = (props, context) => {
     doCollapse,
     doExpand,
     onShow,
-    onHidden
+    onHidden,
+    conditionsComponent
   }
 }
 
