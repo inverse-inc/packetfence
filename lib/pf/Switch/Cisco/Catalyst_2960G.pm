@@ -9,14 +9,14 @@ Object oriented module to access and configure Cisco Catalyst 2960G switches
 
 =head1 STATUS
 
-This module is currently only a placeholder, see L<pf::Switch::Cisco::Cisco_2960> for relevant support items.
+This module is currently only a placeholder, see L<pf::Switch::Cisco::Cisco_IOS_15_0> for relevant support items.
 
 This module implement support for a different ifIndex translation for the 2960G.
 
 =head1 BUGS AND LIMITATIONS
 
 Most of the code is shared with the 2960 make sure to check the BUGS AND
-LIMITATIONS section of L<pf::Switch::Cisco::Catalyst_2960>.
+LIMITATIONS section of L<pf::Switch::Cisco::Cisco_IOS_15_0>.
 
 =head1 SNMP
 
