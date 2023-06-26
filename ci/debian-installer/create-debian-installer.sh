@@ -12,7 +12,7 @@ ISO_IN=${ISO_IN:-debian-11.7.0-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
 if ! [ -f $ISO_IN ]; then
-	wget https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/$ISO_IN
+	wget https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/$ISO_IN
 fi
 
 rm -fr isofiles/
@@ -41,6 +41,7 @@ find -follow -type f ! -name md5sum.txt -print0 | xargs -0 md5sum > md5sum.txt |
 chmod -w md5sum.txt
 cd ..
 
-genisoimage -r -J -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $ISO_OUT isofiles
+# occurences of -no-emul-boot are mandatory
+xorriso -as mkisofs -r -J -joliet-long -b isolinux/isolinux.bin -c isolinux/boot.cat -boot-load-size 4 -boot-info-table  -no-emul-boot -o $ISO_OUT -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot -isohybrid-gpt-basdat -isohybrid-apm-hfsplus -V "Packetfence $PF_RELEASE" isofiles
 
 clean
