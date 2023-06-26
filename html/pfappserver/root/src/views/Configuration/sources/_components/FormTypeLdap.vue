@@ -211,7 +211,10 @@ import {provide} from '@vue/composition-api';
 
 function setup(props){
   const ret = setupForm(props)
-  provide('conditionsComponent', BaseRuleFormGroupLdapConditions)
+  // TODO support google ldap
+  if(props.form.type !== 'GoogleWorkspaceLDAP') {
+    provide('conditionsComponent', BaseRuleFormGroupLdapConditions)
+  }
   useLdapAttributes(props)
   return ret
 }
