@@ -31,6 +31,7 @@ export {
   BaseFormGroupInput                              as FormGroupCsrLocality,
   BaseFormGroupInput                              as FormGroupCsrOrganizationName,
   BaseFormGroupInput                              as FormGroupCsrCommonName,
+  BaseFormGroupInput                              as FormGroupCsrSubjectAltNames,
 
   TheCsr,
   TheForm,
