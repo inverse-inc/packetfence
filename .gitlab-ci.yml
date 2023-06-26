@@ -617,6 +617,7 @@ pfdeb_based_dev:
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
@@ -647,6 +648,7 @@ img_dev:
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "fingerbank-db"
@@ -659,6 +661,7 @@ rad_based_dev:
   variables:
     IMAGE_TAGS: "${CI_COMMIT_REF_SLUG},latest"
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "radiusd-auth"
@@ -693,6 +696,7 @@ pfdeb_based_br_maint:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
@@ -723,6 +727,7 @@ img_br_maint:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "fingerbank-db"
@@ -735,6 +740,7 @@ rad_based_br_maint:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "radiusd-auth"
@@ -769,6 +775,7 @@ pfdeb_based_cloud_nac:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
@@ -799,6 +806,7 @@ img_cloud_nac:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "fingerbank-db"
@@ -811,6 +819,7 @@ rad_based_cloud_nac:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "radiusd-auth"
@@ -845,6 +854,7 @@ pfdeb_based_rel:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "pfconfig"
@@ -875,6 +885,7 @@ img_rel:
   variables:
    IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "fingerbank-db"
@@ -887,6 +898,7 @@ rad_based_rel:
   variables:
     IMAGE_TAGS: ${CI_COMMIT_TAG}
   parallel:
+    # /!\ Be sure to update this list in all other matrix /!\
     matrix:
       - IMAGE_NAME:
           - "radiusd-auth"
