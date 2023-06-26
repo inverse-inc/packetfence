@@ -46,7 +46,7 @@ function getLdapClient(form) {
   switch (form.value.type) {
     case "AD":
       return useAdLdap(form)
-    case "LDAP":
+    default:
       return useOpenLdap(form)
   }
 }
