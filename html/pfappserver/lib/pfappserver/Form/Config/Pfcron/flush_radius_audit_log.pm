@@ -1,4 +1,4 @@
-pfappserver::Form::Config::Pfcron::flush_radius_audit_log;
+package pfappserver::Form::Config::Pfcron::flush_radius_audit_log;
 
 =head1 NAME
 
