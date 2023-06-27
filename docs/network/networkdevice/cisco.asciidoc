@@ -69,13 +69,60 @@ On each interface _with VoIP_:
   snmp trap mac-notification added 
   snmp trap mac-notification removed 
 
+==== Cisco IOS
+
+This switch module is built for switches using Cisco IOS versions earlier than 12.2(46)SE. This provides support for PortSecurity for networks with or without VoIP. 
+
+===== Port­Security for IOS earlier than 12.2(46)SE  
+
+Global config settings:
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_: 
+
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+On each interface with VoIP:
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 2 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses 
+(0200.000x.xxxx):
+
+* Fa0/1...Fa0/48 -> 10001...10048 
+* Gi0/1...Gi0/48 -> 10101...10148 
+===========================================================================
+
 ==== Cisco IOS 12.x 
 
-Those switches are now supported using 802.1X for networks with or without VoIP. 
+Those versions are now supported using 802.1X for networks with or without VoIP. 
 You can also use port-security with static MAC address but we can not secure 
 a MAC on the data VLAN specifically so enable it if there is no VoIP, use 
 linkUp/linkDown and MAC notification otherwise.So on setup that needs to 
 handle VoIP with this switch, go with a 802.1X configuration. 
+Note: This module is renamed from the old 2950 module and therefore inherits all its capabilities.
 
 ===== 802.1X
 
@@ -220,48 +267,6 @@ On each interface:
 ==== Cisco IOS 15.5
 
 CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this section below>>.
-
-===== Port­Security for IOS earlier than 12.2(46)SE  
-
-Global config settings:
-
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
-
-On each interface _without VoIP_: 
-
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
-
-where `xxxxx` stands for the interface `ifIndex` 
-
-On each interface with VoIP:
-
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
-
-where `xxxxx` stands for the interface `ifIndex` 
-
-[NOTE]
-.ifIndex mapping
-===========================================================================
-Use the following templates for interface `IfIndex` in bogus MAC addresses 
-(0200.000x.xxxx):
-
-* Fa0/1...Fa0/48 -> 10001...10048 
-* Gi0/1...Gi0/48 -> 10101...10148 
-===========================================================================
 
 ===== Port­Security for IOS 12.2(46)SE or greater
 
