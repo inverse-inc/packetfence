@@ -5,6 +5,7 @@ package pfdns
 import (
 	"bytes"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -19,9 +20,12 @@ import (
 
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/request"
+	"github.com/go-redis/redis/v8"
 	"github.com/inverse-inc/go-utils/sharedutils"
+	"github.com/inverse-inc/packetfence/go/common"
 	"github.com/inverse-inc/packetfence/go/db"
 	"github.com/inverse-inc/packetfence/go/filter_client"
+	"github.com/inverse-inc/packetfence/go/redis_cache"
 	"github.com/inverse-inc/packetfence/go/unifiedapiclient"
 	cache "github.com/patrickmn/go-cache"
 
@@ -37,6 +41,7 @@ type pfdns struct {
 	InternalPortalIP    net.IP
 	RedirectIP          net.IP
 	Db                  *sql.DB
+	redisCache          *redis.Client
 	IP4log              *sql.Stmt // prepared statement for ip4log queries
 	IP6log              *sql.Stmt // prepared statement for ip6log queries
 	Nodedb              *sql.Stmt // prepared statement for node table queries
@@ -74,6 +79,11 @@ type dbConf struct {
 	DBUser     string `json:"user"`
 	DBPassword string `json:"pass"`
 	DB         string `json:"db"`
+}
+
+func (pf *pfdns) SetupRedisClient() error {
+	pf.redisCache = redis_cache.GetClient()
+	return nil
 }
 
 func (pf *pfdns) IP2Mac(ctx context.Context, ip string, ipVersion int) (string, error) {
@@ -809,7 +819,16 @@ func (pf *pfdns) logreply(ctx context.Context, ip string, mac string, qname stri
 		b.WriteString(text)
 		b.WriteString(" \n ")
 	}
+
 	if pf.recordDNS {
-		pf.DNSAudit.ExecContext(ctx, ip, mac, strings.TrimRight(qname, "."), qtype, scope, strings.TrimRight(b.String(), " \n "))
+		data, _ := json.Marshal(&common.DNSAuditLog{
+			Ip:     ip,
+			Mac:    mac,
+			Qname:  strings.TrimRight(qname, "."),
+			Qtype:  qtype,
+			Scope:  scope,
+			Answer: strings.TrimRight(b.String(), " \n "),
+		})
+		pf.redisCache.RPush(ctx, "DNS_AUDIT_LOG", data)
 	}
 }
