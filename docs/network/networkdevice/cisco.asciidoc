@@ -264,6 +264,280 @@ On each interface:
   dot1x timeout tx-period 3
   dot1x reauthentication
 
+==== Cisco IOS 15.0
+
+This switch module is built for switches using Cisco IOS versions 15.0 or greater. 
+Note: This module is renamed from the old 2960 module and therefore inherits all its capabilities.
+
+CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS, this section below>>.
+
+===== Port­Security for IOS 12.2(46)SE or greater
+
+Since version PacketFence 2.2.1, the way to handle VoIP when using 
+port-security dramatically changed. Ensure that you follow the instructions 
+below. To make the story short, instead on relying on the dynamic 
+MAC learning for VoIP, we use a static entry on the voice VLAN so we can trigger a new security 
+violation, and then authorize the phone MAC address on the network. 
+
+Global config settings:
+
+  snmp-server community public RO
+  snmp-server community private RW
+  snmp-server enable traps port-security 
+  snmp-server enable traps port-security trap-rate 1 
+  snmp-server host 192.168.1.5 version 2c public port-security 
+
+On each interface _without VoIP_:
+
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.000x.xxxx 
+
+where `xxxxx` stands for the interface `ifIndex`
+
+On each interface _with VoIP_: 
+
+  switchport voice vlan 100 
+  switchport access vlan 4 
+  switchport port-security 
+  switchport port-security maximum 2 
+  switchport port-security maximum 1 vlan access 
+  switchport port-security maximum 1 vlan voice 
+  switchport port-security violation restrict 
+  switchport port-security mac-address 0200.010x.xxxx vlan voice 
+  switchport port-security mac-address 0200.000x.xxxx vlan access 
+
+where `xxxxx` stands for the interface `ifIndex` 
+
+[NOTE]
+.ifIndex mapping
+===========================================================================
+Use the following templates for interface `IfIndex` in bogus MAC addresses
+(0200.000x.xxxx):
+
+* Fa0/1...Fa0/48 -> 10001...10048 
+* Gi0/1...Gi0/48 -> 10101...10148 
+===========================================================================
+
+[[Catalyst_RADIUS]]
+==== 2960, 2970, 3560, 3750
+
+NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
+
+[WARNING]
+====
+Make sure that you have a local account, because enabling 802.1X or MAB will ask for a username and password on the next login.
+====
+
+[WARNING]
+====
+When doing 802.1X and network interface teaming on the same switch or stack, you might consider using the mac-move feature of the Cisco switches. When you authenticate the primary link of the team, the virtual MAC address will be published and authorized on the switchport. When something breaks on that link (ie. cable disconnected), the teaming driver will publish the MAC address on the secondary link, and the switch will try to authorize it. However, since the switch already has the MAC address in a session on another switchport, the switch will put the secondary link into err-disabled mode.
+
+To prevent this behavior, you need to tell the switch to allow MAC address movements between ports. The global command is the following:
+
+  authentication mac-move permit
+====
+
+===== Global settings:
+
+  dot1x system-auth-control 
+  aaa new-model 
+  aaa group server radius packetfence 
+   server name pfnac
+  aaa authentication login default local 
+  aaa authentication dot1x default group packetfence 
+  aaa authorization network default group packetfence 
+
+RADIUS server configuration:
+
+  radius server pfnac
+    address ipv4 192.168.1.5 auth-port 1812 acct-port 1813
+    automate-tester username dummy ignore-acct-port idle-time 3
+    key 0 useStrongerSecret
+  
+  radius-server vsa send authentication 
+
+CoA configuration
+
+  aaa server radius dynamic-author
+   client 192.168.1.5 server-key useStrongerSecret
+   port 3799
+
+Activate SNMP v1 on the switch:
+
+  snmp-server community public RO
+
+===== 802.1X with MAC Authentication bypass (Multi­Domain) 
+
+On each interface:
+
+  switchport mode access 
+  switchport voice vlan 100
+  authentication host-mode multi-domain 
+  authentication order dot1x mab 
+  authentication priority dot1x mab 
+  authentication port-control auto 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 10800 
+  authentication violation replace
+  mab 
+  no snmp trap link-status 
+  dot1x pae authenticator 
+  dot1x timeout quiet-period 2 
+  dot1x timeout tx-period 3 
+
+===== 802.1X with MAC Authentication bypass (Multi­Host)
+
+On each interface:
+
+  switchport mode access 
+  authentication order dot1x mab 
+  authentication priority dot1x mab 
+  authentication port-control auto 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 7200 
+  authentication violation replace
+  mab 
+  no snmp trap link-status 
+  dot1x pae authenticator 
+  dot1x timeout quiet-period 2 
+  dot1x timeout tx-period 3 
+
+===== MAC Authentication bypass only 
+
+On each interface:
+
+  switchport mode access 
+  switchport voice vlan 100 
+  dot1x mac-auth-bypass 
+  dot1x pae authenticator 
+  dot1x port-control auto 
+  dot1x timeout tx-period 5 
+  dot1x reauthentication 
+  authentication periodic 
+  authentication timer restart 10800 
+  authentication timer reauthenticate 7200 
+  authentication violation replace
+  mab 
+  no snmp trap link-status 
+
+[NOTE]
+.802.1X on various models of 2960
+============================================================================
+There's a lot of different versions of the Catalyst 2960. Some of them
+may not accept the command stated in this guide for 802.1X.
+
+We have found a couple of commands that are working great or MAB:
+
+On each interface
+
+  switchport mode access
+  authentication order mab
+  authentication port-control auto
+  mab
+  dot1x pae authenticator
+
+But, as it is difficult for us to maintain the whole list of commands to 
+configure each and every different model of 2960 with different IOS, 
+please refer to Cisco documentation for very specific cases.
+============================================================================
+
+===== Web auth
+
+The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
+
+In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
+
+Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of Cisco IOS 15.0 in this document.
+
+Then add this additional configuration on the global level
+
+  ip device tracking
+  ip http server
+  ip http secure-server
+  snmp-server community public RO
+  snmp-server community private RW
+
+Add the required access lists
+
+  ip access-list extended registration
+   deny ip any host <your captive portal ip> 
+   permit tcp any any eq www
+   permit tcp any any eq 443
+
+Then on each controlled interface
+
+   switchport access vlan <vlan> 
+   switchport mode access
+   authentication priority mab
+   authentication port-control auto
+   authentication periodic
+   authentication violation replace
+   mab
+   spanning-tree portfast
+
+PacketFence switch configuration 
+
+* Select the type to 'Cisco IOS 15.0'
+* Set the 'Registration' role to 'registration' (If left empty then it will use the role name)
+* Set Role by Web Auth URL for registration to 'http://<your_captive_portal_ip>/Cisco::Cisco_IOS_15_0'
+* The URL can contain dynamic parameters, like the MAC address ($mac), the switch IP ($switch_ip), the username ($user_name).
+* Screenshots of this configuration are available in the Cisco WLC section of this guide.
+
+===== Dynamic ACLs
+
+The Cisco IOS 15.5 supports RADIUS pushed ACLs which means that you can define the ACLs centrally in PacketFence without configuring them in your switches and their rules will be applied to the switch during the authentication.
+
+These ACLs are defined by role like the VLANs which means you can define different ACLs for your registration VLAN, production VLAN, guest VLAN, etc.
+
+Add the following configuration setting on the global level 
+
+   ip device tracking
+
+For IOS 12.2, you need to create this acl and assign it to the switch port interface:
+
+ ip access-list extended Auth-Default-ACL
+  permit udp any range bootps 65347 any range bootpc 65348
+  permit udp any any range bootps 65347
+  permit udp any any eq domain
+  deny   ip any any
+
+ interface GigabitEthernetx/y/z
+  ...
+  ip access-group Auth-Default-ACL in
+  ...
+
+Before continuing, configure your switch to be in MAC authentication bypass or 802.1X.
+
+Now in the PacketFence interface go in the switch configuration and in the Roles tab.
+
+Check 'Role by access list' and you should now be able to configure the access lists as below.
+
+For example if you want the users that are in the registration VLAN to only use HTTP, HTTPS, DNS and DHCP you can configure this ACL in the registration category.
+
+image::cisco-downloadable-acl-reg.png[scaledwidth="100%",alt="Registration ACL"]
+
+Now if for example, your normal users are placed in the 'default' category and your guests in the 'guest' category.
+
+If for example the 'default' category uses the network 192.168.5.0/24 and your guest network uses the network 192.168.10.0/24.
+
+You can prevent communications between both networks using these access lists
+
+image::cisco-downloadable-acl-cross-network.png[scaledwidth="100%",alt="Cross network deny ACL"]
+
+You could also only prevent your guest users from using shared directories
+
+image::cisco-downloadable-acl-deny-shares.png[scaledwidth="100%",alt="Deny shares ACL"]
+
+Or also you could restrict your users to use only your DNS server where 192.168.5.2 is your DNS server
+
+image::cisco-downloadable-acl-force-dns.png[scaledwidth="100%",alt="Force DNS ACL"]
+
+
 ==== Cisco IOS 15.5
 
 CAUTION: For 802.1X and MAB configurations, refer to <<Catalyst_RADIUS,this section below>>.
@@ -443,55 +717,13 @@ configure each and every different model of 2960 with different IOS,
 please refer to Cisco documentation for very specific cases.
 ============================================================================
 
-===== Port-­Security 
-
-Global config settings 
-
-  snmp-server community public RO
-  snmp-server community private RW
-  snmp-server enable traps port-security 
-  snmp-server enable traps port-security trap-rate 1 
-  snmp-server host 192.168.1.5 version 2c public port-security 
-
-On each interface _without VoIP_: 
-
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
-
-where `xxxxx` stands for the interface `ifIndex` 
-
-On each interface _with VoIP_: 
-
-  switchport voice vlan 100 
-  switchport access vlan 4 
-  switchport port-security 
-  switchport port-security maximum 2 
-  switchport port-security maximum 1 vlan access 
-  switchport port-security violation restrict 
-  switchport port-security mac-address 0200.000x.xxxx 
-
-where `xxxxx` stands for the interface `ifIndex` 
-
-[NOTE]
-.ifIndex mapping
-===========================================================================
-Use the following templates for interface `IfIndex` in bogus MAC addresses
-(0200.000x.xxxx):
-
-* Fa0/1...Fa0/48 -> 10001...10048 
-* Gi0/1...Gi0/48 -> 10101...10148 
-===========================================================================
-
 ===== Web auth
 
 The Catalyst 2960 supports web authentication from IOS 12.2.55SE3. This procedure has been tested on IOS 15.0.2SE5.
 
 In this example, the ACL that triggers the redirection to the portal for registration is 'registration'.
 
-Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of the 2960 in this document.
+Configure the global configuration of the switch using the section __MAC Authentication bypass only__ of Cisco IOS 15.5 in this document.
 
 Then add this additional configuration on the global level
 
