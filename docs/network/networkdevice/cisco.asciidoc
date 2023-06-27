@@ -322,7 +322,7 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 ===========================================================================
 
 [[Catalyst_RADIUS]]
-==== 2960, 2970, 3560, 3750
+===== 2960, 2970, 3560, 3750
 
 NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
 
@@ -593,7 +593,7 @@ Use the following templates for interface `IfIndex` in bogus MAC addresses
 ===========================================================================
 
 [[Catalyst_RADIUS]]
-==== 2960, 2970, 3560, 3750
+===== 2960, 2970, 3560, 3750
 
 NOTE: You shouldn't use any port-security features when doing 802.1X and/or MAC Authentication. This can cause unexpected behavior.
 
