@@ -1,4 +1,5 @@
 import apiCall from '@/utils/api';
+import {intsToStrings} from '@/utils/convert';
 
 export const parseLdapStringToArray = (ldapString) => {
   const ldapArrayRegex = new RegExp('^[[(]')
@@ -15,6 +16,7 @@ export const sendLdapSearchRequest = (server,
                                       scope = null,
                                       attributes = null,
                                       base_dn = null) => {
+  server = intsToStrings(server)
   return apiCall.postQuiet('ldap/search',
     {
       server: server,
