@@ -24,11 +24,12 @@ our %ACLsSupports;
 
 %ACLsSupports = (
                   'AccessListBasedEnforcement' => {
+                                                    'Alcatel' => 1,
                                                     'Aruba::2930M' => 1,
                                                     'Aruba::5400' => 1,
                                                     'Aruba::CX' => 1,
+                                                    'Brocade' => 1,
                                                     'Cisco::ASA' => 1,
-                                                    'Cisco::Catalyst_2960' => 1,
                                                     'Cisco::Catalyst_2960G' => 1,
                                                     'Cisco::Catalyst_2970' => 1,
                                                     'Cisco::Catalyst_3550' => 1,
@@ -38,21 +39,22 @@ our %ACLsSupports;
                                                     'Cisco::Catalyst_3750G' => 1,
                                                     'Cisco::Catalyst_4500' => 1,
                                                     'Cisco::Catalyst_6500' => 1,
+                                                    'Cisco::Cisco_IOS_15_0' => 1,
+                                                    'Cisco::Cisco_IOS_15_5' => 1,
                                                     'Cisco::SG300' => 1,
-                                                    'Dell::N1500' => 1
+                                                    'Dell::N1500' => 1,
+                                                    'Extreme::EXOS' => 1,
+                                                    'Fortinet::FortiSwitch' => 1,
+                                                    'Huawei::S5710' => 1,
+                                                    'Juniper::EX2200' => 1,
+                                                    'Juniper::EX2200_v15' => 1,
+                                                    'Juniper::EX2300' => 1,
+                                                    'Mikrotik' => 1,
+                                                    'Pica8' => 1
                                                   },
                   'DownloadableListBasedEnforcement' => {
                                                           'Cisco::ASA' => 1,
-                                                          'Cisco::Catalyst_2960' => 1,
-                                                          'Cisco::Catalyst_2960G' => 1,
-                                                          'Cisco::Catalyst_2970' => 1,
-                                                          'Cisco::Catalyst_3550' => 1,
-                                                          'Cisco::Catalyst_3560' => 1,
-                                                          'Cisco::Catalyst_3560G' => 1,
-                                                          'Cisco::Catalyst_3750' => 1,
-                                                          'Cisco::Catalyst_3750G' => 1,
-                                                          'Cisco::Catalyst_4500' => 1,
-                                                          'Cisco::Catalyst_6500' => 1,
+                                                          'Cisco::Cisco_IOS_15_5' => 1,
                                                           'Dell::N1500' => 1
                                                         }
                 );

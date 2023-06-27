@@ -52,7 +52,7 @@ my $defaults = $cs->read('defaults');
 
     $t->post_ok(
         $collection_base_url => json => {
-            type => 'Cisco::Catalyst_2960',
+            type => 'Cisco::Cisco_IOS_15_5',
             id                     => "33:44:55:22:33:44",
             voiceVlan              => '222',
             description            => "Bob",
@@ -66,7 +66,7 @@ my $defaults = $cs->read('defaults');
 
     $t->post_ok(
         $collection_base_url => json => {
-            type => 'Cisco::Catalyst_2960',
+            type => 'Cisco::Cisco_IOS_15_5',
             id                     => "33:44:55:22:33:99",
             voiceVlan              => '222',
             description            => "Bob",
