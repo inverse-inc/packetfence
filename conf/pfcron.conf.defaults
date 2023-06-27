@@ -1011,3 +1011,40 @@ timeout=10s
 #
 # Local task
 local=1
+
+[flush_radius_audit_log]
+#
+# type
+#
+# Task type
+type=flush_radius_audit_log
+#
+# status
+#
+# If the task is enabled
+status=enabled
+#
+# description
+#
+# The description of task
+description=Radius Audit Log from redis to the database
+#
+# schedule
+#
+# The schedule of task
+schedule=@every 1m
+#
+# batch
+#
+# How many flush_radius_audit_log entries to clean up in one run
+batch=100
+#
+# timeout
+#
+# How long a flush_radius_audit_log job can run
+timeout=10s
+#
+# local
+#
+# Local task
+local=1
