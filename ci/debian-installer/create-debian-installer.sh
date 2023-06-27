@@ -11,6 +11,8 @@ function clean() {
 ISO_IN=${ISO_IN:-debian-11.7.0-amd64-netinst.iso}
 ISO_OUT=${ISO_OUT:-packetfence-debian-installer.iso}
 
+trap clean EXIT
+
 if ! [ -f $ISO_IN ]; then
 	wget https://cdimage.debian.org/cdimage/archive/latest-oldstable/amd64/iso-cd/$ISO_IN
 fi
@@ -43,5 +45,3 @@ cd ..
 
 # occurences of -no-emul-boot are mandatory
 xorriso -as mkisofs -r -J -joliet-long -b isolinux/isolinux.bin -c isolinux/boot.cat -boot-load-size 4 -boot-info-table  -no-emul-boot -o $ISO_OUT -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot -isohybrid-gpt-basdat -isohybrid-apm-hfsplus -V "Packetfence $PF_RELEASE" isofiles
-
-clean
