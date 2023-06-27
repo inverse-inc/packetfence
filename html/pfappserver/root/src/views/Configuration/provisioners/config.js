@@ -11,7 +11,6 @@ export const provisioningTypes = {
   mobileconfig: i18n.t('Apple Devices'),
   mobileiron:   i18n.t('Mobileiron'),
   sentinelone:  i18n.t('SentinelOne'),
-  sepm:         i18n.t('Symantec Endpoint Protection Manager (SEPM)'),
   windows:      i18n.t('Windows'),
   intune:       i18n.t('Microsoft Intune'),
   google_workspace_chromebook: i18n.t('Google Workspace Chromebook')
