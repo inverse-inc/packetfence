@@ -12,6 +12,8 @@ import {
   decomposeSource,
   recomposeSource
 } from './config'
+import _ from 'lodash'
+import {ldapFormsSupported} from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 export const useStore = $store => {
   return {
@@ -64,11 +66,23 @@ const actions = {
       throw err
     })
   },
-  optionsById: ({ commit }, id) => {
+  optionsById: ({ state, commit }, id) => {
     commit('ITEM_REQUEST')
-    return api.itemOptions(id).then(response => {
+    return api.itemOptions(id).then(async response => {
       commit('ITEM_SUCCESS')
-      return response
+      if (state.cache[id]) {
+        const item = await Promise.resolve(state.cache[id]).then(cache => _.cloneDeep(cache))
+        return filterOutLdapOptions(response, item.type)
+      } else {
+        const item = await api.item(id).then(item => {
+          commit('ITEM_REPLACED', item)
+          return _.cloneDeep(item)
+        }).catch((err) => {
+          commit('ITEM_ERROR', err.response)
+          throw err
+        })
+        return filterOutLdapOptions(response, item.type)
+      }
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
       throw err
@@ -78,6 +92,7 @@ const actions = {
     commit('ITEM_REQUEST')
     return api.listOptions(sourceType).then(response => {
       commit('ITEM_SUCCESS')
+      response = filterOutLdapOptions(response, sourceType)
       return response
     }).catch((err) => {
       commit('ITEM_ERROR', err.response)
@@ -200,6 +215,16 @@ const actions = {
       throw err
     })
   }
+}
+
+function filterOutLdapOptions(meta, sourceType) {
+  if(ldapFormsSupported.includes(sourceType)) {
+    const ldapConditionAttributePath = "meta.authentication_rules.item.properties.conditions.item.properties.attribute.allowed"
+    let ldapAttributes = _.get(meta, ldapConditionAttributePath, )
+    ldapAttributes = ldapAttributes.filter(item => !['ldapfilter', 'ldapattribute'].includes(item["attributes"]["data-type"]))
+    _.set(meta, ldapConditionAttributePath, ldapAttributes)
+  }
+  return meta
 }
 
 const mutations = {
