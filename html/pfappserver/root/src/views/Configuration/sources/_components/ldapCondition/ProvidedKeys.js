@@ -3,6 +3,7 @@ const ProvidedKeys = {
   connectedToLdap: 'connectedToLdap',
   LdapAttributesLoading: 'ldapAttributesLoading',
   performSearch: 'performSearch',
+  conditionsComponent: 'conditionsComponent',
 }
 
 export default ProvidedKeys

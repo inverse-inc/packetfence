@@ -67,6 +67,7 @@ import { useInputProps } from '@/composables/useInput'
 import { useInputMeta, useInputMetaProps } from '@/composables/useMeta'
 import { useInputValidator, useInputValidatorProps } from '@/composables/useInputValidator'
 import { useInputValue, useInputValueProps } from '@/composables/useInputValue'
+import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
 
 const props = {
   ...useInputProps,
@@ -80,7 +81,7 @@ const props = {
 }
 
 const setup = (props, context) => {
-  const conditionsComponent = inject('conditionsComponent', components.FormGroupConditions)
+  const conditionsComponent = inject(ProvidedKeys.conditionsComponent, components.FormGroupConditions)
 
   const metaProps = useInputMeta(props, context)
 
