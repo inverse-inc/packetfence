@@ -22,6 +22,11 @@
         src: "{{ acl_config }}"
       when: ansible_network_os == 'aireos'
 
+    - name: Load new acl into Cisco WLC 2nd pass
+      community.network.aireos_config:
+        src: "{{ acl_config }}"
+      when: ansible_network_os == 'aireos'
+
     - name: Load new acl in Aruba-CX
       arubanetworks.aoscx.aoscx_config:
         src: "{{ acl_config }}"
