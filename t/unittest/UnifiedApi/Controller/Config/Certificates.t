@@ -56,7 +56,7 @@ my ($fh, $filename) = Utils::tempfileForConfigStore("pf::ConfigStore::Pf");
 
 #insert known data
 #run tests
-use Test::More tests => 32;
+use Test::More tests => 34;
 use Test::Mojo;
 use Test::NoWarnings;
 
@@ -362,6 +362,17 @@ $t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {
         "locality" => "Montreal", 
         "organization_name" => "Inverse Inc.", 
         "common_name" => "csrtest.inverse.ca",
+    })
+  ->status_is(200);
+
+# test CSR with extra information
+$t->post_ok("/api/v1/config/certificate/radius/generate_csr" => json => {
+        "country" => "CA",
+        "state" => "Quebec",
+        "locality" => "Montreal",
+        "organization_name" => "Inverse Inc.",
+        "common_name" => "csrtest.inverse.ca",
+        "subject_alt_names" => "csrtest1.inverse.ca,csrtest2.inverse.ca",
     })
   ->status_is(200);
 

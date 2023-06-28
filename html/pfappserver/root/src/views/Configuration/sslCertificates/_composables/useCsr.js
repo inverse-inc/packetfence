@@ -9,7 +9,8 @@ const defaults = () => ({ // use function to avoid reactive poisoning of default
   state: undefined,
   locality: undefined,
   organization_name: undefined,
-  common_name: undefined
+  common_name: undefined,
+  subject_alt_names: undefined
 })
 
 const schema = yup.object({
@@ -17,7 +18,8 @@ const schema = yup.object({
   state: yup.string().required(i18n.t('State required.')),
   locality: yup.string().required(i18n.t('Locality required.')),
   organization_name: yup.string().required(i18n.t('Organization name required.')),
-  common_name: yup.string().required(i18n.t('Common name required.'))
+  common_name: yup.string().required(i18n.t('Common name required.')),
+  subject_alt_names: yup.string().nullable().label(i18n.t('Subject Alternative Names (DNS only)'))
 })
 
 const useCsrProps = {

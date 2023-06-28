@@ -34,6 +34,10 @@
           <form-group-csr-common-name namespace="common_name"
             :column-label="$t('Common Name')"
           />
+          <form-group-csr-subject-alt-names namespace="subject_alt_names"
+            :column-label="$t('Subject Alternative Names (DNS only)')"
+            :text="$i18n.t('Comma-delimited list of DNS names who should be added as Subject Alternative Names. When left empty, the common name will be used.')"
+          />
         </base-form>
       </b-form>
       <b-form-textarea v-else
@@ -57,7 +61,8 @@ import {
   FormGroupCsrState,
   FormGroupCsrLocality,
   FormGroupCsrOrganizationName,
-  FormGroupCsrCommonName
+  FormGroupCsrCommonName,
+  FormGroupCsrSubjectAltNames
 } from './'
 
 const components = {
@@ -66,7 +71,8 @@ const components = {
   FormGroupCsrState,
   FormGroupCsrLocality,
   FormGroupCsrOrganizationName,
-  FormGroupCsrCommonName
+  FormGroupCsrCommonName,
+  FormGroupCsrSubjectAltNames
 }
 
 import { useCsr as setup, useCsrProps as props } from '../_composables/useCsr'

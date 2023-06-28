@@ -311,6 +311,7 @@ sub generate_csr {
     my ($rsa, $info) = @_;
 
     my $required = ["country", "state", "locality", "organization_name", "common_name"];
+    my $optional = ["subject_alt_names"];
 
     foreach my $field (@$required) {
         my $value = $info->{$field};
@@ -331,7 +332,18 @@ sub generate_csr {
 
     my $csr = Crypt::OpenSSL::PKCS10->new_from_rsa($rsa);
     $csr->set_subject($subject);
-    $csr->add_ext(Crypt::OpenSSL::PKCS10::NID_subject_alt_name, "DNS:".$info->{common_name});
+    $csr->add_ext(Crypt::OpenSSL::PKCS10::NID_ext_key_usage, "serverAuth");
+
+    # default behavior; we always want CN to be part of SAN
+    my @san_dns = "DNS: $info->{common_name}";
+
+    if (defined($info->{subject_alt_names})) {
+	foreach my $san_dns (split('\s*,\s*', $info->{subject_alt_names})) {
+	    push @san_dns, "DNS: ".$san_dns;
+	}
+    }
+
+    $csr->add_ext(Crypt::OpenSSL::PKCS10::NID_subject_alt_name, join(',', @san_dns));
     $csr->add_ext_final();
     $csr->sign();
     
