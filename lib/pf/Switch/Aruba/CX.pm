@@ -57,6 +57,8 @@ use pf::locationlog;
 sub description { 'Aruba CX Switch' }
 
 # CAPABILITIES
+# access technology supported
+# VoIP technology supported
 use pf::SwitchSupports qw(
     PushACLs
 );
@@ -222,21 +224,13 @@ sub acl_chewer {
             }
         }
         my $j = $i + 1;
-        # Dynamic ACLs and Push ACLs format are different
-        if ($self->usePushACLs) {
-            $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." $src $dest ". ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-        } else {
-            if ($acl->{'destination'}->{'ipv4_addr'} eq '0.0.0.0') {
-                $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to any " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-            } else {
-                $acl_chewed .= $acl->{'action'}." ".((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i] : "in")." ".$acl->{'protocol'}." from any to ".$acl->{'destination'}->{'ipv4_addr'}." " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
-            }
-        }
+        $acl_chewed .= ((defined($direction[$i]) && $direction[$i] ne "") ? $direction[$i]."|" : "").$j." ".$acl->{'action'}." ".$acl->{'protocol'}." ".(($self->usePushACLs) ? $src : "any")." $dest " . ( defined($acl->{'destination'}->{'port'}) ? $acl->{'destination'}->{'port'} : '' ) ."\n";
         $i++;
     }
 
     return $acl_chewed;
 }
+
 
 =back
 
