@@ -36,7 +36,6 @@ use pfappserver::Form::Config::Provisioning::kandji;
 use pfappserver::Form::Config::Provisioning::mobileconfig;
 use pfappserver::Form::Config::Provisioning::mobileiron;
 use pfappserver::Form::Config::Provisioning::sentinelone;
-use pfappserver::Form::Config::Provisioning::sepm;
 use pfappserver::Form::Config::Provisioning::windows;
 
 our %TYPES_TO_FORMS = (
@@ -53,7 +52,6 @@ our %TYPES_TO_FORMS = (
       mobileconfig
       mobileiron
       sentinelone
-      sepm
       windows
     )
 );
