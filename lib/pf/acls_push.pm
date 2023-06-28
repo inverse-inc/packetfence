@@ -135,11 +135,7 @@ sub fetch_token {
     my ($self) = @_;
     my $logger = get_logger();
 
-    my $res = $res = $self->_do_post("tokens");
-
-    if (!$res->is_success) {
-       $res = $self->_do_post("login", encode_json({ auth => $self->username, password => $self->password}));
-    }
+    my $res = $self->_do_post("login", encode_json({ auth => $self->username, password => $self->password}));
 
     if($res->is_success){
         $res = $self->_do_post("tokens");
@@ -182,6 +178,8 @@ sub push_acls {
     $error = $self->getTemplate();
     return if (!$error);
     $error = $self->launchTask();
+    return if (!$error);
+    $error = $self->logout();
     return if (!$error);
 }
 
@@ -394,6 +392,26 @@ sub _execute_request {
     return $ua->request($req);
 }
 
+
+=head2 logout
+
+Logout from semaphore
+
+=cut
+
+sub logout {
+    my ($self) = @_;
+    my $logger = get_logger();
+    my $res = $self->_do_post("logout");
+    if($res->is_success) {
+        $logger->info("Logout successfull");
+        return $TRUE;
+    } else {
+        $logger->error("Logout not successfull");
+        return $FALSE;
+    }
+}
+
 =head2 _do_post
 
 Execute a POST request on the Semaphore API
@@ -448,6 +466,7 @@ sub _build_uri {
     }
     my $URIS = {
         login         => "/api/auth/login",
+        logout        => "/api/auth/logout",
         tokens        => "/api/user/tokens",
         projects      => "/api/projects",
         deleteproject => "/api/project/".$project_id."/",
