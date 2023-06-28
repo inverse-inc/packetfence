@@ -97,6 +97,13 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) (int, error) 
 }
 
 func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Request) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			unifiedapierrors.Error(res, "Error parsing incomming request", http.StatusBadRequest)
+		}
+	}()
+
 	var searchRequest = SearchRequest{}
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
