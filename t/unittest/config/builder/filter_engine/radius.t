@@ -72,7 +72,7 @@ CONF
                                                 },
                                                 'pf::mini_template'
                                             ),
-                                            'name' => 'NAS-IP-Address'
+                                            'name' => 'request:NAS-IP-Address'
                                         }
                                     ],
                                     'condition' =>
@@ -145,7 +145,7 @@ CONF
                                                 },
                                                 'pf::mini_template'
                                             ),
-                                            'name' => 'NAS-IP-Address'
+                                            'name' => 'request:NAS-IP-Address'
                                         }
                                     ],
                                     'condition' =>
