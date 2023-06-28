@@ -727,6 +727,11 @@ proxysql=enabled
 #
 # Location of the proxysql binary. Only necessary to change if you are not running the RPMed version.
 proxysql_binary=/usr/bin/proxysql
+#
+# services.pfsetacls
+#
+# Should pfsetacls be started?
+pfsetacls=enabled
 
 [snmp_traps]
 #
