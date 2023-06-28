@@ -1,4 +1,5 @@
 package pf::Switch::Cisco::WLC;
+
 =head1 NAME
 
 pf::Switch::Cisco::WLC - Object oriented module to parse SNMP traps and manage
@@ -142,6 +143,7 @@ use pf::SwitchSupports qw(
     -SaveConfig
     -Cdp
     -Lldp
+    PushACLs
 );
 # inline capabilities
 sub inlineCapabilities { return ($MAC,$SSID); }
@@ -646,12 +648,6 @@ sub parseExternalPortalRequest {
 
     return \%params;
 }
-
-=head2 acl_chewer
-
-Format ACL to match with the expected switch format.
-
-=cut
 
 =head2 acl_chewer
 
