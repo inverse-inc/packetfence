@@ -34,7 +34,6 @@ export const props = {
       doFocus()
     }
   },
-  //TODO do translations
   buttons: {
     type: Array,
     default: () => {return [{
