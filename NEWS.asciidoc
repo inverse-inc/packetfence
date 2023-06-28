@@ -45,6 +45,7 @@ For a list of compatibility related changes see the <<PacketFence_Upgrade_Guide.
  * Optimize pfdhcp (#7710)
  * Allow the OS to pick the port instead doing retrying. (#7596)
  * ISO installer supports UEFI booting (#7724)
+ * Update to go 1.20.5 (#7636)
 
 === Bug Fixes
 
