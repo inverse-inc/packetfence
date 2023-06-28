@@ -1,6 +1,8 @@
 import apiCall from '@/utils/api';
 import {intsToStrings} from '@/utils/convert';
 
+export const ldapFormsSupported = ['LDAP', 'AD', 'EDIR']
+
 export const parseLdapStringToArray = (ldapString) => {
   const ldapArrayRegex = new RegExp('^[[(]')
   if (ldapArrayRegex.test(ldapString)) {
