@@ -58,7 +58,19 @@ sub id {
     $id =~ s/%2[fF]|~/\//g;
     return $id;
 }
- 
+
+sub post_update {
+    my ($self, $switch_id) = @_;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    $switch->generateAnsibleConfiguration();
+}
+
+sub post_create {
+    my ($self, $switch_id) = @_;
+    my $switch = pf::SwitchFactory->instantiate($switch_id);
+    $switch->generateAnsibleConfiguration();
+}
+
 =head2 standardPlaceholder
 
 standardPlaceholder
