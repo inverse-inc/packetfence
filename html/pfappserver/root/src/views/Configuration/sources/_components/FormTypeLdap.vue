@@ -208,14 +208,16 @@ import useLdapAttributes
 import BaseRuleFormGroupLdapConditions
   from '@/views/Configuration/sources/_components/BaseRuleFormGroupLdapConditions';
 import {provide} from '@vue/composition-api';
+import ProvidedKeys from '@/views/Configuration/sources/_components/ldapCondition/ProvidedKeys';
+import {ldapFormsSupported} from '@/views/Configuration/sources/_components/ldapCondition/common';
 
 function setup(props){
   const ret = setupForm(props)
-  // TODO support google ldap
-  if(props.form.type !== 'GoogleWorkspaceLDAP') {
-    provide('conditionsComponent', BaseRuleFormGroupLdapConditions)
+  // TODO support other ldap types
+  if(ldapFormsSupported.includes(props.form.type)) {
+    provide(ProvidedKeys.conditionsComponent, BaseRuleFormGroupLdapConditions)
+    useLdapAttributes(props)
   }
-  useLdapAttributes(props)
   return ret
 }
 
