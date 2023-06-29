@@ -51,7 +51,7 @@ If you plan to implement certificate for HTTP and RADIUS, we recommand you to us
 
 ==== Generate a Certificate Signing Request (CSR)
 
-To implement an SSL/TLS certificate for the captive web portal (HTTP), the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the public key that will be used to encrypt communications.
+To implement an SSL/TLS certificate for the captive web portal (HTTP), the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the private key that will be used to encrypt communications.
 
 - Log on the admin web interface (GUI)
 
