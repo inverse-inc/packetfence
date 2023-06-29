@@ -17,19 +17,19 @@ endif::[]
 ////
 
 
-== PacketFence Certificates
+== PacketFence Certificates (for V11.2 and later)
 
 === Introduction 
 
 ==== Context and Objectives of the Documentation
 
-This documentation aims to provide information and instructions on the implementation, management, and troubleshooting of SSL/TLS certificates for the captive web portal (HTTP) and RADIUS.
+This documentation PacketFence V11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for the captive web portal (HTTP) and RADIUS.
 
 The captive portal is a common method of user authentication on a wireless or wired network. It allows controlling user access by redirecting them to an authentication page where they must provide login information. The RADIUS protocol, on the other hand, is used for user authentication and authorization on a network.
 
 ==== Definitions and Basic Concepts
 
-Before addressing the implementation, management, and troubleshooting of SSL/TLS certificates, it is important to understand the basic concepts related to security and certificates. The following definitions will be used throughout this documentation:
+Before addressing the implementation and management of SSL/TLS certificates, it is important to understand the basic concepts related to security and certificates. The following definitions will be used throughout this documentation:
 
 - SSL/TLS: Secure Sockets Layer/Transport Layer Security, a security protocol that allows encrypting communications between a client and a server.
 - SSL/TLS certificate: an electronic file that contains information to verify the identity of a server and establish a secure connection.
@@ -41,6 +41,8 @@ Before addressing the implementation, management, and troubleshooting of SSL/TLS
 By understanding these basic concepts, you will be better tooled to understand and implement SSL/TLS certificates for the captive web portal and RADIUS.
 
 ==== Important note before starting
+
+This Documentation concern PacketFence V11.2 and later
 
 Wildcard certificate is strictly restricted to HTTP, you can't use this type of certificate for RADIUS. 
 If you plan to implement certificate for HTTP and RADIUS, we recommand you to use only one certificate to facilitate management of these.
@@ -55,13 +57,15 @@ To implement an SSL/TLS certificate for the captive web portal (HTTP), the first
 
 - Go to Configuration > System Configuration > SSL Certificates
 
-image::../images/certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
+image::certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
 - Complete the following using your own information, Common Name must match the captive portal hostname in Configuration > General Configuration > Hostname
 
-image::../images/certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
+image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
+
+Warning: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
 
 - Save the CSR and private key to a secure location, you will need it to renew your certificate.
 
@@ -108,7 +112,7 @@ To install the SSL/TLS certificate, follow these steps:
 
 - Go to `Configuration > System Configuration > SSL Certificates > HTTP > Edit HTTP Certificates`.
 
-image::../images/certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
+image::certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
 
 - Import or open your certificate file (.crt) with a text editor and copy/paste the content into the "HTTPs Server Certificate" field.
 
@@ -177,7 +181,7 @@ systemctl restart packetfence-haproxy-portal
 ==== Generate CSR
 
 If you already have a certificate for your captive portal, you can use the same certificate for RADIUS. In this case, please go directly to section
-link:https://www.packetfence.org/docs/PacketFence_Installation_Guide.html#_install_the_ssltls_radius_certificate_on_the_server[36.4.3 Install the SSL/TLS].
+<<_install_the_ssltls_radius_certificate_on_the_server>>
 
 Warning: Wildcard certificates will not work with RADIUS. If you are using a wildcard certificate for your captive portal, you will need a new certificate specifically for RADIUS.
 
@@ -195,6 +199,8 @@ image::certificate/15-Radius-CSR.png[scaledwidth="100%",alt="Radius-CSR"]
 
 image::certificate/17-CSR-radius.png[scaledwidth="100%",alt="CSR"]
 
+Warning: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
+
 - Save the CSR and private key to a secure location, you will need it to renew your certificate.
 
 - You can also generate the CSR with CLI using:
@@ -206,7 +212,7 @@ image::certificate/17-CSR-radius.png[scaledwidth="100%",alt="CSR"]
 ==== Submit the CSR to a Certificate Authority (CA)
 
 Please refer to section 
-link:https://www.packetfence.org/docs/PacketFence_Installation_Guide.html#_submit_the_csr_to_a_certificate_authority_ca[36.2.2 Submit the CSR to a Certificate Authority (CA)]. and follow the steps mentioned there.
+<<_submit_the_csr_to_a_certificate_authority_ca>> and follow the steps mentioned there.
 
 ==== Install the SSL/TLS Radius Certificate on the Server
 
