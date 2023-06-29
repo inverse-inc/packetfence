@@ -2888,7 +2888,7 @@ sub returnRadiusAccessAccept {
             $role = $self->getRoleByName($args->{'user_role'});
         }
         if ( (defined($role) && $role ne "") || $self->usePushACLs ) {
-            if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}}) {
+            if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}} && !exists $self->{'_access_lists'}->{$args->{'user_role'}}) {
                 $role = $args->{'user_role'};
             }
             $radius_reply_ref = {
