@@ -36,6 +36,7 @@ our %SKIPPED = map { $_ => 1 } (
     qw(
       role
       device
+      device_is_not
       dhcp_fingerprint
       dhcp_vendor
       dhcp6_fingerprint
@@ -53,6 +54,13 @@ has_field 'role' => (
 );
 
 has_field 'device' => (
+   type => 'FingerbankSelect',
+   label => 'OS',
+   no_options => 1,
+   fingerbank_model => "fingerbank::Model::Device",
+);
+
+has_field 'device_is_not' => (
    type => 'FingerbankSelect',
    label => 'OS',
    no_options => 1,
