@@ -34,6 +34,7 @@ mode = production
 macSearchesMaxNb = 30
 macSearchesSleepInterval = 2
 uplink = dynamic
+pushACLs = N
 
 #
 # Command Line Interface 
