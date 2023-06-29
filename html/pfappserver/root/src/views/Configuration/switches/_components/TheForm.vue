@@ -380,7 +380,7 @@
         <form-group-push-acls v-show="supports(['PushACLs'])"
           namespace="PushACLs"
           :column-label="$i18n.t('Push ACLs')"
-          :text="$i18n.t('Enable ACLs to be pushed directly on the equipment.')"
+          :text="$i18n.t('Enable ACLs to be pushed directly on the equipment. Only ACLs defined in the global role configuration will be applied. If an ACL is defined in the switch config role section then this one will be pushed via RADIUS if possible')"
         />
 
         <form-group-use-downloadable-acls v-show="supports(['DownloadableListBasedEnforcement'])"
