@@ -755,7 +755,7 @@ sub getAccessListByName {
 }
 
 sub getRoleAccessListByName {
-    my ($self, $access_list_name) = @_;
+    my ($self, $access_list_name, $mac) = @_;
     my $logger = $self->logger;
 
     return if !exists $ConfigRoles{$access_list_name};
