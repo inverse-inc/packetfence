@@ -129,8 +129,10 @@ sub returnRadiusAccessAccept {
             if ($access_list) {
                 while($access_list =~ /([^\n]+)\n?/g){
                     my ($test, $formated_acl) = $self->returnAccessListAttribute('',$1);
-                    push(@acls, $formated_acl);
-                    $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
+                    if ($test) {
+                        push(@acls, $formated_acl);
+                        $logger->info("(".$self->{'_id'}.") Adding access list : $formated_acl to the RADIUS reply");
+                    }
                 }
                 $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
             } else {
@@ -155,7 +157,7 @@ Returns the attribute to use when pushing an input ACL using RADIUS
 
 sub returnInAccessListAttribute {
     my ($self) = @_;
-    return "";
+    return '';
 }
 
 
@@ -167,7 +169,7 @@ Returns the attribute to use when pushing an output ACL using RADIUS
 
 sub returnOutAccessListAttribute {
     my ($self) = @_;
-    return "";
+    return '';
 }
 
 =head2 returnAccessListAttribute
