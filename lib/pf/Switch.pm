@@ -2887,15 +2887,10 @@ sub returnRadiusAccessAccept {
         if ( defined($args->{'user_role'}) && $args->{'user_role'} ne "" ) {
             $role = $self->getRoleByName($args->{'user_role'});
         }
-        if ((defined($args->{'user_role'}) && $args->{'user_role'} ne "") && $self->usePushACLs) {
-            $radius_reply_ref = {
-                %$radius_reply_ref,
-                $self->returnPushAclsRoleAttributes($args->{'user_role'}),
-            };
-            $logger->info(
-                "(".$self->{'_id'}.") Added role $args->{'user_role'} in and out to the returned RADIUS Access-Accept"
-            );
-        } elsif ( defined($role) && $role ne "" ) {
+        if ( (defined($role) && $role ne "") || $self->usePushACLs ) {
+            if ($self->usePushACLs && exists $ConfigRoles{$args->{'user_role'}}) {
+                $role = $args->{'user_role'};
+            }
             $radius_reply_ref = {
                 %$radius_reply_ref,
                 $self->returnRoleAttributes($role),
