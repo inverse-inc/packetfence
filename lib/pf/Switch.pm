@@ -754,6 +754,28 @@ sub getAccessListByName {
     return;
 }
 
+sub getRoleAccessListByName {
+    my ($self, $access_list_name) = @_;
+    my $logger = $self->logger;
+
+    return if !exists $ConfigRoles{$access_list_name};
+    my $role = $ConfigRoles{$access_list_name};
+    return if !exists $role->{acls};
+    my $acls = $role->{acls} // [];
+
+    # Change to a check for FB ACL enabled
+    my $fb_acl = [];
+    if( isenabled($role->{fingerbank_dynamic_access_list})) {
+        $fb_acl = $self->fingerbank_dynamic_acl($mac);
+    }
+
+    return $self->acl_chewer(join("\n", @$acls, @$fb_acl), $access_list_name) if @$acls || @$fb_acl;
+
+    # otherwise log and return undef
+    $logger->trace("No parameter ${access_list_name}AccessList found in conf/switches.conf for the switch " . $self->{_id});
+    return;
+}
+
 =item getUrlByName
 
 Get the switch-specific url of a given global role in switches.conf
@@ -4229,7 +4251,7 @@ sub generateAnsibleConfiguration {
     }
 
     foreach my $role (keys %ConfigRoles) {
-        my $acls = $self->getAccessListByName($role);
+        my $acls = $self->getRoleAccessListByName($role);
         next if !defined($acls);
         my $out_acls;
         my $in_acls;
