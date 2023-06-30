@@ -219,9 +219,12 @@ const actions = {
 
 function filterOutLdapOptions(meta, sourceType) {
   if(ldapFormsSupported.includes(sourceType)) {
-    const ldapConditionAttributePath = "meta.authentication_rules.item.properties.conditions.item.properties.attribute.allowed"
+    const ldapConditionAttributePath = 'meta.authentication_rules.item.properties.conditions' +
+      '.item.properties.attribute.allowed'
     let ldapAttributes = _.get(meta, ldapConditionAttributePath, )
-    ldapAttributes = ldapAttributes.filter(item => !['ldapfilter', 'ldapattribute'].includes(item["attributes"]["data-type"]))
+    ldapAttributes = ldapAttributes.filter(
+      item => !['ldapfilter', 'ldapattribute'].includes(item['attributes']['data-type'])
+    )
     _.set(meta, ldapConditionAttributePath, ldapAttributes)
   }
   return meta

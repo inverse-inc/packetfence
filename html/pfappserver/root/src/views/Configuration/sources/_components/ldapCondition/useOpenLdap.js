@@ -11,20 +11,20 @@ function useOpenLdap(form) {
   }
 
   const getSubSchemaDN = () => {
-    return performSearch(null, "base", ["subSchemaSubEntry"], form.value.basedn)
+    return performSearch(null, 'base', ['subSchemaSubEntry'], form.value.basedn)
       .then((response) => {
         let firstAttribute = response.data[Object.keys(response.data)[0]]
-        return firstAttribute["subschemaSubentry"]
+        return firstAttribute['subschemaSubentry']
       })
   }
 
   const fetchAttributeTypes = (subSchemaDN) => {
-    return performSearch("(objectclass=subschema)",
-      "base",
-      ["attributeTypes"],
+    return performSearch('(objectclass=subschema)',
+      'base',
+      ['attributeTypes'],
       subSchemaDN)
       .then((response) => {
-        return response.data[Object.keys(response.data)[0]]["attributeTypes"]
+        return response.data[Object.keys(response.data)[0]]['attributeTypes']
       })
   }
 
@@ -52,24 +52,24 @@ function useOpenLdap(form) {
 function extractAttributeNames(attributes) {
   let attributeNames = []
   attributes.forEach((attribute) => {
-    const properties = attribute.split(" ")
-    const attributeName = properties[properties.indexOf("NAME") + 1]
-    if (attributeName === "(") {
+    const properties = attribute.split(' ')
+    const attributeName = properties[properties.indexOf('NAME') + 1]
+    if (attributeName === '(') {
       attributeNames.push(...extractAttributeNameAliases(properties))
     } else {
-      attributeNames.push(_.trim(attributeName, "'"))
+      attributeNames.push(_.trim(attributeName, '\''))
     }
   })
   return attributeNames
 }
 
 function extractAttributeNameAliases(attributeProperties) {
-  const attributeStartIndex = attributeProperties.indexOf("NAME") + 1
+  const attributeStartIndex = attributeProperties.indexOf('NAME') + 1
   attributeProperties = attributeProperties.slice(attributeStartIndex)
-  attributeProperties = attributeProperties.slice(0, attributeProperties.indexOf(")") + 1)
-  const attributeString = attributeProperties.join(" ")
+  attributeProperties = attributeProperties.slice(0, attributeProperties.indexOf(')') + 1)
+  const attributeString = attributeProperties.join(' ')
 
-  return parseLdapStringToArray(attributeString).map((item) => _.trim(item, "'"))
+  return parseLdapStringToArray(attributeString).map((item) => _.trim(item, '\''))
 }
 
 export default useOpenLdap

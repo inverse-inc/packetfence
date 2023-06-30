@@ -44,7 +44,7 @@ const useLdapAttributes = (props) => {
 
 function getLdapClient(form) {
   switch (form.value.type) {
-    case "AD":
+    case 'AD':
       return useAdLdap(form)
     default:
       return useOpenLdap(form)

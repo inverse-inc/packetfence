@@ -11,20 +11,20 @@ function useAdLdap(form) {
   }
 
   const getSubSchemaDN = () => {
-    return performSearch(null, "base", ["subschemaSubentry"], "")
+    return performSearch(null, 'base', ['subschemaSubentry'], '')
       .then((response) => {
         let firstAttribute = response.data[Object.keys(response.data)[0]]
-        return firstAttribute["subSchemaSubEntry"]
+        return firstAttribute['subSchemaSubEntry']
       })
   }
 
   const fetchAttributeTypes = (subSchemaDN) => {
-    return performSearch("(objectclass=subschema)",
-      "base",
-      ["attributetypes"],
+    return performSearch('(objectclass=subschema)',
+      'base',
+      ['attributetypes'],
       subSchemaDN)
       .then((response) => {
-        return response.data[Object.keys(response.data)[0]]["attributeTypes"]
+        return response.data[Object.keys(response.data)[0]]['attributeTypes']
       })
   }
 
@@ -51,8 +51,8 @@ function useAdLdap(form) {
 
 function extractAttributeNames(attributes) {
   return attributes.map((attribute) => {
-    const properties = attribute.split(" ")
-    return _.trim(properties[properties.indexOf("NAME") + 1], "'")
+    const properties = attribute.split(' ')
+    return _.trim(properties[properties.indexOf('NAME') + 1], '\'')
   })
 }
 

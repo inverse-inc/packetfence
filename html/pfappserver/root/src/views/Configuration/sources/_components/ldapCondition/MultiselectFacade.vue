@@ -56,8 +56,10 @@
           <template #aside>
             <icon name="exclamation-triangle" scale="1.5" class="mt-2 ml-2"></icon>
           </template>
-          <strong>{{ $t("LDAP connection failed") }}</strong>
-          <b-form-text class="font-weight-light">{{ $t('Make sure that you provided correct IP/credentials') }}</b-form-text>
+          <strong>{{ $t('LDAP connection failed') }}</strong>
+          <b-form-text class="font-weight-light">
+            {{ $t('Make sure that you provided correct IP/credentials') }}
+          </b-form-text>
         </b-media>
       </template>
       <template v-else v-slot:noOptions>
@@ -83,8 +85,8 @@
       </template>
     </multiselect>
     <small v-if="searchQueryInvalidFeedback"
-      class="invalid-feedback"
-      v-html="searchQueryInvalidFeedback"
+           class="invalid-feedback"
+           v-html="searchQueryInvalidFeedback"
     />
   </div>
 </template>
@@ -112,32 +114,27 @@ export const props = {
 
   onSearch: {
     type: Function,
-    default: () => {
-    }
+    default: () => {}
   },
 
   onSelect: {
     type: Function,
-    default: () => {
-    }
+    default: () => {}
   },
 
   onOpen: {
     type: Function,
-    default: () => {
-    }
+    default: () => {}
   },
 
   onClose: {
     type: Function,
-    default: () => {
-    }
+    default: () => {}
   },
 
   onRemove: {
     type: Function,
-    default: () => {
-    }
+    default: () => {}
   },
 
   isConnected: {
@@ -183,9 +180,9 @@ export const props = {
 }
 
 // eslint-disable-next-line no-unused-vars
-function setup(props, context){
+function setup(props, context) {
   const selectOptions = computed(() => {
-    if(props.noConnection) {
+    if (props.noConnection) {
       return []
     } else {
       return props.options

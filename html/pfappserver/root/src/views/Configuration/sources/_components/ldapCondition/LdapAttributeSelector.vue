@@ -36,8 +36,7 @@ export const props = {
 
   lookup: {
     type: Function,
-    default: () => {
-    },
+    default: () => {},
   }
 
 }
@@ -63,9 +62,9 @@ function setup(props, _) { // eslint-disable-line
   }
   const localValidator = inject('schema')
 
-  const searchQueryInvalidFeedback = ref("")
+  const searchQueryInvalidFeedback = ref('')
 
-  function moveSelectionToTop(array){
+  function moveSelectionToTop(array) {
     if (selectedValue.value !== null) {
       array = array.filter((item) => item.value !== selectedValue.value.value)
       array.unshift(selectedValue.value)
@@ -76,7 +75,7 @@ function setup(props, _) { // eslint-disable-line
   function validateChoice() {
     const path = namespaceToYupPath(props.namespace)
     localValidator.value.validateAt(path, form.value).then(() => {
-      searchQueryInvalidFeedback.value = ""
+      searchQueryInvalidFeedback.value = ''
     }).catch(ValidationError => { // invalid
       const {_, message} = ValidationError // eslint-disable-line
       searchQueryInvalidFeedback.value = message
@@ -88,7 +87,7 @@ function setup(props, _) { // eslint-disable-line
   }
 
   const inputState = computed(() => {
-    return searchQueryInvalidFeedback.value === ""
+    return searchQueryInvalidFeedback.value === ''
   })
 
   function onSelect(value) {
@@ -111,7 +110,7 @@ function setup(props, _) { // eslint-disable-line
   }
 
   const singleLabel = computed(() => {
-    return selectedValue.value !== null ? selectedValue.value.text : ""
+    return selectedValue.value !== null ? selectedValue.value.text : ''
   })
 
   validateChoice()

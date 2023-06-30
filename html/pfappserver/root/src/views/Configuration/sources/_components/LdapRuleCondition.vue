@@ -17,15 +17,7 @@
   </div>
 </template>
 <script>
-import {
-  BaseInput,
-  BaseInputChosenMultiple,
-  BaseInputChosenOne,
-  BaseInputGroupMultiplier,
-  BaseInputNumber,
-  BaseInputPassword,
-  BaseInputRange
-} from '@/components/new'
+import {BaseInputChosenOne} from '@/components/new'
 import {computed, nextTick, ref, unref, watch} from '@vue/composition-api'
 import {
   pfComponentType,
@@ -41,14 +33,8 @@ import LdapAttributeSelector
   from '@/views/Configuration/sources/_components/ldapCondition/LdapAttributeSelector.vue';
 
 const components = {
-  BaseInput,
-  BaseInputGroupMultiplier,
-  BaseInputNumber,
-  BaseInputPassword,
-  BaseInputRange,
-  BaseInputChosenMultiple,
   BaseInputChosenOne,
-  LdapAttributeSelector
+  LdapAttributeSelector,
 }
 
 const props = {

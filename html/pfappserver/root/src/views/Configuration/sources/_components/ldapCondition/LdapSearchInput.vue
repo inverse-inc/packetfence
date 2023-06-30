@@ -38,8 +38,7 @@ export const props = {
 
   lookup: {
     type: Function,
-    default: () => {
-    },
+    default: () => {},
   }
 
 }
@@ -49,7 +48,7 @@ function parseLdapResponse(response, ldapAttribute) {
   let parsedEntries = new Set()
   for (let i = 0; i < ldapEntries.length; i++) {
     let value = ldapEntries[i][ldapAttribute]
-    if (_.isArray(value)){
+    if (Array.isArray(value)) {
       parsedEntries = new Set([...parsedEntries, ...value])
     } else {
       parsedEntries.add(value)
@@ -63,7 +62,7 @@ function parseLdapResponse(response, ldapAttribute) {
 }
 
 function createFilter(searchInput, attribute) {
-  return "(" + attribute + "=" + "*" + searchInput + "*" + ")"
+  return '(' + attribute + '=' + '*' + searchInput + '*' + ')'
 }
 
 
@@ -84,10 +83,10 @@ function setup(props, context) { // eslint-disable-line
     selectedValue.value = valueToSelectValue(initialValue)
   }
   const inputOptions = ref([])
-  const searchInput = ref("")
+  const searchInput = ref('')
   const localValidator = inject('schema')
 
-  const searchQueryInvalidFeedback = ref("")
+  const searchQueryInvalidFeedback = ref('')
   const debouncedSearch = _.debounce(performSearch, searchAfter)
 
   const ldapFilterAttribute = computed(() => {
@@ -130,7 +129,7 @@ function setup(props, context) { // eslint-disable-line
   function validateChoice() {
     const path = namespaceToYupPath(props.namespace)
     localValidator.value.validateAt(path, form.value).then(() => {
-      searchQueryInvalidFeedback.value = ""
+      searchQueryInvalidFeedback.value = ''
     }).catch(ValidationError => { // invalid
       const {_, message} = ValidationError // eslint-disable-line
       searchQueryInvalidFeedback.value = message
@@ -143,7 +142,7 @@ function setup(props, context) { // eslint-disable-line
   }
 
   const inputState = computed(() => {
-    return searchQueryInvalidFeedback.value === ""
+    return searchQueryInvalidFeedback.value === ''
   })
 
   function onSelect(value) {
@@ -169,7 +168,7 @@ function setup(props, context) { // eslint-disable-line
   }
 
   const singleLabel = computed(() => {
-    return selectedValue.value !== null ? selectedValue.value.text : ""
+    return selectedValue.value !== null ? selectedValue.value.text : ''
   })
 
   validateChoice()

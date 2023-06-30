@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 const convert = {
-  statusToVariant (params) {
+  statusToVariant(params) {
     let variant = params.variant || ''
     switch (params.status) {
       case 'success':
@@ -21,7 +21,7 @@ const convert = {
 export default convert
 
 export function valueToSelectValue(value) {
-  return {"text": value, "value": value}
+  return {'text': value, 'value': value}
 }
 
 export function intsToStrings(obj) {
