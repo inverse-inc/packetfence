@@ -57,14 +57,15 @@
 
           </b-col>
           <b-col>
-            <b-link @click="itemClone(index)"
+            <b-link @click="itemInsert(index)"
               :class="{
                 'text-black-50': isLocked,
                 'text-primary': !isLocked && actionKey,
                 'text-secondary': !isLocked && !actionKey
               }"
               :disabled="isLocked"
-              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
+              v-b-tooltip.hover.left.d300
+              :title="actionKey ? $t('Clone Row') : $t('Add Row')"
             >
               <icon name="plus-circle" class="cursor-pointer mx-1"/>
             </b-link>
@@ -75,7 +76,8 @@
                 'text-secondary': !isLocked && !actionKey
               }"
               :disabled="isLocked"
-              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Delete All') : $t('Delete Row')"
+              v-b-tooltip.hover.left.d300
+              :title="actionKey ? $t('Delete All') : $t('Delete Row')"
             >
               <icon name="minus-circle" class="cursor-pointer mx-1"/>
             </b-link>
@@ -187,8 +189,15 @@ const setup = (props, context) => {
     draggableAdd(length.value, _defaultItem)
   }
 
-  const itemClone = (index) => {
-    draggableAdd(index + 1, unref(value)[index])
+  const itemInsert = (srcIndex) => {
+    const isClone = unref(actionKey)
+    if (isClone){
+      draggableAdd(srcIndex + 1, unref(value)[srcIndex])
+    } else {
+      let _defaultItem = unref(defaultItem)
+      _defaultItem["type"] = unref(value)[srcIndex]["type"]
+      draggableAdd(srcIndex + 1, _defaultItem)
+    }
   }
 
   const itemDelete = (index) => {
@@ -213,7 +222,6 @@ const setup = (props, context) => {
     // useInputValue
     inputValue: value,
     inputLength: length,
-    itemClone,
     onInput,
     onChange,
 
@@ -232,6 +240,7 @@ const setup = (props, context) => {
     isStriped: striped,
     actionKey,
     itemAdd,
+    itemInsert,
     itemDelete
   }
 }
