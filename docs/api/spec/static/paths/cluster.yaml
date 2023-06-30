@@ -8,6 +8,8 @@
           application/json:
             schema:
               $ref: "#/components/schemas/ClusterConfig"
+      '401':
+        $ref: '#/components/responses/Forbidden'
     tags:
       - $Cluster
 
@@ -21,5 +23,7 @@
           application/json:
             schema:
               $ref: "#/components/schemas/ClusterServers"
+      '401':
+        $ref: '#/components/responses/Forbidden'
     tags:
       - $Cluster
