@@ -57,7 +57,7 @@ sub post_update {
 
 sub post_create {
     my ($self, $id) = @_;
-    $self->port_update($id);
+    $self->post_update($id);
 }
 
 sub can_delete {
