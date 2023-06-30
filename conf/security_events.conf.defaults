@@ -144,6 +144,24 @@ trigger=internal::1100020
 actions=email_admin
 enabled=Y
 
+[1100021]
+desc=Detect devices in VLAN 100 (triggered on DHCP or RADIUS accounting)
+trigger=vlan::100
+window=dynamic
+enabled=N
+
+[1100022]
+desc=Detect devices in 172.30.0.0/24 subnet (triggered on DHCP or RADIUS accounting)
+trigger=network::172.30.0.0/24
+window=dynamic
+enabled=N
+
+[1100023]
+desc=Detect non Android devices in 172.31.0.0/24 subnet (needs to see DHCP traffic)
+trigger=(device_is_not::33453&network::172.31.0.0/24)
+window=dynamic
+enabled=N
+
 #
 #  1200000 - 120099 Reserved for required administration security events
 #

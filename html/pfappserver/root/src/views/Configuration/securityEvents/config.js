@@ -36,6 +36,11 @@ export const triggerFields = {
     category: triggerCategories.PROFILING,
     types: [fieldType.OPTIONS]
   },
+  device_is_not: {
+    text: i18n.t('Device is not'),
+    category: triggerCategories.PROFILING,
+    types: [fieldType.OPTIONS]
+  },
   dhcp_fingerprint: {
     text: i18n.t('DHCP Fingerprint'),
     category: triggerCategories.PROFILING,
@@ -105,6 +110,16 @@ export const triggerFields = {
     text: i18n.t('Role'),
     category: triggerCategories.ENDPOINT,
     types: [fieldType.OPTIONS]
+  },
+  vlan: {
+    text: i18n.t('VLAN'),
+    category: triggerCategories.ENDPOINT,
+    types: [fieldType.SUBSTRING]
+  },
+  network: {
+    text: i18n.t('Network'),
+    category: triggerCategories.ENDPOINT,
+    types: [fieldType.SUBSTRING]
   },
   suricata_event: {
     text: i18n.t('Suricata Event'),

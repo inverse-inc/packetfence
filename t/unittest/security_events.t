@@ -21,7 +21,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 26;
+use Test::More tests => 33;
 use Test2::Tools::Compare qw(bag item end);
 use_ok('pf::security_event');
 
@@ -102,6 +102,25 @@ is(@security_events, 0);
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({role => "default"});
 is(@security_events, 1);
 is($security_events[0], "1100014");
+
+# Test a security_event using VLAN
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_vlan => "100"});
+is(@security_events, 1);
+is($security_events[0], "1100019");
+
+# Test a security_event using network
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_ip => "172.30.0.1"});
+is(@security_events, 1);
+is($security_events[0], "1100020");
+
+# Test a security_event using network and device_is_not
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_ip => "172.31.0.1", device_id => 1});
+is(@security_events, 1);
+is($security_events[0], "1100021");
+
+# Test a security_event using network and device_is_not
+@security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all({last_ip => "172.31.0.1", device_id => 33453});
+is(@security_events, 0);
 
 @security_events = $pf::security_event::SECURITY_EVENT_FILTER_ENGINE->match_all(
     {
