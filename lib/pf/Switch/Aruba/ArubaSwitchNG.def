@@ -24,3 +24,7 @@ User-Name = $last_accounting.username
 NAS-IP-Address = $disconnectIp
 Acct-Session-Id = $last_accounting.acctsessionid
 EOT
+
+voip = <<EOT
+HP-Egress-VLAN-Name = 1${switch._voiceRole}
+EOT
