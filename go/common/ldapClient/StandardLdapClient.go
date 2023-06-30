@@ -2,7 +2,7 @@ package ldapClient
 
 import (
 	"crypto/tls"
-	"errors"
+	"fmt"
 	"time"
 
 	"gopkg.in/ldap.v2"
@@ -28,14 +28,18 @@ func (f LdapClientFactory) NewLdapClient(protocol string, socketAddress string, 
 func recoverConnectionError(ldapConnection ILdapConnection, err *error) {
 	if r := recover(); r != nil {
 		ldapConnection = nil
-		*err = errors.New("failed to connect to the LDAP server")
+		*err = fmt.Errorf("failed to connect to the LDAP server: %v", r)
 	}
 }
 
 func (c *LdapClient) Dial() (conn ILdapConnection, err error) {
+	defer recoverConnectionError(conn, &err)
+
 	return ldap.Dial(c.protocol, c.socketAddress)
 }
 
 func (c *LdapClient) DialTLS(config *tls.Config) (conn ILdapConnection, err error) {
+	defer recoverConnectionError(conn, &err)
+
 	return ldap.DialTLS(c.protocol, c.socketAddress, config)
 }
