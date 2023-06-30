@@ -512,6 +512,7 @@ sub returnPushAclsRoleAttributes {
     my ($self, $role) = @_;
     my %reply = (
         $self->returnRoleAttribute() => $role.".in",
+        # Doesn't work for now
         #$self->returnRoleAttribute() => $role."out.out",
     );
     return %reply;

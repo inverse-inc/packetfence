@@ -127,6 +127,13 @@ Dynamic/Downloadable ACLs can be combined with Push ACLs but in certain conditio
 If an ACL is defined in the role in the switch configuration then this one will take precedence on the Push ACL.
 If the ACL in the role configuration is empty but you have an ACL defined in the role config then PacketFence will only return the attribute to assign the ACL (no RADIUS reply containing the ACL).
 
+Here an example of what happen when you have a Cisco WLC where you enabled PushACLs and you defined the ACL as following:
+
+image::PushACLs-role.png[role configuration, 400]
+
+it will create or replace the User ACL like that:
+
+image::PushACLs-Cisco-WLC.png[Cisco WLC ACL, 400]
 
 ===== Port-security and SNMP
 
