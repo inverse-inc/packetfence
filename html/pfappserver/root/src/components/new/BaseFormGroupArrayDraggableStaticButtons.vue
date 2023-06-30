@@ -57,6 +57,17 @@
 
           </b-col>
           <b-col>
+            <b-link @click="itemClone(index)"
+              :class="{
+                'text-black-50': isLocked,
+                'text-primary': !isLocked && actionKey,
+                'text-secondary': !isLocked && !actionKey
+              }"
+              :disabled="isLocked"
+              v-b-tooltip.hover.left.d300 :title="actionKey ? $t('Clone Row') : $t('Add Row')"
+            >
+              <icon name="plus-circle" class="cursor-pointer mx-1"/>
+            </b-link>
             <b-link @click="itemDelete(index)"
               :class="{
                 'text-black-50': isLocked,
@@ -176,6 +187,10 @@ const setup = (props, context) => {
     draggableAdd(length.value, _defaultItem)
   }
 
+  const itemClone = (index) => {
+    draggableAdd(index + 1, unref(value)[index])
+  }
+
   const itemDelete = (index) => {
     const isAll = unref(actionKey)
     if (isAll)
@@ -198,6 +213,7 @@ const setup = (props, context) => {
     // useInputValue
     inputValue: value,
     inputLength: length,
+    itemClone,
     onInput,
     onChange,
 
