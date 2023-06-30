@@ -26,7 +26,7 @@ use pf::config qw(
     $WIRED_802_1X
     $WIRED_MAC_AUTH
     $WEBAUTH_WIRED
-    $ConfigRoles
+    %ConfigRoles
 );
 
 use Try::Tiny;

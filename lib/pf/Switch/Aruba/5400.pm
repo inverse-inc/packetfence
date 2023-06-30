@@ -44,7 +44,7 @@ use pf::constants;
 use pf::config qw(
     $MAC
     $PORT
-    $ConfigRoles
+    %ConfigRoles
 );
 use pf::Switch::constants;
 use pf::util;
