@@ -27,6 +27,7 @@ use pf::ConfigStore::Roles;
 use pfappserver::Form::Config::Roles;
 use pf::config qw(%ConfigRoles);
 use pfconfig::cached_hash;
+use pf::config::cluster;
 use pf::dal::node;
 use pf::dal::person;
 use pf::enforcement;
