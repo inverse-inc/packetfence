@@ -128,6 +128,12 @@ sub formHandlerRequiredProperties {
 sub formHandlerProperties {
     my ($form, $is_subtype) = @_;
     my %properties;
+    $properties{not_deletable} = {
+        '$ref' => "#/components/schemas/ItemNotDeletable"
+    };
+    $properties{not_sortable} = {
+        '$ref' => "#/components/schemas/ItemNotSortable"
+    };
     for my $field (grep { isAllowedField($_) } $form->fields) {
         my $name = $field->name;
         $properties{$name} = fieldProperties($field);
