@@ -39,7 +39,7 @@ export const props = {
     default: () => {return [{
       label: i18n.t('Add Packetfence Condition'),
       component: "base-rule-condition",
-      type: "packetfence"
+      type: "pf"
     },{
       label: i18n.t('Add LDAP Condition'),
       component: "ldap-rule-condition",

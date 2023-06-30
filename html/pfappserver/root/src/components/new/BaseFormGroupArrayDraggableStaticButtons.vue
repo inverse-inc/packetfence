@@ -42,6 +42,7 @@
             'draggable-on': isSortable,
             'draggable-off': !isSortable
           }">
+            <b-badge :variant="'light'">{{item['type']}}</b-badge>
             <icon v-if="isSortable"
               class="draggable-handle" name="th" scale="1.5"
               v-b-tooltip.hover.left.d300 :title="$t('Click and drag to re-order')"
