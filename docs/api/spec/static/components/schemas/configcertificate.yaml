@@ -2,10 +2,10 @@ ConfigCertificate:
   properties:
     lets_encrypt:
       description: Whether or not Let's Encrypt is enabled for the certificate resource
-      type: string
+      type: boolean
       enum:
-        - enabled
-        - disabled
+        - false
+        - true
     certificate:
       description: The server certficate for the resource in x509 PEM encoded format
       type: string
