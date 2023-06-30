@@ -8,6 +8,8 @@
             schema:
               $ref: '#/components/schemas/ConfigInterfacesList'
         description: Item
+      '401':
+        $ref: '#/components/responses/Forbidden'
     tags:
       - Config/Interfaces
   post:
@@ -20,8 +22,8 @@
     responses:
       '200':
         $ref: '#/components/responses/Message'
-      '404':
-        $ref: '#/components/responses/NotFound'
+      '401':
+        $ref: '#/components/responses/Forbidden'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
     tags:
@@ -42,6 +44,10 @@
             schema:
               $ref: '#/components/schemas/ConfigInterfaceGet'
         description: Item
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
     tags:
       - Config/Interfaces
   put:
@@ -54,6 +60,8 @@
     responses:
       '200':
         $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Forbidden'
       '404':
         $ref: '#/components/responses/NotFound'
       '422':
@@ -70,6 +78,10 @@
     responses:
       '200':
         description: Deleted an interface
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
       '412':
         allOf:
           - $ref: '#/components/responses/Message'
@@ -88,6 +100,10 @@
     responses:
       '200':
         $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
       '412':
         allOf:
           - $ref: '#/components/responses/Message'
@@ -106,6 +122,10 @@
     responses:
       '200':
         $ref: '#/components/responses/Message'
+      '401':
+        $ref: '#/components/responses/Forbidden'
+      '404':
+        $ref: '#/components/responses/NotFound'
       '412':
         allOf:
           - $ref: '#/components/responses/Message'
