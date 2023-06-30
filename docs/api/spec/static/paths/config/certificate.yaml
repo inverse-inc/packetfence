@@ -1,6 +1,6 @@
-/config/certificate/{certificate_id}/generate_csr:
+/api/v1/config/certificate/{certificate_id}/generate_csr:
   description: pf::UnifiedApi::Controller::Config::Certificates
-  put:
+  post:
     description: Generate a CSR for a certificate resource
     operationId: api.v1.Config::Certificates.generate_csr
     parameters:
@@ -8,6 +8,9 @@
       name: certificate_id
       schema:
         type: string
+        enum:
+          - http
+          - radius
     requestBody:
       content:
         application/json:
@@ -20,8 +23,10 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Certificates
 
-/config/certificates/lets_encrypt/test:
+/api/v1/config/certificates/lets_encrypt/test:
   description: pf::UnifiedApi::Controller::Config::Certificates
   get:
     description: Test if a specific domain is available for a Let's Encrypt HTTP challenge through PacketFence
@@ -41,8 +46,10 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Certificates
 
-/config/certificate/{certificate_id}/lets_encrypt:
+/api/v1/config/certificate/{certificate_id}/lets_encrypt:
   description: pf::UnifiedApi::Controller::Config::Certificates
   put:
     description: Configure Let's Encrypt for a certificate resource
@@ -52,6 +59,9 @@
       name: certificate_id
       schema:
         type: string
+        enum:
+          - http
+          - radius
     requestBody:
       content:
         application/json:
@@ -64,8 +74,10 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Certificates
 
-/config/certificate/{certificate_id}:
+/api/v1/config/certificate/{certificate_id}:
   description: pf::UnifiedApi::Controller::Config::Certificates
   get:
     description: Get an item
@@ -75,6 +87,9 @@
       name: certificate_id
       schema:
         type: string
+        enum:
+          - http
+          - radius
     responses:
       '200':
         content:
@@ -86,6 +101,8 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+    tags:
+      - Config/Certificates
   put:
     description: Replace an item
     operationId: api.v1.Config::Certificates.replace
@@ -94,6 +111,9 @@
       name: certificate_id
       schema:
         type: string
+        enum:
+          - http
+          - radius
     - in: query
       name: check_chain
       schema:
@@ -113,8 +133,12 @@
         $ref: '#/components/responses/NotFound'
       '422':
         $ref: '#/components/responses/UnprocessableEntity'
+      '500':
+        $ref: '#/components/responses/ErrorsWithMessage'
+    tags:
+      - Config/Certificates
 
-/config/certificate/{certificate_id}/info:
+/api/v1/config/certificate/{certificate_id}/info:
   description: pf::UnifiedApi::Controller::Config::Certificates
   get:
     description: Get an item
@@ -124,6 +148,9 @@
       name: certificate_id
       schema:
         type: string
+        enum:
+          - http
+          - radius
     responses:
       '200':
         content:
@@ -131,3 +158,5 @@
             schema:
               $ref: '#/components/schemas/ConfigCertificateInfo'
         description: Item
+    tags:
+      - Config/Certificates
