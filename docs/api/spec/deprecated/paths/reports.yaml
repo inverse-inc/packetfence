@@ -1,5 +1,6 @@
 /reports/os:
   get:
+    deprecated: true
     summary: Returns a list of node operating systems
     responses:
       '200':
@@ -11,6 +12,7 @@
 
 /reports/os/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of node operating systems first seen within a specified date/time range
     parameters:
       - name: start
@@ -35,6 +37,7 @@
 
 /reports/os/active:
   get:
+    deprecated: true
     summary: Returns a list of active node operating systems
     responses:
       '200':
@@ -46,6 +49,7 @@
 
 /reports/osclass:
   get:
+    deprecated: true
     summary: Returns a list of node operating system classes
     responses:
       '200':
@@ -57,6 +61,7 @@
 
 /reports/osclass/active:
   get:
+    deprecated: true
     summary: Returns a list of active node operating system classes
     responses:
       '200':
@@ -68,6 +73,7 @@
 
 /reports/inactive:
   get:
+    deprecated: true
     summary: Returns a list of inactive nodes
     responses:
       '200':
@@ -79,6 +85,7 @@
 
 /reports/active:
   get:
+    deprecated: true
     summary: Returns a list of active nodes
     responses:
       '200':
@@ -90,6 +97,7 @@
 
 /reports/registered:
   get:
+    deprecated: true
     summary: Returns a list of registered nodes
     responses:
       '200':
@@ -101,6 +109,7 @@
 
 /reports/registered/active:
   get:
+    deprecated: true
     summary: Returns a list of active registered nodes
     responses:
       '200':
@@ -112,6 +121,7 @@
 
 /reports/unregistered:
   get:
+    deprecated: true
     summary: Returns a list of unregistered nodes
     responses:
       '200':
@@ -123,6 +133,7 @@
 
 /reports/unregistered/active:
   get:
+    deprecated: true
     summary: Returns a list of active unregistered nodes
     responses:
       '200':
@@ -134,6 +145,7 @@
 
 /reports/unknownprints:
   get:
+    deprecated: true
     summary: Returns a list of nodes with an unknown DHCP fingerprint
     responses:
       '200':
@@ -145,6 +157,7 @@
 
 /reports/unknownprints/active:
   get:
+    deprecated: true
     summary: Returns a list of active nodes with an unknown DHCP fingerprint
     responses:
       '200':
@@ -156,6 +169,7 @@
 
 /reports/statics:
   get:
+    deprecated: true
     summary: Returns a list of nodes with a static IP address
     responses:
       '200':
@@ -167,6 +181,7 @@
 
 /reports/statics/active:
   get:
+    deprecated: true
     summary: Returns a list of active nodes with a static IP address
     responses:
       '200':
@@ -178,6 +193,7 @@
 
 /reports/openviolations:
   get:
+    deprecated: true
     summary: Returns a list of nodes with an open violation
     responses:
       '200':
@@ -189,6 +205,7 @@
 
 /reports/openviolations/active:
   get:
+    deprecated: true
     summary: Returns a list of active nodes with an open violation
     responses:
       '200':
@@ -200,6 +217,7 @@
 
 /reports/connectiontype:
   get:
+    deprecated: true
     summary: Returns a list of connection types
     responses:
       '200':
@@ -211,6 +229,7 @@
 
 /reports/connectiontype/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of connection types within a specified date/time range
     parameters:
       - name: start
@@ -235,6 +254,7 @@
 
 /reports/connectiontype/active:
   get:
+    deprecated: true
     summary: Returns a list of active connection types
     responses:
       '200':
@@ -246,6 +266,7 @@
 
 /reports/connectiontypereg:
   get:
+    deprecated: true
     summary: Returns a list of connection types for registered nodes
     responses:
       '200':
@@ -257,6 +278,7 @@
 
 /reports/connectiontypereg/active:
   get:
+    deprecated: true
     summary: Returns a list of connection types for active registered nodes
     responses:
       '200':
@@ -268,6 +290,7 @@
 
 /reports/connectiontypeunreg:
   get:
+    deprecated: true
     summary: Returns a list of connection types for unregistered nodes
     responses:
       '200':
@@ -279,6 +302,7 @@
 
 /reports/connectiontypeunreg/active:
   get:
+    deprecated: true
     summary: Returns a list of connection types for active unregistered nodes
     responses:
       '200':
@@ -290,6 +314,7 @@
 
 /reports/ssid:
   get:
+    deprecated: true
     summary: Returns a list of wireless SSIDs
     responses:
       '200':
@@ -301,6 +326,7 @@
 
 /reports/ssid/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of wireless SSIDs within a specified date/time range
     parameters:
       - name: start
@@ -325,6 +351,7 @@
 
 /reports/ssid/active:
   get:
+    deprecated: true
     summary: Returns a list of active wireless SSIDs
     responses:
       '200':
@@ -336,6 +363,7 @@
 
 /reports/osclassbandwidth:
   get:
+    deprecated: true
     summary: Returns a list of operating system class bandwidths
     responses:
       '200':
@@ -347,6 +375,7 @@
 
 /reports/osclassbandwidth/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of operating system class bandwidths within a specified date/time range
     parameters:
       - name: start
@@ -371,6 +400,7 @@
 
 /reports/osclassbandwidth/day:
   get:
+    deprecated: true
     summary: Returns a list of operating system class bandwidths for the past day
     responses:
       '200':
@@ -382,6 +412,7 @@
 
 /reports/osclassbandwidth/week:
   get:
+    deprecated: true
     summary: Returns a list of operating system class bandwidths for the past week
     responses:
       '200':
@@ -393,6 +424,7 @@
 
 /reports/osclassbandwidth/month:
   get:
+    deprecated: true
     summary: Returns a list of operating system class bandwidths for the past month
     responses:
       '200':
@@ -404,6 +436,7 @@
 
 /reports/osclassbandwidth/year:
   get:
+    deprecated: true
     summary: Returns a list of operating system class bandwidths for the past year
     responses:
       '200':
@@ -415,6 +448,7 @@
 
 /reports/nodebandwidth:
   get:
+    deprecated: true
     summary: Returns a list of nodes with the most bandwidth
     responses:
       '200':
@@ -426,6 +460,7 @@
 
 /reports/nodebandwidth/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of nodes with the most bandwidth within a specified date/time range
     parameters:
       - name: start
@@ -450,6 +485,7 @@
 
 /reports/topauthenticationfailures/mac/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication failures by MAC addresses within a specified date/time range
     parameters:
       - name: start
@@ -474,6 +510,7 @@
 
 /reports/topauthenticationfailures/ssid/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication failures by SSID within a specified date/time range
     parameters:
       - name: start
@@ -498,6 +535,7 @@
 
 /reports/topauthenticationfailures/username/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication failures by user name within a specified date/time range
     parameters:
       - name: start
@@ -522,6 +560,7 @@
 
 /reports/topauthenticationsuccesses/mac/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication successes by MAC addresses within a specified date/time range
     parameters:
       - name: start
@@ -546,6 +585,7 @@
 
 /reports/topauthenticationsuccesses/ssid/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication successes by SSID within a specified date/time range
     parameters:
       - name: start
@@ -570,6 +610,7 @@
 
 /reports/topauthenticationsuccesses/username/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication successes by user name within a specified date/time range
     parameters:
       - name: start
@@ -594,6 +635,7 @@
 
 /reports/topauthenticationsuccesses/computername/{start}/{end}:
   get:
+    deprecated: true
     summary: Returns a list of top authentication successes by computer name within a specified date/time range
     parameters:
       - name: start
