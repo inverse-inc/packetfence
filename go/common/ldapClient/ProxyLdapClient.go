@@ -16,13 +16,16 @@ type ProxyLdapClient struct {
 	connectorContext context.Context
 }
 
-type ProxyLdapClientFactory struct{}
+type ProxyLdapClientFactory struct {
+	ConnectorContext context.Context
+}
 
 func (f ProxyLdapClientFactory) NewLdapClient(protocol string, socketAddress string, timeout time.Duration) ILdapClient {
 	ldap.DefaultTimeout = timeout
 	var client = &ProxyLdapClient{
-		protocol:      protocol,
-		socketAddress: socketAddress,
+		protocol:         protocol,
+		socketAddress:    socketAddress,
+		connectorContext: f.ConnectorContext,
 	}
 
 	return client

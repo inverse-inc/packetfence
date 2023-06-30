@@ -51,8 +51,6 @@ func setup(c *caddy.Controller) error {
 	pfldapexplorer, err := buildPfldapExplorer(ctx)
 	sharedutils.CheckError(err)
 
-	pfldapexplorer.connectors = connector.NewConnectorsContainer(ctx)
-
 	httpserver.GetConfig(c).AddMiddleware(func(next httpserver.Handler) httpserver.Handler {
 		pfldapexplorer.Next = next
 		return pfldapexplorer
@@ -118,11 +116,9 @@ func (h *Handler) HandleLDAPSearchRequest(res http.ResponseWriter, req *http.Req
 		return
 	}
 
-	searchRequest.SearchQuery.Context = connector.WithConnectorsContainer(req.Context(), h.connectors)
-
 	var factory ldapClient.ILdapClientFactory
 	if searchRequest.Server.UseConnector {
-		factory = ldapClient.ProxyLdapClientFactory{}
+		factory = ldapClient.ProxyLdapClientFactory{ConnectorContext: connector.WithConnectorsContainer(req.Context(), h.connectors)}
 	} else {
 		factory = ldapClient.LdapClientFactory{}
 	}
