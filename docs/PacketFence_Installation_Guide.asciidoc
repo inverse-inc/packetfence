@@ -153,6 +153,10 @@ include::installation/export_import_mechanism.asciidoc[]
 
 include::installation/automation_of_upgrades.asciidoc[]
 
+== PacketFence Certificates (for V11.2 and later)
+
+include::installation/certificate.asciidoc[]
+
 // INCLUDES
 
 include::includes/additional-info.asciidoc[]
@@ -164,7 +168,5 @@ include::includes/license.asciidoc[]
 == Appendix
 
 include::installation/appendix.asciidoc[]
-
-include::installation/certificate.asciidoc[]
 
 // vim: set syntax=asciidoc tabstop=2 shiftwidth=2 expandtab:

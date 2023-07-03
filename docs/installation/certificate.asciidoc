@@ -17,13 +17,13 @@ endif::[]
 ////
 
 
-== PacketFence Certificates (for V11.2 and later)
+//== PacketFence Certificates (for V11.2 and later)
 
 === Introduction 
 
 ==== Context and Objectives of the Documentation
 
-This documentation PacketFence V11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for the captive web portal (HTTP) and RADIUS.
+This documentation PacketFence V11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for HTTP (captive web portal + web admin) and RADIUS.
 
 The captive portal is a common method of user authentication on a wireless or wired network. It allows controlling user access by redirecting them to an authentication page where they must provide login information. The RADIUS protocol, on the other hand, is used for user authentication and authorization on a network.
 
@@ -45,36 +45,30 @@ By understanding these basic concepts, you will be better tooled to understand a
 This Documentation concern PacketFence V11.2 and later
 
 Wildcard certificate is strictly restricted to HTTP, you can't use this type of certificate for RADIUS. 
-If you plan to implement certificate for HTTP and RADIUS, we recommand you to use only one certificate to facilitate management of these.
+If you plan to implement certificate for HTTP and RADIUS, we recommend you to use only one certificate to facilitate management of these.
 
 === Implementation of SSL/TLS Certificate for Captive Web Portal (HTTP)
 
 ==== Generate a Certificate Signing Request (CSR)
 
-To implement an SSL/TLS certificate for the captive web portal (HTTP), the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the private key that will be used to encrypt communications.
+To implement an SSL/TLS certificate for HTTP (captive web portal + web admin), the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the private key that will be used to encrypt communications.
 
 - Log on the admin web interface (GUI)
 
-- Go to Configuration > System Configuration > SSL Certificates
+- Go to _Configuration -> System Configuration -> SSL Certificates_
 
 image::certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
-- Complete the following using your own information, Common Name must match the captive portal hostname in Configuration > General Configuration > Hostname
+- Complete the following using your own information, Common Name must match the captive portal hostname in _Configuration -> General Configuration -> Hostname
 
 image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
 
-Warning: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
+WARNING: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
 
-- Save the CSR and private key to a secure location, you will need it to renew your certificate.
 
-- You can also generate the CSR with CLI using:
-
-[source, shell]
-----
-openssl req -newkey rsa:2048 -keyout PRIVATEKEY.key -out MYCSR.csr
-----
+- Save the CSR to a secure location, you will need it to renew your certificate.
 
 ==== Submit the CSR to a Certificate Authority (CA)
 
@@ -84,7 +78,7 @@ To submit the CSR to a CA, follow these steps:
 
 - Select a CA and follow their instructions for submitting a CSR.
 
-- The Subject Alternative Name must exactly match the captive portal hostname in Configuration > General Configuration > Hostname.
+- The Subject Alternative Name must exactly match the captive portal hostname in _Configuration -> General Configuration -> Hostname_ .
 
 - Ensure that your CA supports X509 in base 64 format.
 
@@ -98,8 +92,8 @@ If your CA provides the certificate in PKCS12 format, you can use the following 
 
 [source, shell]
 ----
-openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -clcerts -nokeys -out {{.temp_dir}}/{{.input.cn}}.crt -passin pass:secret
-openssl pkcs12 -in {{.temp_dir}}/{{.input.cn}}.p12 -nocerts -nodes -out {{.temp_dir}}/{{.input.cn}}.key -passin pass:secret
+openssl pkcs12 -in $PATH/YOUR_CA.p12 -clcerts -nokeys -out /usr/local/pf/conf/ssl/server.crt -passin pass:secret
+openssl pkcs12 -in $PATH/YOUR_CA.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
 ----
 
 ==== Install the SSL/TLS Certificate on the Server
@@ -110,7 +104,7 @@ To install the SSL/TLS certificate, follow these steps:
 
 - Open the web admin interface.
 
-- Go to `Configuration > System Configuration > SSL Certificates > HTTP > Edit HTTP Certificates`.
+- Go to _Configuration -> System Configuration -> SSL Certificates -> HTTP -> Edit HTTP Certificates_ .
 
 image::certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
 
@@ -137,13 +131,13 @@ systemctl restart packetfence-haproxy-admin
 systemctl restart packetfence-haproxy-portal
 ----
 
-By following these steps, you can implement an SSL/TLS certificate for the captive web portal (HTTP) and provide a secure connection for user authentication.
+By following these steps, you can implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and provide a secure connection for user authentication.
 
 === Renewal of SSL/TLS Certificate for Captive Portal and Web admin
 
 ==== Information about renewal of SSL/TLS Certificate
 
-SSL/TLS certificates have an expiration date, typically ranging from one to three years. To ensure the captive web portal remains secure, it is important to renew the SSL/TLS certificate before it expires. To renew the SSL/TLS certificate, you can use your previous CSR or generate a new one with the exact same information. You will find all the information you need in `System Configuration > SSL Certificate > View HTTP Certificate`.
+SSL/TLS certificates have an expiration date. To ensure the captive web portal remains secure, it is important to renew the SSL/TLS certificate before it expires. To renew the SSL/TLS certificate, you can use your previous CSR or generate a new one with the exact same information. You will find all the information you need in _System Configuration -> SSL Certificate -> View HTTP Certificate_.
 
 image::certificate/6-HTTP-View.png[scaledwidth="100%",alt="HTTP--View"]
 
@@ -153,7 +147,7 @@ To add the new SSL/TLS certificate, follow these steps:
 
 - Open the PacketFence Web admin interface.
 
-- Go to `System Configuration > SSL Certificate > HTTP > Edit HTTP Certificates`.
+- Go to _System Configuration -> SSL Certificate -> HTTP -> Edit HTTP Certificates_.
 
 - Import the new certificate file (.crt) or paste the content of the new certificate using a text editor into the "HTTPs Server Certificate" field.
 
@@ -183,31 +177,25 @@ systemctl restart packetfence-haproxy-portal
 If you already have a certificate for your captive portal, you can use the same certificate for RADIUS. In this case, please go directly to section
 <<_install_the_ssltls_radius_certificate_on_the_server>>
 
-Warning: Wildcard certificates will not work with RADIUS. If you are using a wildcard certificate for your captive portal, you will need a new certificate specifically for RADIUS.
+WARNING: Wildcard certificates will not work with RADIUS. If you are using a wildcard certificate for your captive portal, you will need a new certificate specifically for RADIUS.
 
 To generate a CSR, follow these steps:
 
 - Log on the admin web interface (GUI)
 
-- Go to Configuration > System Configuration > SSL Certificates > RADIUS
+- Go to _Configuration -> System Configuration -> SSL Certificates -> RADIUS_
 
 image::certificate/15-Radius-CSR.png[scaledwidth="100%",alt="Radius-CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
-- Complete the following using your own information, Common Name must match the captive portal hostname in Configuration > General Configuration > Hostname
+- Complete the following using your own information, Common Name must match the captive portal hostname in _Configuration -> General Configuration -> Hostname_
 
 image::certificate/17-CSR-radius.png[scaledwidth="100%",alt="CSR"]
 
-Warning: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
+WARNING: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
 
-- Save the CSR and private key to a secure location, you will need it to renew your certificate.
-
-- You can also generate the CSR with CLI using:
-[source, shell]
-----
- openssl req -newkey rsa:2048 -keyout PRIVATEKEY.key -out MYCSR.csr
-----
+- Save the CSR to a secure location, you will need it to renew your certificate.
 
 ==== Submit the CSR to a Certificate Authority (CA)
 
@@ -222,7 +210,7 @@ To install the SSL/TLS certificate on the RADIUS server, follow these steps:
 
 - Open the web admin interface.
 
-- Go to `Configuration > System Configuration > SSL Certificates > RADIUS > Edit RADIUS Certificates`.
+- Go to _Configuration -> System Configuration -> SSL Certificates -> RADIUS -> Edit RADIUS Certificates_.
 
 image::certificate/7-Radius-edit.png[scaledwidth="100%",alt="Radius edit"]
 
@@ -242,7 +230,7 @@ image::certificate/10-Radius-CA.png[scaledwidth="100%",alt="Radius CA"]
 
 image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Radius chain"]
 
-- Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to `Status > Services`.
+- Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to _Status -> Services_.
 
 image::certificate/11-Services.png[scaledwidth="100%",alt="Services"]
 
@@ -257,7 +245,7 @@ bin/pfcmd service radiusd restart
 
 ==== Information about Renewal of SSL/TLS Certificate
 
-To renew the SSL/TLS certificate for RADIUS, you can use your previous Certificate Signing Request (CSR) or generate a new one with the exact same information. You can find all the necessary information in `System Configuration > SSL Certificate > View RADIUS Certificate`. It's important not to use a wildcard certificate for RADIUS.
+To renew the SSL/TLS certificate for RADIUS, you can use your previous Certificate Signing Request (CSR) or generate a new one with the exact same information. You can find all the necessary information in _System Configuration -> SSL Certificate -> View RADIUS Certificate_ . It's important not to use a wildcard certificate for RADIUS.
 
 image::certificate/12-Radius-status.png[scaledwidth="100%",alt="Radius status"]
 
@@ -265,15 +253,11 @@ image::certificate/12-Radius-status.png[scaledwidth="100%",alt="Radius status"]
 
 To renew the SSL/TLS certificate for RADIUS, follow these steps:
 
-- Open the PacketFence web admin interface `System Configuration > SSL Certificate > RADIUS > Edit RADIUS Certificates`.
+- Open the PacketFence web admin interface _System Configuration -> SSL Certificate -> RADIUS -> Edit RADIUS Certificates_.
 
 - Import the new certificate file (.crt) or paste the content of the new certificate using a text editor into the "RADIUS Server Certificate" field.
 
 image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Radius certificate"]
-
-- Add the new Certification Authority certificate.
-
-image::certificate/10-Radius-CA.png[scaledwidth="100%",alt="Radius CA"]
 
 - Turn on the "Find RADIUS Server intermediate CA(s) automatically" and "Validate certificate chain" option.
 
@@ -281,7 +265,7 @@ image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Radi
 
 - Press "Save" to finish the renewal.
 
-- Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to Status > Services.
+- Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to _Status -> Services_.
 
 image::certificate/11-Services.png[scaledwidth="100%",alt="Services"]
 
@@ -290,21 +274,6 @@ Alternatively, you can use the following commands in the command-line interface 
 [source, shell]
 ----
 bin/pfcmd service radiusd restart
-----
-
-=== Useful Commands
-
-- Check which configuration files use your certificate:
-[source, shell]
-----
-grep -i "server.crt" -r ./
-----
-
-- Check your private key:
-[source, shell]
-----
-(_fd="private.key";\
-openssl rsa -check -in ${_fd})
 ----
 
 === Glossary
