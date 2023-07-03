@@ -52,15 +52,7 @@
         </li>
       </template>
       <template v-if="!isConnected" v-slot:noOptions>
-        <b-media class="text-secondary" md="auto">
-          <template #aside>
-            <icon name="exclamation-triangle" scale="1.5" class="mt-2 ml-2"></icon>
-          </template>
-          <strong>{{ $t('LDAP connection failed') }}</strong>
-          <b-form-text class="font-weight-light">
-            {{ $t('Make sure that you provided correct IP/credentials') }}
-          </b-form-text>
-        </b-media>
+        <LdapConnectionError/>
       </template>
       <template v-else v-slot:noOptions>
         <b-media class="text-secondary" md="auto">
@@ -99,9 +91,12 @@ import {useInputMultiselectProps} from '@/composables/useInputMultiselect'
 import {useInputValidatorProps} from '@/composables/useInputValidator'
 import {useInputValueProps} from '@/composables/useInputValue'
 import {computed} from '@vue/composition-api';
+import LdapConnectionError
+  from '@/views/Configuration/sources/_components/ldapCondition/LdapConnectionError.vue';
 
 const components = {
-  Multiselect
+  Multiselect,
+  LdapConnectionError
 }
 
 export const props = {
