@@ -63,7 +63,10 @@
           <b-form-text class="font-weight-light">{{ $t('Type to search results.') }}</b-form-text>
         </b-media>
       </template>
-      <template v-if="!isLoading" v-slot:noResult>
+      <template v-if="!isConnected" v-slot:noResult>
+        <LdapConnectionError/>
+      </template>
+      <template v-else-if="!isLoading && isConnected" v-slot:noResult>
         <b-media class="text-secondary" md="auto">
           <template v-slot:aside>
             <icon name="search" scale="1.5" class="mt-2 ml-2"></icon>
