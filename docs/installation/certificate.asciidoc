@@ -47,7 +47,7 @@ This Documentation concern PacketFence V11.2 and later
 Wildcard certificate is strictly restricted to HTTP, you can't use this type of certificate for RADIUS. 
 If you plan to implement certificate for HTTP and RADIUS, we recommend you to use only one certificate to facilitate management of these.
 
-=== Implementation of SSL/TLS Certificate for Captive Web Portal (HTTP)
+=== Implementation of SSL/TLS Certificate for Captive Web Portal and Web admin (HTTP)
 
 ==== Generate a Certificate Signing Request (CSR)
 
@@ -96,7 +96,7 @@ openssl pkcs12 -in $PATH/YOUR_CA.p12 -clcerts -nokeys -out /usr/local/pf/conf/ss
 openssl pkcs12 -in $PATH/YOUR_CA.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
 ----
 
-==== Install the SSL/TLS Certificate on the Server
+==== Install the SSL/TLS HTTP Certificate on the Server
 
 Once you have received the SSL/TLS certificate from the CA, the final step is to install it on PacketFence. This involves configuring the web server to use the SSL/TLS certificate for encrypted communications.
 
@@ -133,7 +133,7 @@ systemctl restart packetfence-haproxy-portal
 
 By following these steps, you can implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and provide a secure connection for user authentication.
 
-=== Renewal of SSL/TLS Certificate for Captive Portal and Web admin
+=== Renewal of SSL/TLS Certificate for Captive Portal and Web admin (HTTP)
 
 ==== Information about renewal of SSL/TLS Certificate
 
@@ -141,7 +141,7 @@ SSL/TLS certificates have an expiration date. To ensure the captive web portal r
 
 image::certificate/6-HTTP-View.png[scaledwidth="100%",alt="HTTP--View"]
 
-==== Adding the new certificate
+==== Adding the new HTTP certificate
 
 To add the new SSL/TLS certificate, follow these steps:
 
@@ -172,7 +172,7 @@ systemctl restart packetfence-haproxy-portal
 
 === Implementation of SSL/TLS Certificate for RADIUS
 
-==== Generate CSR
+==== Generate a Certificate Signing Request (CSR)
 
 If you already have a certificate for your captive portal, you can use the same certificate for RADIUS. In this case, please go directly to section
 <<_install_the_ssltls_radius_certificate_on_the_server>>
@@ -202,7 +202,7 @@ WARNING: This capture have been made on PacketFence V13. If you are using a lowe
 Please refer to section 
 <<_submit_the_csr_to_a_certificate_authority_ca>> and follow the steps mentioned there.
 
-==== Install the SSL/TLS Radius Certificate on the Server
+==== Install the SSL/TLS RADIUS Certificate on the Server
 
 Once you have received the SSL/TLS certificate from the Certificate Authority (CA), the final step is to install it on the RADIUS server. This involves configuring the RADIUS server to use the SSL/TLS certificate for encrypted communications.
 
@@ -243,13 +243,13 @@ bin/pfcmd service radiusd restart
 
 === Renewal of SSL/TLS Certificate for RADIUS
 
-==== Information about Renewal of SSL/TLS Certificate
+==== Information about renewal of SSL/TLS Certificate
 
 To renew the SSL/TLS certificate for RADIUS, you can use your previous Certificate Signing Request (CSR) or generate a new one with the exact same information. You can find all the necessary information in _System Configuration -> SSL Certificate -> View RADIUS Certificate_ . It's important not to use a wildcard certificate for RADIUS.
 
 image::certificate/12-Radius-status.png[scaledwidth="100%",alt="Radius status"]
 
-=== Renewal of SSL/TLS Certificate
+==== Adding the new RADIUS certificate
 
 To renew the SSL/TLS certificate for RADIUS, follow these steps:
 
