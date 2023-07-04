@@ -46,9 +46,11 @@ if (! -e "$var_dir/conf/pfsetacls") {
 }
 
 foreach my $switch_id (keys(%SwitchConfig)) {
-    next if ($switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
+    next if ($switch_id =~ /^group / or $switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
     my $switch = pf::SwitchFactory->instantiate($switch_id);
-    $switch->generateAnsibleConfiguration();
+    if ($switch) {
+        $switch->generateAnsibleConfiguration();
+    }
 }
 
 =head1 AUTHOR
