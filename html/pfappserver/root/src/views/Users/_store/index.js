@@ -366,7 +366,7 @@ const actions = {
   },
   bulkRefreshFingerbank: ({ commit }, data) => {
     commit('USER_REQUEST')
-    return api.bulkReevaluateAccess(data).then(response => {
+    return api.bulkRefreshFingerbank(data).then(response => {
       commit('USER_BULK_SUCCESS', response)
       return response
     }).catch(err => {
