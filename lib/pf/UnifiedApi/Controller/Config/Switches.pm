@@ -62,7 +62,9 @@ sub id {
 sub post_update {
     my ($self, $switch_id) = @_;
     my $switch = pf::SwitchFactory->instantiate($switch_id);
-    $switch->generateAnsibleConfiguration();
+    if ($switch) {
+        $switch->generateAnsibleConfiguration();
+    }
 }
 
 sub post_create {
