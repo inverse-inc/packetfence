@@ -153,7 +153,7 @@ include::installation/export_import_mechanism.asciidoc[]
 
 include::installation/automation_of_upgrades.asciidoc[]
 
-== PacketFence Certificates (for V11.2 and later)
+== PacketFence Certificates (for v11.2 and later)
 
 include::installation/certificate.asciidoc[]
 

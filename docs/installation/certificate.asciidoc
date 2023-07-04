@@ -17,13 +17,13 @@ endif::[]
 ////
 
 
-//== PacketFence Certificates (for V11.2 and later)
+//== PacketFence Certificates (for v11.2 and later)
 
 === Introduction 
 
 ==== Context and Objectives of the Documentation
 
-This documentation PacketFence V11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for HTTP (captive web portal + web admin) and RADIUS.
+This documentation PacketFence v11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for HTTP (captive web portal + web admin) and RADIUS.
 
 The captive portal is a common method of user authentication on a wireless or wired network. It allows controlling user access by redirecting them to an authentication page where they must provide login information. The RADIUS protocol, on the other hand, is used for user authentication and authorization on a network.
 
@@ -40,9 +40,9 @@ Before addressing the implementation and management of SSL/TLS certificates, it 
 
 By understanding these basic concepts, you will be better tooled to understand and implement SSL/TLS certificates for the captive web portal and RADIUS.
 
-==== Important note before starting
+==== Important notes before starting
 
-This Documentation concern PacketFence V11.2 and later
+This documentation concerns PacketFence v11.2 and later.
 
 Wildcard certificate is strictly restricted to HTTP, you can't use this type of certificate for RADIUS. 
 If you plan to implement certificate for HTTP and RADIUS, we recommend you to use only one certificate to facilitate management of these.
@@ -61,11 +61,11 @@ image::certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
-- Complete the following using your own information, Common Name must match the captive portal hostname in _Configuration -> General Configuration -> Hostname
+- Complete the following using your own information, Common Name must match the captive portal FQDN in _Configuration -> System Configuration -> General Configuration_.
 
 image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
 
-WARNING: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
+WARNING: This capture have been made on PacketFence v13. If you are using a lower version (not under v11.2) Subject Alternative Names will be automatically generated from Common Name field.
 
 
 - Save the CSR to a secure location, you will need it to renew your certificate.
@@ -78,7 +78,7 @@ To submit the CSR to a CA, follow these steps:
 
 - Select a CA and follow their instructions for submitting a CSR.
 
-- The Subject Alternative Name must exactly match the captive portal hostname in _Configuration -> General Configuration -> Hostname_ .
+- The Subject Alternative Name must exactly match the captive portal FQDN in _Configuration -> System Configuration -> General Configuration_.
 
 - Ensure that your CA supports X509 in base 64 format.
 
@@ -92,8 +92,8 @@ If your CA provides the certificate in PKCS12 format, you can use the following 
 
 [source, shell]
 ----
-openssl pkcs12 -in $PATH/YOUR_CA.p12 -clcerts -nokeys -out /usr/local/pf/conf/ssl/server.crt -passin pass:secret
-openssl pkcs12 -in $PATH/YOUR_CA.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
+openssl pkcs12 -in certificate_bundle.p12 -clcerts -nokeys -out /usr/local/pf/conf/ssl/server.crt -passin pass:secret
+openssl pkcs12 -in certificate_bundle.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
 ----
 
 ==== Install the SSL/TLS HTTP Certificate on the Server
@@ -189,11 +189,11 @@ image::certificate/15-Radius-CSR.png[scaledwidth="100%",alt="Radius-CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
-- Complete the following using your own information, Common Name must match the captive portal hostname in _Configuration -> General Configuration -> Hostname_
+- Complete the following using your own information, Common Name must match the captive portal FQDN in _Configuration -> System Configuration -> General Configuration_.
 
 image::certificate/17-CSR-radius.png[scaledwidth="100%",alt="CSR"]
 
-WARNING: This capture have been made on PacketFence V13. If you are using a lower version (not under V11.2) Subject Alternative Names will be automatically generated from Common Name field.
+WARNING: This capture have been made on PacketFence v13. If you are using a lower version (not under v11.2) Subject Alternative Names will be automatically generated from Common Name field.
 
 - Save the CSR to a secure location, you will need it to renew your certificate.
 
