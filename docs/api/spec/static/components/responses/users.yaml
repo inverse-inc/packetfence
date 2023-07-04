@@ -1,0 +1,58 @@
+UsersBulkNodes:
+  description: Request successful. Response contains the bulk items.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          status:
+            $ref: '#/components/schemas/Status'
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                pid:
+                  type: string
+                  description: User Identifier
+                nodes:
+                  type: array
+                  items:
+                    type: string
+
+UsersBulkSecurityEvents:
+  description: Request successful. Response contains the bulk items.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          status:
+            $ref: '#/components/schemas/Status'
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                pid:
+                  type: string
+                  description: User Identifier
+                security_events:
+                  type: array
+                  items:
+                    type: string
+
+UsersBulkImport:
+  description: Request successful. Response contains the bulk items.
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                item:
+                  $ref: '#/components/schemas/User'

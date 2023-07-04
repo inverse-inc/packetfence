@@ -1,0 +1,72 @@
+UsersBulk:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              type: string
+              description: User Identifier `PRIMARY_KEY`
+
+UsersBulkBypassRole:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          bypass_role_id:
+            type: string
+            description: Role Identifier `PRIMARY_KEY`
+          items:
+            type: array
+            items:
+              type: string
+              description: User Identifier `PRIMARY_KEY`
+
+UsersBulkRole:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          category_id:
+            type: string
+            description: Role Identifier `PRIMARY_KEY`
+          items:
+            type: array
+            items:
+              type: string
+              description: User Identifier `PRIMARY_KEY`
+
+UsersBulkSecurityEvent:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          security_event_id:
+            type: string
+            description: Security Event Identifier `PRIMARY_KEY`
+          items:
+            type: array
+            items:
+              type: string
+              description: User Identifier `PRIMARY_KEY`
+
+UsersBulkImport:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
