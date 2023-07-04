@@ -62,6 +62,7 @@ use pf::config qw(
     $MAC
     $PORT
     $SSID
+    %ConfigRoles
 );
 # importing switch constants
 use pf::Switch::constants;
