@@ -10,8 +10,7 @@ import (
 )
 
 func init() {
-	dnsserver.Directives = append(dnsserver.Directives, "pfdns")
-	dnsserver.Directives = append(dnsserver.Directives, "logger")
+	dnsserver.Directives = append([]string{"pfdns", "logger"}, dnsserver.Directives...)
 }
 
 func main() {
