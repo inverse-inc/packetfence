@@ -47,8 +47,9 @@ tie my %SwitchConfig, 'pfconfig::cached_hash', "config::Switch($host_id)";
 sub post_update {
     my ($self, $id) = @_;
     foreach my $switch_id (keys(%SwitchConfig)) {
-        next if ($switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
+        next if ($switch_id =~ /^group / or $switch_id =~ /.*\/.*/ or $switch_id =~ /.*\:.*/ or $switch_id eq 'default' or $switch_id eq '100.64.0.1' or $switch_id eq '127.0.0.1');
         my $switch = pf::SwitchFactory->instantiate($switch_id);
+        next unless $switch;
         $switch->generateAnsibleConfiguration();
         # Need to wait between each switch to avoid error on semaphore
         sleep(1);
