@@ -1,0 +1,173 @@
+/api/v1/users/bulk_apply_role:
+  post:
+    summary: Apply Role to bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulkRole"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_apply_bypass_role:
+  post:
+    summary: Apply Bypass Role to bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulkBypassRole"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_delete:
+  post:
+    summary: Delete bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_fingerbank_refresh:
+  post:
+    summary: Refresh Fingerbank for bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_import:
+  post:
+    summary: Import bulk users.
+    requestBody:
+      allOf:
+        - $ref: "#/components/requestBodies/BulkImport"
+        - $ref: "#/components/requestBodies/UsersBulkImport"
+    responses:
+      '200':
+        allOf:
+          - $ref: "#/components/responses/BulkImport"
+          - $ref: "#/components/responses/UsersBulkImport"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_reevaluate_access:
+  post:
+    summary: Reevaluate Access for bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_register:
+  post:
+    summary: Register bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_deregister:
+  post:
+    summary: Unregister bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkNodes"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_apply_security_event:
+  post:
+    summary: Apply Security Event to bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulkSecurityEvent"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkSecurityEvents"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users
+
+/api/v1/users/bulk_close_security_event:
+  post:
+    summary: Close all Security Events for bulk users.
+    requestBody:
+      $ref: "#/components/requestBodies/UsersBulk"
+    responses:
+      '200':
+        $ref: "#/components/responses/UsersBulkSecurityEvents"
+      '400':
+        $ref: "#/components/responses/BadRequest"
+      '401':
+        $ref: "#/components/responses/Forbidden"
+      '422':
+        $ref: "#/components/responses/UnprocessableEntity"
+    tags:
+      - Users

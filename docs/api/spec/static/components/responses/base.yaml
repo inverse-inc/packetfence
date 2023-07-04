@@ -81,3 +81,9 @@ NotFound:
     application/json:
       schema:
         $ref: "#/components/schemas/ErrorsWithMessage"
+BulkImport:
+  description: Request successful. Bulk resources have been imported.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/BulkImportResponse"

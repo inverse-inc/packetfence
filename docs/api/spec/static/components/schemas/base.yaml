@@ -10,8 +10,7 @@ Message:
       description: A descriptive message for the user.
       type: string
     status:
-      description: Response code.
-      type: integer
+      $ref: '#/components/schemas/Status'
 
 ErrorsWithMessage:
   type: object
@@ -33,8 +32,7 @@ ErrorsWithMessage:
             description: The error message.
             type: string
     status:
-      description: Response code.
-      type: integer
+      $ref: '#/components/schemas/Status'
 
 Iterable:
   type: object
@@ -65,3 +63,39 @@ Flags:
             description: The resource can not be modified.
             type: boolean
             default: false
+
+BulkImport:
+  type: object
+  properties:
+    ignoreInsertIfNotExists:
+      type: boolean
+      description: Only modify existing items, do not create new items.
+      default: false
+    ignoreUpdateIfExists:
+      type: boolean
+      description: Only create new items, do not modify existing items.
+      default: true
+    stopOnFirstError:
+      type: boolean
+      description: Return on the first error and do not process remaining items.
+      default: true
+
+BulkImportResponse:
+  type: object
+  properties:
+    items:
+      type: array
+      items:
+        type: object
+        properties:
+          isNew:
+            type: boolean
+          item:
+            type: object
+          message:
+            description: A descriptive message for the user.
+            type: string
+          status:
+            $ref: '#/components/schemas/Status'
+    status:
+      $ref: '#/components/schemas/Status'
