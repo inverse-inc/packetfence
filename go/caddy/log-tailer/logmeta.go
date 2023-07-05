@@ -121,6 +121,7 @@ func NewRsyslogMetaEngine() *LogMetaEngine {
 			"pfcron":                        &golangMetaExtractor,
 			"pfqueue":                       &log4perlMetaExtractor,
 			"pfsso":                         &golangMetaExtractor,
+			"pfldapexplorer":                &golangMetaExtractor,
 			"pfstats":                       &golangMetaExtractor,
 		},
 		GlobalExtractionRe:  regexp.MustCompile(`(?i)^([a-z]+\s*[0-9]{1,2}\s*[0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})\s(.+?)\s(.+?)(:|\[\d+\]:)(.+)`),

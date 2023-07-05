@@ -39,6 +39,7 @@ Services managed by PacketFence:
   pfdns                  | DNS daemon
   pffilter               | PF conditions filtering daemon
   pfipset                | IPSET daemon
+  pfldapexplorer         | PF ldap search daemon
   pfperl-api             | Perl daemon providing API
   pfpki                  | PKI daemon
   pfqueue                | PF queueing service

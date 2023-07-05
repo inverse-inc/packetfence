@@ -243,15 +243,15 @@ func (fw *FirewallSSO) logger(ctx context.Context) log15.Logger {
 }
 
 func (fw *FirewallSSO) getDst(ctx context.Context, proto string, toIP string, toPort string) string {
-	if cc := connector.ConnectorsContainerFromContext(ctx); cc != nil && sharedutils.IsEnabled(fw.UseConnector) {
-		c := cc.ForIP(ctx, net.ParseIP(toIP))
-		connInfo, err := c.DynReverse(ctx, fmt.Sprintf("%s:%s/%s", toIP, toPort, proto))
-		if err != nil {
-			panic(fmt.Sprintf("Unable to obtain dynreverse for %s on port %s", toIP, toPort))
-		}
-		return fmt.Sprintf("%s:%s", connInfo.Host, connInfo.Port)
-	} else {
+	if !sharedutils.IsEnabled(fw.UseConnector) {
 		return fmt.Sprintf("%s:%s", toIP, toPort)
+	} else {
+		dst, err := connector.OpenConnectionTo(ctx, toIP, toPort, proto)
+		if err != nil {
+			panic(err)
+		} else {
+			return dst
+		}
 	}
 }
 

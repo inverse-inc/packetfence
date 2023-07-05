@@ -456,6 +456,11 @@ pffilter=enabled
 # Should pfsso be managed by PacketFence?
 pfsso=enabled
 #
+# services.pfldapexplorer
+#
+# Should ldapexplorer be managed by PacketFence?
+pfldapexplorer=enabled
+#
 # services.radiusd
 #
 # Should radiusd be managed by PacketFence?
@@ -1488,6 +1493,7 @@ pfdhcp=[% ENV.env_or_default("PF_SERVICES_URL_PFDHCP", "http://containers-gatewa
 pfperl-api=[% ENV.env_or_default("PF_SERVICES_URL_PFPERL_API", "http://containers-gateway.internal:22224") %]
 pfdns-doh=[% ENV.env_or_default("PF_SERVICES_URL_PFDNS_DOH", "http://containers-gateway.internal:853") %]
 pfsso=[% ENV.env_or_default("PF_SERVICES_URL_PFSSO", "http://containers-gateway.internal:8777") %]
+pfldapexplorer=[% ENV.env_or_default("PF_SERVICES_URL_PFLDAPEXPLORER", "http://containers-gateway.internal:22229") %]
 pfconnector-server=[% ENV.env_or_default("PF_SERVICES_URL_PFCONNECTOR_SERVER", "http://containers-gateway.internal:22226") %]
 api-frontend=[% ENV.env_or_default("PF_SERVICES_URL_API_FRONTEND", "https://containers-gateway.internal:9999") %]
 netdata=[% ENV.env_or_default("PF_SERVICES_URL_NETDATA", "http://containers-gateway.internal:19999") %]

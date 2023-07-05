@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net"
 	"time"
+
+	"github.com/inverse-inc/go-utils/sharedutils"
 )
 
 // Interface for a pfconfig object. Not doing much now but it is there for future-proofing
@@ -550,10 +552,35 @@ type AuthenticationSourceLdap struct {
 	Scope             string   `json:"scope"`
 	EmailAttribute    string   `json:"email_attribute"`
 	UserNameAttribute string   `json:"usernameattribute"`
+	UseConnector      bool     `json:"use_connector"`
 	BindDN            string   `json:"binddn"`
 	Encryption        string   `json:"encryption"`
 	Monitor           string   `json:"monitor"`
 	Type              string   `json:"type"`
+}
+
+func (t *AuthenticationSourceLdap) UnmarshalJSON(data []byte) error {
+	var dataGeneric map[string]interface{}
+
+	if err := json.Unmarshal(data, &dataGeneric); err != nil {
+		return err
+	}
+
+	if sharedutils.IsEnabled(dataGeneric["use_connector"].(string)) {
+		dataGeneric["use_connector"] = true
+	} else {
+		dataGeneric["use_connector"] = false
+	}
+
+	// Re-marshal after fixing the data
+	newData, ok := json.Marshal(dataGeneric)
+	if ok != nil {
+		return ok
+	}
+
+	// Without new type the same UnmarshalJSON will be called recursively
+	type ldap2 AuthenticationSourceLdap
+	return json.Unmarshal(newData, (*ldap2)(t))
 }
 
 type PfStats struct {

@@ -58,6 +58,13 @@ has_field 'value' => (
     widget_wrapper => 'None',
 );
 
+has_field 'type' => (
+    type           => 'Text',
+    required       => 0,
+    do_label       => 0,
+    widget_wrapper => 'None',
+);
+
 =head2 options_attributes
 
 Populate the condition attributes select field with the available attributes of
@@ -104,6 +111,11 @@ sub inflate {
     my ($self, $value) = @_;
     my %condition;
     @condition{qw(attribute operator value)} = split /\s*,\s*/, $value, 3;
+    my $attribute = $condition{attribute};
+    if ($attribute =~ /^(.*?):(.*)?/) {
+        $condition{type} = $1;
+        $condition{attribute} = $2;
+    }
     return \%condition;
 }
 
@@ -115,6 +127,11 @@ deflate to be saved into the config store
 
 sub deflate {
     my ($self, $value) = @_;
+    my $type = $value->{type};
+    if ($type) {
+        $value->{attribute} = "${type}:" . $value->{attribute};
+    }
+
     return join(",", @{$value}{qw(attribute operator value)});
 }
 

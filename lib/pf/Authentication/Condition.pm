@@ -17,6 +17,7 @@ use Time::Period;
 has 'attribute' => (isa => 'Str', is => 'rw', required => 1);
 has 'operator' => (isa => 'Str', is => 'rw', required => 1);
 has 'value' => (isa => 'Str', is => 'rw', required => 1);
+has 'type' => (isa => 'Maybe[Str]', is => 'rw', required => 0);
 
 =head1 METHODS
 

@@ -22,7 +22,7 @@ BEGIN {
 
 use Date::Parse;
 
-use Test::More tests => 59;                      # last test to print
+use Test::More tests => 60;                      # last test to print
 
 use Test::NoWarnings;
 
@@ -450,6 +450,113 @@ is_deeply(
             { person_field => 'telephone', openid_field => 'phone' },
         ],
         "person_mappings"
+    );
+}
+
+{
+    my $source          = pf::authentication::getAuthenticationSource("LDAP0");
+    my @ldap_attributes = $source->ldap_attributes;
+    is_deeply(
+        \@ldap_attributes,
+        [
+            {
+                'value' => 'uid',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'cn'
+            },
+            {
+                'value' => 'sAMAccountName',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'value' => 'servicePrincipalName',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'UserPrincipalName'
+            },
+            {
+                'value' => 'department',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'value' => 'displayName',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'distinguishedName'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'givenName'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'memberOf'
+            },
+            {
+                'value' => 'sn',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'eduPersonPrimaryAffiliation'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'mail'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'postOfficeBox'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'description'
+            },
+            {
+                'value' => 'groupMembership',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'value' => 'basedn',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'dNSHostName'
+            },
+            {
+                'value' => 'memberOf2',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'user'
+            },
+            {
+                'value' => 'sAMAccountName',
+                'type'  => 'ldapattribute'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'sAMAccountType'
+            },
+            {
+                'type'  => 'ldapattribute',
+                'value' => 'userAccountControl'
+            },
+            {
+                'value' => 'memberOf:1.2.840.113556.1.4.1941:',
+                'type'  => 'ldapattribute'
+            }
+        ],
+        "ldap_attributes"
     );
 }
 

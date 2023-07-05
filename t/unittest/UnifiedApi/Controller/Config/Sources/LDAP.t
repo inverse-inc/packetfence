@@ -20,7 +20,7 @@ BEGIN {
     use setup_test_config;
 }
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 #This test will running last
 use Test::NoWarnings;
@@ -44,7 +44,12 @@ my %args = (
                     value => "1h",
                 }
             ],
-            conditions  => [],
+            conditions  => [{
+                    type => 'ldap',
+                    value => '1',
+                    attribute => 'cn',
+                    operator => 'is',
+            }],
             description => undef,
             id          => "catchall",
             match       => "all"
@@ -78,7 +83,8 @@ $t->post_ok(
 
 $t->get_ok( "/api/v1/config/source/$id")
 ->status_is(200)
-->json_is("/item/host", ['127.0.0.1']);
+->json_is("/item/host", ['127.0.0.1'])
+->json_is("/item/authentication_rules/0/conditions/0/type", 'ldap');
 
 my $id2 = "id_2_$$";
 
