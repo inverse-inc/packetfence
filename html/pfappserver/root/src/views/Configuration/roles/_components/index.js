@@ -1,10 +1,10 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenOne,
   BaseFormGroupInput,
-  BaseFormGroupTextarea,
-  BaseFormGroupToggleDisabledEnabled
+  BaseFormGroupSwitch,
+  BaseFormGroupTextarea
 } from '@/components/new/'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -16,12 +16,12 @@ export {
   BaseFormGroupInput                  as FormGroupNotes,
   BaseFormGroupInput                  as FormGroupMaxNodesPerPid,
   BaseFormGroupChosenOne              as FormGroupParentIdentifier,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupIncludeParentAcls,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupFingerbankDynamicAccessList,
+  BaseFormGroupSwitch                 as FormGroupIncludeParentAcls,
+  BaseFormGroupSwitch                 as FormGroupFingerbankDynamicAccessList,
   BaseFormGroupTextarea               as FormGroupAcls,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritVlan,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritRole,
-  BaseFormGroupToggleDisabledEnabled  as FormGroupInheritWebAuthUrl,
+  BaseFormGroupSwitch                 as FormGroupInheritVlan,
+  BaseFormGroupSwitch                 as FormGroupInheritRole,
+  BaseFormGroupSwitch                 as FormGroupInheritWebAuthUrl,
 
   BaseViewCollectionItem              as BaseView,
   TheForm,
