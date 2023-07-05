@@ -1261,6 +1261,44 @@ sub returnRadiusAccessAccept {
     return [$status, %$radius_reply_ref];
 }
 
+=head2 identifyConnectionType
+
+Determine Connection Type based on radius attributes
+
+=cut
+
+
+sub identifyConnectionType {
+    my ( $self, $connection, $radius_request ) = @_;
+    my $logger = $self->logger;
+
+    my @require = qw(Cisco-AVPair);
+    my @found = grep {exists $radius_request->{$_}} @require;
+    my $foundvsa = 0;
+    my @vsa = qw(aaa:service=ip_admission aaa:event=acl-download);
+    if (exists $radius_request->{'Cisco-AVPair'}) {
+        if (ref($radius_request->{'Cisco-AVPair'}) eq 'ARRAY') {
+            foreach my $item (@{$radius_request->{'Cisco-AVPair'}}) {
+                foreach my $vsa (@vsa) {
+                    if ($vsa eq $item) {
+                        $foundvsa ++;
+                    }
+                }
+            }
+        }
+    }
+
+    if ( (@require == @found) && $radius_request->{'Cisco-AVPair'} =~ /^(download-request=service-template)$/i ) {
+        $connection->isServiceTemplate($TRUE);
+        $connection->isCLI($FALSE);
+        $connection->isVPN($FALSE);
+    } elsif ($foundvsa) {
+        $connection->isACLDownload($TRUE);
+        $connection->isVPN($FALSE);
+        $connection->isCLI($FALSE);
+    }
+}
+
 
 =back
 
