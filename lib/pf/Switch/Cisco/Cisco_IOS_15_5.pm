@@ -151,6 +151,8 @@ sub returnRadiusAccessAccept {
     my ($self, $args) = @_;
     my $logger = $self->logger;
     $args->{'unfiltered'} = $TRUE;
+    $args->{'compute_acl'} = $FALSE;
+    $self->compute_action(\$args);
     my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
     my $status = shift @super_reply;
     my %radius_reply = @super_reply;
