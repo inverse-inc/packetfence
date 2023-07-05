@@ -126,7 +126,10 @@ Warning: The list of subroutine is incomplete
 use pf::SwitchSupports qw(
     FloatingDevice
     WiredDot1x
-    -RadiusDynamicVlanAssignment
+    RadiusDynamicVlanAssignment
+    AccessListBasedEnforcement
+    RoleBasedEnforcement
+    ExternalPortal
     RadiusVoip
     Lldp
 );
@@ -1191,6 +1194,73 @@ sub getRelayAgentInfoOptRemoteIdSub {
     my $mac = clean_mac($cdsRelayAgentInfoOptRemoteIdSub);
     return $mac if ($mac);
 }
+
+=head2 returnRadiusAccessAccept
+
+Prepares the RADIUS Access-Accept response for the network device.
+
+Overrides the default implementation to add the dynamic acls
+
+=cut
+
+sub returnRadiusAccessAccept {
+    my ($self, $args) = @_;
+    my $logger = $self->logger;
+    $args->{'unfiltered'} = $TRUE;
+    my @super_reply = @{$self->SUPER::returnRadiusAccessAccept($args)};
+    my $status = shift @super_reply;
+    my %radius_reply = @super_reply;
+    my $radius_reply_ref = \%radius_reply;
+    return [$status, %$radius_reply_ref] if($status == $RADIUS::RLM_MODULE_USERLOCK);
+    my @av_pairs = defined($radius_reply_ref->{'Cisco-AVPair'}) ? @{$radius_reply_ref->{'Cisco-AVPair'}} : ();
+
+    if ( isenabled($self->{_AccessListMap}) && $self->supportsAccessListBasedEnforcement ){
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined(my $access_list = $self->getAccessListByName($args->{'user_role'}, $args->{mac}))){
+            if ($access_list) {
+                my $acl_num = 101;
+                while($access_list =~ /([^\n]+)\n?/g){
+                    push(@av_pairs, $self->returnAccessListAttribute($acl_num)."=".$1);
+                    $acl_num ++;
+                    $logger->info("(".$self->{'_id'}.") Adding access list : $1 to the RADIUS reply");
+                }
+                $logger->info("(".$self->{'_id'}.") Added access lists to the RADIUS reply.");
+            } else {
+                $logger->info("(".$self->{'_id'}.") No access lists defined for this role ".$args->{'user_role'});
+            }
+        }
+    }
+
+    my $role = $self->getRoleByName($args->{'user_role'});
+    if ( isenabled($self->{_UrlMap}) && $self->externalPortalEnforcement ) {
+        if( defined($args->{'user_role'}) && $args->{'user_role'} ne "" && defined($self->getUrlByName($args->{'user_role'}))){
+            my $mac = $args->{'mac'};
+            $args->{'session_id'} = "sid".$self->setSession($args);
+            my $redirect_url = $self->getUrlByName($args->{'user_role'});
+            $redirect_url .= '/' unless $redirect_url =~ m(\/$);
+            $redirect_url .= $args->{'session_id'};
+            #override role if a role in role map is defined
+            if (isenabled($self->{_RoleMap}) && $self->supportsRoleBasedEnforcement()) {
+                my $role_map = $self->getRoleByName($args->{'user_role'});
+                $role = $role_map if (defined($role_map));
+                # remove the role if any as we push the redirection ACL along with it's role
+                delete $radius_reply_ref->{$self->returnRoleAttribute()};
+            }
+            $logger->info("Adding web authentication redirection to reply using role: '$role' and URL: '$redirect_url'");
+            push @av_pairs, "url-redirect-acl=$role";
+            push @av_pairs, "url-redirect=".$redirect_url;
+
+        }
+    }
+
+
+    $radius_reply_ref->{'Cisco-AVPair'} = \@av_pairs;
+
+    my $filter = pf::access_filter::radius->new;
+    my $rule = $filter->test('returnRadiusAccessAccept', $args);
+    ($radius_reply_ref, $status) = $filter->handleAnswerInRule($rule,$args,$radius_reply_ref);
+    return [$status, %$radius_reply_ref];
+}
+
 
 =back
 
