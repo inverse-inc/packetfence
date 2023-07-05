@@ -1,3 +1,27 @@
+SecurityEvent:
+  type: object
+  properties:
+    id:
+      type: integer
+    mac:
+      type: string
+    notes:
+      type: string
+    release_date:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    security_event_id:
+      type: integer
+    start_date:
+      type: string
+      format: date-time
+      example: 1970-01-01 00:00:00
+    status:
+      type: string
+    ticket_ref:
+      type: string
+
 SecurityEventsTotal:
   type: object
   properties:

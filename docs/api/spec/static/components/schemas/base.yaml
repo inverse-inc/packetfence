@@ -99,3 +99,12 @@ BulkImportResponse:
             $ref: '#/components/schemas/Status'
     status:
       $ref: '#/components/schemas/Status'
+
+CountResponse:
+  type: object
+  properties:
+    count:
+      type: string
+      description: The number of modified resources.
+    status:
+      $ref: '#/components/schemas/Status'

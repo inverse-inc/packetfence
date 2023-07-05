@@ -87,3 +87,9 @@ BulkImport:
     application/json:
       schema:
         $ref: "#/components/schemas/BulkImportResponse"
+Count:
+  description: Request successful. Response contains resource count.
+  content:
+    application/json:
+      schema:
+        $ref: "#/components/schemas/CountResponse"
