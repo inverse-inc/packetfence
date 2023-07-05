@@ -130,6 +130,8 @@ By following these steps, you can implement an SSL/TLS certificate for HTTP (cap
 
 Once you have received the SSL/TLS certificate from the Certificate Authority (CA), the final step is to install it on the RADIUS server. This involves configuring the RADIUS server to use the SSL/TLS certificate for encrypted communications.
 
+WARNING: Wildcard certificate is strictly restricted to HTTP, you can’t use this type of certificate for RADIUS.
+
 To install the SSL/TLS certificate on the RADIUS server, follow these steps:
 
 - Open the web admin interface.
