@@ -52,9 +52,11 @@ If you plan to implement certificate for HTTP and RADIUS, we recommend you to us
 
 ==== Generate a Certificate Signing Request (CSR)
 
-To implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and/or Radius, the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the private key that will be used to encrypt communications.  
+To implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and/or RADIUS, the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the private key that will be used to encrypt communications.  
 
-Note: Generating CSR from HTTP or Radius is stricly the same. If you plan to add a certificate for HTTP and Radius you only need 1 CSR.
+NOTE: Generating a CSR from HTTP or RADIUS is strictly the same. If you intend to add a certificate for both HTTP and RADIUS, you only need one CSR. In this case, you will need to use the same private key for both HTTP and RADIUS.
+
+Example: If you generate the CSR through HTTP, copy the HTTPs server private key to the RADIUS server private key. You will find the private key on the web admin _Configuration -> System Configuration -> SSL Certificates -> Edit HTTP Certificates_
 
 - Log on the admin web interface (GUI)
 
@@ -64,7 +66,7 @@ image::certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
 
 - Click on “Generate Signing Request (CSR)
 
-- Complete the following using your own information, Common Name must match the captive portal FQDN (domain and hostname) in _Configuration -> System Configuration -> General Configuration_.
+- Complete the following using your own information
 
 image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
 
@@ -89,7 +91,7 @@ To submit the CSR to a CA, follow these steps:
 
 - Wait for the CA to validate the CSR and issue the SSL/TLS certificate.
 
-- Download the CA certificate in Apache format.
+- Download the certificate in Apache format (base 64).
 
 ==== Install the SSL/TLS HTTP Certificate on the Server
 
@@ -111,7 +113,7 @@ image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
 
 image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate chain"]
 
-- Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: `Status > Services`.
+- Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: _Status -> Services_ .
 
 image::certificate/5-Services.png[scaledwidth="100%",alt="Services"]
 
@@ -140,13 +142,11 @@ image::certificate/7-Radius-edit.png[scaledwidth="100%",alt="Radius edit"]
 
 image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Radius certificate"]
 
-- Import or open your certification authority certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certification Authority Certificate" field.
-
-image::certificate/10-Radius-CA.png[scaledwidth="100%",alt="Radius CA"]
-
 - Turn on the "Find RADIUS Server intermediate CA(s) automatically" and "Validate certificate chain" option.
 
 image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Radius chain"]
+
+NOTE: If you are using a private certificate that is not signed by a public certification authority, disable "Find RADIUS Server intermediate CA(s) automatically" and add manually your "Intermediate CA certificate(s)"  
 
 - Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to _Status -> Services_.
 
@@ -156,13 +156,16 @@ Alternatively, you can use the following commands in the command-line interface 
 
 [source, shell]
 ----
-bin/pfcmd service radiusd restart
+/usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
 === You already have an existing certificate
 
+If you already have an existing certificate, you need to have two dedicated files: a certificate in base64 and a private key. If you only have one file (in X format), you need to extract them using command you can find here <<_useful_commands>>. 
+
 ==== Install the SSL/TLS HTTP Certificate on the server
 
+Follow the same step of <<_install_the_ssltls_http_certificate_on_the_server>> but before saving the configuration and restarting the services  add this step:
 
 - Import or open your private key file (.key) and copy/paste the content into the `HTTP Server Private Key` field.
 
@@ -237,10 +240,10 @@ Alternatively, you can use the following commands in the command-line interface 
 
 [source, shell]
 ----
-bin/pfcmd service radiusd restart
+/usr/local/pf/bin/pfcmd service radiusd restart
 ----
 
-=== Renewal your certificate without the CSR
+=== Renewal of your certificate without the CSR
 
 If you have lost your CSR, you will need to restart the process from the bottom, please restart from here <<_you_need_a_certificate>> 
 
@@ -260,6 +263,12 @@ Extract private key
 [source, shell]
 ----
 openssl pkcs12 -in certificate_bundle.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
+----
+
+Check content of a CSR
+[source, shell]
+----
+openssl req -in mycsr.csr -noout -text
 ----
 
 === Glossary
