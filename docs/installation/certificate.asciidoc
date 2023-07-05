@@ -1,0 +1,243 @@
+// to display images directly on GitHub
+ifdef::env-github[]
+:encoding: UTF-8
+:lang: en
+:doctype: book
+:toc: left
+:imagesdir: ../images
+endif::[]
+
+////
+
+    This file is part of the PacketFence project.
+
+    See PacketFence_Installation_Guide.asciidoc
+    for authors, copyright and license information.
+
+////
+
+
+//== PacketFence Certificates (for v11.2 and later)
+
+=== Introduction 
+
+==== Context and Objectives of the Documentation
+
+This documentation PacketFence v11.2 and later aims to provide information and instructions on the implementation and renewal of SSL/TLS certificates for HTTP (captive web portal + web admin) and RADIUS.
+
+The captive portal is a common method of user authentication on a wireless or wired network. It allows controlling user access by redirecting them to an authentication page where they must provide login information. The RADIUS protocol, on the other hand, is used for user authentication and authorization on a network.
+
+==== Definitions and Basic Concepts
+
+Before addressing the implementation and management of SSL/TLS certificates, it is important to understand the basic concepts related to security and certificates. The following definitions will be used throughout this documentation:
+
+- SSL/TLS: Secure Sockets Layer/Transport Layer Security, a security protocol that allows encrypting communications between a client and a server.
+- SSL/TLS certificate: an electronic file that contains information to verify the identity of a server and establish a secure connection.
+- Certificate Authority (CA): an entity that issues and manages SSL/TLS certificates by verifying the identity of the certificate owner.
+- Intermediate Certificate: a type of digital certificate that is issued by a trusted root certificate authority and is used to establish a chain of trust between the root certificate and end-entity certificates.
+- Private key: an encryption key used to protect confidential information, known only to the certificate owner.
+- Public key: an encryption key used to decrypt information encrypted using the private key, known to all users.
+
+By understanding these basic concepts, you will be better tooled to understand and implement SSL/TLS certificates for the captive web portal and RADIUS.
+
+==== Important notes before starting
+
+This documentation concerns PacketFence v11.2 and later.
+
+Wildcard certificate is strictly restricted to HTTP, you can't use this type of certificate for RADIUS. 
+If you plan to implement certificate for HTTP and RADIUS, we recommend you to use only one certificate to facilitate management of these.
+
+
+=== You need a certificate
+
+==== Generate a Certificate Signing Request (CSR)
+
+To implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and/or RADIUS, the first step is to generate a Certificate Signing Request (CSR). The CSR includes information about the organization requesting the certificate, the domain name of the captive portal, and the private key that will be used to encrypt communications.  
+
+[NOTE]
+====
+Generating a CSR from HTTP or RADIUS is strictly the same. If you intend to add a certificate for both HTTP and RADIUS, you only need one CSR. In this case, you will need to use the same private key for both HTTP and RADIUS.
+
+Example: If you generate the CSR through HTTP, copy the HTTPs server private key to the RADIUS server private key. You will find the private key on the web admin _Configuration -> System Configuration -> SSL Certificates -> Edit HTTP Certificates_
+====
+
+- Log on the admin web interface (GUI)
+
+- Go to _Configuration -> System Configuration -> SSL Certificates_
+
+image::certificate/14-HTTP-CSR.png[scaledwidth="100%",alt="CSR"]
+
+- Click on “Generate Signing Request (CSR)
+
+- Complete the following using your own information
+
+image::certificate/16-CSR.png[scaledwidth="100%",alt="CSR"]
+
+WARNING: This capture have been made on PacketFence v13. If you are using a lower version (not under v11.2) Subject Alternative Names will be automatically generated from Common Name field.
+
+
+- Save the CSR to a secure location, you will need it to renew your certificate.
+
+==== Submit the CSR to a Certificate Authority (CA)
+
+Once you have generated the CSR, the next step is to submit it to a Certificate Authority (CA) for validation and issuance of the SSL/TLS certificate. There are many CAs to choose from, and it is important to select a reputable one that is trusted by major web browsers.
+
+To submit the CSR to a CA, follow these steps:
+
+- Select a CA and follow their instructions for submitting a CSR.
+
+- The Subject Alternative Name must exactly match the captive portal FQDN in _Configuration -> System Configuration -> General Configuration_.
+
+- Ensure that your CA supports X509 in base 64 format.
+
+- Provide the CSR and any other required information, such as payment and proof of identity.
+
+- Wait for the CA to validate the CSR and issue the SSL/TLS certificate.
+
+- Download the certificate in Apache format (base 64).
+
+==== Install the SSL/TLS HTTP Certificate on the Server
+
+Once you have received the SSL/TLS certificate from the CA, the final step is to install it on PacketFence. This involves configuring the web server to use the SSL/TLS certificate for encrypted communications.
+
+To install the SSL/TLS certificate, follow these steps:
+
+- Open the web admin interface.
+
+- Go to _Configuration -> System Configuration -> SSL Certificates -> HTTP -> Edit HTTP Certificates_ .
+
+image::certificate/1-HTTP.png[scaledwidth="100%",alt="HTTP"]
+
+- Import or open your certificate file (.crt) with a text editor and copy/paste the content into the "HTTPs Server Certificate" field.
+
+image::certificate/2-HTTP-Certificate.png[scaledwidth="100%",alt="Certificate"]
+
+- Turn on the options "Find HTTPs intermediate CA(s) automatically" and "Validate certificate chain".
+
+image::certificate/4-HTTP-intermediate-chain.png[scaledwidth="100%",alt="Intermediate chain"]
+
+- Restart `haproxy-admin` and `haproxy-portal`, one server at a time. You can do this through the web admin page: _Status -> Services_ .
+
+image::certificate/5-Services.png[scaledwidth="100%",alt="Services"]
+
+Alternatively, you can use the CLI with the following commands:
+[source, shell]
+----
+systemctl restart packetfence-haproxy-admin
+systemctl restart packetfence-haproxy-portal
+----
+
+By following these steps, you can implement an SSL/TLS certificate for HTTP (captive web portal + web admin) and provide a secure connection for user authentication.
+
+==== Install the SSL/TLS RADIUS Certificate on the Server
+
+Once you have received the SSL/TLS certificate from the Certificate Authority (CA), the final step is to install it on the RADIUS server. This involves configuring the RADIUS server to use the SSL/TLS certificate for encrypted communications.
+
+WARNING: Wildcard certificate is strictly restricted to HTTP, you can’t use this type of certificate for RADIUS.
+
+To install the SSL/TLS certificate on the RADIUS server, follow these steps:
+
+- Open the web admin interface.
+
+- Go to _Configuration -> System Configuration -> SSL Certificates -> RADIUS -> Edit RADIUS Certificates_.
+
+image::certificate/7-Radius-edit.png[scaledwidth="100%",alt="Radius edit"]
+
+- Import or open your certificate file (.crt) with a text editor, then copy and paste the key into the "RADIUS Server Certificate" field.
+
+image::certificate/8-Radius-certificate.png[scaledwidth="100%",alt="Radius certificate"]
+
+- Turn on the "Find RADIUS Server intermediate CA(s) automatically" and "Validate certificate chain" option.
+
+image::certificate/13-Radius-intermediate-chain.png[scaledwidth="100%",alt="Radius chain"]
+
+NOTE: If you are using a private certificate that is not signed by a public certification authority, disable "Find RADIUS Server intermediate CA(s) automatically" and add manually your "Intermediate CA certificate(s)"  
+
+- Restart all `radiusd` services that are running, including `radius-auth`, `radiusd-load-balancer`, `radiusd-acct`, `radiusd-eduroam`, and `radiusd-cli`. Restart them one server at a time. On the web admin page, go to _Status -> Services_.
+
+image::certificate/11-Services.png[scaledwidth="100%",alt="Services"]
+
+Alternatively, you can use the following commands in the command-line interface (CLI):
+
+[source, shell]
+----
+/usr/local/pf/bin/pfcmd service radiusd restart
+----
+
+=== You already have an existing certificate
+
+If you already have an existing certificate, you need to have two
+dedicated files: a certificate in base64 and a private key. If you
+only have one file which contains certificate and private key, you
+need to extract them using command you can find here
+<<_useful_commands>>.
+
+==== Install the SSL/TLS HTTP Certificate on the server
+
+Follow the same step of <<_install_the_ssltls_http_certificate_on_the_server>> but before saving the configuration and restarting the services  add this step:
+
+- Import or open your private key file (.key) and copy/paste the content into the `HTTP Server Private Key` field.
+
+image::certificate/3-HTTP-Private-key.png[scaledwidth="100%",alt="Private key"]
+
+
+==== Install the SSL/TLS RADIUS certificate on the server
+
+Follow the same step of <<_install_the_ssltls_radius_certificate_on_the_server>> but before saving the configuration and restarting the services  add this step:
+
+- Import or open your private key file (.key) and copy/paste the content into the `RADIUS Server Private Key` field.
+
+image::certificate/9-Radius-key.png[scaledwidth="100%",alt="Radius key"]
+
+
+=== Renewal of your certificate if you already have your CSR
+
+When you renew your certificate, you can reuse an existing CSR.
+There are two use cases:
+
+ * You generated your CSR using PacketFence web admin, you need to follow these instructions under *You need a certificate* section:
+ ** <<_install_the_ssltls_http_certificate_on_the_server>>
+ ** <<_install_the_ssltls_radius_certificate_on_the_server>>
+ * You generated your CSR using another tool, you need to follow these instructions under *You already have an existing certificate* section:
+ ** <<_install_the_ssltls_http_certificate_on_the_server_2>>
+ ** <<_install_the_ssltls_radius_certificate_on_the_server_2>>
+
+
+=== Renewal of your certificate without the CSR
+
+If you have lost your CSR, you will need to restart the process from the bottom, please restart from here <<_you_need_a_certificate>> 
+
+=== Useful commands
+
+If you have created your own certificate without using PacketFence for the CSR, you may need to extract the key and the certificate from the file.
+
+In the case your file have the extension .p12
+
+.Extract certificate
+[source, shell]
+----
+openssl pkcs12 -in certificate_bundle.p12 -clcerts -nokeys -out /usr/local/pf/conf/ssl/server.crt -passin pass:secret
+----
+
+.Extract private key
+[source, shell]
+----
+openssl pkcs12 -in certificate_bundle.p12 -nocerts -nodes -out /usr/local/pf/conf/ssl/server.key -passin pass:secret
+----
+
+.Check content of a CSR
+[source, shell]
+----
+openssl req -in mycsr.csr -noout -text
+----
+
+=== Glossary
+
+- .pem (Privacy Enhanced Mail): PEM is a base64-encoded certificate or key that is commonly used for transporting certificates over the internet or through email. It is a text file that contains a certificate or a private key in plain text.
+
+- .pfx (Personal Information Exchange): PFX is a binary format used for storing a certificate with its associated private key. It is often used in Microsoft Windows systems and can also contain additional intermediate certificates required to establish a chain of trust.
+
+- .crt (Certificate): CRT is a commonly used file extension for a digital certificate. It contains a public key, along with additional information about the certificate, such as the issuer and expiration date.
+
+- .key (Key): KEY is a file extension used to indicate a private key. Private keys are used to decrypt data that has been encrypted using the corresponding public key in a digital certificate.
+
