@@ -1,4 +1,4 @@
-import { BaseViewCollectionItem } from '../../_components/new/'
+import {BaseViewCollectionItem} from '../../_components/new/'
 import {
   BaseFormButtonBar,
   BaseFormGroupChosenMultiple,
@@ -13,9 +13,7 @@ import {
   BaseFormGroupToggleNoYes,
   BaseServices,
 } from '@/components/new/'
-import {
-  BaseFormGroupIntervalUnit
-} from '@/views/Configuration/_components/new/'
+import {BaseFormGroupIntervalUnit} from '@/views/Configuration/_components/new/'
 import BaseFormGroupActiveDirectoryPasswordTest from './BaseFormGroupActiveDirectoryPasswordTest'
 import BaseFormGroupAdministrationRules from './BaseFormGroupAdministrationRules'
 import BaseFormGroupAuthenticationRules from './BaseFormGroupAuthenticationRules'
@@ -23,7 +21,6 @@ import BaseFormGroupDomains from './BaseFormGroupDomains'
 import BaseFormGroupHostPortEncryption from './BaseFormGroupHostPortEncryption'
 import BaseFormGroupPersonMappings from './BaseFormGroupPersonMappings'
 import BaseFormGroupProtocolHostPort from './BaseFormGroupProtocolHostPort'
-import BaseFormGroupServerAddressPort from './BaseFormGroupServerAddressPort'
 import ButtonSamlMetaData from './ButtonSamlMetaData'
 import TheForm from './TheForm'
 import TheView from './TheView'
@@ -32,7 +29,6 @@ export {
   BaseViewCollectionItem                    as BaseView,
   BaseFormButtonBar                         as FormButtonBar,
 
-  BaseFormGroupInput                        as FormGroupAccessScope,
   BaseFormGroupInput                        as FormGroupAccessTokenParam,
   BaseFormGroupInput                        as FormGroupAccessTokenPath,
   BaseFormGroupInput                        as FormGroupAccountSid,
@@ -43,7 +39,6 @@ export {
   BaseFormGroupInput                        as FormGroupApiKey,
   BaseFormGroupInputPassword                as FormGroupApiPassword,
   BaseFormGroupInput                        as FormGroupApiUsername,
-  BaseFormGroupInput                        as FormGroupApiLoginIdentifier,
   BaseFormGroupInput                        as FormGroupAuthenticateRealm,
   BaseFormGroupAuthenticationRules          as FormGroupAuthenticationRules,
   BaseFormGroupInput                        as FormGroupAuthenticationUrl,
@@ -54,10 +49,8 @@ export {
   BaseFormGroupInput                        as FormGroupAuthToken,
   BaseFormGroupDomains                      as FormGroupBannedDomains,
   BaseFormGroupInput                        as FormGroupBaseDn,
-  BaseFormGroupChosenOne                    as FormGroupBaseUrl,
   BaseFormGroupInput                        as FormGroupBindDn,
   BaseFormGroupFileUpload                   as FormGroupCaFile,
-  BaseFormGroupInput                        as FormGroupCaPath,
   BaseFormGroupToggle                       as FormGroupCacheMatch,
   BaseFormGroupFileUpload                   as FormGroupCertFile,
   BaseFormGroupInput                        as FormGroupCertIdentifier,
@@ -71,7 +64,6 @@ export {
   BaseFormGroupToggle                       as FormGroupCustomerPortal,
   BaseFormGroupInputNumber                  as FormGroupDeadDuration,
   BaseFormGroupInput                        as FormGroupDescription,
-  BaseFormGroupInput                        as FormGroupDirectBaseUrl,
   BaseFormGroupInput                        as FormGroupDomains,
   BaseFormGroupIntervalUnit                 as FormGroupEmailActivationTimeout,
   BaseFormGroupInput                        as FormGroupEmailAddress,
@@ -92,7 +84,6 @@ export {
   BaseFormGroupIntervalUnit                 as FormGroupLocalAccountExpiration,
   BaseFormGroupInputNumber                  as FormGroupLocalAccountLogins,
   BaseFormGroupChosenMultiple               as FormGroupLocalRealm,
-  BaseFormGroupInput                        as FormGroupMerchantIdentifier,
   BaseFormGroupTextarea                     as FormGroupMessage,
   BaseFormGroupToggle                       as FormGroupMonitor,
   BaseFormGroupInput                        as FormGroupNasIpAddress,
@@ -110,9 +101,7 @@ export {
   BaseFormGroupInput                        as FormGroupProtectedResourceUrl,
   BaseFormGroupProtocolHostPort             as FormGroupProtocolHostPort,
   BaseFormGroupTextarea                     as FormGroupProxyAddresses,
-  BaseFormGroupInput                        as FormGroupPublicClientKey,
   BaseFormGroupInput                        as FormGroupPublishableKey,
-  BaseFormGroupInputPassword                as FormGroupRadiusSecret,
   BaseFormGroupInputNumber                  as FormGroupReadTimeout,
   BaseFormGroupChosenMultiple               as FormGroupRealms,
   BaseFormGroupInput                        as FormGroupRedirectUrl,
@@ -125,13 +114,9 @@ export {
   BaseFormGroupInputPassword                as FormGroupSecret,
   BaseFormGroupInput                        as FormGroupSecretKey,
   BaseFormGroupToggleDisabledEnabled        as FormGroupSendEmailConfirmation,
-  BaseFormGroupServerAddressPort            as FormGroupServerAddressPort,
-  BaseFormGroupInput                        as FormGroupServiceFqdn,
   BaseFormGroupInput                        as FormGroupServiceProviderEntityIdentifier,
   BaseFormGroupFileUpload                   as FormGroupServiceProviderCertPath,
   BaseFormGroupFileUpload                   as FormGroupServiceProviderKeyPath,
-  BaseFormGroupInput                        as FormGroupSharedSecret,
-  BaseFormGroupInput                        as FormGroupSharedSecretDirect,
   BaseFormGroupToggle                       as FormGroupShuffle,
   BaseFormGroupInput                        as FormGroupSite,
   BaseFormGroupIntervalUnit                 as FormGroupSmsActivationTimeout,
@@ -140,11 +125,8 @@ export {
   BaseFormGroupInput                        as FormGroupSponsorshipBcc,
   BaseFormGroupChosenOne                    as FormGroupStyle,
   BaseFormGroupInput                        as FormGroupTenantIdentifier,
-  BaseFormGroupInput                        as FormGroupTerminalGroupIdentifier,
-  BaseFormGroupInput                        as FormGroupTerminalIdentifier,
   BaseFormGroupToggle                       as FormGroupTestMode,
   BaseFormGroupInput                        as FormGroupTimeout,
-  BaseFormGroupInput                        as FormGroupTransactionKey,
   BaseFormGroupInput                        as FormGroupTwilioPhoneNumber,
   BaseFormGroupToggle                       as FormGroupUseConnector,
   BaseFormGroupInputNumber                  as FormGroupUserGroupsCache,
